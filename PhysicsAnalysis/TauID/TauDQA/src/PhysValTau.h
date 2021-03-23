@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef TAUDQA_PHYSVALTAU_H
 #define TAUDQA_PHYSVALTAU_H
@@ -26,14 +26,12 @@
 class PhysValTau
   : public ManagedMonitorToolBase
 { 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
+
+public: 
   /// Constructor with parameters: 
   PhysValTau( const std::string& type,
-		  const std::string& name, 
-		  const IInterface* parent );
+	      const std::string& name, 
+	      const IInterface* parent );
 
   // Athena algtool's Hooks
   virtual StatusCode initialize();
@@ -41,34 +39,30 @@ class PhysValTau
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
+
+private: 
   // Containers
-  //std::string m_TruthParticleContainerName; 
   std::string m_TauJetContainerName; 
-  std::string m_TauDetailsContainerName; 
   std::string m_TruthParticleContainerName; 
 
   bool m_isMC;           //!< Are we running over MC data?
     
-   //Variable Definitions
+  //Variable Definitions
     
-    /*keeps track of matched tau jets*/    
-    std::vector<size_t> m_matched_itr;
+  /*keeps track of matched tau jets*/    
+  std::vector<size_t> m_matched_itr;
 
-   // Tool used for truth-matching
-   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_truthTool;
-   // Tool used to select "primitive" and "nominal" taus
-   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_primTauSel;
-   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_nomiTauSel;
+  // Tool used for truth-matching
+  ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_truthTool;
+  // Tool used to select "primitive" and "nominal" taus
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_primTauSel;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_nomiTauSel;
 
   //Histograms
   // general tau all prongs plots
   std::unique_ptr<TauValidationPlots> m_oTauValidationPlots;
   // TauValidationPlots m_oTauValidationPlots;
-    bool matchTrueAndRecoTau     (const xAOD::TauJetContainer *&taus, const xAOD::TruthParticle* trueTau, const xAOD::TauJet* &matchedRecoTau );
+  bool matchTrueAndRecoTau (const xAOD::TauJetContainer *&taus, const xAOD::TruthParticle* trueTau, const xAOD::TauJet* &matchedRecoTau );
   
 }; 
 

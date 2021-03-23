@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_NEWCOREPLOTS_H
@@ -14,7 +14,7 @@ class NewCorePlots: public PlotBase {
   public:
     NewCorePlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
     virtual ~NewCorePlots();
-    void fill(const xAOD::TauJet& tau);
+    void fill(const xAOD::TauJet& tau, float weight);
 
     TH1*  m_ipZ0SinThetaSigLeadTrk;
     TH1*  m_etOverPtLeadTrk;
@@ -38,7 +38,6 @@ class NewCorePlots: public PlotBase {
     TH1*  m_lead2ClusterEOverAllClusterE;
     TH1*  m_lead3ClusterEOverAllClusterE;
     TH1*  m_caloIso;
-    TH1*  m_caloIsoCorrected;
     TH1*  m_mEflowTopo;
     TH1*  m_ptRatioEflowTopo;
     TH1*  m_nPi0Topo;

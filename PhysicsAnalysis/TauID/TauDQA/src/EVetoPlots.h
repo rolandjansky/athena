@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_EVETOPLOTS_H
@@ -14,7 +14,7 @@ class EVetoPlots: public PlotBase {
   public:
     EVetoPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
     virtual ~EVetoPlots();
-    void fill(const xAOD::TauJet& tau);
+    void fill(const xAOD::TauJet& tau, float weight);
 
     TH1* m_HadRadius;	 
     TH1* m_EMRadius;	 

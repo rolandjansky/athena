@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_PARAMPLOTS_H
@@ -14,14 +14,14 @@ class ParamPlots:public PlotBase {
    public:      
       ParamPlots(PlotBase *pParent, std::string sDir, std::string sParticleType);
       ~ParamPlots();
-      void fill(const xAOD::IParticle& prt);
+      void fill(const xAOD::IParticle& prt, float weight);
       
       TH1* eta;
       TH1* phi;
       TH1* pt;
       
-      TH1* eta_phi;
-      TH1* eta_pt;
+      TH2* eta_phi;
+      TH2* eta_pt;
       
    private:
       void initializePlots();

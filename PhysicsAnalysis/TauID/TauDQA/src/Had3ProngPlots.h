@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_HAD3PRONGPLOTS_H
@@ -15,7 +15,7 @@ class Had3ProngPlots: public PlotBase {
     Had3ProngPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
     virtual ~Had3ProngPlots();
 
-    void fill(const xAOD::TauJet& tau);
+    void fill(const xAOD::TauJet& tau, float weight);
 
     Tau::GeneralTauPlots m_oGeneralTauPlots;
     TH1* m_tauCoreFrac;
