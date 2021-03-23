@@ -5,6 +5,8 @@ atlas_subdir( TrigConfIO )
 
 # External dependencies:
 find_package( Boost )
+find_package( Oracle )     # Oracle client libraries for DB access
+find_package( cx_Oracle )  # Oracle python client
 find_package( nlohmann_json )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
