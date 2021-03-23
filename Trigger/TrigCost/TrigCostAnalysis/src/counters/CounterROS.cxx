@@ -35,13 +35,23 @@ StatusCode CounterROS::newEvent(const CostData& data, size_t index, const float 
     m_robIdsPerROS = data.rosToRobMap().at(getName());
   }
 
+  // Set lables of status histogram
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(1, "Unclassified"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(2, "Retrieved"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(3, "HLT Cached"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(4, "DCM Cached"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(5, "Ignored"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(6, "Disabled"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(7, "IsNotOK"));
+
   // Find all ROB requests that are both in request and correspond to this ROS
   bool networkRequestIncremented = false;
   for (size_t i = 0; i < robIdsPerRequest.size(); ++i) {
     if (std::find(m_robIdsPerROS.begin(), m_robIdsPerROS.end(), robIdsPerRequest[i]) != m_robIdsPerROS.end()) {
       ATH_CHECK( fill("ROBStatus_perCall", getROBHistoryBin(robs_history[i]), weight) );
-      if (robs_status[i]) {
-        // The last bin of ROBStatus_perCall histogram store isStatusOk bool value
+      // Status is ok when no status words are set
+      if (robs_status[i] != 0) {
+        // The last bin of ROBStatus_perCall histogram store isStatusNotOk bool value
         ATH_CHECK( fill("ROBStatus_perCall", robmonitor::NUM_ROBHIST_CODES, weight) );
       }
 
