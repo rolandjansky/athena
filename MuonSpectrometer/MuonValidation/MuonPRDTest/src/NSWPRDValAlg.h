@@ -9,6 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "EDM_object.h"
 
 #include <vector>
@@ -19,6 +20,7 @@ class RPCSimHitVariables;
 class RpcDigitVariables;
 class CSCSimHitVariables;
 class TGCSimHitVariables;
+class TGCRDOVariables;
 class MMDigitVariables;
 class MMSimHitVariables;
 class MMSDOVariables;
@@ -75,17 +77,21 @@ class NSWPRDValAlg:public AthAlgorithm
   RpcDigitVariables*      m_RPCDigitVar;
   CSCSimHitVariables*     m_CSCSimHitVar;
   TGCSimHitVariables*     m_TGCSimHitVar;
+  TGCRDOVariables*        m_TgcRdoVar;
 
   ITHistSvc *m_thistSvc;
   TTree *m_tree;
 
   // MuonDetectorManager from the Detector Store (to be used only at initialize)
   const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
+  const ITGCcablingSvc* m_tgcCabling;
 
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};
+      
+  Gaudi::Property<bool> m_retrieveTgcCabling{this,"RetrieveTgcCabling",false};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
@@ -109,6 +115,7 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doRPCDigit;         // switch on the output of the RPC digitization 
   BooleanProperty  m_doCSCHit;
   BooleanProperty  m_doTGCHit;
+  BooleanProperty  m_doTGCRDO;
 
   unsigned int m_runNumber;
   unsigned int m_eventNumber;
@@ -132,6 +139,7 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_RPC_DigitContainerName;
   std::string m_CSC_SimContainerName;
   std::string m_TGC_SimContainerName;
+  std::string m_TGC_RDOContainerName;
 
   // Matching algorithm
   BooleanProperty m_doNSWMatching;

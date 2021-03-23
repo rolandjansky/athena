@@ -15,6 +15,7 @@
 #include "RPCSimHitVariables.h"
 #include "CSCSimHitVariables.h"
 #include "TGCSimHitVariables.h"
+#include "TGCRDOVariables.h"
 #include "MMSDOVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
@@ -43,6 +44,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "TGCcablingInterface/ITGCcablingServerSvc.h"
+
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -67,6 +70,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_RPCDigitVar(nullptr),
     m_CSCSimHitVar(nullptr),
     m_TGCSimHitVar(nullptr),
+    m_TgcRdoVar(nullptr),
     m_thistSvc(nullptr),
     m_tree(nullptr),
     m_runNumber(0),
@@ -92,6 +96,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("RPC_DigitContainerName",         m_RPC_DigitContainerName="RPC_DIGITS");
   declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
   declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
+  declareProperty("TGC_RDOContainerName",           m_TGC_RDOContainerName="TGCRDO");
 
   // Input properties: do EDM objects
   declareProperty("isData",          m_isData=false);
@@ -114,6 +119,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doRPCDigit",      m_doRPCDigit=false);
   declareProperty("doCSCHit",        m_doCSCHit=false);
   declareProperty("doTGCHit",        m_doTGCHit=false);
+  declareProperty("doTGCRDO",        m_doTGCRDO=false);
 
   // Input properties: NSW Maching algorithm
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
@@ -275,6 +281,22 @@ StatusCode NSWPRDValAlg::initialize() {
                                              &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SimContainerName, msgLevel());
      ATH_CHECK( m_TGCSimHitVar->initializeVariables() );
   }
+
+  if (m_retrieveTgcCabling) {
+     const ITGCcablingServerSvc* TgcCabGet = nullptr;
+     ATH_CHECK(service("TGCcablingServerSvc", TgcCabGet, true));
+     ATH_CHECK(TgcCabGet->giveCabling(m_tgcCabling));
+  }
+
+  if (m_doTGCRDO) {
+
+    m_TgcRdoVar = new TGCRDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_RDOContainerName, msgLevel());
+    ATH_CHECK( m_TgcRdoVar->initializeVariables() );
+  }
+
+  if (m_retrieveTgcCabling) m_TgcRdoVar->setTgcCabling(m_tgcCabling);
+
   return StatusCode::SUCCESS;
 }
 
@@ -304,6 +326,7 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_RPCDigitVar) { delete m_RPCDigitVar; m_RPCDigitVar=0;}
   if (m_CSCSimHitVar) { delete m_CSCSimHitVar; m_CSCSimHitVar=0;}
   if (m_TGCSimHitVar) { delete m_TGCSimHitVar; m_TGCSimHitVar=0;}
+  if (m_TgcRdoVar) { delete m_TgcRdoVar; m_TgcRdoVar=0;}
 
   return StatusCode::SUCCESS;
 }
@@ -372,6 +395,8 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
 
   if (m_doTGCHit) ATH_CHECK( m_TGCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCRDO) ATH_CHECK( m_TgcRdoVar->fillVariables(muonDetMgr) );
 
   m_tree->Fill();
 
