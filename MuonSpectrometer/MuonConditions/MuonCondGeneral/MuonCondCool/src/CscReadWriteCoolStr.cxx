@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscReadWriteCoolStr.cxx - simple example of algorithm demonstrating 
@@ -7,7 +7,7 @@
 // author lampen@physics.arizona.edu
 // Update: Apr 10, 2007. No longer reads - Caleb Parnell-Lampen <lampen@physics.arizona.edu>
 
-#include "CscReadWriteCoolStr.h"
+#include "MuonCondCool/CscReadWriteCoolStr.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "MuonCondData/CscCondParType.h"

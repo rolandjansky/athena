@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #include "MuonCondTool/MDT_DCSConditionsTool.h"
 #include "MuonCondTool/MDT_DCSConditionsRun2Tool.h"
 #include "MuonCondTool/RpcDetectorStatusDbTool.h"
