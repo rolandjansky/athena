@@ -68,7 +68,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
   declareProperty("longDiff",m_longDiff=0.019); //mm/mm
   declareProperty("transDiff",m_transDiff=0.036); //mm/mm
   declareProperty("ionUncertainty",m_ionUncertainty=4.0); //ns
-  declareProperty("timeOffset", m_timeOffset = -100); //ns                       
+  declareProperty("peakTime", m_peakTime = 200); //ns                       
   declareProperty("MuonIdHelperTool", m_idHelperTool);
   declareProperty("GasMixture", m_gasMixture = "ArCo2_937");
 }
@@ -168,7 +168,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
   detEl->stripGlobalPosition(rdoId,globalPos);
 
   calibStrip.charge = mmRawData->charge();
-  calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
+  calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight - m_peakTime;
   calibStrip.identifier = mmRawData->identify();
 
   calibStrip.distDrift = m_vDrift * calibStrip.time;
@@ -189,7 +189,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::STGC_RawData* sTGCRawD
   detEl->stripGlobalPosition(rdoId,globalPos);
 
   calibStrip.charge =sTGCRawData->charge();
-  calibStrip.time = sTGCRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
+  calibStrip.time = sTGCRawData->time() - globalPos.norm() * reciprocalSpeedOfLight - m_peakTime;
   calibStrip.identifier = sTGCRawData->identify();
 
   return StatusCode::SUCCESS;
