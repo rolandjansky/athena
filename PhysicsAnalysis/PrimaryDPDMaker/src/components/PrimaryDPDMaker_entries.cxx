@@ -1,4 +1,4 @@
-#include "../PrimaryDPDPrescaler.h"
+#include "PrimaryDPDMaker/PrimaryDPDPrescaler.h"
 #include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
 #include "PrimaryDPDMaker/CaloTimeFilterTool.h"
 #include "PrimaryDPDMaker/BCIDFilterTool.h"

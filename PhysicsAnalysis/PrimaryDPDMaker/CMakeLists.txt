@@ -11,8 +11,8 @@ atlas_add_library( PrimaryDPDMakerLib
                    src/*.cxx
                    PUBLIC_HEADERS PrimaryDPDMaker
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps DerivationFrameworkInterfaces GaudiKernel MuonAnalysisInterfacesLib StoreGateLib TrkToolInterfaces TrkTrack
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils EventKernel LArRecEvent NavFourMom TileEvent TileIdentifier xAODEventInfo xAODMuon xAODTracking )
+                   LINK_LIBRARIES AthenaBaseComps DerivationFrameworkInterfaces GaudiKernel MuonAnalysisInterfacesLib StoreGateLib TrkToolInterfaces TrkTrack AsgTools LArRecEvent TileEvent 
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils EventKernel NavFourMom TileIdentifier xAODEventInfo xAODMuon xAODTracking )
 
 atlas_add_component( PrimaryDPDMaker
                      src/components/*.cxx

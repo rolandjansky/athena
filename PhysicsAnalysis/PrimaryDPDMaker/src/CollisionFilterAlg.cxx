@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,28 +9,12 @@
 
 
 CollisionFilterAlg::CollisionFilterAlg(const std::string& name, ISvcLocator* pSvcLocator) 
- : AthFilterAlgorithm(name, pSvcLocator)
+ : AthReentrantAlgorithm(name, pSvcLocator)
  , m_calofilter("CaloTimeFilterTool")
- , m_mbtsfilter("MBTSTimeFilterTool")
- , m_counter(0)
- , m_caloaccept(0)
- , m_mbtsaccept(0)
- , m_overlap(0)
- , m_doCaloTimeFilter(true)
- , m_doMBTSTimeFilter(true)
-{
-  declareProperty( "CounterPrescale",    m_prescale = 1000 );
+ , m_mbtsfilter("MBTSTimeFilterTool"){
   declareProperty( "CaloTimeFilterTool", m_calofilter, "The instance of the CaloTimeFilterTool" );
-  declareProperty( "DoCaloTimeFilter",   m_doCaloTimeFilter = true );
   declareProperty( "MBTSTimeFilterTool", m_mbtsfilter, "The instance of the MBTSTimeFilterTool" );
-  declareProperty( "DoMBTSTimeFilter",   m_doMBTSTimeFilter = true );
 }
-
-
-CollisionFilterAlg::~CollisionFilterAlg()
-{ 
-} 
-
 
 StatusCode CollisionFilterAlg::initialize() 
 {
@@ -38,30 +22,14 @@ StatusCode CollisionFilterAlg::initialize()
 
   /// Retrieve the CaloTimeFilter tool using the ToolHandles
   if (m_doCaloTimeFilter) {
-    if ( m_calofilter.retrieve().isFailure() ) {
-      ATH_MSG_FATAL
-        (m_calofilter.propertyName() << ": Failed to retrieve tool "
-         << m_calofilter.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG
-        (m_calofilter.propertyName() << ": Retrieved tool " 
-         << m_calofilter.type());
-    }
+    ATH_CHECK(m_calofilter.retrieve());
+    ATH_CHECK(m_LArTimeKey.initialize());
   }
 
   /// Retrieve the mbts timefilter tool using the ToolHandles
   if (m_doMBTSTimeFilter) {
-    if ( m_mbtsfilter.retrieve().isFailure() ) {
-      ATH_MSG_FATAL
-        (m_mbtsfilter.propertyName() << ": Failed to retrieve tool "
-         << m_mbtsfilter.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG
-        (m_mbtsfilter.propertyName() << ": Retrieved tool " 
-         << m_mbtsfilter.type());
-    }
+    ATH_CHECK(m_mbtsfilter.retrieve());
+    ATH_CHECK(m_MBTS_key.initialize());
   }
 
   ATH_MSG_DEBUG ("initialize() successful");
@@ -71,7 +39,7 @@ StatusCode CollisionFilterAlg::initialize()
 
 
 StatusCode 
-CollisionFilterAlg::execute() 
+CollisionFilterAlg::execute(const EventContext& ctx) const 
 {
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -79,23 +47,24 @@ CollisionFilterAlg::execute()
 
   if (m_counter % m_prescale == 0)
     ATH_MSG_DEBUG ("Now processing event : " << m_counter);
-  m_counter++ ;
+  ++m_counter;
 
   //////////////////////////////////////////////
 
-  bool pass(false), passCalo(false), passMBTS(false);
-  double timeDiff(999.), timeA(0.), timeC(0.);
-  int countA(0), countC(0);
-
+  bool pass(false);
+  
+  TimingFilterInformation MBTS;
+  TimingFilterInformation Calo;
+ 
   //////////////////////////////////////////////  
 
   if (m_doCaloTimeFilter) {
-    sc = m_calofilter->getTimeDifference(passCalo,timeDiff,timeA,timeC,countA,countC);
+    sc = m_calofilter->getTimeDifference(Calo, m_LArTimeKey, ctx);
     if ( sc.isFailure() ) {
       ATH_MSG_WARNING (m_calofilter.propertyName() << ": Failed to execute tool " << m_calofilter.type());
       return StatusCode::SUCCESS;
     }
-    if (passCalo) {
+    if (Calo.passCut) {
       ATH_MSG_DEBUG ("Event accepted by CaloTimeFilter.");
       ++m_caloaccept;
     } else 
@@ -105,12 +74,12 @@ CollisionFilterAlg::execute()
   //////////////////////////////////////////////  
 
   if (m_doMBTSTimeFilter) {
-    sc = m_mbtsfilter->getTimeDifference(passMBTS,timeDiff,timeA,timeC,countA,countC);
+    sc = m_mbtsfilter->getTimeDifference(MBTS, m_MBTS_key,ctx);
     if ( sc.isFailure() ) {
       ATH_MSG_WARNING (m_mbtsfilter.propertyName() << ": Failed to execute tool " << m_mbtsfilter.type());
       return StatusCode::SUCCESS;
     }
-    if (passMBTS) { 
+    if (MBTS.passCut) { 
       ATH_MSG_DEBUG ("Event accepted by MBTSTimeFilter.");
       ++m_mbtsaccept;
     } else
@@ -119,15 +88,15 @@ CollisionFilterAlg::execute()
 
   //////////////////////////////////////////////  
 
-  if (m_doCaloTimeFilter) pass = pass || passCalo; 
-  if (m_doMBTSTimeFilter) pass = pass || passMBTS;
+  if (m_doCaloTimeFilter) pass = pass || Calo.passCut; 
+  if (m_doMBTSTimeFilter) pass = pass || MBTS.passCut;
   if (m_doMBTSTimeFilter || m_doCaloTimeFilter) {
     ATH_MSG_DEBUG ("Event accepted as collision ? " << pass);
-    this->setFilterPassed (pass); // This skips the execution of following algs for this event
+    setFilterPassed (pass,ctx); // This skips the execution of following algs for this event
   }
 
   if (m_doCaloTimeFilter && m_doMBTSTimeFilter)
-    if (passCalo && passMBTS) ++m_overlap;
+    if (Calo.passCut && MBTS.passCut) ++m_overlap;
 
   //////////////////////////////////////////////  
 

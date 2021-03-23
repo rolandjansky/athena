@@ -74,16 +74,13 @@ StatusCode MBTSTimeFillerTool::book()
  */
 StatusCode MBTSTimeFillerTool::fill ()
 {
-  bool passCut;
-  double timeDiff;
-  double timeA;
-  double timeC;
-  CHECK( m_timetool->getTimeDifference (passCut, timeDiff, timeA, timeC,
-                                        *m_countA, *m_countC) );
-  *m_timeDiff = timeDiff;
-  *m_timeA = timeA;
-  *m_timeC = timeC;
-
+  TimingFilterInformation time_info;
+  CHECK( m_timetool->getTimeDifference (time_info) );
+  *m_timeDiff = time_info.timeDiff;
+  *m_timeA  = time_info.timeA;
+  *m_timeC  = time_info.timeC;
+  *m_countA = time_info.ncellA;
+  *m_countC = time_info.ncellC;
   return StatusCode::SUCCESS;
 }
 
