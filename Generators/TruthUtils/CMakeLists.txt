@@ -30,3 +30,6 @@ atlas_add_library( TruthUtils
    PUBLIC_HEADERS TruthUtils
    INCLUDE_DIRS ${extra_includes}
    LINK_LIBRARIES ${extra_libs} )
+
+# Install files from the package:
+atlas_install_runtime( share/*.txt )
