@@ -114,6 +114,15 @@ def TgcRoadDefinerCfg( flags, roisKey ):
 
     return acc, TgcRoadDefiner
 
+def ClusterRoadDefinerCfg(flags):
+
+    acc = ComponentAccumulator()
+    TrigL2MuonSA__ClusterRoadDefiner = CompFactory.getComp("TrigL2MuonSA::ClusterRoadDefiner")
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    ClusterRoadDefiner = TrigL2MuonSA__ClusterRoadDefiner()
+    ClusterRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
+    return acc, ClusterRoadDefiner
+
 # Based on TrigL2MuonSAConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
 def muFastSteeringCfg( flags, roisKey, setup="" ):
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
@@ -161,6 +170,10 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     tgcRDAcc, TgcRoadDefiner = TgcRoadDefinerCfg( flags, roisKey )
     acc.merge( tgcRDAcc )
 
+    #Get Cluster Road Definer
+    clusRDAcc, ClusterRoadDefiner = ClusterRoadDefinerCfg(flags)
+    acc.merge(clusRDAcc)
+
     # Set MuFast data preparator
     TrigL2MuonSA__MuFastDataPreparator=CompFactory.getComp("TrigL2MuonSA::MuFastDataPreparator")
     MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator( CSCDataPreparator = CscDataPreparator,
@@ -170,7 +183,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                                STGCDataPreparator = StgcDataPreparator,
                                                                MMDataPreparator = MmDataPreparator,
                                                                RpcRoadDefiner = RpcRoadDefiner,
-                                                               TgcRoadDefiner = TgcRoadDefiner )
+                                                               TgcRoadDefiner = TgcRoadDefiner,
+                                                               ClusterRoadDefiner = ClusterRoadDefiner )
 
     # Setup the station fitter
     TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA::MuFastStationFitter","TrigL2MuonSA::PtFromAlphaBeta")
@@ -180,7 +194,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
         PtFromAlphaBeta.AvoidMisalignedCSCs = True
     else:
         PtFromAlphaBeta.useCscPt = True
-        PtFromAlphaBeta.AvoidMisalignedCSCs = True
+        PtFromAlphaBeta.AvoidMisalignedCSCs = False
 
     MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
     TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker=CompFactory.getComps("TrigL2MuonSA::MuFastPatternFinder","TrigL2MuonSA::MuFastTrackFitter","TrigL2MuonSA::MuFastTrackExtrapolator","TrigL2MuonSA::MuCalStreamerTool","TrigL2MuonSA::CscSegmentMaker")
@@ -207,6 +221,9 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                 USE_ROIBASEDACCESS_CSC = True,
                                 RpcErrToDebugStream    = True,
                                 Timing                 = False,
+                                topoRoad=True,
+                                dEtasurrRoI = 0.14,
+                                dPhisurrRoI = 0.14,
                                 MonTool                = None )
                                 #MonTool                = TrigL2MuonSAMonitoring() )
 
