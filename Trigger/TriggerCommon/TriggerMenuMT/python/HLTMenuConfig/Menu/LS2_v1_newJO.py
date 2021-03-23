@@ -80,7 +80,7 @@ def setupMenu():
     ]
 
     chains["tau"] = [
-        ChainProp(name='HLT_tau0_perf_ptonly_L1TAU12', groups=SingleTauGroup),
+        ChainProp(name='HLT_tau0_perf_ptonly_L1TAU8', groups=SingleTauGroup),
     ]
     chains["met"] = [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),

@@ -197,7 +197,7 @@ def generateChains():
         step2PT=makeChainStep("Step2PT_tau", [getTauSequence('precision')])    
   
         tauChains  = [
-            makeChain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
+            makeChain(name='HLT_tau0_perf_ptonly_L1TAU8',              L1Thresholds=["TAU8"], ChainSteps=[step1, step2] ),
             makeChain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
             makeChain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT])
         ]

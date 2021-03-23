@@ -505,9 +505,9 @@ def setupMenu():
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         #ATR-20049
-        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU60", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_idperf_ptonly_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_ptonly_L1TAU8", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_ptonly_L1TAU60", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_ptonly_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_idperf_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_idperf_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
@@ -536,9 +536,7 @@ def setupMenu():
         ChainProp(name="HLT_tau25_medium1_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_medium1_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_idperf_ptonly_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_ptonly_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_idperf_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_idperf_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
@@ -558,14 +556,13 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_idperf_ptonly_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwoEF_L1TAU100", groups=SingleTauGroup),
@@ -583,9 +580,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_medium1_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_medium1_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_mediumRNN_ptonly_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoEF_L1TAU100", groups=SingleTauGroup),
@@ -594,8 +589,6 @@ def setupMenu():
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_medium1_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_medium1_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
 
         # ATR-21797
         # the following 3 chains were in serial mode in Run-2
