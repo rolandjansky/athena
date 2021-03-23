@@ -149,13 +149,26 @@ HepMC::GenVertexPtr
 GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 				 const GenVertex_p1& persVtx,
 				 ParticlesMap_t& partToEndVtx,
-                                 HepMC::DataPool& datapools) const
+                                 HepMC::DataPool& datapools, HepMC::GenEvent* parent) const
 {
   HepMC::GenVertexPtr vtx = datapools.getGenVertex();
+  if (parent) parent->add_vertex(vtx);
 #ifdef HEPMC3
   vtx->set_position( HepMC::FourVector(persVtx.m_x,persVtx.m_y,persVtx.m_z,persVtx.m_t) );
   vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(persVtx.m_weights));
   vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
+  
+  // handle the in-going (orphans) particles
+  const unsigned int nPartsIn = persVtx.m_particlesIn.size();
+  for ( unsigned int i = 0; i != nPartsIn; ++i ) {
+     createGenParticle( persEvt.m_particles[persVtx.m_particlesIn[i]], partToEndVtx, datapools);
+  }
+  // now handle the out-going particles
+  const unsigned int nPartsOut = persVtx.m_particlesOut.size();
+  for ( unsigned int i = 0; i != nPartsOut; ++i ) {
+   createGenParticle( persEvt.m_particles[persVtx.m_particlesOut[i]], partToEndVtx,datapools, vtx);
+  }
+
 #else
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
@@ -167,7 +180,7 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
   vtx->m_weights = persVtx.m_weights;
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
-#endif
+
   
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
@@ -184,17 +197,17 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 					       partToEndVtx,
                                                datapools) );
   }
-
+#endif
   return vtx;
 }
 
 HepMC::GenParticlePtr 
 GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
 				   ParticlesMap_t& partToEndVtx,
-                                   HepMC::DataPool& datapools) const
+                                   HepMC::DataPool& datapools, HepMC::GenVertexPtr parent) const
 {
   HepMC::GenParticlePtr p = datapools.getGenParticle();
-
+  if (parent) parent->add_particle_out(p);
 #ifdef HEPMC3
   p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,persPart.m_ene));
   p->set_pdg_id(persPart.m_pdgId);
@@ -228,8 +241,7 @@ GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
   // fillin' the flow
   const unsigned int nFlow = persPart.m_flow.size();
   for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow ) {
-    p->m_flow.set_icode( persPart.m_flow[iFlow].first, 
-			 persPart.m_flow[iFlow].second );
+    p->m_flow.set_icode( persPart.m_flow[iFlow].first,  persPart.m_flow[iFlow].second );
   }
 #endif
 
