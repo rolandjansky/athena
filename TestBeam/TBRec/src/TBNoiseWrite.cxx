@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class TBNoiseWrite // Write ROOT Tree with noise in randomly triggered 
@@ -136,9 +136,7 @@ StatusCode TBNoiseWrite::execute()
   ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellContainerName) );
 
   // Cell loop
-  CaloCellContainer::const_iterator itc = cellContainer->begin();
-  for (;itc!=cellContainer->end(); itc++) {
-    const CaloCell* cell = (*itc);
+  for (const CaloCell* cell : *cellContainer) {
     unsigned int id = cell->ID().get_identifier32().get_compact();
     m_cell_id->push_back(id);
     m_cell_energy->push_back((float)cell->energy());

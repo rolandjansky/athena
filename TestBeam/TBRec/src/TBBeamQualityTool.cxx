@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -38,9 +38,9 @@ StatusCode TBBeamQualityTool::initializeTool()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TBBeamQualityTool::reject(std::vector<std::string> m_particles)
+StatusCode TBBeamQualityTool::reject(const std::vector<std::string>& particles)
 {
-  return this->accept(m_particles).isFailure()
+  return this->accept(particles).isFailure()
     ? StatusCode::SUCCESS
     : StatusCode::FAILURE;
 }

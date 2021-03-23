@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBPatternUnitStreamerToolH8.h"
@@ -9,10 +9,10 @@
 
 
 TBPatternUnitStreamerToolH8::TBPatternUnitStreamerToolH8(
-						     const std::string& name,
 						     const std::string& type,
+						     const std::string& name,
 						     const IInterface* parent)
-  : TBEventStreamerTool(name,type,parent)
+  : TBEventStreamerTool(type,name,parent)
     , m_patternUnitKey("TBTrigPat")
     , m_acceptPattern()
     , m_rejectPattern()
@@ -194,12 +194,10 @@ StatusCode TBPatternUnitStreamerToolH8::findPattern(const pattern_store&
   MsgStream report(msgSvc(),name());
 
   // build pattern
-  pattern_store::const_iterator firstPattern = listOfPatterns.begin();
-  pattern_store::const_iterator lastPattern  = listOfPatterns.end();
-  for ( ; firstPattern != lastPattern; firstPattern++ )
+  for (const pattern& pat : listOfPatterns)
     {
       bit_mask_store::const_iterator findIter = 
-	definedPattern.find(*firstPattern);
+	definedPattern.find(pat);
       if ( findIter != definedPattern.end() )
 	{
 	  theMask = theMask | (*findIter).second;
@@ -208,7 +206,7 @@ StatusCode TBPatternUnitStreamerToolH8::findPattern(const pattern_store&
 	{
 	  report << MSG::WARNING
 		 << "requested pattern <"
-		 << *firstPattern
+		 << pat
 		 << "> unknown, ignore..."
 		 << endmsg;
 	}

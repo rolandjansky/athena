@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -30,9 +30,9 @@ class TBBeamQualityEMFractionTool : public TBBeamQualityTool
   
   virtual ~TBBeamQualityEMFractionTool();
   
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
   
-  virtual StatusCode accept(std::vector<std::string>);
+  virtual StatusCode accept(const std::vector<std::string>&) override;
   
  protected:
   

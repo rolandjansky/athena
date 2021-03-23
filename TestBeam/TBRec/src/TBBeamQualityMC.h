@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBBEAMQUALITYMC_H
@@ -13,11 +13,11 @@ class TBBeamQualityMC : public AthAlgorithm
  public:
   TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLocator);
 
-  ~TBBeamQualityMC() {};
+  virtual ~TBBeamQualityMC() {};
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   /** Get Xcryo and Ytable from a text file */

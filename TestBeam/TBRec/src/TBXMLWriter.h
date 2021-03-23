@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBXMLWRITER_H
@@ -36,9 +36,9 @@ class TBXMLWriter : public AthAlgorithm
   // Algorithm Methods //
   ///////////////////////
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
   // tool support
   const std::string&  getFileDir() const { return m_topDirectory; }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNTAA_TBADCRaw.h"
@@ -49,10 +49,7 @@ StatusCode CBNTAA_TBADCRaw::CBNT_execute()
       m_adc->resize(nADC);
 
       unsigned NtupleVectorIndex = 0;
-      TBADCRawCont::const_iterator it_adc = adcCont->begin();
-      TBADCRawCont::const_iterator last_adc = adcCont->end();
-      for(;it_adc!=last_adc;it_adc++,NtupleVectorIndex++) {
-        const TBADCRaw * adc = (*it_adc);
+      for (const TBADCRaw* adc : *adcCont) {
         (*m_adc)[NtupleVectorIndex] = adc->getADC();
       }
     }
@@ -74,7 +71,7 @@ StatusCode CBNTAA_TBADCRaw::CBNT_finalize()
   return StatusCode::SUCCESS;
 }
 
-std::string CBNTAA_TBADCRaw::add_name(const char* base, const std::string extension) {
+std::string CBNTAA_TBADCRaw::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

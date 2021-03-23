@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBPartIDCherenkovMuTag.h"
@@ -38,24 +38,22 @@ StatusCode TBPartIDCherenkovMuTag::execute() {
     return StatusCode::SUCCESS;
   }
   TBIdentifiedParticle* myParticle = new TBIdentifiedParticle();
-  TBScintillatorCont::const_iterator it   = scintCont->begin();
-  TBScintillatorCont::const_iterator it_e = scintCont->end();
   //The following loop is broken as soon as the muon tag is found above the threshold
-  //Hence this can overwrite a preceeding electron/pion judgement by the chrenkov. 
-  for(;it!=it_e;it++) {
-    if((*it)->getDetectorName()==m_muonTagName) {
-      if ((*it)->getSignal()>m_muonADCcut) {
+  //Hence this can overwrite a preceeding electron/pion judgement by the chrenkov.
+  for (const TBScintillator* scint : *scintCont) {
+    if(scint->getDetectorName()==m_muonTagName) {
+      if (scint->getSignal()>m_muonADCcut) {
 	myParticle->setParticle(TBIdentifiedParticle::MUON);
-	ATH_MSG_DEBUG (" MuonTag=" << (*it)->getSignal() );
+	ATH_MSG_DEBUG (" MuonTag=" << scint->getSignal() );
 	break;
       }
     }
-    if ((*it)->getDetectorName()==m_CherenkovName) {
-      if((*it)->getSignal()>m_cherenkovADCcut)
+    if (scint->getDetectorName()==m_CherenkovName) {
+      if(scint->getSignal()>m_cherenkovADCcut)
 	myParticle->setParticle(TBIdentifiedParticle::ELECTRON);
       else 
 	myParticle->setParticle(TBIdentifiedParticle::PION);
-      ATH_MSG_DEBUG (" Cherenkov=" << (*it)->getSignal() );
+      ATH_MSG_DEBUG (" Cherenkov=" << scint->getSignal() );
     }
   }
     

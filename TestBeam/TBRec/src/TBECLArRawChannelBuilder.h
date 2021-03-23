@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBECLARRAWCHANNELBUILDER_H
@@ -31,9 +31,9 @@ class TBECLArRawChannelBuilder : public AthAlgorithm
 {
 public:
   TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
   //Services & Tools 

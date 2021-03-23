@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNTAA_TBTDCRaw.h"
@@ -55,10 +55,7 @@ StatusCode CBNTAA_TBTDCRaw::CBNT_execute()
       m_underThreshold->resize(nTDC);
 
       unsigned NtupleVectorIndex = 0;
-      TBTDCRawCont::const_iterator it_tdc = tdcCont->begin();
-      TBTDCRawCont::const_iterator last_tdc = tdcCont->end();
-      for(;it_tdc!=last_tdc;it_tdc++,NtupleVectorIndex++) {
-        const TBTDCRaw * tdc = (*it_tdc);
+      for (const TBTDCRaw* tdc : *tdcCont) {
         (*m_tdc)[NtupleVectorIndex] = tdc->getTDC();
         (*m_underThreshold)[NtupleVectorIndex] = tdc->isUnderThreshold();
       }
@@ -83,7 +80,7 @@ StatusCode CBNTAA_TBTDCRaw::CBNT_finalize()
   return StatusCode::SUCCESS;
 }
 
-std::string CBNTAA_TBTDCRaw::add_name(const char* base, const std::string extension) {
+std::string CBNTAA_TBTDCRaw::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

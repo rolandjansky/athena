@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -29,13 +29,11 @@ class TBBeamQualityTrackingTool : public TBBeamQualityTool
   
   virtual ~TBBeamQualityTrackingTool();
   
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
   
-  virtual StatusCode accept(std::vector<std::string>);
+  virtual StatusCode accept(const std::vector<std::string>&) override;
   
  protected:
-  
-  StoreGateSvc* m_StoreGate;
   
   // Keys
   std::string m_SGTrigkey;

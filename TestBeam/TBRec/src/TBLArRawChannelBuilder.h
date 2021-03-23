@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBLARRAWCHANNELBUILDER_H
@@ -29,9 +29,9 @@ class TBLArRawChannelBuilder : public AthAlgorithm
 public:
 
   TBLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
   //Services & Tools 
@@ -57,9 +57,6 @@ private:
   float m_ADCtoMeVEMECOuter[2];
   float m_ADCtoMeVEMB[2];
   
-  //Private Member functions:
-  //void sortChannels(LArRawChannelContainer* container) ;
-
   unsigned int m_iPedestal;
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBDMContainerSplitter.h"
@@ -61,13 +61,11 @@ StatusCode TBDMContainerSplitter::execute()
   CaloCalibrationHitContainer* outDMContLeak = new CaloCalibrationHitContainer();
 
   // Loop over original, and fill two new ones
-  CaloCalibrationHitContainer::const_iterator chIter  = inDMCont->begin();
-  CaloCalibrationHitContainer::const_iterator chIterE = inDMCont->end();
-  for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+  for (const CaloCalibrationHit* hit : *inDMCont) {
+      Identifier myId = hit->cellID();
       CaloDmDescrElement* myCDDE(0);
       myCDDE = m_caloDmDescrManager->get_element(myId);
-      CaloCalibrationHit *chit = new CaloCalibrationHit(myId, (*chIter)->energyEM(), (*chIter)->energyNonEM(), (*chIter)->energyInvisible(), (*chIter)->energyEscaped());
+      CaloCalibrationHit *chit = new CaloCalibrationHit(myId, hit->energyEM(), hit->energyNonEM(), hit->energyInvisible(), hit->energyEscaped());
       if ( myCDDE ) {
           if(myCDDE->eta()>2.5 && myCDDE->phi() > M_PI/2 && myCDDE->phi() < M_PI){ // Calo hit
              outDMContCalo->push_back(chit);
