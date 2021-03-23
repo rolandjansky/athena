@@ -49,7 +49,7 @@ StatusCode TauCalibrateLC::initialize() {
   std::string key = "etaBinning";
   TH1* histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
   if (histo) {
-    histo->SetDirectory(0);
+    histo->SetDirectory(nullptr);
     m_etaBinHist = std::unique_ptr<TH1>(histo);
   }
   else {
@@ -83,7 +83,7 @@ StatusCode TauCalibrateLC::initialize() {
   for (int i = 0; i < s_nProngBins; i++) {
     histo = dynamic_cast<TH1*>(file->Get(tmpSlopKey[i]));  // get pile-up slope histograms
     if (histo) {
-      histo->SetDirectory(0);
+      histo->SetDirectory(nullptr);
       m_slopeNPVHist[i] = std::unique_ptr<TH1>(histo);
     }
     else {
@@ -148,7 +148,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& tau) const
       return StatusCode::FAILURE;
     }
     const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
-    for (const auto vertex : *vxContainer) {
+    for (const auto *const vertex : *vxContainer) {
       if (vertex->vertexType() == xAOD::VxType::PileUp) {
 	++nVertex;
       }
@@ -203,7 +203,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& tau) const
   tau.setP4(xAOD::TauJetParameters::TauEnergyScale, tau.pt(), tau.eta(), tau.phi(), tau.m());
   ATH_MSG_DEBUG("Energy at LC scale = " << energyLC << " pile-up offset " << offset << " calib. const. = " << calibConst << " final energy = " << energyFinal);
      
-  if (m_isCaloOnly == true && inTrigger()) {
+  if (m_isCaloOnly && inTrigger()) {
     tau.setP4(xAOD::TauJetParameters::TrigCaloOnly, tau.pt(), tau.eta(), tau.phi(), tau.m());
   }
 

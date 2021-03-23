@@ -44,7 +44,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     // Calculate variables for selected tracks
     bool success = true;
     double value;
-    for (const auto trk : tracks) {
+    for (const auto *const trk : tracks) {
         success = success && func(tau, *trk, value);
         out.push_back(value);
     }

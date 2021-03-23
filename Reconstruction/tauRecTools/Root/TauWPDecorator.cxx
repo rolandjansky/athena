@@ -85,7 +85,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
       ATH_MSG_ERROR("Failed to retrieve Graph " << i << " named " << Form("h2_%02d", i));
       return StatusCode::FAILURE;  
     }
-    graph->SetDirectory(0);       
+    graph->SetDirectory(nullptr);       
     std::shared_ptr<TH2> sharedGraph(graph);
     histArray->push_back(m_pair_t(float(i)/100., std::move(sharedGraph)));
   }

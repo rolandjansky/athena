@@ -10,7 +10,7 @@
 
 
 
-TauCombinedTES::TauCombinedTES(const std::string& name) : 
+TauCombinedTES::TauCombinedTES(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("addCalibrationResultVariables", m_addCalibrationResultVariables = false);
   declareProperty("WeightFileName", m_calFileName = "");
@@ -19,7 +19,7 @@ TauCombinedTES::TauCombinedTES(const std::string& name) :
 
 
 StatusCode TauCombinedTES::initialize() {
-  // It would be better to retrieve the function from calibration file 
+  // It would be better to retrieve the function from calibration file
   m_nSigmaCompatibility=std::make_unique<TF1>("nSigmaCompatibility", "pol1", 0, 500000);
   m_nSigmaCompatibility->SetParameter(0, 3.809); // derived from fit
   m_nSigmaCompatibility->SetParameter(1, -9.58/1000000.); // derived from fit
@@ -34,7 +34,7 @@ StatusCode TauCombinedTES::initialize() {
     histName="CorrelationCoeff_tauRec_" + m_decayModeNames[decayModeIndex];
     hist = dynamic_cast<TH1F*> (calFile->Get(histName.c_str()));
     if(hist){
-      hist->SetDirectory(0);
+      hist->SetDirectory(nullptr);
       m_correlationHists[decayModeIndex] = std::unique_ptr<TH1F>(hist);
       ATH_MSG_DEBUG("Adding corr hist: " << histName);
     }
@@ -43,25 +43,25 @@ StatusCode TauCombinedTES::initialize() {
       return StatusCode::FAILURE;
     }
   }
-  
+
   // 2D array with (eta, decay mode) as index
   TGraph* graph = nullptr;
   std::string graphName="";
   for (size_t decayModeIndex = 0; decayModeIndex < DecayModeBinning; ++decayModeIndex) {
     for (size_t etaIndex = 0; etaIndex < EtaBinning; ++etaIndex) {
-      // Calo TES: relative bias 
+      // Calo TES: relative bias
       graphName = "tauRec/Graph_from_MeanEt_tauRec_" + m_decayModeNames[decayModeIndex] + "_" + m_etaBinNames[etaIndex];
       graph = dynamic_cast<TGraph*> (calFile->Get(graphName.c_str()));
       if(graph) {
         m_caloRelBiasMaxEt[decayModeIndex][etaIndex] = TMath::MaxElement(graph->GetN(), graph->GetX());
         m_caloRelBias[decayModeIndex][etaIndex] = std::unique_ptr<TGraph>(graph);
         ATH_MSG_DEBUG("Adding graph: " << graphName);
-      } 
+      }
       else {
        	ATH_MSG_FATAL("Failed to get an object with name " << graphName);
        	return StatusCode::FAILURE;
       }
-      
+
       // Calo TES: resolution
       graphName = "tauRec/Graph_from_ResolutionEt_tauRec_" + m_decayModeNames[decayModeIndex] + "_" + m_etaBinNames[etaIndex];
       graph = dynamic_cast<TGraph*> (calFile->Get(graphName.c_str()));
@@ -69,20 +69,20 @@ StatusCode TauCombinedTES::initialize() {
         m_caloResMaxEt[decayModeIndex][etaIndex] = TMath::MaxElement(graph->GetN(), graph->GetX());
         m_caloRes[decayModeIndex][etaIndex] = std::unique_ptr<TGraph>(graph);
         ATH_MSG_DEBUG("Adding graph: " << graphName);
-      } 
+      }
       else {
        	ATH_MSG_FATAL("Failed to get an object with name " << graphName);
         return StatusCode::FAILURE;
       }
-     
-      // PanTau: relative bias 
+
+      // PanTau: relative bias
       graphName = "ConstituentEt/Graph_from_MeanEt_ConstituentEt_" + m_decayModeNames[decayModeIndex] + "_" + m_etaBinNames[etaIndex];
       graph = dynamic_cast<TGraph*> (calFile->Get(graphName.c_str()));
       if(graph){
         m_panTauRelBiasMaxEt[decayModeIndex][etaIndex] = TMath::MaxElement(graph->GetN(), graph->GetX());
         m_panTauRelBias[decayModeIndex][etaIndex] = std::unique_ptr<TGraph>(graph);
         ATH_MSG_DEBUG("Adding graph: " << graphName);
-      } 
+      }
       else {
        	ATH_MSG_FATAL("Failed to get an object with name " << graphName);
        	return StatusCode::FAILURE;
@@ -95,7 +95,7 @@ StatusCode TauCombinedTES::initialize() {
         m_panTauResMaxEt[decayModeIndex][etaIndex] = TMath::MaxElement(graph->GetN(), graph->GetX());
         m_panTauRes[decayModeIndex][etaIndex] = std::unique_ptr<TGraph>(graph);
         ATH_MSG_DEBUG("Adding graph: " << graphName);
-      } 
+      }
       else {
         ATH_MSG_FATAL("Failed to get an object with name " << graphName);
        	return StatusCode::FAILURE;
@@ -111,7 +111,7 @@ StatusCode TauCombinedTES::initialize() {
 
 StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
   TLorentzVector combinedP4(tau.p4(xAOD::TauJetParameters::TauEnergyScale));
-  
+
   // used to store immediate results
   Variables variables;
 
@@ -120,32 +120,31 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
   if(isValid(tau)) {
     combinedP4 = getCombinedP4(tau, variables);
   }
-  
-  static const SG::AuxElement::Decorator<float> decPtCombined("ptCombined");
-  static const SG::AuxElement::Decorator<float> decEtaCombined("etaCombined");
-  static const SG::AuxElement::Decorator<float> decPhiCombined("phiCombined");
-  static const SG::AuxElement::Decorator<float> decMCombined("mCombined");
+
+  static const SG::AuxElement::Accessor<float> decPtCombined("ptCombined");
+  static const SG::AuxElement::Accessor<float> decEtaCombined("etaCombined");
+  static const SG::AuxElement::Accessor<float> decPhiCombined("phiCombined");
+  static const SG::AuxElement::Accessor<float> decMCombined("mCombined");
 
   decPtCombined(tau) = combinedP4.Pt();
   decEtaCombined(tau) = combinedP4.Eta();
   decPhiCombined(tau) = combinedP4.Phi();
-  decMCombined(tau) = combinedP4.M();  
+  decMCombined(tau) = combinedP4.M();
 
   if (m_addCalibrationResultVariables){
-    static const SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
-    static const SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
-    static const SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
-    static const SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
-    //static const SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
-    static const SG::AuxElement::Decorator<float> decSigmaCompatibility("sigma_compatibility");
-    static const SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
-    static const SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
-    static const SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
-    
+    static const SG::AuxElement::Accessor<float> decPtConstituent("pt_constituent");
+    static const SG::AuxElement::Accessor<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
+    static const SG::AuxElement::Accessor<float> decPtWeighted("pt_weighted");
+    static const SG::AuxElement::Accessor<float> decWeightWeighted("weight_weighted");
+    static const SG::AuxElement::Accessor<float> decSigmaCompatibility("sigma_compatibility");
+    static const SG::AuxElement::Accessor<float> decSigmaTaurec("sigma_tauRec");
+    static const SG::AuxElement::Accessor<float> decSigmaConstituent("sigma_constituent");
+    static const SG::AuxElement::Accessor<float> decCorrelationCoefficient("correlation_coefficient");
+
     decPtConstituent(tau) = variables.pt_constituent;
     decPtTauRecCalibrated(tau) = variables.pt_tauRecCalibrated;
     decPtWeighted(tau) = variables.pt_weighted;
-    decWeightWeighted(tau) = variables.weight; 
+    decWeightWeighted(tau) = variables.weight;
     //decSigmaCombined(tau) = variables.sigma_combined;
     decSigmaCompatibility(tau) = variables.sigma_compatibility;
     decSigmaTaurec(tau) = variables.sigma_tauRec;
@@ -160,22 +159,22 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
 
 bool TauCombinedTES::getUseCaloPtFlag(const xAOD::TauJet& tau) const {
   if (! isValid(tau)) return true;
-  
-  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);  
+
+  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   int decayModeIndex = getDecayModeIndex(decayMode);
 
   int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
-  
+
   double caloSigma = tau.ptTauEnergyScale() * getCaloResolution(tau.ptTauEnergyScale(), decayModeIndex, etaIndex);
   double deltaEt = tau.ptFinalCalib() - tau.ptTauEnergyScale();
-  
+
   bool useCaloPt = false;
-  
+
   // FIXME: should we use combinedSigma here ??
   if (std::abs(deltaEt) > 5 * caloSigma) {
     useCaloPt = true;
   }
-  
+
   return useCaloPt;
 }
 
@@ -206,16 +205,16 @@ int TauCombinedTES::getEtaIndex(const float& eta) const {
 
 xAOD::TauJetParameters::DecayMode TauCombinedTES::getDecayMode(const xAOD::TauJet& tau) const{
   int decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
-  
+
   // When PanTau fails, the decay mode will be set to 1p0n !
   int isPanTauCandidate;
   tau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
   if (isPanTauCandidate) {
     tau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, decayMode);
   }
- 
+
   return static_cast<xAOD::TauJetParameters::DecayMode>(decayMode);
-} 
+}
 
 
 
@@ -226,13 +225,13 @@ int TauCombinedTES::getDecayModeIndex(const xAOD::TauJetParameters::DecayMode& d
 
 
 bool TauCombinedTES::isValid(const xAOD::TauJet& tau) const {
-  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau); 
+  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   if (decayMode < xAOD::TauJetParameters::Mode_1p0n || decayMode > xAOD::TauJetParameters::Mode_3pXn) {
     ATH_MSG_DEBUG("Decay mode is not supported !");
     return false;
   }
 
-  int etaIndex = getEtaIndex(tau.etaTauEnergyScale()); 
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
   if (etaIndex > 4) {
     ATH_MSG_DEBUG("Eta is out of the supported range !");
     return false;
@@ -245,7 +244,7 @@ bool TauCombinedTES::isValid(const xAOD::TauJet& tau) const {
 
 double TauCombinedTES::getCorrelation(const int& decayModeIndex, const int& etaIndex) const {
   return m_correlationHists[decayModeIndex]->GetBinContent(etaIndex);
-} 
+}
 
 
 
@@ -254,13 +253,13 @@ double TauCombinedTES::getCaloCalEt(const double& caloEt,
 				    const int& etaIndex) const {
   // ratio stored in the calibration graph equals (caloEt-truthEt)/caloEt
   double ratio = 0.0;
-  
-  // FIXME: If caloEt is larger then max et, could we use the ratio at 
+
+  // FIXME: If caloEt is larger then max et, could we use the ratio at
   // max et, instead of setting it to zero
   if (caloEt <= m_caloRelBiasMaxEt[decayModeIndex][etaIndex]) {
     ratio = m_caloRelBias[decayModeIndex][etaIndex]->Eval(caloEt);
   }
-  
+
   double caloCalEt = caloEt - ratio * caloEt;
 
   return caloCalEt;
@@ -273,8 +272,8 @@ double TauCombinedTES::getPanTauCalEt(const double& panTauEt,
 				      const int& etaIndex) const {
   // ratio stored in the calibration graph equals (panTauEt-truthEt)/panTauEt
   double ratio = 0.0;
- 
-  // Substructure is bad determined at high pt, as track momentum is pooryly measured 
+
+  // Substructure is bad determined at high pt, as track momentum is pooryly measured
   if (panTauEt <= m_panTauRelBiasMaxEt[decayModeIndex][etaIndex]) {
     ratio = m_panTauRelBias[decayModeIndex][etaIndex]->Eval(panTauEt);
   }
@@ -289,12 +288,12 @@ double TauCombinedTES::getPanTauCalEt(const double& panTauEt,
 double TauCombinedTES::getCaloResolution(const xAOD::TauJet& tau) const {
   // Assume the resolution to be 100% when no calibraction is available
   if (! isValid(tau)) return 1.0;
-  
-  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);  
+
+  xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   int decayModeIndex = getDecayModeIndex(decayMode);
 
   int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
-  
+
   return getCaloResolution(tau.ptTauEnergyScale(), etaIndex, decayModeIndex);
 }
 
@@ -303,7 +302,7 @@ double TauCombinedTES::getCaloResolution(const xAOD::TauJet& tau) const {
 double TauCombinedTES::getCaloResolution(const double& et, const int& decayModeIndex, const int& etaIndex) const {
   double x = std::min(et, m_caloResMaxEt[decayModeIndex][etaIndex]);
   double resolution = m_caloRes[decayModeIndex][etaIndex]->Eval(x);
- 
+
   return resolution;
 }
 
@@ -312,7 +311,7 @@ double TauCombinedTES::getCaloResolution(const double& et, const int& decayModeI
 double TauCombinedTES::getPanTauResolution(const double& et, const int& decayModeIndex, const int& etaIndex) const {
   double x = std::min(et, m_panTauResMaxEt[decayModeIndex][etaIndex]);
   double resolution = m_panTauRes[decayModeIndex][etaIndex]->Eval(x);
- 
+
   return resolution;
 }
 
@@ -334,9 +333,9 @@ double TauCombinedTES::getCombinedSigma(const double& caloSigma,
 					const double& panTauSigma,
 					const double& correlation) const {
   double numerator = std::pow(caloSigma, 2) * std::pow(panTauSigma, 2) * (1 - std::pow(correlation, 2));
-  double denominator = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) 
+  double denominator = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2)
                        - 2 * correlation * caloSigma * panTauSigma;
-  
+
   return std::sqrt(numerator/denominator);
 }
 
@@ -346,7 +345,7 @@ double TauCombinedTES::getCompatibilitySigma(const double& caloSigma,
 					     const double& panTauSigma,
 					     const double& correlation) const {
   double compatibilitySigma2 = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) - 2 * correlation * caloSigma * panTauSigma;
-  
+
   return std::sqrt(compatibilitySigma2);
 }
 
@@ -354,7 +353,7 @@ double TauCombinedTES::getCompatibilitySigma(const double& caloSigma,
 
 double TauCombinedTES::getNsigmaCompatibility(const double& et) const {
   double nsigma = m_nSigmaCompatibility->Eval(et);
-  
+
   if (nsigma < 0.) return 0.;
 
   return nsigma;
@@ -370,7 +369,7 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   // Obtain the index of calibration graph
   int decayModeIndex = getDecayModeIndex(decayMode);
   int etaIndex = getEtaIndex(eta);
-  
+
   // Obtain the calibration parameter based on the index
   // -- Correlation between calo TES and PanTau
   double correlation = getCorrelation(decayModeIndex, etaIndex);
@@ -382,7 +381,7 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
     m_caloRes[decayModeIndex][etaIndex]->Print("all");
     return 0.;
   }
-  
+
   // -- Sigma of the difference between reconstruted et and truth et at PanTau
   double panTauSigma = panTauEt * getPanTauResolution(panTauEt, decayModeIndex, etaIndex);
   if (0. == panTauSigma) {
@@ -390,25 +389,25 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
     m_panTauRes[decayModeIndex][etaIndex]->Print("all");
     return 0.;
   }
- 
+
   // -- Et at calo TES with bias corrected
-  double caloCalEt = getCaloCalEt(caloEt, decayModeIndex, etaIndex); 
-  
+  double caloCalEt = getCaloCalEt(caloEt, decayModeIndex, etaIndex);
+
   // -- Et at PanTau with bias corrected
   double panTauCalEt = getPanTauCalEt(panTauEt, decayModeIndex, etaIndex);
- 
+
   // Combination of calo TES and PanTau
   // FIXME: A more consistent way would be calculating the weight use bias corrected Et as input
   double weight = getWeight(caloSigma, panTauSigma, correlation);
   double weightedEt = weight * caloCalEt + (1 - weight) * panTauCalEt;
   double compatibilitySigma = getCompatibilitySigma(caloSigma, panTauSigma, correlation);
   //double combinedSigma = getCombinedSigma(caloSigma, panTauSigma, correlation);
-  
+
   // FIXME: weighteEt will be updated in case the difference of calo TES and PanTau is too large
   variables.pt_weighted = weightedEt;
-  
+
   // If the difference of calo TES and PanTau is too large, the combined result
-  // may not be reliable 
+  // may not be reliable
   // FIXME: A more consistent way would be calculating the NsigmaCompatibility use caloCalEt
   double deltaEt = caloCalEt - panTauCalEt;
   if (std::abs(deltaEt) > getNsigmaCompatibility(caloEt) * compatibilitySigma) {
@@ -426,11 +425,11 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   variables.sigma_compatibility = compatibilitySigma;
   //variables.sigma_combined = combinedSigma;
 
-  ATH_MSG_DEBUG("Intermediate results\n" << 
-                "coff: " << correlation << " sigma(calo): " << caloSigma << " sigma(constituent): " << panTauSigma << 
-                "\ncalibrated et(calo): " << caloCalEt << " calibrated et(constituent): " << panTauCalEt << 
+  ATH_MSG_DEBUG("Intermediate results\n" <<
+                "coff: " << correlation << " sigma(calo): " << caloSigma << " sigma(constituent): " << panTauSigma <<
+                "\ncalibrated et(calo): " << caloCalEt << " calibrated et(constituent): " << panTauCalEt <<
                 "\nweight:" << weight << " combined et: " << weightedEt << " compatibility sigma: " << compatibilitySigma);
-  
+
   return weightedEt;
 }
 
@@ -439,21 +438,21 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
 TLorentzVector TauCombinedTES::getCombinedP4(const xAOD::TauJet& tau, Variables& variables) const {
   TLorentzVector caloP4 = tau.p4(xAOD::TauJetParameters::TauEnergyScale);
   TLorentzVector panTauP4 = tau.p4(xAOD::TauJetParameters::PanTauCellBased);
-  
-  ATH_MSG_DEBUG("Four momentum at calo TES, pt: " << caloP4.Pt() << " eta: " << caloP4.Eta() << 
+
+  ATH_MSG_DEBUG("Four momentum at calo TES, pt: " << caloP4.Pt() << " eta: " << caloP4.Eta() <<
                 " phi: " << caloP4.Phi() << " mass: " << caloP4.M());
-  ATH_MSG_DEBUG("Four momentum at PanTau, pt: " << panTauP4.Pt() << " eta: " << panTauP4.Eta() << 
+  ATH_MSG_DEBUG("Four momentum at PanTau, pt: " << panTauP4.Pt() << " eta: " << panTauP4.Eta() <<
                 " phi: " << panTauP4.Phi() << " mass: " << panTauP4.M());
 
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
-  
+
   double combinedEt = getCombinedEt(caloP4.Et(), panTauP4.Et(), decayMode, caloP4.Eta(), variables);
 
-  // Et is the combination of calo TES and PanTau, but eta and phi is from PanTau 
+  // Et is the combination of calo TES and PanTau, but eta and phi is from PanTau
   TLorentzVector combinedP4;
   combinedP4.SetPtEtaPhiM(combinedEt, panTauP4.Eta(), panTauP4.Phi(), 0.);
-  
-  ATH_MSG_DEBUG("Combined four momentum, pt: " << combinedP4.Pt() << " eta: " << combinedP4.Eta() << 
+
+  ATH_MSG_DEBUG("Combined four momentum, pt: " << combinedP4.Pt() << " eta: " << combinedP4.Eta() <<
                 " phi: " << combinedP4.Phi() << " mass: " << combinedP4.M());
 
   return combinedP4;

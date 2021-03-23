@@ -36,8 +36,10 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     const auto& vertexedClusterList = pTau.vertexedClusters();
 
     std::vector<TLorentzVector> clusterP4Vector;
+    clusterP4Vector.reserve(vertexedClusterList.size());
+
     for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
-      clusterP4Vector.push_back(vertexedCluster.p4());
+         clusterP4Vector.push_back(vertexedCluster.p4());
     }
 
     this->m_numConstit = (int) clusterP4Vector.size();

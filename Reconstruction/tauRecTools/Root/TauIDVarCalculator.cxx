@@ -132,7 +132,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const {
     // Get hottest shot in dR<0.1 and in 0.05 x 0.1 window
     float etHotShotDR1 = 0.;
     float etHotShotWin = 0.;
-    for( auto shotLink : tau.shotPFOLinks() ){
+    for( const auto& shotLink : tau.shotPFOLinks() ){
         if( not shotLink.isValid() ){
             ATH_MSG_WARNING("Invalid shotLink");
             continue;

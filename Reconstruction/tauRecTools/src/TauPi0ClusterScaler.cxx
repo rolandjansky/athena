@@ -104,7 +104,7 @@ void TauPi0ClusterScaler::correctNeutralPFOs(xAOD::TauJet& tau, xAOD::PFOContain
 
 
 void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& tau, xAOD::PFOContainer& chargedPFOContainer) const {
-  for (auto tauTrackLink : tau.tauTrackLinks(xAOD::TauJetParameters::classifiedCharged)) {
+  for (const auto& tauTrackLink : tau.tauTrackLinks(xAOD::TauJetParameters::classifiedCharged)) {
     if (not tauTrackLink.isValid()) {
       ATH_MSG_WARNING("Invalid tauTrackLink");
       continue;
@@ -168,7 +168,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD
  
   // For each hadronic PFO, associate it to the cloest charged PFO. It assumes that one hadronic PFO comes from at 
   // most one charged PFO.
-  for (auto hadPFOLink : tau.hadronicPFOLinks()) {
+  for (const auto& hadPFOLink : tau.hadronicPFOLinks()) {
     if (not hadPFOLink.isValid()) {
       ATH_MSG_WARNING("Invalid hadPFOLink");
       continue;
@@ -226,7 +226,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD
 
 void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
   std::map< xAOD::PFO*,std::vector< ElementLink< xAOD::IParticleContainer > > > linkMap;
-  for (auto chargedPFOLink : tau.protoChargedPFOLinks()) {
+  for (const auto& chargedPFOLink : tau.protoChargedPFOLinks()) {
     if (not chargedPFOLink.isValid()) {
       ATH_MSG_WARNING("Invalid protoChargedPFOLink");
       continue;
@@ -309,7 +309,7 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContaine
       
       std::vector<const xAOD::IParticle*> hadPFOs;
       chargedPFO->associatedParticles(xAOD::PFODetails::TauShot, hadPFOs);
-      for (auto hadPFO : hadPFOs) {
+      for (const auto *hadPFO : hadPFOs) {
           chargedEMEnergy -= hadPFO->e();
       }
 

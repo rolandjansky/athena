@@ -36,7 +36,7 @@ TauTrackRNNClassifier::~TauTrackRNNClassifier()
 //______________________________________________________________________________
 StatusCode TauTrackRNNClassifier::initialize()
 {
-  for (auto classifier : m_vClassifier){
+  for (const auto& classifier : m_vClassifier){
     ATH_MSG_INFO("Intialize TauTrackRNNClassifier tool : " << classifier );
     ATH_CHECK(classifier.retrieve());
   }
@@ -145,7 +145,7 @@ StatusCode TrackRNN::initialize()
 //______________________________________________________________________________
 StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau, bool skipTracks) const
 {
-  if(vTracks.size() == 0) {
+  if(vTracks.empty()) {
     return StatusCode::SUCCESS;
   }
 
