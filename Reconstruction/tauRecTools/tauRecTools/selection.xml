@@ -1,0 +1,22 @@
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <class name="TauCalibrateLC" />
+   <class name="TauCommonCalcVars" />
+   <class name="TauSubstructureVariables" />
+   <class name="TauRecToolBase" />
+   <class name="ITauToolBase" />
+   <class name="MvaTESVariableDecorator" />
+   <class name="MvaTESEvaluator" />
+   <class name="tauRecTools::TauTrackClassifier" />
+   <class name="tauRecTools::TrackMVABDT" />
+   <class name="tauRecTools::TrackRNN" />
+   <class name="tauRecTools::TauTrackRNNClassifier" />
+   <class name="TauCombinedTES" />
+   <class name="TauWPDecorator" />
+   <class name="TauJetBDTEvaluator" />
+   <class name="TauIDVarCalculator" />
+   <class name="TauJetRNNEvaluator" />
+   <class name="TauDecayModeNNClassifier" />
+
+</lcgdict>
