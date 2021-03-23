@@ -92,7 +92,7 @@ std::vector<TString> tauRecTools::parseString(const TString& str, const TString&
   std::vector<TString> parsed_strings;
   TObjArray* varList_ar = str.Tokenize(delim);
   for(int i = 0; i != varList_ar->GetEntries(); ++i){
-    if (auto tos = dynamic_cast<TObjString*> (varList_ar->At(i))) {
+    if (auto *tos = dynamic_cast<TObjString*> (varList_ar->At(i))) {
       TString var = tos->String();
       if(var.Length()==0) continue;
       parsed_strings.push_back(var);

@@ -63,7 +63,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& tau, xAOD::CaloCluster
   ATH_MSG_DEBUG("seedCells.size() = " << seedCells.size());
     
   // Construt shot by merging neighbour cells in phi direction 
-  while (seedCells.size()) {
+  while (!seedCells.empty()) {
     // Find the neighbour in phi direction, and choose the one with highest pt
     const CaloCell* cell = seedCells.front(); 
     const CaloCell* phiNeigCell = getPhiNeighbour(*cell, seedCells);
@@ -273,11 +273,7 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
   if (neigHashes.size() > 1) {
     ATH_MSG_DEBUG(cell1Hash << " has " << neigHashes.size()  <<  " neighbours in the previous phi direction !"); 
   }
-  if (std::find(neigHashes.begin(), neigHashes.end(), cell2Hash) != neigHashes.end()) {
-    return true;
-  }
-
-  return false;
+  return std::find(neigHashes.begin(), neigHashes.end(), cell2Hash) != neigHashes.end();
 }
 
 
@@ -301,7 +297,7 @@ const CaloCell* TauShotFinder::getPhiNeighbour(const CaloCell& seedCell,
 
   // Select the one with largest pt
   const CaloCell* phiNeigCell = nullptr;
-  if (neighCells.size() >= 1) {
+  if (!neighCells.empty()) {
     phiNeigCell = neighCells[0];
   } 
 

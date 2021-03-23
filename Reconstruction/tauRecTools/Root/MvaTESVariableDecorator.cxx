@@ -50,7 +50,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     }
     else {
       const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
-      for (auto xVertex : *vertexContainer){
+      for (const auto *xVertex : *vertexContainer){
         if (xVertex->vertexType() == xAOD::VxType::PileUp)
         ++nVtxPU;
       }

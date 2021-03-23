@@ -118,7 +118,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& tau) const {
 
   // determine energy sum of leading 2 and leading 3 clusters
   float sum2LeadClusterE = 0.;
-  if(vertexedClusterList.size()>0) {
+  if(!vertexedClusterList.empty()) {
     sum2LeadClusterE = vertexedClusterList.at(0).e();
     if(vertexedClusterList.size()>1) sum2LeadClusterE += vertexedClusterList.at(1).e();
   }

@@ -270,7 +270,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   static const SG::AuxElement::Decorator<float> dec_d0SigTJVA("d0SigTJVA");
   static const SG::AuxElement::Decorator<float> dec_z0sinthetaSigTJVA("z0sinthetaSigTJVA");
 
-  for(auto track : pTau.allTracks()) {      
+  for(auto *track : pTau.allTracks()) {      
     dec_d0TJVA(*track) = track->track()->d0();
     dec_z0sinthetaTJVA(*track) = track->z0sinThetaTJVA(pTau);
     dec_d0SigTJVA(*track) = -999.;
@@ -473,7 +473,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
   float MAX=1e5;
 
   // need at least one core track to have a leading trk to compare with
-  if (tauTracks.size()<1) return;
+  if (tauTracks.empty()) return;
 
   // get lead trk parameters
   const xAOD::TrackParticle *leadTrack = tauTracks.at(0);
