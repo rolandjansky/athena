@@ -1,46 +1,14 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import copy
 import sys
-import subprocess
 from re import match
 from time import ctime
-try:
-    Set = set
-except NameError:
-    from sets import Set
 
 from PyCool import cool
-
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
-from TrigConfStorage.CompL1Menu import CompareL1XML
-from TrigConfStorage.CompHLTMenu import CompareHLTXML
-
 class TriggerCoolUtil:
-
-    @staticmethod
-    def diffL1Menu(xml1fn,xml2fn, **args):
-        verbose=False
-        if 'verbose' in args:
-            verbose=args['verbose']
-        if verbose:
-            print ("CompareL1XML([%s, %s], verbose=True)" % (xml1fn,xml2fn))
-        comparer = CompareL1XML([xml1fn, xml2fn], verbose=verbose)
-        comparer.diff()
-
-    @staticmethod
-    def diffHLTMenu(xml1fn, xml2fn, **args):
-        verbose=False
-        if 'verbose' in args:
-            verbose=args['verbose']
-        if verbose:
-            print ("CompareHLTXML([%s, %s], verbose=True)" % (xml1fn,xml2fn))
-        comparer = CompareHLTXML([xml1fn, xml2fn], verbose=verbose)
-        comparer.diff()
 
     @staticmethod
     def MergeRanges(listOfRanges):
@@ -183,7 +151,7 @@ class TriggerCoolUtil:
 
     @staticmethod
     def merge(l1, hlt):
-        split = list(Set([b[1] for b in l1] + [b[1] for b in hlt]))
+        split = list(set([b[1] for b in l1] + [b[1] for b in hlt]))
         split.sort()
         c = []
         print ("merging:", split)
@@ -203,8 +171,8 @@ class TriggerCoolUtil:
 
     @staticmethod
     def combinedKeys(l1keys, hltkeys):
-        runs = Set(l1keys.keys())
-        runs.update( Set(hltkeys.keys()) )
+        runs = set(l1keys.keys())
+        runs.update( set(hltkeys.keys()) )
         comb={}
         for r in runs:
             if r in l1keys:  l1  = l1keys[r]['LVL1PSK']
@@ -346,19 +314,3 @@ class TriggerCoolUtil:
                 streams.add(streamname)
         for s in sorted(list(streams)):
             print (s)
-
-    @staticmethod
-    def writeXMLFiles(keys, verbosity):
-        base = "%i_%i_%i" % (keys['SMK'],keys['HLTPSK'],keys['LVL1PSK'][0][0])
-        cmd  = "TrigConf2XMLApp --trigdb TRIGGERDB"
-        cmd += " --outputfile %s" % base
-        cmd += " --configkey %i --prescalekeyhlt %i --prescalekeylvl1 %i" % (keys['SMK'],keys['HLTPSK'],keys['LVL1PSK'][0][0])
-        if verbosity>0: print (cmd)
-        FNULL = open('/dev/null', 'w')
-        returncode = subprocess.call(cmd.split(),stdout=FNULL)
-        if returncode==0:
-            print ("Wrote files L1Menu_%s.xml and HLTMenu_%s.xml" % (base,base))
-            return ( "L1Menu_%s.xml" % base, "HLTMenu_%s.xml" % base )
-        else:
-            return ( None, None )
-

@@ -1,11 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-try:
-    Set = set
-except NameError:
-    from sets import Set
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
 import sys
 
@@ -22,23 +16,23 @@ class AtlCoolTriggerTool:
 
     def check_options(self):
         opt = self.opt
-        if opt.l1 and not (opt.menu or opt.diff or opt.xml):
-            print ("Option l1 requires one of the options 'menu', 'xml', or 'diff' to be set")
+        if opt.l1 and not opt.menu:
+            print ("Option l1 requires option 'menu' to be set")
             return False
             
-        if opt.l2 and not (opt.menu or opt.diff or opt.xml):
-            print ("Option l2 requires one of the options 'menu', 'xml', or 'diff' to be set")
+        if opt.l2 and not opt.menu:
+            print ("Option l2 requires option 'menu' to be set")
             return False
                 
-        if opt.ef and not (opt.menu or opt.diff or opt.xml):
-            print ("Option ef requires one of the options 'menu', 'xml', or 'diff' to be set")
+        if opt.ef and not opt.menu:
+            print ("Option ef requires option 'menu' to be set")
             return False
 
         if opt.processing and opt.processing!='hlt':
             print ("Option p|processing must be set to 'hlt'")
             return False
 
-        if (opt.menu or opt.diff or opt.xml) and not (opt.l1 or opt.l2 or opt.ef):
+        if opt.menu and not (opt.l1 or opt.l2 or opt.ef):
             opt.l1 = opt.l2 = opt.ef = True
 
         return True
@@ -53,7 +47,7 @@ class AtlCoolTriggerTool:
         hltpskeys = TriggerCoolUtil.getHLTPrescaleKeys(self.dbconn, self.runlist)
         l1keys    = TriggerCoolUtil.getL1ConfigKeys(self.dbconn, self.runlist)
 
-        runs = list(Set(hltkeys.keys()+hltpskeys.keys()+l1keys.keys()))
+        runs = list(set(list(hltkeys)+list(hltpskeys)+list(l1keys)))
         runs.sort()
         runStartTimes = None
         if self.opt.time:
@@ -79,7 +73,7 @@ class AtlCoolTriggerTool:
 
     def printConfigKeys(self, runKeys):
         #t = string.Template('run $RUN ($STARTTIME) release %10')
-        runs = runKeys.keys()
+        runs = list(runKeys)
         runs.sort()
 
         for r in runs:
@@ -129,20 +123,6 @@ class AtlCoolTriggerTool:
         if self.opt.l2 or self.opt.ef:
             TriggerCoolUtil.printHLTMenu(self.dbconn, run, self.opt.verbosity, printL2=self.opt.l2, printEF=self.opt.ef)
 
-    def writeXML(self, keys):
-        if not self.opt.xml: return
-        TriggerCoolUtil.writeXMLFiles(keys, self.opt.verbosity)
-
-    def diffMenu(self, keys1, keys2):
-        if not self.opt.diff: return
-        from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
-        xml1 = TriggerCoolUtil.writeXMLFiles(keys1,self.opt.verbosity)
-        xml2 = TriggerCoolUtil.writeXMLFiles(keys2,self.opt.verbosity)
-        if self.opt.l1:
-            TriggerCoolUtil.diffL1Menu(xml1[0],xml2[0],verbose=self.opt.verbosity>0)
-        if self.opt.l2 or self.opt.ef:
-            TriggerCoolUtil.diffHLTMenu(xml1[1],xml2[1],verbose=self.opt.verbosity>0)
-
     def printStreams(self,run):
         if not self.opt.streams: return
         TriggerCoolUtil.printStreams(self.dbconn,run,self.opt.verbosity)
@@ -157,29 +137,15 @@ class AtlCoolTriggerTool:
             self.printConfigKeys(configKeys)
 
         self.opt.isSingleRun = len(runs)==1
-        self.opt.isTwoRuns   = len(runs)==2
 
         if self.opt.menu and not self.opt.isSingleRun:
             print ("Error: option 'menu' works only for single run")
-            sys.exit(0)
-
-        if self.opt.xml and not self.opt.isSingleRun:
-            print ("Error: option 'xml' works only for single run")
             sys.exit(0)
 
         if self.opt.streams and not self.opt.isSingleRun:
             print ("Error: option 'streams' works only for single run")
             sys.exit(0)
 
-        if self.opt.diff and not self.opt.isTwoRuns:
-            print ("Error: option 'diff' works only when two runs given")
-            sys.exit(0)
-
         if self.opt.isSingleRun:
             self.printMenu(runs[0])
-            self.writeXML(configKeys[runs[0]])
             self.printStreams(runs[0])
-
-        if self.opt.isTwoRuns:
-            self.diffMenu(configKeys[runs[0]],configKeys[runs[1]])
-            
