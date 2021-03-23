@@ -1536,69 +1536,6 @@ if not rec.oldFlagCompatibility:
 
 
 
-
-
-# -------------------------------------------------------------
-# TAG and TAGCOMM making+writing
-# -------------------------------------------------------------
-pdr.flag_domain('tag')
-if rec.doWriteTAGCOM():
-    logRecExCommon_topOptions.warning( "TAGCOM has been retired !! Please use doWriteTAG instead !!" )
-
-try:
-    if rec.doWriteTAG():
-        from RegistrationServices.RegistrationServicesConf import RegistrationStream
-
-
-        try:
-            from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-            TagTool = RegistrationStreamTagTool("TagTool")
-            StreamTAG = RegistrationStream("StreamTAG",
-                                        CollectionType="ExplicitROOT",
-                                       Tool=TagTool)
-            StreamTAG.ItemList += tagmetadatalist
-            logRecExCommon_topOptions.info( "StreamTAG set up the new way (with StreamTagTool" )
-        except Exception:
-            # if not new tag
-            StreamTAG = RegistrationStream("StreamTAG",
-                                           CollectionType="ExplicitROOT")
-            StreamTAG.ItemList += [ "AthenaAttributeList#SimpleTag" ]
-            logRecExCommon_topOptions.info( "StreamTAG set up the old way (with StreamTagTool" )
-
-        from AthenaCommon.AlgSequence import AthSequencer
-        regSequence = AthSequencer( "AthRegSeq" )
-        regSequence   += StreamTAG
-
-        TagStreamName="*"
-
-        # Default is that TAG will point at an output file
-        StreamTAG.WriteInputDataHeader = False
-        # ... unless nothing is written out
-        if (rec.readRDO() or rec.readESD()) and (not rec.doWriteESD() and not rec.doWriteAOD()):
-            StreamTAG.WriteInputDataHeader = True
-        elif rec.readAOD() and not rec.doWriteAOD():
-            StreamTAG.WriteInputDataHeader = True
-
-        # and then specify which output dataheader to take
-
-        if rec.doWriteAOD() and (rec.readRDO() or rec.readESD() or rec.readAOD()):
-            TagStreamName="StreamAOD"
-        elif not rec.readAOD() and (rec.readRDO() or rec.readESD()) and rec.doWriteESD():
-            TagStreamName="StreamESD"
-
-        logRecExCommon_topOptions.info( "TAG primary ref points to "+ TagStreamName)
-        StreamTAG.ItemList += [ "DataHeader#"+TagStreamName ]
-
-        pdr.flag_domain('output')
-        # Define the output file name
-        StreamTAG.OutputCollection = athenaCommonFlags.PoolTAGOutput()
-        logRecExCommon_topOptions.info("StreamTAG Itemlist dump:")
-        printfunc (StreamTAG.ItemList)
-
-except Exception:
-    treatException ("problem setting up TAG output")
-
-
 if rec.readAOD():
     from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
     ServiceMgr += AthenaEventLoopMgr()
