@@ -11,14 +11,13 @@ endif()
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO Matrix)
-find_package( Boost )
 
 atlas_add_library( IsolationCorrectionsLib
    IsolationCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS IsolationCorrections
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODEgamma xAODEventInfo xAODEventShape
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgDataHandlesLib AsgTools 
+   xAODEgamma xAODEventInfo xAODEventShape
    xAODPrimitives xAODTracking PATInterfaces PATCoreAcceptLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver ${extra_libs} )
 

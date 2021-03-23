@@ -20,6 +20,8 @@
 #include "PathResolver/PathResolver.h"
 
 #include <typeinfo>
+#include <utility>
+
 
 namespace{
 const float GeV(1000);
@@ -27,7 +29,7 @@ const float GeV(1000);
 
 namespace CP {
 
-  IsolationCorrection::IsolationCorrection(std::string name)
+  IsolationCorrection::IsolationCorrection(const std::string& name)
     : asg::AsgMessaging(name),
       m_tool_ver(REL21),
       m_nBinsEtaFine(10),
@@ -53,7 +55,7 @@ namespace CP {
     }
   }
 
-  void IsolationCorrection::SetCorrectionFile(std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file) {
+  void IsolationCorrection::SetCorrectionFile(const std::string& corr_file, const std::string& corr_ddshift_file, const std::string& corr_ddsmearing_file) {
     // the leakage parameterisation
     m_corr_file            = PathResolverFindCalibFile(corr_file);
     // the DD shifts (for photons)
@@ -76,11 +78,8 @@ namespace CP {
     m_tool_ver = ver;
   }
 
-  StatusCode IsolationCorrection::finalize() {
-    return StatusCode::SUCCESS;
-  }
 
-  float IsolationCorrection::GetPtCorrectedIsolation(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol){
+  float IsolationCorrection::GetPtCorrectedIsolation(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol) const{
     float corrected_isolation = input.isolationValue(isol) - GetPtCorrection(input, isol);
     return corrected_isolation;
 
@@ -186,7 +185,7 @@ namespace CP {
     if (!etaPointing.has_value()) return 0.;
 
     float radius = xAOD::Iso::coneSize(isol);
-    bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
+    bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone;
 
     if(is_topo){
     
@@ -227,9 +226,9 @@ namespace CP {
   }
 
   // I also include the DD from 2015 study because it is done in the same way as 2015-2016 or 2017
-StatusCode IsolationCorrection::setupDD(std::string year) {
+StatusCode IsolationCorrection::setupDD(const std::string& year) {
 
-  if (m_corr_ddshift_file == ""){
+  if (m_corr_ddshift_file.empty()){
     ATH_MSG_WARNING("IsolationCorrection::GetDDCorrection " << year << ", unknown correction file name.\nNo correction is applied.\n");
     return StatusCode::FAILURE;
   }
@@ -283,8 +282,8 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     m_feta_bins_dd->resize(veta->GetNrows());
     for (int ieta = 0; ieta < veta->GetNrows(); ieta++) m_feta_bins_dd->at(ieta) = (*veta)[ieta];
     TTree *tbinLabel = (TTree*)file_ptleakagecorr->Get(baseN+"tbinLabel");
-    TBranch *bbinLabel(0);
-    TString *binLabel(0); tbinLabel->SetBranchAddress("binLabel",&binLabel,&bbinLabel);
+    TBranch *bbinLabel(nullptr);
+    TString *binLabel(nullptr); tbinLabel->SetBranchAddress("binLabel",&binLabel,&bbinLabel);
     for (unsigned int ieta = 0; ieta < m_feta_bins_dd->size()-2; ieta++) {
       tbinLabel->GetEntry(ieta);
       TString gN = "topoETcone40_DataDriven_unconverted_photon_eta_";
@@ -314,7 +313,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
   return StatusCode::SUCCESS;
 }
 
-  float IsolationCorrection::GetDDCorrection(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol, std::string year) {
+  float IsolationCorrection::GetDDCorrection(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol, const std::string& year) {
 
     ATH_MSG_VERBOSE("Getting DD correction");
     if (setupDD(year) == StatusCode::FAILURE) {
@@ -488,7 +487,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
   }
 
   void IsolationCorrection::set2012Corr() {
-    if( m_corr_file != ""){
+    if( !m_corr_file.empty()){
       load2012Corr();
     }else{
       ATH_MSG_WARNING("Correction file for 2017 data/mc not specified, tool not initialized for 2017 corrections\n");
@@ -606,7 +605,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
   }
 
   void IsolationCorrection::set2015Corr() {
-    if( m_corr_file != ""){
+    if( !m_corr_file.empty()){
       load2015Corr();
     }else{
       ATH_MSG_WARNING("Correction file for 2015 data/mc not specified, tool not initialized for 2015 corrections\n");
@@ -771,7 +770,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
   }
 
   void IsolationCorrection::setDDCorr() {
-    if( m_corr_ddshift_file != "" && m_corr_ddsmearing_file != ""){
+    if( !m_corr_ddshift_file.empty() && !m_corr_ddsmearing_file.empty()){
       loadDDCorr();
     }else{
     	ATH_MSG_WARNING("Data-driven correction files not specified, tool not initialized for data-driven corrections\n");
@@ -857,11 +856,11 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(12)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
 	
-	  for (auto gr : graph_shift) {
+	  for (const auto& gr : graph_shift) {
         if (gr == nullptr)
 		  ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
       }
-      for (auto gr : graph_smearing) {
+      for (const auto& gr : graph_smearing) {
         if (gr == nullptr)
 		  ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
       }
@@ -948,13 +947,13 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
     }
 
-    if (m_graph_dd_2015_2016_cone40_unconv_photon_shift.size()) {
+    if (!m_graph_dd_2015_2016_cone40_unconv_photon_shift.empty()) {
       FreeClear(m_graph_dd_2015_2016_cone40_unconv_photon_shift);
       FreeClear(m_graph_dd_2015_2016_cone40_conv_photon_shift);
       FreeClear(m_graph_dd_2015_2016_cone20_unconv_photon_shift);
       FreeClear(m_graph_dd_2015_2016_cone20_conv_photon_shift);
     }
-    if (m_graph_dd_2017_cone40_unconv_photon_shift.size()) {
+    if (!m_graph_dd_2017_cone40_unconv_photon_shift.empty()) {
       FreeClear(m_graph_dd_2017_cone40_unconv_photon_shift);
       FreeClear(m_graph_dd_2017_cone40_conv_photon_shift);
       FreeClear(m_graph_dd_2017_cone20_unconv_photon_shift);
@@ -1259,7 +1258,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     double etaForPt = ((fabs(etaPointing - etaCluster) < 0.15) ? etaPointing : etaCluster);
     double et = (fabs(etaForPt)<99.) ? energy/cosh(etaForPt) : 0.;
     int etabin = GetEtaBinFine(etaS2);
-    if( m_corr_file == "" ){
+    if( m_corr_file.empty() ){
       ATH_MSG_WARNING("IsolationCorrection::GetPtCorrection_FromGraph: the file containing the isolation leakage corrections is not initialized.\nNo correction is applied.\n");
       return 0;
     }
@@ -1327,7 +1326,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     // for test
     if (m_forcePartType && parttype == PHOTON) conversion_type = conv_radius > 800 ? 0 : (conv_radius > 140 ? 1 : 2);
 
-    if( m_corr_file == "" ){
+    if( m_corr_file.empty() ){
       ATH_MSG_WARNING("In IsolationCorrection::GetPtCorrection_FromGraph_2015: the file containing the isolation leakage corrections is not initialized.\nNo correction is applied.\n");
       return 0;
     }
@@ -1403,7 +1402,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   void IsolationCorrection::Print() {
     ATH_MSG_INFO("Print properties of the parametrisation");
-    for (auto i : m_function_2015_cone20_photon_unconverted) {
+    for (auto *i : m_function_2015_cone20_photon_unconverted) {
       ATH_MSG_INFO("ptr = " << i);
       if (i) {
 	ATH_MSG_INFO(typeid(i).name());

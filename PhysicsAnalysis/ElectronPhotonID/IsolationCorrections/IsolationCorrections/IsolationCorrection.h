@@ -24,21 +24,20 @@ class IsolationCorrection : public asg::AsgMessaging{
   // Create a proper constructor for Athena
 
   public:
-    IsolationCorrection(std::string name);
+    IsolationCorrection(const std::string& name);
     ~IsolationCorrection();
 
     StatusCode initialize();
-    StatusCode finalize();
 
     typedef enum { ELECTRON=0, PHOTON=1 } ParticleType;
     typedef enum { REL17=1, REL17_2=2, REL20=6, REL20_2=7, REL21=8 } Version;
 
-    void SetCorrectionFile( std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file);
+    void SetCorrectionFile( const std::string& corr_file, const std::string& corr_ddshift_file, const std::string& corr_ddsmearing_file);
     void SetToolVer(CP::IsolationCorrection::Version);
 
-    float GetPtCorrectedIsolation(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
+    float GetPtCorrectedIsolation(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
     float GetPtCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
-    float GetDDCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType, std::string year);
+    float GetDDCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType, const std::string& year);
     float GetEtaPointing(const xAOD::Egamma*);
 
     void SetDataMC(bool is_mc);
@@ -68,7 +67,7 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<float> m_feta_bins_dd_2015;
     std::vector<float> m_feta_bins_dd_2017;
 
-    StatusCode setupDD(std::string year);
+    StatusCode setupDD(const std::string& year);
     
     bool m_is_mc;
     bool m_AFII_corr;
