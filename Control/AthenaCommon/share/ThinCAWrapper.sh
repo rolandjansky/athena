@@ -41,7 +41,7 @@ topScriptSearchPath="."
 
 if [ ! -z "${WorkDir_DIR}" ]
  then
-    topScriptSearchPath="$topScriptSearchPath $WorkDir_DIR_DIR/python" 
+    topScriptSearchPath="$topScriptSearchPath $WorkDir_DIR/python" 
 fi
 
 if [ ! -z "${Athena_DIR}" ]
