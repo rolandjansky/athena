@@ -96,6 +96,8 @@ StatusCode TrigmuCombHypoTool::initialize()
      }
      if( m_requireSameSign ) ATH_MSG_DEBUG( "+ Same charge sign" );
    }
+   // minimum d0 cut for displaced muon triggers
+   if (m_d0min>0.) ATH_MSG_DEBUG( " Rejecting muons with d0 < "<<m_d0min<<" mm");
 
    return StatusCode::SUCCESS;
 }
@@ -211,16 +213,28 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
          ATH_MSG_DEBUG("usealgo out of range, is: " << usealgo << " while should be in [1, 4]");
       }
    }
+
+
+   //d0 cut
+   bool d0Cut = true;
+   if (m_d0min>0. && idA0<m_d0min) d0Cut = false;
  
-   result = stdCut && pikCut && sdpCut;
+   result = stdCut && pikCut && sdpCut && d0Cut;
  
    if (result) ptFL = -9999.;
  
-   ATH_MSG_DEBUG("REGTEST: Muon passed pt threshold: " << (stdCut ? "true" : "false")
+   if (m_d0min>0.) {
+     ATH_MSG_DEBUG("REGTEST: Muon passed pt threshold: " << (stdCut ? "true" : "false")
+              << " and pik_cut is " << (pikCut ? "true" : "false")
+              << " and strategy dependent cuts is " << (sdpCut ? "true" : "false")
+	      << " and result of d0min cut is "<< (d0Cut ? "true" : "false")
+              << " so hypothesis is " << (result ? "true" : "false"));
+   } else {
+     ATH_MSG_DEBUG("REGTEST: Muon passed pt threshold: " << (stdCut ? "true" : "false")
               << " and pik_cut is " << (pikCut ? "true" : "false")
               << " and strategy dependent cuts is " << (sdpCut ? "true" : "false")
               << " so hypothesis is " << (result ? "true" : "false"));
- 
+   }
    return result;
 }
 

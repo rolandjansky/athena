@@ -150,6 +150,8 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
     Gaudi::Property< std::vector<float> > m_massThres {
         this, "MassThres", {0.20, 0.15, 0.10}, "mass threshold"};
 
+    Gaudi::Property< float > m_d0min {
+        this, "MinimumD0", 0., "lower d0 cut (mm)"};
 
     // Other members:   
     std::vector<size_t> m_bins = {0};

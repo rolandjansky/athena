@@ -307,6 +307,8 @@ class _Tracking_muonLRT(_Settings):
     def __init__(self):
         _Settings.__init__(self)
         self._usePixelSP = False
+        self._etaHalfWidth    = 0.2
+        self._phiHalfWidth    = 0.2
         self._d0SeedMax = 300.
         self._d0TrackMax = 300.
         self._z0TrackMax = 500.

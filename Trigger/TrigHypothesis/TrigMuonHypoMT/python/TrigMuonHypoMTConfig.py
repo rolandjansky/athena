@@ -218,6 +218,11 @@ trigMuonEFTrkIsoThresholds = {
     'ivarverytight'  : 0.04   #ivarverytight
     }
 
+trigMuonLrtd0Cut = {
+    'd0loose' : 2.0,
+    'd0medium' : 3.0,
+    'd0tight' : 5.0
+    }
 
 #Possible dimuon mass window cuts
 #Fomat is [lower bound, upper bound] in GeV
@@ -392,6 +397,36 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
     tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
 
+    addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
+
+    return tool
+
+def TrigmuCombLrtHypoToolFromDict( chainDict ):
+
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+       thresholds = getThresholdsFromDict( chainDict )
+
+    config = TrigmuCombHypoConfig()
+
+    tight = False # can be probably decoded from some of the proprties of the chain, expert work
+
+    acceptAll = False
+    if chainDict['chainParts'][0]['signature'] == 'Bphysics':
+        acceptAll = True
+
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+
+    d0cut=0.
+    if 'd0loose' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0loose']
+    elif 'd0medium' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0medium']
+    elif 'd0tight' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0tight']
+    tool.MinimumD0=d0cut  
+    
     addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
