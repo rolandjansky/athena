@@ -106,8 +106,8 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
                       static_cast<HepMC3::Units::LengthUnit>(persEvt.m_lengthUnit));
 
     //restore weight names from the dedicated svc (which was keeping them in metadata for efficiency)
-    if(genEvt->run_info()) genEvt->run_info()->set_weight_names(name_index_map_to_names(m_hepMCWeightSvc->weightNames()));
-    else msg << MSG::WARNING << "No run info!" << endmsg;
+    if(!genEvt->run_info()) genEvt->set_run_info(std::make_shared<HepMC3::GenRunInfo>());
+    genEvt->run_info()->set_weight_names(name_index_map_to_names(m_hepMCWeightSvc->weightNames()));
     // cross-section restore
 
     auto cs = std::make_shared<HepMC3::GenCrossSection>();
@@ -115,6 +115,8 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
       const std::vector<double>& xsection = persEvt.m_crossSection;
       if( static_cast<bool>(xsection[0]) )
         cs->set_cross_section(xsection[2],xsection[1]);
+      else
+        cs->set_cross_section(-1.0,-1.0);
     genEvt->set_cross_section(cs);
     }
     
@@ -178,18 +180,12 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
     }
 
     // connect particles to their end vertices
-    for ( ParticlesMap_t::iterator
-            p = partToEndVtx.begin(),
-            endItr = partToEndVtx.end();
-          p != endItr;
-          ++p ) {
+    for ( ParticlesMap_t::iterator p = partToEndVtx.begin(),endItr = partToEndVtx.end();p != endItr; ++p ) {
       auto decayVtx = HepMC::barcode_to_vertex(genEvt, p->second );
       if ( decayVtx ) {
         decayVtx->add_particle_in( p->first );
       } else {
-        msg << MSG::ERROR
-            << "GenParticle points to null end vertex !!"
-            << endmsg;
+        msg << MSG::ERROR << "GenParticle points to null end vertex !!" << endmsg;
       }
     }
     // set the beam particles
@@ -377,8 +373,8 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
                               A_alphaQCD?(A_alphaQCD->value()):0.0, 
                               A_alphaQED?(A_alphaQED->value()):0.0, 
                               A_signal_process_vertex?(A_signal_process_vertex->value()):0, 
-                              HepMC::barcode(beams[0]),
-                              HepMC::barcode(beams[1]),
+                              beams.size()>0?HepMC::barcode(beams[0]):0,
+                              beams.size()>1?HepMC::barcode(beams[1]):0,
                               genEvt->weights(),
                               A_random_states?(A_random_states->value()):std::vector<long>(), 
                               std::vector<double>(),      // cross section
@@ -538,8 +534,7 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
 
   } //> end loop over GenEvents
 
-  msg << MSG::DEBUG << "Created persistent state of HepMC::GenEvent [OK]"
-      << endmsg;
+  msg << MSG::DEBUG << "Created persistent state of HepMC::GenEvent [OK]" << endmsg;
   return;
 }
 

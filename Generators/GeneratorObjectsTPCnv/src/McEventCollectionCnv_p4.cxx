@@ -117,8 +117,8 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
       genEvt->weights()= persEvt.m_weights;
       genEvt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(persEvt.m_randomStates));
       //restore weight names from the dedicated svc (which was keeping them in metadata for efficiency)
+      if(!genEvt->run_info()) genEvt->set_run_info(std::make_shared<HepMC3::GenRunInfo>());
       if(genEvt->run_info()) genEvt->run_info()->set_weight_names(name_index_map_to_names(m_hepMCWeightSvc->weightNames()));
-      else msg << MSG::WARNING << "No run info!" << endmsg;
 
 
        // pdfinfo restore
@@ -136,6 +136,21 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
               pdf[0] );                 // pdf2
               genEvt->set_pdf_info(pi);
         }
+
+      transObj->push_back( genEvt );
+
+      // create a temporary map associating the barcode of an end-vtx to its
+      // particle.
+      // As not all particles are stable (d'oh!) we take 50% of the number of
+      // particles as an initial size of the hash-map (to prevent re-hash)
+      ParticlesMap_t partToEndVtx( (persEvt.m_particlesEnd-persEvt.m_particlesBegin)/2 );
+      // create the vertices
+      const unsigned int endVtx = persEvt.m_verticesEnd;
+      for ( unsigned int iVtx= persEvt.m_verticesBegin; iVtx != endVtx; ++iVtx )
+        {
+         createGenVertex( *persObj, persObj->m_genVertices[iVtx], partToEndVtx, datapools, genEvt );
+        } //> end loop over vertices
+
 #else
       genEvt->m_signal_process_id     = persEvt.m_signalProcessId;
       genEvt->m_event_number          = persEvt.m_eventNbr;
@@ -164,7 +179,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
               pdf[1],                   // pdf1
               pdf[0] );                 // pdf2
         }
-#endif
+
 
       transObj->push_back( genEvt );
 
@@ -184,7 +199,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
                                                partToEndVtx,
                                                datapools ) );
         } //> end loop over vertices
-
+#endif
       // set the signal process vertex
       const int sigProcVtx = persEvt.m_signalProcessVtx;
       if ( sigProcVtx != 0 )
