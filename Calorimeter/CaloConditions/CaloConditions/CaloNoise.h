@@ -10,6 +10,8 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloCondBlobObjs/CaloCondUtils.h" 
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
+#include "Identifier/HWIdentifier.h"
+
           
 class CaloNoise {
   ///Conditions Data Object holding the calorimeter noise per cell and per gain
@@ -44,6 +46,12 @@ class CaloNoise {
     IdentifierHash h=m_caloCellId->calo_cell_hash(id);
     return getNoise(h,gain);
   }
+
+
+  /// Safety net: Disallow access by HWIdentifier
+  float getNoise(const HWIdentifier /*hwid*/, const int /*gain*/) const = delete;
+
+
 
   float getEffectiveSigma(const Identifier id, const int gain, const float energy) const {
     IdentifierHash h=m_caloCellId->calo_cell_hash(id);
