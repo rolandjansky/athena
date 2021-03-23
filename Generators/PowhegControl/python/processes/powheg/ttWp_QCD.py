@@ -12,18 +12,18 @@ logger = Logging.logging.getLogger("PowhegControl")
 # Dictionary to convert the PowhegControl decay mode names to the appropriate
 # decay mode numbers understood by Powheg
 _decay_mode_lookup = {
-    't t~ W- > all' : '33333',
-    't t~ W- > b j j b~ j j j j' : '00033',
-    't t~ W- > b l+ vl b~ l- vl~ l- vl~': '30000',
-    't t~ W- > b j j b~ l- vl~ l- vl~': '30000', # additionally need to set the "samesignleptons" parameter
-    't t~ W- > undecayed' : '0',
+    't t~ W+ > all' : '33333',
+    't t~ W+ > b j j b~ j j j j' : '00033',
+    't t~ W+ > b l+ vl b~ l- vl~ l+ vl': '30000',
+    't t~ W+ > b l+ vl b~ j j l+ vl': '30000', # additionally need to set the "samesignleptons" parameter
+    't t~ W+ > undecayed' : '0',
 }
 
 
 
-class ttWm_QCD(PowhegV2):
+class ttWp_QCD(PowhegV2):
     """
-    Powheg interface for ttW- production with NLO QCD corrections.
+    Powheg interface for ttW+ production with NLO QCD corrections.
 
     Reference for this process: https://arxiv.org/abs/2101.11808
 
@@ -36,7 +36,7 @@ class ttWm_QCD(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Gen_tf.
         """
-        super(ttWm_QCD, self).__init__(base_directory, "Wtt_dec/pp_ttWm_QCD", **kwargs)
+        super(ttWp_QCD, self).__init__(base_directory, "Wtt_dec/pp_ttWp_QCD", **kwargs)
 
         # List of allowed decay modes
         # (The sorting of the list is just to increase readability when it's printed)
@@ -113,7 +113,7 @@ class ttWm_QCD(PowhegV2):
         self.add_keyword("storeinfo_rwgt", 1)
         self.add_keyword("storemintupb")                # not used by authors in example
         self.add_keyword("tmass")
-        self.add_keyword("topdecaymode", "t t~ W- > all", name="decay_mode")
+        self.add_keyword("topdecaymode", "t t~ W+ > all", name="decay_mode")
         self.add_keyword("twidth")
         self.add_keyword("use-old-grid", 1)
         self.add_keyword("use-old-ubound", 1)
@@ -139,6 +139,6 @@ class ttWm_QCD(PowhegV2):
             raise ValueError(error_message)
 
         self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]
-        if self.decay_mode == 't t~ W- > b j j b~ l- vl~ l- vl~':
+        if self.decay_mode == 't t~ W+ > b l+ vl b~ j j l+ vl':
             # Parameter samesignleptons must be set to 1 to actually get exactly two same-sign leptons
             self.parameters_by_keyword("samesignleptons")[0].value = 1
