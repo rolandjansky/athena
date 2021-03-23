@@ -12,6 +12,9 @@
 // d0 :: 2
 // pT :: 13
 
+d0Max=100.;
+a0Max=100.;
+
 e_ptNScale = 0.75;
 e_etaNScale = 0.50;
 e_phiNScale = 0.33;
