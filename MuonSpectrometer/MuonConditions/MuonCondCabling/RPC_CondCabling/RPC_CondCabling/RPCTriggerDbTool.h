@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_RPCTRIGGERDBTOOL_H
@@ -12,11 +12,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class Identifier; 
-
 class RpcIdHelper;
 class IIOVSvc;
 class StatusCode;
-
 
 class RPCTriggerDbTool: public AthAlgTool, public IRPCTriggerDbTool
 {

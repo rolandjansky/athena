@@ -733,13 +733,16 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	      }
 	  }
 
-
-
-	  if(!m_idHelper->valid(newId)){
-	    ATH_MSG_ERROR ( "Created an invalid id, aborting!" );
-	    m_idHelper->print(newId);
-	    return StatusCode::FAILURE;
-	  }
+    if(!m_idHelper->valid(newId)){
+      if (stationName.find("BI")!=std::string::npos) {
+        ATH_MSG_WARNING("Temporary skipping creation of RPC digit for stationName="<<stationName<<", eta="<<stationEta<<", phi="<<stationPhi<<", doubletR="<<doubletR<<", doubletZ="<<doubletZ<<", doubletPhi="<<doubletPhi<<", gasGap="<<gasGap<<", measuresPhi="<<imeasphi<<", strip="<<clus<<", cf. ATLASRECTS-6124");
+        return StatusCode::SUCCESS;
+      } else {
+        ATH_MSG_ERROR( "Created an invalid id, aborting!");
+        m_idHelper->print(newId);
+        return StatusCode::FAILURE;
+      }
+    }
 
 	  ///////////////////////////////////////////////////////////////////
 	  /////////////// TEMP, waiting for Reco to learn using clusters...

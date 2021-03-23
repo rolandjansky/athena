@@ -1,7 +1,5 @@
-/* // -*- C++ -*- */
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CablingRPC_H
@@ -92,7 +90,7 @@ class CablingRPC : public CablingRPCBase
     const static std::map<std::string, std::string>* s_trigroads;
     
     static bool s_RPCMapfromCool;
-    unsigned int m_absZindexInThelayerOfThisChamber[9][2][9][8][2][4];
+    unsigned int m_absZindexInThelayerOfThisChamber[12][2][9][8][2][4];
 
     static void delete_instance(void);
 
