@@ -68,9 +68,9 @@ void Muon::TGC_ResidualPullCalculator::residuals(
 						    4*(covmat(0,0)*covmat(1,1)-covmat(0,1)*covmat(0,1))));
       double v1=0.5*(covmat(0,0)+covmat(1,1)+sqrt((covmat(0,0)+covmat(1,1))*(covmat(0,0)+covmat(1,1))-
 						    4*(covmat(0,0)*covmat(1,1)-covmat(0,1)*covmat(0,1))));
-      sinAlpha=sin(0.5*asin(2*covmat(0,1)/(v0-v1)));
+      sinAlpha=std::sin(0.5*std::asin(2*covmat(0,1)/(v0-v1)));
 
-      double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
+      double cosAlpha = std::sqrt(1 - sinAlpha*sinAlpha);
 
       // Calculate Residual for hit: res = (vec(x_hit) - vec(x_track)) * vec(n_perpendicular)
       residuals[Trk::loc1] =
@@ -141,7 +141,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
 						    4*(covmat(0,0)*covmat(1,1)-covmat(0,1)*covmat(0,1))));
       double v1=0.5*(covmat(0,0)+covmat(1,1)+sqrt((covmat(0,0)+covmat(1,1))*(covmat(0,0)+covmat(1,1))-
 						    4*(covmat(0,0)*covmat(1,1)-covmat(0,1)*covmat(0,1))));
-      sinAlpha=sin(0.5*asin(2*covmat(0,1)/(v0-v1)));
+      sinAlpha=std::sin(0.5*std::asin(2*covmat(0,1)/(v0-v1)));
 
       const MuonGM::TgcReadoutElement *ele = 
         dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
@@ -150,7 +150,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
         return nullptr;
       }
 
-      double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
+      double cosAlpha = std::sqrt(1 - sinAlpha*sinAlpha);
 
       // Calculate Residual for hit: res = (vec(x_hit) - vec(x_track)) * vec(n_perpendicular)
       residual[Trk::loc1] =
@@ -226,22 +226,22 @@ double Muon::TGC_ResidualPullCalculator::calcPull(
     const double locTrkCov,
     const Trk::ResidualPull::ResidualType& resType ) const {
     if( locMesCov < 0 ) {
-      ATH_MSG_WARNING("Bad ERROR " << locMesCov << "  " << locTrkCov << " using measured error ");
+      ATH_MSG_DEBUG("Bad error " << locMesCov << "  " << locTrkCov << " using measured error ");
       return 0;
     }
     double ErrorSum;
     if (resType == Trk::ResidualPull::Unbiased) {
-      if( locMesCov + locTrkCov > 0 ) ErrorSum = sqrt(locMesCov + locTrkCov);
+      if( locMesCov + locTrkCov > 0 ) ErrorSum = std::sqrt(locMesCov + locTrkCov);
       else{
-	ATH_MSG_WARNING("Bad ERROR: measurement " << locMesCov << "  from track " << locTrkCov << ", using measured error ");
-        ErrorSum = sqrt(locMesCov);
+	ATH_MSG_DEBUG("Bad error measurement " << locMesCov << "  from track " << locTrkCov << ", using measured error ");
+        ErrorSum = std::sqrt(locMesCov);
       } 
     } else if (resType == Trk::ResidualPull::Biased) {
         if ((locMesCov - locTrkCov) < 0.) {
             return 0;
         }
-        ErrorSum = sqrt(locMesCov - locTrkCov);
-    } else ErrorSum = sqrt(locMesCov);
+        ErrorSum = std::sqrt(locMesCov - locTrkCov);
+    } else ErrorSum = std::sqrt(locMesCov);
     if (ErrorSum != 0) return residual/ErrorSum;
     return 0;
 }
