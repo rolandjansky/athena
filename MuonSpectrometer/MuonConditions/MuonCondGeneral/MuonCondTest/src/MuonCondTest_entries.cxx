@@ -3,7 +3,6 @@
 */
 #include "MuonCondTest/AlignCondAthTest.h"
 #include "MuonCondTest/MuonConditionsTestAlg.h" 
-#include "MuonCondTest/MDT_DCSStatusTest.h"
 #include "MuonCondTest/MDTConditionsTestAlg.h"
 #include "MuonCondTest/MDTConditionsTestAlgMT.h"
 #include "MuonCondTest/CSCConditionsTestAlgMT.h"
@@ -12,7 +11,6 @@
 
 DECLARE_COMPONENT( AlignCondAthTest )
 DECLARE_COMPONENT( MuonConditionsTestAlg )
-DECLARE_COMPONENT( MDT_DCSStatusTest )
 DECLARE_COMPONENT( MDTConditionsTestAlg )
 DECLARE_COMPONENT( MDTConditionsTestAlgMT )
 DECLARE_COMPONENT( CSCConditionsTestAlgMT )
