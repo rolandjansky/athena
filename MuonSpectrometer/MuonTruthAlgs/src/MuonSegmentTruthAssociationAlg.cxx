@@ -52,12 +52,21 @@ namespace Muon {
       return StatusCode::SUCCESS;
     }
     if(!muonTruthSegments.isValid()){ 
-      ATH_MSG_WARNING("Muon truth segments not valid");
+      ATH_MSG_ERROR("Muon truth segments not valid");
       return StatusCode::FAILURE;
     }
     if(!segments.isValid()){
-      ATH_MSG_WARNING("Muon segments not valid");
+      ATH_MSG_ERROR("Muon segments not valid");
       return StatusCode::FAILURE;
+    }
+    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
+    if (!truthTrackCol.isValid()){
+        ATH_MSG_ERROR("Track collection "<<m_trackRecord.key()<<" is not present");
+        return StatusCode::FAILURE;
+    }
+    if (truthTrackCol.cptr()->empty()){
+       ATH_MSG_DEBUG("Track collection "<<m_trackRecord.key()<<" is empty. Skip the rest of the alg");
+       return StatusCode::SUCCESS;
     }
 
     std::string truthSegmentContainerName=m_muonTruthSegmentContainerName.key();
@@ -85,7 +94,6 @@ namespace Muon {
       ++segIndex;
     }
 
-    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
     SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
     std::vector<const MuonSimDataCollection*> muonSimData;
     for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
