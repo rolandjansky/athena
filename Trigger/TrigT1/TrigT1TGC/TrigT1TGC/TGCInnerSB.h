@@ -11,13 +11,13 @@ namespace LVL1TGCTrigger {
 
 const int NumberOfInnerSBData = 8;
 
-class TGCInnerSB: public TGCSlaveBoard {
-
-public:
-  TGCInnerSB( const TGCArguments* );
+class TGCInnerSB: public TGCSlaveBoard
+{
+ public:
+  TGCInnerSB();
   virtual ~TGCInnerSB(){};
 
-protected:
+ protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();
 };

@@ -13,16 +13,16 @@ const int LengthOfWTSBCoincidenceOut = 100;
 const int NChAdjInWTSB = 2;
 const int NumberOfWireTripletSBData = 3;
 
-class TGCWireTripletSB: public TGCSlaveBoard {
-
-public:
+class TGCWireTripletSB: public TGCSlaveBoard 
+{
+ public:
   TGCWireTripletSB(const TGCWireTripletSB& right);
   TGCWireTripletSB& operator=(const TGCWireTripletSB& right);
 
-  TGCWireTripletSB( TGCArguments* );
+  TGCWireTripletSB();
   virtual ~TGCWireTripletSB(){};
 
-protected:
+ protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();
 

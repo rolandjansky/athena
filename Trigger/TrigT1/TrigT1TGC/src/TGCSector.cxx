@@ -207,10 +207,10 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
       m_numberOfSB[jsb] = connection->getSBToHPB()->getNumber(jsb);
       m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
       for(int i=0; i<m_numberOfSB[jsb]; i+=1) {
-	if     (jsb==WTSB) { m_SB[jsb][i] = new TGCWireTripletSB(tgcArgs()); }
-	else if(jsb==WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB(tgcArgs()); }
-	else if(jsb==STSB) { m_SB[jsb][i] = new TGCStripTripletSB(tgcArgs());}
-	else if(jsb==SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB(tgcArgs());}
+	if     (jsb==WTSB) { m_SB[jsb][i] = new TGCWireTripletSB(); }
+	else if(jsb==WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB(); }
+	else if(jsb==STSB) { m_SB[jsb][i] = new TGCStripTripletSB();}
+	else if(jsb==SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB();}
 	m_SB[jsb][i]->setId(connection->getSBToHPB()->getId(jsb,i));
 	m_SB[jsb][i]->setType(jsb);
 	m_SB[jsb][i]->setRegion(m_regionType);
@@ -264,7 +264,7 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
     for( jsb=WISB; jsb<NumberOfSlaveBoardType; jsb+=1){
       m_numberOfSB[jsb] = 1;
       m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
-      m_SB[jsb][0] = new TGCInnerSB(tgcArgs());
+      m_SB[jsb][0] = new TGCInnerSB();
       m_SB[jsb][0]->setType(jsb);
       m_SB[jsb][0]->setRegion(m_regionType);
       m_SB[jsb][0]->setId(0); 

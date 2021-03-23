@@ -8,7 +8,8 @@
 
 namespace LVL1TGCTrigger {
 
-TGCStripTripletSB::TGCStripTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
+TGCStripTripletSB::TGCStripTripletSB()
+ : TGCSlaveBoard()
 {}
 
 void TGCStripTripletSB::createSlaveBoardOut()

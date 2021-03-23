@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS051V07,S0S052V06 
@@ -9,7 +9,8 @@
 
 namespace LVL1TGCTrigger {
 
-TGCWireTripletSB::TGCWireTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
+TGCWireTripletSB::TGCWireTripletSB()
+ : TGCSlaveBoard()
 {}
 
 void TGCWireTripletSB::createSlaveBoardOut()

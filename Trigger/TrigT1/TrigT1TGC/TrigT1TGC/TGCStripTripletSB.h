@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCStripTripletSB_hh
@@ -11,13 +11,13 @@ namespace LVL1TGCTrigger {
 
 const int NumberOfStripTripletSBData = 8;
 
-class TGCStripTripletSB: public TGCSlaveBoard {
-
-public:
-  TGCStripTripletSB( TGCArguments* );
+class TGCStripTripletSB: public TGCSlaveBoard
+{
+ public:
+  TGCStripTripletSB();
   virtual ~TGCStripTripletSB(){};
 
-protected:
+ protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();
 };
