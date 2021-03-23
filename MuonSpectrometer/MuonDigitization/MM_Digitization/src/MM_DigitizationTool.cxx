@@ -150,7 +150,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   
   // Electronics Response
   m_ElectronicsResponseSimulation(0),
-  m_peakTime(0),
   m_electronicsThreshold(0),
   m_stripdeadtime(0),
   m_ARTdeadtime(0),
@@ -233,9 +232,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("vmmReadoutMode",             m_vmmReadoutMode = "peak"      ); // For readout (DAQ) path. Can be "peak" or "threshold"
   declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
   
-  // Constants vars for the MM_ElectronicsResponseSimulation
-  declareProperty("peakTime",                m_peakTime = 200.);                 // The VMM peak time setting.
-
   declareProperty("electronicsThreshold",    m_electronicsThreshold = 15000.0);  // 2*(Intrinsic noise ~3k e)
   declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
   declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
@@ -347,6 +343,7 @@ StatusCode MM_DigitizationTool::initialize() {
     TF1* lorentzAngleFunction;
 
     ATH_CHECK(m_calibrationTool->mmGasProperties(vDrift, longDiff, transDiff, interactionDensityMean, interactionDensitySigma,  lorentzAngleFunction));
+    float peakTime = m_calibrationTool->peakTime();
 
 	m_driftVelocity = vDrift;
 
@@ -361,9 +358,9 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = new MM_ElectronicsResponseSimulation();
-	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
+	m_ElectronicsResponseSimulation->setPeakTime(peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
-	m_timeWindowUpperOffset += m_peakTime; // account for peak time in time window
+	m_timeWindowUpperOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
