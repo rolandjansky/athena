@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-description: MC+MC Overlay with MT support, sequential running
+# art-description: MC+MC Overlay with NSW support, comparison between old and new transforms
 # art-type: grid
 # art-include: master/Athena
 
@@ -11,28 +11,30 @@
 # art-output: runargs.*
 
 Overlay_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/group.det-muon.DiMuon10_100GeV.HITS.rel_master_2020_12_01_R3S_v01_EXT1/group.det-muon.23437494.EXT1._000011.HITS.pool.root \
+--inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/NSW/v1/NSW_premixing_MT.RDO.pool.root \
 --outputRDOFile MC_plus_MC.NEW.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-20 \
---geometryVersion ATLAS-R2-2016-01-00-01 \
+--conditionsTag OFLCOND-MC16-SDR-14 \
+--geometryVersion ATLAS-R3S-2021-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
+  'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01"); conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
 --imf False
 
 rc=$?
 echo "art-result: $rc overlay_tf"
 
 OverlayPool_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup.100events.pool.root \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/group.det-muon.DiMuon10_100GeV.HITS.rel_master_2020_12_01_R3S_v01_EXT1/group.det-muon.23437494.EXT1._000011.HITS.pool.root \
+--inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/NSW/v1/NSW_premixing.RDO.pool.root \
 --outputRDOFile MC_plus_MC.OLD.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-20 \
---geometryVersion ATLAS-R2-2016-01-00-01 \
+--conditionsTag OFLCOND-MC16-SDR-14 \
+--geometryVersion ATLAS-R3S-2021-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
+  'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01"); conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
   'outStream.ItemList.remove("xAOD::EventInfoContainer#*"); outStream.ItemList.remove("xAOD::EventInfoAuxContainer#*");' \
 --imf False
 
@@ -50,7 +52,9 @@ then
             RecoTimingObj_p1_EVNTtoHITS_timings.timings \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventIndex \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.mcChannelNumber \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.mcEventNumber
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"
