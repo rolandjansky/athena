@@ -39,11 +39,12 @@ echo "art-result: $rc Reco"
 rc2=-9999
 if [ ${rc} -eq 0 ]
 then
+  art.py download --user=artprod --dst=last_results JetValidation test_jet_noPtCut
   # Histogram comparison with DCube
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
       -p -x dcube \
       -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/DCUBE/jet.xml \
-      -r /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/reference/nightly_jet_noPtCut.PHYSVAL.root \
+      -r last_results/nightly_jet_noPtCut.PHYSVAL.root \
       nightly_jet_noPtCut.PHYSVAL.root
   rc2=$?
 fi
