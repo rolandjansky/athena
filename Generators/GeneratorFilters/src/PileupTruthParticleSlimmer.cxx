@@ -115,12 +115,12 @@ StatusCode PileupTruthParticleSlimmer::execute() {
         xTruthParticle->setPz(theParticle->pz());
         xTruthParticle->setE(theParticle->e());
 
-        std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = m_classifier->particleTruthClassifier(xTruthParticle);
+        std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = m_classifier->particleTruthClassifier(theParticle);
         unsigned int particleOutCome = m_classifier->getParticleOutCome();
 
-        unsigned int result = (unsigned int)m_classifier->classify(xTruthParticle);
+        unsigned int result = (unsigned int)m_classifier->classify(theParticle);
 
-        int hadron_pdg = (int)m_classifier->getParentHadronID(xTruthParticle);
+        int hadron_pdg = (int)m_classifier->getParentHadronID(theParticle);
 
         unsigned int particleType = classification.first;
         unsigned int particleOrigin = classification.second;
