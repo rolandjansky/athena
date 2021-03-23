@@ -5,6 +5,7 @@
 
 + AtlasTest/TestTools
 + Control/CxxUtils
++ Database/ConnectionManagement/AtlasAuthentication
 
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfIO

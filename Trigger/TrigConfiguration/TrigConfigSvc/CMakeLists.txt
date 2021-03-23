@@ -6,7 +6,8 @@ atlas_subdir( TrigConfigSvc )
 # External dependencies:
 find_package( Boost )
 find_package( COOL COMPONENTS CoolKernel )
-find_package( cx_Oracle )
+find_package( Oracle )     # Oracle client libraries for DB access
+find_package( cx_Oracle )  # Oracle python client
 find_package( nlohmann_json )
 
 atlas_add_component( TrigConfigSvc
