@@ -1,0 +1,31 @@
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <!-- Interface type(s). -->
+   <class name="PanTau::ITool_DetailsArranger" />
+   <class name="PanTau::ITool_InformationStore" />
+   <class name="PanTau::ITool_InputConverter" />
+   <class name="PanTau::ITool_ModeDiscriminator" />
+   <class name="PanTau::ITool_PanTauTools" />
+   <class name="PanTau::ITool_TauConstituentGetter" />
+   <class name="PanTau::ITool_TauConstituentSelector" />
+
+   <!-- Tool type(s). -->
+   <class name="PanTau::PanTauProcessor" />
+   <class name="PanTau::Tool_DecayModeDeterminator" />
+   <class name="PanTau::Tool_DetailsArranger" />
+   <class name="PanTau::Tool_FeatureExtractor" />
+   <class name="PanTau::Tool_InformationStore" />
+   <class name="PanTau::Tool_InputConverter" />
+   <class name="PanTau::Tool_ModeDiscriminator" />
+   <class name="PanTau::Tool_TauConstituentGetter" />
+   <class name="PanTau::Tool_TauConstituentSelector" />
+
+   <!-- Auxiliary type(s). -->
+   <class name="PanTau::PanTauSeed" />
+   <class name="PanTau::TauFeature" />
+   <enum name="PanTau::TauClassificationTypes::TruthTauType" />
+   <enum name="PanTau::TauClassificationTypes::SeedTauType" />
+   <enum name="PanTau::TauClassificationTypes::PanTauRecoMode" />
+
+</lcgdict>

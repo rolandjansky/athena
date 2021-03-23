@@ -1,48 +1,28 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PanTauAlgs )
 
 # External dependencies:
-if( NOT XAOD_ANALYSIS )
-  find_package( CLHEP )
-endif()
-find_package( Eigen )
-find_package( ROOT COMPONENTS MathMore Matrix Core Tree Hist RIO pthread Rint )
+find_package( ROOT COMPONENTS Core RIO Tree MathCore MathMore Physics )
 
-atlas_add_root_dictionary( PanTauAlgs PanTauAlgsCintDict
-  ROOT_HEADERS
-  PanTauAlgs/PanTauProcessor.h
-  PanTauAlgs/Tool_DecayModeDeterminator.h
-  PanTauAlgs/Tool_DetailsArranger.h
-  PanTauAlgs/Tool_FeatureExtractor.h
-  PanTauAlgs/Tool_InformationStore.h
-  PanTauAlgs/Tool_InputConverter.h
-  PanTauAlgs/Tool_ModeDiscriminator.h
-  PanTauAlgs/Tool_TauConstituentGetter.h
-  PanTauAlgs/Tool_TauConstituentSelector.h
-  PanTauAlgs/PanTauSeed.h
-  Root/LinkDef.h
-  EXTERNAL_PACKAGES ROOT
-  )
+# Component(s) in the package.
+atlas_add_library( PanTauAlgsLib
+   PanTauAlgs/*.h Root/*.cxx
+   PUBLIC_HEADERS PanTauAlgs
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODBase
+   xAODParticleEvent xAODPFlow xAODTau tauRecToolsLib MVAUtils
+   PRIVATE_LINK_LIBRARIES xAODTracking PathResolver )
 
-if ( XAOD_STANDALONE )
-  atlas_add_library( PanTauAlgs
-    PanTauAlgs/*.h Root/*.cxx ${PanTauAlgsCintDict}
-    PUBLIC_HEADERS PanTauAlgs
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTau xAODTracking AsgTools tauRecToolsLib xAODParticleEvent MVAUtils PathResolver
-    )
-endif()
+atlas_add_dictionary( PanTauAlgsDict
+   PanTauAlgs/PanTauAlgsDict.h PanTauAlgs/selection.xml
+   LINK_LIBRARIES PanTauAlgsLib )
 
-# Component(s) in the package:
 if( NOT XAOD_STANDALONE )
-  atlas_add_component( PanTauAlgs
-    src/*.cxx
-    Root/*.cxx
-    src/components/*.cxx ${PanTauAlgsCintDict}
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODPFlow xAODTau xAODParticleEvent GaudiKernel AthenaKernel StoreGateLib FourMom xAODTracking Particle eflowEvent MVAUtils tauRecToolsLib PathResolver )
+   atlas_add_component( PanTauAlgs
+      src/components/*.cxx
+      LINK_LIBRARIES PanTauAlgsLib )
 endif()
 
 # Install files from the package:
