@@ -130,10 +130,15 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
                 dbname=db
             else:
                 dbname=configFlags.IOVDb.DatabaseInstance
-            if detDb not in _dblist.keys():
-                raise ConfigurationError("Error, db shorthand %s not known" % detDb)
+            if detDb in _dblist.keys():
+                fs = "<db>"+_dblist[detDb]+"/"+dbname+"</db> " + fs
+            elif os.access(detDb,os.R_OK):
+                #Assume slqite file
+                fs = "<db>sqlite://;schema="+detDb+";dbname="+dbname+"</db> " + fs
+            else:
+                raise ConfigurationError("Error, db shorthand %s not known, nor found as sqlite file" % detDb)
             #Append database string to folder-name
-            fs = "<db>"+_dblist[detDb]+"/"+dbname+"</db> " + fs
+
     
         if extensible:
             fs = fs + '<extensible/>'
