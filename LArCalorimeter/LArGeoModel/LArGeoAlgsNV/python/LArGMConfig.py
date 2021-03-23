@@ -10,11 +10,12 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
-    
-    LArDetectorToolNV=CompFactory.LArDetectorToolNV
-    result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
+
+    tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation:
-        result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
+        tool.GeometryConfig = "RECO"
+
+    result.getPrimary().DetectorTools += [ tool ]
 
     if doAlignment:
         if configFlags.Input.isMC:
