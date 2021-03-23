@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EvgenProdTools )
@@ -12,11 +12,11 @@ atlas_add_library( EvgenProdToolsLib
                    PUBLIC_HEADERS EvgenProdTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AtlasHepMCsearchLib AthenaBaseComps TruthHelper GeneratorModulesLib GenInterfacesLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities PathResolver )
 
 atlas_add_component( EvgenProdTools
                      src/components/*.cxx
-                     LINK_LIBRARIES EvgenProdToolsLib IOVDbDataModel AthenaPoolUtilities )
+                     LINK_LIBRARIES EvgenProdToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
