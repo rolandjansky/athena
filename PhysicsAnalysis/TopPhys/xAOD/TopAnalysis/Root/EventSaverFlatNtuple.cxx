@@ -1090,7 +1090,7 @@ namespace top {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
 	  
-	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
+	  if ((systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) && m_config->applyBoostedJetTaggersUncertainties()) {
 	    for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
 	      systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName],"ljet_tagSF_" + taggerName + "_variations");
 	    }
@@ -3208,7 +3208,7 @@ namespace top {
         m_ljet_truthLabel.resize(nLargeRJets);
         for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
-	  if (event.m_hashValue == m_config->nominalHashValue()) {
+	  if (event.m_hashValue == m_config->nominalHashValue() && m_config->applyBoostedJetTaggersUncertainties()) {
 	    m_ljet_tagSFSysVars[taggerName].resize(nLargeRJets);
 	  }
         }
@@ -3236,17 +3236,13 @@ namespace top {
             const std::string& taggerName = tagSF.first;
 	    const std::string& sfNameNominal = tagSF.second;
 	    
-	    m_ljet_tagSF[taggerName][i] = jetPtr->isAvailable<float>(sfNameNominal) ? jetPtr->auxdata<float>(sfNameNominal) : -999;
+	    m_ljet_tagSF[taggerName][i] = jetPtr->auxdata<float>(sfNameNominal);
 	    
-	    if (event.m_hashValue == m_config->nominalHashValue()) {
+	    if (event.m_hashValue == m_config->nominalHashValue() && m_config->applyBoostedJetTaggersUncertainties()) {
 	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
 	      m_ljet_tagSFSysVars[taggerName][i].resize(sysNames.size());
 	      for(size_t iname = 0; iname<sysNames.size();iname++) {
-                if (jetPtr->isAvailable<float>(sysNames[iname])) {
-                  m_ljet_tagSFSysVars[taggerName][i][iname] = jetPtr->auxdata<float>(sysNames[iname]);
-                } else {
-                  m_ljet_tagSFSysVars[taggerName][i][iname] = -999;
-                }
+                m_ljet_tagSFSysVars[taggerName][i][iname] = jetPtr->auxdata<float>(sysNames[iname]);
               } // end loop over SF variations in nominal TTree
             } // end if nominal TTree
           } // end loop over taggers

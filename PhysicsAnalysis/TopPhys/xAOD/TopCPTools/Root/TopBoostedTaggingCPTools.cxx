@@ -48,8 +48,7 @@ namespace top {
     }
 
     initTaggersMaps();
-    if (m_config->applyBoostedJetTaggersUncertainties())
-      initSFsMaps();
+    initSFsMaps();
 
     top::check(std::find(std::begin(m_jetCollections),std::end(m_jetCollections),m_config->sgKeyLargeRJets())!=std::end(m_jetCollections),
       "Error in BoostedTaggingCPTools: boosted jet taggers are not available for this large-R jet collection.");
@@ -84,21 +83,23 @@ namespace top {
       top::check(m_taggers[taggerName].initialize(), "Failed to initialize " + taggerName);
 
       // initialize SF uncertainty tools for supported WPs
-      if (m_config->isMC() && m_config->applyBoostedJetTaggersUncertainties()) {
+      if (m_config->isMC()) {
         std::string jet_def = m_config->sgKeyLargeRJets();
         jet_def.erase(jet_def.length() - 4); // jet collection name sans 'Jets' suffix
 
         const std::string name = "JetSFuncert_" + taggerName;
         try {
           const std::string& cfg = m_taggerSFsConfigs.at(taggerName);
-          JetUncertaintiesTool* jet_SF_tmp = new JetUncertaintiesTool(name);
+          if (m_config->applyBoostedJetTaggersUncertainties()) {
+            JetUncertaintiesTool* jet_SF_tmp = new JetUncertaintiesTool(name);
 
-          top::check(jet_SF_tmp->setProperty("JetDefinition", jet_def), "Failed to set JetDefinition for " + name);
-          top::check(jet_SF_tmp->setProperty("MCType", "MC16"), "Failed to set MCType for " + name);
-          top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set ConfigFile for " + name);
-          top::check(jet_SF_tmp->setProperty("IsData", false), "Failed to set IsData for " + name);
-          top::check(jet_SF_tmp->initialize(), "Failed to initialize " + name);
-          m_tagSFuncertTool[taggerName] = jet_SF_tmp;
+            top::check(jet_SF_tmp->setProperty("JetDefinition", jet_def), "Failed to set JetDefinition for " + name);
+            top::check(jet_SF_tmp->setProperty("MCType", "MC16"), "Failed to set MCType for " + name);
+            top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set ConfigFile for " + name);
+            top::check(jet_SF_tmp->setProperty("IsData", false), "Failed to set IsData for " + name);
+            top::check(jet_SF_tmp->initialize(), "Failed to initialize " + name);
+            m_tagSFuncertTool[taggerName] = jet_SF_tmp;
+          }
           m_config->setCalibBoostedJetTagger(taggerName, m_taggerSFsNames[taggerName]);
         } catch (std::out_of_range& e) {
           // skip taggers which do not yet have SFs available
