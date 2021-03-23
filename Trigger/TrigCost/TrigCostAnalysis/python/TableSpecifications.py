@@ -36,13 +36,13 @@ class ROS_HLT_TableConstructor(TableConstructorBase):
         self.columns['retrievedSizeRate']   = Column("Retrieved ROB Data Rate [kB/s]", "Amount of data fetched from the ROBs in kB/s.", True)
         self.columns['cachedSizeRate']      = Column("Cached ROB Data Rate [kB/s]", "Amount of cached data requested from the ROBs in kB/s.", True)
         self.columns['time']                = Column("Time Per Event [ms]", "Average time for all requests and retrievals per event.")
-        self.columns['robsUnclassified']    = Column("Unclassified ROBs/Event", "ROB calls which were flagged unclassified.")
-        self.columns['robsRetrieved']       = Column("Retrieved ROBs/Event","Total number of fetched ROB calls.")
-        self.columns['robsHLTCached']       = Column("Cached HLT ROBs/Event","Total number of HLT cached ROB calls.")
-        self.columns['robsDCMCached']       = Column("Cached DCM ROBs/Event","Total number of DCM cached ROB calls.")
-        self.columns['robsIgnored']         = Column("Ignored ROBs/Event", "ROB calls which were flagged as ignored.")
-        self.columns['robsDisabled']        = Column("Disabled ROBs/Event", "ROB calls which were flagged as disabled.")
-        self.columns['robsNotOk']           = Column("Not OK ROBs/Event", "ROB calls in which the is OK bit was false.")
+        self.columns['robsUnclassified']    = Column("Unclassified ROBs Rate [Hz]", "Rate of ROB calls which were flagged unclassified.", True)
+        self.columns['robsRetrieved']       = Column("Retrieved ROBs Rate [Hz]","Total rate of fetched ROB calls.", True)
+        self.columns['robsHLTCached']       = Column("Cached HLT ROBs Rate [Hz]","Total rate of HLT cached ROB calls.", True)
+        self.columns['robsDCMCached']       = Column("Cached DCM ROBs Rate [Hz]","Total rate of DCM cached ROB calls.", True)
+        self.columns['robsIgnored']         = Column("Ignored ROBs Rate [Hz]", "Rate of ROB calls which were flagged as ignored.", True)
+        self.columns['robsDisabled']        = Column("Disabled ROBs Rate [Hz]", "Rate of ROB calls which were flagged as disabled.", True)
+        self.columns['robsNotOk']           = Column("Not OK ROBs Rate [Hz]", "Rate of ROB calls in which the is OK bit was false.", True)
 
 
     def fillColumns(self, histName):
