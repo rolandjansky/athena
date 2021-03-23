@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_Hid2RESrcID.h" 
@@ -27,7 +27,7 @@ void RPC_Hid2RESrcID::set(const RpcIdHelper* rpdId) {
 }
 
 // This method is used by the RDO converter only
-uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId, const RpcCablingCondData* readCdo) { 
+uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId, const RpcCablingCondData* readCdo) const { 
   
   // this method returns a RESrcID for the ROD, for a 
   // given RPC pad ID offline ID
@@ -41,15 +41,6 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId, const RpcCabling
     uint8_t rodIndex = (uint8_t) RODid;
     uint16_t side    = Iside;
     
-    if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "in getRodID: RODid, side, sectorL are " 
-        << MSG::hex
-        << RODid
-        << " " 
-        << side
-        << " " 
-        << SLid
-        << MSG::dec <<endmsg;
-    
     eformat::SubDetector detid =  (side == eformat::MUON_RPC_BARREL_A_SIDE) ? 
       eformat::MUON_RPC_BARREL_A_SIDE
       : eformat::MUON_RPC_BARREL_C_SIDE ;
@@ -58,15 +49,11 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId, const RpcCabling
     SourceIdentifier sid (detid,rodIndex); 
     uint32_t rod_id = sid.code();
     
-    msg(MSG::DEBUG) << "Found RodID: " << MSG::hex 
-        << rod_id << MSG::dec << endmsg;
-
     // TEMP FIXME temp fix for the sector 13 pulse tests ---- added fix for M3 
     if ( (m_specialROBNumber>0) ) {
       if (side==0x65 && (SLid==23 || SLid == 24)) {
         //  rod_id=0x650001;
         rod_id = m_specialROBNumber;
-        if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting special ROD number"<<endmsg;
       }
       else if (side==0x65 && SLid==7) {
         rod_id = 0x650001;
@@ -84,13 +71,11 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId, const RpcCabling
     
   }
   
-  if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "RPC_Hid2RESrcID: Could not find a pad with Id = "   
-      << m_rpcIdHelper->show_to_string(offlineId)<<endmsg;
   return 0xffffffff;
 }
 
 
-uint32_t RPC_Hid2RESrcID::getRodID(const int& side, const int& slogic, const int& padId, const RpcCablingCondData* readCdo) {
+uint32_t RPC_Hid2RESrcID::getRodID(const int& side, const int& slogic, const int& padId, const RpcCablingCondData* readCdo) const {
   // this method returns a RESrcID for the ROD, for a given RPC pad ID
   const RpcCablingCondData::RDOmap& pad_map = readCdo->give_RDOs();
   int key = side*10000+slogic*100+padId;
@@ -106,7 +91,7 @@ uint32_t RPC_Hid2RESrcID::getRodID(const int& side, const int& slogic, const int
   return rod_id; 
 }
 
-uint32_t RPC_Hid2RESrcID::getRodID(const int& sector) { 
+uint32_t RPC_Hid2RESrcID::getRodID(const int& sector) const { 
   // this method returns a RESrcID for the ROD, for a given RPC pad ID
   uint8_t rodIndex = (uint8_t) ((sector%32)/2);
   int side         = (sector < 32) ? 0:1;
@@ -120,7 +105,7 @@ uint32_t RPC_Hid2RESrcID::getRodID(const int& sector) {
   return rod_id; 
 }
 
-uint32_t RPC_Hid2RESrcID::getRodID(const uint16_t& side, const uint16_t& rodIndex) { 
+uint32_t RPC_Hid2RESrcID::getRodID(const uint16_t& side, const uint16_t& rodIndex) const { 
   // this method returns a RESrcID for the ROD, for a given RPC pad ID
   eformat::SubDetector detid = (side == 1) ? eformat::MUON_RPC_BARREL_A_SIDE : eformat::MUON_RPC_BARREL_C_SIDE ;
   SourceIdentifier sid(detid,rodIndex); 
@@ -130,13 +115,13 @@ uint32_t RPC_Hid2RESrcID::getRodID(const uint16_t& side, const uint16_t& rodInde
 
 /** mapping SrcID from ROD to ROB (called in ByteStreamCnvSvcBase/FullEventAssembler.icc)
  */
-uint32_t RPC_Hid2RESrcID::getRobID(const uint32_t rod_id) {
+uint32_t RPC_Hid2RESrcID::getRobID(const uint32_t rod_id) const {
   return rod_id;
 }
 
 /** mapping SrcID from ROB to ROS
  */ 
-uint32_t RPC_Hid2RESrcID::getRosID(const uint32_t rob_id) {
+uint32_t RPC_Hid2RESrcID::getRosID(const uint32_t rob_id) const {
 //  Change Module Type to ROS, moduleid = 0  
   SourceIdentifier id (rob_id);
   SourceIdentifier id2(id.subdetector_id(),0);
@@ -145,7 +130,7 @@ uint32_t RPC_Hid2RESrcID::getRosID(const uint32_t rob_id) {
 
 /** mapping SrcID from ROS to Det
  */ 
-uint32_t RPC_Hid2RESrcID::getDetID(const uint32_t ros_id) {
+uint32_t RPC_Hid2RESrcID::getDetID(const uint32_t ros_id) const {
 //  ROS to DET
   SourceIdentifier id (ros_id);
   SourceIdentifier id2(id.subdetector_id(),0);

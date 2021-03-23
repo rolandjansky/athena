@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of RpcROD_Encoder class 
@@ -27,7 +27,7 @@ RpcROD_Encoder::~RpcROD_Encoder() {
 
 /** add coincidence matrices
 */ 
-void RpcROD_Encoder::set(RPC_Hid2RESrcID* hid2re) {
+void RpcROD_Encoder::set(const RPC_Hid2RESrcID* hid2re) {
   m_hid2re = hid2re;
  return ;
 }

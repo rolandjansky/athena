@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_ENCODER_H
@@ -50,7 +50,7 @@ public:
 
 	/** initialize the map 
 	*/
-	void set(RPC_Hid2RESrcID* hid2re) ;
+	void set(const RPC_Hid2RESrcID* hid2re) ;
 
 	/** add Rpc pads to the current list 
 	*/ 
@@ -80,7 +80,7 @@ private:
 
 private: 
 
-	RPC_Hid2RESrcID* m_hid2re; 
+	const RPC_Hid2RESrcID* m_hid2re; 
 	std::vector<const RpcPad*> m_vRpcPad;  
 
 
