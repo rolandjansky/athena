@@ -5,7 +5,7 @@ import re
 import sys
 from xml.dom.minidom import parseString
 
-import logger
+import TopExamples.logger as logger
 
 
 try:
