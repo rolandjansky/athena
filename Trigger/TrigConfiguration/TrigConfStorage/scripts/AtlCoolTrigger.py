@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from optparse import OptionParser
 from TrigConfStorage.AtlCoolTriggerTool import AtlCoolTriggerTool
@@ -36,20 +36,6 @@ if __name__ == '__main__':
                   dest = "menu",
                   help = "Print menu" )
     
-    p.add_option( "-x",
-                  "--xml",
-                  action = "store_true",
-                  dest = "xml",
-                  default=False,
-                  help = "Write L1 and HLT menu xml files" )
-
-    p.add_option( "-d",
-                  "--diff",
-                  action = "store_true",                  
-                  default=False,
-                  dest = "diff",
-                  help = "Diff menus based on xml files" )
-
     p.add_option( "--l1",
                   action='store_true',
                   default=False,
