@@ -8,13 +8,14 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODMissingET/MissingET.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace PhysVal{
   
 class METPlots:public PlotBase {
     public:
     METPlots(PlotBase* pParent, std::string sDir, std::string sParticleType = "RefFinal");
-      void fill(const xAOD::MissingET* met);
+    void fill(const xAOD::MissingET* met,const xAOD::EventInfo* evt);
       
       // Reco only information
       std::string m_sParticleType;
