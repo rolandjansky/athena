@@ -54,7 +54,8 @@ def makeFolderAndSpec(db,folderName,tag):
 
     runLumi=True
 
-    folder=AtlCoolLib.ensureFolder(db,folderName,spec,AtlCoolLib.athenaDesc(runLumi,'AthenaAttributeList'),cool.FolderVersioning.MULTI_VERSION)
+    # if there are more channels, use "CondAttrListCollection"; if there is only one channel, use "AthenaAttributeList"
+    folder=AtlCoolLib.ensureFolder(db,folderName,spec,AtlCoolLib.athenaDesc(runLumi,'CondAttrListCollection'),cool.FolderVersioning.MULTI_VERSION)
 
     if(folder is None):
         sys.exit(1)
@@ -84,15 +85,15 @@ def savePayload(folderBlk, stationID, layerID=-1, alignType="None", shiftX=0.0, 
     payload=cool.Record(folderBlk.spec)
 
     # station 0 occupies channels 0-3, station 1 occupies channels 4-7, ..., and station 3 occupies channels 12-15
-    # if you are insterested in e.g. "RP" constants, look at channels 1, 5, 9, and 13
+    # if you are insterested in e.g. "beam" constants, look at channels 1, 5, 9, and 13
     channel=0
     if(alignType!="None"):
         channel=stationID*4
         if(alignType=="tracker"):
             channel+=0
-        elif(alignType=="RP"):
-            channel+=1
         elif(alignType=="beam"):
+            channel+=1
+        elif(alignType=="RP"):
             channel+=2
         elif(alignType=="correction"):
             channel+=3
