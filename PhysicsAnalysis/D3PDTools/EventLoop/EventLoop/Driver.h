@@ -62,6 +62,8 @@ namespace EL
     /// This is mostly for small jobs and backward compatibility.  For
     /// longer jobs use \ref submitOnly instead.
     ///
+    /// \return The actual location of the submit directory, if the
+    /// job was configured to generate a unique directory.
     /// \par Guarantee
     ///   basic, may partially submit
     /// \par Failures
@@ -69,12 +71,8 @@ namespace EL
     /// \par Failures
     ///   can't create directory at location\n
     ///   submission errors
-    /// \{
   public:
-    void submit (const Job& job, const std::string& location) const;
-    void submit (const Job& job, const std::string& location,
-                 std::string& actualLocation) const;
-    /// \}
+    std::string submit (const Job& job, const std::string& location) const;
 
 
     /// \brief submit the given job with the given output location
@@ -83,6 +81,8 @@ namespace EL
     /// This method allows you to submit jobs to your local batch
     /// system, log out and at a later point log back in again.
     ///
+    /// \return The actual location of the submit directory, if the
+    /// job was configured to generate a unique directory.
     /// \par Guarantee
     ///   basic, may partially submit
     /// \par Failures
@@ -93,12 +93,8 @@ namespace EL
     ///   work in the submit function.
     /// \warn you normally need to call wait() or retrieve() before
     ///   you can use the output.
-    /// \{
   public:
-    void submitOnly (const Job& job, const std::string& location) const;
-    void submitOnly (const Job& job, const std::string& location,
-                     std::string& actualLocation) const;
-    /// \}
+    std::string submitOnly (const Job& job, const std::string& location) const;
 
 
     /// \brief resubmit all failed sub-jobs for the job in the given
