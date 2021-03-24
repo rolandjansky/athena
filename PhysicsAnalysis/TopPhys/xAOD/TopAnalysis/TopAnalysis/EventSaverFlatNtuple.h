@@ -623,6 +623,7 @@ namespace top {
     std::vector<float> m_ph_true_origin;
     std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
+    std::unordered_map<std::string, std::vector<char> > m_ph_trigMatched;
 
     //taus
     std::vector<float> m_tau_pt;

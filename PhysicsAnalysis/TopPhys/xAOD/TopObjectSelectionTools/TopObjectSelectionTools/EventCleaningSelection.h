@@ -55,6 +55,7 @@ namespace top {
 
     bool isElectronTrigger(std::string const& trigger) const;
     bool isMuonTrigger(std::string const& trigger) const;
+    bool isPhotonTrigger(std::string const& trigger) const;
     static std::vector<std::string> getIndividualFromGlobalTriggers(std::vector<std::string> const& triggers);
   private:
     ///Match offline electrons to the trigger
@@ -65,6 +66,9 @@ namespace top {
 
     ///Match offline taus to the trigger
     void matchTaus();
+
+    ///Match offline photon to the trigger
+    void matchPhotons();
 
     /// Top config
     std::shared_ptr<top::TopConfig> m_config;
@@ -93,10 +97,12 @@ namespace top {
     std::vector<std::string> m_electronTriggers_Tight;
     std::vector<std::string> m_muonTriggers_Tight;
     std::vector<std::string> m_tauTriggers_Tight;
+    std::vector<std::string> m_photonTriggers_Tight;
     std::vector<std::string> m_allTriggers_Loose;
     std::vector<std::string> m_electronTriggers_Loose;
     std::vector<std::string> m_muonTriggers_Loose;
     std::vector<std::string> m_tauTriggers_Loose;
+    std::vector<std::string> m_photonTriggers_Loose;
 
     /// Apply a logical OR cut to all supplied triggers
     /// If ANY selection does not request the trigger, this will not be set
