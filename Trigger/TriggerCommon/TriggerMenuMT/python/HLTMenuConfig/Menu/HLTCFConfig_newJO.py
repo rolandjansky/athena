@@ -35,6 +35,7 @@ def resetDF(acc):
         if isComboHypoAlg(alg):
             log.verbose("Resetting IO for %s Combo Hypo", alg.name )
             alg.MultiplicitiesMap = {}
+            alg.LegMap = {}
             alg.HypoInputDecisions = []
             alg.HypoOutputDecisions = []
 
@@ -421,6 +422,7 @@ def generateDecisionTree(flags, chains):
             comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
             if comboHypoAlg:
                 comboHypoAlg.MultiplicitiesMap[chain.name] = step.multiplicity
+                comboHypoAlg.LegMap[chain.name] = step.legIds
                 elementaryHyposOutputs = stepHypoOutput( stepCounter, chain )
                 for hypoName, hypoOutput in elementaryHyposOutputs:
                     comboHypoAlg.HypoInputDecisions = addAndAssureUniqness( comboHypoAlg.HypoInputDecisions, hypoOutput,
@@ -470,7 +472,7 @@ def generateDecisionTree(flags, chains):
             if combo:
                 log.info("%s  ComboHypoAlg: %s input: %s output: %s", stepCounter, combo.name,
                          ". ".join(combo.HypoInputDecisions), ", ".join(combo.HypoOutputDecisions))
-                log.info("%s  multiplicities: %s", stepCounter, combo.MultiplicitiesMap)
+                log.info("%s  multiplicities: %s, leg numbering: %s", stepCounter, combo.MultiplicitiesMap, combo.LegMap)
                 assert len(combo.HypoInputDecisions) == len(combo.HypoInputDecisions), "Missconfiguraiton of {} ComboHypo input/output counts differ".format(combo.name)
         log.info("-"*50)
     log.info("")

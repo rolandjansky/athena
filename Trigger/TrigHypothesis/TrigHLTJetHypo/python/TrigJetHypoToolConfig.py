@@ -3,6 +3,8 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+from DecisionHandling.TrigCompositeUtils import isLegId, getLegIndexInt
+
 from TrigHLTJetHypo.treeVisitors import (TreeParameterExpander,
                                          FilterConditionsMover,
                                          TreeChecker,
@@ -191,7 +193,12 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 
 def  trigJetHypoToolFromDict(chain_dict):
     tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
-    tool.endLabelIndex = len(chain_dict['chainParts'])
+    start_index = 0
+    if isLegId(chain_dict['chainName']):
+        start_index = getLegIndexInt(chain_dict['chainName'])
+    tool.startLabelIndex = start_index
+    tool.endLabelIndex = start_index + len(chain_dict['chainParts'])
+
     return trigJetHypoToolFromDict_(chain_dict, tool, debug)
 
 

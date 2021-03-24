@@ -270,9 +270,11 @@ class InputMakerNode(AlgNode):
 
 
 class ComboMaker(AlgNode):
-    def __init__(self, name, multiplicity, comboHypoCfg):
-        self.prop="MultiplicitiesMap"
+    def __init__(self, name, multiplicity, legIds, comboHypoCfg):
+        self.prop1="MultiplicitiesMap"
+        self.prop2="LegMap"
         self.mult=list(multiplicity)
+        self.legIds = list(legIds)
         self.comboHypoCfg = comboHypoCfg
         Alg = RecoFragmentsPool.retrieve( self.create, name )
         log.debug("ComboMaker init: Alg %s", name)
@@ -286,22 +288,27 @@ class ComboMaker(AlgNode):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", compName(self.Alg), chainName)
         allMultis = self.mult
+        legs = self.legIds
         newdict = {chainName : allMultis}
+        newlegdict = {chainName : legs}
 
-        cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
-        if type(cval) is dict:
-            if chainName in cval.keys():
+        cval1 = self.Alg.getProperties()[self.prop1]  # check necessary to see if chain was added already?
+        cval2 = self.Alg.getProperties()[self.prop2]  # check necessary to see if chain was added already?
+        if type(cval1) is dict:
+            if chainName in cval1.keys():
                 log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", compName(self.Alg), chainName)
             else:
-                cval[chainName]=allMultis
+                cval1[chainName]=allMultis
+                cval2[chainName]=legs
         else:
-            cval=newdict
+            cval1 = newdict
+            cval2 = newlegdict
 
-        setattr(self.Alg, self.prop, cval)
-
+        setattr(self.Alg, self.prop1, cval1)
+        setattr(self.Alg, self.prop2, cval2)
 
     def getChains(self):
-        cval = self.Alg.getProperties()[self.prop]
+        cval = self.Alg.getProperties()[self.prop1]
         return cval.keys()
 
 
@@ -596,6 +603,7 @@ class Chain(object):
                 step.name = 'Step%d_'%(stepID+1)+step_name
         return
 
+
     def insertEmptySteps(self, empty_step_name, n_new_steps, start_position):
         #start position indexed from 0. if start position is 3 and length is 2, it works like:
         # [old1,old2,old3,old4,old5,old6] ==> [old1,old2,old3,empty1,empty2,old4,old5,old6]
@@ -808,10 +816,58 @@ class ChainStep(object):
         self.comboHypoCfg=comboHypoCfg
         self.comboToolConfs=comboToolConfs
         self.stepDicts = chainDicts # one dict per leg
-        self.isEmpty=(sum(multiplicity)==0 or isEmpty)  
+        self.isEmpty=(sum(multiplicity)==0 or isEmpty)
+        self.relabelLegIdsForJets()
+        self.legIds = self.getLegIds() if len(multiplicity) > 1 else [0]
         self.makeCombo()
-          
-         
+
+    def relabelLegIdsForJets(self):
+        from TrigCompositeUtils.TrigCompositeUtils import legName
+        import re
+
+        has_jets = False
+        leg_counter = []
+        for step_dict in self.stepDicts:
+            if 'Jet' in step_dict['signatures'] or 'Bjet' in step_dict['signatures']:
+                has_jets = True
+                leg_counter += [len(step_dict['chainParts'])]
+            elif len(step_dict['chainParts']) > 1:
+                log.error("[relabelLegIdsForJets] this should only happen for jet chains, but the signatures are %s",step_dict['signatures'])
+                raise Exception("[relabelLegIdsForJets] leg labelling is probably wrong...")
+            else:
+                leg_counter +=[1]
+
+        if not has_jets:
+            return
+
+        if len(leg_counter) == 1 or (len(set(leg_counter)) == 1 and leg_counter[0] == 1):
+            #all legs are already length 1, or there's only one jet blocks nothing to do
+            return
+        elif len(set(leg_counter[:-1])) == 1 and leg_counter[0] == 1:
+            #it's the last leg that's not length one, so we don't need to relabel any end legs
+            return
+        else:
+            nLegs = 0
+            for i,nLegParts in enumerate(leg_counter):
+                oldLegName = self.stepDicts[i]['chainName']
+                if re.search('^leg[0-9]{3}_',oldLegName):
+                    oldLegName = oldLegName[7:]
+                else:
+                    log.error("[relabelLegIdsForJets] you told me to relabel the legs for %s",self.stepDict)
+                    raise Exception("[relabelLegIdsForJets] you told me to relabel the legs but this leg doesn't have a legXXX_ name!")
+                self.stepDicts[i]['chainName'] = legName(oldLegName,nLegs)
+                nLegs += nLegParts
+        return
+
+    def getLegIds(self):
+        leg_ids = []
+        for step_dict in self.stepDicts:
+            if step_dict['chainName'][0:3] != 'leg':
+                log.error("[getLegIds] chain %s has multiplicities %s but no legs? ",step_dict['chainName'], self.multiplicity)
+                raise Exception("[getLegIds] cannot extract leg IDs, exiting.")
+            leg_ids += [int(step_dict['chainName'][3:6])]
+        return leg_ids
+
     def addComboHypoTools(self, tool):
         #this function does not add tools, it just adds tool. do not pass it a list!
         self.comboToolConfs.append(tool)
@@ -821,7 +877,8 @@ class ChainStep(object):
         if self.isEmpty or self.comboHypoCfg is None:
             return
         hashableMult = tuple(self.multiplicity)
-        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult, comboHypoCfg=self.comboHypoCfg)
+        hashableLegs = tuple(self.legIds)
+        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult, legIds = hashableLegs, comboHypoCfg=self.comboHypoCfg)
 
     def createComboHypoTools(self, chainName):      
         from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -853,8 +910,8 @@ class ChainStep(object):
         return repr_string
 
 
-def createComboAlg(dummyFlags, name, multiplicity, comboHypoCfg):
-    return ComboMaker(name, multiplicity, comboHypoCfg)
+def createComboAlg(dummyFlags, name, multiplicity, legIds, comboHypoCfg):
+    return ComboMaker(name, multiplicity, legIds, comboHypoCfg)
 
 
 # this is fragment for New JO

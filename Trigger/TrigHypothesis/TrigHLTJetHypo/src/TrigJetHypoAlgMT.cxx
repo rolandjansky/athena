@@ -128,7 +128,7 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
   // Extract the IDs of the jet chains which are active.
   // previousDecisionIDs is a std::set<uint32_t>.
   
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
+  TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
     TrigCompositeUtils::decisionIDs(previousDecision).begin(),
       TrigCompositeUtils::decisionIDs(previousDecision).end()
       };
@@ -153,9 +153,15 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
     }
   }
   
+  // If this is a jet-only chain use the chain IDs
+  // Otherwise, we need to keep the leg
+  // The two options are combined into a single list to make this simpler
+  
+  previousDecisionIDs.insert(leglessPreviousDecisionIDs.begin(), leglessPreviousDecisionIDs.end());
+  
   for (const auto& tool: m_hypoTools) {
     ATH_MSG_DEBUG("Now computing decision for " << tool->name());
-    CHECK(tool->decide(jets, leglessPreviousDecisionIDs, jetHypoInputs));
+    CHECK(tool->decide(jets, previousDecisionIDs, jetHypoInputs));
   }
   
   return StatusCode::SUCCESS;

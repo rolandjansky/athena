@@ -80,11 +80,12 @@ def mergeParallel(chainDefList, offset):
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
-        if len(cConfig.alignmentGroups) > 1:
-            log.error("[mergeParallel] Parallel merging an already merged chain? This is odd! %s",cConfig.alignmentGroups)
-            raise Exception("[mergeParallel] Complicated situation currently unimplemented. exiting.")
-        elif len(cConfig.alignmentGroups) == 1:
+
+        if len(cConfig.alignmentGroups) == 1 or len(set(cConfig.alignmentGroups)) == 1:
             alignmentGroups.append(cConfig.alignmentGroups[0])
+        elif len(cConfig.alignmentGroups) > 1:
+            log.error("[mergeParallel] Parallel merging an already merged chain with different alignment groups? This is odd! %s",cConfig.alignmentGroups)
+            raise Exception("[mergeParallel] Complicated situation currently unimplemented. exiting.")
         else: 
             log.info("[mergeParallel] Alignment groups are empty for this combined chain - if this is not _newJO, this is not ok!")
     import itertools
@@ -286,10 +287,14 @@ def serial_zip(allSteps, chainName, chainDefList):
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     for sd in emptyChainDicts:
-                        if len(sd['chainParts']) != 1:
+
+                        if sd['signature'] == 'Jet':
+                            step_mult += [1]
+                        elif len(sd['chainParts']) != 1:
                             log.error("[serial_zip] %s has chainParts has length != 1 within a leg! chain dictionary for this step: \n %s", chainName, sd)
                             raise Exception("[serial_zip] Cannot create this chain step, exiting.")
-                        step_mult += [int(sd['chainParts'][0]['multiplicity'])] 
+                        else:
+                            step_mult += [int(sd['chainParts'][0]['multiplicity'])]
 
                     if len(emptySequences) != len(step_mult):
                         log.error("[serial_zip] %s has a different number of empty sequences/legs %d than multiplicities %d",  chainName, len(emptySequences), len(step_mult))

@@ -233,7 +233,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                     log.info("[generateChains] Now starting generation of signature %s",current_sig)
             log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName']) 
             chainConfig,lengthOfChainConfigs = self.__generateChainConfig(chainDict)
-            
+
             all_chains += [(chainDict,chainConfig,lengthOfChainConfigs)]
             
             #update the alignment group length dictionary if we have a longer number of steps
@@ -300,7 +300,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
 
         for chainDict,chainConfig,lengthOfChainConfigs in self.allChainsForAlignment:
-        
+
               # start by ordering electron, photon, muon by having e+mu, g+mu, e+g chains
               # desired ordering: electron, photon, muon, tau, jet, met, b-jet
               
@@ -319,6 +319,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
               elif len(alignmentGroups) >= 2:
                   alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, lengthOfChainConfigs)
+
                   TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )              
 
               else: 
