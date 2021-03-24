@@ -50,7 +50,6 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
   m_geometryManager->SetDC1Geometry(switches.dc1Geometry());
   m_geometryManager->SetAlignable(switches.alignable());
   m_geometryManager->SetInitialLayout(switches.initialLayout());
-  m_geometryManager->SetSLHC(switches.slhc());
   m_geometryManager->SetIBL(switches.ibl());
 
   // get switch for DBM
@@ -209,7 +208,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   // Check that there are no missing elements.
   // Bypass checks for standard ATLAS.
-  if (m_geometryManager->ibl() || m_geometryManager->slhc()) {
+  if (m_geometryManager->ibl()) {
     doChecks();
   }
 }

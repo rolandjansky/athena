@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelSwitches_H
@@ -39,10 +39,6 @@ public:
   void setAlignable(bool flag);
   bool alignable() const;
 
-  // SLHC
-  void setSLHC(bool flag = true);
-  bool slhc() const;
-
   // IBL
   void setIBL(bool flag = true);
   bool ibl() const;
@@ -74,9 +70,6 @@ private:
 
   // control whether callbacks get registered 
   bool m_alignable;
-
-  // SLHC
-  bool m_slhc;
 
   // IBL
   bool m_ibl;
