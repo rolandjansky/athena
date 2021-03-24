@@ -111,11 +111,13 @@ namespace top {
     std::unordered_map<std::string, std::vector<std::string> > m_electronTriggers_Tight;
     std::unordered_map<std::string, std::vector<std::string> > m_muonTriggers_Tight;
     std::unordered_map<std::string, std::vector<std::string> > m_tauTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::string> > m_photonTriggers_Tight;
 
     std::unordered_map<std::string, std::vector<std::string> > m_allTriggers_Loose;
     std::unordered_map<std::string, std::vector<std::string> > m_electronTriggers_Loose;
     std::unordered_map<std::string, std::vector<std::string> > m_muonTriggers_Loose;
     std::unordered_map<std::string, std::vector<std::string> > m_tauTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::string> > m_photonTriggers_Loose;
   };
 }
 // Dictonaries

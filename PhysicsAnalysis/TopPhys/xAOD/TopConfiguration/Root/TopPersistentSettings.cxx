@@ -82,10 +82,12 @@ namespace top {
     m_electronTriggers_Tight(),
     m_muonTriggers_Tight(),
     m_tauTriggers_Tight(),
+    m_photonTriggers_Tight(),
 
     m_allTriggers_Loose(),
     m_electronTriggers_Loose(),
     m_muonTriggers_Loose(),
-    m_tauTriggers_Loose()
+    m_tauTriggers_Loose(),
+    m_photonTriggers_Loose()
   {}
 }

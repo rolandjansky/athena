@@ -29,9 +29,11 @@ namespace top {
     std::vector<std::string> m_electronTriggers_Tight;
     std::vector<std::string> m_muonTriggers_Tight;
     std::vector<std::string> m_tauTriggers_Tight;
+    std::vector<std::string> m_photonTriggers_Tight;
     std::vector<std::string> m_electronTriggers_Loose;
     std::vector<std::string> m_muonTriggers_Loose;
     std::vector<std::string> m_tauTriggers_Loose;
+    std::vector<std::string> m_photonTriggers_Loose;
   };
 }
 

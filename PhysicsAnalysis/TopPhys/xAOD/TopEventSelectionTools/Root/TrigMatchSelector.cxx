@@ -14,9 +14,11 @@ namespace top {
     m_electronTriggers_Tight = config->electronTriggers_Tight(selectorName);
     m_muonTriggers_Tight = config->muonTriggers_Tight(selectorName);
     m_tauTriggers_Tight = config->tauTriggers_Tight(selectorName);
+    m_photonTriggers_Tight = config->photonTriggers_Tight(selectorName);
     m_electronTriggers_Loose = config->electronTriggers_Loose(selectorName);
     m_muonTriggers_Loose = config->muonTriggers_Loose(selectorName);
     m_tauTriggers_Loose = config->tauTriggers_Loose(selectorName);
+    m_photonTriggers_Loose = config->photonTriggers_Loose(selectorName);
   }
 
   bool TrigMatchSelector::apply(const top::Event& event) const {
@@ -26,9 +28,9 @@ namespace top {
     // if no trigger menu us associated to this selection, return true
     // no effect of TRIGMATCH if TRIGDEC wasn't used
     if (!loose) {
-      if (m_electronTriggers_Tight.size() + m_muonTriggers_Tight.size() + m_tauTriggers_Tight.size() == 0) return true;
+      if (m_electronTriggers_Tight.size() + m_muonTriggers_Tight.size() + m_tauTriggers_Tight.size() + m_photonTriggers_Tight.size() == 0) return true;
     } else {
-      if (m_electronTriggers_Loose.size() + m_muonTriggers_Loose.size() + m_tauTriggers_Loose.size() == 0) return true;
+      if (m_electronTriggers_Loose.size() + m_muonTriggers_Loose.size() + m_tauTriggers_Loose.size() + m_photonTriggers_Loose.size() == 0) return true;
     }
 
     bool trigMatch(false);
@@ -75,6 +77,20 @@ namespace top {
         } // decoration isAvailable
       } // Loop over triggers
     } // Loop over taus
+
+    // Loop over photons
+    for (const auto* const photonPtr : event.m_photons) {
+      // Loop over triggers; loose ones for loose events, tight ones for tight events
+      for (const auto& trigger : loose ? m_photonTriggers_Loose : m_photonTriggers_Tight) {
+        std::string trig = "TRIGMATCH_" + trigger;
+        if (photonPtr->isAvailable<char>(trig)) {
+          if (photonPtr->auxdataConst<char>(trig) == 1) {
+            trigMatch = true;
+            return trigMatch;
+          }
+        } // decoration isAvailable
+      } // Loop over triggers
+    } // Loop over photons
 
     return trigMatch;
   }

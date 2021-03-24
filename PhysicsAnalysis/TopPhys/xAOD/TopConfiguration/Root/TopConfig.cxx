@@ -340,10 +340,12 @@ namespace top {
     m_electronTriggers_Tight(nullptr),
     m_muonTriggers_Tight(nullptr),
     m_tauTriggers_Tight(nullptr),
+    m_photonTriggers_Tight(nullptr),
     m_allTriggers_Loose(nullptr),
     m_electronTriggers_Loose(nullptr),
     m_muonTriggers_Loose(nullptr),
     m_tauTriggers_Loose(nullptr),
+    m_photonTriggers_Loose(nullptr),
 
     // Where the sum of event weights
     // before derivation framework is kept
@@ -3442,6 +3444,15 @@ namespace top {
     return m_dummyTrigger;
   }
 
+  const std::vector<std::string>& TopConfig::photonTriggers_Tight(const std::string& selection) const {
+    std::unordered_map<std::string,
+                       std::vector<std::string> >::const_iterator key = m_photonTriggers_Tight->find(selection);
+    if (key != m_photonTriggers_Tight->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
   const std::vector<std::string>& TopConfig::allTriggers_Loose(const std::string& selection) const {
     std::unordered_map<std::string,
                        std::vector<std::string> >::const_iterator key = m_allTriggers_Loose->find(selection);
@@ -3473,6 +3484,15 @@ namespace top {
     std::unordered_map<std::string,
                        std::vector<std::string> >::const_iterator key = m_tauTriggers_Loose->find(selection);
     if (key != m_tauTriggers_Loose->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
+  const std::vector<std::string>& TopConfig::photonTriggers_Loose(const std::string& selection) const {
+    std::unordered_map<std::string,
+                       std::vector<std::string> >::const_iterator key = m_photonTriggers_Loose->find(selection);
+    if (key != m_photonTriggers_Loose->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
@@ -3616,7 +3636,13 @@ namespace top {
       out->m_electronTriggers_Tight.insert(i);
     }
     for (auto i : *m_muonTriggers_Tight) {
+      out->m_muonTriggers_Tight.insert(i);
+    }
+    for (auto i : *m_tauTriggers_Tight) {
       out->m_tauTriggers_Tight.insert(i);
+    }
+    for (auto i : *m_photonTriggers_Tight) {
+      out->m_photonTriggers_Tight.insert(i);
     }
 
     for (auto i : *m_allTriggers_Loose) {
@@ -3630,6 +3656,9 @@ namespace top {
     }
     for (auto i : *m_tauTriggers_Loose) {
       out->m_tauTriggers_Loose.insert(i);
+    }
+    for (auto i : *m_photonTriggers_Loose) {
+      out->m_photonTriggers_Loose.insert(i);
     }
 
     return out;
@@ -3772,11 +3801,13 @@ namespace top {
     m_electronTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
     m_muonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
     m_tauTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
+    m_photonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
 
     m_allTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
     m_electronTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
     m_muonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
     m_tauTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
+    m_photonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
 
     for (auto i : settings->m_allTriggers_Tight) {
       m_allTriggers_Tight->insert(i);
@@ -3790,6 +3821,9 @@ namespace top {
     for (auto i : settings->m_tauTriggers_Tight) {
       m_tauTriggers_Tight->insert(i);
     }
+    for (auto i : settings->m_photonTriggers_Tight) {
+      m_photonTriggers_Tight->insert(i);
+    }
 
     for (auto i : settings->m_allTriggers_Loose) {
       m_allTriggers_Loose->insert(i);
@@ -3802,6 +3836,9 @@ namespace top {
     }
     for (auto i : settings->m_tauTriggers_Loose) {
       m_tauTriggers_Loose->insert(i);
+    }
+    for (auto i : settings->m_photonTriggers_Loose) {
+      m_photonTriggers_Loose->insert(i);
     }
 
     fixConfiguration();
