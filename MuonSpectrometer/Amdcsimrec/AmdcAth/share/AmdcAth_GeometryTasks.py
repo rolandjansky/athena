@@ -60,7 +60,7 @@ if DoNSWDBlob :
    database_layout=""
    include("MuonGeoModel/MuonGeoModel_MinimalSetup.py")
    # after this include, GeoModelSvc should be setup, now use a recent layout to start from
-   GeoModelSvc.AtlasVersion='ATLAS-R3S-2021-01-00-00'
+   GeoModelSvc.AtlasVersion='ATLAS-R3S-2021-01-00-02'
    # since we have chosen a symmetric NSW layout and we execute this jobOptions file outside of a 
    # standard job transform, set the MuonDetectorTool and DetDescrCnvSvc properties by hand
    GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasCSC = False
