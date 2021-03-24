@@ -90,7 +90,7 @@ class TauWPDecorator : public TauRecToolBase {
     std::vector<float> m_EDMWPEffs3p; //!< Efficiency of each WP in EDM for 3-prong taus
 
     std::vector<std::string> m_decorWPs; //!< Vector of WPs not in the EDM (to be decorated)
-    std::vector<SG::AuxElement::Decorator<char>> m_charDecors; //!
+    std::vector<SG::AuxElement::Accessor<char>> m_charDecors; //!
     std::vector<float> m_decorWPEffs0p; //!< Efficiency of each WP to be docorated for 0-prong taus
     std::vector<float> m_decorWPEffs1p; //!< Efficiency of each WP to be docorated for 1-prong taus
     std::vector<float> m_decorWPEffs2p; //!< Efficiency of each WP to be docorated for 2-prong taus
