@@ -98,19 +98,18 @@ def getDefaultDetectors(geoTag):
     detectors = set()
     detectors.add('Bpipe')
 
-    if DetDescrInfo(geoTag)['Pixel']['Layout'] == 'SLHC':
+    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
     else:
         detectors.add('Pixel')
         detectors.add('SCT')
         detectors.add('TRT')
-    if DetDescrInfo(geoTag)['Pixel']['Layout'] != 'SLHC':
         detectors.add('BCM')
     # TODO: wait for special table in the geo DB
-    # if DetDescrInfo(geoTag)['Common']['Layout'] == 'SLHC':
+    # if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
     #     detectors.add('BCMPrime')
-    if DetDescrInfo(geoTag)['Pixel']['DBM']:
+    if DetDescrInfo(geoTag)['Common']['Run'] in ['RUN1', 'RUN2', 'RUN3'] and DetDescrInfo(geoTag)['Pixel']['DBM']:
         detectors.add('DBM')
 
     if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':

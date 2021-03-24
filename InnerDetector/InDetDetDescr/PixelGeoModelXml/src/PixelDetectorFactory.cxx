@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/PixelDetectorFactory.h"
@@ -50,20 +50,12 @@ namespace InDetDDSLHC {
     //
     //   Set Detector Manager pixel version information
     //
-    //At some point we may want to decouple also this DB stuff, and make this ITkStrip specific?
+    // No database is used at the moment and reasonable defaults are used
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
-    IRDBRecordset_ptr switchSet = rdbAccessSvc()->getRecordsetPtr("PixelSwitches", versionKey.tag(), versionKey.node());
-    const IRDBRecord *switches = (*switchSet)[0];
-    string layout = "SLHC";
-    if (!switches->isFieldNull("LAYOUT")) {
-      layout = switches->getString("LAYOUT");
-    }
-    string description = "Test geometry";
-    if (!switches->isFieldNull("DESCRIPTION")) {
-      description = switches->getString("DESCRIPTION");
-    }
     string versionTag = rdbAccessSvc()->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    string versionName = switches->getString("VERSIONNAME");
+    string versionName = "SLHC";
+    string layout = "SLHC";
+    string description = "SLHC Geometry";
     int versionMajorNumber = 0;
     int versionMinorNumber = 0;
     int versionPatchNumber = 0;
