@@ -6,7 +6,6 @@ from __future__ import print_function
 #
 # New version for revamped job transforms
 #
-# $Id: skeleton.ESDtoAOD_tf.py 700697 2015-10-15 09:48:11Z lerrenst $
 #
 #==============================================================
 
@@ -115,13 +114,6 @@ if hasattr(runArgs,"outputNTUP_MINBIASFile"):
     prodFlags.WriteMinBiasD3PD.FileName = runArgs.outputNTUP_MINBIASFile
     prodFlags.WriteMinBiasD3PD.set_Value_and_Lock( True )
     include( prodFlags.WriteMinBiasD3PD.DPDMakerScript )
-    pass
-
-if hasattr(runArgs,"outputNTUP_TRIGFile"):
-    from D3PDMakerConfig.D3PDProdFlags import prodFlags
-    prodFlags.WriteTriggerD3PD.FileName = runArgs.outputNTUP_TRIGFile
-    prodFlags.WriteTriggerD3PD.set_Value_and_Lock( True )
-    include( prodFlags.WriteTriggerD3PD.DPDMakerScript )
     pass
 
 if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):
