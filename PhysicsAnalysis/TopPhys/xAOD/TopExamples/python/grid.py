@@ -4,8 +4,8 @@
 import os
 import sys
 import distutils.spawn
-import logger
-import analysis
+import TopExamples.logger as logger
+import TopExamples.analysis as analysis
 import ROOT
 from PathResolver import PathResolver
 
