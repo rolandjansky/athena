@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_IMPACTPOINT3DESTIMATOR_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "TrkNeutralParameters/NeutralParameters.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 /**
