@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # CaloCell Monitoring for Collisions,
 # Evan Wulf, 12/10/09 - earwulf@nevis.columbia.edu
 #
@@ -16,9 +16,8 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool=CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -52,10 +51,7 @@ LArCellMon = LArCellMonTool(
 
     ReadyFilterTool = GetAtlasReadyFilterTool(),
 
-    useElectronicNoiseOnly = False,
     #useTwoGaus = True, Tile-only
-
-    CaloNoiseTool=theCaloNoiseTool,
 
     useTrigger          =  DQMonFlags.useTrigger(),
     rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5",
@@ -166,7 +162,6 @@ LArCellMon = LArCellMonTool(
 #Tile monitoring:
 from CaloMonitoring.CaloMonitoringConf import TileCalCellMonTool
 TileCalCellMon=TileCalCellMonTool("TileCalCellMon",
-                             CaloNoiseTool=theCaloNoiseTool,
                                   BadLBTool = GetLArBadLBFilterTool(),
                                   ReadyFilterTool = GetAtlasReadyFilterTool(),
                             )
