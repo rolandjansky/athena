@@ -10,7 +10,7 @@ find_package( Boost )
 atlas_add_component( AFP_DBTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloConditions GaudiKernel StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
