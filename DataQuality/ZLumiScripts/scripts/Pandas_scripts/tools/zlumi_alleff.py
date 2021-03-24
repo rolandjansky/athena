@@ -261,6 +261,9 @@ def container_efficiency(h_photon, h_photon_total_input, h_fit, h_pass, h_tos, h
 
 
 def extract(histogram, bin1, bin2):
-    dbl     = ROOT.Double()
-    rv1     = histogram.IntegralAndError(bin1, bin2, dbl)
-    return (rv1, float(dbl))
+    error = 0.0
+    for xbin in range(bin1, bin2): 
+        error += pow(histogram.GetBinError(xbin), 2)
+    error = math.sqrt(error)    
+
+    return (histogram.Integral(bin1, bin2), error)

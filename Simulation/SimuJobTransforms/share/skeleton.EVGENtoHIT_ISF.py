@@ -51,12 +51,12 @@ elif hasattr(runArgs, "inputEVNT_TRFile"):
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     atlasG4log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
-elif hasattr(runArgs, "inputHITS_MRGFile"):
+elif hasattr(runArgs, "inputHITS_RNMFile"):
     from AthenaCommon.GlobalFlags import globalflags
     globalflags.InputFormat.set_Value_and_Lock('pool')
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    athenaCommonFlags.PoolEvgenInput.set_Value_and_Lock( runArgs.inputHITS_MRGFile )
-    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputHITS_MRGFile )
+    athenaCommonFlags.PoolEvgenInput.set_Value_and_Lock( runArgs.inputHITS_RNMFile )
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputHITS_RNMFile )
     ISF_Flags.Resimulation="YES" # HACK
 else:
     atlasG4log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
@@ -98,12 +98,10 @@ atlasG4log.info( str(runArgs) )
 ## Set up the top sequence
 from AthenaCommon.AlgSequence import AlgSequence
 athAlgSeq = AlgSequence()
-athAlgSeq.OutputLevel = DEBUG
 if ISF_Flags.Resimulation.statusOn:
     # Here we are going to run conditional re-simulation
     simSequence = AlgSequence('SimSequence')
     topSeq = simSequence
-    topSeq.OutputLevel = DEBUG
     athAlgSeq += simSequence
     copyHitSequence = AlgSequence('CopyHitSequence')
     athAlgSeq += copyHitSequence

@@ -46,11 +46,11 @@ private:
   
   ROOT::Math::Interpolator m_linInterpol; //! Do not persistify
 
-  std::vector<Double_t> m_logEkin;
-  std::vector<Double_t> m_response;
-  std::pair<float, float> m_MinMaxlogEkin;
+  std::vector<double> m_logEkin;
+  std::vector<double> m_response;
+  std::pair<double, double> m_MinMaxlogEkin;
 
-  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 2)  //TFCSEnergyInterpolationPiecewiseLinear
+  ClassDefOverride(TFCSEnergyInterpolationPiecewiseLinear, 3)  //TFCSEnergyInterpolationPiecewiseLinear
 
 };
 

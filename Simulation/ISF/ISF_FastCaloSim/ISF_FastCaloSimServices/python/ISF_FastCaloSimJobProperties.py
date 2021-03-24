@@ -60,7 +60,7 @@ class ParamsInputFilename(JobProperty):
     """ Filename of the input parametrizations file. """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'FastCaloSim/MC16/TFCSparam_dev_v13_Hybrid8_16_131_262.root'
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_run2_reprocessing.root'
 
 class DoPunchThroughSimulation(JobProperty):
     """ Determines whether to run the punch through simulation"""
