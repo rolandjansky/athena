@@ -271,6 +271,9 @@ PP="$PP"'|Added successfully Conversion service:TagInfoMgr'
 # this line moved around
 PP="$PP"'|Added successfully Conversion service:AthenaPoolCnvSvc'
 
+# Py:PropertyProxy
+PP="$PP"'|Py:PropertyProxy.*WARNING'
+
 ########################################### END #####################################################
 
 # Always use default ignore list
