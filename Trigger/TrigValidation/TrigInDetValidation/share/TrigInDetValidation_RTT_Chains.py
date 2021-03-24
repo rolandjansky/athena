@@ -169,6 +169,22 @@ def beamspotChains(doIDNewTracking, doFTK):
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
+def fullScanChains(doIDNewTracking):
+  idTrigChainlist = []
+  tidaAnalysischains = ["Truth"]
+
+  if doIDNewTracking:
+    tidaAnalysischains += ["Offline"]
+
+  idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+  idTrigChainlist.append(['2j35_ftf',          'L1_4J15',    [], ['Main'], ['RATE:MultiJet',  'BW:Jet'], 1])
+
+  tidaAnalysischains += [
+    'HLT_2j35_ftf:InDetTrigTrackingxAODCnv_FullScan_FTF',
+    'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
+    ]
+  return (idTrigChainlist, tidaAnalysischains)
+
 def minBiasChains(doIDNewTracking):
   idTrigChainlist = []
 
