@@ -210,11 +210,10 @@ StatusCode Epos::genInitialize()
   long int si2 = sip[1];
 
   int iSeed = si1%1000000000;     // FIXME ?
-  std::cout << "seeds " << si1 << " " << si2 << " " << iSeed << std::endl;
+  ATH_MSG_INFO( "seeds " << si1 << " " << si2 << " " << iSeed );
 
   // set up initial values
 
-     std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_ilheout<< " " <<  m_paramFile.c_str() << std::endl;
     ATH_MSG_INFO( " CRMC SET F.\n" );
 
     crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() ); 
@@ -223,7 +222,7 @@ StatusCode Epos::genInitialize()
     std::string name2 = "tabs/epos.inics.lhc";
     bool ex1 = access(name1.c_str(), F_OK) != -1;
     bool ex2 = access(name2.c_str(), F_OK) != -1;
-    std::cout << "ini files found ? " << ex1 << " " << ex2 << std::endl;
+    ATH_MSG_INFO( "ini files found ? " << ex1 << " " << ex2 );
 
 
     // initialize Epos
@@ -274,7 +273,6 @@ StatusCode Epos::callGenerator()
   crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
 	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
 
-  std::cout << "events " << m_events << " " << m_ievent << std::endl;
  //HepMC::HEPEVT_Wrapper::print_hepevt();
 
  /*  for (int i=1;i<=50;++i){
@@ -328,10 +326,6 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
-  ATH_MSG_INFO( " EPOS Filling.\n" );
-
-    // debug printout
-
 
   HepMC::HEPEVT_Wrapper::set_event_number(m_events);
   HepMC::IO_HEPEVT hepio;
@@ -357,19 +351,16 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   } 
 
   evt->set_beam_particles(beams[0], beams[1]); 
-  std::cout << "beam particles" << std::endl;
-  beams[0]->print();
-  beams[1]->print();
+  //beams[0]->print();
+  //beams[1]->print();
   
-  std::cout << "general print out " << std::endl;
     // debug printout
-int nvtx =0;
+/*int nvtx =0;
 for (HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin(); v != evt->vertices_end(); ++v)
      {
        (*v)->print();
        nvtx++;
-     }
-std::cout << "vertices " << nvtx << std::endl;
+     }*/
 /* for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
  {
    (*p)->print();
