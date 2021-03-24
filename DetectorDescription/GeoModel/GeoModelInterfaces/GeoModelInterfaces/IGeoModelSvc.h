@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_IGEOMODELSVC_H
@@ -51,6 +51,12 @@ public:
 
     // Release GeoModel tree from memory
     virtual StatusCode clear() = 0;
+
+    // Get the name of the IRDBAccessSvc used in the given job
+    virtual std::string getParamSvcName() const = 0;
+
+    // Are we building GeoModel description from the GeometryDB or from the SQLite file?
+    virtual bool buildFromSQLite() const = 0;
 };
 
 inline

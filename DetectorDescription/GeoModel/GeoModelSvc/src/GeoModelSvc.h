@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELSVC_H
 #define GEOMODELSVC_GEOMODELSVC_H
 
-#include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
@@ -16,7 +15,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
-#include <fstream>
 
 class ISvcLocator;
 
@@ -46,6 +44,9 @@ public:
 
     virtual StatusCode clear() override;
 
+    virtual std::string getParamSvcName() const override;
+    virtual bool buildFromSQLite() const override;
+
     friend class SvcFactory<GeoModelSvc>;
 
     // Standard Constructor
@@ -53,18 +54,10 @@ public:
 
     // Standard Destructor
     virtual ~GeoModelSvc();
-
-
-protected:
-
-    //     StatusCode append( IGeoModelTool* pddTool, 
-    // 		       std::vector<IGeoModelTool*>* theTools ); 
-    //     StatusCode decodeNames( StringArrayProperty& theNames, 
-    //        						std::vector<IGeoModelTool*>* theTools ); 
 	
 private:
 
-    ToolHandleArray< IGeoModelTool > m_detectorTools; // Detector Tools
+    ToolHandleArray< IGeoModelTool > m_detectorTools;
 
     ISvcLocator*        m_pSvcLocator;
 
@@ -87,7 +80,6 @@ private:
     std::string           m_CavernInfraVersionOverride;
     std::string           m_ForwardDetectorsVersionOverride;
 
-    bool          m_printMaterials;               // Print the contents of the Material Manager at the end of geoInit
     bool          m_callBackON;                   // Register callback for Detector Tools
     bool          m_ignoreTagDifference;          // Keep going if TagInfo and property tags are different
                                                   // when geometry configured manually 
@@ -97,6 +89,12 @@ private:
 
     int           m_supportedGeometry;            // Supported geometry flag is set in jobOpt and is equal to major release version
     bool          m_ignoreTagSupport;             // If true then don't check SUPPORT flag for ATLAS tag
+
+    Gaudi::Property<std::string> m_sqliteDb { this
+	, "SQLiteDB"
+	, ""
+	, "Path to the persistent GeoModel description file in SQLite format"
+	};
 
     virtual const std::string & atlasVersion()         const override {return m_AtlasVersion; }
     virtual const std::string & inDetVersionOverride() const override {return m_InDetVersionOverride ;}
