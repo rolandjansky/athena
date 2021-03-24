@@ -15,13 +15,13 @@
 #include <vector>
 #include <string>
 
-class LArOnlineID;
+class LArOnlineID_Base;
 class MsgStream;
 
 class LArBadChannelDecoder {
 public:
 
-  LArBadChannelDecoder(   const LArOnlineID* onlineID, MsgStream& log) :
+  LArBadChannelDecoder(   const LArOnlineID_Base* onlineID, MsgStream& log) :
     m_onlineID( onlineID), m_log(log) {}
 
   typedef LArBadChannelState                     State;
@@ -37,7 +37,7 @@ private:
 
   enum {barrel_ec, pos_neg, feedthrough, slot, channel}; // for local use only
 
-  const LArOnlineID*   m_onlineID;
+  const LArOnlineID_Base*   m_onlineID;
   LArBadChanBitPacking m_packing;
   LArBadFebBitPacking  m_febPacking;
   MsgStream&           m_log;
