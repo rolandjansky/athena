@@ -52,8 +52,8 @@ using namespace TrigConf;
 RoIBResultToAOD::RoIBResultToAOD( const std::string& name, ISvcLocator* pSvcLocator )
   : AthAlgorithm( name, pSvcLocator ),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_recRPCRoiTool( "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", name ),
-    m_recTGCRoiTool( "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", name ),
+    m_recRPCRoiTool( "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", this ),
+    m_recTGCRoiTool( "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", this ),
     m_EmTauTool( "LVL1::L1EmTauTools/L1EmTauTools" ),
     m_JetTool( "LVL1::L1JetTools/L1JetTools" ) {
 
