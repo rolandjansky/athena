@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_RECOTAUPLOTS_H
@@ -17,11 +17,11 @@ class RecoTauPlots: public PlotBase {
     RecoTauPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
     virtual ~RecoTauPlots();
 
-    void fill(const xAOD::TauJet& tau);
+    void fill(const xAOD::TauJet& tau, float weight);
 
     Tau::ParamPlots m_oParamPlots;
 
-    //Here I try to include CellBased substructure variables, from the Particle FLow Object (PFO), begining with basic charged and neutral PFO 4-vector.
+    //Here I try to include CellBased substructure variables, from the Particle Flow Object (PFO), begining with basic charged and neutral PFO 4-vector.
     TH1* m_cellBased_neuPFO_Pt;
     TH1* m_cellBased_neuPFO_Eta;
     TH1* m_cellBased_neuPFO_Phi;

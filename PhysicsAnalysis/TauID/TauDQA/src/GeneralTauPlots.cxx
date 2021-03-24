@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -49,41 +49,39 @@ void GeneralTauPlots::initializePlots(){
    m_ptRNNTight = Book1D("ptRNNSigTight",m_sTauJetContainerName+" RNNSigTight; pt; # Taus", 20, 0.0, 150.0);
    m_ptRNNTightHighPt = Book1D("ptRNNSigTightHighPt", m_sTauJetContainerName+" RNNSigTightHighPt; pt"+"; # Taus",20, 0.0, 1500.0);
 }
-
-void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
-  m_oParamPlots.fill(tau);
-  m_tauCharge->Fill(tau.charge(), 1.); 
-  m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
-  m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), 1.);
-  m_ptHighPt->Fill(tau.pt()/1000, 1.);
+  
+void GeneralTauPlots::fill(const xAOD::TauJet& tau, float weight) {
+  m_oParamPlots.fill(tau, weight);
+  m_tauCharge->Fill(tau.charge(), weight); 
+  m_tauNCoreTracks->Fill(tau.nTracks(), weight);
+  m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), weight);
+  m_ptHighPt->Fill(tau.pt()/1000, weight);
 
   static const SG::AuxElement::ConstAccessor<float> acc_RNNJetScore("RNNJetScore");
-  if ( acc_RNNJetScore.isAvailable(tau) &&
-       tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) ) {
+  if ( acc_RNNJetScore.isAvailable(tau) ) {
      float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScore);
-     if ( rnnScore > -2.0 ) m_RNNScore->Fill(rnnScore);
+     if ( rnnScore > -2.0 ) m_RNNScore->Fill(rnnScore, weight);
   }
   static const SG::AuxElement::ConstAccessor<float> acc_RNNJetScoreSigTrans("RNNJetScoreSigTrans");
-  if ( acc_RNNJetScoreSigTrans.isAvailable(tau) &&
-       tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) ) {
+  if ( acc_RNNJetScoreSigTrans.isAvailable(tau) ) {
      float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
-     if ( rnnScore > -2.0 ) m_RNNScoreSigTrans->Fill(rnnScore);
+     if ( rnnScore > -2.0 ) m_RNNScoreSigTrans->Fill(rnnScore, weight);
   }
   if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) ) {
-     m_ptRNNVeryLoose      ->Fill(tau.pt()/1000, 1.0);
-     m_ptRNNVeryLooseHighPt->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNVeryLoose      ->Fill(tau.pt()/1000, weight);
+     m_ptRNNVeryLooseHighPt->Fill(tau.pt()/1000, weight);
   }
   if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigLoose) ) {
-     m_ptRNNLoose      ->Fill(tau.pt()/1000, 1.0);
-     m_ptRNNLooseHighPt->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNLoose      ->Fill(tau.pt()/1000, weight);
+     m_ptRNNLooseHighPt->Fill(tau.pt()/1000, weight);
   }
   if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigMedium) ) {
-     m_ptRNNMedium      ->Fill(tau.pt()/1000, 1.0);
-     m_ptRNNMediumHighPt->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNMedium      ->Fill(tau.pt()/1000, weight);
+     m_ptRNNMediumHighPt->Fill(tau.pt()/1000, weight);
   }
   if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigTight) ) {
-     m_ptRNNTight      ->Fill(tau.pt()/1000, 1.0);
-     m_ptRNNTightHighPt->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNTight      ->Fill(tau.pt()/1000, weight);
+     m_ptRNNTightHighPt->Fill(tau.pt()/1000, weight);
   }
 
 }
