@@ -2,32 +2,32 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCSlaveBoard_hh
-#define TGCSlaveBoard_hh
+#ifndef TrigT1TGC_TGCSlaveBoard_h
+#define TrigT1TGC_TGCSlaveBoard_h
 
 #include "TrigT1TGC/TGCSlaveBoardOut.h"
-#include "TrigT1TGC/TGCPatchPanel.h"
-#include "TrigT1TGC/TGCPatchPanelOut.h"
-#include "TrigT1TGC/TGCHitPattern.h"
-#include "TrigT1TGC/TGCConnectionSBToHPB.h"
-#include <limits.h>
+#include "TrigT1TGC/TGCNumbering.h"
+
 #include <bitset>
-#include <iostream>
-#include <fstream>
 #include <string>
 
 namespace LVL1TGCTrigger {
 
+class TGCPatchPanel;
+class TGCPatchPanelOut;
 class TGCSlaveBoardOut;
+class TGCHitPattern;
 
-// offten use {A,B,C,D}={36,36,44,44} format, but some parts are not used.
-const int pOffset[6] = {0,0,2,2,2,2};// WT,WD,ST,SD,WI,SI
-const int iOffset[6] = {4,0,6,6,6,6};
-const int pLength[6] = {36,36,32,32,32,32};
-const int iLength[6] = {36,44,32,32,32,32};
-class TGCSlaveBoard {
+class TGCSlaveBoard 
+{
+ private:
+  // offten use {A,B,C,D}={36,36,44,44} format, but some parts are not used.
+  static constexpr int s_pOffset[6] = {0,0,2,2,2,2};// WT,WD,ST,SD,WI,SI
+  static constexpr int s_iOffset[6] = {4,0,6,6,6,6};
+  static constexpr int s_pLength[6] = {36,36,32,32,32,32};
+  static constexpr int s_iLength[6] = {36,44,32,32,32,32};
 
-public:
+ public:
 
   TGCSlaveBoard();
   virtual ~TGCSlaveBoard(); 

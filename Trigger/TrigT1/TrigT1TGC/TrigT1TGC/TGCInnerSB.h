@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCInnerSB_hh
-#define TGCInnerSB_hh
+#ifndef TrigT1TGC_TGCInnerSB_h
+#define TrigT1TGC_TGCInnerSB_h
 
 #include "TrigT1TGC/TGCSlaveBoard.h"
 
 namespace LVL1TGCTrigger {
-
-const int NumberOfInnerSBData = 8;
 
 class TGCInnerSB: public TGCSlaveBoard
 {
@@ -23,6 +21,6 @@ class TGCInnerSB: public TGCSlaveBoard
 };
 
 
-} //end of namespace bracket
+}   // end of namespace
 
 #endif

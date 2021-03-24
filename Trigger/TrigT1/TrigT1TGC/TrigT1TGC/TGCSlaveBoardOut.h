@@ -11,7 +11,6 @@
 namespace LVL1TGCTrigger {
 
 class TGCSlaveBoard;
-const int MaxNumberOfSBData = 8;
 
 const int posSize[6] = {5,5,4,5,4,4};//type = 0,1,2,3 : WT,WD,ST,SD,WI,SI
 const int devSize[6] = {0,3,0,3,0,0};
@@ -53,18 +52,20 @@ public:
 
   const TGCSlaveBoard* getOrigin() const;
 
-private:
+ private:
+  static constexpr int s_MaxNumberOfSBData = 8;
+
   const TGCSlaveBoard* m_origin;
   int m_bid;
   int m_orgBoardType;
   int m_orgSBid;
 
   int m_numberOfData; // number of block   A board have OutPutBlock:a,b ,m_numberOfData is 2.
-  int m_dev[MaxNumberOfSBData]; // a b c [d [a b c d]]
-  int m_pos[MaxNumberOfSBData];
-  bool m_hit[MaxNumberOfSBData];
+  int m_dev[s_MaxNumberOfSBData]; // a b c [d [a b c d]]
+  int m_pos[s_MaxNumberOfSBData];
+  bool m_hit[s_MaxNumberOfSBData];
 
-  TGCHitPattern* m_bpos[MaxNumberOfSBData]; // a b c d  [StripTriplet]a b c d
+  TGCHitPattern* m_bpos[s_MaxNumberOfSBData]; // a b c d  [StripTriplet]a b c d
   TGCHitPattern* m_bdev[2];// 2=TotalNumberOfOutputData[1]
 
 };
@@ -85,7 +86,7 @@ void TGCSlaveBoardOut::setbPos(int block, int pos)
 inline
 void TGCSlaveBoardOut::setHit(int iData, bool hitIn)
 {
-  if (MaxNumberOfSBData <= iData){
+  if (s_MaxNumberOfSBData <= iData) {
      std::cerr << "internal error TGCSlaveBoardOut::setHit()" << std::endl;
   } else {
     m_hit[iData] = hitIn;
@@ -95,7 +96,7 @@ void TGCSlaveBoardOut::setHit(int iData, bool hitIn)
 inline 
 void TGCSlaveBoardOut::setDev(int iData, int devIn)
 {
-  if(MaxNumberOfSBData <= iData) {
+  if(s_MaxNumberOfSBData <= iData) {
     std::cerr << "Internal error TGCSlaveBoardOut::setDev()" << std::endl;
   } else {
     m_dev[iData] = devIn;

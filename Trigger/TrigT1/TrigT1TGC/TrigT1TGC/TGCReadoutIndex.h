@@ -1,47 +1,30 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// ====================================================================
-/*
-        TGCReadoutIndex.h
-                                      QCJP, 1999
-*/
-// ====================================================================
-#ifndef TGC_READOUT_INDEX_H
-#define TGC_READOUT_INDEX_H
+#ifndef TrigT1TGC_TGCReadoutIndex_H
+#define TrigT1TGC_TGCReadoutIndex_H
 
 #include "TrigT1TGC/TGCIndex.h"
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-// class definition
-//
-// ====================================================================
-
-class TGCReadoutIndex {
-protected:
+class TGCReadoutIndex
+{
+ protected:
   TGCZDirection m_zDirection;
   int m_octantNumber;
   int m_moduleNumber;
   int m_rNumber;
   int m_layerNumber;
 
-public:
+ public:
   TGCReadoutIndex();
-
   TGCReadoutIndex(TGCZDirection iz, int ioct, int imd, int ir, int ilyr);
-
   TGCReadoutIndex(TGCIndex tgcindex, int ilyr);
-
   ~TGCReadoutIndex() { }
  
-  TGCReadoutIndex(const TGCReadoutIndex& right)
-  {
-    *this= right;
-  }
+  TGCReadoutIndex(const TGCReadoutIndex& right) = default;
  
   TGCReadoutIndex& operator=(const TGCReadoutIndex& right)
   {
@@ -84,6 +67,6 @@ public:
 
 };
 
-} //end of namespace
+}   // end of namespace
 
 #endif

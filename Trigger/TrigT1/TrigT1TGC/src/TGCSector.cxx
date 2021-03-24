@@ -5,6 +5,23 @@
 #include "TrigT1TGC/TGCSector.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
+#include "TrigT1TGC/TGCConnectionPPToSL.h"
+#include "TrigT1TGC/TGCConnectionHPBToSL.h"
+#include "TrigT1TGC/TGCConnectionPPToSB.h"
+#include "TrigT1TGC/TGCConnectionASDToPP.h"
+#include "TrigT1TGC/TGCASDOut.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCSlaveBoard.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
+#include "TrigT1TGC/TGCInnerSB.h"
+#include "TrigT1TGC/TGCStripHighPtBoard.h"
+#include "TrigT1TGC/TGCWireHighPtBoard.h"
+#include "TrigT1TGC/TGCStripDoubletSB.h"
+#include "TrigT1TGC/TGCWireDoubletSB.h"
+#include "TrigT1TGC/TGCWireTripletSB.h"
+
+
 #include <iostream>
 
 #include "GaudiKernel/ISvcLocator.h"

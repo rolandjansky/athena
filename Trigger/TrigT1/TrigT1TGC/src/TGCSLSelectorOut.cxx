@@ -9,7 +9,7 @@ namespace LVL1TGCTrigger {
 
 TGCSLSelectorOut::TGCSLSelectorOut():m_nCandidate(0)
 {
-  for( int i=0; i<NCandidateInSLSelector; i+=1){
+  for( int i=0; i<s_NCandidateInSLSelector; i+=1){
     m_ptLevel[i]=0;
     m_r[i]=0;
     m_phi[i]=0;
@@ -21,7 +21,7 @@ TGCSLSelectorOut::TGCSLSelectorOut():m_nCandidate(0)
 
 void TGCSLSelectorOut::setPtLevel(int order, int ptLevelIn)
 {
-  if(order<NCandidateInSLSelector){
+  if(order<s_NCandidateInSLSelector){
     m_ptLevel[order]=ptLevelIn;
     m_nCandidate++;
   }

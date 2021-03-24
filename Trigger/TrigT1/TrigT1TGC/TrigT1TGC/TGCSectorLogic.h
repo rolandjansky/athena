@@ -32,8 +32,6 @@ class Run2TileMuCoincidenceMap;
 
 namespace LVL1TGCTrigger {
 
-const int MaxNumberOfWireHighPtBoard = 2;
-
 class TGCDatabaseManager;
 class TGCHighPtBoard;
 class TGCHighPtChipOut;

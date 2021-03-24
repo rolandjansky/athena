@@ -1,29 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// ====================================================================
-/*
-        TGCIndex.h
-	ver.1.0
-	ver.2.0     remove phiNumber
-                                      QCJP, 1999
-*/
-// ====================================================================
-#ifndef TGC_INDEX_H
-#define TGC_INDEX_H
+#ifndef TrigT1TGC_TGCIndex_H
+#define TrigT1TGC_TGCIndex_H
 
 #include "TrigT1TGC/TGCNumbering.h"
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-// class definition
-//
-// ====================================================================
-
-class TGCIndex {
+class TGCIndex
+{
 protected:
   TGCZDirection m_zDirection;
   TGCStationType m_stationType;
@@ -39,10 +26,7 @@ public:
 
   ~TGCIndex() { }
  
-  TGCIndex(const TGCIndex& right)
-  {
-    *this= right;
-  }
+  TGCIndex(const TGCIndex& right) = default;
  
   TGCIndex& operator=(const TGCIndex& right)
   {

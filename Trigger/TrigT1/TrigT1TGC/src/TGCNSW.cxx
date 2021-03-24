@@ -1,28 +1,15 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
 
-// ====================================================================
-/*
-        TGCNSW.cc            
-*/
-// ====================================================================
-
-#include <iostream>
-#include <iomanip>
 
 #include "TrigT1TGC/TGCNSW.h"
 #include "TrigT1TGC/NSWTrigOut.h"
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
-
-TGCNSW::TGCNSW(){
+TGCNSW::TGCNSW()
+{
   for (int side=0; side < 2; side++) {
     for (int TP=0; TP < NumberOfNSWTriggerProcesser; TP++) {
       std::vector<int> vecTP;
@@ -33,10 +20,12 @@ TGCNSW::TGCNSW(){
 }
 
 
-TGCNSW::~TGCNSW(){
+TGCNSW::~TGCNSW()
+{
 }
 
-TGCNSW::TGCNSW(const TGCNSW& right){
+TGCNSW::TGCNSW(const TGCNSW& right)
+{
   for(int idx1=0; idx1<2; idx1++){
     for (int idx2=0; idx2<NumberOfNSWTriggerProcesser; idx2++){
       m_buffer[idx1][idx2] = 0; 
@@ -46,7 +35,8 @@ TGCNSW::TGCNSW(const TGCNSW& right){
 }
 
 
-const TGCNSW& TGCNSW::operator=(const TGCNSW& right){
+const TGCNSW& TGCNSW::operator=(const TGCNSW& right)
+{
   if (this != &right) {
     for(int  idx1=0; idx1<2; idx1++){
       for (int idx2=0; idx2<NumberOfNSWTriggerProcesser; idx2++){
@@ -57,8 +47,8 @@ const TGCNSW& TGCNSW::operator=(const TGCNSW& right){
   return *this;
 }
 
-std::shared_ptr<const NSWTrigOut> TGCNSW::getOutput(TGCRegionType region ,int side,int TGC_TriggerSector) const{
-
+std::shared_ptr<const NSWTrigOut> TGCNSW::getOutput(TGCRegionType region ,int side,int TGC_TriggerSector) const
+{
   std::shared_ptr<NSWTrigOut> tirgNSW_output;
   tirgNSW_output.reset(new NSWTrigOut());
   tirgNSW_output->clear();
@@ -108,7 +98,8 @@ std::shared_ptr<const NSWTrigOut> TGCNSW::getOutput(TGCRegionType region ,int si
 }
 
 
-void  TGCNSW::setOutput(int side, int NSWTriggerProcesser, int NSWeta_8bit, int NSWphi_6bit, int NSWDtheta_5bit){
+void TGCNSW::setOutput(int side, int NSWTriggerProcesser, int NSWeta_8bit, int NSWphi_6bit, int NSWDtheta_5bit)
+{
   if ( (side<0)||(side>1) ) return;//side 0::Aside 1::Cside
   if ( (NSWTriggerProcesser<0) || (NSWTriggerProcesser>=NumberOfNSWTriggerProcesser) ) return;
   m_buffer[side][NSWTriggerProcesser]->setSide(side);
@@ -118,7 +109,8 @@ void  TGCNSW::setOutput(int side, int NSWTriggerProcesser, int NSWeta_8bit, int 
   m_buffer[side][NSWTriggerProcesser]->setDtheta(NSWDtheta_5bit);
 }
 
-void  TGCNSW::eraseOutput(){
+void TGCNSW::eraseOutput()
+{
   for(int idx1=0; idx1<2; idx1++){
     for (int idx2=0; idx2<NumberOfNSWTriggerProcesser; idx2++){
       m_buffer[idx1][idx2]->clear(); 
@@ -126,7 +118,8 @@ void  TGCNSW::eraseOutput(){
   }
 }
 
-void TGCNSW::print() const{
+void TGCNSW::print() const
+{
   for(int idx1=0; idx1<2; idx1++){
     for (int idx2=0; idx2<NumberOfNSWTriggerProcesser; idx2++){
       m_buffer[idx1][idx2]->print(); 
@@ -135,4 +128,4 @@ void TGCNSW::print() const{
 }
   
 
-} //end of namespace bracket
+}   // end of namespace

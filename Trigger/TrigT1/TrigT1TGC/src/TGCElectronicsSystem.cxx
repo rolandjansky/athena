@@ -6,6 +6,7 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCEvent.h"
 
 #include <iostream>
 #include <vector>

@@ -3,6 +3,9 @@
 */
 
 #include "TrigT1TGC/TGCSlaveBoard.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
+
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -113,16 +116,16 @@ void TGCSlaveBoard::storeSlbIn()
   TGCHitPattern* pivot = m_patchPanelOut->getHitPattern(1);
   int i;
   if(pivot!=0){
-    for(i=0; i<pLength[m_type]; i++){
-      m_slbin.set(40+i+pOffset[m_type],pivot->getChannel(i+pLength[m_type]));   
-      m_slbin.set(40+36+i+pOffset[m_type],pivot->getChannel(i));   
+    for(i=0; i<s_pLength[m_type]; i++){
+      m_slbin.set(40+i+s_pOffset[m_type], pivot->getChannel(i+s_pLength[m_type]));   
+      m_slbin.set(40+36+i+s_pOffset[m_type], pivot->getChannel(i));   
     }
   }
   if(inner!=0){
-    for(i=0; i<iLength[m_type]; i++){
-      if(inner->getLength()>iLength[m_type])//WTSB
-        m_slbin.set(40+36+36+i+iOffset[m_type],inner->getChannel(i+iLength[m_type]));   
-      m_slbin.set(40+36+36+44+i+iOffset[m_type],inner->getChannel(i));   
+    for(i=0; i<s_iLength[m_type]; i++){
+      if(inner->getLength()>s_iLength[m_type])//WTSB
+        m_slbin.set(40+36+36+i+s_iOffset[m_type], inner->getChannel(i+s_iLength[m_type]));   
+      m_slbin.set(40+36+36+44+i+s_iOffset[m_type], inner->getChannel(i));   
     }
   }
 }

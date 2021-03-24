@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// ====================================================================
-/*
-        TGCReadoutIndex.cc
-                                      QCJP, 1999
-*/
-// ====================================================================
 
 #include <iostream>
 #include <iomanip>
@@ -15,17 +8,10 @@
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
-
 //////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex()
  : m_zDirection(kZ_FORWARD), m_octantNumber(0),
    m_moduleNumber(0), m_rNumber(0), m_layerNumber(0)
-//////////////////////////////////
 {
 }
 
@@ -34,7 +20,6 @@ TGCReadoutIndex::TGCReadoutIndex(TGCZDirection iz, int ioct,
 				 int imd, int ir, int ilyr)
  : m_zDirection(iz), m_octantNumber(ioct),
    m_moduleNumber(imd), m_rNumber(ir), m_layerNumber(ilyr)
-///////////////////////////////////////////////////////////
 {
 }
 
@@ -42,14 +27,12 @@ TGCReadoutIndex::TGCReadoutIndex(TGCZDirection iz, int ioct,
 TGCReadoutIndex::TGCReadoutIndex(TGCIndex tgcindex, int ilyr)
  : m_zDirection(kZ_FORWARD), m_octantNumber(0),
    m_moduleNumber(0), m_rNumber(0), m_layerNumber(0)
-/////////////////////////////////////////////////////////////
 {
   SetIndex(tgcindex, ilyr);
 }
 
 ///////////////////////////////////////////////////////////
 void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
-///////////////////////////////////////////////////////////
 {
   m_zDirection= tgcindex.GetZDirection();
   m_octantNumber= tgcindex.GetOctantNumber()-1; // 0..7
@@ -110,7 +93,6 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 
 ///////////////////////////////////
 void TGCReadoutIndex::Print() const
-///////////////////////////////////
 {
   std::cout << "  " << gkTgcZdirName[m_zDirection] << "-" 
             << std::setw(1) << m_octantNumber << "-"
