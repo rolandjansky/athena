@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file PyAthena.FilePeekerLib
 # @purpose provide components to peek into pool files
@@ -238,7 +238,7 @@ class FilePeeker(PyAthena.Alg):
                             # swallow and keep as a string
                             pass
                     else:
-                        a_data = a.data(a_type)()
+                        a_data = a.data[a_type]()
                     #msg.info("%s: %s  %s", spec.name(), a_data, type(a_data) )
                     attr_data.append( (spec.name(), a_data) )
                 attrs.append(dict(attr_data))
@@ -458,8 +458,8 @@ class FilePeeker(PyAthena.Alg):
             import re
             # Pool parameters are of the form:
             # '[NAME=somevalue][VALUE=thevalue]'
-            pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'
-                                    r'[[]VALUE=(?P<value>.*?)[]]').match
+            pool_token = re.compile(r'[\[]NAME=(?P<name>.*?)[\]]'
+                                    r'[\[]VALUE=(?P<value>.*?)[\]]').match
             params = []
             for i in range(pool.GetEntries()):
                 if pool.GetEntry(i)>0:
