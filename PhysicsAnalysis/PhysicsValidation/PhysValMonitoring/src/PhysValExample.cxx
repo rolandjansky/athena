@@ -126,6 +126,10 @@ namespace PhysVal {
     ATH_MSG_INFO ("Filling hists " << name() << "...");
     
     if (m_detailLevel < 10) return StatusCode::SUCCESS;
+
+    // event Info
+    const xAOD::EventInfo* event(0);
+    ATH_CHECK(evtStore()->retrieve(event, "EventInfo"));
     
     // Jets
     int nbtag(0);
@@ -133,40 +137,40 @@ namespace PhysVal {
     const xAOD::JetContainer* jets(0);
     ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
     for (auto jet : *jets) {
-      m_jetPlots.fill(jet);
+      m_jetPlots.fill(jet,event);
       const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
       if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
     }
-    m_jetPlots.fill();
-    m_btagPlots.fill(nbtag);
+    m_jetPlots.fill(event);
+    m_btagPlots.fill(nbtag,event);
 
     // Electrons
     m_elecPlots.initializeEvent();
     const xAOD::ElectronContainer* electrons(0);
     ATH_CHECK(evtStore()->retrieve(electrons, m_elecName));
-    for (auto elec : *electrons) m_elecPlots.fill(elec);
-    m_elecPlots.fill();
+    for (auto elec : *electrons) m_elecPlots.fill(elec,event);
+    m_elecPlots.fill(event);
 
     // Photons
     m_photonPlots.initializeEvent();
     const xAOD::PhotonContainer* photons(0);
     ATH_CHECK(evtStore()->retrieve(photons, m_photonName));
-    for (auto photon : *photons) m_photonPlots.fill(photon);
-    m_photonPlots.fill();
+    for (auto photon : *photons) m_photonPlots.fill(photon,event);
+    m_photonPlots.fill(event);
 
     // Muons
     m_muonPlots.initializeEvent();
     const xAOD::MuonContainer* muons(0);
     ATH_CHECK(evtStore()->retrieve(muons, m_muonName));
-    for (auto muon : *muons) m_muonPlots.fill(muon);
-    m_muonPlots.fill();
+    for (auto muon : *muons) m_muonPlots.fill(muon,event);
+    m_muonPlots.fill(event);
 
     // Taus
     m_tauPlots.initializeEvent();
     const xAOD::TauJetContainer* taus(0);
     ATH_CHECK(evtStore()->retrieve(taus, m_tauName));
-    for (auto tau : *taus) m_tauPlots.fill(tau);
-    m_tauPlots.fill();
+    for (auto tau : *taus) m_tauPlots.fill(tau,event);
+    m_tauPlots.fill(event);
 
     // Tracks/Vertices
     const xAOD::TrackParticleContainer* trks(0);
@@ -174,12 +178,10 @@ namespace PhysVal {
 
     const xAOD::VertexContainer* vtxs(0);
     ATH_CHECK(evtStore()->retrieve(vtxs, m_vertexName));
-    for (auto vtx : *vtxs) m_trkvtxPlots.fill(vtx);
+    for (auto vtx : *vtxs) m_trkvtxPlots.fill(vtx,event);
 
-    const xAOD::EventInfo* event(0);
-    ATH_CHECK(evtStore()->retrieve(event, "EventInfo"));
 
-    m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing());
+    m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing(),event);
 
     const xAOD::MissingETContainer* met_container (0);
     ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
@@ -188,13 +190,13 @@ namespace PhysVal {
       ATH_MSG_ERROR ("Couldn't retrieve MET Final");
       return StatusCode::SUCCESS;
     }
-    m_metPlots.fill(met);
+    m_metPlots.fill(met,event);
     
     int i(0);
     for (auto name : m_timingNames) {
       float time;
       if (getTiming(name, time).isSuccess()) {
-	m_timingPlots[i]->Fill(time);
+	m_timingPlots[i]->Fill(time,event->beamSpotWeight());
       }
       ++i;
     }

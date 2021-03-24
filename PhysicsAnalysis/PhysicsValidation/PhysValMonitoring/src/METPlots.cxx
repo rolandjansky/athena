@@ -19,12 +19,12 @@ void METPlots::initializePlots(){
   met_sumet  = Book1D("SumEt", "MET " + m_sParticleType + " Ex; #Sum E_{t} ;Events", 100, 0., 2000);
 }
 
-void METPlots::fill(const xAOD::MissingET* met){
-
-  met_ex->Fill(met->mpx()/GeV);
-  met_ey->Fill(met->mpy()/GeV);
-  met_et->Fill(met->met()/GeV);
-  met_sumet->Fill(met->sumet()/GeV);
+  void METPlots::fill(const xAOD::MissingET* met,const xAOD::EventInfo* evt){
+    
+    met_ex->Fill(met->mpx()/GeV,evt->beamSpotWeight());
+    met_ey->Fill(met->mpy()/GeV,evt->beamSpotWeight());
+    met_et->Fill(met->met()/GeV,evt->beamSpotWeight());
+    met_sumet->Fill(met->sumet()/GeV,evt->beamSpotWeight());
 
 }
 }
