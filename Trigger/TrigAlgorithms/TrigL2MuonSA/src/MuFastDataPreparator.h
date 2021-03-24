@@ -147,8 +147,8 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
 
   //for multimu-in-pad mode
-  ToolHandle<ClusterRoadDefiner>  m_clusterRoadDefiner{"TrigL2MuonSA::ClusterRoadDefiner"};
-  ToolHandle<ClusterPatFinder>    m_clusterPatFinder{"TrigL2MuonSA::ClusterPatFinder"};
+  ToolHandle<ClusterRoadDefiner>  m_clusterRoadDefiner{this, "ClusterRoadDefiner", "TrigL2MuonSA::ClusterRoadDefiner"};
+  ToolHandle<ClusterPatFinder>    m_clusterPatFinder{this, "ClusterPatFinder", "TrigL2MuonSA::ClusterPatFinder"};
   //
 
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
