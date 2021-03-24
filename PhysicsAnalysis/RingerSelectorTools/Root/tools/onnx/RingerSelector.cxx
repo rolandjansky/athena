@@ -113,7 +113,7 @@ namespace Ringer{
       float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
       float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
     
-      ATH_MSG_INFO( "Event et = "<< et << ", eta = " << eta );
+      ATH_MSG_DEBUG( "Event et = "<< et << ", eta = " << eta );
       for( auto& cutDef : m_thresholds ){
         if ( et <= cutDef.etMin() || et > cutDef.etMax() ) continue;
         if ( eta <= cutDef.etaMin() || eta > cutDef.etaMax() ) continue;
@@ -199,7 +199,7 @@ namespace Ringer{
 
         auto output = model.predict( inputs );       
 
-        ATH_MSG_INFO( "The current model predict with output: " << output );
+        ATH_MSG_DEBUG( "The current model predict with output: " << output );
         return output;
       }
 
