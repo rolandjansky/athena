@@ -265,10 +265,11 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     vxcand = pTau.vertex();
   }
 
-  static const SG::AuxElement::Decorator<float> dec_d0TJVA("d0TJVA");
-  static const SG::AuxElement::Decorator<float> dec_z0sinthetaTJVA("z0sinthetaTJVA");
-  static const SG::AuxElement::Decorator<float> dec_d0SigTJVA("d0SigTJVA");
-  static const SG::AuxElement::Decorator<float> dec_z0sinthetaSigTJVA("z0sinthetaSigTJVA");
+  // this could be replaced with TauTrack::setDetail
+  static const SG::AuxElement::Accessor<float> dec_d0TJVA("d0TJVA");
+  static const SG::AuxElement::Accessor<float> dec_z0sinthetaTJVA("z0sinthetaTJVA");
+  static const SG::AuxElement::Accessor<float> dec_d0SigTJVA("d0SigTJVA");
+  static const SG::AuxElement::Accessor<float> dec_z0sinthetaSigTJVA("z0sinthetaSigTJVA");
 
   for(auto *track : pTau.allTracks()) {      
     dec_d0TJVA(*track) = track->track()->d0();

@@ -182,7 +182,7 @@ StatusCode TauWPDecorator::initialize() {
   ATH_CHECK(storeLimits(3));  
     
   for (size_t wpIndex=0; wpIndex < m_decorWPs.size(); ++wpIndex) {
-    m_charDecors.emplace_back(SG::AuxElement::Decorator<char>( m_decorWPs[wpIndex] ));
+    m_charDecors.emplace_back(SG::AuxElement::Accessor<char>( m_decorWPs[wpIndex] ));
   }
 
   return StatusCode::SUCCESS;
@@ -313,7 +313,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& tau) const {
     }
     // Decorate other WPs
     for (size_t wpIndex=0; wpIndex < m_decorWPs.size(); ++wpIndex) {
-      const SG::AuxElement::Decorator<char>& decorator = m_charDecors[wpIndex];
+      const SG::AuxElement::Accessor<char>& decorator = m_charDecors[wpIndex];
 
       if(nProng == 0) {
         decorator(tau) = scoreTrans > (1-m_decorWPEffs0p[wpIndex]);
