@@ -51,9 +51,18 @@ StatusCode TrigJetHypoToolMT::initialize(){
   if (m_endLabelIndex == 1u) {
     m_decisionIDs.push_back(m_decisionID);
   } else {
-    for (std::size_t i = 0; i != m_endLabelIndex; ++i){
-      m_decisionIDs.push_back(TrigCompositeUtils::createLegName(m_decisionID,
+
+    if(TrigCompositeUtils::isLegId(m_decisionID)){
+        HLT::Identifier noLegNameDecisionID = TrigCompositeUtils::getIDFromLeg(m_decisionID);
+        for (std::size_t i = m_startLabelIndex; i != m_endLabelIndex; ++i){
+          m_decisionIDs.push_back(TrigCompositeUtils::createLegName(noLegNameDecisionID,
 								i));
+		}
+    } else {
+        for (std::size_t i = m_startLabelIndex; i != m_endLabelIndex; ++i){
+          m_decisionIDs.push_back(TrigCompositeUtils::createLegName(m_decisionID,
+								i));
+		}
     }
   }
   
@@ -190,7 +199,7 @@ TrigJetHypoToolMT::checkPassingJets(const xAODJetCollector& jetCollector,
   }
 
   auto legIndices = jetCollector.legInds();
-  if (!(legIndices.size() == m_endLabelIndex)) {
+  if (!(legIndices.size() == (m_endLabelIndex - m_startLabelIndex))) {
     ATH_MSG_ERROR("inconsistent number of leg indices");
     return StatusCode::FAILURE;
   }

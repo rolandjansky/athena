@@ -76,9 +76,12 @@ public:
   ToolHandle<ITrigJetHypoToolHelperMT> m_helper {
     this, "helper_tool", {}, "Jet hypo helper AlgTool"};
 
+  Gaudi::Property<std::size_t> m_startLabelIndex {  // no of chain parts + 1
+    this, "startLabelIndex", {0}, "start value for leg indices"};
+
   Gaudi::Property<std::size_t> m_endLabelIndex {  // no of chain parts + 1
     this, "endLabelIndex", {0}, "end value for leg indices"};
-  
+
   Gaudi::Property<bool> m_visitDebug {
     this, "visit_debug", false, "debug flag"};
 

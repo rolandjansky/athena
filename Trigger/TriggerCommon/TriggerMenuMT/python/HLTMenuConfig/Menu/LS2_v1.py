@@ -19,8 +19,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, 
                                                                 MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
                                                                 SingleTauGroup, MultiTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
                                                                 MuonJetGroup, MuonTauGroup, TauMETGroup, MuonMETGroup, EgammaJetGroup,
-                                                                EgammaTauGroup, MinBiasGroup,
-                                                                PrimaryLegGroup)
+                                                                EgammaTauGroup, JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup)
 
 def setupMenu():
 
@@ -699,9 +698,16 @@ def setupMenu():
         ChainProp(name='HLT_e70_lhloose_xe70_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),
 
         # VBF triggers (ATR-22594)
-        ChainProp(name='HLT_2mu6_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup), # Formerly HLT_2mu6_2j50_0eta490_invm900j50
-        #ChainProp(name='HLT_g25_medium_4j35_0eta490_j0_dijetSEP35j12etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
-
+        ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup), # Formerly HLT_2mu6_2j50_0eta490_invm900j50
+        ChainProp(name='HLT_e5_lhvloose_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP1000djmass_xe50_tcpufit_L1MJJ-500-NFF',l1SeedThresholds=['EM3','FSNOSEED','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_2e5_lhmedium_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['EM3','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_g25_medium_4j35_0eta490_j0_dijetSEP35j12etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_e10_lhmedium_ivarloose_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['EM8VH','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+        ChainProp(name='HLT_mu4_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP1000djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU4','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+        ChainProp(name='HLT_mu10_ivarmedium_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU10','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=TauJetGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=TauJetGroup),
+        ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP1000djmassSEP24djdphi_xe90_tcpufit_xe50_cell_L1MJJ-500-NFF',l1SeedThresholds=['FSNOSEED']*5,stream=[PhysicsStream], groups=JetMETGroup),
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [

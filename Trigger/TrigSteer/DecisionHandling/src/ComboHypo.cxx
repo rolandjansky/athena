@@ -50,7 +50,16 @@ StatusCode ComboHypo::initialize() {
       }
       msgSS.seekp(-2,msgSS.cur); // remove comma
       msgSS << "]";
-      ATH_MSG_INFO("-- " << m.first << " multiplicities: " << msgSS.str() );
+
+      std::stringstream msgSSleg;
+      msgSSleg << "[";
+      for (const int nleg : m_legMap[m.first]){
+        msgSSleg << nleg << ", ";
+      }
+      msgSSleg.seekp(-2,msgSSleg.cur); // remove comma
+      msgSSleg << "]";
+
+      ATH_MSG_INFO("-- " << m.first << " multiplicities: " << msgSS.str() <<" , legs: " << msgSSleg.str());
     }
   }
 
@@ -179,16 +188,17 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     for ( size_t legIndex = 0; legIndex <  multiplicityPerLeg.size(); ++legIndex ) {
       const size_t requiredMultiplicity =  multiplicityPerLeg.at( legIndex );
 
-      HLT::Identifier legId = TrigCompositeUtils::createLegName(chainId, legIndex);
+      HLT::Identifier legId = chainId;
       // If there is only one leg, then we just use the chain's name.
-      if (multiplicityPerLeg.size() == 1) {
-        ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() == 1, so we don't use legXXX_HLT_YYY, we just use HLT_YYY");
-        legId = chainId; 
+      if (multiplicityPerLeg.size() > 1) {
+        ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() > 1, so we use legXXX_HLT_YYY, instead of HLT_YYY");
+        const int32_t leg_number = m_legMap.find(m.first)->second.at(legIndex);
+        legId = TrigCompositeUtils::createLegName(chainId, leg_number);
       }
 
       const DecisionID requiredDecisionIDLeg = legId.numeric();
       ATH_MSG_DEBUG("Container " << legIndex << ", looking at leg : " << legId );
-     
+
       LegDecisionsMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
       if ( it == dmap.end() ) {
         overallDecision = false;
@@ -371,6 +381,7 @@ StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventCont
           ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
 
           dmap[id].push_back( TrigCompositeUtils::decisionToElementLink(decision, context) );
+
         }
       }
     }
@@ -389,6 +400,7 @@ StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventCont
       legCount++;
     }
   }
+
 
   return StatusCode::SUCCESS;
 }
