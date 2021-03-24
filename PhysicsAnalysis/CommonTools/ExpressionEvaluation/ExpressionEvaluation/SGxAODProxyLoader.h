@@ -94,6 +94,7 @@ namespace ExpressionParsing {
      /** Create extra data dependencies arising eventually from the given variables.
       * @param parent auxiliary class to declare new data handles with the calling parent
       * @param var_names the variables for which data dependencies might be created.
+      * @param renounce a list of output data keys, which should be renounced from the new_input_handles list.
       * @param input_data_in read data object IDs declared by all algorithms and tools
       * @param output_data_in write data object IDs declared by all algorithms and tools
       * @param new_input_handles will be filled with read data handles newly created by this loader
@@ -102,6 +103,7 @@ namespace ExpressionParsing {
       */
       bool updateDataDependencies(SGxAODProxyLoader::IParentHelper &parent,
                                   const std::vector<std::string> &var_names,
+                                  const std::vector<std::string>  &renounce,
                                   const std::vector<const DataObjID *> &input_data_in,
                                   const std::vector<const DataObjID *> &output_data_in,
                                   std::vector<Gaudi::DataHandle *> &new_input_handles,

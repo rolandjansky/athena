@@ -24,6 +24,18 @@
 #include "MethodAccessor.h"
 #include "PlainAccessor.h"
 
+namespace {
+   void popRenounced(const std::vector<std::string>  &renounce,
+                     std::vector<Gaudi::DataHandle *> &new_input_handles) {
+      for (const std::string &a_key : renounce) {
+         if (new_input_handles.back()->objKey() == a_key ) {
+            new_input_handles.pop_back();
+            break;
+         }
+      }
+   }
+}
+
 namespace ExpressionParsing {
   SGxAODProxyLoader::SGxAODProxyLoader(StoreGateSvc_t &evtStore, bool verbose) : m_evtStore(evtStore), m_emptyVectorAccessor(std::make_unique<EmptyVectorAccessor>()),m_verbose(verbose) { }
 
@@ -225,6 +237,7 @@ namespace ExpressionParsing {
 
   bool SGxAODProxyLoader::updateDataDependencies(SGxAODProxyLoader::IParentHelper &parent,
                                                  const std::vector<std::string> &var_names,
+                                                 const std::vector<std::string>  &renounce,
                                                  const std::vector<const DataObjID *> &input_data_in,
                                                  const std::vector<const DataObjID *> &output_data_in,
                                                  std::vector<Gaudi::DataHandle *> &new_input_handles,
@@ -344,6 +357,7 @@ namespace ExpressionParsing {
               }
               bool registered_key =  PlainAccessorFactory::instance().registerReadKey(m_readKeys, base_info->typeinfo(), parent, var_name, new_input_handles, m_verbose);
               if (registered_key) {
+                 popRenounced(renounce, new_input_handles);
                  continue;
               }
            }
@@ -369,6 +383,7 @@ namespace ExpressionParsing {
                  }
                  if (ReadHandleMap::isVector(ret.first->second)) initializeHandle(&ReadHandleMap::vectorKey(ret.first->second), new_input_handles);
                  else                                            initializeHandle(&ReadHandleMap::elementKey(ret.first->second),new_input_handles);
+                 popRenounced(renounce, new_input_handles);
 
               }
            }
@@ -393,6 +408,7 @@ namespace ExpressionParsing {
                  }
                  if (ReadDecorHandleMap::isVector(ret.first->second)) initializeHandle(&ReadDecorHandleMap::vectorKey(ret.first->second),new_input_handles );
                  else                                                 initializeHandle(&ReadDecorHandleMap::elementKey(ret.first->second),new_input_handles);
+                 popRenounced(renounce, new_input_handles);
               }
            }
         }
