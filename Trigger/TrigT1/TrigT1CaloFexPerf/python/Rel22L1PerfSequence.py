@@ -232,12 +232,10 @@ def setupRun3L1CaloPerfSequence(
         InputRho=l1simAlgSeq.GTowerRhoSubtractionAlg.OutputRho,
     )
 
-   #from TrigT1CaloFexPerf.EFexConfig import enableEfexAlgorithms
-
-   # enableEfexAlgorithms(
-   #     l1simAlgSeq,
-   #     SuperCellContainer=SCIn,
-   # )
+    from TrigT1CaloFexPerf.EFexConfig import enableEfexAlgorithms
+    enableEfexAlgorithms(l1simAlgSeq,
+                         SuperCellContainer=SCIn,
+                        )
 
     if simflags.EnableDebugOutput() or True:
         log.debug("Algorithm sequence after L1 simulation setup")

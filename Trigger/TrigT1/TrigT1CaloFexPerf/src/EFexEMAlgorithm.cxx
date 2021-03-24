@@ -30,9 +30,7 @@ namespace
 LVL1::EFexEMAlgorithm::EFexEMAlgorithm(const std::string &name, ISvcLocator *pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator)
 {
-   declareProperty("DefaultClusterTool", m_eFexDefaultClusterTool);
-   declareProperty("EnergyWeightedClusterTool", m_eFexEWClusterTool);
-
+  
    declareProperty("InputSuperCellContainer", m_inputCellContainerKey = "SCell");
    declareProperty("InputTileCellContainer", m_inputTileCellContainerKey = "AllCalo");
    declareProperty("InputTriggerTowerContainer", m_inputTriggerTowerContainerKey = "xAODTriggerTowers");

@@ -36,8 +36,8 @@ namespace LVL1
       /**
        * member variables
        */
-      ToolHandle<LVL1::EFexEMClusterTool> m_eFexDefaultClusterTool{this};
-      ToolHandle<LVL1::EFexEMEnergyWeightedClusterTool> m_eFexEWClusterTool{this};
+      ToolHandle<LVL1::EFexEMClusterTool> m_eFexDefaultClusterTool{this,"DefaultClusterTool","LVL1::EFexEMClusterTool/DefaultClusterTool"};
+      ToolHandle<LVL1::EFexEMEnergyWeightedClusterTool> m_eFexEWClusterTool{this,"EnergyWeightedClusterTool","LVL1::EFexEMEnergyWeightedClusterTool/EnergyWeightedClusterTool"};
 
       /**
        * input / output

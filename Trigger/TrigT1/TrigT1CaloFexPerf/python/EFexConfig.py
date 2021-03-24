@@ -17,9 +17,9 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
     if doEle:
         from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf import LVL1__EFexEMAlgorithm
         log.info("Enable eFEX EM algorithm")
-        emAlg = LVL1__EFexEMAlgorithm( name="EFexEMAlgorithm",
+        emAlg = LVL1__EFexEMAlgorithm(  name="EFexEMAlgorithm",
                                         InputSuperCellContainer = SuperCellContainer,
-                                        OutputClusterName="SClusterCl",
+                                        OutputClusterName="eElesPerf",
                                         UseTileCells = perfFlags.Calo.UseAllCalo(),
                                         CleanCellContainerSkim=perfFlags.Calo.ApplySCQual(), 
                                         QualBitMask=perfFlags.Calo.QualBitMask(), 
@@ -35,9 +35,9 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
     if doTau:
         from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf import LVL1__EFexTauAlgorithm
         log.info("Enable eFEX Tau algorithm")
-        algSequence += LVL1__EFexTauAlgorithm( name="EFexTauAlgorithm",
+        algSequence += LVL1__EFexTauAlgorithm(  name="EFexTauAlgorithm",
                                                 InputSuperCellContainer=SuperCellContainer,
-                                                OutputClusterName="SClusterTau",
+                                                OutputClusterName="eTausPerf",
                                                 CleanCellContainer=perfFlags.Calo.ApplySCQual(),
                                                 CleanCellContainerSkim=False,
                                                 QualBitMask=perfFlags.Calo.QualBitMask() )

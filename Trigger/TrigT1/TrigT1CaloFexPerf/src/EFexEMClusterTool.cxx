@@ -278,7 +278,7 @@ LVL1::EFexEMClusterTool::localMax(const CaloConstCellContainer* &inputContainer,
    const int sub_calo = idHelper->sub_calo(inputID);
    const int pos_neg = idHelper->pos_neg(inputID);
    if (!(sub_calo == 0 || sub_calo == 1) || !(abs(pos_neg) < 4)){
-      ATH_MSG_WARNING ( "ERROR with local max logic");
+      ATH_MSG_WARNING ( "Issue with local max logic");
       return false;
    }
    double seedCandidateEnergy = CaloCellET(inputCell, digitScale, digitThreshold);
@@ -362,8 +362,8 @@ LVL1::EFexEMClusterTool::REta(const CaloCell* centreCell, int etaWidth1, int phi
                               const CaloConstCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh) const
 {
    // Check windows sizes are right way round
-   if (etaWidth1 > etaWidth2) ATH_MSG_WARNING ( "REta ERROR: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2);
-   if (phiWidth1 > phiWidth2) ATH_MSG_WARNING ( "Rphi ERROR: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2);
+   if (etaWidth1 > etaWidth2) ATH_MSG_WARNING ( "REta: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2);
+   if (phiWidth1 > phiWidth2) ATH_MSG_WARNING ( "Rphi: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2);
    // Finds ET of windows
    double inner_ET = L2clusET(centreCell, etaWidth1, phiWidth1, scells, idHelper, digitScale, digitThresh);
    double outer_ET = L2clusET(centreCell, etaWidth2, phiWidth2, scells, idHelper, digitScale, digitThresh);
@@ -387,7 +387,7 @@ LVL1::EFexEMClusterTool::RHad(const CaloCell* centreCell, int etaWidth, int phiW
    HadET = HCALcomp/1e3;
    double result = HCALcomp/(EMcomp+HCALcomp);
    if (result < 0. || result > 1.){
-      ATH_MSG_WARNING ( "RHAD ERROR -> " << etaWidth << " * " << phiWidth);
+      ATH_MSG_WARNING ( "RHAD -> " << etaWidth << " * " << phiWidth);
       ATH_MSG_WARNING ( "fullClus count = " << fullClus.size() << ", EMcomp = " << EMcomp << ", HCALcomp = " << HCALcomp);
    }
    return result;
@@ -583,7 +583,7 @@ LVL1::EFexEMClusterTool::RHadTile(const CaloCell* centreCell, int etaWidth, int 
    double EMcomp = sumVectorET(fullClus, digitScale, digitThresh);
    double result = HadET/(EMcomp+HadET);
    if (result < 0. || result > 1.){
-      ATH_MSG_WARNING ( "RHADTILE ERROR -> " << etaWidth << " * " << phiWidth);
+      ATH_MSG_WARNING ( "RHADTILE -> " << etaWidth << " * " << phiWidth);
       ATH_MSG_WARNING ( "fullClus count = " << fullClus.size() << ", EMcomp = " << EMcomp << ", HCALcomp = " << HadET);
       return 1.;
    }
@@ -596,8 +596,8 @@ LVL1::EFexEMClusterTool::REtaL12(const CaloCell* centreCell, int etaWidth1, int 
                                      float digitScale, float digitThresh) const
 {
    // Check windows sizes are right way round
-   if (etaWidth1 > etaWidth2) ATH_MSG_WARNING ( "REta ERROR: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2);
-   if (phiWidth1 > phiWidth2) ATH_MSG_WARNING ( "Rphi ERROR: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2);
+   if (etaWidth1 > etaWidth2) ATH_MSG_WARNING ( "REta: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2);
+   if (phiWidth1 > phiWidth2) ATH_MSG_WARNING ( "Rphi: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2);
    // Finds ET of windows
    double inner_ET = L2clusET(centreCell, etaWidth1, phiWidth1, scells, idHelper, digitScale, digitThresh);
    double outer_ET = L2clusET(centreCell, etaWidth2, phiWidth2, scells, idHelper, digitScale, digitThresh);
@@ -714,7 +714,7 @@ LVL1::EFexEMClusterTool::fromLayer2toLayer1(const CaloConstCellContainer* &input
          else if (eta_index == 19) offset = 13;
          else if (eta_index == 22) offset = 12;
          else {
-            ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+            ATH_MSG_WARNING ( "ISSUE with: " << __LINE__);
          }
          for (unsigned int  i = 0; i < 2; i++){
             outputEta = i+eta_index - offset;
@@ -857,7 +857,7 @@ LVL1::EFexEMClusterTool::L2cluster( const CaloCell* centreCell, int etaWidth, in
       addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
    }
    else if (phiWidth > 3) {
-      ATH_MSG_WARNING ( "ERROR: phiWidth not 2 or 3!!!");
+      ATH_MSG_WARNING ( "phiWidth not 2 or 3!!!");
    }
    // Forms the main cluster. Starts with each SC in the central band and spreads outward in eta
    std::vector<const CaloCell*> clusCells;
@@ -999,7 +999,7 @@ LVL1::EFexEMClusterTool::matchingHCAL_TT(const CaloCell* &inputCell, const xAOD:
    }
    if (matchingTTs.size()==1) return matchingTTs[0];
    else if (matchingTTs.size()!=0){	
-      ATH_MSG_WARNING ( "ERROR: More than one matching HCAL TT!!! (Returned Null)");
+      ATH_MSG_WARNING ( "More than one matching HCAL TT!!! (Returned Null)");
    }
    return nullptr;
 }
@@ -1024,7 +1024,7 @@ LVL1::EFexEMClusterTool::matchingHCAL_LAr(const CaloCell* &inputCell, const Calo
 
    if (matchingCells.size()==0){
 
-      ATH_MSG_WARNING ( "ERROR: No match betweem LAr ECAL SC and LAr HCAL SC!!! Input coords: " << inputCell->eta() << ", " << inputCell->phi());
+      ATH_MSG_WARNING ( "No match betweem LAr ECAL SC and LAr HCAL SC!!! Input coords: " << inputCell->eta() << ", " << inputCell->phi());
 
    } else if (matchingCells.size()!=0) {
 
@@ -1074,7 +1074,7 @@ LVL1::EFexEMClusterTool::TDR_Clus( const CaloCell* centreCell, int etaWidth, int
          addOnce(upPhiCell, centCells); //centCells.push_back(upPhiCell);
          addOnce(downPhiCell, centCells); //centCells.push_back(downPhiCell);
       }
-      else if (phiWidth > 3) ATH_MSG_WARNING ( "ERROR: phiWidth not 2 or 3!!!. Value = " << phiWidth);
+      else if (phiWidth > 3) ATH_MSG_WARNING ( "phiWidth not 2 or 3!!!. Value = " << phiWidth);
    }
    // The actual cluster is initialised
    std::vector<const CaloCell*> fullClus;
@@ -1202,14 +1202,14 @@ LVL1::EFexEMClusterTool::NextEtaCell_Barrel(const CaloCell* inputCell, bool upwa
       if (ithSampling == 0) maxEta_index = 14;
       else if (ithSampling == 1 || ithSampling == 2) maxEta_index = 55;
       else if (ithSampling == 3) maxEta_index = 13;
-      else ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+      else ATH_MSG_WARNING ( "ISSUE: " << __LINE__);
    }
    else if (ithRegion==1){
       if (ithSampling == 1) maxEta_index =2;
       else if (ithSampling == 2) maxEta_index=0;
-      else ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+      else ATH_MSG_WARNING ( "ISSUE: " << __LINE__);
    }
-   else ATH_MSG_WARNING ( "ERROR: " << __LINE__);    
+   else ATH_MSG_WARNING ( "ISSUE: " << __LINE__);    
    // Declare next values, default initialisation is the same as cell
    int nextEta_index = ithEta_index;
    // Phi shouldn't change!
@@ -1238,7 +1238,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_Barrel(const CaloCell* inputCell, bool upwa
          nextRegion = 0;
          tracker = 2;
       }
-      else ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+      else ATH_MSG_WARNING ( "ISSUE: " << __LINE__);
    }
 
    // If last cell in region & moving outwards
@@ -1278,7 +1278,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_Barrel(const CaloCell* inputCell, bool upwa
          nextPos_neg = 2 * ithPos_neg;
          tracker = 7;
       }
-      else ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+      else ATH_MSG_WARNING ( "ISSUE: " << __LINE__);
    }
    // Otherwise 'simply' next cell along
    else {
@@ -1291,7 +1291,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_Barrel(const CaloCell* inputCell, bool upwa
    Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, nextSampling, nextRegion, nextEta_index, ithPhi_index);
    const CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);      
    if (nextCell == nullptr) {
-      ATH_MSG_WARNING ( "ERROR: " << __LINE__);
+      ATH_MSG_WARNING ( "ISSUE: " << __LINE__);
       ATH_MSG_WARNING ( "Barrel Tracker = " << tracker);
       ATH_MSG_WARNING ( "from nextCellID: "<<idHelper->sub_calo(nextCellID)<<", "<<idHelper->pos_neg(nextCellID)<<", "<<idHelper->sampling(nextCellID)<<", "<<idHelper->region(nextCellID)<<", "<<idHelper->eta(nextCellID)<<", "<<idHelper->phi(nextCellID)<<", "<<idHelper->calo_cell_hash(nextCellID)<<", "<<nextCellID);            
    }
@@ -1343,7 +1343,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_OW( const CaloCell*inputCell, bool upwards,
          maxEta_index=0;
          break;
       case 1:
-         ATH_MSG_WARNING ( "ERROR " << __LINE__);
+         ATH_MSG_WARNING ( "ISSUE " << __LINE__);
          break;
       case 2:
          maxEta_index=11;
@@ -1361,7 +1361,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_OW( const CaloCell*inputCell, bool upwards,
          ATH_MSG_WARNING ( "OW region is not covered: " << ithRegion);
       }
    }        
-   else ATH_MSG_WARNING ( "ERROR: " << __LINE__ );
+   else ATH_MSG_WARNING ( "ISSUE: " << __LINE__ );
 
    // Calculate the increment for eta: it depends on whether we are moving 'up' & which side we are on
    int incrementEta;
@@ -1451,7 +1451,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_OW( const CaloCell*inputCell, bool upwards,
             nextRegion = ithRegion-1;
             if (nextRegion==0) {
                nextEta_index=0;
-               ATH_MSG_WARNING ( "ERROR: "<< __LINE__);
+               ATH_MSG_WARNING ( "ISSUE: "<< __LINE__);
             }
             else if (nextRegion==1) {
                nextRegion = 0;
@@ -1471,7 +1471,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_OW( const CaloCell*inputCell, bool upwards,
    Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, nextSampling, nextRegion, nextEta_index, nextPhi_index);
    const CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
    if (nextCell == nullptr) {
-      ATH_MSG_WARNING ( "ERROR: "<<__LINE__);
+      ATH_MSG_WARNING ( "ISSUE: "<<__LINE__);
       ATH_MSG_WARNING ( "OW Tracker = "<<tracker);
       ATH_MSG_WARNING ( "from nextCellID: "<<idHelper->sub_calo(nextCellID)<<", "<<idHelper->pos_neg(nextCellID)<<", "<<idHelper->sampling(nextCellID)<<", "<<idHelper->region(nextCellID)<<", "<<idHelper->eta(nextCellID)<<", "<<idHelper->phi(nextCellID)<<", "<<idHelper->calo_cell_hash(nextCellID)<<", "<<nextCellID);
       ATH_MSG_WARNING ( "Increment eta = "<<incrementEta<<", max_eta = "<<maxEta_index<<", min_eta = "<<minEta_index);     
@@ -1518,7 +1518,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_IW( const CaloCell* inputCell, bool upwards
       maxEta_index=2;
       minEta_index=0;
    }
-   else if (ithRegion!=1) ATH_MSG_WARNING ( "ERROR: " <<__LINE__);
+   else if (ithRegion!=1) ATH_MSG_WARNING ( "ISSUE: " <<__LINE__);
 
    // Calculate the increment for eta: it depends on whether we are moving 'up' & which side we are on
    int incrementEta;
@@ -1541,7 +1541,7 @@ LVL1::EFexEMClusterTool::NextEtaCell_IW( const CaloCell* inputCell, bool upwards
             nextRegion=1;
             nextEta_index=42;
          }
-         else ATH_MSG_WARNING ( "ERROR: " <<__LINE__);
+         else ATH_MSG_WARNING ( "ISSUE: " <<__LINE__);
       }
       // Goes to IW region 0
       else if (ithRegion == 1){
