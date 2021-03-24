@@ -52,7 +52,6 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
     ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
 
     
-    Gaudi::Property<std::string>      m_configFile{this, "ConfigFile", "", "Ringer Run3 Calib Path"};  
     Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Ringer Run2 Constants Calib Path"};  
     Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Ringer Run2 Thresholds Calib Path"};  
     Gaudi::Property< bool >           m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };

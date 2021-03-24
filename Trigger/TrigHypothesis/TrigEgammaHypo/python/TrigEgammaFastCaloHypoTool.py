@@ -11,6 +11,60 @@ from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 
+def TrigEgammaFastCaloSelectors(sel, doPhotons=False, ConfigFilePath='RingerSelectorTools/TrigL2_20210227_r3'):
+    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TrigEgammaFastCaloSelectors') 
+    SelectorNames = {
+        "Electrons": {
+            'lhvloose' : 'AsgElectronFastCaloRingerVeryLooseSelectorTool',
+            'lhloose'  : 'AsgElectronFastCaloRingerLooseSelectorTool',
+            'lhmedium' : 'AsgElectronFastCaloRingerMediumSelectorTool',
+            'lhtight'  : 'AsgElectronFastCaloRingerTightSelectorTool',
+            'vloose'   : 'AsgElectronFastCaloRingerVeryLooseSelectorTool',
+            'loose'    : 'AsgElectronFastCaloRingerLooseSelectorTool',
+            'medium'   : 'AsgElectronFastCaloRingerMediumSelectorTool',
+            'tight'    : 'AsgElectronFastCaloRingerTightSelectorTool',
+            },
+        "Photons": {
+            'loose'  : 'AsgPhotonFastCaloRingerLooseSelectorTool',
+            'medium' : 'AsgPhotonFastCaloRingerMediumSelectorTool',
+            'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool',
+          }
+    }
+    
+    ToolConfigFile = {
+        "Electrons" : {
+          'lhvloose':'ElectronRingerVeryLooseTriggerConfig.conf',
+          'lhloose' :'ElectronRingerLooseTriggerConfig.conf',
+          'lhmedium':'ElectronRingerMediumTriggerConfig.conf',
+          'lhtight' :'ElectronRingerTightTriggerConfig.conf',
+          'vloose'  :'ElectronRingerVeryLooseTriggerConfig.conf',
+          'loose'   :'ElectronRingerLooseTriggerConfig.conf',
+          'medium'  :'ElectronRingerMediumTriggerConfig.conf',
+          'tight'   :'ElectronRingerTightTriggerConfig.conf',
+          },
+        "Photons" : {
+          'loose' :'PhotonRingerLooseTriggerConfig.conf',
+          'medium':'PhotonRingerMediumTriggerConfig.conf',
+          'tight' :'PhotonRingerTightTriggerConfig.conf',
+        }
+    }
+
+    cand = 'Photons' if doPhotons else 'Electrons'
+    if sel not in SelectorNames[cand]:
+        log.fatal('No selector defined for working point %s for electrons ringer :-( ', sel)
+    else:
+        log.debug('Configuring electron ringer PID for %s', sel)
+        SelectorTool=Ringer__AsgRingerSelectorTool(SelectorNames[cand][sel])
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ToolConfigFile[cand][sel]
+        return SelectorTool
+
+
+ 
+
+
+
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
 
@@ -135,17 +189,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
     self.tool().EtCut     = (self.etthr()-3.)*GeV  
-    
-    if self.__useRun3:
-      # Set the hypo to use the ONNX API for inference
-      self.tool().UseRun3 = True
-      self.tool().ConfigFile = self.__getRingerConfiguration()
-    else:
-      # Set the hypo to use the Run2 ringer selector code for inference
-      pconstants, pthresholds = self.__getRingerConfiguration()
-      self.tool().UseRun3 = False
-      self.tool().ConstantsCalibPath = pconstants
-      self.tool().ThresholdsCalibPath = pthresholds
+    self.__setupRingerConfiguration()
 
 
 
@@ -229,27 +273,20 @@ class TrigEgammaFastCaloHypoToolConfig:
         self.tool().MonTool = monTool
 
 
-  def __getRingerConfiguration(self):
+  def __setupRingerConfiguration(self):
 
     possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                          'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
-
     
     if not self.pidname() in possibleSel.keys():
        raise RuntimeError( "Bad selection name: %s" % self.pidname() )
-    
-    if self.__useRun3:
-      from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool
+   
+    if self.__useRun3: # new ringer selector
       basepath = 'RingerSelectorTools/TrigL2_20210227_r3'
-      self.__log.info('Ringer version: %s', basepath)
-      basepath += basepath+ '/ElectronRinger{OP}TriggerConfig.conf'.format(OP=possibleSel[self.pidname()] )
-      selector = Ringer__AsgRingerSelectorTool( "Ringer"+possibleSel[self.pidname()] )
-      selector.ConfigFile = basepath
-      self.tool().RingerSelector = selector
-
+      self.tool().UseRun3 = True
+      self.tool().RingerSelector = TrigEgammaFastCaloSelectors( self.pidname(), doPhotons=self.isPhoton(), ConfigFilePath=basepath )
     else:
       basepath = 'RingerSelectorTools/TrigL2_20180903_v9'
-      self.__log.info('Ringer version: %s', basepath)
       if self.isElectron():
          constant = basepath+'/'+ 'TrigL2CaloRingerElectron{OP}Constants.root'.format(OP=possibleSel[self.pidname()])
          threshold = basepath+'/'+ 'TrigL2CaloRingerElectron{OP}Thresholds.root'.format(OP=possibleSel[self.pidname()])
@@ -258,7 +295,10 @@ class TrigEgammaFastCaloHypoToolConfig:
          threshold = basepath+'/'+ 'TrigL2CaloRingerPhoton{OP}Thresholds.root'.format(OP=possibleSel[self.pidname()])
       else:
          raise RuntimeError( "Bad signature %s" % self.__cand )
-      return constant, threshold
+      self.tool().UseRun3 = False
+      self.tool().ConstantsCalibPath = constant
+      self.tool().ThresholdsCalibPath = threshold
+
 
 
 def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo):
