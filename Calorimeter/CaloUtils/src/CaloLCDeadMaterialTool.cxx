@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef DEBUG_DMTHINGS
@@ -558,7 +558,6 @@ CaloLCDeadMaterialTool::prepare_for_cluster
 
     float energy = thisCell->e();
     float weight = itrCell.weight();
-    //float sigma =  m_noiseTool->getNoise(thisCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
     cls_unweighted_energy += energy;
 
     Cell cell;

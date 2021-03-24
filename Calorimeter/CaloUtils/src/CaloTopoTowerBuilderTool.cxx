@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -106,24 +106,11 @@ StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
 
   ATH_MSG_DEBUG("Energy cuts " << minimumCellEnergy << " " << minimumClusterEnergy << " " << useCellWeights);
 
-  // Noise tool stuff
-  bool useNoiseTool = theTowers->GetUseNoiseTool();
-  bool usePileUpNoise = theTowers->GetUsePileUpNoise();
   float noiseSigma0 = theTowers->GetNoiseSigma();
   float cellESignificanceThreshold = theTowers->GetCellESignificanceThreshold();
 
 
-  if (useNoiseTool) {
-    ATH_MSG_WARNING( " Using noise tool in CaloTopoTowerBuilderTool no supported. give up => No CaloTopoTowers are made"  );
-    if(delete_cellToClusterMap){
-      ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer");
-      delete cellToClusterMap;
-      ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer Finished");
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG("Noise cuts "<< noiseSigma0 << " " <<  cellESignificanceThreshold << " " << useNoiseTool << " " << usePileUpNoise);
+  ATH_MSG_DEBUG("Noise cuts "<< noiseSigma0 << " " <<  cellESignificanceThreshold);
 
   // List of calorimeters from which to use cells
   std::vector<CaloCell_ID::SUBCALO> caloIndices = theTowers->GetCaloIndices();
