@@ -111,7 +111,15 @@ def MuIsoViewDataVerifierCfg():
     result.addEventAlgo(alg)
     return result
 
-
+def MuDataPrepViewDataVerifierCfg():
+    result = ComponentAccumulator()
+    alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuDataPrep",
+                                                 DataObjects = [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' ),
+                                                                ( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
+                                                                ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),
+                                                                ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )])
+    result.addEventAlgo(alg)
+    return result
 
 #Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here
 #until a better location can be found
@@ -184,12 +192,16 @@ def decodeCfg(flags, RoIs):
     doSeededDecoding =True
     if 'FS' in RoIs:
         doSeededDecoding = False
+
+    if flags.Input.isMC:
+        acc.merge(MuDataPrepViewDataVerifierCfg())
     # Get RPC BS decoder
-    rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
-    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
-    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
-    acc.merge( rpcAcc )
+    if not flags.Input.isMC:
+        rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
+        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
+        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
+        rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
+        acc.merge( rpcAcc )
 
     # Get RPC BS->RDO convertor
     rpcAcc = RpcRDODecodeCfg( flags, name= "RpcRdoToRpcPrepData_"+RoIs )
@@ -198,11 +210,12 @@ def decodeCfg(flags, RoIs):
     acc.merge( rpcAcc )
 
     # Get TGC BS decoder
-    tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
-    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
-    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
-    acc.merge( tgcAcc )
+    if not flags.Input.isMC:
+        tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
+        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
+        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
+        tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
+        acc.merge( tgcAcc )
 
     # Get TGC BS->RDO convertor
     tgcAcc = TgcRDODecodeCfg( flags, name="TgcRdoToTgcPrepData_"+RoIs )
@@ -211,11 +224,12 @@ def decodeCfg(flags, RoIs):
     acc.merge( tgcAcc )
 
     # Get MDT BS decoder
-    mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
-    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
-    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
-    acc.merge( mdtAcc )
+    if not flags.Input.isMC:
+        mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
+        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
+        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
+        mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
+        acc.merge( mdtAcc )
 
     # Get MDT BS->RDO convertor
     mdtAcc = MdtRDODecodeCfg( flags, name="MdtRdoToMdtPrepData_"+RoIs )
@@ -224,11 +238,12 @@ def decodeCfg(flags, RoIs):
     acc.merge( mdtAcc )
 
     # Get CSC BS decoder
-    cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
-    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
-    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
-    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
-    acc.merge( cscAcc )
+    if not flags.Input.isMC:
+        cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
+        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
+        cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
+        acc.merge( cscAcc )
 
     # Get CSC BS->RDO convertor
     cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
