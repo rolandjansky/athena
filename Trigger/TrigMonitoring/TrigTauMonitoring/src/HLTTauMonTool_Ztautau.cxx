@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*    @file HLTTauMonTool_Ztautau.cxx
@@ -187,7 +187,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
       }
     }
  
-  if(off_ex!=0. || off_ey!=0.) off_met = sqrt(off_ex*off_ex+off_ey+off_ey);
+  if(off_ex!=0. || off_ey!=0.) off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
   if(off_met==-9e9 || off_met==0.) return StatusCode::SUCCESS; 
       //off_sumet = ((*off_met_cont)["FinalClus"]->sumet());
       //off_phi = atan2(off_ey, off_ex);
