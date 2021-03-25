@@ -14,9 +14,6 @@ atlas_add_library( RegistrationServicesLib
 
 # Component(s) in the package:
 atlas_add_component( RegistrationServices
-                     src/RegistrationStream.cxx
-                     src/RegistrationStreamLCGTool.cxx
-                     src/RegistrationStreamTagTool.cxx
                      src/IOVRegistrationSvc.cxx
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx

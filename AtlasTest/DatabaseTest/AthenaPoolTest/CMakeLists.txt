@@ -126,12 +126,6 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
                 LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR"
                 PROPERTIES TIMEOUT 900 )
 
-# Test of explicit collection write/read
-#athenapooltest_run_test( LArCellContWriteReg LArCellContWriter_jobOptionsReg
-#                         "LArCellContFake" )
-#athenapooltest_run_test( LArCellContReadReg LArCellContReader_jobOptionsReg
-#                         "LArCellContFake" )
-# 
 # LFN test
 #athenapooltest_run_test( LArCellContWriteStep1 LArCellContWriter_jobOptionsStep1
 #                         "LArCellContFake" )
@@ -165,19 +159,6 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
 # AthenaPoolTestWrite - write out implicit collection with athena pool test data
 #athenapooltest_run_test( AthenaPoolTestWrite2 AthenaPoolTestWrite
 #                         "^AthenaPoolTestD" )
-# LArCellContWriteRegStep2 - write out explicit collection with LArCellCont
-#athenapooltest_run_test( LArCellContWriteRegStep2 LArCellContWriter_jobOptionsRegStep2
-#                         "LArCellContFake" )
-# LArCellContWriteRegStep3 - write out explicit collection with LArCellCont 
-# in separate step
-#athenapooltest_run_test( LArCellContWriteRegStep3 LArCellContWriter_jobOptionsRegStep3
-#                         "LArCellContFake" )
-# LArCellContReadRegStep1 - read in LArCellCont
-#athenapooltest_run_test( LArCellContReadRegStep1 LArCellContReader_jobOptionsRegStep1
-#                         "LArCellContFake" )
-# LArCellContReadRegStep2 - read in athena pool test data
-#athenapooltest_run_test( LArCellContReadRegStep2 LArCellContReader_jobOptionsRegStep2
-#                         "LArCellContFake" )
 
 # Check for adding DetDescr tags to event info object:
 athenapooltest_run_test( EventInfoWrite EventInfoWrite
