@@ -9,6 +9,7 @@
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <iostream>
 #include <fstream>

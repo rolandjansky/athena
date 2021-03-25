@@ -10,6 +10,7 @@
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <vector>
 #include <map>
