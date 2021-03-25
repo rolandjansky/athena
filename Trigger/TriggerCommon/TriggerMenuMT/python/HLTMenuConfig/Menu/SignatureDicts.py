@@ -76,7 +76,8 @@ TestChainParts = {
     'threshold'      : '',
     'addInfo'        : [''],
     'sigFolder'     : 'Test',
-    'subSigs'       : ['Test']
+    'subSigs'       : ['Test'],
+    'chainPartIndex': list(range(0,10))
 }
 
 # ---- Test Dictionary of default Values ----
@@ -89,7 +90,8 @@ TestChainParts_Default = {
     'threshold'      : '',
     'addInfo'        : [],
     'sigFolder'     : 'Test',
-    'subSigs'       : ['Test']
+    'subSigs'       : ['Test'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -111,7 +113,7 @@ JetChainParts = {
     'addInfo'      : ['perf'],
     'sigFolder'     : 'Jet',
     'subSigs'       : ['Jet'],
-
+    'chainPartIndex': list(range(0,10)),
     # Information unique to the jet slice
     # Reco information
     'recoAlg'      : # Jet clustering algorithm
@@ -185,7 +187,7 @@ JetChainParts = {
                       'bdl1r60','bdl1r70','bdl1r77','bdl1r85'],
     'bTracking'    : [],
     'bConfig'      : ['split',],
-    'bMatching'    : ['antimatchdr05mu'],
+    'bMatching'    : ['antimatchdr05mu']
 }
 
 # ---- Jet Dictionary of default Values ----
@@ -225,6 +227,7 @@ JetChainParts_Default = {
     'bTracking'     : '',
     'bConfig'       : [],
     'bMatching'     : [],
+    'chainPartIndex': 0
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
@@ -256,7 +259,8 @@ MuonChainParts = {
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',
-    'subSigs'       : ['Muon']
+    'subSigs'       : ['Muon'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- MuonDictionary of default Values ----
 MuonChainParts_Default = {
@@ -276,7 +280,8 @@ MuonChainParts_Default = {
     'topo'           : [],
     'flavour'        : '',
     'sigFolder'     : 'Muon',
-    'subSigs'       : ['Muon']
+    'subSigs'       : ['Muon'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -325,7 +330,8 @@ TauChainParts = {
     'addInfo'       : ['IdTest'],
     'topo'          : AllowedTopos_tau,
     'sigFolder'     : 'Tau',
-    'subSigs'       : ['Tau']
+    'subSigs'       : ['Tau'],
+    'chainPartIndex': list(range(0,10))
 }
 TauChainParts_Default = {
     'signature'     : ['Tau'],
@@ -344,7 +350,8 @@ TauChainParts_Default = {
     'addInfo'       :  '',
     'topo'          : [],
     'sigFolder'     : 'Tau',
-    'subSigs'       : ['Tau']
+    'subSigs'       : ['Tau'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -372,7 +379,8 @@ METChainParts = {
     'addInfo'        : ['FStracks'],
     'sigFolder'      : 'MET',
     'subSigs'        : ['MET'],
-    'constitmod'     : ['cssk', 'vssk']
+    'constitmod'     : ['cssk', 'vssk'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- MetDictionary of default Values ----
 METChainParts_Default = {
@@ -392,7 +400,8 @@ METChainParts_Default = {
     'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
-    'subSigs'       : ['MET']
+    'subSigs'       : ['MET'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -445,7 +454,8 @@ ElectronChainParts = {
     'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'topo'          : AllowedTopos_e
+    'topo'          : AllowedTopos_e,
+    'chainPartIndex': list(range(0,10))
 }
 
 # ---- Egamma Dictionary of default Values ----
@@ -471,7 +481,8 @@ ElectronChainParts_Default = {
     'FSinfo'         : '',
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
+    'subSigs'       : ['Electron','Photon'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -499,7 +510,8 @@ PhotonChainParts = {
     'addInfo'        : ['etcut',],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'topo'          : AllowedTopos_g
+    'topo'          : AllowedTopos_g,
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Photon Dictionary of default Values ----
@@ -521,7 +533,8 @@ PhotonChainParts_Default = {
     'FSinfo'         : '',
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
+    'subSigs'       : ['Electron','Photon'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -553,7 +566,8 @@ MinBiasChainParts = {
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb'],
     'sigFolder'     : 'MinBias',
-    'subSigs'       : ['MinBias']
+    'subSigs'       : ['MinBias'],
+    'chainPartIndex': list(range(0,10))
     }
 # ---- MinBiasDictionary of default Values ----
 MinBiasChainParts_Default = {
@@ -575,7 +589,8 @@ MinBiasChainParts_Default = {
     'recoAlg'        : [],
     'addInfo'        : [],
     'sigFolder'     : 'MinBias',
-    'subSigs'       : ['MinBias']
+    'subSigs'       : ['MinBias'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -603,7 +618,8 @@ HeavyIonChainParts = {
     'addInfo'        : [],
     'gap'            : [],
     'sigFolder'     : 'HeavyIon',
-    'subSigs'       : ['HeavyIon']
+    'subSigs'       : ['HeavyIon'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- HeavyIonDictionary of default Values ----
@@ -628,7 +644,8 @@ HeavyIonChainParts_Default = {
     'addInfo'        : [],
     'gap'            : '',
     'sigFolder'     : 'HeavyIon',
-    'subSigs'       : ['HeavyIon']
+    'subSigs'       : ['HeavyIon'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -652,7 +669,8 @@ CosmicChainParts = {
     'trigType'       : 'cosmic',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Cosmic']
+    'subSigs'       : ['Cosmic'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Cosmic Chain Default Dictionary of all allowed Values ----
@@ -670,7 +688,8 @@ CosmicChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Cosmic']
+    'subSigs'       : ['Cosmic'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -695,7 +714,8 @@ StreamingChainParts = {
     'streamType'     : AllowedStreamingChainIdentifiers,
     'algo' : ['NoAlg'],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Streaming']
+    'subSigs'       : ['Streaming'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Cosmic Chain Default Dictionary of all allowed Values ----
@@ -712,7 +732,8 @@ StreamingChainParts_Default = {
     'streamType'     : '',
     'algo' : [],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Streaming']
+    'subSigs'       : ['Streaming'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -744,7 +765,8 @@ CalibChainParts = {
     'trigType'       : ['trk'],
     'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Calib']
+    'subSigs'       : ['Calib'],
+    'chainPartIndex': list(range(0,10))
     }
 
 
@@ -765,7 +787,8 @@ CalibChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Calib']
+    'subSigs'       : ['Calib'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -791,7 +814,8 @@ MonitorChainParts = {
     'trigType'       : 'mon',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Monitor']
+    'subSigs'       : ['Monitor'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Monitor Chain Default Dictionary of all allowed Values ----
@@ -807,7 +831,8 @@ MonitorChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Monitor']
+    'subSigs'       : ['Monitor'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -827,7 +852,8 @@ EnhancedBiasChainParts = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['EnhancedBias']
+    'subSigs'       : ['EnhancedBias'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- EnhancedBias Chain Default Dictionary of all allowed Values ----
@@ -842,7 +868,8 @@ EnhancedBiasChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['EnhancedBias']
+    'subSigs'       : ['EnhancedBias'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -864,7 +891,8 @@ BeamspotChainParts = {
     'trigType'       : 'beamspot',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Beamspot']
+    'subSigs'       : ['Beamspot'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Beamspot Chain Default Dictionary of all allowed Values ----
@@ -883,7 +911,8 @@ BeamspotChainParts_Default = {
     'trigType'       : 'beamspot',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Beamspot']
+    'subSigs'       : ['Beamspot'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -903,7 +932,8 @@ UnconventionalTrackingChainParts = {
     'extra'          : ["isohpttrack", "fslrt"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
-    'subSigs'       : ['UnconventionalTracking']
+    'subSigs'       : ['UnconventionalTracking'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- Unconventional Tracking Dictionary of default Values ----
 UnconventionalTrackingChainParts_Default = {
@@ -919,7 +949,8 @@ UnconventionalTrackingChainParts_Default = {
     'extra'          : '',
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
-    'subSigs'       : ['UnconventionalTracking']
+    'subSigs'       : ['UnconventionalTracking'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
