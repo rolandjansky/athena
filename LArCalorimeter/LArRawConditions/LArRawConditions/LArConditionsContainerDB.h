@@ -38,7 +38,7 @@
 **/
 
 #include "LArRawConditions/LArConditionsSubset.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -76,11 +76,11 @@ public:
 	iteratorT(MAP_ITERATOR febit, 
                   CHAN_ITERATOR chanit, 
                   MAP_ITERATOR febendit,
-                  const LArOnlineID* onlineHelper);
+                  const LArOnlineID_Base* onlineHelper);
 	iteratorT(MAP_ITERATOR febit, 
                   CHAN_ITERATOR chanit, 
                   MAP_ITERATOR febendit,
-                  const LArOnlineID* onlineHelper,
+                  const LArOnlineID_Base* onlineHelper,
                   const FebIdVec& febIds);
 	REFERENCE operator*() const;
         POINTER   operator->() const;
@@ -99,7 +99,7 @@ public:
 	// m_lastFebit is initialized with m_febMap.end()...
 	//...and decremented to point to the last filled FEB.
 	MAP_ITERATOR m_lastFebIt;
-	const LArOnlineID*         m_onlineHelper;
+	const LArOnlineID_Base*         m_onlineHelper;
 	FebIdVec                   m_febIds;
 	unsigned int               m_febIdsIndex;
 
@@ -133,17 +133,17 @@ public:
     bool                         exist(FebId id) const;
 
     /// Iterator over all channels 
-    const_iterator               begin(const LArOnlineID* onlineHelper) const;
-    const_iterator               end  (const LArOnlineID* onlineHelper) const;
+    const_iterator               begin(const LArOnlineID_Base* onlineHelper) const;
+    const_iterator               end  (const LArOnlineID_Base* onlineHelper) const;
 
-    iterator                     begin(const LArOnlineID* onlineHelper);
-    iterator                     end  (const LArOnlineID* onlineHelper);
+    iterator                     begin(const LArOnlineID_Base* onlineHelper);
+    iterator                     end  (const LArOnlineID_Base* onlineHelper);
 
     /// Iterator over all channels of selected FEBs
-    const_iterator               begin(const LArOnlineID* onlineHelper,
+    const_iterator               begin(const LArOnlineID_Base* onlineHelper,
 				       const FebIdVec& febIds) const;
 
-    iterator                     begin(const LArOnlineID* onlineHelper,
+    iterator                     begin(const LArOnlineID_Base* onlineHelper,
 				       const FebIdVec& febIds);
 
     /// Size of map
@@ -193,7 +193,7 @@ LArConditionsContainerDB<T>::LArConditionsContainerDB(unsigned int gain)
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::const_iterator 
-LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper) const 
+LArConditionsContainerDB<T>::begin(const LArOnlineID_Base* onlineHelper) const 
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
 	return m_dummyConstIt;
@@ -208,7 +208,7 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper) const
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::iterator 
-LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper)
+LArConditionsContainerDB<T>::begin(const LArOnlineID_Base* onlineHelper)
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
 	return m_dummyIt;
@@ -223,7 +223,7 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper)
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::const_iterator 
-LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
+LArConditionsContainerDB<T>::begin(const LArOnlineID_Base* onlineHelper,
 				   const FebIdVec& febIds) const 
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
@@ -251,7 +251,7 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::iterator 
-LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
+LArConditionsContainerDB<T>::begin(const LArOnlineID_Base* onlineHelper,
 				   const FebIdVec& febIds)
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
@@ -280,7 +280,7 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::const_iterator
-LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper) const
+LArConditionsContainerDB<T>::end(const LArOnlineID_Base* onlineHelper) const
 {
     if (m_febMap.size()==0) {
 	return m_dummyConstIt;
@@ -300,7 +300,7 @@ LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper) const
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::iterator
-LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper)
+LArConditionsContainerDB<T>::end(const LArOnlineID_Base* onlineHelper)
 {
     if (m_febMap.size()==0) {
 	return m_dummyIt;
@@ -337,7 +337,7 @@ LArConditionsContainerDB<T>::ITERATORT::iteratorT
   (MAP_ITERATOR febit, 
    CHAN_ITERATOR chanit, 
    MAP_ITERATOR febendit,
-   const LArOnlineID* onlineHelper) : 
+   const LArOnlineID_Base* onlineHelper) : 
 	m_channelIt(chanit),
 	m_febIt(febit),
 	m_lastFebIt(febendit),
@@ -352,7 +352,7 @@ LArConditionsContainerDB<T>::ITERATORT::iteratorT
   (MAP_ITERATOR febit, 
    CHAN_ITERATOR chanit, 
    MAP_ITERATOR febendit,
-   const LArOnlineID* onlineHelper,
+   const LArOnlineID_Base* onlineHelper,
    const FebIdVec& febIds)
 	:
 	m_channelIt(chanit),

@@ -10,7 +10,7 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <Eigen/Dense>
 
