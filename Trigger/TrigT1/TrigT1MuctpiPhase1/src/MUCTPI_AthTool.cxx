@@ -6,6 +6,7 @@
 #include "TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
 #include "TrigT1MuctpiPhase1/SimController.h"
 #include "TrigT1MuctpiPhase1/TriggerProcessor.h"
+#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
 #include "TrigT1MuctpiPhase1/Configuration.h"
 #include "TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
 
@@ -43,10 +44,10 @@ namespace LVL1MUCTPIPHASE1 {
   const std::string MUCTPI_AthTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string MUCTPI_AthTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string MUCTPI_AthTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
-  const std::string MUCTPI_AthTool::m_DEFAULT_barrelRoIFile          = "TrigConfMuctpi/Data_ROI_Mapping_Barrel.txt";
-  const std::string MUCTPI_AthTool::m_DEFAULT_ecfRoIFile          = "TrigConfMuctpi/Data_RoI_Mapping_EF.txt";
-  const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile          = "TrigConfMuctpi/lookup_0.json";
-  const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile          = "TrigConfMuctpi/lookup_1.json";
+  const std::string MUCTPI_AthTool::m_DEFAULT_barrelRoIFile            = "TrigConfMuctpi/Data_ROI_Mapping_Barrel_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_ecfRoIFile               = "TrigConfMuctpi/Data_RoI_Mapping_EF_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile             = "TrigConfMuctpi/lookup_0_20201214.json";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile             = "TrigConfMuctpi/lookup_1_20201214.json";
 
   MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent)
@@ -159,7 +160,10 @@ namespace LVL1MUCTPIPHASE1 {
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
 
-      m_theMuctpi->configureOverlapRemoval(fullFileName);
+      for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+      {
+	m_theMuctpi->getMuonSectorProcessors()[i]->configureOverlapRemoval(fullFileName);
+      }
 
     } else {
 
@@ -188,10 +192,9 @@ namespace LVL1MUCTPIPHASE1 {
     m_MuCTPIL1TopoKey_p2 = m_MuCTPIL1TopoKey.key()+std::to_string(2);
     ATH_CHECK(m_MuCTPIL1TopoKey_p2.initialize());
 
-    CHECK( m_rpcTool.retrieve() );
-    CHECK( m_tgcTool.retrieve() );
-    CHECK( m_trigThresholdDecisionTool.retrieve() );
-    m_theMuctpi->getTriggerProcessor()->setTrigTool(*m_trigThresholdDecisionTool);
+    ATH_CHECK( m_rpcTool.retrieve() );
+    ATH_CHECK( m_tgcTool.retrieve() );
+    ATH_CHECK( m_trigThresholdDecisionTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -202,11 +205,21 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO( "Start for Phase1 MUCTPI_AthTool"  );
     ATH_MSG_INFO( "=======================================" );
 
-
     ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
     const TrigConf::L1Menu * l1menu = nullptr;
     ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+    m_theMuctpi->getTriggerProcessor()->setTrigTool(*m_trigThresholdDecisionTool);
     m_theMuctpi->getTriggerProcessor()->setMenu(l1menu);
+    for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+    {
+      m_theMuctpi->getMuonSectorProcessors()[i]->setMenu(l1menu);
+      if (!m_theMuctpi->getMuonSectorProcessors()[i]->configurePtEncoding())
+      {
+	REPORT_ERROR( StatusCode::FAILURE )
+	  << "Couldn't configure pt encoding in MuonSectorProcessor " << i;
+	return StatusCode::FAILURE;
+      }
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -280,11 +293,11 @@ namespace LVL1MUCTPIPHASE1 {
 
     //always process the central slice, which defaults to bcidOffset = 0
     // process the input in the MUCTPI simulation
-    bool success = m_theMuctpi->processData( &mergedInput );      
-    if (!success)
+    std::string ret = m_theMuctpi->processData( &mergedInput );
+    if (ret != "")
     {
       REPORT_ERROR( StatusCode::FAILURE )
-	<< "Error while processing MUCTPI data";
+	<< "Error while processing MUCTPI data: " << ret;
       return StatusCode::FAILURE;
     }
     // Save the output of the simulation
@@ -306,7 +319,7 @@ namespace LVL1MUCTPIPHASE1 {
 	  CHECK( saveOutput( (*it) ) );	    
 	}
       }
-      }    
+    }
 
     return StatusCode::SUCCESS;
   }

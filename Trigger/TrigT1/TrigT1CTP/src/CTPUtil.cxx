@@ -70,7 +70,7 @@ namespace LVL1CTP {
    int CTPUtil::getMult( const std::vector<unsigned int>& words, unsigned int startbit, unsigned int endbit ) {
       std::bitset<256> bits = convertToBitset(words);
       std::bitset<256> mask = pow( 2, endbit - startbit + 1 ) - 1;
-      bits >>= startbit;
+      bits >>= (startbit-1);
       return static_cast<int>((bits&mask).to_ulong());
    }
 
@@ -94,8 +94,8 @@ namespace LVL1CTP {
 
       for (size_t i(0); i < words.size(); ++i) {
          std::bitset<256> bs = words[i];
-         bs <<= (i * 32);
-         bitset |= bs;
+	 bs <<= (i * 32);
+	 bitset |= bs;
       }
 
       return bitset;

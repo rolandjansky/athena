@@ -12,6 +12,8 @@
 #include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include "TrigConfMuctpi/MuctpiXMLHelper.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1Threshold.h"
 
 // Headers from external packages.
 #include <boost/property_tree/ptree.hpp>
@@ -25,7 +27,7 @@
 #include <set>
 #include <array>
 #include <vector>
-
+#include <utility>
 
 using boost::property_tree::ptree;
 
@@ -225,6 +227,7 @@ namespace LVL1MUCTPIPHASE1 {
     :
     m_muctpiInput(nullptr),
     m_overlapHelper(new OverlapHelper),
+    m_l1menu(nullptr),
     m_l1topoLUT(nullptr),
     m_side(side)
   {
@@ -237,10 +240,72 @@ namespace LVL1MUCTPIPHASE1 {
   }
 
 
+  void MuonSectorProcessor::setMenu(const TrigConf::L1Menu* l1menu)
+  {
+    m_l1menu = l1menu;
+  }
+
   void MuonSectorProcessor::configureOverlapRemoval(const std::string& lutFile)
   {
     m_overlapHelper->configure(lutFile);
   }
+
+  bool MuonSectorProcessor::configurePtEncoding()
+  {
+    if (!m_l1menu) return false;
+
+    m_ptEncoding.clear();
+    m_ptEncoding = std::vector<std::map<int, int> >(3, std::map<int, int>());
+
+    //build the map between index and pt threshold.
+    //the index is the 3- or 4-bit pt word, and has a different
+    //pt threshold meaning depending on the subsystem.
+    //the value part of the map is the pt value for the 3 subsystems,
+    //and the key is the index for an arbitrary subsystem.
+    //not all indices will be covered by all subsystems since
+    //barrel only has 3 bits, so initialize the value tuple with -1
+    const std::vector<std::shared_ptr<TrigConf::L1Threshold> >* thresholds = &m_l1menu->thresholds("MU");
+    for (auto itr=thresholds->begin();itr!=thresholds->end();++itr)
+    {
+      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(*itr);
+
+      std::vector<std::pair<int, int> > values;
+      values.push_back(std::make_pair(thr->idxBarrel()+1, thr->ptBarrel()));
+      values.push_back(std::make_pair(thr->idxEndcap()+1, thr->ptEndcap()));
+      values.push_back(std::make_pair(thr->idxForward()+1, thr->ptForward()));
+
+      for (unsigned i=0;i<3;i++) m_ptEncoding[i][values[i].first] = values[i].second;
+    }
+
+    //for the indices that weren't filled, add the next highest value.
+    //reverse iterate over the encoded values, check if the previous value
+    //is empty for each subsys, and fill it with the next highest value if so.
+    for (unsigned isub=0;isub<3;isub++)
+    {
+      std::map<int, int> filledEncoding = m_ptEncoding[isub];
+      for (auto itr = m_ptEncoding[isub].rbegin();itr != m_ptEncoding[isub].rend(); ++itr)
+      {
+	int idx = itr->first;
+	int thr = itr->second;
+
+	//fill from the N-1 index until either 0 or we've reached the next lowest encoded value
+	for (int previous_idx=idx-1; previous_idx >= 0; previous_idx--)
+	{
+	  //stop if we've reached the next lowest filled encoding
+	  if (m_ptEncoding[isub].find(previous_idx) != m_ptEncoding[isub].end()) break;
+
+	  //fill
+	  filledEncoding[previous_idx] = thr;
+	}
+
+	//set the member variable to the now-filled encoding
+      }
+      m_ptEncoding[isub] = filledEncoding;
+    }
+
+    return true;
+  }
+
   
   void MuonSectorProcessor::setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input)
   {
@@ -273,7 +338,7 @@ namespace LVL1MUCTPIPHASE1 {
 	    if (isys == 0) sectorName="B";
 	    else if (isys == 1) sectorName="E";
 	    else if (isys == 2) sectorName="F";
-	    
+
 	    int roiID = sectorData->roi(icand);
 	    if (roiID < 0) continue;
 	    int ptword = sectorData->pt(icand);
@@ -297,7 +362,7 @@ namespace LVL1MUCTPIPHASE1 {
     }
   }
   
-  void MuonSectorProcessor::makeL1TopoData(int bcid)
+  std::string MuonSectorProcessor::makeL1TopoData(int bcid)
   {
     if (m_bcid_to_l1topo[bcid]) delete m_bcid_to_l1topo[bcid];
     m_bcid_to_l1topo[bcid] = new LVL1::MuCTPIL1Topo();
@@ -313,35 +378,33 @@ namespace LVL1MUCTPIPHASE1 {
 	{
 	  if (isub != (unsigned short)(m_side)) continue;
 	  const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_muctpiInput->getSectorLogicData(isys, isub, isec, bcid);
-	  if (!sectorData)
+	  if (!sectorData) continue;
+
+	  //build the sector name
+	  std::stringstream sectorName;
+	  if (isys == 0) sectorName<<"B";
+	  else if (isys == 1) sectorName<<"E";
+	  else if (isys == 2) sectorName<<"F";
+	    
+	  LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem side = static_cast<LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem>(isub);
+	  if (isys == 0)
 	  {
-	    continue;
+	    int sectorNumber=isec;
+	    if (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC()) sectorNumber += 32;
+	    if (sectorNumber < 10) sectorName << "0";
+	    sectorName << sectorNumber;
 	  }
+	  else
+	  {
+	    if (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA()) sectorName << "A";
+	    else sectorName << "C";
+	    if (isec < 10) sectorName << "0";
+	    sectorName << isec;
+	  }
+
 	  
 	  for (unsigned int icand=0;icand<LVL1MUONIF::NCAND[isys];icand++)
 	  {	    
-	    //build the sector name
-	    std::stringstream sectorName;
-	    if (isys == 0) sectorName<<"B";
-	    else if (isys == 1) sectorName<<"E";
-	    else if (isys == 2) sectorName<<"F";
-	    
-	    LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem side = static_cast<LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem>(isub);
-	    if (isys == 0)
-	    {
-	      int sectorNumber=isec;
-	      if (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC()) sectorNumber += 32;
-	      if (sectorNumber < 10) sectorName << "0";
-	      sectorName << sectorNumber;
-	    }
-	    else
-	    {
-	      if (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA()) sectorName << "A";
-	      else sectorName << "C";
-	      if (isec < 10) sectorName << "0";
-	      sectorName << isec;
-	    }
-
 	    //find the eta/phi 
 	    int roiID = sectorData->roi(icand);
 	    if (roiID < 0) continue;
@@ -350,22 +413,45 @@ namespace LVL1MUCTPIPHASE1 {
 
 	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isec, isys, roiID);
 
-	    unsigned int ptThresholdID=0;
-	    unsigned int ptL1TopoCode=0;
-	    unsigned int ptValue=0;
+	    int ptValue = 0;
+	    auto enc = m_ptEncoding[isub].find(ptword);
+	    if (enc == m_ptEncoding[isub].end()) 
+	    {
+	      auto last_enc = m_ptEncoding[isub].rbegin();
+	      if (last_enc != m_ptEncoding[isub].rend() && ptword > last_enc->first)
+	      {
+		ptValue = m_ptEncoding[isub].rbegin()->second;
+	      }
+	      else
+	      {
+		std::stringstream err;
+		err << "Pt threshold not found in L1Topo encoding. Thr: " << ptword << ", subsys: " << isys;
+		return err.str();
+	      }
+	    }
+	    else ptValue=enc->second;
 
-	    int etacode=0;  // no longer needed, but keep for backwards compat
-	    int phicode = 0;     // no longer needed, but keep for backwards compat
-	    unsigned int mioctID = 0;  // no longer needed, but keep for backwards compat
+	    if (ptValue < 0) 
+	    {
+	      std::stringstream err;
+	      err << "Default value returned for pt encoding. Thr: " << ptword << ", isys: " << isys;
+	      return err.str();
+	    }
+	    
 
+	    // no longer needed, but keep for backwards compatibility
+	    int etacode=0;
+	    int phicode = 0;
+	    unsigned int mioctID = 0;
+	    unsigned int ptCode=0;
 
 	    LVL1::MuCTPIL1TopoCandidate cand;
 	    cand.setCandidateData(sectorName.str(),
 				  roiID,
 				  bcid,
-				  ptThresholdID,
-				  ptL1TopoCode,
-				  ptValue,
+				  (unsigned int)ptword,
+				  ptCode,
+				  (unsigned int)ptValue,
 				  coord.eta,
 				  coord.phi,
 				  etacode,
@@ -391,6 +477,7 @@ namespace LVL1MUCTPIPHASE1 {
 	}
       }
     }
+    return "";
   }
 
   LVL1MUONIF::Lvl1MuCTPIInputPhase1* MuonSectorProcessor::getOutput()

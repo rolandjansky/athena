@@ -217,6 +217,9 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
         ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+        l1TopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+        l1TopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
         l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool

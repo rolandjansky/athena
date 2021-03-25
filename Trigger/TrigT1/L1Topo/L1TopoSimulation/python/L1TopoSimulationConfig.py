@@ -24,19 +24,30 @@ def L1TopoSimulationMCCfg(flags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
 
-    #TODO - add varaint to support phase I
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiToolRDOCfg
-    muctpiToolAcc = L1MuctpiToolRDOCfg(flags)
-    muctpiTool = muctpiToolAcc.getPrimary()
-    acc.merge(muctpiToolAcc)
-    
+    #Grab the MUCTPI tool
+    if flags.Trigger.enableL1Phase1:
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthToolCfg
+        muctpiTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
+        acc.addPublicTool(muctpiTool, primary=True)
+    else:
+        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiToolRDOCfg
+        muctpiToolAcc = L1MuctpiToolRDOCfg(flags)
+        muctpiTool = muctpiToolAcc.getPrimary()
+        acc.merge(muctpiToolAcc)
+
+    #Configure the MuonInputProvider
     muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
                                                     ROIBResultLocation = "", #disable input from RoIBResult
                                                     MuctpiSimTool = muctpiTool,
                                                     MuonEncoding = 1 if flags.Input.isMC else 0, 
                                                     UseNewConfig = flags.Trigger.readLVL1FromJSON)
-    emtauProvider = CompFactory.LVL1.EMTauInputProvider("EMTauInputProvider")
 
+    #Configure the MuonRoiTools for the MIP
+    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+    muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = flags.Trigger.enableL1Phase1)
+    muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = flags.Trigger.enableL1Phase1)
+
+    emtauProvider = CompFactory.LVL1.EMTauInputProvider("EMTauInputProvider")
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,

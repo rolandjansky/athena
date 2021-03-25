@@ -44,15 +44,14 @@ namespace LVL1MUCTPIPHASE1 {
     m_l1menu = l1menu;
   }
   
-  bool TriggerProcessor::mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
+  void TriggerProcessor::mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
   {
     m_mergedInputs->clearAll();
     int nrInputs = inputs.size();
     for (int i=0;i<nrInputs;i++) m_mergedInputs->merge(*inputs[i]);
-    return true;
   }
   
-  bool TriggerProcessor::computeMultiplicities(int bcid)
+  std::string TriggerProcessor::computeMultiplicities(int bcid)
   {
     m_ctp_words.clear();
     m_daq_data.clear();
@@ -152,7 +151,6 @@ namespace LVL1MUCTPIPHASE1 {
 	    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_trigThresholdDecisionTool->getThresholdDecisions(daq_word);
 	    m_daq_data.push_back(DAQData(daq_word, decisions));
 
-
 	    //
 	    // Perform multiplicity counting
 	    //
@@ -161,15 +159,18 @@ namespace LVL1MUCTPIPHASE1 {
 	    if (sectorData->veto(icand)) continue;
 
 	    //basic check that the size vectors are equal
-	    if (decisions.size() != thresholds->size()) return false;
+	    if (decisions.size() != thresholds->size()) return "Threshold vector different size than decision vector";
 
 	    //loop over each muon threshold passed and see if this candidate satisfies it.
 	    //if so, increment the multiplicity of this threshold
 	    for (unsigned ithresh=0;ithresh<decisions.size();ithresh++)
 	    {
 	      //check that the pointers are ordered correctly
-	      if (decisions[ithresh].first != (*thresholds)[ithresh]) return false;
-	      if (decisions[ithresh].second) ++multiplicities[ithresh];
+	      if (decisions[ithresh].first != (*thresholds)[ithresh]) return "Invalid threshold ordering";
+	      if (decisions[ithresh].second) 
+	      {
+		++multiplicities[ithresh];
+	      }
 	    }
 	  } // N Cand
 	} // N Subsys
@@ -200,13 +201,12 @@ namespace LVL1MUCTPIPHASE1 {
       full_ctp_word >>= 32;
     }
 
-    return true;
+    return "";
   }
   
-  bool TriggerProcessor::makeTopoSelections()
+  void TriggerProcessor::makeTopoSelections()
   {
     //reserved for topo selection functionality
-    return true;
   }
 
 

@@ -472,6 +472,10 @@ class rerunLVL1(_modifier):
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += L1MuctpiTool()
             topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+            from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+            topSequence.L1TopoSimulation.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+            topSequence.L1TopoSimulation.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+
 
             # enable the reduced (coarse) granularity topo simulation
             # currently only for MC
