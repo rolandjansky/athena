@@ -34,41 +34,21 @@ then
 fi
 
 cd ../
-echo "Creating new threadTwo directory"
-mkdir threadTwo; cd threadTwo
+echo "Creating new threadEight directory"
+mkdir threadEight; cd threadEight
 
-athena --threads=2 $1 | tee athenaTwoThreads.log
+athena --threads=8 $1 | tee athenaEightThreads.log
 rc2=${PIPESTATUS[0]}
-xAODDigest.py AOD.pool.root | tee digestTwoThreads.log
-echo "art-result: $rc2 TwoThreads"
+xAODDigest.py AOD.pool.root | tee digestEightThreads.log
+echo "art-result: $rc2 EightThreads"
 
-test_postProcessing_Errors.sh athenaTwoThreads.log | tee errorsTwoThreads.log
+test_postProcessing_Errors.sh athenaEightThreads.log | tee errorsEightThreads.log
 
 if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq  0 ]] 
 then
  echo "Compare two directories"
- art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffTwoThreadsOneThread.log
+ art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffEightThreadsOneThread.log
  rcDiff2=${PIPESTATUS[0]}
- collateDigest.sh digestTwoThreads.log ../threadOne/digestOneThread.log digestDiffTwoThreadsOneThread.log 
- echo "art-result: $rcDiff2 Diff-OneThread-TwoThreads"
-fi
-
-cd ../
-echo "Creating new threadFive directory"
-mkdir threadFive; cd threadFive
-
-athena --threads=5 $1 | tee athenaFiveThreads.log
-rc5=${PIPESTATUS[0]}
-xAODDigest.py AOD.pool.root | tee digestFiveThreads.log
-echo "art-result: $rc5 FiveThreads"
-
-test_postProcessing_Errors.sh athenaFiveThreads.log | tee errorsFiveThreads.log
-
-if [[ $rc2 -eq 0 ]] && [[ $rc5 -eq  0 ]] 
-then
- echo "Compare two directories"
- art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadTwo | tee diffFiveThreadsTwoThreads.log
- rcDiff5=${PIPESTATUS[0]}
- ollateDigest.sh digestFiveThreads.log ../threadTwo/digestTwoThreads.log digestDiffFiveThreadsTwoThread.log
- echo "art-result: $rcDiff5 Diff-TwoThreads-FiveThreads"
+ collateDigest.sh digestEightThreads.log ../threadOne/digestOneThread.log digestDiffEightThreadsOneThread.log 
+ echo "art-result: $rcDiff2 Diff-OneThread-EightThreads"
 fi
