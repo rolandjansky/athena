@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ContainerProxies.cxx 755776 2016-06-17 13:45:30Z krasznaa $
@@ -17,6 +17,7 @@
 #include "xAODTrigger/versions/JetRoIContainer_v2.h"
 #include "xAODTrigger/versions/MuonRoIContainer_v1.h"
 #include "xAODTrigger/versions/eFexEMRoIContainer_v1.h"
+#include "xAODTrigger/versions/eFexTauRoIContainer_v1.h"
 #include "xAODTrigger/versions/gFexJetRoIContainer_v1.h"
 #include "xAODTrigger/versions/gFexGlobalRoIContainer_v1.h"
 
@@ -34,6 +35,7 @@ ADD_NS_DV_PROXY( xAOD, JetRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, JetRoIContainer_v2 );
 ADD_NS_DV_PROXY( xAOD, MuonRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, eFexEMRoIContainer_v1 );
+ADD_NS_DV_PROXY( xAOD, eFexTauRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, gFexJetRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, gFexGlobalRoIContainer_v1 );
 

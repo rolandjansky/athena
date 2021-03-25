@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
    <!-- xAOD::ByteStreamAuxContainer type(s). -->
@@ -122,11 +122,20 @@
    <typedef name="xAOD::eFexEMRoI" />
    <typedef name="xAOD::eFexEMRoIContainer" />
 
+   <class name="xAOD::eFexTauRoI_v1" />
+   <class name="xAOD::eFexTauRoIContainer_v1"
+          id="E8A905C3-B917-4F36-ADC3-33CF71F57851" />
+   <typedef name="xAOD::eFexTauRoI" />
+   <typedef name="xAOD::eFexTauRoIContainer" />
+
   <!-- RoI auxilliary types --> 
    <class name="xAOD::eFexEMRoIAuxContainer_v1"
           id="6A1D7149-7476-4F23-8896-D88CB3BF6846" />
    <typedef name="xAOD::eFexEMRoIAuxContainer" />
 
+   <class name="xAOD::eFexTauRoIAuxContainer_v1"
+          id="65EBD869-7A69-4C02-977F-9421D67F71B8" />
+   <typedef name="xAOD::eFexTauRoIAuxContainer" />
 
    <class name="xAOD::gFexJetRoI_v1" />
    <class name="xAOD::gFexJetRoIContainer_v1"
@@ -149,7 +158,6 @@
    <class name="xAOD::gFexGlobalRoIAuxContainer_v1"
           id="B73CF3F4-9E94-4F99-834D-A6AE68968B2D" />
    <typedef name="xAOD::gFexGlobalRoIAuxContainer" />
-
 
    <!-- xAOD::TriggerMenu interface type(s). -->
    <class name="xAOD::TriggerMenu_v1" />
