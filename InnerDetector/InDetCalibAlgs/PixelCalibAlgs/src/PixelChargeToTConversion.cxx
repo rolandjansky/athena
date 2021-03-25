@@ -23,6 +23,7 @@ PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvc
   m_offlineCalibSvc("PixelOfflineCalibSvc", name)
 {
   declareProperty("PixelCalibSvc", m_calibsvc);
+  declareProperty("PixelClusterContainer", m_PixelsClustersName = "PixelClusters");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
