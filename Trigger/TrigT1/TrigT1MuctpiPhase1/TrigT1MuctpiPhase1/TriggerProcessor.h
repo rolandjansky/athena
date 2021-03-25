@@ -48,9 +48,9 @@ namespace LVL1MUCTPIPHASE1 {
 
     void setMenu(const TrigConf::L1Menu* l1menu);
     void setTrigTool(LVL1::TrigThresholdDecisionTool& tool) {m_trigThresholdDecisionTool=&tool;}
-    bool mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs);
-    bool computeMultiplicities(int bcid);
-    bool makeTopoSelections();
+    void mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs);
+    std::string computeMultiplicities(int bcid);
+    void makeTopoSelections();
     const std::vector<unsigned int>& getCTPData() const;
 
     //subsystem - daq word pairs

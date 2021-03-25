@@ -24,14 +24,22 @@ namespace LVL1
   
   StatusCode TrigThresholdDecisionTool::initialize()
   {
+    ATH_MSG_INFO( "========================================" );
+    ATH_MSG_INFO( "Initialize for TrigThresholdDecisionTool"  );
+    ATH_MSG_INFO( "========================================" );
+
+    ATH_CHECK( m_rpcTool.retrieve() );
+    ATH_CHECK( m_tgcTool.retrieve() );
+    ATH_CHECK( m_detStore->retrieve(m_l1menu) );
     return StatusCode::SUCCESS;
   }
   
   StatusCode TrigThresholdDecisionTool::start()
   {
-    CHECK( m_rpcTool.retrieve() );
-    CHECK( m_tgcTool.retrieve() );
-    ATH_CHECK( m_detStore->retrieve(m_l1menu) );     
+    ATH_MSG_INFO( "==========================================" );
+    ATH_MSG_INFO( "Start for Phase1 TrigThresholdDecisionTool"  );
+    ATH_MSG_INFO( "==========================================" );
+
 
     //front-load the TGC flag parsing and all possible 3-bit decisions for the menu
     const std::vector<std::shared_ptr<TrigConf::L1Threshold>>* thresholds = &m_l1menu->thresholds("MU");
@@ -51,9 +59,7 @@ namespace LVL1
 	bool C=flags&0b010;
 	bool H=flags&0b001;
 	makeTGCDecision(tgcFlags, F, C, H);
-
       }
-      
     }
 
     return StatusCode::SUCCESS;
@@ -67,23 +73,22 @@ namespace LVL1
     if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiTool = &(*m_rpcTool);
     else roiTool = &(*m_tgcTool);
     
-    
     //the object that will be returned: pairs of thresholds and pass/fail decisions
     std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > threshold_decisions;
     
     //buffer the some information
     unsigned isub = roiTool->getBitMaskValue(&dataWord, roiTool->SubSysIDMask());
     LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem side = static_cast<LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem>(isub);
-    unsigned pt_threshold = roiTool->getBitMaskValue(&dataWord, roiTool->ThresholdMask());
+    unsigned ptword = roiTool->getBitMaskValue(&dataWord, roiTool->ThresholdMask());
     unsigned roi, sectorID;
     if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel) {
-      roi = roiTool->getBitMaskValue(&dataWord, roiTool->BarrelRoIMask());
+      roi      = roiTool->getBitMaskValue(&dataWord, roiTool->BarrelRoIMask());
       sectorID = roiTool->getBitMaskValue(&dataWord, roiTool->BarrelSectorIDMask());
     } else if (system == LVL1::ITrigT1MuonRecRoiTool::Endcap) {
-      roi = roiTool->getBitMaskValue(&dataWord, roiTool->EndcapRoIMask());
-      sectorID = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardSectorIDMask());
+      roi      = roiTool->getBitMaskValue(&dataWord, roiTool->EndcapRoIMask());
+      sectorID = roiTool->getBitMaskValue(&dataWord, roiTool->EndcapSectorIDMask());
     } else { // Forward
-      roi = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardRoIMask());
+      roi      = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardRoIMask());
       sectorID = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardSectorIDMask());
     }
 
@@ -113,9 +118,9 @@ namespace LVL1
 	    thr->region().find("BA") == std::string::npos) continue;
 	
 	//veto this candidate from this multiplicity if it's part of the excluded ROI list
-	if (isExcludedRPCROI(thr->rpcExclROIList(), roi, sectorID, side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC())) continue;
-
-	if (thr->idxBarrel()+1 >= pt_threshold) passed=true;
+	bool pass = !isExcludedRPCROI(thr->rpcExclROIList(), roi, sectorID, side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC());
+	if (!pass) continue;
+	if (ptword >= thr->idxBarrel()+1) passed=true;
       }
       else // Endcap or Forward
       {
@@ -124,20 +129,19 @@ namespace LVL1
 	//skip the threshold with regions not corresponding to ALL or endcap
 	  if (thr->region().find("ALL") == std::string::npos &&
 	      thr->region().find("EC") == std::string::npos) continue;
-	  if (thr->idxEndcap()+1 >= pt_threshold) passed=true;
+	  if (ptword >= thr->idxEndcap()+1) passed=true;
 	}
 	else // Forward
 	{
 	//skip the threshold with regions not corresponding to ALL or forward
 	  if (thr->region().find("ALL") == std::string::npos &&
 	      thr->region().find("FW") == std::string::npos) continue;
-	  if (thr->idxForward()+1 >= pt_threshold) passed=true;
+	  if (ptword >= thr->idxForward()+1) passed=true;
 	}
 	
 	bool pass = getTGCDecision(thr->tgcFlags(), F, C, H);
 	if (!pass) continue;
       } // end Endcap or Forward
-      
       threshold_decisions[ithresh].second = passed;
     } // N Thresholds
     
@@ -197,6 +201,7 @@ namespace LVL1
     TGCFlagDecision decision(F,C,H);
     auto previous_decisions = m_tgcFlag_decisions.find(tgcFlags);
     if (previous_decisions == m_tgcFlag_decisions.end()) return false;
+
     auto previous_decision_itr = previous_decisions->second.find(decision);
     if (previous_decision_itr != previous_decisions->second.end()) return previous_decision_itr->pass;
     return false;
@@ -209,6 +214,10 @@ namespace LVL1
     auto previous_decisions = &m_tgcFlag_decisions[tgcFlags];
     auto previous_decision_itr = previous_decisions->find(decision);
     if (previous_decision_itr != previous_decisions->end()) return;
+    else if (tgcFlags == "") {
+      decision.pass=true;
+      previous_decisions->insert(decision);
+    }
     else { // make the decision
       
       //check the quality based on the flags.
@@ -227,7 +236,6 @@ namespace LVL1
 	}
 	passedFlags = passedFlags || passedAnd;
       }
-      
       //buffer the decision
       decision.pass = passedFlags;
       previous_decisions->insert(decision);

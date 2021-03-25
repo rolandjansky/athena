@@ -4,8 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 
 #Muon RecRoiTools
-from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
-from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
+from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
 
 # Local (generated) configurable(s):
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthAlg
@@ -65,6 +64,8 @@ class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
 
     LVL1MUCTPIPHASE1__MUCTPI_AthAlg.__init__( self, name )
 
+    self.MUCTPI_AthTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
+
 
 class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
 
@@ -77,7 +78,6 @@ class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
 
     DefaultL1MuctpiPhase1.__init__( self, name )
 
-    self.MUCTPI_AthTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
 
 class L1MuctpiPhase1_on_RDO( DefaultL1MuctpiPhase1 ):
 
@@ -160,6 +160,11 @@ class DefaultL1MuctpiPhase1Tool( LVL1MUCTPIPHASE1__MUCTPI_AthTool ):
     self.FlaggingMode = False
     self.MultiplicityStrategyName = "INCLUSIVE"
     self.GeometryXMLFile = "TrigConfMuctpi/L1MuonGeometry_20200629.xml"
+
+    # Set the TGC, RPC, and TrigDecision tools
+    self.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+    self.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+    self.TrigThresholdDecisionTool = getTrigThresholdDecisionTool("TrigThresholdDecisionTool")
 
     # Decide which LUT to use, based on which run we are simulating:
     #from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags

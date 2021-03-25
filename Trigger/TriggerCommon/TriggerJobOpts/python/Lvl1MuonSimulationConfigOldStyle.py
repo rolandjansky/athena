@@ -259,6 +259,9 @@ def Lvl1MuctpiConfig(flags):
         muctpiTool.InputSource = 'DIGITIZATION'
         muctpiTool.RPCRecRoiTool = rpcRecRoiTool
         muctpiTool.TGCRecRoiTool = tgcRecRoiTool
+        muctpiTool.TrigThresholdDecisionTool = CompFactory.LVL1__TrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
+        muctpiTool.TrigThresholdDecisionTool.RPCRecRoiTool = rpcRecRoiTool
+        muctpiTool.TrigThresholdDecisionTool.TGCRecRoiTool = tgcRecRoiTool
         muctpi = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthAlg(name="MUCTPI_AthAlg",
                                                              MUCTPI_AthTool = muctpiTool)
         return muctpi
