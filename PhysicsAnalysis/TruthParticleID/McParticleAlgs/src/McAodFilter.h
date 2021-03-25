@@ -29,8 +29,6 @@
 // STL includes
 #include <string>
 
-// HepMC / CLHEP includes
-
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -50,7 +48,6 @@ class McAodFilter : public AthAlgorithm
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
 
   // Constructor with parameters: 
   McAodFilter( const std::string& name, ISvcLocator* pSvcLocator );
@@ -65,14 +62,6 @@ class McAodFilter : public AthAlgorithm
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
