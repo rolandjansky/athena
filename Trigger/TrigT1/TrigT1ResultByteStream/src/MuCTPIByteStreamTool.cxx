@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
+#include "MuCTPIByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 
@@ -23,37 +23,9 @@ const InterfaceID & MuCTPIByteStreamTool::interfaceID() {
  */
 MuCTPIByteStreamTool::MuCTPIByteStreamTool( const std::string& type, const std::string& name,
                                             const IInterface* parent )
-    : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
+    : AthAlgTool( type, name, parent ) {
 
   declareInterface<MuCTPIByteStreamTool>( this );
-}
-
-/**
- * The destructor doesn't do anything.
- */
-MuCTPIByteStreamTool::~MuCTPIByteStreamTool() {
-
-}
-
-/**
- * The function creates a MuCTPISrcIdMap object that is used in the conversion
- * and initialises the base class.
- */
-StatusCode MuCTPIByteStreamTool::initialize() {
-
-  m_srcIdMap = new MuCTPISrcIdMap();
-  return AlgTool::initialize();
-
-}
-
-/**
- * The function deletes the MuCTPISrcIdMap object and finalises the base class.
- */
-StatusCode MuCTPIByteStreamTool::finalize() {
-
-  delete m_srcIdMap;
-  return AlgTool::finalize();
-
 }
 
 /**
@@ -71,7 +43,7 @@ StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrit
   FullEventAssembler< MuCTPISrcIdMap >::RODDATA* theROD;
 
   // Source ID of MIROD
-  const uint32_t rodId = m_srcIdMap->getRodID();
+  const uint32_t rodId = m_srcIdMap.getRodID();
 
   // get the ROD data container to be filled
   theROD = m_fea.getRodData( rodId );
@@ -114,7 +86,7 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
   ATH_MSG_DEBUG("executing convert() from ROBFragment to RDO");
 
   // Source ID of MIROD
-  const uint32_t miRodId = m_srcIdMap->getRodID();
+  const uint32_t miRodId = m_srcIdMap.getRodID();
 
   // check ROD source ID
   const uint32_t rodId = rob->rod_source_id();

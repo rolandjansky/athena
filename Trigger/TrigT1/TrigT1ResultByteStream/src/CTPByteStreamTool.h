@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMTOOL_H
@@ -14,11 +14,10 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPSrcIdMap.h"
+#include "CTPSrcIdMap.h"
 
 // Forward declaration(s):
 class CTP_RDO;
-class MsgStream;
 
 /**
  *   @short Tool doing the CTP_RDO <-> ByteStream conversion
@@ -40,16 +39,9 @@ public:
   /// Default constructor
   CTPByteStreamTool( const std::string& type, const std::string& name,
                      const IInterface* parent );
-  /// Default destructor
-  virtual ~CTPByteStreamTool();
 
   /// AlgTool InterfaceID
   static const InterfaceID& interfaceID();
-
-  /// Function to initialise the tool
-  virtual StatusCode initialize();
-  /// Function to finalise the tool
-  virtual StatusCode finalize();
 
   /// Convert ROBFragment to CTP_RDO
   StatusCode convert( const ROBF* rob, CTP_RDO*& result );
@@ -58,7 +50,7 @@ public:
 
 private:
   /// Object storing the various IDs of the CTP fragment
-  CTPSrcIdMap*                      m_srcIdMap;
+  CTPSrcIdMap                       m_srcIdMap;
   /// Object used in creating the CTP ROB fragment
   FullEventAssembler< CTPSrcIdMap > m_fea;
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMCNV_H
@@ -16,10 +16,9 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamTool.h"
+#include "CTPByteStreamTool.h"
+#include "CTPSrcIdMap.h"
 
-// Forward declaration(s):
-class CTPSrcIdMap;
 
 /**
  *   @short ByteStream converter for the CTP_RDO object
@@ -32,7 +31,6 @@ class CTPSrcIdMap;
  *     @see CTPByteStreamTool
  *
  *  @author David Berge
- *    @date $Date: 2009-02-23 21:23:03 $
  */
 class CTPByteStreamCnv : public Converter {
 
@@ -40,18 +38,15 @@ public:
   /// Standard constructor
   CTPByteStreamCnv( ISvcLocator* svcloc );
 
-  /// Standard destructor
-  ~CTPByteStreamCnv();
-
   /// Function connecting to all the needed services/tools
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Function creating the CTP_RDO object from a CTP ROB fragment
-  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
+  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) override;
   /// Function creating the CTP ROB fragment from a CTP_RDO object
-  virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr );
+  virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) override;
 
   /// Function needed by the framework
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   /// Function needed by the framework
   static long storageType();
   /// Function needed by the framework
@@ -62,7 +57,7 @@ private:
   ToolHandle< CTPByteStreamTool > m_tool;
 
   /// Object storing the various IDs of the CTP fragment
-  CTPSrcIdMap* m_srcIdMap;
+  CTPSrcIdMap m_srcIdMap;
 
   /// Service used when reading the BS data
   ServiceHandle< IROBDataProviderSvc >    m_robDataProvider;

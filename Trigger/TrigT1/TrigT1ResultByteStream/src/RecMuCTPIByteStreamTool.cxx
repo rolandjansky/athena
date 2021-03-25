@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamData/RawEvent.h"
@@ -14,8 +14,7 @@
 #include "TrigConfL1Data/TriggerItem.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecMuCTPIByteStreamTool.h"
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "RecMuCTPIByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRecMuCTPIByteStreamTool( "RecMuCTPIByteStreamTool", 1, 1 );
@@ -36,21 +35,12 @@ const InterfaceID& RecMuCTPIByteStreamTool::interfaceID() {
  */
 RecMuCTPIByteStreamTool::RecMuCTPIByteStreamTool( const std::string& type, const std::string& name,
                                                   const IInterface* parent )
-  : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ), m_cnvSvcPresent( true ),
-    m_rpcRoISvc( LVL1::ID_RecRpcRoiSvc, name ),
-    m_tgcRoISvc( LVL1::ID_RecTgcRoiSvc, name ),
-    m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
+  : AthAlgTool( type, name, parent )
+
 {
-  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareInterface< RecMuCTPIByteStreamTool >( this );
 }
 
-/**
- * The destructor doesn't do anything.
- */
-RecMuCTPIByteStreamTool::~RecMuCTPIByteStreamTool() {
-
-}
 
 /**
  * The function connects to all services being used, resets the internally used
@@ -58,36 +48,23 @@ RecMuCTPIByteStreamTool::~RecMuCTPIByteStreamTool() {
  */
 StatusCode RecMuCTPIByteStreamTool::initialize() {
 
-  m_srcIdMap = new MuCTPISrcIdMap;
-  m_cnvSvcPresent = true;
-
-  StatusCode sc = AlgTool::initialize();
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't initialise the base class!");
-    return sc;
-  }
-  
-  sc = m_rpcRoISvc.retrieve();
+  StatusCode sc = m_rpcRoITool.retrieve();
   if( sc.isFailure() ) {
     ATH_MSG_WARNING("Couldn't access RPC RecMuonRoISvc");
-    m_cnvSvcPresent = false;
   } else {
     ATH_MSG_DEBUG("Connected to RPC RecMuonRoISvc");
   }
 
-  sc = m_tgcRoISvc.retrieve();
+  sc = m_tgcRoITool.retrieve();
   if( sc.isFailure() ) {
     ATH_MSG_WARNING("Couldn't access TGC RecMuonRoISvc");
-    m_cnvSvcPresent = false;
   } else {
     ATH_MSG_DEBUG("Connected to TGC RecMuonRoISvc");
   }
 
-  m_configSvcPresent = true;
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Couldn't connect to Lvl1ConfigSvc.");
-    m_configSvcPresent = false;
   } else {
     ATH_MSG_DEBUG("Connected to Lvl1ConfigSvc");
   }
@@ -96,15 +73,6 @@ StatusCode RecMuCTPIByteStreamTool::initialize() {
   
 }
 
-/**
- * The function deletes the MuCTPISrcIdMap object and finalises the base class.
- */
-StatusCode RecMuCTPIByteStreamTool::finalize() {
-
-  delete m_srcIdMap;
-  return AlgTool::finalize();
-
-}
 
 /**
  * Conversion from eformat::ROBFragment to RIO.
@@ -118,7 +86,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
   // config retrieval via Lvl1ConfigSvc
   //
   std::vector<TrigConf::TriggerThreshold*> muonConfig;
-  if (m_configSvcPresent) {
+  if ( m_configSvc.isSet() ) {
     std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
     for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
                                                                   it != thresholds.end(); ++it) {
@@ -127,7 +95,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
   }
   
   // Source ID of MIROD
-  const uint32_t miRodId = m_srcIdMap->getRodID();
+  const uint32_t miRodId = m_srcIdMap.getRodID();
 
   /* get ROD source ID */
   uint32_t rodId = rob->rod_source_id();
@@ -227,8 +195,8 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
           << " : ROI=" << std::setw( 8 ) << roiWord);
 
       // reconstruct
-      LVL1::RecMuonRoI thisRoI( roiWord, m_cnvSvcPresent ? m_rpcRoISvc.operator->() : 0,
-                                m_cnvSvcPresent ? m_tgcRoISvc.operator->() : 0, &muonConfig );
+      LVL1::RecMuonRoI thisRoI( roiWord, m_rpcRoITool.isSet() ? m_rpcRoITool.operator->() : 0,
+                                m_tgcRoITool.isSet() ? m_tgcRoITool.operator->() : 0, &muonConfig );
 
       uint16_t pTVal = thisRoI.getThresholdValue();
       uint16_t pTNumber = thisRoI.getThresholdNumber();

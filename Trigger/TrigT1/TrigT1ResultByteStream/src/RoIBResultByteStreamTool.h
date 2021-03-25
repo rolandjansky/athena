@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_H
 #define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_H
-
-// Local includes
-#include "L1SrcIdMap.h"
 
 // Trigger includes
 #include "L1TopoRDO/L1TopoRDO.h"
@@ -37,7 +34,6 @@ namespace ROIB {
  *
  *  @author Tadashi Maeno
  *  @author Attila Krasznahorkay
- *    @date $Date: 2008-03-28 17:25:52 $
  */
 class RoIBResultByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> {
 

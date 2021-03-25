@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMTOOL_H
@@ -8,7 +8,7 @@
 // Trigger includes
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 // Athena includes:
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -32,7 +32,6 @@ namespace ROIB {
  *
  *  @author Tadashi Maeno
  *  @author Attila Krasznahorkay
- *    @date $Date: 2008-05-08 21:42:35 $
  */
 class RecRoIBResultByteStreamTool : public AthAlgTool {
 
@@ -79,18 +78,18 @@ private:
   // CTP and L1Topo ROBs are currently not used in RecRoIBResult
   /// @}
 
-  // ------------------------- Service handles ---------------------------------
+  // ------------------------- Service/Tool handles ---------------------------------
   /// Handle to the Lvl1ConfigSvc interface
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
     this, "LVL1ConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "LVL1 Trigger configuration service"
   };
-  /// Handle to the RPC RecRoISvc
-  ServiceHandle<LVL1::RecMuonRoiSvc> m_rpcRoISvc {
-    this, "RPCRecRoiSvc", LVL1::ID_RecRpcRoiSvc, "RPC RoI reconstruction service"
+  /// Handle to the RPC RecRoITool
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcRoITool {
+    this, "RPCRecRoiSvc", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"
   };
-  /// Handle to the TGC RecRoISvc
-  ServiceHandle<LVL1::RecMuonRoiSvc> m_tgcRoISvc {
-    this, "TGCRecRoiSvc", LVL1::ID_RecTgcRoiSvc, "TGC RoI reconstruction service"
+  /// Handle to the TGC RecRoITool
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcRoITool {
+    this, "TGCRecRoiSvc", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"
   };
 
   // ------------------------- Other private members ---------------------------

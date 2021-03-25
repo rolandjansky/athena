@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_H
 #define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_H
 
 // Local includes
-#include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
+#include "RoIBResultByteStreamTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
@@ -66,6 +66,6 @@ private:
 }; // class RoIBResultByteStreamCnv
 
 // Include the implementation:
-#include "TrigT1ResultByteStream/RoIBResultByteStreamCnv.icc"
+#include "RoIBResultByteStreamCnv.icc"
 
 #endif // TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_H
