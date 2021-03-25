@@ -19,7 +19,6 @@
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
