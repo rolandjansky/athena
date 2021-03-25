@@ -238,6 +238,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_WTaggerTool.setTypeAndName("SmoothedWZTagger/WTagger");
     ATH_CHECK( m_WTaggerTool.setProperty("ConfigFile", m_WtagConfig) );
     ATH_CHECK( m_WTaggerTool.setProperty("CalibArea", m_WZTaggerCalibArea) );
+    ATH_CHECK( m_WTaggerTool.setProperty("IsMC",!isData()));
+    ATH_CHECK( m_WTaggerTool.setProperty("TruthBosonContainerName", "TruthBoson") );  // Set this if you are using a TRUTH3 style truth boson container;
+    ATH_CHECK( m_WTaggerTool.setProperty("TruthTopQuarkContainerName", "TruthTop") );  // Set this if you are using a TRUTH3 style truth boson container;
     ATH_CHECK( m_WTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_WTaggerTool.retrieve() );
   } else if (m_WTaggerTool.isUserConfigured()) ATH_CHECK(m_WTaggerTool.retrieve());
@@ -246,6 +249,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_ZTaggerTool.setTypeAndName("SmoothedWZTagger/ZTagger");
     ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile", m_ZtagConfig) );
     ATH_CHECK( m_ZTaggerTool.setProperty("CalibArea", m_WZTaggerCalibArea) );
+    ATH_CHECK( m_ZTaggerTool.setProperty("IsMC",!isData() ));
+    ATH_CHECK( m_ZTaggerTool.setProperty("TruthBosonContainerName", "TruthBoson") );  // Set this if you are using a TRUTH3 style truth boson container;
+    ATH_CHECK( m_ZTaggerTool.setProperty("TruthTopQuarkContainerName", "TruthTop") );  // Set this if you are using a TRUTH3 style truth boson container;
     ATH_CHECK( m_ZTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_ZTaggerTool.retrieve() );
   } else if (m_ZTaggerTool.isUserConfigured()) ATH_CHECK(m_ZTaggerTool.retrieve());
@@ -254,6 +260,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_TopTaggerTool.setTypeAndName("JSSWTopTaggerDNN/TopTagger");
     ATH_CHECK( m_TopTaggerTool.setProperty("ConfigFile", m_ToptagConfig) );
     ATH_CHECK( m_TopTaggerTool.setProperty("CalibArea", m_TopTaggerCalibArea) );
+    ATH_CHECK( m_TopTaggerTool.setProperty("IsMC",!isData() ));
+    ATH_CHECK( m_TopTaggerTool.setProperty("TruthBosonContainerName", "TruthBoson") );  // Set this if you are using a TRUTH3 style truth boson container;
+    ATH_CHECK( m_TopTaggerTool.setProperty("TruthTopQuarkContainerName", "TruthTop") );  // Set this if you are using a TRUTH3 style truth boson container
     ATH_CHECK( m_TopTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_TopTaggerTool.retrieve() );
   } else if (m_TopTaggerTool.isUserConfigured()) ATH_CHECK(m_TopTaggerTool.retrieve());
@@ -263,10 +272,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetTruthLabelingTool.isUserConfigured()) {
     m_jetTruthLabelingTool.setTypeAndName("JetTruthLabelingTool/JetTruthLabelingTool");
     ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthLabelName", "R10TruthLabel_R21Consolidated") );
-    ATH_CHECK( m_jetTruthLabelingTool.setProperty("UseTRUTH3", m_useTRUTH3) );                 // Set this to false only if you have the FULL !TruthParticles container in your input file
-    //ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthParticleContainerName", "") );
     ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthBosonContainerName", "TruthBoson") );  // Set this if you are using a TRUTH3 style truth boson container
     ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthTopQuarkContainerName", "TruthTop") ); // Set this if you are using a TRUTH3 style truth top quark container
+
+    //ATH_CHECK( m_jetTruthLabelingTool.setProperty("UseTRUTH3", m_useTRUTH3) );                 // Set this to false only if you have the FULL !TruthParticles container in your input file
+    //ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthParticleContainerName", "") );
     ATH_CHECK( m_jetTruthLabelingTool.retrieve() );
   } else if (m_jetTruthLabelingTool.isUserConfigured()) ATH_CHECK(m_jetTruthLabelingTool.retrieve());
 
@@ -364,8 +374,47 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_fatjetUncertaintiesTool.retrieve() );
   } else if (m_fatjetUncertaintiesTool.isUserConfigured()) ATH_CHECK(m_fatjetUncertaintiesTool.retrieve());
- 
 
+
+  ATH_MSG_INFO("Set up FatJet tagger Uncertainty tool if using...");
+  // Initialise jet uncertainty tool for fat jets
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
+  if (!m_WTagjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_WtagConfig.empty() && !m_WTagUncConfig.empty()) {
+    
+    toolName = "WTagJetUncertaintiesTool_" + m_fatJets;
+    m_WTagjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+    ATH_CHECK( m_WTagjetUncertaintiesTool.setProperty("JetDefinition", fatjetcoll) );
+    ATH_CHECK( m_WTagjetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_WTagjetUncertaintiesTool.setProperty("IsData", isData()) );
+    ATH_CHECK( m_WTagjetUncertaintiesTool.setProperty("ConfigFile", "rel21/Fall2020/"+m_WTagUncConfig) );
+    ATH_CHECK( m_WTagjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_WTagjetUncertaintiesTool.retrieve() );
+  } else if (m_WTagjetUncertaintiesTool.isUserConfigured()) ATH_CHECK(m_WTagjetUncertaintiesTool.retrieve());
+  
+  if (!m_ZTagjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_ZtagConfig.empty() && !m_ZTagUncConfig.empty()) {
+    
+    toolName = "ZTagJetUncertaintiesTool_" + m_fatJets;
+    m_ZTagjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.setProperty("JetDefinition", fatjetcoll) );
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.setProperty("ConfigFile", "rel21/Fall2020/"+m_ZTagUncConfig) );
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.setProperty("IsData", isData()) );
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_ZTagjetUncertaintiesTool.retrieve() );
+  } else if (m_ZTagjetUncertaintiesTool.isUserConfigured()) ATH_CHECK(m_ZTagjetUncertaintiesTool.retrieve());
+
+  if (!m_TopTagjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_ToptagConfig.empty() && !m_TopTagUncConfig.empty()) {
+   
+    toolName = "TopTagJetUncertaintiesTool_" + m_fatJets;
+    m_TopTagjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.setProperty("JetDefinition", fatjetcoll) );
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.setProperty("IsData", isData()) );
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.setProperty("ConfigFile", "rel21/Fall2020/"+m_TopTagUncConfig) );  
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_TopTagjetUncertaintiesTool.retrieve() );
+  } else if (m_TopTagjetUncertaintiesTool.isUserConfigured()) ATH_CHECK(m_TopTagjetUncertaintiesTool.retrieve());
+  
   // Initialise jet uncertainty tool for TCC jets
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
   if (!m_TCCjetUncertaintiesTool.isUserConfigured() && !m_TCCJets.empty() && !m_TCCJetUncConfig.empty()) {

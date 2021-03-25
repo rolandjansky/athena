@@ -635,7 +635,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
     if(hasFatJets) { // xStream.Contains("SUSY10") || xStream.Contains("PHYSVAL")){
       if( event.retrieve(FJC, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets").isSuccess() ){
-        ANA_CHECK( objTool.GetFatJets(fatjets_nominal, fatjets_nominal_aux) );
+        ANA_CHECK( objTool.GetFatJets(fatjets_nominal, fatjets_nominal_aux, true,"",true) );
         if (debug && entry < 10) {
           for (const auto& fatjet : *fatjets_nominal) {
             Info( APP_NAME, " FatJet pt = %f, Wtag = %d, Ztag = %d", fatjet->pt()*0.001, fatjet->auxdata<int>("Wtag"), fatjet->auxdata<int>("Ztag") );
