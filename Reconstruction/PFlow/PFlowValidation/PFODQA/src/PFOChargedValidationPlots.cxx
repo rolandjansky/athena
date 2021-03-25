@@ -14,16 +14,16 @@ PFOChargedValidationPlots::PFOChargedValidationPlots(PlotBase* pParent, std::str
                                                                                                                                                          m_FELinkerPlots(this,"",sFEContainerName,false)
 {}
 
-void PFOChargedValidationPlots::fill(const xAOD::PFO& thePFO, const xAOD::Vertex* theVertex ){
-  m_PFOPlots.fill(thePFO);
-  m_PFOAlgPropertyPlots.fill(thePFO);
-  if (theVertex) m_PFOPVMatchedPlots.fill(thePFO, *theVertex);
+void PFOChargedValidationPlots::fill(const xAOD::PFO& thePFO, const xAOD::Vertex* theVertex, const xAOD::EventInfo& eventInfo ){
+  m_PFOPlots.fill(thePFO,eventInfo);
+  m_PFOAlgPropertyPlots.fill(thePFO,eventInfo);
+  if (theVertex) m_PFOPVMatchedPlots.fill(thePFO, *theVertex,eventInfo);
 }
-void PFOChargedValidationPlots::fill(const xAOD::FlowElement& theFE, const xAOD::Vertex* theVertex ){
-  m_FEPlots.fill(theFE);
-  m_FEAlgPropertyPlots.fill(theFE);
-  if (theVertex) m_FEPVMatchedPlots.fill(theFE, *theVertex);
-  m_FELinkerPlots.fill(theFE);
+void PFOChargedValidationPlots::fill(const xAOD::FlowElement& theFE, const xAOD::Vertex* theVertex, const xAOD::EventInfo& eventInfo ){
+  m_FEPlots.fill(theFE,eventInfo);
+  m_FEAlgPropertyPlots.fill(theFE,eventInfo);
+  if (theVertex) m_FEPVMatchedPlots.fill(theFE, *theVertex,eventInfo);
+  m_FELinkerPlots.fill(theFE,eventInfo);
 }
 
 

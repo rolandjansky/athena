@@ -42,32 +42,32 @@ namespace PFO {
     }
   }
 
-  void PFOPlots::fill(const xAOD::PFO& PFO){
-    m_PFO_pt->Fill(PFO.pt()/1000.0);
-    m_PFO_eta->Fill(PFO.eta());
-    m_PFO_phi->Fill(PFO.phi());
-    m_PFO_m->Fill(PFO.m()/1000.0);
-    m_PFO_charge->Fill(PFO.charge());
+  void PFOPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
+    m_PFO_pt->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+    m_PFO_eta->Fill(PFO.eta(),eventInfo.beamSpotWeight());
+    m_PFO_phi->Fill(PFO.phi(),eventInfo.beamSpotWeight());
+    m_PFO_m->Fill(PFO.m()/1000.0,eventInfo.beamSpotWeight());
+    m_PFO_charge->Fill(PFO.charge(),eventInfo.beamSpotWeight());
 
-    if (fabs(PFO.eta()) < 1)  m_PFO_pt_etaBinA->Fill(PFO.pt()/1000.0);
-    else if (fabs(PFO.eta()) < 2) m_PFO_pt_etaBinB->Fill(PFO.pt()/1000.0);
-    else m_PFO_pt_etaBinC->Fill(PFO.pt()/1000.0);
+    if (fabs(PFO.eta()) < 1)  m_PFO_pt_etaBinA->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+    else if (fabs(PFO.eta()) < 2) m_PFO_pt_etaBinB->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+    else m_PFO_pt_etaBinC->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
     
   }
 
-  void PFOPlots::fill(const xAOD::FlowElement& FE){
-    m_FE_pt->Fill(FE.pt()/1000.0);
-    m_FE_eta->Fill(FE.eta());
-    m_FE_phi->Fill(FE.phi());
-    m_FE_m->Fill(FE.m()/1000.0);
-    m_FE_charge->Fill(FE.charge());
+  void PFOPlots::fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo){
+    m_FE_pt->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+    m_FE_eta->Fill(FE.eta(),eventInfo.beamSpotWeight());
+    m_FE_phi->Fill(FE.phi(),eventInfo.beamSpotWeight());
+    m_FE_m->Fill(FE.m()/1000.0,eventInfo.beamSpotWeight());
+    m_FE_charge->Fill(FE.charge(),eventInfo.beamSpotWeight());
 
-    if (fabs(FE.eta()) < 1)  m_FE_pt_etaBinA->Fill(FE.pt()/1000.0);
-    else if (fabs(FE.eta()) < 2) m_FE_pt_etaBinB->Fill(FE.pt()/1000.0);
-    else m_FE_pt_etaBinC->Fill(FE.pt()/1000.0);
+    if (fabs(FE.eta()) < 1)  m_FE_pt_etaBinA->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+    else if (fabs(FE.eta()) < 2) m_FE_pt_etaBinB->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+    else m_FE_pt_etaBinC->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
     // additional debug plot: Eta given FlowElem energy>0
     if (FE.e()>0){
-      m_FE_eta_posE->Fill(FE.eta());
+      m_FE_eta_posE->Fill(FE.eta(),eventInfo.beamSpotWeight());
     }
   }
 

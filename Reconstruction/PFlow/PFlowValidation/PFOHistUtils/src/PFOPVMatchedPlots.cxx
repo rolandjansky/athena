@@ -47,7 +47,7 @@ namespace PFO {
     }
   }
 
-  void PFOPVMatchedPlots::fill(const xAOD::PFO& PFO,  const xAOD::Vertex& theVertex){
+  void PFOPVMatchedPlots::fill(const xAOD::PFO& PFO,  const xAOD::Vertex& theVertex, const xAOD::EventInfo& eventInfo){
 
     const xAOD::TrackParticle* theTrack = PFO.track(0);
 
@@ -57,22 +57,22 @@ namespace PFO {
       z0 = z0 - theVertex.z();
       float theta = theTrack->theta();
       if ( fabs(z0*sin(theta)) < 2.0 ){
-	m_PFO_pt->Fill(PFO.pt()/1000.0);
-	m_PFO_eta->Fill(PFO.eta());
-	m_PFO_phi->Fill(PFO.phi());
-	m_PFO_m->Fill(PFO.m()/1000.0);
-	m_PFO_charge->Fill(PFO.charge());
+    	m_PFO_pt->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+	    m_PFO_eta->Fill(PFO.eta(),eventInfo.beamSpotWeight());
+	    m_PFO_phi->Fill(PFO.phi(),eventInfo.beamSpotWeight());
+	    m_PFO_m->Fill(PFO.m()/1000.0,eventInfo.beamSpotWeight());
+	    m_PFO_charge->Fill(PFO.charge(),eventInfo.beamSpotWeight());
 
-	if (fabs(PFO.eta()) < 1)  m_PFO_pt_etaBinA->Fill(PFO.pt()/1000.0);
-	else if (fabs(PFO.eta()) < 2) m_PFO_pt_etaBinB->Fill(PFO.pt()/1000.0);
-	else m_PFO_pt_etaBinC->Fill(PFO.pt()/1000.0);
+	    if (fabs(PFO.eta()) < 1)  m_PFO_pt_etaBinA->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+	    else if (fabs(PFO.eta()) < 2) m_PFO_pt_etaBinB->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
+	    else m_PFO_pt_etaBinC->Fill(PFO.pt()/1000.0,eventInfo.beamSpotWeight());
       }//fill histograms if track is matched to the PV
     }//if valid pointer to track
   } 
 
 
 
-  void PFOPVMatchedPlots::fill(const xAOD::FlowElement& FE,  const xAOD::Vertex& theVertex){
+  void PFOPVMatchedPlots::fill(const xAOD::FlowElement& FE,  const xAOD::Vertex& theVertex, const xAOD::EventInfo& eventInfo){
     if(FE.nChargedObjects()==0)
       return;
     const xAOD::TrackParticle* theTrack =static_cast<const xAOD::TrackParticle*>(FE.chargedObjects().at(0));
@@ -83,15 +83,15 @@ namespace PFO {
       z0 = z0 - theVertex.z();
       float theta = theTrack->theta();
       if ( fabs(z0*sin(theta)) < 2.0 ){
-	m_FE_pt->Fill(FE.pt()/1000.0);
-	m_FE_eta->Fill(FE.eta());
-	m_FE_phi->Fill(FE.phi());
-	m_FE_m->Fill(FE.m()/1000.0);
-	m_FE_charge->Fill(FE.charge());
+	    m_FE_pt->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+	    m_FE_eta->Fill(FE.eta(),eventInfo.beamSpotWeight());
+	    m_FE_phi->Fill(FE.phi(),eventInfo.beamSpotWeight());
+	    m_FE_m->Fill(FE.m()/1000.0,eventInfo.beamSpotWeight());
+	    m_FE_charge->Fill(FE.charge(),eventInfo.beamSpotWeight());
 
-	if (fabs(FE.eta()) < 1)  m_FE_pt_etaBinA->Fill(FE.pt()/1000.0);
-	else if (fabs(FE.eta()) < 2) m_FE_pt_etaBinB->Fill(FE.pt()/1000.0);
-	else m_FE_pt_etaBinC->Fill(FE.pt()/1000.0);
+    	if (fabs(FE.eta()) < 1)  m_FE_pt_etaBinA->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+	    else if (fabs(FE.eta()) < 2) m_FE_pt_etaBinB->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
+	    else m_FE_pt_etaBinC->Fill(FE.pt()/1000.0,eventInfo.beamSpotWeight());
       }//fill histograms if track is matched to the PV
     }//if valid pointer to track
   } 
