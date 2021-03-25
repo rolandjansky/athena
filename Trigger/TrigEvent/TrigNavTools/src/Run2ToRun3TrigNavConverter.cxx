@@ -57,6 +57,11 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
   
   navDecoder.deserialize( navReadHandle->serialized() );
 
+  if ( m_onlyFeaturePriting )
+    return printFeatures(navDecoder);
+
+
+
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > outputNavigation = TrigCompositeUtils::createAndStore( m_trigNavWriteKey, context );
   auto decisionOutput = outputNavigation.ptr();
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > outputSummary = TrigCompositeUtils::createAndStore( m_trigSummaryWriteKey, context );
@@ -211,3 +216,33 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
 }
 
 
+StatusCode Run2ToRun3TrigNavConverter::printFeatures(const HLT::StandaloneNavigation& nav) const {
+  std::set<std::string> totset;
+
+  for (const auto chain: m_configSvc->chains()) {
+    std::set<std::string> fset;
+    for (auto signature:  chain->signatures()) {
+        for (auto configTE: signature->outputTEs()) {
+          std::vector<HLT::TriggerElement*> tes;
+          nav.getAllOfType(configTE->id(), tes, false);
+          for (auto te: tes) {
+            for (auto featureAccessHelper: te->getFeatureAccessHelpers()) {
+              std::string type;
+              if(m_clidSvc->getTypeNameOfID(featureAccessHelper.getCLID(), type).isFailure()) {
+                ATH_MSG_WARNING("CLID " << featureAccessHelper.getCLID() << " is not known");
+              }
+              const std::string info = type+"#"+nav.label(featureAccessHelper.getCLID(), featureAccessHelper.getIndex().subTypeIndex());
+              fset.insert(info);
+              totset.insert(info);
+            }
+          }
+        }
+      }
+    const std::vector<std::string> fvec(fset.begin(), fset.end());
+    ATH_MSG_INFO("chain " << chain->name() << " features " << fvec.size() << " " << fvec);
+  }
+  const std::vector totvec(totset.begin(), totset.end() );
+  ATH_MSG_INFO("all event features " << totvec.size() << " " << totvec);
+
+  return StatusCode::SUCCESS;
+}
