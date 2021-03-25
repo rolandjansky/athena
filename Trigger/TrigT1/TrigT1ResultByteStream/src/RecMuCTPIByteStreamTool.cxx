@@ -15,7 +15,6 @@
 
 // Local include(s):
 #include "TrigT1ResultByteStream/RecMuCTPIByteStreamTool.h"
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRecMuCTPIByteStreamTool( "RecMuCTPIByteStreamTool", 1, 1 );
@@ -49,8 +48,6 @@ RecMuCTPIByteStreamTool::RecMuCTPIByteStreamTool( const std::string& type, const
  */
 StatusCode RecMuCTPIByteStreamTool::initialize() {
 
-  m_srcIdMap = new MuCTPISrcIdMap;
-
   StatusCode sc = m_rpcRoITool.retrieve();
   if( sc.isFailure() ) {
     ATH_MSG_WARNING("Couldn't access RPC RecMuonRoISvc");
@@ -76,14 +73,6 @@ StatusCode RecMuCTPIByteStreamTool::initialize() {
   
 }
 
-/**
- * The function deletes the MuCTPISrcIdMap object and finalises the base class.
- */
-StatusCode RecMuCTPIByteStreamTool::finalize() {
-
-  delete m_srcIdMap;
-  return StatusCode::SUCCESS;
-}
 
 /**
  * Conversion from eformat::ROBFragment to RIO.
@@ -106,7 +95,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
   }
   
   // Source ID of MIROD
-  const uint32_t miRodId = m_srcIdMap->getRodID();
+  const uint32_t miRodId = m_srcIdMap.getRodID();
 
   /* get ROD source ID */
   uint32_t rodId = rob->rod_source_id();

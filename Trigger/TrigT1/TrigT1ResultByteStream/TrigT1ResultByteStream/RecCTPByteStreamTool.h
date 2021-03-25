@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_RECCTPBYTESTREAMTOOL_H
@@ -28,7 +28,6 @@ class CTP_RIO;
  *     @see RecCTPByteStreamCnv
  *
  *  @author David Berge
- *    @date $Date: 2007-12-14 15:33:09 $
  */
 class RecCTPByteStreamTool : public AthAlgTool {
 
@@ -39,23 +38,16 @@ public:
   /// Default constructor
   RecCTPByteStreamTool( const std::string& type, const std::string& name,
                         const IInterface* parent );
-  /// Default destructor
-  virtual ~RecCTPByteStreamTool();
 
   /// AlgTool InterfaceID
   static const InterfaceID& interfaceID();
-
-  /// Function to initialise the tool
-  virtual StatusCode initialize();
-  /// Function to finalise the tool
-  virtual StatusCode finalize();
 
   /// Convert ROBFragment to CTP_RIO
   StatusCode convert( const ROBF* rob, CTP_RIO*& result );
 
 private:
   /// Object storing the various IDs of the CTP fragment
-  CTPSrcIdMap* m_srcIdMap;
+  CTPSrcIdMap m_srcIdMap;
 
 }; // class RecCTPByteStreamTool
 

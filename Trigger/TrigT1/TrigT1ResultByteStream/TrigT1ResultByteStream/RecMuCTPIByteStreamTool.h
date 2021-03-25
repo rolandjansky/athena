@@ -15,9 +15,11 @@
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
+// Local include(s):
+#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+
 // Forward declaration(s):
 class MuCTPI_RIO;
-class MuCTPISrcIdMap;
 
 /**
  *   @short Tool doing the ByteStream -> MuCTPI_RIO conversion
@@ -47,15 +49,13 @@ public:
 
   /// Function to initialise the tool
   virtual StatusCode initialize() override;
-  /// Function to finalise the tool
-  virtual StatusCode finalize() override;
 
   /// Convert ROBFragment to MuCTPI_RIO
   StatusCode convert( const ROBF* rob, MuCTPI_RIO*& cont );
 
 private:
   /// Object storing the various IDs of the MuCTPI fragment
-  MuCTPISrcIdMap* m_srcIdMap{nullptr};
+  MuCTPISrcIdMap m_srcIdMap;
 
   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcRoITool {
     this, "RPCRecRoiSvc", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_MUCTPIBYTESTREAMCNV_H
@@ -23,13 +23,12 @@
 
 // Local include(s):
 #include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
+#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
 #  include "TrigT1ResultByteStream/CTPByteStreamTool.h"
 #  include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
 #endif
 
-// Forward declaration(s):
-class MuCTPISrcIdMap;
 
 /**
  *   @short ByteStream converter for the MuCTPI_RDO object
@@ -44,7 +43,6 @@ class MuCTPISrcIdMap;
  *
  *  @author Tadashi Maeno
  *  @author Attila Krasznahorkay
- *    @date $Date: 2009-02-23 21:23:03 $
  */
 class MuCTPIByteStreamCnv : public Converter {
 
@@ -52,18 +50,15 @@ public:
   /// Standard constructor
   MuCTPIByteStreamCnv( ISvcLocator* svcloc );
 
-  /// Standard destructor
-  ~MuCTPIByteStreamCnv();
-
   /// Function connecting to all the needed services/tools
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Function creating the MuCTPI_RDO object from a MuCTPI ROB fragment
-  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
+  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) override;
   /// Function creating the MuCTPI ROB fragment from a MuCTPI_RDO object
-  virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr );
+  virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) override;
 
   /// Function needed by the framework
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   /// Function needed by the framework
   static long storageType();
   /// Function needed by the framework
@@ -73,7 +68,7 @@ private:
   /// Tool doing the actual conversion
   ToolHandle< MuCTPIByteStreamTool > m_tool;
   /// Object storing the various IDs of the MuCTPI fragment
-  MuCTPISrcIdMap* m_srcIdMap;
+  MuCTPISrcIdMap m_srcIdMap;
 
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
   ToolHandle< CTPByteStreamTool >    m_ctp_tool;

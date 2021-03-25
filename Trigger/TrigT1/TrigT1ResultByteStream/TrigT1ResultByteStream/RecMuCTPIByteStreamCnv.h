@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_RECMUCTPIBYTESTREAMCNV_H
@@ -17,9 +17,8 @@
 
 // Local include(s):
 #include "TrigT1ResultByteStream/RecMuCTPIByteStreamTool.h"
+#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
 
-// Forward declaration(s):
-class MuCTPISrcIdMap;
 
 /**
  *   @short ByteStream converter for the MuCTPI_RIO object
@@ -34,7 +33,6 @@ class MuCTPISrcIdMap;
  *
  *  @author Tadashi Maeno
  *  @author Attila Krasznahorkay
- *    @date $Date: 2009-02-23 21:23:03 $
  */
 class RecMuCTPIByteStreamCnv : public Converter {
 
@@ -42,16 +40,13 @@ public:
   /// Standard constructor
   RecMuCTPIByteStreamCnv( ISvcLocator* svcloc );
 
-  /// Standard destructor
-  ~RecMuCTPIByteStreamCnv();
-
   /// Function connecting to all the needed services/tools
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Function creating the MuCTPI_RIO object from a MuCTPI ROB fragment
-  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
+  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) override;
 
   /// Function needed by the framework
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   /// Function needed by the framework
   static long storageType();
   /// Function needed by the framework
@@ -62,7 +57,7 @@ private:
   ToolHandle< RecMuCTPIByteStreamTool > m_tool;
 
   /// Object storing the various IDs of the MuCTPI fragment
-  MuCTPISrcIdMap* m_srcIdMap;
+  MuCTPISrcIdMap m_srcIdMap;
 
   /// Service used when reading the BS data
   ServiceHandle< IROBDataProviderSvc >    m_robDataProvider;

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_MUCTPIBYTESTREAMTOOL_H
@@ -16,7 +16,6 @@
 #include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
 
 // Forward declaration(s):
-class MsgStream;
 class MuCTPI_RDO;
 
 /**
@@ -29,7 +28,6 @@ class MuCTPI_RDO;
  *
  *  @author Tadashi Maeno
  *  @author Attila Krasznahorkay
- *    @date $Date: 2007-12-14 15:33:08 $
  */
 class MuCTPIByteStreamTool : public AthAlgTool {
 
@@ -40,16 +38,9 @@ public:
   /// Default constructor
   MuCTPIByteStreamTool( const std::string& type, const std::string& name,
                         const IInterface* parent );
-  /// Default destructor
-  virtual ~MuCTPIByteStreamTool();
 
   /// AlgTool InterfaceID
   static const InterfaceID& interfaceID();
-
-  /// Function to initialise the tool
-  virtual StatusCode initialize();
-  /// Function to finalise the tool
-  virtual StatusCode finalize();
 
   /// Convert ROBFragment to MuCTPI_RDO
   StatusCode convert( const ROBF* rob, MuCTPI_RDO*& result );
@@ -58,7 +49,7 @@ public:
 
 private:
   /// Object storing the various IDs of the MuCTPI fragment
-  MuCTPISrcIdMap*                      m_srcIdMap;
+  MuCTPISrcIdMap                       m_srcIdMap;
   /// Object used in creating the MuCTPI ROB fragment
   FullEventAssembler< MuCTPISrcIdMap > m_fea;
 
