@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -24,8 +24,8 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "TileConditions/TileCellNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TileMuId2DBAlg: public AthAlgorithm {
 
@@ -33,26 +33,18 @@ class TileMuId2DBAlg: public AthAlgorithm {
 
   TileMuId2DBAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  ~TileMuId2DBAlg();
+  virtual ~TileMuId2DBAlg();
 
-  StatusCode initialize();  
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;  
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
 
   const CaloCell_ID* m_calo_id;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
-
-  PublicToolHandle<ICaloNoiseTool> m_noiseTool{this,
-    "noiseTool", "CaloNoiseToolDB/calonoisetooldb", "Calo noise tool"};
-
-  //float m_eta;
-  //float m_phi;
-  float m_noise;
-  int m_module;
+  SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+    { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
 };
 
 #endif // TileCalibAlgs_TileMuId2DBAlg_h
