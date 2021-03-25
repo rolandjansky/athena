@@ -130,6 +130,10 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     elif "Track" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
        algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
+    elif "EF" in step:
+       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
+       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
+
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
     return algo
@@ -137,8 +141,6 @@ def _algoTauPrecision(inputRoIs, tracks, step):
 def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True)
-    if "EF" in step:
-       algo                              = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision"+step, doMVATES=False, doTrackBDT=False, doRNN=True)
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
@@ -283,10 +285,10 @@ def tauIdSequence( RoIs, name):
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "TrackTwo")
       ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
                                    ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
+    elif "EF" in name:
+      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "EF")
     elif "MVA" in name:
       tauPrecisionAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "PrecisionMVA")
-    elif "EF" in name:
-      tauPrecisionAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = IDTrigConfig.PT.tracksPT(), step = "EF")
 
     tauIdSequence += tauPrecisionAlg
 
