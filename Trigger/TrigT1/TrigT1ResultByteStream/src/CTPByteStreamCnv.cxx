@@ -15,7 +15,7 @@
 #include "TrigT1Result/CTP_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamCnv.h"
+#include "CTPByteStreamCnv.h"
 
 /**
  * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the

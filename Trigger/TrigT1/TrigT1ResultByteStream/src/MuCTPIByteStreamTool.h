@@ -13,7 +13,7 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "MuCTPISrcIdMap.h"
 
 // Forward declaration(s):
 class MuCTPI_RDO;

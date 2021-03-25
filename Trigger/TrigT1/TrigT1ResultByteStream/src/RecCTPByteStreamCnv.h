@@ -4,8 +4,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMCNV_H
-#define TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMCNV_H
+#ifndef TRIGT1RESULTBYTESTREAM_RECCTPBYTESTREAMCNV_H
+#define TRIGT1RESULTBYTESTREAM_RECCTPBYTESTREAMCNV_H
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Converter.h"
@@ -16,34 +16,33 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamTool.h"
-#include "TrigT1ResultByteStream/CTPSrcIdMap.h"
+#include "RecCTPByteStreamTool.h"
+#include "CTPSrcIdMap.h"
 
 
 /**
- *   @short ByteStream converter for the CTP_RDO object
+ *   @short ByteStream converter for the CTP_RIO object
  *
  *          This is a quite standard BS converter for the output sent from the
  *          Central Trigger Processor to the DAQ. It uses an external tool
- *          (CTPByteStreamTool) to do the actual work of the conversion, this
+ *          (RecCTPByteStreamTool) to do the actual work of the conversion, this
  *          converter is "only" supposed to communicate with the framework.
  *
- *     @see CTPByteStreamTool
+ *     @see RecCTPByteStreamTool
  *
  *  @author David Berge
+ *    @date $Date: 2009-02-23 21:23:03 $
  */
-class CTPByteStreamCnv : public Converter {
+class RecCTPByteStreamCnv : public Converter {
 
 public:
   /// Standard constructor
-  CTPByteStreamCnv( ISvcLocator* svcloc );
+  RecCTPByteStreamCnv(ISvcLocator* svcloc);
 
   /// Function connecting to all the needed services/tools
   virtual StatusCode initialize() override;
-  /// Function creating the CTP_RDO object from a CTP ROB fragment
+  /// Function creating the CTP_RIO object from a CTP ROB fragment
   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) override;
-  /// Function creating the CTP ROB fragment from a CTP_RDO object
-  virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) override;
 
   /// Function needed by the framework
   virtual long repSvcType() const override { return i_repSvcType(); }
@@ -54,16 +53,14 @@ public:
 
 private:
   /// Tool doing the actual conversion
-  ToolHandle< CTPByteStreamTool > m_tool;
+  ToolHandle< RecCTPByteStreamTool > m_tool;
 
   /// Object storing the various IDs of the CTP fragment
   CTPSrcIdMap m_srcIdMap;
 
   /// Service used when reading the BS data
-  ServiceHandle< IROBDataProviderSvc >    m_robDataProvider;
-  /// Service used when writing the BS data
-  ServiceHandle< IByteStreamEventAccess > m_ByteStreamEventAccess;
+  ServiceHandle< IROBDataProviderSvc > m_robDataProvider;
 
-}; // class CTPByteStreamCnv
+}; // class RecCTPByteStreamCnv
 
-#endif // TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMCNV_H
+#endif // TRIGT1RESULTBYTESTREAM_MUCTPIBYTESTREAMCNV_H

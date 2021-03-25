@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
+#include "MuCTPIByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 

@@ -5,7 +5,7 @@
 
 #include "eformat/SourceIdentifier.h"
 
-#include "TrigT1ResultByteStream/CTPSrcIdMap.h"
+#include "CTPSrcIdMap.h"
 
 using eformat::helper::SourceIdentifier;
 

@@ -22,11 +22,11 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "MuCTPIByteStreamTool.h"
+#include "MuCTPISrcIdMap.h"
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
 #  include "TrigT1ResultByteStream/CTPByteStreamTool.h"
-#  include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
+#  include "RecCTPByteStreamTool.h"
 #endif
 
 

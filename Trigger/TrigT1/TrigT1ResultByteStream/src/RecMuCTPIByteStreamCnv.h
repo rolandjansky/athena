@@ -16,8 +16,8 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecMuCTPIByteStreamTool.h"
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "RecMuCTPIByteStreamTool.h"
+#include "MuCTPISrcIdMap.h"
 
 
 /**

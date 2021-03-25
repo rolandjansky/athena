@@ -14,7 +14,7 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPSrcIdMap.h"
+#include "CTPSrcIdMap.h"
 
 // Forward declaration(s):
 class CTP_RDO;

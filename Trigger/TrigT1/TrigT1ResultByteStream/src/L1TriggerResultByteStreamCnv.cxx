@@ -3,7 +3,7 @@
 */
 
 // Trigger includes
-#include "TrigT1ResultByteStream/L1TriggerResultByteStreamCnv.h"
+#include "L1TriggerResultByteStreamCnv.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 // Athena includes

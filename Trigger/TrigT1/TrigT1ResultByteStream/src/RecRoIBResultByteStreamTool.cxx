@@ -3,7 +3,7 @@
 */
 
 // Local includes:
-#include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
+#include "RecRoIBResultByteStreamTool.h"
 
 // Trigger includes:
 #include "TrigConfL1Data/CTPConfig.h"

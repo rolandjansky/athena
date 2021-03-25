@@ -3,7 +3,7 @@
 */
 
 // Local includes:
-#include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
+#include "RoIBResultByteStreamTool.h"
 
 // Trigger includes:
 #include "CTPfragment/CTPdataformat.h"

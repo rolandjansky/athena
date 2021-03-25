@@ -14,7 +14,7 @@
 #include "TrigT1Result/MuCTPI_RIO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecMuCTPIByteStreamCnv.h"
+#include "RecMuCTPIByteStreamCnv.h"
 
 /**
  * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the

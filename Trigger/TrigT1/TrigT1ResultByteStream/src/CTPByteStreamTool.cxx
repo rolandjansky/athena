@@ -11,7 +11,7 @@
 #include "TrigT1Result/CTP_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamTool.h"
+#include "CTPByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_ICTPByteStreamTool( "CTPByteStreamTool", 1, 0 );

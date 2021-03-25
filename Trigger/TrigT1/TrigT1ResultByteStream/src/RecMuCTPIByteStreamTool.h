@@ -16,7 +16,7 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "MuCTPISrcIdMap.h"
 
 // Forward declaration(s):
 class MuCTPI_RIO;

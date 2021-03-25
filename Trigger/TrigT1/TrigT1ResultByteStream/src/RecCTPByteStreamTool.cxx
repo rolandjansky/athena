@@ -6,7 +6,7 @@
 #include "TrigT1Result/CTP_RIO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
+#include "RecCTPByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRecCTPByteStreamTool( "RecCTPByteStreamTool", 1, 0 );

@@ -14,14 +14,14 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/MuCTPIByteStreamCnv.h"
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
+#include "MuCTPIByteStreamCnv.h"
+#include "MuCTPIByteStreamTool.h"
 
 // Hack for early data, where CTP and MuCTPI were plugged into the
 // same ROS PC
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
-#  include "TrigT1ResultByteStream/CTPByteStreamTool.h"
-#  include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
+#  include "CTPByteStreamTool.h"
+#  include "RecCTPByteStreamTool.h"
 #  include "TrigT1Result/CTP_RDO.h"
 #  include "TrigT1Result/CTP_RIO.h"
 #endif

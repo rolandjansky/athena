@@ -4,7 +4,7 @@
 
 #include "eformat/SourceIdentifier.h"
 
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "MuCTPISrcIdMap.h"
 
 using eformat::helper::SourceIdentifier;
 

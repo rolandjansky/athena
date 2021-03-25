@@ -14,7 +14,7 @@
 #include "TrigConfL1Data/TriggerItem.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecMuCTPIByteStreamTool.h"
+#include "RecMuCTPIByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRecMuCTPIByteStreamTool( "RecMuCTPIByteStreamTool", 1, 1 );
