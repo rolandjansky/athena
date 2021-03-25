@@ -531,7 +531,12 @@ namespace xAODMaker {
 #ifdef HEPMC3
         ///Here comes the fix. Note that HepMC2.06.11 also contains the fix
         md->setMcChannelNumber(mcChannelNumber);
-        std::vector<std::string> orderedWeightNameVec=genEvt.weight_names();
+        std::vector<std::string> orderedWeightNameVec;
+        if (!genEvt.run_info()) {
+          for (size_t i=0; i<genEvt.weights().size();i++) orderedWeightNameVec.push_back(std::to_string(i));
+        } else {
+          orderedWeightNameVec=genEvt.weight_names();
+        }
         md->setWeightNames(orderedWeightNameVec);
 #else 
         // FIXME: class member protection violation here.
