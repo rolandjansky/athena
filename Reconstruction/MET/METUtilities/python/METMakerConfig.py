@@ -31,12 +31,12 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
 
     tauSel = CompFactory.getComp("TauAnalysisTools::TauSelectionTool")("TauSelectionTool_METMakerAlg",
                                                                        ConfigPath = "",
-                                                                       SelectionCuts = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack),
+                                                                       SelectionCuts = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack | SelectionCuts.CutJetIDWP),
                                                                        PtMin = 20.0,
-                                                                       JetIDWP = TauAnalysisTools.JETIDNONE,
-                                                                       EleOLR = False,
-                                                                       NTracks = (0, 1, 2, 3, 4, 5),
-                                                                       AbsCharges = (0, 1, 2, 3),
+                                                                       JetIDWP = TauAnalysisTools.JETIDRNNMEDIUM,
+                                                                       EleOLR = True,
+                                                                       NTracks = (1, 3),
+                                                                       AbsCharge = 1,
                                                                        AbsEtaRegion = (0.0, 1.37, 1.52, 2.5))
 
     if jetColl=="":
