@@ -1119,7 +1119,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
   SG::ReadHandle<TrackCollection> inputTracks{m_tracksName};
   if (not inputTracks.isValid()) {
-    ATH_MSG_WARNING ("IDAlignMonResiduals::fillHistograms ** " << m_tracksName.key() << " could not be retrieved");
+    ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms ** " << m_tracksName.key() << " could not be retrieved");
     return StatusCode::RECOVERABLE;
   }
 
