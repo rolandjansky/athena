@@ -56,6 +56,7 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
             " cd "       + CleanRunHeadDir +" ;" + 
             " mkdir -p " + CleanDirName    +" ;" +
             " cd "       + CleanDirName    +" ;" + 
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
             trfcmd + extraArg+" > "+s+".log 2>&1" )
 
 
