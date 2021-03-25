@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -16,7 +16,7 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "Identifier/Identifier.h"
 
@@ -25,11 +25,9 @@ CBNT_CaloH6::CBNT_CaloH6(const std::string & name, ISvcLocator * pSvcLocator) :
   CBNT_TBRecBase(name, pSvcLocator),
   m_emecID_help(0),
   m_hecID_help(0),
-  m_fcalID_help(0),
-  m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
+  m_fcalID_help(0)
 {
   declareProperty("Det_Type", m_det_type);
-  declareProperty("NoiseToolName", m_noiseTool);
   declareProperty("Max_Chan", m_numchan);
   m_noiseSigma = 0;
 
@@ -76,7 +74,7 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
 
   ATH_MSG_DEBUG("Got to before p_toolSvc");
   
-  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_CHECK( m_elecNoiseKey.initialize() );
 
   ATH_MSG_DEBUG ( "Before Booking Ntuple" );
   
@@ -110,14 +108,10 @@ StatusCode CBNT_CaloH6::CBNT_execute()
   const CaloCellContainer* cellContainer;
   
   ATH_CHECK( evtStore()->retrieve(cellContainer) );
+
+  SG::ReadCondHandle<CaloNoise> elecNoise (m_elecNoiseKey);
   
-  CaloCellContainer::const_iterator ifirst = cellContainer->begin();
-  CaloCellContainer::const_iterator ilast = cellContainer->end();
-  
-  for (; ifirst!=ilast; ifirst++){ //iterating
-    
-    //obtaining cell pointer
-    const CaloCell* cell_ptr = *ifirst;
+  for (const CaloCell* cell_ptr : *cellContainer) {
     
     //obtaining dde pointer
     const CaloDetDescrElement* caloDDE_ptr = cell_ptr->caloDDE();
@@ -129,14 +123,13 @@ StatusCode CBNT_CaloH6::CBNT_execute()
     const CaloCell_ID::CaloSample sampling = caloDDE_ptr->getSampling();                                                
     if (m_det_type=="HEC" && subcalo==CaloCell_ID::LARHEC) { 
       
-      float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
-
-      ATH_MSG_DEBUG("noiseRMS HEC"<<noiseSigma);
-      
       const Identifier hecid=cell_ptr->ID();
-      
+
+      float noise = elecNoise->getNoise(hecid, cell_ptr->gain());
+      ATH_MSG_DEBUG("noiseRMS HEC"<<noise);
+     
       m_energy->push_back(cell_ptr->energy());
-      m_NoiseRMS->push_back(m_noiseTool->elecNoiseRMS(cell_ptr));
+      m_NoiseRMS->push_back(noise);
       m_eta->push_back(caloDDE_ptr->eta());
       m_phi->push_back(caloDDE_ptr->phi());
       m_ieta->push_back(m_hecID_help->eta(hecid));
@@ -147,14 +140,13 @@ StatusCode CBNT_CaloH6::CBNT_execute()
     
     if (m_det_type=="EMEC" && subcalo==CaloCell_ID::LAREM) {
       
-      float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
-      
-      ATH_MSG_DEBUG("noiseRMS EMEC"<<noiseSigma);
-      
       const Identifier emecid=cell_ptr->ID();
-      
+
+      float noise = elecNoise->getNoise(emecid, cell_ptr->gain());
+      ATH_MSG_DEBUG("noiseRMS EMEC"<<noise);
+     
       m_energy->push_back(cell_ptr->energy());
-      m_NoiseRMS->push_back(m_noiseTool->elecNoiseRMS(cell_ptr));
+      m_NoiseRMS->push_back(noise);
       m_eta->push_back(caloDDE_ptr->eta());
       m_phi->push_back(caloDDE_ptr->phi());
       m_ieta->push_back(m_emecID_help->eta(emecid));
@@ -163,14 +155,13 @@ StatusCode CBNT_CaloH6::CBNT_execute()
     }
     if (m_det_type=="FCAL" && subcalo==CaloCell_ID::LARFCAL) {
       
-      float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
-      
-      ATH_MSG_DEBUG("noiseRMS FCAL"<<noiseSigma);
-      
       const Identifier fcalid=cell_ptr->ID();
+
+      float noise = elecNoise->getNoise(fcalid, cell_ptr->gain());
+      ATH_MSG_DEBUG("noiseRMS FCAL"<<noise);
       
       m_energy->push_back(cell_ptr->energy());
-      m_NoiseRMS->push_back(m_noiseTool->elecNoiseRMS(cell_ptr));
+      m_NoiseRMS->push_back(noise);
       m_eta->push_back(caloDDE_ptr->eta());
       m_phi->push_back(caloDDE_ptr->phi());
       m_ieta->push_back(m_fcalID_help->eta(fcalid));
