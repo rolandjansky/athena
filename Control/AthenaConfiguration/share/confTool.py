@@ -6,24 +6,20 @@
 
 from __future__ import print_function
 
-import argparse
 import ast
-import collections
 import json
 import pickle
 import pprint
 import re
 import sys
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Utility to transform/display athena configurations"
-    )
+    parser = baseParser
     parser.add_argument(
-        "-p", "--printConf", action="store_true", help="Prints"
+        "-p", "--printConf", action="store_true", help="Prints entire configuration"
     )
     parser.add_argument(
         "--printComps", action="store_true", help="Prints only the components"
@@ -35,18 +31,6 @@ def parse_args():
     parser.add_argument("--toPickle", help="Convert to pickle file")
 
     parser.add_argument("file", nargs="+", help="Files to work with")
-    parser.add_argument(
-        "--includeComps",
-        nargs="*",
-        help="Report only component matching this string",
-        action="append",
-    )
-    parser.add_argument(
-        "--excludeComps",
-        nargs="*",
-        help="Exclude components matching this string",
-        action="append",
-    )
     parser.add_argument(
         "--ignoreMissing",
         help="Don't report components existing in only of the two configuartions",
@@ -67,17 +51,7 @@ def parse_args():
         help="Print all parameters in component with difference even, if there are no differences.",
         action="store_true",
     )
-    parser.add_argument(
-        "--ignoreIrrelevant",
-        help="Ignore differences in e.g. outputlevel",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--renameComps",
-        nargs="*",
-        help="Pass comps You want to rename as OldName=NewName.",
-        action="append",
-    )
+
 
     args = parser.parse_args()
     main(args)
@@ -85,26 +59,15 @@ def parse_args():
 
 def main(args):
     if args.ignoreIrrelevant:
-        args.ignoreList = [
-            "StoreGateSvc",
-            "OutputLevel",
-            "MuonEDMHelperSvc",
-            "ExtraInputs",
-            "ExtraOutputs",
-            "DetStore",
-            "EvtStore",
-            "NeededResources",
-        ]
-        print(f"Components to ignore: {args.ignoreList}")
-
+        print(f"Components to ignore: {args.ignore}")
     if args.printComps:
         for fileName in args.file:
-            conf = _loadSingleFile(fileName, args)
+            conf = loadConfigFile(fileName, args)
             _printComps(conf)
 
     if args.printConf:
         for fileName in args.file:
-            conf = _loadSingleFile(fileName, args)
+            conf = loadConfigFile(fileName, args)
             _print(conf)
 
     if args.toJSON:
@@ -115,13 +78,12 @@ def main(args):
         from TrigConfIO.JsonUtils import create_joboptions_json
         create_joboptions_json(args.file[0], args.file[0].replace("pkl","json"))
 
-
     if args.toPickle:
         if len(args.file) != 1:
             sys.exit(
                 "ERROR, can convert single file at a time, got: %s" % args.file
             )
-        conf = _loadSingleFile(args.file[0], args)
+        conf = loadConfigFile(args.file[0], args)
         with open(args.toPickle, "wb") as oFile:
             for item in conf:
                 pickle.dump(item, oFile)
@@ -132,150 +94,19 @@ def main(args):
                 "ERROR, can diff exactly two files at a time, got: %s"
                 % args.file
             )
-        configRef = _loadSingleFile(args.file[0], args)
-        configChk = _loadSingleFile(args.file[1], args)
-        flattenedRef = {}
-        flattenedChk = {}
-        for ref in configRef:
-            if isinstance(ref, dict):
-                flattenedRef.update(ref)
-        for chk in configChk:
-            if isinstance(chk, dict):
-                flattenedChk.update(chk)
+        configRef = loadConfigFile(args.file[0], args)
+        configChk = loadConfigFile(args.file[1], args)
 
-        _compareConfig(flattenedRef, flattenedChk, args)
-
-
-def _loadSingleFile(fname, args):
-    conf = []
-    if fname.endswith(".pkl"):
-        with open(fname, "rb") as input_file:
-            # determine if there is a old or new configuration pickled
-            cfg = pickle.load(input_file)
-            if isinstance(cfg, ComponentAccumulator):  # new configuration
-                props = cfg.gatherProps()
-                # to make json compatible with old configuration
-                jos_props = props[2]
-                to_json = {}
-                for comp, name, value in jos_props:
-                    to_json.setdefault(comp, {})[name] = value
-                    to_json[comp][name] = value
-                conf = [to_json, props[0], props[1]]
-
-            elif isinstance(
-                cfg, (collections.defaultdict, dict)
-            ):  # old configuration
-                cfg.update(pickle.load(input_file))
-                conf.append(pickle.load(input_file))
-                conf.append(cfg)
-        print("... Read", len(conf), "items from python pickle file: ", fname)
-
-    elif fname.endswith(".json"):
-
-        def __keepPlainStrings(element):
-            if isinstance(element, str):
-                return str(element)
-            if isinstance(element, list):
-                return [__keepPlainStrings(x) for x in element]
-            if isinstance(element, dict):
-                return {
-                    __keepPlainStrings(key): __keepPlainStrings(value)
-                    for key, value in element.items()
-                }
-            return element
-
-        with open(fname, "r") as input_file:
-            conf = json.load(input_file, object_hook=__keepPlainStrings)
-
-            print("... Read", len(conf), "items from JSON file: ", fname)
-
-    else:
-        sys.exit("File format not supported.")
-
-    if conf is None:
-        sys.exit("Unable to load %s file" % fname)
-
-    def flatten_list(l):
-        return [item for elem in l for item in elem] if l else []
-
-    if (
-        args.includeComps or args.excludeComps
-    ):  # returning only wanted components
-
-        compsToReport = flatten_list(args.includeComps)
-        compsToExclude = flatten_list(args.excludeComps)
-
-        def eligible(component):
-            include = any(re.match(s, component) for s in compsToReport)
-            exclude = any(re.match(s, component) for s in compsToExclude)
-            if args.includeComps and args.excludeComps:
-                return include and not exclude
-            elif args.includeComps:
-                return include
-            elif args.excludeComps:
-                return not exclude
-
-        conf = [
-            {key: value for (key, value) in dic.items() if eligible(key)}
-            for dic in conf
-            if isinstance(dic, dict)
-        ]
-
-    if args.ignoreIrrelevant:
-
-        def remove_irrelevant(val_dict):
-            return (
-                {
-                    key: val
-                    for key, val in val_dict.items()
-                    if key not in args.ignoreList
-                }
-                if isinstance(val_dict, dict)
-                else val_dict
-            )
-
-        conf = [
-            {key: remove_irrelevant(value) for (key, value) in dic.items()}
-            for dic in conf
-            if isinstance(dic, dict)
-        ]
-
-    if args.renameComps:
-        compsToRename = flatten_list(args.renameComps)
-        splittedCompsNames = {
-            old_name: new_name
-            for old_name, new_name in [
-                element.split("=") for element in compsToRename
-            ]
-        }
-
-        def rename_comps(comp_name):
-            return (
-                splittedCompsNames[comp_name]
-                if comp_name in splittedCompsNames
-                else comp_name
-            )
-
-        conf = [
-            {rename_comps(key): value for (key, value) in dic.items()}
-            for dic in conf
-            if isinstance(dic, dict)
-        ]
-
-    return conf
-
+        _compareConfig(configRef, configChk, args)
 
 def _print(conf):
-    for item in conf:
-        pprint.pprint(dict(item))
+    pprint.pprint(conf)
 
 
 def _printComps(conf):
-    for item in conf:
+    for k, item in conf.items():
         if isinstance(item, dict):
-            for compName in item.keys():
-                print(compName)
-
+            print(k)
 
 def _compareConfig(configRef, configChk, args):
     # Find superset of all components:
