@@ -166,6 +166,11 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
  */
 const HepMC::GenParticle* HepMcParticleLink::cptr() const
 {
+  // dummy link
+  if (!m_ptrs.isValid()) {
+    return nullptr;
+  }
+
   const IProxyDict* sg = nullptr;
   auto p = m_ptrs.get (sg);
   if (!p) {
@@ -243,6 +248,11 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
  */
 HepMC3::ConstGenParticlePtr HepMcParticleLink::scptr() const
 {
+  // dummy link
+  if (!m_ptrs.isValid()) {
+    return nullptr;
+  }
+
   HepMC3::ConstGenParticlePtr pp{nullptr};
   const IProxyDict* sg = nullptr;
   auto p = m_ptrs.get (sg);
@@ -315,6 +325,11 @@ HepMC3::ConstGenParticlePtr HepMcParticleLink::scptr() const
  */
 HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
 {
+  // dummy link
+  if (!m_ptrs.isValid()) {
+    return ExtendedBarCode::UNDEFINED;
+  }
+
   index_type index, position;
   m_extBarcode.eventIndex (index, position);
   if (index == ExtendedBarCode::UNDEFINED) {

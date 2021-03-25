@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeneratorObjects/CachedParticlePtr.icc
@@ -122,6 +122,16 @@ void CachedParticlePtr::set (const IProxyDict* sg,
   const void* p = storedict (sg);
   m_ptr.compare_exchange_strong (p, part);
   assert (p == part || p == storedict (sg));
+}
+
+
+/**
+ * @brief Check if the cached pointer is valid
+ */
+inline
+bool CachedParticlePtr::isValid () const
+{
+  return m_ptr != nullptr;
 }
 
 

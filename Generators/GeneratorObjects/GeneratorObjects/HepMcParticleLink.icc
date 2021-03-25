@@ -306,7 +306,7 @@ HepMcParticleLink::ExtendedBarCode::setIndex (index_type idx,
  * @param sg Optional specification of a specific store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= SG::CurrentEventStore::store()*/)
+HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= nullptr*/)
   : m_ptrs (sg)
 {
 }
