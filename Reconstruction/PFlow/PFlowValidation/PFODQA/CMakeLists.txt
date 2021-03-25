@@ -7,4 +7,4 @@ atlas_subdir( PFODQA )
 atlas_add_component( PFODQA
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaMonitoringLib xAODCaloEvent xAODPFlow xAODTracking PFOHistUtils StoreGateLib TrkValHistUtils xAODTau xAODEgamma xAODMuon )
+                     LINK_LIBRARIES AthenaMonitoringLib xAODCaloEvent xAODEventInfo xAODPFlow xAODTracking PFOHistUtils StoreGateLib TrkValHistUtils xAODTau xAODEgamma xAODMuon )

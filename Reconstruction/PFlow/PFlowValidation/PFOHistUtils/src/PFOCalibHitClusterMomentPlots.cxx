@@ -35,48 +35,42 @@ if(!m_sFEContainerName.empty()){
     }
   }
 
-  void PFOCalibHitClusterMomentPlots::fill(const xAOD::PFO& PFO){
+  void PFOCalibHitClusterMomentPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
     
     float moment_ENG_CALIB_FRAC_EM = -1.0;
     PFO.getClusterMoment(moment_ENG_CALIB_FRAC_EM,xAOD::CaloCluster::ENG_CALIB_FRAC_EM);
-    m_PFO_ENG_CALIB_FRAC_EM->Fill(moment_ENG_CALIB_FRAC_EM);
+    m_PFO_ENG_CALIB_FRAC_EM->Fill(moment_ENG_CALIB_FRAC_EM,eventInfo.beamSpotWeight());
     
     float moment_ENG_CALIB_FRAC_HAD = -1.0;
     PFO.getClusterMoment(moment_ENG_CALIB_FRAC_HAD,xAOD::CaloCluster::ENG_CALIB_FRAC_HAD);
-    m_PFO_ENG_CALIB_FRAC_HAD->Fill(moment_ENG_CALIB_FRAC_HAD);
+    m_PFO_ENG_CALIB_FRAC_HAD->Fill(moment_ENG_CALIB_FRAC_HAD,eventInfo.beamSpotWeight());
 
     float moment_ENG_CALIB_FRAC_REST = -1.0;
     PFO.getClusterMoment(moment_ENG_CALIB_FRAC_REST,xAOD::CaloCluster::ENG_CALIB_FRAC_REST);
-    m_PFO_ENG_CALIB_FRAC_REST->Fill(moment_ENG_CALIB_FRAC_REST);
+    m_PFO_ENG_CALIB_FRAC_REST->Fill(moment_ENG_CALIB_FRAC_REST,eventInfo.beamSpotWeight());
     
     float PFOEta = PFO.eta();
     
     if (fabs(PFOEta) < 1.5){
-      m_PFO_ENG_CALIB_FRAC_EM_etaBinA->Fill(moment_ENG_CALIB_FRAC_EM);
-      m_PFO_ENG_CALIB_FRAC_HAD_etaBinA->Fill(moment_ENG_CALIB_FRAC_HAD);
-      m_PFO_ENG_CALIB_FRAC_REST_etaBinA->Fill(moment_ENG_CALIB_FRAC_REST);
+      m_PFO_ENG_CALIB_FRAC_EM_etaBinA->Fill(moment_ENG_CALIB_FRAC_EM,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_HAD_etaBinA->Fill(moment_ENG_CALIB_FRAC_HAD,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_REST_etaBinA->Fill(moment_ENG_CALIB_FRAC_REST),eventInfo.beamSpotWeight();
     }//|eta| < 1.5
     else if (fabs(PFOEta) < 2.5){
-      m_PFO_ENG_CALIB_FRAC_EM_etaBinB->Fill(moment_ENG_CALIB_FRAC_EM);
-      m_PFO_ENG_CALIB_FRAC_HAD_etaBinB->Fill(moment_ENG_CALIB_FRAC_HAD);
-      m_PFO_ENG_CALIB_FRAC_REST_etaBinB->Fill(moment_ENG_CALIB_FRAC_REST);
+      m_PFO_ENG_CALIB_FRAC_EM_etaBinB->Fill(moment_ENG_CALIB_FRAC_EM,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_HAD_etaBinB->Fill(moment_ENG_CALIB_FRAC_HAD,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_REST_etaBinB->Fill(moment_ENG_CALIB_FRAC_REST,eventInfo.beamSpotWeight());
     }
     else if (fabs(PFOEta) < 3.2){
-      m_PFO_ENG_CALIB_FRAC_EM_etaBinC->Fill(moment_ENG_CALIB_FRAC_EM);
-      m_PFO_ENG_CALIB_FRAC_HAD_etaBinC->Fill(moment_ENG_CALIB_FRAC_HAD);
-      m_PFO_ENG_CALIB_FRAC_REST_etaBinC->Fill(moment_ENG_CALIB_FRAC_REST);
+      m_PFO_ENG_CALIB_FRAC_EM_etaBinC->Fill(moment_ENG_CALIB_FRAC_EM,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_HAD_etaBinC->Fill(moment_ENG_CALIB_FRAC_HAD,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_REST_etaBinC->Fill(moment_ENG_CALIB_FRAC_REST,eventInfo.beamSpotWeight());
     }
     else{
-      m_PFO_ENG_CALIB_FRAC_EM_etaBinD->Fill(moment_ENG_CALIB_FRAC_EM);
-      m_PFO_ENG_CALIB_FRAC_HAD_etaBinD->Fill(moment_ENG_CALIB_FRAC_HAD);
-      m_PFO_ENG_CALIB_FRAC_REST_etaBinD->Fill(moment_ENG_CALIB_FRAC_REST);
+      m_PFO_ENG_CALIB_FRAC_EM_etaBinD->Fill(moment_ENG_CALIB_FRAC_EM,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_HAD_etaBinD->Fill(moment_ENG_CALIB_FRAC_HAD,eventInfo.beamSpotWeight());
+      m_PFO_ENG_CALIB_FRAC_REST_etaBinD->Fill(moment_ENG_CALIB_FRAC_REST,eventInfo.beamSpotWeight());
     }
     
-  }
-  void PFOCalibHitClusterMomentPlots::fill(const xAOD::FlowElement& FE){
-    std::cout<<"PFOCalibHitClusterMomentPlots - Calib Hits not available in most MC, so will be dropped"<<std::endl;
-    // dump pt just to remove -wunused parameter warnings - remove if this function is actually needed
-    std::cout<<"FE pt"<<FE.pt()<<std::endl;
-   
-  }
+  }  
 }
