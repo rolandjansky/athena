@@ -9,7 +9,7 @@ from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconCondition
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
-def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
+def SCT_LorentzAngleCfg(flags, name="SCTSiLorentzAngleCondAlg",
                         forceUseGeoModel=False, **kwargs):
     """Return configured ComponentAccumulator and tool for SCT_LorentzAngle
 
