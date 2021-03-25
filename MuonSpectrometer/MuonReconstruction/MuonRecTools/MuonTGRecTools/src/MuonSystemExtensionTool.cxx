@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSystemExtensionTool.h"
@@ -225,7 +225,7 @@ MuonSystemExtensionTool::muonSystemExtension(const xAOD::TrackParticle&  indetTr
         // create shared pointer and add to garbage collection
         std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
         //    reject intersections with very big uncertainties (parallel to surface)
-        if (Amg::error(*exPars->covariance(), Trk::locX) > 10000.
+        if (!Amg::valid_cov(*exPars->covariance()) || Amg::error(*exPars->covariance(), Trk::locX) > 10000.
             || Amg::error(*exPars->covariance(), Trk::locY) > 10000.)
             continue;
 
