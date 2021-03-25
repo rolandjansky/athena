@@ -159,6 +159,7 @@ class  ConfiguredNewTrackingSiPattern:
             elif NewTrackingCuts.mode() == "SLHCLargeD0":
                InDetSiSpacePointsSeedMaker.usePixel              = False
                InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta()
+               InDetSiSpacePointsSeedMaker.maxZSSS = 2700 # Needed for strip-only seeding
 
          if InDetFlags.writeSeedValNtuple():
            InDetSiSpacePointsSeedMaker.writeNtuple        = True
