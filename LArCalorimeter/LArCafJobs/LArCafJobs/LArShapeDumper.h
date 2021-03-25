@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -118,7 +118,6 @@ class LArShapeDumper : public AthAlgorithm
 
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
 
-  const ILArPedestal* m_larPedestal;
   const CaloDetDescrManager* m_caloDetDescrMgr;
   const LArOnlineID* m_onlineHelper;
   const DataHandle<ILArAutoCorr> m_autoCorr;
