@@ -8,6 +8,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
 
@@ -584,7 +586,6 @@ class Chain(object):
         self.vseeds=L1Thresholds
 
 
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
@@ -674,14 +675,7 @@ class Chain(object):
             return
 
         for step in self.steps:
-             # TODO: make  this as an error  when exceptions are handled
-            if len(self.L1decisions) != len(step.sequences) and not step.isEmpty:
-                log.error("setSeedsToSequences: found %d L1seeds and %d sequences in chain %s  step  %s: is this correct?", len(self.L1decisions), len(step.sequences),self.name, step.name)
-                raise RuntimeError("[setSeedsToSequences] L1 seeding issue")
-            for seed, seq in zip(self.L1decisions, step.sequences):
-                    seq.setSeed( seed )
-                    log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
-
+            step.setSeedsToSequences()
     
     def createHypoTools(self):
         """ This is extrapolating the hypotool configuration from the chain name"""
@@ -894,6 +888,12 @@ class ChainStep(object):
         if self.combo is not None:   
             return list(self.combo.getChains())
         return self.getChainLegs()
+
+    def setSeedsToSequences(self):
+        for seed, seq in zip( [d["chainParts"][0]["L1threshold"] for d in self.stepDicts], self.sequences):
+            l1Collection = mapThresholdToL1DecisionCollection(seed)
+            seq.setSeed( l1Collection )
+            log.debug( "setSeedsToSequences: ChainStep %s adding seed %s to sequence %s", self.name, l1Collection, seq.name )
 
     def __repr__(self):
         if len(self.sequences) == 0:
