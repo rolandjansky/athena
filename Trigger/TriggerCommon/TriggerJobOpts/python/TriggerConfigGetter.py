@@ -436,7 +436,7 @@ class TriggerConfigGetter(Configured):
             if ConfigFlags.Trigger.doEDMVersionConversion:
                 # also save the menu in JSON format
                 from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
-                dbKeys = fetchRun3ConfigFiles(GetRunNumber(), GetLBNumber())
+                dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
 
                 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc, TrigConf__HLTConfigSvc, TrigConf__HLTPrescaleCondAlg, TrigConf__L1PrescaleCondAlg
                 from AthenaCommon.AlgSequence import AthSequencer
@@ -528,11 +528,23 @@ class TriggerConfigGetter(Configured):
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
 
-def fetchRun3ConfigFiles(run, lb):
+""" Retrieve Run2 trigger configuration from the database and save as Run3 .JSON files with known name.
+    The Run3 offline trigger infrastructure should then be configured from these .JSON files.
+"""
+def fetchRun3ConfigFiles(isMC, run, lb):
     import subprocess
-    from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
-    triggerDBKeys = getTrigConfFromCool(run, lb)
-    triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1' 
+    triggerDBKeys = {}
+    if isMC:
+        triggerDBKeys['DB'] = TriggerFlags.triggerDbConnection()
+        triggerDBKeys['SMK'] = TriggerFlags.triggerDbKeys()[0]
+        triggerDBKeys['L1PSK'] = TriggerFlags.triggerDbKeys()[1]
+        triggerDBKeys['HLTPSK'] = TriggerFlags.triggerDbKeys()[2]
+        triggerDBKeys['BGSK'] = TriggerFlags.triggerDbKeys()[3]
+    else:
+        from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
+        triggerDBKeys = getTrigConfFromCool(run, lb)
+        triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+
     filesFetchStatus = subprocess.run("TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys), shell=True)
     assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
     return triggerDBKeys
@@ -540,7 +552,7 @@ def fetchRun3ConfigFiles(run, lb):
 
 
 if __name__ == "__main__":
-    keys = fetchRun3ConfigFiles(360026, 151)
+    keys = fetchRun3ConfigFiles(isMC=False, run=360026, lb=151)
     for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
         assert  k in keys, "Missing key {}".format(k)
         assert v == keys[k], "Wrong value {}".format(v)
