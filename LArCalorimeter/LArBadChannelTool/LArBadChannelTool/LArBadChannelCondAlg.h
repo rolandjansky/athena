@@ -34,6 +34,8 @@ class LArBadChannelCondAlg: public AthAlgorithm {
   ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
   Gaudi::Property<std::string> m_inputFileName{this,"InputFileName","",
       "Optional file containing (supplemental) bad channels"};
+  Gaudi::Property<bool> m_isSC{this,"isSC",false,"Set to true to interpret the identifiers in the InputFile as SuperCell IDs"};
+
 };
 
 
