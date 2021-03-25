@@ -6,6 +6,7 @@
 # art-output: *.pool.root
 # art-output: checkFile.txt
 # art-output: checkxAOD.txt
+# art-athena-mt: 8
 
 set -e
 
