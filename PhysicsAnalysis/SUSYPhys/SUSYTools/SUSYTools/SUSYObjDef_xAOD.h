@@ -486,6 +486,9 @@ namespace ST {
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
     std::string m_TCCJetUncConfig;
+    std::string m_WTagUncConfig;
+    std::string m_ZTagUncConfig;
+    std::string m_TopTagUncConfig;
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
@@ -746,7 +749,10 @@ namespace ST {
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
     asg::AnaToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
-
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_WTagjetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_ZTagjetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TopTagjetUncertaintiesTool;
+    
     //
     std::string m_jesConfig;
     std::string m_jesConfigJMS;
@@ -757,6 +763,8 @@ namespace ST {
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
     std::string m_jesCalibSeqFat;
+
+
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

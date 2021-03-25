@@ -298,11 +298,11 @@ namespace ST {
       dec_wtagged(*jet) = -1;
       dec_ztagged(*jet) = -1;
       dec_toptagged(*jet) = -1;
-      if ( doLargeRdecorations) {
+      if (doLargeRdecorations) {
         if (!m_WtagConfig.empty()) dec_wtagged(*jet) = m_WTaggerTool->tag(*jet);
         if (!m_ZtagConfig.empty()) dec_ztagged(*jet) = m_ZTaggerTool->tag(*jet);
         if (!m_ToptagConfig.empty()) dec_toptagged(*jet) = m_TopTaggerTool->tag(*jet);
-      }
+	}
       //  For OR, selected if it passed cuts
       if ( acc_baseline(*jet) ){
         dec_selected(*jet) = 1;
@@ -405,8 +405,62 @@ namespace ST {
         dec_bjet_jetunc(input) = false;
         dec_btag_weight(input) = -999.;
 
-        // If a user hasn't specified an uncertainty config, then this tool will be empty
+        // If a user hasn't specified an uncertainty config, then the below tools will be empty
         // for large R jets
+	
+        if (!m_WTagjetUncertaintiesTool.empty() && !m_WTagUncConfig.empty() && !m_WtagConfig.empty()){
+	  CP::CorrectionCode result = m_WTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR W-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+           case CP::CorrectionCode::OutOfValidityRange:
+             ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR W-tag jet scale uncertainties. ");
+             break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R W-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+	if (!m_ZTagjetUncertaintiesTool.empty() && !m_ZTagUncConfig.empty() && !m_ZtagConfig.empty()){
+	  CP::CorrectionCode result = m_ZTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR Z-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+	  case CP::CorrectionCode::OutOfValidityRange:
+	    ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR Z-tag jet scale uncertainties. ");
+	    break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R Z-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+	
+	if (!m_TopTagjetUncertaintiesTool.empty() && !m_TopTagUncConfig.empty() && !m_ToptagConfig.empty()){
+	  CP::CorrectionCode result = m_TopTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR Top-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+	  case CP::CorrectionCode::OutOfValidityRange:
+	    ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR Top-tag jet scale uncertainties. ");
+	    break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R Top-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+
         if (!m_fatjetUncertaintiesTool.empty()){
           CP::CorrectionCode result = m_fatjetUncertaintiesTool->applyCorrection(input);
           switch (result) {
@@ -423,6 +477,7 @@ namespace ST {
         } else {
           ATH_MSG_DEBUG( "No valid fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
         }
+
 
         // for TCC jets
         if (!m_TCCjetUncertaintiesTool.empty() && isTCC){

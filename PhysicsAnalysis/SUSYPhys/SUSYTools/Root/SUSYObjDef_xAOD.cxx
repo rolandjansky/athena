@@ -109,6 +109,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
     m_TCCJetUncConfig(""),
+    m_WTagUncConfig(""),
+    m_ZTagUncConfig(""),
+    m_TopTagUncConfig(""),
     m_WtagConfig(""),
     m_ZtagConfig(""),
     m_WZTaggerCalibArea(""),
@@ -309,11 +312,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     m_jetFwdJvtEfficiencyTool(""),
+
     //
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
     m_TopTaggerTool(""),
     m_jetTruthLabelingTool(""),
+    m_WTagjetUncertaintiesTool(""),
+    m_ZTagjetUncertaintiesTool(""),
+    m_TopTagjetUncertaintiesTool(""),
+
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -606,6 +614,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetWZTaggerCalibArea",  m_WZTaggerCalibArea );
   declareProperty( "JetToptaggerConfig",  m_ToptagConfig );
   declareProperty( "JetTopTaggerCalibArea",  m_TopTaggerCalibArea );
+  declareProperty( "JetWTaguncConfig",  m_WTagUncConfig );
+  declareProperty( "JetZTaguncConfig",  m_ZTagUncConfig );
+  declareProperty( "JetTopTaguncConfig",  m_TopTagUncConfig );
+
   //Btagging MCtoMC SFs
   declareProperty( "ShowerType",    m_showerType = 0 );
   //Egamma NP correlation model
@@ -623,6 +635,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetUncertaintiesPDSmearTool.declarePropertyFor( this, "JetPDSmearUncertaintiesTool", "The JetPDSmearUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
   m_TCCjetUncertaintiesTool.declarePropertyFor( this, "TCCJetUncertaintiesTool", "The JetUncertaintiesTool for TCC jets" );
+  m_WTagjetUncertaintiesTool.declarePropertyFor( this, "WJetUncertaintiesTool", "The JetUncertaintiesTool for large-R W-tagged jets" );
+  m_ZTagjetUncertaintiesTool.declarePropertyFor( this, "ZJetUncertaintiesTool", "The JetUncertaintiesTool for large-R Z-tagged jets" );
+  m_TopTagjetUncertaintiesTool.declarePropertyFor( this, "TopJetUncertaintiesTool", "The JetUncertaintiesTool for large-R Top-tagged jets" );
+
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
   m_jetJvtUpdateTool.declarePropertyFor( this, "JetJvtUpdateTool", "The JetJvtUpdateTool" );
   m_jetJvtEfficiencyTool.declarePropertyFor( this, "JetJvtEfficiencyTool", "The JetJvtEfficiencyTool" );
@@ -1387,7 +1403,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_TCCJets, "Jet.TCCcollection", rEnv, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off TCC jets 
   configFromFile(m_TCCJetUncConfig, "Jet.TCCuncConfig", rEnv, "rel21/Summer2019/R10_Scale_TCC_all.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
-  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
   configFromFile(m_WZTaggerCalibArea, "Jet.WZTaggerCalibArea", rEnv, "SmoothedWZTaggers/Rel21/");
   configFromFile(m_ToptagConfig, "Jet.ToptaggerConfig", rEnv, "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat");
@@ -1526,6 +1542,61 @@ StatusCode SUSYObjDef_xAOD::readConfig()
     return StatusCode::FAILURE;
   }
 
+  // Set up the correct configuration files for the large-R jet tagging corresponding to the input tagger config
+  
+  if (!m_WtagConfig.empty())
+    {
+      if (m_WtagConfig.find("Efficiency50") != std::string::npos){
+	m_WTagUncConfig = "R10_SF_LCTopo_WTag_SigEff50.config";
+      }
+      else if (m_WtagConfig.find("Efficiency80") != std::string::npos){
+	m_WTagUncConfig = "R10_SF_LCTopo_WTag_SigEff80.config";
+      }
+      else {
+	ATH_MSG_ERROR("You have specified a large-R W-tag config without a matching uncertainties file. Please fix this. Currently the 50% and 80% WPs are supported");
+      }
+    }
+
+  if (!m_ZtagConfig.empty())
+    {
+      if (m_ZtagConfig.find("Efficiency50") != std::string::npos){
+	m_ZTagUncConfig = "R10_SF_LCTopo_ZTag_SigEff50.config";
+      }
+      else if (m_ZtagConfig.find("Efficiency80") != std::string::npos){
+	m_ZTagUncConfig = "R10_SF_LCTopo_ZTag_SigEff80.config";
+      }
+      else {
+	ATH_MSG_ERROR("You have specified a large-R Z-tag config without a matching uncertainties file. Please fix this. Currently the 50% and 80% WPs are supported");
+      }
+    }
+  std::string TopTagEff = "";
+  std::string TopTagType = "";
+  
+  
+  if (!m_ToptagConfig.empty())
+    {
+      if (m_ToptagConfig.find("50Eff") != std::string::npos){
+	TopTagEff = "50";
+      }
+      else if (m_ToptagConfig.find("80Eff") != std::string::npos){
+	TopTagEff = "80";
+      }
+      else {
+	ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the 50% and 80% WPs are supported");
+      }
+      
+      if (m_ToptagConfig.find("Inclusive") != std::string::npos){
+	TopTagType = "Inclusive";
+      }
+      else if (m_ToptagConfig.find("Contained") != std::string::npos){
+	TopTagType = "Contained";
+      }
+      else {
+	ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the contained and inclusive WPs are supported");
+      }
+ m_TopTagUncConfig = "R10_SF_LCTopo_TopTag"+TopTagType+"_SigEff"+TopTagEff+".config";
+    }
+  
   //** validate configuration
   ATH_CHECK( validConfig(m_strictConfigCheck) );
 
@@ -1910,6 +1981,34 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured JetUncertaintiesPDSmearTool for systematic var. " << systConfig.name() );
     }
   }
+
+
+  if (!m_WTagjetUncertaintiesTool.empty() && !m_WTagUncConfig.empty()) {
+    CP::SystematicCode ret = m_WTagjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
+  if (!m_ZTagjetUncertaintiesTool.empty() && !m_ZTagUncConfig.empty()) {
+    CP::SystematicCode ret = m_ZTagjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
+
+  if (!m_TopTagjetUncertaintiesTool.empty() && !m_TopTagUncConfig.empty()) {
+    CP::SystematicCode ret = m_TopTagjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
+
   if (!m_fatjetUncertaintiesTool.empty()) {
     CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -1926,6 +2025,7 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
+
   if (!m_jetJvtEfficiencyTool.empty()) {
     CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -2331,6 +2431,27 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectsType = SystObjType::Jet;
     }
   }
+
+   if (!m_WTagjetUncertaintiesTool.empty()) {
+    if ( m_WTagjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+      sysInfo.affectsKinematics = true;
+      sysInfo.affectsType = SystObjType::Jet;
+    }
+  }
+   if (!m_ZTagjetUncertaintiesTool.empty()) {
+    if ( m_ZTagjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+      sysInfo.affectsKinematics = true;
+      sysInfo.affectsType = SystObjType::Jet;
+    }
+  }
+
+   if (!m_TopTagjetUncertaintiesTool.empty()) {
+    if ( m_TopTagjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+      sysInfo.affectsKinematics = true;
+      sysInfo.affectsType = SystObjType::Jet;
+    }
+  }
+
   if (!m_muonCalibrationAndSmearingTool.empty()) {
     if ( m_muonCalibrationAndSmearingTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsKinematics = true;
