@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -32,17 +32,19 @@ persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurfac
   const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
 
   // There were some tracks saved that violate the isSane test in
-  // TrackStateOnSurface.  If we were to pass materialEffects to this ctor
-  // then we would trip that assertion.  However, we want to preserve
-  // the previous behavior of the tp converters, which did allow reading
-  // such tracks.  So defer setting the material pointer until
-  // after the checks,
-  *transObj = Trk::TrackStateOnSurface (meas,
+  // TrackStateOnSurface.  If we were to pass meas or materialEffects
+  // to this ctor then we would trip that assertion.  However,
+  // we want to preserve the previous behavior of the TP converters,
+  // which did allow reading  such tracks.  So defer setting these pointers
+  // until after the checks,
+  *transObj = Trk::TrackStateOnSurface (nullptr,
                                         trackParameters,
                                         fitQoS,
                                         nullptr,
                                         persObj->m_typeFlags);
+  transObj->m_measurementOnTrack = meas;
   transObj->m_materialEffectsOnTrack = materialEffects;
+  transObj->setFlags();
 }
 
 
