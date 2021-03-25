@@ -157,14 +157,6 @@ atlas_add_test( full_menu_cf
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
                 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
-atlas_add_test( LS2_emu_menu_DH
-                SCRIPT test_emu_step_menu_processing.sh
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH
-                PROPERTIES TIMEOUT 500
-                POST_EXEC_SCRIPT nopost.sh )
-
 file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
 atlas_add_test( EventBuildingSequenceSetup

@@ -154,7 +154,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         threshold      = preselParts[1]
         chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
         preselJetParts.update(
-            {'L1threshold': 'NOL1SEED',
+            {'L1threshold': 'J',
              'TLA': '',
              'addInfo': [],
              'bConfig': [],

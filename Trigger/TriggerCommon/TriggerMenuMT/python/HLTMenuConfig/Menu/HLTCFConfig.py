@@ -37,6 +37,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, s
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 import re
 
 
@@ -392,8 +393,14 @@ def createDataFlow(chains, allDicts):
         lastDecisions = []
         for nstep, chainStep in enumerate( chain.steps ):
             log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chainStep.name, chain.name)           
+            if nstep == 0:
+                if chainStep.stepDicts:
+                    filterInput = [ mapThresholdToL1DecisionCollection(p["chainParts"][0]["L1threshold"]) for p in chainStep.stepDicts]
+                else:
+                    filterInput = chain.L1decisions
+            else:
+                filterInput = lastDecisions
 
-            filterInput = chain.L1decisions if nstep == 0 else lastDecisions
             if len(filterInput) == 0 :
                 log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
@@ -408,7 +415,7 @@ def createDataFlow(chains, allDicts):
                     log.error("Found  %d inputs to step %s having multiplicity %d", len(filterInput), chainStep.name, len(chainStep.multiplicity))
                     raise Exception("[createDataFlow] Cannot proceed, exiting.")
             
-            log.debug("Set Filter input: %s", filterInput)
+            log.debug("Set Filter input: %s while setting the chain: %s", filterInput, chain.name)
 
             
             # make one filter per step:
@@ -445,7 +452,7 @@ def createDataFlow(chains, allDicts):
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
             if len(chainLegs) != len(filterInput):
-                log.error("[createDataFlow] chainlegs = %i differ from inputs=%i", len(chainLegs), len(filterInput))
+                log.error("[createDataFlow] lengths of chainlegs = %s differ from inputs=%s", str(chainLegs), str(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
             for finput, leg in zip(filterInput, chainLegs):
                 sequenceFilter.addChain(leg, finput)

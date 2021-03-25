@@ -330,22 +330,17 @@ def generateChainsManually():
                  makeChainStep("Step1_2muAs_empty", multiplicity=[]),
                  makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
             ]
-        # TODO not clear if this test is correct actually, restore when discussed
-        # from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-        # from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
-        #     # test change of  multiplicity 
-        # chainName = 'HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3'
-        # cd = dictFromChainName(chainName )
-        # cdicts = splitChainDictInLegs(cd)
-        # import pprint
-        # pprint.pprint(cd)
-        # pprint.pprint(cdicts)
-
-        # CombChains += [  makeChain(name = chainName, L1Thresholds = ["EM3", "EM3"], ChainSteps=[
-        #         makeChainStep("Step1_em1merged", [el11], multiplicity = [1], chainDicts = [cdicts[0]] ),
-        #         makeChainStep("Step2_em1merged", [el21, el22], multiplicity = [1,1])
-        #         ]) 
-        #     ]
+        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+        from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
+        # test change of  multiplicity 
+        chainName = 'HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3'
+        cd = dictFromChainName(chainName )
+        cdicts = splitChainDictInLegs(cd)
+        CombChains += [  makeChain(name = chainName, L1Thresholds = ["EM3", "EM3"], ChainSteps=[
+                makeChainStep("Step1_em1merged", [el11], multiplicity = [1], chainDicts = [cdicts[0]] ),
+                makeChainStep("Step2_em1merged", [el21, el22], multiplicity = [1,1], chainDicts = cdicts)
+                ]) 
+            ]
 
 
         HLTChains += CombChains
