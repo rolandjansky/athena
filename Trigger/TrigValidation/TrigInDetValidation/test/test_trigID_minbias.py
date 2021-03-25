@@ -32,7 +32,7 @@ Threads = 8
 Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
+Jobs = [ ( "Truth",       " TIDAdata-run3-minbias.dat                    -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
 
 Comp = [ ( "L2minbias",        "L2minbias", "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),

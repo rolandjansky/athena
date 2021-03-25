@@ -1,4 +1,10 @@
+
+#ifdef MINBIAS 
+pT     = 1000;
+#else
 pT     = 3000;
+#endif
+
 eta    = 2.5;
 #if defined(LARGED0)
 	a0=10;
