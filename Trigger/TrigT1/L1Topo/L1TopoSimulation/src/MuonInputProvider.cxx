@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInputProvider.h"
@@ -11,10 +11,8 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
-#include "TrigT1Interfaces/IMuctpiSimTool.h"
 
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "TrigT1Result/Header.h"
@@ -30,30 +28,15 @@ using namespace LVL1;
 MuonInputProvider::MuonInputProvider( const std::string& type, const std::string& name, 
                                       const IInterface* parent) :
    base_class(type, name, parent),
-   m_histSvc("THistSvc", name),
-   m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
-   m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
-   m_MuctpiSimTool("LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool")
+   m_histSvc("THistSvc", name)
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
-   declareProperty( "RecRpcRoiSvc", m_recRPCRoiSvc, "RPC Rec Roi Service");
-   declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
-   declareProperty( "MuctpiSimTool", m_MuctpiSimTool,"Tool for MUCTPIsimulation");
 }
-
-MuonInputProvider::~MuonInputProvider()
-{}
 
 StatusCode
 MuonInputProvider::initialize() {
    ATH_MSG_DEBUG("Retrieving LVL1ConfigSvc " << m_configSvc);
    CHECK( m_configSvc.retrieve() );
-
-   ATH_MSG_DEBUG("Retrieving RPC RoI Service " << m_recRPCRoiSvc);
-   CHECK( m_recRPCRoiSvc.retrieve() );
-
-   ATH_MSG_DEBUG("Retrieving TGC RoI Service " << m_recTGCRoiSvc);
-   CHECK( m_recTGCRoiSvc.retrieve() );
 
    // Get the RPC and TGC RecRoI tool
    ATH_CHECK( m_recRPCRoiTool.retrieve() );
@@ -122,13 +105,12 @@ MuonInputProvider::handle(const Incident& incident) {
 TCS::MuonTOB
 MuonInputProvider::createMuonTOB(uint32_t roiword, const TrigConf::L1Menu * l1menu) const {
 
+   LVL1::RecMuonRoI roi;
    if(m_useNewConfig) {
-      LVL1::RecMuonRoI roi( roiword, m_recRPCRoiTool.get(), m_recTGCRoiTool.operator->(), l1menu );
+      roi.construct( roiword, m_recRPCRoiTool.get(), m_recTGCRoiTool.operator->(), l1menu );
    } else {
-      LVL1::RecMuonRoI roi( roiword, m_recRPCRoiSvc.operator->(), m_recTGCRoiSvc.operator->(), &m_MuonThresholds );
+      roi.construct( roiword, m_recRPCRoiTool.operator->(), m_recTGCRoiTool.operator->(), &m_MuonThresholds );
    }
-
-   LVL1::RecMuonRoI roi( roiword, m_recRPCRoiSvc.operator->(), m_recTGCRoiSvc.operator->(), &m_MuonThresholds );
 
    ATH_MSG_DEBUG("Muon ROI: thrvalue = " << roi.getThresholdValue() << " eta = " << roi.eta() << " phi = " << roi.phi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.roiWord() << MSG::dec);
          

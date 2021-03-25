@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_MuonInputProvider
@@ -11,15 +11,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/LockedHandle.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
-#include <vector>
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
+#include "TrigT1Interfaces/IMuctpiSimTool.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TH1.h"
 #include "TH2.h"
+
+#include <vector>
 
 class ITHistSvc;
 
@@ -34,13 +36,8 @@ namespace TCS {
    class LateMuonTOB;
 }
 
-namespace LVL1MUCTPI {
-   class IMuctpiSimTool;
-}
-
 namespace LVL1 {
 
-   class RecMuonRoiSvc;
    class MuCTPIL1TopoCandidate;
 
    class MuonInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
@@ -48,8 +45,6 @@ namespace LVL1 {
       MuonInputProvider(const std::string& type, const std::string& name, 
                          const IInterface* parent);
       
-      virtual ~MuonInputProvider();
-
       virtual StatusCode initialize() override;
 
       virtual StatusCode fillTopoInputEvent(TCS::TopoInputEvent& ) const override;
@@ -78,15 +73,10 @@ namespace LVL1 {
       Gaudi::Property<bool> m_useNewConfig{this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
 
-      ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
-      ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
-
-      /// The RPC RoI reconstruction tool
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"};
-      /// The TGC RoI reconstruction service
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"};
 
-      ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool;
+      ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool{this, "MuctpiSimTool", "LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool", "Tool for MUCTPIsimulation"};
 
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
