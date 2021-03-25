@@ -12,15 +12,10 @@
 #CaloCellGetter()
 include ("CaloRec/CaloRec_jobOptions.py")
 
-#Apply identical settings for caonoisetool (do not know, who is using it) and CaloNoiseToolDefault
-include ( "CaloTools/CaloNoiseTool_TB_jobOptions.py" )
 if not doSim:
-    ToolSvc.calonoisetool.UseSymmetry=FALSE
     ToolSvc.LArAutoCorrTotalTool.NMinBias=0 
-    ToolSvc.calonoisetool.WithOF=FALSE
 
 if doLArOFC:
-    ToolSvc.calonoisetool.WithOF=TRUE
     if not doSim:
         ToolSvc.LArOFCTool.FromDatabase=TRUE
 
