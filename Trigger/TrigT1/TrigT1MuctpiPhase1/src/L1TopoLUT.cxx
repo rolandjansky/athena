@@ -3,6 +3,8 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <fstream>
+#include <map>
+#include <iostream>
 
 namespace LVL1MUCTPIPHASE1
 {
@@ -23,14 +25,18 @@ namespace LVL1MUCTPIPHASE1
     success = success && initializeLUT(ecfFileName, false);
 
     //read the json files 
-    success = success && initializeJSON(side0LUTFileName, 0);
-    success = success && initializeJSON(side1LUTFileName, 1);
+    //(the input labels are swapped between A-side and C-side)
+    success = success && initializeJSON(side1LUTFileName, 0);
+    success = success && initializeJSON(side0LUTFileName, 1);
 
     return success;
   }
 
   bool L1TopoLUT::initializeLUT(const std::string& inFileName, const bool& isBarrel)
   {
+    //map between L1TopoLUTKey -> map between eta/phi -> index
+    std::unordered_map<L1TopoLUTKey, std::map<float, unsigned short>, L1TopoLUTKeyHasher> sector_eta_indices, sector_phi_indices;
+
     std::ifstream inFile(inFileName.c_str());
     if (!inFile) return false;
     while (!inFile.eof() && inFile.good())
@@ -63,11 +69,34 @@ namespace LVL1MUCTPIPHASE1
       double eta = (eta_max+eta_min)/2.;
       double phi = (phi_max+phi_min)/2.;
 
+      L1TopoLUTKey key_no_roi = {side, subsystem, sectorID, 0};
+
+      //hold the eta and phi indices in memory
+      std::map<float, unsigned short>* eta_indices = &sector_eta_indices[key_no_roi];
+      unsigned short eta_index = 0;
+      auto eta_itr = eta_indices->find(float(eta));
+      if (eta_itr != eta_indices->end()) eta_index = eta_itr->second;
+      else 
+      {
+	eta_index = eta_indices->size();
+	(*eta_indices)[float(eta)] = eta_index;
+      }
+
+      std::map<float, unsigned short>* phi_indices = &sector_phi_indices[key_no_roi];
+      unsigned short phi_index = 0;
+      auto phi_itr = phi_indices->find(float(phi));
+      if (phi_itr != phi_indices->end()) phi_index = phi_itr->second;
+      else 
+      {
+	phi_index = phi_indices->size();
+	(*phi_indices)[float(phi)] = phi_index;
+      }
+      
       L1TopoLUTKey key = {side, subsystem, sectorID, roi};
-      L1TopoCoordinates value = {eta, phi, eta_min, eta_max, phi_min, phi_max, 0, 0};
+      L1TopoCoordinates value = {eta, phi, eta_min, eta_max, phi_min, phi_max, eta_index, phi_index};
       if (m_encoding.find(key) != m_encoding.end())
       {
-	m_errors.insert("Duplicate key found in L1TopoLUT: "+key.info());
+	m_errors.push_back("Duplicate key found in L1TopoLUT: "+key.info());
 	return false;
       }
       m_encoding[key] = value;
@@ -76,7 +105,7 @@ namespace LVL1MUCTPIPHASE1
     return true;
   }
 
-  bool L1TopoLUT::initializeJSON(const std::string& inFileName, const bool& side)
+  bool L1TopoLUT::initializeJSON(const std::string& inFileName, bool side)
   {
     // Create a root
     pt::ptree root;
@@ -85,19 +114,18 @@ namespace LVL1MUCTPIPHASE1
     pt::read_json(inFileName.c_str(), root);
 
 
-    // Supplement the L1TopoCoordinates with the eta/phi indices for each subsystem
+    // Supplement the L1TopoCoordinates with the eta/phi indices for the barrel.
+    // These are calculated on-the-fly for the endcap/forward.
     bool success = true;
     success = success && initializeJSONForSubsystem(root, "encode_lookup_barrel", side, 0);
-    success = success && initializeJSONForSubsystem(root, "encode_lookup_endcap", side, 1);
-    success = success && initializeJSONForSubsystem(root, "encode_lookup_forward", side, 2);
 
     return success;
   }
 
   bool L1TopoLUT::initializeJSONForSubsystem(pt::ptree& root,
 					     const std::string& nodeName, 
-					     const bool& side, 
-					     const unsigned short& subsystem)
+					     bool side, 
+					     unsigned short subsystem)
   {
     for (pt::ptree::value_type& sectorID_elem : root.get_child(nodeName))
     {
@@ -109,16 +137,19 @@ namespace LVL1MUCTPIPHASE1
 	for (pt::ptree::value_type& code_elem : roi_elem.second) codes.push_back(code_elem.second.get_value<unsigned short>());
 	if (codes.size() != 2) 
 	{
-	  m_errors.insert("Invalide eta/phi code size");
+	  m_errors.push_back("Invalide eta/phi code size");
 	  return false;
 	}
 	L1TopoLUTKey key = {(unsigned short)(side), subsystem, sectorID, roi}; 
 	auto itr = m_encoding.find(key);
 	if (itr == m_encoding.end())
 	{
-	  m_errors.insert("Couldn't find L1TopoLUTKey when reading JSON files");
+	  std::stringstream err;
+	  err << "Couldn't find L1TopoLUTKey when reading JSON files: Node = " << nodeName << ", side = " << side << ", subsystem = " << subsystem << ", sector = " << sectorID << ", roi = " << roi;
+	  m_errors.push_back(err.str());
 	  return false;
 	}
+
 	itr->second.ieta = codes[0];
 	itr->second.iphi = codes[1];
       }
@@ -135,7 +166,7 @@ namespace LVL1MUCTPIPHASE1
     auto itr = m_encoding.find(key);
     if (itr == m_encoding.end())
     {
-      L1TopoCoordinates null = {0, 0, 0, 0, 0, 0, 0, 0};
+      L1TopoCoordinates null;
       return null;
     }
 
