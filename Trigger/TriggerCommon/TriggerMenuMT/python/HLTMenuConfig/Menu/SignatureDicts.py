@@ -925,7 +925,7 @@ UnconventionalTrackingChainParts_Default = {
 #==========================================================
 # Combined Chains
 #==========================================================
-AllowedTopos_comb = ['03dRleg000leg001100','03dRleg000leg00130']
+AllowedTopos_comb = ['03dRAB','03dRAB30']
 
 # ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)

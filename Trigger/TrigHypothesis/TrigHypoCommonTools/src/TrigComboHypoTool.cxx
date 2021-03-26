@@ -18,6 +18,9 @@ TrigComboHypoTool::TrigComboHypoTool(const std::string& type,
 StatusCode TrigComboHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll  = " << m_acceptAll );
+  ATH_MSG_DEBUG("Variable   = " << m_varTag );
+  ATH_MSG_DEBUG("UseCut min = " << m_useMin );
+  ATH_MSG_DEBUG("UseCut max = " << m_useMax );
   ATH_MSG_DEBUG("varCut min = " << m_varMin );
   ATH_MSG_DEBUG("varCut max = " << m_varMax );
   ATH_MSG_DEBUG("LegA       = " << m_legA );
@@ -36,6 +39,11 @@ StatusCode TrigComboHypoTool::initialize()
     ATH_MSG_ERROR("Index for legB not set! legB = "<<m_legB);
     return StatusCode::FAILURE;
   }
+  if ((!m_useMin) && (!m_useMax)){
+    ATH_MSG_ERROR("Trying to configure the Tool without setting UseMin and UseMax!");
+    return StatusCode::FAILURE;
+  }
+  
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 
@@ -84,7 +92,7 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
   float value(-9999.);
 
   //should we make a switch? (if this list of observables is used only here probably not...)
-  std::array<std::string, 2> valid_varTags = {"dR","mass"};
+  std::array<std::string, 2> valid_varTags = {"dR","invm"};
   if(m_varTag ==  valid_varTags[0]) {
     value =  hlv1.DeltaR(hlv2);
   }else if (m_varTag == valid_varTags[1]){
@@ -98,14 +106,31 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
 
   ATH_MSG_DEBUG("Found a combination with " << varOfProcessed);
 
-  if (varOfProcessed < m_varMin || varOfProcessed > m_varMax){ 
-    ATH_MSG_DEBUG("Combination failed var cut: "<< m_varTag <<"= "<< varOfProcessed << " not in [" << m_varMin << "," <<  m_varMax << "]");
-    pass=false;
-  }else{
-    varOfAccepted = value;
-    ATH_MSG_DEBUG( m_varTag <<"= "<< varOfAccepted << " is  within [" <<m_varMin<< "," << m_varMax << "] This selection passed! ");
+  if (m_useMin && m_useMax){
+    if (varOfProcessed < m_varMin || varOfProcessed > m_varMax){ 
+      ATH_MSG_DEBUG("Combination failed var cut: "<< m_varTag <<"= "<< varOfProcessed << " not in [" << m_varMin << "," <<  m_varMax << "]");
+      pass=false;
+    }else{
+      varOfAccepted = value;
+      ATH_MSG_DEBUG( m_varTag <<"= "<< varOfAccepted << " is  within [" <<m_varMin<< "," << m_varMax << "] This selection passed! ");
+    }
+  }else if (m_useMin){
+    if (varOfProcessed < m_varMin ){ 
+      ATH_MSG_DEBUG("Combination failed var cut: "<< m_varTag <<"= "<< varOfProcessed << " not > " << m_varMin);
+      pass=false;
+    }else{
+      varOfAccepted = value;
+      ATH_MSG_DEBUG( m_varTag <<"= "<< varOfAccepted << " < " <<m_varMin << " This selection passed! ");
+    }
+  }else if (m_useMax){
+    if (varOfProcessed > m_varMax){ 
+      ATH_MSG_DEBUG("Combination failed var cut: "<< m_varTag <<"= "<< varOfProcessed << " not < " << m_varMax);
+      pass=false;
+    }else{
+      varOfAccepted = value;
+      ATH_MSG_DEBUG( m_varTag <<"= "<< varOfAccepted << " > " << m_varMax << " This selection passed! ");
+    }
   }
-  
   return pass;
 
 }

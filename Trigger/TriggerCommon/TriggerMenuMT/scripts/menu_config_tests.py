@@ -124,7 +124,7 @@ class StructuredChainNames(MenuVerification):
         sig_type_pattern = re.compile(
             r"\d*[egj]?({})\d+s?".format(signature_types))
         def items_in_order(part):
-            part    = part.replace("leg","p") #if we leave the word leg, the findall(..) function will find a 'g' 
+            #part    = part.replace("leg","p") #if we leave the word leg, the findall(..) function will find a 'g' 
             indices = [self._signature_type_order.index(x) for x in 
                        sig_type_pattern.findall(part)]
             rr =  indices == sorted(indices)
