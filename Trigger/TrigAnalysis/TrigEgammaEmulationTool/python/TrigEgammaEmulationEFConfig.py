@@ -2,18 +2,8 @@
 
 from AthenaCommon.AppMgr                                          import ToolSvc
 from egammaRec.Factories                                          import ToolFactory
-#from TrigEgammaHypo.TrigEgammaPidTools                            import ElectronToolName
 #from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf  import AsgElectronIsEMSelector
 #from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping      import ElectronIsEMMap,electronPIDmenu
-
-
-#***********************************************************************
-# Check if we have all AsgSelectorTools inside of ToolSvc
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-ElectronPidTools()
-PhotonPidTools()
-#***********************************************************************
 
 OutputLevel=0
 
