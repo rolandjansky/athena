@@ -890,44 +890,6 @@ def getTauCellCorrection():
     return TauCellCorrectionTool
 
 #########################################################################
-# CaloNoiseTool
-def getCaloNoiseTool():
-    _name = 'CaloNoiseTool'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theCaloNoiseTool = CaloNoiseToolDefault()
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += theCaloNoiseTool
-    
-    cached_instances[_name] = theCaloNoiseTool
-    return theCaloNoiseTool
-
-#########################################################################
-# tau1p3p track match cells
-def getTauEflowTrackMatchCells():
-    _name = sPrefix + 'EflowTrackMatchCells'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRec.tauRecConf import TauEflowTrackMatchCells
-    TauEflowTrackMatchCells = TauEflowTrackMatchCells(name = _name,
-                detRIsolCaloCut   = 0.4,
-                useNoiseSigma     = 1,
-                AbsNoiseSigma_cut = 2,
-                CaloNoiseTool     = getCaloNoiseTool(),
-                selectConeSize    = 0.45, #not used anymore
-                CellCorrection = True,
-                OriginCorrectionTool = getTauCellCorrection()) 
-    
-    cached_instances[_name] = TauEflowTrackMatchCells         
-    return TauEflowTrackMatchCells
-
-#########################################################################
 # tau1p3p AddCaloInfo
 def getTauEflowAddCaloInfo():
     _name = sPrefix + 'EflowAddCaloInfo'
@@ -1000,35 +962,6 @@ def getPi0CreatorChooser():
     
     cached_instances[_name] = TauPi0CreatorChooser
     return TauPi0CreatorChooser 
-
-#########################################################################
-# Crakow Pi0/eflow algorithm
-# Cluster/Cellfinder for Pi0/Eflow algos
-def getPi0EflowCreateROI():
-    _name = sPrefix + 'TauPi0EflowCreateROI'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRec.tauRecConf import TauPi0EflowCreateROI
-    TauPi0EflowCreateROI = TauPi0EflowCreateROI( name = _name,
-                detRIsolCaloCut   = 0.4,
-                detRCoreCaloCut   = 0.2,
-                useNoiseSigma     = 0,
-                AbsNoiseSigma_cut = 2,
-                removeChrgEM01    = 1,
-                removeChrgEM2     = 1,
-                detRChrgEMCut     = 0.0375,
-                # Added by SL
-                fillCellContainer = TRUE,
-                CellsOutputContainerName = "TauCells",
-                CaloNoiseTool     = getCaloNoiseTool(),
-                CaloCellMakerToolNames = ["CaloCellContainerFinalizerTool/cellfinalizerForTaus","CaloCellContainerCheckerTool/cellcheckForTaus"],
-                CellCorrection = True,
-                OriginCorrectionTool = getTauCellCorrection())   
-    
-    cached_instances[_name] = TauPi0EflowCreateROI
-    return TauPi0EflowCreateROI
 
 ################
 # Pi0 Clustering
