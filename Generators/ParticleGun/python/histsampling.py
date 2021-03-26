@@ -7,7 +7,7 @@ missing from ROOT's TH2 classes.
 
 __author__ = "Andy Buckley <andy.buckley@cern.ch>"
 
-import random, ROOT
+import random, copy, ROOT
 
 
 def load_hist(*args):
@@ -22,7 +22,7 @@ def load_hist(*args):
         if type(args[0]) is type(args[1]) is str:
             f = ROOT.TFile.Open(args[0])
             htmp = f.Get(args[1])
-            h = f.Get(args[1]).Clone()
+            h = copy.deepcopy(f.Get(args[1]).Clone())
             #f.Close()
         elif type(args[0]) is ROOT.TFile and type(args[1]) is str:
             h = args[0].Get(args[1]).Clone()
