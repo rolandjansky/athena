@@ -13,6 +13,7 @@ using namespace IDPVM;
 
 InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBase* pParent, const std::string& sDir) :
     InDetPlotBase(pParent, sDir),
+    m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence),
     m_vx_type_truth(nullptr),
     m_vx_hs_classification(nullptr),
     m_vx_nReco_vs_nTruth_inclusive(nullptr),
@@ -33,34 +34,42 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_truth_long_reso_vs_PU(nullptr),
     m_vx_hs_truth_trans_reso_vs_PU(nullptr),
     m_vx_hs_truth_long_reso(nullptr),
-    m_vx_hs_truth_trans_reso(nullptr)
+    m_vx_hs_truth_trans_reso(nullptr),
+    m_vx_hs_long_reso(nullptr),
+    m_vx_hs_long_bias(nullptr),
+    m_vx_hs_trans_reso(nullptr),
+    m_vx_hs_trans_bias(nullptr)
 {
   // nop
 }
 
 void InDetPerfPlot_VertexTruthMatching::initializePlots() {
 
-    IDPVM_BOOK(m_vx_type_truth);
-    IDPVM_BOOK(m_vx_hs_classification);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_inclusive);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_matched);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_merged);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_split);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_fake);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_dummy);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_clean);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_lowpu);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_highpu);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_hssplit);
-    IDPVM_BOOK(m_vx_nReco_vs_nTruth_none);
-    IDPVM_BOOK(m_vx_hs_reco_eff);
-    IDPVM_BOOK(m_vx_hs_sel_eff);
-    IDPVM_BOOK(m_vx_hs_reco_long_reso);
-    IDPVM_BOOK(m_vx_hs_reco_trans_reso);
-    IDPVM_BOOK(m_vx_hs_truth_long_reso);
-    IDPVM_BOOK(m_vx_hs_truth_trans_reso);
-    IDPVM_BOOK(m_vx_hs_truth_long_reso_vs_PU);
-    IDPVM_BOOK(m_vx_hs_truth_trans_reso_vs_PU);
+    book(m_vx_type_truth,"vx_type_truth");
+    book(m_vx_hs_classification,"vx_hs_classification");
+    book(m_vx_nReco_vs_nTruth_inclusive,"vx_nReco_vs_nTruth_inclusive");
+    book(m_vx_nReco_vs_nTruth_matched,"vx_nReco_vs_nTruth_matched");
+    book(m_vx_nReco_vs_nTruth_merged,"vx_nReco_vs_nTruth_merged");
+    book(m_vx_nReco_vs_nTruth_split,"vx_nReco_vs_nTruth_split");
+    book(m_vx_nReco_vs_nTruth_fake,"vx_nReco_vs_nTruth_fake");
+    book(m_vx_nReco_vs_nTruth_dummy,"vx_nReco_vs_nTruth_dummy");
+    book(m_vx_nReco_vs_nTruth_clean,"vx_nReco_vs_nTruth_clean");
+    book(m_vx_nReco_vs_nTruth_lowpu,"vx_nReco_vs_nTruth_lowpu");
+    book(m_vx_nReco_vs_nTruth_highpu,"vx_nReco_vs_nTruth_highpu");
+    book(m_vx_nReco_vs_nTruth_hssplit,"vx_nReco_vs_nTruth_hssplit");
+    book(m_vx_nReco_vs_nTruth_none,"vx_nReco_vs_nTruth_none");
+    book(m_vx_hs_reco_eff,"vx_hs_reco_eff");
+    book(m_vx_hs_sel_eff,"vx_hs_sel_eff");
+    book(m_vx_hs_reco_long_reso,"vx_hs_reco_long_reso");
+    book(m_vx_hs_reco_trans_reso,"vx_hs_reco_trans_reso");
+    book(m_vx_hs_truth_long_reso,"vx_hs_truth_long_reso");
+    book(m_vx_hs_truth_trans_reso,"vx_hs_truth_trans_reso"); 
+    book(m_vx_hs_truth_long_reso_vs_PU,"vx_hs_truth_long_reso_vs_PU");
+    book(m_vx_hs_truth_trans_reso_vs_PU,"vx_hs_truth_trans_reso_vs_PU");
+    book(m_vx_hs_long_reso, "vx_hs_long_reso");
+    book(m_vx_hs_long_bias, "vx_hs_long_bias");
+    book(m_vx_hs_trans_reso, "vx_hs_trans_reso");
+    book(m_vx_hs_trans_bias, "vx_hs_trans_bias");
 
 }
 
@@ -388,6 +397,8 @@ void InDetPerfPlot_VertexTruthMatching::finalizePlots() {
 
     fillResoHist(m_vx_hs_truth_long_reso, m_vx_hs_truth_long_reso_vs_PU);
     fillResoHist(m_vx_hs_truth_trans_reso, m_vx_hs_truth_trans_reso_vs_PU);
+    m_resolutionHelper.makeResolutions(m_vx_hs_truth_long_reso_vs_PU,m_vx_hs_long_reso,m_vx_hs_long_bias,m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_vx_hs_truth_trans_reso_vs_PU,m_vx_hs_trans_reso,m_vx_hs_trans_bias,m_resolutionMethod);
 
 } // end InDetPerfPlot_VertexTruthMatching::finalizePlots()
 

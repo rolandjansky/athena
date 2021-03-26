@@ -23,6 +23,9 @@
 #include "xAODTruth/TruthPileupEventContainer.h"
 #include "xAODTruth/TruthVertex.h"
 
+// ResolutionHelper
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
+
 // Vertex validation:
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h"
@@ -45,6 +48,9 @@ public:
     void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
 private:
     float m_cutMinTruthRecoRadialDiff = 0.1;
+    // class and methods for evaluating mean and width of distributions
+    IDPVM::ResolutionHelper m_resolutionHelper;
+    IDPVM::ResolutionHelper::methods m_resolutionMethod;
     ///truth type
     TH1* m_vx_type_truth;
     ///hardscatter classification
@@ -73,6 +79,11 @@ private:
     TH2* m_vx_hs_truth_trans_reso_vs_PU;
     TH1* m_vx_hs_truth_long_reso;
     TH1* m_vx_hs_truth_trans_reso;
+    // For position resolutios:
+    TH1* m_vx_hs_long_reso;
+    TH1* m_vx_hs_long_bias;
+    TH1* m_vx_hs_trans_reso;
+    TH1* m_vx_hs_trans_bias;
     ///@}
 private:
     // plot base has no default implementation of this; we use it to book the histos
