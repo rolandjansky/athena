@@ -50,7 +50,7 @@ def createEgammaConfigFlags():
             return "AllCalo"
 
     egcf.addFlag("Egamma.Keys.Input.CaloCells", lambda prevFlags: _cellContainer(prevFlags))
-    egcf.addFlag("Egamma.Keys.Input.TopoClusters", 'CaloTopoCluster')  # input topoclusters
+    egcf.addFlag("Egamma.Keys.Input.TopoClusters", 'CaloTopoClusters')  # input topoclusters
     egcf.addFlag("Egamma.Keys.Input.TruthParticles", 'TruthParticles')
     egcf.addFlag("Egamma.Keys.Input.TruthEvents", 'TruthEvents')
     egcf.addFlag("Egamma.Keys.Input.TrackParticles", 'InDetTrackParticles')  # input to GSF

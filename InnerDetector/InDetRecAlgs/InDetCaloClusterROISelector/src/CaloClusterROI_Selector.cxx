@@ -96,9 +96,8 @@ StatusCode InDet::CaloClusterROI_Selector::execute(const EventContext& ctx) cons
 
     // retrieve cluster containers, return `failure' if not existing
     SG::ReadHandle<xAOD::CaloClusterContainer> inputClusterContainer(m_inputClusterContainerName,ctx);
-    if (!inputClusterContainer.isValid()) {
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(inputClusterContainer.isValid());
+
     const CaloDetDescrManager* calodetdescrmgr = nullptr;
     ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr"));
     // loop over clusters 
