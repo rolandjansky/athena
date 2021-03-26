@@ -30,6 +30,8 @@
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
+#include "BIS78_triggerSimulation.h"
+
 /////////////////////////////////////////////////////////////////////////////
 
 class TrigT1RPC : public AthAlgorithm {
@@ -72,6 +74,8 @@ private:
   BooleanProperty m_useRun3Config{this,"useRun3Config",false};         // flag for using switch between Run3 and Run2 configurations
   
   StatusCode fill_RPCdata(RPCsimuData&, const RpcCablingCondData* readCdo, const MuonGM::MuonDetectorManager* muDetMgr);
+  
+  BIS78_triggerSimulation m_BIS78TrigSim;
 
  private:
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
@@ -82,6 +86,7 @@ private:
   SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RPCDigitContainer", "RPC_DIGITS", "RPC Digit Input Container"};
   SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", "L1MuctpiStoreRPC", "Location of muctpi for Rpc"};
   SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
+  SG::WriteHandleKey<Muon::RpcBis78_TrigRawDataContainer> m_bis78TrigKey{this, "BIS78TrigContainerLocation", "BIS78TrigContainer", "Location of BIS78 Rpc"};
   
   ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
   const IRPCcablingSvc*                m_cabling;
