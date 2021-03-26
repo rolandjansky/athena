@@ -279,54 +279,54 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
   valueMap["nSiHits"] = std::vector<double>(n_timeSteps);
   valueMap["charge"] = std::vector<double>(n_timeSteps);
 
-  double fTauSeedPt = xTau.ptJetSeed();
-  double log_TauSeedPt = std::log(fTauSeedPt);
+  double ptJetSeed = xTau.ptJetSeed();
+  double log_TauSeedPt = std::log(ptJetSeed);
 
   unsigned int i = 0;
   for(xAOD::TauTrack* xTrack : vTracks)
     {
       const xAOD::TrackParticle* xTrackParticle = xTrack->track();
 
-      double fTrackPt = xTrackParticle->pt();
-      double fTrackEta = xTrackParticle->eta();
-      double fTrackCharge = xTrackParticle->charge();
-      double fZ0SinthetaTJVA = xTrack->z0sinthetaTJVA();
-      double fRConv = xTrack->rConv();
-      double fRConvII = xTrack->rConvII();
-      double fDRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
-      double fD0 = xTrack->d0TJVA();
-      double fQoverP = xTrackParticle->qOverP();
+      double trackPt = xTrackParticle->pt();
+      double trackEta = xTrackParticle->eta();
+      double charge = xTrackParticle->charge();
+      double z0SinthetaTJVA = xTrack->z0sinthetaTJVA();
+      double rConv = xTrack->rConv();
+      double rConvII = xTrack->rConvII();
+      double dRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
+      double d0 = xTrack->d0TJVA();
+      double qOverP = xTrackParticle->qOverP();
 
-      uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
-      uint8_t iTracksNPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits) );
-      uint8_t iTracksNPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits) );
-      uint8_t iTracksNPixelDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors) );
-      uint8_t iTracksNSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits) );
-      uint8_t iTracksNSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits) );
-      uint8_t iTracksNSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
-      uint8_t iTracksNTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
-      uint8_t iTracksNTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits) );
+      uint8_t numberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(numberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
+      uint8_t nPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nPixelHits, xAOD::numberOfPixelHits) );
+      uint8_t nPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nPixelSharedHits, xAOD::numberOfPixelSharedHits) );
+      uint8_t nPixelDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(nPixelDeadSensors, xAOD::numberOfPixelDeadSensors) );
+      uint8_t nSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTHits, xAOD::numberOfSCTHits) );
+      uint8_t nSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTSharedHits, xAOD::numberOfSCTSharedHits) );
+      uint8_t nSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
+      uint8_t nTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
+      uint8_t nTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHits, xAOD::numberOfTRTHits) );
 
-      float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
+      float eProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( eProbabilityHT, xAOD::eProbabilityHT) );
   
-      valueMap["log(trackPt)"][i] = std::log(fTrackPt);
+      valueMap["log(trackPt)"][i] = std::log(trackPt);
       valueMap["log(jetSeedPt)"][i] = log_TauSeedPt;
-      valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
-      valueMap["trackEta"][i] = fTrackEta;
-      valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
-      valueMap["log(rConv)"][i] = std::log(fRConv);
-      valueMap["tanh(rConvII/500)"][i] = std::tanh(fRConvII/500.0);
-      valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
-      valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10.);
-      valueMap["qOverP*1000"][i] = fQoverP*1000.0;
-      valueMap["numberOfInnermostPixelLayerHits"][i] = (float) iTracksNumberOfInnermostPixelLayerHits;
-      valueMap["numberOfPixelSharedHits"][i] = (float) iTracksNPixelSharedHits;
-      valueMap["numberOfSCTSharedHits"][i] = (float) iTracksNSCTSharedHits;
-      valueMap["numberOfTRTHits"][i] = (float) iTracksNTRTHits;
-      valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
-      valueMap["nPixHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors);
-      valueMap["nSiHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors + iTracksNSCTHits + iTracksNSCTDeadSensors);
-      valueMap["charge"][i] = fTrackCharge;
+      valueMap["(trackPt/jetSeedPt[0])"][i] = (trackPt/ptJetSeed);
+      valueMap["trackEta"][i] = trackEta;
+      valueMap["z0sinThetaTJVA"][i] = z0SinthetaTJVA;
+      valueMap["log(rConv)"][i] = std::log(rConv);
+      valueMap["tanh(rConvII/500)"][i] = std::tanh(rConvII/500.0);
+      valueMap["dRJetSeedAxis"][i] = dRJetSeedAxis;
+      valueMap["tanh(d0/10)"][i] = std::tanh(d0/10.);
+      valueMap["qOverP*1000"][i] = qOverP*1000.0;
+      valueMap["numberOfInnermostPixelLayerHits"][i] = (float) numberOfInnermostPixelLayerHits;
+      valueMap["numberOfPixelSharedHits"][i] = (float) nPixelSharedHits;
+      valueMap["numberOfSCTSharedHits"][i] = (float) nSCTSharedHits;
+      valueMap["numberOfTRTHits"][i] = (float) nTRTHits;
+      valueMap["eProbabilityHT"][i] = eProbabilityHT;
+      valueMap["nPixHits"][i] = (float) (nPixelHits + nPixelDeadSensors);
+      valueMap["nSiHits"][i] = (float) (nPixelHits + nPixelDeadSensors + nSCTHits + nSCTDeadSensors);
+      valueMap["charge"][i] = charge;
 
       ++i;
       if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks) {
