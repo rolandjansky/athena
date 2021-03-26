@@ -1924,12 +1924,13 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 // This is the default STEP method
 /////////////////////////////////////////////////////////////////////////////////
 
-// Force this function to be optimized, even in unoptimized builds:
-// this makes heavy use of Eigen, and Eigen is extremely slow if optimization
-// is disabled.  If you do need to debug this function, you can comment
-// this out.
-#if defined(__GNUC__) && !defined(__OPTIMIZE__)
-__attribute__ ((optimize(2)))
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
 #endif
 bool
 Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
