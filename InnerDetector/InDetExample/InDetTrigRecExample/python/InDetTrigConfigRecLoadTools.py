@@ -764,6 +764,9 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    TRTStrawSummarySvc = TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
                                                                                    )
 
+    if InDetTrigFlags.doSLHC():
+      InDetTrigTrackSummaryHelperToolSharedHits.TRTStrawSummarySvc = None
+      
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigTrackSummaryHelperToolSharedHits
@@ -890,7 +893,9 @@ InDetTrigAmbiTrackSelectionTool = \
                                        # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
                                        )
  
- 
+if InDetTrigFlags.doSLHC():
+  InDetTrigAmbiTrackSelectionTool.DriftCircleCutTool = None
+  
 ToolSvc += InDetTrigAmbiTrackSelectionTool
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigAmbiTrackSelectionTool

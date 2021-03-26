@@ -42,12 +42,13 @@ class PixelConditionsServicesSetup:
     from IOVDbSvc.CondDB import conddb
 
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc as pixSummarySvc
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     PixelConditionsSummarySvc = \
         pixSummarySvc(name=self.instanceName('PixelConditionsSummarySvc'),
                       UseDCS = self.useDCS,
                       UseByteStream=self.useBS,
                       #UseSpecialPixelMap= not self.onlineMode,
-                      UseSpecialPixelMap=True,
+                      UseSpecialPixelMap=not InDetTrigFlags.doSLHC(),
                       UseTDAQ=self.useTDAQ
                       )
     #active states used by dcs (if on)
@@ -98,12 +99,14 @@ class PixelConditionsServicesSetup:
     if self._print:  print PixelRecoDbTool
 
     #use corresponding PixelRecoDBTool
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
-    PixelOfflineCalibSvc = PixelOfflineCalibSvc(self.instanceName('PixelOfflineCalibSvc'))
-    PixelOfflineCalibSvc.PixelRecoDbTool = PixelRecoDbTool
-    ServiceMgr += PixelOfflineCalibSvc
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    if not InDetTrigFlags.doSLHC():
+      from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
+      PixelOfflineCalibSvc = PixelOfflineCalibSvc(self.instanceName('PixelOfflineCalibSvc'))
+      PixelOfflineCalibSvc.PixelRecoDbTool = PixelRecoDbTool
+      ServiceMgr += PixelOfflineCalibSvc
 
-    if self._print:  print PixelOfflineCalibSvc
+      if self._print:  print PixelOfflineCalibSvc
                                                 
 
     ### configure the special pixel map service
@@ -118,26 +121,29 @@ class PixelConditionsServicesSetup:
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay")
 
-    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    
+    if not InDetTrigFlags.doSLHC():
+      from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
 
-    SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
-    ServiceMgr += SpecialPixelMapSvc
-  
-    SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
-    SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
-  
-    SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
-    SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
-  
-    SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
-    SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
+      SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
+      ServiceMgr += SpecialPixelMapSvc
+      
+      SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
+      SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
+      
+      SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
+      SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
+      
+      SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
+      SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
 
   
-    ServiceMgr += SpecialPixelMapSvc
-    #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
+      ServiceMgr += SpecialPixelMapSvc
+      #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
 
     
-    if self._print:  print SpecialPixelMapSvc
+      if self._print:  print SpecialPixelMapSvc
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaCommon.GlobalFlags import globalflags

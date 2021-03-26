@@ -78,6 +78,11 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
                                                            MaximalSplitSize = 49,
                                                            MinimalSplitProbability = 0,
                                                            )
+      
+      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+      if InDetTrigFlags.doSLHC():
+         InDetTrigMergedPixelsTool.UseSpecialPixelMap = False
+         
       ToolSvc += InDetTrigMergedPixelsTool
 
       # PixelGangedAmbiguitiesFinder tool (public)
