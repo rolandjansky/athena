@@ -38,6 +38,9 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
 
     for ( const auto& sequencer : hltMenuHandle->sequencers() ) {
         for ( const std::string& algorithm : sequencer.second ) {
+            // PassFilter is for empty steps - will never be associated with a chain
+            if (algorithm.find("PassFilter") == 0) continue;
+
             // Save just second part of algorithm ex. RoRSeqFilter/FFastCaloElectron -> FFastCaloElectron
             m_algToSequencersMap[algorithm.substr(algorithm.find('/') + 1)]
                 .push_back(sequencer.first);
@@ -75,14 +78,19 @@ std::vector<TrigConf::Chain> TrigCompositeUtils::AlgToChainTool::getChainsForAlg
 
     try {
         for ( const std::string& sequencer : m_algToSequencersMap.at(algorithmName) ) {
-            result.insert(
-                result.end(),
-                m_sequencerToChainMap.at(sequencer).begin(), 
-                m_sequencerToChainMap.at(sequencer).end()
-            );
+            try {
+                result.insert(
+                    result.end(),
+                    m_sequencerToChainMap.at(sequencer).begin(), 
+                    m_sequencerToChainMap.at(sequencer).end()
+                );
+            }
+            catch ( const std::out_of_range & ex ) {
+                ATH_MSG_DEBUG ( "Sequence " << sequencer << " is not part of the menu!" );             
+            }
         }
     } catch ( const std::out_of_range & ex ) {
-        ATH_MSG_DEBUG ( algorithmName << " is not part of the menu!" );
+        ATH_MSG_DEBUG ( "Algorithm " << algorithmName << " is not part of the menu!" );
     }
 
     return result;
@@ -125,10 +133,11 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
     for ( const std::string& key : keys ) {
 
         // Look for given collection
-        if ( !collectionName.empty() && key.find(collectionName) != 0 ){
+        if ( !collectionName.empty() && (key.find(collectionName) != 0) ){
             continue;
         }
 
+        // Get data from any nav collection
         if( collectionName.empty() && (key.find("HLTNav") != 0 || key == "HLTNav_Summary") ) {
             continue;
         }
@@ -146,14 +155,29 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
 }
 
 
-std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context) const {
-    std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
+ StatusCode TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context, std::map<std::string, std::vector<TrigConf::Chain>>& algToChain) const {
+
+    SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey, context);
+    ATH_CHECK(hltMenuHandle.isValid());
+    std::map<std::string, std::vector<std::string>> sequencers = hltMenuHandle->sequencers();
 
     // Look for chains which were active for any of the algorithms of the sequence
     // Name of collection for given sequencer consist sequence's filter's name
     std::map<std::string, std::set<TrigCompositeUtils::DecisionID>> seqToActiveChains;
     for (const auto& sequence : m_sequencerToChainMap) {
-        seqToActiveChains[sequence.first] = retrieveActiveChains(context, "HLTNav_F" + sequence.first + "_");
+        // Look for associated filters names with the sequence
+        const std::vector<std::string>& algorithms = sequencers.at(sequence.first);
+        for ( const std::string& algorithm : algorithms ) {
+            if (algorithm.find("FStep") == std::string::npos) continue;
+
+            std::string filterName = "HLTNav_" + algorithm.substr(algorithm.find('/') + 1) + "__";
+            // For example RoRSeqFilter/FStep18_Step13_1FSLRTTrigger -> HLTNav_FStep18_Step13_1FSLRTger
+            if (filterName.find("Trig") != std::string::npos){
+                filterName.replace(filterName.find("Trig"), 4, "");
+            }
+            seqToActiveChains[sequence.first] = retrieveActiveChains(context, filterName);
+
+        }
     }
 
     for (const auto& algSeqPair : m_algToSequencersMap){
@@ -173,7 +197,8 @@ std::map<std::string, std::vector<TrigConf::Chain>> TrigCompositeUtils::AlgToCha
 
         algToChain[algSeqPair.first] = chainsPerAlg;
     }
-    return algToChain;
+
+    return StatusCode::SUCCESS;
 }
 
 
