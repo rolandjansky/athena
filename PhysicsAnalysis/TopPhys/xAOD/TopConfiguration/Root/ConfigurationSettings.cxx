@@ -419,7 +419,7 @@ namespace top {
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
     registerParameter("TopPartonHistory", "Topology to be assumed when reconstructing parton-level history.", "False",
-                      {"ttbar", "tb", "Wtb", "ttz", "ttgamma", "tHq", "False"});
+                      {"ttbar", "ttbarlight", "tb", "Wtb", "tchannel", "ttz", "ttgamma", "tHq", "tZq", "False"});
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
     
     registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
