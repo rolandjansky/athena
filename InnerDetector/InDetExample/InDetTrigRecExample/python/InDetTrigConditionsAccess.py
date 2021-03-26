@@ -24,12 +24,17 @@ if InDetTrigFlags.useConditionsClasses():
   SCT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode, prefix=_prefix)
   SCT_ConditionsSetup.lock()
   SCT_ConditionsSetup.createSvc()
-  
-  from InDetTrigRecExample.InDetTrigConfigConditions import TRT_ConditionsSetup
-  TRT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode,prefix=_prefix)
-  TRT_ConditionsSetup.lock()
-  TRT_ConditionsSetup.createSvc()
-  
+
+  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+  if not InDetTrigFlags.doSLHC():
+    from InDetTrigRecExample.InDetTrigConfigConditions import TRT_ConditionsSetup
+    TRT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode,prefix=_prefix)
+    TRT_ConditionsSetup.lock()
+    TRT_ConditionsSetup.createSvc()
+  else:
+    from InDetTrigRecExample.InDetTrigConfigConditions import dummyConditionsSetup
+    TRT_ConditionsSetup =  dummyConditionsSetup() 
+    
   del _useDCS,_onlineMode,_prefix
 else:
   from InDetTrigRecExample.InDetTrigConfigConditions import dummyConditionsSetup

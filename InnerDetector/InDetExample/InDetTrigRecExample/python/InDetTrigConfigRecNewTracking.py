@@ -319,7 +319,11 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigScoringTool.maxPixelHoles  = FTKTrackingCuts.maxPixelHoles()
         InDetTrigScoringTool.maxSCTHoles    = FTKTrackingCuts.maxSCTHoles()
         InDetTrigScoringTool.maxDoubleHoles = FTKTrackingCuts.maxDoubleHoles()
-         
+
+      if InDetTrigFlags.doSLHC():
+        InDetTrigScoringTool.DriftCircleCutTool = None
+        InDetTrigScoringTool.useITkAmbigFcn = True
+        
       #
       ToolSvc += InDetTrigScoringTool
       if (InDetTrigFlags.doPrintConfigurables()):
