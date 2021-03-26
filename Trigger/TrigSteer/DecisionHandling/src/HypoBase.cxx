@@ -287,9 +287,16 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ) << endmsg;
       msg << MSG::ERROR << "! This chain's DecisionID can not be found in any parents of this Decision object:" << endmsg;
+      size_t seed_n = 0;
       for (const ElementLink<DecisionContainer> seed : seeds) {
         msg << MSG::ERROR << "! Index:" << (*seed)->index() << " from collection:" << seed.dataID() << endmsg;
         msg << MSG::ERROR << "! " << **seed << endmsg;
+        DecisionIDContainer objDecisions;      
+        decisionIDs(*seed, objDecisions);
+        for (const TrigCompositeUtils::DecisionID id : objDecisions ) {
+          msg << "! --- Passing in parent #" << seed_n << ": " << HLT::Identifier( id ) << endmsg;
+        }
+        ++seed_n;
       }
       msg << MSG::ERROR << "! SOLUTION: Ensure that the producer of this Decision object only adds DecisionIDs"
         " which were present in at least one of its parents." << endmsg;
@@ -305,9 +312,16 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       msg << MSG::ERROR << "! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ) << endmsg;
       msg << MSG::ERROR << "! As this Decision object represents the output of a HypoAlg, it must respect logical flow on all " 
         << seeds.size() << " of its parent(s):" << endmsg;
+      size_t seed_n = 0;
       for (const ElementLink<DecisionContainer> seed : seeds) {
         msg << MSG::ERROR << "! Index:" << (*seed)->index() << " from collection:" << seed.dataID() << endmsg;
         msg << MSG::ERROR << "! " << **seed << endmsg;
+        DecisionIDContainer objDecisions;      
+        decisionIDs(*seed, objDecisions);
+        for (const TrigCompositeUtils::DecisionID id : objDecisions ) {
+          msg << "! --- Passing in parent #" << seed_n << ": " << HLT::Identifier( id ) << endmsg;
+        }
+        ++seed_n;
       }
       msg << MSG::ERROR << "! SOLUTION: Ensure that the HypoTool responsible for " << HLT::Identifier( id ) 
         << " in this HypoAlg only runs if this ID is present in all parent decisions." << endmsg;
