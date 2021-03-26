@@ -219,12 +219,22 @@ def addHITSMergeArgs(parser):
                         type=argFactory(argFile, io='input', runarg=True, type='log'),
                         help='Input Log files', group='HITSMerge_tf') ## FIXME need to add code to do the log file merging.
 
+def addRenameHITSArgs(parser):
+    # Use arggroup to get these arguments in their own sub-section (of --help)
+    parser.defineArgGroup('RenameHITS', 'RenameHITS specific options')
+    parser.add_argument('--inputHITSFile', '--inputHitsFile', nargs='+',
+                        type=argFactory(argPOOLFile, io='input', runarg=True, type='hits'),
+                        help='Input HITS files', group='RenameHITS')
+    parser.add_argument('--outputHITS_RNMFile', nargs='+',
+                        type=argFactory(argPOOLFile, io='output', runarg=True, type='hits'),
+                        help='Output HITS file with renamed collections', group='RenameHITS')
+
 ## Add Re-simulation transform arguments
 def addReSimulationArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('ReSimulation', 'Resimulation specific options')
     parser.add_argument('--outputHITS_RSMFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='output', runarg=True, type='hits'),
+                        type=argFactory(argHITSFile, io='output', runarg=True, type='hits'),
                         help='Output HITS file', group='ReSimulation')
 
 ## Add HITS validation transform arguments
