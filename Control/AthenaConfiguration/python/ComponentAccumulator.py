@@ -147,7 +147,8 @@ class ComponentAccumulator(object):
              traceback.print_stack()
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
-             log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
+             log.error("Deleting a ComponentAccumulator with dangling private tool(s): %s", 
+                        " ".join([t.name for t in self._privateTools]) if isinstance(self._privateTools, collections.abc.Sequence) else self._privateTools.name)
 
         #pass
 

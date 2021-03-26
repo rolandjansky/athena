@@ -512,7 +512,7 @@ def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwar
             InDetTRT_dEdxTool = None
         kwargs.setdefault( "TRT_ToT_dEdx_Tool", InDetTRT_dEdxTool)
 
-    kwargs.setdefault( "CalculateNNPid", flags.InDet.doTRTPIDNN)
+    kwargs.setdefault( "CalculateNNPid", False) #TODO fixme once the flag is there flags.InDet.doTRTPIDNN)
 
     InDetTRT_ElectronPidTool = CompFactory.InDet.TRT_ElectronPidToolRun2(name = the_name, **kwargs)
     return InDetTRT_ElectronPidTool

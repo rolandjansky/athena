@@ -29,7 +29,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doMinimalReco", False) # Turn running of minimal reconstruction on and off
   icf.addFlag("InDet.doDVRetracking", False) # Turn running of large-d0 retracking mode on and off. This flag assumes that the processing is done from a (D)ESD file
   icf.addFlag("InDet.postProcessing", True) # Turn running of post processing on and off
-  icf.addFlag("InDet.doTruth", True) # Turn running of truth matching on and off
+  icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   icf.addFlag("InDet.loadTools", True) # Turn loading of tools on and off
   icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
   icf.addFlag("InDet.doLowPt",True) # Turn running of doLowPt second pass on and off

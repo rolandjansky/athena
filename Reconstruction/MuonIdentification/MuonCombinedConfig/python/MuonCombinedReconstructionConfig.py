@@ -370,8 +370,7 @@ if __name__=="__main__":
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
-
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True, clustersname="CaloTopoClusters"))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
@@ -402,7 +401,7 @@ if __name__=="__main__":
     # Commented, because it should be added back in very soon.
     # itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
     # SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
-    cfg.printConfig(withDetails = True)
+    cfg.printConfig(withDetails = True, summariseProps=True)
     # f=open("MuonCombinedReconstruction.pkl","wb")
     # cfg.store(f)
     # f.close()
