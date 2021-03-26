@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/test/exceptions_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -25,6 +24,12 @@ void test1()
   std::cout << AthenaPoolCnvSvc::ExcUnsupportedVersion
     ( typeid(int),
       Guid("336F636C-D414-4261-8286-37429F353F0A") ).what() << "\n";
+  std::cout << AthenaPoolCnvSvc::ExcCaughtException
+    ( "fnname",
+      "chasing my tail",
+      std::runtime_error ("foofoo"),
+      typeid(int),
+      "key").what() << "\n";
 }
 
 
