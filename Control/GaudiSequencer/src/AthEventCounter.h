@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthEventCounter.h
@@ -11,29 +11,23 @@
 #ifndef GAUDISEQUENCER_ATHEVENTCOUNTER_H
 #define GAUDISEQUENCER_ATHEVENTCOUNTER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "Gaudi/Property.h"
+#include <atomic>
 
-class AthEventCounter : public AthAlgorithm 
+class AthEventCounter : public AthReentrantAlgorithm 
 {
 public:
 
-  /**
-   ** Constructor(s)
-   **/
-  AthEventCounter( const std::string& name, ISvcLocator* pSvcLocator );
-
-  /**
-   ** Destructor
-   **/
-  ~AthEventCounter( );
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  ~AthEventCounter( ) = default;
 
   /*****************************
    ** Public Function Members **
    *****************************/
 
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute(const EventContext& ctx) const ;
   StatusCode finalize();
 
 private:
@@ -47,18 +41,14 @@ private:
    ** should be reported. The default is 1, corresponding
    ** to every event.
    **/
-  Gaudi::CheckedProperty<int> m_frequency;
-
-  /**
-   ** The number of events skipped since the last time
-   ** the count was reported.
-   **/
-  int m_skip;
+  Gaudi::Property<int> m_frequency{this, "Frequency", 1,
+      "The frequency with which the number of events should be "
+      "reported. The default is 1, corresponding to every event" };
 
   /**
    ** The total events seen.
    **/
-  int m_total;
+  mutable std::atomic<int> m_total{0};
 };
 
 #endif // GAUDISEQUENCER_ATHEVENTCOUNTER_H
