@@ -26,7 +26,7 @@ def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, con
     adaptiveVertexing = getInDetTrigConfig( whichSignature ).adaptiveVertex 
 
     return vertexFinder_builder( signature         = whichSignature, 
-                                 inputTracks       = config.FT.tracksFTF(),
+                                 inputTracks       = inputTrackCollection,
                                  outputVertices    = outputVtxCollection,
                                  adaptiveVertexing = adaptiveVertexing )
 
@@ -64,7 +64,8 @@ def vertexFinder_builder( signature, inputTracks, outputVertices, adaptiveVertex
 
     vertexFinder = InDet__InDetPriVxFinder( name                        = "InDetTrigPriVxFinder" + signature,
                                             VertexFinderTool            = vertexFinderTool,
-                                            TracksName                  = recordable(inputTracks), 
+                                            # TracksName                = recordable(inputTracks), 
+                                            TracksName                  = inputTracks, 
                                             VxCandidatesOutputName      = recordable(outputVertices), 
                                             VertexCollectionSortingTool = vertexSortingTool,
                                             doVertexSorting             = True,

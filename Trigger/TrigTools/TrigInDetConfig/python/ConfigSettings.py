@@ -502,6 +502,8 @@ class _GlobalSettings() :
       self._doRecord  = False #Allow recording of track collections
       self._isLRT     = False
       self._adaptiveVertex = False
+      self._vertex    = None
+
 
    @property
    def FT(self):
@@ -530,6 +532,10 @@ class _GlobalSettings() :
    @property
    def adaptiveVertex(self):
        return self._adaptiveVertex
+
+   @property
+   def vertex(self):
+       return self._vertex
 
 
 
@@ -597,7 +603,9 @@ class _Settings_tauTau( _GlobalSettings ):
       #There should not be a need for tauCore PT!
       self._configPT =   _PrecisionTracking( signatureType = 'tau', nameSuffix = 'Tau' )
       self._doRecord = True #Allow recording of track collections
-
+      self._vertex   = "HLT_IDVertex_Tau"
+      self._adaptiveVertexing = True
+      
 class _Settings_tauCore( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -616,6 +624,8 @@ class _Settings_tauIso( _GlobalSettings ):
       self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' )
       self._configPT = _PrecisionTracking( signatureType = 'tauIso', nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True #Allow recording of track collections
+      self._vertex  = "HLT_IDVertex_Tau"
+      self._adaptiveVertex = True
 
 #This might be redundant but lets keep them for the time being...
 class _Settings_tauIsoBDT( _GlobalSettings ):
@@ -626,6 +636,9 @@ class _Settings_tauIsoBDT( _GlobalSettings ):
       self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
       self._configPT = _PrecisionTracking( signatureType = 'tauIso',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = False #FIXME: Do I need to record these?
+      self._vertex   = "HLT_IDVertex_Tau"
+      self._adaptiveVertexing = True
+
 
 class _Settings_bjet( _GlobalSettings ):
    def __init__( self ):
@@ -644,6 +657,7 @@ class _Settings_jet( _GlobalSettings ):
       self._configFT = _FastTracking(      signatureType = 'fullScan',  nameSuffix = 'FS' ) #
       self._configPT = _PrecisionTracking( signatureType = 'fullScan',  nameSuffix = 'FS' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True
+      self._vertex   = "HLT_IDVertex_FS"
       self._adaptiveVertex = False
 
 class _Settings_minBias( _GlobalSettings ):

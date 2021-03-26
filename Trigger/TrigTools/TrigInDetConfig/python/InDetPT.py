@@ -30,7 +30,6 @@ def makeInDetPrecisionTracking( config = None,
   #Add suffix to the algorithms
   signature =  "_{}".format( config.name )
 
-
   #Name settings for output Tracks/TrackParticles
   outTrkTracks        = config.PT.trkTracksPT() #Final output Track collection
   outTrackParticles   = config.PT.tracksPT( doRecord = config.isRecordable ) #Final output xAOD::TrackParticle collection
@@ -101,6 +100,8 @@ def makeInDetPrecisionTracking( config = None,
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
 
+  TRT_RDO_Key = "TRT_RDOs"
+
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
   #TODO:implement builders and getters for TRT (WIP)
   if doTRT:
@@ -109,7 +110,6 @@ def makeInDetPrecisionTracking( config = None,
             #                        TRT data preparation
             from AthenaCommon.GlobalFlags import globalflags
             #Only add raw data decoders if we're running over raw data
-            TRT_RDO_Key = "TRT_RDOs"
             if globalflags.InputFormat.is_bytestream():
                 TRT_RDO_Key = TrigTRTKeys.RDOs
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
@@ -122,7 +122,6 @@ def makeInDetPrecisionTracking( config = None,
                                                                       Decoder = InDetTRTRodDecoder )
 
                 ToolSvc += InDetTRTRawDataProviderTool
-             
 
 
 
@@ -139,8 +138,6 @@ def makeInDetPrecisionTracking( config = None,
                 InDetTRTRawDataProvider.RoIs = rois
 
                 ptAlgs.append( InDetTRTRawDataProvider )
-             
-             
 
             #-----------------------------------------------------------------------------
             #                        TRT extension

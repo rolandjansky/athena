@@ -25,7 +25,12 @@ def getBJetSequence():
 # ====================================================================================================  
 
 def bJetStep2Sequence():
-    prmVtxKey = "HLT_IDVertex_FS"
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    
+    config=getInDetTrigConfig('jet')
+    #    prmVtxKey = "HLT_IDVertex_FS"
+    prmVtxKey = config.vertex
     outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm

@@ -303,7 +303,6 @@ def precTrackSequence( RoIs , name):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
 
-
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier_"+signatureName)
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ),
@@ -334,12 +333,20 @@ def precTrackSequence( RoIs , name):
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois = RoIs )
-    precTrackSequence = parOR(name, [ViewVerifyTrk] + PTAlgs  )
+
+    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+    vtxAlg = makeVertices( whichSignature       = signatureName, 
+                           inputTrackCollection = IDTrigConfig.PT.tracksPT(), 
+                           outputVtxCollection  = IDTrigConfig.vertex, 
+                           config               = IDTrigConfig, 
+                           adaptiveVertexing    = True )
+
+    trackSequence = parOR(name, [ViewVerifyTrk] + PTAlgs + vtxAlg )
 
     #Get last tracks from the list as input for other alg       
     sequenceOut = PTTrackParticles[-1]
 
-    return precTrackSequence, sequenceOut
+    return trackSequence, sequenceOut
 
 def tauFTFSequence( RoIs, name ):
 
