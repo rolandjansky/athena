@@ -61,7 +61,7 @@ namespace Analysis {
         bool  passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const;
         bool  vertexCuts(xAOD::BPhysHelper &bHelper) const;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&,
-                          const xAOD::TrackParticleContainer*, const xAOD::Vertex* pv, const xAOD::TrackParticleContainer* GSL) const;
+                          const xAOD::TrackParticleContainer*, const xAOD::TrackParticleContainer* GSL) const;
         //-------------------------------------------------------------------------------------
         
     private:
@@ -106,9 +106,6 @@ namespace Analysis {
         // (to reduce the pileup contribution before vertexing)
         std::vector<double> m_manualMassHypo;
         int m_requiredNMuons;
-        // fit with PV
-        bool m_vertexFittingWithPV;
-        std::string m_PVerticesCollection;
         std::vector<double> m_altMassMuonTracks;
         std::vector<double>  m_mumukkMasses;
         std::vector<double>  m_mumupipiMasses;
