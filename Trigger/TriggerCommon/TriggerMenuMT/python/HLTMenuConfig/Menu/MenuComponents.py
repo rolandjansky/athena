@@ -812,6 +812,7 @@ class ChainStep(object):
         self.stepDicts = chainDicts # one dict per leg
         self.isEmpty=(sum(multiplicity)==0 or isEmpty)
         self.relabelLegIdsForJets()
+        self.setChainPartIndices()
         self.legIds = self.getLegIds() if len(multiplicity) > 1 else [0]
         self.makeCombo()
 
@@ -851,6 +852,15 @@ class ChainStep(object):
                     raise Exception("[relabelLegIdsForJets] you told me to relabel the legs but this leg doesn't have a legXXX_ name!")
                 self.stepDicts[i]['chainName'] = legName(oldLegName,nLegs)
                 nLegs += nLegParts
+        return
+    
+    def setChainPartIndices(self):
+    
+        leg_counter = 0
+        for step_dict in self.stepDicts:
+            for chainPart in step_dict['chainParts']:
+                chainPart['chainPartIndex'] =  leg_counter
+                leg_counter += 1
         return
 
     def getLegIds(self):
