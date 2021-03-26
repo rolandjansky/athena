@@ -432,7 +432,10 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
     else:
         acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-SIM-MC16-000-03", db="OFLP200", className="CondAttrListCollection"))
 
-    kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
+    if flags.GeoModel.Run == "RUN1":
+        kwargs.setdefault("ReadKey", "")
+    else:
+        kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
     kwargs.setdefault("WriteKey", "PixelDeadMapCondData")
     acc.addCondAlgo(CompFactory.PixelDeadMapCondAlg(name, **kwargs))
     return acc
