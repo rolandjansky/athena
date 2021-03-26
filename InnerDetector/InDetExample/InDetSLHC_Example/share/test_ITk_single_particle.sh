@@ -112,6 +112,7 @@ dcubecfg_sim=${artdata}/InDetSLHC_Example/dcube/config/ITk_SiHitAnalysis.xml
 dcubecfg_digi_pixel=${artdata}/InDetSLHC_Example/dcube/config/ITk_PixelRDOAnalysis.xml
 dcubecfg_digi_strip=${artdata}/InDetSLHC_Example/dcube/config/ITk_SCT_RDOAnalysis.xml
 dcubecfg_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM.xml
+dcubecfg_fast_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM_fast.xml
 
 
 if [ ${clustering} == 'digital' ]; then
@@ -352,7 +353,7 @@ if [ $dofast -ne 0 ]; then
     # DCube InDetPhysValMonitoring performance plots
     dcube InDetPhysValMonitoring plot "$dcubemon_rec_fast" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec_fast" "$dcube_rec_fast_lastref"
     dcube InDetPhysValMonitoring ""   "$dcubemon_rec_fast" "$dcubecfg_rec" "$dcuberef_rec_fast" "$dcube_rec_fast_fixref"
-    dcube InDetPhysValMonitoring ""   "$dcubemon_rec_fast" "$dcubecfg_rec" "$dcubemon_rec" "$dcube_rec_fast_std"
+    dcube InDetPhysValMonitoring ""   "$dcubemon_rec_fast" "$dcubecfg_fast_rec" "$dcubemon_rec" "$dcube_rec_fast_std"
 
   fi
 
