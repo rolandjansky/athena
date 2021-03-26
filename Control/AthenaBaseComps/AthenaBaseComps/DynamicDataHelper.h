@@ -66,7 +66,7 @@ namespace Ath {
       DataObjIDPtrColl m_inputHandles;
       DataObjIDPtrColl m_outputHandles;
 
-      std::vector< std::pair<IDynamicDataConsumer *,Gaudi::Algorithm *> > m_dynDataConsumer;
+      std::unordered_map< IDynamicDataConsumer *,std::vector<Gaudi::Algorithm *> > m_dynDataConsumer;
 
    };
 }
