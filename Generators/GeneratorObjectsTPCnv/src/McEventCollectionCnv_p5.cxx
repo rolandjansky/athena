@@ -634,7 +634,7 @@ McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
                           (long double)(persPart.m_py)*persPart.m_py +
                           (long double)(persPart.m_pz)*persPart.m_pz +
                           (long double)(persPart.m_m) *persPart.m_m );
-      p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_px,persPart.m_px,temp_e));
+      p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,temp_e));
   } else {
     const int signM2 = ( persPart.m_m >= 0. ? 1 : -1 );
     const double persPart_ene =
