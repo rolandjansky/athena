@@ -166,7 +166,8 @@ StatusCode TrigCostAnalysis::execute() {
 
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
-  std::map<std::string, std::vector<TrigConf::Chain>> algToChain = m_algToChainTool->getChainsForAllAlgs(context);
+  std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
+  ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
   for (const xAOD::TrigComposite* tc : *costDataHandle) {
     const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
     const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");

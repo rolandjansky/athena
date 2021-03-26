@@ -605,7 +605,7 @@ TriggerHLTListRun3 = [
 ]
 
 # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
-HLTNavEDMTargets = 'BS CostMonDS ESD AODFULL AODSLIM'
+HLTNavEDMTargets = 'BS ESD AODFULL AODSLIM'
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
@@ -664,6 +664,12 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
         edmList.extend([
             (typeName,    HLTNavEDMTargets, 'Steer'),
             (typeNameAux, HLTNavEDMTargets, 'Steer')])
+
+        # Cost stream requires only filters and L1 seeded chains
+        if decisionCollection.startswith("HLTNav_FStep") or decisionCollection == "HLTNav_Summary" or decisionCollection.startswith("HLTNav_L1"):
+            edmList.extend([
+                (typeName,    'CostMonDS', 'Steer'),
+                (typeNameAux, 'CostMonDS', 'Steer')])
 
 def addExtraCollectionsToEDMList(edmList, extraList):
     """
