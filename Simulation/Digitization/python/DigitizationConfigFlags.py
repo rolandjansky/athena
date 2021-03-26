@@ -131,6 +131,8 @@ def createDigitizationCfgFlags():
     # Superimpose mixed high pt minimum bias events (pile-up) on signal events?
     # If so, set this to a list of: High Pt Mixed ND, SD, DD minimum bias input collections
     flags.addFlag("Digitization.PU.HighPtMinBiasInputCols", [])
+    # Offset into the input collections of high pt min-bias events
+    flags.addFlag("Digitization.PU.HighPtMinBiasInputColOffset", 0)
     # Superimpose mixed low pt minimum bias events (pile-up) on signal events?
     # If so, set this to a list of: Low Pt Mixed ND, SD, DD minimum bias input collections
     flags.addFlag("Digitization.PU.LowPtMinBiasInputCols", [])

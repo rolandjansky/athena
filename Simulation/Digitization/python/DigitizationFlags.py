@@ -358,6 +358,14 @@ class HighPtMinBiasInputCols(JobProperty):
     StoredValue=[]
 
 #
+class HighPtMinBiasInputColOffset(JobProperty):
+    """ Offset into the collection of high pt min-bias events
+    """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=0
+
+#
 class LowPtMinBiasInputCols(JobProperty):
     """ Low Pt Mixed ND, SD, DD minimum bias input collections
     """
@@ -819,7 +827,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
                     doLowPtMinBias,numberOfLowPtMinBias,LowPtMinBiasInputCols,\
-                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
+                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,HighPtMinBiasInputColOffset,\
                     doCavern,numberOfCavern,cavernInputCols,\
                     doBeamGas,numberOfBeamGas,beamGasInputCols,\
                     doBeamHalo,numberOfBeamHalo,beamHaloInputCols,\
