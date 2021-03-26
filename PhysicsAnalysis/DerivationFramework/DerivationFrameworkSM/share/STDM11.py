@@ -42,23 +42,6 @@ STDM11ThinningHelper = ThinningHelper( "STDM11ThinningHelper" )
 STDM11ThinningHelper.TriggerChains = 'HLT_j.*|HLT_ht.*'
 STDM11ThinningHelper.AppendToStream( STDM11Stream )
 
-
-#====================================================================
-# Thin TruthParticles for truth jet constituents
-#====================================================================
-
-
-if DerivationFrameworkHasTruth:
-  from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
-  STDM11TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "STDM11ViewContThinning",
-                                                                        ThinningService        = STDM11ThinningHelper.ThinningSvc(),
-                                                                        SourceContainer = "TruthParticles",
-                                                                        ViewContainer = "JetInputTruthParticles",
-                                                                        ParticleType = 201, # truthParticles
-                                                                        ApplyAnd = False)
-
-  ToolSvc += STDM11TruthJetInputThin
-  thinningTools.append(STDM11TruthJetInputThin)
   
 #########################################
 # Tracks associated with jets
