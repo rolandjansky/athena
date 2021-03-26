@@ -974,7 +974,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     mglog.info('lhapdf-config --datadir:      '+str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('lhapdf-config --pdfsets-path: '+str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
-    modify_config_card(process_dir=process_dir,settings={'lhapdf':lhapdfconfig})
+    modify_config_card(process_dir=process_dir,settings={'lhapdf':lhapdfconfig,'lhapdf_py2':lhapdfconfig})
 
     mglog.info('Creating links for LHAPDF')
     if os.path.islink(process_dir+'/lib/PDFsets'):
