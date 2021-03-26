@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     TileCalCellMonTool.cxx
@@ -12,6 +12,8 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "AthenaKernel/Units.h"
 
 #include "TProfile2D.h"
@@ -26,17 +28,12 @@ using Athena::Units::GeV;
 ////////////////////////////////////////////
 TileCalCellMonTool::TileCalCellMonTool(const std::string& type, const std::string& name,const IInterface* parent) 
   :CaloMonToolBase(type, name, parent),
-   m_useElectronicNoiseOnly(false),
    m_useTwoGaus(true),
-   m_noiseTool("CaloNoiseTool"),
    m_tile_id(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
 
-  // tools 
-  declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false,"Consider only electronic noise and ignore pile-up contributiuon)");
   declareProperty("useTwoGaus", m_useTwoGaus=true,"Use double-gaussian noise description for Tile-cells");
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise Tool");
 
   // min energy for tilecal cells 
   declareProperty("energyThreshold",m_tileThreshold=300.); //Threshold in GeV
@@ -56,15 +53,7 @@ StatusCode TileCalCellMonTool::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_tile_id) );
 
-  //Calonoise tool
-  ATH_CHECK(m_noiseTool.retrieve());
-
-
-  //Choose noise type
-  if (m_useElectronicNoiseOnly) 
-    m_noiseType = ICalorimeterNoiseTool::ELECTRONICNOISE;
-  else
-    m_noiseType=ICalorimeterNoiseTool::TOTALNOISE; 
+  ATH_CHECK(m_noiseKey.initialize());
 
   initParam();
 
@@ -286,19 +275,22 @@ StatusCode TileCalCellMonTool::bookHistograms() {
 ////////////////////////////////////////////////////////////////////////////
 StatusCode TileCalCellMonTool::fillHistograms(){  
 
-//  ATH_MSG_INFO("TileCalCellMonTool::fillHistograms() starts");
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  //  ATH_MSG_INFO("TileCalCellMonTool::fillHistograms() starts");
   StatusCode sc = StatusCode::SUCCESS;
 
   bool ifPass = 1;
   sc = checkFilters(ifPass);
   if(sc.isFailure() || !ifPass) return StatusCode::SUCCESS;
 
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
 
   //=====================
   // CaloCell info
   //============================
 
-  SG::ReadHandle<CaloCellContainer> cellContHandle{m_cellContainerName};
+  SG::ReadHandle<CaloCellContainer> cellContHandle (m_cellContainerName, ctx);
   if (! cellContHandle.isValid()) { ATH_MSG_WARNING("No CaloCell container found in TDS"); return StatusCode::FAILURE; }
   const CaloCellContainer* cellCont = cellContHandle.get();
 
@@ -325,9 +317,9 @@ StatusCode TileCalCellMonTool::fillHistograms(){
 
 
     if (m_useTwoGaus==false)
-      cellnoisedb = m_noiseTool->getNoise(cell,m_noiseType);
+      cellnoisedb = noise->getNoise(id, cell->gain());
     else
-      cellnoisedb = m_noiseTool->getEffectiveSigma(cell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,m_noiseType);
+      cellnoisedb = noise->getEffectiveSigma(id, cell->gain(), cell->energy());
 
     double rs=999;
     if (std::isfinite(cellnoisedb) && cellnoisedb > 0 &&  cellen != 0 && badc == false) rs= cellen / cellnoisedb;
