@@ -285,6 +285,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_defaultTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_defaultTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_defaultTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
     m_defaultTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_defaultTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_defaultTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
@@ -371,7 +372,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit1Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_refit1Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_refit1Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
-
+    m_refit1Tree->Branch("Negative_sigma_qoverp",  &m_negative_sigma_qOverP,  "Negative_sigma_qoverp/D");
 
     m_refit1Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit1Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -380,6 +381,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit1Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_refit1Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_refit1Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_refit1Tree->Branch("Positive_sigma_qoverp",  &m_positive_sigma_qOverP,  "Positive_sigma_qoverp/D");
 
     if(m_doIP){
       m_refit1Tree->Branch("Negative_d0_PV",      &m_negative_d0_PV   ,  "Negative_d0_PV/D");
@@ -1288,7 +1290,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   double PVz0res = 0;
   double PVd0 = 0;
   double PVz0 = 0;
-
+  double sigma_qOverP = 0;
   
   px = trackp->p4().Px();
   py = trackp->p4().Py();
@@ -1296,9 +1298,10 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   d0 = trackp->d0();
   z0 = trackp->z0();
   
-  d0res = std::sqrt(trackp->definingParametersCovMatrix()(0,0));
-  z0res = std::sqrt(trackp->definingParametersCovMatrix()(1,1));
-  
+  d0res = std::sqrt(trackp->definingParametersCovMatrix()(Trk::d0,Trk::d0));
+  z0res = std::sqrt(trackp->definingParametersCovMatrix()(Trk::z0,Trk::z0));
+  sigma_qOverP = std::sqrt(trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
+
   if (vertex == nullptr) {
     ATH_MSG_WARNING("in FillRecParametersTP. WARNING: Vertex is NULL");
     return StatusCode::FAILURE;
@@ -1340,6 +1343,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_positive_z0_err = z0res;
     m_positive_d0 = d0;
     m_positive_d0_err = d0res;
+    m_positive_sigma_qOverP = sigma_qOverP;
     if(m_doIP){
       m_positive_z0_PV = PVz0;
       m_positive_d0_PV = PVd0;
@@ -1356,6 +1360,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_negative_z0_err = z0res;
     m_negative_d0 = d0;
     m_negative_d0_err = d0res;
+    m_negative_sigma_qOverP = sigma_qOverP;
     if(m_doIP){
       m_negative_z0_PV = PVz0;
       m_negative_d0_PV = PVd0;
@@ -1784,6 +1789,7 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_positive_z0 = 0.;
   m_positive_d0_err = 0.;
   m_positive_z0_err = 0.;
+  m_positive_sigma_qOverP = 0.;
   m_positive_1_vtx = 0;
   m_positive_parent = 0;
 
@@ -1794,6 +1800,7 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_negative_z0 = 0.;
   m_negative_d0_err = 0.;
   m_negative_z0_err = 0.;
+  m_negative_sigma_qOverP = 0.;
   m_negative_1_vtx = 0;
   m_negative_parent = 0;
 	
