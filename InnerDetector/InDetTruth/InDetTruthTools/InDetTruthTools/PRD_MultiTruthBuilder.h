@@ -30,6 +30,20 @@ namespace InDet {
     
   private:
     const PixelID *m_idHelperPixel;
+
+    Gaudi::Property<float> m_pixelThreshold{
+      this,
+      "PixelThreshold",
+      300,
+      "Minimum charge in a cluster required to associate a truth particle to a pixel RDO [e's] -- default set to ~noise level = ~1/10 of threshold"
+    };
+
+     Gaudi::Property<float> m_sctThreshold{
+      this,
+      "SCT_Threshold",
+      600,
+      "Minimum charge in a cluster required to associate a truth particle to a SCT RDO [e's] -- default set to ~1/10 threshold"
+    };
   };
 
 
