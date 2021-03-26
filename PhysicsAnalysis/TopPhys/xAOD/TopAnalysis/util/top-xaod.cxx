@@ -675,6 +675,13 @@ int main(int argc, char** argv) {
           << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n"
           << "*************************************************************************\n\n");
     }
+    if (topConfig->printEgammaCalibModelWarning()) {
+      ATH_MSG_WARNING(
+              "\n*************************************************************************\n"
+                      << "          YOU HAVE CHANGED DEFAULT EGAMMA CALIBRATION MODEL             \n"
+                      << " TO USE DEFAULT MODEL, REMOVE 'EGammaCalibrationModel' FROM CONFIG FILE \n"
+                      << "*************************************************************************\n\n");
+    }
 
     const unsigned int entries = xaodEvent.getEntries();
     totalEventsInFiles += entries;

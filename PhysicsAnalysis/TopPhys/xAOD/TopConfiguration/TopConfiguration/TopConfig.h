@@ -1838,6 +1838,14 @@ namespace top {
     const std::string& bTaggingCalibration_Light() const
     {return m_btagging_calibration_Light;};
 
+    // egamma calibration
+    bool printEgammaCalibModelWarning() const
+    {return m_egamma_calibmodel_warning;}
+    void setPrintEgammaCalibModelWarning(bool flag)
+    {m_egamma_calibmodel_warning = flag;}
+    const std::string& egammaCalibration() const
+    {return m_egamma_calibration_model;};
+
     // LHAPDF settings
 
     inline virtual std::vector<std::string> LHAPDFSets() {return m_lhapdf_options.pdf_set_names;}
@@ -2565,6 +2573,10 @@ namespace top {
     std::string m_btagging_calibration_B = "default";
     std::string m_btagging_calibration_C = "default";
     std::string m_btagging_calibration_Light = "default";
+
+    // EGamma calibration to be used
+    bool m_egamma_calibmodel_warning = false;
+    std::string m_egamma_calibration_model = "es2018_R21_v0";
 
     // b-tag SF helpers - one of each per WP
     // will be set in the BTagScaleFactorCalculator

@@ -591,6 +591,8 @@ namespace top {
                       " Default 'default'",
                       "default");
 
+    registerParameter("EGammaCalibrationModel", "To override default EGammaCalibration model, Default 'es2018_R21_v0'", "es2018_R21_v0");
+
     registerParameter("PRWConfigFiles",
                       "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options",
                       " ");
