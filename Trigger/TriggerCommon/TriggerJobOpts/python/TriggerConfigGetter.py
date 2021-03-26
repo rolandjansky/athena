@@ -242,16 +242,6 @@ class TriggerConfigGetter(Configured):
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
-            else: # Does not have xAODMeta
-                # Run-3 Trigger Configuration Services
-                from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
-                svcMgr += getL1ConfigSvc(ConfigFlags)
-                svcMgr += getHLTConfigSvc(ConfigFlags)
-
-                # Needed for TrigConf::xAODMenuWriterMT
-                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-                svcMgr += TrigConfigSvc("TrigConfigSvc")
-                svcMgr.TrigConfigSvc.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON and ConfigFlags.Trigger.triggerMenuSetup != "Physics_pp_v7_primaries"
 
         else:
             # non-MT (Run-2) Trigger Configuration
@@ -429,8 +419,8 @@ class TriggerConfigGetter(Configured):
 
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
-        writeTriggerMenu = True
-        writeMenuJSON = False
+        writeTriggerMenu = False # Run2 offline xAOD metadata summary format. Writing of this now is deprecated. Reading supported still.
+        writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.EDMVersion <= 2:
             if ConfigFlags.Trigger.doEDMVersionConversion:
@@ -457,30 +447,19 @@ class TriggerConfigGetter(Configured):
 
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
-                menuwriter.IsHLTJSONConfig = True
-                menuwriter.IsL1JSONConfig = True
-                menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-                menuwriter.WritexAODTriggerMenuJson = True
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-                menuwriter.LVL1ConfigSvc = l1ConfigSvc
-                menuwriter.HLTConfigSvc = hltConfigSvc
-                writeTriggerMenu = menuwriter.WritexAODTriggerMenu
-                writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
+                writeMenuJSON = True
                 topAlgs += menuwriter
             else:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
+                writeTriggerMenu = True
 
         else:
             from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
             menuwriter = TrigConf__xAODMenuWriterMT()
-            menuwriter.IsHLTJSONConfig = True
-            menuwriter.IsL1JSONConfig = ConfigFlags.Trigger.readLVL1FromJSON
-            menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-            menuwriter.WritexAODTriggerMenuJson = True
             menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-            writeTriggerMenu = menuwriter.WritexAODTriggerMenu
-            writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
+            writeMenuJSON = True
             topAlgs += menuwriter
             # Schedule also the prescale conditions algs
             from AthenaCommon.Configurable import Configurable
