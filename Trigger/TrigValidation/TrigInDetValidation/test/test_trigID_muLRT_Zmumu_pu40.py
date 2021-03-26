@@ -28,7 +28,7 @@
 
 
 Slices  = ['L2muonLRT']
-LRT     = True
+Extra   = ' -c "LRT=True" ' 
 Events  = 8000 
 Threads = 8 
 Slots   = 8
