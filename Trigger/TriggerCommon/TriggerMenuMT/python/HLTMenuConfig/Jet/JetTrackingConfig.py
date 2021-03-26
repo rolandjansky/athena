@@ -24,8 +24,11 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=RoIs)
         jetTrkSeq += viewAlgs
         tracksname =  IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
-        verticesname = recordable("HLT_IDVertex_FS")
+        if IDTrigConfig.vertex is not None: 
+            verticesname = recordable(IDTrigConfig.vertex)
 
+    # hmmm, why is all this vertex stuff being set up if the vertex collection has not been 
+    # set ? This should be fixed
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
     vtxAlgs = makeVertices( "jet", tracksname, verticesname, IDTrigConfig )
     prmVtx = vtxAlgs[-1]

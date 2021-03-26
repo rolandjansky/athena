@@ -227,6 +227,10 @@ def getFilterCut(recoAlg):
 # the calibration config helper
 def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+    config = getInDetTrigConfig( 'jet' )
+
     # Minimum modifier set for calibration w/o track GSC
     # Should eventually build in more mods, depend on track info etc
     jetalg = jetRecoDict["recoAlg"]
@@ -255,7 +259,8 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = "HLT_IDVertex_FS"
+                # pvname = "HLT_IDVertex_FS"
+                pvname = config.vertex
 
         elif jetRecoDict["constitType"] == "pf":
             gscDepth = "auto"
@@ -269,7 +274,8 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                   ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
                   ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-            pvname = "HLT_IDVertex_FS"
+            # pvname = "HLT_IDVertex_FS"
+            pvname = config.vertex
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
             calibSeq += "_Insitu"
