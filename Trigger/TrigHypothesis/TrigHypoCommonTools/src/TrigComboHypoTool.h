@@ -46,14 +46,16 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
   // flags
   Gaudi::Property< bool >      m_acceptAll {this, "AcceptAll", false, "Ignore selection"  };
   Gaudi::Property<std::string> m_varTag    {this, "Variable" ,    "", "Variable to cut on"};
+  Gaudi::Property< bool >      m_useMin    {this, "UseMin"   , false, "Apply min_cut"     };
+  Gaudi::Property< bool >      m_useMax    {this, "UseMax"   , false, "Apply max_cut"     };
 
   //legs
   Gaudi::Property<int>         m_legA      {this, "LegA"     ,    -1, "First Leg"};
   Gaudi::Property<int>         m_legB      {this, "LegB"     ,    -1, "Second Leg"};
 
   // cuts
-  Gaudi::Property<float> m_varMin {this,"LowerCut",  0.3, "Lower cut for legs pair"};
-  Gaudi::Property<float> m_varMax {this,"UpperCut", 10.0, "Upper cut for legs pair"};
+  Gaudi::Property<float> m_varMin {this,"LowerCut", -9999., "Lower cut for legs pair"};
+  Gaudi::Property<float> m_varMax {this,"UpperCut", -9999., "Upper cut for legs pair"};
   
   // monitoring
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
