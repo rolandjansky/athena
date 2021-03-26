@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS051V07,S0S052V06 
 #include "TrigT1TGC/TGCWireTripletSB.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
 #include <iostream>
 #include <cstdlib>
 
 namespace LVL1TGCTrigger {
 
-TGCWireTripletSB::TGCWireTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
+TGCWireTripletSB::TGCWireTripletSB()
+ : TGCSlaveBoard()
 {}
 
 void TGCWireTripletSB::createSlaveBoardOut()
@@ -18,29 +20,25 @@ void TGCWireTripletSB::createSlaveBoardOut()
     if ( m_slaveBoardOut != 0 ) delete m_slaveBoardOut;
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
     m_slaveBoardOut->clear();
-    m_slaveBoardOut->setNumberOfData(NumberOfWireTripletSBData);
+    m_slaveBoardOut->setNumberOfData(s_NumberOfWireTripletSBData);
 
     // fill SlaveBoardOut.
     // select largest R hit in each sections.
-    int lengthOfSection = (m_coincidenceOut->getLength()-2*NChAdjInWTSB)/NumberOfWireTripletSBData;
+    int lengthOfSection = (m_coincidenceOut->getLength() - 2*s_NChAdjInWTSB)/s_NumberOfWireTripletSBData;
     int i,j;
-    for( i=0; i<NumberOfWireTripletSBData; i+=1){ // i=0:a 1:b 2:c
+    for( i=0; i<s_NumberOfWireTripletSBData; i+=1){ // i=0:a 1:b 2:c
       m_slaveBoardOut->setPos(i,-1);
       m_slaveBoardOut->setPos(i,0);
       m_slaveBoardOut->setHit(i,false);
       for( j=0; j<lengthOfSection; j+=1) {
-        if(m_coincidenceOut->getChannel(NChAdjInWTSB+j+i*lengthOfSection)){
+        if(m_coincidenceOut->getChannel(s_NChAdjInWTSB + j + i*lengthOfSection)){
           m_slaveBoardOut->setPos(i,j);
           m_slaveBoardOut->setHit(i,true);
           break;
         }
       }
       if(m_slaveBoardOut->getHit(i)){
-          m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
-#ifdef TGCCOUT
-          m_slaveBoardOut->getbPos(i)->printb();
-	  std::cout << " " << i << std::endl;
-#endif
+        m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
       }
     }
   }
@@ -60,7 +58,7 @@ void TGCWireTripletSB::doCoincidence()
     int unitLength=length/2;
     int totalLength=3*unitLength;
 
-    m_lengthOfCoincidenceOut = LengthOfWTSBCoincidenceOut;
+    m_lengthOfCoincidenceOut = s_LengthOfWTSBCoincidenceOut;
     if( m_coincidenceOut!=0 ) delete m_coincidenceOut;
     m_coincidenceOut = new TGCHitPattern(m_lengthOfCoincidenceOut);
 

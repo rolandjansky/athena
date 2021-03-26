@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCConnectionSBToHPB.cxx,v 1.3 2009-03-15 18:07:55 isaya Exp $
 #include "TrigT1TGC/TGCConnectionSBToHPB.h"
 #include "TrigT1TGC/TGCBoardConnection.h"
 
 namespace LVL1TGCTrigger {
-
 
 TGCConnectionSBToHPB::~TGCConnectionSBToHPB()
 {

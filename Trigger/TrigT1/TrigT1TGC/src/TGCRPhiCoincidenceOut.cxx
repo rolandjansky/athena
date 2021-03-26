@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-//$Id: TGCRPhiCoincidenceOut.cxx,v 1.3 2003-12-13 16:01:32 mishino Exp $
 #include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 #include <iostream>
 #include <assert.h>

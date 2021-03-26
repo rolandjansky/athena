@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCTimingManager.h,v 1.1.1.10 2003-11-03 10:18:18 mishino Exp $
 #ifndef TGCTimingManager_hh
 #define TGCTimingManager_hh
 
@@ -14,9 +13,9 @@ namespace LVL1TGCTrigger {
 class TGCSector;
 class TGCDatabaseManager;
 
-class TGCTimingManager {
-
-public:
+class TGCTimingManager
+{
+ public:
   TGCTimingManager (const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
   ~TGCTimingManager() = default;
 
@@ -24,13 +23,12 @@ public:
   void startSlaveBoard(TGCSector* sector);
   void startHighPtBoard(TGCSector* sector);
   void startSectorLogic(TGCSector* sector);
-//  void startSectorLogic(TGCSector* sector,double eta);//for test
 
   void setBunchCounter(int bc){ m_bunchCounter = bc;};
   int getBunchCounter(){ return m_bunchCounter; }
   void increaseBunchCounter(){ m_bunchCounter++;};
 
-private:
+ private:
   int m_bunchCounter;
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };

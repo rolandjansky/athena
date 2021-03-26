@@ -15,10 +15,10 @@ TGCSLSelectorOut* TGCSLSelector::select(TGCSLPreSelectorOut* PSOut,
 {
   int pt,i,j,nCan=0;
   int ptStart=NumberOfPtLevel;
-  for( i=0;(i<NumberOfPtLevel)&&(nCan<NCandidateInSLSelector); i+=1){
+  for( i=0;(i<NumberOfPtLevel)&&(nCan<TGCSLSelectorOut::s_NCandidateInSLSelector); i+=1){
     pt=ptStart-i;
-    for( j=0;(j<NCandidateInSLPreSelector)&&
-	   (nCan<NCandidateInSLSelector); j+=1) {
+    for( j=0;(j<TGCSLPreSelectorOut::NCandidateInSLPreSelector)&&
+	   (nCan<TGCSLSelectorOut::s_NCandidateInSLSelector); j+=1) {
 
       if(PSOut->getHit(pt,j)){
 	out->setPtLevel(nCan,pt);

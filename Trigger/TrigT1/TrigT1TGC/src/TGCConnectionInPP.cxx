@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCConnectionInPP.cxx,v 1.4 2009-03-20 17:48:53 isaya Exp $
 #include "TrigT1TGC/TGCConnectionInPP.h"
 #include "TrigT1TGC/TGCPatchPanel.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"

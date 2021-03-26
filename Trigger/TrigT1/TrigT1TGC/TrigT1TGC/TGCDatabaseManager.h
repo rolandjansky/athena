@@ -80,7 +80,7 @@ class TGCDatabaseManager : public AthMessaging
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> m_tileMuLUT;
   std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
-  TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
+  TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][TGCSector::NumberOfPatchPanelType][TotalNumForwardBackwardType];
   std::shared_ptr<TGCGoodMF> m_mapGoodMF;
 
   std::shared_ptr<LVL1TGC::Run2TileMuCoincidenceMap> m_mapRun2TileMu;

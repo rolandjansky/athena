@@ -18,7 +18,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <iomanip>
 
 namespace LVL1TGCTrigger {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCElectronicsSystem_hh
@@ -24,8 +24,9 @@ class TGCSector;
 class TGCTMDB;
 class TGCNSW;
 
-class TGCElectronicsSystem {
-public:
+class TGCElectronicsSystem
+{
+ public:
   void distributeSignal(TGCEvent* event);
   int getNumberOfSide() const { return NumberOfSide;};
   int getNumberOfSector() const { return NumberOfOctant*NumberOfModule;};
@@ -44,19 +45,19 @@ public:
   const TGCTMDB* getTMDB() const {return m_tmdb;}
   std::shared_ptr<TGCNSW>  getNSW() const {return m_nsw;}
 
-  TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database, bool isAtlas=true);
+  TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database);
   ~TGCElectronicsSystem();
 
   TGCArguments* tgcArgs() { return m_tgcArgs;}
   const TGCArguments* tgcArgs() const { return m_tgcArgs;}
   
-private:
+ private:
   // hide default/copy constructor and assignment operator
-  TGCElectronicsSystem( TGCArguments* );
+  TGCElectronicsSystem();
   TGCElectronicsSystem(const TGCElectronicsSystem& right);
   TGCElectronicsSystem& operator=(const TGCElectronicsSystem& right);
 
-private:
+ private:
   TGCDatabaseManager* m_DB;
   TGCSector* m_sector[NumberOfSide][NumberOfOctant][NumberOfModule];
   TGCTMDB*   m_tmdb;

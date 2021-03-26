@@ -157,7 +157,7 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
       m_matrix.clear();
       m_matrix.setSSCId(SSCid);
       m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
-      for(phiposInSSC = 0 ;phiposInSSC < MaxNumberOfPhiInSSC; phiposInSSC++){
+      for(phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC)){
           m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC),
                           SSCCOut->getDPhi(SSCid,phiposInSSC),
@@ -171,7 +171,7 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
       m_matrix.clear();
       m_matrix.setSSCId(SSCid);
       m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
-      for(phiposInSSC = 0 ;phiposInSSC < MaxNumberOfPhiInSSC; phiposInSSC++){
+      for(phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC, true)){
           m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC,true),
                           SSCCOut->getDPhi(SSCid,phiposInSSC,true),

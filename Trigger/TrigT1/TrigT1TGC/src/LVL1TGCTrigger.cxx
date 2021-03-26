@@ -18,6 +18,7 @@
 #include "TrigT1TGC/TGCTimingManager.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
 #include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
@@ -770,7 +771,7 @@ namespace LVL1TGCTrigger {
 
         // loop over chip and candidate
         for(int ichip=0; ichip<NumberOfChip; ichip++) { // NumberOfChip=2
-          for(int icand=0; icand<NHitInTrackSelector; icand++) { // NHitInTrackSelector=2
+          for(int icand=0; icand<TGCHighPtChipOut::s_NHitInTrackSelector; icand++) {
             if (!out->getSel(ichip, icand)) continue; // should be 1 or 2
             int chip  = ichip;
             int index = ihpb;

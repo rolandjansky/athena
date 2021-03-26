@@ -11,7 +11,7 @@ TGCSlaveBoardOut::TGCSlaveBoardOut(const TGCSlaveBoard* sb, int bidIn)
   :m_origin(sb), m_bid(bidIn), m_orgBoardType(-1), m_orgSBid(-1),
    m_numberOfData(0)
 {
-  for(int i=0; i<MaxNumberOfSBData; i++) {
+  for(int i=0; i<s_MaxNumberOfSBData; i++) {
     m_bpos[i]=0;
     m_dev[i] =0;
     m_pos[i] =0;
@@ -37,7 +37,7 @@ TGCSlaveBoardOut::TGCSlaveBoardOut(const TGCSlaveBoard* sb, int bidIn)
 TGCSlaveBoardOut& TGCSlaveBoardOut::operator=(const TGCSlaveBoardOut& right)
 {
   if (this != &right){
-    for(int i=0; i<MaxNumberOfSBData; i++) {
+    for(int i=0; i<s_MaxNumberOfSBData; i++) {
       delete m_bpos[i];
       m_bpos[i]=0;
       m_dev[i] =0;
@@ -77,7 +77,7 @@ TGCSlaveBoardOut::TGCSlaveBoardOut(const TGCSlaveBoardOut& right)
    m_orgBoardType(-1), m_orgSBid(-1),
    m_numberOfData(right.m_numberOfData)
 {
-  for(int i=0; i<MaxNumberOfSBData; i++) {
+  for(int i=0; i<s_MaxNumberOfSBData; i++) {
     m_bpos[i]=0;
     m_dev[i] =0;
     m_pos[i] =0;
@@ -108,7 +108,7 @@ TGCSlaveBoardOut::TGCSlaveBoardOut()
    m_orgBoardType(-1), m_orgSBid(-1),
    m_numberOfData(0)
 {
-  for(int i=0; i<MaxNumberOfSBData; i++) {
+  for(int i=0; i<s_MaxNumberOfSBData; i++) {
     m_bpos[i]=0;
     m_dev[i] =0;
     m_pos[i] =0;
@@ -170,7 +170,7 @@ void TGCSlaveBoardOut::setbDev(int block, int sign, int dr)
 
 void TGCSlaveBoardOut::setPos(int iData, int posIn)
 {
-  if (MaxNumberOfSBData <= iData) {
+  if (s_MaxNumberOfSBData <= iData) {
      std::cerr << "internal error TGCSlaveBoardOut::setPos()" << std::endl;
   } else {
     m_pos[iData] = posIn;
@@ -182,7 +182,7 @@ void TGCSlaveBoardOut::clear()
 {
   int i;
   m_numberOfData=0;
-  for( i=0; i<MaxNumberOfSBData; i+=1)
+  for( i=0; i<s_MaxNumberOfSBData; i+=1)
     {
       m_hit[i]=false;
       m_pos[i]=-1;

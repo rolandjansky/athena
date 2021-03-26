@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCConnectionInPP.h,v 1.1.1.10 2003-11-03 10:18:17 mishino Exp $
 //  Table of connection between input channel and output channel
 // of PatchPanel.
 #ifndef TGCConnectionInPP_hh

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCEvent.h"
 
 #include <iostream>
 #include <vector>
@@ -32,11 +33,11 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
   
 }
 
-TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
-  :m_DB(0),
+TGCElectronicsSystem::TGCElectronicsSystem()
+ : m_DB(0),
    m_tmdb(0),
    m_nsw(0),
-   m_tgcArgs(tgcargs)
+   m_tgcArgs(nullptr)
 {
   for(int side=0; side < NumberOfSide; side++){
     for(int oct=0; oct < NumberOfOctant; oct++){
@@ -46,17 +47,15 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
     } // loop octant
   } //loop side
 
-
 }
 
-  TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
-					     TGCDatabaseManager* database,
-					     bool                ):
-  m_DB(database),
-  m_tmdb(0),
-  m_nsw(0),
-  m_tgcArgs(tgcargs)
-{ 
+TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
+					   TGCDatabaseManager* database)
+ : m_DB(database),
+   m_tmdb(0),
+   m_nsw(0),
+   m_tgcArgs(tgcargs)
+{
   // TileMu
   m_tmdb = new TGCTMDB();
 
