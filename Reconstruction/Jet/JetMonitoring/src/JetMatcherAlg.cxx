@@ -9,9 +9,9 @@
 
 JetMatcherAlg::JetMatcherAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthReentrantAlgorithm(name,pSvcLocator)
 {
-  declareProperty("JetContainerName1",m_jetContainerKey1="NONE");
-  declareProperty("JetContainerName2",m_jetContainerKey2="NONE");
-  declareProperty("JetCalibScale",    m_calibScale="");
+  declareProperty("JetContainerName1"  ,m_jetContainerKey1="NONE");
+  declareProperty("L1JetContainerName1",m_l1jetContainerKey1="NONE");
+  declareProperty("JetContainerName2"  ,m_jetContainerKey2="NONE");
 }
 
 //**********************************************************************
@@ -21,29 +21,82 @@ StatusCode JetMatcherAlg::initialize() {
   ATH_MSG_INFO(" Initializing " << name());
 
   ATH_CHECK( m_jetContainerKey1.initialize() );
+  ATH_CHECK( m_l1jetContainerKey1.initialize() );
   ATH_CHECK( m_jetContainerKey2.initialize() );
 
-  std::string keyAppendix = m_jetContainerKey2.key();
-  if (m_calibScale != "") keyAppendix = m_calibScale + "_" + m_jetContainerKey2.key();
-  m_ptDiffKey = m_jetContainerKey1.key()+".ptdiff_" + keyAppendix;
-  ATH_CHECK( m_ptDiffKey.initialize() );
-  m_energyDiffKey = m_jetContainerKey1.key()+".energydiff_" + keyAppendix;
-  ATH_CHECK( m_energyDiffKey.initialize() );
-  m_massDiffKey = m_jetContainerKey1.key()+".massdiff_" + keyAppendix;
-  ATH_CHECK( m_massDiffKey.initialize() );
-  m_ptRespKey = m_jetContainerKey1.key()+".ptresp_" + keyAppendix;
-  ATH_CHECK( m_ptRespKey.initialize() );
-  m_energyRespKey = m_jetContainerKey1.key()+".energyresp_" + keyAppendix;
-  ATH_CHECK( m_energyRespKey.initialize() );
-  m_massRespKey = m_jetContainerKey1.key()+".massresp_" + keyAppendix;
-  ATH_CHECK( m_massRespKey.initialize() );
-  m_ptRefKey = m_jetContainerKey1.key()+".ptRef_" + keyAppendix;
-  ATH_CHECK( m_ptRefKey.initialize() );
-  m_etaRefKey = m_jetContainerKey1.key()+".etaRef_" + keyAppendix;
-  ATH_CHECK( m_etaRefKey.initialize() );
-  m_matchedKey = m_jetContainerKey1.key()+".matched_" + keyAppendix;
-  ATH_CHECK( m_matchedKey.initialize() );
-  
+  if (m_jetContainerKey1.key() != "NONE" && m_l1jetContainerKey1.key() != "NONE") {
+    ATH_MSG_ERROR(" Both JetContainerKey1 and L1JetContainerKey1 were set, but we can only use one of them for jet matching. Fix your settings!");
+    return StatusCode::FAILURE;
+  }
+
+  std::string prepend, keyAppendix = m_jetContainerKey2.key();
+  if (!m_matchL1) {
+    if (m_calibScale != "") keyAppendix = m_calibScale + "_" + m_jetContainerKey2.key();
+    prepend = m_jetContainerKey1.key();
+    
+    m_ptDiffKey = prepend+".ptdiff_" + keyAppendix;
+    m_energyDiffKey = prepend+".energydiff_" + keyAppendix;
+    m_massDiffKey = prepend+".massdiff_" + keyAppendix;
+    m_ptRespKey = prepend+".ptresp_" + keyAppendix;
+    m_energyRespKey = prepend+".energyresp_" + keyAppendix;
+    m_massRespKey = prepend+".massresp_" + keyAppendix;
+    m_ptRefKey = prepend+".ptRef_" + keyAppendix;
+    m_etaRefKey = prepend+".etaRef_" + keyAppendix;
+    m_matchedKey = prepend+".matched_" + keyAppendix;
+
+    ATH_CHECK( m_ptDiffKey.initialize() );
+    ATH_CHECK( m_energyDiffKey.initialize() );
+    ATH_CHECK( m_massDiffKey.initialize() );
+    ATH_CHECK( m_ptRespKey.initialize() );
+    ATH_CHECK( m_energyRespKey.initialize() );
+    ATH_CHECK( m_massRespKey.initialize() );
+    ATH_CHECK( m_ptRefKey.initialize() );
+    ATH_CHECK( m_etaRefKey.initialize() );
+    ATH_CHECK( m_matchedKey.initialize() );
+
+    m_jetVarHandleKeys.push_back(m_ptDiffKey);
+    m_jetVarHandleKeys.push_back(m_energyDiffKey);
+    m_jetVarHandleKeys.push_back(m_massDiffKey);
+    m_jetVarHandleKeys.push_back(m_ptRespKey);
+    m_jetVarHandleKeys.push_back(m_energyRespKey);
+    m_jetVarHandleKeys.push_back(m_massRespKey);
+    m_jetVarHandleKeys.push_back(m_ptRefKey);
+    m_jetVarHandleKeys.push_back(m_etaRefKey);
+
+  } else {
+    prepend = m_l1jetContainerKey1.key();
+
+    m_l1ptDiffKey = prepend+".ptdiff_" + keyAppendix;
+    m_l1energyDiffKey = prepend+".energydiff_" + keyAppendix;
+    m_l1massDiffKey = prepend+".massdiff_" + keyAppendix;
+    m_l1ptRespKey = prepend+".ptresp_" + keyAppendix;
+    m_l1energyRespKey = prepend+".energyresp_" + keyAppendix;
+    m_l1massRespKey = prepend+".massresp_" + keyAppendix;
+    m_l1ptRefKey = prepend+".ptRef_" + keyAppendix;
+    m_l1etaRefKey = prepend+".etaRef_" + keyAppendix;
+    m_l1matchedKey = prepend+".matched_" + keyAppendix;
+
+    ATH_CHECK( m_l1ptDiffKey.initialize() );
+    ATH_CHECK( m_l1energyDiffKey.initialize() );
+    ATH_CHECK( m_l1massDiffKey.initialize() );
+    ATH_CHECK( m_l1ptRespKey.initialize() );
+    ATH_CHECK( m_l1energyRespKey.initialize() );
+    ATH_CHECK( m_l1massRespKey.initialize() );
+    ATH_CHECK( m_l1ptRefKey.initialize() );
+    ATH_CHECK( m_l1etaRefKey.initialize() );
+    ATH_CHECK( m_l1matchedKey.initialize() );
+
+    m_l1JetVarHandleKeys.push_back(m_l1ptDiffKey);
+    m_l1JetVarHandleKeys.push_back(m_l1energyDiffKey);
+    m_l1JetVarHandleKeys.push_back(m_l1massDiffKey);
+    m_l1JetVarHandleKeys.push_back(m_l1ptRespKey);
+    m_l1JetVarHandleKeys.push_back(m_l1energyRespKey);
+    m_l1JetVarHandleKeys.push_back(m_l1massRespKey);
+    m_l1JetVarHandleKeys.push_back(m_l1ptRefKey);
+    m_l1JetVarHandleKeys.push_back(m_l1etaRefKey);
+
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -56,57 +109,61 @@ StatusCode JetMatcherAlg::finalize() {
 
 //**********************************************************************
 
-StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
+TLorentzVector JetMatcherAlg::GetTLV(const xAOD::Jet* jet) const {
 
-  // Retrieve jet containers
-  SG::ReadHandle<xAOD::JetContainer> jets1(m_jetContainerKey1, ctx);
-  if (!jets1.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey1);
-    return StatusCode::FAILURE;
+  TLorentzVector tlv = TLorentzVector(0.,0.,0.,0.);
+  if (m_calibScale == "" ) {
+    tlv.SetPtEtaPhiE(jet->pt(),jet->eta(),jet->phi(),jet->e());
+  } else { //retrieve fourmomentum at specified calibration scale
+    xAOD::JetFourMom_t fourVec;
+    bool status = jet->getAttribute<xAOD::JetFourMom_t>( "Jet"+m_calibScale+"Momentum", fourVec );
+    if(!status) {
+      ATH_MSG_ERROR("evtStore() cannot retrieve JetFourMomentum at " << m_calibScale);
+      return tlv;
+    }
+    tlv.SetPtEtaPhiE(fourVec.Pt(),fourVec.Eta(),fourVec.Phi(),fourVec.E());
   }
-  SG::ReadHandle<xAOD::JetContainer> jets2(m_jetContainerKey2, ctx);
-  if (!jets2.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey2);
-    return StatusCode::FAILURE;
-  }
+  return tlv;
+}
 
-  SG::WriteDecorHandle<xAOD::JetContainer, double> ptDiffHandle(m_ptDiffKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> energyDiffHandle(m_energyDiffKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> massDiffHandle(m_massDiffKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> ptRespHandle(m_ptRespKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> energyRespHandle(m_energyRespKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> massRespHandle(m_massRespKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> ptRefHandle(m_ptRefKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> etaRefHandle(m_etaRefKey, ctx);
-  SG::WriteDecorHandle<xAOD::JetContainer, char> matchedHandle(m_matchedKey, ctx);
+TLorentzVector JetMatcherAlg::GetTLV(const xAOD::JetRoI* jet) const {
 
+  TLorentzVector tlv = TLorentzVector(0.,0.,0.,0.);
+  tlv.SetPtEtaPhiM(jet->et8x8(),jet->eta(),jet->phi(),0.);
+  return tlv;
+}
+
+//**********************************************************************
+
+template <typename T>
+void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1, SG::ReadHandle<xAOD::JetContainer> jets2, SG::WriteDecorHandleKey<DataVector<T>> matchedHandleKey, std::vector<SG::WriteDecorHandleKey<DataVector<T>>> varHandleKeys, const EventContext& ctx) const{
+
+  SG::WriteDecorHandle<DataVector<T>, double> ptDiffHandle(varHandleKeys[0], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> energyDiffHandle(varHandleKeys[1], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> massDiffHandle(varHandleKeys[2], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> ptRespHandle(varHandleKeys[3], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> energyRespHandle(varHandleKeys[4], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> massRespHandle(varHandleKeys[5], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> ptRefHandle(varHandleKeys[6], ctx);
+  SG::WriteDecorHandle<DataVector<T>, double> etaRefHandle(varHandleKeys[7], ctx);
+  SG::WriteDecorHandle<DataVector<T>, char> matchedHandle(matchedHandleKey, ctx);
 
   std::vector<int> matchedIndices; //remembers which jets in jets2 are already matched, so they are not considered in future matching
   // Loop over first jet collection
-  for(const xAOD::Jet* j1 : *jets1){
+  for (const T *j1 : *jets1) {
+    TLorentzVector tlvjet1 = GetTLV(j1);
     bool j1matched = false;
     double ptDiff  = 0., energyDiff = 0., massDiff = 0., ptResp = 0., energyResp = 0., massResp = 0., ptRef = 0., etaRef = 0.;
-    auto tlvjet1 = TLorentzVector();
-    if (m_calibScale == "" ) tlvjet1.SetPtEtaPhiE(j1->pt(),j1->eta(),j1->phi(),j1->e());
-    else { //retrieve fourmomentum at specified calibration scale
-      xAOD::JetFourMom_t fourVec;
-      bool status = j1->getAttribute<xAOD::JetFourMom_t>( "Jet"+m_calibScale+"Momentum", fourVec );
-      if(!status) {
-        ATH_MSG_ERROR("evtStore() cannot retrieve JetFourMomentum at " << m_calibScale);
-        return StatusCode::FAILURE;
-      }
-      tlvjet1.SetPtEtaPhiE(fourVec.Pt(),fourVec.Eta(),fourVec.Phi(),fourVec.E());
-    }
-    // Loop over second jet collectoin
     double Rmin = 1E8;
     int jetIndex = 0, jetMatchIndex = 0;
+    // Loop over second jet collection
     for(const xAOD::Jet* j2 : *jets2){
       bool alreadymatched = false;
       for (int jetIndexIterator : matchedIndices) { //Loop over indices of already matched jets to skip them
         if (jetIndex == jetIndexIterator) { alreadymatched = true; break; }
       }
       if (alreadymatched) { jetIndex++; continue; }
-      auto tlvjet2 = TLorentzVector();
+      TLorentzVector tlvjet2 = TLorentzVector();
       tlvjet2.SetPtEtaPhiE(j2->pt(),j2->eta(),j2->phi(),j2->e());
       // calculate DeltaR(jet1,jet2)
       double dr = tlvjet1.DeltaR(tlvjet2);
@@ -135,7 +192,37 @@ StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
     ptRefHandle(*j1)      = ptRef;
     etaRefHandle(*j1)     = etaRef;
     if (j1matched) matchedIndices.push_back(jetMatchIndex);
-  }//End Loop over first jet collection
+  }
+  return;
+
+}
+
+//**********************************************************************
+
+
+StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
+
+  // Retrieve jet containers and call appropriate matching function
+  SG::ReadHandle<xAOD::JetContainer> jets2(m_jetContainerKey2, ctx);
+  if (!jets2.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey2);
+    return StatusCode::FAILURE;
+  }
+  if (!m_matchL1) { // perform jet matching for online/offline jets
+    SG::ReadHandle<xAOD::JetContainer> jets1(m_jetContainerKey1, ctx);
+    if (!jets1.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey1);
+      return StatusCode::FAILURE;
+    }
+    jetMatching(jets1, jets2, m_matchedKey, m_jetVarHandleKeys, ctx);
+  } else { // perform jet matching for L1 jets
+    SG::ReadHandle<xAOD::JetRoIContainer> jets1(m_l1jetContainerKey1, ctx);
+    if (!jets1.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_l1jetContainerKey1);
+      return StatusCode::FAILURE;
+    }
+    jetMatching(jets1, jets2, m_l1matchedKey, m_l1JetVarHandleKeys, ctx);
+  }
 
   return StatusCode::SUCCESS;
 

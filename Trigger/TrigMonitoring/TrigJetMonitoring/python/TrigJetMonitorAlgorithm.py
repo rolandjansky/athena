@@ -23,7 +23,10 @@ OfflineJetCollections = {
 # L1 jet collections and chains to monitor
 ###########################################
 
-L1JetCollections = ['LVL1JetRoIs']
+L1JetCollections = dict()
+L1JetCollections = {
+  'LVL1JetRoIs'  : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
+}
 Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J15'  : 'LVL1JetRoIs',
   'L1_J20'  : 'LVL1JetRoIs',
@@ -193,8 +196,8 @@ def TrigJetMonConfig(inputFlags):
   for hltColl,collDict in JetCollections[InputType].items():
     if collDict['MatchTo'] != 'NONE':
       for jetcalibscale in OnlineScaleMomenta:
-        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
-        name = 'Matching_{}_{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
+        scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
+        name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
         cfg.addEventAlgo(alg)
 
@@ -202,9 +205,17 @@ def TrigJetMonConfig(inputFlags):
   for offjetColl,collDict in OfflineJetCollections.items():
     if collDict['MatchTo'] != 'NONE':
       for jetcalibscale in OfflineScaleMomenta:
-        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
-        name = 'Matching_{}_{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
+        scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
+        name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
+        cfg.addEventAlgo(alg)
+
+  # Match L1 to offline as well as HLT jets
+  for l1jetColl,collDict in L1JetCollections.items():
+    for matchjetcoll in collDict['MatchTo']:
+      if matchjetcoll != 'NONE':
+        name = 'Matching_{}_{}'.format(l1jetColl,matchjetcoll)
+        alg = CompFactory.JetMatcherAlg(name, L1JetContainerName1=l1jetColl,JetContainerName2=matchjetcoll,MatchL1=True)
         cfg.addEventAlgo(alg)
 
   # The following class will make a sequence, configure algorithms, and link
@@ -214,7 +225,7 @@ def TrigJetMonConfig(inputFlags):
 
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:
-    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,'',True)
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
@@ -419,10 +430,10 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
 
    return conf
 
-def l1JetMonitoringConfig(inputFlags,jetcoll,chain=''):
+def l1JetMonitoringConfig(inputFlags,jetcoll,chain='',matched=False):
   from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
   name = jetcoll if chain=='' else jetcoll+'_'+chain
-  conf = L1JetMonAlg(name,jetcoll,chain)
+  conf = L1JetMonAlg(name,jetcoll,chain,matched,L1JetCollections[jetcoll]['MatchTo'][0],L1JetCollections[jetcoll]['MatchTo'][1])
   return conf
 
 def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJets=True):
@@ -684,8 +695,8 @@ if __name__=='__main__':
   for hltColl,collDict in JetCollections[InputType].items():
     if collDict['MatchTo'] != 'NONE':
       for jetcalibscale in OnlineScaleMomenta:
-        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
-        name = 'Matching_{}_{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
+        scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
+        name = 'Matching_{}{}_{}'.format(hltColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=hltColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
         cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
@@ -693,14 +704,22 @@ if __name__=='__main__':
   for offjetColl,collDict in OfflineJetCollections.items():
     if collDict['MatchTo'] != 'NONE':
       for jetcalibscale in OfflineScaleMomenta:
-        scalestring = jetcalibscale if jetcalibscale == "" else "_"+jetcalibscale
-        name = 'Matching_{}_{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
+        scalestring = "_"+jetcalibscale if jetcalibscale != "" else ""
+        name = 'Matching_{}{}_{}'.format(offjetColl,scalestring,collDict['MatchTo'])
         alg = CompFactory.JetMatcherAlg(name, JetContainerName1=offjetColl,JetContainerName2=collDict['MatchTo'],JetCalibScale=jetcalibscale)
-        cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
+        cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
 
+  # Match L1 to offline as well as HLT jets
+  for l1jetColl,collDict in L1JetCollections.items():
+    for matchjetcoll in collDict['MatchTo']:
+      if matchjetcoll != 'NONE':
+        name = 'Matching_{}_{}'.format(l1jetColl,matchjetcoll)
+        alg = CompFactory.JetMatcherAlg(name, L1JetContainerName1=l1jetColl,JetContainerName2=matchjetcoll,MatchL1=True)
+        cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm')
+  
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:
-    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,'',True)
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
