@@ -657,7 +657,7 @@ void ZmumuEvent::finalize()
 {
   m_xMuonID.finalize();
   
-  std::cout << " ** ZmumuEvent ** STATS -- " << std::endl
+  std::cout << " ** ZmumuEvent ** -- STATS -- " << std::endl
 	    << "    Analyzed events           : " << m_analyzedEventCount << std::endl
 	    << "    Tested muons              : " << m_testedMuonCount << std::endl
 	    << "    Accepted muons            : " << m_acceptedMuonCount << std::endl

@@ -190,6 +190,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_positive_d0{};
   double m_positive_z0_err{};
   double m_positive_d0_err{};
+  double m_positive_sigma_qOverP{};
   double m_positive_z0_PV{};
   double m_positive_d0_PV{};
   double m_positive_z0_PVerr{};
@@ -217,6 +218,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_d0{};
   double m_negative_z0_err{};
   double m_negative_d0_err{};
+  double m_negative_sigma_qOverP{};
   double m_negative_z0_PV{};
   double m_negative_d0_PV{};
   double m_negative_z0_PVerr{};

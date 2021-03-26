@@ -8,7 +8,7 @@ import socket # find hostname with socket.gethostname()
 print (' == runzmumu == START == TestArea = %s' %os.getenv("TestArea"))
 ###############################
 # MC
-MC_bool = False
+MC_bool = True
 
 # user defined ID alignment constants
 inputConstantsFile = "NONE"
@@ -20,7 +20,7 @@ userAlignTags = False
 useIDADynamicFolders = True
 if (MC_bool): useIDADynamicFolders = False # dynamic folders must be disabled in MC
 
-EvtMax = 1000 # -1 all events
+EvtMax = 10 # -1 all events
 SkipEvents = 0
 
 #fill Alignment monitoring
@@ -116,6 +116,12 @@ if ("default" not in conditionsTag):
     globalflags.ConditionsTag.set_Value_and_Lock(conditionsTag)
     globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2016-01-00-01")
 
+# Find out if input is DRAW
+inputIsDRAW = False
+if any ("DRAW" in infiles for infiles in ConfigFlags.Input.Files):
+    inputIsDRAW = True
+    print (' == runzmumu == input is DRAW ')
+
 ##########################
 # athena recognizes if input file is data or mc. 
 # However from 22.0.30 when using data and trying to change alignment tags as soon as one tries:
@@ -135,16 +141,23 @@ rec.AutoConfiguration=['everything']
 rec.doInDet.set_Value_and_Lock(True)
 rec.doPerfMon.set_Value_and_Lock(False)
 #
+rec.doBTagging.set_Value_and_Lock(False)
+rec.doZdc.set_Value_and_Lock(False)
+rec.doLucid.set_Value_and_Lock(False)
 rec.doTile.set_Value_and_Lock(False)
 rec.doLArg.set_Value_and_Lock(False)
 rec.doCalo.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
 rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
-rec.doJetMissingETTag.set_Value_and_Lock(False)
-rec.doTrigger.set_Value_and_Lock(False)
-# extras
-rec.doTruth.set_Value_and_Lock(False)
+
+if (inputIsDRAW):
+    # These are not needed for our purposes and can cause athena crash when running over DRAW
+    print (" == runzmumu == switching off R3LargeD0 and TrackSegmentsDisappearing")
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doR3LargeD0 = False
+    InDetFlags.doTrackSegmentsDisappearing = False
+
 
 #
 # use dynamic alignment folders?
@@ -157,6 +170,7 @@ include("RecExCond/RecExCommon_DetFlags.py") # include("RecExCond/RecExCommon_fl
 DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOn()
+
 #
 if ('21.' in os.getenv("Athena_VERSION") ):
     print (' == runzmumu == including InDetRecExample/InDetRecConditionsAccess.py')
@@ -175,7 +189,7 @@ if ("NONE" not in inputConstantsFile or userAlignTags):
 
     print (' == runzmumu == use this set of alignment constants on RD')
     if (userAlignTags):
-        if (True):
+        if (False):
             print (' == runzmumu == setting userAlignTags == 2018_ReAlign_Initial ')
             conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
             conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
@@ -184,7 +198,7 @@ if ("NONE" not in inputConstantsFile or userAlignTags):
             conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
             conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
             conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2-R2dynamic_2018_ReAlign_Initial")
-        if (False):
+        if (True):
             print (' == runzmumu == setting userAlignTags == Run2_Legacy_looser')
             conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID_Run2_Legacy_looser")
             conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX_Run2_Legacy_looser")
@@ -229,16 +243,33 @@ if ("NONE" not in inputConstantsFile or userAlignTags):
 else:
     print (' == runzmumu == setting user alignment constants or tags: NO user input')
 
-'''
-if not MC_bool:
-    print (' == runzmumu == setting TRT Status HT (rel22) ==  ')
-    from IOVDbSvc.CondDB import conddb
+##################################
+if (inputIsDRAW):
+    print (' == runzmumu == setting /TRT/Onl/Cond/StatusHT')
+    try:
+        conddb
+    except NameError:
+        from IOVDbSvc.CondDB import conddb
+    else:
+        print (' == runzmumu == conddb already defined')
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
-'''
+else:
+    print (' == runzmumu == no need of /TRT/Onl/Cond/StatusHT')
 
+##################################
 # main jobOptions
 include("RecExCommon/RecExCommon_topOptions.py")
 
+#
+if ('22.' in os.getenv("Athena_VERSION") and inputIsDRAW):
+    ToolSvc.InDetAmbiTrackSelectionTool.doEmCaloSeed  = False
+
+if ('22.' in os.getenv("Athena_VERSION") and inputIsDRAW and False):
+    print (' == runzmumu == include("MuonConfig.py")')
+    include("MuonConfig.py") # test
+    #include("MuonRecExample/MuonRec_topOptions.py")
+
+#
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = False
 
@@ -253,12 +284,12 @@ ToolSvc += m_TrackSelectorTool_TightPrimary
 print (m_TrackSelectorTool_TightPrimary)
 
 # track refitters
-print ('  ========= runzmumu == including ElectronEoverPTracking.py for defining track fitters')
+print ('  == runzmumu == including ElectronEoverPTracking.py for defining track fitters')
 include("InDetPerformanceMonitoring/ElectronEoverPTracking.py") 
 
 # track to vertex association
 if ('22.0' in os.getenv("Athena_VERSION")): 
-    print ("  ========= runzmumu == trakc to vertex association tool: defining working point ")
+    print ("  == runzmumu == track to vertex association tool: defining working point ")
     from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
     t2vatool = CP__TrackVertexAssociationTool(name = "TrackVertexAssociationTool",
                                               WorkingPoint="SV_Reject")
@@ -268,10 +299,10 @@ ServiceMgr.THistSvc.Output += ["ZmumuValidationUserSel DATAFILE='ZmumuValidation
 
 trackrefit1 = MuonRefitterTool
 if ('22.0' in os.getenv("Athena_VERSION")):
-    print ('  ========= runzmumu == Rel 22 --> trackrefit2 =  MuonRefitterToolIDSiOnly') 
+    print ('  == runzmumu == Rel 22 --> trackrefit2 =  MuonRefitterToolIDSiOnly') 
     trackrefit2 = MuonRefitterToolIDSiOnly
 else:
-    print ('  ========= runzmumu == Rel 21 --> trackrefit2 =  MuonRefitterTool2') 
+    print ('  == runzmumu == Rel 21 --> trackrefit2 =  MuonRefitterTool2') 
     trackrefit2 = MuonRefitterTool2
 
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
