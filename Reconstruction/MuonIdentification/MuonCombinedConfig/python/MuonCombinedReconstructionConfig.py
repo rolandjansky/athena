@@ -362,6 +362,13 @@ if __name__=="__main__":
 
     ConfigFlags.Output.ESDFileName=args.output
 
+    if args.debug:
+        from AthenaCommon.Debugging import DbgStage
+        if args.debug not in DbgStage.allowed_values:
+            raise ValueError("Unknown debug stage, allowed values {}".format
+                             (DbgStage.allowed_values))
+        ConfigFlags.Exec.DebugStage = args.debug
+
     ConfigFlags.lock()
 
     ConfigFlags.dump()
