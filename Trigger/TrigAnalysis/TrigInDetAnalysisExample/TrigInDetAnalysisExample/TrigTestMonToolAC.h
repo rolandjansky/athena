@@ -147,6 +147,7 @@ public:
   bool m_legacy;
 
   double m_fiducial_radius;
+
 };
 
 

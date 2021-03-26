@@ -95,6 +95,9 @@ if ( True ) :
     if LRT == True :
       TestMonTool.FiducialRadius = 500.
 
+  if 'ptmin' in dir(): 
+     TestMonTool.pTCutOffline = ptmin
+
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
   TestMonTool.ntupleChainNames += [

@@ -156,7 +156,7 @@ class TrigInDetReco(ExecStep):
 ##################################################
 
 class TrigInDetAna(ExecStep):
-    def __init__(self, name='TrigInDetAna', lrt=False):
+    def __init__(self, name='TrigInDetAna', extra=None):
         ExecStep.__init__(self, name )
         self.type = 'athena'
         self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
@@ -167,8 +167,8 @@ class TrigInDetAna(ExecStep):
         self.input = ''
         self.perfmon=False
         self.imf=False
-        if (lrt):
-            self.args = ' -c "LRT=True" '
+        if extra is not None:
+            self.args = extra
 
 ##################################################
 # Additional exec (athena) steps - RDO to CostMonitoring

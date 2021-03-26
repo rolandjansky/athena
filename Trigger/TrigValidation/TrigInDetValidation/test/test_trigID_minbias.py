@@ -31,6 +31,7 @@ Events  = 8000
 Threads = 8 
 Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
+Extra   = " -c 'ptmin=400' "
 
 Jobs = [ ( "Truth",       " TIDAdata-run3-minbias.dat                    -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]

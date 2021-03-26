@@ -28,13 +28,12 @@
 
 
 Slices  = ['FSLRT']
-LRT     = True
 Events  = 8000 
 Threads = 8 
 Slots   = 8
 Input   = 'RHadron'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles = False
-
+Extra   = ' -c "LRT=True" '
 
 Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root ", "Test_bin_lrt.dat" ),
          ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]

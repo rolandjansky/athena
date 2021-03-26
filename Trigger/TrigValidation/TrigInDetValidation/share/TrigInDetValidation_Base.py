@@ -107,10 +107,13 @@ if GridFiles:
 test = Test.Test()
 test.art_type = Art_type
 
-lrt_mode = False
-if 'LRT' in dir() :
-    lrt_mode = LRT
-aod_to_ntup = TrigInDetAna(lrt=lrt_mode)
+
+if 'Extra' not in locals() :
+    Extra = None
+
+aod_to_ntup = TrigInDetAna(extra=Extra)
+
+
 
 rdo_to_cost = TrigCostStep()
 
