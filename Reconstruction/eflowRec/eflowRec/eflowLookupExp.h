@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -21,24 +21,7 @@
 /** Lookup-table based exponential function to save CPU time, which is used by eflowCellIntegrator */
 class eflowLookupExp{
 public:
-  static eflowLookupExp* getInstance(int nExpBins = 50, int nExpSubBins = 1000){
-
-    //Creation of the unique_ptr is not thread-safe - therefore we get a mutex and pass it to a lock-guard
-    //The lock is released automatically when getInstance returns
-    //The mutex is static so that all threads check the status of the *same* mutex
-    static std::mutex mutex_instance;
-    std::lock_guard<std::mutex> lock(mutex_instance);
-
-    if ( !m_instance) {      
-      m_instance = std::make_unique<eflowLookupExp>(nExpBins, nExpSubBins);
-    } else {
-      /* Make sure the requested bin numbers are consistent with the existing instance */
-      if ( (m_instance->m_nExpBins != nExpBins) || (m_instance->m_nExpSubBins != nExpSubBins) ) {
-        throw std::runtime_error("eflowLookupExp: Instance with different bin numbers than existing requested!");
-      }
-    }
-    return m_instance.get();
-  }
+  static const eflowLookupExp* getInstance(int nExpBins = 50, int nExpSubBins = 1000);
 
   //private:
   eflowLookupExp(int nExpBins, int nExpSubBins) :
@@ -52,14 +35,11 @@ public:
     for (int iSub = 0; iSub <= nExpSubBins; ++iSub){
       m_subExp[iSub] = exp(-substep* iSub);
     }
-    //initialise to nullptr, in this explicit instance it wil never be used.
-    //Hence it will always be a nullptr
-    m_instance = nullptr;
   }
 public:
   ~eflowLookupExp(){ }
 
-  double evaluate(double x) {
+  double evaluate(double x) const {
     int iExpBin = (int) x;
     int iSubBin(((x-iExpBin)*m_nExpSubBins));
 
@@ -74,7 +54,6 @@ private:
   int m_nExpSubBins;
   std::vector<double> m_exp;
   std::vector<double> m_subExp;
-  static std::unique_ptr<eflowLookupExp> m_instance;
 };
 
 
