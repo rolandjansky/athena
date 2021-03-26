@@ -6,5 +6,6 @@
    <class name="asg::UnitTestTool3" />
    <class name="asg::UnitTestTool2" />
    <class name="asg::UnitTestTool1A" />
+   <class name="asg::UnitTestService1" />
    
 </lcgdict>

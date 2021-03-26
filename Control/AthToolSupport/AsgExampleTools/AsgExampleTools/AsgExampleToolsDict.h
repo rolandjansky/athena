@@ -11,5 +11,6 @@
 #include "AsgExampleTools/UnitTestTool3.h"
 #include "AsgExampleTools/UnitTestTool2.h"
 #include "AsgExampleTools/UnitTestTool1A.h"
+#include "AsgExampleTools/UnitTestService1.h"
 
 #endif // not ASGTOOLS_ASGTOOLSDICT_H
