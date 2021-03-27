@@ -2,11 +2,9 @@
 #
 # art-description: Reading single particle gen events, checking that the SkipEvents argument works, using 2015 geometry and conditions
 # art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
-# art-include: master/AthSimulation
 # art-type: grid
 # art-output: log.*
 # art-output: original.HITS.pool.root
@@ -55,28 +53,8 @@ ReSim_tf.py \
 
 echo "art-result: $? re-sim"
 
-Sim_tf.py \
---conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
---simulator 'FullG4_LongLived' \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
---postExec 'EVNTtoHITS:ServiceMgr.ISF_LongLivedInputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
---DataRunNumber '284500' \
---geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
---inputEVNTFile $INPUTHITSFILE \
---outputHITSFile "temp.HITS.pool.root" \
---maxEvents $MAXEVENTS \
---imf False
-
-echo "art-result: $? direct-sim"
-cp log.EVNTtoHITS log.EVNTtoHITS.direct
-
 ArtPackage=$1
 ArtJobName=$2
-# TODO This is a regression test I think. We would also need to compare these files to fixed references and add DCube tests
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --diff-root --mode=semi-detailed --ignore-leave RecoTimingObj_p1_EVNTtoHITS_timingsOLD
 
 echo  "art-result: $? regression"

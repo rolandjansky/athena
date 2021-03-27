@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -69,7 +69,6 @@ namespace LVL1TGCTrigger {
   bool g_SHPT_ORED;
   bool g_USE_INNER;
   bool g_INNER_VETO;
-  bool g_TILE_MU;
   bool g_USE_CONDDB;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -155,7 +154,6 @@ namespace LVL1TGCTrigger {
     g_SHPT_ORED           = m_SHPTORED.value();
     g_USE_INNER           = m_USEINNER.value();
     g_INNER_VETO          = m_INNERVETO.value() && g_USE_INNER;
-    g_TILE_MU             = m_TILEMU.value() && g_USE_INNER;
     g_USE_CONDDB          = true;
  
 
@@ -296,7 +294,7 @@ namespace LVL1TGCTrigger {
 
     StatusCode sc = StatusCode::SUCCESS;
     // Tile Mu Data
-    bool doTileMu = g_TILE_MU;
+    bool doTileMu = false;
 
     if (g_USE_CONDDB) {
       doTileMu = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
@@ -1454,10 +1452,7 @@ StatusCode LVL1TGCTrigger::getCabling()
   if (g_USE_INNER) {
     if (vers.size() == 3) g_USE_INNER = (vers[1] != "00");
   } 
-  if (g_TILE_MU) {
-    if (vers.size() == 3) g_TILE_MU = (vers[0] != "00");
-  } 
-    
+
   // create DataBase and TGCElectronicsSystem
   //m_db = new TGCDatabaseManager(m_VerCW);
   m_system = new TGCElectronicsSystem(m_db);

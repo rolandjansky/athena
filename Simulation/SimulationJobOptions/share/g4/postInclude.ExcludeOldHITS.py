@@ -46,8 +46,6 @@ if DetFlags.ALFA_on():
 if DetFlags.AFP_on():
     excludeList += ["AFP_TDSimHitCollection#*","AFP_SIDSimHitCollection#*OLD"]
 
-ServiceMgr.StoreGateSvc.Dump=True
-
 
 ## configure Athena for POOL persistency
 from AthenaCommon.AlgSequence import AlgSequence

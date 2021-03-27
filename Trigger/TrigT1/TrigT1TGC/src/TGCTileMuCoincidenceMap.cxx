@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -22,7 +22,6 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_TILE_MU;
  extern bool        g_USE_CONDDB;
 
 TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
@@ -49,7 +48,6 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
     }
   }
    
-  if (!g_TILE_MU) return;
   if (g_USE_CONDDB) return;
 
   //////////////////////////////
@@ -67,7 +65,6 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
   } else {
     log << MSG::INFO  
 	<< " NOT use TileMu " << endmsg;
-    g_TILE_MU = false;
     for (size_t side=0; side< N_Side; side++){
       for (size_t sec=0; sec< N_EndcapSector; sec++){
 	for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
