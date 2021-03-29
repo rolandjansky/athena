@@ -200,7 +200,7 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     result.setPrivateTools(matching)
     return result
     
-def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=True, **kwargs):
+def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=False, **kwargs):
     Muon__MooCandidateMatchingTool=CompFactory.Muon.MooCandidateMatchingTool
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
@@ -464,7 +464,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("MooBuilderTool",       builder) 
     kwargs.setdefault("TrackRefinementTool",       builder) 
     
-    acc = MooCandidateMatchingToolCfg(flags)
+    acc = MooCandidateMatchingToolCfg(flags, doSegmentPhiMatching=True)
     cand_matching_tool = acc.getPrimary()
     kwargs["CandidateMatchingTool"] = cand_matching_tool
     result.merge(acc)
