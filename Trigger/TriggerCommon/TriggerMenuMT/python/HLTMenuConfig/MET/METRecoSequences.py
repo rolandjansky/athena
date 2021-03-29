@@ -222,14 +222,19 @@ class MergedPFOInputConfig(AlgInputConfig):
     def dependencies(self, recoDict):
         return ["PFOPrefix", "cPFOs", "nPFOs"]
 
+
     def create_sequence(self, inputs, RoIs, recoDict):
+        # Alg generator for RecoFragmentsPool
+        # Need to unpack dict as not hashable
+        def getPFOPrepAlg(_,**inputs):
+            return HLT__MET__PFOPrepAlg(
+                f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
+                InputNeutralKey=inputs["nPFOs"],
+                InputChargedKey=inputs["cPFOs"],
+                OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
+                OutputCategoryKey="PUClassification")
         prepAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__PFOPrepAlg,
-            f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
-            InputNeutralKey=inputs["nPFOs"],
-            InputChargedKey=inputs["cPFOs"],
-            OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
-            OutputCategoryKey="PUClassification",
+            getPFOPrepAlg,None,**inputs
         )
         return (
             [prepAlg],
@@ -252,26 +257,44 @@ class CVFClusterInputConfig(AlgInputConfig):
 
     def create_sequence(self, inputs, RoIs, recoDict):
         trkopt = "ftf"
+        # Alg generator for RecoFragmentsPool
+        # Need to unpack dict as not hashable
+        # We can only use ** once, so manually
+        # extract the inputs
+        def getCVFAlg(_,inputClusters,inputTracks,inputVertices,**recoDict):
+            return HLT__MET__CVFAlg(
+                f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
+                InputClusterKey=inputClusters,
+                InputTrackKey=inputTracks,
+                InputVertexKey=inputVertices,
+                OutputCVFKey="CVF",
+                TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
+                TVATool=CP__TrackVertexAssociationTool(
+                    WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0,
+                    TrackContName = inputTracks,
+                ),
+                ExtensionTool=ApproximateTrackToLayerTool()
+            )
         cvfAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__CVFAlg,
-            f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
-            InputClusterKey=inputs["Clusters"],
-            InputTrackKey=inputs["Tracks"],
-            InputVertexKey=inputs["Vertices"],
-            OutputCVFKey="CVF",
-            TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
-            TVATool=CP__TrackVertexAssociationTool(
-                WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0,
-                TrackContName = inputs["Tracks"],
-            ),
-            ExtensionTool=ApproximateTrackToLayerTool(),
+            getCVFAlg,None,
+            inputClusters=inputs["Clusters"],
+            inputTracks=inputs["Tracks"],
+            inputVertices=inputs["Vertices"],
+            **recoDict
         )
+
+        def getCVFPrepAlg(_,inputClusters,inputCVFKey,**recoDict):
+            return HLT__MET__CVFPrepAlg(
+                f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
+                InputClusterKey=inputClusters,
+                InputCVFKey=inputCVFKey,
+                OutputCategoryKey="PUClassification"
+            )
         prepAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__CVFPrepAlg,
-            f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
-            InputClusterKey=inputs["Clusters"],
-            InputCVFKey=cvfAlg.OutputCVFKey,
-            OutputCategoryKey="PUClassification",
+            getCVFPrepAlg,None,
+            inputClusters=inputs["Clusters"],
+            inputCVFKey=cvfAlg.OutputCVFKey,
+            **recoDict
         )
         return (
             [cvfAlg, prepAlg],

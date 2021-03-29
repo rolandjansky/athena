@@ -194,7 +194,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
 
         stepName = "TLAStep_"+jetCollectionName
-        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName )
+        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, None, jetsin=jetCollectionName )
         from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
