@@ -104,6 +104,9 @@ if rec.doTrigger():
         #Just to be sure we use no LVL1 xml file and do not forget any clients
         tf.inputLVL1configFile = "LVL1configDUMMY.xml"
         tf.inputLVL1configFile.lock()
+        tf.readLVL1configFromXML=False
+        tf.readLVL1configFromXML.lock()
+
         # do not need thresholds but are using LVL1ConfigSvc
         if not hasattr(ToolSvc,'RecMuCTPIByteStreamTool'):
             from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RecMuCTPIByteStreamTool
