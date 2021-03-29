@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Configuration of tools shared between Segment Finding and Track Building
 
@@ -202,6 +202,10 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
 
     # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("Iterate", False)
+        kwargs.setdefault("RecoverOutliers", False)
 
     # FIXME - do remaining tools
 
