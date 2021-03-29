@@ -6,7 +6,7 @@ atlas_subdir( xAODCore )
 # Extra dependencies based on what environment we are in.
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_libs AthenaKernel )
+   set( extra_libs AthenaKernel GaudiKernel)
 endif()
 
 # External dependencies.

@@ -62,11 +62,14 @@ StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
   /* Create a shallow copy, the elements of this can be modified,
    * but no need to recreate the cluster
    */
-  std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer*>
-    inputShallowcopy = xAOD::shallowCopyContainer(*inputTopoclusters);
+  std::pair<std::unique_ptr<xAOD::CaloClusterContainer>,
+            std::unique_ptr<xAOD::ShallowAuxContainer>>
+    inputShallowcopy = xAOD::shallowCopyContainer(*inputTopoclusters, ctx);
 
-  ATH_CHECK( outputTopoclustersShallow.record(std::unique_ptr<xAOD::CaloClusterContainer>(inputShallowcopy.first),
-                                              std::unique_ptr<xAOD::ShallowAuxContainer>(inputShallowcopy.second)) );
+
+  ATH_CHECK(outputTopoclustersShallow.record(std::move(inputShallowcopy.first),
+                                             std::move(inputShallowcopy.second)));
+
   /*
    * Here it just needs to be a view copy,
    * i.e the collection we create does not really
