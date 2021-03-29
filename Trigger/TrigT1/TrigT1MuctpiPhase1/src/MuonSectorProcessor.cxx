@@ -411,7 +411,15 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
-	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isec, isys, roiID);
+	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isys, isec, roiID);
+
+	    //check for invalid decoding
+	    if (coord == L1TopoCoordinates())
+	    {
+	      std::stringstream err;
+	      err << "Couldn't decode L1Topo coordinates: Side = " << isub << ", subsystem = " << isys << ", sector = " << isec << ", roi = " << roiID;
+	      return err.str();
+	    }
 
 	    int ptValue = 0;
 	    auto enc = m_ptEncoding[isub].find(ptword);
