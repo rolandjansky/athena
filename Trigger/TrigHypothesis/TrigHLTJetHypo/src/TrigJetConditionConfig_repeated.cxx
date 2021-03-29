@@ -23,6 +23,7 @@ TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::stri
 
 
 StatusCode TrigJetConditionConfig_repeated::initialize() {
+  ATH_MSG_INFO("initialising " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -30,7 +31,11 @@ std::unique_ptr<IConditionMT>
 TrigJetConditionConfig_repeated::getCompoundCondition() const {
   std::vector<ConditionMT> elements;
   for(const auto& el : m_elementConditions){
-    elements.push_back(el->getCondition());
+    
+    auto cond = el->getCondition();
+    if (cond != nullptr) {
+      elements.push_back(std::move(cond));
+    }
   }
   
   return std::make_unique<CompoundConditionMT>(elements);
@@ -43,8 +48,8 @@ TrigJetConditionConfig_repeated::getRepeatedCondition() const {
 
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
-					       m_multiplicity,
-					       m_chainPartInd);
+					m_multiplicity,
+					m_chainPartInd);
 }
 
 ConditionPtr
@@ -67,12 +72,3 @@ StatusCode TrigJetConditionConfig_repeated::checkVals() const {
   
   return StatusCode::SUCCESS;
 }
-
-bool TrigJetConditionConfig_repeated::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_repeated::capacity() const {
-  return getRepeatedCondition()->capacity();
-}
-

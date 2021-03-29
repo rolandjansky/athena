@@ -30,6 +30,7 @@ TrigJetHypoToolConfig_fastreduction::~TrigJetHypoToolConfig_fastreduction(){
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
+  ATH_MSG_INFO("initialising " << name());
 
   if(m_conditionMakers.size() != m_treeVec.size()){
     ATH_MSG_ERROR("No. of conditions mismatch with tree vector size");
@@ -37,7 +38,9 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
   }
   
   if(m_conditionMakers.size() < 2){ // first  node is root, need more
-    ATH_MSG_ERROR("No. of conditions < 2");
+    ATH_MSG_ERROR("No. of conditions " +
+		  std::to_string( m_conditionMakers.size()) + 
+		  " require at least 2" );
     return StatusCode::FAILURE;
   }
   

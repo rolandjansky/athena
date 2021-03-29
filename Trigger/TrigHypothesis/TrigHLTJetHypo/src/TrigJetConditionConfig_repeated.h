@@ -25,10 +25,6 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
   virtual ConditionPtr getRepeatedCondition() const override;
   virtual ConditionPtr getRepeatedAntiCondition() const override;
 
-
-  virtual bool addToCapacity(std::size_t) override;
-  virtual std::size_t capacity() const override;
-
  private:
 
   ToolHandleArray<ITrigJetConditionConfig> m_elementConditions{
@@ -38,6 +34,12 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
   Gaudi::Property<std::size_t> m_multiplicity {this, "multiplicity", {1},
       "no. of occurences of identical condition"};
 
+  Gaudi::Property<std::size_t> m_tree_id {this, "id", {0},
+    "Condition ID if in FastReduction condition tree"};
+  
+  Gaudi::Property<std::size_t> m_tree_pid {this, "pid", {0},
+    "ID of parent Condition ID if in FastReduction condition tree"};
+  
   
 
   Gaudi::Property<int> m_chainPartInd {this,

@@ -129,7 +129,7 @@ StatusCode TrigJetHypoToolHelperNoGrouper::makePrefilter(){
   }
   
   auto makeElementalFilterCondition = [](auto& conditionMaker)->ConditionMT {
-    return conditionMaker->getRepeatedCondition();
+    return conditionMaker->getCondition();
   };
 
   // fill a container with pointers to an elemental condition

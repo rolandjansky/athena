@@ -55,7 +55,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
 
 
   ToolHandleArray<ITrigJetRepeatedConditionConfig> m_filtConditionMakers{
-    this, "filtConditionsMakers", {},
+    this, "filtConditionMakers", {},
     "hypo tree Condition builder AlgTools for Condition filters"};
 
   
