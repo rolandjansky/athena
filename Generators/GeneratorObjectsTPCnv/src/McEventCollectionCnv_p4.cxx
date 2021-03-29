@@ -463,7 +463,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                             (long double)(persPart.m_py)*persPart.m_py +
                             (long double)(persPart.m_pz)*persPart.m_pz +
                             (long double)(persPart.m_m) *persPart.m_m );
-      p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_px,persPart.m_px,temp_e));
+      p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,temp_e));
     }
   else
     {
