@@ -273,7 +273,12 @@ StatusCode RpcDigitizationTool::initialize() {
 
   //////////////////// special test
   //  m_turnON_clustersize=false;
-
+  m_BOF_id = m_idHelper->stationNameIndex("BOF");
+  m_BOG_id = m_idHelper->stationNameIndex("BOG");
+  m_BOS_id = m_idHelper->stationNameIndex("BOS");
+  m_BIL_id = m_idHelper->stationNameIndex("BIL");
+  m_BIS_id = m_idHelper->stationNameIndex("BIS");
+  m_CSS_id = m_idHelper->stationNameIndex("CSS");
   return StatusCode::SUCCESS;
 
 }
@@ -832,7 +837,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	    }
 	}
       //apply dead time
-      if(fabs(currTime-last_time)>(m_deadTime))
+      if(std::abs(currTime-last_time)>(m_deadTime))
 	{
 
 
@@ -1270,7 +1275,7 @@ double RpcDigitizationTool::PropagationTimeNew(const Identifier* id, const Amg::
 
 
   // distance in mm, SIG_VEL in ns/m
-  return fabs(distance*SIG_VEL/1000);
+  return std::abs(distance*SIG_VEL/1000);
 
 }
 
@@ -1361,7 +1366,7 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(const Identifier* id, const Amg::V
 
     //std::cout<<"position in gap is "<<posInGap<<std::endl;
 
-    if(result.y()<0) result.y() = gaplength/2.-fabs(result.y()); // wrt the beginning of the panel
+    if(result.y()<0) result.y() = gaplength/2.-std::abs(result.y()); // wrt the beginning of the panel
 
     result.y() = result.y()-panelXlength/2.; // wrt the center of the panel
 
@@ -1443,9 +1448,9 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 
   //  std::cout<<"\t start stop length impact pitch strip are "<<min_<< " "<<max_<< " "<<nstrips*pitch+2<< " "<< impact<< " "<<pitch<<" " << result<<std::endl;
 
-  posinstrip=fabs(min_-impact)-(result-1)*pitch;
+  posinstrip=std::abs(min_-impact)-(result-1)*pitch;
 
-  //std::cout<<  "posinstrip " <<  fmod(fabs(min_-impact),pitch)/pitch<< std::endl;
+  //std::cout<<  "posinstrip " <<  fmod(std::abs(min_-impact),pitch)/pitch<< std::endl;
 
   return result;
 
@@ -1664,7 +1669,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
   int doubletR    = m_idHelper->doubletR   (*IdEtaRpcStrip);
 
   //remove feet extension. driven by joboption
-  if(m_BOG_BOF_DoubletR2_OFF && (stationName==9||stationName==10) && doubletR == 2){
+  if(m_BOG_BOF_DoubletR2_OFF && (stationName==m_BOF_id||stationName==m_BOG_id) && doubletR == 2){
 
     m_SetPhiOn = false ;
     m_SetEtaOn = false ;
@@ -1686,9 +1691,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
   if(!m_Efficiency_fromCOOL){
     unsigned int index = stationName - 2 ;
     // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-    if(stationName>5 && stationName<50) index = index - 2 ;
+    if(stationName>m_BOS_id && stationName<m_CSS_id) index = index - 2 ;
     // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-    else if(stationName>50) index = index - 44 ;
+    else if(stationName>m_CSS_id) index = index - 44 ;
     // BME and BOE 53 and 54 are at indices 7 and 8 
 
     if( index>m_PhiAndEtaEff_A.size() || index>m_OnlyEtaEff_A.size() || index>m_OnlyPhiEff_A.size()) {
@@ -1757,7 +1762,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
     if( readCdo->getEfficiencyMap()     .find(IdPhi) != readCdo->getEfficiencyMap()     .end()) PhiPanelEfficiency      = readCdo->getEfficiencyMap().find(IdPhi)->second ;
     if( readCdo->getEfficiencyGapMap()  .find(IdEta) != readCdo->getEfficiencyGapMap()  .end()) GapEfficiency	        = readCdo->getEfficiencyGapMap().find(IdEta)->second ;
 
-    if (fabs(FracDeadStripEta-1.)<0.001) 
+    if (std::abs(FracDeadStripEta-1.)<0.001) 
       {
 	ATH_MSG_DEBUG ("Watch out: SPECIAL CASE: Read from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi
 			 <<" RPC_ProjectedTracksEta "<<RPC_ProjectedTracksEta<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency
@@ -1888,9 +1893,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
       //std::cout<<" do we ever enter here ? "<<std::endl;
       unsigned int index = stationName - 2 ;
       // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-      if(stationName>5 && stationName<50) index = index - 2 ;
+      if(stationName>m_BOS_id && stationName<m_CSS_id) index = index - 2 ;
       // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-      else if(stationName>50) index = index - 44 ;
+      else if(stationName>m_BOS_id) index = index - 44 ;
       // BME and BOE 53 and 54 are at indices 7 and 8 
       ATH_MSG_DEBUG ( "Some special condition met here - resetting eff.s to python values at index=" << index << " i.e. StName="<<stationName) ;
 
@@ -2073,9 +2078,9 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
 
   unsigned int index = stationName - 2 ;
   // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-  if(stationName>5 && stationName<50) index = index - 2 ;
+  if(stationName>m_BOS_id && stationName<m_CSS_id) index = index - 2 ;
   // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-  else if(stationName>50) index = index - 44 ;
+  else if(stationName>m_CSS_id) index = index - 44 ;
   // BME and BOE 53 and 54 are at indices 7 and 8 
 
   static std::atomic<bool> clusterIndexAPrinted = false;
@@ -2084,7 +2089,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
       index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      if (stationName==0 || stationName==1) {
+      if (stationName==m_BIS_id || stationName==m_BIL_id) {
         if (!clusterIndexAPrinted) {
           ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
           clusterIndexAPrinted.store(true, std::memory_order_relaxed);
@@ -2101,7 +2106,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
       index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-        if (stationName==0 || stationName==1) {
+        if (stationName==m_BIS_id || stationName==m_BIL_id) {
           if (!clusterIndexCPrinted) {
             ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
             clusterIndexCPrinted.store(true, std::memory_order_relaxed);
@@ -2165,7 +2170,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
         index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-        if (stationName==0 || stationName==1) {
+        if (stationName==m_BIS_id || stationName==m_BIL_id) {
           if (!clusterIndexAPrinted) {
             ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
             clusterIndexAPrinted.store(true, std::memory_order_relaxed);
@@ -2182,7 +2187,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
         index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
         if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
           index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-          if (stationName==0 || stationName==1) {
+          if (stationName==m_BIS_id || stationName==m_BIL_id) {
             if (!clusterIndexCPrinted) {
               ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
               clusterIndexCPrinted.store(true, std::memory_order_relaxed);
@@ -2940,7 +2945,7 @@ double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle)
   //find the i in the array
   int i_e = -1;
   for(int i=0;i<12;i++){
-    if(Charge[i] == std::fabs(qcharge)){i_e = i;break;}
+    if(Charge[i] == std::abs(qcharge)){i_e = i;break;}
   }
   int i_v = -99, j_v = 99;
   if(qbetagamma != -1){

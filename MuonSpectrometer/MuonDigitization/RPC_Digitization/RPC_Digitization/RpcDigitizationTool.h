@@ -262,6 +262,16 @@ protected:
   Gaudi::Property<bool>      m_DumpFromDbFirst   {this, "DumpFromDbFirst", false, ""};
   Gaudi::Property<float>     m_CutMaxClusterSize {this, "CutMaxClusterSize", 5.0, ""};
   Gaudi::Property<int>       m_CutProjectedTracks{this, "CutProjectedTracks", 100, ""};
+  
+  
+ int m_BOF_id {-1};
+ int m_BOG_id {-1};
+ int m_BOS_id {-1};
+
+ int m_BIL_id {-1};
+ int m_BIS_id {-1};
+ 
+ int m_CSS_id {-1};
 
 };
 
