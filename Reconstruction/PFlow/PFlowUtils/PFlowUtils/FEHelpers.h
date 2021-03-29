@@ -22,6 +22,8 @@ namespace FEHelpers {
 
   std::string getClusterMomentName(xAOD::CaloCluster::MomentType momentType);
 
+  xAOD::Type::ObjectType signalToXAODType(const xAOD::FlowElement& fe);
+
 }
 
 #endif
