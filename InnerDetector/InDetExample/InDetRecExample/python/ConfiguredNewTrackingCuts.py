@@ -429,7 +429,7 @@ class ConfiguredNewTrackingCuts :
         self.__roadWidth          = 5
         self.__doZBoundary        = True
 
-        # --- seeding                                                                                                                                               
+        # --- seeding
         self.__maxdImpactSSSSeeds       = [300.0 * Units.mm]
 
         self.__useSCTSeeding = self.__indetflags.useSCTSLHCLargeD0()
@@ -445,16 +445,19 @@ class ConfiguredNewTrackingCuts :
         self.__nWeightedClustersMin    = [6]
 
         if self.__indetflags.doFastTracking():
-          # Inspired by R3LargeD0
-
-          self.__maxEta             = 3
-          self.__etaBins            = [-1.0, 3.0]
+          self.__maxEta             = 2.4
+          self.__etaBins            = [-1.0, 2.4]
           self.__minSecondaryPt     = [5.0 * Units.GeV]
           self.__minPT              = [5.0 * Units.GeV]
           self.__minPTSeed          = 5.0 * Units.GeV
-          self.__radMax             = 600. * Units.mm
-          self.__roadWidth          = 5.
           self.__nWeightedClustersMin = [8]
+          self.__maxPrimaryImpact   = [150 * Units.mm]
+          self.__maxSecondaryImpact = [150 * Units.mm]
+          self.__maxPrimaryImpactSeed = 150. * Units.mm
+          self.__maxdImpactSSSSeeds = [150.0 * Units.mm]
+          self.__maxZImpact         = [200 * Units.mm]
+          self.__maxZImpactSeed     = 200. * Units.mm
+          self.__radMax             = 400. * Units.mm
 
       else:
 
