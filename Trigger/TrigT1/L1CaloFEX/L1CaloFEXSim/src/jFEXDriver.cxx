@@ -32,6 +32,9 @@
 
 #include "L1CaloFEXSim/jTowerContainer.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+
 #include <cassert>
 #include "SGTools/TestStore.h"
 
@@ -84,6 +87,7 @@ StatusCode jFEXDriver::initialize()
 
   ATH_CHECK( m_jTowerContainerSGKey.initialize() );
 
+  ATH_CHECK( m_jFexSRJetEDMKey.initialize() );
   //ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -156,6 +160,9 @@ StatusCode jFEXDriver::finalize()
   // STEP 6 - Run THE jFEXSysSim
   ATH_CHECK(m_jFEXSysSimTool->execute());
 
+  //STEP 6.5- test the EDM
+//  ATH_CHECK(testEDM());
+
   // STEP 7 - Close and clean the event  
   m_jFEXSysSimTool->cleanup();
   m_jSuperCellTowerMapperTool->reset();
@@ -167,6 +174,33 @@ StatusCode jFEXDriver::finalize()
 
   return StatusCode::SUCCESS;
 }
-  
-  
+
+StatusCode jFEXDriver::testEDM(){
+
+  const xAOD::jFexSRJetRoI* myRoI = 0;
+  SG::ReadHandle<xAOD::jFexSRJetRoIContainer> myRoIContainer(m_jFexSRJetEDMKey);
+    if(!myRoIContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve EDM Container " << m_jFexSRJetEDMKey.key());
+      return StatusCode::FAILURE;
+   }
+
+    ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+    for(const auto& it : * myRoIContainer){
+      myRoI = it;
+      ATH_MSG_DEBUG("EDM jFex Number: "
+                    << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+                    << " et: "
+                    << myRoI->et() // returns the et value of the EM cluster in MeV
+                    << " eta: "
+                    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+                    << " phi: "
+                    << myRoI->phi() // returns a floating point global phi
+                    );
+    }
+
+    return StatusCode::SUCCESS;
+
+}  
+
 } // end of LVL1 namespace

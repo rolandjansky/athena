@@ -97,36 +97,39 @@ StatusCode jFEXFPGA::execute(){
 
       //To note: Thin mapping needs to be fixed in order to see correct outputs.
       int tobtable[5][5]={
-      {m_jTowersIDs_Thin[ieta +2][iphi -2], m_jTowersIDs_Thin[ieta +2][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta +2][iphi +1], m_jTowersIDs_Thin[ieta +2][iphi +2]},
-      {m_jTowersIDs_Thin[ieta +1][iphi -2], m_jTowersIDs_Thin[ieta +1][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta +1][iphi +1], m_jTowersIDs_Thin[ieta +1][iphi +2]},
+      {m_jTowersIDs_Thin[ieta +2][iphi -2], m_jTowersIDs_Thin[ieta +2][iphi -1], m_jTowersIDs_Thin[ieta +2][iphi], m_jTowersIDs_Thin[ieta +2][iphi +1], m_jTowersIDs_Thin[ieta +2][iphi +2]},
+      {m_jTowersIDs_Thin[ieta +1][iphi -2], m_jTowersIDs_Thin[ieta +1][iphi -1], m_jTowersIDs_Thin[ieta +1][iphi], m_jTowersIDs_Thin[ieta +1][iphi +1], m_jTowersIDs_Thin[ieta +1][iphi +2]},
       {m_jTowersIDs_Thin[ieta][iphi -2], m_jTowersIDs_Thin[ieta][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta][iphi +1], m_jTowersIDs_Thin[ieta][iphi +2]},
-      {m_jTowersIDs_Thin[ieta -1][iphi -2], m_jTowersIDs_Thin[ieta -1][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta -1][iphi +1], m_jTowersIDs_Thin[ieta -1][iphi +2]},
-      {m_jTowersIDs_Thin[ieta -2][iphi -2], m_jTowersIDs_Thin[ieta -2][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta -2][iphi +1], m_jTowersIDs_Thin[ieta -2][iphi +2]}
+      {m_jTowersIDs_Thin[ieta -1][iphi -2], m_jTowersIDs_Thin[ieta -1][iphi -1], m_jTowersIDs_Thin[ieta -1][iphi], m_jTowersIDs_Thin[ieta -1][iphi +1], m_jTowersIDs_Thin[ieta -1][iphi +2]},
+      {m_jTowersIDs_Thin[ieta -2][iphi -2], m_jTowersIDs_Thin[ieta -2][iphi -1], m_jTowersIDs_Thin[ieta -2][iphi], m_jTowersIDs_Thin[ieta -2][iphi +1], m_jTowersIDs_Thin[ieta -2][iphi +2]}
+ 
 	};
 
-      int largeRCluster_IDs[15][15];
+      
+
+      int largeETRing_IDs[15][15];
       for(int i = -7; i< 8; i++ ){
         for(int j = -7; j< 8; j++){
-          largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[ieta + i][iphi +j];
+          largeETRing_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[ieta + i][iphi +j];
         }
       }
       //remove corners from large ET ring
       for(int i =4; i <8; i++){
         if( i != 7){
-          largeRCluster_IDs[7 +i][14] = 0;
-          largeRCluster_IDs[7 +i][0] = 0;
-          largeRCluster_IDs[7 -i][14] = 0;
-          largeRCluster_IDs[7 -i][0] = 0;
+          largeETRing_IDs[7 +i][14] = 0;
+          largeETRing_IDs[7 +i][0] = 0;
+          largeETRing_IDs[7 -i][14] = 0;
+          largeETRing_IDs[7 -i][0] = 0;
         }
 
-        largeRCluster_IDs[14][7 +i] = 0;
-        largeRCluster_IDs[14][7 -i] = 0;
-        largeRCluster_IDs[0][7 +i] = 0;
-        largeRCluster_IDs[0][7 -i] = 0;
-        largeRCluster_IDs[13][13] = 0;
-        largeRCluster_IDs[1][1] = 0;
-        largeRCluster_IDs[13][1] = 0;
-        largeRCluster_IDs[1][13] = 0;       
+        largeETRing_IDs[14][7 +i] = 0;
+        largeETRing_IDs[14][7 -i] = 0;
+        largeETRing_IDs[0][7 +i] = 0;
+        largeETRing_IDs[0][7 -i] = 0;
+        largeETRing_IDs[13][13] = 0;
+        largeETRing_IDs[1][1] = 0;
+        largeETRing_IDs[13][1] = 0;
+        largeETRing_IDs[1][13] = 0;       
       }
 
       int smallRCluster_IDs[4][5];
@@ -141,17 +144,16 @@ StatusCode jFEXFPGA::execute(){
       for(int i = -3; i< 4; i++){
         for(int j = -3; j<4 ; j++){
           if(!(i == 3 && j == -3) || !(i == -3 && j == 3) || !(i == 3 && j == 3) || !(i == -3 && j == -3)){
-            largeRCluster_IDs[7 +i][7 +j] = 0; 
+            largeETRing_IDs[7 +i][7 +j] = 0; 
           }
         }
-      }
-      
+      }    
       
       ATH_CHECK( m_jFEXSmallRJetAlgoTool.retrieve()); 
       ATH_CHECK( m_jFEXSmallRJetAlgoTool->safetyTest());
       m_jFEXSmallRJetAlgoTool->setup(tobtable); 
       m_jFEXSmallRJetAlgoTool->setupCluster(smallRCluster_IDs);
-      m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);      
+      m_jFEXLargeRJetAlgoTool->setupCluster(largeETRing_IDs);      
 
       //These are plots of the central TT for each 5x5 search window.
       jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET());
@@ -159,44 +161,47 @@ StatusCode jFEXFPGA::execute(){
       jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta()/10.) ;     
 
       m_jFEXSmallRJetAlgoTool->buildSeeds();
-      m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima();
-      jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed",  m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima()); 
+      bool SRJet_LM = m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima();
+      jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed", SRJet_LM); 
 
-      std::unique_ptr<jFEXSmallRJetTOB> tmp_tob = m_jFEXSmallRJetAlgoTool->getSmallRJetTOBs();
-       
+      if(!SRJet_LM){continue;} //skip below if not LM
+
+      std::unique_ptr<jFEXSmallRJetTOB> tmp_SRJet_tob = m_jFEXSmallRJetAlgoTool->getSmallRJetTOBs();
+         
+      bool TOB_saturated = false;
+      int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
+      if (smallClusterET/200. > 11) TOB_saturated = true;
+      
       // for plotting variables in TOBS- internal check:
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta",tmp_tob->setEta(ieta));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi",tmp_tob->setPhi(iphi));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET",m_jFEXSmallRJetAlgoTool->getSmallClusterET());    
-      //saturation and res to be completed in future.. 
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", tmp_SRJet_tob->setEta(ieta));
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", tmp_SRJet_tob->setPhi(iphi));
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET", smallClusterET);    
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_sat", TOB_saturated);  
 
-      uint32_t tobword = formSmallRJetTOB(ieta, iphi);
-      if ( tobword != 0 ) m_tobwords.push_back(tobword);
-
+      uint32_t SRJet_tobword = formSmallRJetTOB(ieta, iphi);
+      if ( SRJet_tobword != 0 ) m_SRJet_tobwords.push_back(SRJet_tobword);
           
       jFEXOutputs->fill_smallRJet();  
-      if(m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima()){
-        //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
-        unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
-        ATH_MSG_DEBUG("jFEXFPGA: large RJet algo, check large cluster ET: "<< largeClusterET); 
-        jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
 
-        std::unique_ptr<jFEXLargeRJetTOB> tmp_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
+      ATH_MSG_DEBUG("==== jFEXLargeRJetAlgo ========"); 
+      //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
+      unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
+      ATH_MSG_DEBUG("jFEXFPGA: large RJet algo, check large cluster ET: "<< largeClusterET); 
+      jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
 
-        jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", largeClusterET);
-        jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", tmp_tob->setPhi(iphi));
-        jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", tmp_tob->setEta(ieta));
-      
-        uint32_t tobword = formLargeRJetTOB(ieta, iphi);
-        if ( tobword != 0 ) m_tobwords.push_back(tobword);
+      std::unique_ptr<jFEXLargeRJetTOB> tmp_LRJet_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
 
-        jFEXOutputs->fill_largeRJet();
-      }
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", largeClusterET);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", tmp_LRJet_tob->setPhi(iphi));
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", tmp_LRJet_tob->setEta(ieta));
+  
+      uint32_t LRJet_tobword = formLargeRJetTOB(ieta, iphi);
+      if ( LRJet_tobword != 0 ) m_LRJet_tobwords.push_back(LRJet_tobword);
 
-      if(!m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima()){continue;}  
-    
-    }   
-  }
+      jFEXOutputs->fill_largeRJet();
+          
+    }//iphi loop
+  }//end of ieta loop
 
     return StatusCode::SUCCESS;
 } //end of the execute function 
@@ -246,7 +251,7 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs
 
 std::vector <uint32_t> jFEXFPGA::getSmallRJetTOBs()
 {
-  auto tobsSort = m_tobwords;
+  auto tobsSort = m_SRJet_tobwords;
   
   ATH_MSG_DEBUG("number of smallRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
     // sort tobs by their et ( 11 bits of the 32 bit tob word)
@@ -258,7 +263,7 @@ std::vector <uint32_t> jFEXFPGA::getSmallRJetTOBs()
 
 std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
 {
-  auto tobsSort = m_tobwords;
+  auto tobsSort = m_LRJet_tobwords;
 
   ATH_MSG_DEBUG("number of largeRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
     // sort tobs by their et ( 13 bits of the 32 bit tob word)
@@ -277,13 +282,17 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int & ieta, int & iphi)
 
   unsigned int et = m_jFEXSmallRJetAlgoTool->getSmallClusterET();   
   unsigned int jFEXSmallRJetTOBEt = et/jFEXETResolution;
-
-  if (jFEXSmallRJetTOBEt > 0x7ff) jFEXSmallRJetTOBEt = 0x7ff;  //0x7ff is 11 bits 
-
+  
   int eta = ieta;
   int phi = iphi;
   int Res = 0; //11 bits reserved
-  int Sat = 0; //1 bit for saturation flag, not coded yet
+  int Sat = 0; //1 bit for saturation. Set to 1 if saturated.
+  
+
+  if (jFEXSmallRJetTOBEt > 0x7ff){ 
+    jFEXSmallRJetTOBEt = 0x7ff;//0x7ff is 11 bits 
+    Sat = 1;
+  }
 
   //create basic tobword with 32 bits 
   tobWord = tobWord + jFEXSmallRJetTOBEt + (phi << 11) + (eta << 15) + (Res << 20) + (Sat << 31); 
@@ -309,6 +318,11 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int & ieta, int & iphi)
   int phi = iphi;
   int Sub = 0; //9 bits reserved
   int Sat = 0; //1 bit for saturation flag, not coded yet
+ 
+  if (jFEXLargeRJetTOBEt > 0x1fff){
+    jFEXLargeRJetTOBEt = 0x1fff;//0x1fff is 12 bits
+    Sat = 1;
+  }
 
   //create basic tobword with 32 bits
   tobWord = tobWord + jFEXLargeRJetTOBEt + (phi << 13) + (eta << 17) + (Sub << 22) + (Sat << 31);

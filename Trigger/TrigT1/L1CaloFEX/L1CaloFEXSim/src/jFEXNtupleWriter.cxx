@@ -66,6 +66,7 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch("smallRJetTOB_eta", &m_smallRJetTOB_eta);
   m_myTree->Branch("smallRJetTOB_phi", &m_smallRJetTOB_phi);
   m_myTree->Branch("smallRJetTOB_ET", &m_smallRJetTOB_ET);
+  m_myTree->Branch("smallRJetTOB_sat", &m_smallRJetTOB_sat);
 
   m_myTree->Branch ("largeRJet_ET",  &m_largeRJet_ET);
   m_myTree->Branch ("largeRJet_nTOBs",  &m_largeRJet_nTOBs);
@@ -117,7 +118,7 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
   m_smallRJetTOB_eta.clear();
   m_smallRJetTOB_phi.clear();
   m_smallRJetTOB_ET.clear();
-
+  m_smallRJetTOB_sat.clear();
   for (int i = 0; i < m_jFEXOutputCollection->size(); i++)
   {
     m_smallRJet_isCentralTowerSeed.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_isCentralTowerSeed"]);
@@ -127,6 +128,7 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
     m_smallRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_eta"]);
     m_smallRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_phi"]);
     m_smallRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_ET"]);
+    m_smallRJetTOB_sat.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_sat"]);
   }
   return StatusCode::SUCCESS;
 }

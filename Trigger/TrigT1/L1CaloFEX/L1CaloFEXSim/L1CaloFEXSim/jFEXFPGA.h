@@ -69,7 +69,8 @@ namespace LVL1 {
 
     int m_id;
     int m_jfexid;
-    std::vector<uint32_t> m_tobwords;
+    std::vector<uint32_t> m_SRJet_tobwords;
+    std::vector<uint32_t> m_LRJet_tobwords;
 
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];

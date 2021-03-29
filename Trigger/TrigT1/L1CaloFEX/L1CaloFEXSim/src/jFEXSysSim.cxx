@@ -22,6 +22,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
 #include <ctime>
 
@@ -50,8 +53,9 @@ namespace LVL1 {
     
     ATH_CHECK(m_jTowerContainerSGKey.initialize());
 
-    ATH_CHECK( m_jFEXSimTool.retrieve() );
-
+    ATH_CHECK(m_jFEXSimTool.retrieve() );
+    
+    ATH_CHECK(m_jFexOutKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -783,9 +787,23 @@ namespace LVL1 {
 
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    auto jContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSRJetRoIAuxContainer > jAuxContainer = std::make_unique<xAOD::jFexSRJetRoIAuxContainer> ();
+    jContainer->setStore(jAuxContainer.get());
+
+    // iterate over all SRJEt Tobs and fill EDM with them   
+    for( auto const& [jfex, tobs] : m_allSmallRJetTobs ){
+    for(auto &tob : tobs){
+        ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);  
+        ATH_CHECK(fillEDM(jfex,tob, jContainer));
+      }  
+    }
+    
+    SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexHandle(m_jFexOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexHandle.record(std::move(jContainer),std::move(jAuxContainer)));
 
 
-    //Collate TOBS returned from jFEXSims. Should that be here?
     // ToDo
     // To implement
     // {--Implement--}
@@ -799,6 +817,23 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
 
   }
+
+  StatusCode jFEXSysSim::fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexSRJetRoI* myEDM = new xAOD::jFexSRJetRoI();
+    jContainer->push_back( myEDM );
+
+    myEDM->initialize(jFEXNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting jFEX Number:  " << +myEDM->jFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
+
+    return StatusCode::SUCCESS;
+
+  }
+
+
 
   
 } // end of namespace bracket
