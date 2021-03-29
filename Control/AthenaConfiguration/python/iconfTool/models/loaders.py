@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import pickle
 import logging
@@ -85,6 +85,8 @@ def loadConfigFile(fname, args) -> Dict:
                 cfg, (collections.defaultdict, dict)
             ):  # old configuration
                 conf.update(cfg)
+                conf.update(pickle.load(input_file)) # special services
+                # FIXME: there's a third pickle object with python components
             elif isinstance(cfg, (collections.Sequence)):
                 for c in cfg:
                     conf.update(c)
