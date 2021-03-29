@@ -75,6 +75,16 @@ namespace asg
 
 
 
+  std::string AsgComponentConfig ::
+  typeAndName () const
+  {
+    if (m_name == m_type)
+      return m_name;
+    return m_type + "/" + m_name;
+  }
+
+
+
   void AsgComponentConfig ::
   setTypeAndName (const std::string& val_typeAndName)
   {
