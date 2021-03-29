@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBPHASEREC
@@ -22,11 +22,11 @@ class TBPhaseRec : public AthAlgorithm
 {
  public:
   TBPhaseRec(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TBPhaseRec();
+  virtual ~TBPhaseRec();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
   StatusCode getnewcalib();
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -22,11 +22,10 @@
 #include <ios>
 #include <algorithm>
 
-TBBeamQualityMuonToolH6::TBBeamQualityMuonToolH6(const std::string& name,
-						 const std::string& type,
+TBBeamQualityMuonToolH6::TBBeamQualityMuonToolH6(const std::string& type,
+						 const std::string& name,
 						 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr),
+  : TBBeamQualityTool(type,name,parent),
     m_mu1(false),
     m_mu2(false),
     m_mu3(false),
@@ -78,54 +77,41 @@ StatusCode TBBeamQualityMuonToolH6::initializeTool()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
+StatusCode TBBeamQualityMuonToolH6::accept(const std::vector<std::string>& particles)
 {//accept
   
   MsgStream log(msgSvc(),name());
   
-  StatusCode sc = service("StoreGateSvc",m_StoreGate);
-  if ( sc.isFailure() )
-    {
-      log << MSG::ERROR
-          << "Cannot alllocate StoreGate service!"
-          << endmsg;
-    }
-  
   // Trigger Pattern Pointer
   TBTriggerPatternUnit * triggpat_object;
   
-  sc = m_StoreGate->retrieve(triggpat_object, m_SGTrigkey);
-  if (sc.isFailure()){
-    log << MSG::INFO << "TBCaloNtuple: Can't Retrieve "<<m_SGTrigkey<<" from SG"<< endmsg;
-    return sc;
-  }else{ // obtaining trigger word from storegate
+  ATH_CHECK( evtStore()->retrieve(triggpat_object, m_SGTrigkey) );
+
+  unsigned int word =triggpat_object->getTriggerWord();
     
-    unsigned int word =triggpat_object->getTriggerWord();
+  m_mu1=false;
+  m_mu2=false;
+  m_mu3=false;
+  m_mu4=false;
     
-    m_mu1=false;
-    m_mu2=false;
-    m_mu3=false;
-    m_mu4=false;
+  // muon triggers are:
+  // Entry 8:  Mu 1 Left
+  // Entry 9:  Mu 2 Left
+  // Entry 10: Mu 2 Left
+  // Entry 16: Mu 2 Right
     
-    // muon triggers are:
-    // Entry 8:  Mu 1 Left
-    // Entry 9:  Mu 2 Left
-    // Entry 10: Mu 2 Left
-    // Entry 16: Mu 2 Right
-    
-    if ((word & m_triggflag[8])!=0) {
-      m_mu1=true;
-    }
-    if ((word & m_triggflag[9])!=0) {
-      m_mu2=true;
-    }
-    if ((word & m_triggflag[10])!=0) {
-      m_mu3=true;
-    }
-    if ((word & m_triggflag[16])!=0) {
-      m_mu4=true;
-    }
-  } // trigg word from storegate
+  if ((word & m_triggflag[8])!=0) {
+    m_mu1=true;
+  }
+  if ((word & m_triggflag[9])!=0) {
+    m_mu2=true;
+  }
+  if ((word & m_triggflag[10])!=0) {
+    m_mu3=true;
+  }
+  if ((word & m_triggflag[16])!=0) {
+    m_mu4=true;
+  }
   
   //checking for muon coincidence:
   
@@ -133,10 +119,10 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
   
   //muons
   log<<MSG::DEBUG
-     <<m_particles[0]
+     <<particles[0]
      <<endmsg;
   
-  if(m_particles[0]=="mu+" || m_particles[0]=="mu-"){
+  if(particles[0]=="mu+" || particles[0]=="mu-"){
     m_successflag=false;
     
     if (((m_mu1==true)&(m_mu3==true))||((m_mu1==true)&(m_mu4==true))||((m_mu2==true)&(m_mu3==true))||((m_mu2==true)&(m_mu4==true))) {

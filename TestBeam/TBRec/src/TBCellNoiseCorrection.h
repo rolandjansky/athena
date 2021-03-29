@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBCELLNOISECORRECTION_H
@@ -48,7 +48,6 @@ class TBCellNoiseCorrection : public CaloCellCorrection, virtual public IInciden
   // Data members:
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
   CLHEP::HepRandomEngine * m_engine;
-  MsgStream *m_log;
   //TFile *m_root; // File with noise tree
   TChain *m_tree;
   float m_xcryo;  // if given, try to find run number from xcryo_ytable.txt file

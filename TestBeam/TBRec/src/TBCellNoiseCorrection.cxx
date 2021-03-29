@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCellNoiseCorrection.h"
@@ -24,7 +24,7 @@ TBCellNoiseCorrection::TBCellNoiseCorrection(const std::string& type,
 						 const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
     m_noise_correction(false),m_noise_file(),
-    m_rndmSvc ("AtRanluxGenSvc", name), m_engine(0), m_log(0), 
+    m_rndmSvc ("AtRanluxGenSvc", name), m_engine(0),
     m_tree(0), m_xcryo(0.), m_ytable(0.), m_energy(-1.), m_cell_id(0), m_cell_energy(0),m_entries(0)
     //m_myevtnum(-1)
 { 
@@ -44,29 +44,27 @@ TBCellNoiseCorrection::~TBCellNoiseCorrection()
 
 StatusCode TBCellNoiseCorrection::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-
-  *m_log << MSG::DEBUG << " TBCellNoiseCorrection initialization " << endmsg ;
+  ATH_MSG_DEBUG( " TBCellNoiseCorrection initialization " );
 
   // RandomNumbers
   if (!m_rndmSvc.retrieve().isSuccess()) {
-     *m_log << MSG::FATAL << "Could not initialize find Random Number Service." <<endmsg;
+     ATH_MSG_FATAL( "Could not initialize find Random Number Service."  );
      return StatusCode::FAILURE; 
   } else {
      m_engine = m_rndmSvc->GetEngine("TB_NOISE");
      if(!m_engine) {
-        *m_log << MSG::FATAL << "Could not get the TB_NOISE engine..." <<endmsg;
+        ATH_MSG_FATAL( "Could not get the TB_NOISE engine..."  );
         return StatusCode::FAILURE; 
      }
   }
 
   if(m_energy > 0.) { // Do we have run parameters (x,y,energy) ?
-     *m_log << MSG::DEBUG << " Trying to patch the noise file name "<< endmsg;
+     ATH_MSG_DEBUG( " Trying to patch the noise file name " );
      std::string fname = PathResolver::find_file ("xcryo_ytable.txt", "DATAPATH");
      std::ifstream xfile;
      xfile.open(fname.c_str());
      if(!xfile.good()){
-        *m_log << MSG::FATAL << "Could not open file  xcryo_ytable.txt" << endmsg;
+        ATH_MSG_FATAL( "Could not open file  xcryo_ytable.txt"  );
 	return StatusCode::FAILURE;
      }
      int runnumber;
@@ -79,28 +77,28 @@ StatusCode TBCellNoiseCorrection::initialize()
         break;
      }
      if(en < 0.) {
-        *m_log << MSG::FATAL << " Do not have X: "<<m_xcryo<<" Y: "<<m_ytable<< " E: "<<m_energy<<" in 	xcryo_ytable.txt" << endmsg;
+        ATH_MSG_FATAL( " Do not have X: "<<m_xcryo<<" Y: "<<m_ytable<< " E: "<<m_energy<<" in 	xcryo_ytable.txt"  );
 	return StatusCode::FAILURE;
      }
      // we have run number - let's change the file name (and take only one):
-     *m_log << MSG::DEBUG << "Found run number: "<<runnumber <<endmsg;
+     ATH_MSG_DEBUG( "Found run number: "<<runnumber  );
      unsigned pos = m_noise_file[0].find_last_of("0123456789");
      std::ostringstream buf;
      buf<<runnumber;
      m_noise_file[0].replace(pos-3,4,buf.str());
-     *m_log << MSG::DEBUG << "patched name: "<<m_noise_file[0].c_str()<< endmsg;
+     ATH_MSG_DEBUG( "patched name: "<<m_noise_file[0].c_str() );
   }
 
   // Open file and get Tree
   /*
   m_root = new TFile(m_noise_file.c_str(),"READ"); 
   if(!m_root->IsOpen()){
-     *m_log << MSG::FATAL << "Could not open root file: "<<m_noise_file<<endmsg;
+     ATH_MSG_FATAL( "Could not open root file: "<<m_noise_file );
      return StatusCode::FAILURE; 
   }
   m_tree = (TTree*) m_root->Get("NoiseTree");
   if(!m_tree) {
-     *m_log << MSG::FATAL << "No NoiseTree in root file: "<<m_noise_file<<endmsg;
+     ATH_MSG_FATAL( "No NoiseTree in root file: "<<m_noise_file );
      return StatusCode::FAILURE; 
   }
   */
@@ -111,19 +109,19 @@ StatusCode TBCellNoiseCorrection::initialize()
   }
   m_entries = m_tree->GetEntries();
   if(m_entries < 100) {
-     *m_log << MSG::FATAL << "Noise chain has less then 100 events !!!!" <<endmsg;
+     ATH_MSG_FATAL( "Noise chain has less then 100 events !!!!"  );
      return StatusCode::FAILURE; 
   }
   m_tree->SetBranchAddress("cell_id", &m_cell_id);
   m_tree->SetBranchAddress("cell_ener", &m_cell_energy);
-  *m_log << MSG::DEBUG <<" Got NoiseTree with "<<m_entries<<" entries"<<endmsg;
+  ATH_MSG_DEBUG(" Got NoiseTree with "<<m_entries<<" entries" );
 
    /// Incident Service
   IIncidentSvc* pIncSvc(0);
 
   // set up the incident service:
   if (!(service("IncidentSvc", pIncSvc, true)).isSuccess()) {
-    *m_log << MSG::ERROR << "Could not locate IncidentSvc " << endmsg;
+    ATH_MSG_ERROR( "Could not locate IncidentSvc "  );
     return StatusCode::FAILURE;
   }
   
@@ -131,7 +129,7 @@ StatusCode TBCellNoiseCorrection::initialize()
   static const int PRIORITY = 100;
   pIncSvc->addListener(this, "BeginEvent", PRIORITY);
 
-  *m_log << MSG::DEBUG << " TBCellNoiseCorrection initialization finished" << endmsg ;
+  ATH_MSG_DEBUG( " TBCellNoiseCorrection initialization finished"  );
   
   return StatusCode::SUCCESS; 
 }
@@ -168,7 +166,7 @@ void TBCellNoiseCorrection::MakeCorrection (CaloCell* theCell,
        }
     }
     if(i == size) {
-       *m_log << MSG::ERROR << "Could not find a noise value for cell: "<<std::hex<<cid<<std::dec<<endmsg;
+      ATH_MSG_ERROR( "Could not find a noise value for cell: "<<std::hex<<cid<<std::dec );
     }
 
     theCell->setEnergy(e);
@@ -177,16 +175,16 @@ void TBCellNoiseCorrection::MakeCorrection (CaloCell* theCell,
 }  
 
 void TBCellNoiseCorrection::handle(const Incident &inc) {
-  *m_log << MSG::DEBUG << " Handle BeginEvent " << endmsg;
+  ATH_MSG_DEBUG( " Handle BeginEvent "  );
 
   if ( inc.type() == "BeginEvent") {
      unsigned int random = int(RandFlat::shoot(m_engine, 0., m_entries-1.));
-     *m_log << MSG::DEBUG << "Reading noise event: "<<random<<endmsg;
+     ATH_MSG_DEBUG( "Reading noise event: "<<random );
      m_tree->GetEntry(random);
      unsigned int size = m_cell_id->size();
      unsigned int sizee = m_cell_energy->size();
      if(size != sizee) {
-        *m_log << MSG::ERROR << "Not equal size of noise vectors !!!! Something wrong !!!" <<endmsg;
+       ATH_MSG_ERROR( "Not equal size of noise vectors !!!! Something wrong !!!"  );
      }
   }
 }
