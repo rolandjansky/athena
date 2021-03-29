@@ -22,6 +22,9 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+
 namespace LVL1 {
   
   //Doxygen class description below:
@@ -55,15 +58,19 @@ namespace LVL1 {
 
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
+    /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
+    virtual StatusCode fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
     /** Internal data */
-  private:
 
+  private:
     std::vector<jFEXSim*>  m_jFEXCollection;
     
     ToolHandle<IjFEXSim> m_jFEXSimTool       {this, "jFEXSimTool",    "LVL1::jFEXSim",    "Tool that creates the jFEX Simulation"};
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerSGKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+    SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer > m_jFexOutKey {this,"Key_jFexSRJetOutputContainer","L1_jFexSRJetRoI","Output jFexEM container"};
+
 
     std::map<int,jTower> m_jTowersColl;
     std::map<int, std::vector<uint32_t> > m_allSmallRJetTobs; 

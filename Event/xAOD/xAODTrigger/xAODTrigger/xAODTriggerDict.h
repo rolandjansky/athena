@@ -75,6 +75,13 @@
 #include "xAODTrigger/versions/eFexTauRoIContainer_v1.h"
 #include "xAODTrigger/versions/eFexTauRoIAuxContainer_v1.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexSRJetRoI_v1.h"
+#include "xAODTrigger/versions/jFexSRJetRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexSRJetRoIAuxContainer_v1.h"
+
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/gFexJetRoIAuxContainer.h"
@@ -151,6 +158,8 @@ namespace {
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexEMRoIContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexTauRoIContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexSRJetRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexJetRoIContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexGlobalRoIContainer_v1 );

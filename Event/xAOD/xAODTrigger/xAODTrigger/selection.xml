@@ -136,6 +136,18 @@
    <class name="xAOD::eFexTauRoIAuxContainer_v1"
           id="65EBD869-7A69-4C02-977F-9421D67F71B8" />
    <typedef name="xAOD::eFexTauRoIAuxContainer" />
+ 
+  <!-- RoI interface types -->
+   <class name="xAOD::jFexSRJetRoI_v1" />
+   <class name="xAOD::jFexSRJetRoIContainer_v1"
+          id="28BB97E5-642E-4BF5-AA2B-B9B33C1DC52E" />
+   <typedef name="xAOD::jFexSRJetRoI" />
+   <typedef name="xAOD::jFexSRJetRoIContainer" />
+
+  <!-- RoI auxilliary types -->
+   <class name="xAOD::jFexSRJetRoIAuxContainer_v1"
+          id="45AADB27-2172-4F48-872A-42FC9F33F47F" />
+   <typedef name="xAOD::jFexSRJetRoIAuxContainer" />
 
    <class name="xAOD::gFexJetRoI_v1" />
    <class name="xAOD::gFexJetRoIContainer_v1"
@@ -221,6 +233,7 @@
    <class name="xAOD::RoiDescriptorStore_v1"
           id="882822c8-906a-11e5-87f4-02163e010d8c" />
    <typedef name="xAOD::RoiDescriptorStore" />
+
 
    <!-- xAOD::RoiDescriptorStore auxiliary type(s). -->
    <class name="xAOD::RoiDescriptorStoreAuxInfo_v1"

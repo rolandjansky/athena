@@ -58,6 +58,7 @@ private:
   std::vector<float> m_smallRJetTOB_eta;
   std::vector<float> m_smallRJetTOB_phi;
   std::vector<float> m_smallRJetTOB_ET;
+  std::vector<float> m_smallRJetTOB_sat;
 
   std::vector<float> m_largeRJet_ET;
   std::vector<float> m_largeRJet_nTOBs;  
