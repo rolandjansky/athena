@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <list>
@@ -119,10 +119,11 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     PassedCuts++;
     
     double EFet = Tau->pt()*1e-3;
-
-    ATH_MSG_DEBUG( " REGTEST: Et Calib "<<EFet);
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
+
+    ATH_MSG_DEBUG( " REGTEST: Et Calib "<<EFet );
+
     PassedCuts++;
     ptAccepted = EFet;
 
