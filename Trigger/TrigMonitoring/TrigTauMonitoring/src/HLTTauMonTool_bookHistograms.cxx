@@ -105,23 +105,21 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   //  Precision Tau
   //--------------------
 
-  if(trigItem.find("tracktwoMVA")==string::npos && trigItem.find("tracktwoEF")==string::npos) {
-    addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau");
-    addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",40,0.0,100.0));
-    addHistogram(new TH1F("hEFEt2","EF Et;E_{T}[GeV];Nevents",100,0.0,1000.0));
-    addHistogram(new TH1F("hFTFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
-    addHistogram(new TH1F("hEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
-    addHistogram(new TH1F("hPhi","EF TrigCaloCluster Phi; #phi ; Nevents",32,-3.2,3.2));
-    addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",
+  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau",run));
+  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau");
+  addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",40,0.0,100.0));
+  addHistogram(new TH1F("hEFEt2","EF Et;E_{T}[GeV];Nevents",100,0.0,1000.0));
+  addHistogram(new TH1F("hFTFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
+  addHistogram(new TH1F("hEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
+  addHistogram(new TH1F("hPhi","EF TrigCaloCluster Phi; #phi ; Nevents",32,-3.2,3.2));
+  addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",
                           26,-2.6,2.6,32,-3.2,3.2));
-    addHistogram(new TH2F("hEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",
+  addHistogram(new TH2F("hEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",
                           26,-2.6,2.6,40,0.0,100.0));
-    addHistogram(new TH2F("hEtVsPhi","Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]",
+  addHistogram(new TH2F("hEtVsPhi","Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]",
                           32,-3.2,3.2,40,0.0,100.0));
-    addHistogram(new TH1F("hFTFnWideTrack","EF number of wide tracks;number of tracks;Nevents",10,0,10));
-  }
-
+  addHistogram(new TH1F("hFTFnWideTrack","EF number of wide tracks;number of tracks;Nevents",10,0,10));
+  
   //--------------------
   // EF
   //--------------------
@@ -330,15 +328,13 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   //--------------------
   //  Precision vs Offline
   //--------------------
-  if(trigItem.find("tracktwoMVA")==string::npos && trigItem.find("tracktwoEF")==string::npos) {  
-    addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline");
-    addHistogram(new TH2F("hPreselvsOffnTrks","nTrks at FTF vs Off; nTrks off; nTrks FTF",10,0,10,10,0,10));
-    addHistogram(new TH2F("hPreselvsOffnWideTrks","nWideTrks at FTF vs Off; nWideTrks off; nWideTrks FTF",10,0,10,10,0,10));
-    addHistogram(new TH1F("hEFEtRatio","FTF-Offline Et Relative difference; Et relative diff; Et relative diff",50,-0.3,0.3));
-    addHistogram(new TH1F("hEtaRatio","FTF-Offline Eta Relative difference; Eta relative diff; Eta relative diff",50,-0.3,0.3));
-    addHistogram(new TH1F("hPhiRatio","FTF-Offline Phi Relative difference; Phi relative diff; Phi relative diff",50,-0.05,0.05));
-  }
+  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline",run));
+  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline");
+  addHistogram(new TH2F("hPreselvsOffnTrks","nTrks at FTF vs Off; nTrks off; nTrks FTF",10,0,10,10,0,10));
+  addHistogram(new TH2F("hPreselvsOffnWideTrks","nWideTrks at FTF vs Off; nWideTrks off; nWideTrks FTF",10,0,10,10,0,10));
+  addHistogram(new TH1F("hEFEtRatio","FTF-Offline Et Relative difference; Et relative diff; Et relative diff",50,-0.3,0.3));
+  addHistogram(new TH1F("hEtaRatio","FTF-Offline Eta Relative difference; Eta relative diff; Eta relative diff",50,-0.3,0.3));
+  addHistogram(new TH1F("hPhiRatio","FTF-Offline Phi Relative difference; Phi relative diff; Phi relative diff",50,-0.05,0.05));
 
   if(m_truth){
     //----------------
