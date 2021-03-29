@@ -1,56 +1,31 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef egammaMonitorElectronAlgorithm_H
 #define egammaMonitorElectronAlgorithm_H
 
-
-#include "egammaMonitorElectronAlgorithm.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODTrigEgamma/TrigElectronContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/DataHandle.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "egammaMonitorBaseAlgorithm.h"
 
 
-class egammaMonitorElectronAlgorithm: public AthAlgorithm
+class egammaMonitorElectronAlgorithm: public egammaMonitorBaseAlgorithm
 {
 
   public:
 
     egammaMonitorElectronAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override final {
-
-        return execute_r(Algorithm::getContext());
-    }
-
-    StatusCode execute_r(const EventContext& ctx) const;
+    virtual StatusCode execute( const EventContext& ctx) const override;
 
   protected:
-
+    
     void filltopoElectronTrackCaloMatch(const EventContext& ctx) const;
     void filltopoElectronShowerShapes(const EventContext& ctx) const;
     void filltopoElectronIsolation(const EventContext& ctx) const;
-    
-  
+     
   private:
+  
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey{ this, "ElectronKey", "Electrons", ""};
-    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_ptcone20Key{ this, "ElectronPtcone20Key", "Electrons.ptcone20", ""};
     ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
  

@@ -3,32 +3,9 @@
   */
 
 #include "egammaMonitorSuperClusterAlgorithm.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/VertexContainer.h"
-
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
-#include "xAODPrimitives/IsolationType.h"
-#include "GaudiKernel/EventContext.h"
-#include "StoreGate/ReadCondHandleKey.h"
-
-#include "egammaRecEvent/egammaRec.h"
-#include "egammaRecEvent/egammaRecContainer.h"
-
-#include "AthenaMonitoringKernel/Monitored.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "GaudiKernel/PhysicalConstants.h"
 
 egammaMonitorSuperClusterAlgorithm::egammaMonitorSuperClusterAlgorithm( const std::string& name, ISvcLocator* pSvcLocator ):
-  AthReentrantAlgorithm( name, pSvcLocator )
+  egammaMonitorBaseAlgorithm( name, pSvcLocator )
 
 {}
 
@@ -37,13 +14,14 @@ StatusCode egammaMonitorSuperClusterAlgorithm::initialize()
   
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
+  ATH_CHECK(egammaMonitorBaseAlgorithm::initialize());
   return StatusCode::SUCCESS;
 }
 
 StatusCode egammaMonitorSuperClusterAlgorithm::execute(const EventContext& ctx) const
 {
   
-    fillSuperClusterQuantities(ctx);
+  fillSuperClusterQuantities(ctx);
 
   return StatusCode::SUCCESS;
 }
