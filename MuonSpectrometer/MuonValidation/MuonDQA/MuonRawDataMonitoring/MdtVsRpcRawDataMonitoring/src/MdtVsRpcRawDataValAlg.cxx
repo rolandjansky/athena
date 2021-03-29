@@ -28,16 +28,17 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <sstream>
-
-static const int maxPRD  =   50000;
+namespace{
+static constexpr int maxPRD  =   50000;
 
 //mdt stuff
-static const int maxPrd =    50000;
-static const int ncutadc=       50;
+static constexpr int maxPrd =    50000;
+static constexpr int ncutadc=       50;
 
-static const int TDCminrange      =    0 ;
-static const int TDCmaxrange      = 2000 ;
-static const int TDCNbin          =  200 ; 
+static constexpr int TDCminrange      =    0 ;
+static constexpr int TDCmaxrange      = 2000 ;
+static constexpr int TDCNbin          =  200 ; 
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // *********************************************************************
@@ -66,18 +67,8 @@ MdtVsRpcRawDataValAlg::MdtVsRpcRawDataValAlg( const std::string & type, const st
   declareProperty("Side",                       m_side=0); 
   declareProperty("Clusters",                   m_doClusters = false);  
   declareProperty("ClusterContainer",           m_clusterContainerName = "rpcClusters");
-  m_padsId        = 0 ;
+ 
 
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
-MdtVsRpcRawDataValAlg::~MdtVsRpcRawDataValAlg()
-{
-  // fixes fot Memory leak
-  if (m_padsId) { 
-    delete m_padsId;
-    m_padsId = 0; }
-  ATH_MSG_INFO ( " deleting MdtVsRpcRawDataValAlg " );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -89,6 +80,7 @@ StatusCode MdtVsRpcRawDataValAlg::initialize() {
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_key_mdt.initialize());
   ATH_CHECK(m_key_rpc.initialize());
+  m_BMEid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
   return StatusCode::SUCCESS;
 }
 
@@ -283,7 +275,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  float wirezmin     = +10000. ;
 		  float foundmin     =      0  ;	
 		  int stname_index = irpcstationName;  
-		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
+		  if (irpcstationName == m_BMEid) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
 		  else stname_index = irpcstationName;
 		  for(int eta=0; eta!=17; eta++){ 
 		    const MuonGM::MdtReadoutElement* lastdescr = MuonDetMgr->getMdtReadoutElement(stname_index, eta, irpcstationPhi-1, imdt_multi_near-1);
