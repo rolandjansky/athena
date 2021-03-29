@@ -166,7 +166,7 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
       currentHypo.LowerPtCut      = int(threshold)*1000.
       currentHypo.TracksInCoreCut = 9999
       currentHypo.TracksInIsoCut  = 9999
-      currentHypo.DeltaZ0Cut      = 9999.
+      currentHypo.DeltaZ0Cut      = 9999.      
 
     return currentHypo
 

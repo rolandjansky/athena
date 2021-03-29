@@ -531,7 +531,7 @@ def tauPreSelTTSequence(ConfigFlags):
 
 
 # ===============================================================================================                                                            
-#   Reco sequence for Precision tracking (from FTF or PreSelection algorithm)   (pTonly, track)                           
+#   Reco sequence for Precision tracking (from PreSelection algorithm)   (track)                           
 # ===============================================================================================                                                            
 
 def tauPrecTrackSequence(ConfigFlags):

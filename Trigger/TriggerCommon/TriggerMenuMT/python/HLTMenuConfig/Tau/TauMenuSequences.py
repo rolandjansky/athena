@@ -77,7 +77,9 @@ def tauFTFTauSeq():
     fastTrkHypo                           = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_PassByTau")
     fastTrkHypo.trackcollection           = sequenceOut
     fastTrkHypo.RoIForIDReadHandleKey     = ""
-    #fastTrkHypo.AcceptAll       = True
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
@@ -96,7 +98,9 @@ def tauFTFTauIsoSeq():
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo                 = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_PassByIso")
     fastTrkHypo.trackcollection = sequenceOut
-    #fastTrkHypo.AcceptAll       = True
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
@@ -117,6 +121,9 @@ def tauFTFTauIsoBDTSeq():
     fastTrkHypo.trackcollection = sequenceOut
     fastTrkHypo.RoIForIDReadHandleKey = "UpdatedTrackBDTRoI"
 
+    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+    TrigTrackPreSelHypoTool.AcceptAll = True
+
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
     return  MenuSequence( Sequence    = sequence,
@@ -126,7 +133,7 @@ def tauFTFTauIsoBDTSeq():
 
 
 # ===============================================================================================                                
-#     Tau Preselection Alg + Precision Tracking + Tau Precision Alg + EFMVHypo step  (track)                                                                 
+#     Tau Precision Alg + EFMVHypo step  (track)                                                                 
 # ===============================================================================================
 
 def tauTrackPrecSeq():
@@ -144,7 +151,7 @@ def tauTrackPrecSeq():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 # ===============================================================================================                                            
-#     Tau Preselection Alg + Precision Tracking + Tau Precision Alg + EFMVHypo step   (tracktwo)
+#     Tau Precision Alg + EFMVHypo step   (tracktwo)
 # ===============================================================================================                                              
 
 def tauTrackTwoPrecSeq():
@@ -162,7 +169,7 @@ def tauTrackTwoPrecSeq():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 # ===============================================================================================                                             
-#     Precision Tracking + Tau Precision Alg + EFMVHypo step   (tracktwoEF)
+#     Tau Precision Alg + EFMVHypo step   (tracktwoEF)
 # ===============================================================================================                                                           
 
 def tauTrackTwoEFSeq():
@@ -180,7 +187,7 @@ def tauTrackTwoEFSeq():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 # ===============================================================================================
-#     Precision Tracking + Tau Precision MVA Alg + EFMVHypo step   (tracktwoMVA)
+#     Tau Precision MVA Alg + EFMVHypo step   (tracktwoMVA)
 # ===============================================================================================
 
 def tauTrackTwoMVASeq():
@@ -201,13 +208,15 @@ def tauTrackTwoMVASeq():
 #     Tau Preselection + EFMVHypo step   (track)                                                                             
 # =============================================================================================== 
 
-
 def tauPreSelSeq():
     (sequence, preSelViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauPreSelSequence,ConfigFlags )
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
     preSelHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlgPreSel")
     preSelHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
 
@@ -220,13 +229,15 @@ def tauPreSelSeq():
 #     Tau Preselection + EFMVHypo step   (tracktwo)                                                                                                   
 # ===============================================================================================                                                            
 
-
 def tauPreSelTTSeq():
     (sequence, preSelViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauPreSelTTSequence,ConfigFlags )
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
     preSelHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlgPreSelTT")
     preSelHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
 
@@ -236,7 +247,7 @@ def tauPreSelTTSeq():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 # ===============================================================================================                                                            
-#     Precision Tracking + TrkPrecHypo step   (tracktwoMVA)                                                                             
+#     Precision Tracking + TrkPrecHypo step   (track)                                                                             
 # =============================================================================================== 
 
 def tauPrecTrackSeq():
@@ -255,7 +266,7 @@ def tauPrecTrackSeq():
                           HypoToolGen = TrigTrkPrecHypoToolFromDict )
 
 # ===============================================================================================                                                            
-#     Precision Tracking + TrkPrecHypo step   (tracktwoMVABDT)                                                                                               
+#     Precision Tracking + TrkPrecHypo step   (tracktwo, tracktwoEF, tracktwoMVA, tracktwoMVABDT)                                                                                               
 # ===============================================================================================                                                           
 
 def tauPrecTrackIsoSeq():
