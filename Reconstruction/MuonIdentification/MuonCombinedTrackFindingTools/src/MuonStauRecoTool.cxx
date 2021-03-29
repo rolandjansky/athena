@@ -610,7 +610,8 @@ namespace MuonCombined {
         TrkDriftCircleMath::Segment segment = result;
         segment.hitsOnTrack(dcs.size());
         unsigned int ndofFit = segment.ndof();
-        double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
+        if (ndofFit < 1) continue;
+        double chi2NdofSegmentFit = segment.chi2()/ndofFit;
         bool hasDropHit = false;
         unsigned int dropDepth = 0;
         if( !segmentFinder.dropHits(segment, hasDropHit, dropDepth) ){
@@ -698,8 +699,8 @@ namespace MuonCombined {
 
         if( !isSelected ) continue;
 
-        hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
-        candidate.stauHits.push_back(MuGirlNS::StauHit(MuGirlNS::MDTT_STAU_HIT, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
+        hits.emplace_back(distance,time,er);
+        candidate.stauHits.emplace_back(MuGirlNS::MDTT_STAU_HIT, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime);
       }
     }
     // fit data
