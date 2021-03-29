@@ -266,7 +266,7 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     kwargs.setdefault("Navigator", navigator)
     
     if 'Propagators' not in kwargs:
-        acc = MuonSTEP_PropagatorCfg(flags, Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
+        acc = MuonSTEP_PropagatorCfg(flags, name="MuonPropagator", Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
         muon_prop = acc.getPrimary()
         result.merge(acc)
         result.addPublicTool(muon_prop)
