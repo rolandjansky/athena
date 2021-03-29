@@ -112,36 +112,36 @@ def clusterFSInputMaker( ):
   return InputMakerAlg
 
 
-def HLTCellMaker(RoIs=caloFSRoI, outputName="CaloCells", algSuffix=""):
+def HLTCellMaker(ConfigFlags,RoIs=caloFSRoI, outputName="CaloCells", algSuffix=""):
     cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker"+algSuffix, inputEDM=RoIs, outputEDM=outputName, RoIMode=True)
     return cellMakerAlgo
 
-def HLTFSCellMakerRecoSequence(RoIs=caloFSRoI):
-    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+def HLTFSCellMakerRecoSequence(ConfigFlags,RoIs=caloFSRoI):
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsFS", algSuffix="FS")
     RecoSequence = parOR("ClusterRecoSequenceFS", [cellMaker])
     return (RecoSequence, cellMaker.CellsName)
 
 
-def HLTFSTopoRecoSequence(RoIs):
-    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+def HLTFSTopoRecoSequence(ConfigFlags,RoIs):
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsFS", algSuffix="FS")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="FS")
     RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
-def HLTRoITopoRecoSequence(RoIs):
+def HLTRoITopoRecoSequence(ConfigFlags, RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
     HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
                                              ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
-    cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
     RecoSequence = parOR("RoITopoClusterRecoSequence", [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 
-def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
-    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
+def HLTLCTopoRecoSequence(ConfigFlags, RoIs='InViewRoIs'):
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsLC", algSuffix="LC")
     topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
     RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

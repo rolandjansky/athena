@@ -276,13 +276,13 @@ class ComboMaker(AlgNode):
         self.mult=list(multiplicity)
         self.legIds = list(legIds)
         self.comboHypoCfg = comboHypoCfg
-        Alg = RecoFragmentsPool.retrieve( self.create, name )
+        Alg = self.create(name)
         log.debug("ComboMaker init: Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
 
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
-        return self.comboHypoCfg(name)
+        return self.comboHypoCfg(name=name)
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
@@ -1016,6 +1016,10 @@ class RecoFragmentsPool(object):
             bound = sig.bind(*args, **kwargs)
             bound.apply_defaults()
             return dict(bound.arguments)
+
+        from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+        if not(isinstance(flags,AthConfigFlags) or flags is None):
+            raise TypeError("RecoFragmentsPool: First argument for creator function passed to retrieve() must be of type ConfigFlags or None")
 
         allargs = bind_callargs(creator, flags, **kwargs)
         # First arg is flags, which we don't want to depend on
