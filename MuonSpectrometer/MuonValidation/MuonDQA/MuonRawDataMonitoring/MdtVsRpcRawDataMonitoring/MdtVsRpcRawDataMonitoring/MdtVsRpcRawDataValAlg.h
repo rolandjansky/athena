@@ -97,6 +97,10 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   /// BME have special treatment in the code
   /// 
   int  m_BMEid{-1};
+  int  m_BISid{-1};
+  int  m_BMLid{-1};
+  int  m_BOLid{-1};
+  int  m_BMFid{-1};
  
   TH1*    m_MdtRpcZdiff             ; 
   TH2*    m_MdtNHitsvsRpcNHits      ;

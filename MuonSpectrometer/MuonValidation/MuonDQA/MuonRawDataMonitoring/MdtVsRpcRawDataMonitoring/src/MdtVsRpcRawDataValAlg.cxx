@@ -81,6 +81,12 @@ StatusCode MdtVsRpcRawDataValAlg::initialize() {
   ATH_CHECK(m_key_mdt.initialize());
   ATH_CHECK(m_key_rpc.initialize());
   m_BMEid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
+  m_BISid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
+  m_BMLid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BML");
+  m_BOLid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BOL");
+  m_BMFid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMF");
+  
+  
   return StatusCode::SUCCESS;
 }
 
@@ -194,7 +200,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 		//define layer
                 int imdt_multi_near = 0;
-		if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
+		if( (irpcstationName>m_BISid) && (irpcstationName< m_BOLid||irpcstationName==m_BMFid) ){
 		  if(irpcdoubletR==1){layer_name="LowPt";imdt_multi_near=1;}
 		  else {layer_name="Pivot";imdt_multi_near=2;}
 		}			
@@ -208,7 +214,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  side = 'C'         ;
 		}
 		int sector = 2 * irpcstationPhi                              ;
-		if(irpcstationName==2 ||  irpcstationName==4 ) sector--  ;
+		if(irpcstationName==m_BMLid ||  irpcstationName==m_BOLid ) sector--  ;
                 char sector_char[1000]    ;  
 		sprintf(sector_char,"Sector%.2d",sector)                   ;
 		sector_name =  sector_char                               ;
