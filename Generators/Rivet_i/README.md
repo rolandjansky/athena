@@ -122,6 +122,12 @@ You can run these JobOptions like so:
 athena local_jO.py
 ```
 
+In case one wants to run over multiple EVNT files in a directory:
+
+```
+input = glob.glob("<path to files>/*.root*");
+svcMgr.EventSelector.InputCollections = input
+```
 
 ### Automatic cross-section extraction from local runs
 
