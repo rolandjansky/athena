@@ -20,6 +20,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
      ${CMAKE_CURRENT_SOURCE_DIR}/src/PlaneSurface.cxx
      ${CMAKE_CURRENT_SOURCE_DIR}/src/CylinderSurface.cxx
      ${CMAKE_CURRENT_SOURCE_DIR}/src/StraightLineSurface.cxx
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/PerigeeSurface.cxx
      PROPERTIES
      COMPILE_FLAGS "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
      COMPILE_DEFINITIONS "FLATTEN" )
