@@ -285,7 +285,7 @@ StatusCode RpcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
 
   //John's Hacks START
   m_RPCHitCollList.clear();
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>();
+  m_thpcRPC =std::make_unique<TimedHitCollection<RPCSimHit>>();
   //John's Hacks END
 
   return StatusCode::SUCCESS;
@@ -343,7 +343,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   ATH_MSG_DEBUG ( "RpcDigitizationTool::getNextEvent()" );
 
   // initialize pointer
-  m_thpcRPC = nullptr;
+  m_thpcRPC.reset();
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
@@ -357,7 +357,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
     }
 
     // create a new hits collection
-    m_thpcRPC = new TimedHitCollection<RPCSimHit>{1};
+    m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>(1);;
     m_thpcRPC->insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollection->size() << " hits");
 
@@ -379,7 +379,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   }
 
   // create a new hits collection
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>() ;
+  m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>() ;
 
   //now merge all collections into one
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -468,7 +468,7 @@ StatusCode RpcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   m_sdo_tmp_map.clear();
   /////////////////////////
 
-  if (0 == m_thpcRPC ) {
+  if (!m_thpcRPC ) {
     status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no RPC hits in this event" );
@@ -494,7 +494,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   int nKilledStrips = 0;
   int nToBeKilledStrips = 0;
   
-  RPCSimHitCollection* inputSimHitColl=NULL;
+  RPCSimHitCollection* inputSimHitColl=nullptr;
   
  if (m_validationSetup)
     {
@@ -936,10 +936,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   }// loop to suppress digits too close in time ended
 
   // reset the pointer if it not null
-  if (m_thpcRPC) {
-    delete m_thpcRPC;
-    m_thpcRPC=0;
-  }
+  m_thpcRPC.reset();
 
   ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips<<" ("<<nToBeKilledStrips<<")");
   return StatusCode::SUCCESS;

@@ -165,7 +165,7 @@ private:
   const RpcIdHelper*          m_idHelper{};
   RpcHitIdHelper*             m_muonHelper{};
   std::list<RPCSimHitCollection*> m_RPCHitCollList;
-  TimedHitCollection<RPCSimHit>* m_thpcRPC{};
+  std::unique_ptr<TimedHitCollection<RPCSimHit>> m_thpcRPC{};
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   std::map<Identifier,std::vector<MuonSimData::Deposit> > m_sdo_tmp_map;
   Gaudi::Property<int>            m_deadTime{this, "DeadTime", 100. , "dead time"};
