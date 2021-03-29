@@ -16,7 +16,5 @@ public:
   virtual ConditionPtr getRepeatedCondition() const = 0;
   virtual ConditionPtr getRepeatedAntiCondition() const = 0;
 
-  virtual bool addToCapacity(std::size_t) = 0;
-  virtual std::size_t capacity() const = 0;
 };
 #endif
