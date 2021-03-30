@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import *
@@ -86,6 +86,7 @@ def getIDETEnvelope(name="IDET", **kwargs):
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
+    outerRadius = 1148.*mm
     if isRUN2:
         innerRadius = 28.9*mm #29.15*mm
     if isUpgrade:
@@ -96,8 +97,10 @@ def getIDETEnvelope(name="IDET", **kwargs):
       dbId,dbMother,dbParam = dbGeomCursor.GetCurrentLeafContent("AtlasMother")
       rin=dbMother[dbId[0]][dbParam.index("IDETIR")]
       innerRadius = rin*10.*mm # The factor 10 is needed for converting in mm the DB entry
+      rout = dbMother[dbId[0]][dbParam.index("IDETOR")]
+      outerRadius = rout*10.*mm #cm to mm
     kwargs.setdefault("InnerRadius", innerRadius)
-    kwargs.setdefault("OuterRadius", 1.148*m)
+    kwargs.setdefault("OuterRadius", outerRadius)
     # IDET should include the HGTD (3420 mm < |z| < 3545 mm) when turned on, otherwise leave room for MBTS from |z| = 3475 mm since it is placed inside CALO
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.HGTD_on():
