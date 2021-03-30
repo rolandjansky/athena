@@ -15,60 +15,8 @@ mm = 1
 
 def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.8/Reconstruction/MuonIdentification/MuonCombinedRecExample/python/CombinedMuonTrackSummary.py
-    # FIXME - check all of this once the ID configuration is available, because probably we can simplify this a lot
-    result = AtlasExtrapolatorCfg(flags)
-    extrapolator = result.getPrimary()
-    result.addPublicTool(extrapolator)
-
-    from InDetConfig. InDetRecToolConfig import InDetBoundaryCheckToolCfg
-    acc = InDetBoundaryCheckToolCfg(flags, name="CombinedMuonIDBoundaryCheckTool")
-    boundary_tool = result.popToolsAndMerge(acc)
-
-    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
-    acc = InDetTrackHoleSearchToolCfg(flags,
-                                      name            = "CombinedMuonIDHoleSearch",
-                                      Extrapolator    = extrapolator,
-                                      CountDeadModulesAfterLastHit = True,
-                                      BoundaryCheckTool = boundary_tool,
-                                      Cosmics         = (flags.Beam.Type=="cosmics"))
-    indet_hole_search_tool = acc.getPrimary()
-    result.addPublicTool(indet_hole_search_tool)
-    result.merge(acc)
-    #FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
-    # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-    acc = InDetTrackSummaryHelperToolCfg(flags,
-                                         name="CombinedMuonIDSummaryHelper", 
-                                         AssoTool        = None, 
-                                         PixelToTPIDTool = None,
-                                         TestBLayerTool  = None,
-                                         DoSharedHits    = False,
-                                         usePixel        = True,
-                                         useSCT          = True,
-                                         useTRT          = True,
-                                         HoleSearch      = indet_hole_search_tool)
-    indet_track_summary_helper_tool = acc.getPrimary()
-    result.addPublicTool(indet_track_summary_helper_tool)
-    result.merge(acc)
-
-
-    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
-    acc = MuonTrackSummaryHelperToolCfg(flags)
-    muon_track_summary_helper_tool = acc.getPrimary()
-    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name="CombinedMuonTrackSummary",
-                                                          doSharedHits             = False,
-                                                          doHolesInDet             = True,
-                                                          doHolesMuon              = False,
-                                                          AddDetailedInDetSummary  = True,
-                                                          AddDetailedMuonSummary   = True,
-                                                          InDetSummaryHelperTool   = indet_track_summary_helper_tool,
-                                                          TRT_ElectronPidTool      = None,
-                                                          PixelToTPIDTool          = None,
-                                                          MuonSummaryHelperTool    = muon_track_summary_helper_tool,
-                                                          PixelExists              = True )
-    result.merge(acc)
-    result.addPublicTool(track_summary_tool)
-    result.setPrivateTools(track_summary_tool)
+    from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
+    result = AtlasTrackSummaryToolCfg(flags, name = "CombinedMuonTrackSummary")
     return result
 
 def MuonTrackToVertexCfg(flags, name = 'MuonTrackToVertexTool', **kwargs ):
