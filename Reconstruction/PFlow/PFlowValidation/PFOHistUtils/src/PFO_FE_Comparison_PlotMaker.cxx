@@ -5,6 +5,9 @@
 
 #include "PFOHistUtils/PFO_FE_Comparison_PlotMaker.h"
 #include <math.h>
+// some debug libraries for cluster moment floating point checks
+#include <bitset>
+#include <climits>
 namespace PFO {
   PFO_FE_Comparison_PlotMaker::PFO_FE_Comparison_PlotMaker(PlotBase* pParent,std::string sDir, std::string sPFOContainerName, std::string sFEContainerName, bool isNeutral): PlotBase(pParent,sDir), asg::AsgMessaging("PFO_FE_Comparison_PlotMaker"), m_sPFOContainerName(sPFOContainerName), m_sFEContainerName(sFEContainerName), m_isNeutral(isNeutral) {
     // init all hists as nullptrs
@@ -87,11 +90,11 @@ namespace PFO {
   
   void PFO_FE_Comparison_PlotMaker::Fill(const xAOD::PFO* pfo, const xAOD::FlowElement* fe){
     TLorentzVector fe_tlv=fe->p4();  
-    TLorentzVector pfo_tlv=pfo->p4();
+    TLorentzVector pfo_tlv=pfo->p4EM(); // default PFO is LC scale, switch to EM scale for comparison
  
     double pfo_pt=pfo_tlv.Pt();
     double pfo_eta=pfo_tlv.Eta();
-    double pfo_e=pfo_tlv.E();
+    double pfo_e=pfo_tlv.E(); // get correct scale
     
     double fe_pt=fe_tlv.Pt();
     double fe_eta=fe_tlv.Eta();
@@ -106,7 +109,26 @@ namespace PFO {
     double abs_dEta=std::abs(fe_eta-pfo_eta); 
     double dphi=fe_tlv.DeltaPhi(pfo_tlv);
     double dE=fe_e-pfo_e;
-    
+    double ERatio=-9999999999;
+    if(pfo_e!=0)
+	ERatio=fe_e/pfo_e;
+
+    if(m_isNeutral){
+	// debug of scale
+	double pfo_e_LC=pfo->p4().E(); // pfo LC scale energy
+	double pfo_eEM=pfo->eEM(); // pfo EM scale energy
+	ATH_MSG_DEBUG("PFO E(): "<<pfo_e_LC<<"PFO eEM()"<<pfo_eEM<<" FE E(): "<<fe_e);
+	if(ERatio>-999999999)
+	    ATH_MSG_INFO("Ratio (PFO_e/FE_e): "<<ERatio);
+	if(dE!=0)
+	    ATH_MSG_INFO("FE_e - PFO_e : "<<dE);
+	// assume all edge cases/nullptr catches for clusters were already vetoed
+	double fe_clus_e=(fe->otherObjects()).at(0)->p4().E();
+	double pfo_clus_e=pfo->cluster(0)->p4().E();
+		
+
+	ATH_MSG_INFO("PFO_clus E(): "<<pfo_clus_e<<" FE_clus E(): "<<fe_clus_e);
+    }
     // now fill the histos
     
     m_PFO_FE_dE->Fill(dE);
@@ -166,9 +188,22 @@ namespace PFO {
      if(acc_FE_moment_N_BAD_CELLS.isAvailable(*fe))
        FE_moment_N_BAD_CELLS=acc_FE_moment_N_BAD_CELLS(*fe);
      
-     if(acc_FE_moment_BADLARQ_FRAC.isAvailable(*fe))
+     if(acc_FE_moment_BADLARQ_FRAC.isAvailable(*fe)){
        FE_moment_BADLARQ_FRAC=acc_FE_moment_BADLARQ_FRAC(*fe);
-     
+       // this section is a debug of floating point compression
+       ATH_MSG_DEBUG("BADLARQ_FRAC "<<FE_moment_BADLARQ_FRAC);
+
+       union{ //using union and bitset to read the binary 
+	      //representation of the floating point number (to check compression effects)
+	   float input; // 
+	   int output;
+       } indata;
+       indata.input=FE_moment_BADLARQ_FRAC;
+       std::bitset<sizeof(float) * CHAR_BIT> bits(indata.output);
+       ATH_MSG_DEBUG("BADLARQ_FRAC bits (binary rep) "<<bits<<"");       
+
+
+     }
      if(acc_FE_moment_ENG_POS.isAvailable(*fe))
        FE_moment_ENG_POS=acc_FE_moment_ENG_POS(*fe);
      
