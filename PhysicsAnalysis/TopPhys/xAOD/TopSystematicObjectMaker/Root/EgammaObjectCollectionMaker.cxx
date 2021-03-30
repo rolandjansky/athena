@@ -306,7 +306,6 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
     static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
-    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
     static const SG::AuxElement::ConstAccessor<short> PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
     static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoECAP("PromptLeptonImprovedVetoECAP");
     static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoBARR("PromptLeptonImprovedVetoBARR");
@@ -447,9 +446,8 @@ namespace top {
           AnalysisTop_Isol_PLVTight(*electron) = 'n';
           AnalysisTop_Isol_PLVLoose(*electron) = 'n';
         }
-        if (ptvarcone30_TightTTVA_pt500.isAvailable(*electron) && PromptLeptonImprovedVeto.isAvailable(*electron) &&
-            PromptLeptonImprovedInput_MVAXBin.isAvailable(*electron) && PromptLeptonImprovedVetoECAP.isAvailable(*electron) && 
-            PromptLeptonImprovedVetoBARR.isAvailable(*electron)) {
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*electron) && PromptLeptonImprovedInput_MVAXBin.isAvailable(*electron)
+            && PromptLeptonImprovedVetoECAP.isAvailable(*electron) && PromptLeptonImprovedVetoBARR.isAvailable(*electron)) {
           AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
         } else {
