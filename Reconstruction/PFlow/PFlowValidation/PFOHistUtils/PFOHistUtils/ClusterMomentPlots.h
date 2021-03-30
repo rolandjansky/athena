@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLUSTERMOMENTPLOTS_H
 #define CLUSTERMOMENTPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace PFO {
 
@@ -14,9 +16,9 @@ namespace PFO {
 
   public:
 
-     ClusterMomentPlots(PlotBase *pParent, std::string sDir, std::string sClusterContainerName);
+     ClusterMomentPlots(PlotBase *pParent, std::string sDir, SG::ReadHandleKey<xAOD::CaloClusterContainer>& sClusterContainerName);
 
-     void fill(const xAOD::CaloCluster& cluster);
+     void fill(const xAOD::CaloCluster& cluster, const xAOD::EventInfo& eventInfo);
 
   private:
 
@@ -40,7 +42,7 @@ namespace PFO {
      TH1* m_EM_PROBABILITY;
 
      void initializePlots();
-     std::string m_sClusterContainerName;
+     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_sClusterContainerName;
 
   };
 
