@@ -285,6 +285,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_defaultTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_defaultTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_defaultTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+    m_defaultTree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
 
     m_defaultTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_defaultTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -293,6 +294,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_defaultTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_defaultTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_defaultTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_defaultTree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
     
     if (m_doIP) {
       m_defaultTree->Branch("Negative_d0_PV",      &m_negative_d0_PV   ,  "Negative_d0_PV/D");
@@ -329,6 +331,8 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_IDTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_IDTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_IDTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+    m_IDTree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
+
     m_IDTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_IDTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_IDTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
@@ -336,6 +340,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_IDTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_IDTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_IDTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_IDTree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
     
     if(m_doIP){
       m_IDTree->Branch("Negative_d0_PV",      &m_negative_d0_PV   ,  "Negative_d0_PV/D");
@@ -372,7 +377,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit1Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_refit1Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_refit1Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
-    m_refit1Tree->Branch("Negative_sigma_qoverp",  &m_negative_sigma_qOverP,  "Negative_sigma_qoverp/D");
+    m_refit1Tree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
 
     m_refit1Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit1Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -381,7 +386,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit1Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_refit1Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_refit1Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
-    m_refit1Tree->Branch("Positive_sigma_qoverp",  &m_positive_sigma_qOverP,  "Positive_sigma_qoverp/D");
+    m_refit1Tree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
 
     if(m_doIP){
       m_refit1Tree->Branch("Negative_d0_PV",      &m_negative_d0_PV   ,  "Negative_d0_PV/D");
@@ -418,8 +423,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit2Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_refit2Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_refit2Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
-
-
+    m_refit2Tree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
 
     m_refit2Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit2Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -428,6 +432,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_refit2Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_refit2Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_refit2Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_refit2Tree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
 
 
     if(m_doIP){
@@ -467,7 +472,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_combTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_combTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_combTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
-
+    m_combTree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
 
     m_combTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_combTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -476,6 +481,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_combTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_combTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_combTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_combTree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
     
     if(m_doIP){
       m_combTree->Branch("Negative_z0_PV",  &m_negative_z0_PV,  "Negative_z0_PV/D");
@@ -514,6 +520,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_MSTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
     m_MSTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
     m_MSTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+    m_MSTree->Branch("Negative_sigma_pt",  &m_negative_sigma_pt,  "Negative_sigma_pt/D");
 
     m_MSTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_MSTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
@@ -522,6 +529,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_MSTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
     m_MSTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_MSTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_MSTree->Branch("Positive_sigma_pt",  &m_positive_sigma_pt,  "Positive_sigma_pt/D");
   }
 
   if( m_isMC && m_truthTree == 0){
@@ -907,14 +915,16 @@ StatusCode IDPerfMonZmumu::execute()
 			<< "  pt: " << muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt()
 			<< "  d0: " << m_positive_d0 
 			<< "  z0: " << m_positive_z0
-			<< "  d0unc: " << m_positive_d0_err);
+			<< "  d0unc: " << m_positive_d0_err
+			<< "  sigma_pt: " << m_positive_sigma_pt);
 	  ATH_MSG_DEBUG("mu-  --> pxyz: " << m_negative_px
 			<< ", " << m_negative_py
 			<< ", " << m_negative_pz
 			<< "  pt: " << muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt()
 			<< "  d0: " << m_negative_d0
 			<< "  z0: " << m_negative_z0
-			<< " d0unc: " << m_negative_d0_err);
+			<< "  d0unc: " << m_negative_d0_err
+			<< "  sigma_pt: " << m_negative_sigma_pt);
 	  // ntuple variables have been filled in FillRecParametersTP
 	  m_IDTree->Fill();
 	}
@@ -958,14 +968,16 @@ StatusCode IDPerfMonZmumu::execute()
 		      << "  pt: " << muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle)->pt()
 		      << "  d0: " << m_positive_d0 
 		      << "  z0: " << m_positive_z0
-		      << "  d0unc: " << m_positive_d0_err);
+		      << "  d0unc: " << m_positive_d0_err
+		      << "  sigma_pt: " << m_positive_sigma_pt);
 	ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
 		      << ", " << m_negative_py
 		      << ", " << m_negative_pz 
 		      << "  pt: " << muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle)->pt()
 		      << "  d0: " << m_negative_d0
 		      << "  z0: " << m_negative_z0
-		      << "  d0unc: " << m_negative_d0_err);
+		      << "  d0unc: " << m_negative_d0_err
+		      << "  sigma_pt: " << m_negative_sigma_pt);
 	// ntuple variables have been filled in FillRecParameters
 	m_combTree->Fill();
       }
@@ -998,14 +1010,16 @@ StatusCode IDPerfMonZmumu::execute()
 		      << "  pt: " << m_xZmm.getMSTrack(m_xZmm.getPosMuon(ZmumuEvent::CB))->pt()
 		      << "  d0: " << m_positive_d0 
 		      << "  z0: " << m_positive_z0
-		      << "  d0unc: " << m_positive_d0_err);
+		      << "  d0unc: " << m_positive_d0_err
+		      << "  sigma_pt: " << m_positive_sigma_pt);
 	ATH_MSG_DEBUG("mu- --> pxyz: " << m_negative_px
 		      << ", " << m_negative_py
 		      << ", " << m_negative_pz 
 		      << "  pt: " << m_xZmm.getMSTrack(m_xZmm.getNegMuon(ZmumuEvent::CB))->pt()
 		      << "  d0: " << m_negative_d0
 		      << "  z0: " << m_negative_z0
-		      << "  d0unc: " << m_negative_d0_err);
+		      << "  d0unc: " << m_negative_d0_err
+		      << "  sigma_pt: " << m_negative_sigma_pt);
 	// ntuple variables have been filled in FillRecParametersTP
 	m_MSTree->Fill();
       }
@@ -1153,12 +1167,14 @@ StatusCode IDPerfMonZmumu::execute()
 			  << m_negative_py << ", "
 			  << m_negative_pz << ") "
 			  << "  d0: " << m_negative_d0
-			  << "  z0: " << m_negative_z0);
+			  << "  z0: " << m_negative_z0
+			  << "  sigma_pt: " << m_positive_sigma_pt);
 	    ATH_MSG_DEBUG("Positive p: (" << m_positive_px << ","
 			  << m_positive_py << ","
 			  << m_positive_pz << ") "
 			  << "  d0: " << m_positive_d0
-			  << "  z0: " << m_positive_z0);	  
+			  << "  z0: " << m_positive_z0	  
+			  << "  sigma_pt: " << m_negative_sigma_pt);
 	    m_refit1Tree->Fill();
 	  }
 	  else {
@@ -1190,12 +1206,14 @@ StatusCode IDPerfMonZmumu::execute()
 			  << m_negative_py << ", "
 			  << m_negative_pz << ") "
 			  << "  d0: " << m_negative_d0
-			  << "  z0: " << m_negative_z0);
+			  << "  z0: " << m_negative_z0
+			  << "  sigma_pt: " << m_positive_sigma_pt);
 	    ATH_MSG_DEBUG("Positive p: (" << m_positive_px << ","
 			  << m_positive_py << ","
 			  << m_positive_pz << ") "
 			  << "  d0: " << m_positive_d0
-			  << "  z0: " << m_positive_z0);	  
+			  << "  z0: " << m_positive_z0	  
+			  << "  sigma_pt: " << m_negative_sigma_pt);
 	    m_refit2Tree->Fill();
 	  }
 	  else {
@@ -1290,7 +1308,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   double PVz0res = 0;
   double PVd0 = 0;
   double PVz0 = 0;
-  double sigma_qOverP = 0;
+  double sigma_pt = 0;
   
   px = trackp->p4().Px();
   py = trackp->p4().Py();
@@ -1300,7 +1318,11 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   
   d0res = std::sqrt(trackp->definingParametersCovMatrix()(Trk::d0,Trk::d0));
   z0res = std::sqrt(trackp->definingParametersCovMatrix()(Trk::z0,Trk::z0));
-  sigma_qOverP = std::sqrt(trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
+  // computing sigma_pt
+  // pt = sin(theta) / qOverP --> sigma(pt) = (sin(theta)/ qOverP^2) x sigma(qOverP) // neglecting sigma(sin(theta))
+  const Trk::Perigee *thePerigee   = &(trackp->perigeeParameters());
+  double sigma_qOverP = std::sqrt(trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));  
+  sigma_pt = (sin(thePerigee->parameters()[Trk::theta]) / pow(thePerigee->parameters()[Trk::qOverP],2)) * sigma_qOverP;
 
   if (vertex == nullptr) {
     ATH_MSG_WARNING("in FillRecParametersTP. WARNING: Vertex is NULL");
@@ -1343,7 +1365,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_positive_z0_err = z0res;
     m_positive_d0 = d0;
     m_positive_d0_err = d0res;
-    m_positive_sigma_qOverP = sigma_qOverP;
+    m_positive_sigma_pt = sigma_pt;
     if(m_doIP){
       m_positive_z0_PV = PVz0;
       m_positive_d0_PV = PVd0;
@@ -1360,7 +1382,7 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_negative_z0_err = z0res;
     m_negative_d0 = d0;
     m_negative_d0_err = d0res;
-    m_negative_sigma_qOverP = sigma_qOverP;
+    m_negative_sigma_pt = sigma_pt;
     if(m_doIP){
       m_negative_z0_PV = PVz0;
       m_negative_d0_PV = PVd0;
@@ -1789,7 +1811,7 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_positive_z0 = 0.;
   m_positive_d0_err = 0.;
   m_positive_z0_err = 0.;
-  m_positive_sigma_qOverP = 0.;
+  m_positive_sigma_pt = 0.;
   m_positive_1_vtx = 0;
   m_positive_parent = 0;
 
@@ -1800,7 +1822,7 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_negative_z0 = 0.;
   m_negative_d0_err = 0.;
   m_negative_z0_err = 0.;
-  m_negative_sigma_qOverP = 0.;
+  m_negative_sigma_pt = 0.;
   m_negative_1_vtx = 0;
   m_negative_parent = 0;
 	
