@@ -110,7 +110,8 @@ AODMoments=[#"LATERAL"
             ,"EM_PROBABILITY"
             #,"PTD"
             ,"BadChannelList"
-            ,#"LATERAL"
+            #,"LATERAL"
+            ,"SECOND_TIME"
             ]
 
 if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
@@ -214,8 +215,6 @@ if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
                    "ENG_POS"):
          AuxListItem+="."+moment
     CaloClusterItemList+=[AuxListItem]
-
-
 
 CaloAODList+=CaloClusterItemList
 

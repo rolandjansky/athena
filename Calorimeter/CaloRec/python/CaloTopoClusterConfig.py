@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -135,6 +135,7 @@ def getTopoMoments(configFlags):
                                 ,"AVG_TILE_Q"
                                 ,"PTD"
                                 ,"MASS"
+                                , "SECOND_TIME"
                                 ]
 
     # Disable for now, as broken on MC
