@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -38,13 +38,4 @@ StatusCode TrigJetConditionConfig_qjet_mass::checkVals() const {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-
-bool TrigJetConditionConfig_qjet_mass::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_qjet_mass::capacity() const {
-  return getCondition()->capacity();
 }

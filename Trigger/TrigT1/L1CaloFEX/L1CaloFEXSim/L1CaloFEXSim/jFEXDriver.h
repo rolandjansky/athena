@@ -18,6 +18,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
 
 class CaloIdManager;
 
@@ -34,8 +35,9 @@ class jFEXDriver : public AthAlgorithm
   virtual StatusCode initialize();
   virtual StatusCode execute(/*const EventContext& ctx*/);// const;
   StatusCode finalize();
+  virtual StatusCode testEDM();
 
- private:
+ private: 
 
   int m_numberOfEvents = 0;
 
@@ -44,6 +46,8 @@ class jFEXDriver : public AthAlgorithm
   SG::WriteHandleKey<jFEXOutputCollection> m_jFEXOutputCollectionSGKey {this, "MyOutputs", "jFEXOutputCollection", "MyOutputs"};
 
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+
+  SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDM", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
 
   ToolHandle<IjTowerBuilder> m_jTowerBuilderTool {this, "jTowerBuilderTool", "LVL1::jTowerBuilder", "Tool that builds jTowers for simulation"};
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};

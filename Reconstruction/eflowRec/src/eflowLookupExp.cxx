@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -10,8 +10,21 @@
  */
 
 #include "eflowRec/eflowLookupExp.h"
+#include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 
-//eflowLookupExp* eflowLookupExp::m_instance = nullptr;
-std::unique_ptr<eflowLookupExp> eflowLookupExp::m_instance  = nullptr;
 
+const eflowLookupExp* eflowLookupExp::getInstance(int nExpBins /*= 50*/,
+                                                  int nExpSubBins /*= 1000*/)
+{
+  static CxxUtils::CachedUniquePtr<eflowLookupExp> cached ATLAS_THREAD_SAFE;
+  if (!cached) {
+    cached.set (std::make_unique<eflowLookupExp>(nExpBins, nExpSubBins));
+  }
 
+  if ( (cached->m_nExpBins != nExpBins) || (cached->m_nExpSubBins != nExpSubBins) )
+  {
+    throw std::runtime_error("eflowLookupExp: Instance with different bin numbers than existing requested!");
+  }
+  return cached.get();
+}

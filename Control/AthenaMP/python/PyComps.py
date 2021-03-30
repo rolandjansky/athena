@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #-----Python imports---#
 import os, sys, shutil
@@ -118,12 +118,10 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                                                    ChunkSize=chunk_size) ]
 
             if (self.nThreads >= 1):
+                if(pileup):
+                    raise Exception('Running pileup digitization in mixed MP+MT currently not supported')
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
-                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=use_shared_reader,
-                                                           UseSharedWriter=use_shared_writer,
-                                                           IsPileup=pileup,
-                                                           IsRoundRobin=(strategy=='RoundRobin'),
-                                                           EventsBeforeFork=events_before_fork,
+                self.Tools += [ SharedHiveEvtQueueConsumer(EventsBeforeFork=events_before_fork,
                                                            Debug=debug_worker)   ]
             else:
                 from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer

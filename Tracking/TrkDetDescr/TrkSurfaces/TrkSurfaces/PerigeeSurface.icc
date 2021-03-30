@@ -126,10 +126,10 @@ PerigeeSurface::normal() const
 }
 
 
-inline const Amg::Vector3D*
+inline Amg::Vector3D
 PerigeeSurface::normal(const Amg::Vector2D&) const
 {
-  return new Amg::Vector3D(normal());
+  return Amg::Vector3D(normal());
 }
 
 inline bool

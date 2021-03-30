@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetHistoBase.h"
@@ -21,13 +21,13 @@ StatusCode JetHistoBase::initialize() {
 
 
 
-int JetHistoBase::fillHistosFromContainer(const xAOD::JetContainer & cont){
+int JetHistoBase::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
   int count=0;
-  for( const xAOD::Jet* jet : cont ){ count+=fillHistosFromJet( *jet );}
+  for( const xAOD::Jet* jet : cont ){ count+=fillHistosFromJet( *jet, weight );}
   return count;    
 }
 
-int JetHistoBase::fillHistosFromJet(const xAOD::Jet &) { return 0;}
+int JetHistoBase::fillHistosFromJet(const xAOD::Jet &, float /*weight*/) { return 0;}
 
 int JetHistoBase::finalizeHistos() {return 0;}
 

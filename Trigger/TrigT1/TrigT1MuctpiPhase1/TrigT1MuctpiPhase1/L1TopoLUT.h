@@ -20,14 +20,20 @@ namespace LVL1MUCTPIPHASE1
 
   struct L1TopoCoordinates
   {
-    double eta;
-    double phi;
-    double eta_min;
-    double eta_max;
-    double phi_min;
-    double phi_max;
-    unsigned short ieta;
-    unsigned short iphi;
+    bool operator==(const L1TopoCoordinates& rhs) const
+    {
+      return (eta == rhs.eta && phi == rhs.phi && 
+	      eta_min == rhs.eta_min && phi_min == rhs.phi_min &&
+	      ieta == rhs.ieta && iphi == rhs.iphi);
+    }
+    double eta=0;
+    double phi=0;
+    double eta_min=0;
+    double eta_max=0;
+    double phi_min=0;
+    double phi_max=0;
+    unsigned short ieta=0;
+    unsigned short iphi=0;
   };
 
   class L1TopoLUT
@@ -44,16 +50,16 @@ namespace LVL1MUCTPIPHASE1
 				     const unsigned short& sectorID,
 				     const unsigned short& roi) const;
     
-    std::set<std::string> getErrors() const {return m_errors;}
+    std::vector<std::string> getErrors() const {return m_errors;}
 
   protected:
 
     bool initializeLUT(const std::string& inFileName, const bool& isBarrel);
-    bool initializeJSON(const std::string& inFileName, const bool& side);
+    bool initializeJSON(const std::string& inFileName, bool side);
     bool initializeJSONForSubsystem(pt::ptree& root,
 				    const std::string& nodeName, 
-				    const bool& side,
-				    const unsigned short& subsystem);
+				    bool side,
+				    unsigned short subsystem);
     
     struct L1TopoLUTKey
     {
@@ -91,7 +97,7 @@ namespace LVL1MUCTPIPHASE1
     };
 
     std::unordered_map<L1TopoLUTKey, L1TopoCoordinates, L1TopoLUTKeyHasher> m_encoding;
-    std::set<std::string> m_errors;
+    std::vector<std::string> m_errors;
   };
 }
 

@@ -26,7 +26,7 @@ from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
-from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
+from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlgCfg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
 
 from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg, MuonFilterAlgCfg, MergeEFMuonsAlgCfg
 from AthenaCommon.CFElements import seqAND, parOR, seqOR
@@ -416,7 +416,7 @@ def muEFCBStep(flags, chainDict, name='RoI'):
 
     recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(name))
     
-    indetCandCfg = MuonCombinedInDetCandidateAlg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
+    indetCandCfg = MuonCombinedInDetCandidateAlgCfg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
                                                  InDetCandidateLocation="IndetCandidates_"+name, TrackSelector="",DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
     recoCB.mergeReco(indetCandCfg)
     muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_"+name, MuonCandidateLocation=muonCandName, 

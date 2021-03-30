@@ -1877,7 +1877,7 @@ int main(int argc, char** argv)
         else if ( vtxind_rec!=-1 ) {
           if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
         }
-        else { 
+        else {  
           for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
         }
 
@@ -2085,9 +2085,10 @@ int main(int argc, char** argv)
 
         std::vector<TIDA::Vertex> vertices_roi;
 
+	/// do for all vertices now ...
+	//        if ( chain.name().find("SuperRoi") ) { 
+	{          
 
-        if ( chain.name().find("SuperRoi") ) { 
-          
           /// select the reference offline vertices
           
           vertices_roi.clear();
@@ -2100,6 +2101,20 @@ int main(int argc, char** argv)
 
             const TIDA::Vertex& vx = mv[iv];
 
+	    // reject all vertices that are not in the roi
+
+	    bool accept_vertex = false;
+	    if ( roi.composite() ) { 
+	      for ( size_t ir=0 ; ir<roi.size() ; ir++ ) { 
+		if ( roi[ir]->zedMinus()<=vx.z() && roi[ir]->zedPlus()>=vx.z() ) accept_vertex = true;  
+	      }
+	    }
+	    else { 
+	      if ( roi.zedMinus()<=vx.z() && roi.zedPlus()>=vx.z() ) accept_vertex = true;  
+	    }
+
+	    if ( !accept_vertex ) continue;
+	    
             //      std::cout << "\t" << iv << "\t" << vx << std::endl;
 
             int trackcount = 0;
@@ -2114,7 +2129,7 @@ int main(int argc, char** argv)
             /// don't add vertices with no matching tracks - remember the 
             /// tracks are filtered by Roi already so some vertices may have 
             /// no tracks in the Roi - ntracks set to 0 by default
-            if ( trackcount>=ntracks ) { 
+            if ( trackcount>=ntracks && trackcount>0 ) { 
               vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
                                                     vx.dx(), vx.dy(), vx.dz(),
                                                     trackcount, 
@@ -2125,7 +2140,7 @@ int main(int argc, char** argv)
           }
           
         }
-        else vertices_roi = vertices;
+        // else vertices_roi = vertices;
 	
        	if ( rotate_testtracks ) for ( size_t i=testp.size() ; i-- ; ) testp[i]->rotate();
 	

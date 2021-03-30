@@ -84,7 +84,7 @@ Surface::pathCorrection(const Amg::Vector3D&, const Amg::Vector3D& mom) const
 {
   Amg::Vector3D dir(mom.unit());
   double cosAlpha = dir.dot(normal());
-  return (cosAlpha != 0 ? fabs(1. / cosAlpha)
+  return (cosAlpha != 0 ? std::abs(1. / cosAlpha)
                         : 1.); // ST undefined for cosAlpha=0
 }
 
@@ -195,10 +195,10 @@ Surface::globalToLocal(const Amg::Vector3D& glopos,
 }
 
 // take local position and return global direction
-inline const Amg::Vector3D*
+inline Amg::Vector3D
 Surface::normal(const Amg::Vector2D&) const
 {
-  return new Amg::Vector3D(normal());
+  return Amg::Vector3D(normal());
 }
 
 inline const Amg::Vector3D&

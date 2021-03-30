@@ -59,25 +59,7 @@ void LVL1::jFEXSmallRJetAlgo::setup(int inputTable[5][5]) {
   std::copy(&inputTable[0][0], &inputTable[0][0] + 25, &m_jFEXalgoTowerID[0][0]);
 
 }
-     
-//TOB for Small R Jet Algo
-/*LVL1::jFEXSmallRJetAlgoTOB * LVL1::jFEXSmallRJetAlgo::getSmallRJetTOB()
-{
-  jFEXSmallRJetAlgoTOB *tob = new jFEXSmallRJetTOB();
-//  unsigned int et = getTTowerET();
-//  unsigned int phi = getTTowerET;
-//  unsigned int eta = getRealPhi();
-//  tob->setEta();
-//  tob->setPhi();
-//  tob->setET(et);
- // tob->setRes();
- // tob->setSat();
-  return tob;
-}
-
-*/
-
-
+ 
 //Gets the ET for the TT. This ET is EM + HAD
 unsigned int LVL1::jFEXSmallRJetAlgo::getTTowerET(){
  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
@@ -108,7 +90,6 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
   ATH_MSG_DEBUG("--------jFEXSmallRJetAlgo::buildsSeeds ----------------");
   m_seedSet = false;
   SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey);
-//const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[2][2]);
 
   for(int mphi = 0; mphi < 5; mphi++){
     for(int meta = 0; meta<5; meta++){
@@ -118,18 +99,15 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
       for(int ieta = -1; ieta < 2; ieta++){
         for(int iphi = -1; iphi < 2; iphi++){
           const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[meta + ieta][mphi + iphi]);
-          //for that TT, build the seed
-          //ATH_MSG_DEBUG("check my phi eta tower index, iphi, ieta: " <<iphi<< " "<< ieta<<" " <<m_jFEXalgoTowerID[ieta][iphi]);
-	  //here we sum TT ET to calculate seed	    	
+
+         //seed calculation	    	
 	  et_tmp = tmpTower->getTotalET();  
           seedTotalET += et_tmp;
        	  }
     	}
    	m_jFEXalgoSearchWindowSeedET[meta][mphi] = seedTotalET;
-        ATH_MSG_DEBUG("check seed m_eta, m_phi, seed_ET: "<<meta<<" , "<< mphi<<" , "<<seedTotalET);
       	}
-     }
-    //ATH_MSG_DEBUG("check ET value of seed: "<<seedTotalET);    
+     }    
     m_seedSet = true;
 }
 
@@ -141,7 +119,6 @@ bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
     ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
   }
   if(m_seedSet == true){
-    ATH_MSG_DEBUG("Local Maxima checking begins.");
     //here put the 24 conditions to determine if the [2][2] TT seed is a local maxima.
     int central_seed = m_jFEXalgoSearchWindowSeedET[2][2];
     for (int ieta = 0; ieta < 5; ieta++){
@@ -166,7 +143,6 @@ bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
        }
      }
   }  
-  ATH_MSG_DEBUG("Local Maxima found.");
   return true;
 }
 
@@ -214,7 +190,7 @@ std::unique_ptr<jFEXSmallRJetTOB> LVL1::jFEXSmallRJetAlgo::getSmallRJetTOBs(){
  // unsigned int phi = getRealPhi(phi);
  // unsigned int eta = getRealEta(eta);
   
-  tob->setET(et);
+  tob->setET(et); 
   tob->setPhi(getRealPhi());
   tob->setEta(getRealEta());
   tob->setRes(0);

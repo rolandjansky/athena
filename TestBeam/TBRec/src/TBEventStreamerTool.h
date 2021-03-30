@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEVENTSTREAMERTOOL_H
@@ -23,7 +23,7 @@ class TBEventStreamerTool : public AthAlgTool
 
   virtual StatusCode reject();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   virtual StatusCode initializeTool();
 

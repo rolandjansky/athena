@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -129,23 +129,20 @@ void eflowLayerIntegrator::addToAllClustersIntegral(const std::vector<double>& c
   }
 }
 
-void eflowLayerIntegrator::measureNewClus(std::vector<xAOD::CaloCluster*> clusVec, const eflowTrackCaloPoints& trackCalo) {
+void eflowLayerIntegrator::measureNewClus(const std::vector<xAOD::CaloCluster*>& clusVec, const eflowTrackCaloPoints& trackCalo) {
   resetAllClustersIntegralForNewTrack(trackCalo);
 
-  std::vector<xAOD::CaloCluster*>::iterator itCluster    = clusVec.begin();
-  std::vector<xAOD::CaloCluster*>::iterator itClusterEnd = clusVec.end();
-  for (; itCluster != itClusterEnd; itCluster++){
-    measureCluster(*itCluster, trackCalo);
+  for (xAOD::CaloCluster* cluster : clusVec) {
+    measureCluster(cluster, trackCalo);
   }
 }
 
-void eflowLayerIntegrator::measureNewClus(std::vector<eflowRecCluster*> efRecClusters, eflowRecTrack* track) {
+void eflowLayerIntegrator::measureNewClus(const std::vector<eflowRecCluster*>& efRecClusters, eflowRecTrack* track) {
   resetAllClustersIntegralForNewTrack(track->getTrackCaloPoints());
 
-  std::vector<eflowRecCluster*>::iterator  itCluster = efRecClusters.begin();
-  std::vector<eflowRecCluster*>::iterator endCluster = efRecClusters.end();
-  for (; itCluster != endCluster; itCluster++){
-    measureCluster(eflowTrackClusterLink::getInstance(track, *itCluster));
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  for (eflowRecCluster* cluster : efRecClusters) {
+    measureCluster(eflowTrackClusterLink::getInstance(track, cluster, ctx));
   }
 }
 

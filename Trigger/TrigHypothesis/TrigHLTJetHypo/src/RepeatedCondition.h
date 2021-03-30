@@ -56,6 +56,7 @@ private:
 
   // record of which chain part in the chainDict this conditions comes from
   int m_chainPartInd{-1};
+
 };
 
 std::ostream& operator<<(std::ostream&,

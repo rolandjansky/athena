@@ -32,7 +32,6 @@ from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg()
 
 from AthenaCommon.AppMgr import ToolSvc
-#ToolSvc += theCaloNoiseTool
 
 doTopoClusterLocalCalib=False
 
@@ -129,7 +128,6 @@ TileTopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
 #Double gaussian noise
 #TileTopoMaker.TwoGaussianNoise = True
 #TileTopoMaker.OutputLevel=1
-#theCaloNoiseTool.OutputLevel=1
 TileTopoMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 
 

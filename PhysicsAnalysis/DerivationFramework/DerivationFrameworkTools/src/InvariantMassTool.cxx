@@ -77,7 +77,7 @@ namespace DerivationFramework {
   {
 
     // check the relevant information is available
-    if (m_containerName.key()=="") {
+    if (m_containerName.key().empty()) {
       ATH_MSG_WARNING("Input container missing - returning zero");  
       masses->push_back(0.0);
       return StatusCode::FAILURE;
@@ -86,8 +86,8 @@ namespace DerivationFramework {
     SG::ReadHandle<xAOD::IParticleContainer> particles{m_containerName};
     
     bool from2Collections(false);
-    const xAOD::IParticleContainer* particles2(0); 
-    if (m_containerName2.key()!="" && m_containerName2.key()!=m_containerName.key()) {
+    const xAOD::IParticleContainer* particles2{nullptr}; 
+    if (!m_containerName2.key().empty() && m_containerName2.key()!=m_containerName.key()) {
       SG::ReadHandle<xAOD::IParticleContainer> particleHdl2{m_containerName2};
       particles2=particleHdl2.cptr();
       from2Collections = true;
@@ -134,10 +134,11 @@ namespace DerivationFramework {
         unsigned int first = (*pairIt)[0];
         unsigned int second = (*pairIt)[1];    
         if ( (entries[first]==1 && entries2[second]==1) || (entries2[first]==1 && entries[second]==1) ) {
-          float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles)[second])->p4().Px();
-          float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles)[second])->p4().Py();
-          float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles)[second])->p4().Pz();
-          float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis);
+         
+          const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
+                                                   ((*particles)[second])->p4().Vect(), 
+                                                   m_massHypothesis,
+                                                   m_massHypothesis);  
           masses->push_back(mass);
         }
       }  
@@ -159,10 +160,10 @@ namespace DerivationFramework {
       for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
         unsigned int first = (*pairIt)[0];
         unsigned int second = (*pairIt)[1];
-        float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles2)[second])->p4().Px();
-        float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles2)[second])->p4().Py();
-        float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles2)[second])->p4().Pz();
-        float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis,m_massHypothesis2);
+        const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
+                                                   ((*particles)[second])->p4().Vect(), 
+                                                   m_massHypothesis,
+                                                   m_massHypothesis2);  
         masses->push_back(mass);
       }
     } 
@@ -170,28 +171,11 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS; 
 
   }
-
-  float InvariantMassTool::calculateInvariantMass(float px1, float px2, float py1, float py2, float pz1, float pz2, float massH) const 
-  {
-    float e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + massH*massH); 
-    float e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + massH*massH);
-    float eSum = e1+e2;
-    float pxSum = px1+px2;
-    float pySum = py1+py2;
-    float pzSum = pz1+pz2;
-    float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );   	   
-    return invariantMass;
-  }        
-
-  float InvariantMassTool::calculateInvariantMass(float px1, float px2, float py1, float py2, float pz1, float pz2, float massH, float massH2) const
-  {
-    float e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + massH*massH);
-    float e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + massH2*massH2);
-    float eSum = e1+e2;
-    float pxSum = px1+px2;
-    float pySum = py1+py2;
-    float pzSum = pz1+pz2;
-    float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );
-    return invariantMass;
+  float InvariantMassTool::calculateInvariantMass(const TVector3& v1, const TVector3&v2,float M1,float M2) const{
+      TLorentzVector p1(v1, M1 > 0 ? std::hypot(M1, v1.Mag()) : v1.Mag());
+      TLorentzVector p2(v2, M2 > 0 ? std::hypot(M2, v2.Mag()) : v2.Mag());
+      return (p1+p2).M();
+      
   }
+  
 }

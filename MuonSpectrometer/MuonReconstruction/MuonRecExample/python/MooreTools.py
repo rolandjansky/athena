@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -32,6 +32,7 @@ from .MuonRecUtils import ConfiguredBase,ExtraFlags
 from .MuonRecFlags import muonRecFlags
 from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 #==============================================================
 
 # call  setDefaults to update flags
@@ -376,6 +377,9 @@ def MuonTrackCleaner(name,extraFlags=None,**kwargs):
   kwargs.setdefault("Fitter",        getPrivateTool('MCTBFitterMaterialFromTrack') )
   kwargs.setdefault("SLFitter",      getPrivateTool('MCTBSLFitterMaterialFromTrack'))
   kwargs.setdefault("MdtRotCreator", getPrivateTool('MdtDriftCircleOnTrackCreator'))
+  if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("Iterate", False)
+      kwargs.setdefault("RecoverOutliers", False)
   # kwargs.setdefault("CompRotCreator", getPrivateTool('TriggerChamberClusterOnTrackCreator')) Not in DB
   
   return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)

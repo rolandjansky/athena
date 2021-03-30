@@ -271,6 +271,9 @@ public:
     /// Initialization done after creation or read back - derived
     /// classes may augment the functionality
     virtual StatusCode  initialize();
+
+    //Merge in data from another conditions container of the same type
+    bool merge(const LArConditionsContainer<T>& other);
     
 
 protected:

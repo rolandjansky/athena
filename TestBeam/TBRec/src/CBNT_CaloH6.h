@@ -30,8 +30,6 @@
 #include <string>
 #include <vector>
 
-class StoreGateSvc;
-
 class CBNT_CaloH6 : public CBNT_TBRecBase
 {
  public:

@@ -57,8 +57,6 @@ namespace {
   static constexpr unsigned int const maxNTubesPerLayer = 120;
 }
 
-enum {enumInner, enumMiddle, enumOuter, enumExtra};
-
 struct MDTOverviewHistogramStruct {
   std::vector<float> mdt_tube_x_barrel;
   std::vector<float> mdt_tube_y_barrel;
@@ -240,41 +238,60 @@ StatusCode MdtRawDataMonAlg::initialize()
     }
   }
 
-  std::string MDTHits_BE[2] = {"Barrel", "EndCap"};
-  std::string ecap[4]={"BA","BC","EA","EC"};
-  std::string layer[4]={"Inner","Middle","Outer","Extra"};
+  /* It seems as if a bunch of histograms are created below on the heap
+   * Then these are filled in the binMdtFooBar methods
+   * Later these are passed onto relevant methods of MDTChamber where internals are filled
+   * The original histograms are transient and not needed past initialize here
+   * The logic is a little too convoluted but left as is
+   */
+  unsigned int counter { 0 };
+  std::string s { "" }, xAxis { "" };
 
-  for (int iecap=0;iecap<4;iecap++) {//BA,BC,EA,EC 
-    for (int ilayer=0;ilayer<4;ilayer++) { //inner, middle, outer, extra
-      	std::string s = "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut";
-	m_mdthitspermultilayerLumi[iecap][ilayer] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
-	m_mdthitspermultilayerLumi[iecap][ilayer]->SetDirectory(0);
-	std::string xAxis = ecap[iecap].substr(0,1) + layer[ilayer].substr(0,1) + ecap[iecap].substr(1,1);
-	ATH_CHECK(binMdtRegional(m_mdthitspermultilayerLumi[iecap][ilayer], xAxis));
+  // Create Inner/Middle/Outer/Extra histograms per BA/BC/EA/EC
+  std::vector< std::string > ecap { "BA", "BC", "EA", "EC" };
+  std::vector< std::string > layer { "Inner", "Middle", "Outer", "Extra" };
+  std::vector< std::unique_ptr<TH2F> > mdtHitsPerMultiLayerLumi;
+  mdtHitsPerMultiLayerLumi.reserve( ecap.size() * layer.size() );
 
-      if( ilayer==0 && ((iecap==0||iecap==2)) ) {
-        s = "NumberOfHits"+MDTHits_BE[iecap/2];
-	m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
-	m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2]->SetDirectory(0);
-	ATH_CHECK(binMdtGlobal(m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2], MDTHits_BE[iecap/2].at(0)));
-      }
-    }
-  }
+  for ( const auto& iecap : ecap ) {
+    for ( const auto& ilayer : layer ) {
+      s = "NumberOfHitsIn" + iecap + ilayer + "PerMultiLayer_ADCCut";
+      mdtHitsPerMultiLayerLumi.push_back( std::make_unique<TH2F>( s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1 ) );
+      xAxis = iecap.substr(0,1) + ilayer.substr(0,1) + iecap.substr(1,1);
+      ATH_CHECK( binMdtRegional( mdtHitsPerMultiLayerLumi[ counter ].get(), xAxis ) );
+      counter++;
+    } // end of iecap
+  } // end of ilayer
+  counter = 0;
 
-  std::string s = "NumberOfHitsInMDTInner_ADCCut";
-  m_mdthitsperML_byLayer[enumInner] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
-  m_mdthitsperML_byLayer[enumInner]->SetDirectory(0);
-  s = "NumberOfHitsInMDTMIddle_ADCCut";
-  m_mdthitsperML_byLayer[enumMiddle] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
-  m_mdthitsperML_byLayer[enumMiddle]->SetDirectory(0);
-  s = "NumberOfHitsInMDTOuter_ADCCut";
-  m_mdthitsperML_byLayer[enumOuter] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
-  m_mdthitsperML_byLayer[enumOuter]->SetDirectory(0);
-  ATH_CHECK(binMdtGlobal_byLayer(m_mdthitsperML_byLayer[enumInner], m_mdthitsperML_byLayer[enumMiddle], m_mdthitsperML_byLayer[enumOuter]));
+  // Create Barrel/EndCap histrograms here
+  std::vector< std::string > mdtHitsBE { "Barrel", "EndCap" };
+  std::vector< std::unique_ptr<TH2F> > mdtHitsPerChamberIMOLumi;
+  mdtHitsPerChamberIMOLumi.reserve( mdtHitsBE.size() );
+
+  for ( const auto& imdt : mdtHitsBE ) {
+    s = "NumberOfHits" + imdt;
+    mdtHitsPerChamberIMOLumi.push_back( std::make_unique<TH2F>( s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1 ) );
+    ATH_CHECK( binMdtGlobal( mdtHitsPerChamberIMOLumi[ counter ].get(), imdt.at(0) ) );
+    counter++;
+  } // end of imdt
+  counter = 0;
+
+  // Create Inner/Middle/Outer histograms here
+  std::vector< std::unique_ptr<TH2F> > mdtHitsPerMLByLayer;
+  mdtHitsPerMLByLayer.reserve( layer.size() - 1 );
+
+  for ( const auto& ilayer : layer ) {
+    if ( ilayer == "Extra" ) continue;
+    s = "NumberOfHitsInMDT" + ilayer + "_ADCCut";
+    mdtHitsPerMLByLayer.push_back( std::make_unique<TH2F> ( s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1 ) );
+  } // end of ilayer
+  ATH_CHECK( binMdtGlobal_byLayer( mdtHitsPerMLByLayer[ 0 ].get(),
+                                   mdtHitsPerMLByLayer[ 1 ].get(),
+                                   mdtHitsPerMLByLayer[ 2 ].get() ) );
 
   //DEV this before was in bookHistogramsRecurrent-- problably still needed since we need to fill m_hist_hash_list??  
   clear_hist_map();
-  int counter = 0;
 
   for(std::vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr, ++counter){
     std::string hardware_name = convertChamberName(m_idHelperSvc->mdtIdHelper().stationName(*itr),m_idHelperSvc->mdtIdHelper().stationEta(*itr),
@@ -284,10 +301,10 @@ StatusCode MdtRawDataMonAlg::initialize()
     
     MDTChamber* chamber = new MDTChamber(hardware_name);
     (*m_hist_hash_list)[m_chambersIdHash.at(counter)] = chamber;
-   
-    chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuterLumi[chamber->GetBarrelEndcapEnum()]));
-    chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (m_mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()])
-					  ,dynamic_cast<TH2F*> (m_mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
+
+    chamber->SetMDTHitsPerChamber_IMO_Bin( mdtHitsPerChamberIMOLumi[ chamber->GetBarrelEndcapEnum() ].get() );
+    chamber->SetMDTHitsPerML_byLayer_Bins( mdtHitsPerMultiLayerLumi[ chamber->GetRegionEnum() * ecap.size() + chamber->GetLayerEnum() ].get(),
+                                           mdtHitsPerMLByLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ].get() );
 
     m_tubesperchamber_map[hardware_name] = GetTubeMax(*itr, hardware_name); // total number of tubes in chamber
 

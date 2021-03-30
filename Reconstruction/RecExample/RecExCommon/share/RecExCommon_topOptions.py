@@ -419,13 +419,13 @@ if rec.doJiveXML() and DetFlags.detdescr.ID_on() :
 # put quasi empty first algorithm so that the first real
 # algorithm does not see the memory change due to event manipulation
 #from AthenaPoolTools.AthenaPoolToolsConf import EventCounter
-from GaudiAlg.GaudiAlgConf import EventCounter
-
+#from GaudiAlg.GaudiAlgConf import EventCounter
+from GaudiSequencer.GaudiSequencerConf import AthEventCounter as EventCounter
 
 import PerfMonComps.DomainsRegistry as pdr
 pdr.flag_domain('admin')
 # one print every 100 event
-topSequence+=EventCounter(Frequency=100)
+topSequence+=EventCounter("EventCounter",Frequency=100)
 
 #Temporary: Schedule conversion algorithm for EventInfo object:
 # Note that we need to check whether the HLT already added this algorithm to the

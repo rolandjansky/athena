@@ -203,15 +203,9 @@ int TauCombinedTES::getEtaIndex(const float& eta) const {
 
 
 
-xAOD::TauJetParameters::DecayMode TauCombinedTES::getDecayMode(const xAOD::TauJet& tau) const{
+xAOD::TauJetParameters::DecayMode TauCombinedTES::getDecayMode(const xAOD::TauJet& tau) const {
   int decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
-
-  // When PanTau fails, the decay mode will be set to 1p0n !
-  int isPanTauCandidate;
-  tau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_isPanTauCandidate, isPanTauCandidate);
-  if (isPanTauCandidate) {
-    tau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, decayMode);
-  }
+  tau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, decayMode);
 
   return static_cast<xAOD::TauJetParameters::DecayMode>(decayMode);
 }

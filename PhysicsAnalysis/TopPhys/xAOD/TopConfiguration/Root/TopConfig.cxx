@@ -1553,6 +1553,9 @@ namespace top {
     m_btagging_calibration_Light = settings->value("BTaggingCalibrationLight");
     m_bTagSystsExcludedFromEV = settings->value("BTaggingSystExcludedFromEV");
 
+    // egamma calibration model
+    m_egamma_calibration_model = settings->value("EGammaCalibrationModel");
+
     // Set translatio ndictionary for MCMC maps
     if (settings->value("RedefineMCMCMap") != " ") {
       std::vector<std::string> tmp;

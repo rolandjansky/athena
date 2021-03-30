@@ -152,10 +152,10 @@ JetChainParts = {
                       #     djdphi sel (optional)
                       #     djdeta sel (optional)
                       'dijetSEP80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
-                      'dijetSEP80j12etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
-                      'dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
+                      'dijetSEP80j12etSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
+                      'dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
                       'dijetSEP50j12etSEP1000djmass',
-                      'dijetSEP50j12etSEP1000djmassSEP24djdphi',
+                      'dijetSEP50j12etSEP1000djmassSEPdjdphi240',
                       'dijetSEP50j12etSEP900djmass',
                       'dijetSEP35j12etSEP1000djmass',
                       # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)

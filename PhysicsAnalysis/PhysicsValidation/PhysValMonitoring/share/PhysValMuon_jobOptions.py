@@ -2,17 +2,8 @@ from AthenaCommon.CfgGetter import getPublicTool
 getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")
-from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
-PhysValMuUsedInFitDecoratorTool = InDet__InDetUsedInFitTrackDecoratorTool(name                 = "PhysValMuUsedInFitDecoratorTool",
-                                                                          AMVFVerticesDecoName = "TTVA_AMVFVertices",
-                                                                          AMVFWeightsDecoName  = "TTVA_AMVFWeights",
-                                                                          TrackContainer       = "InDetTrackParticles",
-                                                                          VertexContainer      = "PrimaryVertices" )
-ToolSvc += PhysValMuUsedInFitDecoratorTool
-from InDetUsedInVertexFitTrackDecorator.InDetUsedInVertexFitTrackDecoratorConf import InDet__InDetUsedInVertexFitTrackDecorator
-PhysValMuInDetUsedInFitDecorator = InDet__InDetUsedInVertexFitTrackDecorator(name                   = "PhysValMuInDetUsedInFitDecorator",
-                                                                             UsedInFitDecoratorTool = ToolSvc.PhysValMuUsedInFitDecoratorTool)
-algseq += PhysValMuInDetUsedInFitDecorator
+from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
+addUsedInFitDecoratorForReco(add2Seq = algseq)
 from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
 if not hasattr(algseq,"IsolationBuilderTight500"):
     algseq += GetUpdatedIsoTrackCones()

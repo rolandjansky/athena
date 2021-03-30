@@ -68,7 +68,10 @@ namespace Ath {
             [this](Gaudi::Algorithm *an_alg) {
                IDynamicDataConsumer *a_dyn_data_consumer=dynamic_cast<IDynamicDataConsumer *>(an_alg);
                if (a_dyn_data_consumer) {
-                  m_dynDataConsumer.push_back(std::make_pair(a_dyn_data_consumer, an_alg));
+                  std::vector<Gaudi::Algorithm *> &alg_list = m_dynDataConsumer[a_dyn_data_consumer];
+                  if (std::find(alg_list.begin(),alg_list.end(),an_alg)==alg_list.end()) {
+                     alg_list.push_back(an_alg);
+                  }
                }
                // have to collect input and output handles because the sequence will only collect them  after initialize
                insertHandles(m_inputHandles, an_alg->inputHandles());
@@ -79,7 +82,10 @@ namespace Ath {
                auto tool_visitor = [this, an_alg](IAlgTool *alg_tool) {
                   IDynamicDataConsumer *a_dyn_data_consumer=dynamic_cast<IDynamicDataConsumer *>(alg_tool);
                   if (a_dyn_data_consumer) {
-                     m_dynDataConsumer.push_back(std::make_pair(a_dyn_data_consumer, an_alg));
+                     std::vector<Gaudi::Algorithm *> &alg_list = m_dynDataConsumer[a_dyn_data_consumer];
+                     if (std::find(alg_list.begin(),alg_list.end(),an_alg)==alg_list.end()) {
+                        alg_list.push_back(an_alg);
+                     }
                   }
                   if (auto* tool_impl = dynamic_cast<AlgTool*>( alg_tool ); tool_impl) {
                      insertHandles(m_inputHandles, tool_impl->inputHandles());
@@ -130,29 +136,32 @@ namespace Ath {
          }
          out << endmsg;
       }
-      for (std::pair<IDynamicDataConsumer *,Gaudi::Algorithm *> &dyn_data_consumer :  m_dynDataConsumer ) {
+      for (std::pair<IDynamicDataConsumer * const,std::vector<Gaudi::Algorithm *> > &dyn_data_consumer :  m_dynDataConsumer ) {
          std::vector<Gaudi::DataHandle *> tmp_new_input_handles;
          std::vector<Gaudi::DataHandle *> tmp_new_output_handles;
          bool ret = dyn_data_consumer.first->updateDataNeeds(input_data_in, output_data_in, tmp_new_input_handles, tmp_new_output_handles);
          if (msgLvl(out,MSG::VERBOSE)) {
-            out << MSG::VERBOSE << " new data from " << dyn_data_consumer.second->name()
-                << " i:" << tmp_new_input_handles.size()
+            out << MSG::VERBOSE << " new data for";
+            for (const Gaudi::Algorithm *parent_alg : dyn_data_consumer.second) {
+               out << " " << parent_alg->name();
+            }
+            out << " i:" << tmp_new_input_handles.size()
                 << " o:" << tmp_new_output_handles.size()
                 << endmsg;
          }
          updated |=  ret;
          if (ret) {
             if (msgLvl(out,MSG::DEBUG)) {
-               if (Gaudi::Algorithm *an_alg = dynamic_cast<Gaudi::Algorithm *>(dyn_data_consumer.first); an_alg) {
+               if (Gaudi::Algorithm * const an_alg = dynamic_cast<Gaudi::Algorithm * const>(dyn_data_consumer.first); an_alg) {
                   out << MSG::DEBUG << an_alg->name() << " updated its data needs." << endmsg;
                   // DEBUG:
                   out << MSG::DEBUG << an_alg->name() << " inputs:";
-                  for (const Gaudi::DataHandle *handle : an_alg->inputHandles()) {
-                     out << " " << handle->fullKey();
-                  }
-                  out << endmsg;
+                     for (const Gaudi::DataHandle *handle : an_alg->inputHandles()) {
+                        out << " " << handle->fullKey();
+                     }
+                     out << endmsg;
                }
-               else if (AlgTool *alg_tool = dynamic_cast<AlgTool *>(dyn_data_consumer.first); alg_tool) {
+               else if (AlgTool *alg_tool = dynamic_cast<AlgTool * const>(dyn_data_consumer.first); alg_tool) {
                   out << MSG::DEBUG << alg_tool->name() << " updated its data needs." << endmsg;
                   // DEBUG:
                   out << MSG::DEBUG << alg_tool->name() << " inputs:";
@@ -166,20 +175,21 @@ namespace Ath {
                }
             }
          }
-         Gaudi::Algorithm *parent_alg = dyn_data_consumer.second;
-         input_data_out.reserve(input_data_out.size()+tmp_new_input_handles.size());
-         for (Gaudi::DataHandle *a_handle : tmp_new_input_handles) {
-            parent_alg->addDependency(a_handle->fullKey(), Gaudi::DataHandle::Reader);
-            input_data_out.push_back(&(a_handle->fullKey()));
-            if (msgLvl(out,MSG::DEBUG)) out << MSG::DEBUG << " addDependency new input for " << parent_alg->name() << " "
-                                            << a_handle->fullKey().className() << " / " <<  a_handle->objKey() << endmsg;
-         }
-         output_data_out.reserve(output_data_out.size()+tmp_new_output_handles.size());
-         for (Gaudi::DataHandle *a_handle : tmp_new_output_handles) {
-            parent_alg->addDependency(a_handle->fullKey(), Gaudi::DataHandle::Writer);
-            output_data_out.push_back(&(a_handle->fullKey()));
-            if (msgLvl(out,MSG::DEBUG)) out << MSG::DEBUG << " addDependency new output for " << parent_alg->name() << " "
-                                            << a_handle->fullKey().className() << " / "  << a_handle->objKey() << endmsg;
+         for (Gaudi::Algorithm *parent_alg : dyn_data_consumer.second) {
+            input_data_out.reserve(input_data_out.size()+tmp_new_input_handles.size());
+            for (Gaudi::DataHandle *a_handle : tmp_new_input_handles) {
+               parent_alg->addDependency(a_handle->fullKey(), Gaudi::DataHandle::Reader);
+               input_data_out.push_back(&(a_handle->fullKey()));
+               if (msgLvl(out,MSG::DEBUG)) out << MSG::DEBUG << " addDependency new input for " << parent_alg->name() << " "
+                                               << a_handle->fullKey().className() << " / " <<  a_handle->objKey() << endmsg;
+            }
+            output_data_out.reserve(output_data_out.size()+tmp_new_output_handles.size());
+            for (Gaudi::DataHandle *a_handle : tmp_new_output_handles) {
+               parent_alg->addDependency(a_handle->fullKey(), Gaudi::DataHandle::Writer);
+               output_data_out.push_back(&(a_handle->fullKey()));
+               if (msgLvl(out,MSG::DEBUG)) out << MSG::DEBUG << " addDependency new output for " << parent_alg->name() << " "
+                                               << a_handle->fullKey().className() << " / "  << a_handle->objKey() << endmsg;
+            }
          }
       }
       return updated;

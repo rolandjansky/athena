@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // VertexCaloIsolation.cxx by Matteo Bedognetti
@@ -43,7 +43,6 @@
 //#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 #include "CaloEvent/CaloCell.h"	//Is used (though shown as auto)
 //#include "TrkParameters/TrackParameters.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "TrkCaloExtension/CaloExtension.h"
 //#include "CaloUtils/CaloClusterStoreHelper.h"
 //#include "CaloUtils/CaloCellList.h"
@@ -67,19 +66,9 @@ namespace DerivationFramework {
     m_caloClusterContainerName("CaloCalTopoClusters"),
     m_muonContainerName("Muons"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-    //m_caloNoiseTool(""),
     m_cones(),
     m_sigmaCaloNoiseCut(3.4),
     m_vertexType(7)
-
-
-   // m_cellCollector("")
-
-
-//  m_caloExtTool
-//  m_caloNoiseTool, m_applyCaloNoiseCut, m_sigmaCaloNoiseCut
-//  m_cellCollector
-
   {
         ATH_MSG_DEBUG("in constructor");
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -123,11 +112,6 @@ namespace DerivationFramework {
 	    m_cones.push_back(xAOD::Iso::etcone30);
 	    m_cones.push_back(xAOD::Iso::etcone20);
     }
-
-    //if(m_applyCaloNoiseCut){
-            //ATH_MSG_ERROR("No handle to a caloNoiseTool is kept in this tool, ");
-            //return StatusCode::FAILURE;
-    //}
 
     return StatusCode::SUCCESS;
     
@@ -393,7 +377,7 @@ namespace DerivationFramework {
 						if(cl.size() != 0){	//Maybe two muons have a full cluster overlap??
 							ATH_MSG_DEBUG("Cells in this cluster: "<< cl.size());
                                                          
-							cellCollector.collectEtCore( cl, etcore, nullptr, m_sigmaCaloNoiseCut );  //Note an empty handle to ICaloNoiseTool is passed
+							cellCollector.collectEtCore( cl, etcore, nullptr, m_sigmaCaloNoiseCut );
 							coreCorr += etcore[Rec::CaloCellCollector::ET_Core];
 							ATH_MSG_DEBUG("Their core-energy: "<< etcore[Rec::CaloCellCollector::ET_Core]);
 

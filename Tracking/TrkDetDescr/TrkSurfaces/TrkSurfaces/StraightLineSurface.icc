@@ -139,7 +139,7 @@ StraightLineSurface::insideBounds(const Amg::Vector2D& locpos,
 {
   if (!(m_bounds.get()) && !Surface::m_associatedDetElement)
     return true;
-  return (fabs(locpos[locR]) < bounds().r() + tol1 &&
+  return (std::abs(locpos[locR]) < bounds().r() + tol1 &&
           bounds().insideLoc2(locpos, tol2));
 }
 

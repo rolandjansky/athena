@@ -135,14 +135,29 @@ namespace LVL1MUCTPIPHASE1 {
     }
 
     //initialize MSP ROI configuration
+
+
     const std::string barrelFileName = PathResolverFindCalibFile( m_barrelRoIFile );
     const std::string ecfFileName = PathResolverFindCalibFile( m_ecfRoIFile );
     const std::string side0LUTFileName = PathResolverFindCalibFile( m_side0LUTFile );
     const std::string side1LUTFileName = PathResolverFindCalibFile( m_side1LUTFile );
-    m_theMuctpi->configureTopo(barrelFileName,
-			       ecfFileName,
-			       side0LUTFileName,
-			       side1LUTFileName);
+    ATH_MSG_INFO("Initializing L1Topo decoding with the following inputs");
+    ATH_MSG_INFO("  Barrel file: " << barrelFileName);
+    ATH_MSG_INFO("  EC/Fwd file: " << ecfFileName);
+    ATH_MSG_INFO("  Side 0 LUT:  " << side0LUTFileName);
+    ATH_MSG_INFO("  Side 1 LUT:  " << side1LUTFileName);
+    std::vector<std::string> topo_errors = m_theMuctpi->configureTopo(barrelFileName,
+								      ecfFileName,
+								      side0LUTFileName,
+								      side1LUTFileName);
+    if (topo_errors.size())
+    {
+      std::stringstream err;
+      err << "Couldn't initialize L1Topo eta/phi encoding/decoding:\n";
+      for (unsigned i=0;i<topo_errors.size();i++) err << topo_errors[i] << "\n";
+      REPORT_ERROR( StatusCode::FAILURE ) << err.str();
+      return StatusCode::FAILURE;
+    }
 
     //                                                                                                                                                                                        
     // Set up the overlap handling of the simulation:                                                                                                                                         

@@ -75,6 +75,11 @@ if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
     # protection for SteppingCache usage - currently incompatible with PileUpTools
     if digitizationFlags.SignalPatternForSteppingCache.statusOn and digitizationFlags.doXingByXingPileUp():
         raise RuntimeError("SteppingCache is incompatible with PileUpTools. Please switch off either digitizationFlags.SignalPatternForSteppingCache or digitizationFlags.doXingByXingPileUp.")
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+    if jp.ConcurrencyFlags.NumThreads() > 0:
+        logConfigDigitization.error("Attempting to run pile-up digitization AthenaMT using %s threads!", str(jp.ConcurrencyFlags.NumThreads()))
+        logConfigDigitization.error("Running pile-up digitization with AthenaMT is not supported. Please update your configuration. The job will fail now.")
+        raise RuntimeError("Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
     include( "Digitization/ConfigPileUpEventLoopMgr.py" )
 if DetFlags.pileup.any_on():
     logConfigDigitization.info("PILEUP CONFIGURATION:")

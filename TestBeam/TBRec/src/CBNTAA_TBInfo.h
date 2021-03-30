@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNTAA_TBINFO_H
@@ -13,10 +13,10 @@ class TBCondRunParTool;
 class CBNTAA_TBInfo : public CBNT_TBRecBase {
 public:
 	CBNTAA_TBInfo(const std::string &name, ISvcLocator *pSvcLocator);
-        ~CBNTAA_TBInfo();
-	virtual StatusCode CBNT_initialize();
-	virtual StatusCode CBNT_execute();
-	virtual StatusCode CBNT_finalize();
+        virtual ~CBNTAA_TBInfo();
+	virtual StatusCode CBNT_initialize() override;
+	virtual StatusCode CBNT_execute() override;
+	virtual StatusCode CBNT_finalize() override;
 
 private:
 	float GetEnergy(float CurrB3, float CurrB4);
@@ -80,7 +80,7 @@ private:
 	float      m_sycLoss;
 	float      m_errSycLoss;
 
-        StatusCode CBNT_clear();
+        virtual StatusCode CBNT_clear() override;
 };
 
 #endif // CBNT_EVENTINFO_H

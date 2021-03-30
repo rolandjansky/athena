@@ -90,13 +90,9 @@ if rec.readESD and not rec.doESD:
 ## if rec.readESD() and DetFlags.detdescr.Calo_on():
 ##     from CaloRec.CaloRecConf import CaloCellMaker
 ##     theCaloCellMaker=CaloCellMaker(CaloCellsOutputName="AllCalo",CaloCellHack=True)    
-##     # calo modifying tool to be inserted there
-##     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-##     theCaloNoiseTool = CaloNoiseToolDefault()
-##     ToolSvc+=theCaloNoiseTool
     
 ##     from CaloCellCorrection.CaloCellCorrectionConf import CaloCellRandomizer     
-##     theCaloCellRandomizer=CaloCellRandomizer(noiseTool=theCaloNoiseTool,DoGaussRandomization=True)
+##     theCaloCellRandomizer=CaloCellRandomizer(DoGaussRandomization=True)
 ##     ToolSvc += theCaloCellRandomizer
 
 ##     from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool

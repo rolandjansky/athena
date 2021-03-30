@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigMETMonitoringAlgorithm.py
@@ -39,6 +39,12 @@ def TrigMETMonConfig(inputFlags):
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
     # helper.AddAlgorithm(myExistingAlg)
+    
+
+    ### check Run2 or Run3 MT
+    mt_chains = True
+    if ( inputFlags.Trigger.EDMVersion < 3 ) :
+      mt_chains = False
 
 
     ### STEP 3 ###
@@ -48,12 +54,11 @@ def TrigMETMonConfig(inputFlags):
     # to enable a trigger filter, for example:
     # TrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
     # without filters, all events are processed.
-    TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
+    if mt_chains:
+      TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
+    else:
+      TrigMETMonChain1Alg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
     
-    ### check Run2 or Run3 MT
-    mt_chains = True
-    if ( inputFlags.Trigger.EDMVersion < 3 ) :
-      mt_chains = False
 
     ### container name selection
     if mt_chains: # these are temporary, needs to be changed
@@ -72,7 +77,7 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.l1_gjwoj_key = 'LVL1EnergySumRoI'
       TrigMETMonAlg.l1_gpufit_key = 'LVL1EnergySumRoI'
       TrigMETMonAlg.hlt_cell_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET'
-      TrigMETMonAlg.hlt_mt_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
+      TrigMETMonAlg.hlt_mht_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
       TrigMETMonAlg.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
       TrigMETMonAlg.hlt_tc_em_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
       TrigMETMonAlg.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
@@ -112,8 +117,9 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.HLTChain02 = 'HLT_xe110_mht_L1XE50'
       TrigMETMonAlg.HLTChain03 = 'HLT_xe110_tcpufit_L1XE50'
       TrigMETMonAlg.HLTChain05 = 'HLT_xe110_pfsum_L1XE50'
-      TrigMETMonAlg.HLTChain10 = 'HLT_xe110_pfsum_cssk_L1XE50'
-      TrigMETMonAlg.HLTChain11 = 'HLT_xe110_pfsum_vssk_L1XE50'
+      TrigMETMonAlg.HLTChain11 = 'HLT_xe110_pfsum_cssk_L1XE50'
+      TrigMETMonAlg.HLTChain12 = 'HLT_xe110_pfsum_vssk_L1XE50'
+      TrigMETMonAlg.HLTChain13 = 'HLT_xe100_pfopufit_L1XE50'
     else: 
       TrigMETMonAlg.L1Chain02 = 'L1_XE10'
       TrigMETMonAlg.L1Chain03 = 'L1_XE30'
@@ -121,25 +127,24 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.L1Chain05 = 'L1_XE60'
       TrigMETMonAlg.L1Chain06 = 'L1_XE70'
       TrigMETMonAlg.L1Chain07 = 'L1_XE75'
-      TrigMETMonAlg.HLTChain01 = 'HLT_xe70_mht_L1XE50'
+      TrigMETMonAlg.HLTChain01 = 'HLT_xe70_mht'
       TrigMETMonAlg.HLTChain02 = 'HLT_xe90_mht_L1XE50'
-      TrigMETMonAlg.HLTChain03 = 'HLT_xe110_mht_L1XE50'
-      TrigMETMonAlg.HLTChain04 = 'HLT_xe90_pufit_L1XE50'
-      TrigMETMonAlg.HLTChain05 = 'HLT_xe100_pufit_L1XE50'
-      TrigMETMonAlg.HLTChain06 = 'HLT_xe110_pufit_L1XE50'
-      TrigMETMonAlg.HLTChain07 = 'HLT_xe110_pufit_xe65_L1XE50'
-      TrigMETMonAlg.HLTChain08 = 'HLT_xe110_pufit_xe70_L1XE50'
+      TrigMETMonAlg.HLTChain03 = 'HLT_xe100_mht_L1XE50'
+      TrigMETMonAlg.HLTChain04 = 'HLT_xe110_mht_L1XE50'
+      TrigMETMonAlg.HLTChain05 = 'HLT_xe90_pufit_L1XE50'
+      TrigMETMonAlg.HLTChain06 = 'HLT_xe100_pufit_L1XE50'
+      TrigMETMonAlg.HLTChain07 = 'HLT_xe100_pufit_L1XE55'
+      TrigMETMonAlg.HLTChain08 = 'HLT_xe110_pufit_L1XE50'
+      TrigMETMonAlg.HLTChain09 = 'HLT_xe110_pufit_L1XE55'
+      TrigMETMonAlg.HLTChain11 = 'HLT_xe110_pufit_xe65_L1XE50'
+      TrigMETMonAlg.HLTChain12 = 'HLT_xe110_pufit_xe70_L1XE50'
 
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-
-    # # Then, add a tool that doesn't have its own configuration function. In
+    # # Add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # expertTrigMETMonAlg.MyDomainTool = MyDomainTool()

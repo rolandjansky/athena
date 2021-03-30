@@ -137,11 +137,10 @@ class ConfiguredSecVertexFinding:
             InDet__SingleTrackConversionTool)
         InDetSingleTrackSecVtx = InDet__SingleTrackConversionTool(
             name=prefix+"SingleTrackTool",
-            ConversionFinderHelperTool=InDetSecVxHelper,
-            Extrapolator=Extrapolator,
             MaxBLayerHits=VertexCuts.SingleTrk_MaxBLayerHits(),
             MinInitialHitRadius=VertexCuts.SingleTrk_MinInitialHitRadius(),
-            MinInitialHitRadius_noBlay=VertexCuts.SingleTrk_MinInitialHitRadius_noBlay(),
+            MinInitialHitRadius_noBlay=(
+                VertexCuts.SingleTrk_MinInitialHitRadius_noBlay()),
             MinRatioOfHLhits=VertexCuts.SingleTrk_MinRatioOfHLhits())
         if (printConfig):
             print(InDetSingleTrackSecVtx)

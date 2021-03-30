@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CNVTOOLS_MDTCSMCONTRAWEVENTTOOL_H
@@ -11,7 +11,8 @@
 #include "MDT_Hid2RESrcID.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
-#include "MuonMDT_CnvTools/IMDT_RDOtoByteStreamTool.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
+#include "MuonCnvToolInterfaces/IMDT_RDOtoByteStreamTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MdtCsmContainer; 
@@ -23,8 +24,6 @@ namespace Muon {
 /** An AlgTool class to provide conversion from LArRawChannelContainer
   *  to ByteStream, and fill it in RawEvent
   *  created:  Sept 25, 2002, by Hong Ma 
-  *  requirements:   typedef for CONTAINER class method 
-  *  statusCode convert(CONTAINER* cont, RawEvent* re, MsgStream& log ); 
   *
   * Adapted for Muons by Ketevi A. Assamagan
   * Jan-14-2003, BNL
@@ -35,32 +34,32 @@ namespace Muon {
   * Conversion of a Mdt Csm to ByteStream
   */
 
-class MdtCsmContByteStreamTool: public AthAlgTool, virtual public IMDT_RDOtoByteStreamTool
+class MdtCsmContByteStreamTool: public extends<AthAlgTool, IMDT_RDOtoByteStreamTool>
   {
 
 public:
-
-  typedef MdtCsmContainer CONTAINER ; 
 
   /** constructor
   */
    MdtCsmContByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent ) ;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  StatusCode convert(CONTAINER* cont, RawEventWrite* re, MsgStream& log ); 
+  virtual StatusCode convert(const MdtCsmContainer* cont, RawEventWrite* re, MsgStream& log ) const override;
 
 private: 
 
-  MDT_Hid2RESrcID* m_hid2re; 
+  std::unique_ptr<MDT_Hid2RESrcID> m_hid2re; 
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  
-  FullEventAssembler<MDT_Hid2RESrcID> m_fea ;    
 
+  ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+  { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
 };
-}
+
+} // namespace Muon
+
 #endif
 
 

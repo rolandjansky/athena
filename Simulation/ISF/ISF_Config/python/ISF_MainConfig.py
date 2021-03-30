@@ -548,17 +548,23 @@ def getKernel_ATLFASTIIF_G4MS(name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs):
 
 ############## Simulator: ATLFASTIIF_ACTS ###############
 def getKernel_ATLFASTIIF_ACTS(name="ISF_Kernel_ATLFASTIIF_ACTS", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ]       )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultActsSelector' ]               )
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
+                                          "ISF_FastCaloTool",
+                                          "ISF_ActsFatrasSimTool",
+                                          "ISF_AFIIGeant4Tool"])
+    kwargs.setdefault("ParticleOrderingTool"        , 'ISF_ParticleOrderingTool')
+    kwargs.setdefault('EntryLayerTool'              , 'ISF_AFIIEntryLayerToolMT')
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ])
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultActsSelector', 'ISF_DefaultParticleKillerSelector' ])
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonAFIIGeant4Selector',
                                                         'ISF_EtaGreater5ParticleKillerSimSelector',
-                                                        'ISF_DefaultFastCaloSimSelector'  ]         )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultAFIIGeant4Selector' ]               )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]       )
+                                                        'ISF_DefaultFastCaloSimSelector' ])
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultAFIIGeant4Selector' ])
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ])
     # set the simFlags accordingly (TODO: is this even needed?)
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_ACTS"
-    return getKernel_GenericSimulator(name, **kwargs)
+    return getKernel_GenericSimulatorMT(name, **kwargs)
 
 ############## Simulator: ATLFASTIIFMT ###############
 def getKernel_ATLFASTIIFMT(name="ISF_Kernel_ATLFASTIIFMT", **kwargs):

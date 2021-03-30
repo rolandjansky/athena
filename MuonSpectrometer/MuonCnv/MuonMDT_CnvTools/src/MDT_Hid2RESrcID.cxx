@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Hid2RESrcID.h" 
@@ -35,7 +35,7 @@ StatusCode MDT_Hid2RESrcID::set(const MdtIdHelper* mdtId) {
   return StatusCode::SUCCESS; 
 }
 
-uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
+uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) const {
     
   // this method returns a RESrcID for the ROD, for a 
   // given MDT ID offline ID
@@ -116,7 +116,7 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
 
 /** mapping SrcID from ROD to ROB
  */ 
-uint32_t MDT_Hid2RESrcID::getRobID( uint32_t rod_id) {
+uint32_t MDT_Hid2RESrcID::getRobID( uint32_t rod_id) const {
 
   SourceIdentifier id = SourceIdentifier(rod_id);
   SourceIdentifier id2 = SourceIdentifier(id.subdetector_id(),id.module_id());
@@ -131,7 +131,7 @@ uint32_t MDT_Hid2RESrcID::getRobID( uint32_t rod_id) {
 
 /** mapping SrcID from ROB to ROS
  */ 
-uint32_t MDT_Hid2RESrcID::getRosID( uint32_t rob_id) {
+uint32_t MDT_Hid2RESrcID::getRosID( uint32_t rob_id) const {
   //  Change Module Type to ROS, moduleid = 0  
   
   SourceIdentifier id (rob_id);
@@ -141,7 +141,7 @@ uint32_t MDT_Hid2RESrcID::getRosID( uint32_t rob_id) {
 
   /** mapping SrcID from ROS to Det
    */ 
-uint32_t MDT_Hid2RESrcID::getDetID  ( uint32_t ros_id) {
+uint32_t MDT_Hid2RESrcID::getDetID  ( uint32_t ros_id) const {
   //  ROS to DET
   
   SourceIdentifier id (ros_id);

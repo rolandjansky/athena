@@ -26,7 +26,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs):
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, RoIs)
+    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs)
 
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters

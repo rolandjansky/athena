@@ -9,7 +9,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/LArID_Exception.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "Identifier/HWIdentifier.h"

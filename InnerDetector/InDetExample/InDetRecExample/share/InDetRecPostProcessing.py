@@ -143,21 +143,10 @@ if InDetFlags.doLowBetaFinder():
 # -------------------------------------------------------------------------
 
 if InDetFlags.doTTVADecos():
-  from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
-  InDetUsedInFitDecoratorTool = InDet__InDetUsedInFitTrackDecoratorTool(name                 = "InDetUsedInFitDecoratorTool",
-                                                                        AMVFVerticesDecoName = "TTVA_AMVFVertices",
-                                                                        AMVFWeightsDecoName  = "TTVA_AMVFWeights",
-                                                                        TrackContainer       = InDetKeys.xAODTrackParticleContainer(),
-                                                                        VertexContainer      = InDetKeys.xAODVertexContainer())
-  ToolSvc += InDetUsedInFitDecoratorTool
 
-  from InDetUsedInVertexFitTrackDecorator.InDetUsedInVertexFitTrackDecoratorConf import InDet__InDetUsedInVertexFitTrackDecorator
-  InDetUsedInFitDecorator = InDet__InDetUsedInVertexFitTrackDecorator(name                   = "InDetUsedInFitDecorator",
-                                                                      UsedInFitDecoratorTool = ToolSvc.InDetUsedInFitDecoratorTool)
-
-  topSequence += InDetUsedInFitDecorator
-  if InDetFlags.doPrintConfigurables():
-    printfunc(InDetUsedInFitDecorator)
+  # Get a dummy (*unused*) TTVA tool - automatically handles addition of used-in-fit decoration
+  from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+  getTTVAToolForReco('dummy', TrackContName = InDetKeys.xAODTrackParticleContainer(), VertexContName = InDetKeys.xAODVertexContainer())
 
 # -------------------------------------------------------------------------
 #

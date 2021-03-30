@@ -184,12 +184,13 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 
     for ( unsigned i=0 ; i<vtx0.size() ; i++ ) { 
 
-      //      if ( i>0 ) break;
+      /// reject vertices with no tracks in the Roi ...
+      if ( vtx0[i]->Ntracks() == 0 ) continue;
 
-      //      std::cout << i << "\tref z " << vtx0[i]->z();
 
       hzed->Fill( vtx0[i]->z() );
       hntrax->Fill( vtx0[i]->Ntracks() );
+
 
       hlb->Fill( lb );
       hmu->Fill( mu );

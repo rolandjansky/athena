@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNT_UpstreamMat.h"
@@ -14,8 +14,7 @@ using CLHEP::Hep3Vector;
 
 
 CBNT_UpstreamMat::CBNT_UpstreamMat(const std::string & name, ISvcLocator * pSvcLocator) :
-  CBNT_TBRecBase(name, pSvcLocator),
-  m_storeGate(0)
+  CBNT_TBRecBase(name, pSvcLocator)
 {
   declareProperty("CollectionName",m_key);
   m_notFound=false;
@@ -33,15 +32,8 @@ CBNT_UpstreamMat::~CBNT_UpstreamMat()
 
 
 StatusCode CBNT_UpstreamMat::CBNT_initialize() {
-  StatusCode sc;
   MsgStream log(msgSvc(), name());
   
-  sc = service( "StoreGateSvc", m_storeGate);
-  if( sc.isFailure() ){
-    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endmsg;
-    return sc;
-  }
-
   addBranch("UPSTREAMMAT/up_nElec", m_nElec,"/l");
   addBranch("UPSTREAMMAT/up_nPhot", m_nPhot,"/l");
   
@@ -51,17 +43,16 @@ StatusCode CBNT_UpstreamMat::CBNT_initialize() {
   addBranch("UPSTREAMMAT/up_PhotEne", m_PhotEne);
   addBranch("UPSTREAMMAT/up_PhotAng", m_PhotAng);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CBNT_UpstreamMat::CBNT_execute() {
-  StatusCode sc;
   MsgStream log(msgSvc(), name());
   //Set to zero:
   m_nElec=0;
   m_nPhot=0;
 
-  if (!m_storeGate->contains<TrackRecordCollection>(m_key)) {
+  if (!evtStore()->contains<TrackRecordCollection>(m_key)) {
     if (!m_notFound) {
       log << MSG::WARNING << "TrackRecordCollection with key " << m_key << " not found" << endmsg;
       m_notFound=true;
@@ -69,16 +60,9 @@ StatusCode CBNT_UpstreamMat::CBNT_execute() {
     return StatusCode::SUCCESS;
   }
   const TrackRecordCollection *trackRecordCollection(0);
-  sc = m_storeGate->retrieve(trackRecordCollection, m_key);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR  << "Error retrieving TrackRecordCollection with key " << m_key << " not found" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(trackRecordCollection, m_key) );
 
-  TrackRecordCollection::const_iterator it=trackRecordCollection->begin(); 
-  TrackRecordCollection::const_iterator it_e=trackRecordCollection->end(); 
-  for (;it!=it_e;it++) {
-    TrackRecord trackRecord=*it;
+  for (const TrackRecord& trackRecord : *trackRecordCollection) {
     const int pdgCode=trackRecord.GetPDGCode();
     Hep3Vector p=trackRecord.GetMomentum();
     double pr=sqrt(p.y()*p.y()+p.z()*p.z());

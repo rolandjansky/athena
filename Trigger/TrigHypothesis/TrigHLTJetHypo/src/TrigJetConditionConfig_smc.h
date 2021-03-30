@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_SMC_H
@@ -22,8 +22,6 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
   virtual StatusCode initialize() override;
   virtual ConditionMT getCondition() const override;
 
-  virtual bool addToCapacity(std::size_t) override;
-  virtual std::size_t capacity() const override;
  private:
   
   Gaudi::Property<std::string>

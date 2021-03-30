@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Rpc.h"
@@ -79,7 +79,7 @@ namespace MuonGM {
         double centSupThick = r->centralSupPanelThickness;
         double centAlSupThick = r->centralAlSupPanelThickness;
 
-        // Geometrical information to be overwritten for BIS chambers (having 3 gas gaps)
+        // Geometrical information to be overwritten for BI chambers (having 3 gas gaps)
         if (m_nlayers == 3) {
             // width, longWidth, length are taken from geometry DB
             thickness = rpc3GapMaxThickness;
@@ -159,7 +159,7 @@ namespace MuonGM {
                 }
             }
 
-            if (m_nlayers == 2) { // only to be done for standard (non-BIS) RPCs
+            if (m_nlayers == 2) { // only to be done for standard (non-BI) RPCs
                 newpos += extSupThick / 2.;
                 GeoTransform *tlpan = new GeoTransform(GeoTrf::TranslateX3D(newpos));
                 if (RPCprint) {
@@ -170,7 +170,7 @@ namespace MuonGM {
                     prpc->add(pallpan);
                 }
 
-                // The first layer is support for RPCs with 2 gaps, is a layer for 3 gaps (BIS chambers, no supports)
+                // The first layer is support for RPCs with 2 gaps, is a layer for 3 gaps (BI chambers, no supports)
                 newpos += extSupThick / 2.;
             }
 
@@ -229,7 +229,7 @@ namespace MuonGM {
                 }
             }
 
-            if (m_nlayers == 2) { // only to be done for standard (non-BIS) RPCs
+            if (m_nlayers == 2) { // only to be done for standard (non-BI) RPCs
                 newpos += centSupThick / 2.;
                 GeoTransform *tcpan = new GeoTransform(GeoTrf::TranslateX3D(newpos));
                 if (RPCprint) {
@@ -307,11 +307,11 @@ namespace MuonGM {
                 prpc->add(new GeoIdentifierTag(2));
                 prpc->add(tugg);
                 if (m_nlayers == 2)
-                    prpc->add(rugg); // only to be done for standard (non-BIS) RPCs
+                    prpc->add(rugg); // only to be done for standard (non-BI) RPCs
                 prpc->add(puppergg);
             }
 
-            // additional RpcLayer for BIS (3 gaps)
+            // additional RpcLayer for BI (3 gaps)
             if (m_nlayers == 3) {
                 newpos += rpcLayerThickness / 2.;
                 RpcLayer *rthird = new RpcLayer(name, this);

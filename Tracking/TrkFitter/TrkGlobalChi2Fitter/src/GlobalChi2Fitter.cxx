@@ -1003,7 +1003,7 @@ namespace Trk {
 
       if (cylsurf != nullptr) {
         double length = 2 * M_PI * cylsurf->bounds().r();
-        if (fabs(fabs(dloc1) - length) < fabs(dloc1)) {
+        if (std::abs(std::abs(dloc1) - length) < std::abs(dloc1)) {
           if (dloc1 > 0) {
             dloc1 -= length;
           } else {
@@ -1013,7 +1013,7 @@ namespace Trk {
       }
       
       if (discsurf != nullptr) {
-        if (fabs(fabs(dloc2) - 2 * M_PI) < fabs(dloc2)) {
+        if (std::abs(std::abs(dloc2) - 2 * M_PI) < std::abs(dloc2)) {
           if (dloc2 > 0) {
             dloc2 -= 2 * M_PI;
           } else {
@@ -1109,8 +1109,8 @@ namespace Trk {
     std::unique_ptr<GXFMaterialEffects> elossmeff = std::make_unique<GXFMaterialEffects>(&calomeots[1]);
     std::unique_ptr<GXFMaterialEffects> secondscatmeff = std::make_unique<GXFMaterialEffects>(&calomeots[2]);
 
-    double pull1 = fabs(firstscatphi / firstscatmeff->sigmaDeltaPhi());
-    double pull2 = fabs(secondscatphi / secondscatmeff->sigmaDeltaPhi());
+    double pull1 = std::abs(firstscatphi / firstscatmeff->sigmaDeltaPhi());
+    double pull2 = std::abs(secondscatphi / secondscatmeff->sigmaDeltaPhi());
 
     if (firstismuon) {
       for (auto & i : tmp_matvec) {
@@ -2102,14 +2102,10 @@ namespace Trk {
           double p = 1. / std::abs(layerpars->parameters()[Trk::qOverP] - .0005 * meff->delta_p());
           
           std::unique_ptr<const Amg::Vector2D> locpos(state->surface()->globalToLocal(layerpars->position()));
-          std::unique_ptr<const Amg::Vector3D> layerNormal(state->surface()->normal(*locpos));
+          const Amg::Vector3D layerNormal(state->surface()->normal(*locpos));
           double costracksurf = 1.;
           
-          if (layerNormal != nullptr) {
-            costracksurf = fabs(layerNormal->dot(layerpars->momentum().unit()));
-          } else {
-            ATH_MSG_WARNING("No normal on surface found!");
-          }
+          costracksurf = std::abs(layerNormal.dot(layerpars->momentum().unit()));
           
           double oldde = meff->deltaE();
           
@@ -3176,8 +3172,8 @@ namespace Trk {
     double z0 = parforextrap.position().z();
     double delta_s = (surf.center().z() - z0) / costheta;
     double delta_phi = delta_s * sintheta / r;
-    double x = xc + fabs(r) * cos(phi0 + delta_phi);
-    double y = yc + fabs(r) * sin(phi0 + delta_phi);
+    double x = xc + std::abs(r) * cos(phi0 + delta_phi);
+    double y = yc + std::abs(r) * sin(phi0 + delta_phi);
     Amg::Vector3D intersect = Amg::Vector3D(x, y, surf.center().z());
     double perp = intersect.perp();
     const DiscBounds *discbounds = (const DiscBounds *) (&surf.bounds());
@@ -3186,7 +3182,7 @@ namespace Trk {
       return {};
     }
     
-    double costracksurf = fabs(costheta);
+    double costracksurf = std::abs(costheta);
     
     return std::make_pair(intersect, costracksurf);
   }
@@ -3266,7 +3262,7 @@ namespace Trk {
 
     Amg::Vector3D intersect = Amg::Vector3D(x, y, z);
 
-    if (fabs(z - surf.center().z()) > surf.bounds().halflengthZ()) {
+    if (std::abs(z - surf.center().z()) > surf.bounds().halflengthZ()) {
       return {};
     }
     
@@ -3282,7 +3278,7 @@ namespace Trk {
     
     Amg::Vector3D trackdir(cos(phidir) * sintheta, sin(phidir) * sintheta, costheta);
     
-    double costracksurf = fabs(normal.unit().dot(trackdir));
+    double costracksurf = std::abs(normal.unit().dot(trackdir));
     
     return std::make_pair(intersect, costracksurf);
   }
@@ -3353,7 +3349,7 @@ namespace Trk {
            */
           if (oldstates[i]->trackParameters() != nullptr) {
             double rlayer = cylsurf->bounds().r();
-            if (fabs(rmeas - rlayer) < fabs(parforextrap->position().perp() - rlayer)) {
+            if (std::abs(rmeas - rlayer) < std::abs(parforextrap->position().perp() - rlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           }
@@ -3382,7 +3378,7 @@ namespace Trk {
           
           if (oldstates[i]->trackParameters() != nullptr) {
             double zlayer = discsurf->center().z();
-            if (fabs(zmeas - zlayer) < fabs(parforextrap->position().z() - zlayer)) {
+            if (std::abs(zmeas - zlayer) < std::abs(parforextrap->position().z() - zlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           }
@@ -3394,7 +3390,7 @@ namespace Trk {
             continue;
           }
           
-          if (fabs(discsurf->center().z()) > fabs(zmeas)) break;
+          if (std::abs(discsurf->center().z()) > std::abs(zmeas)) break;
         } else {
           throw std::logic_error("Unhandled surface.");
         }
@@ -3416,9 +3412,9 @@ namespace Trk {
         double X0 = matprop->thicknessInX0();
         double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
-        double de = -fabs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), matEffects));
+        double de = -std::abs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), matEffects));
         double sintheta = sin(parforextrap->parameters()[Trk::theta]);
-        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), 1. / costracksurf, matEffects));
+        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
         
         std::unique_ptr<GXFMaterialEffects> meff = std::make_unique<GXFMaterialEffects>();
         meff->setDeltaE(de);
@@ -3436,7 +3432,7 @@ namespace Trk {
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
           eloss.reset(m_elosstool->energyLoss(
             *matprop,
-            (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)),
+            (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
             1. / costracksurf, 
             alongMomentum,
             matEffects
@@ -3557,7 +3553,7 @@ namespace Trk {
          * If we've overshot the last hit in our track, we don't need to look
          * at any further layers. We're done!
          */
-        if (fabs((*it)->surfaceRepresentation().center().z()) > fabs(lastz)) {
+        if (std::abs((*it)->surfaceRepresentation().center().z()) > std::abs(lastz)) {
           break;
         }
         
@@ -3600,7 +3596,7 @@ namespace Trk {
          * the convention. Discs to right, cylinders go left.
          */
         if (
-          fabs((*it)->surfaceRepresentation().center().z()) < fabs(firstz) || 
+          std::abs((*it)->surfaceRepresentation().center().z()) < std::abs(firstz) || 
           (*it) == startlayer
         ) {
           upstreamlayers.emplace_back((Layer *) nullptr, (*it));
@@ -3611,7 +3607,7 @@ namespace Trk {
          */
         if (
           (*it) != startlayer &&
-          (fabs((*it)->surfaceRepresentation().center().z()) > fabs(firstz2) || 
+          (std::abs((*it)->surfaceRepresentation().center().z()) > std::abs(firstz2) || 
           (*it) == startlayer2)
         ) {
           layers.emplace_back((Layer *) nullptr, (*it));
@@ -3639,7 +3635,7 @@ namespace Trk {
        */
       double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
       
-      if (fabs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
+      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
         continue;
       }
       
@@ -4271,7 +4267,7 @@ namespace Trk {
             if (
               npseudomuon2 < 2 && 
               (firstmuonpar != nullptr) && 
-              fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              std::abs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
             } else {
@@ -4331,7 +4327,7 @@ namespace Trk {
             if (
               npseudomuon1 < 2 && 
               (lastmuonpar != nullptr) && 
-              fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              std::abs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverp = lastmuonpar->parameters()[Trk::qOverP];
             } else {
@@ -5565,7 +5561,7 @@ namespace Trk {
     if (
       trajectory.prefit() > 0 && (
         (newredchi2 < 2 && it != 0) || 
-        (newredchi2 < oldredchi2 + .1 && fabs(newredchi2 - oldredchi2) < 1 && it != 1)
+        (newredchi2 < oldredchi2 + .1 && std::abs(newredchi2 - oldredchi2) < 1 && it != 1)
       )
     ) {
       trajectory.setConverged(true);
@@ -5579,7 +5575,7 @@ namespace Trk {
       miniter = cache.m_miniter;
     }
     
-    if (it >= miniter && fabs(oldchi2 - chi2) < maxdiff) {
+    if (it >= miniter && std::abs(oldchi2 - chi2) < maxdiff) {
       trajectory.setConverged(true);
     }
 
@@ -6221,7 +6217,7 @@ namespace Trk {
         if (hittype == TrackState::TRT) {
           if (
             runOutlier &&
-            fabs(state->trackParameters()->parameters()[Trk::driftRadius]) > 1.05 * state->surface()->bounds().r()
+            std::abs(state->trackParameters()->parameters()[Trk::driftRadius]) > 1.05 * state->surface()->bounds().r()
           ) {
             ATH_MSG_DEBUG("Removing TRT hit #" << hitno);
             
@@ -6987,7 +6983,7 @@ namespace Trk {
         double distance = getDistance(distsol);
 
         if (distsol.numberOfSolutions() == 2) {
-          if (fabs(distance) < 0.01) {
+          if (std::abs(distance) < 0.01) {
             continue;
           }
           
@@ -8377,7 +8373,7 @@ namespace Trk {
           newparminuseps->parameters()[paraccessor.pardef[j]];
         if (cylsurf && j == 0) {
           double length = 2 * M_PI * surf->bounds().r();
-          if (fabs(fabs(diff) - length) < fabs(diff)) {
+          if (std::abs(std::abs(diff) - length) < std::abs(diff)) {
             if (diff > 0) {
               diff -= length;
             } else {
@@ -8386,7 +8382,7 @@ namespace Trk {
           }
         }
         if (discsurf && j == 1) {
-          if (fabs(fabs(diff) - 2 * M_PI) < fabs(diff)) {
+          if (std::abs(std::abs(diff) - 2 * M_PI) < std::abs(diff)) {
             if (diff > 0) {
               diff -= 2 * M_PI;
             } else {

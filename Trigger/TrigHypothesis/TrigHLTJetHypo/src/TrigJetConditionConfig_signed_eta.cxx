@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJetConditionConfig_signed_eta.h"
@@ -30,18 +30,13 @@ ConditionMT TrigJetConditionConfig_signed_eta::getCondition() const {
 StatusCode TrigJetConditionConfig_signed_eta::checkVals() const {
 
   auto a2d = ArgStrToDouble();
-  if (a2d(m_min) > a2d(m_max)){
-    ATH_MSG_ERROR(" min eta >  max eta");
+
+  auto min_val = a2d(m_min);
+  auto max_val = a2d(m_max);
+  
+  if (min_val > max_val){
+    ATH_MSG_ERROR(" min eta >  max eta: " << min_val << " " << max_val);
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-
-bool TrigJetConditionConfig_signed_eta::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_signed_eta::capacity() const {
-  return getCondition()->capacity();
 }

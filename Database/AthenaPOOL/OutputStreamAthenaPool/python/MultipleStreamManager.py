@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ########################################################
 ##  AugmentedStreams & MultipleStreamManager classes  ##
@@ -284,12 +284,14 @@ class AugmentedByteStream( AugmentedStreamBase ):
         self.bsCopyTool.ByteStreamOutputSvc=self.bsOutputSvc
         self.bsCopyTool.ByteStreamInputSvc=svcMgr.ByteStreamInputSvc
 
-        # create AthenaOutputStream for BS Copy and add it to topSequence
+        # create AthenaOutputStream for BS Copy
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         self.Stream = AthenaOutputStream( StreamName, WritingTool=self.bsCopyTool )
 
-        #topSequence += self.Stream #<-- coherent with asAlg=False in OutputStreamAthenaPool.py
-        theApp.addOutputStream( self.Stream )
+        # add the stream to the output sequence
+        from AthenaCommon.AlgSequence import AthSequencer
+        outSequence = AthSequencer("AthOutSeq")
+        outSequence += self.Stream
         return
 
     def SetOutputFileName(self, name):

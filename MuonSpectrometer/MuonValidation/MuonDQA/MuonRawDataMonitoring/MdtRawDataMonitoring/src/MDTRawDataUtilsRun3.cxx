@@ -23,7 +23,7 @@
 
 using std::string;
 
-StatusCode MdtRawDataMonAlg::binMdtGlobal( TH2* &h, char ecap ) {
+StatusCode MdtRawDataMonAlg::binMdtGlobal( TH2* h, char ecap ) {
 
   //Set x-axis labels
   int LowerEta=0;
@@ -74,7 +74,7 @@ StatusCode MdtRawDataMonAlg::binMdtGlobal( TH2* &h, char ecap ) {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode  MdtRawDataMonAlg::binMdtRegional( TH2* &h, string &xAxis){
+StatusCode  MdtRawDataMonAlg::binMdtRegional( TH2* h, string &xAxis ) {
   
   ///SET Ghost Entries
   int LowerEta=-0;

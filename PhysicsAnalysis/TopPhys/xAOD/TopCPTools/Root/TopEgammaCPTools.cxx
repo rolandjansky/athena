@@ -27,6 +27,7 @@
 namespace top {
   EgammaCPTools::EgammaCPTools(const std::string& name) :
     asg::AsgTool(name),
+    m_egammaCalibrationModel("es2018_R21_v0"),
     m_electronEffTriggerFile("SetMe"),
     m_electronEffTriggerLooseFile("SetMe"),
     m_electronEffSFTriggerFile("SetMe"),
@@ -87,6 +88,10 @@ namespace top {
 
     if (m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()) {
       if (m_config->makeAllCPTools()) {// skiping calibrations on mini-xAODs
+        if(m_config->egammaCalibration() != m_egammaCalibrationModel){
+          m_config->setPrintEgammaCalibModelWarning(true);
+          m_egammaCalibrationModel = m_config->egammaCalibration();
+        }
         top::check(setupCalibration(), "Failed to setup Egamma calibration tools");
       }
       if (m_config->useFwdElectrons() && m_config->makeAllCPTools()) {
@@ -138,7 +143,7 @@ namespace top {
     } else {
       IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-                                  "ESModel", "es2018_R21_v0"),
+                                  "ESModel", m_egammaCalibrationModel),
                  "Failed to set ESModel for " + egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                   "decorrelationModel",

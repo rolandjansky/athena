@@ -31,6 +31,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/AcceptData.h"
 
 
@@ -119,6 +120,10 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv2TRT  ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv2SiTRT;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoUnconv    ;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvLooseLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvTightLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvLooseLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvTightLH;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTight;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTightCaloOnly;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutLoose;
@@ -173,6 +178,8 @@ private:
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_LooseLH ; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_MediumLH; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_TightLH ; //!
+  asg::AnaToolHandle<IAsgPhotonIsEMSelector> m_LooseLH_Photon; //!
+  asg::AnaToolHandle<IAsgPhotonIsEMSelector> m_TightLH_Photon; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTight; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightTrackOnly; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly; //!

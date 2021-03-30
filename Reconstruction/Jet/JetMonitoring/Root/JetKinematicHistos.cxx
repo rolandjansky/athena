@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetKinematicHistos.h"
@@ -96,42 +96,42 @@ int JetKinematicHistos::buildHistos(){
 
 
 
-int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont){
+int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
   // fill the N if needed. 
-  if (m_doN) m_njet->Fill( cont.size() );
+  if (m_doN) m_njet->Fill( cont.size(), weight );
   // Perform the loop over jets in the base class :
-  return JetHistoBase::fillHistosFromContainer(cont);
+  return JetHistoBase::fillHistosFromContainer(cont, weight);
 }
 
 
-int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j){
+int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j, float weight){
 
   if(m_jetScale != "JetAssignedScaleMomentum" && !j.isAvailable<float>(m_jetScale+"_pt")){
-    if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
+    if(m_doNConstit) m_nConstit->Fill( j.numConstituents(), weight );
     return 0;
   }
 
   // m_jetScale is a property of the base tool
   const xAOD::JetFourMom_t p4 = j.jetP4(m_jetScale);
-  m_pt->Fill( p4.Pt()*toGeV );
-  m_eta->Fill( p4.Eta() );
-  m_phi->Fill( p4.Phi() );
+  m_pt->Fill( p4.Pt()*toGeV, weight );
+  m_eta->Fill( p4.Eta(), weight );
+  m_phi->Fill( p4.Phi(), weight );
   if (p4.Pt()*toGeV > 200.0){ // high eta
-    m_pt_high->Fill( p4.Pt()*toGeV );
-    m_eta_high->Fill( p4.Eta() );
-    if(m_doE) m_e_high->Fill( p4.E()*toGeV );
-    if(m_doM) m_m_high->Fill( p4.M()*toGeV );
-    if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents() );
+    m_pt_high->Fill( p4.Pt()*toGeV, weight );
+    m_eta_high->Fill( p4.Eta(), weight );
+    if(m_doE) m_e_high->Fill( p4.E()*toGeV, weight );
+    if(m_doM) m_m_high->Fill( p4.M()*toGeV, weight );
+    if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents(), weight );
   }
 
-  if(m_doE) m_e->Fill( p4.E()*toGeV );
-  if(m_doM) m_m->Fill( p4.M()*toGeV );
+  if(m_doE) m_e->Fill( p4.E()*toGeV, weight );
+  if(m_doM) m_m->Fill( p4.M()*toGeV, weight );
   
-  if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi() );
-  if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV);
-  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV);
+  if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi(), weight );
+  if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV, weight);
+  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV, weight);
 
-  if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
+  if(m_doNConstit) m_nConstit->Fill( j.numConstituents(), weight );
   return 0;
 }
 

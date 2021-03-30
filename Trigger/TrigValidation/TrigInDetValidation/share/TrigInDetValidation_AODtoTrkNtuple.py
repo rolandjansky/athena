@@ -182,6 +182,7 @@ if ( True ) :
 
     # two stage tau precision tracking - empty ???
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso:vtx=HLT_IDVertex_Tau",
 
 
     # should get single stage tau

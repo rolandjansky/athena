@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -191,7 +191,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
 
       unsigned int theCtr = 0;
       bool isTerminated = false;
-      for ( ; firstCell != lastCell; firstCell++ )
+      for ( ; firstCell != lastCell; ++firstCell )
 	{  
 	  // check if cell in requested layer and range
 	  double eta = (*firstCell)->eta();
@@ -444,22 +444,22 @@ TBXMLCaloCellWriterTool::convertProperties()
       if ( *firstCalo == "LAREM" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LAREM);
-	  firstCalo++;
+	  ++firstCalo;
 	}
       else if ( *firstCalo == "LARHEC" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARHEC);
-	  firstCalo++;
+	  ++firstCalo;
 	}
       else if ( *firstCalo == "LARFCAL" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARFCAL);
-	  firstCalo++;
+	  ++firstCalo;
 	}
       else if ( *firstCalo == "TILE" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::TILE);
-	  firstCalo++;
+	  ++firstCalo;
 	}
       else
 	{
@@ -471,52 +471,49 @@ TBXMLCaloCellWriterTool::convertProperties()
   // Get CaloSamplings //
   ///////////////////////
 
-  std::vector<std::string>::iterator firstSampl = m_includedSamplings.begin();
-  std::vector<std::string>::iterator lastSampl  = m_includedSamplings.end();
-
   // nasty (no switch on string types...)
-  for ( ; firstSampl != lastSampl; firstSampl++ )
+  for (const std::string& sample : m_includedSamplings)
     {
       // H8 calos
-      if ( *firstSampl == "PreSamplerB" ) 
+      if ( sample == "PreSamplerB" ) 
 	m_caloSamplings.push_back(CaloSampling::PreSamplerB);
-      if ( *firstSampl == "EMB0" )
+      if ( sample == "EMB0" )
 	m_caloSamplings.push_back(CaloSampling::EMB1);
-      if ( *firstSampl == "EMB1" )
+      if ( sample == "EMB1" )
 	m_caloSamplings.push_back(CaloSampling::EMB2);
-      if ( *firstSampl == "EMB2" )
+      if ( sample == "EMB2" )
 	m_caloSamplings.push_back(CaloSampling::EMB3);
-      if ( *firstSampl == "TileBar0" )
+      if ( sample == "TileBar0" )
 	m_caloSamplings.push_back(CaloSampling::TileBar0);
-      if ( *firstSampl == "TileBar1" )
+      if ( sample == "TileBar1" )
 	m_caloSamplings.push_back(CaloSampling::TileBar0);
-      if ( *firstSampl == "TileBar2" )
+      if ( sample == "TileBar2" )
 	m_caloSamplings.push_back(CaloSampling::TileBar0);
-      if ( *firstSampl == "TileExt0" )
+      if ( sample == "TileExt0" )
 	m_caloSamplings.push_back(CaloSampling::TileExt0);
-      if ( *firstSampl == "TileExt1" )
+      if ( sample == "TileExt1" )
 	m_caloSamplings.push_back(CaloSampling::TileExt1);
-      if ( *firstSampl == "TileExt2" )
+      if ( sample == "TileExt2" )
 	m_caloSamplings.push_back(CaloSampling::TileExt2);
 
       // H6 calos
-      if ( *firstSampl == "EME1" )
+      if ( sample == "EME1" )
 	m_caloSamplings.push_back(CaloSampling::EME1);
-      if ( *firstSampl == "EME2" )
+      if ( sample == "EME2" )
 	m_caloSamplings.push_back(CaloSampling::EME2);
-      if ( *firstSampl == "HEC0" )
+      if ( sample == "HEC0" )
 	m_caloSamplings.push_back(CaloSampling::HEC0);
-      if ( *firstSampl == "HEC1" )
+      if ( sample == "HEC1" )
 	m_caloSamplings.push_back(CaloSampling::HEC1);
-      if ( *firstSampl == "HEC2" )
+      if ( sample == "HEC2" )
 	m_caloSamplings.push_back(CaloSampling::HEC2);
-      if ( *firstSampl == "HEC3" )
+      if ( sample == "HEC3" )
 	m_caloSamplings.push_back(CaloSampling::HEC3);
-      if ( *firstSampl == "FCAL0" )
+      if ( sample == "FCAL0" )
 	m_caloSamplings.push_back(CaloSampling::FCAL0);
-      if ( *firstSampl == "FCAL1" )
+      if ( sample == "FCAL1" )
 	m_caloSamplings.push_back(CaloSampling::FCAL1);
-      if ( *firstSampl == "FCAL2" )
+      if ( sample == "FCAL2" )
 	m_caloSamplings.push_back(CaloSampling::FCAL2);
     }
 

@@ -12,7 +12,11 @@
 
 CompoundConditionMT::CompoundConditionMT(std::vector<ConditionMT>& elements){
 
-  for(auto& el : elements){m_elements.push_back(std::move(el));}
+  for(auto& el : elements){
+    if(el != nullptr) {
+      m_elements.push_back(std::move(el));
+    }
+  }
   unsigned int capacity{0};
 
   // mis-configuration of elemental Conditions with differing capacities

@@ -34,10 +34,10 @@ namespace LVL1MUCTPIPHASE1 {
     SimController();
     ~SimController();
 
-    void configureTopo(const std::string& barrelFileName,
-		       const std::string& ecfFileName,
-		       const std::string& side0LUTFileName,
-		       const std::string& side1LUTFileName);
+    std::vector<std::string> configureTopo(const std::string& barrelFileName,
+					   const std::string& ecfFileName,
+					   const std::string& side0LUTFileName,
+					   const std::string& side1LUTFileName);
 
     std::string processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
     void setConfiguration( const Configuration& conf );

@@ -35,13 +35,16 @@ namespace LVL1MUCTPIPHASE1 {
     delete m_triggerProcessor;
   }
 
-  void SimController::configureTopo(const std::string& barrelFileName,
-				    const std::string& ecfFileName,
-				    const std::string& side0LUTFileName,
-				    const std::string& side1LUTFileName)
+  std::vector<std::string> SimController::configureTopo(const std::string& barrelFileName,
+							const std::string& ecfFileName,
+							const std::string& side0LUTFileName,
+							const std::string& side1LUTFileName)
   {
-    m_l1topoLUT.initializeLUT(barrelFileName, ecfFileName, side0LUTFileName, side1LUTFileName);
+    std::vector<std::string> errors;
+    bool success = m_l1topoLUT.initializeLUT(barrelFileName, ecfFileName, side0LUTFileName, side1LUTFileName);
+    if (!success) errors = m_l1topoLUT.getErrors();
     for (int i=0;i<(int)m_muonSectorProcessors.size();i++) m_muonSectorProcessors[i]->setL1TopoLUT(&m_l1topoLUT);
+    return errors;
   }
 
   // set Configuration                                                                                                                                      

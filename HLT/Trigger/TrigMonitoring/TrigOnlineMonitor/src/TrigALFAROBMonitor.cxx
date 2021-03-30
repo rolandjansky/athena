@@ -21,7 +21,6 @@
 
 TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator), 
-  m_rootHistSvc("THistSvc", name),
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
 
   //m_hist_failedChecksumForALFAROB(0),
@@ -42,8 +41,6 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("MonitorPMFactivity",                 m_doPMFMonitoring=true);
   declareProperty("DoGoodDataMonitoring",               m_doDataGoodMonitoring=true);
   declareProperty("DoODDistanceHistograming",           m_doODDistance=true);
-
-  declareProperty("keyRBResult",  m_keyRBResult = "");
 
  // fill vectors with names of trigger items
  m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15"] = 0;
@@ -85,6 +82,7 @@ StatusCode TrigALFAROBMonitor::initialize(){
   m_ALFARobIds.push_back(m_lvl1ALFA2ROBid.value());
 
   ATH_CHECK( m_L1MenuKey.initialize() );
+  ATH_CHECK( m_RBResultKey.initialize() );
 
   ATH_CHECK( m_monTools.retrieve() );
 
@@ -124,23 +122,23 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   ATH_MSG_DEBUG(" Decoded lumi block nb: " <<LB);
 
   // Now try to extract L1 decisons from ROIB fragment
-  if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
-       ATH_MSG_INFO("RoIBResult does not exist with key: " << m_keyRBResult);
+  //if(!evtStore()->contains<ROIB::RoIBResult>(m_RBResultKey)) {
+       //ATH_MSG_INFO("RoIBResult does not exist with key: " << m_RBResultKey);
+  //}
+
+  SG::ReadHandle<ROIB::RoIBResult> h_roIBResult (m_RBResultKey, ctx);
+  if (!h_roIBResult.isValid()) {
+       ATH_MSG_INFO("RoIBResult does not exist with key: " << m_RBResultKey);
+      return StatusCode::SUCCESS;
   }
 
-  const ROIB::RoIBResult* roIBResult=0;
-  StatusCode sc = evtStore()->retrieve(roIBResult,m_keyRBResult);
+  const ROIB::RoIBResult* roIBResult = h_roIBResult.cptr();
 
-  if(sc.isFailure()){
-    ATH_MSG_INFO(" Unable to retrieve RoIBResult from storeGate!");
-               return StatusCode::SUCCESS; //HLT::NO_LVL1_RESULT;
-  } else {
-    const std::vector<ROIB::CTPRoI> ctpRoIVecAV = roIBResult->cTPResult().TAV();
-    for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
+  const std::vector<ROIB::CTPRoI> ctpRoIVecAV = roIBResult->cTPResult().TAV();
+  for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
           uint32_t roIWord = ctpRoIVecAV[iWord].roIWord();
-          ATH_MSG_DEBUG(" roiAV "<<std::hex<<roIWord<<std::dec);
-    }
- }
+          ATH_MSG_INFO(" roiAV "<<std::hex<<roIWord<<std::dec);
+  }
 
   // get the ALFA ROBs
   //std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> ALFARobFragmentVec;
@@ -235,8 +233,6 @@ StatusCode TrigALFAROBMonitor::start() {
   //eformat::helper::SourceIdentifier srcID_CTP( eformat::TDAQ_CTP ,0);
   //eformat::helper::SourceIdentifier srcID_HLT( eformat::TDAQ_HLT, 0);
 
-  // release histogramming service
-  // when we plan to book now histograms at the LB boundaries we should not release the histogramming service ...m_rootHistSvc.release().ignore();
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFRecoverSplitShowersTool.h"
@@ -141,6 +141,9 @@ void PFRecoverSplitShowersTool::fillTracksToRecover(eflowData& data) const {
 }
 
 unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& data) const {
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   /* Cache the original number of eflowCaloObjects */
   const unsigned int nCaloObj = data.caloObjects->size();
 
@@ -176,7 +179,7 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
       eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
       // Look up whether this cluster is intended for recovery
       if( data.clustersToConsider.find(trkClusLink->getCluster()) == data.clustersToConsider.end() ) {continue;}
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,thisEFRecCluster);
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,thisEFRecCluster, ctx);
       thisEfRecTrack->addClusterMatch(trackClusterLink);
       thisEFRecCluster->addTrackMatch(trackClusterLink);
     }
