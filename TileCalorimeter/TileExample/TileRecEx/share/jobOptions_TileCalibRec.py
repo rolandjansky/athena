@@ -1766,9 +1766,6 @@ if not 'db' in dir():
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
 
 
-if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
-    ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
-
 # Needed during maintanance campaign
 # if doTileMon and doTileMonDigi: ToolSvc.TileDigitsMon.FillPedestalDifference = False
 
