@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,9 +29,7 @@ EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(
   , m_storeTResult(false)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("EGammaElectronLikelihoodTool", m_tool);
-  declareProperty("EGammaFudgeMCTool", m_fudgeMCTool);
-  declareProperty("CutType", m_cut);
+ declareProperty("CutType", m_cut);
   declareProperty("StoreGateEntryName", m_sgName);
   declareProperty("StoreTResult", m_storeTResult);
 }
@@ -81,10 +79,12 @@ EGElectronLikelihoodToolWrapper::addBranches() const
     m_decoratorIsEM, ctx
   };
 
+  SG::WriteDecorHandle<xAOD::EgammaContainer, double>* decoratorResult = nullptr;
   if (m_storeTResult) {
-    SG::WriteDecorHandle<xAOD::EgammaContainer, double> decoratorResult{
+    SG::WriteDecorHandle<xAOD::EgammaContainer, double> concreteHandle{
       m_decoratorResult, ctx
     };
+    decoratorResult = &concreteHandle;
   }
 
   bool applyFF = (!m_fudgeMCTool.empty());
@@ -141,10 +141,8 @@ EGElectronLikelihoodToolWrapper::addBranches() const
         decoratorPass(*par) = 0;
       }
       decoratorIsEM(*par) = isEM;
-      if (m_storeTResult) {
-        static const SG::AuxElement::Decorator<double> decResult(m_sgName +
-                                                                 "Result");
-        decResult(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
+      if (decoratorResult) {
+        (*decoratorResult)(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
       }
     } else {
       if (theAccept.getCutResult(m_cut)) {
@@ -153,10 +151,10 @@ EGElectronLikelihoodToolWrapper::addBranches() const
         decoratorPass(*par) = 0;
       }
       decoratorIsEM(*par) = isEM;
-      if (m_storeTResult) {
+      if (decoratorResult) {
         static const SG::AuxElement::Decorator<double> decResult(m_sgName +
                                                                  "Result");
-        decResult(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
+        (*decoratorResult)(*par) = static_cast<double>(m_tool->calculate(ctx, pCopy));
       }
     }
     // delete the particle copy
