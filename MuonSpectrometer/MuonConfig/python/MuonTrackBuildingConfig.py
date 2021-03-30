@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -32,6 +32,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     
     kwargs.setdefault("Propagator",      muon_prop)
     # kwargs.setdefault("SLFit" ,          ) # Was "not jobproperties.BField.allToroidOn()" but do not have access to Field here.
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("SLFit", False)
     kwargs.setdefault("ReducedChi2Cut",  flags.Muon.Chi2NDofCut)
     
     momentum_estimator=""
@@ -510,7 +512,7 @@ def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
     
     return Muon__MuonTrackSelectorTool(name, **kwargs)
 
-def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
+def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder", **kwargs):
     MuPatTrackBuilder=CompFactory.MuPatTrackBuilder
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py#L162
     result=ComponentAccumulator()
@@ -531,7 +533,7 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
     from MuonConfig.MuonSegmentNameFixConfig import MuonSegmentNameFixCfg
     result.merge(MuonSegmentNameFixCfg(flags))
     
-    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
+    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks", **kwargs)
 
     result.addEventAlgo( track_builder, primary=True )
     return result
