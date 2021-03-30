@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,48 +22,47 @@ namespace Trk {
 //class TrackParameters;
 class Volume;
 
-  /** 
+  /**
    @class BoundarySubtractedPlaneSurface
 
    BoundarySubtractedPlaneSurface description inside the tracking realm,
    it extends the SubtractedPlaneSurface description to make a surface being a boundary of a
    Trk::Volume (used for all volume shapes).
-   It inherits from BoundarySurface to get the interface of boundaries. 
-    
-   @author Sarka.Todorova@cern.ch 
+   It inherits from BoundarySurface to get the interface of boundaries.
+
+   @author Sarka.Todorova@cern.ch
   */
-  
-  template <class Tvol> class BoundarySubtractedPlaneSurface final: 
+
+  template <class Tvol> class BoundarySubtractedPlaneSurface final:
                                virtual public BoundarySurface<Tvol>, public SubtractedPlaneSurface {
 
     /** typedef the BinnedArray */
-    typedef BinnedArray<Tvol> VolumeArray;                            
+    typedef BinnedArray<Tvol> VolumeArray;
 
     public:
      /** Default Constructor - needed for pool and inherited classes */
-     BoundarySubtractedPlaneSurface() :
-       BoundarySurface<Tvol>(),
-       SubtractedPlaneSurface()
-     {}
-     
-     /** Copy constructor */                            
-     BoundarySubtractedPlaneSurface(const BoundarySubtractedPlaneSurface<Tvol>& bps) :
-       BoundarySurface<Tvol>(bps),
-       SubtractedPlaneSurface(bps)
-     {}
-     
+     BoundarySubtractedPlaneSurface()  = default;
+
+     /** Copy constructor */
+     BoundarySubtractedPlaneSurface(const BoundarySubtractedPlaneSurface<Tvol>& bps)  = default;
+
+     /**Assignment operator*/
+     BoundarySubtractedPlaneSurface& operator=(const BoundarySubtractedPlaneSurface& vol) = default;
+
+     virtual ~BoundarySubtractedPlaneSurface() = default;
+
      /** Constructor for a Boundary with exact two Volumes attached to it*/
      BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside, const SubtractedPlaneSurface& psf) :
        BoundarySurface<Tvol>(inside, outside),
        SubtractedPlaneSurface(psf)
      {}
-     
+
      /** Constructor for a Boundary with two VolumeArrays attached to it*/
      BoundarySubtractedPlaneSurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray, const SubtractedPlaneSurface& psf) :
        BoundarySurface<Tvol>(insideArray, outsideArray),
        SubtractedPlaneSurface(psf)
-     {}        
-     
+     {}
+
      /** Copy constructor with a shift */
      BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside, const SubtractedPlaneSurface& psf, const Amg::Transform3D& tr) :
        BoundarySurface<Tvol>(inside,outside),
@@ -86,21 +85,13 @@ class Volume;
      /** The Surface Representation of this */
      virtual const Surface& surfaceRepresentation() const override final;
 
-     /**Virtual Destructor*/
-     virtual ~BoundarySubtractedPlaneSurface() = default;
 
-     /**Assignment operator*/
-     BoundarySubtractedPlaneSurface& operator=(const BoundarySubtractedPlaneSurface& vol);
-         
-   protected:
-                             
   };
 
-template <class Tvol> inline const Surface& BoundarySubtractedPlaneSurface<Tvol>::surfaceRepresentation() const { return *this; }
 
 // Hash include inline functions
 #include "TrkVolumes/BoundarySubtractedPlaneSurface.icc"
-  
+
 } // end of namespace Trk
 
 #endif // TRKVOLUMES_BOUNDARYSUBTRACTEDPLANESURFACE_H

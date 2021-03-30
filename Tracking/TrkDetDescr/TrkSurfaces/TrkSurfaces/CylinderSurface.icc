@@ -121,12 +121,12 @@ CylinderSurface::clone() const
   return new CylinderSurface(*this);
 }
 
-inline const Amg::Vector3D*
+inline Amg::Vector3D
 CylinderSurface::normal(const Amg::Vector2D& lp) const
 {
   double phi = lp[Trk::locRPhi] / (bounds().r());
   Amg::Vector3D localNormal(cos(phi), sin(phi), 0.);
-  return new Amg::Vector3D(transform().rotation() * localNormal);
+  return Amg::Vector3D(transform().rotation() * localNormal);
 }
 
 inline double
@@ -138,7 +138,7 @@ CylinderSurface::pathCorrection(const Amg::Vector3D& pos,
   Amg::Vector3D pcT(pos.x() - center().x(), pos.y() - center().y(), 0.);
   Amg::Vector3D normalT(pcT.unit()); // transverse normal
   double cosAlpha = normalT.dot(mom.unit());
-  return (cosAlpha != 0 ? fabs(1. / cosAlpha)
+  return (cosAlpha != 0 ? std::abs(1. / cosAlpha)
                         : 1.); // ST undefined for cosAlpha=0
 }
 

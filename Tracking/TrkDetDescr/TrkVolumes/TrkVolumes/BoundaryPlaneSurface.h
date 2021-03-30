@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,36 +23,36 @@ namespace Trk {
 //class TrackParameters;
 class Volume;
 
-  /** 
+  /**
    @class BoundaryPlaneSurface
 
    BoundaryPlaneSurface description inside the tracking realm,
    it extends the PlaneSurface description to make a surface being a boundary of a
    Trk::Volume (used for all volume shapes).
-   It inherits from BoundarySurface to get the interface of boundaries. 
-    
-   @author Andreas.Salzburger@cern.ch 
+   It inherits from BoundarySurface to get the interface of boundaries.
+
+   @author Andreas.Salzburger@cern.ch
   */
-  
-  template <class Tvol> class BoundaryPlaneSurface final: 
+
+  template <class Tvol> class BoundaryPlaneSurface final:
                                virtual public BoundarySurface<Tvol>, public PlaneSurface {
 
     /** typedef the BinnedArray */
-    typedef BinnedArray<Tvol> VolumeArray;                            
+    typedef BinnedArray<Tvol> VolumeArray;
 
     public:
      /** Default Constructor - needed for pool and inherited classes */
-     BoundaryPlaneSurface() :
-       BoundarySurface<Tvol>(),
-       PlaneSurface()
-     {}
-     
-     /** Copy constructor */                            
-     BoundaryPlaneSurface(const BoundaryPlaneSurface<Tvol>& bps) :
-       BoundarySurface<Tvol>(bps),
-       PlaneSurface(bps)
-     {}
-     
+     BoundaryPlaneSurface()  = default;
+
+     /** Copy constructor */
+     BoundaryPlaneSurface(const BoundaryPlaneSurface<Tvol>& bps)  = default;
+
+     /**Assignment operator*/
+     BoundaryPlaneSurface& operator=(const BoundaryPlaneSurface& vol) = default;
+
+     /**Virtual Destructor*/
+     virtual ~BoundaryPlaneSurface() = default;
+
      /** Constructor for a Boundary with exact two Volumes attached to it*/
      BoundaryPlaneSurface(const Tvol* inside, const Tvol* outside, const PlaneSurface& psf) :
        BoundarySurface<Tvol>(inside, outside),
@@ -64,7 +64,7 @@ class Volume;
        BoundarySurface<Tvol>(insideArray, outsideArray),
        PlaneSurface(psf)
      {}
-     
+
      /** Copy constructor with a shift */
      BoundaryPlaneSurface(const Tvol* inside, const Tvol* outside, const PlaneSurface& psf, const Amg::Transform3D& tr) :
        BoundarySurface<Tvol>(inside,outside),
@@ -87,21 +87,13 @@ class Volume;
      /** The Surface Representation of this */
      virtual const Surface& surfaceRepresentation() const override final;
 
-     /**Virtual Destructor*/
-     virtual ~BoundaryPlaneSurface() = default;
 
-     /**Assignment operator*/
-     BoundaryPlaneSurface& operator=(const BoundaryPlaneSurface& vol);
-         
-   protected:
-                             
   };
 
-template <class Tvol> inline const Surface& BoundaryPlaneSurface<Tvol>::surfaceRepresentation() const { return *this; }
 
 // Hash include inline functions
 #include "TrkVolumes/BoundaryPlaneSurface.icc"
-  
+
 } // end of namespace Trk
 
 #endif // TRKVOLUMES_BOUNDARYPLANESURFACE_H

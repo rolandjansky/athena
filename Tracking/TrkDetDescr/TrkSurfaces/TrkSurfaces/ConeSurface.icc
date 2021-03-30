@@ -119,7 +119,7 @@ ConeSurface::clone() const
   return new ConeSurface(*this);
 }
 
-inline const Amg::Vector3D*
+inline Amg::Vector3D
 ConeSurface::normal(const Amg::Vector2D& lp) const
 {
   // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
@@ -128,7 +128,7 @@ ConeSurface::normal(const Amg::Vector2D& lp) const
   Amg::Vector3D localNormal(cos(phi) * bounds().cosAlpha(),
                             sin(phi) * bounds().cosAlpha(),
                             sgn * bounds().sinAlpha());
-  return new Amg::Vector3D(transform().rotation() * localNormal);
+  return Amg::Vector3D(transform().rotation() * localNormal);
 }
 
 inline const ConeBounds&
