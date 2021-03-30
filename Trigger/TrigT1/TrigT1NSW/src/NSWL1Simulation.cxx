@@ -59,7 +59,7 @@ namespace NSWL1 {
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
     declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
-
+    declareProperty("NSWPadTrigRDOContainerName", m_padTriggerRdoKey = "NSWPADTRGRDO", "Name of the NSW Pad Trigger RDO container");
     // declare monitoring variables
     declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
   }
@@ -99,6 +99,7 @@ namespace NSWL1 {
       ATH_CHECK(m_strip_tds.retrieve());
       ATH_CHECK(m_strip_cluster.retrieve());
       ATH_CHECK(m_strip_segment.retrieve());
+      ATH_CHECK(m_padTriggerRdoKey.initialize());
     }
     
     if(m_doMM ){
@@ -144,6 +145,7 @@ namespace NSWL1 {
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
     auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+    auto padTriggerContainer = std::make_unique<Muon::NSW_PadTriggerDataContainer>();
 
     if(m_dosTGC){
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
@@ -154,12 +156,18 @@ namespace NSWL1 {
           ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
      
+      // Fill RDO with data from simulated PadTriggers
+      ATH_CHECK(PadTriggerRDOConverter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
+
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
       
       auto rdohandle = SG::makeHandle( m_trigRdoContainer );
       ATH_CHECK( rdohandle.record( std::move(trgContainer)));
+
+      SG::WriteHandle<Muon::NSW_PadTriggerDataContainer> padTriggerRdoHandle = SG::makeHandle(m_padTriggerRdoKey);
+      ATH_CHECK(padTriggerRdoHandle.record(std::move(padTriggerContainer)));
     }
 
     //retrive the MM Strip hit data
