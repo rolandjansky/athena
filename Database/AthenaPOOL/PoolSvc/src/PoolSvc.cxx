@@ -543,16 +543,6 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
    return(collPtr);
 }
 //__________________________________________________________________________
-void PoolSvc::registerExistingCollection ATLAS_NOT_THREAD_SAFE
-  (pool::ICollection* coll, bool overwrite, bool sharedCat)
-{
-   std::lock_guard<CallMutex> lock(m_pool_mut);
-   m_catalog->commit();
-   pool::CollectionFactory* collFac = pool::CollectionFactory::get();
-   collFac->registerExisting(coll, overwrite, sharedCat ? m_catalog : nullptr);
-   m_catalog->start();
-}
-//__________________________________________________________________________
 Token* PoolSvc::getToken(const std::string& connection,
 	const std::string& collection,
 	const unsigned long ientry) const {
