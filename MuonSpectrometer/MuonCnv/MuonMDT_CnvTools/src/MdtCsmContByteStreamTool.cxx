@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCsmContByteStreamTool.h"
@@ -14,35 +14,35 @@
 Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
     :  
-    AthAlgTool(type,name,parent),
-    m_hid2re(0)
+    base_class(type,name,parent)
 {
-  declareInterface< Muon::IMDT_RDOtoByteStreamTool  >( this );
 }
 
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
   ATH_CHECK( m_idHelperSvc.retrieve() );
-  m_hid2re = new MDT_Hid2RESrcID ();
-  StatusCode status = m_hid2re->set(&m_idHelperSvc->mdtIdHelper());
-  if ( status.isFailure() ){
-    ATH_MSG_FATAL("Could not initialize MDT mapping !");
-    return StatusCode::FAILURE;
-  }
+  m_hid2re = std::make_unique<MDT_Hid2RESrcID> ();
+  ATH_CHECK( m_hid2re->set(&m_idHelperSvc->mdtIdHelper()) );
+
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
  
 StatusCode Muon::MdtCsmContByteStreamTool::finalize() {
-   delete m_hid2re;
    return StatusCode::SUCCESS;
 }
 
 
-StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrite* re, 
-						   MsgStream& log ) {
+StatusCode Muon::MdtCsmContByteStreamTool::convert(const MdtCsmContainer* cont, RawEventWrite* re, 
+						   MsgStream& /*log*/ ) const {
   
-  m_fea.clear();
-  StatusCode status = m_fea.idMap().set(&m_idHelperSvc->mdtIdHelper());
+  // Get the event assembler
+  FullEventAssembler<MDT_Hid2RESrcID>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "MdtCsmContByteStream") );
+
+  StatusCode status = fea->idMap().set(&m_idHelperSvc->mdtIdHelper());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
@@ -69,13 +69,9 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   ATH_MSG_DEBUG(" start to fill Rod ");
 
   for (auto& p : mapEncoder) {
-    theROD  = m_fea.getRodData( p.first ); 
+    theROD  = fea->getRodData( p.first ); 
     p.second.fillROD( *theROD ) ; 
   } 
-  
-  ATH_MSG_DEBUG(" filling the Raw Event ... ");
-  
-  m_fea.fill(re,log); 
   
   ATH_MSG_DEBUG(" RawEvent size in 32 bit word " << re->size_word());
   //    log <<MSG::DEBUG<<" RawEvent header  " << re->header() << endmsg;

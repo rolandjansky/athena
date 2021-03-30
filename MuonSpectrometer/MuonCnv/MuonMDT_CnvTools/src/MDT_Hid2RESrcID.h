@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __MDT_HID2RESRCID__
@@ -44,19 +44,19 @@ public:
   void setSpecialROBNumber(int specialROBNumber) {m_specialROBNumber=specialROBNumber;}
   /**
    */
-  uint32_t getRodID(const Identifier& offlineId);
+  uint32_t getRodID(const Identifier& offlineId) const;
 
   /** Make a ROB Source ID from a ROD source ID
    */ 
-  uint32_t getRobID  ( uint32_t rod_id); 
+  uint32_t getRobID  ( uint32_t rod_id) const; 
 
   /** Make a ROS Source ID from a ROB source ID
    */ 
-  uint32_t getRosID  ( uint32_t rob_id); 
+  uint32_t getRosID  ( uint32_t rob_id) const; 
 
   /** Make a SubDetector ID from ROS source ID 
    */
-  uint32_t getDetID  ( uint32_t ros_id); 
+  uint32_t getDetID  ( uint32_t ros_id) const;
 
  private: 
 
