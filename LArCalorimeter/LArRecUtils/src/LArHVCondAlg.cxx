@@ -6,6 +6,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
+#include "LArRecConditions/LArHVPathologiesDb.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -419,15 +420,23 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                             hvmod.getEtaIndex(),
                                                                             igap,
                                                                             electrode.getElectrodeIndex() ));
-                    curr *= uAkOhm * rValues[ridx];
+                    if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0.;
+                    ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
                  }
                  if (hasPathology) {
                     ATH_MSG_VERBOSE( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]);
                     msg(MSG::VERBOSE) << "Original hv: "<<hv<<" ";
                     for (unsigned int ii=0;ii<listElec.size();ii++) {
                        if (listElec[ii]==(2*i+igap) && listElec[ii]<hasPathologyEM[index].size() && hasPathologyEM[index][listElec[ii]]) {
-                          if(hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
-                          curr=0.;
+                          if(hasPathologyEM[index][listElec[ii]]&LArHVPathologyBits::MaskHV) {
+                             hv=0.;
+                             curr = 0.;
+                          } else if(hasPathologyEM[index][listElec[ii]]&LArHVPathologyBits::MaskCurr) { 
+                             curr = 0.;
+                          } else {
+                             hv=((hasPathologyEM[index][listElec[ii]]&LArHVPathologyBits::SetHVMask)>>4);
+                             curr=0.;
+                          }
                        }
                     }
                     msg(MSG::VERBOSE) << "set hv: "<<hv<<endmsg;
@@ -471,7 +480,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         igap,
                                                                         0 // not used in EMBPS
                                                               ));
-                curr *= uAkOhm * rValues[ridx];
+                if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0;
+                ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
              }
 	     addHV(v,hv,wt);
 	     addCurr(ihv,curr,wt);
@@ -519,14 +529,22 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         hvmod.getEtaIndex(),
                                                                         hvmod.getSectorIndex(),
                                                                         electrode.getElectrodeIndex() ));
-                      curr *= uAkOhm * rValues[ridx];
+                      if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0.;
+                      ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
                    }
                    if (hasPathology) {
                       msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]<<endmsg;
                       for (unsigned int ii=0;ii<listElec.size();ii++) {
                          if (listElec[ii]==(2*i+igap) && listElec[ii]<hasPathologyEM[index].size() && hasPathologyEM[index][listElec[ii]]) {
-                            if(hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
-                            curr=0.;
+                            if(hasPathologyEM[index][listElec[ii]]&LArHVPathologyBits::MaskHV) {
+                               hv=0.;
+                               curr = 0.;
+                            } else if(hasPathologyEM[index][listElec[ii]]&LArHVPathologyBits::MaskCurr) { 
+                               curr = 0.;
+                            } else {
+                               hv=((hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
+                               curr=0.;
+                            }
                          }
                       }
                    }
@@ -568,7 +586,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         igap,
                                                                         0 // not used in EMECPS
                                                                     ));
-                      curr *= uAkOhm * rValues[ridx];
+                      if(curr >0.) curr *= uAkOhm * rValues[ridx]; else curr=0.;
+                      ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
                    }
                addHV(v,hv,wt);
                addCurr(ihv,curr,wt);
@@ -646,14 +665,22 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                 subgap.getSubgapIndex(),
                                                                 0 // not used in HEC
                                                                  ));
-              curr *= uAkOhm * rValues[ridx];
+              if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0.;
+              ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" cur. " << curr << " R: "<<rValues[ridx]);
            }
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<hasPathologyHEC[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
                  if (listElec[ii]==i && listElec[ii]<hasPathologyHEC[index].size() && hasPathologyHEC[index][listElec[ii]]) {
-                      if(hasPathologyHEC[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyHEC[index][listElec[ii]]&0xFFF0)>>4);
-                      curr=0.;
+                      if(hasPathologyHEC[index][listElec[ii]]&LArHVPathologyBits::MaskHV) {
+                         hv=0.;
+                         curr = 0.;
+                      } else if(hasPathologyHEC[index][listElec[ii]]&LArHVPathologyBits::MaskCurr){
+                         curr = 0.;
+                      } else {
+                         hv=((hasPathologyHEC[index][listElec[ii]]&LArHVPathologyBits::SetHVMask)>>4);
+                         curr=0.;
+                      }
                  }
               }
            }
@@ -734,14 +761,22 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                 hvmod.getSectorIndex(),
                                                                 line->getLineIndex()
                                                                  ));
-              curr *= uAkOhm * rValues[ridx];
+              if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0.;
+              ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr." << curr << " R: "<<rValues[ridx]);
            }
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<hasPathologyFCAL[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
                  if (listElec[ii]==i && listElec[ii]<hasPathologyFCAL[index].size() && hasPathologyFCAL[index][listElec[ii]]) {
-                      if(hasPathologyFCAL[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
-                      curr=0.;
+                      if(hasPathologyFCAL[index][listElec[ii]]&LArHVPathologyBits::MaskHV){
+                         hv=0.;
+                         curr = 0.;
+                      } else if(hasPathologyFCAL[index][listElec[ii]]&LArHVPathologyBits::MaskCurr){
+                         curr = 0.;
+                      } else {
+                         hv=((hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
+                         curr=0.;
+                      }
                  }
               }
            }
