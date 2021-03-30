@@ -10,7 +10,7 @@ from ISF_SimulationSelectors import SimulationFlavor
 
 def usesSimKernelMT():
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'FullG4MT_LongLived'])
+    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'FullG4MT_LongLived', 'ATLFASTIIF_ACTS'])
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
     return CfgMgr.ISF__DefaultSimSelector(name, **kwargs )
@@ -125,7 +125,8 @@ def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapola
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultActsSelector(name="ISF_DefaultActsSelector", **kwargs):
-    kwargs.setdefault("Simulator"   , 'ISF_ActsSimSvc')
+    if not usesSimKernelMT():
+        raise RuntimeError("SimulationSelector '%s' does not support running with SimKernel." % name)
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras) 
     return getDefaultSimSelector(name, **kwargs)
 

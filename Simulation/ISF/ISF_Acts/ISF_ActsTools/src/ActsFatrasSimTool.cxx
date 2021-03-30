@@ -10,8 +10,6 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
-#include "ISF_Event/ISFParticle.h"
-#include "ISF_FatrasInterfaces/ISimHitCreator.h"
 
 // ACTS
 #include "Acts/EventData/SingleCurvilinearTrackParameters.hpp"
@@ -36,17 +34,30 @@ using namespace Acts::UnitLiterals;
 ISF::ActsFatrasSimTool::ActsFatrasSimTool(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
-    : base_class(type, name, parent) {
+    : BaseSimulatorTool(type, name, parent) {
   //  declareProperty("TrackingGeometryTool", m_trackingGeometryTool);
   //  declareProperty("ActsExtrapolationTool", m_actsExtrapolationTool);
-  // hit creation tools
   declareProperty("SimHitCreatorID", m_simHitCreatorID);
-  //  declareProperty( "SimHitCreatorMS", m_simHitCreatorMS);
 }
 
 ISF::ActsFatrasSimTool::~ActsFatrasSimTool() {}
 
 StatusCode ISF::ActsFatrasSimTool::initialize() {
+  ATH_CHECK(BaseSimulatorTool::initialize());
+
+  // retrieve simulation tool
+  // if (m_useExtrapolator) {
+  //   ATH_CHECK(m_simulationTool.retrieve());
+  // } else {
+  //   m_simulationTool.disable();
+  //   ATH_MSG_INFO("Using only Extrapolation Engine Tools...");
+  // }
+
+  // retrieve particle filter
+  if (!m_particleFilter.empty()) {
+    ATH_CHECK(m_particleFilter.retrieve());
+  }
+  
   ATH_CHECK(m_trackingGeometryTool.retrieve());
   ATH_CHECK(m_actsExtrapolationTool.retrieve());
 
@@ -55,17 +66,42 @@ StatusCode ISF::ActsFatrasSimTool::initialize() {
   m_logger =
       makeActsAthenaLogger(this, "ActsFatrasSimTool", "ActsFatrasSimTool");
 
-  // retreive hit creators
+  // retreive HitCreators
   if (retrieveTool<iFatras::ISimHitCreator>(m_simHitCreatorID).isFailure())
     return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::ActsFatrasSimTool::finalize() { return StatusCode::SUCCESS; }
+StatusCode ISF::ActsFatrasSimTool::simulate(const ISFParticle& isp,
+                                      ISFParticleContainer& secondaries,
+                                      McEventCollection*) const {
+  // same step as Fatras sim tool
+  // give a screen output that you entered ActsSimSvc
+  ATH_MSG_VERBOSE("Particle " << isp << " received for simulation.");
+
+  // now decide what to do with the particle
+  if (!m_particleFilter.empty() && !m_particleFilter->passFilter(isp)) {
+    ATH_MSG_VERBOSE("ISFParticle "
+                    << isp << " does not pass selection. Ignoring.");
+    return StatusCode::SUCCESS;
+  }
+  /** Process Particle from particle broker */
+  ISF::ISFParticle* newIsp = this->process(isp);
+  ATH_MSG_VERBOSE("ISFParicle created : " << (newIsp ? "" : "no")
+                                          << " new particle");
+
+  if (newIsp) {
+    // new particle into the stack
+    secondaries.push_back(newIsp);
+  }
+
+  // Acts call done
+  return StatusCode::SUCCESS;
+}
 
 ISF::ISFParticle* ISF::ActsFatrasSimTool::process(
-    const ISFParticle& isp, CLHEP::HepRandomEngine*) const {
+    const ISFParticle& isp) const {
   // copy the current particle onto the particle clipboard
   // ISF::ParticleClipboard::getInstance().setParticle(isp);
 
@@ -78,8 +114,8 @@ ISF::ISFParticle* ISF::ActsFatrasSimTool::process(
   Generator generator;
   // input/ output particle and hits containers
   std::vector<ActsFatras::Particle> input;
-  std::vector<ActsFatras::Particle> simulatedInitial;
-  std::vector<ActsFatras::Particle> simulatedFinal;
+  // std::vector<ActsFatras::Particle> simulatedInitial;
+  // std::vector<ActsFatras::Particle> simulatedFinal;
   std::vector<ActsFatras::Hit> hits;
 
   // create input particles. particle number should ne non-zero.
