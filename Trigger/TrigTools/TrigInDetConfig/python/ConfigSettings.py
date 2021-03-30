@@ -503,6 +503,7 @@ class _GlobalSettings() :
       self._isLRT     = False
       self._adaptiveVertex = False
       self._vertex    = None
+      self._addSingleTrackVertices = False
 
 
    @property
@@ -536,6 +537,10 @@ class _GlobalSettings() :
    @property
    def vertex(self):
        return self._vertex
+
+   @property
+   def addSingleTrackVertices(self):
+       return self._addSingleTrackVertices
 
 
 
@@ -626,6 +631,7 @@ class _Settings_tauIso( _GlobalSettings ):
       self._doRecord = True #Allow recording of track collections
       self._vertex  = "HLT_IDVertex_Tau"
       self._adaptiveVertex = True
+      self._addSingleTrackVertices = True
 
 #This might be redundant but lets keep them for the time being...
 class _Settings_tauIsoBDT( _GlobalSettings ):
