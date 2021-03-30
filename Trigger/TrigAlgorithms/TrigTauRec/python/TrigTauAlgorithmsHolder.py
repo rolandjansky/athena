@@ -844,16 +844,18 @@ def getTVATool():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-    TVATool = CP__TrackVertexAssociationTool(name = _name,
-                                             WorkingPoint = "Custom",
-                                             d0_cut = 2.5*mm,
-                                             use_d0sig = False,
-                                             d0sig_cut = -1,
-                                             dzSinTheta_cut = 3.0*mm,
-                                             doUsedInFit = False,
-                                             requirePriVtx=False
-                                             )
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    TVATool = getTTVAToolForReco(name = _name,
+                                 WorkingPoint = "Custom",
+                                 d0_cut = 2.5*mm,
+                                 use_d0sig = False,
+                                 d0sig_cut = -1,
+                                 dzSinTheta_cut = 3.0*mm,
+                                 doUsedInFit = False,
+                                 requirePriVtx=False,
+                                 TrackContName=_DefaultTrackContainer,
+                                 VertexContName=_DefaultVertexContainer
+                                 )
 
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TVATool

@@ -19,6 +19,7 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
     """
 
     import ROOT
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
     # This is a doubly nested list
     ptcone_list = [
         [ROOT.xAOD.Iso.IsolationType.ptcone40, ROOT.xAOD.Iso.IsolationType.ptcone30, ROOT.xAOD.Iso.IsolationType.ptcone20]
@@ -63,8 +64,8 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                         TrackSelectionTool=CfgMgr.InDet__InDetTrackSelectionTool(
                             minPt=track_pt, CutLevel="Loose"
                         ),
-                        TTVATool=CfgMgr.CP__TrackVertexAssociationTool(
-                            WorkingPoint="Loose",
+                        TTVATool=getTTVAToolForReco(
+                            WorkingPoint="Loose"
                         ),
                         CoreTrackEtaRange=0.01 if loose_cone else 0.0,
                         **toolkwargs,

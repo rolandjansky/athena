@@ -104,10 +104,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   if jetFlags.useTracks:
     ctools += [jtm.tracksel, jtm.trackselloose_trackjets]
     if jetFlags.useVertices:
-      # Decorations may be made by a separate ID algorithm.
-      if not hasattr (job, 'InDetUsedInFitDecorator'):
-        ctools += [jtm.tvassocdeco]
-          
       ctools += [jtm.tvassoc]
    
   # LCOriginTopoClusters and EMOriginTopoClusters are shallow copies

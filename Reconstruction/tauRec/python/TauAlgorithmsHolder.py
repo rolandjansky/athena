@@ -821,9 +821,11 @@ def getTVATool():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-    TVATool = CP__TrackVertexAssociationTool(name = _name,
-                                             WorkingPoint = "Nonprompt_Hard_MaxWeight")
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    TVATool = getTTVAToolForReco(name = _name,
+                                 WorkingPoint = "Nonprompt_Hard_MaxWeight",
+                                 TrackContName = _DefaultTrackContainer,
+                                 VertexContName= _DefaultVertexContainer)
 
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TVATool
