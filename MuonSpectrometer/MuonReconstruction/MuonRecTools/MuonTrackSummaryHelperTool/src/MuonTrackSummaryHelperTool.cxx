@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool.h"
@@ -12,7 +12,7 @@
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-//#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "MuonPrepRawData/CscClusterStatus.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
@@ -453,7 +453,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       }
       else if(m_idHelperTool->isCsc(id)){
 	const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
-	if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+	if(cscClus->status()==Muon::CscClusterStatus::CscStatusUnspoiled || cscClus->status()==Muon::CscClusterStatus::CscStatusSplitUnspoiled) goodLayIds.insert(layId);
       }
       else if(m_idHelperTool->isMM(id)) {
           // MM quality requirements to be inserted here if needed
@@ -480,7 +480,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  layIds.insert(layId);
 	  if(m_idHelperTool->isCsc(id)){
 	    const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(*clit);
-	    if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+	    if(cscClus->status()==Muon::CscClusterStatus::CscStatusUnspoiled || cscClus->status()==Muon::CscClusterStatus::CscStatusSplitUnspoiled) goodLayIds.insert(layId);
 	  }
 	}
       }else{
