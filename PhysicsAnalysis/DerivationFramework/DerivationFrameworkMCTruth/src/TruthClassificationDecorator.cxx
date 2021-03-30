@@ -76,7 +76,7 @@ StatusCode DerivationFramework::TruthClassificationDecorator::addBranches() cons
     SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
 
     SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
-
+    SG::AuxElement::Decorator< int > parenthadronPIDDecorator("getParentHadronID");
 
     for (unsigned int i=0; i<nParticles; ++i) {
 #ifdef MCTRUTHCLASSIFIER_CONST
@@ -86,12 +86,18 @@ StatusCode DerivationFramework::TruthClassificationDecorator::addBranches() cons
         unsigned int particleOutCome = info.particleOutCome;
 
 	unsigned int result = 0;
+
+        int hadpdg = 0;
+
 #else
         std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = 
         m_classifier->particleTruthClassifier((*importedTruthParticles)[i]);
         unsigned int particleOutCome = m_classifier->getParticleOutCome();
 
      	unsigned int result = (unsigned int)m_classifier->classify((*importedTruthParticles)[i]);
+
+	int hadpdg = (int)m_classifier->getParentHadronID((*importedTruthParticles)[i]);
+
 #endif
         unsigned int particleType = classification.first;
         unsigned int particleOrigin = classification.second;
@@ -100,6 +106,7 @@ StatusCode DerivationFramework::TruthClassificationDecorator::addBranches() cons
         outcomeDecorator(*((*importedTruthParticles)[i])) = particleOutCome;  
 
       	classificationDecorator(*((*importedTruthParticles)[i])) = result;
+	parenthadronPIDDecorator(*((*importedTruthParticles)[i])) = hadpdg;
     }
 
     return StatusCode::SUCCESS;
