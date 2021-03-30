@@ -49,7 +49,7 @@ TCS::MetSort::sortBitCorrect(const InputTOBArray & input, TOBArray & output) {
 
    const MetTOBArray & mets = dynamic_cast<const MetTOBArray&>(input);
    int missingET = quadraticSumBW(mets[0].Ex(), mets[0].Ey());
-   int metphi = TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
+   int metphi = isLegacyTopo()?TSU::Trigo::atan2leg(mets[0].Ex(),mets[0].Ey()):TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
 
    TRG_MSG_DEBUG("MET phi values " << metphi << " " );
    output.push_back( GenericTOB( missingET, 0, metphi ) );

@@ -22,12 +22,18 @@ namespace TSU {
 	static unsigned int calcInvMassBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcTMassBWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2BWLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static float calcCosLegacy(unsigned phi);
+	static float calcSinLegacy(unsigned phi);
 	static unsigned int calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);		
 	static unsigned int calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 
 	static unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcXi1(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcXi2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static float calcCos(unsigned phi);
+	static float calcSin(unsigned phi);
      /**
         @brief compute the sum in quadrature of two ints
 
