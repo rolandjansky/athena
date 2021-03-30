@@ -7,4 +7,4 @@ atlas_subdir( InDetMultipleVertexSeedFinder )
 atlas_add_component( InDetMultipleVertexSeedFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces EventPrimitives xAODTracking InDetMultipleVertexSeedFinderUtilsLib TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetBeamSpotServiceLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces EventPrimitives xAODTracking InDetMultipleVertexSeedFinderUtilsLib TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces BeamSpotConditionsData )

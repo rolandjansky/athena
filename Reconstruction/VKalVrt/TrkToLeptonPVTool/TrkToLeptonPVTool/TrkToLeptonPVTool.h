@@ -23,7 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToLeptonPVTool/ITrkToLeptonPV.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 //
 
 
@@ -47,7 +47,7 @@
 
    private:
 
-    ServiceHandle< IBeamCondSvc >       m_beamService{this,"BeamCondSvc","BeamCondSvc"};
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     ToolHandle< Trk::IVertexFitter >    m_fitterSvc{this,"VertexFitter","Trk::TrkVKalVrtFitter/VertexFitterTool","Vertex Fitter tool instance"};
 
  };

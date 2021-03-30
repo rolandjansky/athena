@@ -10,7 +10,6 @@
 #include "NewVrtSecInclusiveTool/NewVrtSecInclusiveTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "PathResolver/PathResolver.h"
  
 #include "GaudiKernel/ITHistSvc.h"
@@ -64,7 +63,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     m_multiWithOneTrkVrt(true),
     m_calibFileName("Fake2TrVertexReject.MVA.v01.root"),
     m_SV2T_BDT(nullptr),
-    m_beamService("BeamCondSvc",name),
     m_fitSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
    {
 //
@@ -117,7 +115,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
     declareProperty("calibFileName", m_calibFileName, " MVA calibration file for 2-track fake vertices removal" );
 
-    declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
     declareProperty("VertexFitterTool",    m_fitSvc, "Name of the Vertex Fitter tool");
 //
     m_massPi  =  Trk::ParticleMasses().mass[Trk::pion];
@@ -139,10 +136,8 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
    StatusCode NewVrtSecInclusiveTool::initialize(){
      ATH_MSG_DEBUG( "Initialising NewVrtSecInclusiveTool- Package version: " << PACKAGE_VERSION ); 
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
-
-     ATH_CHECK( m_beamService.retrieve() );
      ATH_CHECK( m_extrapolator.retrieve() );
-
+     ATH_CHECK(m_beamSpotKey.initialize());
      ATH_CHECK( m_fitSvc.retrieve() );
      ATH_MSG_DEBUG("NewVrtSecInclusiveTool TrkVKalVrtFitter found");
 
@@ -324,11 +319,12 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     workVectorArrxAOD * tmpVectxAOD=new workVectorArrxAOD();
     tmpVectxAOD->inpTrk.resize(inpTrk.size());
     std::copy(inpTrk.begin(),inpTrk.end(), tmpVectxAOD->inpTrk.begin());
-    tmpVectxAOD->beamX=m_beamService->beamPos().x();
-    tmpVectxAOD->beamY=m_beamService->beamPos().y();
-    tmpVectxAOD->beamZ=m_beamService->beamPos().z();
-    tmpVectxAOD->tanBeamTiltX=tan(m_beamService->beamTilt(0));
-    tmpVectxAOD->tanBeamTiltY=tan(m_beamService->beamTilt(1));
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    tmpVectxAOD->beamX=beamSpotHandle->beamPos().x();
+    tmpVectxAOD->beamY=beamSpotHandle->beamPos().y();
+    tmpVectxAOD->beamZ=beamSpotHandle->beamPos().z();
+    tmpVectxAOD->tanBeamTiltX=tan(beamSpotHandle->beamTilt(0));
+    tmpVectxAOD->tanBeamTiltY=tan(beamSpotHandle->beamTilt(1));
     
 
     listVrtSec = getVrtSecMulti(tmpVectxAOD,primVrt);

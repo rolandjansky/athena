@@ -8,8 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
-
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace Trk
 {
@@ -71,7 +70,8 @@ namespace InDet
   ToolHandle<InDetTrackClusterCleaningTool> m_cleaningTool;
   
 //beam spot finder
-  ServiceHandle< IBeamCondSvc > m_beamService; 
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
   ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool
    
    //vertex seed finder

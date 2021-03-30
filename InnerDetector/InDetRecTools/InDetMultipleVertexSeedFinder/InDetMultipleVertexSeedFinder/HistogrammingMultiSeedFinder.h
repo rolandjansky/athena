@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
  * A multi seed finder for primary vertexing. Uses a 
@@ -23,7 +24,6 @@
  * Mai 2007
  */
 
-class IBeamCondSvc;
 
 namespace Trk
 {
@@ -83,7 +83,7 @@ namespace InDet
    ToolHandle<Trk::IVertexSeedFinder> m_vtxSeedFinder;
 
 //beam spot finder
-  ServiceHandle< IBeamCondSvc > m_beamService;  
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool
  };
 }//end of namespace definitions
