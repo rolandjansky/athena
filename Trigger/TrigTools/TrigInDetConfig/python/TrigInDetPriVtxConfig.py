@@ -316,11 +316,16 @@ def adaptiveMultiVertexFinderTool_builder( signature ) :
     # to be disabled we can add a flag and some additional logic 
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
 
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    singleTrackVertices= getInDetTrigConfig( signature ).addSingleTrackVertices 
+
+
     vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
                                                                         SeedFinder        = seedFinder,
                                                                         VertexFitterTool  = vertexFitterTool,
                                                                         TrackSelector     = trackSelectorTool,
                                                                         useBeamConstraint = True,
+                                                                        addSingleTrackVertices = singleTrackVertices,
                                                                         selectiontype     = 0, # what is this?
                                                                         do3dSplitting     = doVtx3DFinding)
     
