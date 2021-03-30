@@ -70,10 +70,6 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~McEventCollectionCnv_p3();
 
-  ///////////////////////////////////////////////////////////////////
-  // Const methods:
-  ///////////////////////////////////////////////////////////////////
-
   /** Method creating the transient representation of @c McEventCollection
    *  from its persistent representation @c McEventCollection_p3
    */
