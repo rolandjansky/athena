@@ -81,10 +81,7 @@ public:
  
 private:
 
-  // --- job options
-  Gaudi::Property<std::string>  m_trackingGeometryName{this,"TrackingGeometryName","AtlasTrackingGeometry"};
-  Gaudi::Property<std::string> m_ExtrapolatorName{this,"ExtrapolatorName"," "};      //!< Name of the Extrapolator Instance 
-    
+     
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
