@@ -22,10 +22,16 @@ from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
 
+from AthenaCommon.Logging import logging
+logDigiSteering = logging.getLogger('DigitizationSteering')
 
 def DigitizationMainServicesCfg(flags):
     """Configure main digitization services"""
     if flags.Digitization.PileUp:
+        if flags.Concurrency.NumThreads > 0:
+            logDigiSteering.error("DigitizationMainServicesCfg: Attempting to run pile-up digitization AthenaMT using %s threads!", str(flags.Concurrency.NumThreads))
+            logDigiSteering.error("DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration. The job will fail now.")
+            raise RuntimeError("DigitizationSteering.DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
         from Digitization.PileUpConfigNew import PileUpEventLoopMgrCfg
         acc = MainServicesCfg(flags, LoopMgr="PileUpEventLoopMgr")
         acc.merge(PileUpEventLoopMgrCfg(flags))
