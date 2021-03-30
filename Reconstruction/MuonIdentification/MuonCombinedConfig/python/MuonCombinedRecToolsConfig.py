@@ -20,11 +20,16 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     extrapolator = result.getPrimary()
     result.addPublicTool(extrapolator)
 
+    from InDetConfig. InDetRecToolConfig import InDetBoundaryCheckToolCfg
+    acc = InDetBoundaryCheckToolCfg(flags, name="CombinedMuonIDBoundaryCheckTool")
+    boundary_tool = result.popToolsAndMerge(acc)
+
     from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
     acc = InDetTrackHoleSearchToolCfg(flags,
                                       name            = "CombinedMuonIDHoleSearch",
                                       Extrapolator    = extrapolator,
                                       CountDeadModulesAfterLastHit = True,
+                                      BoundaryCheckTool = boundary_tool,
                                       Cosmics         = (flags.Beam.Type=="cosmics"))
     indet_hole_search_tool = acc.getPrimary()
     result.addPublicTool(indet_hole_search_tool)
@@ -38,6 +43,9 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
                                          PixelToTPIDTool = None,
                                          TestBLayerTool  = None,
                                          DoSharedHits    = False,
+                                         usePixel        = True,
+                                         useSCT          = True,
+                                         useTRT          = True,
                                          HoleSearch      = indet_hole_search_tool)
     indet_track_summary_helper_tool = acc.getPrimary()
     result.addPublicTool(indet_track_summary_helper_tool)
@@ -74,6 +82,8 @@ def MuonTrackToVertexCfg(flags, name = 'MuonTrackToVertexTool', **kwargs ):
     return acc
 
 def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDetDetailedTrackSelectorTool",**kwargs):
+    from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
+
     if flags.Beam.Type == 'collisions':
         kwargs.setdefault("pTMin", 2000 )
         kwargs.setdefault("IPd0Max", 50.0 )
@@ -99,8 +109,7 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
     extrapolator = result.getPrimary()
     kwargs.setdefault("Extrapolator", extrapolator )
 
-    # FIXME the configuration of TrackSummaryTool should probably be centralised.
-    acc = MuonCombinedTrackSummaryToolCfg(flags)
+    acc = AtlasTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools() )
     result.merge(acc)
 
@@ -119,6 +128,20 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
     result.setPrivateTools(tool)
     return result
 
+def MuonCombinedInDetDetailedTrackSelectorTool_LRTCfg(flags, name='MuonCombinedInDetDetailedTrackSelectorTool_LRT', **kwargs):
+    kwargs.setdefault("pTMin", 2000 )
+    kwargs.setdefault("IPd0Max", 1.e4 )
+    kwargs.setdefault("IPz0Max",  1.e4 )
+    kwargs.setdefault("z0Max",  1.e4  )
+    kwargs.setdefault("useTrackSummaryInfo", True )
+    kwargs.setdefault("nHitBLayer", 0 )
+    kwargs.setdefault("nHitPix", 0 )
+    kwargs.setdefault("nHitBLayerPlusPix", 0 )
+    kwargs.setdefault("nHitSct", 4 )
+    kwargs.setdefault("nHitSi", 4 )
+    kwargs.setdefault("nHitTrt", 0 )
+    kwargs.setdefault("useTrackQualityInfo", False )
+    return MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name,**kwargs)
 
 def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**kwargs):
     result = ComponentAccumulator()    
@@ -240,7 +263,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("ParticleCaloExtensionToolID", acc.getPrimary() )
     result.merge(acc)
 
-    from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonTrackSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     acc = MuonAmbiProcessorCfg(flags)
     kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())
     result.merge(acc)
@@ -258,6 +281,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(MuonTrackQueryCfg(flags)) )
 
     if flags.Muon.SAMuonTrigger:
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
         acc = MuonTrackSummaryToolCfg(flags)
         kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
         result.merge(acc)
@@ -600,6 +624,7 @@ def MuonAlignmentUncertToolThetaCfg(flags,name ="MuonAlignmentUncertToolTheta", 
     tool = CompFactory.Muon.MuonAlignmentUncertTool(name,**kwargs)
     result.addPublicTool(tool)
     return result
+
 def MuonAlignmentUncertToolPhiCfg(flags,name ="MuonAlignmentUncertToolPhi", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("HistoName", "PhiScattering")
@@ -607,6 +632,7 @@ def MuonAlignmentUncertToolPhiCfg(flags,name ="MuonAlignmentUncertToolPhi", **kw
     tool =  CompFactory.Muon.MuonAlignmentUncertTool(name,**kwargs)
     result.addPublicTool(tool)
     return result
+
 def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.SystemOfUnits import meter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
@@ -702,9 +728,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     # configure tools for data reprocessing 
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
         # use alignment effects on track for all algorithms
-
-        # FIXME - useAlignErrs set to false until MuonAlignmentErrorDBAlg config is available 
-        useAlignErrs = False
+        useAlignErrs = False # FIXME - change this once the MuonAlignmentErrorDBAlg issues are sorted out.
 
         # FIXME - handle this.
         #    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
