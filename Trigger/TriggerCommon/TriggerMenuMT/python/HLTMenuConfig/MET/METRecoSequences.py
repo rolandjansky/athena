@@ -28,9 +28,7 @@ from ..Menu.SignatureDicts import JetChainParts_Default
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import (
     InDet__InDetTrackSelectionTool,
 )
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import (
-    CP__TrackVertexAssociationTool,
-)
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
 import copy
 
 log = logging.getLogger(__name__)
@@ -269,9 +267,15 @@ class CVFClusterInputConfig(AlgInputConfig):
                 InputVertexKey=inputVertices,
                 OutputCVFKey="CVF",
                 TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
-                TVATool=CP__TrackVertexAssociationTool(
-                    WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0,
-                    TrackContName = inputTracks,
+                # Note: Currently (March 2021), this is configured to not use the TTVA decorations
+                # provided by tracking CP. This will work with the current configured WP. 
+                #
+                # If you need the decorations, you need to make sure to pass
+                # this method the correct alg sequence to add to, since it needs 
+                # to schedule an algorithm to provide the information. 
+                TVATool=getTTVAToolForReco(
+                    WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0, addDecoAlg=False,
+                    TrackContName=inputTracks, VertexContName=inputVertices
                 ),
                 ExtensionTool=ApproximateTrackToLayerTool()
             )

@@ -49,22 +49,10 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt not in trackcollectionmap.keys():
         trackcollectionmap[trkopt] = trkcolls
 
-    # Track decoration.
-    trkdecortool = CompFactory.getComp('InDet::InDetUsedInFitTrackDecoratorTool') \
-                   ("jetTrkDecorTool",
-                    TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
-                    VertexContainer = trackcollectionmap[trkopt]["Vertices"]
-                    )
-    trkdecoralg = CompFactory.getComp('InDet::InDetUsedInVertexFitTrackDecorator') \
-                  ("jetTrkDecorAlg",
-                   UsedInFitDecoratorTool = trkdecortool
-                   )
-    jetTrkSeq += conf2toConfigurable( trkdecoralg )
-
     # Jet track selection
     jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
     jettracksname = jettrackselloose.OutputContainer
-    jettvassoc = getTrackVertexAssocTool(trkopt)
+    jettvassoc = getTrackVertexAssocTool(trkopt, jetTrkSeq)
 
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
 
