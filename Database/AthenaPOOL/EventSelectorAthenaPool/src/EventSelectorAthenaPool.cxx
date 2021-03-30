@@ -780,6 +780,7 @@ StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
          m_inputCollectionsIterator += m_curCollection;
          m_poolCollectionConverter = new PoolCollectionConverter(m_collectionType.value() + ":" + m_collectionTree.value(),
 	         m_inputCollectionsProp.value()[m_curCollection],
+	         IPoolSvc::kInputStream,
 	         m_query.value(),
 	         m_athenaPoolCnvSvc->getPoolSvc());
          if (!m_poolCollectionConverter->initialize().isSuccess()) {
@@ -827,6 +828,7 @@ int EventSelectorAthenaPool::findEvent(int evtNum) const {
       if (m_numEvt[i] == -1) {
          PoolCollectionConverter pcc(m_collectionType.value() + ":" + m_collectionTree.value(),
 	         m_inputCollectionsProp.value()[i],
+	         IPoolSvc::kInputStream,
 	         m_query.value(),
 	         m_athenaPoolCnvSvc->getPoolSvc());
          if (!pcc.initialize().isSuccess()) {
@@ -981,6 +983,7 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
       ATH_MSG_DEBUG("Try item: \"" << *m_inputCollectionsIterator << "\" from the collection list.");
       PoolCollectionConverter* pCollCnv = new PoolCollectionConverter(m_collectionType.value() + ":" + m_collectionTree.value(),
 	      *m_inputCollectionsIterator,
+	      IPoolSvc::kInputStream,
 	      m_query.value(),
 	      m_athenaPoolCnvSvc->getPoolSvc());
       StatusCode status = pCollCnv->initialize();
