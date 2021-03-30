@@ -54,8 +54,12 @@ if any(gen in ranluxlist for gen in evgenConfig.generators):
     print "Events will not be reseeded (RunLuxGenSvc) "
 else:
     atRndmGenSvc = svcMgr.AtRndmGenSvc
-    atRndmGenSvc.EventReseeding = False
-    print "Events will not be reseeded (RndmGenSvc) "
+    if "Epos" in evgenConfig.generators:
+        atRndmGenSvc.EventReseeding = True
+        print "Epos events will be reseeded (RndmGenSvc) "
+    else:
+        atRndmGenSvc.EventReseeding = False
+        print "Events will not be reseeded (RndmGenSvc) "
 
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []
