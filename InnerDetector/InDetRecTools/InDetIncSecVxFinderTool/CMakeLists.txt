@@ -12,4 +12,4 @@ atlas_add_component( InDetIncSecVxFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers CxxUtils xAODTracking GaudiKernel InDetRecToolInterfaces GeoPrimitives TrkTrack TrkParticleBase TrkParameters TrkEventPrimitives VxVertex TrkLinks TrkTrack TrkTrackLink TrkTrackSummary TrkSurfaces TrkVertexFitterInterfaces EventPrimitives InDetTrackSelectionToolLib TrkVertexSeedFinderUtilsLib InDetBeamSpotServiceLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers CxxUtils xAODTracking GaudiKernel InDetRecToolInterfaces GeoPrimitives TrkTrack TrkParticleBase TrkParameters TrkEventPrimitives VxVertex TrkLinks TrkTrack TrkTrackLink TrkTrackSummary TrkSurfaces TrkVertexFitterInterfaces EventPrimitives InDetTrackSelectionToolLib TrkVertexSeedFinderUtilsLib BeamSpotConditionsData )

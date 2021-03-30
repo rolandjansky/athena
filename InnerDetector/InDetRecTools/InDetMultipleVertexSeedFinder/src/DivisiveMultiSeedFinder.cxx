@@ -9,7 +9,6 @@
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
@@ -46,11 +45,7 @@ namespace InDet
    return StatusCode::FAILURE;
   }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
    
-  if(m_beamService.retrieve().isFailure())
-  {
-   msg(MSG::ERROR)<<"Unable to retrieve "<<m_beamService<<endmsg;
-   return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"BeamSpot service retrieved"<<endmsg; 
+  ATH_CHECK(m_beamSpotKey.initialize());
    
   if ( m_extrapolator.retrieve().isFailure() ) 
   {                              
@@ -67,7 +62,6 @@ namespace InDet
                m_sepDistance(0.5), 
                m_nRemaining(1),
                m_ignoreBeamSpot(false),
-               m_beamService("BeamCondSvc",n),
                m_extrapolator("Trk::Extrapolator"), 
                m_vtxSeedFinder("Trk::CrossDistancesSeedFinder")
  {
@@ -88,8 +82,7 @@ namespace InDet
 //vertex finder tool (needed when no beam spot is available)
   declareProperty("VertexSeedFinder",m_vtxSeedFinder);
 
-//beam spot service  
-  declareProperty("BeamSpotSvc", m_beamService);
+
   
 //extrapolator
   declareProperty("Extrapolator",m_extrapolator);   
@@ -106,8 +99,8 @@ namespace InDet
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-//selecting with respect to the beam spot
-  Trk::RecVertex beamrecposition(m_beamService->beamVtx());  
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());  
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
@@ -264,8 +257,8 @@ namespace InDet
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
   
 //selecting with respect to the beam spot
-
-  Trk::RecVertex beamrecposition(m_beamService->beamVtx());    
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());    
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
@@ -443,8 +436,9 @@ namespace InDet
 
 
   xAOD::Vertex * beamposition = new xAOD::Vertex();
-  beamposition->setPosition(m_beamService->beamVtx().position());
-  beamposition->setCovariancePosition(m_beamService->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition->setPosition(beamSpotHandle->beamVtx().position());
+  beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
   // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   //Trk::Vertex* beamposition=&beamrecposition;
