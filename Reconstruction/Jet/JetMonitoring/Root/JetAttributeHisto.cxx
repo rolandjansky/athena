@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetAttributeHisto.h"
@@ -12,7 +12,7 @@ namespace jet {
   class HistoFiller {
   public:
     virtual ~HistoFiller() {}
-    virtual void fill(const xAOD::Jet & ){};
+    virtual void fill(const xAOD::Jet &, float /*weight*/ ){};
     // allows to avoid invalid attribute
     virtual bool isValid(const xAOD::Jet &){return false;}
   };
@@ -47,7 +47,7 @@ namespace jet {
   struct AttFiller : public HistoFiller, public AccessorAndHisto<T, TH1F> {
     AttFiller(const std::string & attname, TH1F* h, bool gev1)  : AccessorAndHisto<T, TH1F>(attname, h, gev1) {}
 
-    virtual void fill(const xAOD::Jet & j){this->m_h->Fill( this->m_accessor(j)*scale1 ); };
+    virtual void fill(const xAOD::Jet & j, float weight){this->m_h->Fill( this->m_accessor(j)*scale1, weight ); };
     virtual bool isValid(const xAOD::Jet &j){return this->m_accessor.isAvailable(j);}
   };
 
@@ -56,9 +56,9 @@ namespace jet {
   struct VecAttFiller : public HistoFiller, public AccessorAndHisto<std::vector<T>, TH1F> {
     VecAttFiller(const std::string & attname, TH1F* h, bool gev1)  : AccessorAndHisto<std::vector<T>, TH1F>(attname, h, gev1) {}
 
-    virtual void fill(const xAOD::Jet & j){
+    virtual void fill(const xAOD::Jet & j, float weight){
       const std::vector<T> & vec = this->m_accessor( j);
-      for(const T& v : vec ) this->m_h->Fill( v *scale1 );
+      for(const T& v : vec ) this->m_h->Fill( v *scale1, weight );
     }
     virtual bool isValid(const xAOD::Jet & j){return this->m_accessor.isAvailable(j);}
 
@@ -68,9 +68,9 @@ namespace jet {
   struct VecAttIndexFiller : public HistoFiller, public AccessorAndHisto<std::vector<T>, TH1F> {
     VecAttIndexFiller(const std::string & attname, TH1F* h, size_t index, bool gev1) : AccessorAndHisto<std::vector<T>,TH1F>(attname,h, gev1), m_index(index) {}
 
-    virtual void fill(const xAOD::Jet & j){
+    virtual void fill(const xAOD::Jet & j, float weight){
       const std::vector<T> & vec = this->m_accessor( j);
-      if( vec.size() > m_index) this->m_h->Fill( vec[m_index]*scale1 );
+      if( vec.size() > m_index) this->m_h->Fill( vec[m_index]*scale1, weight );
     }
     virtual bool isValid(const xAOD::Jet & j){return this->m_accessor.isAvailable(j);}
 
@@ -85,7 +85,7 @@ namespace jet {
   struct AttvsAttFiller : public HistoFiller, public AccessorAndHisto2<T,T, HTYPE> {
     AttvsAttFiller(const std::string & att1,const std::string & att2  , HTYPE* h, bool gev1, bool gev2) : AccessorAndHisto2<T,T, HTYPE>(att1,att2,h, gev1, gev2) {}
 
-    virtual void fill(const xAOD::Jet & j){this->m_h->Fill( this->m_accessor(j)*scale1, this->m_accessor2(j)*scale2 ); };
+    virtual void fill(const xAOD::Jet & j, float weight){this->m_h->Fill( this->m_accessor(j)*scale1, this->m_accessor2(j)*scale2, weight ); };
     virtual bool isValid(const xAOD::Jet &j){return (this->m_accessor.isAvailable(j))&&(this->m_accessor2.isAvailable(j));}
 
   };
@@ -94,11 +94,11 @@ namespace jet {
   struct AttvsVecAttIndexFiller : public HistoFiller, public AccessorAndHisto2<std::vector<T>,T, HTYPE> {
     AttvsVecAttIndexFiller(const std::string & att1,const std::string & att2  , HTYPE* h, size_t index , bool gev1, bool gev2, bool swapAxis=false) : AccessorAndHisto2<std::vector<T>,T, HTYPE>(att1,att2,h, gev1, gev2) , m_index(index), m_swap(swapAxis){}
 
-    virtual void fill(const xAOD::Jet & j){
+    virtual void fill(const xAOD::Jet & j, float weight){
       const std::vector<T> & vec = this->m_accessor( j);
       if( vec.size() > m_index) {
-        if( m_swap) this->m_h->Fill( this->m_accessor2(j)*scale2, vec[m_index]*scale1 ) ;
-        else        this->m_h->Fill( vec[m_index] *scale1, this->m_accessor2(j)*scale2) ;
+        if( m_swap) this->m_h->Fill( this->m_accessor2(j)*scale2, vec[m_index]*scale1, weight ) ;
+        else        this->m_h->Fill( vec[m_index] *scale1, this->m_accessor2(j)*scale2, weight) ;
       }
     }
 
@@ -296,18 +296,18 @@ int JetAttributeHisto::buildHistos(){
   return 0;
 }
 
-int JetAttributeHisto::fillHistosFromJet(const xAOD::Jet &j){
-  m_histoFiller->fill(j);
+int JetAttributeHisto::fillHistosFromJet(const xAOD::Jet &j, float weight){
+  m_histoFiller->fill(j, weight);
   return 0;
 }
 
-int JetAttributeHisto::fillHistosFromContainer(const xAOD::JetContainer & cont){
+int JetAttributeHisto::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
   if (cont.empty() ) return 0;
   const xAOD::Jet * j0 = cont[0];
   if ( !m_histoFiller->isValid(*j0) ){
     return 0;
   }
-  return JetHistoBase::fillHistosFromContainer(cont);
+  return JetHistoBase::fillHistosFromContainer(cont, weight);
 }
 
 

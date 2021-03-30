@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETATTRIBUTEHISTOS_H
@@ -43,8 +43,8 @@ public:
 
   virtual StatusCode initialize() ;
   virtual int buildHistos();
-  virtual int fillHistosFromJet(const xAOD::Jet &j);
-  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont);
+  virtual int fillHistosFromJet(const xAOD::Jet &j, float weight);
+  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont, float weight);
   
 protected:
   /// Rename an histo according to the tool's path. redefine here to take m_selectedIndex into account.
