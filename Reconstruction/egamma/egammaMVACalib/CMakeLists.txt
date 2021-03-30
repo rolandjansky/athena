@@ -17,14 +17,20 @@ atlas_add_library( egammaMVACalibLib
    egammaMVACalib/*.h Root/*.cxx
    PUBLIC_HEADERS egammaMVACalib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib xAODCaloEvent xAODEgamma
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgServicesLib AsgMessagingLib 
+   xAODCaloEvent xAODEgamma  xAODTracking MVAUtils PathResolver EgammaAnalysisInterfacesLib
    ${extra_libs} )
+
+atlas_add_dictionary( egammaMVACalibDict
+	egammaMVACalib/egammaMVACalibDict.h
+	egammaMVACalib/selection.xml
+	LINK_LIBRARIES egammaMVACalibLib )
 
 if( NOT XAOD_STANDALONE )
 atlas_add_component( egammaMVACalib
 	src/*.cxx src/components/*.cxx
 	INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-	LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MVAUtils PathResolver egammaInterfacesLib egammaMVACalibLib xAODCaloEvent xAODEgamma xAODTracking )
+	LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel egammaMVACalibLib)
 endif()
 
 # Install files from the package:
