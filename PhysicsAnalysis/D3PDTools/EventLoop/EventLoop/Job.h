@@ -29,6 +29,11 @@
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
+namespace asg
+{
+  class AsgServiceConfig;
+}
+
 namespace EL
 {
   /// effects: standard swap
@@ -89,9 +94,12 @@ namespace EL
     /// failures: out of memory II
     /// invariant: alg != 0
   public:
+    void algsAdd (std::unique_ptr<IAlgorithmWrapper> val_algorithm);
     void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
+    void algsAdd (const AnaReentrantAlgorithmConfig& config);
+    void algsAdd (const asg::AsgServiceConfig& config);
 
 
     /// \brief add a clone of the given algorithm

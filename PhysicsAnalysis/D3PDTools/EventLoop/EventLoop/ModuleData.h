@@ -23,6 +23,11 @@ class TList;
 class TObject;
 class TTree;
 
+namespace asg
+{
+  class SgTEvent;
+}
+
 namespace xAOD
 {
   class TEvent;
@@ -89,6 +94,12 @@ namespace EL
 
       /// \brief the TStore structure, if we use one
       xAOD::TStore *m_tstore {nullptr};
+
+      /// \brief the SgTEvent structure, if we use one
+      asg::SgTEvent *m_evtStore {nullptr};
+
+      /// \brief the worker (to pass on to the algorithms)
+      Worker *m_worker {nullptr};
 
 
       /// \brief add the given output object to the histogram output stream

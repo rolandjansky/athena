@@ -17,7 +17,7 @@ namespace CP {
 class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
                                  public asg::AsgMetadataTool {
     // Create a proper constructor for Athena
-    ASG_TOOL_CLASS2( IsolationCorrectionTool, IIsolationCorrectionTool, CP::ISystematicsTool)
+    ASG_TOOL_CLASS3( IsolationCorrectionTool, IIsolationCorrectionTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool)
 
       public:
 	IsolationCorrectionTool( const std::string& name );

@@ -19,7 +19,7 @@ class ParticleScaleFactorTool: public asg::AsgTool, public virtual IObservableTo
  public: 
    //constructor for athena can be created using special macro
    //Note: if you add a second interface to your tool, you must use: ASG_TOOL_CLASS2( ToolName, Interface1, Interface2) 
-   ASG_TOOL_CLASS2( ParticleScaleFactorTool , IObservableTool , CP::ISystematicsTool )
+   ASG_TOOL_CLASS3( ParticleScaleFactorTool , IObservableTool , CP::ISystematicsTool, CP::IReentrantSystematicsTool )
    //add another constructor for non-athena use cases
    ParticleScaleFactorTool( const std::string& name );
 

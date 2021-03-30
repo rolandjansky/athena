@@ -80,6 +80,15 @@ namespace asg
     void setName (const std::string& val_name);
 
 
+    /// \brief get \ref type and \ref name at the same time
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string typeAndName () const;
+
+
     /// \brief set \ref type and \ref name at the same time
     /// \par Guarantee
     ///   basic
