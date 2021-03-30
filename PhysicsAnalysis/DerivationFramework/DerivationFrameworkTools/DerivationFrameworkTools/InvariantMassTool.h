@@ -37,8 +37,7 @@ namespace DerivationFramework {
       SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName  {this,"ContainerName","","SG key of first container"};
       SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName2 {this,"SecondContainerName","","SG key of first container"};
       StatusCode getInvariantMasses(std::vector<float>*) const;
-      float calculateInvariantMass(float,float,float,float,float,float,float) const;		
-      float calculateInvariantMass(float,float,float,float,float,float,float,float) const;
+      float calculateInvariantMass(const TVector3& v1, const TVector3&v2,float M1,float M2) const;
   }; 
 }
 
