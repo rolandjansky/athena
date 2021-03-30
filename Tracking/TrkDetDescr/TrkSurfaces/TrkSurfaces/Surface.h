@@ -161,7 +161,7 @@ public:
 
   /** Returns a normal vector at a specific local position
    */
-  virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& lp) const;
 
   /** Returns a global reference point on the surface,
      for PlaneSurface, StraightLineSurface, PerigeeSurface this is equal to

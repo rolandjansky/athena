@@ -203,8 +203,7 @@ public:
   using Trk::Surface::normal;
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D* normal(
-    const Amg::Vector2D& locpo) const override;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& locpo) const override final;
 
   /**Return method for the rotational symmetry axis - the z-Axis of the
    * HepTransform */

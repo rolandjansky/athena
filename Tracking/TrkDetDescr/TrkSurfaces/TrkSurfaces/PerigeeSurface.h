@@ -154,7 +154,7 @@ public:
   virtual const Amg::Vector3D& normal() const override final;
 
   /**Returns a normal vector at a specific localPosition*/
-  virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override final;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& lp) const override final;
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
