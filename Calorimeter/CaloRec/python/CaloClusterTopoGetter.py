@@ -234,7 +234,7 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"AVG_TILE_Q"
                                     ,"PTD"
                                     ,"MASS"
-                                    ,"EM_PROBABILITY"
+                                    ,"SECOND_TIME"
                                     ]
 
         doDigiTruthFlag = False

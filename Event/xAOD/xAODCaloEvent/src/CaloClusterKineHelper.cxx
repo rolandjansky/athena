@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMULATIONBASE
@@ -11,6 +11,8 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloEvent/CaloPrefetch.h"
+
+#include <cmath>
 
 namespace {
 
@@ -37,6 +39,7 @@ struct CellAccum
       PresenceInSample(),
       theNewEnergy(0),
       theNewTime(0),
+      theNewSecondTime(0),
       theNewEta(0),
       theNewPhi(0),
       phi0(-999),
@@ -55,6 +58,7 @@ struct CellAccum
   bool PresenceInSample[CaloSampling::Unknown];
   double theNewEnergy;
   double theNewTime;
+  double theNewSecondTime;
   double theNewEta;
   double theNewPhi;
   double phi0;
@@ -160,9 +164,10 @@ void accumCell (const CaloClusterCellLink::const_iterator& cellIt, CellAccum& ac
       // Is time defined?
       if ( cell.provenance() & pmask ) {
         // keep the sign of weight for the time norm in case a cell is removed
-        double theTimeNorm = fabsweight * theEnergy * theEnergyNoWeight;
-        accum.theNewTime += theTimeNorm * cell.time();
-        accum.timeNorm += theTimeNorm;
+        double theTimeNorm      = fabsweight * theEnergy * theEnergyNoWeight;
+        accum.theNewTime       += theTimeNorm * cell.time();
+	accum.theNewSecondTime += theTimeNorm * cell.time() * cell.time();
+        accum.timeNorm         += theTimeNorm;
       }
     }
   }
@@ -251,10 +256,17 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
   clu->setE(accum.theNewEnergy);
   clu->setM(0.0);
 
-  if ( timeNorm != 0. )
+  if ( timeNorm != 0. ) {
     clu->setTime(accum.theNewTime/timeNorm);
-  else 
-    clu->setTime(0);
+    // note that standard deviation of cell time distribution is >= 0. 
+    // (no particular accommodation for <x^2> < <x><x>!) 
+    //    clu->setSecondTime(std::sqrt(std::max(accum.theNewSecondTime/timeNorm-clu->time()*clu->time(),0.)));
+    // consistency with other second moments: store variance!
+    clu->setSecondTime(accum.theNewSecondTime/timeNorm-clu->time()*clu->time());
+  } else { 
+    clu->setTime(0.);      
+    clu->setSecondTime(0.);
+  }
 
 
   //Set Sampling pattern:

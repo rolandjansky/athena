@@ -69,6 +69,7 @@ private:
   bool                                          m_buildCombinedSignal = { false  };         ///< Build topo-clusters within given @f$ y @f$ range, else topo-towers
   double                                        m_energyThreshold;                          ///< Cell energy threshold, default is set in @c m_energyThresholdDef
   double                                        m_clusterRange;                             ///< Range where topo-clusters are used when <tt>m_buildCombinedSignal = true</tt>
+  bool                                          m_removeSamplingData = { true };            ///< Remove sampling data for towers
   /// @}
 
   /// @name Constants and parameters

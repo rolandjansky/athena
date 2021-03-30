@@ -6,6 +6,7 @@
       <field name="m_signalState"  transient="true" />
       <field name="m_cellLinks"    transient="true" />
       <field name="m_recoStatus"   transient="true" />
+      <field name="m_secondTime"   transient="true" />
    </class>
    <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
          targetClass="xAOD::CaloCluster_v1" source="" target="m_signalState" >
@@ -19,6 +20,11 @@
         m_cellLinks = 0;
      ]]>
    </read>
+   <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
+	 targetClass="xAOD::CaloCluster_v1" source="" target="m_secondTime" >
+     <![CDATA[
+	 m_secondTime = -999;
+     ]]>
    <class name="xAOD::CaloClusterContainer_v1"
           id="24997BCA-3F6A-4530-8826-822EE9FC3C08" />
    <typedef name="xAOD::CaloCluster" />

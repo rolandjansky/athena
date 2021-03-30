@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
@@ -14,7 +14,7 @@ extern "C" {
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 
-//Defintion of CaloSamples (enum)
+//Definition of CaloSamples (enum)
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
@@ -45,8 +45,11 @@ namespace xAOD {
    /// Description of a calorimeter cluster
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
+   /// @author Peter Loch <Peter.Loch@cern.ch>
    ///
-   ///
+   /// @since 23-March-2021: added methods to set and retrieve second 
+   ///                       moment of cell time distribution (persistified
+   ///                       as a cluster moment)
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
 
@@ -103,8 +106,8 @@ namespace xAOD {
          DELTA_PHI         = 301,
          /// Angular shower axis deviation (\f$\theta\f$) from IP-to-Center
          DELTA_THETA       = 302,
-         /// Angular shower axis deviation from IP-to-Center
-         DELTA_ALPHA       = 303,
+         /// Angular shower axis deviation (\f$\Delta\alpha\f$) from IP-to-Center
+         DELTA_ALPHA       = 303, 
          CENTER_X          = 401, ///< Cluster Centroid (\f$x\f$)
          CENTER_Y          = 402, ///< Cluster Centroid (\f$y\f$)
          CENTER_Z          = 403, ///< Cluster Centroid (\f$z\f$)
@@ -153,6 +156,8 @@ namespace xAOD {
          DM_WEIGHT         = 903, ///< Dead-material weight (E_dm/E_ooc)
          /// Confidence Level of a tile calorimeter cluster to be noise
          TILE_CONFIDENCE_LEVEL = 904,
+	 /// Second moment of cell time distribution in cluster
+	 SECOND_TIME      = 910,
 
          VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
          NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
@@ -442,6 +447,16 @@ namespace xAOD {
      void setTime(flt_t);
      /// Access cluster time
      flt_t time() const;
+     /// Set second moment of cell timing distribution
+     void setSecondTime(flt_t stime); 
+     /// Access second moment of cell timing distribution
+     ///
+     /// For clusters read from persistent storage, this method returns the value
+     /// stored for the @c SECOND_TIME moment.
+     ///
+     /// @retval 0 if (1) moment is not available, (2) the cluster time could not be calculated, 
+     ///           or (3) the cluster has only one cell or all cells have exactly the same time.  
+     flt_t secondTime() const; 
 
      /// Access to sampling pattern (one bit per sampling) (Method may be removed later)
      unsigned samplingPattern() const;
@@ -589,12 +604,15 @@ namespace xAOD {
 
      /// Current signal state
      State m_signalState;
-     ///Unique ptr to cell links. For cluster building
+     /// Unique ptr to cell links. For cluster building
      /// transient only , holds cells owned by the cluster if non-nullptr
      std::unique_ptr<CaloClusterCellLink> m_cellLinks;
 
-     ///Reco status (transient only)
+     /// Reco status (transient only)
      CaloRecoStatus m_recoStatus;
+
+     /// Second cell time moment (transient only)
+     double m_secondTime = { -1. };
 
      unsigned sampVarIdx(const CaloSample) const;
 
