@@ -48,7 +48,7 @@
 #include "LArCalibUtils/LArDuplicateConstants.h"
 #include "LArCalibUtils/LArCalibPatchingAlg.h"
 #include "LArCalibUtils/LArCalibCopyAlg.h"
-
+#include "../LArConditionsMergerAlg.h"
 
 
 typedef LArCalibPatchingAlg<LArRampComplete> LArRampPatcher;
@@ -116,3 +116,4 @@ DECLARE_COMPONENT( LArPhaseToolConst )
 DECLARE_COMPONENT( LArPhaseToolMC )
 DECLARE_COMPONENT( LArPhaseToolTB )
 
+DECLARE_COMPONENT( LArPedestalMerger )
