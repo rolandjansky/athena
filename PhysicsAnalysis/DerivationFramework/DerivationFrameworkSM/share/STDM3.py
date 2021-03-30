@@ -23,6 +23,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 # Add Truth MetaData
 if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
