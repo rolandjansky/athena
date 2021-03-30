@@ -31,6 +31,7 @@
 #include "LArRecConditions/LArCalibLineMapping.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 
 /** 
