@@ -10,6 +10,7 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 from DerivationFrameworkInDet.InDetCommon import *
 
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+from InDetRecExample import TrackingCommon
 
 # Select active sub-systems
 dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
@@ -140,7 +141,8 @@ if makeSplitTracks:
     # Create xAOD::TrackParticles out of them
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool",
-                                                                      TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                      TrackToVertex           = TrackingCommon.getInDetTrackToVertexTool(),
+                                                                      TrackSummaryTool        = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
                                                                       KeepParameters          = True)
     ToolSvc += InDetxAODSplitParticleCreatorTool
     # The following adds truth information, but needs further testing
@@ -148,6 +150,7 @@ if makeSplitTracks:
     #if isIdTrkDxAODSimulation:
     #    InDetSplitTracksTruth = ConfiguredInDetTrackTruth("Tracks_splitID",'SplitTrackDetailedTruth','SplitTrackTruth')
 
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
     xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg('InDetSplitTrackParticles')
     xAODSplitTrackParticleCnvAlg.xAODContainerName = 'InDetSplitTrackParticles'
     xAODSplitTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = 'InDetSplitTrackParticles'
