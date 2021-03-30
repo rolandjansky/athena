@@ -8,29 +8,27 @@
 #define EGAMMAMVACALIB_EGAMMAMVASVC_H
 
 #include "xAODEgamma/EgammaEnums.h"
-#include "egammaInterfaces/IegammaMVASvc.h"
-#include "egammaInterfaces/IegammaMVACalibTool.h"
-#include "AthenaBaseComps/AthService.h"
+#include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
+#include "EgammaAnalysisInterfaces/IegammaMVACalibTool.h"
+// Framework includes
+#include "AsgServices/AsgService.h"
+#include "AsgTools/PropertyWrapper.h"
 
 #include <string>
 
-class egammaMVASvc : public extends1<AthService, IegammaMVASvc>
+class egammaMVASvc : public asg::AsgService, virtual public IegammaMVASvc
 {
 public:
   egammaMVASvc( const std::string& name, ISvcLocator* svc );
-
+  ASG_SERVICE_CLASS1(egammaMVASvc, IegammaMVASvc)
   virtual ~egammaMVASvc() override {};
-
   virtual StatusCode initialize() override;
-
-  virtual StatusCode finalize() override;
 
   /** Main execute. We need to calibrate the cluster.
       Use full egamma object instead of Type
       As we employ further variables than the ones present in the cluster
       This method needs to be valid also for reconstruction
   */
-
   StatusCode execute(xAOD::CaloCluster& cluster,
                      const xAOD::Egamma& eg) const override final;
 

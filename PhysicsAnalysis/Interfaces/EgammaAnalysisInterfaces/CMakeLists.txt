@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( EgammaAnalysisInterfaces )
@@ -8,7 +8,8 @@ atlas_add_library( EgammaAnalysisInterfacesLib
    EgammaAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS EgammaAnalysisInterfaces
-   LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma xAODTracking PATInterfaces PATCoreLib )
+   LINK_LIBRARIES AsgTools AsgServicesLib xAODCaloEvent 
+   xAODEgamma xAODTracking AsgMessagingLib PATInterfaces PATCoreLib )
 
 atlas_add_dictionary( EgammaAnalysisInterfacesDict
    EgammaAnalysisInterfaces/EgammaAnalysisInterfacesDict.h
