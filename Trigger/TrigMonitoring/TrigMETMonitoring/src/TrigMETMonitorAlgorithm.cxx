@@ -7,54 +7,31 @@
 
 TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  , m_offline_met_key("MET_Reference_AntiKt4EMPFlow")
-  , m_hlt_electron_key("HLT_egamma_Electrons_GSF")
-  , m_hlt_muon_key("HLT_MuonsCB_FS")
-  , m_lvl1_roi_key("LVL1EnergySumRoI")
-  , m_lvl1_jnc_key("jNOISECUT_MET")
-  , m_lvl1_jrho_key("jXERHO_MET")
-  , m_lvl1_gnc_key("gXENOISECUT_MET")
-  , m_lvl1_grho_key("gXERHO_MET")
-  , m_lvl1_gjwoj_key("gXEJWOJ_MET")
-  , m_lvl1_gpufit_key("gXEPUFIT_MET")
-  , m_hlt_cell_met_key("HLT_MET_cell")
-  , m_hlt_mht_met_key("HLT_MET_mht")
-  , m_hlt_tc_met_key("HLT_MET_tc")
-  , m_hlt_tc_em_met_key("HLT_MET_tc_em")
-  , m_hlt_tcpufit_met_key("HLT_MET_tcpufit")
-  , m_hlt_trkmht_met_key("HLT_MET_trkmht")
-  , m_hlt_pfsum_met_key("HLT_MET_pfsum")
-  , m_hlt_pfsum_cssk_met_key("HLT_MET_pfsum_cssk")
-  , m_hlt_pfsum_vssk_met_key("HLT_MET_pfsum_vssk")
-  , m_hlt_pfopufit_met_key("HLT_MET_pfopufit")
-  , m_hlt_cvfpufit_met_key("HLT_MET_cvfpufit")
-  , m_hlt_mhtpufit_pf_met_key("HLT_MET_mhtpufit_pf_subjesgscIS")
-  , m_hlt_mhtpufit_em_met_key("HLT_MET_mhtpufit_em_subjesgscIS")
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
-  declareProperty("offline_met_key", m_offline_met_key);
-  declareProperty("hlt_electron_key", m_hlt_electron_key);
-  declareProperty("hlt_muon_key", m_hlt_muon_key);
-  declareProperty("l1_roi_key", m_lvl1_roi_key);
-  declareProperty("l1_jnc_key", m_lvl1_jnc_key);
-  declareProperty("l1_jrho_key", m_lvl1_jrho_key);
-  declareProperty("l1_gnc_key", m_lvl1_gnc_key);
-  declareProperty("l1_grho_key", m_lvl1_grho_key);
-  declareProperty("l1_gjwoj_key", m_lvl1_gjwoj_key);
-  declareProperty("l1_gpufit_key", m_lvl1_gpufit_key);
-  declareProperty("hlt_cell_key", m_hlt_cell_met_key);
-  declareProperty("hlt_mht_key", m_hlt_mht_met_key);
-  declareProperty("hlt_tc_key", m_hlt_tc_met_key);
-  declareProperty("hlt_tc_em_key", m_hlt_tc_em_met_key);
-  declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key);
-  declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key);
-  declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key);
-  declareProperty("hlt_pfsum_cssk_key", m_hlt_pfsum_cssk_met_key);
-  declareProperty("hlt_pfsum_vssk_key", m_hlt_pfsum_vssk_met_key);
-  declareProperty("hlt_pfopufit_key", m_hlt_pfopufit_met_key);
-  declareProperty("hlt_cvfpufit_key", m_hlt_cvfpufit_met_key);
-  declareProperty("hlt_mhtpufit_pf_key", m_hlt_mhtpufit_pf_met_key);
-  declareProperty("hlt_mhtpufit_em_key", m_hlt_mhtpufit_em_met_key);
+  declareProperty("offline_met_key", m_offline_met_key = "MET_Reference_AntiKt4EMPFlow");
+  declareProperty("hlt_electron_key", m_hlt_electron_key = "HLT_egamma_Electrons_GSF");
+  declareProperty("hlt_muon_key", m_hlt_muon_key = "HLT_MuonsCB_FS");
+  declareProperty("l1_roi_key", m_lvl1_roi_key = "LVL1EnergySumRoI");
+  declareProperty("l1_jnc_key", m_lvl1_jnc_key = "jNOISECUT_MET");
+  declareProperty("l1_jrho_key", m_lvl1_jrho_key = "jXERHO_MET");
+  declareProperty("l1_gnc_key", m_lvl1_gnc_key = "gXENOISECUT_MET");
+  declareProperty("l1_grho_key", m_lvl1_grho_key = "gXERHO_MET");
+  declareProperty("l1_gjwoj_key", m_lvl1_gjwoj_key = "gXEJWOJ_MET");
+  declareProperty("l1_gpufit_key", m_lvl1_gpufit_key = "gXEPUFIT_MET");
+  declareProperty("hlt_cell_key", m_hlt_cell_met_key = "HLT_MET_cell");
+  declareProperty("hlt_mht_key", m_hlt_mht_met_key = "HLT_MET_mht");
+  declareProperty("hlt_tc_key", m_hlt_tc_met_key = "HLT_MET_tc");
+  declareProperty("hlt_tc_em_key", m_hlt_tc_em_met_key = "HLT_MET_tc_em");
+  declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key = "HLT_MET_tcpufit");
+  declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key = "HLT_MET_trkmht");
+  declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key = "HLT_MET_pfsum");
+  declareProperty("hlt_pfsum_cssk_key", m_hlt_pfsum_cssk_met_key = "HLT_MET_pfsum_cssk");
+  declareProperty("hlt_pfsum_vssk_key", m_hlt_pfsum_vssk_met_key = "HLT_MET_pfsum_vssk");
+  declareProperty("hlt_pfopufit_key", m_hlt_pfopufit_met_key = "HLT_MET_pfopufit");
+  declareProperty("hlt_cvfpufit_key", m_hlt_cvfpufit_met_key = "HLT_MET_cvfpufit");
+  declareProperty("hlt_mhtpufit_pf_key", m_hlt_mhtpufit_pf_met_key = "HLT_MET_mhtpufit_pf_subjesgscIS");
+  declareProperty("hlt_mhtpufit_em_key", m_hlt_mhtpufit_em_met_key = "HLT_MET_mhtpufit_em_subjesgscIS");
 
   declareProperty("L1Chain01", m_L1Chain01="L1_XE50");
   declareProperty("L1Chain02", m_L1Chain02="L1_jXENC50");
