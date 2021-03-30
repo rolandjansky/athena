@@ -307,8 +307,8 @@ namespace MuonGM {
   {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
     double xgg=0;
-    if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
-      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED
+    if (m_nlayers==3) { // the BI RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED, cf. ATLASSIM-5021
     } else {
       xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
       if (gasGap == 1) return xgg;
