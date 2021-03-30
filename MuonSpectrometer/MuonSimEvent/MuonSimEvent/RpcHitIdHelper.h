@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RpcHitIdHelper_H
@@ -31,7 +31,7 @@ public:
 private:
   RpcHitIdHelper();
   RpcHitIdHelper(unsigned int nGasGaps);
-  void Initialize(unsigned int nGasGaps=2); // all non-BIS RPCs (Run1+2) have 2 gas gaps, only BIS RPCs have 3 gas gaps
+  void Initialize(unsigned int nGasGaps=2); // all non-BI RPCs (Run1+2) have 2 gas gaps, only BI RPCs have 3 gas gaps
   void InitializeStationName();
   static RpcHitIdHelper* m_help;
 
