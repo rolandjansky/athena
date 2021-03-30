@@ -26,7 +26,7 @@ public:
 
   virtual int buildHistos();
 
-  virtual int fillHistosFromJet(const xAOD::Jet &j);
+  virtual int fillHistosFromJet(const xAOD::Jet &j, float weight);
 
 protected:
 

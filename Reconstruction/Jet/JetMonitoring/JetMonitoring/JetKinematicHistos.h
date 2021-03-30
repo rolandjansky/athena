@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETKINEMATICHISTOS_H
@@ -28,8 +28,8 @@ public:
 
   virtual int buildHistos();
 
-  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont);
-  virtual int fillHistosFromJet(const xAOD::Jet &j);
+  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont, float weight);
+  virtual int fillHistosFromJet(const xAOD::Jet &j, float weight);
 
 protected:
 
