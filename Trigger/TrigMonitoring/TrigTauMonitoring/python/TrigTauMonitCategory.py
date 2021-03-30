@@ -5,8 +5,8 @@ monitoring_singleTau = [
 ]
 
 monitoring_tau = [
-    'tau0_perf_ptonly_L1TAU12',
-    'tau0_perf_ptonly_L1TAU60',
+    'tau0_ptonly_L1TAU8',
+    'tau0_ptonly_L1TAU60',
     'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_perf_tracktwo',

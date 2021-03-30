@@ -52,8 +52,6 @@ def TrigTauMonitoringTool():
               'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-              'tau25_medium1_tracktwoMVA_L1TAU12IM',
-              'tau25_medium1_tracktwoMVABDT_L1TAU12IM',
               'tau35_idperf_tracktwoMVA_L1TAU12IM',
               'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
               'tau35_perf_tracktwoMVA_L1TAU12IM',
@@ -70,8 +68,6 @@ def TrigTauMonitoringTool():
               'tau160_perf_tracktwoMVABDT_L1TAU100',
               'tau160_mediumRNN_tracktwoMVA_L1TAU100',
               'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-              'tau160_medium1_tracktwoMVA_L1TAU100',
-              'tau160_medium1_tracktwoMVABDT_L1TAU100',
         ]
 
         RNN_chains = [
@@ -94,8 +90,8 @@ def TrigTauMonitoringTool():
         BDTRNN_chains = [
              'tau0_idperf_tracktwoMVA_L1eTAU12',
              'tau0_idperf_tracktwoMVA_L1eTAU5',
-             'tau0_perf_ptonly_L1TAU12',
-             'tau0_perf_ptonly_L1TAU60',
+             'tau0_ptonly_L1TAU8',
+             'tau0_ptonly_L1TAU60',
              'tau25_ptonly_L1TAU12IM',
              'tau25_idperf_track_L1TAU12IM',
              'tau25_idperf_tracktwo_L1TAU12IM',

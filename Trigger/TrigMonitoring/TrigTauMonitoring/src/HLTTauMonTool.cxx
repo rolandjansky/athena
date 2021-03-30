@@ -1003,7 +1003,24 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
           ATH_CHECK(fillPreselTau(*tauJetEL));
           setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline");
           ATH_CHECK(fillPreselTauVsOffline(*tauJetEL,goodTauRefType));
+
+          if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "basicVars", monRNN, monBDT);
+          if (monBDT) {
+            if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "1p_NonCorr", monRNN, monBDT);
+            if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "mp_NonCorr", monRNN, monBDT);
+          }
+          if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
+
+          if(m_truth) if(*tauJetEL) sc = fillEFTauVsTruth(*tauJetEL, trigItem);
+          if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "basicVars", goodTauRefType);
+          if (monBDT) {
+            if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "1p_NonCorr", goodTauRefType);
+            if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "mp_NonCorr", goodTauRefType);
+          }
+          if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
+
         } // end comb loop
+
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresMerged
            = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "HLT_TrigTauRecMerged_MVA");    
@@ -1020,12 +1037,13 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
           }
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
           if(!Selection(*tauJetEL)) continue;
+
+          setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionTau");
+          ATH_CHECK(fillPreselTau(*tauJetEL));
+          setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PrecisionVsOffline");
+          ATH_CHECK(fillPreselTauVsOffline(*tauJetEL,goodTauRefType));
+
 	  if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "basicVars", monRNN, monBDT);
-	  if (monBDT) {
-	    if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "1p_NonCorr", monRNN, monBDT);
-	    if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "mp_NonCorr", monRNN, monBDT);
-	  }
-	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
 	  if(monRNN) {
 	    if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
 	    if(*tauJetEL) sc = fillEFTau(*tauJetEL, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
@@ -1036,10 +1054,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 	  }
 	  if(m_truth) if(*tauJetEL) sc = fillEFTauVsTruth(*tauJetEL, trigItem);
 	  if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "basicVars", goodTauRefType);
-	  if (monBDT) {
-	    if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "1p_NonCorr", goodTauRefType);
-	    if(*tauJetEL) sc = fillEFTauVsOffline(*tauJetEL, trigItem, "mp_NonCorr", goodTauRefType);
-	  }
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
 	  
         } // end comb loop
