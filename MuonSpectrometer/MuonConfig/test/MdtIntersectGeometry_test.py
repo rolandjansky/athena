@@ -37,7 +37,7 @@ def testCfg (configFlags):
     result = ComponentAccumulator()
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge (MuonGeoModelCfg(configFlags))
+    result.merge (MuonGeoModelCfg(configFlags, forceDisableAlignment=True))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
