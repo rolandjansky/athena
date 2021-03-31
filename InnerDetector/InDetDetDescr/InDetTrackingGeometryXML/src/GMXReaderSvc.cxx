@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometryXML/GMXReaderSvc.h"
@@ -9,7 +9,7 @@
 #include "GeoModelXml/translate.h"
 
 #include <boost/filesystem.hpp>
-#include "TMath.h"
+
 
 InDet::GMXReaderSvc::GMXReaderSvc(const std::string& name,ISvcLocator* svc) :
   AthService(name, svc),

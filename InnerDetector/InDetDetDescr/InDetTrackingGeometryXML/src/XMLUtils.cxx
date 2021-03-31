@@ -1,10 +1,13 @@
 ///////////////////////////////////////////////////////////////////
-// XMLUtils.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+// XMLUtils.cxx, 
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometryXML/XMLUtils.h"
 #include <sstream>
 #include <ctype.h>
+#include <iostream>
+
 
 InDet::XMLUtils::XMLUtils()
 {
@@ -91,40 +94,33 @@ std::vector<std::string> InDet::XMLUtils::getVectorString(DOMNode *node)
   std::string str = getStringNoTrim(node);
   std::stringstream ss(str);
   std::string item;
-
   std::vector<std::string> v;
-
   while (ss >> item) 
     if(item.size()> 0) v.push_back(item);
- 
   return v;
 }
 
 std::vector<double> InDet::XMLUtils::getVectorDouble(DOMNode *node)
 {
   std::string str = getStringNoTrim(node);
-
   std::vector<double> v;
   std::istringstream s(str);
   double d;
   while (s >> d) {
     v.push_back(d);
   }
-
   return v;
 }
 
 std::vector<int> InDet::XMLUtils::getVectorInt(DOMNode *node)
 {
   std::string str = getStringNoTrim(node);
-
   std::vector<int> v;
   std::istringstream s(str);
   int d;
   while (s >> d) {
     v.push_back(d);
   }
-
   return v;
 }
 

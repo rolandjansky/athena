@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 // ITkEndcapBuilder.cxx
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 #include "TrkGeometry/BinnedLayerMaterial.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "TrkSurfaces/DiscBounds.h"
-#include "TMath.h"
+#include <cmath>
 #include <string>
 #include <iostream>
 
@@ -169,7 +169,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int cavernS
     float phiLowBound = 99999;
     float phiHighBound = -99999;
     for (unsigned int cEl = 0 ; cEl<centersOnModule.size(); cEl++) {
-      float radius = sqrt(pow(centersOnModule.at(cEl).x(),2)+pow(centersOnModule.at(cEl).y(),2));
+      float radius = std::hypot(centersOnModule.at(cEl).x(),centersOnModule.at(cEl).y());
       if (radius > outerR or radius < innerR)
 	continue;
       
@@ -178,7 +178,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int cavernS
       if( centerphi > phiHighBound ) phiHighBound = centerphi;
 
     }
-    double halfPhiStep = TMath::Pi()/nsectors;
+    double halfPhiStep = M_PI/nsectors;
     phiLowBound  -= halfPhiStep;
     phiHighBound += halfPhiStep;
 
@@ -225,7 +225,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int cavernS
   Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(m_pixelCase,binnedArray,BinUtils);
     
   // position & bounds of the disc layer
-  double disc_thickness = std::fabs(zMax-zMin);
+  double disc_thickness = std::abs(zMax-zMin);
   double disc_pos = (zMax+zMin)*0.5;
 
   Amg::Transform3D*  transf = new Amg::Transform3D;
@@ -307,7 +307,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
     InDet::ModuleTmp* moduleTmp = m_xmlReader->getModuleTemplate(layerTmp->modtype.at(iring));
     double hwidth = moduleTmp->widthmax*0.5;
     
-    double corr = cos(atan(hwidth/outerR));
+    double corr = std::cos(std::atan(hwidth/outerR));
     outerR *= 1./corr;
     
     double zmin =  99999;
@@ -321,9 +321,9 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
     Amg::Transform3D*  transf = new Amg::Transform3D;
     (*transf) = Amg::Translation3D(0.,0.,zpos);   
 
-    disc_thickness+=fabs(zmax-zmin);
+    disc_thickness+=std::abs(zmax-zmin);
     
-    double halfPhiStep = TMath::Pi()/nsectors;
+    double halfPhiStep = M_PI/nsectors;
     phiLowBound  -= halfPhiStep;
     phiHighBound += halfPhiStep;
     
@@ -336,7 +336,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
 							 Trk::closed,
 							 Trk::binPhi);
 
-    ATH_MSG_DEBUG("  PHI bin utility - lowhigh -2  : RING "<<iring<<" "<<phiLowBound<<" "<<phiHighBound<<"  //  "<<phiLowBound+2.*TMath::Pi()<<" "<<phiHighBound<<"  Offset/step "<<phiOffset<<" "<<2.*halfPhiStep<<"     - "<<nsectors );
+    ATH_MSG_DEBUG("  PHI bin utility - lowhigh -2  : RING "<<iring<<" "<<phiLowBound<<" "<<phiHighBound<<"  //  "<<phiLowBound+2.*M_PI<<" "<<phiHighBound<<"  Offset/step "<<phiOffset<<" "<<2.*halfPhiStep<<"     - "<<nsectors );
 
     // create binned array
     Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D(*BinUtilityPhi, cElements, centersOnModule);
@@ -454,8 +454,8 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
     return 0;
   }
 
-  Amg::Vector3D centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*cos(planElement->surface().center().phi()),
-						planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
+  Amg::Vector3D centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*std::cos(planElement->surface().center().phi()),
+						planElement->surface().center().perp()*std::sin(planElement->surface().center().phi()),
 						planElement->surface().center().z());
   
   
@@ -569,12 +569,12 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray1D1D(Trk:
     ATH_MSG_DEBUG("Surface " << (*moduleSurface));
     ATH_MSG_DEBUG("phi = " << moduleSurface->center().phi() << "  Eta = " << moduleSurface->center().eta() 
 		 << " z = " << moduleSurface->center().z() 
-		 << " r = " << sqrt(pow(moduleSurface->center().x(),2)+pow(moduleSurface->center().y(),2)));
+		 << " r = " << std::hypot(moduleSurface->center().x(), moduleSurface->center().y()));
     
     //ATH_MSG_DEBUG("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
     ATH_MSG_DEBUG("phi = " << centersOnModule.at(cEl).phi() << "  Eta = " << centersOnModule.at(cEl).eta() 
 		 << " z = " << centersOnModule.at(cEl).z() 
-		 << " r = " << sqrt(pow(centersOnModule.at(cEl).x(),2)+pow(centersOnModule.at(cEl).y(),2)));
+		 << " r = " << std::hypot(centersOnModule.at(cEl).x(), centersOnModule.at(cEl).y()));
   }
 
   // create 2D-dimensional BinnedArray
@@ -638,7 +638,7 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray2D(Trk::B
     //ATH_MSG_DEBUG("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
     ATH_MSG_DEBUG("phi = " << centersOnModule.at(cEl).phi() << "  Eta = " << centersOnModule.at(cEl).eta() 
 		 << " z = " << centersOnModule.at(cEl).z() 
-		 << " r = " << sqrt(pow(centersOnModule.at(cEl).x(),2)+pow(centersOnModule.at(cEl).y(),2)));
+		 << " r = " << std::hypot(centersOnModule.at(cEl).x(), centersOnModule.at(cEl).y()));
   }
 
   // create 2D-dimensional BinnedArray
@@ -706,7 +706,7 @@ const Trk::LayerMaterialProperties* InDet::EndcapBuilderXML::endcapLayerMaterial
   if (m_endcapLayerBinsPhi==1 || isActive){
     layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityR);
   } else { // -- material with 2D binning
-    Trk::BinUtility layerBinUtilityPhi(m_endcapLayerBinsPhi,-TMath::Pi(),TMath::Pi(),Trk::closed,Trk::binPhi);
+    Trk::BinUtility layerBinUtilityPhi(m_endcapLayerBinsPhi,-M_PI,M_PI,Trk::closed,Trk::binPhi);
     layerBinUtilityR += layerBinUtilityPhi;
     layerMaterial     = new Trk::BinnedLayerMaterial(layerBinUtilityR);
   } 

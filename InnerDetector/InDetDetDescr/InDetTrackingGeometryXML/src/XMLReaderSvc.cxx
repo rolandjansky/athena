@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////
 //
 // XMLReaderSvc.cxx                                                        
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 //
 ///////////////////////////////////////////////////////////////////
 
@@ -9,7 +9,7 @@
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
 #include <boost/filesystem.hpp>
-#include "TMath.h"
+#include <cmath>
 
 InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   AthService(name, svc),
@@ -800,12 +800,12 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     double inclination = tmpinclination.at(ir);
     double innerRadius = tmpradius.at(ir);
     double outerRadius = tmpradius.at(ir);
-    if (rtype.compare("Inner")==0) outerRadius += modlength*cos(inclination);
-    else innerRadius -= modlength*cos(inclination);
+    if (rtype.compare("Inner")==0) outerRadius += modlength*std::cos(inclination);
+    else innerRadius -= modlength*std::cos(inclination);
     layer->innerRadius.push_back(innerRadius);
     layer->outerRadius.push_back(outerRadius);
     // compute ring thickness (module thickness + zoffset (can be negative))
-    double tmpthick  = inclination!=0 ? modthick + std::fabs(tmpzoffset.at(ir) + tmpsplitoffset.at(ir) ) + modlength*sin(inclination) :
+    double tmpthick  = inclination!=0 ? modthick + std::fabs(tmpzoffset.at(ir) + tmpsplitoffset.at(ir) ) + modlength*std::sin(inclination) :
                                         modthick + std::fabs(tmpzoffset.at(ir)) ; 
     if(double_sided) tmpthick += modthick+2*stereoSep;
     layer->thickness.push_back(tmpthick);
@@ -1623,7 +1623,7 @@ void InDet::XMLReaderSvc::computeRbounds(Amg::Transform3D trf, InDet::ModuleTmp*
   for(unsigned int i=0; i<corners.size(); i++)
     {
       Amg::Vector3D p = trf*corners[i];
-      double r = sqrt(p.x()*p.x()+p.y()*p.y());
+      double r = std::hypot(p.x(),p.y());
 
       vMin = std::min(vMin,r);
       vMax = std::max(vMax,r);

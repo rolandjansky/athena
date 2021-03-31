@@ -8,7 +8,6 @@
 #include "InDetTrackingGeometryXML/HGTD_IdDictSvc.h"
 
 #include <boost/filesystem.hpp>
-#include "TMath.h"
 
 using namespace std;
 
