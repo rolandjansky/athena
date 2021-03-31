@@ -963,7 +963,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       const float feta = abs(onl_eta);
       const float onl_et = getEt(onl)/Gaudi::Units::GeV;
       const float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
-      const float dummy=dummy;
+      const float dummy=-999;
 
       eta_vec.push_back( onl_eta );
       et_vec.push_back( onl_et );
@@ -1332,7 +1332,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
       const float onl_eta=onl->eta();
       const float feta = abs(onl_eta);
       const float onl_et = getCluster_et(onl)/Gaudi::Units::GeV;
-      const float dummy=dummy;
+      const float dummy=-999;
 
       const float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
       et_vec.push_back( onl_et );
