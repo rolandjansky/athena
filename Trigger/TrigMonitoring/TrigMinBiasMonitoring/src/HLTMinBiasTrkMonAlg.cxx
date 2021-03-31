@@ -131,12 +131,12 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
     if ( ! (passBits & TrigDefs::EF_prescaled) )
     {
       auto decision = Scalar<int>("decision", trigDecTool->isPassed(trig, TrigDefs::requireDecision) ? 1 : 0);
-      auto nTrk = Scalar("nTrkOnline", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
+      auto nTrkOnline = Scalar("nTrkOnline", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
       auto whichtrigger = Scalar<std::string>("whichTrigger", trig);
 
       double nTrkRatio = offlineTrkHandle->size() > 0 ? static_cast<double>(offlineTrkHandle->size()) / static_cast<double>(trkCountsHandle->at(0)->getDetail<int>("ntrks")) : -1.0;
       auto trkRatio = Scalar("nTrkRatio", nTrkRatio);
-      fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio);
+      fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, nTrkOnline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio);
       fill("EffAll", decision, whichtrigger);
     }
 
