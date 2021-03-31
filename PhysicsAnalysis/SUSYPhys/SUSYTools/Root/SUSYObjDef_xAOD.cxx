@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -744,9 +744,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   // -- see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RecommendedIsolationWPs#Current_official_working_points
   // -- the el iso points are those which have (or will have) SFs available
   m_el_iso_support = {
-     "FCLoose", "FCTight",             // current WPs
-     "FCHighPtCaloOnly",               // current HighPtCaloOnly WPs
-     "Gradient"                        // 
+     "FCLoose", "FCTight",                      // current WPs
+     "FCHighPtCaloOnly",                        // current HighPtCaloOnly WPs
+     "Gradient",                                //
+//     "PLVLoose", "PLVTight",                    // PLV recommended WPs, fallback support below b/o SFs and & egamma map file
+//     "PLImprovedTight", "PLImprovedVeryTight"  // New PLIV WPs, fallback support below b/o SFs & egamma map file
   };
   // -- the muon iso points are those which have SFs available
   // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
@@ -755,15 +757,20 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
      "TightTrackOnly_FixedRad", "TightTrackOnly_VarRad", "HighPtTrackOnly",                   // TrackOnly (new naming) recommended WPs
      "PLVLoose", "PLVTight",                                                                  // PLV recommended WPs 
      "Loose_VarRad", "Loose_FixedRad", "Tight_VarRad", "Tight_FixedRad",                      // Other WPs (new naming)
+//     "PLImprovedTight", "PLImprovedVeryTight"                                                 // New PLIV WPs, fallback support below b/o SFs
   };
 
   // Construct electron fallback WPs for SFs
   for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
   m_el_iso_fallback["PLVTight"] = "FCTight";                    // plus actual fallback
   m_el_iso_fallback["PLVLoose"] = "FCLoose";
+  m_el_iso_fallback["PLImprovedTight"] = "FCTight";
+  m_el_iso_fallback["PLImprovedVeryTight"] = "FCTight";
 
   // Construct muon fallback WPs for SFs
   m_mu_iso_fallback = {};
+  m_mu_iso_fallback["PLImprovedTight"] = "PLVTight";
+  m_mu_iso_fallback["PLImprovedVeryTight"] = "PLVTight";
 }
 
 #define CHECK_TOOL_RETRIEVE( TOOLHANDLE )         \
