@@ -28,7 +28,7 @@ namespace{
   constexpr size_t MAX_ROAD_SIZE(399);
 
   std::list<const Trk::Surface*> 
-  listOfSurfacesFromVectorOfElements(std::vector<const InDetDD::TRT_BaseElement*> & v){
+  listOfSurfacesFromVectorOfElements(const std::vector<const InDetDD::TRT_BaseElement*> & v){
     size_t roadsize{0};
     std::list<const Trk::Surface*> surfaces;
     for(const auto &pThisElement: v) {
@@ -385,8 +385,7 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const EventContext& ctx,
 
   // TRT detector elements road builder
   //
-  std::vector<const InDetDD::TRT_BaseElement*> detectorElements;
-  m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum,detectorElements);
+  const std::vector<const InDetDD::TRT_BaseElement*> & detectorElements = m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum);
 
   if(int(detectorElements.size())< nCut) return nullptr;
 
@@ -475,8 +474,7 @@ InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const EventContext& ctx,
   fieldCondObj->getInitializedCache (fieldCache);
   // TRT detector elements road builder
   //
-  std::vector<const InDetDD::TRT_BaseElement*> detectorElements;
-  m_roadtool->detElementsRoad(ctx, fieldCache, *par,Trk::alongMomentum,detectorElements);
+  const std::vector<const InDetDD::TRT_BaseElement*> & detectorElements = m_roadtool->detElementsRoad(ctx, fieldCache, *par,Trk::alongMomentum);
   if(int(detectorElements.size()) < m_minNumberDCs) return false;
   // Array pointers to surface preparation
   //

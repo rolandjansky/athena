@@ -72,12 +72,12 @@ namespace InDet{
       void set
       (const Trk::MagneticFieldProperties&, const AtlasFieldCacheCondObj* );
 
-      bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*&,
+      bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 std::pair<Amg::Vector3D,double>&, const double*,double);
 
-      bool initiateForTRTSeed           (bool,const InDetDD::TRT_BaseElement*&,
+      bool initiateForTRTSeed           (bool,const InDetDD::TRT_BaseElement*,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 std::pair<Amg::Vector3D,double>&, const double*,double);

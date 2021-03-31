@@ -39,7 +39,7 @@ void InDet::TRT_TrajectoryElement_xk::set
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::initiateForPrecisionSeed
-(bool st,const InDetDD::TRT_BaseElement*&          de,
+(bool st,const InDetDD::TRT_BaseElement*           de,
  InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&                  gp,
@@ -63,7 +63,7 @@ bool InDet::TRT_TrajectoryElement_xk::initiateForPrecisionSeed
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::initiateForTRTSeed
-(bool st,const InDetDD::TRT_BaseElement*&          de,
+(bool st,const InDetDD::TRT_BaseElement*          de,
  InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&            gp,
