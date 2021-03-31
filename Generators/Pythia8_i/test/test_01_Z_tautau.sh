@@ -16,6 +16,8 @@ Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=1234
 
 echo "art-result:$? Gen_tf"
 
+source `which setupRivet`
+
 python rootconvert.py MyOutput.yoda.gz
 
 echo "art-result: $? convert"
