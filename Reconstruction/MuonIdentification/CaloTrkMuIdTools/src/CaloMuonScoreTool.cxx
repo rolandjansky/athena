@@ -12,6 +12,7 @@
 
 #include "TrkParameters/TrackParameters.h"
 #include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 
 #include <string>
 #include <iostream>
@@ -149,7 +150,7 @@ void CaloMuonScoreTool::fillInputVectors(std::unique_ptr<const Rec::ParticleCell
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonScoreTool::getMuonScore
 ///////////////////////////////////////////////////////////////////////////////
-float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {  
+float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk, const CaloCellContainer* cells, const CaloExtensionCollection* extensionCache ) const {  
   ATH_MSG_DEBUG("in CaloMuonScoreTool::getMuonScore()");
 
   double track_eta = trk->eta();
@@ -165,7 +166,7 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   ATH_MSG_DEBUG("Finding calo cell association for track particle within cone of delta R="<<m_CaloCellAssociationConeSize);
 
   // - associate calocells to trackparticle
-  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,m_CaloCellAssociationConeSize,nullptr);
+  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,m_CaloCellAssociationConeSize,cells, extensionCache);
   if(!association){
     ATH_MSG_VERBOSE("Could not get particleCellAssociation");
     return -1.;

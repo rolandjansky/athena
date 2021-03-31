@@ -46,7 +46,8 @@ public:
    * @return std::unique_ptr<ParticleCellAssociation>  
    */
   virtual std::unique_ptr< ParticleCellAssociation > particleCellAssociation( const xAOD::IParticle& particle, float dr, 
-                                                                              const CaloCellContainer* container = nullptr) const override final;
+                                                                              const CaloCellContainer* container = nullptr,
+                                                                              const CaloExtensionCollection* extensionCache = nullptr) const override final;
 
 
   /** Method to get the ParticleCellAssociation for a given Particle
@@ -68,7 +69,8 @@ public:
 
   virtual ParticleCellAssociation* particleCellAssociation( const xAOD::IParticle& particle, float dr, 
                                                             IParticleCaloCellAssociationTool::Cache& cache,
-                                                            const CaloCellContainer* container = nullptr) const override final;
+                                                            const CaloCellContainer* container = nullptr,
+                                                            const CaloExtensionCollection* extensionCache = nullptr) const override final;
 
 private:
 

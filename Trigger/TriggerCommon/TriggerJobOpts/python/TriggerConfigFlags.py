@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 log=logging.getLogger('TriggerConfigFlags')
 
@@ -341,6 +342,18 @@ def createTriggerFlags():
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
+
+    # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
+    # When we use component accumulators for this in the HLT maybe we should revisit this
+    # PFO-muon removal option for the full-scan hadronic signatures.
+    # Options are:
+    #   "None": Do no PFO-muon removal
+    #   "Calo": Use the calo-tagging tools from the muon slice
+    #   "Iso" : Use the mainly isolation-based selections based on the MET associator package
+    flags.addFlag("Trigger.FSHad.PFOMuonRemoval", "None")
+
+    # the minimum pT threshold to use for the muon removal
+    flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:

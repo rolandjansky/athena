@@ -28,6 +28,7 @@
 #include "ParticleCaloExtension/ParticleCaloAssociation.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "GaudiKernel/ITHistSvc.h"
 // --- ROOT ---
 #include "TH1F.h"
@@ -199,7 +200,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
 ///////////////////////////////////////////////////////////////////////////////
 // - New getDeposits
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::TrackParticle* tp) const {
+std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont, const CaloExtensionCollection* extensionCache) const {
 
     ATH_MSG_DEBUG("In TrackDepositsInCaloTool::getDeposits() - new");
     std::vector<DepositInCalo> result;
@@ -208,7 +209,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
 // - associate calocells to trackparticle, cone size 0.2, use cache
 
     std::unique_ptr<const Rec::ParticleCellAssociation> association = 
-      m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,nullptr);
+      m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,caloCellCont, extensionCache);
 
     if(!association) return result;
        ATH_MSG_VERBOSE(" particleCellAssociation done  " << association.get() );
