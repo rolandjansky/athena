@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // BarrelConstruction
@@ -11,8 +11,6 @@
 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoGenericFunctions/FunctionNoop.h"
-
 
 namespace LArGeo {
 
@@ -45,41 +43,18 @@ namespace LArGeo {
 
     // It is illegal to assign a BarrelConstruction:
     BarrelConstruction & operator= (const BarrelConstruction &);
+    
+    // Detector parameters ACCG, ACCA, ACMB, ACCO
+    LArGeo::VDetectorParameters* m_parameters;
 
-    // Three auxiliary functions:------------------------------------//
-    //                                                               //
-    GeoGenfun::FunctionNoop Fx( double r,                               //
-			       GeoGenfun::GENFUNCTION G,                //
-			       const double Cenx[],                  //
-			       const double Ceny[] ) const;          //
-      //                                                             //
-      GeoGenfun::FunctionNoop Fy( double r,                             //
-			       GeoGenfun::GENFUNCTION G,                //
-			       const double Cenx[],                  //
-			       const double Ceny[] ) const;          //
-      //                                                             //
-      GeoGenfun::FunctionNoop Dely(GeoGenfun::GENFUNCTION G ) const;       //
-      GeoGenfun::FunctionNoop Del1(GeoGenfun::GENFUNCTION G ) const;       //
-      GeoGenfun::FunctionNoop Del2(GeoGenfun::GENFUNCTION G ) const;       //
-
-      //-------------------------------------------------------------//
-
-      // Atan2 for Generic Functions..:------------------------------//
-      GeoGenfun::FunctionNoop ATan2(GeoGenfun::GENFUNCTION y,              //
-				 GeoGenfun::GENFUNCTION x) const;       //
-      //-------------------------------------------------------------//
-
-      // Detector parameters ACCG, ACCA, ACMB, ACCO
-      LArGeo::VDetectorParameters* m_parameters;
-
-      bool                    m_A_SAGGING;
-      int                     m_NVISLIM;
-
-      // volumes that are private member variables:
-      GeoFullPhysVol*  m_ecamPhysicalPos;
-      GeoFullPhysVol*  m_ecamPhysicalNeg;
-
-      bool             m_fullGeo;  // true->FULL, false->RECO
+    bool                    m_A_SAGGING;
+    int                     m_NVISLIM;
+    
+    // volumes that are private member variables:
+    GeoFullPhysVol*  m_ecamPhysicalPos;
+    GeoFullPhysVol*  m_ecamPhysicalNeg;
+    
+    bool             m_fullGeo;  // true->FULL, false->RECO
   };
 
  

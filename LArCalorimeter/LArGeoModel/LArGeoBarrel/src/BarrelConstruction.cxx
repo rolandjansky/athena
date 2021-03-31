@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,7 @@
 // creation: August 2003
 
 #include "LArGeoBarrel/BarrelConstruction.h"
+#include "BarrelAuxFunctions.h"
 
 #include "LArGeoCode/VDetectorParameters.h"
 
@@ -190,7 +191,6 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
   log << MSG::INFO << "  Makes detailed absorber sandwich  ? " << doDetailedAbsorberStraight << " " << doDetailedAbsorberFold << endmsg;
   log << MSG::INFO << "  Use sagging in geometry  ? " << m_A_SAGGING << endmsg;
-
 
   GeoGenfun::Cos  Cos;
   GeoGenfun::Sin  Sin;
@@ -1208,18 +1208,18 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      double Dz = Thce/2.;
 	   
 	      // For absorbers
-	      GeoGenfun::GENFUNCTION x1a = Fx(irl+0., Gama, Cenx, Ceny)
-                                           +deltay[irl]*Del1(Gama)
-                                           +deltax[irl]*Del2(Gama);
-	      GeoGenfun::GENFUNCTION x2a = Fx(irl+1., Gama, Cenx, Ceny)
-                                           +deltay[irl+1]*Del1(Gama)
-                                           +deltax[irl+1]*Del2(Gama);
-	      GeoGenfun::GENFUNCTION y1a = Fy(irl+0., Gama, Cenx, Ceny)
-                                           -deltay[irl]*Del2(Gama)
-                                           +deltax[irl]*Del1(Gama);
-	      GeoGenfun::GENFUNCTION y2a = Fy(irl+1., Gama, Cenx, Ceny)
-                                           -deltay[irl+1]*Del2(Gama)
-                                           +deltax[irl+1]*Del1(Gama);
+	      GeoGenfun::GENFUNCTION x1a = LArGeo::Fx(irl+0., Gama, Cenx, Ceny)
+                                           +deltay[irl]*LArGeo::Del1(Gama)
+                                           +deltax[irl]*LArGeo::Del2(Gama);
+	      GeoGenfun::GENFUNCTION x2a = LArGeo::Fx(irl+1., Gama, Cenx, Ceny)
+                                           +deltay[irl+1]*LArGeo::Del1(Gama)
+                                           +deltax[irl+1]*LArGeo::Del2(Gama);
+	      GeoGenfun::GENFUNCTION y1a = LArGeo::Fy(irl+0., Gama, Cenx, Ceny)
+                                           -deltay[irl]*LArGeo::Del2(Gama)
+                                           +deltax[irl]*LArGeo::Del1(Gama);
+	      GeoGenfun::GENFUNCTION y2a = LArGeo::Fy(irl+1., Gama, Cenx, Ceny)
+                                           -deltay[irl+1]*LArGeo::Del2(Gama)
+                                           +deltax[irl+1]*LArGeo::Del1(Gama);
 	      GeoGenfun::GENFUNCTION dx = x2a - x1a;
 	      GeoGenfun::GENFUNCTION dy = y2a - y1a;
 	   
@@ -1231,7 +1231,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      // newalpha (slant angle) value of the rotation angle around Z_axis
 	      GeoGenfun::GENFUNCTION cosalfa = (da*dx -iparit*2.*Rint*dy)/Da/Da;
 	      GeoGenfun::GENFUNCTION sinalfa = (da*dy +iparit*2.*Rint*dx)/Da/Da;
-	      GeoGenfun::GENFUNCTION newalpha = ATan2(sinalfa,cosalfa);       
+	      GeoGenfun::GENFUNCTION newalpha = LArGeo::ATan2(sinalfa,cosalfa);       
 	   
 	      GeoGenfun::GENFUNCTION h1 = da/2. * frac  - .007*Gaudi::Units::mm;
 	   
@@ -1449,12 +1449,12 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // get slant angle for the previous zig-zag
                  int iirl=jrl-1;
                  if (iirl<0) iirl=1;
-                 GeoGenfun::GENFUNCTION x0a = Fx(iirl, Gama, Cenx, Ceny)
-                                           +deltay[iirl]*Del1(Gama)
-                                           +deltax[iirl]*Del2(Gama);
-                 GeoGenfun::GENFUNCTION y0a = Fy(iirl, Gama, Cenx, Ceny)
-                                           -deltay[iirl]*Del2(Gama)
-                                           +deltax[iirl]*Del1(Gama);
+                 GeoGenfun::GENFUNCTION x0a = LArGeo::Fx(iirl, Gama, Cenx, Ceny)
+                                           +deltay[iirl]*LArGeo::Del1(Gama)
+                                           +deltax[iirl]*LArGeo::Del2(Gama);
+                 GeoGenfun::GENFUNCTION y0a = LArGeo::Fy(iirl, Gama, Cenx, Ceny)
+                                           -deltay[iirl]*LArGeo::Del2(Gama)
+                                           +deltax[iirl]*LArGeo::Del1(Gama);
                  GeoGenfun::GENFUNCTION dx0 = x1a - x0a;
                  GeoGenfun::GENFUNCTION dy0 = y1a - y0a;
               // Da the two fold centers distance, da straight part length
@@ -1463,7 +1463,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
               // newalpha (slant angle) value of the rotation angle around Z_axis
                  GeoGenfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
                  GeoGenfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
-                 GeoGenfun::GENFUNCTION alpha_prev = ATan2(sinalfa0,cosalfa0);
+                 GeoGenfun::GENFUNCTION alpha_prev = LArGeo::ATan2(sinalfa0,cosalfa0);
 
 #ifdef DEBUGGEO
                 if (jrl>0 && jrl<Nbrt) {
@@ -1701,18 +1701,18 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      double Dze = Thel/2.;
 	   
 	      // For electrodes
-	      GeoGenfun::GENFUNCTION x1e = Fx(irl+0., Game, Cenx, Ceny)
-                                           +deltay[irl]*Del1(Game)
-                                           +deltax[irl]*Del2(Game);
-	      GeoGenfun::GENFUNCTION x2e = Fx(irl+1., Game, Cenx, Ceny)
-                                           +deltay[irl+1]*Del1(Game)
-                                           +deltax[irl+1]*Del2(Game);
-	      GeoGenfun::GENFUNCTION y1e = Fy(irl+0., Game, Cenx, Ceny) 
-                                           -deltay[irl]*Del2(Game)
-                                           +deltax[irl]*Del1(Game);
-	      GeoGenfun::GENFUNCTION y2e = Fy(irl+1., Game, Cenx, Ceny)
-                                           -deltay[irl+1]*Del2(Game)
-                                           +deltax[irl+1]*Del1(Game);
+	      GeoGenfun::GENFUNCTION x1e = LArGeo::Fx(irl+0., Game, Cenx, Ceny)
+                                           +deltay[irl]*LArGeo::Del1(Game)
+                                           +deltax[irl]*LArGeo::Del2(Game);
+	      GeoGenfun::GENFUNCTION x2e = LArGeo::Fx(irl+1., Game, Cenx, Ceny)
+                                           +deltay[irl+1]*LArGeo::Del1(Game)
+                                           +deltax[irl+1]*LArGeo::Del2(Game);
+	      GeoGenfun::GENFUNCTION y1e = LArGeo::Fy(irl+0., Game, Cenx, Ceny) 
+                                           -deltay[irl]*LArGeo::Del2(Game)
+                                           +deltax[irl]*LArGeo::Del1(Game);
+	      GeoGenfun::GENFUNCTION y2e = LArGeo::Fy(irl+1., Game, Cenx, Ceny)
+                                           -deltay[irl+1]*LArGeo::Del2(Game)
+                                           +deltax[irl+1]*LArGeo::Del1(Game);
 	      GeoGenfun::GENFUNCTION dxe = x2e - x1e;
 	      GeoGenfun::GENFUNCTION dye = y2e - y1e;
 	    // De the two fold centers distance, de straight part length
@@ -1722,7 +1722,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	    //newalphe (slant angle) value of the rotation angle around Z_axis
 	      GeoGenfun::GENFUNCTION cosalfae = (de*dxe -iparit*2.*Rint*dye)/De/De;
 	      GeoGenfun::GENFUNCTION sinalfae = (de*dye +iparit*2.*Rint*dxe)/De/De;
-	      GeoGenfun::GENFUNCTION newalphe = ATan2(sinalfae,cosalfae);
+	      GeoGenfun::GENFUNCTION newalphe = LArGeo::ATan2(sinalfae,cosalfae);
 	   
 	   
 	    // newalphae is already computed angle wrt z axis
@@ -1814,12 +1814,12 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // get slant angle for the previous zig-zag
                  int iirl=jrl-1;
                  if (iirl<0) iirl=1;
-                 GeoGenfun::GENFUNCTION x0e = Fx(iirl, Game, Cenx, Ceny)
-                                           +deltay[iirl]*Del1(Game)
-                                           +deltax[iirl]*Del2(Game);
-                 GeoGenfun::GENFUNCTION y0e = Fy(iirl, Game, Cenx, Ceny)
-                                           -deltay[iirl]*Del2(Game)
-                                           +deltax[iirl]*Del1(Game);
+                 GeoGenfun::GENFUNCTION x0e = LArGeo::Fx(iirl, Game, Cenx, Ceny)
+                                           +deltay[iirl]*LArGeo::Del1(Game)
+                                           +deltax[iirl]*LArGeo::Del2(Game);
+                 GeoGenfun::GENFUNCTION y0e = LArGeo::Fy(iirl, Game, Cenx, Ceny)
+                                           -deltay[iirl]*LArGeo::Del2(Game)
+                                           +deltax[iirl]*LArGeo::Del1(Game);
                  GeoGenfun::GENFUNCTION dx0 = x1e - x0e;
                  GeoGenfun::GENFUNCTION dy0 = y1e - y0e;
               // Da the two fold centers distance, da straight part length
@@ -1828,7 +1828,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
               // newalpha (slant angle) value of the rotation angle around Z_axis
                  GeoGenfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
                  GeoGenfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
-                 GeoGenfun::GENFUNCTION alphe_prev = ATan2(sinalfa0,cosalfa0);
+                 GeoGenfun::GENFUNCTION alphe_prev = LArGeo::ATan2(sinalfa0,cosalfa0);
 
 #ifdef DEBUGGEO
                 if (jrl>0 && jrl<Nbrt) {
@@ -1998,66 +1998,6 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   
   
 }
-
-// Generic Function Versions
-
-GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Fx(double r, GeoGenfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
-{
-  GeoGenfun::Cos Cos;
-  GeoGenfun::Sin Sin;
-  int i = (int)rint(r-.1), j = (int)rint(r+.1) ;
-  GeoGenfun::GENFUNCTION result =  (Cos(G)*(Cenx[i]+Cenx[j])/2-Sin(G)*(Ceny[i]+Ceny[j])/2) ;
-  return GeoGenfun::FunctionNoop(&result);
-}
-
-GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Fy(double r, GeoGenfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
-{
-  GeoGenfun::Cos Cos;
-  GeoGenfun::Sin Sin;
-  int i = (int)rint(r-.1), j = (int)rint(r+.1) ;
-  GeoGenfun::GENFUNCTION result = (Sin(G)*(Cenx[i]+Cenx[j])/2+Cos(G)*(Ceny[i]+Ceny[j])/2) ;
-  return GeoGenfun::FunctionNoop(&result);
-}
-
-GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Del1(GeoGenfun::GENFUNCTION G) const
-{
-  GeoGenfun::Cos Cos;
-  GeoGenfun::Sin Sin;
-  GeoGenfun::GENFUNCTION result = (Cos(  G ) * Sin( G ) );
-  return GeoGenfun::FunctionNoop(&result);
-}
-
-GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Del2(GeoGenfun::GENFUNCTION G) const
-{
-  GeoGenfun::Cos Cos;
-  GeoGenfun::GENFUNCTION result = (Cos(  G ) * Cos( G ) );
-  return GeoGenfun::FunctionNoop(&result);
-}
-
-
-GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::ATan2(GeoGenfun::GENFUNCTION y, GeoGenfun::GENFUNCTION x) const {
-
-  // Manufacture a Theta Function:
-  GeoGenfun::Rectangular Theta;
-  Theta.x0().setValue(0.0);
-  Theta.x1().setValue(DBL_MAX);
-  Theta.baseline().setValue(0.0);
-  Theta.height().setValue(1.0);
-
-  // Manufacture an ATan function:
-  GeoGenfun::ATan ATan;
-  
-
-  // Manufacture a Mod function, putting this on the range (0-2PI)
-  GeoGenfun::Mod Mod2Pi(2*M_PI);
-
-  // Now take ATan if x is positive 
-  
-  GeoGenfun::GENFUNCTION result = Theta(x)*ATan(y/x) + Theta(-x)*(Mod2Pi(ATan(y/x)+M_PI)); 
-  return GeoGenfun::FunctionNoop(&result);
-
-}
-
 
 void LArGeo::BarrelConstruction::printParams()
 {
