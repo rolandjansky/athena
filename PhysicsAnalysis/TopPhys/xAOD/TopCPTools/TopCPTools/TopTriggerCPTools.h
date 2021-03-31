@@ -6,8 +6,9 @@
 #define TOPCPTOOLS_TOPTRIGGERCPTOOLS_H_
 
 // Include what you use
-#include <vector>
+#include <unordered_map>
 #include <string>
+#include <vector>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -45,6 +46,10 @@ namespace top {
     ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
     StatusCode initialiseGlobalTriggerEff();
     std::string mapWorkingPoints(const std::string& type);
+    // check of the trigger names are one of the supported
+    std::string PhotonKeys(const std::unordered_map<std::string, std::vector<std::string> >& map) const;
+    // check if the photon isolation is supported by the global triggers
+    StatusCode CheckPhotonIsolation(const std::string& isol) const;
 
     // Tool handles for the CP tools, need to be members here, or inaccessible to global trigger tool
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
