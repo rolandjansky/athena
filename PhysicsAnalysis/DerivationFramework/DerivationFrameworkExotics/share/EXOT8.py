@@ -354,6 +354,9 @@ if DerivationFrameworkHasTruth:
     addHFAndDownstreamParticles(addB=True, addC=False, generations=1)
     addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
+    # add STXS categorization
+    from DerivationFrameworkHiggs.TruthCategories import *
+
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
