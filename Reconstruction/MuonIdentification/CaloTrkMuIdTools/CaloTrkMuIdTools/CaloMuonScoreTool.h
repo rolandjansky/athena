@@ -43,7 +43,7 @@ public:
   virtual StatusCode initialize();
   
   // Compute the muon score given a track particle
-  float getMuonScore(const xAOD::TrackParticle* trk) const;
+  float getMuonScore(const xAOD::TrackParticle* trk, const CaloCellContainer* cells = nullptr, const CaloExtensionCollection* extensionCache = nullptr) const;
 
   // run the ONNX inference on the input tensor
   float runOnnxInference(std::vector<float> &tensor) const;

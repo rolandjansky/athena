@@ -7,6 +7,9 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
+
+class CaloCellContainer;
 
 static const InterfaceID IID_ICaloMuonScoreTool("ICaloMuonScoreTool",1,0);
 
@@ -18,7 +21,7 @@ class ICaloMuonScoreTool : virtual public IAlgTool
 
   static const InterfaceID& interfaceID(){return IID_ICaloMuonScoreTool;}
   
-  virtual float getMuonScore(const xAOD::TrackParticle* trk) const = 0;
+  virtual float getMuonScore(const xAOD::TrackParticle* trk, const CaloCellContainer* cells = nullptr, const CaloExtensionCollection* extensionCache = nullptr) const = 0;
   
 };
 

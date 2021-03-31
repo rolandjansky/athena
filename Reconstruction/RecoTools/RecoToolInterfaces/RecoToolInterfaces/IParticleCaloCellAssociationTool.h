@@ -11,9 +11,9 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODBase/IParticle.h"
 #include "ParticleCaloExtension/ParticleCellAssociation.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 #include <memory>
 class CaloCellContainer;
-
 
 namespace Rec 
 {
@@ -28,16 +28,19 @@ public:
    * @param particle       input particle
    * @param dr             cone size used for the association
    * @param container      cell container to be used if provided 
+   * @param extensionCache A calo extension cache to be used if provided
    * @return std::unique_ptr<ParticleCellAssociation>  
    */
   virtual std::unique_ptr< ParticleCellAssociation > particleCellAssociation( const xAOD::IParticle& particle, float dr, 
-                                                                              const CaloCellContainer* container = nullptr) const = 0;
+                                                                              const CaloCellContainer* container = nullptr,
+                                                                              const CaloExtensionCollection* extensionCache = nullptr) const = 0;
 
   /** Method to get the ParticleCellAssociation for a given Particle
    * @param particle       input particle
    * @param dr             cone size used for the association
    * @ param cache         cache for keeping previous results
    * @param container      cell container to be used if provided 
+   * @param extensionCache A calo extension cache to be used if provided
    * @return ParticleCellAssociation* (plain ptr cache has ownership)
    *
    * An alg looping over a single collection of IParticles  
@@ -52,7 +55,8 @@ public:
 
   typedef std::unordered_map<size_t,std::unique_ptr< ParticleCellAssociation >> Cache;
   virtual ParticleCellAssociation* particleCellAssociation( const xAOD::IParticle& particle, float dr, Cache& cache,
-                                                            const CaloCellContainer* container = nullptr) const = 0;
+                                                            const CaloCellContainer* container = nullptr,
+                                                            const CaloExtensionCollection* extensionCache = nullptr) const = 0;
   
 
   static const InterfaceID& interfaceID( ) ;

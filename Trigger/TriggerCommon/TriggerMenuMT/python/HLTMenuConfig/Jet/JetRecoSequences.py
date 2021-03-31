@@ -91,7 +91,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
         from eflowRec.PFHLTSequence import PFHLTSequence
         (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(
             PFHLTSequence,
-            configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"])
+            configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"], cellsin="CaloCellsFS")
         buildSeq += pfseq
         jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=jetNamePrefix)
     else:

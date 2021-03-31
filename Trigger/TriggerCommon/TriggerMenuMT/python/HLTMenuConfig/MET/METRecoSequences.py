@@ -36,8 +36,12 @@ log = logging.getLogger(__name__)
 
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
-    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys if not k=='cleaning'}
-    jrd.update({'cleaning':'noCleaning'})
+    jrd = {
+        k: recoDict.get(k, JetChainParts_Default[k])
+        for k in jetRecoKeys
+        if not k == "cleaning"
+    }
+    jrd.update({"cleaning": "noCleaning"})
     # Rename the cluster calibration
     try:
         jrd["clusterCalib"] = recoDict["calib"]
@@ -116,8 +120,8 @@ default_inputs.add_input(ClusterInputConfig())
 
 
 class EMClusterInputConfig(AlgInputConfig):
-    """ Input config that forces the clusters produced to be at the EM scale
-    
+    """Input config that forces the clusters produced to be at the EM scale
+
     We have this so that we can force PFOs to be produced at the EM scale,
     however a better solution would probably be to add 'em' to the trigger name
     or to change the 'calib' default to be "default" and then have the algorithm
@@ -173,7 +177,7 @@ class PFOInputConfig(AlgInputConfig):
         return "Clusters" if recoDict["calib"] == "em" else "EMClusters"
 
     def dependencies(self, recoDict):
-        return [self._input_clusters(recoDict), "Tracks", "Vertices", "TVA"]
+        return [self._input_clusters(recoDict), "Tracks", "Vertices", "TVA", "Cells"]
 
     def create_sequence(self, inputs, RoIs, recoDict):
         pfSeq, pfoPrefix = RecoFragmentsPool.retrieve(
@@ -181,6 +185,7 @@ class PFOInputConfig(AlgInputConfig):
             flags=None,
             clustersin=inputs[self._input_clusters(recoDict)],
             tracktype="ftf",
+            cellsin=inputs["Cells"],
         )
         # The jet constituent modifier sequence here is to apply the correct weights
         # and decorate the PV matching decoration. If we've specified constituent
@@ -310,7 +315,7 @@ default_inputs.add_input(CVFClusterInputConfig())
 
 
 class JetInputConfig(AlgInputConfig):
-    """ Helper input config for jets
+    """Helper input config for jets
 
     Note that if the jets require JVT but are topo jets there is nothing in the
     recoDict (unless the calibration is gsc) to force tracking to run. Therefore

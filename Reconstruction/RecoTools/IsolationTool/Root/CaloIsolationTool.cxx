@@ -104,6 +104,9 @@ namespace xAOD {
       } else
       	ATH_MSG_DEBUG("Select calorimeter " << m_HadCaloNums[index]);
     }
+
+    if (!m_caloExtensionKey.empty())
+      ATH_CHECK(m_caloExtensionKey.initialize());
 #endif // XAOD_ANALYSIS
 
     if (!m_IsoLeakCorrectionTool.empty())
@@ -537,7 +540,25 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     /// try the extention in athena if it's not obtained from muon yet.
     ATH_MSG_DEBUG("Geting calo extension caloExtension tool.");
-    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*tp);
+    // If we have an extension cache then it owns the extension, otherwise we own it
+    // Therefore we have to prepare both an owning and a non-owning pointer
+    std::unique_ptr<Trk::CaloExtension> caloExtensionUPtr;
+    const Trk::CaloExtension* caloExtension = nullptr;
+    if (m_caloExtensionKey.empty())
+    {
+      caloExtensionUPtr = m_caloExtTool->caloExtension(*tp);
+      caloExtension = caloExtensionUPtr.get();
+    }
+    else
+    {
+      auto cache = SG::makeHandle(m_caloExtensionKey);
+      if (!cache.isValid())
+      {
+        ATH_MSG_WARNING("Failed to retrieve calo extension cache " << m_caloExtensionKey);
+        return false;
+      }
+      caloExtension = m_caloExtTool->caloExtension(*tp, *cache);
+    }
     if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return false;

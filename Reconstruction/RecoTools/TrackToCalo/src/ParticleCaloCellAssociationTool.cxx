@@ -14,6 +14,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include <cmath>
@@ -49,11 +50,19 @@ StatusCode ParticleCaloCellAssociationTool::finalize() {
 
 std::unique_ptr<ParticleCellAssociation> 
 ParticleCaloCellAssociationTool::particleCellAssociation( const xAOD::IParticle& particle, float dr, 
-                                                          const CaloCellContainer* container ) const{
+                                                          const CaloCellContainer* container,
+                                                          const CaloExtensionCollection* extensionCache ) const{
 
   ATH_MSG_DEBUG(" particleCellAssociation: ptr " << &particle << " dr " << dr );
   // get the extrapolation into the calo
-  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(particle);
+  std::unique_ptr<const Trk::CaloExtension> caloExtensionUPtr;
+  const Trk::CaloExtension* caloExtension = nullptr;
+  if (extensionCache)
+    caloExtension = m_caloExtensionTool->caloExtension(particle, *extensionCache);
+  else {
+    caloExtensionUPtr = m_caloExtensionTool->caloExtension(particle);
+    caloExtension = caloExtensionUPtr.get();
+  }
   if( !caloExtension ) {
     ATH_MSG_DEBUG("Failed to get calo extension");      
     return nullptr;
@@ -81,21 +90,27 @@ ParticleCaloCellAssociationTool::particleCellAssociation( const xAOD::IParticle&
   // get cell intersections
   ParticleCellAssociation::CellIntersections cellIntersections;
   getCellIntersections(*caloExtension,cells,cellIntersections);
-
-  return std::make_unique<ParticleCellAssociation> ( caloExtension.release(), std::move(cells), dr, 
-                                                std::move(cellIntersections), container );
-
+  if (!caloExtensionUPtr)
+    // Have to manually copy the calo extension object. Clearly the class wants
+    // to be shared through a shared_ptr but this clearly is not an option
+    caloExtensionUPtr = std::make_unique<Trk::CaloExtension>(
+        caloExtension->caloEntryLayerIntersection() ? caloExtension->caloEntryLayerIntersection()->clone() : nullptr,
+        caloExtension->muonEntryLayerIntersection() ? caloExtension->muonEntryLayerIntersection()->clone() : nullptr,
+        std::vector<Trk::CurvilinearParameters>(caloExtension->caloLayerIntersections()));
+  return std::make_unique<ParticleCellAssociation> ( caloExtensionUPtr.release(), std::move(cells), dr, 
+      std::move(cellIntersections), container );
 }
 
 ParticleCellAssociation* 
 ParticleCaloCellAssociationTool::particleCellAssociation( const xAOD::IParticle& particle, float dr, 
                                                           IParticleCaloCellAssociationTool::Cache& cache,
-                                                          const CaloCellContainer* container) const {
+                                                          const CaloCellContainer* container,
+                                                          const CaloExtensionCollection* extensionCache) const {
 
   /*if not there , default ctor for unique_ptr (nullptr)*/
   std::unique_ptr<ParticleCellAssociation>& association= cache[particle.index()];
   if (association==nullptr){   
-    association=particleCellAssociation(particle,dr,container);
+    association=particleCellAssociation(particle,dr,container, extensionCache);
   }
   return association.get();
 }
