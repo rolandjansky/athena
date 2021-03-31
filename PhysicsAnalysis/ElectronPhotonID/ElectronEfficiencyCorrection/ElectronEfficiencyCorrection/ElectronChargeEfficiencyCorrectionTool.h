@@ -141,7 +141,7 @@ namespace CP {
 
 
     /// Truth charge
-    mutable int m_truthCharge;
+    int m_truthCharge;
 
     //const xAOD::TruthParticle *m_truthparticle;
 
