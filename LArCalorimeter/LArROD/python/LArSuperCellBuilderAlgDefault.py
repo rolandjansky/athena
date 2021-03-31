@@ -33,7 +33,7 @@ def LArSuperCellBuilderAlgDefault():
    theSelf.ShapeKey='LArShapeSC'
    theSelf.PedestalKey='LArPedestalSC'
    theSelf.OFCKey='LArOFCSC'
-   theSelf.CaloCellKey='TestSCell'
+   theSelf.CaloCellKey='SCell'
    theSelf.LArDigitKey='LArDigitSCL2'
    theSelf.useDB=False
    theSelf.IsSuperCell=True
