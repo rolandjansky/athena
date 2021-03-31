@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGRECTOOLS_MUONTGMEASUREMENTTOOL_H
@@ -27,7 +27,9 @@
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -59,8 +61,7 @@ public:
   virtual ~MuonTGMeasurementTool()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
-
+ 
   const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const;
   const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const;
   const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const;
@@ -80,15 +81,17 @@ public:
  
 private:
 
-  // --- job options
-  Gaudi::Property<std::string>  m_trackingGeometryName{this,"TrackingGeometryName","AtlasTrackingGeometry"};
-  Gaudi::Property<std::string> m_ExtrapolatorName{this,"ExtrapolatorName"," "};      //!< Name of the Extrapolator Instance 
-    
+     
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
+  
+   ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc { this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc" };
+    
+   SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey { this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry" };
+    
   const MuonGM::MuonDetectorManager* m_muonDetMgr; // nominal MuonDetectorManager from DetectorStore (used if UseDSManager=true)
  
   // -- algorithm members
@@ -96,14 +99,28 @@ private:
   mutable MuonTGSegments* m_segments   ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded
 
   // projection matrices
-  AmgMatrix(5,5)                  *m_tgcProjEta;
-  AmgMatrix(5,5)                  *m_tgcProjPhi;
-  AmgMatrix(5,5)                  *m_rpcProjEta;
-  AmgMatrix(5,5)                  *m_rpcProjPhi;
+  std::unique_ptr<AmgMatrix(5,5)>                  m_tgcProjEta;
+  std::unique_ptr<AmgMatrix(5,5)>                  m_tgcProjPhi;
+  std::unique_ptr<AmgMatrix(5,5)>                  m_rpcProjEta;
+  std::unique_ptr<AmgMatrix(5,5)>                  m_rpcProjPhi;
 
   // steering
   Gaudi::Property<bool>  m_alignedMode{this,"AlignedMode",true};
   Gaudi::Property<bool>  m_useDSManager{this,"UseDSManager",false};
+
+  inline const Trk::TrackingGeometry* getGeometry() const {
+        /// Good old way of retrieving the volume via the geometry service
+        if (m_trackingGeometryReadKey.empty()) {
+                return m_trackingGeometrySvc->trackingGeometry();
+        }
+        SG::ReadCondHandle < Trk::TrackingGeometry > handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+        if (!handle.isValid()) {
+            ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
+        }
+        return handle.cptr();
+    }
+
 
 };
 
