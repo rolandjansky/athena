@@ -124,11 +124,6 @@ StatusCode HepMcReaderTool::read( HepMC::GenEvent* evt )
   return StatusCode::SUCCESS;
 }
 
-
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 void HepMcReaderTool::setupFrontend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
