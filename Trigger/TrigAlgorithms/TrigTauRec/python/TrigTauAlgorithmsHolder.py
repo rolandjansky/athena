@@ -541,13 +541,13 @@ def getTauVertexFinder(doUseTJVA=False):
     TauVertexFinder = TauVertexFinder(name = _name,
                                       UseTJVA                 = doUseTJVA,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
+                                      InDetTrackSelectionToolForTJVA = "", #getInDetTrackSelectionToolForTJVA(),
                                       Key_vertexInputContainer = "",
                                       Key_trackPartInputContainer= "",
                                       OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
                                       # OnlineMaxLongitudinalDistance = 2 *mm,
                                       OnlineMaxZ0SinTheta = 3.0 *mm,
-                                      TVATool = getTVATool()
+                                      TVATool = "", #getTVATool()
                                       )
     
     cached_instances[_name] = TauVertexFinder         

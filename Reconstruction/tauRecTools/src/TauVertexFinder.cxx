@@ -29,9 +29,11 @@ StatusCode TauVertexFinder::initialize() {
 
   if (m_useTJVA) ATH_MSG_INFO("using TJVA to determine tau vertex");
   if (m_useTJVA_Tiebreak) ATH_MSG_INFO("using tiebreak criteria in TJVA");
-  ATH_CHECK( m_TrackSelectionToolForTJVA.retrieve() );
-
-  ATH_CHECK( m_trkVertexAssocTool.retrieve() );
+ 
+  if( m_useTJVA || m_useTJVA_Tiebreak) {
+     ATH_CHECK( m_TrackSelectionToolForTJVA.retrieve() );
+     ATH_CHECK( m_trkVertexAssocTool.retrieve() );
+  }
 
   return StatusCode::SUCCESS;
 }
