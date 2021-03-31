@@ -80,6 +80,8 @@ namespace top {
     std::vector<std::string> globalElectronTriggers_Loose;
     std::vector<std::string> globalMuonTriggers_Tight;
     std::vector<std::string> globalMuonTriggers_Loose;
+    std::vector<std::string> globalPhotonTriggers_Tight;
+    std::vector<std::string> globalPhotonTriggers_Loose;
     if (m_config->useGlobalTrigger()) {
       std::set<std::string> tmp;
       for (auto const& triggermap : {m_config->getGlobalTriggers()}) {
@@ -92,6 +94,7 @@ namespace top {
       for (std::string const& trigger : globalTriggers_Tight) {
         if (isElectronTrigger(trigger)) globalElectronTriggers_Tight.push_back(trigger);
         if (isMuonTrigger(trigger)) globalMuonTriggers_Tight.push_back(trigger);
+        if (isPhotonTrigger(trigger)) globalPhotonTriggers_Tight.push_back(trigger);
       }
       tmp.clear();
       // and the usual copy-paste-s/Tight/Loose/g story:
@@ -105,6 +108,7 @@ namespace top {
       for (std::string const& trigger : globalTriggers_Loose) {
         if (isElectronTrigger(trigger)) globalElectronTriggers_Loose.push_back(trigger);
         if (isMuonTrigger(trigger)) globalMuonTriggers_Loose.push_back(trigger);
+        if (isPhotonTrigger(trigger)) globalPhotonTriggers_Loose.push_back(trigger);
       }
     }
 
@@ -208,6 +212,12 @@ namespace top {
           muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
                                                                 std::vector<std::string>(globalMuonTriggers_Loose.begin(),
                                                                                          globalMuonTriggers_Loose.end())));
+          photonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+                                                                  std::vector<std::string>(globalPhotonTriggers_Tight.begin(),
+                                                                                           globalPhotonTriggers_Tight.end())));
+          photonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+                                                                  std::vector<std::string>(globalPhotonTriggers_Loose.begin(),
+                                                                                           globalPhotonTriggers_Loose.end())));
         }
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
@@ -835,6 +845,9 @@ namespace top {
     if (trigger.find("_1g") != std::string::npos) return true;
     if (trigger.find("_2g") != std::string::npos) return true;
 
-    return false;
+    top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
+    bool success;
+    return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Photon);
+
   }
 }
