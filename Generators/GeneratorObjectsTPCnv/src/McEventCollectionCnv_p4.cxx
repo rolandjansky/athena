@@ -257,7 +257,13 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
       const HepMC::GenEvent* genEvt = *itr;
       //save the weight names to metadata via the HepMCWeightSvc
       if (genEvt->run_info()) {
-        m_hepMCWeightSvc->setWeightNames(  names_to_name_index_map(genEvt->weight_names()) ).ignore();
+        if (!genEvt->run_info()->weight_names().empty()) {
+          m_hepMCWeightSvc->setWeightNames(  names_to_name_index_map(genEvt->weight_names()) ).ignore();
+        } else {
+          //AV : This to be decided if one would like to have default names.
+          //std::vector<std::string> names{"0"};
+          //m_hepMCWeightSvc->setWeightNames( names_to_name_index_map(names) );
+        }
       }
       auto A_signal_process_id=genEvt->attribute<HepMC3::IntAttribute>("signal_process_id");    
       auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");    
