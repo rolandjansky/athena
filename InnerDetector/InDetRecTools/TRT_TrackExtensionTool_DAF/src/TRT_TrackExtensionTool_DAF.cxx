@@ -225,8 +225,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
     fieldCondObj->getInitializedCache (fieldCache);
     // ----------------------------------
     // start the TRT detector elements road maker to get a list of possibly interesting detector elements
-    std::vector<const InDetDD::TRT_BaseElement*> detElements;
-    m_roadtool->detElementsRoad(ctx, fieldCache, *event_data.m_siliconTrkParams, Trk::alongMomentum, detElements);
+    const std::vector<const InDetDD::TRT_BaseElement*> detElements = m_roadtool->detElementsRoad(ctx, fieldCache, *event_data.m_siliconTrkParams, Trk::alongMomentum);
     ATH_MSG_DEBUG("TRT detector elements road maker found "<< detElements.size()<< " detElements" );
     if(detElements.empty()) {
         ATH_MSG_DEBUG("TRT_DetElementsRoadMaker found no road, stop!");

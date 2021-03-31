@@ -87,17 +87,11 @@ namespace InDet {
       // Main methods for road builder
       ///////////////////////////////////////////////////////////////////
 
-      virtual void detElementsRoad
-	(const EventContext& ctx,
+       
+     virtual std::vector<const InDetDD::TRT_BaseElement*> 
+     detElementsRoad(const EventContext& ctx,
          MagField::AtlasFieldCache& fieldCache,
-         const Trk::TrackParameters&,Trk::PropDirection,
-	 std::vector<const InDetDD::TRT_BaseElement*>&) const;
-
-      virtual void detElementsRoad
-	(const EventContext& ctx,
-         MagField::AtlasFieldCache& fieldCache,
-         const Trk::TrackParameters&,Trk::PropDirection,
-	 std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&) const;
+         const Trk::TrackParameters&,Trk::PropDirection) const;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
