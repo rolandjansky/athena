@@ -110,8 +110,8 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 			 , pathVec& hasPathologyFCAL
                          , const float* rValues) const;
 
-  void addHV(std::vector< LArHVData::HV_t > & v, double hv, double wt) const;
-  void addCurr(std::vector< LArHVData::CURRENT_t > & ihv, double curr, double wt) const;
+  void addHV(std::vector< LArHVData::HV_t > & v, double hv, double curr, double wt) const;
+
   std::vector<unsigned int> getElecList(const Identifier& id, const LArHVPathology& pathologies) const;
   StatusCode fillUpdatedHVChannelsVec(std::vector<float> &voltage, std::vector<float> &current, std::vector<unsigned int> &hvlineidx, std::vector<const CondAttrListCollection* > fldvec) const;
 
