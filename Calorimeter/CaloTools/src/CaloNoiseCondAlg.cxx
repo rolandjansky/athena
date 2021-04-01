@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloNoiseCondAlg.h" 
@@ -36,10 +36,9 @@ StatusCode CaloNoiseCondAlg::initialize() {
 
   ATH_CHECK( m_hvCorrKey.initialize(m_useHVCorr) );
 
-  if (m_lumi0<0) {
-    if (m_lumiFolderKey.initialize().isFailure()) {
+  const bool doLumiFolderInit = m_lumi0 < 0;
+  if (m_lumiFolderKey.initialize(doLumiFolderInit).isFailure()) {
       ATH_MSG_ERROR("Luminosity set to < 0 but failed to initialize LumiFolder");
-    }
   }
  
   ATH_CHECK( m_cablingKey.initialize() );
