@@ -31,7 +31,6 @@
 
 /** needed for IP resolution studies **/
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -56,7 +55,6 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   m_triggerDecision("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool"),
   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"),
-  m_beamSpotSvc("BeamCondSvc",name),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_validationMode(true),
 
@@ -102,7 +100,6 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   declareProperty("isMC",              m_isMC = false);
   declareProperty("doRefit",           m_doRefit = false);
   declareProperty("doIPextrToPV",      m_doIP = false);
-  declareProperty("BeamCondSvc",       m_beamSpotSvc);
   declareProperty("Extrapolator",      m_extrapolator );
   declareProperty("MassWindowLow",     m_MassWindowLow = 60.0, "Lower cut in mu+mu- invariant mass" );
   declareProperty("MassWindowHigh",    m_MassWindowHigh = 120.0, "Upper cut in mu+mu- invariant mass" );
@@ -218,7 +215,7 @@ StatusCode IDPerfMonZmumu::initialize()
     ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
 
-  ATH_CHECK( m_beamSpotSvc.retrieve());
+  ATH_CHECK(m_beamSpotKey.initialize());
   ATH_CHECK( m_extrapolator.retrieve());
   
   ATH_CHECK (m_vertexKey.initialize());
@@ -1598,7 +1595,8 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   const Amg::Vector3D position(xPos, yPos, z_truth);
   const Trk::CurvilinearParameters cParameters(position, momentum, charge);
 
-  Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::PerigeeSurface persf( beamSpotHandle->beamPos() );
 
   const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters,persf, Trk::anyDirection, false);
 
