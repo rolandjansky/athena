@@ -3,7 +3,6 @@
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
 from AthenaCommon.Logging import logging
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
     __slots__ = []
@@ -151,6 +150,11 @@ class WritexAODTrigDecision ( object ) :
         alg = xAODMaker__TrigDecisionCnvAlg()
 
         # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, 'TrigDecisionTool'):
+            from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+            ToolSvc += Trig__TrigDecisionTool('TrigDecisionTool')
+
         ToolSvc.TrigDecisionTool.UseAODDecision = True
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
 
