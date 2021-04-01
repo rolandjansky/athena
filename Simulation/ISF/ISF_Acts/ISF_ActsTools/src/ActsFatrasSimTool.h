@@ -108,8 +108,8 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
   virtual StatusCode initialize() override;
   virtual StatusCode simulate(const ISFParticle& isp, ISFParticleContainer&,
                               McEventCollection*) const override;
-  virtual StatusCode setupEvent() { return StatusCode::SUCCESS; };
-  virtual StatusCode releaseEvent() { return StatusCode::SUCCESS; };
+  virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
+  virtual StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
   virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
 
   virtual ISF::ISFParticle* process(const ISFParticle& isp) const;
