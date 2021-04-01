@@ -664,15 +664,16 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
                 dynamic += '.PEBROBList.PEBSubDetList'
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(decisionCollection)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(decisionCollection, dynamic)
-        edmList.extend([
-            (typeName,    HLTNavEDMTargets, 'Steer'),
-            (typeNameAux, HLTNavEDMTargets, 'Steer')])
 
-        # Cost stream requires only filters and L1 seeded chains
+        # Cost monitoring only requires a sub-set of the navigation collections.
+        # (And CANNOT use any slimmed/merged collection, as the container names are important)
+        thisCollectionHLTNavEDMTargets = HLTNavEDMTargets
         if decisionCollection.startswith("HLTNav_FStep") or decisionCollection == "HLTNav_Summary" or decisionCollection.startswith("HLTNav_L1"):
-            edmList.extend([
-                (typeName,    'CostMonDS', 'Steer'),
-                (typeNameAux, 'CostMonDS', 'Steer')])
+            thisCollectionHLTNavEDMTargets += ' CostMonDS'
+
+        edmList.extend([
+            (typeName,    thisCollectionHLTNavEDMTargets, 'Steer'),
+            (typeNameAux, thisCollectionHLTNavEDMTargets, 'Steer')])
 
 def addExtraCollectionsToEDMList(edmList, extraList):
     """

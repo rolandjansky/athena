@@ -11,8 +11,8 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
         super( TrigDecisionMaker, self ).__init__( name )
         log = logging.getLogger( 'TrigDecisionMaker' )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s", ConfigFlags.Trigger.readLVL1FromJSON)
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doEDMVersionConversion)", ConfigFlags.Trigger.doEDMVersionConversion)
+        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doEDMVersionConversion
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if hasattr(svcMgr,'DSConfigSvc'):
             # this case is still needed for reading Run 2 configuration from the TriggerDB
@@ -39,11 +39,6 @@ class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
         acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
         appendCAtoAthena( acc )
         Configurable.configurableRun3Behavior -= 1
-        ###
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 configuration from the TriggerDB
-            self.Lvl1ResultAccessTool.LVL1ConfigSvc = "TrigConfigSvc"
 
 # Following not yet ported to the AthenaMT / Run 3 alg
 
