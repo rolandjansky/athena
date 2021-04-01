@@ -116,7 +116,7 @@ StatusCode SiHitAnalysis::initialize() {
       radius_down = 0; 
     }
   }  
-  if (m_isHGTD) {
+  else if (m_isHGTD) {
     bin_down = -1000;
     bin_up = 1000;
     radius_up = 1000;
