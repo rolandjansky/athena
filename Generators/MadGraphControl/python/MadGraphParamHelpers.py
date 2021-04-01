@@ -167,7 +167,7 @@ def get_PMG_updates(process_dir):
                 newparamdict['mass'][pid] = mass
             # Width: Always set it, even if it wasn't in the dictionary
             if pid not in widths or widths[pid]!=width:
-                newparamdict['decay'][pid] = 'decay '+pid+' '+width
+                newparamdict['decay'][pid] = 'DECAY '+pid+' '+width
             # Yukawa: Set it only if it was in the dictionary
             # This is to protect against models that don't use Yukawa blocks as normal
             if pid in yukawas and yukawas[pid]!=mass:
