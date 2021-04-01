@@ -645,7 +645,7 @@ Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
   //Check inputvalues
   if (m_tolerance <= 0.) return nullptr;
   if (m_momentumCutOff < 0. ) return nullptr;
-  if (fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff) {
+  if (std::abs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     return nullptr;
   }
 
@@ -812,14 +812,14 @@ Trk::STEP_Propagator::globalPositions ( const EventContext&                 ctx,
   double       h = maxStepSize;                         // max step allowed
 
   // Test position of the track
-  if ((fabs(PP[2]) > zMax) || (radius2 > radius2Max)) return;
+  if ((std::abs(PP[2]) > zMax) || (radius2 > radius2Max)) return;
 
   //Store initial position
   Amg::Vector3D initialPosition(PP[0],PP[1],PP[2]);
   positionsList.push_back(initialPosition);
 
   bool perigee = false;
-  if (fabs(direction) < 0.00001) {
+  if (std::abs(direction) < 0.00001) {
     perigee = true;
   }
 
@@ -830,7 +830,7 @@ Trk::STEP_Propagator::globalPositions ( const EventContext&                 ctx,
     }
     double p[7] = {PP[0],PP[1],PP[2],PP[3],PP[4],PP[5],PP[6]};
 
-    while (fabs(path) < maxPath) {
+    while (std::abs(path) < maxPath) {
       //Do the step.
       if (!rungeKuttaStep( cache,false, h, p, dDir, BG1, firstStep, distanceStepped)) break;
       path = path + distanceStepped;
@@ -853,7 +853,7 @@ Trk::STEP_Propagator::globalPositions ( const EventContext&                 ctx,
 
       // Test position of the track
       radius2 = p[0]*p[0]+p[1]*p[1];
-      if ((fabs( p[2]) > zMax) || (radius2 > radius2Max)) break;
+      if ((std::abs( p[2]) > zMax) || (radius2 > radius2Max)) break;
 
       // Test perigee
       if ((p[0]*p[3] + p[1]*p[4])*direction < 0.) {
@@ -913,7 +913,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     trackParameters.reset(inputTrackParameters.clone());
   }
 
-  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
+  if (std::abs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     return nullptr;
   }
 
@@ -1021,8 +1021,8 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(
                                                                                  Jacobian, *trackParameters->covariance());
 
-    if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. )
-      covarianceContribution( cache,trackParameters.get(), path, fabs( 1./cache.m_P[6]), measurementCovariance);
+    if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(path)>0. )
+      covarianceContribution( cache,trackParameters.get(), path, std::abs( 1./cache.m_P[6]), measurementCovariance);
 
     return std::make_unique<Trk::CurvilinearParameters>(gp,localp[2],localp[3],localp[4],measurementCovariance);
   }
@@ -1049,7 +1049,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
                                                                                Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
-  if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. )
+  if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(path)>0. )
     covarianceContribution( cache,trackParameters.get(), path, onTargetSurf.get(), measurementCovariance);
 
   return targetSurface.createUniqueTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance);
@@ -1097,7 +1097,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
     trackParameters.reset(inputTrackParameters.clone());
   }
 
-  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
+  if (std::abs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     return nullptr;
   }
 
@@ -1164,8 +1164,8 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
         AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(Jacobian,
                                                                                      *trackParameters->covariance());
         //Calculate multiple scattering and straggling covariance contribution.
-        if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
-          covarianceContribution(cache, trackParameters.get(), totalPath, fabs( 1./cache.m_P[6]), measurementCovariance);
+        if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(totalPath)>0.) {
+          covarianceContribution(cache, trackParameters.get(), totalPath, std::abs( 1./cache.m_P[6]), measurementCovariance);
         }
         cPar = std::make_unique< Trk::CurvilinearParameters>(Amg::Vector3D(cache.m_P[0],cache.m_P[1],cache.m_P[2]),
                                               localp[2],localp[3],localp[4],
@@ -1175,7 +1175,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
       // collect material
       if ( cache.m_binMat && (cache.m_matstates ||
                               (errorPropagation && cache.m_extrapolationCache)) &&
-           fabs(totalPath-cache.m_matdump_lastpath)>1.) {
+           std::abs(totalPath-cache.m_matdump_lastpath)>1.) {
         dumpMaterialEffects( cache,cPar.get(), totalPath);
       }
       return cPar;
@@ -1232,9 +1232,9 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
                                                                                Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
-  if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
+  if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(totalPath)>0.) {
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-      covarianceContribution( cache,trackParameters.get(), totalPath, fabs( 1./cache.m_P[6]), measurementCovariance);
+      covarianceContribution( cache,trackParameters.get(), totalPath, std::abs( 1./cache.m_P[6]), measurementCovariance);
     } else {
       covarianceContribution( cache,trackParameters.get(), totalPath, onTargetSurf.get(), measurementCovariance);
     }
@@ -1292,30 +1292,30 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
   // Keep distanceTolerance within [1 nanometer, 10 microns].
   // This means that no final Taylor expansions beyond 10 microns and no
   // Runge-Kutta steps less than 1 nanometer are allowed.
-  double distanceTolerance = std::min( std::max( fabs( distanceToTarget) * m_tolerance, 1e-6), 1e-2);
+  double distanceTolerance = std::min( std::max( std::abs( distanceToTarget) * m_tolerance, 1e-6), 1e-2);
 
-  while (fabs( distanceToTarget) > distanceTolerance) { // Step until within tolerance
+  while (std::abs( distanceToTarget) > distanceTolerance) { // Step until within tolerance
     //Do the step. Stop the propagation if the energy goes below m_momentumCutOff
     if (!rungeKuttaStep( cache,errorPropagation, h, P, dDir, BG1, firstStep, distanceStepped)) return false;
     path += distanceStepped;
-    absolutePath += fabs( distanceStepped);
+    absolutePath += std::abs( distanceStepped);
 
-    if(fabs(distanceStepped)>0.001) {
-      cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));// the non-linear term
+    if(std::abs(distanceStepped)>0.001) {
+      cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(std::abs(distanceStepped));// the non-linear term
     }
     // update straggling covariance
     if (errorPropagation && m_straggling) {
       double sigTot2 = cache.m_sigmaIoni*cache.m_sigmaIoni + cache.m_sigmaRad*cache.m_sigmaRad;
       // /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
-      mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
+      mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
       double bp2 = beta*mom*mom;
       cache.m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;
     }
     if (cache.m_matstates || errorPropagation)
-      cache.m_combinedEloss.update(cache.m_delIoni*distanceStepped,cache.m_sigmaIoni*fabs(distanceStepped),
-                             cache.m_delRad *distanceStepped,cache.m_sigmaRad *fabs(distanceStepped),m_MPV);
+      cache.m_combinedEloss.update(cache.m_delIoni*distanceStepped,cache.m_sigmaIoni*std::abs(distanceStepped),
+                             cache.m_delRad *distanceStepped,cache.m_sigmaRad *std::abs(distanceStepped),m_MPV);
     //Calculate new distance to target
-    previousDistance = fabs( distanceToTarget);
+    previousDistance = std::abs( distanceToTarget);
     distanceToTarget = distance( surfaceType, targetSurface, P, distanceEstimationSuccessful);
     if (!distanceEstimationSuccessful) return false;
 
@@ -1325,15 +1325,15 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
       targetPassed++;
     }
     //don't step beyond surface
-    if (fabs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
 
     //Abort if maxPath is reached or solution is diverging
-    if ((targetPassed > 3 && fabs( distanceToTarget) >= previousDistance) || (absolutePath > maxPath)) return false;
+    if ((targetPassed > 3 && std::abs( distanceToTarget) >= previousDistance) || (absolutePath > maxPath)) return false;
 
     if (steps++ > m_maxSteps) return false; //Too many steps, something is wrong
   }
 
-  if (cache.m_material && cache.m_material->x0()!=0.) cache.m_combinedThickness += fabs(path)/cache.m_material->x0();
+  if (cache.m_material && cache.m_material->x0()!=0.) cache.m_combinedThickness += std::abs(path)/cache.m_material->x0();
 
   //Use Taylor expansions to step the remaining distance (typically microns).
   path = path + distanceToTarget;
@@ -1429,7 +1429,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     if (distSol.numberOfSolutions()>0 ) {
       distEst = distSol.first();
       dist1Est = distSol.first();
-      if ( distSol.numberOfSolutions()>1 && ( fabs(distEst) < tol ||
+      if ( distSol.numberOfSolutions()>1 && ( std::abs(distEst) < tol ||
                                               (propDir*distEst<-tol && propDir*distSol.second()>tol)) )
         distEst = distSol.second();
     }
@@ -1454,7 +1454,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       cache.m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >
         (-1,std::pair<double,double>(distSol.currentDistance(),distSol.currentDistance(true)));
     }
-    if(fabs(dist1Est)<tol) startSf = (int) iCurr;
+    if(std::abs(dist1Est)<tol) startSf = (int) iCurr;
     iCurr++;
   }
 
@@ -1477,7 +1477,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       cache.m_currentLayerBin = cache.m_binMat->layerBin(position);
       binIDMat        = cache.m_binMat->material(position);
       std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction0);
-      if (dist2next.first < lbu->bins() && fabs(dist2next.second)>1. && fabs(dist2next.second)< fabs(h) ){
+      if (dist2next.first < lbu->bins() && std::abs(dist2next.second)>1. && fabs(dist2next.second)< fabs(h) ){
         h = dist2next.second*propDir;
       }
       if (binIDMat) cache.m_material = binIDMat->first;
@@ -1488,16 +1488,16 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   // Keep distanceTolerance within [1 nanometer, 10 microns].
   // This means that no final Taylor expansions beyond 10 microns and no
   // Runge-Kutta steps less than 1 nanometer are allowed.
-  double distanceTolerance = std::min( std::max( fabs( distanceToTarget) * m_tolerance, 1e-6), 1e-2);
+  double distanceTolerance = std::min( std::max( std::abs( distanceToTarget) * m_tolerance, 1e-6), 1e-2);
 
   // bremstrahlung : sample if activated
   if (cache.m_brem) {
-    mom = fabs(1./P[6]);
+    mom = std::abs(1./P[6]);
     sampleBrem(cache,mom);
   }
 
-  while ( numSf > 0 && ( fabs( distanceToTarget) > distanceTolerance ||
-                         fabs(path+distanceStepped)<tol) ) { // Step until within tolerance
+  while ( numSf > 0 && ( std::abs( distanceToTarget) > distanceTolerance ||
+                         std::abs(path+distanceStepped)<tol) ) { // Step until within tolerance
     //Do the step. Stop the propagation if the energy goes below m_momentumCutOff
     if (!rungeKuttaStep(cache, errorPropagation, h, P, dDir, BG1, firstStep, distanceStepped)) {
       // emit brem photon before stopped ?
@@ -1515,11 +1515,11 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       // collect material and update timing
       path = path + distanceStepped;
       // timing
-      mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
+      mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
       cache.m_timeStep += distanceStepped/beta/CLHEP::c_light;
 
-      if(fabs(distanceStepped)>0.001) {
-        cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));
+      if(std::abs(distanceStepped)>0.001) {
+        cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(std::abs(distanceStepped));
       }
       // update straggling covariance
       if (errorPropagation && m_straggling) {
@@ -1531,8 +1531,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       }
       if (cache.m_matstates||errorPropagation){
         cache.m_combinedEloss.update(cache.m_delIoni*distanceStepped,
-                               cache.m_sigmaIoni*fabs(distanceStepped),
-                               cache.m_delRad *distanceStepped,cache.m_sigmaRad *fabs(distanceStepped),m_MPV);
+                               cache.m_sigmaIoni*std::abs(distanceStepped),
+                               cache.m_delRad *distanceStepped,cache.m_sigmaRad *std::abs(distanceStepped),m_MPV);
       }
       if (cache.m_material && cache.m_material->x0()!=0.) {
         cache.m_combinedThickness += propDir*distanceStepped/cache.m_material->x0();
@@ -1541,13 +1541,13 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       return false;
     }
     path = path + distanceStepped;
-    absPath += fabs(distanceStepped);
+    absPath += std::abs(distanceStepped);
 
     // timing
-    mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
+    mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
     cache.m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
 
-    if(fabs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));
+    if(std::abs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));
     // update straggling covariance
     if (errorPropagation && m_straggling) {
       // 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
@@ -1557,8 +1557,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       cache.m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*distanceStepped;
     }
     if (cache.m_matstates||errorPropagation){
-      cache.m_combinedEloss.update(cache.m_delIoni*distanceStepped,cache.m_sigmaIoni*fabs(distanceStepped),
-                                   cache.m_delRad *distanceStepped,cache.m_sigmaRad *fabs(distanceStepped),m_MPV);
+      cache.m_combinedEloss.update(cache.m_delIoni*distanceStepped,cache.m_sigmaIoni*std::abs(distanceStepped),
+                                   cache.m_delRad *distanceStepped,cache.m_sigmaRad *std::abs(distanceStepped),m_MPV);
     }
     if (cache.m_material && cache.m_material->x0()!=0.) {
       cache.m_combinedThickness += propDir*distanceStepped/cache.m_material->x0();
@@ -1571,8 +1571,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 
     bool restart = false;
     // in case of problems, make shorter steps
-    if ( propDir*path < -tol || absPath-fabs(path)>10.) {
-      helpSoft = fabs(path)/absPath > 0.5 ? fabs(path)/absPath : 0.5;
+    if ( propDir*path < -tol || absPath-std::abs(path)>10.) {
+      helpSoft = std::abs(path)/absPath > 0.5 ? fabs(path)/absPath : 0.5;
     }
 
     Amg::Vector3D position(P[0],P[1],P[2]);
@@ -1635,7 +1635,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction);
             distanceToNextBin += d2n.second+h;
           }
-        } else if ( dist2next.first < lbu->bins() && std::fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
+        } else if ( dist2next.first < lbu->bins() && std::abs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
           double localp[5];
           Trk::RungeKuttaUtils::transformGlobalToLocal(P, localp);
           auto cPar =
@@ -1722,15 +1722,15 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         helpSoft = 1.;
       }
       if ( (*vsIter).first != -1 && ( ic==nextSf || (*vsIter).first==1 || nextSf<0 ||
-                                      fabs((*vsIter).second.first) < 500. ||  fabs(path)>0.5*fabs((*vsIter).second.second) )  ) {
+                                      std::abs((*vsIter).second.first) < 500. ||  fabs(path)>0.5*fabs((*vsIter).second.second) )  ) {
         previousDistance = (*vsIter).second.first;
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
         if (distSol.numberOfSolutions()>0 ) {
           distanceEst = distSol.first();
           if (distSol.numberOfSolutions()>1 &&
-              fabs(distSol.first()*propDir+distanceStepped-previousDistance) >
-              fabs(distSol.second()*propDir+distanceStepped-previousDistance) ){
+              std::abs(distSol.first()*propDir+distanceStepped-previousDistance) >
+              std::abs(distSol.second()*propDir+distanceStepped-previousDistance) ){
             distanceEst = distSol.second();
           }
           // Peter Kluit: avoid jumping into other (distSol.first->second) distance solution for start surface with negative distance solution
@@ -1739,17 +1739,17 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if(ic==startSf&&distanceEst<0&&distSol.first()>0) distanceEst = distSol.first();
         }
         // eliminate close surface if path too small
-        if (ic==nextSf && fabs(distanceEst)<tol && fabs(path)<tol) {
+        if (ic==nextSf && std::abs(distanceEst)<tol && fabs(path)<tol) {
           (*vsIter).first=-1; vsIter=vsBeg; restart=true; distanceToTarget=maxPath; nextSf=-1;
           continue;
         }
 
         //If h and distance are in opposite directions, target is passed. Flip propagation direction
         //Verify if true intersection
-        // if (  h * propDir * distanceEst < 0. &&  fabs(distanceEst)>distanceTolerance ) {
-        if (  (*vsIter).second.first *propDir* distanceEst < 0. &&  fabs(distanceEst)>distanceTolerance ) {
+        // if (  h * propDir * distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
+        if (  (*vsIter).second.first *propDir* distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
           // verify change of sign in signedDistance ( after eliminating situations where this is meaningless )
-          if ( !distSol.signedDistance() || fabs(distSol.currentDistance(true))<tol || fabs((*vsIter).second.second)<tol
+          if ( !distSol.signedDistance() || std::abs(distSol.currentDistance(true))<tol || fabs((*vsIter).second.second)<tol
                || (*vsIter).second.second*distSol.currentDistance(true)<0) {   // true intersection
             if (ic==nextSf) {
               ((*vsIter).first)++;
@@ -1760,12 +1760,12 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
               }
               // take care of eliminating when number of flips even - otherwise it may end up at the start !
               if ((*vsIter).first>50 && h*propDir>0 ) {
-                // fabs(distanceEst) >= fabs(previousDistance) )  {
+                // std::abs(distanceEst) >= fabs(previousDistance) )  {
                 (*vsIter).first = -1; vsIter = vsBeg; restart = true;
                 continue;
               }
               if ((*vsIter).first!=-1) flipDirection = true;
-            } else if ( fabs((*vsIter).second.second)>tol && fabs(distSol.currentDistance(true))>tol ) {
+            } else if ( std::abs((*vsIter).second.second)>tol && fabs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
               if ( ic>nextSf ) {   // easy case, already calculated
                 if (propDir*distanceEst<(*(vsBeg+nextSf)).second.first-tol)  {
@@ -1799,12 +1799,12 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         // mw	if ((*vsIter).first!=-1 && ( distanceEst>-tol || ic==nextSf ) ) {
         if ((*vsIter).first!=-1 && ( distanceEst > 0. || ic==nextSf ) ) {
           numSf++;
-          if ( distanceEst < fabs(distanceToTarget) ) {
+          if ( distanceEst < std::abs(distanceToTarget) ) {
             distanceToTarget = propDir*distanceEst;
             nextSfCand = ic;
           }
         }
-      } else if ( fabs(path) > fabs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
+      } else if ( std::abs(path) > fabs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
         if (distSol.numberOfSolutions()>0 ) {
@@ -1817,11 +1817,11 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         if ( distanceEst > tol && distanceEst < maxPath ) {
           (*vsIter).first = 0;
         } else {
-          (*vsIter).second.first = distSol.currentDistance()+fabs(path);
+          (*vsIter).second.first = distSol.currentDistance()+std::abs(path);
         }
         if ((*vsIter).first!=-1 && distanceEst > 0.) {
           numSf++;
-          if ( distanceEst < fabs(distanceToTarget) ) {
+          if ( distanceEst < std::abs(distanceToTarget) ) {
             distanceToTarget = propDir*distanceEst;
             nextSfCand = ic;
           }
@@ -1830,7 +1830,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       // additional protection - return to the same surface
       // eliminate the surface and restart the search
       // 04/10/10 ST:infinite loop due to distanceTolerance>tol fixed;
-      if ( fabs(distanceToTarget)<=distanceTolerance && path*propDir<distanceTolerance ) {
+      if ( std::abs(distanceToTarget)<=distanceTolerance && path*propDir<distanceTolerance ) {
         (*vsIter).first = -1; vsIter = vsBeg; restart = true;
         continue;
       }
@@ -1849,10 +1849,10 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     }
 
     //don't step beyond surfaces - adjust step
-    if (fabs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
 
     //don't step beyond bin boundary - adjust step
-    if (cache.m_binMat && fabs( h) > std::fabs(distanceToNextBin)+0.001 ) {
+    if (cache.m_binMat && std::abs( h) > std::fabs(distanceToNextBin)+0.001 ) {
       if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData
         //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
         h = distanceToNextBin*propDir;
@@ -1867,7 +1867,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     //std::cout <<"current closest estimate: distanceToTarget: step size :"<< nextSf<<":"<< distanceToTarget <<":"<<h<< std::endl;
 
     //Abort if maxPath is reached
-    if (fabs( path) > maxPath) return false;
+    if (std::abs( path) > maxPath) return false;
 
     if (steps++ > m_maxSteps) return false; //Too many steps, something is wrong
 
@@ -1879,7 +1879,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   path = path + distanceToTarget;
 
   // timing
-  mom = fabs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
+  mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
   cache.m_timeStep += distanceToTarget/beta/Gaudi::Units::c_light;
 
   //pos = pos + h*dir + 1/2*h*h*dDir. Second order Taylor expansion.
@@ -1957,7 +1957,7 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
   double     dL2=0.;
   double     dL3=0.;
   double     dL4=0.;    // factor used for calculating dCM/dCM, P[41], in the Jacobian.
-  double     initialMomentum = fabs( 1./P[6]);  // Set initial momentum
+  double     initialMomentum = std::abs( 1./P[6]);  // Set initial momentum
   Amg::Vector3D initialPos( P[0], P[1], P[2]);	// Set initial values for position
   Amg::Vector3D initialDir( P[3], P[4], P[5]);	// Set initial values for direction.
 // Directions at the different points. Used by the error propagation
@@ -2337,7 +2337,7 @@ double Trk::STEP_Propagator::dgdlambda( Cache& cache,double l) const
   if (cache.m_material->x0()==0 || cache.m_material->averageZ()==0) return 0.;
   if (cache.m_material->zOverAtimesRho()==0) return 0.;
 
-  double p     = fabs( 1./l);
+  double p     = std::abs( 1./l);
   double m     = s_particleMasses.mass[cache.m_particle];
   double me    = s_particleMasses.mass[Trk::electron];
   double E     = std::sqrt(p*p+m*m);
@@ -2498,7 +2498,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
   double totalMomentumLoss = mom - cache.m_matupd_lastmom;
   double pathSinceLastUpdate = path - cache.m_matupd_lastpath;
 
-  double pathAbs = fabs(pathSinceLastUpdate);
+  double pathAbs = std::abs(pathSinceLastUpdate);
 
   if (pathAbs<1.e-03) return;
 
@@ -2522,12 +2522,16 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
   double average_dEds = totalMomentumLoss/pathAbs;
 
   double cumulatedVariance = cache.m_inputThetaVariance + cache.m_combinedCovariance(3,3) + cache.m_covariance(3,3);
-
+  if (cumulatedVariance < 0) {
+    ATH_MSG_WARNING("Cumulated variance for material effects is "
+                    "negative. Setting to 0");
+    cumulatedVariance = 0;
+  }
   double cumulatedX0 = 0.;
 
   bool useCache =cache.m_extrapolationCache != nullptr;
   if(useCache)  {
-    double dX0 =  fabs(cache.m_combinedThickness) - pathAbs/matX0;
+    double dX0 =  std::abs(cache.m_combinedThickness) - pathAbs/matX0;
     if(dX0<0) dX0 = 0.;
     if(cache.m_extrapolationCache->x0tot()>0) cumulatedX0 = cache.m_extrapolationCache->x0tot() + dX0;
   }
