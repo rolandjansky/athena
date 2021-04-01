@@ -43,15 +43,19 @@ JetCollections  = dict() # List of HLT jet collections for AT and legacy master 
 
 # AthenaMT
 JetCollections['MT'] = {
-  'HLT_AntiKt4EMTopoJets_subjesIS'                   : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # default small-R EM
-  'HLT_AntiKt10EMTopoRCJets_subjesIS'                : { 'MatchTo' : 'NONE' },               # a10r
-  'HLT_AntiKt10LCTopoJets_subjes'                    : { 'MatchTo' : 'NONE' },               # a10
-  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes' : { 'MatchTo' : 'NONE' },               # a10t
-  'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'            : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # calo jet w/ calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'           : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'        : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ residual + calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_nojcalib_ftf'              : { 'MatchTo' : 'NONE' },               # pflow nojcalib
-  'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'          : { 'MatchTo' : 'NONE' },               # pflow cssk nojcalib
+  'HLT_AntiKt4EMTopoJets_subjesIS'                                : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # default small-R EM
+  'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'                         : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # a4 calo jet w/ calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'                        : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # a4 pflow w/ calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'                     : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # a4 pflow w/ residual + calo+track GSC
+  'HLT_AntiKt4EMPFlowJets_nojcalib_ftf'                           : { 'MatchTo' : 'NONE' },               # a4 pflow nojcalib
+  'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'                       : { 'MatchTo' : 'NONE' },               # a4 pflow cssk nojcalib
+  'HLT_AntiKt10EMTopoRCJets_subjesIS'                             : { 'MatchTo' : 'NONE' },               # a10r
+  'HLT_AntiKt10LCTopoJets_subjes'                                 : { 'MatchTo' : 'NONE' },               # a10
+  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes'              : { 'MatchTo' : 'NONE' },               # a10t
+  'HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib'          : { 'MatchTo' : 'NONE' },               # a10sd lcw nojcalib
+  'HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftf'     : { 'MatchTo' : 'NONE' },               # a10sd pflow nojcalib
+  'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf' : { 'MatchTo' : 'NONE' },               # a10sd pflow cssk nojcalib
+  'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf'      : { 'MatchTo' : 'NONE' },               # a10sd pflow cssk jes
 }
 Chains2Monitor['MT'] = {
   # perf chain (runs no hypo)
@@ -78,6 +82,19 @@ Chains2Monitor['MT'] = {
   'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j460_a10t_lcw_jes_30smcINF_L1J100'  : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R SoftDrop chains
+  'HLT_j460_a10sd_lcw_nojcalib_L1J100'                  : { 'HLTColl' : 'HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib',          'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_pf_nojcalib_ftf_L1J100'               : { 'HLTColl' : 'HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftf',     'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_cssk_pf_nojcalib_ftf_L1J100'          : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_cssk_pf_jes_ftf_L1J100'               : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',      'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100'      : { 'HLTColl' : 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',      'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Chains seeded by L1SC111-CJ15
+  'HLT_j460_a10t_lcw_jes_L1SC111-CJ15'          : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # HT and dijet scenarios
+  'HLT_j0_aggSEP1000ht_L1J20'                             : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
 }
 
 # Legacy
@@ -508,7 +525,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
      trigConf.appendHistos(
        EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
      )
-   if 'jvt' in chain: #track JVT variables for chains with JVT applied
+   if 'ftf' in chain and 'a10' not in chain: # track-based JVT variables for FTF chains
      trigConf.appendHistos("Jvt")
      trigConf.appendHistos("JVFCorr")
      trigConf.appendHistos("JvtRpt")
