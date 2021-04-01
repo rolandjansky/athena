@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////
-// StaveBuilderXML.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// StaveBuilderXML.cxx
 ///////////////////////////////////////////////////////////////////
 
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
@@ -11,7 +12,7 @@
 #include "TrkGeometryAlpine/AlpineStave.h"
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "TMath.h"
+#include <cmath>
 
 InDet::StaveBuilderXML::StaveBuilderXML(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
@@ -76,8 +77,8 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
   int brl_ec  = 0; // barrel elements have brl_ec = 0 
   int iphi         = istave + 1 + round(nstaves/2.);
   if(istave*2+4>nstaves) iphi = istave + 1 - nstaves/2;
-  double phistep = TMath::Pi()*2.0/nstaves;
-  double phi = -TMath::Pi()+(istave+1)*phistep+phiOffset;
+  double phistep = M_PI*2.0/nstaves;
+  double phi = -M_PI+(istave+1)*phistep+phiOffset;
   Identifier id(0);
   IdentifierHash idhash(0);
 
@@ -249,9 +250,9 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
 		  << ilayer << " iphi = " << iphi << " phi = " << phi << " ieta = " << ieta );
     
     // Transformation 
-    double alpha = TMath::Pi()/2. - staveTmp->trans_angle;
-    double Dz = 0.5*moduletrans_length*cos(alpha)-0.5*moduletrans_thickness*sin(alpha);
-    dR     = -0.5*moduletrans_length*sin(alpha)+0.5*moduletrans_thickness*(1-cos(alpha));
+    double alpha = M_PI_2 - staveTmp->trans_angle;
+    double Dz = 0.5*moduletrans_length*std::cos(alpha)-0.5*moduletrans_thickness*std::sin(alpha);
+    dR     = -0.5*moduletrans_length*std::sin(alpha)+0.5*moduletrans_thickness*(1-std::cos(alpha));
     zpos   = zoffsetstave - staveTmp->trans_pos[0] - Dz; 
     tilt   = ztiltstave + staveTmp->trans_tilt;  // tilt around z-axis
     rot    = alpha;                              // module angle w.r.t stave plan
@@ -328,9 +329,9 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     for (unsigned int i=0;i<nmountains;i++){
       Trk::TrkDetElementBase *elem;
     
-      double alpha = TMath::Pi()/2. - staveTmp->alp_angle;
-      double Dz = 0.5*modulealp_length*cos(alpha)-0.5*modulealp_thickness*sin(alpha);
-      double dR = -0.5*modulealp_length*sin(alpha)+0.5*modulealp_thickness*(1-cos(alpha));
+      double alpha = M_PI_2 - staveTmp->alp_angle;
+      double Dz = 0.5*modulealp_length*std::cos(alpha)-0.5*modulealp_thickness*std::sin(alpha);
+      double dR = -0.5*modulealp_length*std::sin(alpha)+0.5*modulealp_thickness*(1-std::cos(alpha));
     
       // mountains - negative side
       ieta       = ietamin-(i+1);

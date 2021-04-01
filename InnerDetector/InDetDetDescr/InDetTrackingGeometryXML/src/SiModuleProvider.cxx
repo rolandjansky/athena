@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////
-// SiModuleProvider.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// SiModuleProvider.cxx
 ///////////////////////////////////////////////////////////////////
 
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
@@ -10,7 +11,7 @@
 #include "InDetTrackingGeometryUtils/DiscOverlapDescriptor.h"
 #include "InDetTrackingGeometryUtils/PixelOverlapDescriptor.h"
 #include "InDetTrackingGeometryUtils/SCT_OverlapDescriptor.h"
-#include "TMath.h"
+#include <cmath>
 
 InDet::SiModuleProvider::SiModuleProvider(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
@@ -107,8 +108,8 @@ Amg::Transform3D InDet::SiModuleProvider::getTransform(double R, double dR, doub
     Amg::AngleAxis3D(tilt, Amg::Vector3D::UnitZ())*             // last transform
     Amg::AngleAxis3D(stereo, Amg::Vector3D::UnitX())*           // ^
     Amg::AngleAxis3D(rot, Amg::Vector3D::UnitY())*              // |
-    Amg::AngleAxis3D(TMath::Pi()*.5, Amg::Vector3D::UnitX())*   // |
-    Amg::AngleAxis3D(TMath::Pi()*.5, Amg::Vector3D::UnitY())*   // |
+    Amg::AngleAxis3D(M_PI_2, Amg::Vector3D::UnitX())*   // |
+    Amg::AngleAxis3D(M_PI_2, Amg::Vector3D::UnitY())*   // |
     Amg::AngleAxis3D(0., Amg::Vector3D::UnitZ());               // first transform
 
   Amg::Transform3D transformInit(rotationInit,Amg::Vector3D(0.,0.,0.) );

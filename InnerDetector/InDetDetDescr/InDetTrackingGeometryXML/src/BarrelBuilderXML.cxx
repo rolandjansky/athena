@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 // BarrelBuilderXML.cxx
 ///////////////////////////////////////////////////////////////////
@@ -21,9 +21,7 @@
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/BinnedLayerMaterial.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "TMath.h"
-#include <string>
-#include <iostream>
+
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 //
@@ -32,7 +30,9 @@
 #include "TrkGeometry/MaterialLayer.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-
+#include <string>
+#include <iostream>
+#include <cmath>
 namespace Trk {
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
 }
@@ -194,7 +194,7 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
 
   std::vector<const Trk::TrkDetElementBase*> allElements;  
   // prepare bin utility in Phi - steering BinUtility vs Phi
-  double halfPhiStep =  TMath::Pi()/nstaves;
+  double halfPhiStep =  M_PI/nstaves;
   double minphi =  99999.;
   double maxphi = -99999.;
   
@@ -219,10 +219,6 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
       }
 
       std::sort(currentElements.begin(),currentElements.end(),sortElements);
-      
-      //for (unsigned int el = 0; el<currentElements.size(); el++) 
-      //ATH_MSG_INFO("Element :"<< el << "  " << currentElements.at(el)->center().z() <<  "   " << currentElements.at(el)->center().phi());
-      
       allElements.insert(allElements.end(), currentElements.begin(), currentElements.end());
 
       // filling z boundaries
@@ -242,11 +238,10 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
 							    Trk::binZ);
       
       subBinUtilitiesZ->push_back(tmpBinUtilityZ);
-      //ATH_MSG_INFO("Creating z BinUtility :" << *tmpBinUtilityZ);
     }
   }  
   
-  if (fabs(minphi+maxphi)< halfPhiStep && fabs(TMath::Pi()+minphi) < 0.5*halfPhiStep ){
+  if (std::abs(minphi+maxphi)< halfPhiStep && std::abs(M_PI+minphi) < 0.5*halfPhiStep ){
     ATH_MSG_DEBUG("Detected module fluctuation around +/- M_PI, correcting for it.");
     ATH_MSG_DEBUG("    min phi / max phi detected  : "  << minphi << " / " << maxphi );
     minphi += 2*halfPhiStep;
@@ -257,10 +252,10 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   ATH_MSG_DEBUG("    min phi / max phi detected  : " << minphi << " / " << maxphi );
   double minPhiCorrected = minphi-halfPhiStep;
   //double maxPhiCorrected = maxphi+halfPhiStep;   // ST limit correction
-  double maxPhiCorrected = minPhiCorrected + 2*TMath::Pi();
+  double maxPhiCorrected = minPhiCorrected + 2*M_PI;
   
   // catch if the minPhi falls below M_PI
-  if (minPhiCorrected < -TMath::Pi()){
+  if (minPhiCorrected < -M_PI){
     minPhiCorrected += 2*halfPhiStep;
     maxPhiCorrected += 2*halfPhiStep;
   }
@@ -441,7 +436,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
 	       << " active halflength=" << active_halfLength);
   
   // prepare bin utility in Phi - steering BinUtility vs Phi
-  double halfPhiStep =  TMath::Pi()/nstaves;
+  double halfPhiStep =  M_PI/nstaves;
     
   double minphi =  99999.;
   double maxphi = -99999.;
@@ -451,7 +446,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
      maxphi = std::max(allElements.at(allEl)->center().phi(), maxphi);
   }
   
-  if (fabs(minphi+maxphi)< halfPhiStep && fabs(TMath::Pi()+minphi) < 0.5*halfPhiStep ){
+  if (std::abs(minphi+maxphi)< halfPhiStep && std::abs(M_PI+minphi) < 0.5*halfPhiStep ){
     ATH_MSG_DEBUG("Detected module fluctuation around +/- M_PI, correcting for it.");
     ATH_MSG_DEBUG("    min phi / max phi detected  : "  << minphi << " / " << maxphi );
     minphi += 2*halfPhiStep;
@@ -462,10 +457,10 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   ATH_MSG_DEBUG("    min phi / max phi detected  : " << minphi << " / " << maxphi );
   double minPhiCorrected = minphi-halfPhiStep;
   //double maxPhiCorrected = maxphi+halfPhiStep;   // ST limit correction
-  double maxPhiCorrected = minPhiCorrected + 2*TMath::Pi();
+  double maxPhiCorrected = minPhiCorrected + 2.*M_PI;
   
   // catch if the minPhi falls below M_PI
-  if (minPhiCorrected < -TMath::Pi()){
+  if (minPhiCorrected < -M_PI){
     minPhiCorrected += 2*halfPhiStep;
     maxPhiCorrected += 2*halfPhiStep;
   }
@@ -653,10 +648,10 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
   // compute identifier inputs
   int brl_ec       = 0;                       // barrel elements have brl_ec = 0 
-  int iphi         = isector + 1 + round(nsectors/2.);
+  int iphi         = isector + 1 + std::round(nsectors/2.);
   if(isector*2+4>nsectors) iphi = isector + 1 - nsectors/2;
-  double phimin    = -TMath::Pi();
-  double phimax    =  TMath::Pi();
+  double phimin    = -M_PI;
+  double phimax    =  M_PI;
   double phistep   = (phimax-phimin)/double(nsectors);
   //double phi       = phimin+isector*phistep-phistep/2.0 + phiOffset;
   double phi       = phimin+(isector+1)*phistep + phiOffset;
@@ -703,13 +698,6 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
   Trk::TrkDetElementBase* planElement = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform.translation(), transform, 
 														m_pixelCase, isBarrel, isOuterMost,debug) );
-  
-//   std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
-//   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
-//   std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
-//   std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
-    
-
   // use existing tools to compute layer bounds
   m_xmlReader->computeRbounds(transform, moduleTmp, staveTmp->rMin, staveTmp->rMax);
   m_xmlReader->computeZbounds(transform, moduleTmp, staveTmp->active_halflength);
@@ -729,13 +717,6 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
     m_xmlReader->computeZbounds(transform_os, moduleTmp, staveTmp->active_halflength);
     Trk::TrkDetElementBase* planElement_os = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform_os.translation(), transform_os, 
 														     m_pixelCase, isBarrel, isOuterMost,debug) );
-    
-//     std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
-//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 1" << std::endl;
-//     std::cout << "        -->  Surface Center = " << planElement_os->surface().center() << std::endl;
-//     std::cout << "        -->  Surface Phi = " << planElement_os->surface().center().phi() << "     Eta = "<< planElement_os->surface().center().eta() << std::endl;
-    
-  
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
     
     if (!planElement_os) ATH_MSG_WARNING("Inside CylinderDetElement() --> Null pointer for the other side Planar Detector Element.");
@@ -769,7 +750,7 @@ Trk::BinnedArray<Trk::Surface>* InDet::BarrelBuilderXML::getBinnedArray1D1D(Trk:
 				const InDetDD::SiDetectorElement *detEle = dynamic_cast<const InDetDD::SiDetectorElement*>( *Elem_Iter ) ;
 				if(detEle) {
 	  			Amg::Vector3D versor(0.,0.,1.);
-	  			double length = detEle->length()*0.5*sin(fabs(acos(moduleSurface->normal().dot(versor))));
+	  			double length = detEle->length()*0.5*std::sin(std::abs(std::acos(moduleSurface->normal().dot(versor))));
 	  			double center = detEle->center().z();
 	  			ATH_MSG_DEBUG("Binning --> " << center-length << "/" <<center+length);
 	  			Trk::BinUtility layerBinUtilityZ(1, center-length, center+length, Trk::open, Trk::binZ);
@@ -790,7 +771,7 @@ Trk::BinnedArray<Trk::Surface>* InDet::BarrelBuilderXML::getBinnedArray1D1D(Trk:
       //ATH_MSG_DEBUG("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
       ATH_MSG_DEBUG("phi = " << moduleSurface->center().phi() << "  Eta = " << moduleSurface->center().eta() 
 		    << " z = " << moduleSurface->center().z() 
-		    << " r = " << sqrt(pow(moduleSurface->center().x(),2)+pow(moduleSurface->center().y(),2)));
+		    << " r = " << std::hypot(moduleSurface->center().x(),moduleSurface->center().y()));
     }
   // create 2D-dimensional BinnedArray
   Trk::BinnedArray<Trk::Surface>* currentBinnedArray = new Trk::BinnedArray1D1D<Trk::Surface>(surfaces,&steerBinUtility,&subBinUtility);
@@ -880,7 +861,7 @@ const Trk::LayerMaterialProperties* InDet::BarrelBuilderXML::barrelLayerMaterial
     layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityZ);
   } else { // -- material with 2D binning
     Trk::BinUtility layerBinUtilityRPhiZ(m_barrelLayerBinsPhi,
-                                         -r*TMath::Pi(), r*TMath::Pi(),
+                                         -r*M_PI, r*M_PI,
                                          Trk::closed,
                                          Trk::binRPhi);
     layerBinUtilityRPhiZ += layerBinUtilityZ;                                                       

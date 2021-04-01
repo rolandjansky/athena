@@ -6,7 +6,6 @@
 #define INDETTRACKINGGEOMETRY_XMLUTIL_H
 
 // STD library
-#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
