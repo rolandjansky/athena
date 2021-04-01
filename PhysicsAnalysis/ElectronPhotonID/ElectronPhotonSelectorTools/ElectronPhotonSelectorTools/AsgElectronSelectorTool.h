@@ -24,7 +24,7 @@ class AsgElectronSelectorTool final : public asg::AsgTool,
 
 public:
   /** Standard constructor */
-  AsgElectronSelectorTool( const std::string myname );
+  AsgElectronSelectorTool( const std::string& myname );
 
 
   /** Standard destructor */

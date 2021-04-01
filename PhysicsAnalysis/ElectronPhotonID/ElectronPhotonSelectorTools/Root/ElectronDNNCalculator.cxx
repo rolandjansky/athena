@@ -31,7 +31,7 @@ ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
 {
   ATH_MSG_INFO("Initializing ElectronDNNCalculator...");
 
-  if (modelFileName.size() == 0){
+  if (modelFileName.empty()){
     throw std::runtime_error("No file found at '" + modelFileName + "'");
   }
 
@@ -56,7 +56,7 @@ ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
   m_graph = std::make_unique<lwt::generic::FastGraph<float>>(parsedGraph, order);
 
 
-  if (quantileFileName.size() == 0){
+  if (quantileFileName.empty()){
     throw std::runtime_error("No file found at '" + quantileFileName + "'");
   }
 
@@ -150,7 +150,7 @@ int ElectronDNNCalculator::readQuantileTransformer( TTree* tree, const std::vect
   sc = tree->SetBranchAddress("references", &references) == -5 ? 0 : 1;
 
   std::map<std::string, double> readVars;
-  for ( auto var : variables ){
+  for ( const auto& var : variables ){
       sc = tree->SetBranchAddress(TString(var), &readVars[var]) == -5 ? 0 : 1;
   }
   for (int i = 0; i < tree->GetEntries(); i++){
