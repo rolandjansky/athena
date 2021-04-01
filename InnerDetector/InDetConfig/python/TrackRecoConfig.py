@@ -269,6 +269,15 @@ def TrackRecoCfg(flags):
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
     result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
 
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
+    toESD = []
+    if flags.Output.doWriteESD:
+        result.merge(OutputStreamCfg(flags, "ESD", ItemList=toAOD+toESD))
+
+    if flags.Output.doWriteAOD:
+        result.merge(OutputStreamCfg(flags, "AOD", ItemList=toAOD ))
+    
     return result
 
 if __name__ == "__main__":
