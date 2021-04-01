@@ -51,6 +51,12 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( std::string myname ) :
   declareProperty("inputModelFileName", m_modelFileName="", "The input file name that holds the model" );
   // QuantileTransformer file name ( required for preprocessing ). Managed in the ElectronDNNCalculator.
   declareProperty("quantileFileName", m_quantileFileName="", "The input file name that holds the QuantileTransformer");
+  // Model used is a multiclass or a binary model
+  declareProperty("multiClass", m_multiClass, "Whether the given model is multiclass or not");
+  // If multiclass, how to treat the chargeflip output node when combining into one discriminant
+  declareProperty("cfSignal", m_cfSignal, "Whether to include the CF fraction in the numerator or denominator");
+  // If multiclass, fractions with which the different output nodes get multiplied before combining them
+  declareProperty("Fractions", m_fractions, "Fractions to combine the single outputs into one discriminant");
   // Variable list
   declareProperty("Variables", m_variables, "Variables used in the MVA tool");
   // The mva cut values
@@ -144,8 +150,14 @@ StatusCode AsgElectronSelectorTool::initialize()
       m_variables.push_back( substr );
     }
 
+    // Model is multiclass or not, default is binary model
+    m_multiClass = env.GetValue("multiClass", false);
     // Create an instance of the class calculating the DNN score
-    m_mvaTool = std::make_unique<ElectronDNNCalculator>(this, filename.c_str(), qfilename.c_str(), m_variables);
+    m_mvaTool = std::make_unique<ElectronDNNCalculator>(this, filename.c_str(), qfilename.c_str(), m_variables, m_multiClass);
+    // Include cf node in numerator or denominator when combining different outputs
+    m_cfSignal = env.GetValue("cfSignal", true);
+    // Fractions to multiply different outputs with before combining
+    m_fractions = AsgConfigHelper::HelperDouble("Fractions", env);
 
     // cut on MVA discriminant
     m_cutSelector = AsgConfigHelper::HelperDouble("CutSelector", env);
@@ -171,6 +183,16 @@ StatusCode AsgElectronSelectorTool::initialize()
                     " input size " << m_cutSelector.size());
       return StatusCode::FAILURE;
     }
+
+    if (m_multiClass){
+      // Fractions are only needed if multiclass model is used
+      // There are five fractions for the combination, the signal fraction is either one (cfSignal == false) or 1 - cf fraction (cfSignal == true)
+      if (m_fractions.size() != numberOfExpectedEtaBins * 5){
+        ATH_MSG_ERROR("Configuration issue : multiclass but not the right amount of fractions." << m_fractions.size());
+        return StatusCode::FAILURE;
+      }
+    }
+
 
     if (m_cutSCT.size()){
       if (m_cutSCT.size() != numberOfExpectedEtaBins){
@@ -337,96 +359,94 @@ const Root::TAccept& AsgElectronSelectorTool::accept( const xAOD::Electron* eg, 
     throw std::runtime_error("AsgElectronSelectorTool: Not all variables needed for the decision are found. The following variables are missing: " + notFoundList );
   }
 
+  // Set up the individual cuts
+  bool passKine(true);
+  bool passNSilicon(true);
+  bool passNPixel(true);
+  bool passNBlayer(true);
+  bool passAmbiguity(true);
+  bool passMVA(true);
 
+  if (std::abs(eta) > 2.47){
+    ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
+    passKine = false;
+  }
 
-    // Set up the individual cuts
-    bool passKine(true);
-    bool passNSilicon(true);
-    bool passNPixel(true);
-    bool passNBlayer(true);
-    bool passAmbiguity(true);
-    bool passMVA(true);
+  unsigned int etBin = getDiscEtBin(et);
+  unsigned int etaBin = getDiscEtaBin(eta);
 
-    if (std::abs(eta) > 2.47){
-      ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
-      passKine = false;
+  // sanity
+  if (etBin >= s_fnDiscEtBins){
+    ATH_MSG_DEBUG("Cannot evaluate model for Et " << et << ". Returning false..");
+    passKine = false;
+  }
+
+  // Return if the kinematic requirements are not fulfilled
+  m_acceptMVA.setCutResult(m_cutPosition_kinematic, passKine);
+  if (!passKine){return m_acceptMVA;}
+
+  // ambiguity bit
+  if (m_cutAmbiguity.size()){
+  if (!ElectronSelectorHelpers::passAmbiguity((xAOD::AmbiguityTool::AmbiguityType)ambiguityBit, m_cutAmbiguity[etaBin])){
+      ATH_MSG_DEBUG("MVA macro: ambiguity Bit Failed.");
+      passAmbiguity = false;
+    }
+  }
+
+  // blayer cut
+  if (m_cutBL.size()) {
+    if(m_cutBL[etaBin] == 1 && !passBLayerRequirement){
+      ATH_MSG_DEBUG("MVA macro: Blayer cut failed.");
+      passNBlayer = false;
+    }
+  }
+  // pixel cut
+  if (m_cutPi.size()){
+    if (nPixHitsPlusDeadSensors < m_cutPi[etaBin]){
+      ATH_MSG_DEBUG("MVA macro: Pixels Failed.");
+      passNPixel = false;
+    }
+  }
+  // SCT cut
+  if (m_cutSCT.size()){
+    if (nSiHitsPlusDeadSensors < m_cutSCT[etaBin]){
+      ATH_MSG_DEBUG( "MVA macro: Silicon Failed.");
+      passNSilicon = false;
+    }
+  }
+
+  double cutDiscriminant;
+  unsigned int ibin_combinedMVA = etBin*s_fnDiscEtaBins+etaBin; // Must change if number of eta bins changes!.
+
+  if (m_cutSelector.size()){
+    // To protect against a binning mismatch, which should never happen
+    if (ibin_combinedMVA >= m_cutSelector.size()){
+      throw std::runtime_error("AsgElectronSelectorTool: The desired eta/pt bin is outside of the range specified by the input. This should never happen! This indicates a mismatch between the binning in the configuration file and the tool implementation." );
     }
 
-    unsigned int etBin = getDiscEtBin(et);
-    unsigned int etaBin = getDiscEtaBin(eta);
-
-    // sanity
-    if (etBin >= s_fnDiscEtBins){
-      ATH_MSG_DEBUG("Cannot evaluate model for Et " << et << ". Returning false..");
-      passKine = false;
+    if (m_doSmoothBinInterpolation){
+      cutDiscriminant = interpolateCuts(m_cutSelector, et, eta);
+    }
+    else{
+      cutDiscriminant = m_cutSelector.at(ibin_combinedMVA);
     }
 
-    // Return if the kinematic requirements are not fulfilled
-    m_acceptMVA.setCutResult(m_cutPosition_kinematic, passKine);
-    if (!passKine){return m_acceptMVA;}
-
-    // ambiguity bit
-    if (m_cutAmbiguity.size()){
-    if (!ElectronSelectorHelpers::passAmbiguity((xAOD::AmbiguityTool::AmbiguityType)ambiguityBit, m_cutAmbiguity[etaBin])){
-        ATH_MSG_DEBUG("MVA macro: ambiguity Bit Failed.");
-        passAmbiguity = false;
-      }
+    // Determine if the calculated mva score value passes the cut
+    ATH_MSG_DEBUG("MVA macro: Discriminant: ");
+    if (mvaScore < cutDiscriminant){
+      ATH_MSG_DEBUG("MVA macro: Disciminant Cut Failed.");
+      passMVA = false;
     }
+  }
 
-    // blayer cut
-    if (m_cutBL.size()) {
-      if(m_cutBL[etaBin] == 1 && !passBLayerRequirement){
-        ATH_MSG_DEBUG("MVA macro: Blayer cut failed.");
-        passNBlayer = false;
-      }
-    }
-    // pixel cut
-    if (m_cutPi.size()){
-      if (nPixHitsPlusDeadSensors < m_cutPi[etaBin]){
-        ATH_MSG_DEBUG("MVA macro: Pixels Failed.");
-        passNPixel = false;
-      }
-    }
-    // SCT cut
-    if (m_cutSCT.size()){
-      if (nSiHitsPlusDeadSensors < m_cutSCT[etaBin]){
-        ATH_MSG_DEBUG( "MVA macro: Silicon Failed.");
-        passNSilicon = false;
-      }
-    }
+  // Set the individual cut bits in the return object
+  m_acceptMVA.setCutResult(m_cutPosition_NSilicon, passNSilicon);
+  m_acceptMVA.setCutResult(m_cutPosition_NPixel, passNPixel);
+  m_acceptMVA.setCutResult(m_cutPosition_NBlayer, passNBlayer);
+  m_acceptMVA.setCutResult(m_cutPosition_ambiguity, passAmbiguity);
+  m_acceptMVA.setCutResult(m_cutPosition_MVA, passMVA);
 
-    double cutDiscriminant;
-    unsigned int ibin_combinedMVA = etBin*s_fnDiscEtaBins+etaBin; // Must change if number of eta bins changes!.
-
-    if (m_cutSelector.size()){
-      // To protect against a binning mismatch, which should never happen
-      if (ibin_combinedMVA >= m_cutSelector.size()){
-        throw std::runtime_error("AsgElectronSelectorTool: The desired eta/pt bin is outside of the range specified by the input. This should never happen! This indicates a mismatch between the binning in the configuration file and the tool implementation." );
-      }
-
-      if (m_doSmoothBinInterpolation){
-        cutDiscriminant = interpolateCuts(m_cutSelector, et, eta);
-      }
-      else{
-        cutDiscriminant = m_cutSelector.at(ibin_combinedMVA);
-      }
-
-      // Determine if the calculated mva score value passes the cut
-      ATH_MSG_DEBUG("MVA macro: Discriminant: ");
-      if (mvaScore < cutDiscriminant){
-        ATH_MSG_DEBUG("MVA macro: Disciminant Cut Failed.");
-        passMVA = false;
-      }
-    }
-
-    // Set the individual cut bits in the return object
-    m_acceptMVA.setCutResult(m_cutPosition_NSilicon, passNSilicon);
-    m_acceptMVA.setCutResult(m_cutPosition_NPixel, passNPixel);
-    m_acceptMVA.setCutResult(m_cutPosition_NBlayer, passNBlayer);
-    m_acceptMVA.setCutResult(m_cutPosition_ambiguity, passAmbiguity);
-    m_acceptMVA.setCutResult(m_cutPosition_MVA, passMVA);
-
-    return m_acceptMVA;
+  return m_acceptMVA;
 
 }
 
@@ -639,9 +659,18 @@ const Root::TResult& AsgElectronSelectorTool::calculate( const xAOD::Electron* e
   vars.nPixHitsPlusDeadSensors = nPixHitsPlusDeadSensors;
   vars.nSCTHitsPlusDeadSensors = nSCTHitsPlusDeadSensors;
 
-  double mvaScore = m_mvaTool->calculate(vars);
+  std::vector<double> mvaScores = m_mvaTool->calculate(vars);
 
-  m_resultMVA.setResult(m_resultPosition_MVA, transformMLOutput(mvaScore));
+  double discriminant = 0;
+  // If a binary model is used, vector will have one entry, if multiclass is used vector will have six entries
+  if (!m_multiClass){
+    discriminant = transformMLOutput(mvaScores.at(0));
+  }
+  else{
+    // combine the six output nodes into one discriminant to cut on, any necessary transformation is applied within combineOutputs()
+    discriminant = combineOutputs(mvaScores, eta);
+  }
+  m_resultMVA.setResult(m_resultPosition_MVA, discriminant);
 
   return m_resultMVA;
 
@@ -748,6 +777,32 @@ double AsgElectronSelectorTool::transformMLOutput( double score ) const
   return score;
 }
 
+double AsgElectronSelectorTool::combineOutputs( const std::vector<double>& mvaScores, double eta ) const{
+  unsigned int etaBin = getDiscEtaBin(eta);
+  double disc = 0;
+
+  if (m_cfSignal){
+    // Put cf node into numerator
+    disc = (mvaScores.at(0) * (1 - m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores.at(1) * m_fractions.at(5 * etaBin + 0))) /
+           ((mvaScores.at(2) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores.at(3) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores.at(4) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores.at(5) * m_fractions.at(5 * etaBin + 4)));
+  }
+  else{
+    // Put cf node in denominator
+    disc = mvaScores.at(0) /
+           ((mvaScores.at(1) * m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores.at(2) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores.at(3) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores.at(4) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores.at(5) * m_fractions.at(5 * etaBin + 4)));
+  }
+
+  // Log transform to have values in reasonable range
+  return std::log(disc);
+}
 
 // Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta
 unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) const
