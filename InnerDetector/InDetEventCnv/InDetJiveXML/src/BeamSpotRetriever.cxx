@@ -4,8 +4,6 @@
 
 #include "InDetJiveXML/BeamSpotRetriever.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h" // the actual include, add this at the top
-
 #include "JiveXML/IFormatTool.h"
 
 namespace JiveXML {
@@ -17,10 +15,15 @@ namespace JiveXML {
    * @param parent AlgTools parent owning this tool
    **/
   BeamSpotRetriever::BeamSpotRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), m_typeName("BeamSpot"), m_beamSpotSvc("BeamCondSvc",name){
+    AthAlgTool(type,name,parent), m_typeName("BeamSpot") {
     
     //Declare the interface
     declareInterface<IDataRetriever>(this);
+  }
+  
+  StatusCode BeamSpotRetriever::initialize() {
+      ATH_CHECK(m_beamSpotKey.initialize());
+      return StatusCode::SUCCESS;
   }
   
   /**
@@ -48,10 +51,10 @@ namespace JiveXML {
     DataVect status; status.reserve( 1 );  
 
 /// from: https://twiki.cern.ch/twiki/bin/view/Atlas/InDetBeamSpotFAQ#How_can_I_retrieve_the_beam_spot
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 // add the following into the initialize routine.
-  if ( m_beamSpotSvc.retrieve().isFailure() ) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to retrieve service " << m_beamSpotSvc << endmsg;
+  if ( !beamSpotHandle.isValid() ) {
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to retrieve beamspot " <<  endmsg;
     return StatusCode::RECOVERABLE;
   } else {
 
@@ -72,38 +75,38 @@ namespace JiveXML {
 // tiltX 	Tilt angle in x-z plane (rad)
 // tiltY 	Tilt angle in y-z plane (rad)
 
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_beamSpotSvc << endmsg;
+
 
     label.push_back( "Beamspot_position_at_PV_z_position" ); 
 	
-    Trk::RecVertex beamposition(m_beamSpotSvc->beamVtx());
+    Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
     Amg::Vector3D posBS(beamposition.position());
 
     x.push_back( posBS.x() );
     y.push_back( posBS.y() );
     z.push_back( posBS.z() );
 
-    sigmaX.push_back( m_beamSpotSvc->beamSigma(0) ); 
-    sigmaY.push_back( m_beamSpotSvc->beamSigma(1) ); 
-    sigmaZ.push_back( m_beamSpotSvc->beamSigma(2) ); 
-    sigmaXY.push_back( m_beamSpotSvc->beamSigmaXY() ); 
+    sigmaX.push_back( beamSpotHandle->beamSigma(0) );
+    sigmaY.push_back( beamSpotHandle->beamSigma(1) );
+    sigmaZ.push_back( beamSpotHandle->beamSigma(2) );
+    sigmaXY.push_back( beamSpotHandle->beamSigmaXY() );
 
-    tiltX.push_back( m_beamSpotSvc->beamTilt(0) ); 
-    tiltY.push_back( m_beamSpotSvc->beamTilt(1) ); 
+    tiltX.push_back( beamSpotHandle->beamTilt(0) );
+    tiltY.push_back( beamSpotHandle->beamTilt(1) );
 
-    status.push_back( m_beamSpotSvc->beamStatus() ); 
+    status.push_back( beamSpotHandle->beamStatus() );
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)  << "BeamSpot Position: "
-                   << m_beamSpotSvc->beamPos() << endmsg;
+                   << beamSpotHandle->beamPos() << endmsg;
     msg(MSG::DEBUG)  << "BeamSpot Sigma "
-                   << m_beamSpotSvc->beamSigma(0) << ", "
-                   << m_beamSpotSvc->beamSigma(1) << ", "
-                   << m_beamSpotSvc->beamSigma(2) 
+                   << beamSpotHandle->beamSigma(0) << ", "
+                   << beamSpotHandle->beamSigma(1) << ", "
+                   << beamSpotHandle->beamSigma(2) 
                    << endmsg;
     msg(MSG::DEBUG)  << "BeamSpot Tilt: "
-                   << m_beamSpotSvc->beamTilt(0) << ", "
-                   << m_beamSpotSvc->beamTilt(1) 
+                   << beamSpotHandle->beamTilt(0) << ", "
+                   << beamSpotHandle->beamTilt(1) 
                    << endmsg;
     msg(MSG::DEBUG) << "Beamspot position at PV z-position" << endmsg;
   }
