@@ -61,7 +61,7 @@ namespace ISF {
     private:
 
       /** tracking geometry for geometry signature */
-      SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "AlignedTrackingGeometry", "Key of input TrackingGeometry"};  
+      SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "AtlasTrackingGeometry", "Key of input TrackingGeometry"};  
 
       /** extrapolation to calo entry */
       ToolHandle<Trk::IExtrapolator>       m_extrapolator;              //!< ToolHandle for track extrapolator

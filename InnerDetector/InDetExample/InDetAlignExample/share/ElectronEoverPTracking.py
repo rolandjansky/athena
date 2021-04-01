@@ -70,7 +70,11 @@ if not use_tracking_geometry_cond_alg :
 	acc = TrackingGeometrySvcCfg(flags)
 	geom_svc = acc.getPrimary()
 else :
-	from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None)
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+    condSeq += ConfiguredTrackingGeometryCondAlg()
 	geom_cond_key = 'AtlasTrackingGeometry'
 #
 # get propagator

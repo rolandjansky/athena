@@ -163,6 +163,8 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
 
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
     kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
+    from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool
+    kwargs.setdefault("TagTool", CombinedMuonTagTestTool())
 
     return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
 

@@ -39,12 +39,13 @@ StatusCode
 MuonTrackTagTestTool::initialize()
 {
     ATH_CHECK(m_extrapolator.retrieve());
-    if (m_trackingGeometryReadKey.key().empty()) {
+    if (m_trackingGeometryReadKey.empty()) {
         ATH_CHECK(m_trackingGeometrySvc.retrieve());
         ATH_MSG_INFO( "  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     } else{
         ATH_CHECK(m_trackingGeometryReadKey.initialize());
-    }   
+    }
+    
 
     ATH_MSG_INFO( "Initialized successfully");
 
