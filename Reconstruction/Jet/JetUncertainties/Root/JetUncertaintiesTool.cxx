@@ -2921,8 +2921,10 @@ StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const doub
 
 	    if ( shift*value < 0.0 ){
 	      m_accTagScaleFactor(jet) = 0.0;
+	      m_accEffSF(jet) = 0.0;
 	    } else {
 	      m_accTagScaleFactor(jet) = shift*value;
+	      m_accEffSF(jet) = shift*value;
 	    }
 	    return StatusCode::SUCCESS;
 
@@ -2933,8 +2935,10 @@ StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const doub
 	    if ( efficiency < 1.0 ){
 	      if ( shift*value < 0.0 ){
 		m_accTagScaleFactor(jet) = 1.0/(1. - efficiency);
+		m_accEffSF(jet) = 0.0;
 	      } else {
 		m_accTagScaleFactor(jet) = (1. - shift*effSF*efficiency) / (1. - efficiency);
+		m_accEffSF(jet) = shift*effSF;
 	      }
 	    }
 	    return StatusCode::SUCCESS;	    	    
@@ -2976,6 +2980,10 @@ StatusCode JetUncertaintiesTool::updateTagEfficiency(xAOD::Jet& jet, const doubl
 	const float effSF = m_accEffSF(constJet);
 	const float efficiency = m_accEfficiency(constJet);
 	float sigeffSF = 1.0;
+	float updated_efficiency = efficiency + shift; // efficiency value is varied
+	if ( updated_efficiency < 1e-5 ) updated_efficiency=1e-5;
+	if ( updated_efficiency > 1.0-1e-5 ) updated_efficiency=1.0-1e-5;
+	m_accEfficiency(jet) = updated_efficiency;
 	if (m_accSigeffSF.isAvailable(jet)) sigeffSF = m_accSigeffSF(constJet);
 
 	const int tagResult = m_accTagResult(constJet);
@@ -2985,18 +2993,15 @@ StatusCode JetUncertaintiesTool::updateTagEfficiency(xAOD::Jet& jet, const doubl
 	} else {
 	  // this jet is "failed"
 	  // inefficiency SF will be recalculated for given uncertainty
-	  float m_updated_efficiency = efficiency + shift; // efficiency value is varied
-	  if ( m_updated_efficiency < 1e-5 ) m_updated_efficiency=1e-5;
-	  if ( m_updated_efficiency > 1.0-1e-5 ) m_updated_efficiency=1.0-1e-5;
 	  if ( std::abs(effSF - 1.0) < 1e-5 && std::abs(shift)>0 ) { 
 	    // For other category, effSF=1.0. So efficiency variation cannot be propagated to the ineffSF i.e. (1 - eff)/(1 - eff) is always 1 not depending on eff value.
 	    // SF for signal (sigeffSF) is used instead of effSF when calculating it
 	    // Relative variation of ineffSF for signal is calculated here and used for the other category
 	    float nominalIneffSFsig = (1. - sigeffSF*efficiency)/(1. - efficiency);
-	    float variatedIneffSFsig = (1. - sigeffSF*m_updated_efficiency)/(1. - m_updated_efficiency);
+	    float variatedIneffSFsig = (1. - sigeffSF*updated_efficiency)/(1. - updated_efficiency);
 	    m_accTagScaleFactor(jet) = variatedIneffSFsig/nominalIneffSFsig;
 	  } else {
-	    m_accTagScaleFactor(jet) = (1. - effSF*m_updated_efficiency) / (1. - m_updated_efficiency);
+	    m_accTagScaleFactor(jet) = (1. - effSF*updated_efficiency) / (1. - updated_efficiency);
 	  }
 	  return StatusCode::SUCCESS;        
 	}
