@@ -52,7 +52,8 @@ argdict = {'runArgs'        : runArgs,
            'writeGridpack'  : writeGridpack,
            'syst_mod'       : syst_mod,
            'param_card'     : param_card, # Only set if you *can't* modify the default param card to get your settings
-            'add_lifetimes_lhe' : add_lifetimes_lhe
+           'add_lifetimes_lhe' : add_lifetimes_lhe,
+           'usePMGSettings' : usePMGSettings
            }
 
 # First the standard case: No input LHE file

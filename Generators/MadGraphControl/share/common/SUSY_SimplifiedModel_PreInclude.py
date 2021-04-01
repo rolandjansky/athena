@@ -58,6 +58,9 @@ fixEventWeightsForBridgeMode=False
 # In case you want to keep lifetimes in the LHE files
 add_lifetimes_lhe = False
 
+# Do we want to use PDG defaults?
+usePMGSettings = True
+
 from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
 phys_short = get_physics_short()
 if 'py1up' in phys_short:
