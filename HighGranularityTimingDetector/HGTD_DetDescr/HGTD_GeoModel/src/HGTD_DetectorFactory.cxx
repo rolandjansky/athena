@@ -190,7 +190,7 @@ void HGTD_DetectorFactory::readDbParameters() {
     // the InnerRCover bulk should be 70% aerogel and 30% honeycomb made from "aradime" (not defined - using "muo::Honeycomb" for now)
     // proportions should be 50/50 by weight, which is used for GeoMaterial fractions
     // TODO: these should be double-checked, or at least that the density/weight matches engineering drawings
-    GeoMaterial* innerRCoverBulkMaterial = new GeoMaterial("AerogelAndHoneycomb", 0.);
+    GeoMaterial* innerRCoverBulkMaterial = new GeoMaterial("AerogelAndHoneycomb", 0.17*(CLHEP::gram / CLHEP::cm3));
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("std::Aerogel"), 0.5);
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("muo::Honeycomb"), 0.5);
     m_materialMgr->addMaterial("hgtd", innerRCoverBulkMaterial);
@@ -202,7 +202,7 @@ void HGTD_DetectorFactory::readDbParameters() {
 
     m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"}; // TODO: add to db
     // Coolant should be 50% liquid and 50% gas CO2 ("trt::CO2")
-    GeoMaterial* coolantMaterial = new GeoMaterial("CO2CoolantMix", 0);
+    GeoMaterial* coolantMaterial = new GeoMaterial("CO2CoolantMix", 0.55*(CLHEP::gram / CLHEP::cm3));
     coolantMaterial->add(m_materialMgr->getMaterial("pix::CO2_Liquid"), 0.5);
     coolantMaterial->add(m_materialMgr->getMaterial("trt::CO2"), 0.5);
     m_materialMgr->addMaterial("hgtd", coolantMaterial);
