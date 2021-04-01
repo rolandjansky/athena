@@ -3,6 +3,7 @@
  */
 
 #include "FEI3SimTool.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 FEI3SimTool::FEI3SimTool(const std::string& type, const std::string& name, const IInterface* parent) :
   FrontEndSimTool(type, name, parent) {
@@ -64,7 +65,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     // Merge ganged pixel
     InDetDD::SiCellId cellID = chargedDiodes.element()->cellIdFromIdentifier(chargedDiodes.getId(
                                                                                (*i_chargedDiode).first));
-    InDetDD::SiCellId gangedCell = chargedDiodes.element()->gangedCell(cellID);
+    const InDetDD::SiDetectorElement * siDetEl = static_cast<const InDetDD::SiDetectorElement *>(chargedDiodes.element());
+    InDetDD::SiCellId gangedCell = siDetEl->gangedCell(cellID);
     Identifier gangedID = chargedDiodes.element()->identifierFromCellId(gangedCell);
     if (gangedCell.isValid()) {
       SiChargedDiode* gangedChargeDiode = chargedDiodes.find(gangedID);
