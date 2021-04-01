@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 #include <unordered_map>
 #include "SiDigitization/SiChargedDiode.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
 
 // Input/output classes 
 #include "InDetSimEvent/SiHit.h"
@@ -42,8 +42,7 @@
 
 class AtlasDetectorID;
 namespace InDetDD{
-  class SiDetectorElement;
-  class SiDetectorDesign;
+  class DetectorDesign;
   class SiCellId;
 }
 
@@ -117,7 +116,7 @@ class SiChargedDiodeCollection : Identifiable {
   //  ref. to the detector element for this collection
   SiChargedDiodeCollection( );
 
-  SiChargedDiodeCollection(const InDetDD::SiDetectorElement* );
+  SiChargedDiodeCollection(const InDetDD::SolidStateDetectorElementBase* );
 
 
   // Destructor:
@@ -128,7 +127,7 @@ class SiChargedDiodeCollection : Identifiable {
   ///////////////////////////////////////////////////////////////////
 
   // detector element:
-  const InDetDD::SiDetectorElement * element() const;
+  const InDetDD::SolidStateDetectorElementBase * element() const;
 
   // wafer identifier for this collection
   virtual Identifier identify() const override final;
@@ -138,7 +137,7 @@ class SiChargedDiodeCollection : Identifiable {
   const AtlasDetectorID* id_helper();
   
   // detector design:
-  const InDetDD::SiDetectorDesign &design() const;
+  const InDetDD::DetectorDesign &design() const;
 
   // translation from SiReadoutCellId to Identifier
   Identifier getId(const InDetDD::SiCellId& id) const 
@@ -157,7 +156,7 @@ class SiChargedDiodeCollection : Identifiable {
   SiChargedDiodeMap &chargedDiodes();
 
   // Set the SiDetectorElement
-  void setDetectorElement(const InDetDD::SiDetectorElement *SiElement);
+  void setDetectorElement(const InDetDD::SolidStateDetectorElementBase *SiElement);
 
   // Add a new SiCharge to the collection
   // (add or merge in an existing SiChargedDiode):
@@ -200,7 +199,7 @@ class SiChargedDiodeCollection : Identifiable {
   SiTotalCharge::alloc_t m_allocator; 
   SiChargedDiodeMap m_chargedDiodes; // list of SiChargedDiodes 
   SiChargedDiodeOrderedSet m_orderedChargedDiodes; // list of SiChargedDiodes 
-  const InDetDD::SiDetectorElement* m_sielement; // detector element
+  const InDetDD::SolidStateDetectorElementBase* m_sielement; // detector element
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -208,7 +207,7 @@ class SiChargedDiodeCollection : Identifiable {
 ///////////////////////////////////////////////////////////////////
 
 // Set the DetectorElement
-inline void SiChargedDiodeCollection::setDetectorElement(const InDetDD::SiDetectorElement *SiElement) 
+inline void SiChargedDiodeCollection::setDetectorElement(const InDetDD::SolidStateDetectorElementBase *SiElement) 
 {
   m_sielement=SiElement;
 }
@@ -219,13 +218,13 @@ inline SiChargedDiodeMap &SiChargedDiodeCollection::chargedDiodes()
 }
 
 // access to the element
-inline const InDetDD::SiDetectorElement *SiChargedDiodeCollection::element() const
+inline const InDetDD::SolidStateDetectorElementBase *SiChargedDiodeCollection::element() const
 {
   return m_sielement;
 }
 
 // access to the design
-inline const InDetDD::SiDetectorDesign &SiChargedDiodeCollection::design() const
+inline const InDetDD::DetectorDesign &SiChargedDiodeCollection::design() const
 {
   return m_sielement->design();
 }

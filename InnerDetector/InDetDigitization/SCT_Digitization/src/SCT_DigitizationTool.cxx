@@ -639,8 +639,7 @@ std::unique_ptr<SCT_RDO_Collection> SCT_DigitizationTool::createRDO(SiChargedDio
         // create new SCT RDO
         InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
         int strip{roCell.strip()};
-        const InDetDD::SiDetectorDesign& detDesign{collection->design()};
-        const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
+        const InDetDD::SCT_ModuleSideDesign& sctDesign{static_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
         int row2D{sctDesign.row(strip)};
         Identifier id_readout;
         if (row2D < 0) { // SCT sensors
@@ -816,8 +815,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::Writ
     if (real_particle_hit or m_createNoiseSDO) {
       InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
       int strip{roCell.strip()};
-      const InDetDD::SiDetectorDesign& detDesign{collection->design()};
-      const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
+      const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
 
       int row2D{sctDesign.row(strip)};
       Identifier id_readout;
