@@ -41,7 +41,7 @@ namespace Trk {
       if (itrk->index() >= cache->size())
         // Handle the case where the above assumption does not hold
         cache->resize(itrk->index() + 1);
-      cache->at(itrk->index()) = std::move(m_particleCaloExtensionTool->caloExtension(ctx, *itrk));
+      cache->at(itrk->index()) = m_particleCaloExtensionTool->caloExtension(ctx, *itrk);
     }
     auto outputHandle = SG::makeHandle(m_outputCacheKey, ctx);
     ATH_CHECK(outputHandle.record(std::move(cache)));
