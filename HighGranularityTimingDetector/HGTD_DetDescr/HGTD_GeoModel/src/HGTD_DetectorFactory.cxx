@@ -417,12 +417,16 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 m_cylVolPars[v].zOffsetLocal = m_cylVolPars[vPrev].zOffsetLocal - m_cylVolPars[vPrev].zHalf - m_cylVolPars[v].zHalf;
             }
         }
-
-	// skip the tolerances - we don't actually want to create volumes for the space
-	if (v.substr(0,15) == "HGTD::Tolerance") continue;
-
+        
+        // skip the tolerances - we don't actually want to create volumes for the space
+        if (v.substr(0,15) == "HGTD::Tolerance") continue;
+        
+        float safety = 0.;
+        if (v.substr(0,17) == "HGTD::ModuleLayer")
+          safety = 10.;
+  
         //  a disk volume to hold 4 quadrants
-        GeoTube*    hgtdSubVolumeSolid    = new GeoTube(m_cylVolPars[v].rMin, m_cylVolPars[v].rMax, m_cylVolPars[v].zHalf);
+        GeoTube*    hgtdSubVolumeSolid    = new GeoTube(m_cylVolPars[v].rMin, m_cylVolPars[v].rMax+safety, m_cylVolPars[v].zHalf);
         GeoLogVol*  hgtdSubVolumeLogical  = new GeoLogVol(m_cylVolPars[v].name, hgtdSubVolumeSolid, m_materialMgr->getMaterial(m_cylVolPars[v].material));
         GeoPhysVol* hgtdSubVolumePhysical = new GeoPhysVol(hgtdSubVolumeLogical);
 
@@ -561,7 +565,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 std::vector< ModulePosition > ModsPerRow = tmpQuadrant[ row ];
 
                 // print #modules per row to fill HGTD_Identifier dictionary etc.
-		if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl;
+                if ( m_outputIdfr && q == 0 ) std::cout << " Row  #"<< row + 1 <<" :: " << ModsPerRow.size() << std::endl;
 
                 for ( unsigned int mod = 0; mod < ModsPerRow.size(); mod ++ ) {
                     ModulePosition module = ModsPerRow[ mod ];
@@ -727,7 +731,7 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         phi = quadrant*21 + row + 1;  // quadrant is absent ( hidden into row ) in HGTD-Identifier
         eta = mod + 1;
         //module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta); //This was the previous string, but doesn't match expectations of HGTDSensorSD
-	module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
+        module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
     } 
     // two-ring layout
     else {
