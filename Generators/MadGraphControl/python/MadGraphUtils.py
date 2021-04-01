@@ -660,13 +660,13 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         error_check(err)
         # add reweighting, which is not run automatically from LO GPs
         reweight_card=get_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
-        if not reweight_card is None:
+        if reweight_card is not None:
             #move events back into run dir first
             events='{}/Events/GridRun_{}/{}'.format(MADGRAPH_GRIDPACK_LOCATION,int(random_seed),'unweighted_events.lhe.gz')
             shutil.move('events.lhe.gz',events)
             pythonpath_backup=os.environ['PYTHONPATH']
             # workaround as madevent crashes when path to mg in PYTHONPATH
-            os.environ['PYTHONPATH']=':'.join([p for p in pythonpath_backup.split(':') if not 'madgraph5amc' in p])
+            os.environ['PYTHONPATH']=':'.join([p for p in pythonpath_backup.split(':') if 'madgraph5amc' not in p])
             add_reweighting('GridRun_{}'.format(int(random_seed)))
             os.environ['PYTHONPATH']=pythonpath_backup
             shutil.move(events,'events.lhe.gz')
@@ -2118,7 +2118,7 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         #do special case of DECAY block
         if blockName=="DECAY":
-           if theParam.splitlines()[0].split()[0]=="DECAY":
+           if theParam.splitlines()[0].split()[0].upper()=="DECAY":
                #specifying the full decay block
                for newline in theParam.splitlines():
                     newcard.write(newline+'\n')
@@ -2462,7 +2462,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
 
 def add_reweighting(run_name,reweight_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
     mglog.info('Running reweighting module on existing events')
-    if not reweight_card is None:
+    if reweight_card is not None:
         mglog.info('Copying new reweight card from '+reweight_card)
         shutil.move(reweight_card,process_dir+'/Cards/reweight_card.dat')
     reweight_cmd='{}/bin/madevent reweight {} -f'.format(process_dir,run_name)
