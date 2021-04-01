@@ -44,9 +44,16 @@ if __name__=="__main__":
     # ConfigFlags.Input.Files = ["../q431/myESD.pool.root"]
         
     # Just enable ID for the moment.
-    ConfigFlags.Detector.GeometryPixel = True     
+    ConfigFlags.Detector.GeometryBpipe   = True 
+    ConfigFlags.Detector.GeometryMDT   = True 
+    ConfigFlags.Detector.GeometryTGC   = True
+    ConfigFlags.Detector.GeometryCSC   = True     
+    ConfigFlags.Detector.GeometryRPC   = True     
+    ConfigFlags.Detector.GeometryTile  = True 
+    ConfigFlags.Detector.GeometryLAr   = True 
+    ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True
+    ConfigFlags.Detector.GeometryTRT   = True  
     
     # This should run serially for the moment.
     ConfigFlags.Concurrency.NumThreads = 1
@@ -59,8 +66,41 @@ if __name__=="__main__":
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
+    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+    cfg.merge( GeoModelCfg(ConfigFlags) )
+
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
+    cfg.merge( MuonGeoModelCfg(ConfigFlags) )
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    cfg.merge( LArGMCfg(ConfigFlags) )
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    cfg.merge( TileGMCfg(ConfigFlags) )
+
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    cfg.merge( BeamPipeGeometryCfg(ConfigFlags) ) 
+
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    cfg.merge(PixelGeometryCfg(ConfigFlags))
+
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    cfg.merge(SCT_GeometryCfg(ConfigFlags))
+
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    cfg.merge(TRT_GeometryCfg(ConfigFlags))
+
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
+
+    from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
+    cfg.merge (TrackCollectionReadCfg (ConfigFlags, 'Tracks'))
+
+    muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
+    cfg.addService( muon_edm_helper_svc )
+
     # Disable doExtrap if you would prefer not to use the extrapolator.
-    topoAcc=DumpEventDataToJSONAlgCfg(ConfigFlags, doExtrap = False, OutputLevel=VERBOSE, OutputLocation="EventData_new.json")
+    topoAcc=DumpEventDataToJSONAlgCfg(ConfigFlags, doExtrap = False, OutputLevel=VERBOSE, DumpTestEvent=True, OutputLocation="EventData.json")
     cfg.merge(topoAcc)
 
     cfg.run(10)
