@@ -6,13 +6,16 @@
 #define EGAMMAMVACALIB_EGAMMAMVACALIBTOOL_H
 
 // Package includes
-#include "egammaInterfaces/IegammaMVACalibTool.h"
+#include "EgammaAnalysisInterfaces/IegammaMVACalibTool.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "MVAUtils/BDT.h"
 #include "egammaMVACalib/egammaMVAFunctions.h"
 
 // Framework includes
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
+
+//Root includes
 #include "TH2Poly.h"
 #include "TObject.h"
 #include "TString.h"
@@ -52,21 +55,21 @@
  *   Each TObjString is a string which represent the formula to compute the shift
  *   (used to construct a TFormula). The variables is the Et in GeV after the calibration.
  *   The value of the shift is divided by the energy calibrated by the BDT.
- *   
- * 
+ *
+ *
  * On data the property use_layer_corrected should be set to true. In reconstruction
  * this flag is always false. In PhysicsAnalysis it should be set appropriately.
  * When set to true when using the layer energies as input the data-driver-corrected
  * version are used.
  **/
 
-class egammaMVACalibTool : public extends<AthAlgTool, IegammaMVACalibTool> {
+class egammaMVACalibTool : public asg::AsgTool, virtual public IegammaMVACalibTool{
+  ASG_TOOL_CLASS(egammaMVACalibTool, IegammaMVACalibTool)
 public:
-  egammaMVACalibTool(const std::string& type, const std::string& name, const IInterface* parent);
+  egammaMVACalibTool(const std::string& type);
   virtual ~egammaMVACalibTool() override;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
   /** how the output of the BDT is used
    * correctEaccordion: energy = raw energy * BDT

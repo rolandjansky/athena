@@ -312,10 +312,9 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
       T = T - m_T0;
 
       const double E_nominal = champ_e(nominal,d);
-      std::vector<LArHVData::HV_t> hvlist;
-      StatusCode sc = hvdata->getHV(offid,hvlist);
+      const std::vector<LArHVData::HV_t>& hvlist=hvdata->getHV(offid);
 
-      if (sc.isFailure() || hvlist.size()==0) {
+      if (hvlist.size() == 0) {
 	mycorr=1.;
 	mynorm=1.;
 	ATH_MSG_WARNING( " HV value no found for cell " << m_larem_id->show_to_string(offid) );
@@ -333,15 +332,6 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 	if (notfound) {
 	  ATH_MSG_WARNING( " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) );
 	}
-        std::vector<LArHVData::CURRENT_t> currlist;
-        if(m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers) {
-             sc = hvdata->getCurrent(offid,currlist);
-             if (sc.isFailure() || currlist.size() != hvlist.size()) {
-	        ATH_MSG_WARNING( " Current values not the same size as hv for cell " << m_larem_id->show_to_string(offid) << " resetting to 0" );
-                currlist.resize(hvlist.size(),LArHVData::CURRENT_t{0,0});
-             }
-
-        }
 
 	mycorr=0.;
 	mynorm=0.;
@@ -350,20 +340,20 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 	  if (isbarrelEM) {
 	    //const double corr = this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
 	    //mycorr += corr;
-            if(m_useCurrentEMB) mycorr += this->Scale_barrel(hvlist[i].hv-currlist[i].current)*hvlist[i].weight;
+            if(m_useCurrentEMB) mycorr += this->Scale_barrel(hvlist[i].hv-hvlist[i].current)*hvlist[i].weight;
             else mycorr += this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
 	  }
 //FCAL module 1
 	  else if (isFCAL1) {
 	    //const double corr = this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
 	    //mycorr+=corr;
-            if(m_useCurrentFCAL1) mycorr += this->Scale_FCAL1(hvlist[i].hv-currlist[i].current) * hvlist[i].weight;
+            if(m_useCurrentFCAL1) mycorr += this->Scale_FCAL1(hvlist[i].hv-hvlist[i].current) * hvlist[i].weight;
             else mycorr += this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
 	  }
 // other subdetectors
 	  else {
 	    double E;
-            if(m_useCurrentOthers) E = champ_e(hvlist[i].hv-currlist[i].current,d);
+            if(m_useCurrentOthers) E = champ_e(hvlist[i].hv-hvlist[i].current,d);
             else E = champ_e(hvlist[i].hv,d);
 
 	    // dont correct if E is very close to E nominal to avoid small glitches

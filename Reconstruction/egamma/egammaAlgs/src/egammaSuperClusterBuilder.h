@@ -15,7 +15,7 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloCellDetPos.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaInterfaces/IegammaMVASvc.h"
+#include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"

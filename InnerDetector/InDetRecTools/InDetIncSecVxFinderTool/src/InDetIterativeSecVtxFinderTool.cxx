@@ -33,7 +33,6 @@
 //#include <TMath.h>
 
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
@@ -77,7 +76,6 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
           m_SeedFinder("Trk::IndexedCrossDistancesSeedFinder", this ),
           m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator", this ),
           m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory", this ),
-          m_iBeamCondSvc("BeamCondSvc",n),
           m_useBeamConstraint(false),
           m_significanceCutSeeding(10),
           m_maximumChi2cutForSeeding(6.*6.),
@@ -106,7 +104,6 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("BaseTrackSelector",m_trkFilter);
     declareProperty("SecVtxTrackSelector",m_SVtrkFilter);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("SeedFinder"       , m_SeedFinder);
     declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
     declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
@@ -142,8 +139,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
-  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition.setPosition(beamSpotHandle->beamVtx().position());
+  beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
@@ -205,8 +203,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
 
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
-  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition.setPosition(beamSpotHandle->beamVtx().position());
+  beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
   bool selectionPassed;
   m_trkdefiPars.clear() ;
@@ -355,10 +354,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
     xAOD::Vertex theconstraint;
     if (m_useBeamConstraint) {
       theconstraint = xAOD::Vertex(); // Default constructor creates a private store
-      theconstraint.setPosition( m_iBeamCondSvc->beamVtx().position() );
-      theconstraint.setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
-      theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), 
-                                    m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      theconstraint.setPosition( beamSpotHandle->beamVtx().position() );
+      theconstraint.setCovariancePosition( beamSpotHandle->beamVtx().covariancePosition() );
+      theconstraint.setFitQuality( beamSpotHandle->beamVtx().fitQuality().chiSquared(), 
+                                    beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF() );
 
       seedVertex = m_SeedFinder->findSeed( m_privtx.x(), m_privtx.y(),
                                            perigeeList, &theconstraint );
@@ -1743,12 +1743,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not find BeamCondSvc." );
-      return sc;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     if(m_trkFilter.retrieve().isFailure()) {
       ATH_MSG_ERROR(" Unable to retrieve "<<m_trkFilter );
@@ -1837,8 +1832,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
   beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
   */
-
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
@@ -1884,8 +1879,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   std::vector<Trk::ITrackLink*> selectedTracks;
 
   // TODO: change trkFilter to allow for this replacement
-
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
   typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 

@@ -27,6 +27,9 @@
 #include "eflowRec/PFMuonFlowElementAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
 #include "eflowRec/PFTauFlowElementAssoc.h"
+#include "../PFTrackPreselAlg.h"
+#include "../PFTrackMuonCaloTaggingAlg.h"
+#include "../PFTrackMuonIsoTaggingAlg.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
@@ -53,3 +56,6 @@ DECLARE_COMPONENT( eflowCellEOverPTool_mc12_LC)
 DECLARE_COMPONENT( PFMuonFlowElementAssoc )
 DECLARE_COMPONENT( PFEGamFlowElementAssoc )
 DECLARE_COMPONENT( PFTauFlowElementAssoc )
+DECLARE_COMPONENT( PFTrackPreselAlg )
+DECLARE_COMPONENT( PFTrackMuonCaloTaggingAlg )
+DECLARE_COMPONENT( PFTrackMuonIsoTaggingAlg )

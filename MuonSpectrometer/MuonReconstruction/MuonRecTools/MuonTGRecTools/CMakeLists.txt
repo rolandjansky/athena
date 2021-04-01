@@ -13,7 +13,7 @@ atlas_add_library( MuonTGRecToolsLib
                    MuonTGRecTools/*.h
                    INTERFACE
                    PUBLIC_HEADERS MuonTGRecTools
-                   LINK_LIBRARIES GaudiKernel TrkGeometry EventPrimitives AthenaBaseComps TrkTrack TrkExInterfaces TrkToolInterfaces TrkFitterUtils TrackRecordLib TrkEventPrimitives TrkGeometry TrkPrepRawData MuonTrackMakerUtils MuonIdHelpersLib MuonPrepRawData AthContainers AthenaKernel TrkExInterfaces TrkSurfaces TrkSegment )
+                   LINK_LIBRARIES GaudiKernel TrkDetDescrInterfaces TrkGeometry EventPrimitives AthenaBaseComps TrkTrack TrkExInterfaces TrkToolInterfaces TrkFitterUtils TrackRecordLib TrkEventPrimitives TrkGeometry TrkPrepRawData MuonTrackMakerUtils MuonIdHelpersLib MuonPrepRawData AthContainers AthenaKernel TrkExInterfaces TrkSurfaces TrkSegment )
 
 # Component(s) in the package:
 atlas_add_component( MuonTGRecTools

@@ -434,7 +434,7 @@ TriggerHLTListRun3 = [
 
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.',          'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.passPFTrackPresel.muonCaloTag.muonScore.ptCone20.etConeCore.trackIso.RErr.EOverP.caloIso.trkPtFraction.tagFakeTrack.tagMuonTrack.tagIsoTrack',          'BS ESD AODFULL', 'Jet'),
 
     # FS vertices
     ('xAOD::VertexContainer#HLT_IDVertex_FS',                  'BS ESD AODFULL', 'Jet'),

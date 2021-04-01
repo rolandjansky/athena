@@ -46,13 +46,16 @@ return the mapping of input nicknames to values.
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from AthenaCommon.Logging import logging
+
+log = logging.getLogger(__name__)
 
 
 class AlgInputConfig(ABC):
     """ Base class for building up inputs for the FEXes """
 
     def __init__(self, produces, step=None):
-        """ Initialise the class
+        """Initialise the class
 
         =========
         Arguments
@@ -102,7 +105,7 @@ class InputConfigRegistry:
             self._configs[x] = config
 
     def build_steps(self, requested, RoIs, recoDict):
-        """ Build the necessary input sequence, separated by steps
+        """Build the necessary input sequence, separated by steps
 
         =========
         Arguments
@@ -124,6 +127,7 @@ class InputConfigRegistry:
         inputs = {}
         # Internal mapping of input nickname to step
         input_steps = {}
+        log.debug("Producing steps for requested inputs: %s", requested)
         for name in requested:
             this_steps = self._create_input(
                 name, RoIs, recoDict, input_steps=input_steps, inputs=inputs
@@ -132,11 +136,13 @@ class InputConfigRegistry:
                 steps[step] += seq_list
         # Now convert the steps into a list
         steps = [steps[idx] for idx in range(max(steps.keys()) + 1)]
+        log.debug("Built steps for inputs: %s", inputs)
+        log.debug("Steps are:\n%s", steps)
         return steps, inputs
 
     def _create_input(self, name, RoIs, recoDict, input_steps, inputs, _seen=None):
-        """ Create an input and its dependencies 
-        
+        """Create an input and its dependencies
+
         =========
         Arguments
         =========
@@ -155,6 +161,7 @@ class InputConfigRegistry:
         The provided input_steps and inputs parameters are also updated with
         the new inputs that have been produced
         """
+        log.debug("Creating inputs for %s", name)
         if _seen is None:
             _seen = []
         elif name in _seen:
@@ -162,6 +169,7 @@ class InputConfigRegistry:
                 "Circular dependency: {}".format(" -> ".join(_seen + [name]))
             )
         if name in input_steps:
+            log.debug("Input already created")
             # We've already seen this step so return dummies
             return {}
         steps = defaultdict(list)
@@ -170,10 +178,9 @@ class InputConfigRegistry:
             config = self._configs[name]
         except KeyError:
             raise KeyError(f"Requested input {name} not defined")
-        # If config.step is None, use this to record the max step among
-        # config's dependencies
-        step = config.step if config.step is not None else -1
-        for dep_name in config.dependencies(recoDict):
+        dependencies = config.dependencies(recoDict)
+        log.debug("Dependencies are %s", dependencies)
+        for dep_name in dependencies:
             dep_steps = self._create_input(
                 dep_name, RoIs, recoDict, input_steps, inputs, _seen + [name]
             )
@@ -182,20 +189,24 @@ class InputConfigRegistry:
                 raise ValueError(
                     f"Dependency {dep_name} is in a later step '{dep_step}' than {name} which requires it (step = {config.step})"
                 )
-            else:
-                step = max(step, dep_step)
             # Add these reco sequences to our output lists
             for step, seq_list in dep_steps.items():
                 steps[step] += seq_list
+        if config.step is None:
+            if len(dependencies) == 0:
+                raise ValueError(f"Unable to work out step for input config {name}!")
+            # If the config doesn't specify a step then we run this as early as possible - i.e. in the latest step of all its dependencies
+            this_step = max(input_steps[dep] for dep in dependencies)
+        else:
+            this_step = config.step
+        log.debug("%s step is %i", name, this_step)
         # Finally, add *our* info
-        if step < 0:
-            raise ValueError(f"Unable to work out step for input config {name}!")
-        if step > len(RoIs):
-            raise ValueError(f"Step {step} is greater than the number of RoIs ({RoIs})")
-        sequences, this_inputs = config.create_sequence(inputs, RoIs[step], recoDict)
-        steps[step] += sequences
+        if this_step > len(RoIs):
+            raise ValueError(f"Step {this_step} is greater than the number of RoIs ({RoIs})")
+        sequences, this_inputs = config.create_sequence(inputs, RoIs[this_step], recoDict)
+        steps[this_step] += sequences
         inputs.update(this_inputs)
         # Add this to the list of things we've already seen, along with everything else it's made
         for made in this_inputs.keys():
-            input_steps[made] = step
+            input_steps[made] = this_step
         return steps

@@ -30,12 +30,10 @@ from AthenaCommon.GlobalFlags import globalflags
 
 ### pass arguments with athena -c "..." ...jobOptions.py:
 if 'myMomentum' not in dir() :
-#    myMomentum = 25000
-#    myMomentum = 50000
+#    myMomentum = 30000
+   myMomentum = 50000
 #    myMomentum = 100000
 #    myMomentum = 500000
-   myMomentum = 10000
-#    myMomentum = 5000
 
 if 'myRandomOffset' not in dir() :
     myRandomOffset = 0
@@ -47,10 +45,10 @@ if 'myRandomSeed1' not in dir() :
 if 'myRandomSeed2' not in dir() :
     myRandomSeed2 = 820189
 
-if 'myMaxEvent' not in dir() :
-    myMaxEvent = 1000
+if 'myMaxEvent' not in dir():
+    myMaxEvent = 100
+    # myMaxEvent = 1000
     # myMaxEvent = 5000
-    # myMaxEvent = 100
 
 if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
@@ -286,8 +284,8 @@ from ActsGeometry.ActsGeometryConf import ActsGeantFollowerHelper
 ActsGeantFollowerHelper = ActsGeantFollowerHelper(name="ActsGeantFollowerHelper")
 ActsGeantFollowerHelper.Extrapolator             = TestExtrapolator
 ActsGeantFollowerHelper.ActsExtrapolator         = ActsExtrapolator
-ActsGeantFollowerHelper.ExtrapolateDirectly      = True
-ActsGeantFollowerHelper.ExtrapolateIncrementally = True
+ActsGeantFollowerHelper.ExtrapolateDirectly      = False
+ActsGeantFollowerHelper.ExtrapolateIncrementally = False
 ActsGeantFollowerHelper.OutputLevel = INFO
 ToolSvc += ActsGeantFollowerHelper
 

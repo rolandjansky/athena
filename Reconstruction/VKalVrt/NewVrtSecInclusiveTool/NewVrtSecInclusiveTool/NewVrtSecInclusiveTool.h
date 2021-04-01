@@ -35,7 +35,7 @@
 //
 #include "xAODTruth/TruthEventContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-//
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "NewVrtSecInclusiveTool/IVrtInclusive.h"
 
@@ -44,7 +44,6 @@ class TH2D;
 class TH1F;
 class TProfile;
 class TTree;
-class IBeamCondSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -165,8 +164,8 @@ namespace Rec {
 
       std::unique_ptr<MVAUtils::BDT> m_SV2T_BDT;
 
-      ServiceHandle< IBeamCondSvc > m_beamService; 
-      //ToolHandle<Trk::IVertexFitter>  m_fitterSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
       ToolHandle<Trk::IExtrapolator>  m_extrapolator{this,"ExtrapolatorName","Trk::Extrapolator/Extrapolator"};
       ToolHandle<Trk::TrkVKalVrtFitter>  m_fitSvc;
       //Trk::TrkVKalVrtFitter*   m_fitSvc{};

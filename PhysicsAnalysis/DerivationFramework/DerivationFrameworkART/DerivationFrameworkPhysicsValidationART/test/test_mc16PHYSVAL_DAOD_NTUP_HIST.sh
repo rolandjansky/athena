@@ -2,14 +2,13 @@
 #
 # art-description: AOD to DAOD to PHYSVAL
 # art-type: grid
-# art-input: user.khoo.mc16_13TeV.410389.MadGraphPythia8EvtGen_A14NNPDF23_ttgamma_nonallhadronic.recon.AOD.e6155_s3126_r10201.DAOD_PHYSVAL_ART
+# art-input: valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3227_r12287
 # art-include: master/Athena
 # art-input-nfiles: 10
 # art-cores: 5
 # art-output: art_core_*
 # art-output: PHYSVAL_WEB
 # art-output: DAOD_PHYSVAL.part1.*
-# art-runon: Saturday
 
 echo "ArtProcess: $ArtProcess"
 

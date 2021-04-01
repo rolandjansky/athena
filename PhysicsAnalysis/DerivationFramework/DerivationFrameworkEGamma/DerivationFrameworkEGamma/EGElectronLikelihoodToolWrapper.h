@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,8 +45,14 @@ public:
   virtual StatusCode addBranches() const override final;
 
 private:
-  ToolHandle<IAsgElectronLikelihoodTool> m_tool;
-  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
+  ToolHandle<IAsgElectronLikelihoodTool> m_tool{
+    this,
+    "EGammaElectronLikelihoodTool",
+    "",
+    "Electron  Likelihood Selector"
+  };
+  ToolHandle<IElectronPhotonShowerShapeFudgeTool>
+    m_fudgeMCTool{ this, "EGammaFudgeMCTool", "", "Fudging tool" };
 
   SG::ReadHandleKey<xAOD::EgammaContainer> m_ContainerName{ this,
                                                             "ContainerName",

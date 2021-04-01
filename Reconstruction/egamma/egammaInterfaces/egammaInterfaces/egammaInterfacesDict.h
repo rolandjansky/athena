@@ -29,7 +29,6 @@
 #include "egammaInterfaces/IegammaShowerShape.h"
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaSwTool.h"
-#include "egammaInterfaces/IegammaMVASvc.h"
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #ifndef XAOD_ANALYSIS
 #   include "egammaInterfaces/IEMExtrapolationTools.h"

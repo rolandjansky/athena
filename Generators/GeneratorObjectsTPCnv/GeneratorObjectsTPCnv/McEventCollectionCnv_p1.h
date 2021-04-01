@@ -65,10 +65,6 @@ class McEventCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~McEventCollectionCnv_p1();
 
-  ///////////////////////////////////////////////////////////////////
-  // Const methods:
-  ///////////////////////////////////////////////////////////////////
-
   /** Method creating the transient representation of @c McEventCollection
    *  from its persistent representation @c McEventCollection_p1
    */

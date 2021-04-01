@@ -44,11 +44,12 @@
    <!-- Map type(s). -->
    <class name="std::map<std::string,std::vector<int> >" />
    <class name="std::map<std::string,std::vector<float> >" />
-   <class pattern="std::*pair*<*string*vector<float*"/>
    <class name="std::map<std::string,std::vector<std::vector<int> > >" />
-   <class pattern="std::*pair*<*string*vector<*vector<int*"/>
    <class name="std::map<std::string,std::vector<std::vector<float> > >" />
-   <class pattern="std::*pair*<*string*vector<*vector<float*"/>
+
+   <!-- Pair type(s) belonging to that/those map type(s) -->
+   <class pattern="*pair*<*string*vector<int*" />
+   <class pattern="*pair*<*string*vector<float*" />
 
    <!-- "Other" type(s). -->
    <class name="std::bitset<3>" />

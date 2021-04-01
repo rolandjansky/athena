@@ -129,6 +129,7 @@ for trackCollection in trackCollections:
                                                      NBinsPtRange = 25,
                                                      xHitErrorRange = 0.06,
                                                      maxPtforECHistos = 100., # to be set to 10 or 5 GeV
+                                                     FinerBinningFactor = 0.5, 
                                                      applyHistWeight = useWeightInMonitoring,
                                                      hWeightHistName = "h_eventMuVsTrkEta",
                                                      hWeightInFileName = fileWithWeights,

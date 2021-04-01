@@ -276,72 +276,33 @@ std::ostream& InDet::TRT_DetElementsRoadMaker_xk::dump( std::ostream& out ) cons
 // Main methods for road builder
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
+std::vector<const InDetDD::TRT_BaseElement*>
+InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 (const EventContext& ctx,
  MagField::AtlasFieldCache& fieldCache,
- const Trk::TrackParameters& Tp,Trk::PropDirection D,
- std::vector<const InDetDD::TRT_BaseElement*>& R) const
+ const Trk::TrackParameters& Tp,Trk::PropDirection D) const
 {
-
   double qp   = std::abs(500.*Tp.parameters()[4]) ; 
   if( qp < 1.e-10  ) qp = 1.e-10;
   double S    = m_step/qp                     ; 
   if( S  > 200.    ) S  = 200.  ; 
   if(D<0) S=-S;
-
   Trk::CylinderBounds CB = getBound(fieldCache, Tp);
-
   double rminTRT = getTRTMinR();
-
+  std::vector<const InDetDD::TRT_BaseElement*> result;
   if( CB.r() > rminTRT) {
     Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
     if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
     Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
-
     std::list<Amg::Vector3D> G;
     m_proptool->globalPositions(ctx, G,Tp,fieldprop,CB,S,Trk::pion);
-
     if(G.size() > 1 ) {
-      detElementsRoadATL(G,R);
+      detElementsRoadATL(G,result);
     }
   }
-
-  if (msgLvl(MSG::VERBOSE)) {
-    dumpEvent(msg(MSG::VERBOSE),R.size());
-    dumpConditions(msg(MSG::VERBOSE));
-    msg(MSG::VERBOSE) << endmsg;
-  }
+  return result;
 }
 
-///////////////////////////////////////////////////////////////////
-// Main methods for road builder
-///////////////////////////////////////////////////////////////////
-
-void 
-InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
-(const EventContext& ctx,
- MagField::AtlasFieldCache& fieldCache,
- const Trk::TrackParameters& trackParams,
- Trk::PropDirection direction, std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> > & result) const
-{
- std::vector<const InDetDD::TRT_BaseElement*> baseElementPointers;
- detElementsRoad(ctx, fieldCache, trackParams,direction,baseElementPointers);
- if (baseElementPointers.empty()) return;
- //
- Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
- if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
- Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
- //
- const Trk::TrackParameters* tp0 = &trackParams;
- for(const auto pThisElement : baseElementPointers) {
-   const auto & thisSurface = pThisElement->surface();
-   auto tp = m_proptool->propagate(ctx, (*tp0),thisSurface,direction,false,fieldprop,Trk::pion);
-   if(!tp) return;
-   tp0=tp.get();
-   //ownership of tp given to the vector
-   result.emplace_back(pThisElement, tp.release());
- }
-}
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for road builder using input list global positions

@@ -24,6 +24,7 @@ def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
                            cellEnergyThreshold      = 0.,
                            applyLCW                 = False,
                            buildCombinedSignal      = False,
+                           removeSamplingData       = True,
                            clusterRange             = 5.):
     ''' Configuration dictionary for tower-to-cluster converter 
     '''
@@ -38,7 +39,8 @@ def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
                    'PrepareLCW'                  : applyLCW,                   ### (control) prepare (and apply) LCW
                    'DoCellIndexCheck'            : doCellIndexCheck,           ### (control) check cell hash indices
                    'BuildCombinedTopoSignal'     : buildCombinedSignal,        ### (control) build combined topo-cluster/topo-tower container
-                   'TopoClusterRange'            : clusterRange,               ### (control) range for topo-cluster in combined mode 
+                   'TopoClusterRange'            : clusterRange,               ### (control) range for topo-cluster in combined mode
+                   'RemoveSamplingData'          : removeSamplingData,         ### (control) remove all sampling data from tower
                    }
     return configDict
 
@@ -146,15 +148,15 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
     clusterMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
     clusterMoments.MinBadLArQuality = 4000
     clusterMoments.MomentsNames     = [
-        "CENTER_LAMBDA", 
-        #"CENTER_MAG",
+        # "CENTER_LAMBDA", 
+        # "CENTER_MAG",
         "LONGITUDINAL",
-        #"FIRST_ENG_DENS",
-        #"ENG_FRAC_MAX",
+        # "FIRST_ENG_DENS",
+        # "ENG_FRAC_MAX",
         "ENG_FRAC_EM",
-        #"PTD",
+        # "PTD",
         "SIGNIFICANCE",
-        "ENG_POS"
+        # "ENG_POS",
     ]
 
     from IOVDbSvc.CondDB import conddb

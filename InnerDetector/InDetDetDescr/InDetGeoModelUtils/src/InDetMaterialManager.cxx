@@ -105,7 +105,7 @@ InDetMaterialManager::getMaterial(const std::string& materialName) {
 
 bool
 InDetMaterialManager::hasMaterial(const std::string& materialName) const {
-  return m_store.find(materialName) != m_store.end();
+  return m_weightMap.find(materialName) != m_weightMap.end();
 }
 
 const GeoMaterial*

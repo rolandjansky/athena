@@ -488,7 +488,7 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 
     if (!caloTSOS || caloTSOS->size() != 3)
     {
-      double idqOverP = fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      double idqOverP = std::abs(idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
       double msqOverP = msTrack.perigeeParameters() ? msTrack.perigeeParameters()->parameters()[Trk::qOverP] : (*firstMS)->trackParameters()->parameters()[Trk::qOverP] ;
 
       if ((!fieldCache.toroidOn() && idqOverP * 4000. < 1) || (fieldCache.toroidOn() && msqOverP != 1 / 100000. && msqOverP != 0))
@@ -526,7 +526,7 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     if (eloss) neweloss = new CaloEnergy(*eloss);
     else{
       Trk::MaterialProperties matprop(meot->thicknessInX0(),1.,0.,0.,0.,0.);
-      double sigmascat = fabs(qoverp)>0.0 ? std::sqrt(m_scattool->sigmaSquare(matprop,std::abs(1./qoverp),1.,Trk::muon)) : 0.0;
+      double sigmascat = std::abs(qoverp)>0.0 ? std::sqrt(m_scattool->sigmaSquare(matprop,std::abs(1./qoverp),1.,Trk::muon)) : 0.0;
       newsa=new Trk::ScatteringAngles(0,0,sigmascat/sintheta,sigmascat);
     }
     Trk::MaterialEffectsOnTrack newmeot(meot->thicknessInX0(),newsa,neweloss,(*caloTSOS)[i]->trackParameters()->associatedSurface());
@@ -750,10 +750,10 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
         } else {
           ATH_MSG_DEBUG(" volume " << this->getVolumeByGeo(m) << " Eloss from extrapolateM TG " << energyLoss->deltaE());
         }
-          Eloss += fabs(energyLoss->deltaE());
-          if(this->getVolumeByGeo(m)==1) ElossID   += fabs(energyLoss->deltaE());
-          if(this->getVolumeByGeo(m)==2) ElossCalo += fabs(energyLoss->deltaE());
-          if(this->getVolumeByGeo(m)==3) ElossMS   += fabs(energyLoss->deltaE());
+          Eloss += std::abs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==1) ElossID   += std::abs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==2) ElossCalo += std::abs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==3) ElossMS   += std::abs(energyLoss->deltaE());
         }
       }
     }
@@ -820,7 +820,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   // Note that for SA fit i'm taking the pAtCaloEntry from the perigee parameters
   double pAtCaloEntry = 0;
   if(dir == Trk::alongMomentum) {
-    double OneOverP = fabs(parm.parameters()[Trk::qOverP]);
+    double OneOverP = std::abs(parm.parameters()[Trk::qOverP]);
     if (OneOverP > 0.0)
       pAtCaloEntry = 1./OneOverP;
     else
@@ -830,7 +830,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
     if(!tsosAtCaloEntry) {
       ATH_MSG_WARNING( name() << " Unable to find Calorimeter Entry TSOS with TrackParameters! Momentum at Calo Entry not available!" );
     }else{
-      double OneOverP = fabs(tsosAtCaloEntry->trackParameters()->parameters()[Trk::qOverP]);
+      double OneOverP = std::abs(tsosAtCaloEntry->trackParameters()->parameters()[Trk::qOverP]);
       if (OneOverP > 0.0)
 	pAtCaloEntry = 1./OneOverP;
       else
@@ -853,9 +853,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   // Get momentum error in muon spectrometer
   double pAtMuonEntryError = 0.0;
   if(parms) {
-    if( fabs(parms->parameters()[Trk::qOverP]) > 0.0 ) {
-      double pAtMuonEntry = fabs(1./parms->parameters()[Trk::qOverP]);
-      if(!parms->covariance()) {
+    if( std::abs(parms->parameters()[Trk::qOverP]) > 0.0 ) {
+      double pAtMuonEntry = std::abs(1./parms->parameters()[Trk::qOverP]);
+      if(!parms->covariance() || !Amg::valid_cov(*parms->covariance())) {
 	ATH_MSG_DEBUG("MS track parameters without covariance, using 10% relative error!" );
 	pAtMuonEntryError = pAtMuonEntry*0.1;
       }else{
@@ -1463,20 +1463,20 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       ATH_MSG_VERBOSE(" ");
       ATH_MSG_VERBOSE(" original TSOS type " << m->dumpType() << " TSOS surface " << m->trackParameters()->associatedSurface() << " position x " << m->trackParameters()->position().x() << " y " << m->trackParameters()->position().y() << " z " << m->trackParameters()->position().z()   << " direction x " << m->trackParameters()->momentum().unit().x() << " y " << m->trackParameters()->momentum().unit().y() << " z " << m->trackParameters()->momentum().unit().z() << " p " << m->trackParameters()->momentum().mag() << " X0 " << X0 << " deltaE " << energyLoss->deltaE() << " meanIoni " << energyLoss->meanIoni() << " sigmaIoni " << energyLoss->sigmaIoni() << " sigma deltaTheta " <<  scat->sigmaDeltaTheta() << " depth " << depth  << " dotprod " << dotprod );
 
-      X0_tot += fabs(scaleX0*X0);
+      X0_tot += std::abs(scaleX0*X0);
 
       sigmaDeltaTheta2_tot += scaleX0*scat->sigmaDeltaTheta()*scat->sigmaDeltaTheta();
       sigmaDeltaPhi2_tot   += scaleX0*scat->sigmaDeltaPhi()*scat->sigmaDeltaPhi();
 
       // Eloss sigma values add up linearly for Landau and exponential distributions
-      deltaE_tot           += fabs(scaleEloss*energyLoss->deltaE());
-      sigmaDeltaE_tot      += fabs(scaleEloss*energyLoss->sigmaDeltaE());
-      sigmaPlusDeltaE_tot  += fabs(scaleEloss*energyLoss->sigmaPlusDeltaE());
-      sigmaMinusDeltaE_tot += fabs(scaleEloss*energyLoss->sigmaMinusDeltaE());
-      deltaE_ioni_tot      += fabs(scaleEloss*energyLoss->meanIoni());
-      sigmaDeltaE_ioni_tot += fabs(scaleEloss*energyLoss->sigmaIoni());
-      deltaE_rad_tot       += fabs(scaleEloss*energyLoss->meanRad());
-      sigmaDeltaE_rad_tot  += fabs(scaleEloss*energyLoss->sigmaRad());
+      deltaE_tot           += std::abs(scaleEloss*energyLoss->deltaE());
+      sigmaDeltaE_tot      += std::abs(scaleEloss*energyLoss->sigmaDeltaE());
+      sigmaPlusDeltaE_tot  += std::abs(scaleEloss*energyLoss->sigmaPlusDeltaE());
+      sigmaMinusDeltaE_tot += std::abs(scaleEloss*energyLoss->sigmaMinusDeltaE());
+      deltaE_ioni_tot      += std::abs(scaleEloss*energyLoss->meanIoni());
+      sigmaDeltaE_ioni_tot += std::abs(scaleEloss*energyLoss->sigmaIoni());
+      deltaE_rad_tot       += std::abs(scaleEloss*energyLoss->meanRad());
+      sigmaDeltaE_rad_tot  += std::abs(scaleEloss*energyLoss->sigmaRad());
 
       depth_tot += depth;
       n_tot++;
@@ -1505,7 +1505,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       //bool use_eweight = false;
       double w = scat->sigmaDeltaTheta()*scat->sigmaDeltaTheta();
       // use_eweight s false, so the following never executes
-      //if(use_eweight) w = fabs(scaleEloss*energyLoss->deltaE());
+      //if(use_eweight) w = std::abs(scaleEloss*energyLoss->deltaE());
       w_tot += w;
       wpos += w*pos0/2.;
       wpos += w*posNew/2.;
@@ -1548,7 +1548,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 
       } else if(!aggregate&&reposition) {
 
-        if(fabs(depth)<10.) {
+        if(std::abs(depth)<10.) {
 
 	  //        Thin scatterer: make only one TSOS
 
@@ -1606,7 +1606,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatNew, caloEnergyNew, *surfLast, meotPattern);
 
 	  //        calculate TrackParameters at first surface
-          double qOverP0 = m->trackParameters()->charge()/ (m->trackParameters()->momentum().mag()-fabs(energyLoss->deltaE()));
+          double qOverP0 = m->trackParameters()->charge()/ (m->trackParameters()->momentum().mag()-std::abs(energyLoss->deltaE()));
           if(mprevious) qOverP0 = mprevious->trackParameters()->charge()/mprevious->trackParameters()->momentum().mag();
 
           std::unique_ptr<Trk::TrackParameters> parsFirst =
@@ -1691,8 +1691,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       //
       Amg::Vector3D pos = wpos/w_tot;
       bool threePlanes = false;
-      //if(fabs(X0_tot)>50 && fabs(pos.z())<6700 && pos.perp()<4200) threePlanes = true;
-      if(fabs(pos.z())<6700 && pos.perp()<4200) threePlanes = true; // always 3 planes in calo
+      //if(std::abs(X0_tot)>50 && std::abs(pos.z())<6700 && pos.perp()<4200) threePlanes = true;
+      if(std::abs(pos.z())<6700 && pos.perp()<4200) threePlanes = true; // always 3 planes in calo
       //
       const Trk::ScatteringAngles* scatFirst = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
       const Trk::ScatteringAngles* scatNew = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
@@ -1753,13 +1753,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 // force the planes to be inside the Calorimeter
 //
       double scaleCalo = 1.;
-      double scaleCaloNew = fabs(pos0.z())/6700;
+      double scaleCaloNew = std::abs(pos0.z())/6700;
       if(scaleCaloNew>scaleCalo) scaleCalo = scaleCaloNew;
-      scaleCaloNew = fabs(posNew.z())/6700;
+      scaleCaloNew = std::abs(posNew.z())/6700;
       if(scaleCaloNew>scaleCalo) scaleCalo = scaleCaloNew;
-      scaleCaloNew = fabs(pos0.perp())/4200;
+      scaleCaloNew = std::abs(pos0.perp())/4200;
       if(scaleCaloNew>scaleCalo) scaleCalo = scaleCaloNew;
-      scaleCaloNew = fabs(posNew.perp())/4200;
+      scaleCaloNew = std::abs(posNew.perp())/4200;
       if(scaleCaloNew>scaleCalo) scaleCalo = scaleCaloNew;
 
       if(scaleCalo>1.) {
@@ -1779,7 +1779,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
       Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
       //        calculate TrackParameters at first surface
-      double qOverP0 = mfirst->trackParameters()->charge()/(mfirst->trackParameters()->momentum().mag()+fabs(deltaEFirst));
+      double qOverP0 = mfirst->trackParameters()->charge()/(mfirst->trackParameters()->momentum().mag()+std::abs(deltaEFirst));
       //        calculate TrackParameters at last surface
       double qOverPNew = mlast->trackParameters()->charge()/mlast->trackParameters()->momentum().mag();
       std::unique_ptr<Trk::TrackParameters> parsFirst =
@@ -1964,14 +1964,14 @@ void Trk::TrkMaterialProviderTool::getMopAndIoniEnergyLoss(const std::vector<con
         ATH_MSG_WARNING("No materialEffectsOnTrack on TrackStateOnSurface ");
         continue;
       }
-      deltaE_tot           += fabs(scaleEloss*energyLoss->deltaE());
-      sigmaDeltaE_tot      += fabs(scaleEloss*energyLoss->sigmaDeltaE());
-      sigmaPlusDeltaE_tot  += fabs(scaleEloss*energyLoss->sigmaPlusDeltaE());
-      sigmaMinusDeltaE_tot += fabs(scaleEloss*energyLoss->sigmaMinusDeltaE());
-      deltaE_ioni_tot      += fabs(scaleEloss*energyLoss->meanIoni());
-      sigmaDeltaE_ioni_tot += fabs(scaleEloss*energyLoss->sigmaIoni());
-      deltaE_rad_tot       += fabs(scaleEloss*energyLoss->meanRad());
-      sigmaDeltaE_rad_tot  += fabs(scaleEloss*energyLoss->sigmaRad());
+      deltaE_tot           += std::abs(scaleEloss*energyLoss->deltaE());
+      sigmaDeltaE_tot      += std::abs(scaleEloss*energyLoss->sigmaDeltaE());
+      sigmaPlusDeltaE_tot  += std::abs(scaleEloss*energyLoss->sigmaPlusDeltaE());
+      sigmaMinusDeltaE_tot += std::abs(scaleEloss*energyLoss->sigmaMinusDeltaE());
+      deltaE_ioni_tot      += std::abs(scaleEloss*energyLoss->meanIoni());
+      sigmaDeltaE_ioni_tot += std::abs(scaleEloss*energyLoss->sigmaIoni());
+      deltaE_rad_tot       += std::abs(scaleEloss*energyLoss->meanRad());
+      sigmaDeltaE_rad_tot  += std::abs(scaleEloss*energyLoss->sigmaRad());
 
       ATH_MSG_DEBUG(" position x " <<  m->trackParameters()->position().x() << " y " <<  m->trackParameters()->position().y()  << " perp " << m->trackParameters()->position().perp() << " z " <<  m->trackParameters()->position().z() );
       ATH_MSG_DEBUG(" deltaE " << (scaleEloss*energyLoss->deltaE())  << " deltaE_ioni " << (scaleEloss*energyLoss->meanIoni()) << " sigmaDeltaE_ioni " << (scaleEloss*energyLoss->sigmaIoni()));
@@ -2068,7 +2068,7 @@ double Trk::TrkMaterialProviderTool::getFinalMeasuredEnergy(Rec::CaloMeas* caloM
 
   // Correction for forward calorimetry
   double ForwardHECCorrection	= 0.;
-  if (fabs(eta)>2. && caloMeas->LArHEC_EnergyMeasured()>100.)
+  if (std::abs(eta)>2. && caloMeas->LArHEC_EnergyMeasured()>100.)
     ForwardHECCorrection	= (1. - LArHECMeasurementMaterial) * HECMaterial * MopLossCorrected;
   const double LArHECEnergy	= caloMeas->LArHEC_EnergyMeasured() + ForwardHECCorrection;	// Measured energy deposition in LArHEC
 
@@ -2085,10 +2085,10 @@ double Trk::TrkMaterialProviderTool::getFinalMeasuredEnergy(Rec::CaloMeas* caloM
   bool bEM	= false; // performed Em measurement?
 
   // If muon isolated, and no significant measurement is made then use the mop parameterization, else the mean
-  if (fabs(eta)<1.4) {
+  if (std::abs(eta)<1.4) {
     if (LArHECEnergy + TileEnergy > 0.1 * MopLoss * HECMaterial)	bHEC= true;
   }
-  else if (fabs(eta)>1.8) {
+  else if (std::abs(eta)>1.8) {
     if (LArHECEnergy + TileEnergy > 0.2 * MopLoss * HECMaterial)	bHEC= true;
   }else{
     if (LArHECEnergy + TileEnergy > 0.25 * MopLoss * HECMaterial)	bHEC= true;
@@ -2135,7 +2135,7 @@ double Trk::TrkMaterialProviderTool::getFinalMeasuredEnergy(Rec::CaloMeas* caloM
   // 				    -0.317111 , -0.428393 , -0.524839 , -0.599547 , -0.464013 ,
   // 				    -0.159663 , -0.140879 , -0.0975618,  0.0225352,  0.0701925,
   // 				    -0.24778 };
-  // int ieta			=  static_cast<int> (fabs(eta)/0.10);
+  // int ieta			=  static_cast<int> (std::abs(eta)/0.10);
   // if (ieta > 25) ieta		=  25;
 
   double FinalMeasuredEnergy	= MeasCorrected + eOverMipCorrection;// + (fix1FromPeter[ieta] + fix2FromPeter[ieta])*CLHEP::GeV;

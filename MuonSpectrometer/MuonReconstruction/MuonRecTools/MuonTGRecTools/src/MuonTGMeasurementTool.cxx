@@ -11,8 +11,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkGeometry/Layer.h"
-#include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/TrackingGeometry.h"
+
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrackRecord/TrackRecord.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -56,33 +55,25 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   }
 
   // define projection matrices
-  m_tgcProjEta = new AmgMatrix(5,5);
+  m_tgcProjEta = std::make_unique<AmgMatrix(5,5)>();
   m_tgcProjEta->setIdentity();
   (*m_tgcProjEta)(0,0) = 0.; (*m_tgcProjEta)(1,1) = 0.;
   (*m_tgcProjEta)(0,1) = 1.; (*m_tgcProjEta)(1,0) =-1.;
-  m_tgcProjPhi = new AmgMatrix(5,5);
+  m_tgcProjPhi = std::make_unique<AmgMatrix(5,5)>();
   m_tgcProjPhi->setIdentity();
 
-  m_rpcProjEta = new AmgMatrix(5,5);
+  m_rpcProjEta = std::make_unique<AmgMatrix(5,5)>();
   m_rpcProjEta->setIdentity();
   (*m_rpcProjEta)(0,0) = 0.; (*m_rpcProjEta)(1,1) = 0.;
   (*m_rpcProjEta)(0,1) = 1.; (*m_rpcProjEta)(1,0) = 1.;
-  m_rpcProjPhi = new AmgMatrix(5,5);
+  m_rpcProjPhi = std::make_unique<AmgMatrix(5,5)>();
   m_rpcProjPhi->setIdentity();
 
-  return StatusCode::SUCCESS;
-}
-
-// Finalize method:
-StatusCode Muon::MuonTGMeasurementTool::finalize() 
-{
-  // Get the messaging service, print where you are
-  ATH_MSG_INFO("MuonTGMeasurementTool::finalize()");
-  //delete m_tpMinFinder;
-  delete m_tgcProjEta;
-  delete m_tgcProjPhi;
-  delete m_rpcProjEta;
-  delete m_rpcProjPhi;
+  if (!m_trackingGeometryReadKey.empty()) {
+        ATH_CHECK(m_trackingGeometryReadKey.initialize());
+  } else {
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -90,11 +81,8 @@ const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getMeas
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getMeasurementOnLayer");
-  const std::vector<const Trk::PrepRawData*>* hitsOnLayer = 0; 
+  const std::vector<const Trk::PrepRawData*>* hitsOnLayer = nullptr; 
   // 
-  const Trk::TrackingGeometry* trackingGeometry;
-  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return hitsOnLayer; 
-  
   if (m_hits && lay) {
     const Trk::DetachedTrackingVolume* station = lay->enclosingDetachedTrackingVolume();
     if (!station) ATH_MSG_WARNING("no enclosing station found");
@@ -165,10 +153,7 @@ const std::vector<const Trk::Segment*>* Muon::MuonTGMeasurementTool::getSegments
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getSegments");
   const std::vector<const Trk::Segment*>* segments = 0; 
-  // 
-  const Trk::TrackingGeometry* trackingGeometry;
-  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return segments; 
-
+ 
   if (m_segments && station) {
     unsigned int ist=0;
     while ( ist < m_segments->size() ) {
@@ -205,9 +190,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
     if (!lay || !parm || !id.get_identifier32().get_compact() ) return projPar;
 
     // get tracking geometry
-    const Trk::TrackingGeometry* trackingGeometry;
-    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projPar; 
-
+   
     // check compatibility of layer info and required id ? this was already done when associating !
     if (!lay->layerType()) return projPar;
     Identifier layId(lay->layerType()); 
@@ -307,8 +290,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       Amg::VectorX locPar = parm->parameters();
       // projection matrix
       AmgMatrix(5,5)* pMx = 0;
-      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
-      else                                pMx = m_rpcProjEta;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi.get();
+      else                                pMx = m_rpcProjEta.get();
       // projected parameters 
       double eta = 1.;
       double sign = (m_idHelperSvc->rpcIdHelper().measuresPhi(id) && m_idHelperSvc->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
@@ -387,8 +370,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       parProj[4]= parm->parameters()[Trk::qOverP];
       //    
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
-      else                                   pMx = m_tgcProjEta;
+      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi.get();
+      else                                   pMx = m_tgcProjEta.get();
       Amg::VectorX locPar = (*pMx)*parProj;
       ATH_MSG_DEBUG("projected parameters (layer->CSC):" << m_idHelperSvc->cscIdHelper().measuresPhi(id) <<"," << locPar );
 
@@ -418,8 +401,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       if (!stripSurf) return projPar;
       //
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
-      else                               pMx = m_tgcProjEta;
+      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi.get();
+      else                               pMx = m_tgcProjEta.get();
       Amg::VectorX locPar = (*pMx)*parm->parameters();
       ATH_MSG_DEBUG("projected parameters (layer->TGC):" << m_idHelperSvc->tgcIdHelper().isStrip(id) <<"," << locPar <<"," << stripSurf );
 
@@ -462,14 +445,10 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 {
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::detElToLayer");
-    const Trk::TrackParameters* projPar = 0;
+    const Trk::TrackParameters* projPar = nullptr;
 
     // check input
     if (!lay || !parm || !(id.get_identifier32().get_compact()>0) ) return projPar;
-
-    // get tracking geometry
-    const Trk::TrackingGeometry* trackingGeometry;
-    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projPar; 
 
     // check compatibility of layer info and required id ? this was already done when associating !
     if (!lay->layerType()) return projPar;
@@ -561,8 +540,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       //
       Amg::VectorX locPar = parm->parameters();
       AmgMatrix(5,5)* pMx = 0;
-      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
-      else                                pMx = m_rpcProjEta;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi.get();
+      else                                pMx = m_rpcProjEta.get();
 
       double eta = 1.;
       double sign = (m_idHelperSvc->rpcIdHelper().measuresPhi(id) && m_idHelperSvc->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
@@ -622,8 +601,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       const Amg::Vector2D csc_shift(0.,lay->getRef());
       // projection : take into account possible misalignment ;
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
-      else                                   pMx = m_tgcProjEta;
+      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi.get();
+      else                                   pMx = m_tgcProjEta.get();
       AmgMatrix(5,5) pMxInv = pMx->inverse();
       Amg::VectorX parProj = pMxInv*parm->parameters();
       Amg::Vector3D corrLocPos = lay->surfaceRepresentation().center()-t*parm->momentum() + t*DN*layNormal;
@@ -651,8 +630,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       }
 
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
-      else                               pMx = m_tgcProjEta;
+      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi.get();
+      else                               pMx = m_tgcProjEta.get();
       AmgMatrix(5,5) pMxInv = pMx->inverse();
       Amg::VectorX locPar = pMxInv * parm->parameters();
       ATH_MSG_DEBUG("back projected parameters(TGC->layer):" << m_idHelperSvc->tgcIdHelper().isStrip(id)<<"," << locPar );
@@ -697,14 +676,11 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
   }
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::measToLayer");
-    const Trk::RIO_OnTrack* projRIO = 0;
+    const Trk::RIO_OnTrack* projRIO = nullptr;
 
     // check input
     if (!lay || !parm || !rio ) return projRIO;
-
-    // get tracking geometry
-    const Trk::TrackingGeometry* trackingGeometry;
-    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projRIO; 
+    
 
     // check compatibility of layer info and required id ? this was already done when associating !
     Identifier id = rio->identify();
@@ -879,10 +855,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
   Identifier nid(0);
   // check input
   if (!lay || !parm || !lay->layerType() ) return nid;
-  
-  // get tracking geometry
-  const Trk::TrackingGeometry* trackingGeometry;
-  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return nid; 
+ 
 
   // check compatibility of layer info and required id ? this was already done when associating !
   Identifier layId(lay->layerType());
@@ -1204,21 +1177,13 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::associatedLayer(Identifier id, Am
 {
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("MuonTGMeasurementTool::associatedLayer");
-  const Trk::Layer* lay = 0;
+  const Trk::Layer* lay = nullptr;
   // check input
   if (!id.get_identifier32().get_compact() ) return lay;
   
-  // get tracking geometry
-  const Trk::TrackingGeometry* trackingGeometry;
-  StatusCode sc = detStore()->retrieve(trackingGeometry, m_trackingGeometryName);
-  if ( sc.isFailure() ){
-    ATH_MSG_FATAL("Could not find tool "<< m_trackingGeometryName<<". Exiting.");
-    return lay; 
-  }else ATH_MSG_DEBUG("tracking geometry Svc \""<<m_trackingGeometryName<<"\" booked ");
-  
   // rely on having misalignment uncertainty covered by span safety marge ( don't loose station from static volume 
   //  when misaligned
-  const Trk::TrackingVolume* staticVol = trackingGeometry->lowestStaticTrackingVolume(gp);
+  const Trk::TrackingVolume* staticVol = getGeometry()->lowestStaticTrackingVolume(gp);
   const Trk::DetachedTrackingVolume* station = 0;
   if (staticVol && staticVol->confinedDetachedVolumes()) {
     const std::vector<const Trk::DetachedTrackingVolume*>* detTV = staticVol->confinedDetachedVolumes(); 

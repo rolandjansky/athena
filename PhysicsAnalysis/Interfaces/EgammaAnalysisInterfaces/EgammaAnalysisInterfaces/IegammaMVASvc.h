@@ -1,24 +1,24 @@
 // Dear Emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef EGAMMAINTERFACES_IEGAMMAMVASVC_H
-#define EGAMMAINTERFACES_IEGAMMAMVASVC_H
+#ifndef EGAMMAANALYSISINTERFACES_IEGAMMAMVASVC_H
+#define EGAMMAANALYSISINTERFACES_IEGAMMAMVASVC_H
 
-#include "GaudiKernel/IService.h"
-
+#include "AsgServices/IAsgService.h"
+#include "AsgMessaging/StatusCode.h"
 // EDM includes
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
 
-class IegammaMVASvc : virtual public IService {
+class IegammaMVASvc : virtual public asg::IAsgService {
+  ASG_SERVICE_INTERFACE(IegammaMVASvc)
 public:
-  DeclareInterfaceID(IegammaMVASvc, 1, 0);
 
   virtual ~IegammaMVASvc() override {};
 

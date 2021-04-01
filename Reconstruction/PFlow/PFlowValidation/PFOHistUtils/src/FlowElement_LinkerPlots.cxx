@@ -129,6 +129,7 @@ namespace PFO {
       }
             
       for (ElementLink<xAOD::MuonContainer> MuonLink: MuonLinks){
+
 	      //get Muon from link by de-referencing it
 	      const xAOD::Muon* muon = *MuonLink;
 	      TLorentzVector muon_fourvec=muon->p4();
@@ -146,7 +147,7 @@ namespace PFO {
 		      m_CFE_muon_largeDR_debug_type->Fill(type,eventInfo.beamSpotWeight());
 	      } 
 	    }// end of CFE fill block for muon_dR code	
-     }
+      }
     }// end of muon acc block
      
     // Electron block

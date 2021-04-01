@@ -95,7 +95,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   // create the vertices
   for ( unsigned int iVtx = 0; iVtx != nVertices; ++iVtx ) {
     const GenVertex_p1& persVtx = persObj->m_vertices[iVtx];
-    transObj->add_vertex( createGenVertex( *persObj, persVtx, partToEndVtx, *m_pool ) );
+    createGenVertex( *persObj, persVtx, partToEndVtx, *m_pool, transObj );
   } //> end loop over vertices
 
   // set the signal process vertex

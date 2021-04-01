@@ -76,6 +76,7 @@ CaloTopoTowerFromClusterMaker::CaloTopoTowerFromClusterMaker(const std::string& 
   declareProperty("DoCellIndexCheck",            m_doCellIndexCheck,                                                                  "Check cell hash indices for consistency");
   declareProperty("BuildCombinedTopoSignal",     m_buildCombinedSignal,                                                               "Build topo-clusters and topo-towers");
   declareProperty("TopoClusterRange",            m_clusterRange,                                                                      "Rapidity range for using topo-clusters in combined signal mode");
+  declareProperty("RemoveSamplingData",          m_removeSamplingData,                                                                "Remove the associated sampling data");
 }
 
 StatusCode CaloTopoTowerFromClusterMaker::initialize()
@@ -183,6 +184,7 @@ StatusCode CaloTopoTowerFromClusterMaker::initialize()
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("BuildCombinedTopoSignal .... %s",             blu[m_buildCombinedSignal].c_str())      );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("TopoClusterRange ........... %.2f",           m_clusterRange)                          );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ExcludedSamplings .......... %zu (number of)",m_excludedSamplingsName.size())          );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("RemoveSamplingData ......... %s",             blu[m_removeSamplingData].c_str())       );
 
   return StatusCode::SUCCESS;
 }
@@ -268,8 +270,11 @@ StatusCode CaloTopoTowerFromClusterMaker::execute(const EventContext& ctx,
       clptr->addCellLink(lptr);                                         // transfer cell links to CaloCluster
       clptr->setClusterSize(csize);                                     // set the cluster size spec
       CaloRec::Helpers::calculateKine(clptr,false);                     // calculate kinematics and other signals from cells
-      clptr->setEta0(m_towerGeometrySvc->towerEta(ipc));                // save the tower center eta
-      clptr->setPhi0(m_towerGeometrySvc->towerPhi(ipc));                // save the tower center phi
+      if ( m_removeSamplingData ) {                                     // remove sampling data and invalidate tower center 
+	clptr->clearSamplingData(); clptr->setEta0(0.);	clptr->setPhi0(0.); 
+      } else {                                                          // keep sampling data and valid tower center
+	clptr->setEta0(m_towerGeometrySvc->towerEta(ipc)); clptr->setPhi0(m_towerGeometrySvc->towerPhi(ipc));              
+      }
     } else {
       delete lptr;
     }

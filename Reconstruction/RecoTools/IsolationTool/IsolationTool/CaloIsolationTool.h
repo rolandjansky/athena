@@ -18,6 +18,7 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 #endif // XAOD_ANALYSIS
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -289,6 +290,10 @@ namespace xAOD {
       Gaudi::Property<bool> m_useCaloExtensionCaching {this, 
 	  "UseCaloExtensionCaching", true, 
 	  "Use cached caloExtension if avaliable."};
+
+      /** The input calorimeter extensions */
+      SG::ReadHandleKey<CaloExtensionCollection> m_caloExtensionKey{
+        this, "InputCaloExtension", "", "The calorimeter extensions of the tracks"};
 #endif // XAOD_ANALYSIS
 
       /** @brief Tool for pt-corrected isolation calculation (new)*/

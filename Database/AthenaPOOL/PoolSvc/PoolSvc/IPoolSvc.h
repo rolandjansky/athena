@@ -104,12 +104,6 @@ public: // Non-static members
 	   const pool::ICollection::OpenMode& openMode = pool::ICollection::READ,
 	   unsigned int contextId = IPoolSvc::kInputStream) const = 0;
 
-   /// @return void
-   /// @param c [IN] collection to be registered
-   /// @param overwrite [IN] whether to overwrite
-   /// @param sharedCat [IN] whether to use same catalog as data
-   virtual void registerExistingCollection ATLAS_NOT_THREAD_SAFE (pool::ICollection* c, bool overwrite, bool sharedCat = true) = 0;
-
    /// @return a token for a container entry.
    /// @param connection [IN] string containing the connection/file name.
    /// @param collection [IN] string containing the persistent name of the collection.

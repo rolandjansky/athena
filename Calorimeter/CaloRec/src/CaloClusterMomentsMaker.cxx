@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -12,6 +12,7 @@
 //
 // Author List:
 //      Sven Menke
+//      Peter Loch
 //
 //-----------------------------------------------------------------------
 
@@ -39,77 +40,97 @@
 #include <limits>
 #include <sstream>
 
+#include <map>
+#include <string>
+#include <cstdio>
+
 using CLHEP::deg;
 using CLHEP::cm;
 
 
+// Known moments
 namespace {
-
-
-  //FIXME, somehow make sure these names are in sync with the xAOD variable names
-struct MomentName
-{
-  const char* name;
-  xAOD::CaloCluster::MomentType mom;
-};
-
-
-// Must be sorted by name.
-MomentName moment_names[] = {
-  { "AVG_LAR_Q",         xAOD::CaloCluster::AVG_LAR_Q },
-  { "AVG_TILE_Q",        xAOD::CaloCluster::AVG_TILE_Q },
-  { "BADLARQ_FRAC",      xAOD::CaloCluster::BADLARQ_FRAC },
-  { "BAD_CELLS_CORR_E",  xAOD::CaloCluster::BAD_CELLS_CORR_E },
-  { "CELL_SIGNIFICANCE", xAOD::CaloCluster::CELL_SIGNIFICANCE },
-  { "CELL_SIG_SAMPLING", xAOD::CaloCluster::CELL_SIG_SAMPLING },
-  { "CENTER_LAMBDA",     xAOD::CaloCluster::CENTER_LAMBDA },
-  { "CENTER_MAG",        xAOD::CaloCluster::CENTER_MAG },
-  { "CENTER_X",          xAOD::CaloCluster::CENTER_X },
-  { "CENTER_Y",          xAOD::CaloCluster::CENTER_Y },
-  { "CENTER_Z",          xAOD::CaloCluster::CENTER_Z },
-  { "DELTA_ALPHA",       xAOD::CaloCluster::DELTA_ALPHA },
-  { "DELTA_PHI",         xAOD::CaloCluster::DELTA_PHI },
-  { "DELTA_THETA",       xAOD::CaloCluster::DELTA_THETA },
-  { "ENG_BAD_CELLS",     xAOD::CaloCluster::ENG_BAD_CELLS },
-  { "ENG_BAD_HV_CELLS",  xAOD::CaloCluster::ENG_BAD_HV_CELLS },
-  { "ENG_FRAC_CORE",     xAOD::CaloCluster::ENG_FRAC_CORE },
-  { "ENG_FRAC_EM",       xAOD::CaloCluster::ENG_FRAC_EM },
-  { "ENG_FRAC_MAX",      xAOD::CaloCluster::ENG_FRAC_MAX },
-  { "ENG_POS",           xAOD::CaloCluster::ENG_POS },
-  { "FIRST_ENG_DENS",    xAOD::CaloCluster::FIRST_ENG_DENS },
-  { "FIRST_ETA",         xAOD::CaloCluster::FIRST_ETA },
-  { "FIRST_PHI",         xAOD::CaloCluster::FIRST_PHI },
-  { "ISOLATION",         xAOD::CaloCluster::ISOLATION },
-  { "LATERAL",           xAOD::CaloCluster::LATERAL },
-  { "LONGITUDINAL",      xAOD::CaloCluster::LONGITUDINAL },
-  { "MASS",              xAOD::CaloCluster::MASS },
-  { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
-  { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
-  { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
-  { "PTD",               xAOD::CaloCluster::PTD },
-  { "SECOND_ENG_DENS",   xAOD::CaloCluster::SECOND_ENG_DENS },
-  { "SECOND_LAMBDA",     xAOD::CaloCluster::SECOND_LAMBDA },
-  { "SECOND_R",          xAOD::CaloCluster::SECOND_R },
-  { "SIGNIFICANCE",      xAOD::CaloCluster::SIGNIFICANCE },
-};
-
-MomentName* moment_names_end =
-  moment_names + sizeof(moment_names)/sizeof(moment_names[0]);
-
-#if 0
-bool operator< (const std::string& v, const MomentName& m)
-{
-  return strcmp (v.c_str(), m.name) < 0;
+  // name -> enum translator
+  std::map<std::string,xAOD::CaloCluster::MomentType> momentNameToEnumMap = { 
+    { "AVG_LAR_Q",         xAOD::CaloCluster::AVG_LAR_Q },
+    { "AVG_TILE_Q",        xAOD::CaloCluster::AVG_TILE_Q },
+    { "BADLARQ_FRAC",      xAOD::CaloCluster::BADLARQ_FRAC },
+    { "BAD_CELLS_CORR_E",  xAOD::CaloCluster::BAD_CELLS_CORR_E },
+    { "CELL_SIGNIFICANCE", xAOD::CaloCluster::CELL_SIGNIFICANCE },
+    { "CELL_SIG_SAMPLING", xAOD::CaloCluster::CELL_SIG_SAMPLING },
+    { "CENTER_LAMBDA",     xAOD::CaloCluster::CENTER_LAMBDA },
+    { "CENTER_MAG",        xAOD::CaloCluster::CENTER_MAG },
+    { "CENTER_X",          xAOD::CaloCluster::CENTER_X },
+    { "CENTER_Y",          xAOD::CaloCluster::CENTER_Y },
+    { "CENTER_Z",          xAOD::CaloCluster::CENTER_Z },
+    { "DELTA_ALPHA",       xAOD::CaloCluster::DELTA_ALPHA },
+    { "DELTA_PHI",         xAOD::CaloCluster::DELTA_PHI },
+    { "DELTA_THETA",       xAOD::CaloCluster::DELTA_THETA },
+    { "ENG_BAD_CELLS",     xAOD::CaloCluster::ENG_BAD_CELLS },
+    { "ENG_BAD_HV_CELLS",  xAOD::CaloCluster::ENG_BAD_HV_CELLS },
+    { "ENG_FRAC_CORE",     xAOD::CaloCluster::ENG_FRAC_CORE },
+    { "ENG_FRAC_EM",       xAOD::CaloCluster::ENG_FRAC_EM },
+    { "ENG_FRAC_MAX",      xAOD::CaloCluster::ENG_FRAC_MAX },
+    { "ENG_POS",           xAOD::CaloCluster::ENG_POS },
+    { "FIRST_ENG_DENS",    xAOD::CaloCluster::FIRST_ENG_DENS },
+    { "FIRST_ETA",         xAOD::CaloCluster::FIRST_ETA },
+    { "FIRST_PHI",         xAOD::CaloCluster::FIRST_PHI },
+    { "ISOLATION",         xAOD::CaloCluster::ISOLATION },
+    { "LATERAL",           xAOD::CaloCluster::LATERAL },
+    { "LONGITUDINAL",      xAOD::CaloCluster::LONGITUDINAL },
+    { "MASS",              xAOD::CaloCluster::MASS },
+    { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
+    { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
+    { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
+    { "PTD",               xAOD::CaloCluster::PTD },
+    { "SECOND_ENG_DENS",   xAOD::CaloCluster::SECOND_ENG_DENS },
+    { "SECOND_LAMBDA",     xAOD::CaloCluster::SECOND_LAMBDA },
+    { "SECOND_R",          xAOD::CaloCluster::SECOND_R },
+    { "SECOND_TIME",       xAOD::CaloCluster::SECOND_TIME },
+    { "SIGNIFICANCE",      xAOD::CaloCluster::SIGNIFICANCE },
+    { "EM_PROBABILITY",    xAOD::CaloCluster::EM_PROBABILITY }
+  };
+  // enum -> name translator
+  std::map<xAOD::CaloCluster::MomentType,std::string> momentEnumToNameMap = { 
+    { xAOD::CaloCluster::AVG_LAR_Q,          "AVG_LAR_Q"        },
+    { xAOD::CaloCluster::AVG_TILE_Q,         "AVG_TILE_Q"       },
+    { xAOD::CaloCluster::BADLARQ_FRAC,       "BADLARQ_FRAC"     },
+    { xAOD::CaloCluster::BAD_CELLS_CORR_E,   "BAD_CELLS_CORR_E" },
+    { xAOD::CaloCluster::CELL_SIGNIFICANCE,  "CELL_SIGNIFICANCE"},
+    { xAOD::CaloCluster::CELL_SIG_SAMPLING,  "CELL_SIG_SAMPLING"},
+    { xAOD::CaloCluster::CENTER_LAMBDA,      "CENTER_LAMBDA"    },
+    { xAOD::CaloCluster::CENTER_MAG,         "CENTER_MAG"       },
+    { xAOD::CaloCluster::CENTER_X,           "CENTER_X"         },
+    { xAOD::CaloCluster::CENTER_Y,           "CENTER_Y"         },
+    { xAOD::CaloCluster::CENTER_Z,           "CENTER_Z"         },
+    { xAOD::CaloCluster::DELTA_ALPHA,        "DELTA_ALPHA"      },
+    { xAOD::CaloCluster::DELTA_PHI,          "DELTA_PHI"        },
+    { xAOD::CaloCluster::DELTA_THETA,        "DELTA_THETA"      },
+    { xAOD::CaloCluster::ENG_BAD_CELLS,      "ENG_BAD_CELLS"    },
+    { xAOD::CaloCluster::ENG_BAD_HV_CELLS,   "ENG_BAD_HV_CELLS" },
+    { xAOD::CaloCluster::ENG_FRAC_CORE,      "ENG_FRAC_CORE"    },
+    { xAOD::CaloCluster::ENG_FRAC_EM,        "ENG_FRAC_EM"      },
+    { xAOD::CaloCluster::ENG_FRAC_MAX,       "ENG_FRAC_MAX"     },
+    { xAOD::CaloCluster::ENG_POS,            "ENG_POS"          },
+    { xAOD::CaloCluster::FIRST_ENG_DENS,     "FIRST_ENG_DENS"   },
+    { xAOD::CaloCluster::FIRST_ETA,          "FIRST_ETA"        },
+    { xAOD::CaloCluster::FIRST_PHI,          "FIRST_PHI"        },
+    { xAOD::CaloCluster::ISOLATION,          "ISOLATION"        },
+    { xAOD::CaloCluster::LATERAL,            "LATERAL"          },
+    { xAOD::CaloCluster::LONGITUDINAL,       "LONGITUDINAL"     },
+    { xAOD::CaloCluster::MASS,               "MASS"             },
+    { xAOD::CaloCluster::N_BAD_CELLS,        "N_BAD_CELLS"      },
+    { xAOD::CaloCluster::N_BAD_HV_CELLS,     "N_BAD_HV_CELLS"   },
+    { xAOD::CaloCluster::N_BAD_CELLS_CORR,   "N_BAD_CELLS_CORR" },
+    { xAOD::CaloCluster::PTD,                "PTD"              },
+    { xAOD::CaloCluster::SECOND_ENG_DENS,    "SECOND_ENG_DENS"  },
+    { xAOD::CaloCluster::SECOND_LAMBDA,      "SECOND_LAMBDA"    },
+    { xAOD::CaloCluster::SECOND_R,           "SECOND_R"         },
+    { xAOD::CaloCluster::SECOND_TIME,        "SECOND_TIME"      },
+    { xAOD::CaloCluster::SIGNIFICANCE,       "SIGNIFICANCE"     },
+    { xAOD::CaloCluster::EM_PROBABILITY,     "EM_PROBABILITY"   }
+  };
 }
-#endif
-bool operator< (const MomentName& m, const std::string& v)
-{
-  return strcmp (m.name, v.c_str()) < 0;
-}
-
-
-}
-
 
 //###############################################################################
 
@@ -134,117 +155,102 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   // Name(s) of Moments to calculate
   declareProperty("MomentsNames",m_momentsNames);
 
-  // Name(s) of Moments which can be stored on the AOD - all others go to ESD
-  // m_momentsNamesAOD.push_back(std::string("FIRST_PHI"));
-  // m_momentsNamesAOD.push_back(std::string("FIRST_ETA"));
-  // m_momentsNamesAOD.push_back(std::string("SECOND_R"));
-  // m_momentsNamesAOD.push_back(std::string("SECOND_LAMBDA"));
-  // m_momentsNamesAOD.push_back(std::string("CENTER_LAMBDA"));
-  // m_momentsNamesAOD.push_back(std::string("FIRST_ENG_DENS"));
-  // m_momentsNamesAOD.push_back(std::string("ENG_BAD_CELLS"));
-  // m_momentsNamesAOD.push_back(std::string("N_BAD_CELLS"));
-
-  //declareProperty("AODMomentsNames",m_momentsNamesAOD);
-  // maximum allowed angle between shower axis and the vector pointing
-  // to the shower center from the IP in degrees. This property is need
+  // Maximum allowed angle between shower axis and the vector pointing
+  // to the shower center from the IP in degrees. This property is needed
   // to protect against cases where all significant cells are in one sampling
-  // and the shower axis can not be defined from them
+  // and the shower axis can thus not be defined.
   declareProperty("MaxAxisAngle",m_maxAxisAngle);
   declareProperty("MinRLateral",m_minRLateral);
   declareProperty("MinLLongitudinal",m_minLLongitudinal);
   declareProperty("MinBadLArQuality",m_minBadLArQuality);
-  // use 2-gaussian noise for Tile
+  // Use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
-
-  /// Not used anymore (with xAOD), but required when configured from  COOL.
+  // Not used anymore (with xAOD), but required when configured from  COOL.
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
   // Use weighting of neg. clusters option?
   declareProperty("WeightingOfNegClusters", m_absOpt);
-
 }
 
 //###############################################################################
 
 StatusCode CaloClusterMomentsMaker::initialize()
 {
-  m_calculateSignificance = false;
-  m_calculateIsolation = false;
-
-  // translate all moment names specified in MomentsNames property to moment enums,
-  // check that they are all valid and there are no repeating names
-  for(const auto& name: m_momentsNames) {
-    const MomentName* it =
-      std::lower_bound (moment_names, moment_names_end, name);
-    if (it != moment_names_end) {
-      m_validMoments.push_back (it->mom);
-      switch (it->mom) {
-      case xAOD::CaloCluster::SIGNIFICANCE:
-      case xAOD::CaloCluster::CELL_SIGNIFICANCE:
-        m_calculateSignificance = true;
-        break;
-      case xAOD::CaloCluster::ISOLATION:
-        m_calculateIsolation = true;
-        break;
-      case xAOD::CaloCluster::ENG_BAD_HV_CELLS:
-        m_calculateLArHVFraction = true;
-      default:
-        break;
-      }
-    }
-    else {
-      msg(MSG::ERROR) << "Moment " << name
-		      << " is not a valid Moment name and will be ignored! "
-		      << "Valid names are:";
-      int count = 0;
-      for (const MomentName& m : moment_names)
-	msg() << ((count++)==0?" ":", ") << m.name;
-      msg() << endmsg;
-    }
-  }
-
+  // loop list of requested moments
+  std::string::size_type nstr(0); int nmom(0); 
+  for ( const auto& mom : m_momentsNames ) {
+    // check if moment is known (enumerator available)
+    auto fmap(momentNameToEnumMap.find(mom)); 
+    if ( fmap != momentNameToEnumMap.end() ) {
+      // valid moment found 
+      nstr = std::max(nstr,mom.length()); ++nmom;
+      if ( fmap->second == xAOD::CaloCluster::SECOND_TIME ) {
+	// special flag for second moment of cell times - this moment is not 
+	// calculated in this tool! Do not add to internal (!) valid moments list. 
+	// Its value is available from xAOD::CaloCluster::secondTime()!
+	m_secondTime = true;
+      } else if ( fmap->second == xAOD::CaloCluster::EM_PROBABILITY ) {
+	ATH_MSG_WARNING( mom << " not calculated in this tool - misconfiguration?" );
+      } else {  
+	// all other valid moments
+	m_validMoments.push_back(fmap->second);
+	// flag some special requests 
+	switch (fmap->second) { 
+	case xAOD::CaloCluster::SIGNIFICANCE:
+	case xAOD::CaloCluster::CELL_SIGNIFICANCE:
+	  m_calculateSignificance = true; 
+	  break;
+	case xAOD::CaloCluster::ISOLATION:
+	  m_calculateIsolation = true;
+	  break;
+	case xAOD::CaloCluster::ENG_BAD_HV_CELLS:
+	  m_calculateLArHVFraction = true;
+	default:
+	  break;
+	} // set special processing flags
+      } // moment calculated with this tool
+    } else { 
+      ATH_MSG_ERROR( "Moment name " << mom << " not known; known moments are:" );
+      char buffer[128]; std::string::size_type lstr(nstr); 
+      // determine field size
+      for ( auto fmom : momentNameToEnumMap ) { lstr = std::max(lstr,fmom.first.length()); } 
+      // print available moments
+      for ( auto fmom : momentNameToEnumMap ) { 
+	sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)lstr,(int)lstr,fmom.first.c_str(),(int)fmom.second); 
+	ATH_MSG_INFO(buffer);
+      } 
+      return StatusCode::FAILURE;
+    } // found unknown moment name
+  } // loop configured moment names
   
-  // sort and remove duplicates, order is not required for any of the code below
-  // but still may be useful property
+  // sort and remove duplicates
   std::sort(m_validMoments.begin(), m_validMoments.end());
-  m_validMoments.erase(std::unique(m_validMoments.begin(),
-                                   m_validMoments.end()),
-                       m_validMoments.end());
-
-  
-  /*
-  // translate moment names in AODMomentsNames property into set of enums,
-  // only take valid names which are also in MomentsNames property
-  m_momentsAOD.reserve(m_momentsNamesAOD.size());
-  for(const auto& name: m_momentsNamesAOD) {
-    const MomentName* it =
-      std::lower_bound (moment_names, moment_names_end, name);
-    if (it != moment_names_end) {
-      if (std::find(m_validMoments.begin(), m_validMoments.end(), it->mom)
-          != m_validMoments.end())
-      {
-        m_momentsAOD.push_back(it->mom);
-      }
-    }
+  m_validMoments.erase(std::unique(m_validMoments.begin(),m_validMoments.end()),m_validMoments.end());
+   
+  // print configured moments
+  ATH_MSG_INFO( "Construct and save " << nmom << " cluster moments: " );
+  char buffer[128];
+  for ( auto menum : m_validMoments ) { 
+    sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)nstr,(int)nstr,momentEnumToNameMap.at(menum).c_str(),(int)menum); 
+    ATH_MSG_INFO( buffer );
   }
-  */
-  
+  if ( m_secondTime ) { 
+    auto fmom(momentNameToEnumMap.find("SECOND_TIME"));
+    sprintf(buffer,"moment name: %-*.*s - enumerator: %i (save only)",(int)nstr,(int)nstr,fmom->first.c_str(),(int)fmom->second);
+    ATH_MSG_INFO( buffer );
+  }
+
+  // retrieve CaloCell ID server  
   CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   
+  // retrieve the calo depth tool
   CHECK(m_caloDepthTool.retrieve());
 
-  if (m_calculateSignificance) { 
-    ATH_CHECK(m_noiseCDOKey.initialize());
-  }
+  // retrieve specific servers and tools for selected processes
+  if (m_calculateSignificance)  { ATH_CHECK(m_noiseCDOKey.initialize()); }
+  if (m_calculateLArHVFraction) { ATH_CHECK(m_larHVFraction.retrieve()); } else { m_larHVFraction.disable(); }
 
-  if (m_calculateLArHVFraction) { 
-    ATH_CHECK(m_larHVFraction.retrieve());
-  }
-  else {
-    m_larHVFraction.disable();
-  }
   return StatusCode::SUCCESS;
-  
 }
 
 StatusCode CaloClusterMomentsMaker::finalize()
@@ -255,6 +261,7 @@ StatusCode CaloClusterMomentsMaker::finalize()
 //#############################################################################
 
 namespace CaloClusterMomentsMaker_detail {
+
 
 struct cellinfo {
   double x;
@@ -903,7 +910,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	  }
 	}
       }
-      
+
       // normalize moments and copy to Cluster Moment Store
       size_t size= m_validMoments.size();
       for (size_t iMoment = 0; iMoment != size; ++iMoment) {
@@ -913,9 +920,11 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	if ( moment == xAOD::CaloCluster::FIRST_PHI ) 
 	  myMoments[iMoment] = CaloPhiRange::fix(myMoments[iMoment]);
 	theCluster->insertMoment(moment,myMoments[iMoment]);
-      }
-    }
-  }
+      } // loop on moments for cluster
+    } // check on requested moments
+    // check on second moment of time if requested
+    if ( m_secondTime ) { theCluster->insertMoment(xAOD::CaloCluster::SECOND_TIME,theCluster->secondTime()); }
+  } // loop on clusters
 
   return StatusCode::SUCCESS;
 }

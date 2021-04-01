@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaMVACalibTool.h"
+#include "egammaMVACalib/egammaMVACalibTool.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -23,8 +23,8 @@ using Gaudi::Units::GeV;
 #define GeV 1000
 #endif
 
-egammaMVACalibTool::egammaMVACalibTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent)
+egammaMVACalibTool::egammaMVACalibTool(const std::string& name) :
+  asg::AsgTool(name)
 {
 }
 
@@ -78,11 +78,6 @@ StatusCode egammaMVACalibTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode egammaMVACalibTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

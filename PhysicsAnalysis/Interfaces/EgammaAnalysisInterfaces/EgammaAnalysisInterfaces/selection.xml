@@ -9,13 +9,15 @@
   <class name="IAsgDeadHVCellRemovalTool" /> 
 
   <class name="IAsgElectronEfficiencyCorrectionTool" /> 
+  
+  <class name="IegammaMVACalibTool" /> 
+  <class name="IegammaMVASvc" /> 
 
   <class name="IEgammaCalibrationAndSmearingTool" />   
   <variable pattern="EgammaCalibPeriodRunNumbersExample::*"/>
   <class name="EgammaCalibPeriodRunNumbersExample::ROOT6_NamespaceAutoloadHook" /> 
 
   <class name="IAsgPhotonEfficiencyCorrectionTool" /> 
-
   <class name="IElectronPhotonShowerShapeFudgeTool" /> 
 
 <lcgdict>

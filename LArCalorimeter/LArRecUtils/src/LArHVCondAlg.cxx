@@ -356,7 +356,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                      , const float* rValues) const
 {
   LArHVData::hvMap &hvmap = hvdata->m_voltage;
-  LArHVData::currMap &currmap = hvdata->m_current;
   std::set<Identifier> &updatedCells = hvdata->m_updatedCells;
 
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
@@ -368,14 +367,11 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
 
   updatedCells.clear();
   hvmap.clear();
-  currmap.clear();
 
   std::vector<LArHVData::HV_t> v;
-  std::vector<LArHVData::CURRENT_t> ihv;
   // loop over all EM Identifiers
   for (auto id: m_larem_id->channel_ids()) {
       v.clear();
-      ihv.clear();
       if (abs(m_larem_id->barrel_ec(id))==1 && m_larem_id->sampling(id) > 0) { // LAr EMB
          unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
          bool hasPathology=false; 
@@ -391,7 +387,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
          unsigned int nelec = cell->getNumElectrodes();
          unsigned int ngap = 2*nelec;
          double wt = 1./ngap;
-         v.clear(); ihv.clear();
+         v.clear();
          for (unsigned int i=0;i<nelec;i++) {
              const EMBHVElectrode& electrode = cell->getElectrode(i);
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
@@ -405,8 +401,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                  // Do not bomb, but assume the HV=0
                  double hv=0;
                  double curr=0;
-                 addHV(v,hv,wt);
-                 addCurr(ihv,curr,wt);
+                 addHV(v,hv,curr,wt);
 	       } else {
                  unsigned idx = itrLine - hvlineidx.begin(); 
                  double hv=voltage[idx];
@@ -441,13 +436,11 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                     }
                     msg(MSG::VERBOSE) << "set hv: "<<hv<<endmsg;
                  }
-                 addHV(v,hv,wt);
-                 addCurr(ihv,curr,wt);
+                 addHV(v,hv,curr,wt);
                } 
              }
          }        
          hvmap.insert(std::make_pair(id,v));
-         currmap.insert(std::make_pair(id,ihv));
       } else if (abs(m_larem_id->barrel_ec(id))==1 && m_larem_id->sampling(id) == 0) { // EMBPS
 
          const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
@@ -465,8 +458,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
 	     //return StatusCode::FAILURE;
              double hv=0;
              double curr=0;
-	     addHV(v,hv,wt);
-	     addCurr(ihv,curr,wt);
+	     addHV(v,hv,curr,wt);
 	   } else {
 	     unsigned idx = itrLine - hvlineidx.begin();
 	     double hv=voltage[idx];
@@ -483,8 +475,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                 if(curr > 0.) curr *= uAkOhm * rValues[ridx]; else curr = 0;
                 ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
              }
-	     addHV(v,hv,wt);
-	     addCurr(ihv,curr,wt);
+	     addHV(v,hv,curr,wt);
            }
          }
 
@@ -514,8 +505,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                    //return StatusCode::FAILURE;
                    double hv=0;
                    double curr=0;
-                   addHV(v,hv,wt);
-                   addCurr(ihv,curr,wt);
+                   addHV(v,hv,curr,wt);
                  } else {
                    unsigned idx = itrLine - hvlineidx.begin(); 
                    double hv=voltage[idx];
@@ -548,8 +538,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                          }
                       }
                    }
-                   addHV(v,hv,wt);
-                   addCurr(ihv,curr,wt);
+                   addHV(v,hv,curr,wt);
                  }
              }
          }
@@ -571,26 +560,24 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                 //return StatusCode::FAILURE;
                double hv=0;
                double curr=0;
-               addHV(v,hv,wt);
-               addCurr(ihv,curr,wt);
+               addHV(v,hv,curr,wt);
              } else {
                unsigned idx = itrLine - hvlineidx.begin(); 
                double hv=voltage[idx];
                double curr=current[idx];
-                   if(rValues) { // modify the current record
-                      unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(3,
-                                                                        hvmodule.getSideIndex(),
-                                                                        hvCabling->getCellModule(id),
-                                                                        0, // not used in EMECPS
-                                                                        0,
-                                                                        igap,
-                                                                        0 // not used in EMECPS
-                                                                    ));
-                      if(curr >0.) curr *= uAkOhm * rValues[ridx]; else curr=0.;
-                      ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
-                   }
-               addHV(v,hv,wt);
-               addCurr(ihv,curr,wt);
+	       if(rValues) { // modify the current record
+		 unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(3,
+											 hvmodule.getSideIndex(),
+											 hvCabling->getCellModule(id),
+											 0, // not used in EMECPS
+											 0,
+											 igap,
+											 0 // not used in EMECPS
+											 ));
+		 if(curr >0.) curr *= uAkOhm * rValues[ridx]; else curr=0.;
+		 ATH_MSG_VERBOSE("channel. "<<std::hex<<id.get_identifier32()<<std::dec <<" hvline: "<<idx<<" curr. " << curr << " R: "<<rValues[ridx]);
+	       }
+	       addHV(v,hv,curr,wt);
              }
          }
 
@@ -600,12 +587,11 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
       }
 
       hvmap.emplace(id,v);
-      currmap.emplace(id,ihv);
       if(!hvdataOld) { // all cells are updated
          updatedCells.emplace(id);
       } else { // check if it was changed
-         std::vector< LArHVData::HV_t > oldv;
-         ATH_CHECK(hvdataOld->getHV(id, oldv));
+	std::vector< LArHVData::HV_t > oldv=hvdataOld->getHV(id);
+	if (oldv.size()==0) return StatusCode::FAILURE;
          if(v.size() == oldv.size()) {
             unsigned int found=0;
             for(unsigned int i=0;i<v.size();++i) {
@@ -626,7 +612,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
   // LAr HEC
   for( auto id: m_larhec_id->channel_ids()) {
     v.clear();
-    ihv.clear();
     unsigned int index = (unsigned int)(m_larhec_id->channel_hash(id));
     bool hasPathology=false;
     if (index<hasPathologyHEC.size()) {
@@ -649,8 +634,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            //return StatusCode::FAILURE;
            double hv=0;
            double curr=0;
-           addHV(v,hv,wt);
-           addCurr(ihv,curr,wt);
+           addHV(v,hv,curr,wt);
         } else {
            unsigned idx = itrLine - hvlineidx.begin(); 
            double hv=voltage[idx];
@@ -685,17 +669,15 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
               }
            }
  
-           addHV(v,hv,wt);
-           addCurr(ihv,curr,wt);
+           addHV(v,hv,curr,wt);
         }
     }
     hvmap.emplace(id,v);
-    currmap.emplace(id,ihv);
     if(!hvdataOld) { // all cells are updated
        updatedCells.emplace(id);
     } else { // check if it was changed
-       std::vector< LArHVData::HV_t > oldv;
-       ATH_CHECK(hvdataOld->getHV(id, oldv));
+      std::vector< LArHVData::HV_t > oldv=hvdataOld->getHV(id);
+      if (oldv.size()==0) return StatusCode::FAILURE;
        if(v.size() == oldv.size()) {
           unsigned int found=0;
           for(unsigned int i=0;i<v.size();++i) {
@@ -715,7 +697,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
    } // loop over FCAL
    for(auto id: m_larfcal_id->channel_ids()) { // LAr FCAL
       v.clear();
-      ihv.clear();
       unsigned int index = (unsigned int)(m_larfcal_id->channel_hash(id));
       bool hasPathology=false;
       if (index<hasPathologyFCAL.size()) {
@@ -745,8 +726,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            //return StatusCode::FAILURE;
            double hv=0;
            double curr=0;
-           addHV(v,hv,wt);
-           addCurr(ihv,curr,wt);
+           addHV(v,hv,curr,wt);
           } else {
            unsigned idx = itrLine - hvlineidx.begin(); 
            double hv=voltage[idx];
@@ -780,18 +760,16 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                  }
               }
            }
-           addHV(v,hv,wt);
-           addCurr(ihv,curr,wt);
+           addHV(v,hv,curr,wt);
           }
         }
       }
       hvmap.emplace(id,v);
-      currmap.emplace(id,ihv);
       if(!hvdataOld) { // all cells are updated
          updatedCells.emplace(id);
       } else { // check if it was changed
-         std::vector< LArHVData::HV_t > oldv;
-         ATH_CHECK(hvdataOld->getHV(id, oldv));
+	std::vector< LArHVData::HV_t > oldv=hvdataOld->getHV(id);
+	if (oldv.size()==0) return StatusCode::FAILURE;
          if(v.size() == oldv.size()) {
             unsigned int found=0;
             for(unsigned int i=0;i<v.size();++i) {
@@ -813,41 +791,21 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
   return StatusCode::SUCCESS; 
 }
 
-void LArHVCondAlg::addHV(std::vector< LArHVData::HV_t > & v , double hv, double wt) const
+void LArHVCondAlg::addHV(std::vector< LArHVData::HV_t > & v , double hv, double curr, double wt) const
 {
          bool found=false;
          for (unsigned int i=0;i<v.size();i++) {
-            if (std::fabs(hv-v[i].hv) < 0.1) {
+	   if (std::fabs(hv-v[i].hv) < 0.1 && std::fabs (curr-v[i].current)<0.1) {
                found=true;  
                v[i].weight += wt;
                break;
              }
          }
          if (!found) {
-           LArHVData::HV_t hh;
-           hh.hv = hv;
-           hh.weight = wt;
-           v.push_back(hh);
+	   v.emplace_back(hv,curr,wt);
          }     // not already in the list
 }
 
-void LArHVCondAlg::addCurr(std::vector< LArHVData::CURRENT_t > & ihv , double current, double wt) const
-{
-         bool found=false;
-         for (unsigned int i=0;i<ihv.size();i++) {
-            if (std::fabs(current-ihv[i].current) < 0.1) {
-               found=true;  
-               ihv[i].weight += wt;
-               break;
-             }
-         }
-         if (!found) {
-           LArHVData::CURRENT_t ii;
-           ii.current = current;
-           ii.weight = wt;
-           ihv.push_back(ii);
-         }     // not already in the list
-}
 
 std::vector<unsigned int> LArHVCondAlg::getElecList(const Identifier& id, const LArHVPathology& pathologyContainer) const
 {

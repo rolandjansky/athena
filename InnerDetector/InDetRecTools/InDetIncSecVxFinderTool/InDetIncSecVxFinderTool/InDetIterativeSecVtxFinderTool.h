@@ -31,11 +31,12 @@
 #include "TrkParameters/TrackParameters.h"
 // we may save out some private stuff
 #include "TTree.h"
-class IBeamCondSvc;
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 
 namespace Trk
 {
@@ -152,7 +153,7 @@ public:
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
    
-   ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
    bool m_useBeamConstraint;
    double m_significanceCutSeeding;

@@ -13,6 +13,7 @@
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputYODAFile=MyOutput.yoda.gz --postInclude=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/JO_MC/JO_MC_minbias.py --jobConfig=421113
 
+source setupRivet.sh
 
 echo "art-result:$? Gen_tf"
 

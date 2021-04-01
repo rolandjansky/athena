@@ -75,10 +75,6 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
 
   void setPileup();
 
-  ///////////////////////////////////////////////////////////////////
-  // Const methods:
-  ///////////////////////////////////////////////////////////////////
-
   /** Method creating the transient representation of @c McEventCollection
    *  from its persistent representation @c McEventCollection_p4
    */
