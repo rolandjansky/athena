@@ -41,7 +41,7 @@ StatusCode testAthenaPhotonAlg::execute() {
 //----------------------------
  // Event information
  //--------------------------- 
- const xAOD::EventInfo* eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
+ const xAOD::EventInfo* eventInfo = nullptr; //NOTE: Everything that comes from the storegate direct from the input files is const!
 
  // ask the event store to retrieve the xAOD EventInfo container
  //ATH_CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );  // the second argument ("EventInfo") is the key name
@@ -59,7 +59,7 @@ StatusCode testAthenaPhotonAlg::execute() {
  //---------
  // photons
  //---------
- const xAOD::PhotonContainer* photons = 0;
+ const xAOD::PhotonContainer* photons = nullptr;
  ATH_CHECK( evtStore()->retrieve( photons, "Photons") );
  ATH_MSG_DEBUG("Found "<<photons->size() <<" photons in event, itterate....");
  

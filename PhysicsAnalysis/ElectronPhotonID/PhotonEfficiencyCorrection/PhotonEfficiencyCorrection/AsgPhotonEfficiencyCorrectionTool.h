@@ -44,7 +44,7 @@ class AsgPhotonEfficiencyCorrectionTool
 
 public:
   /// Standard constructor
-  AsgPhotonEfficiencyCorrectionTool ( const std::string myname );
+  AsgPhotonEfficiencyCorrectionTool ( const std::string& myname );
 
   /// Standard destructor
   virtual ~AsgPhotonEfficiencyCorrectionTool();
@@ -108,7 +108,7 @@ private:
   std::string m_sysSubstring;
   
   // Get the correction filename from the map
-  std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
+  std::string getFileName(const std::string& isoWP, const std::string& trigWP, bool isConv);
   
   // Set prefix of the corresponding calibration filenames:
   std::string m_file_prefix_ID="offline.Tight";
