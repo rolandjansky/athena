@@ -24,7 +24,6 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-dumpflag = 1;
 
 #if defined(LRT)
 	a0v = 100.;
