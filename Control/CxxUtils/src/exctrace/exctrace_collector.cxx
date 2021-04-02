@@ -32,7 +32,7 @@ static thread_local int exctrace_last_depth = 0;
 static thread_local void* exctrace_last_trace[bt_depth];
 
 // The real __cxa_throw function.
-typedef void throwfn (void*, std::type_info*, void (*dest)(void*));
+typedef void throwfn (void*, void*, void (*dest)(void*));
 static throwfn* old_throw;
 
 extern "C" {
@@ -50,11 +50,13 @@ extern "C" {
 // The __cxa_throw hook function.
 // Record a backtrace, then chain to the real throw function.
 extern "C" void __cxa_throw (void* thrown_exception,
-                             std::type_info* tinfo,
+                             void* tinfo,
                              void (*dest)(void*))
 {
   exctrace_last_depth = backtrace (exctrace_last_trace, bt_depth);
   old_throw (thrown_exception, tinfo, dest);
+  // not reached
+  std::abort();
 }
 
 
