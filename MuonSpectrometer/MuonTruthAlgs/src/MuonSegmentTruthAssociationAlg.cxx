@@ -15,7 +15,7 @@ namespace Muon {
 
   // Constructor with parameters:
   MuonSegmentTruthAssociationAlg::MuonSegmentTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name,pSvcLocator) {  
+    AthReentrantAlgorithm(name,pSvcLocator) {  
   }
 
   // Initialize method:
@@ -37,12 +37,12 @@ namespace Muon {
   }
 
   // Execute method:
-  StatusCode MuonSegmentTruthAssociationAlg::execute() 
+  StatusCode MuonSegmentTruthAssociationAlg::execute(const EventContext& ctx) const 
   {
     
     // skip if no input data found
-    SG::WriteDecorHandle<xAOD::MuonSegmentContainer,ElementLink< xAOD::MuonSegmentContainer > > muonTruthSegments(m_muonTruthSegmentContainerName);
-    SG::WriteDecorHandle<xAOD::MuonSegmentContainer,ElementLink< xAOD::MuonSegmentContainer > > segments(m_muonSegmentCollectionName);
+    SG::WriteDecorHandle<xAOD::MuonSegmentContainer,ElementLink< xAOD::MuonSegmentContainer > > muonTruthSegments(m_muonTruthSegmentContainerName,ctx);
+    SG::WriteDecorHandle<xAOD::MuonSegmentContainer,ElementLink< xAOD::MuonSegmentContainer > > segments(m_muonSegmentCollectionName,ctx);
     if(!muonTruthSegments.isPresent()){
       ATH_MSG_DEBUG("No muon truth segments");
       return StatusCode::SUCCESS;
@@ -59,7 +59,7 @@ namespace Muon {
       ATH_MSG_ERROR("Muon segments not valid");
       return StatusCode::FAILURE;
     }
-    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
+    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord, ctx);
     if (!truthTrackCol.isValid()){
         ATH_MSG_ERROR("Track collection "<<m_trackRecord.key()<<" is not present");
         return StatusCode::FAILURE;
@@ -94,9 +94,9 @@ namespace Muon {
       ++segIndex;
     }
 
-    SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
+    SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl, ctx);
     std::vector<const MuonSimDataCollection*> muonSimData;
-    for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
+    for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles(ctx)){
       if(!simDataMap.isValid()){
         ATH_MSG_WARNING(simDataMap.key()<<" not valid");
         continue;
@@ -104,19 +104,21 @@ namespace Muon {
       if(!simDataMap.isPresent()) continue;
       muonSimData.push_back(simDataMap.cptr());
     }
+    IMuonTrackTruthTool::TruthTree truth_tree;
     if(m_idHelperSvc->hasCSC()){
-      SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
+      SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData, ctx);
       if(!cscSimDataMap.isValid()){
         ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
-	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
+        truth_tree = m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
       }
       else{
-	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,cscSimDataMap.cptr());
+        truth_tree = m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,cscSimDataMap.cptr());
       }
+    } else {
+      truth_tree = m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
     }
-    else m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
     ATH_MSG_DEBUG("Matching reconstructed segments " << muonSegments.size() );
-    IMuonTrackTruthTool::SegmentResultVec segmentMatchResult = m_muonTrackTruthTool->match(muonSegments);
+    IMuonTrackTruthTool::SegmentResultVec segmentMatchResult = m_muonTrackTruthTool->match(truth_tree, muonSegments);
 
     // create a map of chamber index onto the truth segments
     std::map<Muon::MuonStationIndex::ChIndex, std::vector<ElementLink< xAOD::MuonSegmentContainer> > > chamberTruthSegmentLinks;

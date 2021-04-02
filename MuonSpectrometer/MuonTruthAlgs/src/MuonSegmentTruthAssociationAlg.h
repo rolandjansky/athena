@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTHPARTICLEALGS_MUONSEGMENTTRUTHASSOCIATION_H
 #define TRUTHPARTICLEALGS_MUONSEGMENTTRUTHASSOCIATION_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -23,15 +23,15 @@
 
 namespace Muon {
 
-class MuonSegmentTruthAssociationAlg : public AthAlgorithm  {
+class MuonSegmentTruthAssociationAlg : public AthReentrantAlgorithm  {
 
 public:
   // Constructor with parameters:
   MuonSegmentTruthAssociationAlg(const std::string &name,ISvcLocator *pSvcLocator);
 
   // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
