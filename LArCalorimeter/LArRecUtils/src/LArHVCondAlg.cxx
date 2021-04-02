@@ -49,6 +49,7 @@
 
 #define VDIFF_MAX 0.01 // maximum voltage difference allowed to be treated as equal
 #define WDIFF_MAX 0.0001 // maximum weight difference allowed to be treated as equal
+#define IDIFF_MAX 0.1 // maximum current difference allowed to be treated as equal
 
 #define HV_NON_NOMINAL_TOLERANCE 10 // tolerance : 1V for HV
 #define DEAD_HV_THRESHOLD 10 // HV <10 V="dead"
@@ -596,7 +597,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
             unsigned int found=0;
             for(unsigned int i=0;i<v.size();++i) {
                for(unsigned int j=0; j<v.size(); ++j) {
-                  if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX  && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX) {
+                  if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX && fabs(v[i].current - oldv[j].current) < IDIFF_MAX  
+                               && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX ) {
                      ++found;
                      break;
                   }
@@ -682,7 +684,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
           unsigned int found=0;
           for(unsigned int i=0;i<v.size();++i) {
              for(unsigned int j=0; j<v.size(); ++j) {
-                if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX  && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX) {
+                if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX && fabs(v[i].current - oldv[j].current) < IDIFF_MAX  
+                       && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX) {
                    ++found;
                    break;
                 }
@@ -774,7 +777,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
             unsigned int found=0;
             for(unsigned int i=0;i<v.size();++i) {
                for(unsigned int j=0; j<v.size(); ++j) {
-                  if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX  && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX) {
+                  if(fabs(v[i].hv - oldv[j].hv) < VDIFF_MAX && fabs(v[i].current - oldv[j].current) < IDIFF_MAX 
+                           && fabs(v[i].weight - oldv[j].weight) < WDIFF_MAX) {
                      ++found;
                      break;
                   }
