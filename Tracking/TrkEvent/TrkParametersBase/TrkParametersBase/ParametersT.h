@@ -14,11 +14,6 @@
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkSurfaces/Surface.h"
-/*
- * Needed for persistency
- * friends
- */
-
 namespace Trk {
 class MaterialEffectsEngine;
 

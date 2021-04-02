@@ -22,7 +22,6 @@ Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   : ParametersBase<DIM, T>(covariance)
   , m_position(Amg::Vector3D(parameters[x], parameters[y], parameters[z]))
   , m_momentum(Amg::Vector3D(parameters[3], parameters[4], parameters[5]))
-  , m_surface{ nullptr }
   , m_cIdentifier(cIdentifier)
 {
 
@@ -39,7 +38,7 @@ Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   this->m_parameters[qOverP] = parameters[6] / this->momentum().mag();
 
   /* we need all the above to be there for the surfac*/
-  this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
+  m_surface = S(this->m_position, curvilinearFrame());
 }
 
 // Constructor with TP arguments
@@ -52,7 +51,6 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   AmgSymMatrix(DIM) * cov,
   unsigned int cIdentifier)
   : ParametersBase<DIM, T>()
-  , m_surface{ nullptr }
   , m_cIdentifier(cIdentifier)
 {
   this->m_covariance.reset(cov);
@@ -73,11 +71,12 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 
   // make sure that the position & momentum are calculated
   double p = std::abs(1. / tqOverP);
-  this->m_momentum = Amg::Vector3D(
-    p * std::cos(tphi) * std::sin(ttheta), p * std::sin(tphi) * std::sin(ttheta), p * std::cos(ttheta));
+  this->m_momentum = Amg::Vector3D(p * std::cos(tphi) * std::sin(ttheta),
+                                   p * std::sin(tphi) * std::sin(ttheta),
+                                   p * std::cos(ttheta));
 
   /* we need all the above for the surface*/
-  this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
+  m_surface= S(this->m_position, curvilinearFrame());
 }
 
 // full global constructor
@@ -89,7 +88,6 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   AmgSymMatrix(DIM) * cov,
   unsigned int cIdentifier)
   : ParametersBase<DIM, T>()
-  , m_surface{ nullptr }
   , m_cIdentifier(cIdentifier)
 {
   this->m_chargeDef.setCharge(charge);
@@ -110,7 +108,7 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   this->m_momentum = mom;
 
   // we need all the above to create the surface
-  this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
+  m_surface = S(this->m_position, curvilinearFrame());
 }
 
 // Copy constructor
@@ -121,12 +119,9 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 
   , m_position(rhs.position())
   , m_momentum(rhs.momentum())
-  , m_surface(nullptr)
+  , m_surface(rhs.m_surface)
   , m_cIdentifier(rhs.m_cIdentifier)
 {
-  m_surface.reset((rhs.m_surface && rhs.m_surface->isFree()
-                     ? rhs.m_surface->clone()
-                     : rhs.m_surface.get()));
   if (rhs.covariance()) {
     m_covariance = std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance());
   }
@@ -145,9 +140,7 @@ CurvilinearParametersT<DIM, T, S>::operator=(
                      : nullptr;
     m_position = rhs.position();
     m_momentum = rhs.momentum();
-    m_surface.reset((rhs.m_surface && rhs.m_surface->isFree())
-                      ? rhs.m_surface->clone()
-                      : rhs.m_surface.get());
+    m_surface = rhs.m_surface;
     m_chargeDef = rhs.m_chargeDef;
     m_cIdentifier = rhs.m_cIdentifier;
   }
@@ -194,7 +187,7 @@ template<int DIM, class T, class S>
 bool
 CurvilinearParametersT<DIM, T, S>::hasSurface() const
 {
-  return m_surface != nullptr;
+  return true;
 }
 
 /** Access to the Surface method */
@@ -202,7 +195,7 @@ template<int DIM, class T, class S>
 const S&
 CurvilinearParametersT<DIM, T, S>::associatedSurface() const
 {
-  return *m_surface;
+  return m_surface;
 }
 
 // equality operator
@@ -371,7 +364,7 @@ Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(
       updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
   }
   // Reset also the surface
-  this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
+  m_surface = S(this->m_position, curvilinearFrame());
 }
 
 } // end of namespace Trk
