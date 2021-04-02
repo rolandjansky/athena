@@ -1704,6 +1704,25 @@ def dump_TgcClusterOnTrack (p, f):
     return
     
 
+def dump_sTgcClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    fprint (f, p.detectorElement().identifyHash().value())
+    return
+    
+
+def dump_MMClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    fprint (f, p.detectorElement().identifyHash().value())
+    fprint (f, '\n    stripDriftDists: ', list(p.stripDriftDists()))
+    fprint (f, '\n    stripDriftDistErrors:')
+    for m in p.stripDriftDistErrors():
+        fprint ('\n      ')
+        dump_AmgMatrix (m, f)
+    return
+    
+
 def dump_CscClusterOnTrack (p, f):
     dump_MuonClusterOnTrack (p, f)
     dump_EL (p.prepRawDataLink(), f)
@@ -1744,6 +1763,10 @@ def dump_measurement (p, f):
         dump_RpcClusterOnTrack (p, f)
     elif nm == 'Muon::TgcClusterOnTrack':
         dump_TgcClusterOnTrack (p, f)
+    elif nm == 'Muon::sTgcClusterOnTrack':
+        dump_sTgcClusterOnTrack (p, f)
+    elif nm == 'Muon::MMClusterOnTrack':
+        dump_MMClusterOnTrack (p, f)
     elif nm == 'Muon::CscClusterOnTrack':
         dump_CscClusterOnTrack (p, f)
     elif nm == 'Trk::PseudoMeasurementOnTrack':
