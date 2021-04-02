@@ -119,10 +119,13 @@ private:
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
   std::string m_vertexContainerName;
+  bool m_insituCombMassCalib;
+  std::vector<TString> m_insituCombMassConfig;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
   std::vector<TEnv*> m_globalTimeDependentConfigs;
+  std::vector<TEnv*> m_globalInsituCombMassConfig;
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;
@@ -145,6 +148,8 @@ private:
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
   JetSmearingCorrection* m_jetSmearCorr;
+  JMSCorrection *m_insituCombMassCorr_tmp;
+  std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
 
 }; 
 
