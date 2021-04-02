@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONTRACKTRUTHTOOL_H
@@ -43,7 +43,7 @@ namespace Muon {
   class MuonTrackTruth {
   public:
     const TrackRecord* truthTrack;
-    const TruthTrajectory* truthTrajectory;
+    std::shared_ptr<const TruthTrajectory> truthTrajectory;
     bool isHitMatched;
     bool isParameterMatched;
     MuonTechnologyTruth mdts;
@@ -78,7 +78,7 @@ namespace Muon {
     public:
     struct TruthTreeEntry {
       const TrackRecord* truthTrack;
-      const TruthTrajectory* truthTrajectory;
+      std::shared_ptr<const TruthTrajectory> truthTrajectory;
       MuonSimDataCollection mdtHits;
       CscSimDataCollection  cscHits;
       MuonSimDataCollection rpcHits;
@@ -98,6 +98,7 @@ namespace Muon {
     // collect track record entries per barcode
     typedef std::map<int,TruthTreeEntry> TruthTree;
     typedef TruthTree::iterator          TruthTreeIt;
+    typedef TruthTree::const_iterator    TruthTreeConstIt;
   
   public:
     /** access to tool interface */
@@ -105,28 +106,28 @@ namespace Muon {
 
 
     /** @brief perform truth matching for a given set of tracks */
-    virtual ResultVec match(const TrackCollection& tracks ) const = 0;
+    virtual ResultVec match(const TruthTree& truth_tree, const TrackCollection& tracks ) const = 0;
 
     /** @brief perform truth matching for a given set of segments */
-    virtual SegmentResultVec match(const std::vector<const MuonSegment*>& segments ) const = 0;
+    virtual SegmentResultVec match(const TruthTree& truth_tree, const std::vector<const MuonSegment*>& segments ) const = 0;
 
     /** create truth tree from sim data */
     virtual const TruthTree createTruthTree(const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
 					    std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const = 0;
 
     /** @brief get track truth */
-    virtual MuonTrackTruth getTruth( const Trk::Track& track, bool restrictedTruth = false ) const = 0;
+    virtual MuonTrackTruth getTruth(const TruthTree& truth_tree, const Trk::Track& track, bool restrictedTruth = false ) const = 0;
 
     /** @brief get segment truth for a list of segments, the segments will be considered to belong to the same muon */
-    virtual MuonTrackTruth getTruth( const std::vector<const MuonSegment*>& segments, bool restrictedTruth = false ) const = 0;
+    virtual MuonTrackTruth getTruth(const TruthTree& truth_tree, const std::vector<const MuonSegment*>& segments, bool restrictedTruth = false ) const = 0;
 
     /** @brief get segment truth */
-    virtual MuonTrackTruth getTruth( const Muon::MuonSegment& segment ) const = 0;
+    virtual MuonTrackTruth getTruth(const TruthTree& truth_tree, const Muon::MuonSegment& segment ) const = 0;
 
     /** @brief get truth for a give set of hits. If restrictedTruth is set to true only missed hits 
 	in chambers with hits will be counted.
     */
-    virtual MuonTrackTruth getTruth( const std::vector<const Trk::MeasurementBase*>& measurements, bool restrictedTruth = false ) const = 0;
+    virtual MuonTrackTruth getTruth(const TruthTree& truth_tree, const std::vector<const Trk::MeasurementBase*>& measurements, bool restrictedTruth = false ) const = 0;
 
     /// returns the mother particle of the particle with barcodeIn if it is found in the truth trajectory
     /// It traces the decay chain until if finds the first particle that is different flavor from the starting one.

@@ -66,27 +66,27 @@ namespace Muon {
     StatusCode initialize();
     
     /** @brief perform truth matching for a given set of tracks */
-    ResultVec match(const TrackCollection& tracks ) const;
+    ResultVec match(const TruthTree& truth_tree,  const TrackCollection& tracks ) const;
 
     /** @brief perform truth matching for a given set of segments */
-    SegmentResultVec match(const std::vector<const MuonSegment*>& segments ) const;
+    SegmentResultVec match(const TruthTree& truth_tree,  const std::vector<const MuonSegment*>& segments ) const;
 
     /** @brief get track truth */
-    MuonTrackTruth getTruth( const Trk::Track& track, bool restrictedTruth = false ) const;
+    MuonTrackTruth getTruth(const TruthTree& truth_tree,  const Trk::Track& track, bool restrictedTruth = false ) const;
 
     /** @brief get segment truth for a list of segments, the segments will be considered to belong to the same muon */
-    MuonTrackTruth getTruth( const std::vector<const MuonSegment*>& segments, bool restrictedTruth = false ) const;
+    MuonTrackTruth getTruth(const TruthTree& truth_tree,  const std::vector<const MuonSegment*>& segments, bool restrictedTruth = false ) const;
 
     /** @brief get segment truth */
-    MuonTrackTruth getTruth( const Muon::MuonSegment& segment ) const;
+    MuonTrackTruth getTruth(const TruthTree& truth_tree,  const Muon::MuonSegment& segment ) const;
 
     /** @brief get truth for a give set of hits. If restrictedTruth is set to true only missed hits 
 	in chambers with hits will be counted.
     */
-    MuonTrackTruth getTruth( const std::vector<const Trk::MeasurementBase*>& measurements, bool restrictedTruth = false ) const;
+    MuonTrackTruth getTruth(const TruthTree& truth_tree,  const std::vector<const Trk::MeasurementBase*>& measurements, bool restrictedTruth = false ) const;
 
     /** create truth tree from sim data */
-    const TruthTree createTruthTree(const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
+    const TruthTree createTruthTree( const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
 				    std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const;
 
     /// Returns the mother particle of the particle with barcodeIn if it is found in the truth trajectory.
@@ -108,11 +108,15 @@ namespace Muon {
 
   private:
 
-    MuonTrackTruth getTruth( const std::vector<const Trk::MeasurementBase*>& measurements,
-			     TruthTreeEntry& truthEntry, bool restrictedTruth ) const;
+    MuonTrackTruth getTruth(const std::vector<const Trk::MeasurementBase*>& measurements,
+                            const TruthTreeEntry& truthEntry, bool restrictedTruth ) const;
 
-    void addSimDataToTree( const MuonSimDataCollection* simDataCol ) const;
-    void addCscSimDataToTree( const CscSimDataCollection* simDataCol ) const;
+    void addSimDataToTree(TruthTree& truth_tree,
+                          std::map<int,int>& barcode_map, 
+                          const MuonSimDataCollection* simDataCol ) const;
+    void addCscSimDataToTree(TruthTree& truth_tree,
+                             std::map<int,int>& barcode_map, 
+                             const CscSimDataCollection* simDataCol ) const;
 
     void addMdtTruth( MuonTechnologyTruth& trackTruth, const Identifier& id, const Trk::MeasurementBase& meas, 
 		      const MuonSimDataCollection& simCol ) const;
@@ -130,8 +134,7 @@ namespace Muon {
 
     int manipulateBarCode( int barcode ) const;
 
-    void clear() const;
-
+   
     bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
 
     /// Returns the initial particle of the particle with barcodeIn if it is found in the truth trajectory.
@@ -146,10 +149,7 @@ namespace Muon {
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"Printer","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajectoryBuilder{this,"TruthTrajectoryBuilder","Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder"};
 
-    mutable TruthTree m_truthTree;
-    mutable std::vector<std::unique_ptr<TruthTrajectory> > m_truthTrajectoriesToBeDeleted;
-    mutable std::map<int,int> m_barcodeMap; // map used to link barcode of TrackRecord particles/hits to 'final' state barcode
-
+    
     Gaudi::Property<bool> m_manipulateBarCode{this,"ManipulateBarCode",false};
     Gaudi::Property<bool> m_doSummary{this,"DoSummary",false};
     Gaudi::Property<bool> m_matchAllParticles{this,"MatchAllParticles",true};

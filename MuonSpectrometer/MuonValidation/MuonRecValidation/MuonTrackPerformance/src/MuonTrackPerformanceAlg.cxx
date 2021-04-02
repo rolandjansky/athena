@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackPerformance/MuonTrackPerformanceAlg.h"
@@ -144,43 +144,6 @@ StatusCode MuonTrackPerformanceAlg::execute()
   return StatusCode::SUCCESS;
 }
 
-bool MuonTrackPerformanceAlg::handleSegmentTruth( const std::vector<const Muon::MuonSegment*>& segments ) {
-  Muon::IMuonTrackTruthTool::SegmentResultVec result = m_truthTool->match(segments);
-  Muon::IMuonTrackTruthTool::SegmentResultVec::iterator rit = result.begin();
-  Muon::IMuonTrackTruthTool::SegmentResultVec::iterator rit_end = result.end();
-  for( ;rit!=rit_end;++rit ){
-      
-    Muon::MuonTrackTruth& trackTruth = rit->second;
-    if( rit == result.begin() ) {
-      if( trackTruth.mdts.missedChambers.size() > 0 ){
-      	if( m_debug ) *m_log << MSG::DEBUG << "Missing mdt chamber " << endmsg;
-      }
-      if(m_idHelperSvc->hasCSC()){
-	if( trackTruth.cscs.missedChambers.size() > 0 ){
-	  if( m_debug ) *m_log << MSG::DEBUG << "Missing csc chamber " << endmsg;
-	}
-      }
-      if(m_idHelperSvc->hasSTgc()){
-	if( trackTruth.stgcs.missedChambers.size() > 0 ){
-	  if( m_debug ) *m_log << MSG::DEBUG << "Missing stgc chamber " << endmsg;
-	}
-      }
-      if(m_idHelperSvc->hasMM()){
-	if( trackTruth.mms.missedChambers.size() > 0 ){
-	  if( m_debug ) *m_log << MSG::DEBUG << "Missing mm chamber " << endmsg;
-	}
-      }
-      if( trackTruth.rpcs.missedChambers.size() > 0 ){
-      	if( m_debug ) *m_log << MSG::DEBUG << "Missing rpc chamber " << endmsg;
-      }
-      if( trackTruth.tgcs.missedChambers.size() > 0 ){
-      	if( m_debug ) *m_log << MSG::DEBUG << "Missing tgc chamber " << endmsg;
-      }
-    }
-  }
-  return true;
-}
-
 bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombination& combi ) {
   /** This method loops over the segments in the combi and filles them into the internal structure of the MuonCombiTrackMaker */
 
@@ -215,7 +178,7 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
 
 bool MuonTrackPerformanceAlg::handleTracks() {
 
-  std::unique_ptr<TrackCollection> allTracks(new TrackCollection());
+  std::unique_ptr<TrackCollection> allTracks = std::make_unique<TrackCollection>();
   if(!m_trackKey.key().empty()){ //MS tracks
     SG::ReadHandle<TrackCollection> trackCol(m_trackKey);
     if (!trackCol.isValid() ) {
@@ -328,7 +291,7 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
     if(!simDataMap.isPresent()) continue;
     muonSimData.push_back(simDataMap.cptr());
   }
-  const CscSimDataCollection* cscSimData=NULL;
+  const CscSimDataCollection* cscSimData=nullptr;
   if(m_idHelperSvc->hasCSC()){
     SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
     if(!cscSimDataMap.isValid()){
@@ -370,7 +333,7 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
   unsigned int nmatched(0);
   unsigned int nmatchedSecondary(0);
   
-  Muon::IMuonTrackTruthTool::ResultVec result = m_truthTool->match(trackCollection);
+  Muon::IMuonTrackTruthTool::ResultVec result = m_truthTool->match(truthTree, trackCollection);
   Muon::IMuonTrackTruthTool::ResultVec::iterator rit = result.begin();
   Muon::IMuonTrackTruthTool::ResultVec::iterator rit_end = result.end();
   for( ;rit!=rit_end;++rit ){
