@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONTRACKSEGMENTMATCHINGTOOL_H
@@ -7,7 +7,6 @@
  
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonTrackSegmentMatchingTool("Muon::IMuonTrackSegmentMatchingTool",1,0);
 
 namespace Trk {
   class Track;
@@ -23,7 +22,10 @@ namespace Muon {
   {      
     public:
     /** access to tool interface */
-    static const InterfaceID& interfaceID();
+    static const InterfaceID& interfaceID(){
+        static const InterfaceID IID_IMuonTrackSegmentMatchingTool("Muon::IMuonTrackSegmentMatchingTool",1,0);
+        return IID_IMuonTrackSegmentMatchingTool;
+    }
 
     /** @brief clean a track, returns a pointer to a new track if successfull.
 	If the input track is does not require cleaning a pointer the the initial track is return in which case the 
@@ -32,14 +34,10 @@ namespace Muon {
 	The caller should ensure the track gets deleted. */
     virtual bool match( const Trk::Track& track, const MuonSegment& segment, bool useTightCuts = false ) const = 0;
 
-    virtual void cleanUp() const = 0;
+    virtual ~IMuonTrackSegmentMatchingTool() = default;
   };
   
-  inline const InterfaceID& IMuonTrackSegmentMatchingTool::interfaceID()
-  {
-    return IID_IMuonTrackSegmentMatchingTool;
-  }
-
+  
 } // end of name space
 
 #endif 
