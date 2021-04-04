@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -55,7 +55,7 @@ namespace InDet
   private:
 
     //Monitoring of the vertex variables
-    void monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const;
+    void monitor_vertex( const std::string &prefix, const xAOD::Vertex& vertex ) const;
 
     SG::ReadHandleKey<TrackCollection> m_trkTracksName{this,"TrkTracksName","Tracks","Trk::Track Collection used in Vertexing"};
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};

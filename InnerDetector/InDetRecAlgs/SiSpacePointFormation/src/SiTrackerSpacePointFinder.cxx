@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -284,7 +284,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       auto spacepointCollection = std::make_unique< SpacePointCollection >(idHash);
       spacepointCollection->setIdentifier(elementID);
 
-      if ((*colNext)->size() != 0)
+      if (!(*colNext)->empty())
       {
         m_SiSpacePointMakerTool->fillPixelSpacePointCollection(*colNext,spacepointCollection.get());
       }
@@ -314,7 +314,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
   // store the overlap space points.
   // check that the set isn't empty.
-  if (spacepointoverlapCollection->size()==0)
+  if (spacepointoverlapCollection->empty())
   {
     ATH_MSG_DEBUG( "No overlap space points found" );
   }
@@ -412,7 +412,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
 
   // Retrieve the neighbours of the detector element
   const std::vector<IdentifierHash>* others(properties->neighbours(triggerIdHash));
-  if (others==0 || others->empty() ) return;
+  if (others==nullptr || others->empty() ) return;
 
   // Save the current detector element and clusters
   neighbourElements[0]  = triggerElement;

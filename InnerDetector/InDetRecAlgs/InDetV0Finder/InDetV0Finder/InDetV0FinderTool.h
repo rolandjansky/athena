@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -173,7 +173,7 @@ namespace InDet
     mutable std::atomic<unsigned int>  m_Gamma_stored;
 
 
-    void SGError(std::string errService) const;
+    void SGError(const std::string& errService) const;
 
     double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) const;
 
@@ -181,7 +181,7 @@ namespace InDet
 
     bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::VertexContainer * vertColl) const;
     bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::Vertex * vertex) const;
-    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D vertex) const;
+    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const Amg::Vector3D& vertex) const;
 
     bool pointAtVertex(const xAOD::Vertex* v0, const xAOD::Vertex* PV) const;
     bool pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexContainer * vertColl) const;
