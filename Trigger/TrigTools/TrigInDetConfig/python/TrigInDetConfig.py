@@ -4,7 +4,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 from InDetRecExample.InDetKeys import InDetKeys
 
 
@@ -563,9 +562,6 @@ def spacePointsMakingCfg(flags, signature):
   return acc
 
 
-def __trackCollName(signatureName):
-    return "HLT_IDTrkTrack_"+signatureName+"_FTF"
-
 def ftfCfg(flags, roisKey, signature, signatureName):
   acc = ComponentAccumulator()
 
@@ -578,6 +574,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
 
   pixRegSelTool = acc.popToolsAndMerge( regSelTool_Pixel_Cfg( flags) )
   sctRegSelTool = acc.popToolsAndMerge( regSelTool_SCT_Cfg( flags) )
+
 
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   acc.merge( TrackingGeometrySvcCfg( flags ) )
@@ -601,6 +598,9 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                                                          ReadKey  = "PixelDetectorElementCollection",
                                                                          WriteKey = "PixelDetElementBoundaryLinks_xk") )
 
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  config = getInDetTrigConfig(signatureName)
+
   ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder_" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature ),
@@ -613,7 +613,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                          doZFinder                = False,
                                          SeedRadBinWidth          =  flags.InDet.Tracking.seedRadBinWidth,
                                          TrackInitialD0Max        = 1000. if flags.InDet.Tracking.extension == 'cosmics' else 20.0,
-                                         TracksName               = __trackCollName(signatureName),
+                                         TracksName               = config.trkTracks_FTF(),
                                          TripletDoPSS             = False,
                                          Triplet_D0Max            = flags.InDet.Tracking.d0SeedMax,
                                          Triplet_D0_PPS_Max       = flags.InDet.Tracking.d0SeedPPSMax,
@@ -648,6 +648,9 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def trackConverterCfg(flags, signature, signatureName):
   acc = ComponentAccumulator()
 
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  config = getInDetTrigConfig(signatureName)
+
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
   track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
@@ -658,8 +661,8 @@ def trackConverterCfg(flags, signature, signatureName):
                                                           ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'])
   acc.addPublicTool(creatorTool)
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                          TrackName           = __trackCollName(signatureName),
-                                                          TrackParticlesName  = recordable("HLT_IDTrack_"+signatureName+"_FTF"),
+                                                          TrackName           = config.trkTracks_FTF(),
+                                                          TrackParticlesName  = config.tracks_FTF(),
                                                           ParticleCreatorTool = creatorTool)
 
   acc.addEventAlgo(trackParticleCnv)

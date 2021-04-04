@@ -24,16 +24,16 @@ def makeInDetPrecisionTracking( config = None,
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
-  doTRT = config.PT.setting.doTRT
+  doTRT = config.doTRT
 
   algNamePrefix = "InDetTrigMT" 
   #Add suffix to the algorithms
-  signature =  "_{}".format( config.name )
+  signature =  "_{}".format( config.input_name )
 
   #Name settings for output Tracks/TrackParticles
-  outTrkTracks        = config.PT.trkTracksPT() #Final output Track collection
-  outTrackParticles   = config.PT.tracksPT( doRecord = config.isRecordable ) #Final output xAOD::TrackParticle collection
-  ambiTrackCollection = config.PT.trkTracksAS()  #Ambiguity solver tracks
+  outTrkTracks        = config.trkTracks_IDTrig() #Final output Track collection
+  outTrackParticles   = config.tracks_IDTrig() #Final output xAOD::TrackParticle collection
+  ambiTrackCollection = config.trkTracks_IDTrig()+"_Amb"  #Ambiguity solver tracks
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
@@ -49,7 +49,7 @@ def makeInDetPrecisionTracking( config = None,
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
     verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                             ( 'TrackCollection' , 'StoreGateSvc+' + config.FT.trkTracksFTF() )]
+                             ( 'TrackCollection' , 'StoreGateSvc+' + config.trkTracks_FTF() )]
   
   from AthenaCommon.AppMgr import ToolSvc
 
@@ -84,15 +84,15 @@ def makeInDetPrecisionTracking( config = None,
   #                        Ambiguity solving stage
   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name,  get_scoremap_name
   ambSolvingStageAlgs = [
-                           ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+                           ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.input_name ),
                                                       config                = config,
-                                                      inputTrackCollection  = config.FT.trkTracksFTF(),
-                                                      outputTrackScoreMap   = get_scoremap_name( config.name ), #Map of tracks and their scores
+                                                      inputTrackCollection  = config.trkTracks_FTF(),
+                                                      outputTrackScoreMap   = get_scoremap_name( config.input_name ), #Map of tracks and their scores
                                                     ),
   
-                           ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+                           ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.input_name ),
                                                        config                = config,
-                                                       inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
+                                                       inputTrackScoreMap    = get_scoremap_name( config.input_name ), #Map of tracks and their scores, 
                                                        outputTrackCollection = ambiTrackCollection  )
                         ]
    
@@ -147,15 +147,14 @@ def makeInDetPrecisionTracking( config = None,
 
             from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
  
-            #from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
             InDetTrigTRTRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(algNamePrefix, signature),
                                                      TRTRIOLocation = TrigTRTKeys.DriftCircles,
                                                      TRTRDOLocation = TRT_RDO_Key,
                                                      #FIXME:
-                                                     #EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',signature)],
-                                                     #PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',signature)],
-                                                     #doFullScan =   InDetTrigSliceSettings[('doFullScan',signature)],
+                                                     # EtaHalfWidth = config.etaHalfWidth
+                                                     # PhiHalfWidth = config.phiHalfWidth 
+                                                     # doFullScan   = configdoFullScan
                                                      TRT_DriftCircleTool = InDetTrigTRT_DriftCircleTool )
             InDetTrigTRTRIOMaker.isRoI_Seeded = True
             InDetTrigTRTRIOMaker.RoIs = rois
@@ -252,7 +251,7 @@ def makeInDetPrecisionTracking( config = None,
                                                                   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                                   )
 
-            InDetTrigExtScoringTool.minPt = config.PT.setting.pTmin 
+            InDetTrigExtScoringTool.minPt = config.pTmin 
 
             ToolSvc += InDetTrigExtScoringTool
 
@@ -283,7 +282,7 @@ def makeInDetPrecisionTracking( config = None,
   #
   #
   from .InDetTrigCommon import trackParticleCnv_builder
-  trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), #IDTrig suffix signifies that this is for precision tracking
+  trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.input_name + '_IDTrig' ), #IDTrig suffix signifies that this is for precision tracking
                                                  config               = config,
                                                  inTrackCollectionKey = outTrkTracks,
                                                  outTrackParticlesKey = outTrackParticles,
