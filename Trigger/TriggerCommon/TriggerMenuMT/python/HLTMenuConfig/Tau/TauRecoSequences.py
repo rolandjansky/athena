@@ -118,11 +118,13 @@ def _algoTauPreselection(inputRoIs, tracks, step):
 
 def _algoTauPrecision(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecision
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
     algo                                 = TrigTauRecMerged_TauPrecision(name= "TrigTauRecMerged_TauPrecision_"+step)
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
-    algo.Key_vertexInputContainer        = ""
+    algo.Key_vertexInputContainer        = getInDetTrigConfig( "tauIso" ).vertex
     algo.Key_trackPartInputContainer     = tracks
     if "Id" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
@@ -140,11 +142,12 @@ def _algoTauPrecision(inputRoIs, tracks, step):
 
 def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
-    algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True)
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True) 
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
-    algo.Key_vertexInputContainer        = ""
+    algo.Key_vertexInputContainer        = getInDetTrigConfig( "tauIso" ).vertex
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
@@ -269,6 +272,7 @@ def tauIdSequence( RoIs, name):
     ViewVerifyId.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI'    ),
                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs      ),
                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing'   ),
+                                ( 'xAOD::VertexContainer', 'StoreGateSvc+'+getInDetTrigConfig( "tauIso" ).vertex),
                                 ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                 ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),
                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.tracks_IDTrig() )]

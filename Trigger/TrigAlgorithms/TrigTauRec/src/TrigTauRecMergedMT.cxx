@@ -158,6 +158,9 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto EF_beamspot_x    = Monitored::Scalar<float>("beamspot_x",-999.9);
   auto EF_beamspot_y    = Monitored::Scalar<float>("beamspot_y",-999.9);
   auto EF_beamspot_z    = Monitored::Scalar<float>("beamspot_z",-999.9);
+  auto EF_vertex_x      = Monitored::Scalar<float>("vertex_x", -999.9);
+  auto EF_vertex_y      = Monitored::Scalar<float>("vertex_y", -999.9); 
+  auto EF_vertex_z      = Monitored::Scalar<float>("vertex_z", -999.9);
 
   auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
@@ -182,7 +185,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
                    innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
 
@@ -363,11 +366,11 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     }
   }
 
+  const xAOD::VertexContainer* RoIVxContainer = nullptr;
+
   // get Vertex Container
   if(!m_vertexKey.key().empty()){
     SG::ReadHandle< xAOD::VertexContainer > VertexContainerHandle = SG::makeHandle( m_vertexKey,ctx );
-
-    const xAOD::VertexContainer* RoIVxContainer = nullptr;
 
     if( !VertexContainerHandle.isValid() ) {
       ATH_MSG_DEBUG(" No VxContainers retrieved for the trigger element");
@@ -393,7 +396,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   
   // dummy container passed to TauVertexVariables, not used in trigger though
   xAOD::VertexContainer dummyVxCont;
-  
+ 
   ATH_MSG_DEBUG("Starting tool loop with seed jet");
 
   for (const auto& tool : m_tools) {
@@ -403,7 +406,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     ++toolnum;
 
     if (tool->type() == "TauVertexFinder" ) {
-      processStatus = tool->executeVertexFinder(*p_tau);
+      processStatus = tool->executeVertexFinder(*p_tau,RoIVxContainer);
     }
     else if (tool->type() == "TauTrackFinder") {
       processStatus = tool->executeTrackFinder(*p_tau, *tauTrackHandle);
@@ -592,6 +595,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
         // Create a AmgSymMatrix to alter the vertex covariance mat.
         const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
         theBeamspot.setCovariancePosition(cov);
+    }
+
+    // monitoring tau vertex
+    if( p_tau->vertexLink().isValid() && p_tau->vertex()){
+        EF_vertex_x = p_tau->vertex()->x();
+        EF_vertex_y = p_tau->vertex()->y();       
+        EF_vertex_z = p_tau->vertex()->z();
     }
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
