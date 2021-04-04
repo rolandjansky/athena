@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelEndCap.h"
@@ -57,9 +57,9 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   //
   // Place the disks and cables on both sides
   //
-  GeoPixelDiskSLHC * pdslhc = 0;
-  GeoPixelDisk * pd = 0;
-  GeoPixelECCable * pecc = 0;
+  GeoPixelDiskSLHC * pdslhc = nullptr;
+  GeoPixelDisk * pd = nullptr;
+  GeoPixelECCable * pecc = nullptr;
   if (m_gmt_mgr->slhc()) {
     pdslhc = new GeoPixelDiskSLHC (m_DDmgr, m_gmt_mgr);
   } else {
@@ -83,7 +83,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       GeoNameTag * tag = new GeoNameTag(nameTag.str());
       GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zdisk));
 
-      GeoVPhysVol * diskPhys = 0;
+      GeoVPhysVol * diskPhys = nullptr;
       if (m_gmt_mgr->slhc()) {
 	diskPhys = pdslhc->Build();
       } else {

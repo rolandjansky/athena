@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,7 @@ using namespace PixelGeoDC2;
 PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)						 
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_detectorManager(0)
+    m_detectorManager(nullptr)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());

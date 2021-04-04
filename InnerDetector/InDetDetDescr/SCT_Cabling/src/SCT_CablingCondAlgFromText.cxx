@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -152,7 +152,7 @@ SCT_CablingCondAlgFromText::execute(const EventContext& ctx) const {
       } 
       // Check Link variable looks OK
       // The maximum value of an int is 2147483647 in decimal and 0x7fffffff in hexadecimal.
-      if (Link.size()==0 or Link.size()>10) {
+      if (Link.empty() or Link.size()>10) {
         ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source.value()
                       << ", Link (" << Link << ") cannot be converted to an integer");
         continue;

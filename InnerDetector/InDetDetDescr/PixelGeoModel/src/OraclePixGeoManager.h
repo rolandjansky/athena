@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OraclePixelGeoManager_H
@@ -834,7 +834,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   /////
  private:
 
-  double CalculateThickness(double,std::string);
+  double CalculateThickness(double,const std::string&);
   int determineDbVersion();
   void addDefaultMaterials();
   // return default length unit (Gaudi::Units::mm or Gaudi::Units::cm)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,10 +78,10 @@ void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,
     int stripP = strip + 1;
 
     if (stripM >= m_scheme.shift()) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_scheme.diodes() + m_scheme.shift()) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 }
 

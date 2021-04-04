@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build the global support frame
@@ -129,7 +129,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 
   // Make the side
   // Put the side in a box
-  GeoPhysVol * sideEnvelopePV = 0;
+  GeoPhysVol * sideEnvelopePV = nullptr;
   double zSideCenter = 0;
   int numElements = m_gmt_mgr->PixelFrameNumSideElements(section);
 
@@ -161,7 +161,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 	zSideMin = std::min(zSideMin, zminInput);
 	zSideMax = std::max(zSideMax, zmaxInput);
       }      
-      GeoShape * sideElementShape = 0;
+      GeoShape * sideElementShape = nullptr;
       GeoTrf::Transform3D rotateShape(GeoTrf::Transform3D::Identity());
       double shapeVolume = 0;
       if (same(zMin1,zMin2) && same(zMax1,zMax2)) { 

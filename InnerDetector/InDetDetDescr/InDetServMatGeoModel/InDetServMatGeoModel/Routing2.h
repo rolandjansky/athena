@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Routing2_H
@@ -65,9 +65,9 @@ private:
   HRoute  m_MSTM_HRouteInner;
   HRoute  m_MSTI_HRoute;
 
-  double eosTolerance( DetType::Type type, DetType::Part part);
-  double eosLength( DetType::Type type, DetType::Part part);
-  double eosHalfThickness( DetType::Type type, DetType::Part part);
+  double eosTolerance( DetType::Type type, DetType::Part part) const;
+  double eosLength( DetType::Type type, DetType::Part part) const;
+  double eosHalfThickness( DetType::Type type, DetType::Part part) const;
 
   void connect( ServiceVolume* prev, ServiceVolume* newv);
   void routeBarrelLayer(LayerContainer::const_iterator bl, LayerContainer::const_iterator blend, ServicesTracker& tracker, VRoute& route);

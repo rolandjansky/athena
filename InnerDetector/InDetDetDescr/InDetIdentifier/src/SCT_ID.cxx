@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -30,7 +30,7 @@ namespace{
 SCT_ID::SCT_ID(void)
   :
   m_neighboursByEta{invalidHashFunc, invalidHashFunc, invalidHashFunc , invalidHashFunc, invalidHashFunc},
-  m_dict(0),
+  m_dict(nullptr),
   m_wafer_hash_max(0),
   m_strip_hash_max(0),
   m_barrel_field(0),

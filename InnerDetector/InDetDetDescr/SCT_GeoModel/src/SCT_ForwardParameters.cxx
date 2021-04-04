@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_ForwardParameters.h"
@@ -12,8 +12,10 @@
 #include "SCT_GeoModel/SCT_FSIHelper.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+#include <memory>
+
 
 SCT_ForwardParameters::SCT_ForwardParameters(SCT_DataBase* rdb)
 {
@@ -257,12 +259,7 @@ SCT_ForwardParameters::fwdPatchPanelMaterial(int iType) const
 bool
 SCT_ForwardParameters::fwdPPConnectorPresent() const
 {
-  if (m_rdb->fwdPPCoolingSize() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdPPCoolingSize() > 0;
 }
 
 double
@@ -295,12 +292,7 @@ SCT_ForwardParameters::fwdPPConnectorMaterial() const
 bool
 SCT_ForwardParameters::fwdPPCoolingPresent() const
 {
-  if (m_rdb->fwdPPCoolingSize() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdPPCoolingSize() > 0;
 }
 
 double
@@ -436,12 +428,7 @@ SCT_ForwardParameters::fwdRingCoolingMaterial(int iRing) const
 bool
 SCT_ForwardParameters::fwdDiscFixationPresent() const
 {
-  if (m_rdb->fwdDiscFixationTable()->size() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdDiscFixationTable()->size() > 0;
 }
 
 double
@@ -590,12 +577,7 @@ SCT_ForwardParameters::fsiVector(int iWheel) const
 bool
 SCT_ForwardParameters::fwdCylinderServicePresent() const
 {
-  if (m_rdb->fwdCylServSize() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdCylServSize() > 0;
 }
 
 int
@@ -732,12 +714,7 @@ SCT_ForwardParameters::fwdTrtGapPos() const
 bool
 SCT_ForwardParameters::fwdOptoHarnessPresent() const
 {
-  if (m_rdb->fwdOptoHarnessTable()->size() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdOptoHarnessTable()->size() > 0;
 }
 
 int 
@@ -774,12 +751,12 @@ SCT_ForwardParameters&
 SCT_ForwardParameters::operator=(const SCT_ForwardParameters& right) {
   if (this != &right) {
     m_rdb = right.m_rdb;
-    m_fsiHelper.reset(new FSIHelper(m_rdb));
+    m_fsiHelper = std::make_unique<FSIHelper>(m_rdb);
   }
   return *this;
 }
 
 SCT_ForwardParameters::SCT_ForwardParameters(const SCT_ForwardParameters& right) {
   m_rdb = right.m_rdb;
-  m_fsiHelper.reset(new FSIHelper(m_rdb));
+  m_fsiHelper = std::make_unique<FSIHelper>(m_rdb);
 }

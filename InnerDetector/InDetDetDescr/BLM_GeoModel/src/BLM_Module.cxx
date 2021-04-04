@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BLM_GeoModel/BLM_Module.h"
@@ -33,7 +33,7 @@ GeoPhysVol* BLM_Module::Build(const StoredMaterialManager* mat_mgr, const BLM_Mo
   const GeoMaterial* copper = mat_mgr->getMaterial("std::Copper");
   const GeoMaterial* g10 = mat_mgr->getMaterial("std::G10");
   const GeoMaterial* diamond = mat_mgr->getMaterial("pix::Diamond");
-  if(diamond == NULL)
+  if(diamond == nullptr)
   {
   	diamond = mat_mgr->getMaterial("std::Carbon");
 //  	if(msg)
@@ -46,7 +46,7 @@ GeoPhysVol* BLM_Module::Build(const StoredMaterialManager* mat_mgr, const BLM_Mo
 //  }
   const GeoMaterial* stainless_steel = mat_mgr->getMaterial("std::Iron");
   const GeoMaterial* peek = mat_mgr->getMaterial("pix::Peek");
-  if(peek == NULL)
+  if(peek == nullptr)
   {     
   	if(msg)
   		(*msg) << "BLM _ PEEK _ MISSING." << endmsg;

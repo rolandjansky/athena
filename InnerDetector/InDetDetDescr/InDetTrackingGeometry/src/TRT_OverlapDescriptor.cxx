@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ bool InDet::TRT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
      if (strawInt != 0 && strawInt < strawMax && strawMax != -999){
         // get the next straw
         Identifier          nextID       =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt+nextInt);
-        const Trk::Surface* nextStraw    = (strawInt > 1  && strawInt < strawMax) ? (&(trtBaseElement->surface(nextID))) : 0;
+        const Trk::Surface* nextStraw    = (strawInt > 1  && strawInt < strawMax) ? (&(trtBaseElement->surface(nextID))) : nullptr;
         if (nextStraw)
             nextInt = checkAndFill(cSurfaces, *nextStraw, position, dir);
     } 
@@ -66,7 +66,7 @@ int InDet::TRT_OverlapDescriptor::checkAndFill(std::vector<Trk::SurfaceIntersect
         double d2 = (sDirection.cross((sfIntersection.position-sCenter))).squaredNorm();
         // check it 
         bool acceptSurface = d2 < (m_outsideTolerance*m_outsideTolerance*rSurface2);
-        if (acceptSurface) cSurfaces.push_back( Trk::SurfaceIntersection(sfIntersection, &sf) );
+        if (acceptSurface) cSurfaces.emplace_back(sfIntersection, &sf );
         // give the break signal if it's really inside
         return ( d2 < (m_breakTolerance*m_breakTolerance*rSurface2) ? 0 : (sfIntersection.position.phi() > sf.center().phi() ? 1 : -1) );
     }

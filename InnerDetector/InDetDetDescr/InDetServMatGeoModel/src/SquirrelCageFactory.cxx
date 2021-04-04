@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SquirrelCageFactory.h"
@@ -60,7 +60,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
   // Get table version
   // This is a work around to allow running with older DB releases.
   std::string sqversionStr = rdbAccessSvc()->getChildTag("SquirrelCage", indetVersionKey.tag(), indetVersionKey.node());
-  size_t pos = sqversionStr.find("-");
+  size_t pos = sqversionStr.find('-');
   int sqversion = 0;
   if (pos != std::string::npos && pos+1 != sqversionStr.size()) {
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
@@ -356,7 +356,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
   // Get table version
   // This is a work around to allow running with older DB releases.
   std::string sqversionStr = rdbAccessSvc()->getChildTag("SquirrelCage", indetVersionKey.tag(), indetVersionKey.node());
-  size_t pos = sqversionStr.find("-");
+  size_t pos = sqversionStr.find('-');
   int sqversion = 0;
   if (pos != std::string::npos && pos+1 != sqversionStr.size()) {
     std::istringstream tmpStr(sqversionStr.substr(pos+1));

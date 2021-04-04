@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatAthenaComps.h"
@@ -7,7 +7,7 @@
 
 InDetServMatAthenaComps::InDetServMatAthenaComps()
   : InDetDD::AthenaComps("InDetServMatGeoModel"),
-    m_builderTool(0)
+    m_builderTool(nullptr)
 {}
 
  

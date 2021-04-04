@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -194,7 +194,7 @@ StatusCode PixelDetectorTool::create()
     switches.setServicesOnLadder(m_servicesOnLadder);
     switches.setServices(m_services); //Overwrite there for the time being.
 
-    const PixelID * idHelper = 0;
+    const PixelID * idHelper = nullptr;
     if (detStore()->retrieve(idHelper, "PixelID").isFailure()) {
       msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
@@ -278,7 +278,7 @@ StatusCode PixelDetectorTool::create()
     } 
     
     GeoPhysVol *world=&*theExpt->getPhysVol();
-    m_manager = 0;
+    m_manager = nullptr;
  
     if (!m_devVersion) {
       
@@ -337,7 +337,7 @@ StatusCode PixelDetectorTool::clear()
   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   return StatusCode::SUCCESS;
 }

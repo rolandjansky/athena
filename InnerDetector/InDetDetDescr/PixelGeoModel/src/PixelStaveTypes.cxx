@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelStaveTypes.h"
@@ -34,7 +34,7 @@ PixelStaveTypes::Key::operator<(const PixelStaveTypes::Key &rhs) const
 }
 
 
-PixelStaveTypes::PixelStaveTypes(const IGeometryDBSvc * db, IRDBRecordset_ptr table)
+PixelStaveTypes::PixelStaveTypes(const IGeometryDBSvc * db, const IRDBRecordset_ptr& table)
 {
   for (unsigned int i = 0; i < db->getTableSize(table); i++) {
     int layer = db->getInt(table,"LAYER",i);

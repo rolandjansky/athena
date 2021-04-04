@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -37,12 +37,12 @@ GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
                              PixelGeometryManager* mgr)
   : GeoVPixelFactory (ddmgr, mgr)
 {
-  m_supportPhysA=0;
-  m_supportPhysC=0;
-  m_supportMidRing=0;
-  m_xformSupportA=0;
-  m_xformSupportC=0;
-  m_xformSupportMidRing=0;
+  m_supportPhysA=nullptr;
+  m_supportPhysC=nullptr;
+  m_supportMidRing=nullptr;
+  m_xformSupportA=nullptr;
+  m_xformSupportC=nullptr;
+  m_xformSupportMidRing=nullptr;
 }
 
 GeoVPhysVol* GeoPixelLayer::Build() {
@@ -70,7 +70,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
-  GeoPixelStaveSupport * staveSupport = 0;
+  GeoPixelStaveSupport * staveSupport = nullptr;
   if (staveLayout ==0 || staveLayout==1) {
     staveSupport = new GeoPixelTMT (m_DDmgr, m_gmt_mgr);
   }
@@ -91,7 +91,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   if(!staveSupport)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endmsg; 
-      return 0;
+      return nullptr;
     }
 
   m_gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<m_gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
@@ -186,7 +186,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   int maxLadType = 0;
   std::vector<GeoVPhysVol *> ladderServicesArray;
   GeoTrf::Transform3D ladderServicesTransform(GeoTrf::Transform3D::Identity());
-  GeoVPhysVol* pigtailPhysVol = 0;
+  GeoVPhysVol* pigtailPhysVol = nullptr;
   GeoTrf::Transform3D transPigtail(GeoTrf::Transform3D::Identity());
 				
   // Only make services in non SLHC geometries 
@@ -210,7 +210,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     // NB. vector initializes its contents to zero.
     //std::vector<GeoVPhysVol *> ladderServicesArray(2*(maxLadType+1));
     ladderServicesArray.resize(2*(maxLadType+1));
-    GeoPixelLadderServices *firstLadderServices = 0;
+    GeoPixelLadderServices *firstLadderServices = nullptr;
     for(int iPhi = 0; iPhi < nSectors; iPhi++) {
       m_gmt_mgr->SetPhi(iPhi);
       int ladderType = m_gmt_mgr->PixelFluidOrient(m_gmt_mgr->GetLD(), iPhi);
@@ -344,7 +344,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //   GeoFullPhysVol* layerPhys = new GeoFullPhysVol(layerLog); // phys vol
 
 
-  GeoFullPhysVol* layerPhys = 0;
+  GeoFullPhysVol* layerPhys = nullptr;
  
   //
   // A few variables needed below
@@ -445,7 +445,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   }
   //  delete staveSupport;
   
-  if(layerPhys==0)
+  if(layerPhys==nullptr)
   {
       m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
       std::abort();

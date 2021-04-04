@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -114,8 +114,8 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
                                    PixelGeometryManager* mgr,
                                    InDetDD::Zone * pixZone) 
   : GeoVPixelFactory(ddmgr, mgr),
-    m_pixServBuilder(0),
-    m_servMatBuilder(0),
+    m_pixServBuilder(nullptr),
+    m_servMatBuilder(nullptr),
     m_layerShift(0)
 {
   
@@ -479,5 +479,5 @@ void GeoPixelServices::initializeOld(const std::string & a)
 // For interface
 GeoVPhysVol* GeoPixelServices::Build() 
 {
-  return 0;
+  return nullptr;
 }
