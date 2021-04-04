@@ -23,11 +23,11 @@ def FTFTrackSequence(ConfigFlags):
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
 
     verticesname = recordable("HLT_IDVertex_FS")
-    vtxAlgs = makeVertices( "jet", IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) , verticesname, IDTrigConfig )
+    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF() , verticesname, IDTrigConfig )
     prmVtx = vtxAlgs[-1]
 
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]
-    sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable )
+    sequenceOut = IDTrigConfig.tracks_FTF()
 
     return (TrkSeq, InputMakerAlg, sequenceOut)
 
@@ -42,7 +42,7 @@ def IsoHPtTrackTriggerHypoSequence():
         # Get sequence name
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
         IDTrigConfig = getInDetTrigConfig( 'jet' )
-        sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable )
+        sequenceOut = IDTrigConfig.tracks_FTF()
 
         #Setup the hypothesis algorithm
         theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlgMT("L2IsoHPtTrack")

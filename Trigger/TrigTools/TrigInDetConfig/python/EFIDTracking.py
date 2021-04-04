@@ -84,7 +84,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
       dataVerifier = None
       if verifier:
-         dataVerifier = get_idtrig_view_verifier(verifier+config.name)
+         dataVerifier = get_idtrig_view_verifier(verifier+config.input_name)
          viewAlgs.append( dataVerifier )
 
       #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
@@ -153,12 +153,12 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
 
          from .InDetTrigCommon import siSPSeededTrackFinder_builder, get_full_name
-         siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.name ),
+         siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.input_name ),
                                                                 config                = config,
-                                                                outputTracks          = config.PT.trkTracksPT(), 
+                                                                outputTracks          = config.trkTracks_IDTrig(), 
                                                                 trackingCuts          = trackingCuts,
                                                                 usePrdAssociationTool = usePrdAssociationTool,
-                                                                nameSuffix            = config.name )
+                                                                nameSuffix            = config.input_name )
 
          viewAlgs.append( siSPSeededTrackFinder )
 
@@ -170,8 +170,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #from .InDetTrigCommon import trackParticleCnv_builder
       #trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_EFID' ), 
       #                                               config               = config,
-      #                                               inTrackCollectionKey = config.PT.trkTracksPT(),#config.EFID.trkTracksEFID(),
-      #                                               outTrackParticlesKey = config.EFID.tracksEFID( doRecord = config.isRecordable),
+      #                                               inTrackCollectionKey = config.trkTracks_IDTrig(),
+      #                                               outTrackParticlesKey = config.tracks_EFID(),
       #                                               )
 
       #-----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #Verifier should not be necessary when both patt. rec. and PT runs in the same view -> None
       #Also provides particle cnv alg inside
       precisionAlgs = ambiguitySolverForIDPatternRecognition(config      = config,
-                                                             inputTracks = config.PT.trkTracksPT(), 
+                                                             inputTracks = config.trkTracks_IDTrig(), 
                                                              verifier    = None )
 
 
@@ -205,18 +205,18 @@ def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None 
    #                        Ambiguity solving stage
    from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name, get_scoremap_name
    
-   ambiguityScoreAlg = ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+   ambiguityScoreAlg = ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.input_name ),
                                                   config                = config,
                                                   inputTrackCollection  = inputTracks,
-                                                  outputTrackScoreMap   = get_scoremap_name( config.name ), #Map of tracks and their scores
+                                                  outputTrackScoreMap   = get_scoremap_name( config.input_name ), #Map of tracks and their scores
                                                  )
    ptAlgs.append( ambiguityScoreAlg )
    
    #FIXME: these alg internally don't expect EFID setting (but FTF), have to take into consideration
-   ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+   ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.input_name ),
                                                     config                = config,
-                                                    inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
-                                                    outputTrackCollection = config.PT.trkTracksPT()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
+                                                    inputTrackScoreMap    = get_scoremap_name( config.input_name ), #Map of tracks and their scores, 
+                                                    outputTrackCollection = config.trkTracks_IDTrig()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
 
    ptAlgs.append( ambiguitySolverAlg )
    
@@ -225,8 +225,8 @@ def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None 
    from .InDetTrigCommon import trackParticleCnv_builder
    trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), 
                                                   config               = config,
-                                                  inTrackCollectionKey = config.PT.trkTracksPT()+"_Amb",
-                                                  outTrackParticlesKey = config.PT.tracksPT( doRecord = config.isRecordable),
+                                                  inTrackCollectionKey = config.trkTracks_IDTrig()+"_Amb",
+                                                  outTrackParticlesKey = config.tracks_IDTrig(),
                                                   )
    
    ptAlgs.append( trackParticleCnvAlg )

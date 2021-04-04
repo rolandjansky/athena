@@ -21,7 +21,7 @@ def FullScanLRTTriggerSequence(ConfigFlags):
 
 
     TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, reco_algs])
-    sequenceOut = lrtcfg.FT.tracksFTF( doRecord = lrtcfg.isRecordable )
+    sequenceOut = lrtcfg.tracks_FTF()
 
     return (TrkSeq,im_alg, sequenceOut)
 

@@ -317,7 +317,7 @@ def adaptiveMultiVertexFinderTool_builder( signature ) :
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    singleTrackVertices= getInDetTrigConfig( signature ).addSingleTrackVertices 
+    singleTrackVertices = getInDetTrigConfig( signature ).addSingleTrackVertices 
 
 
     vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
