@@ -1154,6 +1154,7 @@ const Trk::TrackParameters* MuonSegmentRegionRecoveryTool::reachableDetEl( const
 
 
   void MuonSegmentRegionRecoveryTool::cleanUp() const {
+    m_trackSegmentMatchingTool->cleanUp();
   }
 
 }
