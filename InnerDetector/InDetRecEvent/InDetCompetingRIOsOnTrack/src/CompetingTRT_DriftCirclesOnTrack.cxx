@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,22 +19,22 @@
 // default constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
   Trk::CompetingRIOsOnTrack(),
-  m_associatedSurface(0),
+  m_associatedSurface(nullptr),
   m_globalPosition{},
-  m_containedChildRots(0),
+  m_containedChildRots(nullptr),
   m_ROTsHaveCommonSurface(8) {}
 
 // copy constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) :
   Trk::CompetingRIOsOnTrack(compROT),
   m_globalPosition{},
-  m_containedChildRots(0),
+  m_containedChildRots(nullptr),
   m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface.load()) {
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
     m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
   } else {
-    m_associatedSurface = 0;
+    m_associatedSurface = nullptr;
   }
   m_containedChildRots = new std::vector< const InDet::TRT_DriftCircleOnTrack* >;
   std::vector< const InDet::TRT_DriftCircleOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -86,7 +86,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
       // copy only if surface is not one owned by a detector Element
       m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
     } else {
-      m_associatedSurface = 0;
+      m_associatedSurface = nullptr;
     }
     if (compROT.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     else if (m_globalPosition) m_globalPosition.release().reset();
@@ -98,7 +98,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
   return (*this);
 }
 
-InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack::operator=(InDet::CompetingTRT_DriftCirclesOnTrack&& compROT) {
+InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack::operator=(InDet::CompetingTRT_DriftCirclesOnTrack&& compROT)  noexcept {
   if (this!=&compROT) {
     // rots
     clearChildRotVector();

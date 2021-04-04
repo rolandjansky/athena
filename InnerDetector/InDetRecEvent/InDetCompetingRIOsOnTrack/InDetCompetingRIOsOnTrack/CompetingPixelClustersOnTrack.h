@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ public:
     CompetingPixelClustersOnTrack(const CompetingPixelClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingPixelClustersOnTrack& operator=(const CompetingPixelClustersOnTrack& compROT);
-    CompetingPixelClustersOnTrack& operator=(CompetingPixelClustersOnTrack&& compROT);
+    CompetingPixelClustersOnTrack& operator=(CompetingPixelClustersOnTrack&& compROT) noexcept;
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call InDet::CompetingPixelClustersOnTrackTool, otherwise inconsistency of

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ SCT_Cluster::SCT_Cluster(
 	}
 
         //move constructor:
-        SCT_Cluster::SCT_Cluster(SCT_Cluster&& RIO):
+        SCT_Cluster::SCT_Cluster(SCT_Cluster&& RIO) noexcept :
           SiCluster(std::move(RIO)),
           m_hitsInThirdTimeBin (RIO.m_hitsInThirdTimeBin)
         {
@@ -76,7 +76,7 @@ SCT_Cluster::SCT_Cluster(
 	}
 
         //move operator
-        SCT_Cluster& SCT_Cluster::operator=(SCT_Cluster&& RIO) {
+        SCT_Cluster& SCT_Cluster::operator=(SCT_Cluster&& RIO)  noexcept {
           if(&RIO != this) {
             SiCluster::operator=(std::move(RIO));
             m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;

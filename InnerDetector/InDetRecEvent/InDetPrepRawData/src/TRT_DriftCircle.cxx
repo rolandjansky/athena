@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ TRT_DriftCircle::~TRT_DriftCircle()
 TRT_DriftCircle::TRT_DriftCircle()
 	:
 	PrepRawData(),
-	m_detEl( 0 ),
+	m_detEl( nullptr ),
   m_word( 0)
 
 { 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
  ///////////////////////////////////////////////////////////////////
@@ -41,11 +41,11 @@ class SCT_Cluster final : public SiCluster {
   /// Copy constructor
   SCT_Cluster(const SCT_Cluster &);
   /// Move constructor
-  SCT_Cluster(SCT_Cluster &&);
+  SCT_Cluster(SCT_Cluster &&) noexcept;
   /// Assignment operator
   SCT_Cluster &operator=(const SCT_Cluster &);
   /// Move assignment operator
-  SCT_Cluster &operator=(SCT_Cluster &&);
+  SCT_Cluster &operator=(SCT_Cluster &&) noexcept;
 
   /**
    * Constructor with parameters using pointer of Amg::MatrixX.
