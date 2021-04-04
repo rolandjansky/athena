@@ -17,6 +17,16 @@ muidMaterialAllocator = Trk__MaterialAllocator(
     AggregateMaterial         = True,
     Extrapolator              = atlasExtrapolator,
     TrackingGeometrySvc       = ServiceMgr.AtlasTrackingGeometrySvc)
+
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+if use_tracking_geometry_cond_alg:
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+    condSeq += ConfiguredTrackingGeometryCondAlg()
+  muidMaterialAllocator.TrackingGeometryReadKey='AtlasTrackingGeometry'
+
 ToolSvc += muidMaterialAllocator
 
 # and the fitter

@@ -134,6 +134,10 @@ private:
       int he gas gap's reference frame. */
   Gaudi::Property<double> m_UncorrJitter {this, "UncorrJitter", 1.5 , "jitter uncorrelated between eta and phi"};
   Gaudi::Property<double> m_CorrJitter   {this, "CorrJitter", 0.0 , "jitter correlated between eta and phi"};
+    
+  Gaudi::Property<double> m_UncorrJitter_BIS78 {this, "UncorrJitter_BIS78", 0.3 , "jitter uncorrelated between eta and phi BIS78"};
+  Gaudi::Property<double> m_CorrJitter_BIS78   {this, "CorrJitter_BIS78",  0.0 , "jitter correlated between eta and phi BIS78"};
+
   Amg::Vector3D posInPanel(const Identifier* id, const Amg::Vector3D posInGap);
   /** adjust strip numbering according to standard OIDs **/
   int adjustStripNumber(const Identifier* id,int nstrip);
@@ -198,6 +202,10 @@ private:
   Gaudi::Property< std::vector<float> > m_OnlyPhiEff_C  {this, "OnlyPhiEff_C"  , {} , ""};
   Gaudi::Property< std::vector<float> > m_OnlyEtaEff_C  {this, "OnlyEtaEff_C"  , {} , ""};
 
+  Gaudi::Property<float> m_PhiAndEtaEff_BIS78 {this, "PhiAndEtaEff_BIS78", 0.93, ""};
+  Gaudi::Property<float> m_OnlyEtaEff_BIS78 {this, "OnlyEtaEff_BIS78", 0.96, ""};
+  Gaudi::Property<float> m_OnlyPhiEff_BIS78 {this, "OnlyPhiEff_BIS78", 0.96, ""};
+ 
   Gaudi::Property< std::vector<double> > m_FracClusterSize1_A   {this, "FracClusterSize1_A"   , {} , ""};
   Gaudi::Property< std::vector<double> > m_FracClusterSize2_A   {this, "FracClusterSize2_A"   , {} , ""};
   Gaudi::Property< std::vector<double> > m_FracClusterSizeTail_A{this, "FracClusterSizeTail_A", {} , ""};
@@ -208,6 +216,11 @@ private:
   Gaudi::Property< std::vector<double> > m_FracClusterSizeTail_C{this, "FracClusterSizeTail_C", {} , ""};
   Gaudi::Property< std::vector<double> > m_MeanClusterSizeTail_C{this, "MeanClusterSizeTail_C", {} , ""};
 
+  Gaudi::Property<float> m_FracClusterSize1_BIS78    {this, "FracClusterSize1_BIS78", 0.60, ""};
+  Gaudi::Property<float> m_FracClusterSize2_BIS78    {this, "FracClusterSize2_BIS78", 0.35, ""};
+  Gaudi::Property<float> m_FracClusterSizeTail_BIS78 {this, "FracClusterSizeTail_BIA78", 0.05, ""};
+  Gaudi::Property<float> m_MeanClusterSizeTail_BIS78 {this, "MeanClusterSizeTail_BIA78", 3.5, ""};
+            
   std::vector<Identifier> m_DeadStripPanel;
 
   bool m_SetPhiOn{false};
@@ -252,6 +265,10 @@ protected:
       "File with Dead panel PanelId list"};
   Gaudi::Property<bool>        m_PanelId_OK_fromlist         {this, "PanelId_OK_fromlist", false,
       "Turn-on PanelId from file m_FileName_GoodPanels"};
+  Gaudi::Property<bool>        m_Efficiency_BIS78_fromCOOL   {this, "Efficiency_BIS78_fromCOOL", false,
+      " read BIS78 Efficiency from COOL DB"};
+  Gaudi::Property<bool>        m_ClusterSize_BIS78_fromCOOL  {this, "ClusterSize_BIS78_fromCOOL", false,
+      " read BIS78 Cluster Size from COOL DB"};  
   Gaudi::Property<std::string> m_FileName_GoodPanels         {this, "FileName_GoodPanels", "PermanentGoodPanels.txt",
       " File with Good panel PanelId list"};
 

@@ -24,6 +24,10 @@ AUX_VAR( DL1r_pb );
 AUX_VAR( DL1r_pc );
 AUX_VAR( DL1r_pu );
 
+AUX_VAR( DL1rnn_pb );
+AUX_VAR( DL1rnn_pc );
+AUX_VAR( DL1rnn_pu );
+
 AUX_VAR( MV2c00_discriminant );
 AUX_VAR( MV2c10_discriminant );
 AUX_VAR( MV2c20_discriminant );

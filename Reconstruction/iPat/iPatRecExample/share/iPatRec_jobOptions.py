@@ -67,6 +67,16 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
         #AggregateMaterial         = True,
         Extrapolator              = iPatExtrapolator,
         TrackingGeometrySvc       = ServiceMgr.AtlasTrackingGeometrySvc)
+
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+        condSeq += ConfiguredTrackingGeometryCondAlg()
+      iPatMaterialAllocator.TrackingGeometryReadKey='AtlasTrackingGeometry'
+
     ToolSvc += iPatMaterialAllocator
 
     from TrkiPatFitter.TrkiPatFitterConf import Trk__iPatFitter

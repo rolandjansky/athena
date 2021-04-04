@@ -632,7 +632,6 @@ def getTrackingGeometryCondAlg(name="AtlasTrackingGeometryCondAlg",**kwargs) :
     the_name = makeName( name, kwargs )
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
     alg = ConfiguredTrackingGeometryCondAlg(the_name)
-    # alg.TrackingGeometryWriteKey = 'AlignedTrackingGeometry'
     return alg
 
 

@@ -30,11 +30,13 @@
 //______________________________________________________________________________
 PoolCollectionConverter::PoolCollectionConverter(const std::string& collectionType,
 	const std::string& inputCollection,
+	unsigned int contextId,
 	const std::string& query,
 	const IPoolSvc* svc) :
 	m_collectionType(),
 	m_connection(),
 	m_inputCollection(inputCollection),
+	m_contextId(contextId),
 	m_query(query),
 	m_poolSvc(svc),
 	m_poolCollection(nullptr),
@@ -85,7 +87,7 @@ StatusCode PoolCollectionConverter::initialize() {
          m_connection = "PFN:" + m_inputCollection;
       }
       try {
-         m_poolCollection = m_poolSvc->createCollection("RootCollection", m_connection, m_inputCollection);
+         m_poolCollection = m_poolSvc->createCollection("RootCollection", m_connection, m_inputCollection, m_contextId);
       } catch (std::exception &e) {
          m_poolCollection = nullptr;
       }
@@ -96,11 +98,11 @@ StatusCode PoolCollectionConverter::initialize() {
    }
    try {
       if (m_poolCollection == nullptr) {
-         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
+         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection, m_contextId);
       }
       if (m_poolCollection == nullptr && collectionTypeString == "ImplicitCollection") {
          m_inputCollection = m_inputContainer + "_DataHeader";
-         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
+         m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection, m_contextId);
       }
    } catch (std::exception &e) {
       return(StatusCode::RECOVERABLE);

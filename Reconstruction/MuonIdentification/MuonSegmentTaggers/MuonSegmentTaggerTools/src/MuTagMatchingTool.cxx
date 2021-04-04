@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuTagMatchingTool.h"
@@ -24,26 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/Track.h"
-
-namespace {
-// local helper functions
-#if 0
-  /** Limit deltaPhi between -pi < dPhi <= +pi */
-  inline double limit_deltaPhi(double deltaPhi) {
-    while (deltaPhi >  +M_PI) deltaPhi -= 2.*M_PI;
-    while (deltaPhi <= -M_PI) deltaPhi += 2.*M_PI;
-    return deltaPhi;
-  }
-
-  /** Limit deltaTheta between -pi/2 < dPhi <= +pi/2 */
-  inline double limit_deltaTheta(double deltaTheta) {
-    while (deltaTheta >  +M_PI/2.) deltaTheta -= M_PI;
-    while (deltaTheta <= -M_PI/2.) deltaTheta += M_PI;
-    return deltaTheta;
-  }
-#endif
-
-}  // namespace
 
 
 MuTagMatchingTool::MuTagMatchingTool(const std::string& t, const std::string& n, const IInterface* p)
@@ -129,6 +109,13 @@ MuTagMatchingTool::initialize()
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_pullCalculator.retrieve());
 
+    if (!m_trackingGeometryReadKey.empty()) {
+        ATH_CHECK(m_trackingGeometryReadKey.initialize());
+    } else {
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+    }
+
+    
     return StatusCode::SUCCESS;
 }
 
@@ -230,31 +217,16 @@ MuTagMatchingTool::surfaceMatch(const Trk::TrackParameters* atSurface, const Muo
 const Trk::TrackParameters*
 MuTagMatchingTool::ExtrapolateTrktoMSEntrance(const Trk::Track* pTrack, Trk::PropDirection direction) const
 {
-    if (pTrack == 0) return 0;
-
-    StatusCode sc;
-
-    const Trk::TrackingGeometry* trackingGeometry = 0;
-
-
-    sc = detStore()->retrieve(trackingGeometry, "AtlasTrackingGeometry");
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Could not find tracking geometry. Exiting.");
-        return 0;
-    }
+    if (!pTrack) return nullptr;
 
     const Trk::TrackParameters* exTrk            = nullptr;
-    const Trk::TrackingVolume*  MSEntranceVolume = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-
-    //  if( m_extrapolatePerigee ){
-    exTrk =
-        p_IExtrapolator->extrapolateToVolume(*(pTrack->perigeeParameters()), *MSEntranceVolume, direction, Trk::muon);
-    //  } else { // using perigee parameters arbitrarily; to be changed if new extrapolateToVolume is available
-    //    exTrk = p_IExtrapolator->extrapolateToVolume( *( pTrack->trackParameters() ),
-    //						  *MSEntranceVolume,
-    //						  direction,
-    //						  Trk::muon ) ;
-    //  }
+    const Trk::TrackingVolume*  MSEntranceVolume = getVolume("MuonSpectrometerEntrance");
+    if (!MSEntranceVolume){
+        return nullptr;
+    }
+    
+    exTrk = p_IExtrapolator->extrapolateToVolume(*(pTrack->perigeeParameters()), *MSEntranceVolume, direction, Trk::muon);
+   
     if (!exTrk)
         ATH_MSG_DEBUG("Track could not be extrapolated to MS entrance...");
     else
@@ -385,11 +357,9 @@ MuTagMatchingTool::phiMatch(const Trk::TrackParameters* atSurface, const Muon::M
         } else
             ATH_MSG_DEBUG(" track not extrapolated to a disc ");
     }
-
+    if (std::abs(cosphi) > 1.) return false;
     double errPhi = std::hypot(PHI_CUT, sigma_phi);
-
     // if the difference between exTrk and Segment phi position falls within the errPhi, accept as rough match
-    //  if( std::acos(cosphi) < errPhi ) return true;
     if (std::acos(std::abs(cosphi)) < errPhi)
         return true;  // BRes: TEMPORARY - segment direction not sure, so I'm making this match symmetric wrt Pi/2
     //  else ATH_MSG_DEBUG( std::setw(30) << "roughPhi failed:  d_phi = " << std::setw(10) << std::acos(cosphi)

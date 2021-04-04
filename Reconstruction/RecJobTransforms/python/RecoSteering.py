@@ -44,15 +44,12 @@ def RecoSteering(flags):
     # pflow
 
     #setup output
-    # TODO - decide how we collect objects that need recording (the old way was a global & external list)
-    itemsToRecord = ["xAOD::EventInfo#EventInfo"]
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     if flags.Output.doWriteESD:
-        acc.merge(OutputStreamCfg(flags, "ESD", ItemList=itemsToRecord, disableEventTag=True))
+        log.info("ESD ItemList: %s", acc.getEventAlgo("OutputStreamESD").ItemList)
         log.info("---------- Configured ESD writing")
 
     if flags.Output.doWriteAOD:
-        acc.merge(OutputStreamCfg(flags, "AOD", ItemList=itemsToRecord, disableEventTag=True))
+        log.info("ESD ItemList: %s", acc.getEventAlgo("OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 
     return acc
@@ -74,6 +71,8 @@ def _run(input):
     flags.Detector.RecoSCT=True
     flags.Detector.RecoTRT=True
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
+    flags.Output.ESDFileName="ESD.pool.root"
+    flags.Output.AODFileName="AOD.pool.root"
     parser = flags.getArgumentParser()
     args = flags.fillFromArgs(parser=parser)
 
@@ -91,7 +90,8 @@ def _run(input):
     acc.merge(RecoSteering(flags), sequenceName="AthAlgSeq")
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
-
+    acc.getService("StoreGateSvc").Dump=True
+    acc.getEventAlgo("TrackParticleCnvAlg").OutputLevel=1
     acc.printConfig(withDetails=True)
     if args.configOnly:
         with open(args.configOnly, "wb") as confFile:

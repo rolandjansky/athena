@@ -150,8 +150,8 @@ MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const T
         }
 
         // create hit and insert it into list
-        auto hit = std::make_unique<MuPatHit>(std::move(exPars), *sit, std::move(broadMeas), hitInfo);
         ATH_MSG_VERBOSE(" inserting hit " << m_idHelperSvc->toString(id) << " " << m_printer->print(*exPars));
+        auto hit = std::make_unique<MuPatHit>(std::move(exPars), *sit, std::move(broadMeas), hitInfo);
         currentHitIt = insert(hitList, currentHitIt, hit.get());
         hitsToBeDeleted.push_back (std::move (hit));
     }

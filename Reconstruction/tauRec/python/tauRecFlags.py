@@ -118,7 +118,7 @@ class tauRecDecayModeNNClassifierConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='NNDecayModeWeights-20200625.json'
+    StoredValue='NNDecayMode_R22_v1.json'
 
 class tauRecCalibrateLCConfig(JobProperty):
     """Config file for TauCalibrateLC

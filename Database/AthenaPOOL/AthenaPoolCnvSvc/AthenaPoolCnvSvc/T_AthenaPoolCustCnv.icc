@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCustCnv.icc
@@ -8,6 +8,7 @@
  **/
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
+#include "AthenaPoolCnvSvc/exceptions.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
@@ -81,9 +82,13 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
    void* voidPtr = nullptr;
    try {
       this->m_athenaPoolCnvSvc->setObjPtr(voidPtr, token);
-   } catch (std::exception &e) {
-      ATH_MSG_ERROR("poolToObject: caught error: " << e.what());
-      return(StatusCode::FAILURE);
+   }
+   catch (const std::exception& ex) {
+    AthenaPoolCnvSvc::throwExcCaughtException (__PRETTY_FUNCTION__,
+                                               "pooltoObject",
+                                               ex,
+                                               typeid(P),
+                                               token->toString());
    }
    if (voidPtr == nullptr) {
       ATH_MSG_ERROR("poolToObject: Could not get object for Token = " << (token != nullptr ? token->toString() : ""));

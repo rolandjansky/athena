@@ -329,7 +329,7 @@ class doCaloSeededAmbi(InDetFlagsJobProperty):
     """Use Calo ROIs to seed specific cuts for the ambi"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doCaloSeededRefit(InDetFlagsJobProperty):
     """Use Calo ROIs to seed refif for the ambi processor"""

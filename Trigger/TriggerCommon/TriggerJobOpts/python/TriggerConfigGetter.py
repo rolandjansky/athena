@@ -242,6 +242,14 @@ class TriggerConfigGetter(Configured):
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+            else: # Does not have xAODMeta
+                # Run-3 Trigger Configuration Services (just producing menu data)
+                from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+                svcMgr += getL1ConfigSvc(ConfigFlags)
+                svcMgr += getHLTConfigSvc(ConfigFlags)
+                svcMgr += TrigConfigSvc("TrigConfigSvc")
+                svcMgr.TrigConfigSvc.UseNewConfig = True
 
         else:
             # non-MT (Run-2) Trigger Configuration

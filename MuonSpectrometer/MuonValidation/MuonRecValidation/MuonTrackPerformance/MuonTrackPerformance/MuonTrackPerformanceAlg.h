@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKPERFORMANCEALG_H
@@ -60,7 +60,7 @@ public:
   };
 
   struct TrackData{
-    TrackData() : truthTrack(0),motherPdg(-1),chi2Ndof(0.),productionVertex(0),momentumAtProduction(0),truthTrajectory(0),trackPars(0),trackSummary(0) {}
+    TrackData() : truthTrack(nullptr),motherPdg(-1),chi2Ndof(0.),productionVertex(nullptr),momentumAtProduction(nullptr),truthTrajectory(nullptr),trackPars(nullptr),trackSummary(nullptr) {}
 
     ~TrackData() {
       delete trackPars;
@@ -202,8 +202,7 @@ private:
   bool handleTrackTruth( const TrackCollection& trackCollection );
 
   bool handleSegmentCombi( const Muon::MuonSegmentCombination& combi );
-  bool handleSegmentTruth( const std::vector<const Muon::MuonSegment*>& segments );
-
+  
 
   void doSummary( const TrackCollection& tracks ) const;
   void doSummary( const Muon::IMuonTrackTruthTool::TruthTree& truthTracks ) const;

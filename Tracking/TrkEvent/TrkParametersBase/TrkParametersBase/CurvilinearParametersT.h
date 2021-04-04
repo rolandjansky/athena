@@ -14,8 +14,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
-
+#include "TrkSurfaces/Surface.h"
 #include <memory>
 class MsgStream;
 
@@ -48,6 +47,9 @@ template<int DIM, class T, class S>
 class CurvilinearParametersT final : public ParametersBase<DIM, T>
 {
 public:
+  static_assert(S::staticType == Surface::Plane,
+                "The surface type must be Plane");
+
   /** default constructor only for POOL */
   CurvilinearParametersT() = default;
 
@@ -117,10 +119,9 @@ public:
 
   /** Virtual clone */
   virtual CurvilinearParametersT<DIM, T, S>* clone() const override final;
-  
+
   /** Virtual clone returning unique_ptr*/
   std::unique_ptr<CurvilinearParametersT<DIM, T, S>> uniqueClone() const;
-  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
@@ -149,9 +150,9 @@ protected:
   using ParametersBase<DIM, T>::m_parameters;
   using ParametersBase<DIM, T>::m_covariance;
   using ParametersBase<DIM, T>::m_chargeDef;
-  Amg::Vector3D m_position;             //!< point on track
-  Amg::Vector3D m_momentum;             //!< momentum at this point on track
-  SurfaceUniquePtrT<const S> m_surface; //!< surface template
+  Amg::Vector3D m_position; //!< point on track
+  Amg::Vector3D m_momentum; //!< momentum at this point on track
+  S m_surface;              //!< surface template
   /** the curvilinear parameters identifier */
   unsigned int m_cIdentifier = 0;
   /*

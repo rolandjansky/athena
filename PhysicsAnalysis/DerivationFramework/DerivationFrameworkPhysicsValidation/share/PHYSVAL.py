@@ -161,8 +161,8 @@ SeqPHYSVAL += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
 # FLAVOUR TAGGING   
 #====================================================================
 
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYSVAL)
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
+FtagJetCollections(['AntiKt4EMPFlowJets'],SeqPHYSVAL)
 
 
 #====================================================================

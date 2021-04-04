@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,8 +44,9 @@ StatusCode LArNoisyROFillerTool::fill (const LArNoisyROSummary& c)
   if (m_SaveFEBIDs) 
   {
     m_NoisyFEBIDs->clear();
-    for ( std::vector<HWIdentifier>::const_iterator it = noisyfebs.begin();
-	  it != noisyfebs.end(); it++ ) m_NoisyFEBIDs->push_back(it->get_identifier32().get_compact());
+    for (HWIdentifier hwid : noisyfebs) {
+      m_NoisyFEBIDs->push_back(hwid.get_identifier32().get_compact());
+    }
   }
 
 

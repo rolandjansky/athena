@@ -35,7 +35,7 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-AsgElectronSelectorTool::AsgElectronSelectorTool( std::string myname ) :
+AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
   AsgTool(myname),
   m_configFile{""},
   m_mvaTool(nullptr)
@@ -86,7 +86,7 @@ StatusCode AsgElectronSelectorTool::initialize()
 
   if (!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile(m_configFile);
-    if (configFile==""){
+    if (configFile.empty()){
       ATH_MSG_ERROR("Could not locate " << m_configFile);
       return StatusCode::FAILURE;
     }
@@ -170,7 +170,7 @@ StatusCode AsgElectronSelectorTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    if (m_cutSCT.size()){
+    if (!m_cutSCT.empty()){
       if (m_cutSCT.size() != numberOfExpectedEtaBins){
         ATH_MSG_ERROR("Configuration issue :  cutSCT expected size " << numberOfExpectedEtaBins <<
                       " input size " << m_cutSCT.size());
@@ -178,7 +178,7 @@ StatusCode AsgElectronSelectorTool::initialize()
       }
     }
 
-    if (m_cutPi.size()){
+    if (!m_cutPi.empty()){
       if (m_cutPi.size() != numberOfExpectedEtaBins){
         ATH_MSG_ERROR("Configuration issue :  cutPi expected size " << numberOfExpectedEtaBins <<
                       " input size " << m_cutPi.size());
@@ -186,7 +186,7 @@ StatusCode AsgElectronSelectorTool::initialize()
       }
     }
 
-    if (m_cutBL.size()){
+    if (!m_cutBL.empty()){
       if (m_cutBL.size() != numberOfExpectedEtaBins){
         ATH_MSG_ERROR("Configuration issue :  cutBL expected size " << numberOfExpectedEtaBins <<
                       " input size " << m_cutBL.size());
@@ -194,7 +194,7 @@ StatusCode AsgElectronSelectorTool::initialize()
       }
     }
 
-    if (m_cutAmbiguity.size()){
+    if (!m_cutAmbiguity.empty()){
       if (m_cutAmbiguity.size() != numberOfExpectedEtaBins){
         ATH_MSG_ERROR("Configuration issue :  cutAmbiguity expected size " << numberOfExpectedEtaBins <<
                       " input size " << m_cutAmbiguity.size());
@@ -364,7 +364,7 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   if (!passKine){return acceptData;}
 
   // ambiguity bit
-  if (m_cutAmbiguity.size()){
+  if (!m_cutAmbiguity.empty()){
     if (!ElectronSelectorHelpers::passAmbiguity((xAOD::AmbiguityTool::AmbiguityType)ambiguityBit, m_cutAmbiguity[etaBin])){
       ATH_MSG_DEBUG("MVA macro: ambiguity Bit Failed.");
       passAmbiguity = false;
@@ -372,21 +372,21 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   }
 
   // blayer cut
-  if (m_cutBL.size()) {
+  if (!m_cutBL.empty()) {
     if(m_cutBL[etaBin] == 1 && !passBLayerRequirement){
       ATH_MSG_DEBUG("MVA macro: Blayer cut failed.");
       passNBlayer = false;
     }
   }
   // pixel cut
-  if (m_cutPi.size()){
+  if (!m_cutPi.empty()){
     if (nPixHitsPlusDeadSensors < m_cutPi[etaBin]){
       ATH_MSG_DEBUG("MVA macro: Pixels Failed.");
       passNPixel = false;
     }
   }
   // SCT cut
-  if (m_cutSCT.size()){
+  if (!m_cutSCT.empty()){
     if (nSiHitsPlusDeadSensors < m_cutSCT[etaBin]){
       ATH_MSG_DEBUG( "MVA macro: Silicon Failed.");
       passNSilicon = false;
@@ -396,7 +396,7 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   double cutDiscriminant;
   unsigned int ibin_combinedMVA = etBin*s_fnDiscEtaBins+etaBin; // Must change if number of eta bins changes!.
 
-  if (m_cutSelector.size()){
+  if (!m_cutSelector.empty()){
     // To protect against a binning mismatch, which should never happen
     if (ibin_combinedMVA >= m_cutSelector.size()){
       throw std::runtime_error("AsgElectronSelectorTool: The desired eta/pt bin is outside of the range specified by the input. This should never happen! This indicates a mismatch between the binning in the configuration file and the tool implementation." );

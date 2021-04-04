@@ -362,6 +362,9 @@ def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs)
     result = ParticleCaloExtensionToolCfg(flags)
     kwargs.setdefault("ParticleCaloExtensionTool", result.getPrimary() )  
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    acc = CombinedMuonTagTestToolCfg(flags)
+    kwargs.setdefault("TagTool", acc.popPrivateTools())
+    result.merge(acc)
     tool = CompFactory.MuonCombined.MuonCombinedStacoTagTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
@@ -378,6 +381,13 @@ def MuidMaterialAllocatorCfg(flags, name='MuidMaterialAllocator', **kwargs):
     acc  = TrackingGeometrySvcCfg(flags)
     kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
     result.merge(acc)
+
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+      result.merge( TrackingGeometryCondAlgCfg(flags) )
+      kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
+
     tool = CompFactory.Trk.MaterialAllocator(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
@@ -540,6 +550,11 @@ def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtRotCreator",   result.popPrivateTools() )
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+      result.merge( TrackingGeometryCondAlgCfg(flags) )
+      kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
 
     acc = iPatFitterCfg(flags)
     kwargs.setdefault("Fitter", acc.popPrivateTools() )
@@ -797,6 +812,11 @@ def CombinedMuonTagTestToolCfg(flags, name='CombinedMuonTagTestTool', **kwargs )
     kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
     result.merge(acc)
     kwargs.setdefault("Chi2Cut",50000.)
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+      result.merge( TrackingGeometryCondAlgCfg(flags) )
+      kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
     tool = CompFactory.MuonCombined.MuonTrackTagTestTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result
