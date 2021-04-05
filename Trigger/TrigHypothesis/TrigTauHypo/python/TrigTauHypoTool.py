@@ -122,6 +122,24 @@ thresholdsEF = {
     ('idperf',200): TauCuts(3,200000.,2)
     }    
 
+# ATR-22644
+GeV = 1000.0
+DiKaonCuts = namedtuple('DiKaonCuts','massTrkSysMin massTrkSysMax massTrkSysKaonMin massTrkSysKaonMax massTrkSysKaonPiMin massTrkSysKaonPiMax targetMassTrkSysKaonPi leadTrkPtMin EtCalibMin EMPOverTrkSysPMax')
+thresholdsEF_dikaon = {
+    ('dikaonmass', 25):      DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5),
+    ('dikaonmass', 35):      DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5),
+    ('kaonpi1', 25):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  0.79*GeV, 0.99*GeV,  0.89*GeV,  15.0*GeV, 25.0*GeV, 1.0),
+    ('kaonpi1', 35):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  0.79*GeV, 0.99*GeV,  0.89*GeV,  25.0*GeV, 35.0*GeV, 1.0),
+    ('kaonpi2', 25):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 15.0*GeV, 25.0*GeV, 1.0),
+    ('kaonpi2', 35):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 25.0*GeV, 35.0*GeV, 1.0),
+    ('dipion3', 25):         DiKaonCuts(0.279*GeV, 0.648*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 2.2)
+}
+SinglePionCuts = namedtuple('SinglePionCuts','leadTrkPtMin EtCalibMin nTrackMax nWideTrackMax dRmaxMax etOverPtLeadTrkMin etOverPtLeadTrkMax')
+thresholdsEF_singlepion = {
+    ('singlepion', 25): SinglePionCuts(30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.85)
+}
+
+
 def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     name = chainDict['chainName']
@@ -130,25 +148,55 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
+
     from AthenaConfiguration.ComponentFactory import CompFactory
-    currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
-    currentHypo.MonTool       = ""
+    if criteria in ['medium', 'loose1', 'medium1', 'tight1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
+    
+        currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
+        currentHypo.MonTool       = ""
 
-    theThresh = thresholdsEF[(criteria, int(threshold))]
-    currentHypo.numTrackMax = theThresh.numTrackMax
-    currentHypo.EtCalibMin  = theThresh.EtCalibMin
-    currentHypo.level       = theThresh.level
-    currentHypo.method      = 2
+        theThresh = thresholdsEF[(criteria, int(threshold))]
+        currentHypo.numTrackMax = theThresh.numTrackMax
+        currentHypo.EtCalibMin  = theThresh.EtCalibMin
+        currentHypo.level       = theThresh.level
+        currentHypo.method      = 2
+        
+        if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
+            currentHypo.numTrackMin = 0
+            currentHypo.highptidthr = 280000.
+            currentHypo.method      = 3
+        elif 'idperf' in criteria: 
+            currentHypo.AcceptAll = True
+        elif 'perf' in criteria:
+            currentHypo.method      = 0
 
-    if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-      currentHypo.numTrackMin = 0
-      currentHypo.highptidthr = 280000.
-      currentHypo.method      = 3
-    elif 'idperf' in criteria: 
-      currentHypo.AcceptAll = True
-    elif 'perf' in criteria:
-      currentHypo.method      = 0
+    elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion3', 'singlepion' ]: # ATR-22644
+        currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)
+        currentHypo.MonTool       = ""
 
+        if criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion3' ]:
+            theThresh = thresholdsEF_dikaon[(criteria, int(threshold))]
+            currentHypo.massTrkSysMin          = theThresh.massTrkSysMin          
+            currentHypo.massTrkSysMax          = theThresh.massTrkSysMax          
+            currentHypo.massTrkSysKaonMin      = theThresh.massTrkSysKaonMin      
+            currentHypo.massTrkSysKaonMax      = theThresh.massTrkSysKaonMax      
+            currentHypo.massTrkSysKaonPiMin    = theThresh.massTrkSysKaonPiMin    
+            currentHypo.massTrkSysKaonPiMax    = theThresh.massTrkSysKaonPiMax    
+            currentHypo.targetMassTrkSysKaonPi = theThresh.targetMassTrkSysKaonPi 
+            currentHypo.leadTrkPtMin           = theThresh.leadTrkPtMin
+            currentHypo.EtCalibMin             = theThresh.EtCalibMin 
+            currentHypo.EMPOverTrkSysPMax      = theThresh.EMPOverTrkSysPMax      
+            
+        elif criteria in ['singlepion']:
+            theThresh = thresholdsEF_singlepion[(criteria, int(threshold))]
+            currentHypo.leadTrkPtMin       = theThresh.leadTrkPtMin
+            currentHypo.EtCalibMin         = theThresh.EtCalibMin 
+            currentHypo.nTrackMax          = theThresh.nTrackMax              
+            currentHypo.nWideTrackMax      = theThresh.nWideTrackMax          
+            currentHypo.dRmaxMax           = theThresh.dRmaxMax               
+            currentHypo.etOverPtLeadTrkMin = theThresh.etOverPtLeadTrkMin     
+            currentHypo.etOverPtLeadTrkMax = theThresh.etOverPtLeadTrkMax     
+        
     return currentHypo
 
 def TrigTauTrackHypoToolFromDict( chainDict ):

@@ -2101,6 +2101,88 @@ HLT_g25_medium_mu24_L1MU20:
     5: 1
     6: 1
     7: 1
+HLT_g25_medium_tau25_dikaonmass_tracktwoMVA_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+    5: 5
+    6: 5
+    7: 5
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 17
+    5: 17
+    6: 17
+    7: 17
+HLT_g25_medium_tau25_kaonpi1_tracktwoMVA_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+    5: 5
+    6: 5
+    7: 5
+    8: 1
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 17
+    5: 17
+    6: 17
+    7: 17
+    8: 1
+HLT_g25_medium_tau25_kaonpi2_tracktwoMVA_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+    5: 5
+    6: 5
+    7: 5
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 17
+    5: 17
+    6: 17
+    7: 17
+HLT_g25_medium_tau25_singlepion_tracktwoMVA_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+    5: 5
+    6: 5
+    7: 5
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 17
+    5: 17
+    6: 17
+    7: 17
 HLT_g25_tight_L1EM20VH:
   eventCount: 5
   stepCounts:
@@ -2223,6 +2305,26 @@ HLT_g35_medium_g25_medium_L12EM20VH:
   eventCount: 0
   stepFeatures:
     0: 3
+HLT_g35_medium_tau25_dipion3_tracktwoMVA_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+    5: 5
+    6: 5
+    7: 5
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 17
+    5: 17
+    6: 17
+    7: 17
 HLT_g35_tight_L1EM15VHI:
   eventCount: 5
   stepCounts:
