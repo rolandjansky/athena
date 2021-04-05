@@ -50,8 +50,8 @@ namespace TrigConf {
       METSigParam&                       metSigParam() { return m_METSigParam; }
       const METSigParam&                 metSigParam() const { return m_METSigParam; }
 
-      const std::vector<IsolationParam>& isolationHAIsoForEMthr()  const { return m_IsolationHAIsoForEMthr;; }
-      const std::vector<IsolationParam>& isolationEMIsoForEMthr()  const { return m_IsolationEMIsoForEMthr;; }
+      const std::vector<IsolationParam>& isolationHAIsoForEMthr()  const { return m_IsolationHAIsoForEMthr; }
+      const std::vector<IsolationParam>& isolationEMIsoForEMthr()  const { return m_IsolationEMIsoForEMthr; }
       const std::vector<IsolationParam>& isolationEMIsoForTAUthr() const { return m_IsolationEMIsoForTAUthr; }
 
       unsigned int                       jetWindowSizeSmall() const { return m_JetWindowSizeSmall; }

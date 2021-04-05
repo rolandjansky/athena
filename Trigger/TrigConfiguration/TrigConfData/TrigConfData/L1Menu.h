@@ -147,7 +147,9 @@ namespace TrigConf {
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
-      bool isRun2() const { return m_run<3; }
+      bool isRun2() const { return m_run == 2; }
+
+      unsigned int run() const { return m_run; }
 
       /** Clearing the configuration data */
       virtual void clear() override;

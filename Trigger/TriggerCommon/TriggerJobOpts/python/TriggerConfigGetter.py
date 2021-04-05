@@ -532,7 +532,10 @@ def fetchRun3ConfigFiles(isMC, run, lb):
         triggerDBKeys = getTrigConfFromCool(run, lb)
         triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
 
-    filesFetchStatus = subprocess.run("TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys), shell=True)
+    cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys)
+    log = logging.getLogger( "TriggerConfigGetter.py" )
+    log.info("Running command '%s'", cmd)
+    filesFetchStatus = subprocess.run(cmd, shell=True)
     assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
     return triggerDBKeys
     
