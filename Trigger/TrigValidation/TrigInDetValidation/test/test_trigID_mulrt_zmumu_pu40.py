@@ -31,17 +31,19 @@ Slices  = ['L2muonLRT']
 Events  = 8000 
 Threads = 8 
 Slots   = 8
-Input   = 'StauStau'    # defined in TrigValTools/share/TrigValInputs.json
-GridFiles = False
-Extra   = ' -c "LRT=True" '
+Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles = True
+ExtraAna = ' -c LRT="True" '
+
+preinclude_file = 'all:TrigInDetValidation/TIDAlrt_preinclude.py'
 
 Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root -p 13", "Test_bin_lrt.dat" ),
          ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]
 
-Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots -sx Reference Truth " ),
-         #( "EFmuonLRT",  "EFmuonLRT", "data-hists.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),
-         ( "L2muonLRToffline",   "L2muonLRT","data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTL2-plots-offline -sx Reference Offline " ),
-         #( "EFmuonLRToffline",   "E2muonLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTE2-plots-offline -sx Reference Offline " )
+Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots -sx Reference Truth" ),
+        # ( "EFmuonLRT",  "EFmuonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),
+         ( "L2muonLRToffline",   "L2muonLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTL2-plots-offline -sx Reference Offline " ),
+         #( "EFmuonLRToffline",    "E2muonLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTE2-plots-offline -sx Reference Offline " ) 
        ]
 
 
