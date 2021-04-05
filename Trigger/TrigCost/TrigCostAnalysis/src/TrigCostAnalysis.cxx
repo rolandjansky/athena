@@ -91,11 +91,13 @@ StatusCode TrigCostAnalysis::start() {
   ATH_CHECK( m_algToChainTool->getAllChains(chains));
   for (const TrigConf::Chain& chain : chains) {
     HLT::Identifier(chain.name());
+    TrigConf::HLTUtils::string2hash(chain.name());
 
     // Populate legs' names
     const size_t legsSize {chain.legMultiplicities().size()};
-    for (size_t counter = 0; legsSize > 1 && counter < legsSize; ++counter){\
-      TrigCompositeUtils::createLegName(chain.namehash(), counter);
+    for (size_t counter = 0; legsSize > 1 && counter < legsSize; ++counter){
+      HLT::Identifier l = TrigCompositeUtils::createLegName(chain.namehash(), counter);
+      TrigConf::HLTUtils::string2hash(l.name());
     }
   }
 
