@@ -106,8 +106,10 @@ def collectFilters( steps ):
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
     decisionObjects.update([ str(d.Decisions) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
+    decisionObjects.update([ str(d.DecisionsProbe) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
+    decisionObjects.discard('') # Unpackers which do not use the PROBE container have an empty string for their WriteHandleKey
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
     return decisionObjects
 
