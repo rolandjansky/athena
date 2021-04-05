@@ -10,6 +10,6 @@ from LArROD.LArSCellGetter import LArSCellGetter
 theLArSCellGetter = LArSCellGetter()
 
 streamRDO.ItemList+=["LArDigitContainer#LArDigitSCL2"]
-streamRDO.ItemList+=["CaloCellContainer#TestSCell"]
+streamRDO.ItemList+=["CaloCellContainer#SCell"]
 topSequence.remove(streamRDO)
 topSequence += streamRDO
