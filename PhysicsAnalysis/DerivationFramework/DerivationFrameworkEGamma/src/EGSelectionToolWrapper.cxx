@@ -101,9 +101,7 @@ EGSelectionToolWrapper::addBranches() const
       }
     }
     // compute the output of the selector
-    asg::AcceptData theAccept(m_tool->accept(pCopy));
-    // unsigned int isEM = m_tool->IsemValue(); // this one should be done only
-    // for IsEM selectors..
+    asg::AcceptData theAccept(m_tool->accept(ctx,pCopy));
     unsigned int isEM = (unsigned int)theAccept.getCutResultInvertedBitSet()
                           .to_ulong(); // this should work for both the
                                        // cut-based and the LH selectors
