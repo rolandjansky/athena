@@ -60,9 +60,9 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
             #TGC and RPC RecRoiTools
             from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool, LVL1__TrigT1TGCRecRoiTool
             from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            rpcRecRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+            rpcRecRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
             self.RecRpcRoiTool = rpcRecRoiTool
-            tgcRecRoiTool = LVL1__TrigT1TGCRecRoiTool("TGCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+            tgcRecRoiTool = LVL1__TrigT1TGCRecRoiTool("TGCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
             self.RecTgcRoiTool = tgcRecRoiTool
         else:
             self.RecRpcRoiTool=""

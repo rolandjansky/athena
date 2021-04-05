@@ -21,12 +21,12 @@ def triggerTransBSCfg(flags, seqName="AthAlgSeq"):
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamEncoderCfg
     acc.merge(L1TriggerByteStreamEncoderCfg(flags))
 
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
         itemList += ["ROIB::RoIBResult#RoIBResult"]
         typeNames += ["MuCTPI_RDO/MUCTPI_RDO"]
         extraInputs += [('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult')]
 
-    if flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1:
         itemList += ["xAOD::TrigCompositeContainer#L1TriggerResult"]
         extraInputs += [('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult')]
 

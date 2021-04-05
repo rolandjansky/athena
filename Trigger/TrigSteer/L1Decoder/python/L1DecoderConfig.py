@@ -96,8 +96,8 @@ def createMuonRoIUnpackers(flags):
         Decisions = mapThresholdToL1DecisionCollection("MU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
 
-    muUnpacker.OutputRecRoIs = "" if flags.Trigger.enableL1Phase1 else "HLT_RecMURoIs"
-    muUnpacker.MuRoILinkName = "LVL1MuonRoIs" if flags.Trigger.enableL1Phase1 else ""
+    muUnpacker.OutputRecRoIs = "" if flags.Trigger.enableL1MuonPhase1 else "HLT_RecMURoIs"
+    muUnpacker.MuRoILinkName = "LVL1MuonRoIs" if flags.Trigger.enableL1MuonPhase1 else ""
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
     return [muUnpacker]
@@ -114,14 +114,20 @@ def createKeyWriterTool():
     keyWriter.IncludeL1PrescaleKey = False
     return keyWriter
 
-def getL1TriggerResultMaker():
+def getL1TriggerResultMaker(flags):
     l1trMaker = CompFactory.L1TriggerResultMaker()
 
     # Muon RoIs
-    l1trMaker.MuRoIKey = "LVL1MuonRoIs"
+    if flags.Trigger.enableL1MuonPhase1:
+       l1trMaker.MuRoIKey = "LVL1MuonRoIs"
+    else:
+       l1trMaker.MuRoIKey = ""
 
     # L1Calo RoIs
-    l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
+    if flags.Trigger.enableL1CaloPhase1:
+       l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
+    else:
+       l1trMaker.eFexEMRoIKey = ""
 
     # Placeholder for other L1 xAOD outputs:
     # - CTP result
@@ -150,7 +156,7 @@ class L1Decoder(CompFactory.L1Decoder) :
                                             OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
-            if flags.Trigger.enableL1Phase1:
+            if flags.Trigger.enableL1CaloPhase1:
                 self.xAODRoIUnpackers += createCaloRoIUnpackers()
             if flags.Trigger.enableL1CaloLegacy:
                 self.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
@@ -158,7 +164,7 @@ class L1Decoder(CompFactory.L1Decoder) :
         # MU unpacker
         if TriggerFlags.doMuon():
             unpackers = createMuonRoIUnpackers(flags)
-            if flags.Trigger.enableL1Phase1:
+            if flags.Trigger.enableL1MuonPhase1:
                 self.xAODRoIUnpackers += unpackers
             else:
                 self.RoIBRoIUnpackers += unpackers
@@ -185,8 +191,8 @@ def L1DecoderCfg(flags, seqName = None):
         acc = ComponentAccumulator()
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring
     decoderAlg = CompFactory.L1Decoder()
-    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1 else ""
-    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""
+    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1 else ""
+    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                            MonTool = CTPUnpackingMonitoring(512, 200) )
@@ -202,14 +208,14 @@ def L1DecoderCfg(flags, seqName = None):
                                         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
     if flags.Trigger.doCalo:
-        if flags.Trigger.enableL1Phase1:
+        if flags.Trigger.enableL1CaloPhase1:
             decoderAlg.xAODRoIUnpackers += createCaloRoIUnpackers()
         if flags.Trigger.enableL1CaloLegacy:
             decoderAlg.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
     if flags.Trigger.doMuon:
         unpackers = createMuonRoIUnpackers(flags)
-        if flags.Trigger.enableL1Phase1:
+        if flags.Trigger.enableL1MuonPhase1:
             decoderAlg.xAODRoIUnpackers += unpackers
         else:
             decoderAlg.RoIBRoIUnpackers += unpackers
@@ -228,8 +234,8 @@ def L1DecoderCfg(flags, seqName = None):
         acc.merge( L1TriggerByteStreamDecoderCfg(flags), sequenceName = seqName )
 
     # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
-    if flags.Trigger.enableL1Phase1:
-        acc.addEventAlgo( getL1TriggerResultMaker(), sequenceName = seqName )
+    if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1:
+        acc.addEventAlgo( getL1TriggerResultMaker(flags), sequenceName = seqName )
 
     acc.addEventAlgo( decoderAlg, sequenceName = seqName )
 

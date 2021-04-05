@@ -30,7 +30,7 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.ConfFileName = 'LVL1confAtlas.data' # this should come from config flag maybe ???
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
-    if flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1MuonPhase1:
         rpcCablingSvc.RPCTriggerRoadsfromCool = False
         from PathResolver import PathResolver
         rpcCablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")

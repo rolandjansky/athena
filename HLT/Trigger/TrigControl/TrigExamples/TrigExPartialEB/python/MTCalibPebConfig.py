@@ -97,7 +97,8 @@ class MTCalibPebHypoOptions:
         self.PEBROBList = []
         self.PEBSubDetList = []
         self.CreateRandomData = {}
-        self.EnableL1Phase1 = False  # Sets ConfigFlags.Trigger.enableL1Phase1
+        self.EnableL1CaloPhase1 = False  # Sets ConfigFlags.Trigger.enableL1CaloPhase1
+        self.EnableL1MuonPhase1 = False  # Sets ConfigFlags.Trigger.enableL1MuonPhase1
         self.EnableL1CaloLegacy = True  # Sets ConfigFlags.Trigger.enableL1CaloLegacy
 
 
@@ -111,7 +112,8 @@ def set_flags(flags, options=default_options):
     flags.IOVDb.DatabaseInstance = 'CONDBR2'
     flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
     flags.Trigger.triggerMenuSetup = 'LS2_v1'
-    flags.Trigger.enableL1Phase1 = options.EnableL1Phase1
+    flags.Trigger.enableL1MuonPhase1 = options.EnableL1MuonPhase1
+    flags.Trigger.enableL1CaloPhase1 = options.EnableL1CaloPhase1
     flags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
     flags.Trigger.L1Decoder.forceEnableAllChains = True
 

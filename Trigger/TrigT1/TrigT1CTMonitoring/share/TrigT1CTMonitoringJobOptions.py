@@ -201,7 +201,7 @@ elif RunSimOnData:
     #writes this to the usual MuCTPICTP storegate location
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
         topSequence += L1MuctpiPhase1_on_Data()
     else:
