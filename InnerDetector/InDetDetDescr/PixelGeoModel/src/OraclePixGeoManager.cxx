@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -59,16 +59,16 @@ OraclePixGeoManager::OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps)
     m_PlanarModuleNumber(0),
     m_3DModuleNumber(0),
     m_dbm(false),
-    m_legacyManager(0),
-    m_gangedIndexMap(0),
-    m_frameElementMap(0),
-    m_diskRingIndexMap(0),
-    m_zPositionMap(0),
+    m_legacyManager(nullptr),
+    m_gangedIndexMap(nullptr),
+    m_frameElementMap(nullptr),
+    m_diskRingIndexMap(nullptr),
+    m_zPositionMap(nullptr),
     m_dbVersion(0),
     m_defaultLengthUnit(Gaudi::Units::mm)
 {
-  m_commonItems = 0;
-  m_pDDmgr = 0;
+  m_commonItems = nullptr;
+  m_pDDmgr = nullptr;
 
   init();
 }
@@ -83,8 +83,8 @@ OraclePixGeoManager::init()
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey(geoDbTag,"Pixel");
-  std::string detectorKey  = versionKey.tag();
-  std::string detectorNode = versionKey.node();
+  const std::string& detectorKey  = versionKey.tag();
+  const std::string& detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
@@ -375,26 +375,14 @@ bool OraclePixGeoManager::isLDPresent() {
 
 
 bool OraclePixGeoManager::isBarrel() {
-  if(m_BarrelEndcap == 0) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 0;
 }
 bool OraclePixGeoManager::isEndcap() {
-  if(m_BarrelEndcap == 1) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 1;
   return false;
 }
 bool OraclePixGeoManager::isDBM() {
-  if(m_BarrelEndcap == 2) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 2;
 }
 
 bool OraclePixGeoManager::DoServices() {
@@ -423,7 +411,7 @@ bool OraclePixGeoManager::Alignable() const {
 
 
 PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
-  if(m_pDDmgr == NULL) {
+  if(m_pDDmgr == nullptr) {
     //
     // retrieve the pointer to the DD manager
     //
@@ -448,7 +436,7 @@ OraclePixGeoManager::distortedMatManager() const{
 // which thickness is given in % of r.l.
 //
 /////////////////////////////////////////////////////////
-double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
+double OraclePixGeoManager::CalculateThickness(double tck,const string& mat) {
   const GeoMaterial* material =  m_pMatMgr->getMaterial(mat);
   double rl = material->getRadLength();
   material->ref();
@@ -2212,8 +2200,7 @@ bool OraclePixGeoManager::IBLFlexAndWingDefined()
 {
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
-  if (db()->testField(m_PixelIBLFlex,"FLEXMIDGAP",index)) return true;
-  return false;
+  return db()->testField(m_PixelIBLFlex,"FLEXMIDGAP",index);
 }
 
 

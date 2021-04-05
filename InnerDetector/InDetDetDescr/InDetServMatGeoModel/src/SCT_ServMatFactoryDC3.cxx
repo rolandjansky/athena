@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC3.h"
@@ -226,7 +226,7 @@ const GeoShape* SCT_ServMatFactoryDC3::createShape(int volType,
 {
   const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
-  const GeoShape* IDShape = 0;
+  const GeoShape* IDShape = nullptr;
   if(volType == Tube) {
     IDShape = new GeoTube(rmin1,rmax1,halflength);
   } 

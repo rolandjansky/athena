@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatGeometryManager.h"
@@ -14,7 +14,7 @@
 
 InDetServMatGeometryManager::InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps)   
   : m_athenaComps(athenaComps),
-    m_matMgr(0)
+    m_matMgr(nullptr)
 {
   
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing InDetServMatGeometryManager" << endmsg;
@@ -24,18 +24,18 @@ InDetServMatGeometryManager::InDetServMatGeometryManager(InDetDD::AthenaComps * 
 
   // Get version tag and node for Pixel.
   DecodeVersionKey pixelVersionKey(geoDbTag,"Pixel");
-  std::string pixelDetectorKey  = pixelVersionKey.tag();
-  std::string pixelDetectorNode = pixelVersionKey.node();
+  const std::string& pixelDetectorKey  = pixelVersionKey.tag();
+  const std::string& pixelDetectorNode = pixelVersionKey.node();
 
   // Get version tag and node for SCT.
   DecodeVersionKey sctVersionKey(geoDbTag,"SCT");
-  std::string sctDetectorKey  = sctVersionKey.tag();
-  std::string sctDetectorNode = sctVersionKey.node();
+  const std::string& sctDetectorKey  = sctVersionKey.tag();
+  const std::string& sctDetectorNode = sctVersionKey.node();
 
   //// Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
-  std::string indetDetectorKey  = indetVersionKey.tag();
-  std::string indetDetectorNode = indetVersionKey.node();
+  const std::string& indetDetectorKey  = indetVersionKey.tag();
+  const std::string& indetDetectorNode = indetVersionKey.node();
   
 /////////////////////////////////////////////////////////
 //

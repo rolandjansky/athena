@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Builder.h"
@@ -195,7 +195,7 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
     {
       //parameters via jobOptions
       int moduleNo;
-      const std::vector<double>* module_property = NULL;
+      const std::vector<double>* module_property = nullptr;
       for(moduleNo = 0; moduleNo < 8; moduleNo++)
 	{
 	  unsigned int mask = (1 << moduleNo);
@@ -248,7 +248,7 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       GeoNameTag* tag = new GeoNameTag("BCM Module"); 
       tag->ref();
       if (materialManager){
-        GeoVPhysVol* bcmModPhys = bcm.Build(materialManager, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        GeoVPhysVol* bcmModPhys = bcm.Build(materialManager, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : nullptr));
         Phys->add(tag);
         Phys->add(new GeoIdentifierTag(k));
         Phys->add(xform);

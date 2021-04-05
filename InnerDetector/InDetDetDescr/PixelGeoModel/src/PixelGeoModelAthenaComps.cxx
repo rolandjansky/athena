@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelAthenaComps.h"
@@ -7,10 +7,10 @@
 
 PixelGeoModelAthenaComps::PixelGeoModelAthenaComps()
   : InDetDD::AthenaComps("PixelGeoModel"),
-    m_bcmTool(0),
-    m_blmTool(0),
-    m_serviceBuilderTool(0),
-    m_idHelper(0)
+    m_bcmTool(nullptr),
+    m_blmTool(nullptr),
+    m_serviceBuilderTool(nullptr),
+    m_idHelper(nullptr)
 {}
 
 void 

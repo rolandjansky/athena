@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/EndPlateFactoryFS.h"
@@ -27,12 +27,14 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
+#include <utility>
+
 
 
 EndPlateFactoryFS::EndPlateFactoryFS(StoreGateSvc *detStore,
 				     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
+  m_rdbAccess(std::move(pRDBAccess)),
   m_msg("EndPlateFactoryFS")
 {
   

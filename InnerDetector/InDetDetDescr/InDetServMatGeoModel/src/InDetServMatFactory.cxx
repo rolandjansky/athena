@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactory.h"
@@ -43,7 +43,7 @@
 
 InDetServMatFactory::InDetServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_manager(0)
+    m_manager(nullptr)
 {  
 }
 
@@ -140,7 +140,7 @@ void InDetServMatFactory::create(GeoPhysVol *world )
   // Create the envelope for the Pixel Services:
   // Only need if join1 if false.
 
-  const GeoShapeUnion *ServVolAux = 0;
+  const GeoShapeUnion *ServVolAux = nullptr;
     
   if (!join1) { 
     GeoPcon* pixServP = new GeoPcon(0.,2*Gaudi::Units::pi);
@@ -233,8 +233,8 @@ void InDetServMatFactory::create(GeoPhysVol *world )
     sctTrtServ->addPlane(ZMaxIDet, RMaxFwdTRTC, RMaxIDet);
   }
 
-  const GeoShape * ServVol = 0;
-  if (ServVolAux == 0) {
+  const GeoShape * ServVol = nullptr;
+  if (ServVolAux == nullptr) {
     ServVol = sctTrtServ;
   } else {
     ServVol = new GeoShapeUnion(sctTrtServ, ServVolAux);

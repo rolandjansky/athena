@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -28,7 +28,7 @@ namespace InDetDD {
   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore,
                                              const std::string& name) 
     : SiDetectorManager(detStore,name),
-      m_idHelper(0),
+      m_idHelper(nullptr),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
 
@@ -97,7 +97,7 @@ namespace InDetDD {
     if (idHash.is_valid()) {
       return m_elementCollection[idHash];
     } else {
-      return 0;
+      return nullptr;
     }
   }
 
@@ -325,7 +325,7 @@ namespace InDetDD {
   ibldist.resize(nstaves);
   iblbaseline.resize(nstaves);
 
-  const CondAttrListCollection* atrlistcol=0;
+  const CondAttrListCollection* atrlistcol=nullptr;
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
     // loop over objects in collection
     for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -581,7 +581,7 @@ namespace InDetDD {
                  << " in the " << frame << " frame at level " << level);
 
     Identifier ident=Identifier();
-    const CondAttrListCollection* atrlistcol=0;
+    const CondAttrListCollection* atrlistcol=nullptr;
     if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
       // loop over objects in collection
       for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {

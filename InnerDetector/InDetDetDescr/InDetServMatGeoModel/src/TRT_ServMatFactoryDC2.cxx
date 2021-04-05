@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC2.h"
@@ -30,11 +30,13 @@
 #define TRTELEMENTSINEL 9
 
 #include <sstream>
+#include <utility>
+
 
 TRT_ServMatFactoryDC2::TRT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
-  m_materialManager(0),
+  m_rdbAccess(std::move(pRDBAccess)),
+  m_materialManager(nullptr),
   m_msg("ServMatFactoryDC2")
 {
   
@@ -167,7 +169,7 @@ const GeoShape* TRT_ServMatFactoryDC2::createShape(int volType,
 {
   const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
-  const GeoShape* IDShape = 0;
+  const GeoShape* IDShape = nullptr;
   if(volType == Tube) {
     IDShape = new GeoTube(rmin1,rmax1,halflength);
   } 

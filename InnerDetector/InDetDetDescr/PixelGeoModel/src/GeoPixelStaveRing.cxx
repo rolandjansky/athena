@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
@@ -84,9 +84,9 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
       m_gmt_mgr->msg(MSG::DEBUG)<<"-> IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<m_outerRadius<<endmsg;
       const GeoTube* ring_tube = new GeoTube(m_innerRadius,m_outerRadius,ringWidth*0.5);
       const GeoMaterial* ring_material_weight = m_mat_mgr->getMaterialForVolume("pix::StaveRing_IBLwght",ring_tube->volume());
-      m_gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==0)<<endmsg;
+      m_gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==nullptr)<<endmsg;
 
-      GeoLogVol * logVol = 0;
+      GeoLogVol * logVol = nullptr;
       if(ring_material_weight)
 	logVol = new GeoLogVol(m_ringName,ring_tube,ring_material_weight);
       else {
@@ -109,7 +109,7 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
   // create log and phys volumes
   const GeoTube* ring_tube = new GeoTube(m_innerRadius,m_outerRadius,ringWidth*0.5);
   const GeoMaterial* ring_material_weight = m_mat_mgr->getMaterialForVolume("pix::StaveRingMid_IBLwght",ring_tube->volume());
-  GeoLogVol *logVol=0;
+  GeoLogVol *logVol=nullptr;
   if(ring_material_weight)
     logVol = new GeoLogVol(m_ringName,ring_tube,ring_material_weight);
   else {

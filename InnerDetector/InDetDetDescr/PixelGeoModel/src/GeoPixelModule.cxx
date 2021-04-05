@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelModule.h"
@@ -74,7 +74,7 @@ GeoPixelModule::GeoPixelModule(InDetDD::PixelDetectorManager* m_DDmgr,
       m_theModule->ref();
     }
     else {
-      const GeoShape * gblShape = 0;
+      const GeoShape * gblShape = nullptr;
       gblShape = addShape(gblShape, moduleShape, GeoTrf::Transform3D::Identity() );
 
       double svcWidth = width*.6;

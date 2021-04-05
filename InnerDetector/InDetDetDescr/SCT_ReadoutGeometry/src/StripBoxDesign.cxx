@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
@@ -65,10 +65,10 @@ void StripBoxDesign::neighboursOfCell(const SiCellId &cellId,
     int stripP = strip + 1;
 
     if (stripM >= 0) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_nStrips) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 
     return;

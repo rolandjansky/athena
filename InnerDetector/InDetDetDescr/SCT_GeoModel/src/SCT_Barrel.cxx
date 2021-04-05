@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Barrel.h"
@@ -252,7 +252,7 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   double pixelAttachmentZpos    = parameters->pixelAttachmentZMin() + 0.5 * pixelAttachmentLength; 
 
   // Build cylinder (with cut-outs)
-  const GeoShape * emiShieldShape  = 0;
+  const GeoShape * emiShieldShape  = nullptr;
   const GeoMaterial * material;
   const GeoTube * emiShieldTube  = new GeoTube(innerRadius, outerRadius,  0.5*length);
   if (m_isOldGeometry) {

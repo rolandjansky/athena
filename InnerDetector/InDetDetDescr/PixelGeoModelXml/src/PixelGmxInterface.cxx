@@ -74,7 +74,7 @@ void PixelGmxInterface::addSensorType(string clas, string typeName, map<string, 
   }
 }
 
-void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &par){
+void PixelGmxInterface::makePixelModule(const string& typeName, map<string, string> &par){
 
   //
   // Get all parameters.
@@ -144,7 +144,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
-string PixelGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
+string PixelGmxInterface::getstr(const string& typeName, const string& name, const map<string, string> &par) {
   map<string, string>::const_iterator found;
   if ((found = par.find(name)) != par.end()) {
     return found->second;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdSensor.h"
@@ -63,7 +63,7 @@ SCT_FwdSensor::getParameters()
   m_materialSensor  = m_materials->getMaterial(parameters->fwdSensorMaterialFar(m_ringType));
   
  
-  m_materialGlass  = 0;
+  m_materialGlass  = nullptr;
   if (m_ringType == 2) { // Only need to define glass if its a Truncated middle module.
     m_materialGlass =  m_materials->getMaterial(parameters->fwdSensorMaterialNear(m_ringType));
   }
@@ -120,7 +120,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
                                            0.5 * m_lengthF);
   
   
-  const GeoTrd * sensorShapeN= 0;
+  const GeoTrd * sensorShapeN= nullptr;
   if (m_ringType != 3) {
     sensorShapeN= new GeoTrd(0.5 * m_thicknessN, 0.5 * m_thicknessN,
                              0.5 * m_innerWidthN, 0.5 * m_outerWidthN,
@@ -128,7 +128,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
   }
 
 
-  const GeoShape * sensorShape = 0;
+  const GeoShape * sensorShape = nullptr;
   if ((m_ringType == 2) || (m_ringType == 3)) {
     // For truncated middle and inner there is only one wafer.
     sensorShape = sensorShapeF;

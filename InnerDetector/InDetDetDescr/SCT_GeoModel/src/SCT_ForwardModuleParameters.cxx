@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_ForwardModuleParameters.h"
@@ -356,12 +356,7 @@ SCT_ForwardModuleParameters::fwdHybridIsOnInnerEdge(int iModuleType) const
 bool
 SCT_ForwardModuleParameters::fwdModuleConnectorPresent() const
 {
-  if(m_rdb->fwdModuleConnectorTable()->size() > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return m_rdb->fwdModuleConnectorTable()->size() > 0;
 }
 
 double 

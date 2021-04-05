@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SquirrelCageFactoryFS.h"
@@ -26,12 +26,14 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
+#include <utility>
+
 
 
 SquirrelCageFactoryFS::SquirrelCageFactoryFS(StoreGateSvc *detStore,
 					     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
+  m_rdbAccess(std::move(pRDBAccess)),
   m_msg("SquirrelCageFactoryFS")
 {
   
@@ -61,7 +63,7 @@ void SquirrelCageFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
   // Get table version
   // This is a work around to allow running with older DB releases.
   std::string sqversionStr = m_rdbAccess->getChildTag("SquirrelCage", indetVersionKey.tag(), indetVersionKey.node());
-  size_t pos = sqversionStr.find("-");
+  size_t pos = sqversionStr.find('-');
   int sqversion = 0;
   if (pos != std::string::npos && pos+1 != sqversionStr.size()) {
     std::istringstream tmpStr(sqversionStr.substr(pos+1));

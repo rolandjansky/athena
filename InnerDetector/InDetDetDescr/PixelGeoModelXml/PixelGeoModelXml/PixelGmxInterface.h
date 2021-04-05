@@ -31,7 +31,7 @@ class PixelGmxInterface: public GmxInterface {
   void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
 		 GeoVFullPhysVol *fpv) override final;
   //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
-  void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
+  void makePixelModule(const std::string& typeName, std::map<std::string, std::string> &par);
 
   template <typename T> void getparm(const std::string typeName, const std::string name, 
 				     const std::map<std::string, std::string> &par, T &value) {
@@ -65,7 +65,7 @@ class PixelGmxInterface: public GmxInterface {
       }
   }
 
-  std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
+  std::string getstr(const std::string& typeName, const std::string& name, const std::map<std::string, std::string> &par);
 
  private:
   std::map<std::string, int> m_geometryMap;

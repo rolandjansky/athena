@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryFS.h"
@@ -28,12 +28,14 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <utility>
+
 
 TRT_ServMatFactoryFS::TRT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
+  m_rdbAccess(std::move(pRDBAccess)),
   m_msg("TRT_ServMatFactoryFS")
 {
   
@@ -111,10 +113,10 @@ void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     logName = "Trt" + logName;
 
     const GeoTube* serviceTube = dynamic_cast<const GeoTube*>(serviceTubeTmp);
-    if(serviceTube==0) continue;
+    if(serviceTube==nullptr) continue;
 
-    const GeoTubs* tubeUp = 0;
-    const GeoTubs* tubeDown = 0;
+    const GeoTubs* tubeUp = nullptr;
+    const GeoTubs* tubeDown = nullptr;
 
     if (tubeHelper.name() == "FwdServ") { 
       tubeUp   = new GeoTubs(serviceTube->getRMin(),serviceTube->getRMax(),serviceTube->getZHalfLength(),phiWidSQ*0.5,M_PI-phiWidSQ);
@@ -125,7 +127,7 @@ void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
       tubeDown = new GeoTubs(serviceTube->getRMin(),serviceTube->getRMax(),serviceTube->getZHalfLength(),M_PI+phiWid*0.5,M_PI-phiWid);
     }    
 
-    if(tubeUp==0) continue;
+    if(tubeUp==nullptr) continue;
 
     std::string materialName = tubeHelper.materialName();
     //const GeoMaterial* material = m_materialManager->getMaterialForVolume(materialName, serviceTube->volume());

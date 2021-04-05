@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build The TMT.
@@ -89,7 +89,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     double angleydzn = 0;
     double angleydzp = 0;
 
-    const GeoShape * shape = 0;
+    const GeoShape * shape = nullptr;
     if (w1 == w2 && theta == 0) {
       // Its a box
       shape = new GeoBox(0.5*w1, 0.5*widthy, 0.5*length);

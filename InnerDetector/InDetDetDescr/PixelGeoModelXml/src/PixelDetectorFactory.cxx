@@ -80,7 +80,7 @@ namespace InDetDDSLHC {
     int flags(0);
     string gmxInput;
     
-    if (m_options->gmxFilename() == "") {
+    if (m_options->gmxFilename().empty()) {
       ATH_MSG_INFO( "gmxFilename not set; getting .gmx from Geometry database Blob"
 		     );
       flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
@@ -98,7 +98,7 @@ namespace InDetDDSLHC {
     else {
       flags = 0;
       gmxInput = PathResolver::find_file(m_options->gmxFilename(), "DATAPATH");
-      if (gmxInput == "") { // File not found
+      if (gmxInput.empty()) { // File not found
 	string errMessage("PixelDetectorFactory::create: Unable to find file " + m_options->gmxFilename() +
                                    " with PathResolver; check filename and DATAPATH environment variable");
 	throw runtime_error(errMessage);
@@ -135,8 +135,8 @@ namespace InDetDDSLHC {
   
   string PixelDetectorFactory::getBlob() {
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
-    std::string versionTag  = versionKey.tag();
-    std::string versionNode = versionKey.node();
+    const std::string& versionTag  = versionKey.tag();
+    const std::string& versionNode = versionKey.node();
     ATH_MSG_INFO( "getBlob: versionTag = " << versionTag );
     ATH_MSG_INFO( "getBlob: versionNode = " << versionNode );
 

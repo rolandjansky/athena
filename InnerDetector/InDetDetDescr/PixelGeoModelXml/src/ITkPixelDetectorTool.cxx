@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/ITkPixelDetectorTool.h"
@@ -29,9 +29,9 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
     m_detectorName("ITkPixel"),
     m_alignable(false),
     m_gmxFilename(""),
-    m_manager(0),
-    m_athenaComps(0),
-    m_commonItems(0),
+    m_manager(nullptr),
+    m_athenaComps(nullptr),
+    m_commonItems(nullptr),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
@@ -172,7 +172,7 @@ StatusCode ITkPixelDetectorTool::clear() {
     SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
     if(proxy) {
         proxy->reset();
-        m_manager = 0;
+        m_manager = nullptr;
     }
     return StatusCode::SUCCESS;
 }
