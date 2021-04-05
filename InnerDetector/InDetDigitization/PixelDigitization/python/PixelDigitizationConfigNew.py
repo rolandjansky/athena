@@ -1,6 +1,6 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -97,8 +97,6 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", SiTool)
     SensorSim3DTool = CompFactory.SensorSim3DTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
-    kwargs.setdefault("fluence", 6)
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc
 

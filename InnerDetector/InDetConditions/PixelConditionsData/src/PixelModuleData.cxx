@@ -321,16 +321,42 @@ double PixelModuleData::getFluenceLayer(int layer) const { return m_fluenceLayer
 
 void PixelModuleData::setLorentzMap_e(std::vector<PixelHistoConverter> lorentzMap_e) { m_lorentzMap_e = lorentzMap_e; }
 void PixelModuleData::setLorentzMap_h(std::vector<PixelHistoConverter> lorentzMap_h) { m_lorentzMap_h = lorentzMap_h; }
-const PixelHistoConverter& PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
-const PixelHistoConverter& PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
-
 void PixelModuleData::setDistanceMap_e(std::vector<PixelHistoConverter> distanceMap_e) { m_distanceMap_e = distanceMap_e; }
 void PixelModuleData::setDistanceMap_h(std::vector<PixelHistoConverter> distanceMap_h) { m_distanceMap_h = distanceMap_h; }
+void PixelModuleData::setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
+
+const PixelHistoConverter& PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
 const PixelHistoConverter& PixelModuleData::getDistanceMap_e(int layer) const { return m_distanceMap_e.at(layer); }
 const PixelHistoConverter& PixelModuleData::getDistanceMap_h(int layer) const { return m_distanceMap_h.at(layer); }
-
-void PixelModuleData::setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
 const PixelHistoConverter& PixelModuleData::getRamoPotentialMap(int layer) const { return m_ramoPotentialMap.at(layer); }
+
+// Map for radiation damage simulation for 3D sensor
+void PixelModuleData::setFluenceLayer3D(std::vector<double> fluenceLayer) { m_fluenceLayer3D = fluenceLayer; }
+double PixelModuleData::getFluenceLayer3D(int layer) const { return m_fluenceLayer3D.at(layer); }
+
+void PixelModuleData::setRamoPotentialMap3D(std::vector<PixelHistoConverter> ramoPotentialMap3D) { m_ramoPotentialMap3D = ramoPotentialMap3D; }
+void PixelModuleData::setEFieldMap3D(std::vector<PixelHistoConverter> eFieldMap3D) { m_eFieldMap3D = eFieldMap3D; }
+void PixelModuleData::setXPositionMap3D_e(std::vector<PixelHistoConverter> xPositionMap3D_e) { m_xPositionMap3D_e = xPositionMap3D_e; }
+void PixelModuleData::setXPositionMap3D_h(std::vector<PixelHistoConverter> xPositionMap3D_h) { m_xPositionMap3D_h = xPositionMap3D_h; }
+void PixelModuleData::setYPositionMap3D_e(std::vector<PixelHistoConverter> yPositionMap3D_e) { m_yPositionMap3D_e = yPositionMap3D_e; }
+void PixelModuleData::setYPositionMap3D_h(std::vector<PixelHistoConverter> yPositionMap3D_h) { m_yPositionMap3D_h = yPositionMap3D_h; }
+void PixelModuleData::setTimeMap3D_e(std::vector<PixelHistoConverter> timeMap3D_e) { m_timeMap3D_e = timeMap3D_e; }
+void PixelModuleData::setTimeMap3D_h(std::vector<PixelHistoConverter> timeMap3D_h) { m_timeMap3D_h = timeMap3D_h; }
+void PixelModuleData::setAvgChargeMap3D_e(PixelHistoConverter avgChargeMap3D_e) { m_avgChargeMap3D_e = avgChargeMap3D_e; }
+void PixelModuleData::setAvgChargeMap3D_h(PixelHistoConverter avgChargeMap3D_h) { m_avgChargeMap3D_h = avgChargeMap3D_h; }
+
+const PixelHistoConverter& PixelModuleData::getRamoPotentialMap3D(int layer) const { return m_ramoPotentialMap3D.at(layer); }
+const PixelHistoConverter& PixelModuleData::getEFieldMap3D(int layer) const { return m_eFieldMap3D.at(layer); }
+const PixelHistoConverter& PixelModuleData::getXPositionMap3D_e(int layer) const { return m_xPositionMap3D_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getXPositionMap3D_h(int layer) const { return m_xPositionMap3D_h.at(layer); }
+const PixelHistoConverter& PixelModuleData::getYPositionMap3D_e(int layer) const { return m_yPositionMap3D_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getYPositionMap3D_h(int layer) const { return m_yPositionMap3D_h.at(layer); }
+const PixelHistoConverter& PixelModuleData::getTimeMap3D_e(int layer) const { return m_timeMap3D_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getTimeMap3D_h(int layer) const { return m_timeMap3D_h.at(layer); }
+const PixelHistoConverter& PixelModuleData::getAvgChargeMap3D_e() const { return m_avgChargeMap3D_e; }
+const PixelHistoConverter& PixelModuleData::getAvgChargeMap3D_h() const { return m_avgChargeMap3D_h; }
+
 // Distortion parameters
 void PixelModuleData::setDistortionInputSource(int distortionInputSource) { m_distortionInputSource = distortionInputSource; }
 int PixelModuleData::getDistortionInputSource() const { return m_distortionInputSource; }
