@@ -24,8 +24,6 @@ HLT_2e17_lhvloose_L12EM15VH:
   eventCount: 0
 HLT_2e17_lhvloose_L12EM15VHI:
   eventCount: 0
-HLT_2e17_lhvloose_L12EM3:
-  eventCount: 0
 HLT_2e24_lhvloose_L12EM20VH:
   eventCount: 0
 HLT_2e3_etcut_L12EM3:
@@ -615,11 +613,7 @@ HLT_e17_lhvloose_nod0_L1EM15VH:
   eventCount: 0
 HLT_e17_lhvloose_nod0_L1EM15VHI:
   eventCount: 0
-HLT_e20_lhmedium_e15_idperf_medium_Zee_L12EM3:
-  eventCount: 0
-  stepFeatures:
-    0: 1
-HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3:
+HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH:
   eventCount: 0
   stepFeatures:
     0: 1

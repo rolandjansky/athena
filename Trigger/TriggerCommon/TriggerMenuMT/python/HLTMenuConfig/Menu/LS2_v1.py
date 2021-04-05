@@ -145,7 +145,6 @@ def setupMenu():
         ChainProp(name='HLT_e140_lhloose_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=SingleElectronGroup),
 
-        ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -157,9 +156,8 @@ def setupMenu():
 
         # TnP triggers
         ## Zee triggers
-        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'],groups=MultiElectronGroup),
-        ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg
+        ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH', l1SeedThresholds=['EM15VH','EM7'], groups=MultiElectronGroup), #idperf leg
         ChainProp(name='HLT_e26_lhtight_e15_idperf_tight_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=MultiElectronGroup), #idperf leg
 
         ## Jpsiee triggers
