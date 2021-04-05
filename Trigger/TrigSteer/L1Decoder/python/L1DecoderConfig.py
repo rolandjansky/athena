@@ -19,7 +19,12 @@ def mapThresholdToL1DecisionCollection(threshold):
                                 "TAU": "HLTNav_L1TAU",
                                 "XE" : "HLTNav_L1MET",
                                 "XS" : "HLTNav_L1MET",
-                                "TE" : "HLTNav_L1MET" }
+                                "TE" : "HLTNav_L1MET",
+                                "PROBEEM"  : "HLTNav_L1PROBEEM",
+                                "PROBEeEM" : "HLTNav_L1PROBEeEM",
+                                "PROBEMU"  : "HLTNav_L1PROBEMU",
+                                "PROBETAU" : "HLTNav_L1PROBETAU"
+                                }
 
     # remove actual threshold value from L1 threshold string
     for (thresholdType, l1Collection) in mapThresholdToL1Decoder.items():
@@ -41,7 +46,12 @@ def mapThresholdToL1RoICollection(threshold):
                                 "TAU": "HLT_TAURoI",
                                 "XE" : "HLT_FSRoI",
                                 "XS" : "HLT_FSRoI",
-                                "TE" : "HLT_FSRoI" }
+                                "TE" : "HLT_FSRoI",
+                                "PROBEEM"  : "HLT_EMRoIs",
+                                "PROBEeEM" : "HLT_eEMRoIs",
+                                "PROBEMU"  : "HLT_MURoIs",
+                                "PROBETAU" : "HLT_TAURoI" 
+                                }
 
     # remove actual threshold value from L1 threshold string
     for (thresholdType, l1Collection) in mapThresholdToL1Decoder.items():
@@ -56,6 +66,7 @@ def createLegacyCaloRoIUnpackers():
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     emUnpacker = CompFactory.EMRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("EM"),
+                                                 DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEEM"),
                                                  OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("EM")),
                                                  MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
 
@@ -66,6 +77,7 @@ def createLegacyCaloRoIUnpackers():
 
 
     tauUnpacker = CompFactory.TAURoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("TAU"),
+                                                   DecisionsProbe = mapThresholdToL1DecisionCollection("PROBETAU"),
                                                    OutputTrigRoIs = recordable("HLT_TAURoI"))
 
     tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
@@ -82,6 +94,7 @@ def createCaloRoIUnpackers():
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     eFexEMUnpacker = CompFactory.eFexEMRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eEM"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeEM"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
         MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=30))
 
@@ -94,6 +107,7 @@ def createMuonRoIUnpackers(flags):
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     muUnpacker = CompFactory.MURoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("MU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEMU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
 
     muUnpacker.OutputRecRoIs = "" if flags.Trigger.enableL1Phase1 else "HLT_RecMURoIs"
