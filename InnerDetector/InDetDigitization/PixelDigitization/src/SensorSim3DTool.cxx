@@ -48,133 +48,6 @@ StatusCode SensorSim3DTool::initialize() {
   ATH_CHECK(readProbMap(m_cc_prob_file_fei3));
   ATH_CHECK(readProbMap(m_cc_prob_file_fei4));
 
-  std::vector<std::string> mapsPath_list;
-
-  if (!m_doRadDamage) {
-    m_fluence = 0;
-  }
-
-  if (static_cast<int>(m_fluence) == 1) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0_20V.root"));
-    m_fluence_layers.push_back(1e-10);
-  } else if (static_cast<int>(m_fluence) == 2) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e14_20V.root"));
-    m_fluence_layers.push_back(1e14);
-  } else if (static_cast<int>(m_fluence) == 3) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2e14_30V.root"));
-    m_fluence_layers.push_back(2e14);
-  } else if (static_cast<int>(m_fluence) == 4) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e14_40V.root"));
-    m_fluence_layers.push_back(5e14);
-  } else if (static_cast<int>(m_fluence) == 5) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e15_50V.root"));
-    m_fluence_layers.push_back(1e15);
-  } else if (static_cast<int>(m_fluence) == 6) {
-    mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"));
-    m_fluence_layers.push_back(5e15);
-  } else if (static_cast<int>(m_fluence) == 7) {
-    mapsPath_list.push_back(PathResolverFindCalibFile(
-                              "PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_6e15_190V_new.root"));
-    m_fluence_layers.push_back(6e15);
-  } else if (static_cast<int>(m_fluence) == 8) {
-    mapsPath_list.push_back(PathResolverFindCalibFile(
-                              "PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e16_260V_new.root"));
-    m_fluence_layers.push_back(1e16);
-  }
-
-  // *****************************
-  // *** Setup Maps ****
-  // *****************************
-  //TODO This is only temporary until remotely stored maps and locally generated maps can be implemented
-
-  for (unsigned int i = 0; i < mapsPath_list.size(); i++) {
-    ATH_MSG_INFO("Using maps located in: " << mapsPath_list.at(i));
-    std::unique_ptr<TFile> mapsFile(TFile::Open((mapsPath_list.at(i)).c_str(), "READ")); //this is the ramo potential.
-    if (!mapsFile) {
-        ATH_MSG_ERROR("Cannot open file: " << mapsPath_list.at(i));
-        return StatusCode::FAILURE;
-    }
-
-    std::pair < int, int > Layer; // index for layer/end cap position
-    Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at iayer.first=1
-    Layer.second = i; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-    //For 3D sensor, only possible index should be 0-0
-    //May want to be changed in the future, since there's no point having an index with only one possible value
-
-    //Setup ramo weighting field map
-    std::unique_ptr<TH2F> ramoPotentialMap_hold(mapsFile->Get<TH2F>("ramo"));
-    if (!ramoPotentialMap_hold) {
-      ATH_MSG_ERROR("Did not find a Ramo potential map.  Will use an approximate form.");
-      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
-    }
-    ramoPotentialMap_hold->SetDirectory(nullptr);
-    m_ramoPotentialMap.emplace_back();
-    ATH_CHECK(m_ramoPotentialMap.back().setHisto2D(ramoPotentialMap_hold.get()));
-
-    ATH_MSG_INFO("Using fluence " << m_fluence_layers.at(i));
-
-    //Now setup the E-field.
-    std::unique_ptr<TH2F> eFieldMap_hold(mapsFile->Get<TH2F>("efield"));
-    if (!eFieldMap_hold) {
-      ATH_MSG_ERROR("Unable to load sensor e-field map, so generating one using approximations.");
-      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
-    }
-    eFieldMap_hold->SetDirectory(nullptr);
-    m_eFieldMap.emplace_back();
-    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold.get()));
-
-    std::unique_ptr<TH3F> xPositionMap_e_hold(mapsFile->Get<TH3F>("xPosition_e"));
-    std::unique_ptr<TH3F> xPositionMap_h_hold(mapsFile->Get<TH3F>("xPosition_h"));
-    std::unique_ptr<TH3F> yPositionMap_e_hold(mapsFile->Get<TH3F>("yPosition_e"));
-    std::unique_ptr<TH3F> yPositionMap_h_hold(mapsFile->Get<TH3F>("yPosition_h"));
-    std::unique_ptr<TH2F> timeMap_e_hold(mapsFile->Get<TH2F>("etimes"));
-    std::unique_ptr<TH2F> timeMap_h_hold(mapsFile->Get<TH2F>("htimes"));
-
-    if (!xPositionMap_e_hold || !xPositionMap_h_hold || !yPositionMap_e_hold || !yPositionMap_h_hold ||
-        !timeMap_e_hold || !timeMap_h_hold) {
-      ATH_MSG_ERROR("Cannot find one of the maps.");
-      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
-    }
-
-    xPositionMap_e_hold->SetDirectory(nullptr);
-    xPositionMap_h_hold->SetDirectory(nullptr);
-    yPositionMap_e_hold->SetDirectory(nullptr);
-    yPositionMap_h_hold->SetDirectory(nullptr);
-    timeMap_e_hold->SetDirectory(nullptr);
-    timeMap_h_hold->SetDirectory(nullptr);
-
-    //Now, determine the time to reach the electrode and the trapping position.
-    m_xPositionMap_e.emplace_back();
-    m_xPositionMap_h.emplace_back();
-    m_yPositionMap_e.emplace_back();
-    m_yPositionMap_h.emplace_back();
-    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold.get()));
-    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold.get()));
-    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold.get()));
-    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold.get()));
-    m_timeMap_e.emplace_back();
-    m_timeMap_h.emplace_back();
-    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold.get()));
-    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold.get()));
-
-    std::unique_ptr<TH2F> avgCharge_e(mapsFile->Get<TH2F>("avgCharge_e"));
-    std::unique_ptr<TH2F> avgCharge_h(mapsFile->Get<TH2F>("avgCharge_h"));
-
-    if (!avgCharge_e || !avgCharge_h) {
-      ATH_MSG_ERROR("Cannot find one of the charge maps.");
-      return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
-    }
-
-    avgCharge_e->SetDirectory(nullptr);
-    avgCharge_h->SetDirectory(nullptr);
-
-    // Get average charge data (for charge chunk effect correction)
-    ATH_CHECK(m_avgChargeMap_e.setHisto2D(avgCharge_e.get()));
-    ATH_CHECK(m_avgChargeMap_h.setHisto2D(avgCharge_h.get()));
-
-    mapsFile->Close();
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -193,7 +66,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                          SiChargedDiodeCollection& chargedDiodes,
                                          const InDetDD::SiDetectorElement& Module,
                                          const InDetDD::PixelModuleDesign& p_design,
-                                         const PixelModuleData */*moduleData*/,
+                                         const PixelModuleData *moduleData,
                                          std::vector< std::pair<double, double> >& trfHitRecord,
                                          std::vector<double>& initialConditions,
                                          CLHEP::HepRandomEngine* rndmEngine,
@@ -216,10 +89,20 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
   //Calculate trapping times based on fluence (already includes check for fluence=0)
   if (m_doRadDamage) {
-    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluence_layers.at(0));   //0 = IBL
+    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(moduleData->getFluenceLayer3D(0));   //0 = IBL
     m_trappingTimeElectrons = trappingTimes.first;
     m_trappingTimeHoles = trappingTimes.second;
   }
+  const PixelHistoConverter& ramoPotentialMap = moduleData->getRamoPotentialMap3D(0);
+  const PixelHistoConverter& eFieldMap        = moduleData->getEFieldMap3D(0);
+  const PixelHistoConverter& xPositionMap_e   = moduleData->getXPositionMap3D_e(0);
+  const PixelHistoConverter& xPositionMap_h   = moduleData->getXPositionMap3D_h(0);
+  const PixelHistoConverter& yPositionMap_e   = moduleData->getYPositionMap3D_e(0);
+  const PixelHistoConverter& yPositionMap_h   = moduleData->getYPositionMap3D_h(0);
+  const PixelHistoConverter& timeMap_e        = moduleData->getTimeMap3D_e(0);
+  const PixelHistoConverter& timeMap_h        = moduleData->getTimeMap3D_h(0);
+  const PixelHistoConverter& avgChargeMap_e   = moduleData->getAvgChargeMap3D_e();
+  const PixelHistoConverter& avgChargeMap_h   = moduleData->getAvgChargeMap3D_h();
 
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];
@@ -250,7 +133,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag =
     (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
-  if (m_doRadDamage && m_fluence > 0) {
+  if (m_doRadDamage) {
     //**************************************//
     //*** Now diffuse charges to surface *** //
     //**************************************//
@@ -288,7 +171,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       double x_new = chargepos.x() + 0.5*module_size_x;
       double y_new = chargepos.y() + 0.5*module_size_y;
 
-
       // -- change from module frame to pixel frame
       int nPixX = int(x_new / pixel_size_x);
       int nPixY = int(y_new / pixel_size_y);
@@ -308,7 +190,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
       //only process hits which are not on the electrodes (E-field zero)
       //all the maps have 250 as the x value, so need to invert x and y whenever reading maps
-      double efield = getElectricField(y_pix, x_pix);
+      double efield = eFieldMap.getContent(eFieldMap.getBinX(1e3*y_pix),eFieldMap.getBinY(1e3*x_pix))*1.0E-7;   //return efield in MV/mm (for mobility calculation)
+
       if (efield == 0) {
         ATH_MSG_DEBUG("Skipping since efield = 0 for x_pix = " << x_pix << " y_pix = " << y_pix);
         continue;
@@ -335,7 +218,14 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           extraNPixX = nPixX;
           extraNPixY = nPixY;
 
-          const double timeToElectrode = getTimeToElectrode(y_pix, x_pix, isHole);
+          double timeToElectrode(0.0);  //[ns]
+          if (!isHole) {
+            timeToElectrode = timeMap_e.getContent(timeMap_e.getBinX(1e3*y_pix),timeMap_e.getBinY(1e3*x_pix));
+          } 
+          else {
+            timeToElectrode = timeMap_h.getContent(timeMap_h.getBinX(1e3*y_pix),timeMap_h.getBinY(1e3*x_pix));
+          }
+
           const double driftTime = getDriftTime(isHole);
 
           //Apply drift due to diffusion
@@ -366,28 +256,35 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             yposDiff = yposDiff + pixel_size_y;
           }
 
+          float average_charge = isHole ? avgChargeMap_h.getContent(avgChargeMap_h.getBinY(1e3*y_pix),avgChargeMap_h.getBinX(1e3*x_pix)) :
+                                          avgChargeMap_e.getContent(avgChargeMap_e.getBinY(1e3*y_pix),avgChargeMap_e.getBinX(1e3*x_pix));
 
-          float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
-                                          m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
-
-          double xposFinal = getTrappingPositionY(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
-          double yposFinal = getTrappingPositionX(yposDiff, xposDiff, std::min(driftTime, timeToElectrode), isHole);
+          double xposFinal(0);  // Trapping position Y
+          double yposFinal(0);  // Trapping position X
+          if (!isHole) {
+            xposFinal = yPositionMap_e.getContent(yPositionMap_e.getBinX(1e3*yposDiff),yPositionMap_e.getBinY(1e3*xposDiff),yPositionMap_e.getBinZ(std::min(driftTime,timeToElectrode)))*1e-3;  //[mm]
+            yposFinal = xPositionMap_e.getContent(xPositionMap_e.getBinX(1e3*yposDiff),xPositionMap_e.getBinY(1e3*xposDiff),xPositionMap_e.getBinZ(std::min(driftTime,timeToElectrode)))*1e-3;  //[mm]
+          } 
+          else {
+            xposFinal = yPositionMap_h.getContent(yPositionMap_h.getBinX(1e3*yposDiff),yPositionMap_h.getBinY(1e3*xposDiff),yPositionMap_h.getBinZ(std::min(driftTime,timeToElectrode)))*1e-3;  //[mm]
+            yposFinal = xPositionMap_h.getContent(xPositionMap_h.getBinX(1e3*yposDiff),xPositionMap_h.getBinY(1e3*xposDiff),xPositionMap_h.getBinZ(std::min(driftTime,timeToElectrode)))*1e-3;  //[mm]
+          }
 
           // -- Calculate signal in current pixel and in the neighboring ones
           // -- loop in the x-coordinate
           for (int i = -1; i <= 1; i++) {
             double xNeighbor = i * pixel_size_x;
             // -- loop in the y-coordinate
-            const std::size_t index = 0;
-            const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
-            const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
+            const std::size_t ramo_init_bin_y  = ramoPotentialMap.getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
+            const std::size_t ramo_final_bin_y = ramoPotentialMap.getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
+
             for (int j = -1; j <= 1; j++) {
               double yNeighbor = j * pixel_size_y;
 
               //Ramo map over 500umx350um pixel area
               //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
-              float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
-              float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
+              float ramoInit  = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
+              float ramoFinal = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
               // Record deposit
               double eHitRamo = (isHole ? -1. : 1.) * eHit * (ramoFinal - ramoInit);
@@ -587,12 +484,6 @@ double SensorSim3DTool::getProbMapEntry(const SensorType& readout, int binx, int
   return echarge;
 }
 
-double SensorSim3DTool::getElectricField(double x, double y) {
-  std::size_t index = 0;
-  double electricField = m_eFieldMap[index].getContent(m_eFieldMap[index].getBinX(1e3*x), m_eFieldMap[index].getBinY(1e3*y));
-  return electricField * 1.0E-7; //return efield in MV/mm (for mobility calculation)
-}
-
 double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   //Not exactly the same as the getMobility function in RadDamageUtil, since we don't have a Hall effect for 3D sensors
   // (B and E are parallel)
@@ -631,37 +522,4 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   return driftTime;
 }
 
-double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
-  std::size_t index = 0;
-  double timeToElectrode = 0;
-  if (!isHoleBit) {
-    timeToElectrode = m_timeMap_e[index].getContent(m_timeMap_e[index].getBinX(1e3*x), m_timeMap_e[index].getBinY(1e3*y));
-  } else {
-    timeToElectrode = m_timeMap_h[index].getContent(m_timeMap_h[index].getBinX(1e3*x), m_timeMap_h[index].getBinY(1e3*y));
-  }
-  return timeToElectrode; //[ns]
-}
 
-double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit) {
-  std::size_t index = 0;
-  double finalX(0);
-  if (!isHoleBit) {
-    finalX = m_xPositionMap_e[index].getContent(m_xPositionMap_e[index].getBinX(1e3*initX), m_xPositionMap_e[index].getBinY(1e3*initY), m_xPositionMap_e[index].getBinZ(driftTime));
-  } else {
-    finalX = m_xPositionMap_h[index].getContent(m_xPositionMap_h[index].getBinX(1e3*initX), m_xPositionMap_h[index].getBinY(1e3*initY), m_xPositionMap_h[index].getBinZ(driftTime));
-  }
-
-  return finalX * 1e-3; //[mm]
-}
-
-double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit) {
-  std::size_t index = 0;
-  double finalY(0);
-  if (!isHoleBit) {
-    finalY = m_yPositionMap_e[index].getContent(m_yPositionMap_e[index].getBinX(1e3*initX), m_yPositionMap_e[index].getBinY(1e3*initY), m_yPositionMap_e[index].getBinZ(driftTime));
-  } else {
-    finalY = m_yPositionMap_h[index].getContent(m_yPositionMap_h[index].getBinX(1e3*initX), m_yPositionMap_h[index].getBinY(1e3*initY), m_yPositionMap_h[index].getBinZ(driftTime));
-  }
-
-  return finalY * 1e-3; //[mm]
-}
