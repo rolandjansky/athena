@@ -62,11 +62,10 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
   curvilinearRotation.col(1) = curvUVT.curvV();
   curvilinearRotation.col(2) = curvUVT.curvT();
   // curvilinear surfaces are boundless
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>();
-  (*Trk::Surface::m_transform) = curvilinearRotation;
-  Trk::Surface::m_transform->pretranslate(position);
-  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  Amg::Transform3D transform{};
+  transform = curvilinearRotation;
+  transform.pretranslate(position);
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(transform);
 }
 
 // construct form TrkDetElementBase
@@ -74,12 +73,8 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::T
   : Trk::Surface(detelement)
   , m_bounds()
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
-  if (m_transform) {
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(m_transform->translation());
-    Trk::Surface::m_normal =
-      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  if(transf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
   }
 }
 
@@ -90,13 +85,10 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
   : Trk::Surface(detelement, id)
   , m_bounds()
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
-  if (m_transform) {
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(m_transform->translation());
-    Trk::Surface::m_normal =
-      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  if(transf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
   }
+
 }
 
 // construct planar surface without bounds

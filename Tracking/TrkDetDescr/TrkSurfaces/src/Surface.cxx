@@ -24,9 +24,7 @@ std::atomic<unsigned int> Trk::Surface::s_numberOfFreeInstantiations{ 0 };
 #endif
 
 Trk::Surface::Surface()
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
@@ -49,19 +47,15 @@ Trk::Surface::Surface()
 __attribute__ ((flatten))
 #endif
 Trk::Surface::Surface(Amg::Transform3D* tform)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  m_transform = std::unique_ptr<Amg::Transform3D>(tform);
   if (tform) {
-    m_center = std::make_unique<Amg::Vector3D>(tform->translation());
-    m_normal = std::make_unique<Amg::Vector3D>(tform->rotation().col(2));
+    m_transforms = std::make_unique<Transforms>(*tform);
   }
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
@@ -76,9 +70,7 @@ Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform)
 }
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
@@ -91,9 +83,7 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
 }
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId(id)
   , m_associatedLayer(nullptr)
@@ -115,19 +105,14 @@ __attribute__ ((flatten))
 #endif
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(sf.m_associatedLayer)
   , m_materialLayer(sf.m_materialLayer)
   , m_owner(Trk::noOwn)
 {
-
-  m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  m_transforms = std::make_unique<Transforms>(sf.transform());
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -141,25 +126,25 @@ Trk::Surface::Surface(const Surface& sf)
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
 // it would not be optimized.  Avoid this by forcing all Eigen code
 // to be inlined here if possible.
-__attribute__ ((flatten))
+__attribute__((flatten))
 #endif
-// copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifier to invalid
-// also invalidates the material layer
+// copy constructor with shift - Attention! sets the associatedDetElement to 0
+// and the identifier to invalid also invalidates the material layer
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
-  : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
-                               : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  if (!m_center) {
-    m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+
+  if (sf.m_transforms) {
+    m_transforms = std::make_unique<Transforms>(
+      shift * sf.m_transforms->transform, shift * sf.m_transforms->center);
+  } else {
+    m_transforms = std::make_unique<Transforms>(Amg::Transform3D(shift));
   }
-  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -184,9 +169,7 @@ Trk::Surface&
 Trk::Surface::operator=(const Trk::Surface& sf)
 {
   if (this != &sf) {
-    m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-    m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-    m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+    m_transforms = std::make_unique<Transforms>(sf.transform());
     m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;

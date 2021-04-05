@@ -27,19 +27,17 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp)
   : Surface()
   , m_lineDirection{}
 {
-  Surface::m_center = std::make_unique<Amg::Vector3D>(gp);
-  Surface::m_transform = std::make_unique<Amg::Transform3D>(
-    Amg::Translation3D(gp.x(), gp.y(), gp.z()));
+  Amg::Transform3D transform (Amg::Translation3D(gp.x(), gp.y(), gp.z()));
+  Surface::m_transforms = std::make_unique<Transforms>(transform, gp, s_xAxis);
 }
 
 Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
   : Surface()
   , m_lineDirection{}
 {
-  Surface::m_transform = std::unique_ptr<Amg::Transform3D>(tTransform);
-  if(tTransform){
-    Surface::m_center =
-      std::make_unique<Amg::Vector3D>(tTransform->translation());
+  if (tTransform) {
+    Surface::m_transforms = std::make_unique<Transforms>(
+      *tTransform, tTransform->translation(), s_xAxis);
   }
 }
 
@@ -60,11 +58,9 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
   : Surface(pesf)
   , m_lineDirection{}
 {
-  if (pesf.m_center){
-    Surface::m_center = std::make_unique<Amg::Vector3D>(*pesf.m_center);
-  }
-  if (pesf.m_transform){
-    Surface::m_transform = std::make_unique<Amg::Transform3D>(*pesf.m_transform);
+  if (pesf.m_transforms) {
+    Surface::m_transforms = std::make_unique<Transforms>(
+      pesf.m_transforms->transform, pesf.m_transforms->center, s_xAxis);
   }
 }
 
@@ -72,11 +68,11 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Trans
   : Surface()
   , m_lineDirection{}
 {
-  if (pesf.m_center){
-    Surface::m_center = std::make_unique<Amg::Vector3D>(shift * (*pesf.m_center));
-  }
-  if (pesf.m_transform){
-    Surface::m_transform = std::make_unique<Amg::Transform3D>(shift * (*pesf.m_transform));
+  if (pesf.m_transforms) {
+    Surface::m_transforms =
+      std::make_unique<Transforms>(shift * pesf.m_transforms->transform,
+                                   shift * pesf.m_transforms->center,
+                                   s_xAxis);
   }
 }
 
@@ -133,7 +129,7 @@ Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
                                    Amg::Vector3D& glopos) const
 {
   // this is for a tilted perigee surface
-  if (Surface::m_transform) {
+  if (Surface::m_transforms) {
     // get the vector perpendicular to the momentum and the straw axis
     Amg::Vector3D radiusAxisGlobal(lineDirection().cross(glomom));
     Amg::Vector3D locZinGlobal = transform() * Amg::Vector3D(0., 0., locpos[Trk::locZ]);
@@ -152,7 +148,7 @@ Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
 const Amg::Vector3D*
 Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars, const Amg::Vector3D& glomom) const
 {
-  if (Surface::m_transform) {
+  if (Surface::m_transforms) {
     Amg::Vector3D* glopos = new Amg::Vector3D(0., 0., 0.);
     localToGlobal(Amg::Vector2D(locpars[Trk::d0], locpars[Trk::z0]), glomom, *glopos);
     return glopos;
