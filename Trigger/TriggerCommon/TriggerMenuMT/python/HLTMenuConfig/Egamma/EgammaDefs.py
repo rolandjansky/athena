@@ -32,10 +32,10 @@ class TrigEgammaKeys_GSF(object):
       outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
       
-# Print configuration once:
-mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
+      # Print configuration once:
+      mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
 
-def TrigElectronSelectors(sel):
+def TrigElectronSelectors():
 
     # Configure the LH selectors
     #TrigEgammaKeys.pidVersion.set_On()
@@ -55,17 +55,28 @@ def TrigElectronSelectors(sel):
           'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
           }
 
-    if sel not in SelectorNames:
-        mlog.error('No selector defined for working point %s for electrons :-( ', sel)
-        return
-    else:
-        mlog.debug('Configuring electron PID for %s', sel)
-        SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
-        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
-        SelectorTool.usePVContainer = False 
-        SelectorTool.skipDeltaPoverP = True
+    mlog.debug('Configuring electron PID' )
+    SelectorTool_vloose=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhvloose'])
+    SelectorTool_vloose.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhvloose']
+    SelectorTool_vloose.usePVContainer = False 
+    SelectorTool_vloose.skipDeltaPoverP = True
 
-        return SelectorTool
+    SelectorTool_loose=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhloose'])
+    SelectorTool_loose.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhloose']
+    SelectorTool_loose.usePVContainer = False
+    SelectorTool_loose.skipDeltaPoverP = True
+
+    SelectorTool_medium=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhmedium'])
+    SelectorTool_medium.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhmedium']
+    SelectorTool_medium.usePVContainer = False
+    SelectorTool_medium.skipDeltaPoverP = True
+
+    SelectorTool_tight=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhtight'])
+    SelectorTool_tight.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhtight']
+    SelectorTool_tight.usePVContainer = False
+    SelectorTool_tight.skipDeltaPoverP = True
+
+    return SelectorTool_vloose, SelectorTool_loose, SelectorTool_medium, SelectorTool_tight
 
 
 def TrigPhotonSelectors(sel):

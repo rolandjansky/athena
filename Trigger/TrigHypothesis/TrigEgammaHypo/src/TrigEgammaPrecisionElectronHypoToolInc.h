@@ -25,8 +25,8 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx)  const override;
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ctx) const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input)  const override;
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i) const override;
 
  private:
   HLT::Identifier m_decisionId;
@@ -37,12 +37,12 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
   Gaudi::Property< float > m_RelPtConeCut { this, "RelPtConeCut", -999., "Track isolation cut" };
+  Gaudi::Property<bool>                m_loose{this,"Loose", false, "Decision for Loose tune"};
+  Gaudi::Property<bool>                m_vloose{this,"vLoose", false, "Decision for vLoose tune"};
+  Gaudi::Property<bool>                m_tight{this,"Tight", false, "Decision for tight tune"};
+  Gaudi::Property<bool>                m_medium{this,"Medium", false, "Decision for medium tune"};
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool{ this, "ElectronLHSelector", "", "Likelihood tool" };
-
-  /*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
   int findCutIndex( float eta ) const;
 
 }; 
