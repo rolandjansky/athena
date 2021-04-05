@@ -36,10 +36,9 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
    m_SSCController(tgcargs,this), 
    m_matrix(tgcargs,this),
    m_pTMDB(0),
-   m_preSelector(this), // for Run2 
-   m_selector(this),//for Run2  
-   m_selectorOut(0), //for Run2
-   m_trackSelector(this),// for Run3
+   m_preSelector(this),      // for Run2
+   m_selector(this),         // for Run2
+   m_trackSelector(this),    // for Run3
    m_wordTileMuon(0),
    m_wordInnerStation(0),
    m_stripHighPtBoard(0),
@@ -79,6 +78,7 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
   m_mapGoodMF = db->getGoodMFMap();
   m_mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId, m_moduleId);
 
+  m_selectorOut.reset(new TGCSLSelectorOut);
   m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
 
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
@@ -97,9 +97,7 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
 }
 
 TGCSectorLogic::~TGCSectorLogic()
-{
-  if(m_selectorOut) delete m_selectorOut;
-}
+{}
 
 void TGCSectorLogic::setTMDB(const TGCTMDB* tmdb)
 {
@@ -129,15 +127,14 @@ void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut>
   trackSelectorOut=m_trackSelectorOut;
 }
 
-void TGCSectorLogic::eraseSelectorOut()
-{
-  m_selectorOut=0;
-}
-
 void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
-                             int bidIn)
+                             int bidIn, bool process)
 {
-  int SSCid, phiposInSSC;
+  // reset output at the previous bunch crossing
+  m_selectorOut.get()->reset();
+  // skip to process if want. (e.g. no hit in TGC)
+  if(!process) return;
+
   m_bid=bidIn;
 
   collectInput();
@@ -151,13 +148,13 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
 
   m_preSelector.init();
 
-  for(SSCid=0; SSCid<getNumberOfSubSectorCluster(); SSCid+=1){
+  for(int SSCid=0; SSCid<getNumberOfSubSectorCluster(); SSCid+=1){
     TGCRPhiCoincidenceOut* coincidenceOut = 0;
     if(SSCCOut->hasHit(SSCid)){
       m_matrix.clear();
       m_matrix.setSSCId(SSCid);
       m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
-      for(phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
+      for(int phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC)){
           m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC),
                           SSCCOut->getDPhi(SSCid,phiposInSSC),
@@ -171,7 +168,7 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
       m_matrix.clear();
       m_matrix.setSSCId(SSCid);
       m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
-      for(phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
+      for(int phiposInSSC = 0 ;phiposInSSC < TGCSSCControllerOut::MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC, true)){
           m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC,true),
                           SSCCOut->getDPhi(SSCid,phiposInSSC,true),
@@ -231,8 +228,8 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
   if(tgcArgs()->useRun3Config()){
     //Track selector in Run3. max 4 tracks ,which are send to MUCTPI, are selected. 
     m_trackSelector.select(m_trackSelectorOut);
-  }
-  else{
+
+  } else{
 #ifdef TGCDEBUG
     m_preSelector.dumpInput();
 #endif
@@ -245,14 +242,12 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
     preSelectorOut->print();
 #endif
 
-    // delete SLSelectorOut if exists
-    if(m_selectorOut!=0) delete m_selectorOut;
-    // create new  SLSelectorOut
-    m_selectorOut = new TGCSLSelectorOut;
+    // reset output at the previous bunch crossing
+    m_selectorOut.get()->reset();
 
     if(preSelectorOut!=0){
       // select final canidates
-      m_selector.select(preSelectorOut,m_selectorOut);
+      m_selector.select(preSelectorOut, m_selectorOut);
     
       // delete SLPreSelectorOut
       delete preSelectorOut;
@@ -263,27 +258,6 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
 #ifdef TGCDEBUG
   showResult(m_selectorOut);
 #endif
-  // EIFI trigger information is dumped when we have Endcap SL trigger
-  /*
-  if(m_region==ENDCAP && m_selectorOut!=0 && m_selectorOut->getNCandidate()) {
-    for(unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
-      std::cout << " innerTrackletSlots[" << iSlot << "]"; 
-      if(m_innerTrackletSlots[iSlot]) {
-	std::cout << " m_sideId " << m_innerTrackletSlots[iSlot]->getSideId() 
-		  << " slotId " << m_innerTrackletSlots[iSlot]->getSlotId()
-		  << " triggerBits ";
-	for(unsigned int iRegion=0; iRegion<TGCInnerTrackletSlot::NUMBER_OF_REGIONS; iRegion++) {
-	  for(unsigned int readout=0; readout<TGCInnerTrackletSlot::NUMBER_OF_READOUTS; readout++) {
-	    for(unsigned int iBit=0; iBit<TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS; iBit++) {
-	      std::cout << (m_innerTrackletSlots[iSlot]->getTriggerBit(iRegion,readout,iBit) ? 1 : 0);
-	    }
-	  }
-	}
-      } 
-      std::cout << std::endl;
-    }
-  }
-  */
 }
 
 void TGCSectorLogic::collectInput()
@@ -311,18 +285,17 @@ void TGCSectorLogic::deleteHPBOut()
 }
 
 
-void TGCSectorLogic::showResult(TGCSLSelectorOut* out)
+void TGCSectorLogic::showResult()
 {
-  int i;
   std::cout<<"#SL O"<<" BID:"<<m_bid
 	   <<" region:"<<((m_region==FORWARD) ? "FWD" : "END")
 	   <<" SLid:"<<m_id<<" ";
 
-  for( i=0; i<out->getNCandidate(); i+=1){
+  for(int i=0; i<m_selectorOut->getNCandidate(); i+=1){
     std::cout<<"  "<<i<<" "
-	     <<out->getPtLevel(i)<<" "
-	     <<out->getR(i)<<" "
-	     <<out->getPhi(i)<<std::endl;
+	     <<m_selectorOut->getPtLevel(i)<<" "
+	     <<m_selectorOut->getR(i)<<" "
+	     <<m_selectorOut->getPhi(i)<<std::endl;
   }
   std::cout<<std::endl;
 
@@ -330,7 +303,7 @@ void TGCSectorLogic::showResult(TGCSLSelectorOut* out)
 
 
 TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right)
- : m_bid(right.m_id), m_id(right.m_id),
+ : m_bid(right.m_bid), m_id(right.m_id),
    m_sectorId(right.m_sectorId), m_moduleId(right.m_moduleId),
    m_sideId(right.m_sideId), m_octantId(right.m_octantId),
    m_region(right.m_region),
@@ -342,7 +315,6 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right)
    m_mapEIFI(right.m_mapEIFI),
    m_pTMDB(right.m_pTMDB),
    m_preSelector(this), m_selector(this),
-   m_selectorOut(0),
    m_wordTileMuon(0), m_wordInnerStation(0),
    m_stripHighPtBoard(right.m_stripHighPtBoard), 
    m_stripHighPtChipOut(0),
@@ -377,8 +349,6 @@ TGCSectorLogic::operator=(const TGCSectorLogic& right)
     m_NumberOfWireHighPtBoard=right.m_NumberOfWireHighPtBoard;
     m_mapEIFI=right.m_mapEIFI;
     m_pTMDB=right.m_pTMDB;
-    delete m_selectorOut;
-    m_selectorOut=0;
     m_wordTileMuon=0;
     m_wordInnerStation=0;
     m_stripHighPtBoard=right.m_stripHighPtBoard;  

@@ -75,9 +75,7 @@ void TGCTimingManager::startSlaveBoard(TGCSector* sector)
 
 void TGCTimingManager::startHighPtBoard(TGCSector* sector)
 {
-#ifdef TGCDEBUG
-  std::cout << "Start  HighPt Board" <<std::endl; 
-#endif
+  if(sector->hasHit() == false) return;
 
   // collect input signals by 1st clockIn,
   // perform coincidence by 2nd clockIn.
@@ -92,12 +90,9 @@ void TGCTimingManager::startHighPtBoard(TGCSector* sector)
 
 void TGCTimingManager::startSectorLogic(TGCSector* sector)
 {
-#ifdef TGCDEBUG
-  std::cout << "Start  Sector Logic" <<std::endl; 
-#endif
-
   TGCSectorLogic* sl= sector->getSL();
-  if(sl!=0) sl->clockIn(m_readCondKey, m_bunchCounter);
+
+  if(sl!=0) sl->clockIn(m_readCondKey, m_bunchCounter, sector->hasHit());
 }
 
 } //end of namespace bracket
