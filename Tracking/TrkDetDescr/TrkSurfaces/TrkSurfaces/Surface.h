@@ -97,6 +97,48 @@ public:
     Other = 7
   };
 
+  /*
+   * struct holding the transform, center, normal,
+   * needed when by surfaces when not delegating
+   * to a detector element
+   */
+  struct Transforms
+  {
+    //constructor with just a Amg::Transform3D input
+    inline Transforms(const Amg::Transform3D& _transform)
+      : transform(_transform)
+      , center(transform.translation())
+      , normal(transform.rotation().col(2))
+    {}
+
+    //constructor with  Amg::Transform3D and center input
+    inline Transforms(const Amg::Transform3D& _transform,
+                      const Amg::Vector3D& _center)
+      : transform(_transform)
+      , center(_center)
+      , normal(transform.rotation().col(2))
+    {}
+
+    // constructor with  Amg::Transform3D , center and normal input
+    inline Transforms(const Amg::Transform3D& _transform,
+                      const Amg::Vector3D& _center,
+                      const Amg::Vector3D& _normal)
+      : transform(_transform)
+      , center(_center)
+      , normal(_normal)
+    {}
+    Transforms(const Transforms&) = default;
+    Transforms(Transforms&&) = default;
+    Transforms& operator=(const Transforms&) = default;
+    Transforms& operator=(Transforms&&) = default;
+    ~Transforms() = default;
+    //!< Transform3D to orient surface w.r.t to global frame
+    Amg::Transform3D transform;
+    //!< center position of the surface
+    Amg::Vector3D center;
+    //!< normal vector of the surface
+    Amg::Vector3D normal;
+  };
   /** Unique ptr types**/
   using ChargedTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Charged>>;
   using NeutralTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
@@ -459,29 +501,22 @@ protected:
   /** Private members are in principle implemented as pointers to
    * objects for easy checks if they are already declared or not */
 
-  //!< Transform3D to orient surface w.r.t to global frame
-  std::unique_ptr<Amg::Transform3D> m_transform;
-  //!< center position of the surface
-  std::unique_ptr<Amg::Vector3D> m_center;
-  //!< normal vector of the surface
-  std::unique_ptr<Amg::Vector3D> m_normal;
+  //!< Pointer to the Transforms struct*/
+  std::unique_ptr<Transforms> m_transforms = nullptr;
 
-  /** Pointers to the a TrkDetElementBase  (not owning)*/
-  const TrkDetElementBase* m_associatedDetElement;
+  /** Pointers to the TrkDetElementBase  (not owning)*/
+  const TrkDetElementBase* m_associatedDetElement = nullptr;
   Identifier m_associatedDetElementId;
-
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
    (not owning)
    */
-  const Layer* m_associatedLayer;
-
+  const Layer* m_associatedLayer = nullptr;
   /** Possibility to attach a material descrption
   - potentially given as the associated material layer
     (not owning)
   */
-  const Layer* m_materialLayer;
-
+  const Layer* m_materialLayer = nullptr;
   /** enum for surface owner : 0  free surface */
   SurfaceOwner m_owner;
 

@@ -22,18 +22,10 @@ Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::PlaneSurface& psf, 
   , m_nominalSurface(&psf)
 {
   if (htrans) {
-    Surface::m_transform = std::unique_ptr<Amg::Transform3D>(htrans);
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->translation());
-    Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(
-      Trk::Surface::m_transform->rotation().col(2));
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*htrans);
   } else {
-    Surface::m_transform =
-      std::make_unique<Amg::Transform3D>(m_nominalSurface->transform());
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->translation());
-    Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(
-      Trk::Surface::m_transform->rotation().col(2));
+    Trk::Surface::m_transforms =
+      std::make_unique<Transforms>(m_nominalSurface->transform());
   }
 }
 
@@ -71,23 +63,19 @@ Trk::AlignablePlaneSurface::operator==(const Trk::Surface& sf) const
 void
 Trk::AlignablePlaneSurface::addAlignmentCorrection(Amg::Transform3D& corr)
 {
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>((*Trk::Surface::m_transform) * corr);
-  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->translation());
-  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->rotation().col(2));
+  Trk::Surface::m_transforms =
+    std::make_unique<Transforms>(Trk::Surface::m_transforms->transform * corr);
 }
 
 void
 Trk::AlignablePlaneSurface::setAlignmentCorrection(Amg::Transform3D& corr)
 {
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>((m_nominalSurface->transform()) * corr);
-  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->translation());
-  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->rotation().col(2));
+  Trk::Surface::m_transforms =
+    std::make_unique<Transforms>(m_nominalSurface->transform() * corr);
 }
 
 void
 Trk::AlignablePlaneSurface::setAlignableTransform(Amg::Transform3D& trans)
 {
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>(trans);
-  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->translation());
-  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(Trk::Surface::m_transform->rotation().col(2));
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(trans);
 }

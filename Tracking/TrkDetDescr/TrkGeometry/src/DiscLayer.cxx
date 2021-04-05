@@ -140,14 +140,13 @@ double Trk::DiscLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm
 
 void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift)  {
 
-       Amg::Transform3D transf = shift * (*m_transform);
-       m_transform=std::make_unique<Amg::Transform3D>(transf);
-       m_center=std::make_unique<Amg::Vector3D>(m_transform->translation());
-       m_normal=std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
-       // rebuild that - deletes the current one
-       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) {
-         buildApproachDescriptor();
-       }
+  Amg::Transform3D transf = shift * m_transforms->transform;
+  m_transforms = std::make_unique<Transforms>(
+    transf, transf.translation(), transf.rotation().col(2));
+  // rebuild that - deletes the current one
+  if (m_approachDescriptor && m_approachDescriptor->rebuild()) {
+    buildApproachDescriptor();
+  }
 }
 
 void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope)  {
@@ -268,10 +267,9 @@ void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const
                                                          Amg::Vector3D( vCenter + Amg::Vector3D(0.,0.,hLengthZ-0.5*thickness()) );
         if (center().isApprox(nDiscCenter)) return;
         // else set to the new volume center
-        Trk::DiscSurface::m_transform=std::make_unique<Amg::Transform3D> (Amg::Translation3D(nDiscCenter));
-        // delete derived and the cache
-        Trk::DiscSurface::m_center= std::make_unique<Amg::Vector3D>(nDiscCenter);
-        Trk::DiscSurface::m_normal= std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+        Amg::Transform3D transf((Amg::Translation3D(nDiscCenter)));
+        Amg::Vector3D center(nDiscCenter);
+        m_transforms = std::make_unique<Transforms>(transf, center);
     }
     // rebuild the approaching layer
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild())

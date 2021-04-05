@@ -188,11 +188,7 @@ double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& 
 
 
 void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) {
-       Amg::Transform3D transf = shift * (*m_transform);
-       Trk::CylinderSurface::m_transform= std::make_unique<Amg::Transform3D>(transf);
-       m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-       m_normal =
-         std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+       Trk::CylinderSurface::m_transforms = std::make_unique<Transforms>(shift * (m_transforms->transform));
 
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
            // build the new approach descriptor - deletes the current one
@@ -286,7 +282,8 @@ void Trk::CylinderLayer::buildApproachDescriptor(){
     // delete the surfaces
     auto  aSurfaces = std::make_unique<Trk::ApproachSurfaces>();
     // create new surfaces
-    Amg::Transform3D* asTransform = m_transform ? new Amg::Transform3D(*m_transform) : nullptr;
+    Amg::Transform3D* asTransform =
+      m_transforms ? new Amg::Transform3D(m_transforms->transform) : nullptr;
     // create the new surfaces
     aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()-0.5*thickness(), m_bounds->halflengthZ() ));
     aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()+0.5*thickness(), m_bounds->halflengthZ() ));
@@ -303,15 +300,12 @@ void Trk::CylinderLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, c
     // resize first of all
     resizeLayer(vBounds,envelope);
     // now reposition to the potentially center if necessary, do not change layers with no transform
-    if ( Trk::CylinderSurface::m_transform || center().isApprox(vCenter) ) {
+    if ( Trk::CylinderSurface::m_transforms || center().isApprox(vCenter) ) {
       return;
     }
-
-    Trk::CylinderSurface::m_transform=std::make_unique<Amg::Transform3D>(vCenter);
-    // delete derived and the cache
-    Trk::CylinderSurface::m_center = std::make_unique<Amg::Vector3D>(vCenter);
-    Trk::CylinderSurface::m_normal =
-      std::make_unique<Amg::Vector3D>(Trk::CylinderSurface::m_transform->rotation().col(2));
+    Amg::Transform3D transf(vCenter);
+    Trk::CylinderSurface::m_transforms =
+      std::make_unique<Transforms>(Amg::Transform3D(vCenter), vCenter);
     // rebuild approaching layers if needed
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild())
         buildApproachDescriptor();
