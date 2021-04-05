@@ -17,8 +17,8 @@
 #include "L1CaloFEXSim/jFEXLargeRJetAlgo.h" 
 #include "L1CaloFEXSim/jFEXOutputCollection.h" 
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
-//#include "L1CaloFEXSim/jFEXtauAlgo.h" //for the future
-//#include "L1CaloFEXSim/jFEXtauTOB.h" //for the future
+#include "L1CaloFEXSim/jFEXtauAlgo.h" //the future is now
+#include "L1CaloFEXSim/jFEXtauTOB.h"  //the future is now
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -42,12 +42,12 @@ jFEXFPGA::jFEXFPGA(const std::string& type,const std::string& name,const IInterf
 {
   declareInterface<IjFEXFPGA>(this);
 }
-  
-    
-  /** Destructor */
-  jFEXFPGA::~jFEXFPGA()
-  {
-  }
+
+
+/** Destructor */
+jFEXFPGA::~jFEXFPGA()
+{
+}
 
 //================ Initialisation =================================================
   
@@ -58,7 +58,7 @@ StatusCode jFEXFPGA::initialize()
   //ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
 }
-  
+
 
 StatusCode jFEXFPGA::init(int id, int jfexid)
 {
@@ -69,144 +69,262 @@ StatusCode jFEXFPGA::init(int id, int jfexid)
 
 }
 
-void jFEXFPGA::reset(){
+void jFEXFPGA::reset() {
 
   m_id = -1;
   m_jfexid = -1;
+  m_tau_tobwords.clear();
 
 }
 
-StatusCode jFEXFPGA::execute(){
+StatusCode jFEXFPGA::execute() {
 
   SG::ReadHandle<jTowerContainer> jk_jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey/*,ctx*/);
-  if(!jk_jFEXFPGA_jTowerContainer.isValid()){
+  if(!jk_jFEXFPGA_jTowerContainer.isValid()) {
     ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
 
 
-//-----------jFEXSmallRJetAlgo----------------- 
+  //-----------jFEXSmallRJetAlgo-----------------
   ATH_MSG_DEBUG("==== jFEXSmallRJetAlgo ========");
   jFEXOutputCollection* jFEXOutputs;
   StatusCode sc_tobs = evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection");
 
-  if(sc_tobs == StatusCode::FAILURE){ATH_MSG_DEBUG("\n==== jFEXSmallRJetAlgo ======== Failed to find jFEXOutputCollection in jFEXFPGA");}
+  if(sc_tobs == StatusCode::FAILURE) {
+    ATH_MSG_DEBUG("\n==== jFEXSmallRJetAlgo ======== Failed to find jFEXOutputCollection in jFEXFPGA");
+  }
+
+  int Jets_eta_limit = -99;
+  bool barrel_region = false;
  
-  for(int ieta = 1; ieta < 30; ieta++){
-    for(int iphi = 1; iphi < 15; iphi++){
+  if(m_jfexid > 0 && m_jfexid < 5){
+    Jets_eta_limit = FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width -8;
 
-      //To note: Thin mapping needs to be fixed in order to see correct outputs.
-      int tobtable[5][5]={
-      {m_jTowersIDs_Thin[ieta +2][iphi -2], m_jTowersIDs_Thin[ieta +2][iphi -1], m_jTowersIDs_Thin[ieta +2][iphi], m_jTowersIDs_Thin[ieta +2][iphi +1], m_jTowersIDs_Thin[ieta +2][iphi +2]},
-      {m_jTowersIDs_Thin[ieta +1][iphi -2], m_jTowersIDs_Thin[ieta +1][iphi -1], m_jTowersIDs_Thin[ieta +1][iphi], m_jTowersIDs_Thin[ieta +1][iphi +1], m_jTowersIDs_Thin[ieta +1][iphi +2]},
-      {m_jTowersIDs_Thin[ieta][iphi -2], m_jTowersIDs_Thin[ieta][iphi -1], m_jTowersIDs_Thin[ieta][iphi], m_jTowersIDs_Thin[ieta][iphi +1], m_jTowersIDs_Thin[ieta][iphi +2]},
-      {m_jTowersIDs_Thin[ieta -1][iphi -2], m_jTowersIDs_Thin[ieta -1][iphi -1], m_jTowersIDs_Thin[ieta -1][iphi], m_jTowersIDs_Thin[ieta -1][iphi +1], m_jTowersIDs_Thin[ieta -1][iphi +2]},
-      {m_jTowersIDs_Thin[ieta -2][iphi -2], m_jTowersIDs_Thin[ieta -2][iphi -1], m_jTowersIDs_Thin[ieta -2][iphi], m_jTowersIDs_Thin[ieta -2][iphi +1], m_jTowersIDs_Thin[ieta -2][iphi +2]}
- 
-	};
+    barrel_region = true;
+  //  return StatusCode::SUCCESS;
+  }
 
-      
+  if(m_jfexid == 0 || m_jfexid == 5){
 
-      int largeETRing_IDs[15][15];
-      for(int i = -7; i< 8; i++ ){
-        for(int j = -7; j< 8; j++){
-          largeETRing_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[ieta + i][iphi +j];
+    Jets_eta_limit = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width -8;
+    //return StatusCode::SUCCESS;
+  }
+
+  
+  for(int mphi = 8; mphi < 24; mphi++) {   
+    for(int meta = 8; meta < Jets_eta_limit; meta++) {
+
+
+    //create search window including towerIDs required for seeding.
+    int SRJet_SearchWindow[7][7] = {0};
+    for(int i = -3 ; i <4; i++){
+      for(int j = -3; j <4; j++){
+        if(barrel_region){SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Thin[mphi + i][meta +j];}
+        else{SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Wide[mphi + i][meta +j];}
+      }
+    }
+      int largeRCluster_IDs[15][15]= {0};
+      for(int i = -7; i< 8; i++ ) {
+        for(int j = -7; j< 8; j++) {
+          largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[mphi + i][meta +j];
         }
       }
       //remove corners from large ET ring
-      for(int i =4; i <8; i++){
-        if( i != 7){
-          largeETRing_IDs[7 +i][14] = 0;
-          largeETRing_IDs[7 +i][0] = 0;
-          largeETRing_IDs[7 -i][14] = 0;
-          largeETRing_IDs[7 -i][0] = 0;
+      for(int i =4; i <8; i++) {
+        if( i != 7) {
+          largeRCluster_IDs[7 +i][14] = 0;
+          largeRCluster_IDs[7 +i][0] = 0;
+          largeRCluster_IDs[7 -i][14] = 0;
+          largeRCluster_IDs[7 -i][0] = 0;
         }
 
-        largeETRing_IDs[14][7 +i] = 0;
-        largeETRing_IDs[14][7 -i] = 0;
-        largeETRing_IDs[0][7 +i] = 0;
-        largeETRing_IDs[0][7 -i] = 0;
-        largeETRing_IDs[13][13] = 0;
-        largeETRing_IDs[1][1] = 0;
-        largeETRing_IDs[13][1] = 0;
-        largeETRing_IDs[1][13] = 0;       
+        largeRCluster_IDs[14][7 +i] = 0;
+        largeRCluster_IDs[14][7 -i] = 0;
+        largeRCluster_IDs[0][7 +i] = 0;
+        largeRCluster_IDs[0][7 -i] = 0;
+        largeRCluster_IDs[13][13] = 0;
+        largeRCluster_IDs[1][1] = 0;
+        largeRCluster_IDs[13][1] = 0;
+        largeRCluster_IDs[1][13] = 0;
       }
 
-      int smallRCluster_IDs[4][5];
-      for(int i =-2; i< 2; i++){
-        smallRCluster_IDs[i +2][0] = m_jTowersIDs_Thin[ieta +i][iphi +3];
-        smallRCluster_IDs[i +2][1] = m_jTowersIDs_Thin[ieta +i][iphi -3];  
-        smallRCluster_IDs[i +2][2] = m_jTowersIDs_Thin[ieta +3][iphi +i];
-        smallRCluster_IDs[i +2][3] = m_jTowersIDs_Thin[ieta -3][iphi +i];
-      }
-
-       //this prevents adding ET from small RT ring
-      for(int i = -3; i< 4; i++){
-        for(int j = -3; j<4 ; j++){
-          if(!(i == 3 && j == -3) || !(i == -3 && j == 3) || !(i == 3 && j == 3) || !(i == -3 && j == -3)){
-            largeETRing_IDs[7 +i][7 +j] = 0; 
+      //this prevents adding ET from small RT ring
+      for(int i = -3; i< 4; i++) {
+        for(int j = -3; j<4 ; j++) {
+          if(!(i == 3 && j == -3) || !(i == -3 && j == 3) || !(i == 3 && j == 3) || !(i == -3 && j == -3)) {
+            largeRCluster_IDs[7 +i][7 +j] = 0;
           }
         }
-      }    
-      
-      ATH_CHECK( m_jFEXSmallRJetAlgoTool.retrieve()); 
-      ATH_CHECK( m_jFEXSmallRJetAlgoTool->safetyTest());
-      m_jFEXSmallRJetAlgoTool->setup(tobtable); 
-      m_jFEXSmallRJetAlgoTool->setupCluster(smallRCluster_IDs);
-      m_jFEXLargeRJetAlgoTool->setupCluster(largeETRing_IDs);      
+      }
+
+
+      m_jFEXSmallRJetAlgoTool->setup(SRJet_SearchWindow, barrel_region);
+      m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);
+
 
       //These are plots of the central TT for each 5x5 search window.
       jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET());
-      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi()/10.) ;
-      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta()/10.) ;     
+      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi()) ;
+      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta()) ;
 
       m_jFEXSmallRJetAlgoTool->buildSeeds();
       bool SRJet_LM = m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima();
-      jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed", SRJet_LM); 
+      jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed",  SRJet_LM);
 
-      if(!SRJet_LM){continue;} //skip below if not LM
+      std::unique_ptr<jFEXSmallRJetTOB> tmp_tob = m_jFEXSmallRJetAlgoTool->getSmallRJetTOBs();
 
-      std::unique_ptr<jFEXSmallRJetTOB> tmp_SRJet_tob = m_jFEXSmallRJetAlgoTool->getSmallRJetTOBs();
-         
-      bool TOB_saturated = false;
+      uint32_t tobword = formSmallRJetTOB(mphi, meta);
+      if ( tobword != 0 ) m_SRJet_tobwords.push_back(tobword);
+
+      //bool TOB_saturated = false;
       int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
-      if (smallClusterET/200. > 11) TOB_saturated = true;
-      
+      //if (smallClusterET/200. > 0x7ff){ATH_MSG_DEBUG("SRJet TOB is saturated"); TOB_saturated = true;}
+
       // for plotting variables in TOBS- internal check:
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", tmp_SRJet_tob->setEta(ieta));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", tmp_SRJet_tob->setPhi(iphi));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET", smallClusterET);    
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_sat", TOB_saturated);  
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta",tmp_tob->setEta(meta));
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi",tmp_tob->setPhi(mphi));
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET",smallClusterET);
+      jFEXOutputs->fill_smallRJet();
 
-      uint32_t SRJet_tobword = formSmallRJetTOB(ieta, iphi);
-      if ( SRJet_tobword != 0 ) m_SRJet_tobwords.push_back(SRJet_tobword);
-          
-      jFEXOutputs->fill_smallRJet();  
+      if(!SRJet_LM) {
+        continue;
+      }
 
-      ATH_MSG_DEBUG("==== jFEXLargeRJetAlgo ========"); 
-      //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
-      unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
-      ATH_MSG_DEBUG("jFEXFPGA: large RJet algo, check large cluster ET: "<< largeClusterET); 
-      jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
+      if(SRJet_LM){
+        //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
+        unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
+        jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
 
-      std::unique_ptr<jFEXLargeRJetTOB> tmp_LRJet_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
+        std::unique_ptr<jFEXLargeRJetTOB> tmp_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
 
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", largeClusterET);
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", tmp_LRJet_tob->setPhi(iphi));
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", tmp_LRJet_tob->setEta(ieta));
-  
-      uint32_t LRJet_tobword = formLargeRJetTOB(ieta, iphi);
-      if ( LRJet_tobword != 0 ) m_LRJet_tobwords.push_back(LRJet_tobword);
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", largeClusterET);
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", tmp_tob->setPhi(meta));
+        jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", tmp_tob->setEta(mphi));
 
-      jFEXOutputs->fill_largeRJet();
-          
-    }//iphi loop
-  }//end of ieta loop
+        uint32_t tobword = formLargeRJetTOB(mphi, meta);
+        if ( tobword != 0 ) m_LRJet_tobwords.push_back(tobword);
 
+
+        jFEXOutputs->fill_largeRJet();
+      }
+
+    }
+  }
+
+
+//******************************** TAU **********************************************
+
+
+  memset(m_jTowersIDs, 0, sizeof(m_jTowersIDs[0][0]) * FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width); // Reseting m_jTowersIDs array with 0
+
+  int max_meta=16;
+  if(m_jfexid ==0){
+    for(int i=0;i<FEXAlgoSpaceDefs::jFEX_algoSpace_height;i++){
+      for(int j=0;j<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;j++){
+        if(j==17){
+          break;
+        }
+        m_jTowersIDs[i][j]=m_jTowersIDs_Wide[i][j];
+      }
+    }
+    
     return StatusCode::SUCCESS;
-} //end of the execute function 
+    
+  } 
+  else if(m_jfexid ==5 ){ 
 
-  void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
+    // Filling m_jTowersIDs with the m_jTowersIDs_Wide ID values up to 2.5 eta 
+    for(int i=0;i<FEXAlgoSpaceDefs::jFEX_algoSpace_height;i++){
+      for(int j=0;j<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;j++){
+        if(j==17){
+          break;
+        }
+        m_jTowersIDs[i][j]=m_jTowersIDs_Wide[i][j];
+      }
+    }
+
+    max_meta++; // increase max of eta because te core module has one more TT to be considered
+  }
+  else{
+    //For Module 1,2,3,4 (central modules) the m_jTowersIDs array is m_jTowersIDs_Thin
+    std::copy(&m_jTowersIDs_Thin[0][0], &m_jTowersIDs_Thin[0][0] + FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width, &m_jTowersIDs[0][0]);
+  }
+    
+  ATH_MSG_DEBUG("============================ jFEXtauAlgo ============================");
+  for(int mphi = 8; mphi < 24; mphi++) {   
+    for(int meta = 8; meta < max_meta; meta++) {    
+
+      int TT_seed_ID[3][3]={0};
+      int TT_searchWindow_ID[5][5]={0};
+      int TT_First_ETring[36]={0};
+      int First_ETring_it = 0;
+      
+      for(int i = -3; i< 4; i++ ) {
+          for(int j = -3; j< 4; j++) {
+              if(sqrt(pow(i,2)+pow(j,2))<3){
+                TT_searchWindow_ID[i+2][j+2] = m_jTowersIDs[mphi +i][meta +j]; // Search window for the tau algo used for the LocalMaxima studies
+              }
+              
+              if(sqrt(pow(i,2)+pow(j,2))<2){
+                  TT_seed_ID[i+1][j+1] = m_jTowersIDs[mphi +i][meta +j]; // Seed 0.3x0.3 in phi-eta plane
+              }
+              else if(sqrt(pow(i,2)+pow(j,2))<4){
+                TT_First_ETring[First_ETring_it]= m_jTowersIDs[mphi +i][meta +j]; // First energy ring, will be used as tau ISO
+                ++First_ETring_it;
+                
+              } 
+          }
+      }
+
+      
+
+      ATH_CHECK( m_jFEXSmallRJetAlgoTool.retrieve());
+      ATH_CHECK( m_jFEXSmallRJetAlgoTool->safetyTest());
+
+      ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
+      ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
+      m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
+      m_jFEXtauAlgoTool->buildSeeds();
+      //bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();
+      m_jFEXtauAlgoTool->isSeedLocalMaxima();
+      m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
+
+
+      jFEXOutputs->addValue_tau("tau_ET", m_jFEXtauAlgoTool->getTTowerET());
+      jFEXOutputs->addValue_tau("tau_clusterET", m_jFEXtauAlgoTool->getClusterEt());
+      jFEXOutputs->addValue_tau("tau_eta",abs(m_jFEXtauAlgoTool->getRealEta())) ;
+      jFEXOutputs->addValue_tau("tau_phi",m_jFEXtauAlgoTool->getRealPhi()) ;
+      jFEXOutputs->addValue_tau("tau_realeta",m_jFEXtauAlgoTool->getRealEta()) ;
+      jFEXOutputs->addValue_tau("tau_ISO",m_jFEXtauAlgoTool->getFirstEtRing()) ;
+      jFEXOutputs->addValue_tau("tau_TT_ID",TT_seed_ID[1][1]) ;
+      jFEXOutputs->addValue_tau("tau_isLocalMax",m_jFEXtauAlgoTool->getIsLocalMaxima()) ;
+      jFEXOutputs->addValue_tau("tau_jFEXid",m_jfexid) ;
+      jFEXOutputs->addValue_tau("tau_FPGAid",m_id) ;
+    
+      uint32_t tobword = formTauTOB(mphi, meta);
+      if ( tobword != 0 ){
+        m_tau_tobwords.push_back(tobword);
+      }
+    
+      std::unique_ptr<jFEXtauTOB> tmp_tob = m_jFEXtauAlgoTool->getTauTOBs(mphi, meta);
+      // for plotting variables in TOBS- internal check:
+      jFEXOutputs->addValue_tau("tau_TOB_word" ,tobword);
+      jFEXOutputs->addValue_tau("tau_TOB_ET" ,tmp_tob->GetET());
+      jFEXOutputs->addValue_tau("tau_TOB_eta",tmp_tob->GetEta());
+      jFEXOutputs->addValue_tau("tau_TOB_phi",tmp_tob->GetPhi());
+      jFEXOutputs->addValue_tau("tau_TOB_ISO" ,tmp_tob->GetIso());
+      jFEXOutputs->addValue_tau("tau_TOB_Sat" ,tmp_tob->GetSat());        
+        
+      jFEXOutputs->fill_tau();
+
+    }
+  }
+
+  return StatusCode::SUCCESS;
+} //end of the execute function
+
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
     
   const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
   const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
@@ -275,7 +393,7 @@ std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
 
 
 
-uint32_t jFEXFPGA::formSmallRJetTOB(int & ieta, int & iphi)  
+uint32_t jFEXFPGA::formSmallRJetTOB(int & iphi, int &ieta )  
 {
   uint32_t tobWord = 0;
   const unsigned int jFEXETResolution = 200; //LSB is 200MeV
@@ -304,7 +422,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int & ieta, int & iphi)
   else return tobWord;
 }
 
-uint32_t jFEXFPGA::formLargeRJetTOB(int & ieta, int & iphi)
+uint32_t jFEXFPGA::formLargeRJetTOB(int & iphi, int &ieta )
 {
   uint32_t tobWord = 0;
   const unsigned int jFEXETResolution = 200; //LSB is 200MeV
@@ -312,18 +430,18 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int & ieta, int & iphi)
   unsigned int et = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
   unsigned int jFEXLargeRJetTOBEt = et/jFEXETResolution;
 
-  if (jFEXLargeRJetTOBEt > 0x1fff) jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
+
 
   int eta = ieta;
   int phi = iphi;
   int Sub = 0; //9 bits reserved
-  int Sat = 0; //1 bit for saturation flag, not coded yet
- 
-  if (jFEXLargeRJetTOBEt > 0x1fff){
-    jFEXLargeRJetTOBEt = 0x1fff;//0x1fff is 12 bits
-    Sat = 1;
-  }
+  int Sat = 1; //1 bit for saturation flag, not coded yet
 
+  if (jFEXLargeRJetTOBEt > 0x1fff){
+    jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
+    Sat = 1;
+  } 
+  
   //create basic tobword with 32 bits
   tobWord = tobWord + jFEXLargeRJetTOBEt + (phi << 13) + (eta << 17) + (Sub << 22) + (Sat << 31);
 
@@ -334,6 +452,61 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int & ieta, int & iphi)
   if (et < minEtThreshold) return 0;
   else return tobWord;
 }
+
+
+uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
+{
+  uint32_t tobWord = 0;
+  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+
+  int eta = ieta-8; // needed to substract 8 to be in the FPGA core area
+  int phi = iphi-8; // needed to substract 8 to be in the FPGA core area
+  int sat = 0; //1 bit for saturation flag, not coded yet
+
+  unsigned int et = m_jFEXtauAlgoTool->getClusterEt()/jFEXETResolution;
+  if (et > 0x7ff) { //0x7ff is 11 bits
+    ATH_MSG_DEBUG("Et saturated: " << et );
+    et = 0x7ff;
+    sat=1;
+  }
+
+
+
+  unsigned int iso = m_jFEXtauAlgoTool->getFirstEtRing()/jFEXETResolution;
+  if (iso > 0x7ff) iso = 0x7ff;  //0x7ff is 11 bits
+
+  
+  //create basic tobword with 32 bits
+  tobWord = tobWord + (eta << 27) + (phi << 23) + (et << 12) + (iso << 1) + sat ;
+  
+  ATH_MSG_DEBUG("tobword tau with eta, phi, et, iso and sat : " << std::bitset<32>(tobWord) );
+
+  //arbitary et threshold to not overflow the TOBs
+
+  unsigned int minEtThreshold = 30;
+  if (et < minEtThreshold) return 0;
+  else return tobWord;
+
+}
+
+
+std::vector <uint32_t> jFEXFPGA::getTauTOBs()
+{
+  auto tobsSort = m_tau_tobwords;
+
+  ATH_MSG_DEBUG("number of tau tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+  // sort tobs by their et ( 13 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etTauSort);
+  tobsSort.resize(6);
+  return tobsSort;
+
+}
+
+
+
+
+
+
 
 
   

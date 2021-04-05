@@ -66,12 +66,31 @@ private:
   std::vector<float> m_largeRJetTOB_phi;
   std::vector<float> m_largeRJetTOB_ET;
 
+  std::vector<int> m_tau_isLocalMax;
+  std::vector<int> m_tau_TT_ID;
+  std::vector<int> m_tau_ET;
+  std::vector<int> m_tau_clusterET;
+  std::vector<int> m_tau_eta;
+  std::vector<int> m_tau_phi;
+  std::vector<int> m_tau_realeta;
+  std::vector<int> m_tau_ISO;
+  std::vector<int> m_tau_jFEXid;
+  std::vector<int> m_tau_FPGAid;
+  
+  std::vector<int> m_tau_TOB_word;
+  std::vector<int> m_tau_TOB_ET;
+  std::vector<int> m_tau_TOB_eta;
+  std::vector<int> m_tau_TOB_phi;
+  std::vector<int> m_tau_TOB_ISO;
+  std::vector<int> m_tau_TOB_Sat;
+
 //std::string m_jet_container_name = "AntiKt10TruthJets";
 
   TTree *m_myTree;
  
   StatusCode loadsmallRJetAlgoVariables();
   StatusCode loadlargeRJetAlgoVariables();
+  StatusCode loadtauAlgoVariables();
 //  StatusCode loadTruthElectron();
 //  StatusCode loadTruthJets();
 //  StatusCode loadTruthTau();
