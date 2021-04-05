@@ -34,18 +34,15 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
     return StatusCode::FAILURE;
   }
 
-  // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
-  ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
-  CHECK( m_egammaElectronLHTool.retrieve() );
-
-  // Retrieving Luminosity info
-  ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
-  ATH_CHECK( m_avgMuKey.initialize() );
-
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
+
+  if (m_vloose + m_loose + m_medium + m_tight != 1) {
+    ATH_MSG_ERROR("LHTool requires exactly one of the vloose, loose, medium or tight flags to be set.");
+    return StatusCode::FAILURE;
+  }
 
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
@@ -54,7 +51,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 }
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ctx) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input) const {
 
   bool pass = false;
 
@@ -155,30 +152,13 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
   // get average luminosity information to calculate LH
 
-  float avg_mu = 0;
-  float lhval=0;
-  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey, ctx);
-  if(eventInfoDecor.isPresent()) {
-    avg_mu = eventInfoDecor(0);
-    ATH_MSG_DEBUG("Average mu " << avg_mu);
-    mon_mu = avg_mu;
-    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron,avg_mu);
-    pass = (bool) accept;
-  
-    // Monitor the LH value
-    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron,avg_mu);
-    ATH_MSG_DEBUG("LHValue with avgmu " << lhval);
-    mon_lhval = lhval;
-  }  
-  else{
-    ATH_MSG_WARNING("EventInfo decoration not available!");
-    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron);
-    pass = (bool) accept;
-    // Monitor the LH value
-    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron);
-    ATH_MSG_DEBUG("LHValue without avgmu " << lhval);
-    mon_lhval = lhval;
-  }
+  mon_mu = input.avgMu;
+
+  ATH_MSG_DEBUG("m_vloose_Electron: "<<m_vloose);
+  ATH_MSG_DEBUG("m_loose_Electron: "<<m_loose);
+  ATH_MSG_DEBUG("m_medium_Electron: "<<m_medium);
+  ATH_MSG_DEBUG("m_tight_Electron: "<<m_tight);
+
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
@@ -266,6 +246,27 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
   mon_relptcone20 = relptcone20;
   ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
+  
+  if(m_vloose == true){
+   ATH_MSG_DEBUG("input.vloose_accept_Electron: "<<input.accept_vl);
+   mon_lhval = input.LHValue_vl;
+   pass = input.accept_vl;
+  }
+  else if(m_loose == true){
+   ATH_MSG_DEBUG("input.loose_accept_Electron: "<<input.accept_l);
+   mon_lhval = input.LHValue_l;
+   pass =  input.accept_l;
+  }
+  else if(m_medium == true){
+   ATH_MSG_DEBUG("input.medium_accept_Electron: "<<input.accept_m);
+   mon_lhval = input.LHValue_m;
+   pass = input.accept_m;
+  }
+  else{
+   ATH_MSG_DEBUG("input.tight_accept_Electron: "<<input.accept_t);
+   mon_lhval = input.LHValue_t;
+   pass = input.accept_t;
+  }
 
   // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
   ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
@@ -304,10 +305,10 @@ int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input,const EventContext& ctx )  const {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input)  const {
   for ( auto& i: input ) {
     if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i, ctx ) ) {
+      if ( decide( i ) ) {
         TCU::addDecisionID( m_decisionId, i.decision );
       }
     }

@@ -23,10 +23,28 @@ class ITrigEgammaPrecisionElectronHypoTool
 
   struct ElectronInfo {
   ElectronInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::Electron_v1* c,
+                bool pass_vl,
+                bool pass_l,
+                bool pass_m,
+                bool pass_t,
+                float lhval_vl,
+                float lhval_l,
+                float lhval_m,
+                float lhval_t,
+                float avg_mu,
 	       const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
       roi( r ), 
       electron(c), 
+      accept_vl(pass_vl),
+      accept_l(pass_l),
+      accept_m(pass_m),
+      accept_t(pass_t),
+      LHValue_vl(lhval_vl),
+      LHValue_l(lhval_l),
+      LHValue_m(lhval_m),
+      LHValue_t(lhval_t),
+      avgMu (avg_mu),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
@@ -34,6 +52,15 @@ class ITrigEgammaPrecisionElectronHypoTool
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
     const xAOD::Electron_v1* electron;
+    bool accept_vl;
+    bool accept_l;
+    bool accept_m;
+    bool accept_t;
+    float LHValue_vl;
+    float LHValue_l;
+    float LHValue_m;
+    float LHValue_t;
+    float avgMu;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
@@ -44,13 +71,13 @@ class ITrigEgammaPrecisionElectronHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<ElectronInfo>& input, const EventContext& )  const = 0;
+  virtual StatusCode decide( std::vector<ElectronInfo>& input )  const = 0;
 
   /**
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const ElectronInfo& i,const EventContext& ) const = 0;
+  virtual bool decide( const ElectronInfo& i ) const = 0;
 
 
 

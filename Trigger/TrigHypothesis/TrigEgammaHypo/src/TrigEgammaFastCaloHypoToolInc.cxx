@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -17,12 +17,8 @@ TrigEgammaFastCaloHypoToolInc::TrigEgammaFastCaloHypoToolInc( const std::string&
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) ,
-    m_selectorTool(),
-    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
-{
-  declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
-}
+    m_decisionId( HLT::Identifier::fromToolName( name ) )
+{ }
 
 
 TrigEgammaFastCaloHypoToolInc::~TrigEgammaFastCaloHypoToolInc(){}
@@ -72,27 +68,15 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
   
-
-  if (m_useRinger){
-
-    if( m_useRun3 ){
-      ATH_MSG_INFO( "Using the new Onnx ringer selector for Run3" );
-      CHECK( m_ringerTool.retrieve() );
-
-    }else{// Run2
-      m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
-      m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
-      if(m_selectorTool.initialize().isFailure())
-        return StatusCode::FAILURE;
-    }
-
-    if (m_lumiBlockMuTool.retrieve().isFailure())
-      return StatusCode::FAILURE;
-
-    ATH_MSG_INFO("Ringer selector  initialization completed successfully.");
-   
-  } // Use ringer
   
+  if (m_useRinger) {
+   if (m_vloose + m_loose + m_medium + m_tight != 1) {
+    ATH_MSG_ERROR("Ringer mode requires exactly one of the vloose, loose, medium or tight flags to be set.");
+    return StatusCode::FAILURE;
+   }
+ }// Use ringer
+
+
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   
 
   return StatusCode::SUCCESS;
@@ -337,28 +321,21 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   auto etMon          = Monitored::Scalar("Et",-100);
   auto monEta         = Monitored::Scalar("Eta",-100);
   auto monPhi         = Monitored::Scalar("Phi",-100); 
-  auto rnnOutMon      = Monitored::Scalar("RnnOut",-100);
-  auto total_time     = Monitored::Timer("TIME_total");
-  auto propagate_time = Monitored::Timer("TIME_propagate");
-  auto preproc_time   = Monitored::Timer("TIME_preproc");
-  auto decide_time    = Monitored::Timer("TIME_decide");
-  
-  auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi,rnnOutMon,
-                              total_time,propagate_time,preproc_time,decide_time);
 
+  auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi);
+   
   if ( m_acceptAll ) {
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
     return true;
   } else {
     ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
-
-  total_time.start();
+  
   auto ringerShape = input.ringerShape;
   const xAOD::TrigEMCluster *emCluster = 0;
+ 
   if(ringerShape){
     emCluster = ringerShape->emCluster();
-    //emCluster= input.cluster;
     if(!emCluster){
       ATH_MSG_DEBUG("There is no link to xAOD::TrigEMCluster into the Ringer object.");
       return false;
@@ -369,11 +346,8 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
     return false;
   }
 
-  float et      = emCluster->et() / Gaudi::Units::GeV;
-  float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-
-  // make sure that monitoring histogram will plotting only the events of chain.
-  ///Et threshold
+  float et = emCluster->et() / Gaudi::Units::GeV;
+ 
   if(et < m_emEtCut/Gaudi::Units::GeV){
     ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
     return false;
@@ -382,42 +356,28 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   monEta = emCluster->eta();
   etMon  = emCluster->et();
   monPhi = emCluster->phi();
-  float output;
 
-  if (m_useRun3){
-    
-    preproc_time.start();
-    auto inputs = m_ringerTool->prepare_inputs( ringerShape , nullptr);
-    preproc_time.stop();
-    
-    propagate_time.start();
-    output = m_ringerTool->predict( ringerShape, inputs );
-    propagate_time.stop();
+  ATH_MSG_DEBUG("m_vloose: "<<m_vloose);
+  ATH_MSG_DEBUG("m_loose: "<<m_loose);
+  ATH_MSG_DEBUG("m_medium: "<<m_medium);
+  ATH_MSG_DEBUG("m_tight: "<<m_tight);
 
-  }else{
-    const std::vector<float> rings = ringerShape->rings();
-    std::vector<float> refRings(rings.size());
-    refRings.assign(rings.begin(), rings.end());
-    output = m_selectorTool.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu, propagate_time, preproc_time );
+  if(m_vloose == true){
+   ATH_MSG_DEBUG("input.vloose_accept: "<<input.vloose_accept);
+   return input.vloose_accept;
   }
-
-  rnnOutMon = output;
-  ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
- 
-  bool accept=false;
-
-  decide_time.start();
-  if (m_useRun3){
-    accept = bool( m_ringerTool->accept(ringerShape, output, avgmu) );
-    ATH_MSG_DEBUG(name()<< " Accept? " <<  (accept?"Yes":"No") );
-  }else{
-    accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu) ;
+  else if(m_loose == true){
+   ATH_MSG_DEBUG("input.loose_accept: "<<input.loose_accept);
+   return input.loose_accept;
   }
-  decide_time.stop();
-
-
-  total_time.stop();
-  return accept;
+  else if(m_medium == true){
+   ATH_MSG_DEBUG("input.medium_accept: "<<input.medium_accept);
+   return input.medium_accept;
+  }
+  else{
+   ATH_MSG_DEBUG("input.tight_accept: "<<input.tight_accept);
+   return input.tight_accept;
+  }
 }
 
 
