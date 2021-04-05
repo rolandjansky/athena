@@ -430,15 +430,13 @@ StatusCode BTaggingTruthTaggingTool::setJets(TRFinfo &trfinf,std::vector<int>& f
 bool BTaggingTruthTaggingTool::fillVariables( const xAOD::Jet& jet, CalibrationDataVariables& x){
   x.jetPt = jet.pt();
   x.jetEta = jet.eta();
-  x.jetTagWeight = 0.;
   x.jetAuthor = m_jetAuthor;
 
   const xAOD::BTagging* tagInfo = jet.btagging();
   if (!tagInfo) return false;
 
-  return tagInfo->MVx_discriminant(m_taggerName, x.jetTagWeight);
-  delete tagInfo;
-
+  ANA_CHECK( m_selTool->getTaggerWeight(jet, x.jetTagWeight) );
+  return true;
 }
 
 bool BTaggingTruthTaggingTool::fillVariables( const float jetPt, const float jetEta, const float jetTagWeight, CalibrationDataVariables& x){
