@@ -48,7 +48,7 @@ chains = [
     ChainProp(name='HLT_j0_aggSEP1000ht_L1J20', groups=SingleJetGroup),
 
 
-     ChainProp(name='HLT_j70_j50_0eta490_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta__L1MJJ-500-NFF',
+     ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta__L1MJJ-500-NFF',
 
                l1SeedThresholds=['FSNOSEED']*3,
                groups=MultiJetGroup),
@@ -65,12 +65,12 @@ chains = [
     ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',
               groups=SingleJetGroup),
 
-    ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
+    ChainProp(name='HLT_j85_ftf_maskSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
 
     ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
     
-    ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
+    ChainProp(name='HLT_j85_ftf_maskSEP300ceta210SEP300nphi10_L1J20',
               groups=SingleJetGroup),
         
     ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', groups=SingleJetGroup),

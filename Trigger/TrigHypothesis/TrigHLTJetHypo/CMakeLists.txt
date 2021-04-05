@@ -24,10 +24,6 @@ atlas_install_python_modules( python/*.py
 			      POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL901)  # 901: check for print()
 
 # Tests:
-atlas_add_test( flake8_share
-                SCRIPT ${ATLAS_FLAKE8} ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )
-
 
 atlas_add_test( TrigHLTJetHypoTool SCRIPT python -m TrigHLTJetHypo.TrigJetHypoToolConfig
 				POST_EXEC_SCRIPT nopost.sh )

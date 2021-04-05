@@ -95,7 +95,7 @@ def get_condition_args_from_chainpart(cp):
     return condargs
 
 
-def scenario_simple(chain_parts, startLabelIndex):
+def scenario_simple(chain_parts):
     """build two lists of RepeatedConditionConfig objects
     one list contains the Conditions to be used by FastReducer,
     and the other Contains the conditions used to filter the Condition.
@@ -151,7 +151,7 @@ def scenario_simple(chain_parts, startLabelIndex):
         condargs = get_condition_args_from_chainpart(cp)
         
         multiplicity = int(cp['multiplicity'])
-        chainPartInd = startLabelIndex + ncp - 1
+        chainPartInd = cp['chainPartIndex']
         repcondargs.append(RepeatedConditionParams(tree_id = ncp,
                                                    tree_pid=0,
                                                    chainPartInd=chainPartInd,
