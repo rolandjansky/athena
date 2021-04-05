@@ -233,7 +233,7 @@ class _ConfigSettingsBase() :
       log.info( " {} :".format( self._name ) )                               # noqa: ATL901
       log.info( " {} :".format( self._input_name ) )                         # noqa: ATL901
       log.info( "   pTmin                 : {}".format( self._pTmin ) )                 # noqa: ATL901
-      log.info( "   TripletDoPPS          : {}".format( self._TripletD0PPS ) )          # noqa: ATL901
+      log.info( "   TripletDoPPS          : {}".format( self._TripletDoPPS ) )          # noqa: ATL901
       log.info( "   Triplet_D0Max         : {}".format( self._Triplet_D0Max ) )         # noqa: ATL901
       log.info( "   Triplet_D0_PPS_Max    : {}".format( self._Triplet_D0_PPS_Max ) )    # noqa: ATL901
       log.info( "   doZFinder             : {}".format( self._doZFinder ) )             # noqa: ATL901
