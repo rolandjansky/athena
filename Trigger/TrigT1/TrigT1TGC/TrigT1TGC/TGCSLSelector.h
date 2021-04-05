@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCSLSelector_hh
-#define TGCSLSelector_hh
+#ifndef TrigT1TGC_TGCSLSelector_h
+#define TrigT1TGC_TGCSLSelector_h
+
+#include <memory>
 
 namespace LVL1TGCTrigger {
 
@@ -11,21 +13,19 @@ class TGCSectorLogic;
 class TGCSLSelectorOut;
 class TGCSLPreSelectorOut;
 
-class TGCSLSelector {
-public:
-
+class TGCSLSelector
+{
+ public:
   TGCSLSelector(const TGCSectorLogic* sL=0); 
-  virtual ~TGCSLSelector(){} 
+  virtual ~TGCSLSelector();
 
-  TGCSLSelectorOut* select(TGCSLPreSelectorOut* PSOut, TGCSLSelectorOut* out);
+  bool select(TGCSLPreSelectorOut* in, std::shared_ptr<TGCSLSelectorOut> out);
 
-private:
-
+ private:
   const TGCSectorLogic* m_sectorLogic;
-
 };
 
 
-} //end of namespace bracket
+}   // end of namespace
 
-#endif // TGCSLSelector_hh
+#endif

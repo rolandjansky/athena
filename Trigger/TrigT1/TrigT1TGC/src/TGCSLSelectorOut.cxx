@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCSLSelectorOut.h"
@@ -7,7 +7,8 @@
 
 namespace LVL1TGCTrigger {
 
-TGCSLSelectorOut::TGCSLSelectorOut():m_nCandidate(0)
+TGCSLSelectorOut::TGCSLSelectorOut()
+ : m_nCandidate(0)
 {
   for( int i=0; i<s_NCandidateInSLSelector; i+=1){
     m_ptLevel[i]=0;
@@ -17,6 +18,19 @@ TGCSLSelectorOut::TGCSLSelectorOut():m_nCandidate(0)
     m_dphi[i]=99;
     m_iVeto[i]=false;
   }
+}
+
+void TGCSLSelectorOut::reset()
+{
+  for(int i=0; i<s_NCandidateInSLSelector; i++) {
+    m_ptLevel[i]=0;
+    m_r[i]=0;
+    m_phi[i]=0;
+    m_dr[i]=99;
+    m_dphi[i]=99;
+    m_iVeto[i]=false;
+  }
+  m_nCandidate=0;
 }
 
 void TGCSLSelectorOut::setPtLevel(int order, int ptLevelIn)
