@@ -116,9 +116,9 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
 BTagJetAugmenter::~BTagJetAugmenter() = default;
 BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
-std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
+std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
   const auto& type_registry = SG::AuxTypeRegistry::instance();
-  std::vector<std::string> keys;
+  std::set<std::string> keys;
   for (const auto& auxid: {
       m_pt_uncalib.auxid(),
         m_eta_uncalib.auxid(),
@@ -150,7 +150,7 @@ std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_max_trk_flightDirRelEta.auxid(),
         m_avg_trk_flightDirRelEta.auxid(),
         m_rnnip_isDefaults.auxid()}) {
-    keys.push_back(type_registry.getName(auxid));
+    keys.insert(type_registry.getName(auxid));
   }
   return keys;
 }
