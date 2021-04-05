@@ -46,6 +46,8 @@ class L1MenuJSONConverter(object):
 
         confObj["name"] = self.menu.menuName
 
+        confObj["run"] = 3 # will be useful for later (we also record this for Run 1 and 2)
+
         # items
         confObj["items"] = self.menu.items.json()
 

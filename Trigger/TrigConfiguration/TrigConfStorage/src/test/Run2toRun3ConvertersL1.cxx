@@ -84,8 +84,10 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
       return;
    }
 
+   unsigned int run = ctpConfig->ctpVersion() <=3 ? 1 : 2;
+
    // items
-   json items;
+   json items = json::object_t{};
    for( const TrigConf::TriggerItem * sourceItem: ctpConfig->menu().items() ) {
       json item({});
       item["name"] = sourceItem->name();
@@ -109,8 +111,8 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
    };
 
    // thresholds
-   json thresholds;
-   std::unordered_set<std::string> legacyThrTypes{"EM", "TAU", "JET", "XE", "XS", "TE", "ZB", "R2TOPO"};
+   json thresholds = json::object_t{};
+   std::unordered_set<std::string> legacyThrTypes{"EM", "TAU", "JET", "JB", "JE", "JF", "XE", "XS", "TE", "ZB", "R2TOPO"};
    for( const TrigConf::TriggerThreshold * sourceThr : ctpConfig->menu().thresholdVector()) {
       std::string thrType = sourceThr->type();
       if(thrType=="BGRP" || thrType=="RNDM") {
@@ -195,7 +197,7 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
          }
          thr["isobits"] = isobits;
       }
-      else if (thrType == "JET")
+      else if (thrType == "JET" || thrType == "JB" ||  thrType == "JF")
       {
          thr["thrValues"] = json::array_t{};
          for (const TrigConf::TriggerThresholdValue *tv : sourceThr->thresholdValueVector())
@@ -212,6 +214,10 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
             thr["thrValues"] += jtv;
          }
       }
+      else if (thrType == "XE" || thrType == "TE" ||  thrType == "XS" || thrType == "JE")
+      {
+         thr["value"] = static_cast<unsigned int>(sourceThr->thresholdValueVector().at(0)->ptcut());
+      }
       else if (thrType == "ZB")
       {
          thr["seed"] = sourceThr->zbSeedingThresholdName();
@@ -221,40 +227,42 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
       jThisType["thresholds"][sourceThr->name()] = thr;
    }
 
-   // exra info for thresholds
+   // extra info for thresholds
    const TrigConf::CaloInfo& ci = ctpConfig->menu().caloInfo();
    thresholds["legacyCalo"]["EM"]["ptMinToTopo"] = ci.minTobEM().ptmin;
    thresholds["legacyCalo"]["EM"]["resolutionMeV"] = (int)(1000/ci.globalEmScale());
    thresholds["legacyCalo"]["TAU"]["ptMinToTopo"] = ci.minTobTau().ptmin;
    thresholds["legacyCalo"]["JET"]["ptMinToTopoSmallWindow"] = ci.minTobJetSmall().ptmin;
    thresholds["legacyCalo"]["JET"]["ptMinToTopoLargeWindow"] = ci.minTobJetLarge().ptmin;
-   json isoHAforEM{ {"thrtype", "HAIsoForEMthr"}, {"Parametrization", json::array_t{}} };
-   json isoEMforEM{ {"thrtype", "EMIsoForEMthr"}, {"Parametrization", json::array_t{}} };
-   json isoEMforTAU{ {"thrtype", "EMIsoForTAUthr"}, {"Parametrization", json::array_t{}} };
-   for(const TrigConf::IsolationParam & iso : ci.isolationHAIsoForEMthr()) {
-      json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
-              {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
-      isoHAforEM["Parametrization"] += p;
+   if(run==2) {
+      json isoHAforEM{ {"thrtype", "HAIsoForEMthr"}, {"Parametrization", json::array_t{}} };
+      json isoEMforEM{ {"thrtype", "EMIsoForEMthr"}, {"Parametrization", json::array_t{}} };
+      json isoEMforTAU{ {"thrtype", "EMIsoForTAUthr"}, {"Parametrization", json::array_t{}} };
+      for(const TrigConf::IsolationParam & iso : ci.isolationHAIsoForEMthr()) {
+         json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
+               {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
+         isoHAforEM["Parametrization"] += p;
+      }
+      for(const TrigConf::IsolationParam & iso : ci.isolationEMIsoForEMthr()) {
+         json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
+               {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
+         isoEMforEM["Parametrization"] += p;
+      }
+      for(const TrigConf::IsolationParam & iso : ci.isolationEMIsoForTAUthr()) {
+         json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
+               {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
+         isoEMforTAU["Parametrization"] += p;
+      }
+      thresholds["legacyCalo"]["EM"]["isolation"]["HAIsoForEMthr"] = isoHAforEM;
+      thresholds["legacyCalo"]["EM"]["isolation"]["EMIsoForEMthr"] = isoEMforEM;
+      thresholds["legacyCalo"]["TAU"]["isolation"]["EMIsoForTAUthr"] = isoEMforTAU;
    }
-   for(const TrigConf::IsolationParam & iso : ci.isolationEMIsoForEMthr()) {
-      json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
-              {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
-      isoEMforEM["Parametrization"] += p;
-   }
-   for(const TrigConf::IsolationParam & iso : ci.isolationEMIsoForTAUthr()) {
-      json p{ {"etamax", iso.etamax()}, {"etamin", iso.etamin()}, {"isobit", iso.isobit()}, {"mincut", iso.mincut()}, 
-              {"offset", iso.offset()}, {"priority", iso.priority()}, {"slope", iso.slope()}, {"upperlimit", iso.upperlimit()} };
-      isoEMforTAU["Parametrization"] += p;
-   }
-   thresholds["legacyCalo"]["EM"]["isolation"]["HAIsoForEMthr"] = isoHAforEM;
-   thresholds["legacyCalo"]["EM"]["isolation"]["EMIsoForEMthr"] = isoEMforEM;
-   thresholds["legacyCalo"]["TAU"]["isolation"]["EMIsoForTAUthr"] = isoEMforTAU;
    const TrigConf::METSigParam &xs = ci.metSigParam();
    thresholds["legacyCalo"]["XS"]["significance"] = json::object_t{
        {"xsSigmaScale", xs.xsSigmaScale()}, {"xsSigmaOffset", xs.xsSigmaOffset()}, {"xeMin", xs.xeMin()}, {"xeMax", xs.xeMax()}, {"teSqrtMin", xs.teSqrtMin()}, {"teSqrtMax", xs.teSqrtMax()}};
 
    // boards
-   json boards;
+   json boards = json::object_t{};
    boards["Ctpin7"] = json::object_t{ {"type", "CTPIN"}, {"legacy", true},
                                       {"connectors", std::vector<std::string>{"EM1", "EM2", "TAU1", "TAU2"}} };
    boards["Ctpin8"] = json::object_t{ {"type", "CTPIN"}, {"legacy", true},
@@ -267,7 +275,7 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
                                            {"connectors", std::vector<std::string>{"LegacyTopo1"}} };
 
    // connectors
-   json connectors;
+   json connectors = json::object_t{};
    std::map<std::string,std::vector<const TrigConf::TriggerThreshold*>> triggerlinesMap;
    for( const TrigConf::TriggerThreshold * sourceThr : ctpConfig->menu().thresholdVector()) {
       if(sourceThr->isInternal()) {
@@ -333,8 +341,8 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
    }
 
    // algorithms
-   json decAlgos;
-   json sortAlgos;
+   json::object_t decAlgos;
+   json::object_t sortAlgos;
    for(const TXC::L1TopoConfigAlg & alg : topoMenu->getL1TopoConfigAlgs()) {
       json jAlg;
       jAlg["algId"] = alg.algoID();
@@ -376,25 +384,32 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
          decAlgos[alg.name()] = jAlg;
       }
    }
-   json topo;
-   topo["R2TOPO"]["decisionAlgorithms"] = decAlgos;
-   topo["R2TOPO"]["sortingAlgorithms"] = sortAlgos;
+   json topo = json::object_t{};
+   if(run==2) {
+      topo["R2TOPO"]["decisionAlgorithms"] = decAlgos;
+      topo["R2TOPO"]["sortingAlgorithms"] = sortAlgos;
+   }
 
    // ctp
-   json ctp;
+   json ctp = json::object_t{};
    ctp["inputs"]["ctpin"]["slot7"] = json::object_t{{"connector0", "EM1"}, {"connector1", "EM2"}, 
                                                     {"connector2", "TAU1"}, {"connector3", "TAU2"}};
    ctp["inputs"]["ctpin"]["slot8"] = json::object_t{{"connector0", "JET1"}, {"connector1", "JET2"}, 
                                                     {"connector2", "EN1"}, {"connector3", "EN2"}};
    ctp["inputs"]["ctpin"]["slot9"] = json::object_t{{"connector0", "MUCTPI"}, {"connector1", "CTPCAL"}, 
                                                     {"connector2", "NIM1"}, {"connector3", "NIM2"}};
-   ctp["inputs"]["electrical"] = json::object_t{{"connector0", "AlfaCtpin"}, {"connector1", "LegacyTopo0"}, {"connector2", "LegacyTopo1"}};
+   if(run==2) {
+      ctp["inputs"]["electrical"] = json::object_t{{"connector0", "AlfaCtpin"}, {"connector1", "LegacyTopo0"}, {"connector2", "LegacyTopo1"}};
+   } else {
+      ctp["inputs"]["electrical"] = json::object_t{};
+   }
+   ctp["inputs"]["optical"] = json::object_t{};
    ctp["monitoring"]["ctpmon"] = json::object_t{};
 
    // putting the menu together
-   json menu({});
+   json menu = json::object_t{};
    menu["filetype"] = "l1menu";
-   menu["run"] = 2;
+   menu["run"] = run;
    menu["name"] = ctpConfig->name();
    menu["items"] = items;
    menu["thresholds"] = thresholds;
@@ -402,6 +417,7 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
    menu["boards"] = boards;
    menu["connectors"] = connectors;
    menu["ctp"] = ctp;
+
 
    if(writeTmpFile) {
       std::ofstream outfile("tmp" + filename);
