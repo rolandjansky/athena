@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,6 +36,8 @@ namespace Muon
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+
+      virtual void printPrepData() override;
    }; 
 } // end of namespace
 

@@ -6,6 +6,8 @@
 
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
+#include "MuonCnvToolInterfaces/IDC_Helper.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
@@ -26,6 +28,8 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 {
   // MT version of this method always adds containers. Caching will be added later.
 
+  State state;
+
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
 
@@ -35,34 +39,30 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   bool nothingToDo[NBC+1];  
   for(int ibc=0; ibc<NBC+1; ibc++) nothingToDo[ibc] = false; 
 
-  if(!m_tgcCabling) {
-    StatusCode status = getCabling();
-    if(!status.isSuccess()) return status; 
+  const CablingInfo* cinfo = getCabling();
+  if (!cinfo) {
+    return StatusCode::FAILURE;
   }
+  const ITGCcablingSvc* tgcCabling = cinfo->m_tgcCabling;
 
   /// clean up containers for Hits
   for(int ibc=0; ibc<NBC+1; ibc++) {      
     // initialize with false  
-    std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
     SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
     
     // record the container in storeGate
     handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
     // cache the pointer, storegate retains ownership
-    m_tgcPrepDataContainer[ibc] = handle.ptr();
+    state.m_tgcPrepDataContainer[ibc] = handle.ptr();
     if(!handle.isValid()) {
       ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << m_outputprepdataKeys[ibc].key());
     }
-
-    //true: un-seeded mode (no need to decode this event after this execution)
-    //false: seeded mode (still need to decode this event even after this execution) 
-    m_fullEventDone[ibc] = sizeVectorRequested==0;
-
-    m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
   }
+  std::vector<const TgcRdo*> decodedRdoCollVec;
+  std::vector<bool> decodedOnlineId (cinfo->m_MAX_N_ROD, false);
   
   // If at least one BC has to do something, nothingToDoForAllBC should be false.  
   bool nothingToDoForAllBC = true;
@@ -79,7 +79,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
     
     // cache the pointer, storegate retains ownership
-    m_tgcCoinDataContainer[ibc] = handle.ptr();
+    state.m_tgcCoinDataContainer[ibc] = handle.ptr();
 
     if(!handle.isValid()) {
       ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
@@ -88,6 +88,25 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
     }
   }
+
+  getHitCollection_func getHitCollection = [&] (Identifier id, int locId) -> TgcPrepDataCollection*
+  {
+    TgcPrepDataCollection*& mappedCollection = state.m_tgcPrepDataCollections[locId][id];
+    if (!mappedCollection) {
+      mappedCollection = Muon::IDC_Helper::addCollection<TgcPrepDataContainer, TgcIdHelper>
+        (id, state.m_tgcPrepDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
+    }
+    return mappedCollection;
+  };
+  getCoinCollection_func getCoinCollection = [&] (Identifier id, int locId) -> TgcCoinDataCollection*
+  {
+    TgcCoinDataCollection*& mappedCollection = state.m_tgcCoinDataCollections[locId][id];
+    if (!mappedCollection) {
+      mappedCollection = Muon::IDC_Helper::addCollection<TgcCoinDataContainer, TgcIdHelper>
+        (id, state.m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
+    }
+    return mappedCollection;
+  };
 
   if(!nothingToDoForAllBC) { // If still need to do something 
     // if TGC decoding is switched off stop here
@@ -124,23 +143,23 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       std::vector<IdentifierHash>::iterator tgchid_e = requestedIdHashVect.end(); 
       for(; tgchid!=tgchid_e; tgchid++) { 
         IdentifierHash offlineCollHash = *tgchid; 
-        uint16_t onlineId = m_hashToOnlineId.at(static_cast<unsigned int>(offlineCollHash)); 
+        uint16_t onlineId = cinfo->m_hashToOnlineId.at(static_cast<unsigned int>(offlineCollHash)); 
 
-        if(m_decodedOnlineId.at(onlineId)) { 
+        if(decodedOnlineId.at(onlineId)) { 
           ATH_MSG_DEBUG("The ROB with onlineId " << onlineId << " which contains hash " 
                         << static_cast<unsigned int>(offlineCollHash) 
                         << " is already decoded and skipped"); 
           continue; 
         } 
 
-        m_decodedOnlineId.at(onlineId) = true; // The ROB with this onlineId will be decoded only once 
+        decodedOnlineId.at(onlineId) = true; // The ROB with this onlineId will be decoded only once 
 
         TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin(); 
         TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end(); 
         for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) { 
           const TgcRdo* rdoColl = *rdo_container_it; 
           if(rdoColl->identify()==onlineId) { 
-            if(!isAlreadyConverted(rdoCollVec, rdoColl)) { 
+            if(!isAlreadyConverted(decodedRdoCollVec, rdoCollVec, rdoColl)) { 
               rdoCollVec.push_back(rdoColl); 
               nRdo++; 
             } 
@@ -167,18 +186,19 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 	  IdentifierHash tgcHashId;
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
-	  if(m_tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
+	  if(tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
 	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
 	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
-		selectDecoder(itD, (*iRdo));
+		selectDecoder(getHitCollection, getCoinCollection,
+                              itD, (*iRdo));
 	      }
 	    }
 	  }
         }
-        m_decodedRdoCollVec.push_back(*iRdo);
+        decodedRdoCollVec.push_back(*iRdo);
       }
       // show the vector of IdentifierHash which contains the data within requested range
-      showIdentifierHashVector(selectedIdHashVect);
+      showIdentifierHashVector(state, selectedIdHashVect);
     } else {
       ATH_MSG_DEBUG("Start loop over rdos - unseeded mode");
     
@@ -188,18 +208,19 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
         // loop over all elements of the rdo container 
         const TgcRdo* rdoColl = *rdoColli;
 
-        if(rdoColl->size()>0 && !isAlreadyConverted(rdoCollVec, rdoColl)) {
+        if(rdoColl->size()>0 && !isAlreadyConverted(decodedRdoCollVec, rdoCollVec, rdoColl)) {
           ATH_MSG_DEBUG(" Number of RawData in this rdo " << rdoColl->size());
           TgcRdo::const_iterator itD   = rdoColl->begin(); 
           TgcRdo::const_iterator itD_e = rdoColl->end();
           for(; itD!=itD_e; itD++) { 
-            selectDecoder(itD, rdoColl);
+            selectDecoder(getHitCollection, getCoinCollection,
+                          itD, rdoColl);
           }
-          m_decodedRdoCollVec.push_back(rdoColl);
+          decodedRdoCollVec.push_back(rdoColl);
         }
       }
       // show the vector of IdentifierHash which contains the data
-      showIdentifierHash();
+      showIdentifierHash(state);
     }
   }
 
@@ -211,7 +232,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     // One chamber has one IdentifierHash (0 to 1577) 
     for(int iHash=0; iHash<sizeVectorRequested; iHash++) { 
       IdentifierHash hash = requestedIdHashVect.at(iHash); 
-      if(isIdentifierHashFoundInAnyTgcPrepDataContainer(hash) || isIdentifierHashFoundInAnyTgcCoinDataContainer(hash)) { 
+      if(isIdentifierHashFoundInAnyTgcPrepDataContainer(state, hash) || isIdentifierHashFoundInAnyTgcCoinDataContainer(state, hash)) { 
         if(find(selectedIdHashVect.begin(), selectedIdHashVect.end(), hash)==selectedIdHashVect.end()) { 
           // Avoid duplication 
           selectedIdHashVect.push_back(hash); 
@@ -220,8 +241,29 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     } 
   } else { // Un-seeded mode 
     // Fill the hashes with hits or coincidences 
-    fillIdentifierHashVector(selectedIdHashVect); 
+    fillIdentifierHashVector(state, selectedIdHashVect); 
   } 
 
   return StatusCode::SUCCESS;
+}
+
+void Muon::TgcRdoToPrepDataToolMT::printPrepData()
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {0};
+  for(int ibc=0; ibc<NBC+1; ibc++) {
+    SG::ReadHandleKey<TgcPrepDataContainer> k (m_outputprepdataKeys[ibc].key());
+    k.initialize().ignore();
+    tgcPrepDataContainer[ibc] = SG::makeHandle(k, ctx).get();
+  }
+
+  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {0};
+  for(int ibc=0; ibc<NBC; ibc++) {
+    SG::ReadHandleKey<TgcCoinDataContainer> k (m_outputCoinKeys[ibc].key());
+    k.initialize().ignore();
+    tgcCoinDataContainer[ibc] = SG::makeHandle(k, ctx).get();
+  }
+
+  printPrepDataImpl (tgcPrepDataContainer, tgcCoinDataContainer);
 }

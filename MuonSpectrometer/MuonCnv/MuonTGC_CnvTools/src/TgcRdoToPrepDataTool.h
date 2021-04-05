@@ -34,6 +34,21 @@ namespace Muon
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+
+      virtual void printPrepData() override;
+
+    private:
+      /** Vector of RDO collections already decoded in the event */
+      std::vector<const TgcRdo*> m_decodedRdoCollVec;
+
+      /** Flag to check the ROB with an onlineId is already decoded */  
+      std::vector<bool> m_decodedOnlineId;  
+
+      /** Containers being recorded */
+      State m_state;
+
+      /** Switch for keeping Track of FullEvent Decoding */
+      bool m_fullEventDone[NBC+1] = {false};
    }; 
 } // end of namespace
 

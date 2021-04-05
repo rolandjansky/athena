@@ -14,7 +14,6 @@
 
 
 DECLARE_COMPONENT( Muon::TgcRdoToPrepDataTool )
-DECLARE_COMPONENT( Muon::TgcRdoToPrepDataToolCore )
 DECLARE_COMPONENT( Muon::TgcRdoToPrepDataToolMT )
 DECLARE_COMPONENT( Muon::TgcRdoContByteStreamTool )
 DECLARE_COMPONENT( Muon::TgcPrepDataReplicationTool )
