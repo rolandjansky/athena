@@ -108,11 +108,9 @@ test = Test.Test()
 test.art_type = Art_type
 
 
-if 'Extra' not in locals() :
-    Extra = None
-
-aod_to_ntup = TrigInDetAna(extra=Extra)
-
+if 'ExtraAna' not in locals() :
+    ExtraAna = None
+aod_to_ntup = TrigInDetAna(extraArgs = ExtraAna)
 
 
 rdo_to_cost = TrigCostStep()
