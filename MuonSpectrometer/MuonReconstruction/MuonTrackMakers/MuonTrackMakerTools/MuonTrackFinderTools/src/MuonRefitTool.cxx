@@ -178,6 +178,7 @@ namespace Muon {
     else newTrack=std::make_unique<Trk::Track>(*track);
   
     if( settings.updateErrors ){
+      ATH_MSG_DEBUG("track hits before error updating: "<<m_printer->printMeasurements(*newTrack));
       std::unique_ptr<Trk::Track> updateErrorTrack  = m_alignmentErrors ? updateAlignmentErrors(newTrack.get(),settings)  : updateErrors(newTrack.get(),settings);
       if( !updateErrorTrack ) {
 	ATH_MSG_WARNING("Failed to update errors");
@@ -1002,6 +1003,7 @@ namespace Muon {
       trackStateOnSurfaces->push_back( nit->first ? nit->second : nit->second->clone() );
     }
     std::unique_ptr<Trk::Track> newTrack =  std::make_unique<Trk::Track>( track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone():0 );
+    ATH_MSG_DEBUG("new track measurements: "<<m_printer->printMeasurements(*newTrack));
 
     return newTrack;
   }
