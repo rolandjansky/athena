@@ -59,8 +59,8 @@ dist_panel = {
      "eta",      "eta",         "xaxis:lin:auto:1:100",   "Reference #eta",        "yaxis:lin:auton",  "Normalised entries",
      "eta_rec",  "eta rec",     "xaxis:lin:auto:1:100",   "Trigger #eta",        "yaxis:lin:auton",  "Normalised entries",
 
-     "a0",      "a0",           "xaxis:lin:-3:3",         "Reference a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
-     "a0_rec",  "a0 rec",       "xaxis:lin:-3:3",         "Trigger a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+     "a0",      "a0",           "xaxis:lin:autosym:-3:3",         "Reference a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+     "a0_rec",  "a0 rec",       "xaxis:lin:autosym:-3:3",         "Trigger a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
 
      "z0",      "z0",           "xaxis:lin:-200:200",     "Reference z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
      "z0_rec",  "z0_rec",       "xaxis:lin:-200:200",     "Trigger z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries"
