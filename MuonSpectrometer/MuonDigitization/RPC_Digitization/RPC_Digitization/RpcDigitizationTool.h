@@ -1,7 +1,5 @@
-/* -*- C++ -*- */
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -171,6 +169,8 @@ private:
       int he gas gap's reference frame. */ 
   double m_UncorrJitter ; //time jitter uncorrelated between eta and phi
   double m_CorrJitter   ; //time jitter correlated between eta and phi
+  double m_UncorrJitter_BIS78; //jitter uncorrelated between eta and phi BIS78
+  double m_CorrJitter_BIS78; //jitter correlated between eta and phi BIS78
   Amg::Vector3D posInPanel(const Identifier* id, const Amg::Vector3D posInGap);
   /** adjust strip numbering according to standard OIDs **/
   int adjustStripNumber(const Identifier* id,int nstrip);
@@ -212,6 +212,10 @@ private:
   std::vector<float> m_PhiAndEtaEff_C;
   std::vector<float> m_OnlyPhiEff_C  ; 
   std::vector<float> m_OnlyEtaEff_C  ;
+
+  float m_PhiAndEtaEff_BIS78;
+  float m_OnlyEtaEff_BIS78;
+  float m_OnlyPhiEff_BIS78;
           
   std::vector<double> m_FracClusterSize1_A   ;
   std::vector<double> m_FracClusterSize2_A   ;  
@@ -222,6 +226,11 @@ private:
   std::vector<double> m_FracClusterSize2_C   ;  
   std::vector<double> m_FracClusterSizeTail_C;   
   std::vector<double> m_MeanClusterSizeTail_C;
+
+  float m_FracClusterSize1_BIS78;
+  float m_FracClusterSize2_BIS78;
+  float m_FracClusterSizeTail_BIS78;
+  float m_MeanClusterSizeTail_BIS78;
 
   std::vector<Identifier> m_DeadStripPanel; 
         
@@ -250,7 +259,9 @@ protected:
   bool        m_ignoreRunDepConfig     ; // true if we want to force the RUN1/RUN2 dependent options 
   bool	      m_PanelId_OFF_fromlist   ; // Turn-off PanelId from file m_FileName_DeadPanels
   std::string m_FileName_DeadPanels    ; // File with Dead panel PanelId list 
-  bool	      m_PanelId_OK_fromlist    ; // Turn-on PanelId from file m_FileName_GoodPanels
+  bool        m_PanelId_OK_fromlist    ; // Turn-on PanelId from file m_FileName_GoodPanels
+  bool        m_Efficiency_BIS78_fromCOOL; // read BIS78 Efficiency from COOL DB
+  bool        m_ClusterSize_BIS78_fromCOOL; // read BIS78 Cluster Size from COOL DB
   std::string m_FileName_GoodPanels    ; // File with Good panel PanelId list 
 
   std::map<Identifier , int> m_DeadPanel_fromlist;
