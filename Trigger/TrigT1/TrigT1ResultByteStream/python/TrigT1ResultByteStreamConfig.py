@@ -57,9 +57,9 @@ def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
     tool.MuonRoIContainerReadKey=""
     tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
 
-  tool.UseRun3Config = flags.Trigger.enableL1Phase1
-  tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1Phase1)
-  tool.TGCRecRoiTool = getRun3TGCRecRoiTool(name="TGCRecRoiTool",useRun3Config=flags.Trigger.enableL1Phase1)
+  tool.UseRun3Config = flags.Trigger.enableL1MuonPhase1
+  tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
+  tool.TGCRecRoiTool = getRun3TGCRecRoiTool(name="TGCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
 
   return tool
@@ -71,11 +71,11 @@ def L1TriggerByteStreamDecoderCfg(flags):
 
   decoderTools = []
   if not flags.Trigger.doLVL1: #if we rerun L1, don't decode the original RoIBResult
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
       roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
       decoderTools += [roibResultTool]
 
-  if flags.Trigger.enableL1Phase1:
+  if flags.Trigger.enableL1MuonPhase1:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool", flags=flags, writeBS=False)
     decoderTools += [muonRoiTool]
 
@@ -91,11 +91,11 @@ def L1TriggerByteStreamDecoderCfg(flags):
 def L1TriggerByteStreamEncoderCfg(flags):
   acc = ComponentAccumulator()
 
-  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", writeBS=True)
     acc.addPublicTool(roibResultTool)
 
-  if flags.Trigger.enableL1Phase1:
+  if flags.Trigger.enableL1MuonPhase1:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool", flags=flags, writeBS=True)
     acc.addPublicTool(muonRoiTool)
 

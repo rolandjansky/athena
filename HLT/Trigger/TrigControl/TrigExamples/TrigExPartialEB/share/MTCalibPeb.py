@@ -27,7 +27,8 @@ MTCalibPebConfig.default_options.TimeBetweenROBReqMillisec = get_opt('TimeBetwee
 MTCalibPebConfig.default_options.PEBROBList = get_opt('PEBROBList', [])
 MTCalibPebConfig.default_options.PEBSubDetList = get_opt('PEBSubDetList', [])
 MTCalibPebConfig.default_options.CreateRandomData = get_opt('CreateRandomData', {})
-MTCalibPebConfig.default_options.EnableL1Phase1 = get_opt('EnableL1Phase1', False)
+MTCalibPebConfig.default_options.EnableL1CaloPhase1 = get_opt('EnableL1CaloPhase1', False)
+MTCalibPebConfig.default_options.EnableL1MuonPhase1 = get_opt('EnableL1MuonPhase1', False)
 MTCalibPebConfig.default_options.EnableL1CaloLegacy = get_opt('EnableL1CaloLegacy', True)
 
 # SGInputLoader takes care of unmet input dependencies (e.g. triggering conversion from BS)

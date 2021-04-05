@@ -390,7 +390,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-  if ConfigFlags.Trigger.enableL1Phase1:
+  if ConfigFlags.Trigger.enableL1MuonPhase1:
     ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
   else:
     ViewVerify.DataObjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
@@ -414,7 +414,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
   from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
-  trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+  trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
 
   ### RPC RDO data - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
@@ -497,7 +497,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     muFastAlg.multitrackMode = True
     muFastAlg.doEndcapForl2mt = False
 
-  if ConfigFlags.Trigger.enableL1Phase1:
+  if ConfigFlags.Trigger.enableL1MuonPhase1:
     muFastAlg.UseRun3Config = True
   else:
     muFastAlg.UseRun3Config = False

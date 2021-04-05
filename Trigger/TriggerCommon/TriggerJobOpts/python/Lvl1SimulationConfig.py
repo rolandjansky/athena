@@ -51,7 +51,7 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
             CfgMgr.LVL1__RoIROD( 'RoIROD' ),
         ])
 
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1CaloPhase1:
         # Placeholder for phase-I L1Calo simulation
         log.info("Configuring Phase-I L1Calo simulation on data - not yet implemented")
 
@@ -75,18 +75,45 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     ##################################################
     # L1 Topo rerun on data
     ##################################################
+
+    from AthenaCommon.AppMgr import ToolSvc
+    l1TopoSimDataSeq = None
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+    l1TopoSimDataSeq = L1TopoSimulation()
+    l1TopoSimDataSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
+        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
+        l1TopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+        l1TopoSimDataSeq.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+        l1TopoSimDataSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+    else:
+        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+        ToolSvc += L1MuctpiTool("L1MuctpiTool")
+        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+        l1TopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+
+    #TODO: is this meant to be final?
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource()!='data':
+        l1TopoSimDataSeq.MuonInputProvider.MuonEncoding = 1
+    else:
+        l1TopoSimDataSeq.MuonInputProvider.MuonEncoding = 0
+
+    l1TopoSimDataSeq.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
     isL1TopoLegacyOutputProvided = False
     if ConfigFlags.Trigger.enableL1CaloLegacy:
-        # Placeholder for phase-I L1Calo simulation
-        log.info("Configuring legacy L1Topo simulation on data - not yet implemented")
-        isL1TopoLegacyOutputProvided = False
-
+        isL1TopoLegacyOutputProvided = True
+        # TODO disable L1Topo sim not ready yet with json file
+        l1TopoSimDataSeq = None
     isL1TopoOutputProvided = False
-    if ConfigFlags.Trigger.enableL1Phase1:
-        # Placeholder for phase-I L1Muon simulation
-        log.info("Configuring Phase-I L1Topo simulation on data - not yet implemented")
+    if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
         isL1TopoOutputProvided = False
-
+        # TODO disable L1Topo sim with Phase1, not ready yet
+        l1TopoSimDataSeq = None
 
     ##################################################
     # CTP rerun on data
@@ -98,8 +125,7 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     ctp             = CTPSimulationInReco("CTPSimulation")
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
-    ctp.DoL1Topo    = not ConfigFlags.Trigger.enableL1Phase1
-    ctp.UseCondL1Menu = False
+    #ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON  #TODO
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
     # muon input
@@ -120,14 +146,17 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     ctp.eFexTauInput = ""
     ctpSimDataSeq = seqAND("CTPSimDataSeq", [ctp])
 
-    if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
         roib = RoIBuilder("RoIBuilder")
         roib.DoCalo = ConfigFlags.Trigger.enableL1CaloLegacy
-        roib.DoMuon = not ConfigFlags.Trigger.enableL1Phase1
+        roib.DoMuon = not ConfigFlags.Trigger.enableL1MuonPhase1
         ctpSimDataSeq += [roib]
 
-    l1SimDataSeq = seqAND("L1SimDataSeq", [l1CaloSimDataSeq, l1MuonSimDataSeq, ctpSimDataSeq] )
+    if l1TopoSimDataSeq:
+      l1SimDataSeq = seqAND("L1SimDataSeq", [l1CaloSimDataSeq, l1MuonSimDataSeq, l1TopoSimDataSeq, ctpSimDataSeq] )
+    else:
+      l1SimDataSeq = seqAND("L1SimDataSeq", [l1CaloSimDataSeq, l1MuonSimDataSeq, ctpSimDataSeq] )
     return l1SimDataSeq
 
 
@@ -189,7 +218,7 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         for l1calofolder in L1CaloFolderList:
             conddb.addFolder( "TRIGGER_OFL", l1calofolder )
 
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1CaloPhase1:
         #from AthenaCommon import CfgMgr
         l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
         
@@ -213,14 +242,15 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     l1TopoSim = L1TopoSimulation()
     l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1CaloPhase1:
+        l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
         ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
         from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
         l1TopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
         l1TopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
-        l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
         ToolSvc += L1MuctpiTool("L1MuctpiTool")
@@ -243,17 +273,16 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     ctp             = CTPSimulationInReco("CTPSimulation")
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
-    ctp.DoL1Topo    = not ConfigFlags.Trigger.enableL1Phase1
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("CTPSimSeq", [ctp])
 
-    if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
         roib = RoIBuilder("RoIBuilder")
         roib.DoCalo = ConfigFlags.Trigger.enableL1CaloLegacy
-        roib.DoMuon = not ConfigFlags.Trigger.enableL1Phase1
+        roib.DoMuon = not ConfigFlags.Trigger.enableL1MuonPhase1
         ctpSim += [roib]
 
 
