@@ -11,10 +11,11 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import mul2IOOvlpRmSequenceCfg, muEFCBSequenceCfg
 
 from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence, dimuEFSequence, bmumuxSequence
 
-from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DimuL2ComboHypoCfg, DimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, StreamerDimuL2IOComboHypoCfg, DimuEFComboHypoCfg, StreamerDimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict
 
 #--------------------------------------------------------
@@ -64,8 +65,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         stepDictionary = {
             'dimu'   : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
-            'bl2io'  : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
-            'bmumux' : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getBmumux']],
+            'bl2io'  : [['getmuFast', 'getDimuL2IO'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
+            'bmumux' : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getDimuEFCB', 'getBmumux']],
         }
         return stepDictionary
 
@@ -91,10 +92,16 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
         return topo_dict[the_topo]
 
     def getDimuL2(self):
-        return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=DimuL2ComboHypoCfg)
+        return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=StreamerDimuL2ComboHypoCfg)
+
+    def getDimuL2IO(self):
+        return self.getStep(2, 'dimuL2IO', [mul2IOOvlpRmSequenceCfg], comboHypoCfg=StreamerDimuL2IOComboHypoCfg)
 
     def getDimuEF(self):
         return self.getStep(5, 'dimuEF', [dimuEFSequenceCfg], comboHypoCfg=DimuEFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+
+    def getDimuEFCB(self):
+        return self.getStep(4, 'dimuEFCB', [muEFCBSequenceCfg], comboHypoCfg=StreamerDimuEFComboHypoCfg)
 
     def getBmumux(self):
         return self.getStep(5, 'bmumux', [bmumuxSequenceCfg], comboHypoCfg=BmumuxComboHypoCfg, comboTools=[TrigBmumuxComboHypoToolFromDict])

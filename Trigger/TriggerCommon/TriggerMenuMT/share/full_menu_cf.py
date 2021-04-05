@@ -237,10 +237,10 @@ def generateChains():
     ##################################################################
     if opt.doBphysicsSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
-        from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DimuL2ComboHypoCfg, DimuEFComboHypoCfg
+        from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, DimuEFComboHypoCfg
         
         step1_dimufast=makeChainStep("Step1_dimuFast", [muFastSequence()], multiplicity=[2])
-        step2_dimuComb=makeChainStep("Step2_dimuComb", [muCombSequence()], multiplicity=[2], comboHypoCfg=DimuL2ComboHypoCfg)
+        step2_dimuComb=makeChainStep("Step2_dimuComb", [muCombSequence()], multiplicity=[2], comboHypoCfg=StreamerDimuL2ComboHypoCfg)
         step3_dimuEFSA=makeChainStep("Step3_dimuEFSA", [muEFSASequence()], multiplicity=[2])
         step4_dimuEFCB=makeChainStep("Step4_dimuEFCB", [muEFCBSequence()], multiplicity=[2], comboHypoCfg=DimuEFComboHypoCfg)
         steps = [step1_dimufast, step2_dimuComb, step3_dimuEFSA, step4_dimuEFCB]
