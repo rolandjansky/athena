@@ -188,4 +188,12 @@ std::set<std::string> BTagMuonAugmenter::getDecoratorKeys() const {
   return keys;
 }
 
+  std::set<std::string> BTagMuonAugmenter::getAuxInputKeys() const {
+    return {m_muonAssociationName};
+  }
+  std::set<std::string> BTagMuonAugmenter::getConstituentAuxInputKeys() const {
+    return m_btag_track_aug.getTrackIpDataDependencyNames();
+  }
+
+
 }

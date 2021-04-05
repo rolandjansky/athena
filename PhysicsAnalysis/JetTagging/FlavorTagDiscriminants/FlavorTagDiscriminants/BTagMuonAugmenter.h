@@ -30,6 +30,8 @@ namespace FlavorTagDiscriminants {
     BTagMuonAugmenter(BTagMuonAugmenter&&);
     void augment(const xAOD::Jet& jet) const;
     std::set<std::string> getDecoratorKeys() const;
+    std::set<std::string> getAuxInputKeys() const;
+    std::set<std::string> getConstituentAuxInputKeys() const;
   private:
     // You'll probably have to add some accessors here
     BTagTrackIpAccessor m_btag_track_aug;

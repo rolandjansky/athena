@@ -41,5 +41,11 @@ namespace FlavorTagDiscriminants {
   std::set<std::string> DL2Tool::getDecoratorKeys() const {
     return m_dl2->getDataDependencyNames().bTagOutputs;
   }
+  std::set<std::string> DL2Tool::getAuxInputKeys() const {
+    return m_dl2->getDataDependencyNames().bTagInputs;
+  }
+  std::set<std::string> DL2Tool::getConstituentAuxInputKeys() const {
+    return m_dl2->getDataDependencyNames().trackInputs;
+  }
 
 }

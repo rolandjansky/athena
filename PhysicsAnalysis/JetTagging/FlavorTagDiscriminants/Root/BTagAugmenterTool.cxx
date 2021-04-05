@@ -28,8 +28,14 @@ namespace FlavorTagDiscriminants {
   }
 
   std::set<std::string> BTagAugmenterTool::getDecoratorKeys() const {
-    const auto keys{m_aug->getDecoratorKeys()};
-    return std::set<std::string>(keys.begin(), keys.end());
+    return m_aug->getDecoratorKeys();
+  }
+
+  std::set<std::string> BTagAugmenterTool::getAuxInputKeys() const {
+    return {};                  // TODO: get all of these
+  }
+  std::set<std::string> BTagAugmenterTool::getConstituentAuxInputKeys() const {
+    return {};
   }
 
 }
