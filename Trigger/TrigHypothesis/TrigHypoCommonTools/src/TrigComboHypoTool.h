@@ -50,8 +50,8 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
   Gaudi::Property< bool >      m_useMax    {this, "UseMax"   , false, "Apply max_cut"     };
 
   //legs
-  Gaudi::Property<int>         m_legA      {this, "LegA"     ,    -1, "First Leg"};
-  Gaudi::Property<int>         m_legB      {this, "LegB"     ,    -1, "Second Leg"};
+  Gaudi::Property<std::string> m_legA      {this, "LegA"     ,    "", "First Leg"};
+  Gaudi::Property<std::string> m_legB      {this, "LegB"     ,    "", "Second Leg"};
 
   // cuts
   Gaudi::Property<float> m_varMin {this,"LowerCut", -9999., "Lower cut for legs pair"};

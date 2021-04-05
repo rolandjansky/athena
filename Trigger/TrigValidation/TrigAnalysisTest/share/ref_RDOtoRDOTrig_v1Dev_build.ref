@@ -992,7 +992,7 @@ HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRAB_L1EM15VHI_2TAU12IM
     7: 6
     8: 6
     9: 2
-HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1EM15VHI_2TAU12IM_XE35:
+HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1EM15VHI_2TAU12IM_XE35:
   eventCount: 1
   stepCounts:
     0: 3
@@ -3227,7 +3227,7 @@ HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRAB_L1MU10_TAU20IM:
     7: 7
     8: 7
     9: 1
-HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1MU10_TAU12IM_XE35:
+HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1MU10_TAU12IM_XE35:
   eventCount: 0
   stepCounts:
     0: 4
@@ -4484,7 +4484,7 @@ HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM:
     2: 20
     3: 20
     4: 4
-HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1TAU40_2TAU12IM_XE40:
+HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1TAU40_2TAU12IM_XE40:
   eventCount: 0
   stepCounts:
     0: 3

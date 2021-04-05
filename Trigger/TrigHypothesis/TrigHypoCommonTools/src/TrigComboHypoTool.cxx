@@ -31,12 +31,12 @@ StatusCode TrigComboHypoTool::initialize()
     ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
 
-  if (m_legA<0){
-    ATH_MSG_ERROR("Index for legA not set! legA = "<<m_legA);
+  if (m_legA==""){
+    ATH_MSG_ERROR("LegA not set!");
     return StatusCode::FAILURE;
   }
-  if (m_legB<0){
-    ATH_MSG_ERROR("Index for legB not set! legB = "<<m_legB);
+  if (m_legB==""){
+    ATH_MSG_ERROR("LegB not set!");
     return StatusCode::FAILURE;
   }
   if ((!m_useMin) && (!m_useMax)){
@@ -62,13 +62,32 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
     ATH_MSG_ERROR("Number of legs found is less than 2! N_legs = " << combination.size() );
     return false;
   }
+  int           legA_index(-1), legB_index(-1);
 
-  if ( (m_legA >= nCombs) || (m_legB >= nCombs)){
-    ATH_MSG_ERROR("One or both leg indexes are out of range: n_combinations =  " << combination.size() <<", legA = "<<m_legA<<", legB = "<< m_legB );
+  ATH_MSG_DEBUG("Legs available = "<< combination);
+  for (int i=0; i<nCombs; ++i){
+    auto combId = HLT::Identifier(combination[i].first);
+    if (!TrigCompositeUtils::isLegId(combId))
+      continue;
+    std::string   legName = combId.name().substr(0,6);
+    if (legName == m_legA){
+      legA_index = i;
+    }else  if (legName == m_legB){
+      legB_index = i;
+    }
+    ATH_MSG_DEBUG("\t Leg: "<< legName <<", full name:"<<combId.name());
+  }
+
+  if ( legA_index<0){
+    ATH_MSG_ERROR("legA = "<< m_legA << " NOT FOUND!");
+    return false;
+  }
+  if ( legB_index<0){
+    ATH_MSG_ERROR("legB = "<< m_legB << " NOT FOUND!");
     return false;
   }
 
-  auto EL= combination[m_legA].second;    
+  auto EL= combination[legA_index].second;    
   auto legA_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
   if (!legA_pLink.isValid()){
     ATH_MSG_ERROR("link for "<<m_legA<<" not valid");
@@ -76,7 +95,7 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
   }
   ATH_MSG_DEBUG("link for legA: "<<m_legA<<" is valid");
 
-  EL = combination[m_legB].second;
+  EL = combination[legB_index].second;
   auto legB_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
   if (!legB_pLink.isValid()){
     ATH_MSG_ERROR("link for "<<m_legB<<" not valid");
