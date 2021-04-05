@@ -104,6 +104,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("DeadTime"             ,  m_deadTime              = 100.        , "dead time"                      );
   declareProperty("UncorrJitter"         ,  m_UncorrJitter          = 1.5         , "jitter uncorrelated"            );
   declareProperty("CorrJitter"           ,  m_CorrJitter            = 0.0         , "jitter correlated"              );
+  declareProperty("UncorrJitter_BIS78"   ,  m_UncorrJitter_BIS78 = 0.3);
+  declareProperty("CorrJitter_BIS78"     ,  m_CorrJitter_BIS78 = 0.0);
   declareProperty("RndmSvc"              ,  m_rndmSvc                  , "Random Number Service used in Muon digitization" );
   declareProperty("RndmEngine"           ,  m_rndmEngineName           , "Random engine name");
   declareProperty("PatchForRpcTime"      ,  m_patch_for_rpc_time       = false );
@@ -114,6 +116,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("PanelId_OFF_fromlist" ,  m_PanelId_OFF_fromlist     = false );
   declareProperty("FileName_DeadPanels"  ,  m_FileName_DeadPanels= "PermanentDeadPanels.txt"); //File with deadpanel list
   declareProperty("PanelId_OK_fromlist"  ,  m_PanelId_OK_fromlist      = false );
+  declareProperty("Efficiency_BIS78_fromCOOL", m_Efficiency_BIS78_fromCOOL=false);
+  declareProperty("ClusterSize_BIS78_fromCOOL", m_ClusterSize_BIS78_fromCOOL=false);
   declareProperty("FileName_GoodPanels"  ,  m_FileName_GoodPanels= "PermanentGoodPanels.txt"); //File with goodpanel list
 
   declareProperty("PhiAndEtaEff_A"            ,  m_PhiAndEtaEff_A                   );
@@ -122,6 +126,9 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("PhiAndEtaEff_C"            ,  m_PhiAndEtaEff_C                   );
   declareProperty("OnlyPhiEff_C"              ,  m_OnlyPhiEff_C                     );
   declareProperty("OnlyEtaEff_C"              ,  m_OnlyEtaEff_C                     );
+  declareProperty("PhiAndEtaEff_BIS78"        ,  m_PhiAndEtaEff_BIS78=0.93);
+  declareProperty("OnlyEtaEff_BIS78"          ,  m_OnlyEtaEff_BIS78=0.96);
+  declareProperty("OnlyPhiEff_BIS78"          ,  m_OnlyPhiEff_BIS78=0.96);
   declareProperty("FracClusterSize1_A"        ,  m_FracClusterSize1_A		    );
   declareProperty("FracClusterSize2_A"        ,  m_FracClusterSize2_A		    );
   declareProperty("FracClusterSizeTail_A"     ,  m_FracClusterSizeTail_A	    );
@@ -129,7 +136,11 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("FracClusterSize1_C"        ,  m_FracClusterSize1_C		    );
   declareProperty("FracClusterSize2_C"        ,  m_FracClusterSize2_C		    );
   declareProperty("FracClusterSizeTail_C"     ,  m_FracClusterSizeTail_C	    );
-  declareProperty("MeanClusterSizeTail_C"     ,  m_MeanClusterSizeTail_C	    );
+  declareProperty("MeanClusterSizeTail_C"     ,  m_MeanClusterSizeTail_C      );
+  declareProperty("FracClusterSize1_BIS78"    ,  m_FracClusterSize1_BIS78=0.60);
+  declareProperty("FracClusterSize2_BIS78"    ,  m_FracClusterSize2_BIS78=0.35);
+  declareProperty("FracClusterSizeTail_BIA78" ,  m_FracClusterSizeTail_BIS78=0.05);
+  declareProperty("MeanClusterSizeTail_BIA78" ,  m_MeanClusterSizeTail_BIS78=3.5);
   declareProperty("turnON_efficiency"         ,  m_turnON_efficiency    = true      );
   declareProperty("Minimum_efficiency"        ,  m_Minimum_efficiency   = 0.5       );
   declareProperty("ApplyEfficiencyThreshold"  ,  m_applyEffThreshold    = false     );
@@ -245,7 +256,9 @@ StatusCode RpcDigitizationTool::initialize() {
     return StatusCode::FAILURE; 
   } 
 
-  bool run1 = true;
+  enum DataPeriod{Run1,Run2,Run3,Run4};
+  DataPeriod run = Run1;
+
   std::string configVal = "";
   const IGeoModelSvc* geoModel = 0; 
   result = service("GeoModelSvc", geoModel); 
@@ -258,88 +271,77 @@ StatusCode RpcDigitizationTool::initialize() {
 
     IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS"); 
     if(atlasCommonRec->size()==0) { 
-      run1 = true; 
+      run = Run1;
     } else { 
       configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
       ATH_MSG_INFO( "From DD Database, Configuration is "<< configVal );
       std::string MSgeoVersion = m_GMmgr->geometryVersion().substr(0,4);
       ATH_MSG_INFO( "From DD Database, MuonSpectrometer geometry version is "<< MSgeoVersion );
       if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
-        run1 = true; 
-      } 
-      else if(configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") { 
-        run1 = false; 
-      } 
-      else { 
+        run = Run1;
+      } else if (configVal=="RUN2" || MSgeoVersion=="R.07" ) {
+        run = Run2;
+      } else if (configVal=="RUN3" || MSgeoVersion=="R.09") {
+        run = Run3;
+      } else if (configVal=="RUN4" || MSgeoVersion=="R.10") {
+        run = Run4;
+      } else { 
         ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal); 
         return StatusCode::FAILURE; 
-      } 
-    } 
-    // 
-    if (run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06"); 
-    else        ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07"); 
+      }
+    }
+    if (run==Run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06");
+    else if (run==Run2) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07");
+    else if (run==Run3) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN3 or MuonGeometry = R.09");
+    else if (run==Run4) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN4 or MuonGeometry = R.10");
   }
-  if (m_ignoreRunDepConfig==false) 
-    {
+  if (m_ignoreRunDepConfig==false) {
+    m_BOG_BOF_DoubletR2_OFF = false;
+    m_Efficiency_fromCOOL   = false;
+    m_ClusterSize_fromCOOL  = false;
+    m_RPCInfoFromDb         = false;
+    m_kill_deadstrips       = false;
+    m_applyEffThreshold     = false;
+    if (run==Run1) {
+      m_BOG_BOF_DoubletR2_OFF = true;
+      if (configVal=="RUN1") {// MC12 setup
+        m_Efficiency_fromCOOL   = true;
+        m_ClusterSize_fromCOOL  = true;
+        m_RPCInfoFromDb         = true;
+        m_kill_deadstrips       = true;
+        m_applyEffThreshold     = false;
+        m_CutProjectedTracks    = 50;
+      }
+    } else {
       m_BOG_BOF_DoubletR2_OFF = false;
-      m_Efficiency_fromCOOL   = false;
-      m_ClusterSize_fromCOOL  = false;
-      m_RPCInfoFromDb         = false;
-      m_kill_deadstrips       = false;
-      m_applyEffThreshold     = false;
-      if (run1)
-	{
-	  //m_BOG_BOF_DoubletR2_OFF = true 
-	  //m_Efficiency_fromCOOL   = true 
-	  //m_ClusterSize_fromCOOL  = true
-	  m_BOG_BOF_DoubletR2_OFF = true;
-	  if (configVal=="RUN1") 
-	    {// MC12 setup 
-	      m_Efficiency_fromCOOL   = true;
-	      m_ClusterSize_fromCOOL  = true;
-	      m_RPCInfoFromDb         = true;
-	      m_kill_deadstrips       = true;
-	      m_applyEffThreshold     = false;
-	      m_CutProjectedTracks    = 50;
-	    }
-	}
-      else 
-	{
-	  //m_BOG_BOF_DoubletR2_OFF = false # do not turn off at digitization the hits in the dbR=2 chambers in the feet
-	  //m_Efficiency_fromCOOL   = false # use common average values in python conf. 
-	  //m_ClusterSize_fromCOOL  = false # use common average values in python conf. 
-	  m_BOG_BOF_DoubletR2_OFF = false;
-	   if (configVal=="RUN2") 
-	    {// MC15c setup 
-	      m_Efficiency_fromCOOL   = true;
-	      m_ClusterSize_fromCOOL  = true;
-	      m_RPCInfoFromDb         = true;
-	      m_kill_deadstrips       = false;
-	      m_applyEffThreshold     = false; //for MC16 [2015-2016]IoV will use measurements, [2017]IoV will use measurements with threshold at 50% already applied in the condition data ////// it was true (with threshold 50%) for MC15c;
-	      m_CutProjectedTracks    = 100;
-	    }
-	}
-      ATH_MSG_DEBUG ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
-      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
-      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
-      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
-      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
+      if (run==Run2) {// MC15c setup 
+        m_Efficiency_fromCOOL   = true;
+        m_ClusterSize_fromCOOL  = true;
+        m_RPCInfoFromDb         = true;
+        m_kill_deadstrips       = false;
+        m_applyEffThreshold     = false; //for MC16 [2015-2016]IoV will use measurements, [2017]IoV will use measurements with threshold at 50% already applied in the condition data ////// it was true (with threshold 50%) for MC15c;
+        m_CutProjectedTracks    = 100;
+      } else {
+        ATH_MSG_INFO ( "Run3/4: configuration parameter not from COOL" );
+        m_Efficiency_fromCOOL   = false;
+        m_ClusterSize_fromCOOL  = false;
+        m_RPCInfoFromDb         = false;
+        m_kill_deadstrips       = false;
+        m_applyEffThreshold     = false;          
+      } 
     }
-  else
-    {
-      ATH_MSG_WARNING ( "Run1/Run2-dependent configuration is bypassed; be careful with option settings" );
-      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
-      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
-      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
-      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
-    }
+    ATH_MSG_INFO ( "RPC Run1/2/3-dependent configuration is enforced" );
+  } else {
+    ATH_MSG_WARNING ( "Run1/2/3-dependent configuration is bypassed; be careful with option settings" );
+  }
 
+    ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+    ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+    ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+    ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
+    ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
+    ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
+    ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
 
   ATH_MSG_DEBUG ( "Ready to read parameters for cluster simulation from file" );
 
@@ -750,7 +752,9 @@ StatusCode RpcDigitizationTool::doDigitization() {
       //      Identifier atlasRpcIdphi;
       
       double corrtimejitter    =  0 ;
-      if(m_CorrJitter>0.01) corrtimejitter    = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_CorrJitter); //correlated jitter
+      double tmp_CorrJitter = m_CorrJitter;
+      if (m_idHelper->stationName(idpaneleta)<2) tmp_CorrJitter = m_CorrJitter_BIS78;
+      if(tmp_CorrJitter>0.01) corrtimejitter = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,tmp_CorrJitter); //correlated jitter
       //      std::cout<<" Correlated eta / phi jitter = "<<corrtimejitter<<std::endl;
       // handle here the special case where eta panel is dead => phi strip status (dead or eff.) cannot be resolved; 
       // measured panel eff. will be used in that case and no phi strip killing will happen
@@ -769,17 +773,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      // as long there is no proper implementation of the BI RPC cabling and digitisation,
-      // skip this method to avoid hard crash of digitisation
-      static bool biWarningPrinted = false;
-      if (stationName.find("BI")!=std::string::npos) {
-        if (!biWarningPrinted) {
-          ATH_MSG_WARNING("skipping call of RPC DetectionEfficiency for BI as long as no proper cabling is implemented, cf. ATLASRECTS-5803");
-          biWarningPrinted=true;
-        }
-      } else {
-        if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, hit).isFailure()) return StatusCode::FAILURE ;
-      }
+      ATH_CHECK(DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, hit));
 
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
@@ -996,9 +990,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  last_time=(*map_dep_iter).first;
 
 	  // first add time jitter to the time:
-          double uncorrjitter    = 0 ;
-	  if(m_UncorrJitter>0.01) uncorrjitter = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_UncorrJitter);
-	  //	  std::cout<<" uncorrelated jitter = "<<uncorrjitter<<std::endl;
+    double uncorrjitter    = 0 ;
+    double tmp_UncorrJitter = m_UncorrJitter;
+    if (m_idHelper->stationName(theId)<2) tmp_UncorrJitter = m_UncorrJitter_BIS78;
+	  if(tmp_UncorrJitter>0.01) uncorrjitter = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,tmp_UncorrJitter);
 
 	  //Historically patch for the cavern background
 	  //Now we subtract TOF from IP to assume full time calibrated detector (t=0 for particle from IP at light speed)
@@ -1081,7 +1076,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 		  deposits.push_back((*map_dep_iter).second);
 		  std::pair<std::map<Identifier,MuonSimData>::iterator, bool> insertResult =
 		    m_sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
-		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since teh identifier already exists in the m_sdoContainer map");
+		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map");
 		}
 	    }
 
@@ -1921,34 +1916,36 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   int stripphigood = 0 ;
   
 
-  if(!m_Efficiency_fromCOOL){
-    unsigned int index = stationName - 2 ;
-    // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-    if(stationName>5 && stationName<50) index = index - 2 ;
-    // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-    else if(stationName>50) index = index - 44 ;
-    // BME and BOE 53 and 54 are at indices 7 and 8 
-
+  unsigned int index = stationName - 2 ;
+  // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
+  if(stationName>5 && stationName<50) index = index - 2 ;
+  // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
+  else if(stationName>50) index = index - 44 ;
+  // BME and BOE 53 and 54 are at indices 7 and 8 
+  
+  
+  if(!m_Efficiency_fromCOOL && stationName >= 2){
     if( index>m_PhiAndEtaEff_A.size() || index>m_OnlyEtaEff_A.size() || index>m_OnlyPhiEff_A.size()) {
       ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideA " << index <<" stationName = "<<stationName) ;
       return StatusCode::FAILURE;
     }
-
     PhiAndEtaEff = m_PhiAndEtaEff_A [index];
     OnlyEtaEff   = m_OnlyEtaEff_A   [index];
     OnlyPhiEff   = m_OnlyPhiEff_A   [index];
-
     if(stationEta<0){
       if( index>m_PhiAndEtaEff_C.size() || index>m_OnlyEtaEff_C.size() || index>m_OnlyPhiEff_C.size()) {
-	ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideC " << index <<" stationName = "<<stationName) ;
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideC " << index <<" stationName = "<<stationName) ;
+        return StatusCode::FAILURE;
       }
       PhiAndEtaEff = m_PhiAndEtaEff_C [index];
       OnlyEtaEff   = m_OnlyEtaEff_C   [index];
       OnlyPhiEff   = m_OnlyPhiEff_C   [index];
     }
-  }
-  else{
+  } else if ( stationName < 2 && (!m_Efficiency_fromCOOL || !m_Efficiency_BIS78_fromCOOL) ) { // BIS
+    PhiAndEtaEff = m_PhiAndEtaEff_BIS78;
+    OnlyEtaEff   = m_OnlyEtaEff_BIS78;
+    OnlyPhiEff   = m_OnlyPhiEff_BIS78;
+  } else { // Efficiency from Cool
 
     ATH_MSG_DEBUG("Efficiencies and cluster size + dead strips will be extracted from COOL");
     
@@ -1961,9 +1958,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     float  FracDeadStripEta        = 0. ;
     float  FracDeadStripPhi        = 0. ;
     int    RPC_ProjectedTracksEta  = 0  ;
-    double EtaPanelEfficiency      = 0. ;
-    double PhiPanelEfficiency      = 0. ;
-    double GapEfficiency           = 0. ;
+    double EtaPanelEfficiency      = 1. ;
+    double PhiPanelEfficiency      = 1. ;
+    double GapEfficiency           = 1. ;
 
     bool noEntryInDb=false;
     
@@ -2395,18 +2392,11 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   else if(stationName>50) index = index - 44 ;
   // BME and BOE 53 and 54 are at indices 7 and 8 
 
-  static bool clusterIndexAPrinted = false;
-  static bool clusterIndexCPrinted = false;
-  if( !m_ClusterSize_fromCOOL ){
+  if( !m_ClusterSize_fromCOOL && stationName>=2){
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      if (stationName==0 || stationName==1) {
-        if (!clusterIndexAPrinted) {
-          ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
-          clusterIndexAPrinted=true;
-        }
-      } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+      ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
       return 1;
     }
     FracClusterSize1    = m_FracClusterSize1_A      [index];
@@ -2418,12 +2408,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	  index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-        if (stationName==0 || stationName==1) {
-          if (!clusterIndexCPrinted) {
-            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
-            clusterIndexCPrinted=true;
-          }
-        } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+        ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
         return 1;
       }
 
@@ -2432,42 +2417,28 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       FracClusterSizeTail = m_FracClusterSizeTail_C   [index];
       MeanClusterSizeTail = m_MeanClusterSizeTail_C   [index];
     }
-  }
-  else{
+  } else if (stationName<2 && ( !m_ClusterSize_fromCOOL|| !m_ClusterSize_BIS78_fromCOOL))  {// BIS78
+    FracClusterSize1    = m_FracClusterSize1_BIS78;
+    FracClusterSize2    = m_FracClusterSize2_BIS78;
+    FracClusterSizeTail = m_FracClusterSizeTail_BIS78;
+    MeanClusterSizeTail = m_MeanClusterSizeTail_BIS78;
+  } else { // Cluster size from COOL
     Identifier Id  = m_idHelper->panelID(*IdRpcStrip);
 
     int    RPC_ProjectedTracks = 0;
 
     if( m_rSummarySvc->RPC_ProjectedTracksMap().find(Id) != m_rSummarySvc->RPC_ProjectedTracksMap().end()) RPC_ProjectedTracks = m_rSummarySvc->RPC_ProjectedTracksMap().find(Id)->second ;
-    static bool fracCluster1Printed = false;
-    static bool fracCluster2Printed = false;
     if(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize1Map().end()) FracClusterSize1	= float(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id)->second) ;
-    else {
-    if (!fracCluster1Printed) {
-        ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5800") ;
-        fracCluster1Printed=true;
-      }
-    }
+    else ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used");
     if(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize2Map().end()) FracClusterSize2	= float(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id)->second) ;
-    else {
-      if (!fracCluster2Printed) {
-        ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5800") ;
-        fracCluster2Printed=true;
-      }
-    }
+    else ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used");
 
     ATH_MSG_DEBUG ( "FracClusterSize1 and 2 "<< FracClusterSize1 << " " << FracClusterSize2  );
 
     FracClusterSizeTail = 1. - FracClusterSize1 - FracClusterSize2 ;
 
-    static bool meanClusterPrinted = false;
     if(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id) != m_rSummarySvc->RPC_MeanClusterSizeMap().end()) MeanClusterSize     = float(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id)->second)  ;
-    else {
-      if (!meanClusterPrinted) {
-        ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5801") ;
-        meanClusterPrinted=true;
-      }
-    }
+    else ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used");
 
     MeanClusterSizeTail = MeanClusterSize - FracClusterSize1 - 2*FracClusterSize2 ;
 
@@ -2475,15 +2446,11 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 
     //if clustersize have anomalous values set to the average cluster size from joboption
     if(RPC_ProjectedTracks<m_CutProjectedTracks ||  RPC_ProjectedTracks>10000000 || MeanClusterSize>m_CutMaxClusterSize || MeanClusterSize<=1 || FracClusterSizeTail < 0 || FracClusterSize1 < 0 || FracClusterSize2 < 0  || FracClusterSizeTail > 1 || FracClusterSize1 > 1 || FracClusterSize2 >1){
+      if (stationName>=2){
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	  index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-        if (stationName==0 || stationName==1) {
-          if (!clusterIndexAPrinted) {
-            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
-            clusterIndexAPrinted=true;
-          }
-        } else ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
+        ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
 	return 1;
       }
       FracClusterSize1	= m_FracClusterSize1_A      [index];
@@ -2495,12 +2462,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 	index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
 	if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	    index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-        if (stationName==0 || stationName==1) {
-          if (!clusterIndexCPrinted) {
-            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
-            clusterIndexCPrinted=true;
-          }
-	    } else ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
+	  ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
 	  return 1;
 	}
 
@@ -2509,8 +2471,13 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 	FracClusterSizeTail = m_FracClusterSizeTail_C   [index];
 	MeanClusterSizeTail = m_MeanClusterSizeTail_C   [index];
       }
+      } else  {
+        FracClusterSize1    = m_FracClusterSize1_BIS78;
+        FracClusterSize2    = m_FracClusterSize2_BIS78;
+        FracClusterSizeTail = m_FracClusterSizeTail_BIS78;
+        MeanClusterSizeTail = m_MeanClusterSizeTail_BIS78;         
+      } 
     }
-
   }
 
   if(FracClusterSize1>1   )FracClusterSize1   =1.;
@@ -2603,7 +2570,7 @@ StatusCode RpcDigitizationTool::PrintCalibrationVector() {
   }
   vec_size = m_OnlyEtaEff_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_C: " << m_OnlyPhiEff_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_C: " << m_OnlyEtaEff_C.at(i) );
   }
   vec_size = m_FracClusterSize1_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
