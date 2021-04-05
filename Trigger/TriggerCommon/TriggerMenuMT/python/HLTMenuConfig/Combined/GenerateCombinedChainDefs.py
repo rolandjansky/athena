@@ -125,8 +125,8 @@ def TrigComboHypoToolFromDict(chainDict):
     monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfProcessed', type='TH1F', path='EXPERT', title=obs_to_use[0]+" in accepted combinations [MeV]", xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], xmin=allowed_obs[obs_to_use[0]]['hist_min'], xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
     tool= TrigComboHypoTool(name)
     tool.Variable    = obs_to_use[0]
-    tool.LegA        = legA
-    tool.LegB        = legB
+    tool.LegA        = "leg{:03d}".format(legA)
+    tool.LegB        = "leg{:03d}".format(legB)
     if len(l_min)==1:
         tool.UseMin    = True
         tool.LowerCut  = cut_min
@@ -141,8 +141,8 @@ def TrigComboHypoToolFromDict(chainDict):
     log.debug("[TrigComboHypoToolFromDict] legA = %d", legA)
     log.debug("[TrigComboHypoToolFromDict] legB = %d", legB)
     if len(l_min)==1:
-        log.debug("[TrigComboHypoToolFromDict] min  = %d", cut_min)
+        log.debug("[TrigComboHypoToolFromDict] min  = %10.3f", cut_min)
     if len(l_max)==1:
-        log.debug("[TrigComboHypoToolFromDict] max  = %d", cut_max)
+        log.debug("[TrigComboHypoToolFromDict] max  = %10.3f", cut_max)
 
     return tool
