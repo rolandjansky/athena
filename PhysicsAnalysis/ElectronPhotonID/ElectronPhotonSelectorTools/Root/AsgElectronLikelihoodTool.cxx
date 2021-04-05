@@ -1076,13 +1076,6 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
   return m_rootTool->accept();
 }
 
-// Calculate with IParticle and no EventContext, backwards compatibility
-double
-AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
-{
-  // Backward compatibility
-  return calculate(Gaudi::Hive::currentContext(), part);
-}
 double
 AsgElectronLikelihoodTool::calculate(const EventContext& ctx,
                                      const xAOD::IParticle* part) const
