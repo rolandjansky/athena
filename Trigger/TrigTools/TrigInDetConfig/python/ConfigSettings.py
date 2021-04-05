@@ -165,7 +165,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._doTRT           = False
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
-      self._doPPS           = False
+      self._TripletDoPPS    = False
       self._minCluster      = 8
       self._roadWidth       = 5
       
@@ -182,7 +182,7 @@ class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
       self._doTRT           = False
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
-      self._doPPS           = False
+      self._TripletDoPPS    = False
       self._minCluster      = 8
       self._roadWidth       = 5
       self._doRecord        = False  
@@ -210,7 +210,7 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._doTRT           = False
       self._DoubletDR_Max    = 200
       self._SeedRadBinWidth = 10
-      self._doPPS           = False
+      self._TripletDoPPS    = False
       self._minCluster      = 8
       self._roadWidth       = 5
       self._vertex          = "HLT_IDVertex_FS"
