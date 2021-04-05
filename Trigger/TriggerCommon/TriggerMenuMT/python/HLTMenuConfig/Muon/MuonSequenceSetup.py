@@ -246,12 +246,14 @@ def muCombSequence():
                          HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
+
 def muCombLRTAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2muCombLRTViewsMaker = EventViewCreatorAlgorithm("IMl2muCombLRT")
-    newRoITool = ViewCreatorFetchFromViewROITool()
+    newRoITool = ViewCreatorCentredOnIParticleROITool()
+    newRoITool.RoIEtaWidth=0.2
+    newRoITool.RoIPhiWidth=0.4
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon_LRT") #RoI collection recorded to EDM
-    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
 
     #
     l2muCombLRTViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
