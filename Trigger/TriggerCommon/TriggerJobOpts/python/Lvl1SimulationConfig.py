@@ -106,7 +106,7 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
 
     isL1TopoLegacyOutputProvided = False
     if ConfigFlags.Trigger.enableL1CaloLegacy:
-        isL1TopoLegacyOutputProvided = True
+        isL1TopoLegacyOutputProvided = False
         # TODO disable L1Topo sim not ready yet with json file
         l1TopoSimDataSeq = None
     isL1TopoOutputProvided = False
