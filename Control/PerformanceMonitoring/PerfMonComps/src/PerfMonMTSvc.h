@@ -39,7 +39,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
 
   // Destructor
-  ~PerfMonMTSvc();
+  virtual ~PerfMonMTSvc() = default;
 
   /// Function declaring the interface(s) implemented by the service
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
@@ -99,7 +99,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   void divideData2Steps();
 
   std::string scaleTime(double timeMeas) const;
-  std::string scaleMem(long memMeas) const;
+  std::string scaleMem(int64_t memMeas) const;
 
   bool isCheckPoint();
 
@@ -108,7 +108,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   std::string get_info_from_file(const std::string& fileName, const std::string& fieldName) const;
   std::string get_cpu_model_info() const;
   int get_cpu_core_info() const;
-  long get_memory_info() const;
+  uint64_t get_memory_info() const;
 
   PMonMT::StepComp generate_state(const std::string& stepName, const std::string& compName) const;
 
@@ -155,7 +155,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// Get the number of slots
   Gaudi::Property<int> m_numberOfSlots{this, "numberOfSlots", 1, "Number of slots in the job."};
   /// Set the number of messages for the event-level report
-  Gaudi::Property<unsigned long> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
+  Gaudi::Property<uint64_t> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
   /// Snapshots data
   std::vector<PMonMT::MeasurementData> m_snapshotData;
@@ -169,10 +169,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   std::mutex m_mutex_capture;
 
   // Count the number of events processed
-  std::atomic<unsigned long long> m_eventCounter;
+  std::atomic<uint64_t> m_eventCounter;
 
   // Instant event-loop report counter
-  std::atomic<unsigned long> m_eventLoopMsgCounter;
+  std::atomic<uint64_t> m_eventLoopMsgCounter;
 
   /* 
    * Data structure  to store component level measurements
