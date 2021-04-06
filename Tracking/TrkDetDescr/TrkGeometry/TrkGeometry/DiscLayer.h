@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ namespace Trk {
         virtual ~DiscLayer() = default;
 
         /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const DiscSurface& surfaceRepresentation() const override;
+        virtual const DiscSurface& surfaceRepresentation() const override final;
 
         /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
         virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
@@ -102,15 +102,15 @@ namespace Trk {
                                                  PropDirection pdir,
                                                  const BoundaryCheck& bcheck,
                                                  bool resolveSubSurfaces = 0,
-                                                 const ICompatibilityEstimator* ice = nullptr) const override;
+                                                 const ICompatibilityEstimator* ice = nullptr) const override final;
       
         /** getting the MaterialProperties back - for pre-update*/ 
         virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                               Trk::PropDirection dir) const override;
+                                               Trk::PropDirection dir) const override final;
 
         /** getting the MaterialProperties back - for post-update*/ 
         virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                                 Trk::PropDirection dir) const override;
+                                                 Trk::PropDirection dir) const override final;
 
         /** move the Layer non-const*/
         virtual void moveLayer(Amg::Transform3D& shift) override final;

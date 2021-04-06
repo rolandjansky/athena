@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,23 +58,27 @@ namespace Trk {
         
         /** Assignment operator */
         NavigationLayer& operator=(const NavigationLayer& lay);
-                    
-        /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const Surface& surfaceRepresentation() const override;
-        
-        /** isOnLayer() method, using isOnSurface() with Layer specific tolerance */
-        virtual bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
-        
+
+        /** Transforms the layer into a Surface representation for extrapolation
+         */
+        virtual const Surface& surfaceRepresentation() const override final;
+
+        /** isOnLayer() method, using isOnSurface() with Layer specific
+         * tolerance */
+        virtual bool isOnLayer(
+          const Amg::Vector3D& gp,
+          const BoundaryCheck& bcheck = BoundaryCheck(true)) const override final;
+
         /** getting the MaterialProperties back - for full update*/ 
         const MaterialProperties* fullUpdateMaterialProperties() const;
         
         /** getting the MaterialProperties back - for pre-update*/ 
         virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                               Trk::PropDirection dir) const override;
+                                               Trk::PropDirection dir) const override final;
 
         /** getting the MaterialProperties back - for post-update*/ 
         virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                                 Trk::PropDirection dir) const override;
+                                                 Trk::PropDirection dir) const override final;
                                                                       
         /** getting the next/overlapping Surface */
         const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = nullptr) const;
