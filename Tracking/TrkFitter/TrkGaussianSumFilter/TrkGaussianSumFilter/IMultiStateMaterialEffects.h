@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,7 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <memory>
 
