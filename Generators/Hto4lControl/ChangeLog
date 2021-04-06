@@ -1,0 +1,19 @@
+2019-10-14  RD Schaffer  <R.D.Schaffer@cern.ch>
+
+	* tagging Hto4lControl-00-00-03
+	* python/decorators/DecoratorFromDefault.py: added nskip
+	* python/Hto4lPowhegMerge.py: moved to use the same input file for all three modes using nskip
+
+2019-07-29  RD Schaffer  <R.D.Schaffer@cern.ch>
+
+	* tagging Hto4lControl-00-00-02
+	* cmt/requirements: added use of prophecy
+
+2019-07-28  RD Schaffer  <R.D.Schaffer@cern.ch>
+
+	* tagging Hto4lControl-00-00-01
+	* scripts/generate_hto4l.sh: adding in scripts for running generation locally and via grid
+
+	* tagging Hto4lControl-00-00-00
+	* python/Hto4lConfig.py (Hto4lConfig): adding new interface package for Hto4l
+

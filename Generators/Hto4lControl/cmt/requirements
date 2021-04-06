@@ -1,0 +1,21 @@
+package Hto4lControl
+
+author RD Schaffer <R.D.Schaffer@cern.ch>
+
+branches share python bin
+
+private
+use AtlasPolicy   AtlasPolicy-*
+# use Hto4l         Hto4l-*        External
+# Hto4l setup in Prophecy4f as workaround:
+use Prophecy4f    Prophecy4f-*     External
+use AtlasROOT     AtlasROOT-*    External
+
+apply_pattern declare_python_modules files="*.py decorators"
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+# application mergeHto4l ../src/mergeHto4l.cxx 
+
+apply_tag ROOTMathLibs
+
+end_private
