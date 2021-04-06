@@ -782,10 +782,20 @@ class FakeLVL1(_modifier):
                 svcMgr.ROBDataProviderSvc.filterEmptyROB=True
 
 
+class reprocessTT(_modifier):
+    """
+    Set simple boolean to flag reprocessing of the trigger towers
+    """
+    def preSetup(self):
+        log.info("Will reprocess trigger towers!")
+        log.info("Changing reprocessTT flag = True")
+        rerunLVL1.doReprocess = True
+
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
     """
+    doReprocess=False
 
     __wasExecuted = False 
 
@@ -824,7 +834,10 @@ class rerunLVL1(_modifier):
 
         # rerun L1calo simulation
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        if self.doReprocess:
+            include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
+        else:
+            include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
