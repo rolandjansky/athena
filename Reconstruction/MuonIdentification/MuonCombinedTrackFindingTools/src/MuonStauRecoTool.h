@@ -286,7 +286,6 @@ namespace MuonCombined {
     
     const double m_inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458 inside calculateTof()/calculateBeta()
 
-    virtual void cleanUp() const override;
   };
 
   inline float MuonStauRecoTool::calculateTof(const float beta, const float dist) const {

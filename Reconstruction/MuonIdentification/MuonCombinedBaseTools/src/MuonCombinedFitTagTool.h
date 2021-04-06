@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDFITTAGTOOL_H
@@ -46,8 +46,6 @@ namespace MuonCombined {
     virtual 
       void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
 		    TrackCollection* combTracks, TrackCollection* METracks) const override;
-
-    void cleanUp() const override;
 
   private:
 

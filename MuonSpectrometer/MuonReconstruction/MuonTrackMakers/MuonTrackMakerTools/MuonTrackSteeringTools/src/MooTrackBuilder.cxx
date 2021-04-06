@@ -1567,7 +1567,4 @@ TrackCollection* MooTrackBuilder::mergeSplitTracks( const TrackCollection& track
     return newTracks;
   }
 
-  void MooTrackBuilder::cleanUp() const {
-  }
-
 }

@@ -64,9 +64,7 @@ namespace MuonCombined {
     /** find the best candidate for a given set of segments */
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> 
     findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
-    
-    virtual void cleanUp() const override;
-
+ 
   private:
     /** handle a single candidate */
     void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,

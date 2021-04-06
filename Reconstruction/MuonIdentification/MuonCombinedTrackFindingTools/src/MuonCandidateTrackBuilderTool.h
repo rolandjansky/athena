@@ -74,7 +74,6 @@ namespace Muon {
     /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */   
     virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const override;
 
-    virtual void cleanUp() const override;
 
   private:
     ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this,"MuonSegmentTrackBuilder","Muon::MooTrackBuilder/MooMuonTrackBuilder"}; 

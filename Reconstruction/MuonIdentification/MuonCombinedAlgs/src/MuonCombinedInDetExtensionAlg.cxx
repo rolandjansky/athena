@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedInDetExtensionAlg.h"
@@ -98,11 +98,5 @@ MuonCombinedInDetExtensionAlg::execute() {
 	  tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments, ctx);
         }
     }
-
-    //Clean up at the end of execute
-    for (auto& tool : m_muonCombinedInDetExtensionTools) {
-        tool->cleanUp();
-    }
-
     return StatusCode::SUCCESS;
 }

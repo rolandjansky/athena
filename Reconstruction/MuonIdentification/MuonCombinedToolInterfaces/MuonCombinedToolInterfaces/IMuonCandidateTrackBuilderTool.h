@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONCANDIDATETRACKBUILDERTOOL
@@ -11,7 +11,6 @@
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 
-static const InterfaceID IID_IMuonCandidateTrackBuilderTool("Muon::IMuonCandidateTrackBuilderTool",1,0);
 
 namespace Trk{
   class Track;
@@ -23,19 +22,15 @@ namespace Muon {
   class IMuonCandidateTrackBuilderTool : virtual public IAlgTool {     
   public:
     /** IAlgTool interface */
-    static const InterfaceID& interfaceID();
-
+    static const InterfaceID& interfaceID(){
+        static const InterfaceID IID_IMuonCandidateTrackBuilderTool("Muon::IMuonCandidateTrackBuilderTool",1,0);
+        return IID_IMuonCandidateTrackBuilderTool;
+    }
     /** @brief build a track out of a MuonCandidate */
     virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const = 0;
 
-    virtual void cleanUp() const {};
-
-  };
  
-  inline const InterfaceID& IMuonCandidateTrackBuilderTool::interfaceID()
-  {
-    return IID_IMuonCandidateTrackBuilderTool;
-  }
+  };
 
 
 } // end of name space

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONSEGMENTTRACKBUILDER_H
@@ -9,7 +9,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-static const InterfaceID IID_IMuonSegmentTrackBuilder("Muon::IMuonSegmentTrackBuilder",1,0);
 
 namespace Trk {
   class Track;
@@ -31,7 +30,10 @@ namespace Muon {
 
   public:
     /** access to tool interface */
-    static const InterfaceID& interfaceID();
+    static const InterfaceID& interfaceID(){
+       static const InterfaceID IID_IMuonSegmentTrackBuilder("Muon::IMuonSegmentTrackBuilder",1,0);
+       return IID_IMuonSegmentTrackBuilder;
+    }
 
     /** @brief refit track 
 	@param track the track
@@ -90,14 +92,9 @@ namespace Muon {
      */
     virtual Trk::TrackParameters* getClosestParameters( const Trk::Track& track, const Trk::Surface& surf ) const = 0;
 
-    virtual void cleanUp() const = 0;
-
+    virtual ~IMuonSegmentTrackBuilder()= default;
   };
   
-  inline const InterfaceID& IMuonSegmentTrackBuilder::interfaceID()
-  {
-    return IID_IMuonSegmentTrackBuilder;
-  }
 
 } // end of name space
 

@@ -28,7 +28,6 @@ namespace Rec
 {
   
 /** Interface ID for ICombinedMuonTrackBuilder*/  
-static const InterfaceID IID_ICombinedMuonTrackBuilder("ICombinedMuonTrackBuilder", 1, 0);
   
 /**@class ICombinedMuonTrackBuilder
 
@@ -41,11 +40,13 @@ Base class for CombinedMuonTrackBuilder AlgTool
 public:
 
     /**Virtual destructor*/
-    virtual ~ICombinedMuonTrackBuilder(){}
+    virtual ~ICombinedMuonTrackBuilder()=default;
        
     /** AlgTool and IAlgTool interface methods */
-    static const InterfaceID&	interfaceID() { return IID_ICombinedMuonTrackBuilder; }
-
+    static const InterfaceID&	interfaceID() { 
+        static const InterfaceID IID_ICombinedMuonTrackBuilder("ICombinedMuonTrackBuilder", 1, 0);
+        return IID_ICombinedMuonTrackBuilder; 
+    }
     /**ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
     virtual Trk::Track* 	combinedFit	(const Trk::Track&	indetTrack,
 						 const Trk::Track&	extrapolatedTrack,
@@ -75,7 +76,6 @@ public:
     virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const = 0;
 
-    virtual void cleanUp() const = 0;
 };
  
 }	// end of namespace

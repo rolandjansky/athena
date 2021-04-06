@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONLAYERAMBIGUITYSOLVERTOOL_H
@@ -11,7 +11,6 @@
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 
-static const InterfaceID IID_IMuonLayerAmbiguitySolverTool("Muon::IMuonLayerAmbiguitySolverTool",1,0);
 
 
 namespace Muon {
@@ -22,19 +21,19 @@ namespace Muon {
   class IMuonLayerAmbiguitySolverTool : virtual public IAlgTool {     
   public:
     /** IAlgTool interface */
-    static const InterfaceID& interfaceID();
+    static const InterfaceID& interfaceID(){
+       static const InterfaceID IID_IMuonLayerAmbiguitySolverTool("Muon::IMuonLayerAmbiguitySolverTool",1,0);
+       return IID_IMuonLayerAmbiguitySolverTool;
+    }
 
     /** @brief resolve ambiguities and return a set of unique combinations */
     virtual void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const = 0;
 
-    virtual void cleanUp() const = 0;
-  };
  
-  inline const InterfaceID& IMuonLayerAmbiguitySolverTool::interfaceID()
-  {
-    return IID_IMuonLayerAmbiguitySolverTool;
-  }
-
+    virtual ~IMuonLayerAmbiguitySolverTool() = default;
+ };
+ 
+ 
 
 } // end of name space
 

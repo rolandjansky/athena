@@ -139,7 +139,7 @@ namespace Muon {
         @param vector of tracks that were found
         @param strat the steering strategy
     */
-    void solveAmbiguities( std::vector< std::unique_ptr<MuPatTrack> >& tracks , const MuonTrackSteeringStrategy* strat = 0 ) const;
+    void solveAmbiguities( std::vector< std::unique_ptr<MuPatTrack> >& tracks , const MuonTrackSteeringStrategy* strat = nullptr ) const;
 
     void combineOverlapSegments( std::vector< MuPatSegment*>& ch1, std::vector< MuPatSegment*>& ch2, SegColVec& stationSegments, StSet& stationsWithSegments,
                                  HitGarbage& hitsToBeDeleted,

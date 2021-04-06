@@ -1500,8 +1500,4 @@ namespace MuonCombined {
     error *= 1.;
   }
 
-  void MuonStauRecoTool::cleanUp() const {
-    m_insideOutRecoTool->cleanUp();
-  }
-
 }
