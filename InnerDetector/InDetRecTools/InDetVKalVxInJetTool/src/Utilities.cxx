@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -420,7 +420,7 @@ namespace InDet{
    { 
       double chi2Ref=0.;
       int position=-1;
-      if( chi2PerTrk.size() < 1 ) return position ;
+      if( chi2PerTrk.empty() ) return position ;
       for (int i=0; i< (int)chi2PerTrk.size(); i++){
 	if(chi2PerTrk[i]/std::max(rank[i],(float)0.1) > chi2Ref) { chi2Ref=chi2PerTrk[i]/std::max(rank[i],(float)0.1); position=i;}
       }
@@ -475,7 +475,7 @@ namespace InDet{
   {
      TLorentzVector sum(0.,0.,0.,0.); 
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i] == NULL ) continue; 
+       if( InpTrk[i] == nullptr ) continue; 
        sum += InpTrk[i]->p4();
      }
      return sum; 
@@ -678,7 +678,7 @@ namespace InDet{
           if( (*tplink)->prodVtx()->nIncomingParticles()==1){
              int PDGID1=0, PDGID2=0, PDGID3=0;
 	     const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
-	     const xAOD::TruthParticle * parTP2=0;
+	     const xAOD::TruthParticle * parTP2=nullptr;
 	     int noBC1=notFromBC(PDGID1);
              if(noBC1)  parTP2 = getPreviousParent(parTP1, PDGID2);
 	     int noBC2=notFromBC(PDGID2);
@@ -709,7 +709,7 @@ namespace InDet{
             return *(child->prodVtx()->incomingParticleLinks())[0];
        }
     }
-    return 0;
+    return nullptr;
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ namespace InDet{
 
       /** Evaluate how many dc match this seed
        */
-      int evaluate_seed(int endcap,int zslice,int sector,double *p, TRT_TrackSegmentsMaker_ECcosmics::EventData &event_data) const;
+      int evaluate_seed(int endcap,int zslice,int sector,const double *p, TRT_TrackSegmentsMaker_ECcosmics::EventData &event_data) const;
 
       /** Create segment out of a seed
        */

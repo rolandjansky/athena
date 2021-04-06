@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetTestBLayer/InDetTestBLayerTool.h"
 
@@ -161,9 +161,9 @@ namespace InDet {
 	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
 
 
-	if(  (*it)->trackParameters() !=0 &&
+	if(  (*it)->trackParameters() !=nullptr &&
              /*	     &((*it)->trackParameters()->associatedSurface()) !=0 && */
-	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=nullptr &&
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	  {
 
@@ -186,7 +186,7 @@ namespace InDet {
       }
     }
 
-    return 0;
+    return nullptr;
 
   }
 
@@ -352,7 +352,7 @@ namespace InDet {
 
     const InDetDD::SiDetectorElement* siElement =
       dynamic_cast<const InDetDD::SiDetectorElement*> (trackpar->associatedSurface().associatedDetectorElement());
-    if (siElement == 0 ) {
+    if (siElement == nullptr ) {
       // -------  in dubio pro reo --> return false (is assumed insensitive)
       ATH_MSG_DEBUG("TrackParameters do not belong to a Si Element" );
       /// checking active material
@@ -396,7 +396,7 @@ namespace InDet {
   {
     assert( layer>=0 && layer<=1);
 
-    const Trk::TrackParameters* startParameters = 0;
+    const Trk::TrackParameters* startParameters = nullptr;
 
     if (track->perigeeParameters()){
       startParameters = track->perigeeParameters()->clone();
@@ -574,7 +574,7 @@ namespace InDet {
       ATH_MSG_DEBUG(s_int++ << "th surface : ");
 
       Identifier id;
-      if (!(p->associatedSurface().associatedDetectorElement() != 0 &&
+      if (!(p->associatedSurface().associatedDetectorElement() != nullptr &&
             p->associatedSurface().associatedDetectorElement()->identify() !=
               0)) {
         continue;

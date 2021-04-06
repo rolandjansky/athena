@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetAssociationTools/InDetPRDtoTrackMapToolGangedPixels.h"
@@ -11,6 +11,8 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+
+#include <memory>
 
 #include <vector>
 InDet::InDetPRDtoTrackMapToolGangedPixels::InDetPRDtoTrackMapToolGangedPixels(const std::string& t,
@@ -60,7 +62,7 @@ std::unique_ptr<Trk::PRDtoTrackMap> InDet::InDetPRDtoTrackMapToolGangedPixels::r
                    << " . The tool can only handle a map created by the same tool. ");
   }
   Trk::PRDtoTrackMap *the_obj=static_cast<PRDtoTrackMap *>(obj_in.get());
-  return std::unique_ptr<Trk::PRDtoTrackMap>(new Trk::PRDtoTrackMap(std::move(*the_obj)));
+  return std::make_unique<Trk::PRDtoTrackMap>(std::move(*the_obj));
 }
 
 
@@ -96,7 +98,7 @@ StatusCode InDet::InDetPRDtoTrackMapToolGangedPixels::addPRDs(Trk::PRDtoTrackMap
      prd_to_track_map.m_prepRawDataTrackMap.insert(std::make_pair(prd, &track) );
      // test ganged ambiguity
      const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-     if (pixel!=0) {
+     if (pixel!=nullptr) {
        if (pixel->gangedPixel()) {
          ATH_MSG_DEBUG( "Found ganged pixel, search for mirror" );
 	 std::pair<PixelGangedClusterAmbiguities::const_iterator,
@@ -137,7 +139,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::findConnectedTracks(Trk::PRDtoTrackMa
 
     // test ganged ambiguity
     const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-    if (pixel!=0) {
+    if (pixel!=nullptr) {
       if (pixel->gangedPixel()) {
 	std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	          PixelGangedClusterAmbiguities::const_iterator> ambi = prd_to_track_map.m_gangedAmbis->equal_range(pixel);
@@ -177,7 +179,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
     return itvec->second;
   }
 
-  if (track.measurementsOnTrack()==0) {
+  if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING("Track has no RoTs");
     return PRDs_t(); // return vector optimization
    }
@@ -200,7 +202,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
   for (;it!=itEnd;it++)
     {
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*it);
-    if (0!=rot)
+    if (nullptr!=rot)
       vec.push_back(rot->prepRawData());
   }
   
@@ -216,7 +218,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
 
 	// get the ROT, make sure it is not a pseudo measurment
 	const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
-	if (0!=rot) {
+	if (nullptr!=rot) {
 
 	  // check if outlier is TRT ?
 	  const TRT_DriftCircleOnTrack* trt = dynamic_cast<const TRT_DriftCircleOnTrack*> (rot);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
@@ -51,7 +51,7 @@ namespace InDet
   unsigned int j=0;
   for(;tb != te ;++tb)
   {
-   const Trk::TrackParameters * perigee(0);
+   const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee=(*tb)->perigeeParameters();
    else
    {
@@ -70,7 +70,7 @@ namespace InDet
     if (reference)
     {
       delete perigee;
-      perigee=0;
+      perigee=nullptr;
     }
    }else msg(MSG::WARNING)<<"This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector"<<endmsg;
    ++j;
@@ -98,7 +98,7 @@ namespace InDet
   
   for(;tb != te ;++tb)
   {
-   const Trk::TrackParameters * perigee = 0;
+   const Trk::TrackParameters * perigee = nullptr;
    
    if(!reference) perigee = &((*tb)->definingParameters());
    else
@@ -116,7 +116,7 @@ namespace InDet
     mapOfZ0.insert(std::map<double, int>::value_type(trkZ0,j));
     if (reference) { 
       delete perigee;
-      perigee =0;
+      perigee =nullptr;
     }
     
    }else{
@@ -152,7 +152,7 @@ namespace InDet
     
     for(;tb != te ;++tb)
       {
-	const Trk::TrackParameters * perigee = 0;
+	const Trk::TrackParameters * perigee = nullptr;
 	
 	
 	//here we want to make an extrapolation    
@@ -166,7 +166,7 @@ namespace InDet
 	    double trkZ0 = perigee->parameters()[Trk::z0];
 	    mapOfZ0.insert(std::map<double, int>::value_type(trkZ0,j)); 
 	    delete perigee;
-	    perigee =0;
+	    perigee =nullptr;
 	    
 	  }else{
 	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;

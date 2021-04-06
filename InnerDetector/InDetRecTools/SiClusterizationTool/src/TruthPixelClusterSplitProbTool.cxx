@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ namespace InDet
 
     ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );
 
-    if (vectorOfProbs.size()==0)
+    if (vectorOfProbs.empty())
     {
       std::vector<double> vectorOfSplitProbs;
       vectorOfSplitProbs.push_back(-100);
@@ -78,7 +78,7 @@ InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::splitProbability(co
 
     ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );
 
-    if (vectorOfProbs.size()==0)
+    if (vectorOfProbs.empty())
     {
       std::vector<double> vectorOfSplitProbs;
       vectorOfSplitProbs.push_back(-100);

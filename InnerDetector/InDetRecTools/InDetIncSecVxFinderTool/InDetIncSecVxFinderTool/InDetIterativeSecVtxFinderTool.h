@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *
@@ -108,7 +108,7 @@ public:
 
    bool passHitsFilter( const Trk::TrackParameters* , float vtxR, float absvz ) const;
 
-   bool V0kine( const std::vector<Amg::Vector3D>, const Amg::Vector3D &position , float & , float & ) const;
+   bool V0kine( const std::vector<Amg::Vector3D>&, const Amg::Vector3D &position , float & , float & ) const;
 
 
    const std::vector<Amg::Vector3D> getVertexMomenta( xAOD::Vertex * myxAODVertex ) const ;
@@ -172,7 +172,7 @@ public:
 
    std::vector<const Trk::TrackParameters*> * m_seedperigees;
 
-   void SGError(std::string errService);
+   void SGError(const std::string& errService);
 
    virtual void printParameterSettings();
  

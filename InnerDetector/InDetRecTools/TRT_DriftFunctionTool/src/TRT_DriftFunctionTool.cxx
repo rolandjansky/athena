@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <math.h> 
+#include <cmath> 
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -195,11 +195,7 @@ StatusCode TRT_DriftFunctionTool::initialize()
   int numB = m_manager->getNumerology()->getNBarrelPhi();
   ATH_MSG_DEBUG(" Number of Barrel elements "<< numB);      
       
-  if (numB==2) {
-      m_istestbeam = true;
-  } else {
-      m_istestbeam = false;
-  }
+  m_istestbeam = numB==2;
 
 
   bool choosedata = false;
@@ -828,7 +824,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
             ATH_MSG_FATAL(" Non-supported digitization version - revert to default");
           }
 	
-       } else if( m_inputfile!="") { // Overriding sim settings from text file or defaults
+       } else if( !m_inputfile.empty()) { // Overriding sim settings from text file or defaults
           ATH_MSG_WARNING(" Simulation constants from file " <<  m_inputfile);
 
           std::ifstream infile;

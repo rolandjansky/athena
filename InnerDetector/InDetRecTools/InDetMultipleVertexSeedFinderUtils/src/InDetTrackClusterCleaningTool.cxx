@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
@@ -55,7 +55,7 @@ namespace InDet
 //first getting the cluster center  
   for(std::vector<const Trk::Track*>::const_iterator i = inb; i != ine; ++i)
   {
-   const Trk::TrackParameters * perigee(0);
+   const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee = (*i)->perigeeParameters();
    else perigee = m_extrapolator->extrapolate(**i,perigeeSurface,
 					      Trk::anyDirection,true, 
@@ -79,7 +79,7 @@ namespace InDet
 //discarding outlying tracks
   for(std::vector<const Trk::Track*>::const_iterator i = inb; i != ine; ++i)
   {
-    const Trk::TrackParameters * measPerigee(0);
+    const Trk::TrackParameters * measPerigee(nullptr);
    if(!reference) measPerigee=(*i)->perigeeParameters();
    else{
      
@@ -133,7 +133,7 @@ namespace InDet
 //first getting the cluster center  
   for(std::vector<const Trk::TrackParticleBase*>::const_iterator i = inb; i != ine; ++i)
   {
-   const Trk::TrackParameters * perigee(0);
+   const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee = &((*i)->definingParameters());
    else perigee = m_extrapolator->extrapolate((*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
    
@@ -156,11 +156,11 @@ namespace InDet
 
   for(std::vector<const Trk::TrackParticleBase*>::const_iterator i = inb; i != ine; ++i)
   {
-   const Trk::TrackParameters * measPerigee(0);
+   const Trk::TrackParameters * measPerigee(nullptr);
    if(!reference) measPerigee = &((*i)->definingParameters());
    else  measPerigee = m_extrapolator->extrapolate((*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
   
-   if(0!=measPerigee)
+   if(nullptr!=measPerigee)
    {
     double z0 = measPerigee->parameters()[Trk::z0];
     const AmgSymMatrix(5) * cov = measPerigee->covariance();    
@@ -207,7 +207,7 @@ namespace InDet
 	     //first getting the cluster center  
 	     for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
 	       {
-		 const Trk::TrackParameters * perigee(0);
+		 const Trk::TrackParameters * perigee(nullptr);
 		 
 		 perigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
 		 
@@ -230,10 +230,10 @@ namespace InDet
 	     
 	     for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
 	       {
-		 const Trk::TrackParameters * measPerigee(0);
+		 const Trk::TrackParameters * measPerigee(nullptr);
 		 measPerigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
 		 
-		 if(0!=measPerigee)
+		 if(nullptr!=measPerigee)
 		   {
 		     double z0 = measPerigee->parameters()[Trk::z0];
 		     const AmgSymMatrix(5) * cov = measPerigee->covariance();    

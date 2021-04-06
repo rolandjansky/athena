@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track,
 const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
                                                                                                    const Trk::ParticleHypothesis partHyp) const {
   std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = new std::vector<const Trk::TrackStateOnSurface*>;
-  searchForHoles(track, 0, listOfHoles,partHyp);
+  searchForHoles(track, nullptr, listOfHoles,partHyp);
 
   DataVector<const Trk::TrackStateOnSurface>* output = new DataVector<const Trk::TrackStateOnSurface>;
   for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = listOfHoles->begin();
@@ -114,7 +114,7 @@ const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchToo
 const Trk::Track*  InDet::InDetTrackHoleSearchTool::getTrackWithHoles(const Trk::Track& track,
                                                                       const Trk::ParticleHypothesis partHyp) const {
   std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = new std::vector<const Trk::TrackStateOnSurface*>;
-  searchForHoles(track, 0, listOfHoles,partHyp);
+  searchForHoles(track, nullptr, listOfHoles,partHyp);
   const  Trk::Track* newTrack = addHolesToTrack(track,listOfHoles);
   delete listOfHoles;
   listOfHoles = nullptr;
@@ -508,7 +508,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
 
     Trk::CylinderVolumeBounds* cylinderBounds = new Trk::CylinderVolumeBounds(560, 2750);
     // don't delete the cylinderBounds -> it's taken care of by Trk::VOlume (see Trk::SharedObject)
-    Trk::Volume* boundaryVol = new Trk::Volume(0, cylinderBounds);
+    Trk::Volume* boundaryVol = new Trk::Volume(nullptr, cylinderBounds);
     // extrapolate this parameter blindly to search for more Si hits (not very fast, I know)
 
     std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
@@ -680,7 +680,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 
   if (listOfHoles) ATH_MSG_DEBUG("==> Size of listOfHoles: " << listOfHoles->size());
 
-  if (mapOfHits.size() != 0) {
+  if (!mapOfHits.empty()) {
     int ioutliers = 0, imeasurements = 0;
     for (std::map<const Identifier, const Trk::TrackStateOnSurface*>::const_iterator iter = mapOfHits.begin();
          iter != mapOfHits.end(); ++iter) {
@@ -718,7 +718,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) const {
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Hole);
-  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(0,trackPar->clone(),0,0,typePattern);
+  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->clone(),nullptr,nullptr,typePattern);
   return tsos;
 }
 
@@ -735,7 +735,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   }
 
   // if we have no holes on the old track and no holes found by search, then we just copy the track
-  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS->size() && listOfHoles->size() == 0) {
+  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS->size() && listOfHoles->empty()) {
     ATH_MSG_DEBUG("No holes on track, copy input track to new track");
     // create copy of track
     const Trk::Track* newTrack = new Trk::Track(oldTrack.info(),trackTSOS,oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
