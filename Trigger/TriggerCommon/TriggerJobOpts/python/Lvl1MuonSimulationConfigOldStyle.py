@@ -167,12 +167,12 @@ def TGCTriggerConfig(flags):
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
                                                      MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
-                                                     useRun3Config = flags.Trigger.enableL1Phase1,
+                                                     useRun3Config = flags.Trigger.enableL1MuonPhase1,
                                                      TileMuRcv_Input = tmdbInput )
     from IOVDbSvc.CondDB import conddb
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1MuonPhase1:
         if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
             tgc.MuctpiPhase1LocationTGC = "L1MuctpiStoreTGCint"
         tgc.TILEMU = True
@@ -214,7 +214,7 @@ def Lvl1EndcapMuonSequence(flags):
     tmdb = TMDBSimulationSequence(flags)
     tgc = TGCTriggerConfig(flags)
     from AthenaCommon.CFElements import seqAND
-    if flags.Trigger.enableL1Phase1 and ( flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC ):
+    if flags.Trigger.enableL1MuonPhase1 and ( flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC ):
         rdo2prd = MuonRdo2PrdSequence(flags)
         recoSegment = RecoMuonSegmentSequence(flags)
         tgcmod = TGCModifierConfig(flags)
@@ -230,7 +230,7 @@ def Lvl1BarrelMuonSequence(flags):
                                 RPCbytestream     = False,
                                 RPCbytestreamFile = "",
                                 RPCDigitContainer = "RPC_DIGITS_L1",
-                                useRun3Config = flags.Trigger.enableL1Phase1 )
+                                useRun3Config = flags.Trigger.enableL1MuonPhase1 )
 
     from IOVDbSvc.CondDB import conddb
     if flags.Trigger.doLVL1 and not flags.Input.isMC:
@@ -249,7 +249,7 @@ def Lvl1BarrelMuonSequence(flags):
     return l1MuBarrelSim
 
 def Lvl1MuctpiConfig(flags):
-    if flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1MuonPhase1:
         rpcRecRoiTool = CompFactory.LVL1__TrigT1RPCRecRoiTool("TrigT1RPCRecRoiTool", UseRun3Config=True)
         tgcRecRoiTool = CompFactory.LVL1__TrigT1TGCRecRoiTool("TrigT1TGCRecRoiTool", UseRun3Config=True)
         muctpiTool = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthTool(name="MUCTPI_AthTool")

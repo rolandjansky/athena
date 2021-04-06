@@ -32,6 +32,9 @@ from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDe
 from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg, MuonFilterAlgCfg, MergeEFMuonsAlgCfg
 from AthenaCommon.CFElements import seqAND, parOR, seqOR
 
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+
 import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
@@ -41,6 +44,7 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def EFMuonCBViewDataVerifierCfg(name):
+    config = getInDetTrigConfig( "muon" )
     EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon_"+name)
     EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                                             ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
@@ -53,7 +57,7 @@ def EFMuonCBViewDataVerifierCfg(name):
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
-                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' ),
+                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+config.tracks_FTF() ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
@@ -88,7 +92,7 @@ def MuFastViewDataVerifier():
                    ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
                    ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' )]
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
         dataobjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
     else:
         dataobjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
@@ -389,10 +393,13 @@ def muEFCBStep(flags, chainDict, name='RoI'):
     #EF combined muons
     selAccEFCB = SelectionCA("EFCBMuon_"+name)
 
+    config = getInDetTrigConfig( "muon" )
+
     viewName = 'EFMuCBReco_'+name                                                       
-    trackName = "HLT_IDTrack_Muon_FTF"
+    trackName = config.tracks_FTF()
     muonCandName = "MuonCandidates"
     if 'FS' in name:
+        config = getInDetTrigConfig( "muonFS" )
         muonCandName = "MuonCandidates_FS"
         ViewCreatorCentredOnIParticleROITool=CompFactory.ViewCreatorCentredOnIParticleROITool
         roiTool         = ViewCreatorCentredOnIParticleROITool(RoisWriteHandleKey="MuonCandidates_FS_ROIs")
@@ -410,7 +417,7 @@ def muEFCBStep(flags, chainDict, name='RoI'):
         recoCB = InViewRecoCA("EFMuCBReco_"+name, viewMaker=viewMakerAlg)
         #ID tracking
         recoCB.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoCB.inputMaker().InViewRoIs, signatureName="MuonFS" ))
-        trackName = "HLT_IDTrack_MuonFS_FTF"
+        trackName = config.tracks_FTF()
     else:
         recoCB = InViewRecoCA(viewName)
         recoCB.inputMaker().RequireParentView = True
@@ -488,9 +495,10 @@ def muEFIsoStep(flags, chainDict):
                                                          ViewNodeName    = viewName+"InView")
     recoIso = InViewRecoCA("EFMuIsoReco", viewMaker=viewMakerAlg)
     #ID tracking
+    config = getInDetTrigConfig( "muonIso" )
     recoIso.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoIso.inputMaker().InViewRoIs, signatureName="MuonIso" ))
     recoIso.mergeReco(MuIsoViewDataVerifierCfg())
-    recoIso.mergeReco(TrigMuonEFTrackIsolationAlgCfg(flags, IdTrackParticles="HLT_IDTrack_MuonIso_FTF", MuonEFContainer="InViewIsoMuons", ptcone02Name="InViewIsoMuons.ptcone02", ptcone03Name="InViewIsoMuons.ptcone03"))
+    recoIso.mergeReco(TrigMuonEFTrackIsolationAlgCfg(flags, IdTrackParticles=config.tracks_FTF(), MuonEFContainer="InViewIsoMuons", ptcone02Name="InViewIsoMuons.ptcone02", ptcone03Name="InViewIsoMuons.ptcone03"))
 
     selAccEFIso.mergeReco(recoIso)
     efmuIsoHypo = efMuIsoHypoCfg( flags,

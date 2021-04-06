@@ -13,6 +13,7 @@
 #include "TauAnalysisTools/SharedFilesVersion.h"
 
 // Framework include(s):
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 
 // Root include(s)
@@ -117,9 +118,14 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
 
-  SG::ReadHandle<xAOD::ElectronContainer> h_ElectronContainer(m_sElectronContainerName);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::ElectronContainer> h_ElectronContainer(m_sElectronContainerName,ctx);
   if (!h_ElectronContainer.isValid()) {
-    ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+    ATH_MSG_FATAL(
+      "Electron container with name "
+      << m_sElectronContainerName
+      << " was not found in event store, but is needed for electron OLR. "
+         "Ensure that it is there with the correct name");
     return StatusCode::FAILURE;
   }
 
@@ -141,7 +147,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 
   // compute the LH score if there is a match
   if(xEleMatch!=0)
-      fLHScore = m_tEMLHTool->calculate(xEleMatch);
+      fLHScore = m_tEMLHTool->calculate(ctx,xEleMatch);
 
   // static SG::AuxElement::Decorator< ElementLink< xAOD::ElectronContainer > > decElectronLink("electronLink");
   // // create link to the matched electron

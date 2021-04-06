@@ -60,8 +60,6 @@ def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
-    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
-    kwargs.setdefault("fluence", 6)
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):

@@ -38,6 +38,7 @@ dry_run       = False
 
 if "Art_type"  not in locals(): Art_type = 'grid'
 if "GridFiles" not in locals(): GridFiles=False
+if "Malloc" not in locals(): Malloc=False
 
 for opt,arg in opts:
     if opt in ("-l", "--local"):
@@ -100,7 +101,10 @@ if GridFiles:
        rdo2aod.input = ''
        rdo2aod.args += ' --inputRDOFile=$ArtInFile '
 
-
+if (Malloc):
+    import os
+    os.environ["MALLOC_CHECK_"] = "3"
+    rdo2aod.malloc = True
 
 # Run athena analysis to produce TrkNtuple
 
@@ -108,11 +112,9 @@ test = Test.Test()
 test.art_type = Art_type
 
 
-if 'Extra' not in locals() :
-    Extra = None
-
-aod_to_ntup = TrigInDetAna(extra=Extra)
-
+if 'ExtraAna' not in locals() :
+    ExtraAna = None
+aod_to_ntup = TrigInDetAna(extraArgs = ExtraAna)
 
 
 rdo_to_cost = TrigCostStep()

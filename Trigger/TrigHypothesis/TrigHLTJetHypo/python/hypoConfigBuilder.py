@@ -10,7 +10,7 @@ from TrigHLTJetHypo.scenario_dijet import scenario_dijet
 from TrigHLTJetHypo.scenario_fbdjnoshared import scenario_fbdjnoshared
 from TrigHLTJetHypo.scenario_fbdjshared import scenario_fbdjshared
 from TrigHLTJetHypo.scenario_simple import scenario_simple
-from TrigHLTJetHypo.prefilter_prefilter import prefilter_prefilter
+from TrigHLTJetHypo.prefilter_mask import prefilter_mask
 
 toolfactory = FastReductionAlgToolFactory()
 
@@ -101,13 +101,13 @@ def buildHypoHelperConfigTool(params):
     return toolclass(**vals)
 
 
-def process_simple(chain_parts, startLabelIndex):
+def process_simple(chain_parts):
     """Obtain the paramters needed to build an AlgTool
     to initialise a jet hypo HelperAlgTool"""
 
     # obtain a list of parameter objects that will be used
     # to build a helper config AlgTools
-    helper_params = scenario_simple(chain_parts, startLabelIndex)
+    helper_params = scenario_simple(chain_parts)
 
     # build the helper config AlgTools
     helperconfigobjs = [buildHypoHelperConfigTool(params) for params in
@@ -194,7 +194,7 @@ def process_nonsimple(scenario, chainPartInd):
     return router[key](scenario, chainPartInd)  # list of HelperToolConfigTool
 
 
-def make_fastreduction_configurers(chain_dict, startLabelIndex):
+def make_fastreduction_configurers(chain_dict):
     """Create HelperToolConfigTool  instances. Each instance
     configures a FastReduction tree. Chain parts with the 'simple' scenario
     use used to form a single HelperToolConfigTool. The information 
@@ -204,7 +204,7 @@ def make_fastreduction_configurers(chain_dict, startLabelIndex):
     This may give rise to > 1 HelperToolConfigTool instance - as this
     is how jet sharing among Conditions is handled.
 
-    If there are bith simple and non-simple scenarios, there will be
+    If there are both simple and non-simple scenarios, there will be
     n HelperToolConfigTool instances, where n >=2: one for the simple 
     scenario chain parts, and n-1 for the non-simple scenario.
     """
@@ -217,8 +217,7 @@ def make_fastreduction_configurers(chain_dict, startLabelIndex):
     helperToolConfigTools = []
 
     if simple_chainparts:
-        helperToolConfigTools.extend(process_simple(simple_chainparts,
-                                                    startLabelIndex))
+        helperToolConfigTools.extend(process_simple(simple_chainparts))
 
     scenario_chainparts =[
         cp for cp in chain_parts if cp['hypoScenario'] != 'simple']
@@ -236,7 +235,7 @@ def make_fastreduction_configurers(chain_dict, startLabelIndex):
         # there is at most one non-simple chainpart.
         # chainPartInd is needed to report passing jets to the
         # trigger framework.
-        chainPartInd = startLabelIndex + len(chain_parts) - 1
+        chainPartInd = scenario_chainpart['chainPartIndex']
 
         helperToolConfigTools.extend(process_nonsimple(scenario,
                                                        chainPartInd))
@@ -252,13 +251,13 @@ def make_prefilter_configurers(chain_dict):
                    cp['signature'] == 'Jet' and 'prefilters' in cp]
 
     [pf_strings.extend(cp['prefilters']) for cp in chain_parts]
-    pf_strings = [s for s in pf_strings if s.startswith('prefilter')]
+    pf_strings = [s for s in pf_strings if s.startswith('mask')]
 
     if not  pf_strings:
         return []
     
     assert len(pf_strings) == 1
-    condargs = prefilter_prefilter(pf_strings[0])
+    condargs = prefilter_mask(pf_strings[0])
 
     assert len(condargs) == 2  # eta, phi
 
@@ -284,10 +283,8 @@ def getLabelIndices(chain_dict):
 
 def  hypotool_from_chaindict(chain_dict, visit_debug=False):
 
-    startLabelIndex, endLabelIndex = getLabelIndices(chain_dict)
 
-    helperToolConfigTools =  make_fastreduction_configurers(chain_dict,
-                                                            startLabelIndex)
+    helperToolConfigTools =  make_fastreduction_configurers(chain_dict)
 
     prefilterConfigTools = make_prefilter_configurers(chain_dict)
 
@@ -301,6 +298,7 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
 
     toolclass, name =  toolfactory('hypo_tool')
     
+    startLabelIndex, endLabelIndex = getLabelIndices(chain_dict)
     args = {'name': chain_dict['chainName'],
             # for reporting passing jets:
             'visit_debug': visit_debug,

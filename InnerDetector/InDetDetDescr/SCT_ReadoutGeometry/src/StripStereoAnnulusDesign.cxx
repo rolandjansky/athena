@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
@@ -124,10 +124,10 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
     int stripP = strip + 1;
 
     if (stripM >= m_firstStrip[row]) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_firstStrip[row] + m_nStrips[row]) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 
     return;

@@ -95,7 +95,7 @@ namespace InDet {
     // Get TRT_RDO and produce TRT_RIO collections
     if (!m_roiSeeded) {//Full-scan mode
 
-      for(const auto rdoCollections : *rdoContainer) {
+      for(const auto *const rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
         InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(currentCollection->identifyHash());
         if( lock.OnlineAndPresentInAnotherView() ) continue;

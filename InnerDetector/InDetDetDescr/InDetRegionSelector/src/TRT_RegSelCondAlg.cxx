@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -116,7 +116,7 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
 
   
   // Get the id helper 
-  const TRT_ID* idHelper = 0;
+  const TRT_ID* idHelper = nullptr;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
     msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;

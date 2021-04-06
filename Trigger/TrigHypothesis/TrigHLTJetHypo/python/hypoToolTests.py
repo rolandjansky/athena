@@ -182,7 +182,7 @@ class HypoToolStructure(unittest.TestCase):
             },
             
             {
-                'prop': ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
+                'prop': ChainProp(name='HLT_j85_ftf_maskSEP300ceta210SEP300nphi10_L1J20',
                                   groups=SingleJetGroup),
                 
                 

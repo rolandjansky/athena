@@ -60,8 +60,8 @@ def trackParticleCreatorTool_builder(name, config):
   """Tool with functionality to convert Trk:Tracks into xAOD::TrackParticles"""
   from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
   return Trk__TrackParticleCreatorTool(name             = name,
-                                       KeepParameters   = config.PT.setting.keepTrackParameters,
-                                       TrackSummaryTool = trackSummaryTool_getter( config.PT.setting.doTRT ) )
+                                       KeepParameters   = config.keepTrackParameters,
+                                       TrackSummaryTool = trackSummaryTool_getter( config.doTRT ) )
 
 
 @makePublicTool
@@ -102,10 +102,10 @@ def getTrackingSuffix( name ):
 def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticlesKey ):
   """Alg that stages conversion of Trk::TrackCollection into xAOD::TrackParticle container"""
 
-  trackParticleCreatorTool =  trackParticleCreatorTool_builder( name   = get_full_name( 'TrackParticleCreatorTool',config.name),
+  trackParticleCreatorTool =  trackParticleCreatorTool_builder( name   = get_full_name( 'TrackParticleCreatorTool',config.input_name),
                                                                 config = config )
 
-  trackCollectionCnvTool   =  trackCollectionCnvTool_builder( name                     = get_full_name( 'xAODTrackCollectionCnvTool',config.name),
+  trackCollectionCnvTool   =  trackCollectionCnvTool_builder( name                     = get_full_name( 'xAODTrackCollectionCnvTool',config.input_name),
                                                               trackParticleCreatorTool = trackParticleCreatorTool,
                                                               config                   = config )
 
@@ -119,7 +119,7 @@ def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticl
                                            TrackParticleCreator                      = trackParticleCreatorTool,
                                            #Add track monitoring
                                            DoMonitoring                              = True,
-                                           TrackMonTool                              = trackMonitoringTool_builder( config.name + getTrackingSuffix(name) ),
+                                           TrackMonTool                              = trackMonitoringTool_builder( config.input_name + getTrackingSuffix(name) ),
                                            # Properties below are used for obsolete: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                            ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
                                            xAODContainerName                         = '',
@@ -159,9 +159,9 @@ def ambiguityScoringTool_builder(name, config):
     kwargs = setDefaults( kwargs,
                           Extrapolator        = InDetTrigExtrapolator,
                           DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
-                          SummaryTool         = trackSummaryTool_getter( config.PT.setting.doTRT ),
+                          SummaryTool         = trackSummaryTool_getter( config.doTRT ),
                           #to have a steeper turn-n curve
-                          minPt               = config.PT.setting.pTmin, #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
+                          minPt               = config.pTmin, #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
                           maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
                           maxZImp             = InDetTrigCutValues.maxZImpact(),
                           maxEta              = InDetTrigCutValues.maxEta(),
@@ -179,7 +179,7 @@ def ambiguityScoringTool_builder(name, config):
                          )
 
     #Change some of the parameters in case of beamgas signature
-    if config.PT.isSignature('beamgas'):
+    if config.name == 'beamgas':
         from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
         kwargs = setDefaults( kwargs,
                               minPt          = EFIDTrackingCutsBeamGas.minPT(),
@@ -275,12 +275,12 @@ def ambiguityProcessorTool_builder( name, config):
    #Set/Get subtools
    #trackFitterTool    = trackFitterTool_getter(config),
 
-   scoringTool        = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.name),
+   scoringTool        = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.input_name),
                                                       config = config)
 
    associationTool    = associationTool_getter()
 
-   trackSummaryTool   = trackSummaryTool_getter( config.PT.setting.doTRT )
+   trackSummaryTool   = trackSummaryTool_getter( config.doTRT )
 
    trackSelectionTool = trackSelectionTool_getter(config)
 
@@ -317,7 +317,7 @@ from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
 def ambiguitySolverAlg_builder(name, config, inputTrackScoreMap, outputTrackCollection):
 
       #Set/Get subtools
-      ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.name),
+      ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.input_name),
                                                            config = config )
 
       return Trk__TrkAmbiguitySolver( name               = name,
@@ -336,7 +336,7 @@ def ambiguityScoreProcessorTool_builder( name, config):
 
       #-----------------------
       #Set/Get subtools
-      scoringTool = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.name ),
+      scoringTool = ambiguityScoringTool_getter(  name   = get_full_name( 'AmbiguityScoringTool',config.input_name ),
                                                   config = config)
 
       associationTool    = associationTool_getter()
@@ -359,7 +359,7 @@ def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackSco
       #-----------------------
       #Disable processor, see: https://gitlab.cern.ch/atlas/athena/-/merge_requests/36431
       #Set/Get subtools
-      #ambiguityScoreProcessor = ambiguityScoreProcessorTool_builder( name   = get_full_name( 'AmbiguityScoreProcessorTool', config.name()),
+      #ambiguityScoreProcessor = ambiguityScoreProcessorTool_builder( name   = get_full_name( 'AmbiguityScoreProcessorTool', config.input_name()),
       #                                                               config = config )
 
       return Trk__TrkAmbiguityScore(   name                    = name,

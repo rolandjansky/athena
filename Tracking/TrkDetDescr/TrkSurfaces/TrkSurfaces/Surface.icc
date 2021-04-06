@@ -13,14 +13,14 @@ Surface::operator!=(const Surface& sf) const
 inline const Amg::Transform3D*
 Surface::cachedTransform() const
 {
-  return m_transform.get();
+  return ((m_transforms) ? &(m_transforms->transform) : nullptr);
 }
 
 inline const Amg::Transform3D&
 Surface::transform() const
 {
-  if (m_transform){
-    return (*m_transform);
+  if (m_transforms){
+    return m_transforms->transform;
   }
   if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->transform(m_associatedDetElementId);
@@ -34,8 +34,8 @@ Surface::transform() const
 inline const Amg::Vector3D&
 Surface::center() const
 {
-  if (m_center){
-    return (*m_center);
+  if (m_transforms){
+    return m_transforms->center;
   }
   if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->center(m_associatedDetElementId);
@@ -49,8 +49,8 @@ Surface::center() const
 inline const Amg::Vector3D&
 Surface::normal() const
 {
-  if (m_normal){
-    return (*m_normal);
+  if (m_transforms){
+    return m_transforms->normal;
   }
   if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->normal(m_associatedDetElementId);
@@ -256,9 +256,7 @@ Surface::isFree() const
 inline void
 Surface::setTransform(const Amg::Transform3D& trans)
 {
-  m_transform = std::make_unique<Amg::Transform3D>(trans);
-  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  m_transforms = std::make_unique<Transforms>(trans);
 }
 
 inline void Surface::setOwner

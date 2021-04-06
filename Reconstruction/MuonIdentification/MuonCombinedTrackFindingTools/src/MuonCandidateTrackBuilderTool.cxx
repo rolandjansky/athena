@@ -55,26 +55,26 @@ namespace Muon {
       ATH_MSG_VERBOSE(" segment surface center perp " <<  layerIntersection.segment->associatedSurface().center().perp() << " z " << layerIntersection.segment->associatedSurface().center().z() << " nr of msts " << layerIntersection.segment->containedMeasurements().size() );
       ATH_MSG_VERBOSE( m_printer->print(*(layerIntersection.segment))) ;
 
-// Fix problem with segments where measurements are not ordered wrt IP 
+      // Fix problem with segments where measurements are not ordered wrt IP 
 
-// first check whether it is a Barrel or Endcap segment
+      // first check whether it is a Barrel or Endcap segment
 
       std::vector<const Trk::MeasurementBase*> containedMeasurements = layerIntersection.segment->containedMeasurements();
       std::vector<const Trk::MeasurementBase*>::const_iterator mit     = containedMeasurements.begin();
       std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = containedMeasurements.end();
       for(; mit!=mit_end; ++mit) {
-     // get Identifier
+	// get Identifier
         Identifier id;
         const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(*mit);
         if (rio)  id=rio->identify();
         else {
           const Trk::CompetingRIOsOnTrack* crio=dynamic_cast<const Trk::CompetingRIOsOnTrack*>(*mit);
           if (crio) id=crio->rioOnTrack(0).identify();
-         else continue;
+	  else continue;
         }
-     // check if valid ID
-       if( !id.is_valid() ) continue;
-     // check if muon
+	// check if valid ID
+	if( !id.is_valid() ) continue;
+	// check if muon
         if (!m_idHelperSvc->isMuon(id)) continue;
         
         if(m_idHelperSvc->isEndcap(id)) { 
@@ -85,12 +85,11 @@ namespace Muon {
         if(m_idHelperSvc->isTrigger(id)) continue; 
 
         if(m_idHelperSvc->isSmallChamber(id)) { 
-         isSmall = true;
+	  isSmall = true;
         } else {
          isLarge = true;
         }
-        break;
-      } 
+      }
        
       if(m_reOrderMeasurements) {
 	// reorder measurements using SortMeas (defined in header file)
@@ -102,7 +101,7 @@ namespace Muon {
 			   containedMeasurements.end() );
     }
 
-    // reorder in case of Small Large overlaps in Barrel or Endcap ONLY   
+    // reorder in case of Small Large overlaps in Barrel or Endcap ONLY
 
     bool reorderAllMeasurements = false;
     if(isSmall&&isLarge) reorderAllMeasurements = true;
@@ -114,7 +113,7 @@ namespace Muon {
       std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelperSvc,isEndcap));
     }
 
-    ATH_MSG_VERBOSE( m_printer->print(measurements)) ;
+    ATH_MSG_VERBOSE( "final measurement list: "<<m_printer->print(measurements)) ;
 
     ATH_MSG_DEBUG("Extracted hits from candidate: " << measurements.size() );
     Trk::Track* refittedTrack = m_trackFitter->indetExtension(idTrack,measurements);

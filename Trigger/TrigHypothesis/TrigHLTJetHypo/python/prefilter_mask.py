@@ -12,7 +12,7 @@ logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 
-pattern = r'^prefilterSEP'\
+pattern = r'^maskSEP'\
     r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)SEP'\
     r'(?P<philo>\d*)(?P<phitype>nphi|cphi|pphi>)(?P<phihi>\d*)$'
 
@@ -51,17 +51,16 @@ def get_condargs(groupdict):
     return condargs
 
 
-def prefilter_prefilter(pf_string):
+def prefilter_mask(pf_string):
     """produce a list of obkects that carry the paramrters needed to 
     instantiate configurers for a elemental Conditions that describe
     an eta-phi region. The input is a prefilter string obtained from the 
     chain_dict."""
 
-    assert pf_string.startswith('prefilter'),\
+    assert pf_string.startswith('mask'),\
         'routing error, module %s: bad prefilter string %s' % (__name__,
                                                                pf_string)
     
     m = rgx.match(pf_string)
     groupdict = m.groupdict()
-
     return  get_condargs(groupdict)

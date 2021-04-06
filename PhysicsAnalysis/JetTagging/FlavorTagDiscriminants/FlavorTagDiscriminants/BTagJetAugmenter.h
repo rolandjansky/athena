@@ -27,7 +27,7 @@ public:
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 
-  std::vector<std::string> getDecoratorKeys() const;
+  std::set<std::string> getDecoratorKeys() const;
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);

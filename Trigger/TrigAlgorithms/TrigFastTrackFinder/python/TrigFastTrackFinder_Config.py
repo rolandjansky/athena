@@ -176,14 +176,14 @@ remap  = {
     "Muon"     : "muon",
     "MuonFS"   : "muon",
     "MuonLate" : "muon",
-    "MuonCore" : "muonCore",
+    "MuonCore" : "muon",
     "MuonIso"  : "muonIso",
     "eGamma"   : "electron",
     "Electron" : "electron",
     "Tau"      : "tau",
     "TauCore"  : "tauCore",
     "TauIso"   : "tauIso",
-    "Jet"      : "bjet",
+    "Jet"      : "Bjet",
     "JetFS"    : "fullScan",
     "FS"       : "fullScan",
     "bjetVtx"  : "bjetVtx",
@@ -204,16 +204,17 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         TrigFastTrackFinder.__init__(self,name)
 
         #Remapping should be now covered by SliceConfigurationSetting
-        remapped_type = slice_name
+ 
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+        config = getInDetTrigConfig( slice_name )
+
+        remapped_type = config.name
+
         if slice_name == "fullScanUTT" :
             self.doJseedHitDV = True
             self.dodEdxTrk    = True
 
-        #There are still some places which relies on this remapping such as:
-        #https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConf/python/TrigInDetSequence.py
-        #I guess eventually this should be removed
-        if slice_name in remap:
-            remapped_type = remap[slice_name]
 
         isLRT = False
 
@@ -233,8 +234,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         ToolSvc += numberingTool
         self.LayerNumberTool = numberingTool
 
-        from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
-
         # GPU offloading config begins
 
         self.useGPU = False
@@ -249,7 +248,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         # GPU offloading config ends
 
-        self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
+        self.doResMon = config.doResMon
+
+        
 
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(slice_name, self.doResMon)
@@ -261,13 +262,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         #Spacepoint conversion
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
         spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool_' + remapped_type)
-        spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
+        spTool.DoPhiFiltering = config.DoPhiFiltering
         spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         spTool.UseBeamTilt = False
         spTool.PixelSP_ContainerName = TrigPixelKeys.SpacePoints
         spTool.SCT_SP_ContainerName  = TrigSCTKeys.SpacePoints
         spTool.layerNumberTool = numberingTool
-        spTool.UsePixelSpacePoints = InDetTrigSliceSettings[('usePixelSP',remapped_type)]
+        spTool.UsePixelSpacePoints = config.UsePixelSpacePoints
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
         from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
@@ -275,7 +276,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         spTool.RegSelTool_Pixel = makeRegSelTool_Pixel()
         spTool.RegSelTool_SCT   = makeRegSelTool_SCT()
 
-        spTool.UsePixelSpacePoints=InDetTrigSliceSettings[('usePixelSP',remapped_type)]
 
         ToolSvc += spTool
         self.SpacePointProviderTool=spTool
@@ -289,17 +289,17 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.LRT_Mode = isLRT
 
         self.Triplet_MaxBufferLength = 3
-        self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
-        self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
-        self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)]
-        self.TrackInitialD0Max = InDetTrigSliceSettings[('d0TrackMax',remapped_type)]
-        self.TrackZ0Max = InDetTrigSliceSettings[('z0TrackMax',remapped_type)]
+        self.doSeedRedundancyCheck = config.doSeedRedundancyCheck
+        self.Triplet_D0Max         = config.Triplet_D0Max
+        self.Triplet_D0_PPS_Max    = config.Triplet_D0_PPS_Max
+        self.TrackInitialD0Max     = config.TrackInitialD0Max
+        self.TrackZ0Max            = config.TrackZ0Max
 
-        self.TripletDoPPS   = InDetTrigSliceSettings[('DoPPS',remapped_type)]
-        self.TripletDoPSS   = False
-        self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
-        self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
-        self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
+        self.TripletDoPPS    = config.TripletDoPPS
+        self.TripletDoPSS    = False
+        self.pTmin           = config.pTmin
+        self.DoubletDR_Max   = config.DoubletDR_Max
+        self.SeedRadBinWidth = config.SeedRadBinWidth
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
@@ -343,7 +343,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+slice_name,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                               CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
-                                              pTmin          = InDetTrigSliceSettings[('pTmin',remapped_type)],
+                                              pTmin          = config.pTmin,
                                               nClustersMin   = TrackingCuts.minClusters(),
                                               nHolesMax      = TrackingCuts.nHolesMax(),
                                               nHolesGapMax   = TrackingCuts.nHolesGapMax(),
@@ -383,8 +383,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           ToolSvc += theTrigInDetTrackFitterBrem
           self.trigInDetTrackFitter = theTrigInDetTrackFitterBrem
 
-        self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
+        self.doZFinder = config.doZFinder
         if (self.doZFinder):
+          self.doZFinderOnly = config.doZFinderOnly
           from IDScanZFinder.IDScanZFinderConf import TrigZFinder
           theTrigZFinder = TrigZFinder( name="TrigZFinder_"+remapped_type )
           theTrigZFinder.NumberOfPeaks = 3
@@ -403,19 +404,31 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.doFastZVertexSeeding = True
           self.zVertexResolution = 1
 
-        TrackMaker_FTF.InputClusterContainerName = ""
-        TrackMaker_FTF.InputHadClusterContainerName = ""
+        if not config.doZFinderOnly:
+
+          TrackMaker_FTF.InputClusterContainerName = ""
+          TrackMaker_FTF.InputHadClusterContainerName = ""
 
 
-        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+          self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+          
+          if config.holeSearch_FTF : 
+              from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
+              self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 
-        if remapped_type == "tauCore":
-          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
-          self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
+          self.doCloneRemoval = config.doCloneRemoval
+          self.TracksName     = config.trkTracks_FTF()
 
-        self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
-
+          if config.name == 'fullScanUTT' :
+              self.RecJetRoI      = "HLT_RecJETRoIs"
+              self.HitDVSeed      = "HLT_HitDVSeed"
+              self.HitDVTrk       = "HLT_HitDVTrk"
+              self.HitDVSP        = "HLT_HitDVSP"
+              self.dEdxTrk        = "HLT_dEdxTrk"
+              self.dEdxHit        = "HLT_dEdxHit"
+              
+              
 
 class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Muon"):

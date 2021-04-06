@@ -566,6 +566,18 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         self += emtoposplitter
         self += emtopomoments
 
+class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
+    __slots__ = []
+    def __init__(self, name="CaloCellSeedLessFS"):
+        super( HLTCaloCellSeedLessMaker, self ).__init__(name)
+        from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+        setMinimalCaloSetup()
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.CellsName="SeedLessFS"
+        self.RoIs=''
+        self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
 
 class HLTCaloCellMaker (_HLTCaloCellMaker):
     __slots__ = []

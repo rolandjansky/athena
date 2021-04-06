@@ -187,7 +187,7 @@ Trk::CylinderSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vect
   double phi = locpos[Trk::locRPhi] / r;
   glopos = Amg::Vector3D(r * cos(phi), r * sin(phi), locpos[Trk::locZ]);
   // transform it to the globalframe: CylinderSurfaces are allowed to have 0 pointer transform
-  if (Trk::Surface::m_transform)
+  if (Trk::Surface::m_transforms)
     glopos = transform() * glopos;
 }
 
@@ -201,7 +201,7 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
   if (inttol < 0.01)
     inttol = 0.01;
   // do the transformation or not
-  if (Trk::Surface::m_transform) {
+  if (Trk::Surface::m_transforms) {
     const Amg::Transform3D& surfaceTrans = transform();
     Amg::Transform3D inverseTrans(surfaceTrans.inverse());
     Amg::Vector3D loc3Dframe(inverseTrans * glopos);
@@ -218,8 +218,12 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
 bool
 Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
 {
-  Amg::Vector3D loc3Dframe = Trk::Surface::m_transform ? (transform().inverse()) * glopo : glopo;
-  return (bchk ? bounds().inside3D(loc3Dframe, tol1 + s_onSurfaceTolerance, tol2 + s_onSurfaceTolerance) : true);
+  Amg::Vector3D loc3Dframe =
+    Trk::Surface::m_transforms ? (transform().inverse()) * glopo : glopo;
+  return (bchk ? bounds().inside3D(loc3Dframe,
+                                   tol1 + s_onSurfaceTolerance,
+                                   tol2 + s_onSurfaceTolerance)
+               : true);
 }
 
 Trk::Intersection
@@ -228,7 +232,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
                                                bool forceDir,
                                                Trk::BoundaryCheck bchk) const
 {
-  bool needsTransform = m_transform || m_associatedDetElement;
+  bool needsTransform = m_transforms || m_associatedDetElement;
   // create the hep points
   Amg::Vector3D point1 = pos;
   Amg::Vector3D direction = dir;

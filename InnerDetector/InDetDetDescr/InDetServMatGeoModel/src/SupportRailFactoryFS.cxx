@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SupportRailFactoryFS.h"
@@ -27,13 +27,15 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
-#include <math.h>
+#include <utility>
+
+#include <cmath>
 
 
 SupportRailFactoryFS::SupportRailFactoryFS(StoreGateSvc *detStore,
 					   ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
+  m_rdbAccess(std::move(pRDBAccess)),
   m_msg("SupportRailFactoryFS")
 {
   
@@ -138,7 +140,7 @@ void SupportRailFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
     GeoVPhysVol* supportPhys = new GeoPhysVol(supportLog);
 
 
-    GeoTransform* pos = 0;
+    GeoTransform* pos = nullptr;
 //
 //    Barrel steel rails
 //

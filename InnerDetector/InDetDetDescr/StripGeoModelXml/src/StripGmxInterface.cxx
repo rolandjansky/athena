@@ -106,7 +106,7 @@ void StripGmxInterface::addSensorType(string clas, string typeName, map<string, 
 
 }
 
-void StripGmxInterface::makeSiStripBox(string typeName, map<string, string> &par) { 
+void StripGmxInterface::makeSiStripBox(const string& typeName, map<string, string> &par) { 
 //
 //    Get all parameters. 
 //
@@ -234,7 +234,7 @@ double length(25.0);
     }
 }
 
-void StripGmxInterface::makeStereoAnnulus(string typeName, map<std::string, string> &par) { 
+void StripGmxInterface::makeStereoAnnulus(const string& typeName, map<std::string, string> &par) { 
 //
 //    Get all parameters. 
 //
@@ -401,7 +401,7 @@ vector<double> endR;
      
 }
 
-string StripGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
+string StripGmxInterface::getstr(const string& typeName, const string& name, const map<string, string> &par) {
     map<string, string>::const_iterator found;
     if ((found = par.find(name)) != par.end()) {
         return found->second;

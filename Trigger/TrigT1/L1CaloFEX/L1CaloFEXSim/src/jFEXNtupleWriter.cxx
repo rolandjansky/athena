@@ -59,7 +59,7 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("smallRJet_eta",  &m_smallRJet_eta);
   m_myTree->Branch ("smallRJet_phi",  &m_smallRJet_phi);
   m_myTree->Branch ("smallRJet_ET",  &m_smallRJet_ET);
-  m_myTree->Branch("smallRJet", &m_smallRJet_Sat);
+  m_myTree->Branch ("smallRJet", &m_smallRJet_Sat);
   m_myTree->Branch ("smallRJet_nTOBs",  &m_smallRJet_nTOBs, "nTOBs");
   m_myTree->Branch ("smallRJet_isCentralTowerSeed",  &m_smallRJet_isCentralTowerSeed);
   
@@ -74,6 +74,29 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch("largeRJetTOB_eta",  &m_largeRJetTOB_eta);
   m_myTree->Branch ("largeRJetTOB_phi", &m_largeRJetTOB_phi);
   m_myTree->Branch ("largeRJetTOB_ET", &m_largeRJetTOB_ET);
+
+  
+  m_myTree->Branch ("tau_TT_ID" ,  &m_tau_TT_ID);
+  m_myTree->Branch ("tau_isLocalMax" ,  &m_tau_isLocalMax);
+  m_myTree->Branch ("tau_ET" ,  &m_tau_ET);
+  m_myTree->Branch ("tau_clusterET" ,  &m_tau_clusterET);
+  m_myTree->Branch ("tau_eta",  &m_tau_eta);
+  m_myTree->Branch ("tau_phi",  &m_tau_phi);
+  m_myTree->Branch ("tau_realeta",  &m_tau_realeta);
+  m_myTree->Branch ("tau_ISO",  &m_tau_ISO);
+  m_myTree->Branch ("tau_jFEXid",  &m_tau_jFEXid);
+  m_myTree->Branch ("tau_FPGAid",  &m_tau_FPGAid);
+
+  m_myTree->Branch ("tau_TOB_word",  &m_tau_TOB_word);
+  m_myTree->Branch ("tau_TOB_ET",  &m_tau_TOB_ET);
+  m_myTree->Branch ("tau_TOB_eta",  &m_tau_TOB_eta);
+  m_myTree->Branch ("tau_TOB_phi",  &m_tau_TOB_phi);
+  m_myTree->Branch ("tau_TOB_ISO",  &m_tau_TOB_ISO);
+  m_myTree->Branch ("tau_TOB_Sat",  &m_tau_TOB_Sat);
+
+
+
+  
 
   return StatusCode::SUCCESS;
 }
@@ -91,6 +114,7 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
 
   CHECK(loadsmallRJetAlgoVariables());
   CHECK(loadlargeRJetAlgoVariables());
+  CHECK(loadtauAlgoVariables());
 //CHECK()
 
 
@@ -147,6 +171,53 @@ StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
     m_largeRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_eta"]);
     m_largeRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_phi"]);
     m_largeRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_ET"]);
+
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LVL1::jFEXNtupleWriter::loadtauAlgoVariables() {
+
+  m_tau_TT_ID.clear();
+  m_tau_jFEXid.clear();
+  m_tau_FPGAid.clear();
+  m_tau_isLocalMax.clear();
+  m_tau_ET.clear();
+  m_tau_clusterET.clear();
+  m_tau_eta.clear();
+  m_tau_phi.clear();
+  m_tau_realeta.clear();
+  m_tau_ISO.clear();
+
+  m_tau_TOB_word.clear();
+  m_tau_TOB_ET.clear();
+  m_tau_TOB_eta.clear();
+  m_tau_TOB_phi.clear();
+  m_tau_TOB_ISO.clear();
+  m_tau_TOB_Sat.clear();
+
+  
+  for (int i = 0; i < m_jFEXOutputCollection->tausize(); i++)
+  {
+    m_tau_isLocalMax.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_isLocalMax"]);
+    m_tau_TT_ID.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TT_ID"]);
+    m_tau_jFEXid.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_jFEXid"]);
+    m_tau_FPGAid.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_FPGAid"]);
+    m_tau_ET.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_ET"]);
+    m_tau_clusterET.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_clusterET"]);
+    m_tau_eta.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_eta"]); 
+    m_tau_phi.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_phi"]);
+    m_tau_realeta.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_realeta"]);
+    m_tau_ISO.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_ISO"]);
+
+
+    
+    m_tau_TOB_word.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_word"]);
+    m_tau_TOB_ET.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_ET"]);
+    m_tau_TOB_eta.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_eta"]);
+    m_tau_TOB_phi.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_phi"]);
+    m_tau_TOB_ISO.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_ISO"]);
+    m_tau_TOB_Sat.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_Sat"]);
 
   }
   return StatusCode::SUCCESS;

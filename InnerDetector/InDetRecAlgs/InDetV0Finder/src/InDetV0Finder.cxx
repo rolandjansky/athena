@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,7 +40,7 @@ InDetV0Finder::InDetV0Finder(const std::string &n, ISvcLocator *pSvcLoc)
   AthAlgorithm(n, pSvcLoc),
   m_v0FinderTool("InDet::InDetV0FinderTool"),
   m_V0Tools("Trk::V0Tools"),
-  m_particleDataTable(0),
+  m_particleDataTable(nullptr),
   m_decorate(true),
   m_masses(1),
   m_masspi(139.57),
@@ -174,7 +174,7 @@ StatusCode InDetV0Finder::initialize()
   msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
 
 // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
   m_particleDataTable = partPropSvc->PDT();
 
@@ -237,7 +237,7 @@ StatusCode InDetV0Finder::execute()
 					   primaryVertex, importedVxContainer.cptr());
 	//
 	typedef std::unique_ptr<xAOD::VertexContainer> Container_p;
-	typedef std::unique_ptr<xAOD::VertexAuxContainer> Aux_p;
+	using Aux_p = std::unique_ptr<xAOD::VertexAuxContainer>;
 	//create unique pointers for all containers and aux containers
 	Container_p pV = Container_p(v0Container);
 	Aux_p pVaux = Aux_p(v0AuxContainer);

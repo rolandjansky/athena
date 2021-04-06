@@ -25,7 +25,7 @@ def L1TopoSimulationMCCfg(flags):
     acc = ComponentAccumulator()
 
     #Grab the MUCTPI tool
-    if flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1MuonPhase1:
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthToolCfg
         muctpiTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
         acc.addPublicTool(muctpiTool, primary=True)
@@ -44,8 +44,8 @@ def L1TopoSimulationMCCfg(flags):
 
     #Configure the MuonRoiTools for the MIP
     from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
-    muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = flags.Trigger.enableL1Phase1)
-    muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = flags.Trigger.enableL1Phase1)
+    muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = flags.Trigger.enableL1MuonPhase1)
+    muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = flags.Trigger.enableL1MuonPhase1)
 
     emtauProvider = CompFactory.LVL1.EMTauInputProvider("EMTauInputProvider")
 

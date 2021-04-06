@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripDetectorTool.h"
@@ -30,9 +30,9 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
     m_detectorName("ITkStrip"),
     m_alignable(false),
     m_gmxFilename(""),
-    m_manager(0),
-    m_athenaComps(0),
-    m_commonItems(0),
+    m_manager(nullptr),
+    m_athenaComps(nullptr),
+    m_commonItems(nullptr),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
@@ -192,7 +192,7 @@ StatusCode StripDetectorTool::clear() {
     SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
     if(proxy) {
         proxy->reset();
-        m_manager = 0;
+        m_manager = nullptr;
     }
     return StatusCode::SUCCESS;
 }

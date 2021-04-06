@@ -171,7 +171,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
-        elif "LRT" in self.chainName:
+        elif "LRT" in self.chainPart['addInfo']:
            return self.getStep(2, 'muCombLRT', [muCombLRTSequenceCfg] )
         else:
            return self.getStep(2, 'muComb', [muCombSequenceCfg] )

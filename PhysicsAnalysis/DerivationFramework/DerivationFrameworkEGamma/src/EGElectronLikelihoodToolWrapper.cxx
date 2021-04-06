@@ -126,7 +126,7 @@ EGElectronLikelihoodToolWrapper::addBranches() const
       }
     }
     // compute the output of the selector
-    asg::AcceptData theAccept(m_tool->accept(pCopy));
+    asg::AcceptData theAccept(m_tool->accept(ctx,pCopy));
     const unsigned int isEM =
       (unsigned int)theAccept.getCutResultInvertedBitSet()
         .to_ulong(); // this should work for both the

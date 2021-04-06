@@ -98,41 +98,43 @@ TrigConf::L1Menu::load()
    }
 
    // algorithms
-   try {
-      auto topoCategories = isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
-      for( const std::string& algoCategory : topoCategories ) {
-         auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
-         if(algoCategory == "MULTTOPO") {
-            for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
-               v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
-            }
-         } else {
-            for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
-               std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
-               for( auto & algorithm : data().get_child( subpath ) ) {
-                  v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+   if(m_run>1) {
+      try {
+         auto topoCategories = isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
+         for( const std::string& algoCategory : topoCategories ) {
+            auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
+            if(algoCategory == "MULTTOPO") {
+               for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
+                  v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
+               }
+            } else {
+               for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
+                  std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
+                  for( auto & algorithm : data().get_child( subpath ) ) {
+                     v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+                  }
                }
             }
-         }
-         for( auto & algo : v ) {
-            if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
-               std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
-               throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
-            }
-            m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
-            for( const std::string & output : algo.outputs() ) {
-               if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
-                  std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
-                  throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+            for( auto & algo : v ) {
+               if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
+                  std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
+                  throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
                }
-               m_algorithmsByOutput[algoCategory][output] = & algo;
+               m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
+               for( const std::string & output : algo.outputs() ) {
+                  if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
+                     std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
+                     throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+                  }
+                  m_algorithmsByOutput[algoCategory][output] = & algo;
+               }
             }
          }
       }
-   }
-   catch(std::exception & ex) {
-      std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
-      throw;
+      catch(std::exception & ex) {
+         std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
+         throw;
+      }
    }
 
    // CTP
@@ -472,11 +474,13 @@ TrigConf::L1Menu::printMenu(bool full) const
          }
       }
    }
-   cout << "Topo algorithms: " << endl;
-   cout << "    new   : " << data().get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
-   cout << "    muon  : " << data().get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
-   cout << "    mult  : " << data().get_child("topoAlgorithms.MULTTOPO.multiplicityAlgorithms").size() << endl;
-   cout << "    legacy: " << data().get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
+   if(m_run>1) {
+      cout << "Topo algorithms: " << endl;
+      cout << "    new   : " << data().get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
+      cout << "    muon  : " << data().get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
+      cout << "    mult  : " << data().get_child("topoAlgorithms.MULTTOPO.multiplicityAlgorithms").size() << endl;
+      cout << "    legacy: " << data().get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
+   }
    cout << "Boards: " << data().get_child("boards").size() << endl;
    cout << "Connectors: " << data().get_child("connectors").size() << endl;
    unsigned int ctpinputs = data().get_child("ctp.inputs.optical").size();

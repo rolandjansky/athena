@@ -5,16 +5,15 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 class TrigMultiTrkComboHypoMonitoring(GenericMonitoringTool):
     def __init__ (self, name):
         super(TrigMultiTrkComboHypoMonitoring, self).__init__(name)
-        if 'L2' in name:
+        if 'Streamer' in name:
             self.Histograms = [
-            defineHistogram('nTrk', type='TH1F', path='EXPERT', title="number of tracks in input views", xbins=100, xmin=0, xmax=100),
             defineHistogram('nAcceptedTrk', type='TH1F', path='EXPERT', title="number of selected input tracks", xbins=100, xmin=0, xmax=100),
+            defineHistogram('nVertexFitterCalls', type='TH1F', path='EXPERT', title="number of calls for vertex fit", xbins=200, xmin=0, xmax=200),
             defineHistogram('acceptance', type='TH1F',path='EXPERT', title="filter acceptance", xbins=2, xmin=0, xmax=2),
             defineHistogram('TIME_all', type='TH1F', path='EXPERT', title='execution time; [microseconds]', xbins=100, xmin=0, xmax=1000),
             ]
-        elif 'EF' in name:
+        else:
             self.Histograms = [
-            defineHistogram('nTrk', type='TH1F', path='EXPERT', title="number of tracks in input views", xbins=100, xmin=0, xmax=100),
             defineHistogram('nAcceptedTrk', type='TH1F', path='EXPERT', title="number of selected input tracks", xbins=100, xmin=0, xmax=100),
             defineHistogram('nCombination', type='TH1F',path='EXPERT', title="number of track combinations before mass preselection", xbins=100, xmin=0, xmax=100),
             defineHistogram('nCombinationBeforeFit', type='TH1F', path='EXPERT', title="number of inputs to the vertex fitter", xbins=100, xmin=0, xmax=100),

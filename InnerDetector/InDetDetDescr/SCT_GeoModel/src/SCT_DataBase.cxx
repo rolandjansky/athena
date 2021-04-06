@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DataBase.h"
@@ -23,8 +23,8 @@ SCT_DataBase::SCT_DataBase(SCT_GeoModelAthenaComps * athenaComps)
 
   // Get version tag and node for SCT
   DecodeVersionKey versionKey(geoDbTag,"SCT");
-  std::string versionTag  = versionKey.tag();
-  std::string versionNode = versionKey.node();
+  const std::string& versionTag  = versionKey.tag();
+  const std::string& versionNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");

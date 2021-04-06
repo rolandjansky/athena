@@ -261,7 +261,56 @@ StatusCode TrigFastTrackFinder::initialize() {
      ATH_CHECK(m_dEdxHitKey.initialize());
   }
 
+
+  ATH_MSG_DEBUG("FTF : " << name()  );
+  ATH_MSG_DEBUG("	m_tcs.m_doubletFilterRZ    : " <<  m_tcs.m_doubletFilterRZ     );
+  ATH_MSG_DEBUG("	m_tcs.m_doublet_dR_Max     : " <<  m_tcs.m_doublet_dR_Max      );
+  ATH_MSG_DEBUG("	m_tcs.m_doublet_dR_Max_Confirm  : " << m_tcs.m_doublet_dR_Max_Confirm   );
+  ATH_MSG_DEBUG("	m_tcs.m_seedRadBinWidth    : " <<  m_tcs.m_seedRadBinWidth     );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletD0Max       : " <<  m_tcs.m_tripletD0Max        );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletD0_PPS_Max  : " <<  m_tcs.m_tripletD0_PPS_Max   );
+  ATH_MSG_DEBUG("	m_tcs.m_nMaxPhiSlice       : " <<  m_tcs.m_nMaxPhiSlice        );
+  ATH_MSG_DEBUG("	m_tcs.m_maxTripletBufferLength  : " << m_tcs.m_maxTripletBufferLength   );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletDoPSS       : " <<  m_tcs.m_tripletDoPSS        );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletDoPPS       : " <<  m_tcs.m_tripletDoPPS        );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletDoConfirm   : " <<  m_tcs.m_tripletDoConfirm    );
+  ATH_MSG_DEBUG("	m_tcs.m_curv_delta         : " <<  m_tcs.m_curv_delta          );
+  ATH_MSG_DEBUG("	m_tcs.m_tripletDtCut       : " <<  m_tcs.m_tripletDtCut        );
+  ATH_MSG_DEBUG("	m_tcs.m_useTrigSeedML      : " <<  m_tcs.m_useTrigSeedML       );
+  ATH_MSG_DEBUG("	m_trigseedML_LUT           : " <<  m_trigseedML_LUT     );
+  ATH_MSG_DEBUG("	m_tcs.m_maxEC_len          : " <<  m_tcs.m_maxEC_len    );
+  ATH_MSG_DEBUG("	m_vertexSeededMode         : " <<  m_vertexSeededMode   );
+  ATH_MSG_DEBUG("	m_doZFinder                : " <<  m_doZFinder          );
+  ATH_MSG_DEBUG("	m_doZFinderOnly            : " <<  m_doZFinderOnly      );
+  ATH_MSG_DEBUG("	m_doFastZVseeding          : " <<  m_doFastZVseeding    );
+  ATH_MSG_DEBUG("	m_tcs.m_zvError            : " <<  m_tcs.m_zvError      );
+  ATH_MSG_DEBUG("	m_storeZFinderVertices     : " <<  m_storeZFinderVertices   );
+  ATH_MSG_DEBUG("	m_tripletMinPtFrac         : " <<  m_tripletMinPtFrac   );
+  ATH_MSG_DEBUG("	m_pTmin                    : " <<  m_pTmin              );
+  ATH_MSG_DEBUG("	m_initialD0Max             : " <<  m_initialD0Max       );
+  ATH_MSG_DEBUG("	m_Z0Max                    : " <<  m_Z0Max              );
+  ATH_MSG_DEBUG("	m_checkSeedRedundancy      : " <<  m_checkSeedRedundancy   );
+  ATH_MSG_DEBUG("	m_minHits                  : " <<  m_minHits            );
+  ATH_MSG_DEBUG("	"  );
+  ATH_MSG_DEBUG("	m_useBeamSpot              : " <<  m_useBeamSpot       );
+  ATH_MSG_DEBUG("	m_nfreeCut                 : " <<  m_nfreeCut          );
+  ATH_MSG_DEBUG("	m_spacePointTool           : " <<  m_spacePointTool    );
+  ATH_MSG_DEBUG("	m_numberingTool            : " <<  m_numberingTool     );
+  ATH_MSG_DEBUG("	m_trackMaker               : " <<  m_trackMaker        );
+  ATH_MSG_DEBUG("	m_trigInDetTrackFitter     : " <<  m_trigInDetTrackFitter   );
+  ATH_MSG_DEBUG("	m_trigZFinder              : " <<  m_trigZFinder       );
+  ATH_MSG_DEBUG("	m_trackSummaryTool         : " <<  m_trackSummaryTool  );
+  ATH_MSG_DEBUG("	m_doResMonitoring          : " <<  m_doResMonitoring   );
+  ATH_MSG_DEBUG("	m_doCloneRemoval           : " <<  m_doCloneRemoval    );
+  ATH_MSG_DEBUG("	m_useNewLayerNumberScheme  : " <<  m_useNewLayerNumberScheme   );
+  ATH_MSG_DEBUG("	m_useGPU                   : " <<  m_useGPU            );
+  ATH_MSG_DEBUG("	m_LRTmode                  : " <<  m_LRTmode           );
+  ATH_MSG_DEBUG("	m_doJseedHitDV             : " <<  m_doJseedHitDV      );
+  ATH_MSG_DEBUG("	m_dodEdxTrk                : " <<  m_dodEdxTrk         );
+
   ATH_MSG_DEBUG(" Initialized successfully");
+
+
   return StatusCode::SUCCESS;
 }
 

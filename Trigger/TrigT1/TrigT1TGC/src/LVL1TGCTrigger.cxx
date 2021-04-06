@@ -299,35 +299,35 @@ namespace LVL1TGCTrigger {
           TGCSector* sector = m_system->getSector(i,j,k);
           if(sector==0) continue;
 
-          if((sector->hasHit())){
-            m_TimingManager->startHighPtBoard(sector);
-            if (m_OutputTgcRDO.value()) recordRdoHPT(sector);
+          m_TimingManager->startHighPtBoard(sector);
+          if (m_OutputTgcRDO.value()) recordRdoHPT(sector);
 
-            // EIFI trigger bits are checked if Endcap
-            if(sector->getRegionType()==Endcap && sector->getSL()) {
+          // EIFI trigger bits are checked if Endcap
+          if(sector->getRegionType()==Endcap && sector->getSL()) {
+            if((sector->hasHit())){
               // Pointers to store EIFI trigger bits for Endcap SL
               const TGCInnerTrackletSlot* innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR]
                 = {0, 0, 0, 0};
               m_innerTrackletSlotHolder.getInnerTrackletSlots(i, j, k, innerTrackletSlots);
               sector->getSL()->setInnerTrackletSlots(innerTrackletSlots);
             }
-
-            m_TimingManager->startSectorLogic(sector);
-            sector->clearNumberOfHit();
           }
+          m_TimingManager->startSectorLogic(sector);
+          if(sector->hasHit()) sector->clearNumberOfHit();
 
           // Fill inner (EIFI/Tile) words
           if (m_OutputTgcRDO.value() && m_tgcArgs.USE_INNER()) recordRdoInner(sector);
 
           // Fill Lvl1MuCTPInput
+          if (m_OutputTgcRDO.value()) recordRdoSL(sector);
+
           size_t tgcsystem=0,subsystem=0;
           if(i==0) subsystem = LVL1MUONIF::Lvl1MuCTPIInput::idSideA();
           if(i==1) subsystem = LVL1MUONIF::Lvl1MuCTPIInput::idSideC();
-          if (m_OutputTgcRDO.value()) recordRdoSL(sector, subsystem);
 
           const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
 	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
-	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut); 
+	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut);
 
           if(sector->getRegionType()==Endcap){
             if(m_tgcArgs.useRun3Config()){
@@ -338,7 +338,7 @@ namespace LVL1TGCTrigger {
             }else{
               LVL1MUONIF::Lvl1MuEndcapSectorLogicData sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInput::idEndcapSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(selectorOut!=0) FillSectorLogicData(&sldata, selectorOut, subsystem);
               muctpiinput->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_endcap++,muctpiBcId);
             }
           } else if(sector->getRegionType()==Forward){
@@ -350,19 +350,12 @@ namespace LVL1TGCTrigger {
             }else{
               LVL1MUONIF::Lvl1MuForwardSectorLogicData sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInput::idForwardSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(selectorOut!=0) FillSectorLogicData(&sldata, selectorOut, subsystem);
               muctpiinput->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_forward++,muctpiBcId);
             }
           }
 
-	  //** Selector in  Run2
-          // delete selectorOut
-          sector->getSL()->eraseSelectorOut();
-          if (selectorOut != 0 ) delete selectorOut;
-          selectorOut=0;
-	  
 	  //** Selector in  Run3
-          // delete selectorOut
 	  trackSelectorOut.get()->reset();
 
 
@@ -499,61 +492,61 @@ namespace LVL1TGCTrigger {
     }
   }
 
-  ////////////////////////////////////////////////////////
-  void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *sldata,
-                                           const TGCSLSelectorOut* selectorOut, unsigned int subsystem)
-  {
-    if(selectorOut ==0) return;
-    int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
+////////////////////////////////////////////////////////
+void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *sldata,
+                                         const TGCSLSelectorOut* out, unsigned int subsystem)
+{
+  if(out == nullptr) return;
+  int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
     
-    sldata->clear2candidatesInSector();// for temporary
+  sldata->clear2candidatesInSector(); // clear >2 candidates bit at first.
 
-    const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
-    sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
+  const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
+  sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
 
-    if ((selectorOut->getNCandidate()) >= 1) {
-      sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
+  if ((out->getNCandidate()) >= 1) {
+      sldata->roi(0, ((out->getR(0))<<2)+(out->getPhi(0)));
       //      ovl --> veto
       //      sldata->ovl(0,0);
-      if (selectorOut->getInnerVeto(0)) sldata->ovl(0,1);
+      if (out->getInnerVeto(0)) sldata->ovl(0,1);
       else                              sldata->ovl(0,0);
-      sldata->pt(0,selectorOut->getPtLevel(0));
-      sldata->charge(0, getCharge(selectorOut->getDR(0),Zdir));
-    } else {
+      sldata->pt(0, out->getPtLevel(0));
+      sldata->charge(0, getCharge(out->getDR(0),Zdir));
+  } else {
       // no entry
-    }
-    if ((selectorOut->getNCandidate()) == 2) {
-      sldata->roi(1,((selectorOut->getR(1))<<2)+(selectorOut->getPhi(1)));
+  }
+  if ((out->getNCandidate()) == 2) {
+      sldata->roi(1, ((out->getR(1))<<2)+(out->getPhi(1)));
       //      ovl --> veto
       //      sldata->ovl(1,0);
-      if (selectorOut->getInnerVeto(1)) sldata->ovl(1,1);
+      if (out->getInnerVeto(1)) sldata->ovl(1,1);
       else                              sldata->ovl(1,0);
-      sldata->pt(1,selectorOut->getPtLevel(1));
-      sldata->charge(1, getCharge(selectorOut->getDR(1),Zdir));
-    }
-    sldata->set2candidates(0);// not used for TGC
-    sldata->clear2candidates(0);// not used for TGC
-    sldata->set2candidates(1);// not used for TGC
-    sldata->clear2candidates(1);// not used for TGC
+      sldata->pt(1, out->getPtLevel(1));
+      sldata->charge(1, getCharge(out->getDR(1), Zdir));
+  }
+  sldata->set2candidates(0);// not used for TGC
+  sldata->clear2candidates(0);// not used for TGC
+  sldata->set2candidates(1);// not used for TGC
+  sldata->clear2candidates(1);// not used for TGC
     
-    // Print
-    if(m_debuglevel) {
-      if ((selectorOut->getNCandidate()) >= 1) {
+  // Print
+  if(m_debuglevel) {
+      if ((out->getNCandidate()) >= 1) {
         ATH_MSG_DEBUG( "SectorLogic: 1st candidate   "
-                       << " roi:" << (selectorOut->getR(0))<<2 + selectorOut->getPhi(0)
-                       << " pt:" << selectorOut->getPtLevel(0)
-                       << " charge:" << getCharge(selectorOut->getDR(0),Zdir)
+                       << " roi:" << (out->getR(0))<<2 + out->getPhi(0)
+                       << " pt:" << out->getPtLevel(0)
+                       << " charge:" << getCharge(out->getDR(0),Zdir)
                        << " veto:" << sldata->ovl(0));
       }
-      if ((selectorOut->getNCandidate()) == 2) {
+      if ((out->getNCandidate()) == 2) {
         ATH_MSG_DEBUG( "SectorLogic: 2nd candidate   "
-                       << " roi:" << (selectorOut->getR(1))<<2 + selectorOut->getPhi(1)
-                       << " pt:" << selectorOut->getPtLevel(1)
-                       << " charge:" << getCharge(selectorOut->getDR(1),Zdir)
+                       << " roi:" << (out->getR(1))<<2 + out->getPhi(1)
+                       << " pt:" << out->getPtLevel(1)
+                       << " charge:" << getCharge(out->getDR(1), Zdir)
                        << " veto:" << sldata->ovl(1));
       }
-    }
   }
+}
 
   ////////////////////////////////////////////////////////
   void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1 *sldata,
@@ -711,9 +704,11 @@ namespace LVL1TGCTrigger {
     }   // end loop for SLB type
   }
   
-  ////////////////////////////////////////////////////////
-  void LVL1TGCTrigger::recordRdoHPT(TGCSector * sector)
-  {
+////////////////////////////////////////////////////////
+void LVL1TGCTrigger::recordRdoHPT(TGCSector* sector)
+{
+  if(sector->hasHit() == false) return;
+
     // readoutID
     int subDetectorId, rodId, sswId, sbLoc, secId;
     
@@ -840,7 +835,7 @@ namespace LVL1TGCTrigger {
 
       }   // end loop for # of HPB per sector
     }   // end loop for HPB type
-  }
+}
 
   
   ////////////////////////////////////////////////////////
@@ -925,26 +920,22 @@ namespace LVL1TGCTrigger {
     
   }
   
-  ///////////////////////////////////////////////////////
-  void LVL1TGCTrigger::recordRdoSL(TGCSector * sector, unsigned int subsystem)
-  {
-    // check if whether trigger exists or not
+///////////////////////////////////////////////////////
+void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
+{
+    // check if whether trigger output exists or not
     const TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
-    if (selectorOut ==0) return;
-    if (selectorOut->getNCandidate()==0) return;
-    
-    // readoutID
-    int subDetectorId=0, rodId=0, sswId=0, sbLoc=0, secId=0;
+    if (selectorOut == nullptr) return;
+    if (selectorOut->getNCandidate() == 0) return;
     
     // trigger info
-    bool cand3plus=0, isEndcap=0, isAside=0, muplus=0, overlap=0, veto=0;
+    bool cand3plus = 0;
+    bool isEndcap = (sector->getRegionType() == Endcap);
+    bool isAside = (sector->getSideId()==0);
+    bool veto=0;
     int phi=0, index=0, threshold=0, roi=0;
-    int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
-    
-    isAside = (sector->getSideId()==0);
-    isEndcap = (sector->getRegionType()==Endcap);
-    cand3plus = 0;
-    
+    int Zdir= (isAside) ? 1 : -1;
+
     //  sector Id = 0..47 (Endcap) 0..23 (forward)
     int module = sector->getModuleId();
     int sectorId;
@@ -959,13 +950,14 @@ namespace LVL1TGCTrigger {
     //  0-5(EC), 0-2(FWD) for new TGCcabling (octant)
     int startEndcapSector, coverageOfEndcapSector;
     int startForwardSector, coverageOfForwardSector;
-    rodId = 1;
+    int rodId = 1;
     m_cabling->getCoveragefromRodID(rodId,
                                     startEndcapSector,
                                     coverageOfEndcapSector,
                                     startForwardSector,
                                     coverageOfForwardSector
                                     ) ;
+    int secId = 0;
     if (isEndcap){
       secId = sectorId % coverageOfEndcapSector;
     } else {
@@ -976,6 +968,7 @@ namespace LVL1TGCTrigger {
     phi = (isEndcap ? (sectorId+46)%48+1 : (sectorId+23)%24+1);
     
     // get readout ID
+    int subDetectorId = 0, sswId = 0, sbLoc = 0;
     bool status = m_cabling->getReadoutIDfromSLID(phi, isAside, isEndcap,
                                                   subDetectorId, rodId, sswId, sbLoc);
     if (!status) {
@@ -985,11 +978,12 @@ namespace LVL1TGCTrigger {
                       << "  phi=" << phi );
       return;
     }
-    
+
+    bool overlap = 0;
     uint16_t bcTag=m_CurrentBunchTag, l1Id=0, bcId=0;
     for (int icand=0; icand < selectorOut->getNCandidate(); icand +=1) {
       index=icand;
-      muplus = getCharge(selectorOut->getDR(icand), Zdir)==1 ? 1 : 0;
+      bool muplus = getCharge(selectorOut->getDR(icand), Zdir)==1 ? 1 : 0;
       threshold = selectorOut->getPtLevel(icand);
       roi = ((selectorOut->getR(icand))<<2)+(selectorOut->getPhi(icand));
       if (selectorOut->getInnerVeto(icand)) veto = 1;

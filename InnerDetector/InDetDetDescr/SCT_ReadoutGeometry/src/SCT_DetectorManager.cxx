@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
@@ -29,7 +29,7 @@ namespace InDetDD {
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore,
                                             const std::string& name )
     : SiDetectorManager(detStore,name),
-      m_idHelper(0),
+      m_idHelper(nullptr),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
     ATH_MSG_VERBOSE("Creating SCT_DetectorManager named " << name);
@@ -82,7 +82,7 @@ namespace InDetDD {
     if (idHash.is_valid()) {
       return m_elementCollection[idHash];
     } else {
-      return 0;
+      return nullptr;
     }
   }
 

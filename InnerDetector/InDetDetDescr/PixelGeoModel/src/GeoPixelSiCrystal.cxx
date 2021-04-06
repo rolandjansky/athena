@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -146,7 +146,7 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
   std::string logname{"siLog"};
   // There is not a strong need to give the blayer a different name but leave it for now. 
   if(m_isBLayer) logname = "siBLayLog";
-  auto logVolume = new GeoLogVol(logname,siBox,siMat);
+  auto *logVolume = new GeoLogVol(logname,siBox,siMat);
   //(sar) ...to here
 
 

@@ -114,7 +114,7 @@ namespace LVL1TGCTrigger {
     void recordRdoInner(TGCSector *);
     
     // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
-    void recordRdoSL(TGCSector *, unsigned int );
+    void recordRdoSL(TGCSector *);
     
     std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
     
@@ -130,7 +130,7 @@ namespace LVL1TGCTrigger {
     bool addRawData(TgcRawData *);
     int getLPTTypeInRawData(int type);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
-			     const TGCSLSelectorOut *selectorOut,
+			     const TGCSLSelectorOut* out,
 			     unsigned int subsystem);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
 			     const TGCTrackSelectorOut *trackSelectorOut);

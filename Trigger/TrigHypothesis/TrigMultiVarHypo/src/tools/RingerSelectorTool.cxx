@@ -31,6 +31,7 @@ StatusCode  RingerSelectorTool::initialize()
     m_doPileupCorrection = m_reader.doPileupCorrection();
 
     m_lumiCut  = m_reader.lumiCut();
+    ATH_MSG_DEBUG("m_thresholdsCalibPath: "<<m_thresholdsCalibPath);
   }
 
   // Retrieve the NeuralNetwork list
@@ -39,7 +40,8 @@ StatusCode  RingerSelectorTool::initialize()
       ATH_MSG_ERROR("Can not retrieve all information from " << m_constantsCalibPath );
       return StatusCode::FAILURE;
     }
-
+    ATH_MSG_DEBUG("m_constantsCalibPath: "<<m_constantsCalibPath);
+    //ATH_MSG_DEBUG("m_discriminators: "<<m_discriminators);
     m_removeOutputTansigTF=m_reader.removeOutputTansigTF();
 
   }

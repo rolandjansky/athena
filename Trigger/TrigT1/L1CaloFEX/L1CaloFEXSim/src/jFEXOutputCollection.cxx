@@ -20,6 +20,11 @@ LVL1::jFEXOutputCollection::~jFEXOutputCollection()
  for(auto iValues: m_allvalues_largeRJet){
    delete iValues;
   }
+  
+ for(auto iValues: m_allvalues_tau){
+   delete iValues;
+  }
+  
 }
 
 void LVL1::jFEXOutputCollection::clear() 
@@ -28,6 +33,9 @@ void LVL1::jFEXOutputCollection::clear()
     iValues->clear();
   }
   for(auto iValues : m_allvalues_largeRJet){
+    iValues->clear();
+  }
+  for(auto iValues : m_allvalues_tau){
     iValues->clear();
   }
 }
@@ -40,6 +48,11 @@ void LVL1::jFEXOutputCollection::addValue_smallRJet(std::string key, float value
 void LVL1::jFEXOutputCollection::addValue_largeRJet(std::string key, float value)
 {
  m_values_tem_largeRJet.insert(std::make_pair(key, value));
+}
+
+void LVL1::jFEXOutputCollection::addValue_tau(std::string key, int value)
+{
+ m_values_tem_tau.insert(std::make_pair(key, value));
 }
 
 void LVL1::jFEXOutputCollection::fill_smallRJet()
@@ -56,11 +69,23 @@ void LVL1::jFEXOutputCollection::fill_largeRJet()
   m_values_tem_largeRJet.clear();
 
 }
+void LVL1::jFEXOutputCollection::fill_tau()
+{
+  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_tau);
+  m_allvalues_tau.push_back(values_local);
+  m_values_tem_tau.clear();
+
+}
 
 
 int LVL1::jFEXOutputCollection::size()
 {
   return m_allvalues_smallRJet.size();
+}
+
+int LVL1::jFEXOutputCollection::tausize()
+{
+  return m_allvalues_tau.size();
 }
 
 std::map<std::string, float>* LVL1::jFEXOutputCollection::get_smallRJet(int location)
@@ -70,4 +95,8 @@ std::map<std::string, float>* LVL1::jFEXOutputCollection::get_smallRJet(int loca
 std::map<std::string, float>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
 {
   return m_allvalues_smallRJet[location];
+}
+std::map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int location)
+{
+  return m_allvalues_tau[location];
 }

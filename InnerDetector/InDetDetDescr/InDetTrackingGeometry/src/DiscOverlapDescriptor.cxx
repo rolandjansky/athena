@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   const InDetDD::SiDetectorElement* pElement  = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
   
   // first add the target surface
-  surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
+  surfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
   int etaModule = m_sctIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier());
   
   // return empty cell vector
@@ -77,16 +77,16 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
     // 3 -> If it is smaller than the number of rings (i.e. the surface doen't belong to the outermost ring), 
     // look for the surfaces in the ring with bigger eta value (it returns 2 or 3 surfaces)// 
 
-    if (m_bin_array && m_singleBinUtils->size() != 0){
+    if (m_bin_array && !m_singleBinUtils->empty()){
 
-      const Trk::Surface* samePhi_PrevEta     = NULL;
-      const Trk::Surface* samePhi_NextEta     = NULL;
+      const Trk::Surface* samePhi_PrevEta     = nullptr;
+      const Trk::Surface* samePhi_NextEta     = nullptr;
       
-      const Trk::Surface* previousPhi_PrevEta = NULL;
-      const Trk::Surface* nextPhi_PrevEta     = NULL;
+      const Trk::Surface* previousPhi_PrevEta = nullptr;
+      const Trk::Surface* nextPhi_PrevEta     = nullptr;
       
-      const Trk::Surface* previousPhi_NextEta = NULL;
-      const Trk::Surface* nextPhi_NextEta     = NULL;
+      const Trk::Surface* previousPhi_NextEta = nullptr;
+      const Trk::Surface* nextPhi_NextEta     = nullptr;
       
       unsigned int Util = m_singleBinUtils->size() - 1 - etaModule;
 

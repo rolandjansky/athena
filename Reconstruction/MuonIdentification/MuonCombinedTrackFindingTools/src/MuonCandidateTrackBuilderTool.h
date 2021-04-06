@@ -28,11 +28,12 @@ namespace Muon {
   public:
     bool operator()(const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) const{
       if(isEndcap) {
-	return fabs(mst1->globalPosition().z()) < fabs(mst2->globalPosition().z());
+	return std::abs(mst1->globalPosition().z()) < std::abs(mst2->globalPosition().z());
       }
       else {
 	Identifier id1=m_edmHelperSvc->getIdentifier(*mst1);
 	Identifier id2=m_edmHelperSvc->getIdentifier(*mst2);
+	if(!id1.is_valid() || !id2.is_valid()) return std::abs(mst1->globalPosition().z()) < std::abs(mst2->globalPosition().z());
 	if(m_idHelperSvc->isMdt(id1) && m_idHelperSvc->isMdt(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
 	else if(m_idHelperSvc->isRpc(id1) && m_idHelperSvc->isMdt(id2)){
 	  if(m_idHelperSvc->rpcIdHelper().doubletR(id1)==1){

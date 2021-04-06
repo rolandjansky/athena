@@ -75,9 +75,5 @@ double Trk::SubtractedCylinderLayer::postUpdateMaterialFactor(const Trk::TrackPa
 }
 
 void Trk::SubtractedCylinderLayer::moveLayer(Amg::Transform3D& shift)  {
-      Amg::Transform3D transf = shift * (*m_transform);
-      m_transform = std::make_unique<Amg::Transform3D>(transf);
-      m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-      m_normal =
-        std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+      m_transforms = std::make_unique<Transforms>(shift * (m_transforms->transform));
 }

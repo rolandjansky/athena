@@ -143,8 +143,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
             # Include full set of tools
 
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            # Keep this commented out atm
-            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
 
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
@@ -205,8 +204,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             # Include full set of tools
 
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            #Comment this tool for now
-            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
 
             tools.append(taualgs.getTauAxis())

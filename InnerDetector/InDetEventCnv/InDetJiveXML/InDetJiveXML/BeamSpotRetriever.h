@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_BEAMSPOTRETRIEVER_H
@@ -31,10 +31,10 @@ namespace JiveXML {
     BeamSpotRetriever(const std::string& type,const std::string& name,const IInterface* parent);
 
       /// Retrieve all the data
-      virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
+      virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool) override; 
 
       /// Return the name of the data type
-      virtual std::string dataTypeName() const { return m_typeName; };
+      virtual std::string dataTypeName() const override { return m_typeName; };
 
   private:
      

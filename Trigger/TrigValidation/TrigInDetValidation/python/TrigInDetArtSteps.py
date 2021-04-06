@@ -74,10 +74,7 @@ class TrigInDetReco(ExecStep):
     def configure(self, test):
         chains = '['
         flags = ''
-        lrt = False
         for i in self.slices:
-            if ('LRT' in i):
-                lrt = True
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
@@ -110,15 +107,15 @@ class TrigInDetReco(ExecStep):
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
-
+            if (i=='cosmic') :
+                chains += "'HLT_mu4_cosmic_L1MU4_EMPTY'"
+                flags  += "doMuonSlice=True;setMenu='Cosmic_run3_v1';"
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
-        if (lrt):
-            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False)'
 
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )
@@ -145,9 +142,9 @@ class TrigInDetReco(ExecStep):
         if (self.postexec_trig != ' '):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
         if (self.postinclude_trig != ''):
-            self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
+            self.args += ' --postInclude "{:s}" '.format(self.postinclude_trig)
         if (self.preinclude_trig != ''):
-            self.args += ' --preInclude "RDOtoRDOTrigger:{:s}" '.format(self.preinclude_trig)
+            self.args += ' --preInclude "{:s}" '.format(self.preinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -156,7 +153,7 @@ class TrigInDetReco(ExecStep):
 ##################################################
 
 class TrigInDetAna(ExecStep):
-    def __init__(self, name='TrigInDetAna', extra=None):
+    def __init__(self, name='TrigInDetAna', extraArgs=None):
         ExecStep.__init__(self, name )
         self.type = 'athena'
         self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
@@ -167,8 +164,9 @@ class TrigInDetAna(ExecStep):
         self.input = ''
         self.perfmon=False
         self.imf=False
-        if extra is not None:
-            self.args = extra
+        if extraArgs is not None:
+            self.args = extraArgs
+
 
 ##################################################
 # Additional exec (athena) steps - RDO to CostMonitoring
@@ -289,8 +287,8 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         RefComparisonStep.configure(self, test)
         if self.reference is None :
-            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref"
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref --logx "
         else:
-            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra
+            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra + " --logx "
         Step.configure(self, test)
 

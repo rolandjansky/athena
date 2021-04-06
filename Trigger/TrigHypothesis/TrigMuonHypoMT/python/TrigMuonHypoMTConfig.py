@@ -382,10 +382,10 @@ class TrigMufastHypoConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
+        thresholds = ['passthrough']
     else:
-       thresholds = getThresholdsFromDict( chainDict )
+        thresholds = getThresholdsFromDict( chainDict )
 
     config = TrigmuCombHypoConfig()
 
@@ -403,7 +403,7 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
 def TrigmuCombLrtHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -434,7 +434,7 @@ def TrigmuCombLrtHypoToolFromDict( chainDict ):
 
 def TrigmuCombHypoToolwORFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -495,7 +495,7 @@ def Trigl2IOHypoToolwORFromDict( chainDict ):
 # muComb Hypo for L2 multi-track SA mode
 def Trigl2mtCBHypoToolwORFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -633,12 +633,12 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
 
 def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
 
-    if 'muonqual' in chainDict['chainParts'][0]['chainPartName']:
+    if 'muonqual' in chainDict['chainParts'][0]['addInfo']:
        muonquality = True
     else:
        muonquality = False
@@ -665,7 +665,7 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
             thresholds.append(thr)
-    if 'muonqual' in chainName:
+    if 'muonqual' in chainDict['chainParts'][0]['addInfo']:
        muonquality = True
     else:
        muonquality = False
@@ -714,7 +714,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
 def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    if 'ivarperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'ivarperf' in chainDict['chainParts'][0]['isoInfo']:
         thresholds = 'passthrough'
     else:
         thresholds = cparts[0]['isoInfo']

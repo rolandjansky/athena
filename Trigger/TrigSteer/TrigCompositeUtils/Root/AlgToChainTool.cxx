@@ -147,8 +147,10 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
             TrigCompositeUtils::decisionIDs( d, chainsID );
 
             // Save the active chains IDs
-            activeChainsID.insert( chainsID.begin(), chainsID.end() );
-        } 
+            for (TrigCompositeUtils::DecisionID id : chainsID){
+                activeChainsID.insert(TrigCompositeUtils::getIDFromLeg(id));
+            }
+        }
     }
 
     return activeChainsID;

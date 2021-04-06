@@ -4,13 +4,13 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def RoIBResultToxAODCfg(flags):
-    if flags.Trigger.enableL1Phase1 and not flags.Trigger.enableL1CaloLegacy:
+    if (flags.Trigger.enableL1MuonPhase1 and flags.Trigger.enableL1CaloPhase1) and not flags.Trigger.enableL1CaloLegacy:
         # No Run-2 L1 RoIs -> nothing to covert to xAOD -> don't add RoIBResultToxAOD
         return ComponentAccumulator()
 
     acc = ComponentAccumulator()
     alg = CompFactory.RoIBResultToxAOD('RoIBResultToxAOD')
-    alg.DoMuon = not flags.Trigger.enableL1Phase1
+    alg.DoMuon = not flags.Trigger.enableL1MuonPhase1
     alg.DoCalo = flags.Trigger.enableL1CaloLegacy
     acc.addEventAlgo(alg)
 

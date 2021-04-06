@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@
 #include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include <cmath>
+#include <utility>
+
 
 namespace InDetDD {
 
@@ -41,7 +43,7 @@ PixelModuleDesign::PixelModuleDesign(const double thickness,
 		   true, true, true, // phi,eta,depth axes symmetric
 		   carrierType,
 		   readoutSide),
-  m_diodeMap(matrix),
+  m_diodeMap(std::move(matrix)),
   m_readoutScheme(circuitsPerColumn,circuitsPerRow,
 		  cellColumnsPerCircuit,cellRowsPerCircuit,
 		  diodeColumnsPerCircuit,diodeRowsPerCircuit),

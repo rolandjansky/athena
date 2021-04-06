@@ -13,6 +13,8 @@ class TGCSLSelectorOut
   static constexpr int s_NCandidateInSLSelector = 2;
 
  public:
+  void reset();
+
   void setPtLevel(int order, int ptLevel);
   void setR(int order, int rIn) { m_r[order]=rIn;};
   void setPhi(int order, int phiIn) {m_phi[order]=phiIn;};

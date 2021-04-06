@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ class BLM_Wall
   GeoPhysVol* BuildLayerV(double thick, const GeoMaterial* material);
   GeoPhysVol* BuildHolder(const GeoMaterial* material);
   GeoPhysVol* BuildScrew(double length, const GeoMaterial* material);
-  GeoPhysVol* BuildBlock(double X, double Y, double Z, std::string logname, const GeoMaterial* material);
+  GeoPhysVol* BuildBlock(double X, double Y, double Z, const std::string& logname, const GeoMaterial* material);
   GeoPhysVol* BuildClamp(const GeoMaterial* material);
 
   static constexpr double s_width = 18;

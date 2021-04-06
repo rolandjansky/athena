@@ -4,16 +4,27 @@ Flavor Tagging Discriminants
 This package contains the relatively trivial code that atlas uses to
 transform the raw outputs from vertex finding into flavor tagging
 outputs. It is meant as "stand-alone" code: it should be usable in
-both Athena and AnalysisBase.
+Athena, AthAnalysis, and AnalysisBase.
 
-This code is meant to run in all actively developed ATLAS projects. This means that the following features should _not_ be used:
+This code is meant to run in all actively developed ATLAS projects. This means that it includes a number of workarounds:
 
-   - Read / Write Handles: These are not supported in 21.2, and thus
-     won't work in analysis code. Revisit in mid 2021.
+   - Read / Write Handles: These were not supported in 21.2, and thus
+     were avoided in a lot of this package.
 
    - Any C++ features beyond C++11: Upgrade physics will use
      [LCG_88][lcg88] for the foreseeable future. This release ships
-     with GCC 6.2, which predates C++17. Revisit in 2024.
+     with GCC 6.2, which predates C++17. As of 2021 upgrade software
+     was still using release 21.
+
+   - In release 21 there is an `xAOD::Jet` --> `xAOD::BTagging` object
+     link, but no link in the opposite direction. In release 22 both
+     links will exist to support b-tagging the same jet multiple
+     times. For compatibility with the release 21 EDM, we assume that
+     only jet to btag links exist in this package.
+
+As of spring 2021 most work seems to be migrating to release 22. We
+may be able to drop release 21 and clean some of these issues up by
+2022.
 
 [lcg88]: http://lcginfo.cern.ch/release/88/
 
