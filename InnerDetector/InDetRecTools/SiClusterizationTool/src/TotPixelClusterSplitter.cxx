@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiClusterizationTool/TotPixelClusterSplitter.h"
@@ -200,7 +200,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   const int Lvl1a = OrigCluster.LVL1A();
   
   const AtlasDetectorID* aid = Element->getIdHelper();
-  if (aid==0)
+  if (aid==nullptr)
   {
     ATH_MSG_ERROR("Could not get ATLASDetectorID");
   }
@@ -244,8 +244,8 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
     }
   }
 
-  Parts.push_back(InDet::PixelClusterParts(SplitRdos[0], Totgroups[0], Lvl1groups[0]));
-  Parts.push_back(InDet::PixelClusterParts(SplitRdos[1], Totgroups[1], Lvl1groups[1]));
+  Parts.emplace_back(SplitRdos[0], Totgroups[0], Lvl1groups[0]);
+  Parts.emplace_back(SplitRdos[1], Totgroups[1], Lvl1groups[1]);
     
   delete [] CellIds;
   return Parts;

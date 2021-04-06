@@ -269,7 +269,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
   for(int r=0; r!=26; ++r) {
     writeCdo->m_dzdr[r]   = 1./std::tan(2.*std::atan(std::exp(-rapidity[r])));
     double pinv =-1./(m_pTmin*std::sqrt(1.+writeCdo->m_dzdr[r]*writeCdo->m_dzdr[r]));
-    auto trackPar = ps.createUniqueTrackParameters(0.,0.,0.,std::atan2(1.,double(writeCdo->m_dzdr[r])),pinv,0);
+    auto trackPar = ps.createUniqueTrackParameters(0.,0.,0.,std::atan2(1.,double(writeCdo->m_dzdr[r])),pinv,nullptr);
     m_propTool->globalPositions(G[r],*trackPar,m_fieldprop,CB,5.,Trk::pion);
   } 
   

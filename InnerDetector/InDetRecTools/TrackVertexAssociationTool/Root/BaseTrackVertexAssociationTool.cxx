@@ -24,7 +24,7 @@ using namespace std;
 
 namespace CP {
 
-BaseTrackVertexAssociationTool::BaseTrackVertexAssociationTool(std::string name)
+BaseTrackVertexAssociationTool::BaseTrackVertexAssociationTool(const std::string& name)
     : AsgTool(name),
     m_d0sig_cut(-1),
     m_dzSinTheta_cut(-1),
@@ -169,10 +169,7 @@ bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
 
   // calculate Δz * sin θ
   dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
-  if (m_dzSinTheta_cut >= 0 && dzSinTheta > m_dzSinTheta_cut)
-    return false;
-
-  return true;
+  return !(m_dzSinTheta_cut >= 0 && dzSinTheta > m_dzSinTheta_cut);
 }
 
 template <typename U, typename V>
@@ -200,7 +197,7 @@ const xAOD::Vertex *BaseTrackVertexAssociationTool::getUniqueMatchVertexImpl(
     const xAOD::TrackParticle &trk, T &vx_list) const
 {
   float mini_dz = m_dzSinTheta_cut;
-  const xAOD::Vertex *mini_vertex{0};
+  const xAOD::Vertex *mini_vertex{nullptr};
 
   for (auto *vertex : vx_list) {
     float dzSinTheta = 0.;

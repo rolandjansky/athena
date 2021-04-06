@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h" 
@@ -139,7 +139,7 @@ namespace InDet {
     
     if (!track) {
       msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
-      return 0;
+      return nullptr;
     }
 
     return(this->pixelLayerHitResidual(track,pixelLayer));
@@ -185,8 +185,8 @@ namespace InDet {
 	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
 
 
-	if(  (*it)->trackParameters() !=0 &&
-	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
+	if(  (*it)->trackParameters() !=nullptr &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=nullptr && 
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	  {  
 
@@ -502,7 +502,7 @@ namespace InDet {
 
     const InDetDD::SiDetectorElement* siElement =
       dynamic_cast<const InDetDD::SiDetectorElement*> (trackpar->associatedSurface().associatedDetectorElement());
-    if (siElement == 0 ) {
+    if (siElement == nullptr ) {
       // -------  in dubio pro reo --> return false (is assumed insensitive)
       ATH_MSG_DEBUG("TrackParameters do not belong to a Si Element" );
       /// checking active material 
@@ -538,7 +538,7 @@ namespace InDet {
 
   bool InDet::InDetTestPixelLayerTool::getTrackStateOnPixelLayerInfo(const Trk::Track* track, std::vector<TrackStateOnPixelLayerInfo>& infoList)  const{
 
-    const Trk::TrackParameters* startParameters = 0;
+    const Trk::TrackParameters* startParameters = nullptr;
   
     if (track->perigeeParameters()){
       startParameters = track->perigeeParameters()->clone();
@@ -711,7 +711,7 @@ namespace InDet {
      ATH_MSG_DEBUG( s_int++ << "th surface : ");
 
      Identifier id;
-     if( !( p->associatedSurface().associatedDetectorElement() !=0 && 
+     if( !( p->associatedSurface().associatedDetectorElement() !=nullptr && 
 	 p->associatedSurface().associatedDetectorElement()->identify() !=0 ) )
      {  
        continue;

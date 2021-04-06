@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -94,12 +94,12 @@ namespace InDet{
       listSecondTracks.clear();
       nRefPVTrk=0;
 
-      if( inpTrk.size() < 2 ) { return 0;} // 0,1 track => nothing to do!
+      if( inpTrk.size() < 2 ) { return nullptr;} // 0,1 track => nothing to do!
       nRefPVTrk = selGoodTrkParticle( inpTrk, primVrt, jetDir, selectedTracks);
       if(m_fillHist){m_hb_ntrkjet->Fill( (double)selectedTracks.size(), m_w_1);
                      m_pr_NSelTrkMean->Fill(jetDir.Pt(),(double)selectedTracks.size()); }
       long int NTracks = (int) (selectedTracks.size());
-      if( NTracks < 2 ) { return 0;} // 0,1 selected track => nothing to do!
+      if( NTracks < 2 ) { return nullptr;} // 0,1 selected track => nothing to do!
 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endmsg;
       
@@ -126,15 +126,15 @@ namespace InDet{
       Vrt2TrackNumber = (double) listSecondTracks.size()/2.;
       removeDoubleEntries(listSecondTracks);
       AnalysisUtils::Sort::pT (&listSecondTracks);
-      for(auto iv0 : trkFromV0){ auto itf=std::find(selectedTracks.begin(),selectedTracks.end(),iv0);
+      for(const auto *iv0 : trkFromV0){ auto itf=std::find(selectedTracks.begin(),selectedTracks.end(),iv0);
                                  if(itf!=selectedTracks.end())  selectedTracks.erase(itf);}
 //---
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks in pairs="<< listSecondTracks.size()<<endmsg;
-      if(listSecondTracks.size() < 2 ) return 0;
+      if(listSecondTracks.size() < 2 ) return nullptr;
 
 //--Ranking of selected tracks
       std::vector<float> trkRank(0);
-      for(auto tk : listSecondTracks) trkRank.push_back( m_trackClassificator->trkTypeWgts(tk, primVrt, jetDir)[0] );
+      for(const auto *tk : listSecondTracks) trkRank.push_back( m_trackClassificator->trkTypeWgts(tk, primVrt, jetDir)[0] );
       while( median(trkRank)<0.3 && trkRank.size()>3 ) {
         int Smallest= std::min_element(trkRank.begin(),trkRank.end()) - trkRank.begin();
         removeEntryInList(listSecondTracks,trkRank,Smallest);
@@ -156,14 +156,14 @@ namespace InDet{
       }
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" fitCommonVrt result="<< Chi2<<" Ntrk="<<listSecondTracks.size()<<endmsg;
 //
-      if( Chi2 < 0) return 0;
+      if( Chi2 < 0) return nullptr;
 //
 // Check jet tracks not in secondary vertex
       std::map<double,const xAOD::TrackParticle*> AdditionalTracks;
       vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
       if(Signif3D>8.){
 	int hitL1=0, nLays=0, hitIBL=0, hitBL=0; 
-        for (auto i_ntrk : selectedTracks) {
+        for (const auto *i_ntrk : selectedTracks) {
           if(  find( listSecondTracks.begin(), listSecondTracks.end(), i_ntrk) != listSecondTracks.end() ) continue; // Track is used already
           std::vector<float> trkScore=m_trackClassificator->trkTypeWgts(i_ntrk, primVrt, jetDir);
 	  if( trkScore[0] < 0.1) continue; //Remove very low track HF score
@@ -180,14 +180,14 @@ namespace InDet{
 //
 // Add found tracks and refit
 //
-      if( AdditionalTracks.size() > 0){
+      if( !AdditionalTracks.empty()){
         while (AdditionalTracks.size()>3) AdditionalTracks.erase(AdditionalTracks.begin());//Tracks are in increasing DIFF order.
         for (auto atrk : AdditionalTracks) listSecondTracks.push_back(atrk.second);        //3tracks with max DIFF are selected
         trkRank.clear();
-        for(auto tk : listSecondTracks) trkRank.push_back( m_trackClassificator->trkTypeWgts(tk, primVrt, jetDir)[0] );
+        for(const auto *tk : listSecondTracks) trkRank.push_back( m_trackClassificator->trkTypeWgts(tk, primVrt, jetDir)[0] );
         Chi2 =  fitCommonVrt( listSecondTracks, trkRank, primVrt, jetDir, inpMass, fitVertex, errorMatrix, Momentum, TrkAtVrt);
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Added track fitCommonVrt output="<< Chi2<<endmsg;
-        if( Chi2 < 0) return 0;
+        if( Chi2 < 0) return nullptr;
       }
 //
 //  Saving of results
@@ -196,19 +196,19 @@ namespace InDet{
       if( listSecondTracks.size()==2 ){         // If there are 2 only tracks
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Start Ntr=2 vertex check"<<endmsg;
         int Charge=0;
-        for (auto i_ntrk : listSecondTracks) { Charge +=  (int) i_ntrk->charge();}
+        for (const auto *i_ntrk : listSecondTracks) { Charge +=  (int) i_ntrk->charge();}
 	vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
 // Check track pixel hit patterns vs vertex position.
         if(m_useVertexCleaningPix){
-          if(!check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return 0;
+          if(!check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return nullptr;
         }
 // Check track first measured points vs vertex position.
         if(m_useVertexCleaningFMP){
           float hitR1  = listSecondTracks[0]->radiusOfFirstHit();
           float hitR2  = listSecondTracks[1]->radiusOfFirstHit();
           float vrErr  = vrtRadiusError(fitVertex, errorMatrix);
-          if(std::abs(hitR1-hitR2)>25.) return 0;                                 // Hits in different pixel layers
-          if( fitVertex.perp()-std::min(hitR1,hitR2) > 2.*vrErr) return 0; // Vertex is behind hit in pixel 
+          if(std::abs(hitR1-hitR2)>25.) return nullptr;                                 // Hits in different pixel layers
+          if( fitVertex.perp()-std::min(hitR1,hitR2) > 2.*vrErr) return nullptr; // Vertex is behind hit in pixel 
         }
 //--------
 //
@@ -220,7 +220,7 @@ namespace InDet{
              removeDoubleEntries(trkFromV0);
              AnalysisUtils::Sort::pT (&trkFromV0);
           }
-          return 0;
+          return nullptr;
         }
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Ntr=2 vertex check passed"<<endmsg;
       }
@@ -229,11 +229,11 @@ namespace InDet{
       double jetVrtDir = projSV_PV(fitVertex,primVrt,jetDir);
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Combined SV neg.dir="<<jetVrtDir<<endmsg;
       if(  m_getNegativeTag )
-         { if( jetVrtDir>0. )   return 0; }
+         { if( jetVrtDir>0. )   return nullptr; }
       else if( m_getNegativeTail )
          { ; }
       else 
-         { if( jetVrtDir<0. ) return 0; } 
+         { if( jetVrtDir<0. ) return nullptr; } 
 
       double xvt=fitVertex.x(); double yvt=fitVertex.y();
       double Dist2DBP=std::hypot( xvt-m_beampipeX, yvt-m_beampipeY); 
@@ -306,7 +306,7 @@ namespace InDet{
          AmgSymMatrix(5) *CovMtxP=new (std::nothrow) AmgSymMatrix(5);   if(CovMtxP) (*CovMtxP).setIdentity(); 
          Trk::Perigee * tmpMeasPer  =  new (std::nothrow) Trk::Perigee( 0.,0., TrkAtVrt[ii][0], TrkAtVrt[ii][1], TrkAtVrt[ii][2],
                                                                 Trk::PerigeeSurface(fitVertex), CovMtxP );
-         tmpVTAV.push_back( Trk::VxTrackAtVertex( 1., tmpMeasPer) );
+         tmpVTAV.emplace_back( 1., tmpMeasPer );
          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( listSecondTracks[ii] );
          const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (listSecondTracks[ii]->container() );
 	 TEL.setStorableObject(*cont);
@@ -486,7 +486,6 @@ namespace InDet{
 //
 //  Impact parameters with sign calculations
 //
-      std::vector<float> covPV=primVrt.covariance(); 
       double SignifR=0.,SignifZ=0.;
       std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
       std::vector<double> TrkSig3D(NTracks);
@@ -771,10 +770,10 @@ namespace InDet{
 //--------------------------------------------------------------------
 //-- Post-selection checks 
 //--------------------------------------------------------------------
-      if(listSecondTracks.size()>0 ){ 
+      if(!listSecondTracks.empty() ){ 
         if(m_fillHist){ m_pr_effVrt2tr->Fill((float)nRefPVTrk,1.);
                         m_pr_effVrt2trEta->Fill( jetDir.Eta(),1.);}
-      } else if(listSecondTracks.size()==0) { if(m_fillHist){m_pr_effVrt2tr->Fill((float)nRefPVTrk,0.);
+      } else if(listSecondTracks.empty()) { if(m_fillHist){m_pr_effVrt2tr->Fill((float)nRefPVTrk,0.);
                                                              m_pr_effVrt2trEta->Fill(jetDir.Eta(),0.); }}
       return;
    }

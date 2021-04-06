@@ -26,6 +26,8 @@
 // STL includes
 #include <fstream>
 #include <iterator>
+#include <memory>
+
 #include <stdexcept>
 
 namespace CP {
@@ -276,7 +278,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
   // For sequential:
   if (m_isSequential) {
     lwt::JSONConfig netDef = lwt::parse_json(netFile);
-    m_network = std::unique_ptr<lwt::LightweightNeuralNetwork>(new lwt::LightweightNeuralNetwork(netDef.inputs, netDef.layers, netDef.outputs));
+    m_network = std::make_unique<lwt::LightweightNeuralNetwork>(netDef.inputs, netDef.layers, netDef.outputs);
   }
   // For functional:
   else {
@@ -286,7 +288,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
       return StatusCode::FAILURE;
     }
     m_inputNodeName = netDef.inputs[0].name;
-    m_graph = std::unique_ptr<lwt::LightweightGraph>(new lwt::LightweightGraph(netDef));
+    m_graph = std::make_unique<lwt::LightweightGraph>(netDef);
   }
 
   return StatusCode::SUCCESS;

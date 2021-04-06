@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -170,7 +170,7 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const EventContext& ctx,
       msg(MSG::VERBOSE) << "Retrieved " << setOfSCT_Hashes.size() << " potentially interesting detector elements." << endmsg;
     }
 
-  if ( !m_useROI || setOfSCT_Hashes.size()>0)
+  if ( !m_useROI || !setOfSCT_Hashes.empty())
     {
       // map of < SCT layer number, SP* >
       std::multimap<int,const Trk::SpacePoint*> relevantSpacePoints; 
@@ -481,7 +481,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::
 	    for ( std::multimap<int,const Trk::SpacePoint*>::const_iterator it2 = range2.first; 
 		  it2 != range2.second ; ++it2 )	      
 	      if ( pairIsOk(it1->second,it2->second,directionTRT) )
-		listOfSpacePointPairsBuffer.push_back(std::make_pair(it2->second,it1->second));
+		listOfSpacePointPairsBuffer.emplace_back(it2->second,it1->second);
 
 	}
     }

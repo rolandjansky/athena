@@ -99,7 +99,7 @@ void InDet::InDetUsedInFitTrackDecoratorTool::decorate(const xAOD::TrackParticle
     vxWithWeight.clear();
 
     // Iterate over our vertices
-    for (const auto vtx : *vtxCont) {
+    for (const auto *const vtx : *vtxCont) {
       if (!vtx) continue;
 
       //Search for vertex linked to this track

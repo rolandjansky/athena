@@ -283,7 +283,7 @@ InDet::TRT_TrackExtensionTool_xk::newEvent(const EventContext& ctx) const
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return 0;
+      return nullptr;
   }
   fieldCondObj->getInitializedCache (fieldCache);
 
@@ -504,8 +504,7 @@ InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const EventContext& ctx,
 
   // Final test quality
   //
-  if( event_data.m_trajectory.nclusters() < m_minNumberDCs) return false;
-  return true;
+  return event_data.m_trajectory.nclusters() >= m_minNumberDCs;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -526,20 +525,20 @@ InDet::TRT_TrackExtensionTool_xk::newTrack(const EventContext& ctx,
   // Test conditions to start track extension to TRT
   //
   const Trk::TrackParameters* pe  = tsos->back()->trackParameters(); 
-  if(!pe) return 0; 
-  if(!pe->covariance()) return 0;
+  if(!pe) return nullptr; 
+  if(!pe->covariance()) return nullptr;
   const Trk::TrackParameters* pb  = tsos->front()->trackParameters(); 
-  if(!pb) return 0;
-  if(!pb->covariance()) return 0;
+  if(!pb) return nullptr;
+  if(!pb->covariance()) return nullptr;
 
   // Number PIX and SCT clusters cuts
   //
-  if(!numberPIXandSCTclustersCut(Tr)) return 0;
+  if(!numberPIXandSCTclustersCut(Tr)) return nullptr;
 
   // Test possibility extend track and new track production
   //
   if(isGoodExtension(ctx, pe,event_data)) return event_data.m_trajectory.convert(Tr);
-  return 0;
+  return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -570,6 +569,5 @@ InDet::TRT_TrackExtensionTool_xk::numberPIXandSCTclustersCut(const Trk::Track& T
       else return false;
     }
   }
-  if(npix >= m_minNumberPIX && nsct >= m_minNumberSCT) return true;
-  return false;
+  return npix >= m_minNumberPIX && nsct >= m_minNumberSCT;
 }

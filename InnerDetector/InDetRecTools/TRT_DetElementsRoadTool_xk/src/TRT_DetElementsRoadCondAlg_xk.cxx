@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetElementsRoadUtils_xk.h"
@@ -222,7 +222,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
   double rma = -100000.;
   double rmi = +100000.;
   for(int i=0; i!=3; ++i) {
-    if(layerVectors[i].size()) {
+    if(!layerVectors[i].empty()) {
       if(mzmin[i]<zmi) zmi=mzmin[i];
       if(mzmax[i]>zma) zma=mzmax[i];
       if(mrmax[i]>rma) rma=mrmax[i];

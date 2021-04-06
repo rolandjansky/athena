@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,8 @@
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_BeamGas.h"
 
+
+#include <cmath>
 
 #include <iomanip>
 #include <ostream>
@@ -249,7 +251,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
@@ -257,7 +259,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	auto w = spacepointsPixel->indexFindPtr(l);
+	const auto *w = spacepointsPixel->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -276,14 +278,14 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	auto w = spacepointsSCT->indexFindPtr(l);
+	const auto *w = spacepointsSCT->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -687,8 +689,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork(EventData& data) 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
   const Amg::Vector3D &cb =     beamSpotHandle->beamPos();
-  double     tx = tan(beamSpotHandle->beamTilt(0));
-  double     ty = tan(beamSpotHandle->beamTilt(1));
+  double     tx = std::tan(beamSpotHandle->beamTilt(0));
+  double     ty = std::tan(beamSpotHandle->beamTilt(1));
 
   double ph   = atan2(ty,tx);
   double th   = acos(1./sqrt(1.+tx*tx+ty*ty));
@@ -985,7 +987,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
       float x   = dx*ax+dy*ay;
       float y   =-dx*ay+dy*ax;
       float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float dr  = std::sqrt(r2);
       float tz  = dz*dr; if (i < Nb) tz = -tz;
 
       data.Tz[i] = tz;
@@ -1037,7 +1039,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
 	float B   = Vb-A*Ub;
 	float B2  = B*B;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
-	float Im  = fabs((A-B*R)*R);
+	float Im  = std::abs((A-B*R)*R);
 	
 	if (pix) {
 	  if (                                             Im > imc ) continue;
@@ -1133,7 +1135,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
     sps = &(*data.i_spforseed++);
     sps->set(sp, r);
   } else {
-    data.l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r));
+    data.l_spforseed.emplace_back(sp, r);
     sps = &(data.l_spforseed.back());
     data.i_spforseed = data.l_spforseed.end();
   }
@@ -1157,7 +1159,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
     s->add       (p2);
     s->setZVertex(static_cast<double>(z));
   } else {
-    data.l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, z));
+    data.l_seeds.emplace_back(p1, p2, z);
     data.i_seede = data.l_seeds.end();
   }
 }
@@ -1179,7 +1181,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
     s->add       (p3);
     s->setZVertex(static_cast<double>(z));
   } else {
-    data.l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, p3, z));
+    data.l_seeds.emplace_back(p1, p2, p3, z);
     data.i_seede = data.l_seeds.end();
   }
 }
@@ -1199,7 +1201,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) const
       InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
       *s = *(*l).second;
     } else {
-      data.l_seeds.push_back(InDet::SiSpacePointsSeed(*(*l).second));
+      data.l_seeds.emplace_back(*(*l).second);
       data.i_seede = data.l_seeds.end();
     }
   }

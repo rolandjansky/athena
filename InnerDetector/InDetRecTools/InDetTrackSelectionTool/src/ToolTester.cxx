@@ -68,7 +68,7 @@ StatusCode InDet::ToolTester::execute(const EventContext &ctx) const {
   // Loop over them:
   for ( const xAOD::TrackParticle* track : *tracks ) {
     const xAOD::Vertex* foundVertex = nullptr;
-    for (const auto vertex : *vertices)
+    for (const auto *const vertex : *vertices)
     {
       for (const auto& tpLink : vertex->trackParticleLinks())
       {

@@ -91,7 +91,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   for(i=Gp.begin(); i!=ie; ++i) {
     IdentifierHash id = (*d)->identifyHash(); 
-    auto w=(*TRTc).indexFindPtr(id);
+    const auto *w=(*TRTc).indexFindPtr(id);
     bool q;
     if(w!=nullptr && w->begin()!=w->end()) {
       ti = w->begin(); te = w->end  ();
@@ -166,7 +166,7 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   for(i=Gp.begin(); i!=ie; ++i) {
 
-    IdentifierHash id = (*d)->identifyHash(); auto w=(*TRTc).indexFindPtr(id);
+    IdentifierHash id = (*d)->identifyHash(); const auto *w=(*TRTc).indexFindPtr(id);
     bool q;
     if(w!=nullptr && w->begin()!=w->end()) {
 
@@ -399,8 +399,7 @@ bool InDet::TRT_Trajectory_xk::searchStartStop()
   for(int e = m_lastRoad; e > m_firstTrajectory; --e) {
     if(w[e]>0) {if(W>Wm) {Wm=W; m_lastTrajectory=e;} --W;} else if(w[e]<0) ++W;
   }
-  if((m_lastTrajectory-m_firstTrajectory) < 5 ) return false;
-  return true;
+  return (m_lastTrajectory-m_firstTrajectory) >= 5;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -513,7 +512,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 {
 
   // Test quality of propagation to perigee
-  if(std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
+  if(std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return nullptr;
 
   const Trk::Surface* sur = &m_parameters.associatedSurface();
 
@@ -542,7 +541,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
       rio->push_back(r);
     }
   }
-  if(rio->empty()) {delete rio; return 0;}
+  if(rio->empty()) {delete rio; return nullptr;}
   int bec=0;
   if (nbarrel>0 && nendcap>0) bec=1;
   else if (nbarrel==0 && nendcap>0) bec=2;
@@ -578,7 +577,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 std::pair<const Trk::PseudoMeasurementOnTrack* , const Trk::PseudoMeasurementOnTrack*>
 InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, const Trk::Surface* lastsurf,int bec)
 {
-  const Trk::PseudoMeasurementOnTrack *pmon=0,*pmon2=0;
+  const Trk::PseudoMeasurementOnTrack *pmon=nullptr,*pmon2=nullptr;
   if(!firstsurf || !lastsurf) return std::make_pair(pmon,pmon2);
   double pseudotheta=0;
   const Trk::CylinderBounds *cylb=dynamic_cast<const Trk::CylinderBounds *>(&lastsurf->bounds());
@@ -694,7 +693,7 @@ bool InDet::TRT_Trajectory_xk::trackParametersEstimationForFirstPoint()
 bool InDet::TRT_Trajectory_xk::trackParametersEstimationForFirstPointWithVertexConstraint()
 {
   return m_elements[m_firstTrajectory].trackParametersEstimation
-    (&m_elements[m_lastTrajectory],0,m_parameters,m_zVertexWidth);
+    (&m_elements[m_lastTrajectory],nullptr,m_parameters,m_zVertexWidth);
 
 }
 
@@ -859,7 +858,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
   const DataVector<const Trk::TrackStateOnSurface>*
     tsos = Tr.trackStateOnSurfaces();
 
-  if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return 0;
+  if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return nullptr;
 
   double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
   double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
@@ -911,7 +910,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     }
   }
 
-  if(lastTrajectory == m_firstTrajectory || m_ndf < 5 || m_xi2 > 2.*double(m_ndf)) return 0;
+  if(lastTrajectory == m_firstTrajectory || m_ndf < 5 || m_xi2 > 2.*double(m_ndf)) return nullptr;
   m_lastTrajectory = lastTrajectory;
 
   DataVector<const Trk::TrackStateOnSurface>::const_iterator
@@ -919,7 +918,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // Change first track parameters of the track
   //
-  if(!Tp.production((*s)->trackParameters())) return 0;
+  if(!Tp.production((*s)->trackParameters())) return nullptr;
   m_parameters = Tpl; updateTrackParameters(Tp);
 
   // Fill new track information
@@ -927,7 +926,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
   DataVector<const Trk::TrackStateOnSurface>*
     tsosn = new DataVector<const Trk::TrackStateOnSurface>;
 
-  tsosn->push_back(new Trk::TrackStateOnSurface(0,Tp.convert(true),0,0,(*s)->types()));
+  tsosn->push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 
   // Copy old information to new track
   //
@@ -942,7 +941,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     if(mb) {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-      tsosn->push_back(new Trk::TrackStateOnSurface(mb,0,0,0,typePattern));
+      tsosn->push_back(new Trk::TrackStateOnSurface(mb,nullptr,nullptr,nullptr,typePattern));
     }
   }
 
@@ -953,7 +952,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
     tsosn->push_back
-      (new Trk::TrackStateOnSurface(mb,m_parameters.convert(true),0,0,typePattern));
+      (new Trk::TrackStateOnSurface(mb,m_parameters.convert(true),nullptr,nullptr,typePattern));
   }
 
   // New fit quality production

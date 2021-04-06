@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -203,7 +203,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        
 //
 //
-     ITHistSvc*     hist_root=0;
+     ITHistSvc*     hist_root=nullptr;
      if(m_fillHist){
 
        StatusCode sc = service( "THistSvc", hist_root); 
@@ -442,7 +442,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     }else{
        int nRefPVTrk=0;
        xAOD::Vertex* secVrt = getVrtSec( InpTrk,primVrt,jetDir,Results,SelSecTrk,xaodTrkFromV0, nRefPVTrk);
-       if(secVrt != 0) listVrtSec.push_back(secVrt);
+       if(secVrt != nullptr) listVrtSec.push_back(secVrt);
        else if(m_fillHist){ m_pr_effVrt->Fill((float)nRefPVTrk,0.);
 	                    m_pr_effVrtEta->Fill( jetDir.Eta(),0.);}
     }
