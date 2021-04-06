@@ -352,10 +352,11 @@ namespace top {
     ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> photonSFTools;
     std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> > factory;
 
-    const std::string photonKey = PhotonKeys(triggersByPeriod);
+    const std::string photonKey      = PhotonKeys(triggersByPeriod);
+    const std::string photonKeyLoose = PhotonKeys(triggersByPeriodLoose);
 
     static const std::string mapPath = "PhotonEfficiencyCorrection/2015_2018/rel21.2/Summer2020_Rec_v1/map2.txt";
-    if (photonKey != "") {
+    if (photonKey != "" || photonKeyLoose != "") {
       if (m_config->doTightEvents()) {
         top::check(CheckPhotonIsolation(photonIso), "Unsupported photon isolation for photon triggers provided: " + photonIso);
         for(int j=0;j<2;++j) { /// two instances: 0 -> MC efficiencies, 1 -> SFs
@@ -384,7 +385,7 @@ namespace top {
           const std::string name = "AsgPhotonEfficiencyCorrectionTool/" + std::string(j? "PhTrigEff" : "PhTrigSF");
           auto t = factory.emplace(factory.end(), name);
           top::check(t->setProperty("MapFilePath", mapPath.c_str()), "Cannot set MapFilePath");
-          top::check(t->setProperty("TriggerKey", std::string(j ? "" : "Eff_") + photonKey), "Cannot set TriggerKey");
+          top::check(t->setProperty("TriggerKey", std::string(j ? "" : "Eff_") + photonKeyLoose), "Cannot set TriggerKey");
           top::check(t->setProperty("IsoKey", photonIsoLoose), "Cannot set IsoKey");
           top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Cannot set ForceDataType");
           top::check(t->initialize(), "Cannot initialise the photon tools");
@@ -492,6 +493,7 @@ namespace top {
   std::string TriggerCPTools::PhotonKeys(const std::unordered_map<std::string, std::vector<std::string> >& map) const {
     // check of the trigger names are one of the supported
     std::string result("");
+    if (map.empty()) return result;
 
     const std::vector<std::pair<std::string,std::string> > supported = {{"2015","3g15_loose"},
                                                                         {"2016","3g20_loose"},
