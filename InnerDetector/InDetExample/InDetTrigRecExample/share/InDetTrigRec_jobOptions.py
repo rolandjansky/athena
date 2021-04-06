@@ -26,6 +26,7 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts  
 #moved the truth setting (can be overriden with set&lock)
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 InDetTrigFlags.doTruth = TriggerFlags.doTruth()
+#InDetTrigFlags.doTruth = True #set doTruth to be True to include the InDetClusterAssValidation algorithm in TrigTools/TrigInDetConfig/python/InDetSetup.py
 
 InDetTrigFlags.init()
 InDetTrigFlags.print_JobProperties()
