@@ -29,12 +29,13 @@ def TrigEgammaFastPhotonHypoToolFromDict( chainDict ):
     tool.CAERATIOthr = [ [0., 0., 0., 0., 0., 0., 0., 0., 0.] ] *nt
     tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47] *nt
     tool.dETACLUSTERthr = [0.1] * nt
-    tool.dPHICLUSTERthr = [0.1] *nt 
+    tool.dPHICLUSTERthr = [0.1] *nt
     tool.F1thr = [0.005] *nt
     tool.ET2thr = [ [90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV] ] *nt
     tool.HADET2thr = [ [999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0] ] *nt
     tool.HADETthr = [ [0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035] ] *nt
 
+    print("---MARCO: TrigEgammaFastPhotonHypoToolFromDict")
     return tool
 
 
@@ -45,12 +46,12 @@ def TrigEgammaFastPhotonHypoToolFromName( name, conf ):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-        
+
     return TrigEgammaFastPhotonHypoToolFromDict( decodedDict )
 
 
 if __name__ == "__main__":
-    tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
+    tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")
     assert tool, "Not configured simple tool"
 
     log.info("ALL OK")

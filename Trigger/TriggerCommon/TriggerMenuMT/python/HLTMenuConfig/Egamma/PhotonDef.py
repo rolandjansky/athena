@@ -15,13 +15,13 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
-# fragments generating configuration will be functions in New JO, 
+# fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon')
-    
-def fastPhotonSequenceCfg( flags ):    
+
+def fastPhotonSequenceCfg( flags ):
     return fastPhotonMenuSequence()
 
 def precisionPhotonCaloSequenceCfg( flags ):
@@ -48,33 +48,33 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
+        # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
             "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
         }
-        
+
         ## This needs to be configured by the Egamma Developer!!
         log.debug('photon chain part = %s', self.chainPart)
         addInfo = 'etcut'
@@ -82,7 +82,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
-            
+
         log.debug('photon key = %s', key)
         if key in stepDictionary:
             steps=stepDictionary[key]
@@ -95,26 +95,28 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             log.debug('Adding photon trigger step %s', step)
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
-    
+
         myChain = self.buildChain(chainSteps)
         return myChain
-        
+
 
     # --------------------
     # Configuration of steps
     # --------------------
     def getFastCalo(self):
         stepName = "PhotonFastCalo"
+        print("---MARCO: inside getFastCalo()")
         return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
-        
+
     def getFastPhoton(self):
         stepName = "FastPhoton"
+        print( "---MARCO: inside getFastPhoton()" )
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
-            
+
     def getPrecisionPhoton(self):
         if "dPhi15" in self.chainName:
             stepName = "precision_topophoton"

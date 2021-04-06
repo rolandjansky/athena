@@ -10,6 +10,7 @@
 #include "../TrigEgammaFastElectronHypoAlgMT.h"
 #include "../TrigEgammaFastPhotonHypoAlgMT.h"
 #include "../TrigEgammaFastPhotonHypoTool.h"
+#include "../TrigEgammaTLAPhotonFexMT.h"
 #include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
 #include "../TrigEgammaPrecisionEtcutHypoAlgMT.h"
 #include "../TrigEgammaPrecisionPhotonHypoAlgMT.h"
@@ -18,6 +19,7 @@
 #include "../TrigEgammaDPhiHypoTool.h"
 
 DECLARE_COMPONENT( TrigEgammaFastPhotonFexMT )
+DECLARE_COMPONENT( TrigEgammaTLAPhotonFexMT )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlgMT )

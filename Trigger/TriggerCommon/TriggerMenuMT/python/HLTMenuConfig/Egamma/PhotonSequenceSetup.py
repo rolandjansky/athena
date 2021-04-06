@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# menu components   
+# menu components
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -15,7 +15,8 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup
 
 def fastPhotonMenuSequence():
     """Creates secpond step photon sequence"""
-    
+    print("---MARCO inside fastPhotonMenuSequence()")
+
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
@@ -27,6 +28,8 @@ def fastPhotonMenuSequence():
     thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
+    # make deepcopy of HLT_FastPhotons, HLT_FastPhoton_TLA as a recordable item of the "TLA" Fex (algorithm)
+
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
     l2PhotonViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
@@ -36,12 +39,12 @@ def fastPhotonMenuSequence():
     roiTool.RoIEtaWidth = 0.05
     roiTool.RoIPhiWidth = 0.10
     l2PhotonViewsMaker.RoITool = roiTool
-    l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" 
+    l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs"
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
     l2PhotonViewsMaker.RequireParentView = True
-    
+
     thePhotonFex.RoIs = l2PhotonViewsMaker.InViewRoIs
 
 
@@ -61,7 +64,7 @@ def fastPhotonMenuSequence():
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
     from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
-
+    print("---MARCO: calling MenuSequence")
     return MenuSequence( Maker=l2PhotonViewsMaker,
                          Sequence=photonAthSequence,
                          Hypo=thePhotonHypo,
@@ -72,9 +75,9 @@ def precisionPhotonSequence(ConfigFlags):
     """ This function creates the PrecisionPhoton sequence"""
 
     # Prepare first the EventView
-    InViewRoIs="PrecisionPhotonRoIs"                                          
-    precisionPhotonViewsMaker = EventViewCreatorAlgorithm( "IMprecisionPhoton") 
-    precisionPhotonViewsMaker.ViewFallThrough = True                          
+    InViewRoIs="PrecisionPhotonRoIs"
+    precisionPhotonViewsMaker = EventViewCreatorAlgorithm( "IMprecisionPhoton")
+    precisionPhotonViewsMaker.ViewFallThrough = True
     precisionPhotonViewsMaker.RequireParentView = True
     precisionPhotonViewsMaker.RoIsLink = "initialRoI"            # ROI link used to merge inputs
     precisionPhotonViewsMaker.RoITool = ViewCreatorPreviousROITool() # Tool used to supply ROIs for EventViews
@@ -100,7 +103,7 @@ def precisionPhotonMenuSequence(name):
     """Creates precisionPhoton  sequence"""
     (sequence, precisionPhotonViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionPhotonSequence,ConfigFlags)
 
-    # Hypo 
+    # Hypo
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlgMT
     from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import TrigEgammaPrecisionPhotonHypoToolFromDict
@@ -109,7 +112,6 @@ def precisionPhotonMenuSequence(name):
     thePrecisionPhotonHypo.Photons = sequenceOut
 
     return MenuSequence( Sequence    = sequence,
-                         Maker       = precisionPhotonViewsMaker, 
+                         Maker       = precisionPhotonViewsMaker,
                          Hypo        = thePrecisionPhotonHypo,
                          HypoToolGen = TrigEgammaPrecisionPhotonHypoToolFromDict)
-
