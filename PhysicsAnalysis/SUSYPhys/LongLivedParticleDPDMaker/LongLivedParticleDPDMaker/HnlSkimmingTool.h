@@ -52,6 +52,7 @@ namespace DerivationFramework {
 
     // Muons
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonIsoDecorKey { this, "MuonIsoDecorKey", "Muons.ptcone30", ""};
     // Prompt muons
     float m_mu1PtMin;
     float m_mu1AbsEtaMax;
@@ -70,6 +71,7 @@ namespace DerivationFramework {
 
     // Electrons
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "Electrons", ""};
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronIsoDecorKey { this, "ElectronIsoDecorKey", "Electrons.ptcone30", ""};
     // Prompt electrons
     float m_el1PtMin;
     float m_el1AbsEtaMax;
