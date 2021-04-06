@@ -223,6 +223,11 @@ namespace G4UA
 	/// vector of time dependent TID in full 2d grid 
 	std::vector<double> m_full_rz_tid_time;
 
+	/// vector of time dependent H_T in zoom 2d grid 
+	std::vector<double> m_rz_ht_time;
+	/// vector of time dependent H_T in full 2d grid 
+	std::vector<double> m_full_rz_ht_time;
+
 	// maps of element fractions 
 
 	/// vector of element fractions in zoom 2d grid 
@@ -259,6 +264,17 @@ namespace G4UA
       TGraph * m_tgnSiB = 0;
       TGraph * m_tgpiSi = 0;
       TGraph * m_tgeSi  = 0;
+
+      TGraph * m_tgHn  = 0;
+      TGraph * m_tgHg  = 0;
+      TGraph * m_tgHp  = 0;
+      TGraph * m_tgHem = 0;
+      TGraph * m_tgHep = 0;
+      TGraph * m_tgHmm = 0;
+      TGraph * m_tgHmp = 0;
+      TGraph * m_tgHpm = 0;
+      TGraph * m_tgHpp = 0;
+      TGraph * m_tgHa  = 0;
 
       std::ofstream m_activationFile;
       
