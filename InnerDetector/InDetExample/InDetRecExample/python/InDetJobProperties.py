@@ -1833,10 +1833,6 @@ class InDetJobProperties(JobPropertyContainer):
       # control to run LowBetaFinder
       self.doLowBetaFinder          = self.doLowBetaFinder() and DetFlags.haveRIO.TRT_on()
 
-      #track to vertex decorations in AOD creation only
-      from RecExConfig.RecFlags import rec
-      self.doTTVADecos              =  self.doTTVADecos() and not rec.doAODMerging()
-
       #
       # --------------------------------------------------------------------
       # ---- Statistics
@@ -2071,6 +2067,8 @@ class InDetJobProperties(JobPropertyContainer):
     "Disable all ID reco: pre-processing, tracking, post-processing ..."
     if self.disableInDetReco():
        self.doCaloSeededBrem          = False # disables ROI creation
+       self.doCaloSeededAmbi          = False # disables ROI creation also for the hadronic calo
+       self.doTTVADecos               = False # Disables TTVA decorations 
        self.preProcessing             = False
        self.doHadCaloSeededSSS        = False
        #self.doPRDFormation            = False
