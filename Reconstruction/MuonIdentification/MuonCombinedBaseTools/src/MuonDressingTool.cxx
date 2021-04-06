@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -186,6 +186,8 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
   if ( !trackSummary ) {
     // get link to track particle
     ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.extrapolatedMuonSpectrometerTrackParticleLink();
+    if ( !tpLink.isValid() ) tpLink = muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink();
     if ( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
     if ( tpLink.isValid() ) {
 
