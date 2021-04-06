@@ -1,0 +1,5 @@
+APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAF
+APR:DbReflex:fo...WARNING Type lookup for class ID AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAF failed
+APR Guid TEST        INFO GetGuid failed as expected
+APR Guid TEST        INFO GetGuid (F41DF744-242D-11E6-B472-02163E010CEC) worked as expected
+APR Guid TEST        INFO Test SUCCESS
