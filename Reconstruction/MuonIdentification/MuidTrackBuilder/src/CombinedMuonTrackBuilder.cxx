@@ -4622,7 +4622,4 @@ CombinedMuonTrackBuilder::checkTrack(const std::string& txt, const Trk::Track* n
 
     return newTrackOK;
 }
-  void CombinedMuonTrackBuilder::cleanUp() const {
-    if (!m_muonHoleRecovery.empty()) m_muonHoleRecovery->cleanUp();
-  }
 }  // namespace Rec

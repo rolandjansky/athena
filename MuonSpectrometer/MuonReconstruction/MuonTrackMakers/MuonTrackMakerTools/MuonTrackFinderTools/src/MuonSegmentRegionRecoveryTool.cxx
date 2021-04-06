@@ -1152,10 +1152,5 @@ const Trk::TrackParameters* MuonSegmentRegionRecoveryTool::reachableDetEl( const
   return exPars;
 }
 
-
-  void MuonSegmentRegionRecoveryTool::cleanUp() const {
-    m_trackSegmentMatchingTool->cleanUp();
-  }
-
 }
 

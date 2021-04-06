@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedMuonCandidateAlg.h"
@@ -37,6 +37,5 @@ MuonCombinedMuonCandidateAlg::execute()
     ATH_CHECK(msOnlyTracks.record(std::make_unique<TrackCollection>()));
     m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks);
 
-    m_muonCandidateTool->cleanUp();
     return StatusCode::SUCCESS;
 }

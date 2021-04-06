@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerAmbiguitySolverTool.h"
@@ -323,12 +323,6 @@ namespace Muon {
     insertLayerIntersections(combinedIntersections,existingLayerIntersections,combinedSegments);
     insertLayerIntersections(combinedIntersections,newLayerIntersections,combinedSegments);
     std::swap(existingLayerIntersections,combinedIntersections);
-  }
-
-
-  void MuonLayerAmbiguitySolverTool::cleanUp() const {
-    m_muonTrackBuilder->cleanUp();
-    //m_segmentMatchingTool->cleanUp();
   }
 }
  

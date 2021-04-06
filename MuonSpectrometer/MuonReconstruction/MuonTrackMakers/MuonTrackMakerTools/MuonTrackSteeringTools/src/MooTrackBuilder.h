@@ -61,7 +61,6 @@ namespace Muon {
   class MuPatSegment;
 }
 
-static const InterfaceID IID_MooTrackBuilder("Muon::MooTrackBuilder",1,0);
 
 namespace Muon {
 
@@ -102,7 +101,10 @@ namespace Muon {
     virtual StatusCode finalize() override;
 
     /** @brief access to tool interface */
-    static const InterfaceID& interfaceID() { return IID_MooTrackBuilder; }
+    static const InterfaceID& interfaceID() { 
+        static const InterfaceID IID_MooTrackBuilder("Muon::MooTrackBuilder",1,0);
+        return IID_MooTrackBuilder; 
+    }
 
     /** @brief refit track
         @param track the track
@@ -258,9 +260,7 @@ namespace Muon {
                          HitGarbage& hitsToBeDeleted,
                          MeasGarbage& measurementsToBeDeleted) const override;
 
-    virtual void cleanUp() const override;
-
-
+ 
   private:
 
     void removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,

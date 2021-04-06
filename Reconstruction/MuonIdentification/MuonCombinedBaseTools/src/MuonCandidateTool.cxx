@@ -13,16 +13,12 @@
 #include "MuonCandidateTool.h"
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCandidateTool::MuonCandidateTool (const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCandidateTool>(this);
   }
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCandidateTool::initialize() {
     ATH_CHECK(m_printer.retrieve());
@@ -167,11 +163,6 @@ namespace MuonCombined {
 
     // delete all remaining tracks in the set
     for( auto it = tracksToBeDeleted.begin();it!=tracksToBeDeleted.end();++it ) delete *it;
-  }
-
-
-  void MuonCandidateTool::cleanUp() const {
-    m_trackBuilder->cleanUp();
   }
 
 }	// end of namespace

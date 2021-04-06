@@ -139,8 +139,6 @@ namespace Muon {
       m_segmentsToDelete.clear();
     }
 
-    // clean up track builder tools
-    m_mooBTool->cleanUp();
    
   }
 

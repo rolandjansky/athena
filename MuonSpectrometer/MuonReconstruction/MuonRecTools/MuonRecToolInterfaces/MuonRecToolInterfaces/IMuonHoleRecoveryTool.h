@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHOLERECOVERYTOOL_H
@@ -9,7 +9,6 @@
 
 #include <vector>
 
-static const InterfaceID IID_IMuonHoleRecoveryTool("Muon::IMuonHoleRecoveryTool",1,0);
 
 namespace Trk {
   class Track;
@@ -22,7 +21,10 @@ namespace Muon {
   {      
     public:
     /** access to tool interface */
-    static const InterfaceID& interfaceID();
+    static const InterfaceID& interfaceID(){
+        static const InterfaceID IID_IMuonHoleRecoveryTool("Muon::IMuonHoleRecoveryTool",1,0);
+        return IID_IMuonHoleRecoveryTool;
+    }
 
 
     /** @brief recover missing hits (holes) on tracks
@@ -30,15 +32,10 @@ namespace Muon {
     */
     virtual Trk::Track* recover( const Trk::Track& track ) const = 0;
 
-    virtual void cleanUp() const {};
-
+    /** virtual destructor **/
+    virtual ~IMuonHoleRecoveryTool() = default;
   };
-  
-  inline const InterfaceID& IMuonHoleRecoveryTool::interfaceID()
-  {
-    return IID_IMuonHoleRecoveryTool;
-  }
-
+ 
 } // end of name space
 
 #endif 

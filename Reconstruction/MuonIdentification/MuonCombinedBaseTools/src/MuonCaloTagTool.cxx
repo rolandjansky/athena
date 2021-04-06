@@ -383,10 +383,5 @@ namespace MuonCombined {
     }
 
   }
-
-
-  void MuonCaloTagTool::cleanUp() const {
-    return;
-  }
-
+ 
 }	// end of namespace

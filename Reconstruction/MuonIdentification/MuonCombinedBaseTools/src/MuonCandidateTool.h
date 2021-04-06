@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCANDIDATETOOL_H
@@ -33,9 +33,7 @@ namespace MuonCombined {
     /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
     virtual
       void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) override;
-    virtual 
-      void cleanUp() const override;
-
+  
   private:
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder {this, "TrackBuilder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};

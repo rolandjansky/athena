@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOCANDIDATEMATCHINGTOOL_H
@@ -44,7 +44,6 @@ namespace Muon {
   class MuPatSegment;
   class MuPatCandidateBase;
 
-  static const InterfaceID IID_MooCandidateMatchingTool("Muon::MooCandidateMatchingTool",1,0);
   
   /** class to manipulate MuPatCandidateBase objects */
   class MooCandidateMatchingTool : virtual public IMuonTrackSegmentMatchingTool, public AthAlgTool {
@@ -62,7 +61,11 @@ namespace Muon {
       virtual void clear();
      
     };
-
+    /** @brief access to tool interface */
+    static const InterfaceID& interfaceID() { 
+        static const InterfaceID IID_MooCandidateMatchingTool("Muon::MooCandidateMatchingTool",1,0);
+        return IID_MooCandidateMatchingTool; 
+    }
     
     /** default AlgTool constructor */
     MooCandidateMatchingTool(const std::string&, const std::string&, const IInterface*);
@@ -75,10 +78,7 @@ namespace Muon {
 
     /** finialize method, method taken from bass-class AlgTool */
     virtual StatusCode finalize() override;
-    
-    /** @brief access to tool interface */
-    static const InterfaceID& interfaceID() { return IID_MooCandidateMatchingTool; }
- 
+  
     /** @brief match two segment entries */
     bool match( const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts = false ) const;
 
@@ -151,8 +151,6 @@ namespace Muon {
     
     /** @brief return whether the 2 segments are in neighbouring chambers */
     bool areInNeighbouringChambers( const MuPatSegment& seg1, const MuPatSegment& seg2 ) const;
-
-    void cleanUp() const override;
 
   private:
 

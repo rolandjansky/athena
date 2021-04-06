@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**@class MuonSegmentRegionRecoveryTool
@@ -118,8 +118,7 @@ namespace Muon {
     /** @brief returns a new track with segments recovered using RegionSelector*/
     virtual Trk::Track* recover( const Trk::Track& track ) const override;
     
-    virtual void cleanUp() const override;
-
+ 
   private:
 
     /** @brief returns a new track with segments recovered using RegionSelector, actual implementation*/

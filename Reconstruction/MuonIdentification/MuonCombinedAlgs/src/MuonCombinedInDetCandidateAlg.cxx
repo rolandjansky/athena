@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedInDetCandidateAlg.h"
@@ -61,10 +61,9 @@ MuonCombinedInDetCandidateAlg::create(const EventContext&                       
         ATH_MSG_ERROR("Could not read " << location);
         return StatusCode::FAILURE;
     }
-    InDetCandidateCollection* tempCandidates = new InDetCandidateCollection(SG::VIEW_ELEMENTS);
+    std::unique_ptr<InDetCandidateCollection> tempCandidates = std::make_unique<InDetCandidateCollection>(SG::VIEW_ELEMENTS);
     create(currentTrackSelector, *indetTrackParticles, *tempCandidates, flagCandidateAsSiAssociate);
     collection->insert(collection->end(), tempCandidates->begin(), tempCandidates->end());
-    delete tempCandidates;
     return StatusCode::SUCCESS;
 }
 

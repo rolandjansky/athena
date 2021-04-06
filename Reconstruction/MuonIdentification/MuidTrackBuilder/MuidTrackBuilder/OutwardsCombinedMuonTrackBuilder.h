@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -108,8 +108,6 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
     Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
-
-    virtual void cleanUp() const override;
 
   private:
     Trk::Track* addIDMSerrors(Trk::Track* track) const;
