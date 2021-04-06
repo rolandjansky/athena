@@ -121,7 +121,8 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                 if(pileup):
                     raise Exception('Running pileup digitization in mixed MP+MT currently not supported')
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
-                self.Tools += [ SharedHiveEvtQueueConsumer(EventsBeforeFork=events_before_fork,
+                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedWriter=use_shared_writer, 
+                                                           EventsBeforeFork=events_before_fork,
                                                            Debug=debug_worker)   ]
             else:
                 from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
