@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,15 +56,15 @@ namespace Trk {
         ~SubtractedPlaneLayer() override{}   
     
         /** Transforms the layer into a Surface representation for extrapolation */
-        const SubtractedPlaneSurface& surfaceRepresentation() const override;            
+        const SubtractedPlaneSurface& surfaceRepresentation() const override final;            
 
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+                                       Trk::PropDirection dir) const override final;
 
         /** getting the MaterialProperties back - for post-update*/ 
         double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+                                         Trk::PropDirection dir) const override final;
         /** move the Layer */
         virtual void moveLayer(Amg::Transform3D& shift) override final;
 
