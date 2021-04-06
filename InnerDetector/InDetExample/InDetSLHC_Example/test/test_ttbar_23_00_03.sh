@@ -134,7 +134,7 @@ if [ $dorec -ne 0 ]; then
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
     --AMI              r12166 \
-    --geometryVersion ATLAS-P2-ITK-23-00-03 \ 
+    --geometryVersion  ATLAS-P2-ITK-23-00-03 \ 
     --steering         doRAWtoALL 
 
 
