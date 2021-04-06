@@ -19,8 +19,8 @@
 #include <algorithm>
 
 // Boost includes
-#include "boost/format.hpp"
 #include "boost/filesystem.hpp"
+#include "boost/format.hpp"
 
 /*
  * Constructor
@@ -35,11 +35,6 @@ PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
   m_snapshotData[CONFIGURE].addPointStop_snapshot(m_measurement_snapshots);
   m_snapshotData[INITIALIZE].addPointStart_snapshot(m_measurement_snapshots);
 }
-
-/*
- * Destructor
- */
-PerfMonMTSvc::~PerfMonMTSvc() {}
 
 /*
  * Query Interface
@@ -142,7 +137,7 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
     if (!m_doComponentLevelMonitoring) return;
 
     // Start component auditing
-    auto ctx = Gaudi::Hive::currentContext();
+    auto const &ctx = Gaudi::Hive::currentContext();
     startCompAud(stepName, compName, ctx);
   }
 }
@@ -160,7 +155,7 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
     if (!m_doComponentLevelMonitoring) return;
 
     // Stop component auditing
-    auto ctx = Gaudi::Hive::currentContext();
+    auto const &ctx = Gaudi::Hive::currentContext();
     stopCompAud(stepName, compName, ctx);
   }
 }
@@ -328,13 +323,13 @@ int PerfMonMTSvc::getCpuEfficiency() const {
   // Then we divide the total cpu-time by this number
   // It's A metric not THE metric...
 
-  const float totalCpuTime =
+  const double totalCpuTime =
    m_snapshotData[CONFIGURE].getDeltaCPU()  +
    m_snapshotData[INITIALIZE].getDeltaCPU() +
    m_snapshotData[EXECUTE].getDeltaCPU()    +
    m_snapshotData[FINALIZE].getDeltaCPU();
 
-  const float scaledWallTime =
+  const double scaledWallTime =
    m_snapshotData[CONFIGURE].getDeltaWall()  * 1. +
    m_snapshotData[INITIALIZE].getDeltaWall() * 1. +
    m_snapshotData[EXECUTE].getDeltaWall()    * m_numberOfSlots +
@@ -454,10 +449,10 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const {
   double cpu_time = m_eventLevelData.getEventLevelCpuTime(m_eventCounter);
   double wall_time = m_eventLevelData.getEventLevelWallTime(m_eventCounter);
 
-  long vmem = m_eventLevelData.getEventLevelVmem(m_eventCounter);
-  long rss = m_eventLevelData.getEventLevelRss(m_eventCounter);
-  long pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
-  long swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
+  int64_t vmem = m_eventLevelData.getEventLevelVmem(m_eventCounter);
+  int64_t rss = m_eventLevelData.getEventLevelRss(m_eventCounter);
+  int64_t pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
+  int64_t swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
 
   ATH_MSG_INFO("Event [" << std::setw(5) << m_eventCounter << "] CPU Time: " << scaleTime(cpu_time) <<
                ", Wall Time: " <<  scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) <<
@@ -481,7 +476,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
   m_eventLoopMsgCounter = 0; // reset counter
-  unsigned long nMeasurements = m_eventLevelData.getNMeasurements();
+  uint64_t nMeasurements = m_eventLevelData.getNMeasurements();
 
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
     // Print
@@ -634,10 +629,10 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
     const double dCPU = m_snapshotData[i].getDeltaCPU();
     const double dWall = m_snapshotData[i].getDeltaWall();
     const double cpuUtil = dCPU / dWall;
-    const long dVmem = m_snapshotData[i].getMemMonDeltaMap("vmem");
-    const long dRss = m_snapshotData[i].getMemMonDeltaMap("rss");
-    const long dPss = m_snapshotData[i].getMemMonDeltaMap("pss");
-    const long dSwap = m_snapshotData[i].getMemMonDeltaMap("swap");
+    const int64_t dVmem = m_snapshotData[i].getMemMonDeltaMap("vmem");
+    const int64_t dRss = m_snapshotData[i].getMemMonDeltaMap("rss");
+    const int64_t dPss = m_snapshotData[i].getMemMonDeltaMap("pss");
+    const int64_t dSwap = m_snapshotData[i].getMemMonDeltaMap("swap");
 
     j["summary"]["snapshotLevel"][step] = {{"dCPU", dCPU},
                                            {"dWall", dWall},
@@ -650,22 +645,22 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   }
 
   // Report the total number of events
-  const long nEvents = m_eventCounter;
+  const int64_t nEvents = m_eventCounter;
   j["summary"]["nEvents"] = nEvents;
 
   // Report Peaks
-  const long vmemPeak = m_measurement_events.vmemPeak;
-  const long rssPeak = m_measurement_events.rssPeak;
-  const long pssPeak = m_measurement_events.pssPeak;
+  const int64_t vmemPeak = m_measurement_events.vmemPeak;
+  const int64_t rssPeak = m_measurement_events.rssPeak;
+  const int64_t pssPeak = m_measurement_events.pssPeak;
 
   j["summary"]["peaks"] = {{"vmemPeak", vmemPeak},
                            {"rssPeak", rssPeak},
                            {"pssPeak", pssPeak}};
 
   // Report leak estimates
-  const long vmemLeak = m_fit_vmem.slope();
-  const long pssLeak = m_fit_pss.slope();
-  const long nPoints = m_fit_vmem.nPoints();
+  const int64_t vmemLeak = m_fit_vmem.slope();
+  const int64_t pssLeak = m_fit_pss.slope();
+  const int64_t nPoints = m_fit_vmem.nPoints();
 
   j["summary"]["leakEstimates"] = {{"vmemLeak", vmemLeak},
                                    {"pssLeak", pssLeak},
@@ -674,7 +669,7 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   // Report Sys info
   const std::string cpuModel = get_cpu_model_info();
   const int coreNum = get_cpu_core_info();
-  const long totMem = get_memory_info();
+  const int64_t totMem = get_memory_info();
 
   j["summary"]["sysInfo"] = {{"cpuModel", cpuModel},
                              {"coreNum", coreNum},
@@ -703,8 +698,8 @@ void PerfMonMTSvc::report2JsonFile_ComponentLevel(nlohmann::json& j) const {
       const std::string component = meas.first.compName;
       const uint64_t count = meas.second->getCallCount();
       const double cpuTime = meas.second->getDeltaCPU();
-      const long vmem  = meas.second->getDeltaVmem();
-      const int mall = meas.second->getDeltaMalloc();
+      const int64_t vmem  = meas.second->getDeltaVmem();
+      const int64_t mall = meas.second->getDeltaMalloc();
 
       j["componentLevel"][step][component] = {{"count", count},
                                               {"cpuTime", cpuTime},
@@ -723,10 +718,10 @@ void PerfMonMTSvc::report2JsonFile_EventLevel(nlohmann::json& j) const {
     const uint64_t event = it.first;
     const double cpuTime = it.second.cpu_time;
     const double wallTime = it.second.wall_time;
-    const long vmem = it.second.mem_stats.at("vmem");
-    const long rss = it.second.mem_stats.at("rss");
-    const long pss = it.second.mem_stats.at("pss");
-    const long swap = it.second.mem_stats.at("swap");
+    const int64_t vmem = it.second.mem_stats.at("vmem");
+    const int64_t rss = it.second.mem_stats.at("rss");
+    const int64_t pss = it.second.mem_stats.at("pss");
+    const int64_t swap = it.second.mem_stats.at("swap");
 
     j["eventLevel"][std::to_string(event)] = {{"cpuTime", cpuTime},
                                               {"wallTime", wallTime},
@@ -773,7 +768,7 @@ void PerfMonMTSvc::aggregateSlotData() {
  * Divide component-level data into steps, for printing
  */
 void PerfMonMTSvc::divideData2Steps() {
-  for (auto it : m_compLevelDataMap) {
+  for (const auto &it : m_compLevelDataMap) {
     if (it.first.stepName == "Initialize")
       m_compLevelDataMap_ini[it.first] = it.second;
     else if (it.first.stepName == "Execute")
@@ -795,7 +790,7 @@ void PerfMonMTSvc::divideData2Steps() {
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
   // Not a huge fan of this, we should eventually unify the types
   // Just want to be explicit about what's happening
-  long ms = (long) timeMeas;
+  auto ms = static_cast<int64_t>(timeMeas);
 
   // Compute hrs and offset
   auto hrs = ms / 3600000;
@@ -816,7 +811,7 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
   return ss.str();
 }
 
-std::string PerfMonMTSvc::scaleMem(long memMeas) const {
+std::string PerfMonMTSvc::scaleMem(int64_t memMeas) const {
   // The memory measurements should be positive
   // Only delta(A,B) can go negative but this method
   // is not used for those cases, at least for now
@@ -828,23 +823,23 @@ std::string PerfMonMTSvc::scaleMem(long memMeas) const {
 
   double result = 0;
 
-  std::string significance[4] = {"KB", "MB", "GB", "TB"};
+  std::vector<std::string> significance = {"KB", "MB", "GB", "TB"};
   int scaleFactor = 0;
 
   if (memMeas > 1024 * 1024 * 1024) {
-    int teraCount = memMeas / (1024 * 1024 * 1024);
+    int64_t teraCount = memMeas / (1024 * 1024 * 1024);
     memMeas = memMeas % (1024 * 1024 * 1024);
     result += teraCount;
     scaleFactor++;
   }
   if (memMeas > 1024 * 1024) {
-    int gigaCount = memMeas / (1024 * 1024);
+    int64_t gigaCount = memMeas / (1024 * 1024);
     memMeas = memMeas % (1024 * 1024);
     result += gigaCount * (1.0 / 1024);
     scaleFactor++;
   }
   if (memMeas > 1024) {
-    int megaCount = memMeas / (1024);
+    int64_t megaCount = memMeas / (1024);
     memMeas = memMeas % (1024);
     result += megaCount * (1.0 / (1024 * 1024));
     scaleFactor++;
@@ -877,7 +872,7 @@ std::string PerfMonMTSvc::get_info_from_file(const std::string& fileName,
 
   while (std::getline(file, line)) {
     if (line.empty()) continue;
-    size_t splitIdx = line.find(":");
+    size_t splitIdx = line.find(':');
     if (splitIdx != std::string::npos) {
       std::string val = line.substr(splitIdx + 1);
       if (val.empty()) continue;
@@ -904,9 +899,9 @@ int PerfMonMTSvc::get_cpu_core_info() const {
   return std::stoi(val) + 1;
 }
 
-long PerfMonMTSvc::get_memory_info() const {
+uint64_t PerfMonMTSvc::get_memory_info() const {
   std::string val = get_info_from_file("/proc/meminfo","MemTotal");
   if (val.empty()) return 0;
   val = val.substr(0, val.size() - 3);  // strip the trailing kB
-  return std::stol(val);
+  return std::stoull(val);
 }
