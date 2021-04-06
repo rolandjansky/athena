@@ -9,21 +9,16 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "MuonAlignmentData/BLinePar.h"
 
-class BLineParContainer : public DataVector<BLinePar>
-{
- public:
-  BLineParContainer();
-  ~BLineParContainer();
-
+class BLineParContainer : public DataVector<BLinePar> {
+public:
+    BLineParContainer();
+    ~BLineParContainer();
 };
 
-inline BLineParContainer::BLineParContainer():
-  DataVector<BLinePar>()
-{ } 
+inline BLineParContainer::BLineParContainer() : DataVector<BLinePar>() {}
 
-inline BLineParContainer::~BLineParContainer()
-{ } 
+inline BLineParContainer::~BLineParContainer() {}
 
-CLASS_DEF( BLineParContainer , 1124991367 , 1 )
+CLASS_DEF(BLineParContainer, 1124991367, 1)
 
 #endif  // MUONALIGNMENTDATA_BLINEPARCONTAINER_H

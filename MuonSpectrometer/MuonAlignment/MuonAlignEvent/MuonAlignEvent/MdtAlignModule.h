@@ -5,12 +5,12 @@
 #ifndef MUONALIGNGENALGS_MDTALIGNMODULE_H
 #define MUONALIGNGENALGS_MDTALIGNMODULE_H
 
-#include "TrkAlignEvent/AlignModule.h"
-#include "TrkAlignEvent/AlignPar.h"
-#include "MuonAlignEvent/CombinedMuonAlignModule.h"
-
 #include <iostream>
 #include <vector>
+
+#include "MuonAlignEvent/CombinedMuonAlignModule.h"
+#include "TrkAlignEvent/AlignModule.h"
+#include "TrkAlignEvent/AlignPar.h"
 
 /**
    @file MdtAlignModule.h
@@ -31,49 +31,43 @@ class TFile;
 class TTree;
 
 namespace MuonGM {
-  class MdtReadoutElement;
+    class MdtReadoutElement;
 }
 
 namespace Muon {
-  
-  class MdtAlignModule : public CombinedMuonAlignModule {
-    
-  public:
-    
-    /** Constructor using AlgTool gives a MsgStream with MdtAlignModule for name 
-	and the the same output level as the AlgTool. */
-    MdtAlignModule(const AlgTool* algtool, 
-		   const Amg::Transform3D& transform=Amg::Transform3D::Identity());
 
-    /** This constructor gives a MsgStream with the name of the tool that created 
-	the MdtAlignModule and the same output level. */
-    MdtAlignModule(MsgStream* log,
-		   const Amg::Transform3D& transform=Amg::Transform3D::Identity());
+    class MdtAlignModule : public CombinedMuonAlignModule {
+    public:
+        /** Constructor using AlgTool gives a MsgStream with MdtAlignModule for name
+            and the the same output level as the AlgTool. */
+        MdtAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
 
-    virtual ~MdtAlignModule();
-    
-    /** tree in m_rootfile used to store positions of tubes in chambers */
-    TFile* getRootFile()         { return m_rootfile; }
-    TTree* getTubePositionTree() { return m_tubePositionTree; }
-    void   setRootFile(TFile* file)         { m_rootfile=file; }
-    void   setTubePositionTree(TTree* tree) { m_tubePositionTree=tree; }
-    
-    //void   shiftSurface(Trk::TrkDetElementBase* det, Identifier tubeId) const;
-    //void   restoreSurfaces(Trk::TrkDetElementBase* mre) const;
-    
-  private:
+        /** This constructor gives a MsgStream with the name of the tool that created
+            the MdtAlignModule and the same output level. */
+        MdtAlignModule(MsgStream* log, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
 
-    
-    /** tree used to store positions of tubes for drawing hits and troubleshooting */
-    TFile*         m_rootfile;
-    TTree*         m_tubePositionTree;
+        virtual ~MdtAlignModule();
 
-    MsgStream*     m_log;
-    MdtAlignModule & operator=(const MdtAlignModule &right);
-    MdtAlignModule(const MdtAlignModule&);
+        /** tree in m_rootfile used to store positions of tubes in chambers */
+        TFile* getRootFile() { return m_rootfile; }
+        TTree* getTubePositionTree() { return m_tubePositionTree; }
+        void setRootFile(TFile* file) { m_rootfile = file; }
+        void setTubePositionTree(TTree* tree) { m_tubePositionTree = tree; }
 
-  }; // end class
-  
-} // end namespace
+        // void   shiftSurface(Trk::TrkDetElementBase* det, Identifier tubeId) const;
+        // void   restoreSurfaces(Trk::TrkDetElementBase* mre) const;
 
-#endif // MUONALIGNGENALGS_MDTALIGNMODULE_H
+    private:
+        /** tree used to store positions of tubes for drawing hits and troubleshooting */
+        TFile* m_rootfile;
+        TTree* m_tubePositionTree;
+
+        MsgStream* m_log;
+        MdtAlignModule& operator=(const MdtAlignModule& right);
+        MdtAlignModule(const MdtAlignModule&);
+
+    };  // end class
+
+}  // namespace Muon
+
+#endif  // MUONALIGNGENALGS_MDTALIGNMODULE_H
