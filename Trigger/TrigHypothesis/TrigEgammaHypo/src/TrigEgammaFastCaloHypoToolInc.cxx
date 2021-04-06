@@ -70,7 +70,7 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
   
   
   if (m_useRinger) {
-   if (m_vloose + m_loose + m_medium + m_tight != 1) {
+   if (!(m_vloose|| m_loose || m_medium || m_tight)) {
     ATH_MSG_ERROR("Ringer mode requires exactly one of the vloose, loose, medium or tight flags to be set.");
     return StatusCode::FAILURE;
    }
