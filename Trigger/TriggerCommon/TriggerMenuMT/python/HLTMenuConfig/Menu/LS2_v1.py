@@ -585,6 +585,9 @@ def setupMenu():
 
         # ATR-20450
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=PrimaryLegGroup+MultiTauGroup),
+
+        # ATR-20049
+        ChainProp(name="HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU25IM_2TAU20IM_2J25_3J20",  l1SeedThresholds=['TAU25IM','TAU20IM'], groups=MultiTauGroup),        
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
