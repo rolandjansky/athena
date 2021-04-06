@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file   GsfMeasurementUpdator.cxx
@@ -170,7 +170,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   MultiComponentStateAssembler::Cache cache;
 
   // Calculate the weight of each component after the measurement
-  std::vector<Trk::ComponentParameters> stateWithNewWeights =
+  MultiComponentState stateWithNewWeights =
     PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
                                         measurement);
 
@@ -220,7 +220,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   // Calculate the weight of each component after the measurement
-  std::vector<Trk::ComponentParameters> stateWithNewWeights =
+  MultiComponentState stateWithNewWeights =
     PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
                                         measurement);
 

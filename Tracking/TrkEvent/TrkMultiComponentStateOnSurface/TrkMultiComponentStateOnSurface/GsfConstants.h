@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -23,17 +23,17 @@ namespace GSFConstants {
  * The Beth Heitler Material effect are also described
  * by M components
  * Which futher can involve polynomial parametetrization
- * with C coeffiencts (look Readme under Data folder)
+ * with C coeffiencts.
  *
  * Each step we have a N x M convolution
  * And then a reduction back to N
  *
- * The max numbers for N , M  are enforced in configuration.
- * It is an error to configure for more.
+ * The max numbers for N , M  should be enforced in configuration.
+ * As is an error to configure for more.
  *
- * They lead to a max allowed NXM after convolution.
- * Trying to somehow pass (by-passing the config)
- * leads to an exception.
+ * This lead to a max allowed NXM after convolution.
+ * Trying to somehow  by pass that is a configuration
+ * error (GSF code throws an exception).
  *
  * Furthermore, the  number of coefficients is also
  * constrained in configuration.
