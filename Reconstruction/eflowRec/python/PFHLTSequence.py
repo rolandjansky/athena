@@ -101,7 +101,7 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
         InputVertices = trackvtxcontainers[tracktype][1],
         OutputTracks = f"PFMuonIsoTagTracks_{tracktype}",
         MinPt = flags.Trigger.FSHad.PFOMuonRemovalMinPt,
-        TrackIsoTool = xAOD__TrackIsolationTool(TrackParticleLocation=tracksin),
+        TrackIsoTool = xAOD__TrackIsolationTool(TrackParticleLocation=tracksin, VertexLocation=""),
         CaloIsoTool = xAOD__CaloIsolationTool(
             ParticleCaloExtensionTool=getExtrapolator(),
             InputCaloExtension=extcache,
