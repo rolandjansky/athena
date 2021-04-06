@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -911,7 +911,7 @@ namespace Trk
     //This lock should no be needed , leaving it for now
     // until we are sure all function pass thread safety
     // requirements
-    std::scoped_lock lock(m_fitProcedureMutex);
+    /// std::scoped_lock lock(m_fitProcedureMutex);
 
     const FitProcedureQuality& quality =
       m_fitProcedure->execute(cache,
