@@ -17,51 +17,51 @@
 
 
 namespace MVAEnum{
-    struct MVACalcVars{
-        double eta;
-        double et;
-        double f3;
-        double Rhad;
-        double Rhad1;
-        double Reta;
-        double weta2;
-        double f1;
-        double Eratio;
-        double deltaEta1;
-        double d0;
-        double d0significance;
-        double Rphi;
-        double dPOverP;
-        double deltaPhiRescaled2;
-        double trans_TRTPID;
-        double wtots1;
-        double EoverP;
-        double nPixHitsPlusDeadSensors;
-        double nSCTHitsPlusDeadSensors;
-    };
+  struct MVACalcVars{
+    double eta;
+    double et;
+    double f3;
+    double Rhad;
+    double Rhad1;
+    double Reta;
+    double weta2;
+    double f1;
+    double Eratio;
+    double deltaEta1;
+    double d0;
+    double d0significance;
+    double Rphi;
+    double dPOverP;
+    double deltaPhiRescaled2;
+    double trans_TRTPID;
+    double wtots1;
+    double EoverP;
+    double nPixHitsPlusDeadSensors;
+    double nSCTHitsPlusDeadSensors;
+  };
 
-    struct QTVars{
-        std::vector<double> eta;
-        std::vector<double> et;
-        std::vector<double> f3;
-        std::vector<double> Rhad;
-        std::vector<double> Rhad1;
-        std::vector<double> Reta;
-        std::vector<double> weta2;
-        std::vector<double> f1;
-        std::vector<double> Eratio;
-        std::vector<double> deltaEta1;
-        std::vector<double> d0;
-        std::vector<double> d0significance;
-        std::vector<double> Rphi;
-        std::vector<double> dPOverP;
-        std::vector<double> deltaPhiRescaled2;
-        std::vector<double> trans_TRTPID;
-        std::vector<double> wtots1;
-        std::vector<double> EoverP;
-        std::vector<double> nPixHitsPlusDeadSensors;
-        std::vector<double> nSCTHitsPlusDeadSensors;
-    };
+  struct QTVars{
+    std::vector<double> eta;
+    std::vector<double> et;
+    std::vector<double> f3;
+    std::vector<double> Rhad;
+    std::vector<double> Rhad1;
+    std::vector<double> Reta;
+    std::vector<double> weta2;
+    std::vector<double> f1;
+    std::vector<double> Eratio;
+    std::vector<double> deltaEta1;
+    std::vector<double> d0;
+    std::vector<double> d0significance;
+    std::vector<double> Rphi;
+    std::vector<double> dPOverP;
+    std::vector<double> deltaPhiRescaled2;
+    std::vector<double> trans_TRTPID;
+    std::vector<double> wtots1;
+    std::vector<double> EoverP;
+    std::vector<double> nPixHitsPlusDeadSensors;
+    std::vector<double> nSCTHitsPlusDeadSensors;
+  };
 
 }
 
@@ -73,13 +73,14 @@ public:
   ElectronDNNCalculator( AsgElectronSelectorTool* owner,
                          const std::string& modelFileName,
                          const std::string& quantileFileName,
-                         const std::vector<std::string>& variablesName);
+                         const std::vector<std::string>& variablesName,
+                         const bool multiClass);
 
   /** Standard destructor*/
   ~ElectronDNNCalculator() {};
 
   /** Get the prediction of the DNN model*/
-  double calculate( const MVAEnum::MVACalcVars& varsStruct ) const;
+  std::vector<double> calculate( const MVAEnum::MVACalcVars& varsStruct ) const;
 
 private:
   /** transform the input variables according to a given QuantileTransformer.*/
@@ -93,6 +94,8 @@ private:
   MVAEnum::QTVars m_quantiles;
   /// Reference values for the QuantileTransformer. Basically just equidistant bins between 0 and 1.
   std::vector<double> m_references;
+  /// Whether the used model is a multiclass model or not.
+  bool m_multiClass;
 
 };
 

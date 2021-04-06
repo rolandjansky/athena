@@ -98,10 +98,13 @@ private:
   /** Applies a logit transformation to the score returned by the underlying MVA tool*/
   double transformMLOutput( double score ) const;
 
+  /** Combines the six output nodes of a multiclass model into one discriminant. */
+  double combineOutputs(const std::vector<double>& mvaScores, double eta) const;
+
   /** Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta*/
   unsigned int getDiscEtaBin( double eta ) const;
 
-  /** Gets the Descriminant Et bin the et (MeV) [0,s_fnDiscEtBinsOneExtra-1] or [0,s_fnDiscEtBins-1]*/
+  /** Gets the Descriminant Et bin the et (MeV) [0,s_fnDiscEtBins-1]*/
   unsigned int getDiscEtBin( double et ) const;
 
   // NOTE that this will only perform the cut interpolation up to ~45 GeV, so
@@ -139,6 +142,13 @@ private:
   /// Variables used in the MVA Tool
   std::vector<std::string> m_variables;
 
+
+  /// Multiclass model or not
+  bool m_multiClass;
+  /// Use the CF output node in the numerator or the denominator
+  bool m_cfSignal;
+  /// Fractions to combine the output nodes of a multiclass model into one discriminant.
+  std::vector<double> m_fractions;
 
   /// do cut on ambiguity bit
   std::vector<int> m_cutAmbiguity;
