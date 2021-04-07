@@ -303,7 +303,7 @@ StatusCode MdtRawDataMonAlg::initialize()
     (*m_hist_hash_list)[m_chambersIdHash.at(counter)] = chamber;
 
     chamber->SetMDTHitsPerChamber_IMO_Bin( mdtHitsPerChamberIMOLumi[ chamber->GetBarrelEndcapEnum() ].get() );
-    chamber->SetMDTHitsPerML_byLayer_Bins( mdtHitsPerMultiLayerLumi[ chamber->GetRegionEnum() * ecap.size() + chamber->GetLayerEnum() ].get(),
+    chamber->SetMDTHitsPerML_byLayer_Bins( mdtHitsPerMultiLayerLumi[ chamber->GetRegionEnum() * layer.size() + chamber->GetLayerEnum() ].get(),
                                            mdtHitsPerMLByLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ].get() );
 
     m_tubesperchamber_map[hardware_name] = GetTubeMax(*itr, hardware_name); // total number of tubes in chamber
