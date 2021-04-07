@@ -115,12 +115,8 @@ if doObj("OFC"):
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
   from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-  from LArRecUtils.LArAutoCorrNoiseToolDefault import LArAutoCorrNoiseToolDefault
   theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
   ToolSvc += theLArADC2MeVToolDefault
-  theLArAutoCorrNoiseToolDefault = LArAutoCorrNoiseToolDefault()
-  theLArAutoCorrNoiseToolDefault.NSamples = 5
-  ToolSvc += theLArAutoCorrNoiseToolDefault
   from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
   theOFCTool = LArOFCToolDefault()
   theOFCTool.Dump=True
