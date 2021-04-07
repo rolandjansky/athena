@@ -33,8 +33,12 @@ namespace Muon {
       else {
 	Identifier id1=m_edmHelperSvc->getIdentifier(*mst1);
 	Identifier id2=m_edmHelperSvc->getIdentifier(*mst2);
-	if(!id1.is_valid() || !id2.is_valid()) return std::abs(mst1->globalPosition().z()) < std::abs(mst2->globalPosition().z());
-	if(m_idHelperSvc->isMdt(id1) && m_idHelperSvc->isMdt(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
+	//for pseudomeasurements
+	if(!id1.is_valid() || !id2.is_valid()) return std::abs(mst1->globalPosition().perp()) < std::abs(mst2->globalPosition().perp());
+	//use r value if both are mdts or if they belong to different chambers
+	//for the case where it's rpc and mdt from the same chamber, use the doublet R
+	if((m_idHelperSvc->isMdt(id1) && m_idHelperSvc->isMdt(id2)) ||
+	   m_idHelperSvc->chamberIndex(id1)!=m_idHelperSvc->chamberIndex(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
 	else if(m_idHelperSvc->isRpc(id1) && m_idHelperSvc->isMdt(id2)){
 	  if(m_idHelperSvc->rpcIdHelper().doubletR(id1)==1){
 	    if(m_idHelperSvc->stationIndex(id2)==MuonStationIndex::StIndex::BM || m_idHelperSvc->isSmallChamber(id2)) return true;
