@@ -30,7 +30,8 @@ class RepeatedCondition: public IRepeatedCondition {
  public:
  RepeatedCondition(std::unique_ptr<IConditionMT> cp,
 			  std::size_t mult,
-			  int chainPartind = -1);
+		   int chainPartind = -1,
+		   bool invert=false);
   virtual ~RepeatedCondition();
   
   virtual bool
@@ -56,7 +57,7 @@ private:
 
   // record of which chain part in the chainDict this conditions comes from
   int m_chainPartInd{-1};
-
+  bool m_invert{false};
 };
 
 std::ostream& operator<<(std::ostream&,

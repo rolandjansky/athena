@@ -4,6 +4,9 @@
 
 #include "../TrigJetHypoAlgMT.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
+#include "../TrigJetHypoToolConfig_conditionfilter.h"
+#include "../TrigJetHypoToolConfig_passthroughfilter.h"
+#include "../TrigJetHypoToolConfig_rangefilter.h"
 //
 #include "../TrigJetConditionConfig_abs_eta.h"
 #include "../TrigJetConditionConfig_signed_eta.h"
@@ -27,6 +30,9 @@
 #include "../TrigJetTLAHypoToolMT.h"
 
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_conditionfilter)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_passthroughfilter)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_rangefilter)
 DECLARE_COMPONENT(TrigJetConditionConfig_phi)
 DECLARE_COMPONENT(TrigJetConditionConfig_signed_eta)
 DECLARE_COMPONENT(TrigJetConditionConfig_abs_eta)

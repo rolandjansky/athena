@@ -10,11 +10,13 @@
 #include "./RepeatedConditionsDefs.h"
 #include "./ConditionFilter.h"
 #include "./Tree.h"
+#include "./IHypoJetVectorFilter.h"
 
 using TreeVec = std::vector<std::size_t>;
 class ITrigJetHypoInfoCollector;
 
-using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
+using  ConditionFilters =
+  std::vector<std::unique_ptr<IHypoJetVectorFilter>>;
 
 class FastReductionMatcher: public IJetsMatcherMT {
  public:
@@ -46,7 +48,8 @@ class FastReductionMatcher: public IJetsMatcherMT {
  private:
 
   ConditionPtrs m_conditions;
-  std::vector<std::unique_ptr<ConditionFilter>> m_conditionFilters;
+  ConditionFilters m_conditionFilters;
+  
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
    and siblings-of)

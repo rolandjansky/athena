@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTJetHypo.RepeatedConditionParams import RepeatedConditionParams
+from TrigHLTJetHypo.FilterParams import FilterParams
 from TrigHLTJetHypo.HelperConfigToolParams import HelperConfigToolParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
 from TrigHLTJetHypo.make_treevec import make_treevec
@@ -139,7 +140,7 @@ def scenario_simple(chain_parts):
 
 
     repcondargs = []
-    repfiltargs = []
+    filterparams = []
     
     ncp = 0
     for cp in chain_parts:
@@ -159,11 +160,7 @@ def scenario_simple(chain_parts):
                                                    condargs=condargs))
 
         # make an empty filter condition for the FR condition
-        repfiltargs.append(RepeatedConditionParams(tree_id = ncp,
-                                                   tree_pid=0,
-                                                   chainPartInd=-1,
-                                                   multiplicity=multiplicity,
-                                                   condargs=[]))
+        filterparams.append(FilterParams(typename='PassThroughFilter'))
 
     # treevec[i] gives the tree_id of the parent of the
     # node with tree_id = i
@@ -172,6 +169,6 @@ def scenario_simple(chain_parts):
 
     helper_params = HelperConfigToolParams(treevec=treevec,
                                            repcondargs=repcondargs,
-                                           repfiltargs=repfiltargs)
+                                           filterparams=filterparams)
     
     return [helper_params]  # a list is one entry per FastReduction tree

@@ -19,16 +19,17 @@ def tool_label(tool, do_dot=False):
     """make a label for a dot node consisting of the non-child attributes
     of an AlgTool"""
 
+
     indent = '   '
     if do_dot:
         label = toolname(tool)
     else:
         label = indent + toolname(tool)
     for k, v in tool._properties.items():
-        if v.__class__.__name__ == 'TrigJetHypoToolHelperNoGrouper':
-            continue
+        # if v.__class__.__name__ == 'TrigJetHypoToolHelperNoGrouper':
+        #    continue
             
-        elif v.__class__.__name__ == 'PrivateToolHandleArray':
+        if v.__class__.__name__ == 'PrivateToolHandleArray':
             continue
         else:
             if do_dot:
@@ -41,8 +42,7 @@ def tool_label(tool, do_dot=False):
 def hypoToolToDot(node_labels, connections, toolname, dotdir):
     """ Produce a dot file to visualise the nested AlgTools used
     to configure a jet hypo AlgTool."""
-    
-    
+   
     text = ['digraph G{']
     for k, l in connections.items():
         for n in l:
@@ -70,9 +70,10 @@ def hypoToolToDot(node_labels, connections, toolname, dotdir):
 
 
 def hypoToolDisplay(tool, do_dot=False, dotdir=''):
+ 
     analyser = HypoToolAnalyser(tool)
     node_table, connections = analyser.tables()
- 
+    
     node_labels = {k:tool_label(v, do_dot=False) for k, v in node_table.items()}
     s = [tool.name, '\n:']
     for k, v in node_labels.items():
@@ -86,6 +87,7 @@ def hypoToolDisplay(tool, do_dot=False, dotdir=''):
     text = '\n'.join(s)
     logger.info(text)
 
+  
     if do_dot:
         node_labels = {k:tool_label(v, do_dot) for k, v in node_table.items()}
         hypoToolToDot(node_labels, connections, tool.name, dotdir)

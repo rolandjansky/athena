@@ -14,12 +14,12 @@ class HelperConfigToolParams:
     and Conditions that will filter for the node.
     """
     
-    def __init__(self, treevec=[], repcondargs=[], repfiltargs=[]):
+    def __init__(self, treevec=[], repcondargs=[], filterparams=[]):
   
 
         self.treevec = treevec
         self.repcondargs = repcondargs
-        self.repfiltargs = repfiltargs
+        self.filterparams = filterparams
 
     @property
     def treevec(self):
@@ -60,24 +60,20 @@ class HelperConfigToolParams:
         for ca in repcondargs:
             assert ca.tree_id <= len(self.treevec)
             assert ca.tree_pid <= len(self.treevec) - 1
-            self.__repcondargs = repcondargs
+        self.__repcondargs = repcondargs
 
     @property
-    def repfiltargs(self):
-        return self.__repfiltargs
+    def filterparams(self):
+        return self.__filterparams
 
-    @repfiltargs.setter
-    def repfiltargs(self, repfiltargs):
-        assert len(self.repcondargs) == len(repfiltargs)
-        for i in range(len(repfiltargs)):
-            assert repfiltargs[i].tree_id == self.repcondargs[i].tree_id
+    @filterparams.setter
+    def filterparams(self, filterparams):
+        self.__filterparams = filterparams
         
-        self.__repfiltargs = repfiltargs
-
     def __str__(self):
 
         s = [self.__class__.__name__ + ':']
-        to_show = ['treevec', 'leafvec', 'repcondargs', 'repfiltargs']
+        to_show = ['treevec', 'leafvec', 'repcondargs', 'filterparams']
         width = max([len(a) for a in to_show])
         [s.append('%s %s' % (a.ljust(width), getattr(self, a))) for a in to_show]
         return '\n'.join(s)

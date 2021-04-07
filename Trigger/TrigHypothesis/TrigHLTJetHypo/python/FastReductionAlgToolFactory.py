@@ -20,6 +20,12 @@ class FastReductionAlgToolFactory:
             'HelperToolConfigTool':
             [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
 
+            'ConditionFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_conditionfilter, 0],
+            
+            'PassThroughFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_passthroughfilter, 0],
+            
             'RepeatedConditionConfigTool':
             [CompFactory.TrigJetConditionConfig_repeated, 0],
 
@@ -73,4 +79,6 @@ class FastReductionAlgToolFactory:
 
         return rep
 
-    
+
+# make a common importable tool factory instance
+toolfactory = FastReductionAlgToolFactory()  

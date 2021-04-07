@@ -14,7 +14,6 @@ public:
   virtual ~ITrigJetRepeatedConditionConfig(){};
 
   virtual ConditionPtr getRepeatedCondition() const = 0;
-  virtual ConditionPtr getRepeatedAntiCondition() const = 0;
 
 };
 #endif
