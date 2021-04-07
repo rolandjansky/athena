@@ -67,6 +67,15 @@ class maxSCETm(JobProperty):
     StoredValue = 1
 _caloflags.append(maxSCETm)
 
+class UseSimpleEmulation(JobProperty):
+    """
+    Use LArSimpleSCell
+    """
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = False 
+_caloflags.append(UseSimpleEmulation)
+
 class ApplyEmulatedPedestal(JobProperty):
     """
     Apply pedestal correction for the emulation tools, on data and MC

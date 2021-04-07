@@ -17,7 +17,9 @@
 #include "../EFexEMClusterTool.h"
 #include "../JTowerMappingDataCondAlg.h"
 #include "../GTowerMappingDataCondAlg.h"
+#include "../SCEmulation.h"
 
+DECLARE_COMPONENT(LVL1::SCEmulation)
 DECLARE_COMPONENT(LVL1::METNoiseCutPerfFex)
 DECLARE_COMPONENT(LVL1::JGTowerBuilder)
 DECLARE_COMPONENT(LVL1::JTowerRhoSubtractionAlg)
