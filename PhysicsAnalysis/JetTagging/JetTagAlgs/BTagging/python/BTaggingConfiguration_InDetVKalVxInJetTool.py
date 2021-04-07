@@ -33,6 +33,7 @@ def toolInDetVKalVxInJetTool(name, useBTagFlagsDefaults = True, **options):
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
                      'ExistIBL'         : geoFlags.isIBL(),
                      'IsPhase2'         : commonGeoFlags.Run() == "RUN4",
+                     'useITkMaterialRejection'         : commonGeoFlags.Run() == "RUN4", 
 #                     'TrackSummaryTool' : None }
                      }
         for option in defaults:
