@@ -55,7 +55,6 @@ namespace LVL1 {
 
 
       // Services and input tools
-      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Service to provide the L1Topo menu" };
       ServiceHandle<ITHistSvc> m_histSvc { this, "HistSvc", "THistSvc/THistSvc", "Histogramming service for L1Topo algorithms" };
 
       ToolHandle<IInputTOBConverter> m_emtauInputProvider  { this, "EMTAUInputProvider",  "LVL1::EMTauInputProvider/EMTauInputProvider",   "Tool to fill the EMTAU TOBs of the topo input event"         };
