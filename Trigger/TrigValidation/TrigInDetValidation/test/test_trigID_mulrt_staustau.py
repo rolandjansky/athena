@@ -33,6 +33,7 @@ Threads = 8
 Slots   = 8
 Input   = 'StauStau'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles = False
+Release = "current"
 
 ExtraAna = ' -c LRT="True" '
 

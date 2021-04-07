@@ -34,6 +34,7 @@ Slots   = 8
 Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles = True
 ExtraAna = ' -c LRT="True" '
+Release = "current"
 
 preinclude_file = 'all:TrigInDetValidation/TIDAlrt_preinclude.py'
 
