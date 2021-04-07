@@ -13,6 +13,10 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
+#MARCO
+from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonSequence
+
+
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -23,6 +27,10 @@ def fastPhotonCaloSequenceCfg( flags ):
 
 def fastPhotonSequenceCfg( flags ):
     return fastPhotonMenuSequence()
+
+def TLAPhotonSequenceCfg( flags ):
+    photonsIn = "HLT_Roi_FastPhoton"
+    return TLAPhotonMenuSequence(flags, photonsIn)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
@@ -59,7 +67,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
-            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getTLAPhoton'],
             "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
             "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
@@ -112,6 +120,11 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepName = "FastPhoton"
         print( "---MARCO: inside getFastPhoton()" )
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
+
+    def getTLAPhoton(self):
+        stepName = "TLAPhoton"
+        print("xxxMARCO: inside getTLAPhoton")
+        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg]) # does it make sense to have it at 5? should it be at 3?
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"

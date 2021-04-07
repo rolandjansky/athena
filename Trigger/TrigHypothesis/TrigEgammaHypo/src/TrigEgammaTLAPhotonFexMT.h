@@ -13,6 +13,7 @@
 
 // Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -21,13 +22,13 @@
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 
 
-class TrigEgammaTLAPhotonFexMT : public AthReentrantAlgorithm {
+class TrigEgammaTLAPhotonFexMT : public AthAlgorithm {
 
   public:
     TrigEgammaTLAPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator);
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() const override;
+    virtual StatusCode execute() override;
 
 
   private:

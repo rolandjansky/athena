@@ -32,7 +32,7 @@ struct HasPtAboveThreshold {
  // class members
 
 TrigEgammaTLAPhotonFexMT::TrigEgammaTLAPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
- : AthReentrantAlgorithm (name, pSvcLocator)
+ : AthAlgorithm (name, pSvcLocator)
  {
 
  }
@@ -59,7 +59,7 @@ StatusCode TrigEgammaTLAPhotonFexMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaTLAPhotonFexMT::execute() const
+StatusCode TrigEgammaTLAPhotonFexMT::execute()
 {
   using namespace xAOD;
 
@@ -68,8 +68,8 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute() const
 
   auto ctx = getContext();
 
-  SG::ReadHandle<TrigPhotonContainer> h_fastPhotons = SG::MakeHandle(m_fastPhotonsKeys, ctx);
-  SG::ReadHandle<TrigPhotonContainer> h_TLAPhotons = SG::MakeHandle(m_TLAOutPhotonsKeys, ctx);
+  SG::ReadHandle<TrigPhotonContainer> h_fastPhotons = SG::makeHandle(m_fastPhotonsKeys, ctx);
+  SG::WriteHandle<TrigPhotonContainer> h_TLAPhotons = SG::makeHandle(m_TLAOutPhotonsKey, ctx);
 
   // effectively make the TLA Photon Container
 
@@ -80,7 +80,7 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute() const
               std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );   // in FastPhotonFex this was TrigEMClusterAuxContainer
 
 
-  const xAOD::TrigPhotonContainer* inputPhotons = h_fastJets.get();
+  const xAOD::TrigPhotonContainer* inputPhotons = h_fastPhotons.get();
   std::vector<const xAOD::TrigPhoton*> originalPhotons(inputPhotons->begin(), inputPhotons->end());
 
   // define the maximum number of photons we care about: either equivalent to m_maxNPhotons if smaller than size of vector, or keep all photons (in case of negative value)
