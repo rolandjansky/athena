@@ -228,9 +228,21 @@ public:
   template <typename T, typename TKEY> 
   StatusCode retrieve(const T*& ptr, const TKEY& key) const;
 
+  /// Retrieve an object with "key", into a const T*.
+  /// Overload for std::string KEY type
+  template <typename T>
+  StatusCode retrieve(const T*& ptr, const std::string& key) const;
+
+
   /// Retrieve an object with "key", into a T*
   template <typename T, typename TKEY>
   StatusCode retrieve(T*& ptr, const TKEY& key) const;
+
+  /// Retrieve an object with "key", into a T*.
+  /// Overload for std::string KEY type
+  template <typename T>
+  StatusCode retrieve(T*& ptr, const std::string& key) const;
+
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
