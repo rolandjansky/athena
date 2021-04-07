@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -23,7 +23,6 @@
 #include "CaloIdentifier/CaloGain.h"
 
 #include "LArElecCalib/ILArNoise.h"
-#include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArShape.h"
@@ -257,7 +256,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
 
-  //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
   ToolHandle<ILArBadChannelMasker> m_maskingTool{this, "MaskingTool", "LArBadChannelMaskingTool" ,"Tool handle for dead channel masking"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
