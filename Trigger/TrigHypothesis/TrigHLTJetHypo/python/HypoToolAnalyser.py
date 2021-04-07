@@ -54,10 +54,14 @@ class HypoToolAnalyser:
     
         children = []
         for k, v in tool._properties.items():
-            if v.__class__.__name__ == 'TrigJetHypoToolHelperNoGrouper':
+            if v.__class__.__name__ in (
+                    'TrigJetHypoToolHelperNoGrouper',
+                    'TrigJetHypoToolConfig_conditionfilter',
+                    'TrigJetHypoToolConfig_passthroughfilter',
+            ):
                 children.append(v)
             
-            elif v.__class__.__name__ == 'PrivateToolHandleArray':
+            elif v.__class__.__name__== 'PrivateToolHandleArray':
                 children.extend(v)
 
         pid = self.nid

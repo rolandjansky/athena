@@ -2,11 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_CAPCACITYCHECKEDCONDITIONSDEFSMT_H
-#define TRIGHLTJETHYPO_CAPCACITYCHECKEDCONDITIONSDEFSMT_H
+#ifndef TRIGHLTJETHYPO_REPEATEDCONDITIONSDES_H
+#define TRIGHLTJETHYPO_REPEATEDCONDITIONSDES_H
 /********************************************************************
  *
- * NAME:     ConditionsDefs.h
+ * NAME:     RepeatedConditionsDefs.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood

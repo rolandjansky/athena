@@ -7,14 +7,14 @@
 #include "./ConditionFilter.h"
 
 
-ConditionFilter::ConditionFilter(ConditionsMT& conditions):
+ConditionFilter::ConditionFilter(ConditionPtrs& conditions):
   m_conditions(std::move(conditions)) {
 }
 
 
 struct FilterPred{
   
-  FilterPred(const ConditionMT& cptr,
+  FilterPred(const ConditionPtr& cptr,
 	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector):
     m_cptr(cptr), m_collector(collector) {
   }
@@ -24,7 +24,7 @@ struct FilterPred{
     return m_cptr->isSatisfied(hjv, m_collector);
   }
   
-  const ConditionMT& m_cptr;
+  const ConditionPtr& m_cptr;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
 
@@ -56,7 +56,9 @@ std::string ConditionFilter::toString() const {
   ss << "ConditionFilter: (" << address << ")\n"
      << "Conditions [" << m_conditions.size() << "]:\n";
   for (const auto& c : m_conditions) {
-     ss << " " << c->toString() << "\n\n";
+    if (c) {
+      ss << " " << c->toString() << "\n\n";
+    }
    }
 
   return ss.str();

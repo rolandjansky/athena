@@ -2,20 +2,17 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_CONDITIONFILTER_H
-#define TRIGHLTJETHYPO_CONDITIONFILTER_H
+#ifndef TRIGHLTJETHYPO_PASSTHROUGHFILTER_H
+#define TRIGHLTJETHYPO_PASSTHROUGHFILTER_H
 
 #include "./IHypoJetVectorFilter.h"
 #include "./RepeatedConditionsDefs.h"
 #include <ostream>
 
-class ConditionFilter: public IHypoJetVectorFilter  {
+class PassThroughFilter: public IHypoJetVectorFilter  {
  public:
 
-  ConditionFilter(){};
-
-  ConditionFilter(ConditionPtrs&);
-
+  PassThroughFilter(){};
   // find the subset of jets which satisfy a sequence of conditions
   virtual std::pair<HypoJetCIter, HypoJetCIter>
   filter (const HypoJetCIter& b,
@@ -24,13 +21,9 @@ class ConditionFilter: public IHypoJetVectorFilter  {
 	  ) override;
 
   virtual std::string toString() const override;  
- private:
-
-  ConditionPtrs m_conditions;
-  HypoJetVector m_filtered;  
 };
 
-std::ostream& operator<<(std::ostream&, const ConditionFilter&);
+std::ostream& operator<<(std::ostream&, const PassThroughFilter&);
 
 
 #endif

@@ -6,6 +6,7 @@
 #define TRIGJETCONDITIONCONFIG_REPEATED_H
 
 #include "RepeatedConditionsDefs.h"
+#include "./RepeatedCondition.h"
 #include "./IConditionMT.h"
 
 #include "ITrigJetRepeatedConditionConfig.h"
@@ -23,7 +24,6 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
 
   virtual StatusCode initialize() override;
   virtual ConditionPtr getRepeatedCondition() const override;
-  virtual ConditionPtr getRepeatedAntiCondition() const override;
 
  private:
 
@@ -39,13 +39,14 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
   
   Gaudi::Property<std::size_t> m_tree_pid {this, "pid", {0},
     "ID of parent Condition ID if in FastReduction condition tree"};
-  
-  
 
   Gaudi::Property<int> m_chainPartInd {this,
     "chainPartInd",
     {-1},
     "identifier for chain leg - used to group jets for jet hypo clients "};
+
+  Gaudi::Property<bool> m_invert {this, "invert", {false},
+    "invert isSatisfied()"};
 
 
   // make a Compound Condition, used by, eg, RepeatedCondition

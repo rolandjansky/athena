@@ -48,8 +48,6 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 }
 
 
-
-
 ConditionPtrs
 TrigJetHypoToolConfig_fastreduction::getRepeatedConditions() const {
 
@@ -64,7 +62,7 @@ TrigJetHypoToolConfig_fastreduction::getRepeatedConditions() const {
   return conditions;
 }
 
-
+/*
 std::vector<std::unique_ptr<ConditionFilter>>
 TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
 
@@ -72,7 +70,7 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   
   for(const auto& cm : m_filtConditionMakers){
 
-    ConditionsMT filterConditions;  // will contain a single Condition
+    ConditionPtrs filterConditions;  // will contain a single Condition
     ConditionPtr repeatedCondition = cm->getRepeatedCondition();
 
     // repeatedPtr is a nullptr is there are no contained conditions.
@@ -87,6 +85,21 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   
   return filters;
 }
+*/
+
+std::vector<FilterPtr>
+TrigJetHypoToolConfig_fastreduction::getFilters() const {
+
+  auto filters = std::vector<FilterPtr>();
+  filters.reserve(m_filterMakers.size());
+  
+  for(const auto& filterMaker : m_filterMakers) {
+    filters.push_back(filterMaker->getHypoJetVectorFilter());
+  }
+
+  return filters;
+}
+
 
 // following function not used for treeless hypos
 std::size_t
@@ -107,7 +120,7 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
   auto matcher =  std::unique_ptr<IJetsMatcherMT>();
 
   auto conditions = std::move(repeatedConds);
-  auto filters = getConditionFilters();
+  auto filters = getFilters();
   auto fpm = new FastReductionMatcher(conditions,
 				      filters,
 				      Tree(m_treeVec));

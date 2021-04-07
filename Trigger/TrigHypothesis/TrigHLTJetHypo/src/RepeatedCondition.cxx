@@ -9,9 +9,11 @@
 
 
 RepeatedCondition::RepeatedCondition(std::unique_ptr<IConditionMT> cp,
-						   std::size_t mult,
-						   int cpInd):
-  m_condition{std::move(cp)}, m_multiplicity{mult}, m_chainPartInd{cpInd}{}
+				     std::size_t mult,
+				     int cpInd,
+				     bool invert):
+  m_condition{std::move(cp)}, m_multiplicity{mult},
+  m_chainPartInd{cpInd}, m_invert{invert}{}
 
 
 RepeatedCondition::~RepeatedCondition(){}
@@ -25,7 +27,9 @@ RepeatedCondition::multiplicitySatisfied(std::size_t jgMultiplicity,
 bool
 RepeatedCondition::isSatisfied(const HypoJetVector& v,
 				      const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const {
-  return m_condition->isSatisfied(v, c);
+  
+  bool result =  m_condition->isSatisfied(v, c);
+  return m_invert ? !result : result;
 }
   
 unsigned int RepeatedCondition::capacity() const {
@@ -42,8 +46,14 @@ std::string RepeatedCondition::toString() const {
   
   ss << "RepeatedCondition (" << address << ") Multiplicity: "
      << m_multiplicity
-     << " chainPartInd " << m_chainPartInd << '\n'
-     << m_condition->toString();
+     << " chainPartInd " << m_chainPartInd
+     << " invert " << std::boolalpha << m_invert
+     << '\n';
+    if (m_condition){
+      ss << m_condition->toString();
+    } else {
+      ss << " no internal condition ";
+    }
 
   return ss.str();
 }

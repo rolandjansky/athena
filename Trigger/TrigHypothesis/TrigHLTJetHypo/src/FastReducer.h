@@ -11,8 +11,9 @@
 #include "./xAODJetCollector.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./JetGroupRegister.h"
-#include "./ConditionFilter.h"
 #include "./PointerPreds.h"
+#include "./IHypoJetVectorFilter.h"
+
 #include <string>
 #include <map>
 
@@ -25,7 +26,9 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 */
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
-using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
+
+using  ConditionFilters =
+  std::vector<std::unique_ptr<IHypoJetVectorFilter>>;
 
 class FastReducer {
  public:
