@@ -279,7 +279,7 @@
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
-+ Simulation/G4Sim/G4HiveEx
++ Simulation/G4Extensions/Charginos
 + Simulation/G4Extensions/ExtraParticles
 + Simulation/G4Extensions/G4CosmicFilter
 + Simulation/G4Extensions/G4ExtraProcesses
@@ -288,6 +288,7 @@
 + Simulation/G4Extensions/Monopole
 + Simulation/G4Extensions/Quirks
 + Simulation/G4Extensions/Sleptons
++ Simulation/G4Sim/G4HiveEx
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
 + Simulation/G4Sim/SimHelpers
