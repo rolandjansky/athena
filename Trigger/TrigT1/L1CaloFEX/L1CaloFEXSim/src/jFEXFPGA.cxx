@@ -117,14 +117,14 @@ StatusCode jFEXFPGA::execute() {
 
 
     //create search window including towerIDs required for seeding.
-    int SRJet_SearchWindow[7][7] = {0};
+    int SRJet_SearchWindow[7][7] = {{0}};
     for(int i = -3 ; i <4; i++){
       for(int j = -3; j <4; j++){
         if(barrel_region){SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Thin[mphi + i][meta +j];}
         else{SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Wide[mphi + i][meta +j];}
       }
     }
-      int largeRCluster_IDs[15][15]= {0};
+      int largeRCluster_IDs[15][15]= {{0}};
       for(int i = -7; i< 8; i++ ) {
         for(int j = -7; j< 8; j++) {
           largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[mphi + i][meta +j];
@@ -255,8 +255,8 @@ StatusCode jFEXFPGA::execute() {
   for(int mphi = 8; mphi < 24; mphi++) {   
     for(int meta = 8; meta < max_meta; meta++) {    
 
-      int TT_seed_ID[3][3]={0};
-      int TT_searchWindow_ID[5][5]={0};
+      int TT_seed_ID[3][3]={{0}};
+      int TT_searchWindow_ID[5][5]={{0}};
       int TT_First_ETring[36]={0};
       int First_ETring_it = 0;
       

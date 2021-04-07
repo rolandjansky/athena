@@ -57,7 +57,6 @@ protected:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXSmallRJetAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int m_jFEXalgoTowerID[7][7];
         int m_jFEXalgoSearchWindowSeedET[5][5];
-        int m_smallRJetClusterIDs[4][5];
 	bool m_seedSet;
         bool m_barrel_region;
   };
