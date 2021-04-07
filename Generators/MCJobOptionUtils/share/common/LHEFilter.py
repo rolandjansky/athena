@@ -35,7 +35,7 @@ import tarfile
 # This code is stored in gencontrol
 include('MCJobOptionUtils/LHETools.py')
 # This code is stored in gencontrol
-include("MCJobOptionUtils/merge_lhe_files.py")
+include("EvgenProdTools/merge_lhe_files.py")
 
 # base class for LHE filters
 # this base class keeps all events, so one need to use derived classes where the pass_filter function is overriden
