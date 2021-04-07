@@ -28,7 +28,9 @@ public:
     amcatnlopythia8=7,
     herwigpp713=8,
     sherpa228=9,
-    unknown=10
+    sherpa2210=10,
+    herwigpp721=11,
+    unknown=12
   };
 
   inline SampleXsection() : m_Xsects() {}
