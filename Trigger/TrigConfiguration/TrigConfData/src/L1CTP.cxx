@@ -40,6 +40,18 @@ TrigConf::L1CTP::load()
                         std::forward_as_tuple(multiplicity, thr)
                         );
    }
+   auto ctpinMon = data().get_child_optional("monitoring.ctpin");
+   if(ctpinMon) {
+      for( auto & mon : *ctpinMon ) {
+         std::string monName = mon.first;
+         size_t multiplicity = mon.second.get_child("multiplicity").get_value<size_t>();
+         std::string thr = mon.second.get_child("thr").get_value<std::string>();
+         m_ctpinMon.emplace( std::piecewise_construct,
+                             std::forward_as_tuple(monName),
+                             std::forward_as_tuple(multiplicity, thr)
+                           );
+      }
+   }
 }
 
 void

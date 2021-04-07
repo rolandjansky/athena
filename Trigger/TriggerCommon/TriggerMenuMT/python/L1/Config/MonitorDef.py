@@ -41,20 +41,24 @@ class MonitorDef:
 
 
     # CTPIN counters
-    # these are generated for all CTPIN except the two highest JET inputs and the direct inputs
+    # these are generated for all CTPIN signals except the two highest JET inputs on JET1 (see comment at start of file)
     @staticmethod
-    def ctpinCounters( thresholds ):
+    def ctpinCounters( thresholds, connectors, ctpinConfig ):
+
+        connectedCables = []
+        for slotConnectors in ctpinConfig.values():
+            for connName in slotConnectors.values():
+                if connName:
+                    connectedCables += [ connName ]
 
         counters = []
-
-        for thr in thresholds:
-            # this special check addresses the LUT size issue for the monitoring (see file header and Cabling.py)
-            dontGenerateCounter = (thr.ttype=="JET" and (thr.mapping==8 or thr.mapping==9)) \
-                                  or thr.ttype=="TOPO" or thr.ttype=="ALFA"
-            if dontGenerateCounter:
-                continue
-            for mult in range(1, 2**thr.cableinfo.bitnum):
-                counters += [ CtpinCounter(thr.name,mult) ]
+        for ctpinCableName in connectedCables:
+            conn = connectors[ctpinCableName]
+            for i, tl in enumerate(conn.triggerLines):
+                if ctpinCableName == "JET1" and i==8:
+                    break
+                for mult in range(1, 2**tl.nbits):
+                    counters += [ CtpinCounter(threshold=tl.name, multiplicity = mult) ]
 
         return counters
 
@@ -64,7 +68,7 @@ class MonitorDef:
     # CTPMON counters
     # we only have a few for the moment
     @staticmethod
-    def ctpmonCounters( thresholds ):
+    def ctpmonCounters( thresholds, connectors ):
 
         counters = []
 
