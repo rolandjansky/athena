@@ -53,16 +53,20 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         # Placeholder for phase-I L1Calo simulation
-        log.info("Configuring Phase-I L1Calo simulation on data - not yet implemented")
+        log.info("Configuring Phase-I L1Calo simulation on data")
 
         #Adding the floating point simulation for now. 
         from TrigT1CaloFexPerf.Rel22L1PerfSequence import setupRun3L1CaloPerfSequence
         setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSimDataSeq)
 
+        from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
         # Here we have to add the SuperCell Emulation when running on Run 2 data
         # add bitwise correct eFEX simulation (enable once the SC emulation is available)
-        # l1CaloSimDataSeq += CfgMgr.LVL1__eFEXDriver('eFEXDriver')
-
+        log.info("Using supercell container %s", simflags.Calo.SCellType() )
+        l1CaloSimDataSeq += CfgMgr.LVL1__eFEXDriver('eFEXDriver',
+                                                    SCell=simflags.Calo.SCellType() )
+        l1CaloSimDataSeq.eFEXDriver.eSuperCellTowerMapperTool.SCell=simflags.Calo.SCellType()
+        l1CaloSimDataSeq.eFEXDriver.eFEXSysSimTool.SCell=simflags.Calo.SCellType()
     ##################################################
     # Muons rerun on data
     ##################################################
@@ -106,7 +110,7 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
 
     isL1TopoLegacyOutputProvided = False
     if ConfigFlags.Trigger.enableL1CaloLegacy:
-        isL1TopoLegacyOutputProvided = True
+        isL1TopoLegacyOutputProvided = False
         # TODO disable L1Topo sim not ready yet with json file
         l1TopoSimDataSeq = None
     isL1TopoOutputProvided = False
@@ -220,11 +224,12 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         #from AthenaCommon import CfgMgr
-        l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
         
         #Adding the floating point simulation for now. 
         from TrigT1CaloFexPerf.Rel22L1PerfSequence import setupRun3L1CaloPerfSequence
         setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSim)
+
+        l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
 
     ##################################################
     # Muons MC

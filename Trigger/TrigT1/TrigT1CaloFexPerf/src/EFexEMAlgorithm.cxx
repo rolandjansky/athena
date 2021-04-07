@@ -61,14 +61,9 @@ LVL1::EFexEMAlgorithm::initialize()
 {
 
    ATH_CHECK(m_inputCellContainerKey.initialize());
-   if (!m_energyWeightedCluster && m_use_tileCells)
-   {
-      ATH_CHECK(m_inputTileCellContainerKey.initialize());
-   }
-   if (!m_use_tileCells)
-   {
-      ATH_CHECK(m_inputTriggerTowerContainerKey.initialize());
-   }
+   ATH_CHECK(m_inputTileCellContainerKey.initialize(!m_energyWeightedCluster && m_use_tileCells));
+   ATH_CHECK(m_inputTriggerTowerContainerKey.initialize(!m_use_tileCells));
+
 
    ATH_CHECK(m_outputClusterContainerKey.initialize());
 
