@@ -17,7 +17,7 @@ using namespace std;
 using namespace xercesc;
 
 void TransformrefProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -42,6 +42,8 @@ char *toRelease;
 //    Process it
 //
     gmxUtil.tagHandler.transform.process(elem, gmxUtil, toAdd);
+
+    XMLString::release(&ref);
 
     return;
 }
