@@ -78,13 +78,13 @@ namespace InDet {
     float m_r   ; // radius       in beam system coordinates
     float m_covr; //
     float m_covz; //
-    float m_d0;
-    float m_eta;
-    float m_dzdr;
-    float m_pt;
+    float m_d0 = 0.f;
+    float m_eta = 0.f;
+    float m_dzdr = 0.f;
+    float m_pt = 0.f;
     float m_param;  /// impact parameter
-    float m_scorePenalty; /// penalty term in the seed score 
-    float m_q   ;   /// quality of the best seed this candidate was seen on 
+    float m_scorePenalty=0.f; /// penalty term in the seed score
+    float m_q;   /// quality of the best seed this candidate was seen on
     const Trk::Surface* m_su;
     const Trk::Surface* m_sn;
   };
