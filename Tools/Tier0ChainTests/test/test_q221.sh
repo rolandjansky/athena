@@ -28,7 +28,7 @@ then
 
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file *AOD* --file *PHYSVAL*
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file *AOD* --file *PHYSVAL* --order-trees
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
