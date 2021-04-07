@@ -3,6 +3,7 @@
 import re
 from copy import deepcopy
 from collections import OrderedDict as odict
+from functools import total_ordering
 
 from AthenaCommon.Logging import logging
 
@@ -10,9 +11,6 @@ from ..Config.TypeWideThresholdConfig import getTypeWideThresholdConfig
 from .ThresholdType import ThrType
 from .Limits import CaloLimits as CL
 from .TopoAlgorithms import AlgCategory
-
-from past.builtins import cmp
-
 
 log = logging.getLogger("Menu.L1.Base.Thresholds")
 
@@ -565,7 +563,7 @@ class ZeroBiasThreshold( Threshold ):
 
 
 
-
+@total_ordering
 class ThresholdValue(object):
 
     defaultThresholdValues = {}
@@ -631,13 +629,17 @@ class ThresholdValue(object):
         if self.use_relIso:
             self.had_veto=99
 
-    def __cmp__(self, o):
+    def __lt__(self, o):
         if(self.priority!=o.priority):
-            return cmp(self.priority,o.priority)
+            return self.priority < o.priority
         if(self.etamin!=o.etamin):
-            return cmp(self.etamin,o.etamin)
-        return cmp(self.name,o.name)
+            return self.etamin < o.etamin
+        return self.name < o.name
 
+    def __eq__(self, o):
+        return (self.priority == o.priority) and \
+               (self.etamin == o.etamin) and \
+               (self.name == o.name)
 
     def __str__(self):
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)
