@@ -7,12 +7,9 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {
-}
+    AthAlgorithm(name, pSvcLocator) {}
 
-StatusCode
-MuonCombinedInDetExtensionAlg::initialize()
-{
+StatusCode MuonCombinedInDetExtensionAlg::initialize() {
     ATH_MSG_VERBOSE(" usePRDs = " << m_usePRDs);
     ATH_CHECK(m_muonCombinedInDetExtensionTools.retrieve());
     ATH_CHECK(m_indetCandidateCollectionName.initialize());
@@ -30,9 +27,7 @@ MuonCombinedInDetExtensionAlg::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-MuonCombinedInDetExtensionAlg::execute() {
-
+StatusCode MuonCombinedInDetExtensionAlg::execute() {
     const EventContext& ctx = Gaudi::Hive::currentContext();
 
     SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName, ctx);
@@ -41,19 +36,19 @@ MuonCombinedInDetExtensionAlg::execute() {
         return StatusCode::FAILURE;
     }
 
-    ATH_MSG_VERBOSE("Loaded InDetCandidateCollection " << m_indetCandidateCollectionName << " with  "
-                                                       << indetCandidateCollection->size() << " elements.");
+    ATH_MSG_VERBOSE("Loaded InDetCandidateCollection " << m_indetCandidateCollectionName << " with  " << indetCandidateCollection->size()
+                                                       << " elements.");
     if (msgLvl(MSG::VERBOSE)) {
-      for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
-        msg(MSG::VERBOSE) << candidate->toString() << endmsg;
+        for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
+            msg(MSG::VERBOSE) << candidate->toString() << endmsg;
     }
 
     SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap, ctx);
     ATH_CHECK(tagMap.record(std::make_unique<MuonCombined::InDetCandidateToTagMap>()));
 
-    TrackCollection*        combTracks = nullptr;
-    TrackCollection*        meTracks   = nullptr;
-    Trk::SegmentCollection* segments   = nullptr;
+    TrackCollection* combTracks = nullptr;
+    TrackCollection* meTracks = nullptr;
+    Trk::SegmentCollection* segments = nullptr;
 
     if (m_combTracks.key() != "") {
         SG::WriteHandle<TrackCollection> wh_combTracks(m_combTracks, ctx);
@@ -74,7 +69,7 @@ MuonCombinedInDetExtensionAlg::execute() {
 
     if (m_usePRDs) {
         MuonCombined::IMuonCombinedInDetExtensionTool::MuonPrdData prdData;
-        SG::ReadHandle<Muon::MdtPrepDataContainer>                 mdtPRDContainer(m_MDT_ContainerName, ctx);
+        SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPRDContainer(m_MDT_ContainerName, ctx);
         prdData.mdtPrds = mdtPRDContainer.cptr();
         if (m_hasCSC) {
             SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName, ctx);
@@ -82,20 +77,20 @@ MuonCombinedInDetExtensionAlg::execute() {
         }
         if (m_hasSTGC && m_hasMM) {
             SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName, ctx);
-            SG::ReadHandle<Muon::MMPrepDataContainer>   mmPRDContainer(m_MM_ContainerName, ctx);
+            SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName, ctx);
             prdData.stgcPrds = stgcPRDContainer.cptr();
-            prdData.mmPrds   = mmPRDContainer.cptr();
+            prdData.mmPrds = mmPRDContainer.cptr();
         }
         SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPRDContainer(m_RPC_ContainerName, ctx);
         prdData.rpcPrds = rpcPRDContainer.cptr();
         SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName, ctx);
         prdData.tgcPrds = tgcPRDContainer.cptr();
         for (auto& tool : m_muonCombinedInDetExtensionTools) {
-	  tool->extendWithPRDs(*indetCandidateCollection, tagMap.ptr(), prdData, combTracks, meTracks, segments, ctx);
+            tool->extendWithPRDs(*indetCandidateCollection, tagMap.ptr(), prdData, combTracks, meTracks, segments, ctx);
         }
     } else {
         for (auto& tool : m_muonCombinedInDetExtensionTools) {
-	  tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments, ctx);
+            tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments, ctx);
         }
     }
     return StatusCode::SUCCESS;
