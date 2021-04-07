@@ -39,28 +39,18 @@ CalibHitIDCheck::CalibHitIDCheck(const std::string& name, ISvcLocator* pSvcLocat
    m_TileActiveHitCnt(nullptr),
    m_TileInactiveHitCnt(nullptr),
    m_TileDMHitCnt(nullptr),
-   m_Check(true), 
-   m_ShowAll(false), 
-   m_CheckAll(false),
    m_id_helper(nullptr)
 {
-  m_larInactiveHitContainer  = "LArCalibrationHitInactive";
-  m_larActiveHitContainer    = "LArCalibrationHitActive";
-  m_larDMHitContainer        = "LArCalibrationHitDeadMaterial";
-  m_tileActiveHitContainer   = "TileCalibHitActiveCell";
-  m_tileInactiveHitContainer = "TileCalibHitInactiveCell";
-  m_tiledmHitContainer       = "TileCalibHitDeadMaterial";
-  
-  declareProperty("InactiveCalibHitCnt", m_larInactiveHitContainer);    
-  declareProperty("ActiveCalibHitCnt",   m_larActiveHitContainer); 
-  declareProperty("LArDMCalibHitCnt",    m_larDMHitContainer); 
-  declareProperty("TileActiveHitCnt",    m_tileActiveHitContainer);
-  declareProperty("TileInactiveHitCnt",  m_tileInactiveHitContainer);
-  declareProperty("TileDMCalibHitCnt",   m_tiledmHitContainer);
+  declareProperty("InactiveCalibHitCnt", m_larInactiveHitContainer = "LArCalibrationHitInactive");    
+  declareProperty("ActiveCalibHitCnt",   m_larActiveHitContainer = "LArCalibrationHitActive");
+  declareProperty("LArDMCalibHitCnt",    m_larDMHitContainer = "LArCalibrationHitDeadMaterial"); 
+  declareProperty("TileActiveHitCnt",    m_tileActiveHitContainer = "TileCalibHitActiveCell");
+  declareProperty("TileInactiveHitCnt",  m_tileInactiveHitContainer = "TileCalibHitInactiveCell");
+  declareProperty("TileDMCalibHitCnt",   m_tiledmHitContainer = "TileCalibHitDeadMaterial");
 
-  declareProperty("Check",    m_Check    );
-  declareProperty("ShowAll",  m_ShowAll  );  
-  declareProperty("CheckAll", m_CheckAll );
+  declareProperty("Check",    m_Check    = true);
+  declareProperty("ShowAll",  m_ShowAll  = false);  
+  declareProperty("CheckAll", m_CheckAll = false);
 
 }
 
@@ -279,7 +269,7 @@ void CalibHitIDCheck::check(int l_cnt) {
  
   //Now, iterate over the container to find
   //not valid, 'alien' and repeated IDs
-  for(; it != end; it++) {
+  for(; it != end; ++it) {
     
     Identifier id=(*it)->cellID();
 
@@ -405,11 +395,10 @@ void CalibHitIDCheck::check(int l_cnt) {
     ATH_MSG_INFO("----------------------------------------------- " );
     ATH_MSG_INFO("Found repeated Identifiers   |   how many times " );
     ATH_MSG_INFO("----------------------------------------------- " );
-    
-    for(map_it=id_map.begin(); map_it!=id_map.end(); map_it++) {
-         
-      ATH_MSG_INFO(m_id_helper->show_to_string(map_it->first)
-                   <<"                  "<<map_it->second );
+
+    for (const std::pair<const Identifier, int>& p : id_map) {
+      ATH_MSG_INFO(m_id_helper->show_to_string(p.first)
+                   <<"                  "<< p.second );
     }
    
   }
