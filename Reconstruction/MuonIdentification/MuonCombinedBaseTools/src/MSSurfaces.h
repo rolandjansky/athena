@@ -5,46 +5,47 @@
 #ifndef MUONCOMBINEDBASETOOLS_MSSURFACES_H
 #define MUONCOMBINEDBASETOOLS_MSSURFACES_H
 
-#include "TrkSurfaces/Surface.h"
-#include "SurfDef.h"
-
-#include <vector>
 #include <string>
+#include <vector>
 
-class MSSurfaces{
- public: 
-  typedef std::vector<const Trk::Surface*> SurfaceVec;
-  typedef std::vector<std::string> SurfaceStations;
-  
-  MSSurfaces();
-  ~MSSurfaces();
+#include "SurfDef.h"
+#include "TrkSurfaces/Surface.h"
 
-  const SurfaceVec getSurfaces() const { return m_vec ; } ;
-  void setSurface(const Trk::Surface* surface, SurfDef def){ m_vec[def] = surface; } ;
+class MSSurfaces {
+public:
+    typedef std::vector<const Trk::Surface*> SurfaceVec;
+    typedef std::vector<std::string> SurfaceStations;
 
-  const std::string stationType(unsigned int count) const { 
-    if(count > m_station.size())  return ""; 
-    else return m_station[count] ; 
-  } ;
-  
-  const Trk::Surface* getSurface(SurfDef surf) const { return m_vec[surf]; };
-  
-  const Trk::Surface* getSurface(unsigned int surf_count) const {
-    if( surf_count > m_vec.size() ) return 0; 
-    else return m_vec[surf_count]; };
-  
-  const Trk::Surface* operator[](SurfDef surf) const { 
-    return m_vec[surf] ; 
-  };
-  
+    MSSurfaces();
+    ~MSSurfaces();
 
-  std::vector<const Trk::Surface*>::const_iterator begin() const { return m_vec.begin() ; };
-  std::vector<const Trk::Surface*>::const_iterator end() const { return m_vec.end() ; };
-  
+    const SurfaceVec getSurfaces() const { return m_vec; };
+    void setSurface(const Trk::Surface* surface, SurfDef def) { m_vec[def] = surface; };
 
- private:
-  SurfaceVec       m_vec;
-  SurfaceStations  m_station;
+    const std::string stationType(unsigned int count) const {
+        if (count > m_station.size())
+            return "";
+        else
+            return m_station[count];
+    };
+
+    const Trk::Surface* getSurface(SurfDef surf) const { return m_vec[surf]; };
+
+    const Trk::Surface* getSurface(unsigned int surf_count) const {
+        if (surf_count > m_vec.size())
+            return 0;
+        else
+            return m_vec[surf_count];
+    };
+
+    const Trk::Surface* operator[](SurfDef surf) const { return m_vec[surf]; };
+
+    std::vector<const Trk::Surface*>::const_iterator begin() const { return m_vec.begin(); };
+    std::vector<const Trk::Surface*>::const_iterator end() const { return m_vec.end(); };
+
+private:
+    SurfaceVec m_vec;
+    SurfaceStations m_station;
 };
 
-#endif //
+#endif  //
