@@ -17,14 +17,14 @@
 #include <sstream>
 //----------------------------------------------
 
-#include "PixelGeoModelXml/ModuleTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 class MsgStream;
 namespace InDetDD {class SiDetectorDesign; class PixelDetectorManager; class SiCommonItems;}
 
 class PixelGmxInterface: public GmxInterface {
  public:
-  PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree);
+  PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *moduleTree);
   ~PixelGmxInterface();
   int sensorId(std::map<std::string, int> &index) const override final;
   void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters) override final;
@@ -71,7 +71,7 @@ class PixelGmxInterface: public GmxInterface {
   std::map<std::string, int> m_geometryMap;
   InDetDD::PixelDetectorManager *m_detectorManager;
   InDetDD::SiCommonItems *m_commonItems;
-  ModuleTree *m_moduleTree;
+  WaferTree *m_moduleTree;
   std::unique_ptr<MsgStream> m_log;
 };
 

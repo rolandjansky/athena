@@ -16,7 +16,7 @@
 #include <sstream>
 //----------------------------------------------
 
-#include "StripGeoModelXml/WaferTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 class MsgStream;
 namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems; class SCT_ModuleSideDesign;}
