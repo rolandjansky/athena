@@ -97,7 +97,7 @@ if [ $dosim -ne 0 ]; then
     --skipEvents      0 \
     --maxEvents       10 \
     --AMI             s3595 \
-    --geometryVersion ATLAS-P2-ITK-23-00-03_VALIDATION \ 
+    --geometryVersion "ATLAS-P2-ITK-23-00-03_VALIDATION" \ 
     --postInclude     "all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py" "EVNTtoHITS:BeamEffects/postInclude.CrabKissingVertexPositioner_Nominal.py"
 
 
@@ -134,7 +134,7 @@ if [ $dorec -ne 0 ]; then
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
     --AMI              r12166 \
-    --geometryVersion  ATLAS-P2-ITK-23-00-03 \ 
+    --geometryVersion  "ATLAS-P2-ITK-23-00-03" \ 
     --steering         doRAWtoALL 
 
 
