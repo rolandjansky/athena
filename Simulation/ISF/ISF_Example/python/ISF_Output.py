@@ -23,6 +23,9 @@ def getHITSStreamItemList():
     else:
         hitsItemList += ["xAOD::JetContainer#*",
                            "xAOD::JetAuxContainer#*"]
+    ## pile-up truth particles
+    hitsItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
     ## Detectors
     from AthenaCommon.DetFlags import DetFlags
     ## Inner Detector
