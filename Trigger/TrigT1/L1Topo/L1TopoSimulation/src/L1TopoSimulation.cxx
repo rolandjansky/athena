@@ -44,9 +44,6 @@ L1TopoSimulation::initialize() {
 
    m_topoSteering->setLegacyMode(m_isLegacyTopo);
    
-   ATH_MSG_DEBUG("retrieving " << m_l1topoConfigSvc);
-   CHECK( m_l1topoConfigSvc.retrieve() );
-
    ATH_MSG_DEBUG("retrieving " << m_histSvc);
    CHECK( m_histSvc.retrieve() );
 
@@ -225,9 +222,8 @@ L1TopoSimulation::execute() {
 
       // set optical connectors
       
-      for(int optcable=0; optcable<4; ++optcable) {
-         std::string connOpt = l1menu->board("Topo1").connectorNames()[optcable];
-         topoOutput2CTP->setOptCableWord( optcable, globalOutput.count_field(connOpt) );
+      for( auto connOpt : l1menu->board("Topo1").connectorNames() ) {
+         topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
       }
       
    }
