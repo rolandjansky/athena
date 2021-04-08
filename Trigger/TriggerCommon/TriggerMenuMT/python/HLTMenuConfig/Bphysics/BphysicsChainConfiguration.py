@@ -7,13 +7,13 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsChainConfiguration")
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import mul2IOOvlpRmSequenceCfg, muEFCBSequenceCfg
+from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Muon.MuonChainConfiguration import MuonChainConfiguration
+from ..Muon.MuonChainConfiguration import mul2IOOvlpRmSequenceCfg, muEFCBSequenceCfg
 
-from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence, dimuEFSequence, bmumuxSequence
+from .BphysicsMenuSequences import dimuL2Sequence, dimuEFSequence, bmumuxSequence
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, StreamerDimuL2IOComboHypoCfg, DimuEFComboHypoCfg, StreamerDimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict

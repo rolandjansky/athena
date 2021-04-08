@@ -7,11 +7,11 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonChainConfiguration")
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:

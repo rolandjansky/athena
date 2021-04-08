@@ -100,7 +100,11 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 			if (genP) {
 				pdgId = genP->pdg_id();
 				barcode = HepMC::barcode(genP);
+			} else {
+				ATH_MSG_WARNING("GenParticle is nullptr for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", chamberLayer="<< clayer<<", wireLayer="<<wlayer<<")");
 			}
+		} else {
+			ATH_MSG_WARNING("HepMcParticleLink with barcode="<< pLink.barcode()<<" is not valid for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", chamberLayer="<< clayer<<", wireLayer="<<wlayer<<")");
 		}
 
 		m_CSC_trackId.push_back(pdgId);

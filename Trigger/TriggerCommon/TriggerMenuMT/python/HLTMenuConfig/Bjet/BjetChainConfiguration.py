@@ -2,12 +2,12 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bjet.BjetChainConfiguration")
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
+from .BjetMenuSequences import getBJetSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 

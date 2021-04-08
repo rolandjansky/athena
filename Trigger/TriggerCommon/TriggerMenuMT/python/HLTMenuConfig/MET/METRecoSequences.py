@@ -5,7 +5,7 @@
 
 from .AlgInputConfig import AlgInputConfig, InputConfigRegistry
 from AthenaCommon.Logging import logging
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import (
     cellRecoSequence,
     caloClusterRecoSequence,
     LCCaloClusterRecoSequence,

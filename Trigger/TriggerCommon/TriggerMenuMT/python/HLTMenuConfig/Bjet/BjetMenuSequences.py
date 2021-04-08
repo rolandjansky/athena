@@ -3,7 +3,7 @@
 
 # menu components
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from ..Menu.MenuComponents import MenuSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StripGeoModelXml/WaferTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 using namespace std;
 
@@ -65,4 +65,9 @@ bool BarrelEndcap::add(int bec, int ld, int eta, int phi, int side, Wafer &wafer
         return false;
     }
     return true;
+}
+
+//version without side index for pixels
+bool BarrelEndcap::add(int bec, int ld, int eta, int phi, Wafer &wafer, string &errorMessage) {
+  return  add(bec,ld,eta,phi,0,wafer,errorMessage);
 }

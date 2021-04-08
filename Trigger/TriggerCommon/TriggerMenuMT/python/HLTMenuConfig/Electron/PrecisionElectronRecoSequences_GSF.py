@@ -18,7 +18,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
        
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys, TrigEgammaKeys_GSF

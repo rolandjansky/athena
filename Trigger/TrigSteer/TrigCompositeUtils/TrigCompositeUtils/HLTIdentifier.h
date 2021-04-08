@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCompositeUtils_HLTIdentifier_h
@@ -52,6 +52,7 @@ public:
    *  @brief comparisons, for containers of identifiers
    **/      
   bool operator == ( const Identifier& rhs )  const { return numeric() == rhs.numeric(); }
+  bool operator == ( TrigCompositeUtils::DecisionID id )  const { return numeric() == id; }
   bool operator < ( const Identifier& rhs )  const { return numeric() < rhs.numeric(); }
   bool operator < ( TrigCompositeUtils::DecisionID id ) const { return numeric() < id; } 
 private:

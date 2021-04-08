@@ -1125,7 +1125,7 @@ namespace MuonCombined {
     }else{
       // pick the best match
       const Muon::MuonSegment* bestSegment = nullptr;
-      float smallestResidual = 1e99;
+      float smallestResidual = FLT_MAX;
       for( const auto& seg : maximumData.t0fittedSegments ){
         if( !seg->hasFittedT0() ) continue;
         float distance = seg->globalPosition().mag();

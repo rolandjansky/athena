@@ -10,13 +10,13 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # logger
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup' )
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonMenuSequences' )
 
 
 def fastPhotonMenuSequence():
     """Creates secpond step photon sequence"""
     
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]

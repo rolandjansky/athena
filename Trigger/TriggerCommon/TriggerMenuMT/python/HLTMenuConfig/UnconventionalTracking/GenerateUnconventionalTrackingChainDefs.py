@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.UnconventionalTrackingChainConfiguration import UnconventionalTrackingChainConfiguration
+from .UnconventionalTrackingChainConfiguration import UnconventionalTrackingChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging

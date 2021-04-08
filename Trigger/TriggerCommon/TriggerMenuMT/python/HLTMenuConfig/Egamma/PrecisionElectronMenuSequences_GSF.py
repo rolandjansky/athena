@@ -13,7 +13,7 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 def precisionElectronSequence_GSF(ConfigFlags):
     """ 
-    Similar setup as ../PrecisionElectronSequenceSetup.py; tailored for GSF chains
+    Similar setup as ../PrecisionElectronMenuSequences.py; tailored for GSF chains
     """
     InViewRoIs = "precisionElectron"
     # EVCreator:
