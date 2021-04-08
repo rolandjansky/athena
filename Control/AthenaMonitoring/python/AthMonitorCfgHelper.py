@@ -30,6 +30,7 @@ class AthMonitorCfgHelper(object):
         self.inputFlags = inputFlags
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
+        self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
         self.resobj.addSequence(self.monSeq)
         if inputFlags.DQ.useTrigger:
