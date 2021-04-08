@@ -145,11 +145,11 @@ class SCTCalib : public AthAlgorithm {
       BooleanProperty m_histBefore2010{this, "HistBefore2010", false, "True if HIST is from 2009 or earlier"};
 
       BooleanProperty m_doHitMaps{this, "DoHitMaps", true};
+      BooleanProperty m_doHitMapsLB{this, "DoHitMapsLB", true};
       IntegerProperty m_nLbsMerged{this, "LbsPerWindow", 30};
       BooleanProperty m_readHitMaps{this, "ReadHitMaps", false};
       BooleanProperty m_doBSErrors{this, "DoBSErrors", false};
       BooleanProperty m_doNoisyStrip{this, "DoNoisyStrip", true};
-      BooleanProperty m_doNoisyLB{this, "DoNoisyLB", true};
       BooleanProperty m_doHV{this, "DoHV", false};
       BooleanProperty m_doDeadStrip{this, "DoDeadStrip", false};
       BooleanProperty m_doDeadChip{this, "DoDeadChip", false};
@@ -203,6 +203,7 @@ class SCTCalib : public AthAlgorithm {
       UnsignedIntegerProperty m_noiseOccupancyMinStat{this, "NoiseOccupancyMinStat", 50000};
       UnsignedIntegerProperty m_rawOccupancyMinStat{this, "RawOccupancyMinStat", 50000};
       UnsignedIntegerProperty m_efficiencyMinStat{this, "EfficiencyMinStat", 50000};
+      BooleanProperty         m_efficiencyDoChips{this, "EfficiencyDoChips", true};
       UnsignedIntegerProperty m_BSErrorDBMinStat{this, "BSErrorDBMinStat", 50000};
       UnsignedIntegerProperty m_LorentzAngleMinStat{this, "LorentzAngleMinStat", 50000};
 
@@ -228,6 +229,7 @@ class SCTCalib : public AthAlgorithm {
       StringProperty m_rawOccupancySummaryFile{this,"RawOccupancySummaryFile", "RawOccupancySummaryFile.xml", "Output XML for summary of raw occupancy"};
       StringProperty m_efficiencySummaryFile{this, "EfficiencySummaryFile", "EfficiencySummaryFile.xml", "Output XML for summary of efficiency"};
       StringProperty m_efficiencyModuleFile{this, "EfficiencyModuleFile", "EfficiencyModuleSummary.xml", "Output XML for efficiency"};
+      StringProperty m_efficiencyChipFile{this, "EfficiencyChipFile", "EfficiencyChipSummary.xml", "Output XML for chip efficiency"};
       StringProperty m_BSErrorSummaryFile{this, "BSErrorSummaryFile", "BSErrorSummaryFile.xml", "Output XML for summary of BS Errors"};
       StringProperty m_BSErrorModuleFile{this, "BSErrorModuleFile", "BSErrorModuleSummary.xml", "Output XML for summary of BS Errors"};
       StringProperty m_LorentzAngleFile{this, "LorentzAngleFile", "LorentzAngleFile.xml", "Output XML for noise occupancy"};
@@ -294,6 +296,9 @@ class SCTCalib : public AthAlgorithm {
       std::string
       xmlChannelEfficiencyDataString(const Identifier& waferId, const float efficiency, const SCT_SerialNumber& serial, const int side) const;
 
+      std::string
+      xmlChannelEfficiencyDataStringChip(const Identifier& waferId, const float efficiency, const float efficiency_bcid, const SCT_SerialNumber& serial, const int side, const int chip) const;
+
       std::pair<int, bool>
       getNumNoisyStrips(const Identifier& waferId) const;
 
@@ -302,9 +307,9 @@ class SCTCalib : public AthAlgorithm {
 
       StatusCode
       writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibWriteTool::createCondObjects method is used.
-                           (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
-                            const std::map<Identifier, std::set<Identifier>>& moduleListNew,
-                            const std::map<Identifier, std::set<Identifier>>& moduleListRef);
+      (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+       const std::map<Identifier, std::set<Identifier>>& moduleListNew,
+       const std::map<Identifier, std::set<Identifier>>& moduleListRef);
       std::string
       getStripList(const std::set<Identifier>& stripIdList) const;
 
