@@ -1,56 +1,44 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
 #include "TileTMDBRawChannelMonitorAlgorithm.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileCondToolTMDB.h"
+
+// Muon includes
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 
-#include <math.h>
 // Athena includes
 #include "StoreGate/ReadHandle.h"
 
-TileTMDBRawChannelMonitorAlgorithm::TileTMDBRawChannelMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
-  :AthMonitorAlgorithm(name, pSvcLocator)
-  , m_tileHWID(nullptr)
-  , m_eff(false)
-  , m_isDSP(true)
-  , m_numberOfThresholds(2)
-  , m_amplitudeThreshold(80)
-{
-    declareProperty("AmplitudeThresholdForTime", m_amplitudeThreshold = 80);
-    declareProperty("DSP", m_isDSP = true);
-    declareProperty("Efficiency", m_eff = true);
-    declareProperty("numberOfThresholds", m_numberOfThresholds = 2);
-}
+#include <math.h>
 
-TileTMDBRawChannelMonitorAlgorithm::~TileTMDBRawChannelMonitorAlgorithm() {
-}
 
 StatusCode TileTMDBRawChannelMonitorAlgorithm::initialize() {
 
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
   ATH_MSG_DEBUG("in initialize()");
 
-    ATH_CHECK( detStore()->retrieve(m_tileHWID) );
-    ATH_CHECK( m_rawChannelContainerKey.initialize() );
-    ATH_CHECK( m_muonContainerKey.initialize(m_eff) );
-    ATH_CHECK( m_muonRoIsContainerKey.initialize(m_eff) );
-    ATH_CHECK( m_tileCondToolTMDB.retrieve(EnableTool{m_eff}) );
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_muonContainerKey.initialize(m_fillEfficiencyHistograms) );
+  ATH_CHECK( m_muonRoIsContainerKey.initialize(m_fillEfficiencyHistograms) );
+  ATH_CHECK( m_tileCondToolTMDB.retrieve(EnableTool{m_fillEfficiencyHistograms}) );
 
-    using Tile = TileCalibUtils;
-    using namespace Monitored;
+  using Tile = TileCalibUtils;
+  using namespace Monitored;
 
-    if (m_eff) {
-      m_tgcSectorGroup = buildToolMap<int>(m_tools, "TGC_TrSec_number_Good_Muons", 2);  
-      m_coinThrDGroup = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TMDB_coincidence_threshold", 2, m_numberOfThresholds, 2);
-    }
+  if (m_fillEfficiencyHistograms) {
+    m_tgcSectorGroup = buildToolMap<int>(m_tools, "TGC_TrSec_number_Good_Muons", 2);
+    m_coinThrDGroup = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TMDB_coincidence_threshold", 2, m_numberOfThresholds, 2);
 
-    m_isDSP = (m_rawChannelContainerKey.key() == "MuRcvRawChCnt");
+  }
+
+  if (m_fillRawChannelHistograms) {
     m_ampGroups = buildToolMap<int>(m_tools, "TMDB_RawAmplitude", Tile::MAX_ROS - 1);
     m_timeGroups = buildToolMap<int>(m_tools, "TMDB_RawTime", Tile::MAX_ROS - 1);
 
@@ -63,12 +51,13 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::initialize() {
 
     for (unsigned int partition = 0; partition < Tile::MAX_ROS-1; ++partition) {
       m_ampCell.push_back(buildToolMap<int>(m_tools,
-                                              "TMDB_RawCellAmplitude_" + partitionName[partition],
-                                              m_nChannels[partition]));
+                                            "TMDB_RawCellAmplitude_" + partitionName[partition],
+                                            m_nChannels[partition]));
       m_timeCell.push_back(buildToolMap<int>(m_tools,
-                                              "TMDB_RawCellTime_" + partitionName[partition],
-                                              m_nChannels[partition]));
+                                             "TMDB_RawCellTime_" + partitionName[partition],
+                                             m_nChannels[partition]));
     }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -90,14 +79,15 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
   std::vector<float> cellAmplitudes[Tile::MAX_ROS - 1][TMDB_MAX_CHANNEL];
   std::vector<float> cellTimes[Tile::MAX_ROS - 1][TMDB_MAX_CHANNEL];
 
-  static constexpr int TMDB_NUMBER_LAYERS = 2;
-  static constexpr int TMDB_NUMBER_BARRELS = 2;
+  static constexpr int TMDB_EB_NUMBER_CELLS = 2; // (D5 and D5+D6)
+  static constexpr int TMDB_EB_NUMBER_PARTITIONS = 2; // EBA and EBC
   std::vector<float> tgcSectors[2];
-  std::vector<float> coinThrModules_1Th[TMDB_NUMBER_BARRELS][1][TMDB_NUMBER_LAYERS]; // (EBAxEBC) x Thresholds x (D5 x D5+D6) 
-  std::vector<float> coinThrModules_2Th[TMDB_NUMBER_BARRELS][2][TMDB_NUMBER_LAYERS]; // (EBAxEBC) x Thresholds x (D5 x D5+D6) 
 
-  float TMDB_D6_amplitude[2][64] = {{0}}; // (EBA and EBC) x 64 modules
-  float TMDB_D56_amplitude[2][64] = {{0}}; // (EBA and EBC) x 64 modules
+  // Thresholds x (EBA and EBC) x (D5 and D5+D6)
+  auto coinThrModules = std::make_unique<std::vector<float>[][TMDB_EB_NUMBER_PARTITIONS][TMDB_EB_NUMBER_CELLS]>(m_numberOfThresholds);
+
+  float TMDB_D6_amplitude[TMDB_EB_NUMBER_PARTITIONS][64] = {{0}}; // (EBA and EBC) x 64 modules
+  float TMDB_D56_amplitude[TMDB_EB_NUMBER_PARTITIONS][64] = {{0}}; // (EBA and EBC) x 64 modules
 
   SG::ReadHandle<TileRawChannelContainer> rawContainer(m_rawChannelContainerKey, ctx);
   for (IdentifierHash hash : rawContainer->GetAllCurrentHashes()) {
@@ -114,17 +104,22 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
       float amplitude = rawChannel->amplitude();
 
       if(channel < m_nChannels[partition]){
-        if(m_eff){
+
+        if(m_fillEfficiencyHistograms){
           if (partition > 1) {
             TMDB_D56_amplitude[partition - 2][drawer] += amplitude;
-            if (channel == 2 || channel == 3) { TMDB_D6_amplitude[partition - 2][drawer] += amplitude;}
+            if (channel == 2 || channel == 3) {
+              TMDB_D6_amplitude[partition - 2][drawer] += amplitude;
+            }
           }
-        }else{
+        }
+
+        if (m_fillRawChannelHistograms) {
           channels[partition].push_back(channel);
           drawers[partition].push_back(drawer);
           amplitudes[partition].push_back(amplitude);
           cellAmplitudes[partition][channel].push_back(amplitude);
-          if(m_isDSP == false){
+          if(!m_isDSP){
             if (amplitude > m_amplitudeThreshold) {
               timeChannels[partition].push_back(channel);
               timeDrawers[partition].push_back(drawer);
@@ -134,6 +129,7 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
             }
           }  
         }
+
       }
     }
   }
@@ -166,7 +162,7 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
     }
   }
 
-  if (m_eff == true) {
+  if (m_fillEfficiencyHistograms) {
   
     SG::ReadHandle<xAOD::MuonContainer> muonContainer(m_muonContainerKey, ctx);
     ATH_CHECK( muonContainer.isValid() );
@@ -200,26 +196,24 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
 
         unsigned int drawerIdx;
 
-        for(unsigned int partition = 0; partition < 2; ++partition) {
+        for(unsigned int partition = 0; partition < TMDB_EB_NUMBER_PARTITIONS; ++partition) {
           for(int module = m1; module <= m1 + 1; ++module) {
              
-            drawerIdx = Tile::getDrawerIdx(partition+3, module);
+            drawerIdx = Tile::getDrawerIdx(partition + 3, module);
 
-            if( TMDB_D6_amplitude[partition][module]  > m_tileCondToolTMDB->getThreshold(drawerIdx, 0) ) {
-              coinThrModules_1Th[partition][0][0].push_back(module+1);
-              coinThrModules_2Th[partition][0][0].push_back(module+1);
+            if( TMDB_D6_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 0) ) {
+              coinThrModules[0][partition][0].push_back(module);
             }
-            if( (TMDB_D56_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 2)  )) {
-              coinThrModules_1Th[partition][0][1].push_back(module+1);
-              coinThrModules_2Th[partition][0][0].push_back(module+1);
+            if( (TMDB_D56_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 2) )) {
+              coinThrModules[0][partition][1].push_back(module);
             }
 
             if(m_numberOfThresholds == 2){
-              if( (TMDB_D6_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 1)  )) {
-                coinThrModules_2Th[partition][1][0].push_back(module+1);
+              if( (TMDB_D6_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 1) )) {
+                coinThrModules[1][partition][0].push_back(module);
               }
-              if( (TMDB_D56_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 3)  )) {
-                coinThrModules_2Th[partition][1][1].push_back(module+1);
+              if( (TMDB_D56_amplitude[partition][module] > m_tileCondToolTMDB->getThreshold(drawerIdx, 3) )) {
+                coinThrModules[1][partition][1].push_back(module);
               }  
             }           
           }
@@ -228,21 +222,15 @@ StatusCode TileTMDBRawChannelMonitorAlgorithm::fillHistograms( const EventContex
     } //trig_mu_loop
 
 
-    for (unsigned int partition = 0; partition < 2; ++partition) {
+    for (unsigned int partition = 0; partition < TMDB_EB_NUMBER_PARTITIONS; ++partition) {
       if (!tgcSectors[partition].empty()) {
         auto monSector = Monitored::Collection("sector", tgcSectors[partition]);
         fill(m_tools[m_tgcSectorGroup[partition]], monSector);
         for(unsigned int threshold = 0; threshold < m_numberOfThresholds; ++threshold){
-          for(unsigned int cell = 0; cell <2; ++cell){
-            if (!coinThrModules_1Th[partition][threshold][cell].empty()) {
-              if(m_numberOfThresholds == 1){
-                auto monModule = Monitored::Collection("module", coinThrModules_1Th[partition][threshold][cell]);
-                fill(m_tools[m_coinThrDGroup[partition][threshold][cell]], monModule);
-              }
-              if(m_numberOfThresholds == 2){
-                auto monModule = Monitored::Collection("module", coinThrModules_2Th[partition][threshold][cell]);
-                fill(m_tools[m_coinThrDGroup[partition][threshold][cell]], monModule);
-              }
+          for(unsigned int cell = 0; cell < TMDB_EB_NUMBER_CELLS; ++cell){
+            if (!coinThrModules[threshold][partition][cell].empty()) {
+              auto monModule = Monitored::Collection("module", coinThrModules[threshold][partition][cell]);
+              fill(m_tools[m_coinThrDGroup[partition][threshold][cell]], monModule);
             }
           }
         }
