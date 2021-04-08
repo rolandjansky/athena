@@ -82,5 +82,8 @@ public:
   std::unique_ptr<PFO_FE_ComparisonPlots> m_charged_PFO_FE_comparison;
   std::unique_ptr<PFO_FE_ComparisonPlots> m_neutral_PFO_FE_comparison;
 
+  /** Toggle to enable plots directly comparing FE and PFO */
+  Gaudi::Property<bool> m_compareFEtoPFO{this,"compareFEtoPFO",false,"Toggle to enable plots directly comparing FE and PFO "};
+
 };
 #endif
