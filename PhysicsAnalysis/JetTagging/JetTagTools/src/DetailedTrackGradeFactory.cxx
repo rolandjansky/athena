@@ -174,6 +174,75 @@ StatusCode DetailedTrackGradeFactory::initialize()
 
     }
 
+    else if(m_ITkTrackGradingVersion==6){
+
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A01")) ); //no hit 1st pixel layer, no hit 2nd pixel layer
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A02")) ); //no hit 1st pixel layer but expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A03")) ); //no hit 1st pixel layer and not expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A04")) ); //no hit 2nd pixel layer but expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A05")) ); //no hit 2nd pixel layer and not expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A06")) ); //total number of shared pixel hits > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A07")) ); //number of outliers in 1st+2nd pixel layer > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A08")) ); //number of pixel spoilt hits >=2
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A14_1")) ); //good tracks gamma>0.75e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A14_2")) ); //good tracks 0.5e-3<gamma<0.75e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A14_3")) ); //good tracks 0.25e-3<gamma<0.5e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "A14_4")) ); //good tracks gamma<0.25e-3
+      nbGrades++;
+
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B01")) ); //no hit 1st pixel layer, no hit 2nd pixel layer
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B02")) ); //no hit 1st pixel layer but expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B03")) ); //no hit 1st pixel layer and not expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B04")) ); //no hit 2nd pixel layer but expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B05")) ); //no hit 2nd pixel layer and not expected
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B06")) ); //total number of shared pixel hits > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B07")) ); //number of outliers in 1st+2nd pixel layer > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B08")) ); //number of pixel spoilt hits >=2
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B14_1")) ); //good tracks gamma>1.5e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B14_2")) ); //good tracks 1e-3<gamma<1.5e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B14_3")) ); //good tracks 0.5e-3<gamma<1e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "B14_4")) ); //good tracks gamma<0.5e-3
+      nbGrades++;
+
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C06")) ); //total number of shared pixel hits > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C07")) ); //number of outliers in 1st+2nd pixel layer > 0
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C08")) ); //number of pixel spoilt hits >=2
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C14_1")) ); //good tracks gamma>3e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C14_2")) ); //good tracks 2e-3<gamma<3e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C14_3")) ); //good tracks 1e-3<gamma<2e-3
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C14_4")) ); //good tracks gamma<1e-3
+      nbGrades++;
+
+    }
+
     else if(m_ITkTrackGradingVersion==7){
       
       myGrades.push_back( TrackGrade(nbGrades, std::string( "A01")) ); //no hit 1st pixel layer, no hit 2nd pixel layer
@@ -776,7 +845,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
 
 
-      else if(m_ITkTrackGradingVersion==7){
+      else if(m_ITkTrackGradingVersion==6 || m_ITkTrackGradingVersion==7){
 
 	if( nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A01"));
 
@@ -828,7 +897,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       } //cat v5
 
 
-      else if(m_ITkTrackGradingVersion==7){
+      else if(m_ITkTrackGradingVersion==6 || m_ITkTrackGradingVersion==7){
 
 	if( nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B01"));
 
@@ -867,10 +936,10 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       }
 
 
-      else if(m_ITkTrackGradingVersion==7){
+      else if(m_ITkTrackGradingVersion==6 || m_ITkTrackGradingVersion==7){
 
-	if( nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C01"));
-	else if ( nohitInnermostLayer || nohitNextToInnermostLayer ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C02030405"));
+	if( m_ITkTrackGradingVersion==7 && nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C01"));
+	else if ( m_ITkTrackGradingVersion==7 && (nohitInnermostLayer || nohitNextToInnermostLayer) ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C02030405"));
 	else if (pixsharedClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C06"));
 	else if (pixoutlierClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C07"));
 	else if (pixspoiltClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C08"));
@@ -880,7 +949,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 	else if(gamma_region==2) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C14_3"));
 	else if(gamma_region==3) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C14_4"));
 
-      } // Cat v7
+      } // Cat v6-7
 
     }
 
