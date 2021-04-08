@@ -2,17 +2,17 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfiguration")
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
+from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 
-from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import precisionElectronMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup_GSF import precisionElectronMenuSequence_GSF
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionTrackingSequenceSetup import precisionTrackingMenuSequence
+from .ElectronMenuSequences import fastElectronMenuSequence
+from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from .PrecisionElectronMenuSequences import precisionElectronMenuSequence
+from .PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
+from .PrecisionTrackingMenuSequences import precisionTrackingMenuSequence
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------

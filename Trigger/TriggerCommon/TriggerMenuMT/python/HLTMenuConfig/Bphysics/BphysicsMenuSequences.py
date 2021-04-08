@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
-log = logging.getLogger('BphysicsSequenceSetup')
+log = logging.getLogger('BphysicsMenuSequence')
 
 
 def bmumuxAlgSequence(ConfigFlags):
@@ -28,7 +28,7 @@ def bmumuxAlgSequence(ConfigFlags):
         InViewMuonCandidates = 'BmumuxMuonCandidates',
         InViewMuons = 'HLT_Muons_Bmumux')
 
-    from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSetup import bmumuxRecoSequence
+    from .BphysicsRecoSequences import bmumuxRecoSequence
     recoSequence = bmumuxRecoSequence(viewMaker.InViewRoIs, viewMaker.InViewMuons)
 
     viewMaker.ViewNodeName = recoSequence.name()
@@ -53,7 +53,7 @@ def bmumuxSequence():
 
 
 def dimuL2Sequence():
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muCombAlgSequence
+    from ..Muon.MuonMenuSequences import muCombAlgSequence
     from TrigBphysHypo.TrigBphysHypoConf import TrigBphysStreamerHypo
     from TrigBphysHypo.TrigBphysStreamerHypoConfig import TrigBphysStreamerHypoToolFromDict
 
