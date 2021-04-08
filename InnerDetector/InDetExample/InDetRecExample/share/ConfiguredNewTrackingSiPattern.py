@@ -149,8 +149,8 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "SLHCLargeD0":
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint=5
             InDetSiSpacePointsSeedMaker.isLRT=True
-            InDetSiSpacePointsSeedMaker.maxZPPP = NewTrackingCuts.maxZImpactSeed()
-            InDetSiSpacePointsSeedMaker.maxZSSS = NewTrackingCuts.maxZImpactSeed()
+            InDetSiSpacePointsSeedMaker.maxZPPP = NewTrackingCuts.maxZSpacePointsPPPSeeds()
+            InDetSiSpacePointsSeedMaker.maxZSSS = NewTrackingCuts.maxZSpacePointsSSSSeeds()
          if InDetFlags.doFastTracking() :
             InDetSiSpacePointsSeedMaker.useFastTracking       = True
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
@@ -159,7 +159,6 @@ class  ConfiguredNewTrackingSiPattern:
             elif NewTrackingCuts.mode() == "SLHCLargeD0":
                InDetSiSpacePointsSeedMaker.usePixel              = False
                InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta()
-               InDetSiSpacePointsSeedMaker.maxZSSS = 2700 # Needed for strip-only seeding
 
          if InDetFlags.writeSeedValNtuple():
            InDetSiSpacePointsSeedMaker.writeNtuple        = True

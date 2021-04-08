@@ -76,6 +76,8 @@ class ConfiguredNewTrackingCuts :
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
+    self.__maxZSpacePointsPPPSeeds = 2700. * Units.mm
+    self.__maxZSpacePointsSSSSeeds = 2700. * Units.mm
 
     # --- min pt cut for brem
     self.__minPTBrem               = 1. * Units.GeV # off
@@ -431,6 +433,7 @@ class ConfiguredNewTrackingCuts :
 
         # --- seeding
         self.__maxdImpactSSSSeeds       = [300.0 * Units.mm]
+        self.__maxZSpacePointsPPPSeeds  = 500 * Units.mm
 
         self.__useSCTSeeding = self.__indetflags.useSCTSLHCLargeD0()
         self.__usePixel = self.__indetflags.usePixelSLHCLargeD0()
@@ -1206,6 +1209,12 @@ class ConfiguredNewTrackingCuts :
 
   def maxdImpactSSSSeeds( self ) :
     return self.__maxdImpactSSSSeeds
+
+  def maxZSpacePointsPPPSeeds( self ) :
+    return self.__maxZSpacePointsPPPSeeds
+
+  def maxZSpacePointsSSSSeeds( self ) :
+    return self.__maxZSpacePointsSSSSeeds
 
   def usePixel( self ) :
     return self.__usePixel
