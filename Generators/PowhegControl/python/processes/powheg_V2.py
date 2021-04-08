@@ -59,27 +59,20 @@ class PowhegV2(PowhegBase):
     @property
     def integration_file_names(self):
         """! Wildcarded list of integration files that might be created by this process."""
+        """! All files matching these patterns will be included in the gridpack."""
         return [
-            "pwgbtildeupb*.dat",
-            "pwgfullgrid*.dat",
+            "pwg*xg*.dat",
+            "pwg*upb*.dat",
             "pwggrid*.dat",
-            "pwggridinfo*.dat",
-            "pwgremnupb*.dat",
+            "pwgfullgrid*.dat",
             "pwgubound*.dat",
-            "pwgxgrid.dat",
         ]
 
     @property
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
-        return [
-            "pwgbtildeupb*.dat",
-            "pwgfullgrid*.dat",
-            "pwggrid*.dat",
-            "pwgremnupb*.dat",
-            "pwgubound*.dat",
-            "pwgxgrid.dat",
-        ]
+        """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
+        return self.integration_file_names
 
     @property
     def powheg_version(self):
