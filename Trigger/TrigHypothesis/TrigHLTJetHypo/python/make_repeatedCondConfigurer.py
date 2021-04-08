@@ -18,7 +18,7 @@ def make_repeatedCond(tree_id, tree_pid,
     
     toolclass, name =  toolfactory('RepeatedConditionConfigTool')
     repeated_args = {'name': name}
-    repeated_args['conditionMakers'] = conditionMakers
+    repeated_args['conditionMakers'] = sorted(conditionMakers, key=lambda cm: cm.name() if callable(cm.name) else cm.name)
     repeated_args['id'] =  tree_id
     repeated_args['pid'] =  tree_pid
     repeated_args['multiplicity'] = multiplicity
