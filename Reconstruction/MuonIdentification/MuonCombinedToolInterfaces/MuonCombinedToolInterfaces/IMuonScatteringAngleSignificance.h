@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IMuonScatteringAngleSignificance.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef IMUONSCATTERINGANGLESIGNIFICANCE_H
 #define IMUONSCATTERINGANGLESIGNIFICANCE_H
 
@@ -18,8 +14,6 @@ namespace Trk {
 
 namespace Rec {
 
-    static const InterfaceID IID_IMuonScatteringAngleSignificance("Rec::IMuonScatteringAngleSignificance", 1, 0);
-
     /** @class IMuonScatteringAngleSignificance
         @brief interface providing a the scattering angle significance.
 
@@ -28,7 +22,12 @@ namespace Rec {
 
     class IMuonScatteringAngleSignificance : virtual public IAlgTool {
     public:
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonScatteringAngleSignificance("Rec::IMuonScatteringAngleSignificance", 1, 0);
+            return IID_IMuonScatteringAngleSignificance;
+        }
+
+        virtual ~IMuonScatteringAngleSignificance() = default;
 
         /** @brief return significance of scattering angle pattern for tracks,
             starting from the full muon object.
@@ -40,8 +39,6 @@ namespace Rec {
           */
         virtual ScatteringAngleSignificance scatteringAngleSignificance(const Trk::Track& track) const = 0;
     };
-
-    inline const InterfaceID& Rec::IMuonScatteringAngleSignificance::interfaceID() { return IID_IMuonScatteringAngleSignificance; }
 
 }  // namespace Rec
 
