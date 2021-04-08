@@ -71,15 +71,6 @@ class ConfiguredBackTracking:
             #
             # --- alternative version using the region selector
             #
-            from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-            InDetRegSelSvc             = RegSelSvcDefault()
-            InDetRegSelSvc.enablePixel = DetFlags.pixel_on()
-            InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
-
-            ServiceMgr += InDetRegSelSvc
-            if (InDetFlags.doPrintConfigurables()):
-               printfunc (InDetRegSelSvc)
-
             from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__SimpleTRT_SeededSpacePointFinder_ATL
             InDetTRT_SeededSpacePointFinder = InDet__SimpleTRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
                                                                                           SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
