@@ -11,25 +11,26 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaPrecisionPhotonHypoAlgMT::TrigEgammaPrecisionPhotonHypoAlgMT( const std::string& name, 
-					  ISvcLocator* pSvcLocator ) :
+TrigEgammaPrecisionPhotonHypoAlgMT::TrigEgammaPrecisionPhotonHypoAlgMT( const std::string& name,  
+                                                                        ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::initialize() {
+StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::initialize() 
+{
   ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
-
-  
   ATH_CHECK( m_hypoTools.retrieve() );
-  
   ATH_CHECK( m_photonsKey.initialize() );
   renounce( m_photonsKey );// photons are made in views, so they are not in the EvtStore: hide them
 
+  ATH_MSG_DEBUG( "Retrieving egammaPhotonCutIDTool..."  );
+  ATH_CHECK(m_egammaPhotonCutIDTools.retrieve());
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& context ) const 
+{  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );  
@@ -64,34 +65,43 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
     // Loop over the photonHandles
     size_t validphotons=0;
     for (size_t cl=0; cl< photonHandle->size(); cl++){
-	{
-	    auto ph = ViewHelper::makeLink( *viewEL, photonHandle, cl );
-	    ATH_MSG_DEBUG ( "Checking ph.isValid()...");
-	    if( !ph.isValid() ) {
-		ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
-	    }
-	    ATH_CHECK(ph.isValid());
+    
+      {
+        auto ph = ViewHelper::makeLink( *viewEL, photonHandle, cl );
+        ATH_MSG_DEBUG ( "Checking ph.isValid()...");
+        if( !ph.isValid() ) {
+          ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
+        }
+      
+        ATH_CHECK(ph.isValid());
 
-	    ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " processing...");
-	    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
-	    d->setObjectLink( TCU::featureString(),  ph );
-	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    toolInput.emplace_back( d, roi, photonHandle.cptr()->at(cl), previousDecision );
-	    validphotons++;
+        ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " processing...");
+        auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+        d->setObjectLink( TCU::featureString(),  ph );
+        TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 
 
-	}
+        ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo info(d, roi, photonHandle.cptr()->at(cl), previousDecision);
+
+        int idx=0;
+        for( auto& pidname : m_isemNames ){
+          info.pidDecorator[pidname] = (bool)m_egammaPhotonCutIDTools[idx]->accept(info.photon); 
+          idx++;
+        }
+
+        toolInput.push_back(info);
+        validphotons++;
+      }
     }
+
     ATH_MSG_DEBUG( "Photons with valid links: " << validphotons );
     
     ATH_MSG_DEBUG( "roi, photon, previous decision to new decision " << counter << " for roi " );
     counter++;
-
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
 
-   
   for ( auto& tool: m_hypoTools ) {
     ATH_CHECK( tool->decide( toolInput ) );
   }

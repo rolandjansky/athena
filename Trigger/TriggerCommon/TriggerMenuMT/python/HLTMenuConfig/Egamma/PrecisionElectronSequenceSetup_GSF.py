@@ -41,16 +41,9 @@ def precisionElectronMenuSequence_GSF():
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence_GSF, ConfigFlags)
 
     # make the Hypo
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigElectronSelectors
-    SelectorTool_vloose, SelectorTool_loose, SelectorTool_medium, SelectorTool_tight = TrigElectronSelectors()
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT_GSF")
-    thePrecisionElectronHypo.Electrons = sequenceOut
-    thePrecisionElectronHypo.RunInView = True
-    thePrecisionElectronHypo.ElectronLHSelector_vLoose = SelectorTool_vloose
-    thePrecisionElectronHypo.ElectronLHSelector_Loose = SelectorTool_loose
-    thePrecisionElectronHypo.ElectronLHSelector_Medium = SelectorTool_medium
-    thePrecisionElectronHypo.ElectronLHSelector_Tight = SelectorTool_tight
+    from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlgMT
+    thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT_GSF", sequenceOut)
+    
 
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
 

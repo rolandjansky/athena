@@ -68,13 +68,6 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
   
-  
-  if (m_useRinger) {
-   if (!(m_vloose|| m_loose || m_medium || m_tight)) {
-    ATH_MSG_ERROR("Ringer mode requires exactly one of the vloose, loose, medium or tight flags to be set.");
-    return StatusCode::FAILURE;
-   }
- }// Use ringer
 
 
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   
@@ -83,7 +76,8 @@ StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
 }
 
 
-StatusCode TrigEgammaFastCaloHypoToolInc::decide( std::vector<FastClusterInfo>& input )  const {
+StatusCode TrigEgammaFastCaloHypoToolInc::decide( std::vector<FastClusterInfo>& input )  const 
+{
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
@@ -95,13 +89,15 @@ StatusCode TrigEgammaFastCaloHypoToolInc::decide( std::vector<FastClusterInfo>& 
 }
 
 
-bool TrigEgammaFastCaloHypoToolInc::decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const {
+bool TrigEgammaFastCaloHypoToolInc::decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const 
+{
   return m_useRinger ? decide_ringer( input ) : decide_cutbased( input );
 }
 
 
 
-bool TrigEgammaFastCaloHypoToolInc::decide_cutbased( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const {
+bool TrigEgammaFastCaloHypoToolInc::decide_cutbased( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& input ) const 
+{
   
   bool pass = false;
 
@@ -321,8 +317,9 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   auto etMon          = Monitored::Scalar("Et",-100);
   auto monEta         = Monitored::Scalar("Eta",-100);
   auto monPhi         = Monitored::Scalar("Phi",-100); 
+  auto monNNOutput    = Monitored::Scalar("NNOutput",-100);
 
-  auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi);
+  auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi,monNNOutput);
    
   if ( m_acceptAll ) {
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
@@ -332,7 +329,7 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   }
   
   auto ringerShape = input.ringerShape;
-  const xAOD::TrigEMCluster *emCluster = 0;
+  const xAOD::TrigEMCluster *emCluster = nullptr;
  
   if(ringerShape){
     emCluster = ringerShape->emCluster();
@@ -346,44 +343,31 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
     return false;
   }
 
-  float et = emCluster->et() / Gaudi::Units::GeV;
+  float et = emCluster->et();
  
-  if(et < m_emEtCut/Gaudi::Units::GeV){
+  if(et < m_emEtCut){
     ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
     return false;
   }
 
   monEta = emCluster->eta();
-  etMon  = emCluster->et();
+  etMon  = et;
   monPhi = emCluster->phi();
 
-  ATH_MSG_DEBUG("m_vloose: "<<m_vloose);
-  ATH_MSG_DEBUG("m_loose: "<<m_loose);
-  ATH_MSG_DEBUG("m_medium: "<<m_medium);
-  ATH_MSG_DEBUG("m_tight: "<<m_tight);
-
-  if(m_vloose == true){
-   ATH_MSG_DEBUG("input.vloose_accept: "<<input.vloose_accept);
-   return input.vloose_accept;
+  bool pass = false;
+  if( input.pidDecorator.count(m_pidName)){
+    monNNOutput = input.valueDecorator.at(m_pidName+"NNOutput");
+    pass = input.pidDecorator.at(m_pidName);
+    ATH_MSG_DEBUG( "ET Cut " << m_emEtCut <<" Get the decision for " << m_pidName << ": " << (pass?"Yes":"No") );
   }
-  else if(m_loose == true){
-   ATH_MSG_DEBUG("input.loose_accept: "<<input.loose_accept);
-   return input.loose_accept;
-  }
-  else if(m_medium == true){
-   ATH_MSG_DEBUG("input.medium_accept: "<<input.medium_accept);
-   return input.medium_accept;
-  }
-  else{
-   ATH_MSG_DEBUG("input.tight_accept: "<<input.tight_accept);
-   return input.tight_accept;
-  }
+ 
+  return pass;
 }
 
 
-int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const {
+int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const 
+{
   const float absEta = std::abs(eta);
-  
   auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
   if ( binIterator == m_etabin.end() ) {
     return -1;

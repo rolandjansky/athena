@@ -7,48 +7,58 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/ViewHelper.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaPrecisionElectronHypoAlgMT::TrigEgammaPrecisionElectronHypoAlgMT( const std::string& name, 
-					  ISvcLocator* pSvcLocator ) :
+TrigEgammaPrecisionElectronHypoAlgMT::TrigEgammaPrecisionElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize() {
+StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize() 
+{
+
   ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
 
-  
   ATH_CHECK( m_hypoTools.retrieve() );
 
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
   ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
-  ATH_CHECK(m_egammaElectronLHTool_vloose.retrieve());
-  ATH_CHECK(m_egammaElectronLHTool_loose.retrieve());
-  ATH_CHECK(m_egammaElectronLHTool_medium.retrieve());   
-  ATH_CHECK(m_egammaElectronLHTool_tight.retrieve());
-  
+  ATH_CHECK(m_egammaElectronLHTools.retrieve());
+
+  //ATH_MSG_DEBUG( "Retrieving egammaElectronDNNTool..."  );
+  //ATH_CHECK(m_egammaElectronDNNTools.retrieve());
+
   // Retrieving Luminosity info
   ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
   ATH_CHECK( m_avgMuKey.initialize() );
-
-  
   ATH_CHECK( m_electronsKey.initialize() );
   renounce( m_electronsKey );// electrons are made in views, so they are not in the EvtStore: hide them
-
+  if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& context ) const 
+{  
+
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto timer_lh = Monitored::Timer("TIME_LH_exec");
+  //auto timer_dnn = Monitored::Timer("TIME_DNN_exec");
+  auto monitoring = Monitored::Group( m_monTool, timer, timer_lh);
+
+
+  timer.start();
+
+
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
 
   // new decisions
-
   // new output decisions
   SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
@@ -73,103 +83,80 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
     // Loop over the electronHandles
     size_t validelectrons=0;
     for (size_t cl=0; cl< electronHandle->size(); cl++){
-	{
-	    auto ph = ViewHelper::makeLink( *viewEL, electronHandle, cl );
-	    ATH_MSG_DEBUG ( "Checking ph.isValid()...");
-	    if( !ph.isValid() ) {
-		ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
-	    }
-	    ATH_CHECK(ph.isValid());
+      
+      {
+        auto el = ViewHelper::makeLink( *viewEL, electronHandle, cl );
+        ATH_MSG_DEBUG ( "Checking ph.isValid()...");
+        if( !el.isValid() ) {
+          ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
+        }
 
-	    ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " processing...");
-	    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
-	    d->setObjectLink( TCU::featureString(),  ph );
-	    TCU::linkToPrevious( d, decisionInput().key(), counter );
+        ATH_CHECK(el.isValid());
+        ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " processing...");
+        auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
+        d->setObjectLink( TCU::featureString(),  el );
+        TCU::linkToPrevious( d, decisionInput().key(), counter );
 
-            ///////LHTool////////////
-            float avg_mu = 0;
-            float lhval_vloose=0;
-            float lhval_loose=0;
-            float lhval_medium=0;
-            float lhval_tight=0;
+        // create the info
+        ITrigEgammaPrecisionElectronHypoTool::ElectronInfo info(d, roi, electronHandle.cptr()->at(cl), previousDecision);
 
-            bool pass_vloose = false;
-       	    bool pass_loose = false;
-       	    bool pass_medium = false;
-       	    bool pass_tight = false;
+        // Retrieve avgmu value from event info
+        SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey, context);
 
-            SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey, context);
-            if(eventInfoDecor.isPresent()) {
-             avg_mu = eventInfoDecor(0);
-             ATH_MSG_DEBUG("Average mu " << avg_mu);
-             asg::AcceptData accept_vloose =  m_egammaElectronLHTool_vloose->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-             asg::AcceptData accept_loose =  m_egammaElectronLHTool_loose->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-             asg::AcceptData accept_medium =  m_egammaElectronLHTool_medium->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-             asg::AcceptData accept_tight =  m_egammaElectronLHTool_tight->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-             pass_vloose = (bool) accept_vloose;
-             pass_loose = (bool) accept_loose;
-             pass_medium = (bool) accept_medium;
-             pass_tight = (bool) accept_tight;
-  
-             // Monitor the LH value
-             lhval_vloose = m_egammaElectronLHTool_vloose->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
-             lhval_loose = m_egammaElectronLHTool_loose->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
-             lhval_medium = m_egammaElectronLHTool_medium->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
-             lhval_tight = m_egammaElectronLHTool_tight->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
-             ATH_MSG_DEBUG("LHValue_vloose with avgmu " << lhval_vloose);
-             ATH_MSG_DEBUG("LHValue_loose with avgmu " << lhval_loose);
-             ATH_MSG_DEBUG("LHValue_medium with avgmu " << lhval_medium);
-             ATH_MSG_DEBUG("LHValue_tight with avgmu " << lhval_tight);
-            }  
-            else{
-             ATH_MSG_WARNING("EventInfo decoration not available!");
-             asg::AcceptData accept_vloose = m_egammaElectronLHTool_vloose->accept(context, electronHandle.cptr()->at(cl));
-             asg::AcceptData accept_loose = m_egammaElectronLHTool_loose->accept(context, electronHandle.cptr()->at(cl));
-             asg::AcceptData accept_medium = m_egammaElectronLHTool_medium->accept(context, electronHandle.cptr()->at(cl));
-             asg::AcceptData accept_tight = m_egammaElectronLHTool_tight->accept(context, electronHandle.cptr()->at(cl));
-             pass_vloose = (bool) accept_vloose;
-       	     pass_loose = (bool) accept_loose;
-       	     pass_medium = (bool) accept_medium;
-       	     pass_tight = (bool) accept_tight;
+        if(eventInfoDecor.isPresent()){
+          float avg_mu = eventInfoDecor(0);
+          ATH_MSG_DEBUG("Average mu " << avg_mu);
+          info.valueDecorator["avgmu"] = avg_mu;
+        }
 
-             // Monitor the LH value
-             lhval_vloose = m_egammaElectronLHTool_vloose->calculate(context, electronHandle.cptr()->at(cl));
-             lhval_loose = m_egammaElectronLHTool_loose->calculate(context, electronHandle.cptr()->at(cl));
-             lhval_medium = m_egammaElectronLHTool_medium->calculate(context, electronHandle.cptr()->at(cl));
-             lhval_tight = m_egammaElectronLHTool_tight->calculate(context, electronHandle.cptr()->at(cl));
-             ATH_MSG_DEBUG("LHValue_vloose without avgmu " << lhval_vloose);
-             ATH_MSG_DEBUG("LHValue_loose without avgmu " << lhval_loose);
-       	     ATH_MSG_DEBUG("LHValue_medium without avgmu " << lhval_medium);
-       	     ATH_MSG_DEBUG("LHValue_tight without avgmu " << lhval_tight);
-            }
-            const float avg_mu_const = avg_mu;
-            const float lhval_const_vloose = lhval_vloose;
-            const float lhval_const_loose = lhval_loose;
-            const float lhval_const_medium = lhval_medium;
-            const float lhval_const_tight = lhval_tight;
-
-            const bool pass_const_vloose = pass_vloose;
-            const bool pass_const_loose = pass_loose;
-            const bool pass_const_medium = pass_medium;
-            const bool pass_const_tight = pass_tight;
-            
-	    toolInput.emplace_back( d, roi, electronHandle.cptr()->at(cl), pass_const_vloose, pass_const_loose, pass_const_medium, pass_const_tight,
-                                      lhval_const_vloose,lhval_const_loose, lhval_const_medium, lhval_const_tight, avg_mu_const, previousDecision );
-	    validelectrons++;
+        // Decorate the info with all LH decisions
+        int idx=0;
+        for ( auto &pidname : m_lhNames ){
+          timer_lh.start();
+          if(eventInfoDecor.isPresent()) {
+             float avg_mu = eventInfoDecor(0);
+             float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
+             info.valueDecorator[pidname+"LHValue"] = lhvalue;
+             info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+          }else{
+            float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl));
+            info.valueDecorator[pidname+"LHValue"] = lhvalue;
+            ATH_MSG_WARNING("EventInfo decoration not available!");
+            info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl));
+          }
+          timer_lh.stop();
+          idx++;
+        }
 
 
-	}
+        /* TODO: We should include the DNN here (For future)
+        idx=0
+        for ( auto &pidname : m_dnnNames ){
+          timer_dnn.start();
+          if(eventInfoDecor.isPresent()) {
+            float avg_mu = eventInfoDecor(0);
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTool[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+          }else{
+            ATH_MSG_WARNING("EventInfo decoration not available!");
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTool[idx]->accept(context, electronHandle.cptr()->at(cl));
+          }
+          timer_dnn.stop();
+          idx++;
+        }
+        */
+
+        toolInput.push_back( info );
+        validelectrons++;
+      }
     }
+
     ATH_MSG_DEBUG( "Electrons with valid links: " << validelectrons );
-    
     ATH_MSG_DEBUG( "roi, electron, previous decision to new decision " << counter << " for roi " );
     counter++;
-
   }
 
-  ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
 
-   
+  ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
   for ( auto& tool: m_hypoTools ) {
     ATH_CHECK( tool->decide( toolInput ) );
   }
