@@ -5,6 +5,7 @@
 # art-description: Powheg Control ART test bb
 # art-type: grid
 # art-output: test_powheg_bb.TXT.tar.gz
+# art-output: output_hists.root
 # art-output: dcube
 # art-html: dcube
 
@@ -16,6 +17,11 @@ simple_lhe_plotter.py test_powheg_bb.TXT.events
 
 echo "art-result: $? Plot"
 
-#dcubeName="Powheg LHE"
-#dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MadGraphControl/LHE_DCubeConfig.xml"
-#dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MadGraphControl/test_00_output_hists.root"
+dcubeName="Powheg LHE"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/config_file/test_00_config.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/reference_file/test_00_output_hists.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName output_hists.root $dcubeXml $dcubeRef
+
+echo  "art-result: $? DCube"
+
