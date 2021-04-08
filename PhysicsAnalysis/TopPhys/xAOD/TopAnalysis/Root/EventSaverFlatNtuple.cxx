@@ -1366,34 +1366,34 @@ namespace top {
         systematicTree->makeOutputVariable(m_selectionDecisions[index], branchName);
         // Add all triggers to a map so we don't get any duplicates
         for (auto& trigger_name : m_config->allTriggers_Tight(branchName)) {
-          m_triggerDecisions [trigger_name] = 0;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->allTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
-              && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
-          m_triggerDecisions [trigger_name] = 0;
+          if (m_triggerDecisions.find(trigger_name.first) != m_triggerDecisions.end()
+              && m_triggerPrescales.find(trigger_name.first) != m_triggerPrescales.end()) continue;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->electronTriggers_Tight(branchName))
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->electronTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_el_trigMatched.find(trigger_name) != m_el_trigMatched.end()) continue;
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          if (m_el_trigMatched.find(trigger_name.first) != m_el_trigMatched.end()) continue;
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         }
         for (auto& trigger_name : m_config->muonTriggers_Tight(branchName))
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->muonTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_mu_trigMatched.find(trigger_name) != m_mu_trigMatched.end()) continue;
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          if (m_mu_trigMatched.find(trigger_name.first) != m_mu_trigMatched.end()) continue;
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
         }
         for (auto& trigger_name : m_config->photonTriggers_Tight(branchName))
-          m_ph_trigMatched [trigger_name] = std::vector<char>();
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->photonTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_ph_trigMatched.find(trigger_name) != m_ph_trigMatched.end()) continue;
-          m_ph_trigMatched [trigger_name] = std::vector<char>();
+          if (m_ph_trigMatched.find(trigger_name.first) != m_ph_trigMatched.end()) continue;
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
         }
         ++index;
       }

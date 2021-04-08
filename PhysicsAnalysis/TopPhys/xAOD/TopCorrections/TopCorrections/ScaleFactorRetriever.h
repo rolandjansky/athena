@@ -465,10 +465,10 @@ namespace top {
 
     // List of triggers to 'or' together for each event.
     // If any one passes, the event passes
-    std::vector<std::string> m_electronTriggers_Tight;
-    std::vector<std::string> m_muonTriggers_Tight;
-    std::vector<std::string> m_electronTriggers_Loose;
-    std::vector<std::string> m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Loose;
     // Do we need to add tau triggers?
 
     // Configuration

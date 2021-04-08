@@ -482,7 +482,7 @@ namespace top {
     m_badBatmanCleaningMax(311481),
     m_useEventLevelJetCleaningTool(false),
     m_year("UNKNOWN") {
-    m_allSelectionNames = std::shared_ptr<std::vector<std::string> > (new std::vector<std::string> );
+    m_allSelectionNames = std::shared_ptr<std::vector<std::string > > (new std::vector<std::string> );
 
     m_systHashPhotons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashElectrons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -1816,10 +1816,10 @@ namespace top {
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value("UseGlobalLeptonTriggerSF") == "True") {
       auto parseTriggerString =
-        [settings](std::unordered_map<std::string, std::vector<std::string> >& triggersByPeriod,
+        [settings](std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >& triggersByPeriod,
                    std::string const& key) {
           /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
-          std::unordered_map<std::string, std::vector<std::string> > result;
+          std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > result;
           std::vector<std::string> pairs;
           boost::split(pairs, settings->value(key), boost::is_any_of(" "));
           for (std::string const& pair : pairs) {
@@ -1833,16 +1833,30 @@ namespace top {
             if (!triggers.empty()) throw std::invalid_argument(
                       std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key +
                       "'");
-            boost::split(triggers, triggerstr, boost::is_any_of(","));
+
+            // get the vector of strings split by ","
+            std::vector<std::string> tmp;
+            for (const auto& i : triggers) {
+              tmp.push_back(i.first);
+            }
+            boost::split(tmp, triggerstr, boost::is_any_of(","));
+            // attach a dummy 1 to the pair
+            std::vector<std::pair<std::string, int> > modified;
+            for (const auto& i : tmp) {
+              modified.emplace_back(i, 1);
+            }
+
+            // pass it to the triggers vector
+            std::swap(triggers, modified);
           }
           /* merge trigger map from this configuration line into triggersByPeriod */
           for (auto&& kv : result) {
             auto&& src = kv.second;
             auto&& dst = triggersByPeriod[kv.first];
-            for (std::string const& trigger : src) {
+            for (std::pair<std::string, int> const& trigger : src) {
               if (std::find(dst.begin(), dst.end(),
                             trigger) != dst.end()) throw std::invalid_argument(
-                        std::string() + "Trigger `" + trigger + "' was specified multiple times");
+                        std::string() + "Trigger `" + trigger.first + "' was specified multiple times");
               dst.push_back(trigger);
             }
           }
@@ -3411,17 +3425,17 @@ namespace top {
     return index;
   }
 
-  const std::vector<std::string>& TopConfig::allTriggers_Tight(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::allTriggers_Tight(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_allTriggers_Tight->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_allTriggers_Tight->find(selection);
     if (key != m_allTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::electronTriggers_Tight(const std::string& selection) const {
-    std::unordered_map<std::string, std::vector<std::string> >::const_iterator key = m_electronTriggers_Tight->find(
+  const std::vector<std::pair<std::string, int> >& TopConfig::electronTriggers_Tight(const std::string& selection) const {
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator key = m_electronTriggers_Tight->find(
       selection);
     if (key != m_electronTriggers_Tight->end()) {
       return (*key).second;
@@ -3429,8 +3443,8 @@ namespace top {
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::muonTriggers_Tight(const std::string& selection) const {
-    std::unordered_map<std::string, std::vector<std::string> >::const_iterator key = m_muonTriggers_Tight->find(
+  const std::vector<std::pair<std::string, int> >& TopConfig::muonTriggers_Tight(const std::string& selection) const {
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator key = m_muonTriggers_Tight->find(
       selection);
     if (key != m_muonTriggers_Tight->end()) {
       return (*key).second;
@@ -3438,35 +3452,35 @@ namespace top {
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::tauTriggers_Tight(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::tauTriggers_Tight(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_tauTriggers_Tight->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_tauTriggers_Tight->find(selection);
     if (key != m_tauTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::photonTriggers_Tight(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::photonTriggers_Tight(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_photonTriggers_Tight->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_photonTriggers_Tight->find(selection);
     if (key != m_photonTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::allTriggers_Loose(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::allTriggers_Loose(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_allTriggers_Loose->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_allTriggers_Loose->find(selection);
     if (key != m_allTriggers_Loose->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::electronTriggers_Loose(const std::string& selection) const {
-    std::unordered_map<std::string, std::vector<std::string> >::const_iterator key = m_electronTriggers_Loose->find(
+  const std::vector<std::pair<std::string, int> >& TopConfig::electronTriggers_Loose(const std::string& selection) const {
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator key = m_electronTriggers_Loose->find(
       selection);
     if (key != m_electronTriggers_Loose->end()) {
       return (*key).second;
@@ -3474,8 +3488,8 @@ namespace top {
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::muonTriggers_Loose(const std::string& selection) const {
-    std::unordered_map<std::string, std::vector<std::string> >::const_iterator key = m_muonTriggers_Loose->find(
+  const std::vector<std::pair<std::string, int> >& TopConfig::muonTriggers_Loose(const std::string& selection) const {
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator key = m_muonTriggers_Loose->find(
       selection);
     if (key != m_muonTriggers_Loose->end()) {
       return (*key).second;
@@ -3483,18 +3497,18 @@ namespace top {
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::tauTriggers_Loose(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::tauTriggers_Loose(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_tauTriggers_Loose->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_tauTriggers_Loose->find(selection);
     if (key != m_tauTriggers_Loose->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::photonTriggers_Loose(const std::string& selection) const {
+  const std::vector<std::pair<std::string, int> >& TopConfig::photonTriggers_Loose(const std::string& selection) const {
     std::unordered_map<std::string,
-                       std::vector<std::string> >::const_iterator key = m_photonTriggers_Loose->find(selection);
+                       std::vector<std::pair<std::string, int> > >::const_iterator key = m_photonTriggers_Loose->find(selection);
     if (key != m_photonTriggers_Loose->end()) {
       return (*key).second;
     }
@@ -3800,17 +3814,17 @@ namespace top {
          i != settings->m_allSelectionNames.end(); ++i)
       m_allSelectionNames->push_back(*i);
 
-    m_allTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_electronTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_muonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_tauTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_photonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
+    m_allTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_electronTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_muonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_tauTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_photonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
 
-    m_allTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_electronTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_muonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_tauTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
-    m_photonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> > >();
+    m_allTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_electronTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_muonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_tauTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
+    m_photonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > >();
 
     for (auto i : settings->m_allTriggers_Tight) {
       m_allTriggers_Tight->insert(i);
@@ -3947,7 +3961,7 @@ namespace top {
     if (isMC && m_year == "2015") year2 = "2016";
     if (isMC && m_year == "2016") year2 = "2015";
 
-    auto removeYears = [](std::unordered_map<std::string,std::vector<std::string> >& trig, const std::string& year1, const std::string& year2) {
+    auto removeYears = [](std::unordered_map<std::string,std::vector<std::pair<std::string, int> > >& trig, const std::string& year1, const std::string& year2) {
       auto itr = trig.begin();
       while (itr != trig.end()) {
         if ((*itr).first != year1 && (*itr).first != year2) {

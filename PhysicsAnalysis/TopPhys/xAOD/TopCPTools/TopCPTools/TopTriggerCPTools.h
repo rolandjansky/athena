@@ -47,7 +47,7 @@ namespace top {
     StatusCode initialiseGlobalTriggerEff();
     std::string mapWorkingPoints(const std::string& type);
     // check of the trigger names are one of the supported
-    std::string PhotonKeys(const std::unordered_map<std::string, std::vector<std::string> >& map) const;
+    std::string PhotonKeys(const std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >& map) const;
     // check if the photon isolation is supported by the global triggers
     StatusCode CheckPhotonIsolation(const std::string& isol) const;
 

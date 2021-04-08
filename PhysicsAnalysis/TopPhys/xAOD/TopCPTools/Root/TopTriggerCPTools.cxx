@@ -140,16 +140,16 @@ namespace top {
       }
     }
     auto getTriggerLegs =
-      [&](std::unordered_map<std::string, std::vector<std::string> > const& triggerCombination,
+      [&](std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const& triggerCombination,
           std::unordered_map<std::string, std::set<std::string> >& electronLegsByPeriod,
           std::unordered_map<std::string, std::set<std::string> >& photonLegsByPeriod) {
         for (auto&& kv : triggerCombination) {
           std::string const& period = kv.first;
           for (auto const& trigKey : kv.second) {
-            auto triggerDefsIt = triggerDefs.find(trigKey);
+            auto triggerDefsIt = triggerDefs.find(trigKey.first);
             if (triggerDefsIt == triggerDefs.end()) {
               statusCode = StatusCode::FAILURE;
-              ATH_MSG_ERROR("unrecognized trigger `" << trigKey << "'");
+              ATH_MSG_ERROR("unrecognized trigger `" << trigKey.first << "'");
               continue;
             }
             auto const& trigDef = triggerDefsIt->second;
@@ -190,8 +190,8 @@ namespace top {
     // Get trigger strings from configuration
     std::map<std::string, std::string> triggerCombination, triggerCombinationLoose;
     std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
-    std::unordered_map<std::string, std::vector<std::string> > const emptymap;
-    std::unordered_map<std::string, std::vector<std::string> > const&
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const emptymap;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const&
     triggersByPeriod = (m_config->doTightEvents() ? m_config->getGlobalTriggers() : emptymap),
       triggersByPeriodLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggersLoose() : emptymap);
 
@@ -402,13 +402,21 @@ namespace top {
       }
     }
 
+    auto combineStrings = [](const std::vector<std::pair<std::string, int> >& input ) {
+      std::vector<std::string> tmp;
+      for (const auto& i : input) {
+        tmp.push_back(i.first);
+      }
+      return boost::algorithm::join(tmp, " || ");
+    };
+
     for (auto& key : triggersByPeriod) {
       if (triggerCombination.find(key.first) == triggerCombination.end()) {
         triggerCombination[key.first] = "";
       } else {
         triggerCombination[key.first] += " || ";
       }
-      triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
+      triggerCombination[key.first] += combineStrings(key.second);
     }
     for (auto& key : triggersByPeriodLoose) {
       if (triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()) {
@@ -416,7 +424,7 @@ namespace top {
       } else {
         triggerCombinationLoose[key.first] += " || ";
       }
-      triggerCombinationLoose[key.first] += boost::algorithm::join(key.second, " || ");
+      triggerCombinationLoose[key.first] += combineStrings(key.second);
     }
 
     // Print out what we configured
@@ -490,7 +498,7 @@ namespace top {
     return working_point;
   }
 
-  std::string TriggerCPTools::PhotonKeys(const std::unordered_map<std::string, std::vector<std::string> >& map) const {
+  std::string TriggerCPTools::PhotonKeys(const std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >& map) const {
     // check of the trigger names are one of the supported
     std::string result("");
     if (map.empty()) return result;
@@ -505,8 +513,8 @@ namespace top {
     for (const auto& isupported : supported) {
       auto it = map.find(isupported.first);
       if (it == map.end()) continue;
-      const std::vector<std::string> keys = it->second;
-      if (std::find(keys.begin(), keys.end(), isupported.second) == keys.end()) {
+      const std::vector<std::pair<std::string, int> > keys = it->second;
+      if (std::find_if(keys.begin(), keys.end(), [&isupported](const std::pair<std::string, int>& pair){return isupported.second == pair.first;}) == keys.end()) {
         isPhoton = false;
       }
     }
