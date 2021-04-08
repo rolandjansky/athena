@@ -80,6 +80,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_nwclusmin    = 0                 ;
   m_nholesmaxOLD = 0                 ;
   m_dholesmaxOLD = 0                 ;
+  m_maxclusters  = 3                 ;
   m_xi2maxOLD   =  0.                ;
   m_xi2maxNoAddOLD = 0.              ;
   m_xi2maxlinkOLD  = 0.              ;
@@ -104,6 +105,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
   declareProperty("doFastTracking"       ,m_doFastTracking      );
+  declareProperty("maxClosestClusters"   ,m_maxclusters         );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -248,6 +250,9 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   
   // Set the ITk Geometry setup
   m_tools.setITkGeometry(m_ITkGeometry);
+  
+  // Set max closest clusters in detector elements
+  m_tools.setMaxClosestClusters(m_maxclusters);
 
   // Setup callback for magnetic field
   //
@@ -456,8 +461,7 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent()
 
 void InDet::SiCombinatorialTrackFinder_xk::newEvent
 (Trk::TrackInfo info,const TrackQualityCuts& Cuts)
-{
-
+{  
   int useasso;
   if(!Cuts.getIntCut   ("UseAssociationTool"  ,useasso      )) {useasso         =    0;}
   m_tools.setAssociation  (useasso);
@@ -465,7 +469,7 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
   // Set tool to trajectory
   //
   m_trajectory.setTools(&m_tools);
-
+  
   newEvent(); m_trackinfo = info;
   
   // Get track qulaity cuts information
@@ -577,6 +581,13 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
     return m_tracks;
   }
 
+  if(m_doFastTracking) {
+    if(!m_trajectory.filterWithPreciseClustersError()) {
+      m_statistic[ 3] = 1;
+      return m_tracks;
+    }
+  } 
+  
   m_trajectory.sortStep();
 
   // Test ordering of the detector elements
@@ -776,9 +787,9 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
         if(!m_trajectory.forwardFilter()          ) return 3;
         if(!m_trajectory.backwardSmoother (false) ) return 3;
       }
-      int na = m_trajectory.nclustersNoAdd();
-      if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
     }
+    int na = m_trajectory.nclustersNoAdd();
+    if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
   }
   else        {      // Strategy for mixed seeds
 

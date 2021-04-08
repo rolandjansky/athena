@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -162,7 +162,7 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 
   if(tsos) dtsos->push_back(tsos);
   
-  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,false,0);
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,1);
 
   if(tsos) dtsos->push_back(tsos);
   
@@ -1658,6 +1658,56 @@ bool InDet::SiTrajectory_xk::forwardFilter()
   return true;
 }
 
+///////////////////////////////////////////////////////////////////
+// Filter with precise clusters error
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectory_xk::filterWithPreciseClustersError()
+{
+  int L       = m_firstElement;
+  int I       = 0             ;
+
+  if(!m_elements[m_elementsMap[L]].cluster()) return false;
+  m_elementsMap[I] =  m_elementsMap[L];
+ 
+  for(++L; L<=m_lastElement; ++L) {
+
+    int K = m_elementsMap[L];
+    if(m_elements[K].cluster() || m_elements[K].clusterNoAdd() || m_elements[K].inside()) m_elementsMap[++I] = K;
+  }
+  m_firstElement = 0  ;
+  m_lastElement  = I  ;
+  m_nElements    = I+1;
+  
+  // Forward filter
+  //
+  L = 0;
+
+  if(!m_elements[m_elementsMap[L]].firstTrajectorElementWithCorrection()) return false;
+
+  for(++L; L<=m_lastElement; ++L) {
+
+    InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
+    InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
+
+    if(!Ef.ForwardPropagationWithoutSearchPreciseWithCorrection(El)) return false;
+  }
+
+  // Backward smoother
+  //
+  if(!m_elements[m_elementsMap[m_lastElement]].lastTrajectorElementPrecise()) return false;
+  
+  int m = m_lastElement-1;
+  for(; m>=0; --m) {
+
+    InDet::SiTrajectoryElement_xk& En = m_elements[m_elementsMap[m+1]];
+    InDet::SiTrajectoryElement_xk& Em = m_elements[m_elementsMap[m  ]];
+
+    if(!Em.BackwardPropagationPrecise(En)) return false;
+  } 
+  
+  return true;
+}
 
 ///////////////////////////////////////////////////////////////////
 // Test order of detector elements

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiClusterLink_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 namespace InDet{
 
@@ -81,7 +83,9 @@ namespace InDet{
  
       bool addCluster(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
       bool addCluster(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
-
+      bool addClusterPrecise(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
+      bool addClusterPreciseWithCorrection(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
+ 
       bool combineStates(Trk::PatternTrackParameters&,
                          Trk::PatternTrackParameters&,
                          Trk::PatternTrackParameters&);
@@ -92,6 +96,7 @@ namespace InDet{
 
       // if rad_length==-1, then the private member m_radlength is used.
       void noiseProduction(int,const Trk::PatternTrackParameters&, double rad_length = -1.);
+      void noiseProductionWithMomentum(int);
       void noiseInitiate();
 
       bool addNextClusterB();
@@ -144,12 +149,14 @@ namespace InDet{
 
       bool firstTrajectorElement(const Trk::TrackParameters&);
       bool firstTrajectorElement();
+      bool firstTrajectorElementWithCorrection();
 
       ///////////////////////////////////////////////////////////////////
       // Forward propagation  
       ///////////////////////////////////////////////////////////////////
 
       bool ForwardPropagationWithoutSearch(SiTrajectoryElement_xk&);
+      bool ForwardPropagationWithoutSearchPreciseWithCorrection(SiTrajectoryElement_xk&);
       bool ForwardPropagationWithSearch(SiTrajectoryElement_xk&);
       bool ForwardPropagationForClusterSeach(int,
                                              const Trk::TrackParameters&,
@@ -169,12 +176,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       bool lastTrajectorElement();
+      bool lastTrajectorElementPrecise();
 
       ///////////////////////////////////////////////////////////////////
       // Backward propagation for smoother  
       ///////////////////////////////////////////////////////////////////
 
       bool BackwardPropagationSmoother(SiTrajectoryElement_xk&,bool);
+      bool BackwardPropagationPrecise (SiTrajectoryElement_xk&);
       bool BackwardPropagationFilter  (SiTrajectoryElement_xk&);
 
       ///////////////////////////////////////////////////////////////////
@@ -221,6 +230,8 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       bool initiateState(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool initiateStatePrecise(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool initiateStateWithCorrection(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
 
       ///////////////////////////////////////////////////////////////////
       // Last detector elements with clusters
@@ -277,7 +288,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
- 
+      
       bool                                        m_stereo      ;
       bool                                        m_utsos[3]    ;
       bool                                        m_fieldMode   ;
@@ -317,7 +328,7 @@ namespace InDet{
       double                                      m_xi2multi    ;
       double                                      m_Tr[13]      ;
       double                                      m_A [ 3]      ;
-
+      double                                      m_invMoment   ;
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
       const Trk::Surface*                         m_surface     ;
@@ -344,11 +355,15 @@ namespace InDet{
       Trk::IRIO_OnTrackCreator*                   m_riotool     ;
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
+      Amg::Vector2D                               m_position    ;
+      
+      static constexpr double s_oneOverTwelve{0.08333}           ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
       
+      void patternCovariances(const InDet::SiCluster*,Amg::MatrixX&);
       void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
     };
   
@@ -386,6 +401,7 @@ namespace InDet{
       m_xi2maxNoAdd = 0.;
       m_xi2maxlink  = 0.;  
       m_xi2multi    = 0.;
+      m_invMoment   = 0.;
       m_detelement  = 0 ; 
       m_detlink     = 0 ;
       m_surface     = 0 ;
@@ -457,6 +473,7 @@ namespace InDet{
       m_radlengthN   = E.m_radlengthN  ;
       m_energylose   = E.m_energylose  ;
       m_step         = E.m_step        ;
+      m_invMoment   =  E.m_invMoment   ;
       m_nlinksF      = E.m_nlinksF     ;
       m_nlinksB      = E.m_nlinksB     ;
       m_nholesF      = E.m_nholesF     ;
@@ -474,6 +491,7 @@ namespace InDet{
       m_noise        = E.m_noise       ;
       m_tools        = E.m_tools       ;
       m_covariance   = E.m_covariance  ;
+      m_position     = E.m_position    ;
       for(int i=0; i!=m_nlinksF; ++i) {m_linkF[i]=E.m_linkF[i];}
       for(int i=0; i!=m_nlinksB; ++i) {m_linkB[i]=E.m_linkB[i];}
       for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
@@ -596,19 +614,16 @@ namespace InDet{
                                                  Trk::PatternTrackParameters& Tb,
                                                  double& Xi2) {
     int N; 
-    if (m_tools->useFastTracking()) {
+    if(!m_stereo) {
+      patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
       if(m_ndf==1) {
-        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
-      } else {
-        return m_updatorTool->addToState            (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
+        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+      }
+      else {
+        return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
       }
     } else {
-      if(!m_stereo) {
-        patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
-        if(m_ndf==1) {
-          return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
-        } else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
-      } else return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);      
+      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);      
     }
   }
 
@@ -618,22 +633,35 @@ namespace InDet{
 
   inline bool SiTrajectoryElement_xk::addCluster(Trk::PatternTrackParameters& Ta,
                                                  Trk::PatternTrackParameters& Tb) {
-    if (m_tools->useFastTracking()) {
+    if(!m_stereo) {
+      patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));   
       if(m_ndf==1) {
-        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb);
       } else {
-        return m_updatorTool->addToState            (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+        return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb);
       }
     } else {
-      if(!m_stereo) {
-        patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));   
-        if(m_ndf==1) {
-          return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb);
-        } else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb);
-      } else return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
     }
   }
   
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+  // using precise error
+  /////////////////////////////////////////////////////////////////////////////////
+  
+  inline bool SiTrajectoryElement_xk::addClusterPrecise(Trk::PatternTrackParameters& Ta,
+							Trk::PatternTrackParameters& Tb,
+							double& Xi2) {
+    int N; 
+    if(m_ndf==1) {
+      return m_updatorTool->addToStateOneDimension(Ta,m_position,m_covariance,Tb,Xi2,N);
+    }
+    else {
+      return m_updatorTool->addToState           (Ta,m_position,m_covariance,Tb,Xi2,N);
+    }
+  }
+
   /////////////////////////////////////////////////////////////////////////////////
   // Add two pattern track parameters without Xi2 calculation
   /////////////////////////////////////////////////////////////////////////////////
@@ -663,20 +691,46 @@ namespace InDet{
     {
       return Tb.initiate(Ta,m_cluster->localPosition(),m_cluster->localCovariance());
     }
+  
+  ///////////////////////////////////////////////////////////////////
+  // Initiate state with cluster correction
+  ///////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::initiateStatePrecise
+    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
+    {
+      return Tb.initiate(Ta,m_position,m_covariance);
+    }
 
   ///////////////////////////////////////////////////////////////////
   // Pattern covariances
   ///////////////////////////////////////////////////////////////////
 
   inline void  SiTrajectoryElement_xk::patternCovariances
+    (const InDet::SiCluster* c, Amg::MatrixX& covp)
+    {
+      covp = c->localCovariance();
+      if (m_stereo) return;
+      
+      covp(0,0) = c->width().phiR(); 
+      covp(0,0)*=(covp(0,0)*s_oneOverTwelve);
+      
+      if(m_ndf==2) {
+        covp(1,1)=c->width().z(); 
+        covp(1,1)*=(covp(1,1)*s_oneOverTwelve);
+      }
+    }
+    
+    
+  inline void  SiTrajectoryElement_xk::patternCovariances
     (const InDet::SiCluster* c,double& covX,double& covXY,double& covY)
     {
       const Amg::MatrixX& v = c->localCovariance();
-      covX  = c->width().phiR(); covX*=(covX*.08333); if(covX < v(0,0)) covX=v(0,0);
+      covX  = c->width().phiR(); covX*=(covX*s_oneOverTwelve); if(covX < v(0,0)) covX=v(0,0);
       covXY = 0.;
       if(m_ndf==1) {covY=v(1,1);}
       else         {
-        covY=c->width().z(); covY*=(covY*.08333); if(covY < v(1,1)) covY=v(1,1);
+        covY=c->width().z(); covY*=(covY*s_oneOverTwelve); if(covY < v(1,1)) covY=v(1,1);
       }
     }
 

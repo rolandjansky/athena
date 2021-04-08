@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +172,7 @@ namespace InDet{
       int                            m_nwclusmin     ; // Min number weighted clusters
       int                            m_nholesmaxOLD  ;
       int                            m_dholesmaxOLD  ;
+      int                            m_maxclusters   ; // Max closest clusters in detector elements
 
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
       std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundaryPIX;
