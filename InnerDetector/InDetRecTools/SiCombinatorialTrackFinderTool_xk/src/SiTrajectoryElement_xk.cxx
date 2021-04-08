@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -80,7 +80,7 @@ bool InDet::SiTrajectoryElement_xk::set
   
   if (m_tools->isITkGeometry()) {
     m_radlength = .04;
-    if(not m_tools->useFastTracking() and m_ndf == 2 and fabs(T(2,2)) > .1) m_radlength = .07;
+    if(not m_tools->useFastTracking() and m_ndf == 2 and std::abs(T(2,2)) > .1) m_radlength = .07;
     else if (m_tools->useFastTracking() and m_ndf == 2 ) m_radlength = .12;
   }
   
@@ -206,6 +206,39 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
 
   m_parametersPF.diagonalization(100.);
   if(!initiateState(m_parametersPF,m_parametersUF)) return false;
+  m_invMoment = std::abs(m_parametersUB.par()[4]);
+
+  noiseProduction(1,m_parametersUF);
+
+  m_dist         = -10. ;
+  m_xi2F         =  0.  ;
+  m_xi2totalF    =  0.  ;
+  m_status       =  1   ;
+  m_inside       = -1   ;
+  m_ndist        =  0   ;
+  m_nlinksF      =  0   ;
+  m_nholesF      =  0   ;
+  m_dholesF      =  0   ;
+  m_clusterNoAdd =  0   ;
+  m_nclustersF   =  1   ;
+  m_ndfF         = m_ndf;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Initiate first element of trajectory using smoother result
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::firstTrajectorElementWithCorrection()
+{
+
+  if(!m_cluster || !m_status) return false;
+  if(m_status > 1 ) m_parametersPF = m_parametersUB;
+
+  m_parametersPF.diagonalization(100.);
+  if(!initiateStateWithCorrection(m_parametersPB,m_parametersPF,m_parametersUF)) return false;
+  m_invMoment = std::abs(m_parametersUB.par()[4]);
+
   noiseProduction(1,m_parametersUF);
 
   m_dist         = -10. ;
@@ -236,7 +269,6 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
   m_parametersPB = m_parametersUF;
   m_parametersPB.diagonalization(100.);
   if(!initiateState(m_parametersPB,m_parametersUB)) return false;
-
   m_status       =      3 ;
   m_inside       =     -1 ;
   m_ndist        =      0 ;
@@ -244,7 +276,37 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
   m_nholesB      =      0 ;
   m_dholesB      =      0 ;
   m_clusterNoAdd =      0 ;
-  m_nclustersB   =      1 ; m_ndf == 2 ? m_npixelsB = 1 : m_npixelsB = 0;
+  m_nclustersB   =      1 ; 
+  m_ndf == 2 ? m_npixelsB = 1 : m_npixelsB = 0;
+  m_ndfB         =  m_ndf ;
+  m_xi2B         =  m_xi2F;
+  m_xi2totalB    =  m_xi2F;
+  m_dist         =    -10.;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Initiate last element of trajectory 
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::lastTrajectorElementPrecise()
+{
+  if(m_status==0 || !m_cluster) return false; 
+  noiseProduction(1,m_parametersUF);
+
+  m_parametersSM = m_parametersPF;
+  m_parametersPB = m_parametersUF;
+  m_parametersPB.diagonalization(10.);
+  if(!initiateStatePrecise(m_parametersPB,m_parametersUB)) return false;
+  m_status       =      3 ;
+  m_inside       =     -1 ;
+  m_ndist        =      0 ;
+  m_nlinksB      =      0 ;
+  m_nholesB      =      0 ;
+  m_dholesB      =      0 ;
+  m_clusterNoAdd =      0 ;
+  m_nclustersB   =      1 ; 
+  m_ndf == 2 ? m_npixelsB = 1 : m_npixelsB = 0;
   m_ndfB         =  m_ndf ;
   m_xi2B         =  m_xi2F;
   m_xi2totalB    =  m_xi2F;
@@ -305,11 +367,71 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   if(m_inside<=0) {
 
     if(m_cluster) noiseProduction(1,m_parametersUF);
-    else { m_tools->useFastTracking() ? noiseInitiate() : noiseProduction(1,m_parametersPF); }
+    else noiseProduction(1,m_parametersPF);
   }
   else            {
     noiseInitiate();
   }
+  m_status       = 1;
+  m_nlinksF      = 0;
+  m_clusterNoAdd = 0;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Propagate information in forward direction without closest 
+// clusters search
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearchPreciseWithCorrection
+(InDet::SiTrajectoryElement_xk& TE)
+{
+
+  Trk::PatternTrackParameters P;
+
+  if(TE.m_cluster) {
+    P = TE.m_parametersUF; m_dholesF = 0;
+  }
+  else             {
+    P = TE.m_parametersPF; m_dholesF = TE.m_dholesF; 
+  }
+  m_invMoment = TE.m_invMoment;
+
+  // Track propagation
+  //
+  P.addNoise(TE.m_noise,Trk::alongMomentum);
+  if(!propagate(P,m_parametersPF,m_step)) return false;
+
+  m_nclustersF = TE.m_nclustersF;
+  m_nholesF    = TE.m_nholesF   ; 
+  m_ndist      = TE.m_ndist     ;
+  m_ndfF       = TE.m_ndfF      ;
+  m_xi2totalF  = TE.m_xi2totalF ;
+  m_step      += TE.m_step      ;  
+  m_inside     = -1             ;
+
+  // Track update
+  //
+  if( m_cluster) {
+
+    if(m_parametersPB.cov()[0] < m_parametersPF.cov()[0]) {
+      if(!addClusterPreciseWithCorrection(m_parametersPB,m_parametersPF,m_parametersUF,m_xi2F)) return false;    
+    }
+    else  {
+      if(!addClusterPreciseWithCorrection(m_parametersPF,m_parametersPF,m_parametersUF,m_xi2F)) return false;    
+    }
+
+    ++m_nclustersF; m_xi2totalF+=m_xi2F; m_ndfF+=m_ndf;
+  }
+  else           {
+    if( m_detstatus >=0) {
+     ++m_nholesF; ++m_dholesF; ++m_ndist;
+    }
+  }
+
+  // Noise production
+  //
+  noiseProductionWithMomentum(1);
   m_status       = 1;
   m_nlinksF      = 0;
   m_clusterNoAdd = 0;
@@ -635,6 +757,40 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 }
 
 ///////////////////////////////////////////////////////////////////
+// Backward propagation with precise information
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::BackwardPropagationPrecise
+(InDet::SiTrajectoryElement_xk& TE)
+{
+
+  // Track propagation
+  //
+  double step;
+  if(TE.m_cluster) {
+
+    if(!propagate(TE.m_parametersUB,m_parametersPB,step)) return false;
+  }
+  else             {
+
+    if(!propagate(TE.m_parametersPB,m_parametersPB,step)) return false;
+  }
+  
+  m_parametersPB.addNoise(m_noise,Trk::oppositeMomentum);
+
+  // Forward-backward predict parameters
+  //
+  if(m_cluster) {
+    m_status = 3 ;
+     if(!addClusterPrecise(m_parametersPB,m_parametersUB,m_xi2B)) return false;    
+  }
+  else          {
+    m_status = 2 ;
+  }
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
 // Add next cluster for backward propagation
 ///////////////////////////////////////////////////////////////////
 
@@ -778,6 +934,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
   double Xl  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -798,7 +956,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
     double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
     if(x > Xc) continue;
 
-    r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
+    r1  = std::abs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/V(1,1)                                    ;
     r1 -= (c->width().z()*.5)                               ;    
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
@@ -809,7 +967,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm+6.;
     }
@@ -836,6 +994,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -849,17 +1009,10 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     double r0  = M[0]-P0, r02 = r0*r0; 
     double r1  = M[1]-P1, r12 = r1*r1;
     
-    double V0 = 0.; double V2 = 0.; 
-    if (m_tools->useFastTracking()) {
-      const Amg::MatrixX& V = c->localCovariance();
-      V0 = V(0,0);
-      V2 = V(1,1);      
-    } else {
-      double MV0 = c->width().phiR();
-      double MV2 = c->width().z   ();
-      V0 = .08333*(MV0*MV0);
-      V2 = .08333*(MV2*MV2);      
-    }
+    double MV0 = c->width().phiR();
+    double MV2 = c->width().z   ();
+    double V0 = s_oneOverTwelve*(MV0*MV0);
+    double V2 = s_oneOverTwelve*(MV2*MV2);      
 
     double v0  = V0+PV0; if(r02>(Xc*v0)) continue;
     double v2  = V2+PV2; if(r12>(Xc*v2)) continue;
@@ -875,7 +1028,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm;
     }
@@ -902,6 +1055,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -912,14 +1067,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     const InDet::SiCluster*      c = (*p); 
     const Amg::Vector2D&         M = c->localPosition();
 
-    double V0 = 0.;
-    if (m_tools->useFastTracking()) {
-      const Amg::MatrixX& V = c->localCovariance();
-      V0 = V(0,0);
-    } else {
-      double MV0 = c->width().phiR();
-      V0 = .08333*(MV0*MV0);
-    }
+    double MV0 = c->width().phiR();
+    double V0 = s_oneOverTwelve*(MV0*MV0);
     
     double v0  = V0+PV0;   
     double r0  = M[0]-P0;
@@ -931,7 +1080,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     double dP1 = (P1-M[1])+PV1*d*r0;
     double Hl  = c->width().z()*.5 ;
 
-    if(fabs(dP1) > Hl) {
+    if(std::abs(dP1) > Hl) {
 
       double r1 = M[1]-P1; 
       
@@ -954,7 +1103,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm;
     }
@@ -982,6 +1131,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   double Xl  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -1003,7 +1154,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
     double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
     if(x > Xc) continue;
 
-    r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
+    r1  = std::abs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/V(1,1)                                    ;
     r1 -= (c->width().z()*.5)                               ;
     
@@ -1015,7 +1166,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm+6.;
     }
@@ -1042,6 +1193,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -1056,18 +1209,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     double r0  = M[0]-P0, r02 = r0*r0; 
     double r1  = M[1]-P1, r12 = r1*r1;
     
-    double V0 = 0.; double V2 = 0.; 
-    if (m_tools->useFastTracking()) {
-      const Amg::MatrixX& V = c->localCovariance();
-      V0 = V(0,0);
-      V2 = V(1,1);      
-    } else {
-      double MV0 = c->width().phiR();
-      double MV2 = c->width().z   ();
-      V0 = .08333*(MV0*MV0);
-      V2 = .08333*(MV2*MV2);      
-    }
-
+    double MV0 = c->width().phiR();
+    double MV2 = c->width().z   ();
+    double V0 = s_oneOverTwelve*(MV0*MV0);
+    double V2 = s_oneOverTwelve*(MV2*MV2);      
+    
     double v0  = V0+PV0; if(r02>(Xc*v0)) continue;
     double v2  = V2+PV2; if(r12>(Xc*v2)) continue;
     double v1  = PV1;
@@ -1082,7 +1228,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm;
     }
@@ -1109,6 +1255,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
   int    nl  = 0           ;  
+  int    nm  = m_tools->maxclusters();
+  int    nm1 = nm-1        ;
 
   const InDet::SiCluster* cl = 0;
 
@@ -1120,14 +1268,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     if(m_assoTool->isUsed(*c)) continue;
     const Amg::Vector2D&         M = c->localPosition();
 
-    double V0 = 0.;
-    if (m_tools->useFastTracking()) {
-      const Amg::MatrixX& V = c->localCovariance();
-      V0 = V(0,0);
-    } else {
-      double MV0 = c->width().phiR();
-      V0 = .08333*(MV0*MV0);
-    }
+    double MV0 = c->width().phiR();
+    double V0 = s_oneOverTwelve*(MV0*MV0);
     
     double v0  = V0+PV0;   
     double r0  = M[0]-P0;
@@ -1139,7 +1281,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     double dP1 = (P1-M[1])+PV1*d*r0;
     double Hl  = c->width().z()*.5 ;
 
-    if(fabs(dP1) > Hl) {
+    if(std::abs(dP1) > Hl) {
 
       double r1 = M[1]-P1; 
       if (m_tools->isITkGeometry()) {
@@ -1161,7 +1303,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
       if (not m_tools->isITkGeometry()) {
         if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       } else {
-        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+        if(nl!=nm) L[nl++]=l; else Xm=L[nm1].xi2();
       }
       Xc = Xm;
     }
@@ -1356,8 +1498,8 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   
   if (rad_length<0.) rad_length=m_radlength;
 
-  double q = fabs(Tp.par()[4]);
-  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
+  double q = std::abs(Tp.par()[4]);
+  double s = std::abs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
   if (m_tools->isITkGeometry()) {
     s  < .2 ? s = 5. : s = 1./s;
   } else {
@@ -1366,6 +1508,52 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
   m_radlengthN = s*rad_length; 
+  // 134. : factor used evaluate multiple scattering angle [rad] for
+  // particle with momentum [MeV] passing through a certain amount of material [X0].
+  // m_radlengthN represents the real thickness of the detector element 
+  // for particle with a certain incident angle
+  double covariancePola = (134.*m_radlengthN)*(q*q);
+  double covarianceAzim = covariancePola/d;
+  double covarianceIMom,correctionIMom;
+
+  if(Model==1) {
+    double        dp = m_energylose*q*s;
+    covarianceIMom = (.2*dp*dp)*(q*q);
+    correctionIMom = 1.-dp;
+  }
+  else {
+    correctionIMom = .70;
+    covarianceIMom = (correctionIMom-1.)*(correctionIMom-1.)*(q*q);
+  }
+  if(Dir>0) correctionIMom = 1./correctionIMom;
+  m_noise.set(covarianceAzim,covariancePola,covarianceIMom,correctionIMom);
+}
+
+///////////////////////////////////////////////////////////////////
+// Noise production
+// Dir  = +1 along momentum , -1 opposite momentum 
+// Model = 1 - muon, 2 - electron
+// invm  = std::abs(q/p); 
+///////////////////////////////////////////////////////////////////
+
+
+void  InDet::SiTrajectoryElement_xk::noiseProductionWithMomentum
+(int Dir)
+{
+  int Model = m_noisemodel; 
+
+  if(Model < 1 || Model > 2) return; 
+  
+  double q = m_invMoment;
+  double s = std::abs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
+  if (m_tools->isITkGeometry()) {
+    s  < .2 ? s = 5. : s = 1./s;
+  } else {
+    s  < .05 ? s = 20. : s = 1./s; 
+  }
+  double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
+
+  m_radlengthN = s*m_radlength;
   double covariancePola = (134.*m_radlengthN)*(q*q);
   double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
@@ -1597,7 +1785,7 @@ bool InDet::SiTrajectoryElement_xk::transformPlaneToGlobal
 
   sincos(Tp.par()[3],&Se,&Ce); 
   if (m_tools->isITkGeometry()) {
-    if(fabs(Se) < fabs(Tp.par()[4])*50.) return false;
+    if(std::abs(Se) < std::abs(Tp.par()[4])*50.) return false;
   }
   sincos(Tp.par()[2],&Sf,&Cf);
 
@@ -1613,7 +1801,7 @@ bool InDet::SiTrajectoryElement_xk::transformPlaneToGlobal
   P[ 4] = Sf*Se;                                                         // Ay
   P[ 5] = Ce;                                                            // Az
   P[ 6] = Tp.par()[4];                                                   // CM
-  if(fabs(P[6])<1.e-20) {P[6] < 0. ? P[6]=-1.e-20 : P[6]= 1.e-20;}    
+  if(std::abs(P[6])<1.e-20) {P[6] < 0. ? P[6]=-1.e-20 : P[6]= 1.e-20;}    
 
   if(useJac) {
 
@@ -1719,11 +1907,11 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   double* A    =          &P[ 3];            // Directions
   double* sA   =          &P[42];
   double  Pi   =  149.89626*P[6];            // Invert mometum/2. 
-  double  Pa   = fabs      (P[6]);
+  double  Pa   = std::abs      (P[6]);
 
   double  a    = A[0]*m_Tr[6]+A[1]*m_Tr[7]+A[2]*m_Tr[8]                 ; if(a==0.) return false; 
   double  S    = ((m_Tr[12]-R[0]*m_Tr[6])-(R[1]*m_Tr[7]+R[2]*m_Tr[8]))/a; 
-  double  S0   = fabs(S)                                                ;
+  double  S0   = std::abs(S)                                                ;
 
   if(S0 <= Smin) {
     R[0]+=(A[0]*S); R[1]+=(A[1]*S); R[2]+=(A[2]*S); P[45]+=S; return true;
@@ -1738,7 +1926,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
   while(true) {
 
-    bool Helix = false; if(fabs(S) < Shel) Helix = true;
+    bool Helix = false; if(std::abs(S) < Shel) Helix = true;
     double S3=(1./3.)*S, S4=.25*S, PS2=Pi*S;
  
     // First point
@@ -1789,13 +1977,13 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     // Test approximation quality on give step and possible step reduction
     //
     if(!ste) {
-      double EST = fabs((A1+A6)-(A3+A4))+fabs((B1+B6)-(B3+B4))+fabs((C1+C6)-(C3+C4)); 
+      double EST = std::abs((A1+A6)-(A3+A4))+std::abs((B1+B6)-(B3+B4))+std::abs((C1+C6)-(C3+C4)); 
       if(EST>dlt) {S*=.6; continue;} 
     }
 
     // Parameters calculation
     //   
-    if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false;
+    if((!ste && S0 > std::abs(S)*100.) || std::abs(P[45]+=S) > 2000.) return false;
     ste = true;
 
     double A00 = A[0], A11=A[1], A22=A[2];
@@ -1899,14 +2087,14 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     //
     double  a    = A[0]*m_Tr[6]+A[1]*m_Tr[7]+A[2]*m_Tr[8]; if(a==0.) return false;
     double  Sn   = ((m_Tr[12]-R[0]*m_Tr[6])-(R[1]*m_Tr[7]+R[2]*m_Tr[8]))/a;
-    double aSn = fabs(Sn);
+    double aSn = std::abs(Sn);
 
     if(aSn <= Smin) {
       double Sl = 2./S; sA[0] = A6*Sl; sA[1] = B6*Sl; sA[2] = C6*Sl;
       R[0]+=(A[0]*Sn); R[1]+=(A[1]*Sn); R[2]+=(A[2]*Sn); P[45]+=Sn; return true;  
     }
 
-    double aS = fabs(S);
+    double aS = std::abs(S);
 
     if     (  S*Sn < 0. ) {
       if(++it > 2) return false;
@@ -1969,3 +2157,63 @@ bool InDet::SiTrajectoryElement_xk::isSCT()
 {
   return m_detelement->isSCT();
 }
+ 
+  ///////////////////////////////////////////////////////////////////
+  // Initiate state with cluster correction
+  ///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::initiateStateWithCorrection(Trk::PatternTrackParameters& Tc,
+								Trk::PatternTrackParameters& Ta,
+								Trk::PatternTrackParameters& Tb)
+{
+
+  if(m_ndf == 1) {
+    m_position   = m_cluster->localPosition  ();
+    m_covariance = m_cluster->localCovariance();
+    return Tb.initiate(Ta,m_position,m_covariance);
+  }
+
+  const Trk::TrackParameters * trk = Tc.convert(true);      
+  const Trk::RIO_OnTrack     * rio = m_riotool->correct(*m_cluster, *trk);
+            
+  m_position   = rio->localParameters();    
+  m_covariance = rio->localCovariance();
+  delete rio;
+
+  return Tb.initiate(Ta,m_position,m_covariance); 
+}
+ 
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+  // using precise error
+  /////////////////////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::addClusterPreciseWithCorrection(Trk::PatternTrackParameters& Tc,
+								    Trk::PatternTrackParameters& Ta,
+								    Trk::PatternTrackParameters& Tb,
+								    double& Xi2) 
+{
+  int N; 
+   
+  if(m_ndf==1) {
+    m_position   = m_cluster->localPosition  ();
+    m_covariance = m_cluster->localCovariance(); 
+    return m_updatorTool->addToStateOneDimension(Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+  else {
+
+    const Trk::TrackParameters * trk = Tc.convert(true);      
+    const Trk::RIO_OnTrack     * rio = m_riotool->correct(*m_cluster, *trk);
+            
+    m_position   = rio->localParameters();    
+    m_covariance = rio->localCovariance();
+    delete rio;
+    delete trk;
+ 
+    return m_updatorTool->addToState(Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+}
+   
+
+  
+  

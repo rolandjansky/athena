@@ -1539,7 +1539,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP()
   const std::vector<int> ZI_fast = {0,10,1,9,2,8,5,3,7,4,6};
   const std::vector<int> ZI_long = {0,1,2,3,10,9,8,7,5,4,6};
   const std::vector<int> ZI = m_fastTracking ? ZI_fast : ZI_long ;
-  const float   RTmax[11] = {80.,100.,150.,200.,250., 250., 250.,200.,150.,100.,80.};
+
+  const float   RTmax[11] = { 80.,200.,200.,200.,250.,250.,250.,200.,200.,200., 80.};
+  const float   RTmin[11] = { 40., 40., 70., 70., 70., 70., 70., 70., 70., 40., 40.};
 
   std::vector<InDet::SiSpacePointForSeedITK*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0; 
@@ -1556,8 +1558,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP()
     //
     for(int z=zmin; z!=11; ++z) {
 
-      if(m_fastTracking) m_RTmax = RTmax[ ZI[z] ];
-
+      if(m_fastTracking) {
+	m_RTmax = RTmax[ ZI[z] ];
+	m_RTmin = RTmin[ ZI[z] ];
+      }
       int a(f*11+ZI[z]);
       if(rfz_Sorted[a].empty()) continue;
 
@@ -1593,7 +1597,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
   int NB, int NT, int& nseed) 
 {
   std::vector<InDet::SiSpacePointForSeedITK*>::iterator r0=rb[0],re0=rbe[0];
-  if(m_fastTracking) m_RTmin = 70.;
 
   for(; r0!=re0; ++r0) {if((*r0)->radius() > m_RTmin) break;}
   rt[0] = r0; ++rt[0];

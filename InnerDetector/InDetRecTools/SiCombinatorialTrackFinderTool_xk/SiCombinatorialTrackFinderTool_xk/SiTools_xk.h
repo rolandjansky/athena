@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,7 @@ namespace InDet{
       const int&                          maxholes   () const {return m_nholesmax  ;}
       const int&                          maxdholes  () const {return m_dholesmax  ;}
       const int&                          clustersmin() const {return m_nclusmin   ;}
+      const int&                          maxclusters() const {return m_maxclusters;}
       const bool&                         useassoTool() const {return m_useassoTool;}
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
@@ -98,6 +99,8 @@ namespace InDet{
       void setHeavyIon   (bool);
       void setFastTracking (bool);
       void setITkGeometry(bool);
+      void setMaxClosestClusters(int);
+      void setInvMoment(double);
 
     protected:
       
@@ -125,6 +128,7 @@ namespace InDet{
       int                             m_nholesmax  ;  // Max number holes
       int                             m_dholesmax  ;  // Max holes gap
       int                             m_nclusmin   ;  // Min number clusters
+      int                             m_maxclusters;  // Max closest clusters in detector elements
       bool                            m_useassoTool;  // Use assosiation tool
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
@@ -172,6 +176,7 @@ namespace InDet{
       m_fieldService = 0    ;
       m_doFastTracking = false;
       m_ITkGeometry = false;
+      m_maxclusters = 3;
     }
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
@@ -209,6 +214,7 @@ namespace InDet{
         m_heavyion    = T.m_heavyion   ;
         m_doFastTracking = T.m_doFastTracking;
         m_ITkGeometry = T.m_ITkGeometry;
+        m_maxclusters = T.m_maxclusters;
       }
       return(*this);
     }
@@ -300,6 +306,10 @@ namespace InDet{
   inline void SiTools_xk::setITkGeometry(bool isITk)
   {
     m_ITkGeometry = isITk;
+  }
+  inline void SiTools_xk::setMaxClosestClusters(int n)
+  {
+    m_maxclusters = n; 
   }
 
 } // end of name space
