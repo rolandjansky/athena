@@ -96,8 +96,7 @@ if [ $dosim -ne 0 ]; then
     --outputHITSFile  "$hits" \
     --skipEvents      0 \
     --maxEvents       10 \
-    --AMI             s3595 \
-    --geometryVersion "ATLAS-P2-ITK-23-00-03_VALIDATION" \ 
+    --AMI             s3667 \
     --postInclude     "all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py" "EVNTtoHITS:BeamEffects/postInclude.CrabKissingVertexPositioner_Nominal.py"
 
 
@@ -133,8 +132,7 @@ if [ $dorec -ne 0 ]; then
     --outputAODFile    physval.AOD.root \
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
-    --AMI              r12166 \
-    --geometryVersion  "ATLAS-P2-ITK-23-00-03" \ 
+    --AMI              r12520 \
     --steering         doRAWtoALL 
 
 
