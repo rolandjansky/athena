@@ -283,7 +283,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
-      if (rec.triggerStream()=='express' or rec.triggerStream()=='Main'):
+      if (rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()=='UPC'):
          doCaloCellVecMon=True
 
    elif (rec.triggerStream()=='CosmicCalo'):
