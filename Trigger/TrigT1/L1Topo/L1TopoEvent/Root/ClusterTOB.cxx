@@ -10,13 +10,13 @@ const unsigned int TCS::ClusterTOB::g_nBitsEta = 6;
 const unsigned int TCS::ClusterTOB::g_nBitsPhi = 7;
 
 // default constructor
-TCS::ClusterTOB::ClusterTOB(uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::ClusterTOB::ClusterTOB(uint32_t roiWord, std::string tobName) :
+   BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values
-TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType, uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType, uint32_t roiWord, std::string tobName) :
+  BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )

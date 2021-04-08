@@ -19,10 +19,10 @@ namespace TCS {
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
       // default constructor
-      ClusterTOB(uint32_t roiWord = 0);
+      ClusterTOB(uint32_t roiWord = 0, std::string tobName = "ClusterTOB");
       
       // constructor with individual values
-      ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0);
+      ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, std::string tobName = "ClusterTOB");
 
       // constructor with initial values
       ClusterTOB(const ClusterTOB & cluster);
