@@ -34,15 +34,13 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   //Calorimeter electron ID  cuts
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION electron selection:eta bins
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
-  Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
-  Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
-  Gaudi::Property< float > m_RelPtConeCut { this, "RelPtConeCut", -999., "Track isolation cut" };
-  Gaudi::Property<bool>                m_loose{this,"Loose", false, "Decision for Loose tune"};
-  Gaudi::Property<bool>                m_vloose{this,"vLoose", false, "Decision for vLoose tune"};
-  Gaudi::Property<bool>                m_tight{this,"Tight", false, "Decision for tight tune"};
-  Gaudi::Property<bool>                m_medium{this,"Medium", false, "Decision for medium tune"};
+  Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
+  Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
+  Gaudi::Property< float >              m_RelPtConeCut { this, "RelPtConeCut", -999., "Track isolation cut" };
+  Gaudi::Property<std::string>          m_pidName{this,"PidName", "", "Pid name"};
+  ToolHandle< GenericMonitoringTool >   m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
   int findCutIndex( float eta ) const;
 
 }; 

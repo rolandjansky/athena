@@ -16,16 +16,17 @@
 namespace TCU = TrigCompositeUtils;
 
 TrigEgammaPrecisionPhotonHypoToolInc::TrigEgammaPrecisionPhotonHypoToolInc( const std::string& type, 
-		    const std::string& name, 
-		    const IInterface* parent ) 
+        const std::string& name, 
+        const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {
 }
 
 
-StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
+StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  
+{
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
-  ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
+  ATH_MSG_DEBUG( "EtaBins        = " << m_etabin   );
   ATH_MSG_DEBUG( "ETthr          = " << m_eTthr    );
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
@@ -36,14 +37,14 @@ StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
   }
 
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the photon Identification. This is a *must*
-  ATH_MSG_DEBUG( "Retrieving egammaPhotonCutIDTool..."  );
-  CHECK( m_egammaPhotonCutIDTool.retrieve() );
+
 
   // Retrieving Luminosity info
   ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
   ATH_CHECK( m_avgMuKey.initialize() );
 
   unsigned int nEtaBin = m_etabin.size();
+
 #define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
     { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << (nEtaBin - 1) ); return StatusCode::FAILURE; }
 
@@ -59,7 +60,8 @@ StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
 }
 
 
-bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo& input ) const {
+bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo& input ) const 
+{
 
   bool pass = false;
 
@@ -73,24 +75,25 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   auto mon_etcone20 = Monitored::Scalar("etcone20",   -99.);
   auto mon_reletcone20 = Monitored::Scalar("reletcone20",   -99.);
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto monitorIt    = Monitored::Group( m_monTool, ET,
-					       dEta, dPhi, 
-                                               etaBin, monEta,
-					       monPhi, mon_mu, mon_etcone20, mon_reletcone20, PassedCuts );
- // when leaving scope it will ship data to monTool
+  auto monitorIt    = Monitored::Group( m_monTool, ET, dEta, dPhi, 
+                                        etaBin, monEta, monPhi, mon_mu, 
+                                        mon_etcone20, mon_reletcone20, PassedCuts );
+
+  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
   auto roiDescriptor = input.roi;
 
   if ( fabs( roiDescriptor->eta() ) > 2.6 ) {
-      ATH_MSG_DEBUG( "REJECT The photon had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
+      ATH_MSG_DEBUG( "REJECT The photon had eta coordinates beyond the EM fiducial volume : " 
+                    << roiDescriptor->eta() << "; stop the chain now" );
       pass=false; // special case       
       return pass;
   } 
 
-  ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
-  		 << ": Eta = " << roiDescriptor->eta()
-  		 << ", Phi = " << roiDescriptor->phi() );
+  ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId() 
+                << ": Eta = " << roiDescriptor->eta() 
+                << ", Phi = " << roiDescriptor->phi() );
 
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
@@ -103,8 +106,6 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   float absEta = fabs( pClus->eta() );
   const int cutIndex = findCutIndex( absEta );
   
-
-  
   dEta =  pClus->eta() - etaRef;
   //  Deal with angle diferences greater than Pi
   dPhi =  fabs( pClus->phi() - phiRef );
@@ -112,8 +113,8 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   ET  = pClus->et();
   // apply cuts: DeltaEta( clus-ROI )
   ATH_MSG_DEBUG( "Photon : eta="  << pClus->eta()
-  		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
-  		 << " cut: <"   << m_detacluster          );
+                  << " roi eta=" << etaRef << " DeltaEta=" << dEta
+                  << " cut: <"   << m_detacluster          );
   
   if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) {
     ATH_MSG_DEBUG("REJECT Photon a cut failed");
@@ -123,8 +124,8 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   
   // DeltaPhi( clus-ROI )
   ATH_MSG_DEBUG( ": phi="  << pClus->phi()
-  		 << " roi phi="<< phiRef    << " DeltaPhi="<< dPhi
-  		 << " cut: <"  << m_dphicluster );
+                  << " roi phi="<< phiRef    << " DeltaPhi="<< dPhi
+                  << " cut: <"  << m_dphicluster );
   
   if( dPhi > m_dphicluster ) {
     ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
@@ -149,14 +150,11 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   }
   PassedCuts = PassedCuts + 1; // ET_em
   
-  // This is the last step. So pass is going to be the result of isEM
-  asg::AcceptData accept =  m_egammaPhotonCutIDTool->accept(input.photon); 
-  pass = (bool) accept;
-  std::bitset<32> isEMdecision = m_egammaPhotonCutIDTool->accept(input.photon).getCutResultInvertedBitSet();
-  ATH_MSG_DEBUG("isEM Result bitset: " << isEMdecision);
+  if(input.pidDecorator.count(m_pidName)){
+    pass = input.pidDecorator.at(m_pidName);
+  }
 
   // get average luminosity information to calculate LH
-  
   float avg_mu = 0; 
   SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey);
   if(eventInfoDecor.isPresent()) {
@@ -166,8 +164,9 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   }
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
-    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
-  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999);
+        Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
+        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999);
 
     
   // variables based on HCAL
@@ -220,27 +219,28 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
 
   input.photon->isolationValue(topoetcone40, xAOD::Iso::topoetcone40);
 
-  ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
-  ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
-  ATH_MSG_DEBUG( "  e277   " << e277 ) ;
-  ATH_MSG_DEBUG( "  Reta   " << Reta ) ;
-  ATH_MSG_DEBUG( "  Rphi   " << Rphi ) ;
-  ATH_MSG_DEBUG( "  weta2c " << weta2c ) ;
-  ATH_MSG_DEBUG( "  f1     " << f1 ) ;
-  ATH_MSG_DEBUG( "  weta1c " << weta1c ) ;
-  ATH_MSG_DEBUG( "  Eratio " << Eratio ) ;
-  ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
-  ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
-  ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
-  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
-  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
-  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
-  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
-  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
-  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
-  ATH_MSG_DEBUG( " topoetcone20 " << topoetcone20 ) ;
-  ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
-  ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
+  ATH_MSG_DEBUG( " Rhad         = " << Rhad ) ;
+  ATH_MSG_DEBUG( " Rhad1        = " << Rhad1 ) ;
+  ATH_MSG_DEBUG( " e277         = " << e277 ) ;
+  ATH_MSG_DEBUG( " Reta         = " << Reta ) ;
+  ATH_MSG_DEBUG( " Rphi         = " << Rphi ) ;
+  ATH_MSG_DEBUG( " weta2c       = " << weta2c ) ;
+  ATH_MSG_DEBUG( " f1           = " << f1 ) ;
+  ATH_MSG_DEBUG( " weta1c       = " << weta1c ) ;
+  ATH_MSG_DEBUG( " Eratio       = " << Eratio ) ;
+  ATH_MSG_DEBUG( " DeltaE       = " << DeltaE ) ;
+  ATH_MSG_DEBUG( " wtot         = " << wtot ) ;
+  ATH_MSG_DEBUG( " fracm        = " << fracm ) ;
+  ATH_MSG_DEBUG( " ptcone20     = " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30     = " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40     = " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20     = " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30     = " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40     = " << etcone40 ) ;
+  ATH_MSG_DEBUG( " topoetcone20 = " << topoetcone20 ) ;
+  ATH_MSG_DEBUG( " topoetcone30 = " << topoetcone30 ) ;
+  ATH_MSG_DEBUG( " topoetcone40 = " << topoetcone40 ) ;
+
   // Monitor showershapes                      
   mon_etcone20 = etcone20;
   reletcone20 = etcone20/input.photon->caloCluster()->et();
@@ -248,16 +248,13 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   mon_reletcone20 = reletcone20;
   ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelEtConeCut );
 
-
- // Decode isEM bits of result to see which bits passed and which bits fialed
- //
-
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT isEM failed");
       return pass;
   } else {
       ATH_MSG_DEBUG("ACCEPT isEM passed");
   }
+
   // Check if need to apply isolation
   // First check logic. if cut is very negative, then no isolation cut is defined
   // if m_RelEtConeCut <-100 then hypo is configured not to apply isolation
@@ -268,12 +265,7 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   }
   // Then, It will pass if reletcone20 is less than cut:
   pass = (reletcone20 < m_RelEtConeCut);
-  //
-  // Reach this point successfully  
-  ATH_MSG_DEBUG( "pass = " << pass );
-
-  return pass;
-
+  
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
 
@@ -290,6 +282,7 @@ int TrigEgammaPrecisionPhotonHypoToolInc::findCutIndex( float eta ) const {
   }
   return  binIterator - m_etabin.begin();
 }
+
 
 StatusCode TrigEgammaPrecisionPhotonHypoToolInc::decide( std::vector<PhotonInfo>& input )  const {
   for ( auto& i: input ) {
