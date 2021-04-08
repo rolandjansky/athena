@@ -282,6 +282,7 @@ namespace top {
     m_ghostTracksQuality("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
+    m_largeRJetMasscut(0.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
     m_largeRJetUncertaintiesConfigDir("SetMe"),
@@ -1371,6 +1372,7 @@ namespace top {
 
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
+    this->largeRJetMasscut(std::stof(settings->value("LargeRJetMass")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     
     
