@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_GEOMODELXML_WAFERTREE_H
-#define SCT_GEOMODELXML_WAFERTREE_H
+#ifndef INDETGEOMODELUTILS_WAFERTREE_H
+#define INDETGEOMODELUTILS_WAFERTREE_H
 //
 //   For "numerology". Create a nested set of maps. Bottom layer of leaves are wafer information.
 //   Order is barrelEndcap/layerDisk/phiModule/etaModule/side; each of these has a map of integer-key (the 
@@ -19,8 +19,10 @@
 #include <sstream>
 
 // Error message build up is spread in many routines; instead of cerr, build up a string. Caller can
-// print this string with Athena message service. Make it static to give it internal linkage.
-static std::ostringstream errmsg;
+// print this string with Athena message service. 
+ 
+
+static thread_local std::ostringstream errmsg;
 
 class Wafer {
 public:
@@ -62,9 +64,12 @@ public:
 class BarrelEndcap: public std::map<int, LayerDisk> {
 public:
     bool add(int bec, int ld, int eta, int phi, int side, Wafer &wafer, std::string &errorMessage); 
+    bool add(int bec, int ld, int eta, int phi, Wafer &wafer, std::string &errorMessage); //version without side index for pixels
     LayerDisk & operator[](int bec) {return at(bec);}
     int nParts() const {return size();}
 };
+
+
 
 class WaferTree: public BarrelEndcap { // Just a more descriptive name for the class.
 };

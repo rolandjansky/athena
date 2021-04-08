@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeoModelXml_PIXELDETECTORFACTORY_H 
@@ -10,7 +10,7 @@
 // 
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "PixelGeoModelXml/ModuleTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 namespace InDetDD {class AthenaComps; class SiCommonItems;}
 class GeoPhysVol;
@@ -44,7 +44,7 @@ namespace InDetDDSLHC {
     InDetDD::AthenaComps *m_athenaComps;
     InDetDD::SiCommonItems *m_commonItems;
     PixelOptions *m_options;
-    ModuleTree m_moduleTree;
+    WaferTree m_moduleTree;
   }; 
 }  
 #endif 
