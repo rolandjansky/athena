@@ -87,7 +87,6 @@ class TauRecAODProcessor ( TauRecConfigured ) :
                 pass
             
             tools.append(taualgs.getTauWPDecorator())
-            tools.append(taualgs.getTauWPDecoratorEleBDT())
 
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorHandle().Tools = tools
