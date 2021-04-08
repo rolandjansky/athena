@@ -477,87 +477,87 @@ namespace top {
 
     // Triggers
     inline virtual void allTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Tight = triggers;
       }
     }
 
     inline virtual void electronTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Tight = triggers;
       }
     }
 
     inline virtual void muonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Tight = triggers;
       }
     }
 
     inline virtual void tauTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Tight = triggers;
       }
     }
 
     inline virtual void photonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_photonTriggers_Tight = triggers;
       }
     }
 
     inline virtual void allTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Loose = triggers;
       }
     }
 
     inline virtual void electronTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Loose = triggers;
       }
     }
 
     inline virtual void muonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Loose = triggers;
       }
     }
 
     inline virtual void tauTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Loose = triggers;
       }
     }
 
     inline virtual void photonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_photonTriggers_Loose = triggers;
       }
     }
 
     inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
-    virtual const std::vector<std::string>& allTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& photonTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Tight(const std::string& selection) const;
 
-    virtual const std::vector<std::string>& allTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& photonTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Loose(const std::string& selection) const;
 
     // StoreGate Keys
     virtual void sgKeyMCParticle(const std::string& s);
@@ -2643,7 +2643,7 @@ namespace top {
     // manage systematic variations through this tool
 
     struct {
-      typedef std::unordered_map<std::string, std::vector<std::string> > triggermap_t;
+      typedef std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > triggermap_t;
       // -- Set from cutfile --//
       // Boolean to be set to true if the user activates a flag
       bool isActivated = false;
@@ -2672,17 +2672,17 @@ namespace top {
     std::shared_ptr<std::vector<std::string> > m_allSelectionNames;
     // Trigger configuration
     // First string is the selection name, second string is the trigger
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_photonTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_photonTriggers_Loose;
-    std::vector<std::string> m_dummyTrigger;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_dummyTrigger;
 
     // Where the sum of event weights
     // before derivation framework is kept

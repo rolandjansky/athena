@@ -31,10 +31,10 @@ namespace top {
     std::shared_ptr<std::vector<std::string> > selectors = m_config->allSelectionNames();
 
     for (std::string selPtr : *selectors) {
-      std::vector<std::string> muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
-      std::vector<std::string> electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
-      std::vector<std::string> muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
-      std::vector<std::string> electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
 
       for (auto trig : muonTrig_Tight)
         m_muonTriggers_Tight.push_back(trig);
@@ -171,7 +171,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (elPtr->isAvailable<char>(trig)) {
           if (elPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
@@ -185,7 +185,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (muPtr->isAvailable<char>(trig)) {
           if (muPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
