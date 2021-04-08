@@ -153,7 +153,7 @@ class AthConfigFlags(object):
         raise RuntimeError( "No such flag: "+ name+".  The name is likely incomplete." )
 
 
-    def addFlag(self,name,setDef=None):
+    def addFlag(self,name,setDef):
         self._hash = None
         if (self._locked):
             raise RuntimeError("Attempt to add a flag to an already-locked container")
