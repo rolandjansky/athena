@@ -2913,7 +2913,7 @@ HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM:
     2: 3
     3: 3
     4: 1
-HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU25IM_2TAU20IM_2J25_3J20:
+HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20:
   eventCount: 0
   stepCounts:
     0: 1
