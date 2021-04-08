@@ -9,14 +9,14 @@ AlgScheduler.ShowDataFlow( True )
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import MenuAlignment
-from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
+from .TriggerConfigHLT  import TriggerConfigHLT
+from .HLTCFConfig import makeHLTTree
+from .DictFromChainName import dictFromChainName
+from .ChainDictTools import splitInterSignatureChainDict
+from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
+from .ChainMerging import mergeChainDefs
+from .MenuAlignmentTools import MenuAlignment
+from ..CommonSequences import EventBuildingSequences
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -336,7 +336,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
         # align event building sequences
-        EventBuildingSequenceSetup.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+        EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
 
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
@@ -489,7 +489,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
+            EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

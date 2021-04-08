@@ -2,11 +2,11 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 # 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
-log = logging.getLogger('MuonSequenceSetup')
+log = logging.getLogger('MuonMenuSequences')
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
@@ -31,7 +31,7 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, \
   ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool, ViewCreatorFetchFromViewROITool
 
 #muon container names (for RoI based sequences)
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
+from .MuonRecoSequences import muonNames
 muNames = muonNames().getNames('RoI')
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -52,12 +52,12 @@ def muFastAlgSequence(ConfigFlags):
     l2MuViewsMaker.ViewFallThrough = True
 
     ### get muFast reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence, makeMuonPrepDataAlgs
+    from .MuonRecoSequences import muFastRecoSequence, makeMuonPrepDataAlgs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=l2MuViewsMaker.InViewRoIs)
     
     ##### L2 mutli-track mode #####
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+    from ..Menu.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("SAFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -72,7 +72,7 @@ def muFastAlgSequence(ConfigFlags):
     for decision in MultiTrackChainFilter.InputDecisions:
       extraLoads += [( 'xAOD::TrigCompositeContainer', 'StoreGateSvc+%s' % decision )]
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import  isCosmic
+    from .MuonRecoSequences  import  isCosmic
     muFastRecoSeq, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), extraLoads=extraLoads )
     
     muFastl2mtRecoSeq, sequenceOutL2mtSA = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), l2mtmode=True )
@@ -147,7 +147,7 @@ def muCombAlgSequence(ConfigFlags):
     newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
 
     ### get ID tracking and muComb reco sequences ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muFastRecoSequence, muCombRecoSequence, muonIDFastTrackingSequence, muonIDCosmicTrackingSequence, isCosmic
+    from .MuonRecoSequences  import muFastRecoSequence, muCombRecoSequence, muonIDFastTrackingSequence, muonIDCosmicTrackingSequence, isCosmic
     #
     l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
     l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
@@ -162,7 +162,7 @@ def muCombAlgSequence(ConfigFlags):
  
     # for L2 multi-track SA
     from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+    from ..Menu.MenuComponentsNaming import CFNaming
     MultiTrackChainFilter = MuonChainFilterAlg("CBFilterMultiTrackChains")
     MultiTrackChains = getMultiTrackChainNames()
     MultiTrackChainFilter.ChainsToFilter = MultiTrackChains
@@ -204,7 +204,7 @@ def muCombAlgSequence(ConfigFlags):
 
 
     # for Inside-out L2SA
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import isCosmic
+    from .MuonRecoSequences  import isCosmic
     muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( l2muCombViewsMaker.InViewRoIs, doFullScanID= isCosmic() , InsideOutMode=True )
     insideoutMuonChainFilter = MuonChainFilterAlg("FilterInsideOutMuonChains")
     insideoutMuonChains = getInsideOutMuonChainNames()
@@ -246,7 +246,6 @@ def muCombSequence():
                          HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
-
 def muCombLRTAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2muCombLRTViewsMaker = EventViewCreatorAlgorithm("IMl2muCombLRT")
@@ -266,7 +265,7 @@ def muCombLRTAlgSequence(ConfigFlags):
     l2muCombLRTViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
 
     ### get ID tracking and muComb reco sequences ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
+    from .MuonRecoSequences  import muCombRecoSequence, muonIDFastTrackingSequence
 
     muCombLRTRecoSequence, sequenceOut = muCombRecoSequence( l2muCombLRTViewsMaker.InViewRoIs, "FTF_LRT" )
 
@@ -295,6 +294,7 @@ def muCombLRTSequence():
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombLrtHypoToolFromDict
+
     return MenuSequence( Sequence    = l2muCombLRTSequence,
                          Maker       = l2muCombLRTViewsMaker,
                          Hypo        = trigmuCombHypo,
@@ -376,7 +376,7 @@ def muEFSAAlgSequence(ConfigFlags):
     efsaViewsMaker.RequireParentView = True
     efsaViewsMaker.ViewFallThrough = True
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
+    from .MuonRecoSequences import muEFSARecoSequence, makeMuonPrepDataAlgs
     #Run decoding again since we are using updated RoIs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsaViewsMaker.InViewRoIs)
     ### get EF reco sequence ###    
@@ -415,14 +415,14 @@ def muEFCBAlgSequence(ConfigFlags):
     #By default the EFCB sequence will run both outside-in and 
     #(if zero muons are found) inside-out reconstruction
     from TrigMuonEF.TrigMuonEFConf import MuonFilterAlg, MergeEFMuonsAlg
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
+    from .MuonRecoSequences import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
     #
     efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
     efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
     #
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import isCosmic
+    from .MuonRecoSequences import isCosmic
     efcbViewsMaker.Views = "MUEFCBViewRoIs" if not isCosmic() else "CosmicEFCBViewRoIs"
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
     #
@@ -496,7 +496,7 @@ def muEFSAFSAlgSequence(ConfigFlags):
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
+    from .MuonRecoSequences import muEFSARecoSequence, makeMuonPrepDataAlgs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsafsInputMaker.InViewRoIs, forFullScan=True)
     muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS' )
  
@@ -544,7 +544,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.InViewMuonCandidates = "MuonCandidates_FS"
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
+    from .MuonRecoSequences import muEFCBRecoSequence
     muEFCBFSRecoSequence, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
  
     efcbfsInputMaker.ViewNodeName = muEFCBFSRecoSequence.name()
@@ -571,7 +571,7 @@ def muEFCBFSSequence():
 
 def efLateMuRoIAlgSequence(ConfigFlags):
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import efLateMuRoISequence
+    from .MuonRecoSequences import efLateMuRoISequence
     
     eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemuroi") 
     #
@@ -611,7 +611,7 @@ def efLateMuRoISequence():
 
 def efLateMuAlgSequence(ConfigFlags):
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence, makeMuonPrepDataAlgs, muonIDFastTrackingSequence
+    from .MuonRecoSequences import muEFInsideOutRecoSequence, makeMuonPrepDataAlgs, muonIDFastTrackingSequence
     eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemu")
     roiTool = ViewCreatorNamedROITool() # Use an existing ROI which is linked to the navigation with a custom name.
     roiTool.ROILinkName = "feature" # The ROI is actually linked as Step 1's feature. So the custom name is "feature".
@@ -682,7 +682,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"
 
     ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence
+    from .MuonRecoSequences  import efmuisoRecoSequence
     efmuisoRecoSequence, sequenceOut = efmuisoRecoSequence( efmuIsoViewsMaker.InViewRoIs, efmuIsoViewsMaker.InViewMuons )
  
     efmuIsoViewsMaker.ViewNodeName = efmuisoRecoSequence.name()

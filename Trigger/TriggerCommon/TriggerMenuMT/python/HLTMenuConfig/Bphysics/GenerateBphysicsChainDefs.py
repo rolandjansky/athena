@@ -8,9 +8,9 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Bphysics.generateChainConfigs')
 logging.getLogger().info('Importing %s', __name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsDef import BphysicsChainConfiguration as BphysicsChainConfiguration
+from ..Menu.ChainDictTools import splitChainDict
+from ..Menu.ChainMerging import mergeChainDefs
+from .BphysicsChainConfiguration import BphysicsChainConfiguration
 
 def generateChainConfigs(chainDict):
 

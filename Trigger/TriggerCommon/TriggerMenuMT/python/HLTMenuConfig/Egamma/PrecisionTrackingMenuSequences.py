@@ -23,7 +23,7 @@ def precisionEtcutSequence(ConfigFlags):
     precisionEtcutViewsMaker.ViewFallThrough = True
     precisionEtcutViewsMaker.RequireParentView = True
 
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     
     # calling precision tracking
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackSequences import precisionTracking
