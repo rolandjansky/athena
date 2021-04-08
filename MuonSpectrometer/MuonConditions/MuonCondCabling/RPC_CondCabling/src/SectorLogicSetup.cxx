@@ -29,15 +29,24 @@ SectorLogicSetup::SectorLogicSetup(const SectorLogicSetup& sec) :
     m_positive_sector = sec.positive_sector();
     m_negative_sector = sec.negative_sector(); 
     m_sector_type = sec.sector_type();
-    m_stations = sec.giveStations();
 
-    m_sectors = sec.sectors();
+      m_stations.clear();
+      m_stations = sec.giveStations();
 
-    m_RPCs    = sec.giveRPC();
-    m_WORs    = sec.giveWOR();
-    m_etaCMAs = sec.giveEtaCMA();
-    m_evenphiCMAs = sec.giveEvenPhiCMA();
-    m_oddphiCMAs  = sec.giveOddPhiCMA();
+      m_sectors.clear();
+      m_sectors = sec.sectors();
+
+      m_RPCs.clear();
+      m_RPCs = sec.giveRPC();
+      m_WORs.clear();
+      m_WORs = sec.giveWOR();
+
+      m_etaCMAs.clear();
+      m_etaCMAs = sec.giveEtaCMA();
+      m_evenphiCMAs.clear();
+      m_evenphiCMAs = sec.giveEvenPhiCMA();
+      m_oddphiCMAs.clear();
+      m_oddphiCMAs = sec.giveOddPhiCMA();
     
     m_online_database = sec.online_database();
     m_layout = sec.layout();
@@ -775,11 +784,11 @@ SectorLogicSetup::correct(CMAidentity CMA,L1RPCcabCorrection type,
 			  CMAinput it,unsigned int ly,
 			  unsigned short int Channel1,
 			  unsigned short int Channel2,
-			  short int number)
+			  short int number) const
 {
     if(CMA.type() == Eta)
     {
-        EtaCMAmap::iterator etaCMA =
+        EtaCMAmap::const_iterator etaCMA =
                                   find_etaCMA(CMA.PAD_index(),CMA.Ixx_index());
         return (*etaCMA).second.correct(type,it,ly,Channel1,Channel2,number);
     }
@@ -787,14 +796,14 @@ SectorLogicSetup::correct(CMAidentity CMA,L1RPCcabCorrection type,
     {
         if(CMA.coverage() == EvenSectors)
 	{
-            EvenPhiCMAmap::iterator phiCMA =
+            EvenPhiCMAmap::const_iterator phiCMA =
 	                      find_evenphiCMA(CMA.PAD_index(),CMA.Ixx_index());
 	    return (*phiCMA).second.correct(type,it,ly,Channel1,Channel2,
 	                                    number);
 	}
         if(CMA.coverage() == OddSectors)
 	{        
-            OddPhiCMAmap::iterator phiCMA =
+            OddPhiCMAmap::const_iterator phiCMA =
 	                       find_oddphiCMA(CMA.PAD_index(),CMA.Ixx_index());
 	    return (*phiCMA).second.correct(type,it,ly,Channel1,Channel2,
                                             number);
@@ -816,7 +825,7 @@ SectorLogicSetup::give_strip_code(CMAidentity CMA,int logic_sector,
     {
         EtaCMAmap::const_iterator etaCMA =
                                   find_etaCMA(CMA.PAD_index(),CMA.Ixx_index());
-        
+
 	if(etaCMA==m_etaCMAs.end()) return StripCodes;
 	(*etaCMA).second.give_strip_code(logic_sector,lh,ijk,Channel,
                                          StripCodes);
@@ -1084,7 +1093,6 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
         m_etaCMAs.insert(EtaCMAmap::value_type(CMA->id(),*CMA));
         if(!ins.second)
         {
-	    std::cout << CMA->id() << std::endl;
 	    EtaCMAmap::iterator inserted = m_etaCMAs.find(CMA->id());
             
             int cma_start = CMA->pivot_start_ch();
