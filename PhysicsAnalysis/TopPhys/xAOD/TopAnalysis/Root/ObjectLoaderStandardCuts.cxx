@@ -118,7 +118,9 @@ namespace top {
 
     ///-- Large R Jets --///
     if (topConfig->useLargeRJets()) {// not doing JVT cut for large-R jets
-      objectSelection->largeJetSelection(new top::JetMC15(topConfig->largeRJetPtcut(), topConfig->largeRJetEtacut(),
+      objectSelection->largeJetSelection(new top::JetMC15(topConfig->largeRJetPtcut(),
+                                                          topConfig->largeRJetEtacut(),
+                                                          topConfig->largeRJetMasscut(),
                                                           false));
     }
 
