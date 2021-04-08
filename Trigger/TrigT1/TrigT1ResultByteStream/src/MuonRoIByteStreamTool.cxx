@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRoIByteStreamTool.h"
@@ -82,7 +82,7 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
 
     //add an additional flag in the unused MSB to indicate if this is in RUN3 format
     uint32_t word = *data;
-    if (m_useRun3Config) word |= 0x1<<31;
+    if (m_useRun3Config) word |= 0x1u<<31;
 
     //initialize the xAOD
     handle->back()->initialize(word, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
