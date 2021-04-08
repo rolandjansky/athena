@@ -23,6 +23,7 @@
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowAuxInfo.h"
 
+class EventContext;
 namespace xAOD {
 
   /// Function to prepare an object to be stored in a shallow-copy container
@@ -76,7 +77,7 @@ namespace xAOD {
       // Add the required number of elements to it:
       newCont->reserve( cont.size() );
       for( size_t i = 0; i < cont.size(); ++i ) {
-	newCont->push_back(prepareElementForShallowCopy(cont[i]));
+        newCont->push_back(prepareElementForShallowCopy(cont[i]));
       }
 
       // Create a new shallow auxiliary container:
@@ -87,6 +88,33 @@ namespace xAOD {
 
       // Return the new objects:
       return std::make_pair( newCont, aux );
+   }
+
+   /// Function making a shallow copy of a constant container
+   ///
+   /// This function can be used to make a shallow copy of an existing
+   /// (constant) container. It is most useful when reading an input file,
+   /// and/or applying systematic variations on a container.
+   ///
+   /// @param cont The container to make a shallow copy of
+   /// @param ctx The currentEventContext
+   /// @returns A pair of unique_ptr to the created objects.
+   ///
+   /// In Analysis Base it can be still called by using
+   /// Gaudi::Hive::currentContext() as 2nd argument,
+   /// although in practice is ignored as we do not really have
+   /// an actual EventContext type.
+   
+   template<class T>
+   std::pair<std::unique_ptr<T>, std::unique_ptr<ShallowAuxContainer>>
+   shallowCopyContainer(const T& cont, const EventContext&){
+    //Note that in AnalysisBase
+    //- EventContext, is not a complete type, we have no class.
+    //- We do not have a DataLink ctor with EventContext
+    //- The return value of currentContext() can not be used.
+    std::pair<T*, ShallowAuxContainer*> res = shallowCopyContainer(cont);
+    return std::make_pair(std::unique_ptr<T>(res.first),
+                          std::unique_ptr<ShallowAuxContainer>(res.second));
    }
 
    /// Function making a shallow copy of a constant standalone object
