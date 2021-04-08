@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrNoiseCondAlg.h"
@@ -95,6 +95,7 @@ StatusCode LArAutoCorrNoiseCondAlg::execute()
   larMCsym = *larMCsymHdl;
   if ( larMCsym == nullptr ) {
     ATH_MSG_ERROR( "Failed to retrieve LArMCSym object" );
+    return StatusCode::FAILURE;
   }
   }
 
