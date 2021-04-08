@@ -94,8 +94,8 @@ StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 				if (mstpLink.isValid()) mstp = *mstpLink;
 				if (idtp && mstp) {
 					MuonDPTIDME 	= (idtp->pt() - mstp->pt()) / idtp->pt();
-					MuonsIDChi2NDF 	= idtp->chiSquared()/idtp->numberDoF();
-					MuonsMEChi2NDF 	= mstp->chiSquared()/mstp->numberDoF();	
+					MuonsIDChi2NDF 	= idtp->chiSquared()/std::max(1.f,idtp->numberDoF());
+					MuonsMEChi2NDF 	= mstp->chiSquared()/std::max(1.f,mstp->numberDoF());	
 					fill(tool, MuonDPTIDME, MuonsIDChi2NDF, MuonsMEChi2NDF);
 				}
 			}
