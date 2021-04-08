@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGATIONDEFAULTS_H
@@ -304,7 +304,7 @@ namespace NavigationDefaults
       replace(type& cont, const CONT& theNewContainer) {
           type_iterator firstEntry = cont.begin();
           type_iterator lastEntry  = cont.end();
-          for ( ; firstEntry != lastEntry ; firstEntry++ ) {
+          for ( ; firstEntry != lastEntry ; ++firstEntry ) {
 	      // Must force replacement with second arg true
               ((*firstEntry).first).setStorableObject(theNewContainer, true);
           }
@@ -468,7 +468,7 @@ namespace NavigationDefaults
       {
 	type_const_iterator firstEntry = cont.begin();
 	type_const_iterator lastEntry  = cont.end();
-	for ( ; firstEntry != lastEntry; firstEntry++ )
+	for ( ; firstEntry != lastEntry; ++firstEntry )
 	  {
 	    if ( *(*firstEntry) == aChild ) break;
 	  }
@@ -480,7 +480,7 @@ namespace NavigationDefaults
       {
 	type_iterator firstEntry = cont.begin();
 	type_iterator lastEntry  = cont.end();
-	for ( ; firstEntry != lastEntry; firstEntry++ )
+	for ( ; firstEntry != lastEntry; ++firstEntry )
 	  {
 	    if ( *(*firstEntry) == aChild ) break;
 	  }
@@ -539,7 +539,7 @@ namespace NavigationDefaults
       replace(type& cont, const CONT& theNewContainer) {
           type_iterator firstEntry = cont.begin();
           type_iterator lastEntry  = cont.end();
-          for ( ; firstEntry != lastEntry ; firstEntry++ ) {
+          for ( ; firstEntry != lastEntry ; ++firstEntry ) {
 	      // Must force replacement with second arg true
               (*firstEntry).setStorableObject(theNewContainer, true);
           }
