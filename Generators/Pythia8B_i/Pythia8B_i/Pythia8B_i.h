@@ -26,16 +26,16 @@ public:
     virtual StatusCode genFinalize();
     virtual StatusCode fillEvt(HepMC::GenEvent*);
     
-    bool leptonSelect(Pythia8::Event&, std::vector<double>, double, std::vector<int>, int, double, bool);
-    bool cleanUndecayed(Pythia8::Event&, std::vector<int>);
-    bool pairProperties(Pythia8::Event&, std::vector<int>, double, bool);
+    bool leptonSelect(Pythia8::Event&, const std::vector<double>&, double, const std::vector<int>&, int, double, bool);
+    bool cleanUndecayed(Pythia8::Event&, const std::vector<int>&);
+    bool pairProperties(Pythia8::Event&, const std::vector<int>&, double, bool);
     void descendThroughDecay(Pythia8::Event&, std::vector<Pythia8::Particle>&, int);
-    std::vector<int> getCodes(std::vector<Pythia8::Particle>);
+    std::vector<int> getCodes(const std::vector<Pythia8::Particle>&);
     bool compare(std::vector<int>, std::vector<int>);
-    bool passesCuts(std::vector<Pythia8::Particle>, std::vector<double>, std::string);
-    bool signalAccept(Pythia8::Event&, std::vector<int>, std::vector<double>, std::vector<double>, unsigned int);
+    bool passesCuts(const std::vector<Pythia8::Particle>&, const std::vector<double>&, const std::string&);
+    bool signalAccept(Pythia8::Event&, const std::vector<int>&, const std::vector<double>&, const std::vector<double>&, unsigned int);
     bool userSelection(Pythia8::Event&, std::string, std::vector<double>);
-    void printSignalSelections(std::vector<int>, std::vector<double>, std::vector<double>, unsigned int);
+    void printSignalSelections(const std::vector<int>&,const std::vector<double>&, const std::vector<double>&, unsigned int);
     
     static IAtRndmGenSvc* p_AtRndmGenSvc;
     
