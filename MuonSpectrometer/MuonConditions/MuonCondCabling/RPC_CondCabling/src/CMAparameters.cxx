@@ -851,7 +851,7 @@ CMAparameters::correct(L1RPCcabCorrection type,
 		       unsigned int layer,
 		       unsigned short int Ch1, 
 		       unsigned short int Ch2,
-		       short int num)
+		       short int num) const
 {
     if (Ch1 > Ch2) return false;
     
