@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilderXtalk.h"
@@ -519,8 +519,8 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  int nSample=m_cutOnSample;
 	  do {
 	    samplesum.push_back((double)(*samplesum_it));     
-	    samplesum_it++;
-	    nSample--;
+	    ++samplesum_it;
+	    --nSample;
 	  }
 	  while ( (samplesum_it!=samplesum_it_e) && (nSample!=0) );
 
@@ -532,8 +532,8 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  nSample=m_cutOnSample;
 	  do {
 	    sample2sum.push_back((double)(*sample2sum_it));     
-	    sample2sum_it++;
-	    nSample--;
+	    ++sample2sum_it;
+	    --nSample;
 	  }
 	  while ( (sample2sum_it!=sample2sum_it_e) && (nSample!=0) );
 	 

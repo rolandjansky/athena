@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArStripsCrossTalkCorrector.h"
@@ -137,18 +137,15 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
      return StatusCode::FAILURE;
   }
 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  
   const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
   // now start to deal with digits   
-  
-  for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed (e.g. different gains)
+
+  for (const std::string& key : m_keylist) { // Loop over all containers that are to be processed (e.g. different gains)
     
-    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,key);
     if (sc.isFailure()){ 
-      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
+      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << key );
       continue; // Try next container
     }
     
@@ -157,22 +154,19 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     LArAccumulatedCalibDigit inexistingDummy; //Use the address of this object for "cells" that woudl be outside of cryostat
     
     
-    LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
-    LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
-
     HWIdentifier  lastFailedFEB(0);
 
-    if(it == it_end) {
-      ATH_MSG_DEBUG( "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " );
+    if(larAccumulatedCalibDigitContainer->empty()) {
+      ATH_MSG_DEBUG( "LArAccumulatedCalibDigitContainer with key = " << key << " is empty " );
       //return StatusCode::SUCCESS;
       continue; // Try next container
     } else {
-      ATH_MSG_DEBUG( "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
+      ATH_MSG_DEBUG( "Processing LArAccumulatedCalibDigitContainer with key = " << key
 			 << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
     
     //Get barrel/ec for online Identifier of the first cell in the container
-    HWIdentifier chid=(*it)->hardwareID();      
+    HWIdentifier chid=larAccumulatedCalibDigitContainer->front()->hardwareID();
     const int have_barrel_ec=m_onlineHelper->barrel_ec(chid);
 
     if (have_barrel_ec==1) {
@@ -207,8 +201,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     ATH_MSG_DEBUG( "Filling Strips lookup table..." ) ;
     int nStrips=0;
     
-    for (;it!=it_end;it++) {  //Loop over all cells to fill Strips lookup table
-      const LArAccumulatedCalibDigit* dig=*it;
+    for (const LArAccumulatedCalibDigit* dig : *larAccumulatedCalibDigitContainer) {  //Loop over all cells to fill Strips lookup table
       chid=dig->hardwareID();     
       if (!(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid))) continue; //Deal only with EM calos case
       if (!cabling->isOnlineConnected(chid)) continue; //ignore disconnected channels
