@@ -25,8 +25,8 @@ namespace MuonCombined {
         virtual StatusCode initialize() override;
 
         virtual void combine(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates,
-                             std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combinedTracks,
-                             TrackCollection* METracks) const override;
+                             std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combinedTracks, TrackCollection* METracks,
+                             const EventContext& ctx) const override;
 
     private:
         void associate(const MuonCandidate& muonCandidate, const InDetCandidateCollection& inDetCandidates,

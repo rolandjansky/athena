@@ -13,10 +13,10 @@
 
 #include "MuonCombinedTool.h"
 
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
-
 namespace MuonCombined {
 
     MuonCombinedTool::MuonCombinedTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -40,8 +40,8 @@ namespace MuonCombined {
     }
 
     void MuonCombinedTool::combine(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates,
-                                   std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combinedTracks,
-                                   TrackCollection* METracks) const {
+                                   std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combinedTracks, TrackCollection* METracks,
+                                   const EventContext& ctx) const {
         // check that there are tracks in both systems
         if (inDetCandidates.empty()) return;
         if (muonCandidates.empty()) return;
@@ -68,7 +68,7 @@ namespace MuonCombined {
             // build combined muons
             int count = 0;
             for (const auto& tool : m_muonCombinedTagTools) {
-                tool->combine(*muonCandidate, associatedIdCandidates, *(tagMaps.at(count)), combinedTracks, METracks);
+                tool->combine(*muonCandidate, associatedIdCandidates, *(tagMaps.at(count)), combinedTracks, METracks, ctx);
                 count++;
             }
         }
@@ -95,14 +95,12 @@ namespace MuonCombined {
         for (const auto* x : inDetCandidates) {
             double indetEta = x->indetTrackParticle().eta();
             double indetPt = x->indetTrackParticle().pt();
-            double deltaEta = fabs(muonEta - indetEta);
-            double deltaPhi = muonPhi - x->indetTrackParticle().phi();
-            double ptBal = 1;
-            if (muonPt > 0) ptBal = (muonPt - indetPt) / muonPt;
-            if (deltaPhi > M_PI) deltaPhi = deltaPhi - 2. * M_PI;
-            if (deltaPhi < -M_PI) deltaPhi = deltaPhi + 2. * M_PI;
+            double deltaEta = std::abs(muonEta - indetEta);
+            double deltaPhi = xAOD::P4Helpers::deltaPhi(muonPhi, x->indetTrackParticle().phi());
+            double ptBal = muonPt > 0 ? (muonPt - indetPt) / muonPt : 1;
+
             if (deltaEta > m_deltaEtaPreSelection) continue;
-            if (fabs(deltaPhi) > m_deltaPhiPreSelection) continue;
+            if (std::abs(deltaPhi) > m_deltaPhiPreSelection) continue;
             if (ptBal > m_ptBalance) continue;
             associatedIdCandidates.push_back(x);
         }
