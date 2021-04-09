@@ -6,14 +6,14 @@ thread_local TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
 
 // default constructor
 TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
-   BaseTOB( roiWord )
+  BaseTOB( roiWord,"GenericTOB" )
 {
    m_tobType = JET;
 }
 
 // constructor from generic data
 TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord) :
-   BaseTOB( roiWord )
+  BaseTOB( roiWord,"GenericTOB" )
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
