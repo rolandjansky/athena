@@ -13,7 +13,6 @@
 #include "JetRec/JetDumper.h"
 #include "JetRec/JetFromPseudojet.h"
 #include "JetRec/JetFinder.h"
-#include "JetRec/JetByVertexFinder.h"
 #include "JetRec/JetSplitter.h"
 #include "JetRec/JetTrimmer.h"
 #include "JetRec/JetPruner.h"
@@ -37,7 +36,6 @@ DECLARE_COMPONENT( JetRecTool )
 DECLARE_COMPONENT( JetDumper )
 DECLARE_COMPONENT( JetFromPseudojet )
 DECLARE_COMPONENT( JetFinder )
-DECLARE_COMPONENT( JetByVertexFinder )
 DECLARE_COMPONENT( JetSorter )
 DECLARE_COMPONENT( JetFilterTool )
 DECLARE_COMPONENT( JetSplitter )
