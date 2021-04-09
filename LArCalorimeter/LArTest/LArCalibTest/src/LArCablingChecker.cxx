@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArCablingChecker.h"
@@ -135,16 +135,13 @@ StatusCode LArCablingChecker::execute() {
   std::ostringstream ErrorList;
 
   // Loop on all cells (digits).
-  LArDigitContainer::const_iterator it=larDigitCont->begin();
-  LArDigitContainer::const_iterator it_end=larDigitCont->end();
-
-  for (;it != it_end; it++) {
+  for (const LArDigit* digit : *larDigitCont) {
     cellsCounter++;
 
     ErrorList.clear();
 
     // Get FEB info.
-    const HWIdentifier online_id = (*it)->hardwareID();
+    const HWIdentifier online_id = digit->hardwareID();
     const HWIdentifier febid = m_onlineHelper->feb_Id(online_id);
   
     int chNb = m_onlineHelper->channel(online_id);
@@ -169,7 +166,7 @@ StatusCode LArCablingChecker::execute() {
 
     // Find out if signal over theshold is present.
     // Set signalPresent.
-    const int max = *max_element((*it)->samples().begin(), (*it)->samples().end());
+    const int max = *max_element(digit->samples().begin(), digit->samples().end());
     if (max >= m_ADCThreshold) 
       signalPresent = true;
     else 
@@ -182,25 +179,22 @@ StatusCode LArCablingChecker::execute() {
     std::ostringstream PulserList;
     const std::vector<HWIdentifier>& calibChannelIDs=clCont->calibSlotLine(online_id);
 
-    std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin();
-    std::vector<HWIdentifier>::const_iterator csl_it_e=calibChannelIDs.end();
-
-    for (;csl_it != csl_it_e; csl_it++) {
-      //m_outfile << (*csl_it).get_compact() << " ";
-      bool isPulsed=calibParams->isPulsed(eventNb, *csl_it);
+    for (HWIdentifier hwid : calibChannelIDs) {
+      //m_outfile << hwid.get_compact() << " ";
+      bool isPulsed=calibParams->isPulsed(eventNb, hwid);
       if (isPulsed) {
-	int DACvalue_temp = calibParams->DAC(eventNb, *csl_it);
+	int DACvalue_temp = calibParams->DAC(eventNb, hwid);
 	if (DACvalue_temp > DACvalue)
 	  DACvalue = DACvalue_temp;
 	pulsed = true;
-	const int slot = m_onlineHelper->slot(*csl_it);
-	const int line = m_onlineHelper->channel(*csl_it);
-	PulserList << std::hex << (*csl_it).get_compact() << std::dec << " " << slot << " " << line << " ";
+	const int slot = m_onlineHelper->slot(hwid);
+	const int line = m_onlineHelper->channel(hwid);
+	PulserList << std::hex << hwid.get_compact() << std::dec << " " << slot << " " << line << " ";
       }
     }
     //m_outfile << std::endl;
 
-    CaloGain::CaloGain gain = (*it)->gain();
+    CaloGain::CaloGain gain = digit->gain();
     bool DACOverThreshold;
     switch (gain) {
     case CaloGain::LARLOWGAIN :
