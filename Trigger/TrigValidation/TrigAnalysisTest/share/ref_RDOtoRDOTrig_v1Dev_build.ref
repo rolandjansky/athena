@@ -3399,6 +3399,22 @@ HLT_mu20_ivarmedium_mu8noL1_L1MU20:
     4: 4
     5: 2
     6: 2
+HLT_mu20_mu6noL1_nscan_L1MU20:
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 3
+    5: 2
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 6
+    5: 4
 HLT_mu22_2mu4noL1_L1MU20:
   eventCount: 1
   stepCounts:
