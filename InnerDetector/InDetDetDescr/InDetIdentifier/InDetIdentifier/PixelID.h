@@ -289,6 +289,7 @@ private:
     int                         m_ETA_MODULE_OFFSET;
     Identifier                  m_pixel_id;
     const IdDictDictionary*     m_dict;
+    bool                        m_isITk;
     MultiRange                  m_full_wafer_range;
     MultiRange                  m_full_pixel_range;
     size_type                   m_wafer_hash_max;
