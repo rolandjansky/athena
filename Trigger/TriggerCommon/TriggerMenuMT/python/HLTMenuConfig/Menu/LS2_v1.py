@@ -90,6 +90,11 @@ def setupMenu():
 
         #performance chain for isolation (ATR-21905)
         ChainProp(name='HLT_mu26_ivarperf_L1MU20', groups=SingleMuonGroup),
+
+        #-- nscan ATR-19376
+        ChainProp(name='HLT_mu20_mu6noL1_nscan_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'],   groups=MultiMuonGroup),
+        
+
     ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
