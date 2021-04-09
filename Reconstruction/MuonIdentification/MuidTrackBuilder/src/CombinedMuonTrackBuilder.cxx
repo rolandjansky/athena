@@ -141,8 +141,7 @@ namespace Rec {
     StatusCode CombinedMuonTrackBuilder::initialize() {
         ATH_CHECK(AthAlgTool::initialize());
 
-        ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder"
-                      << " - package version " << PACKAGE_VERSION);
+        ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder.");
         ATH_MSG_DEBUG(" with options: ");
 
         if (m_allowCleanerVeto) ATH_MSG_DEBUG(" AllowCleanerVeto");

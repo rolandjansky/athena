@@ -49,7 +49,7 @@ namespace Rec {
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
     StatusCode MuidMuonRecovery::initialize() {
-        ATH_MSG_INFO("Initializing MuidMuonRecovery - package version " << PACKAGE_VERSION);
+        ATH_MSG_INFO("Initializing MuidMuonRecovery");
 
         // get the Tools
         ATH_CHECK(m_extrapolator.retrieve());
