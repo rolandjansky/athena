@@ -13,15 +13,14 @@ using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::roiString;
 
-InputMakerForRoI:: InputMakerForRoI( const std::string& name, 
- ISvcLocator* pSvcLocator )    
-: InputMakerBase( name, pSvcLocator ) {}
+InputMakerForRoI:: InputMakerForRoI( const std::string& name, ISvcLocator* pSvcLocator )    
+  : InputMakerBase( name, pSvcLocator ) {}
 
 
 StatusCode  InputMakerForRoI::initialize() {
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   ATH_CHECK( m_RoIs.initialize( SG::AllowEmpty ) );
-  ATH_CHECK( m_roiTool.retrieve() );
+  if (not m_roiTool.empty()) ATH_CHECK( m_roiTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -42,7 +41,7 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   }
 
   // Find and link to the output Decision objects the ROIs to run over
-  ATH_CHECK( m_roiTool->attachROILinks(*outputHandle, context) );
+  if (not m_roiTool.empty()) ATH_CHECK( m_roiTool->attachROILinks(*outputHandle, context) );
 
   if (m_RoIs.empty()) {
     ATH_MSG_DEBUG("No concrete output ROI collection required from this InputMaker.");

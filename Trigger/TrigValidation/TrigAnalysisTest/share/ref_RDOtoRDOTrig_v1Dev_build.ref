@@ -236,6 +236,10 @@ HLT_2j55_pf_ftf_bdl1r60_split_2j55_pf_ftf_0eta320_L14J15p0ETA25:
     2: 5
 HLT_2j60_L1J15:
   eventCount: 0
+HLT_mb_alfaperf_L1RD0_EMPTY:
+  eventCount: 0
+HLT_mb_alfaperf_L1RD0_FILLED:
+  eventCount: 0
 HLT_2mu10_bJpsimumu_L12MU10:
   eventCount: 0
   stepCounts:

@@ -148,7 +148,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   m_robDataProviderSvc->getROBData(ctx, m_ALFARobIds,ALFARobFragmentVec, name());
 
   if (ALFARobFragmentVec.size()==0) {
-    ATH_MSG_INFO(" No ALFA ROB found.");
+    ATH_MSG_DEBUG(" No ALFA ROB found.");
     return StatusCode::SUCCESS;
   } 
 

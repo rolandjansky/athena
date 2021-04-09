@@ -35,7 +35,10 @@ StatusCode TrigStreamerHypoToolMT::finalize() {
 StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::HypoInfo>& hypoInfo) const
 {
   ATH_MSG_DEBUG("Executing decide() of " << name() << " over " << hypoInfo.size() << " Decision Objects" );
-
+  if ( not m_pass ) {
+    ATH_MSG_DEBUG("Pass option is false, rejecting");
+    return StatusCode::SUCCESS;
+  }
   size_t count = 0;
   for (ITrigStreamerHypoToolMT::HypoInfo& hi : hypoInfo) {
     // Perform logic-flow check (this HypoTool can only accept the chain if the chain was active also in the previous decision object)
@@ -44,7 +47,7 @@ StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::H
       ATH_MSG_DEBUG("Decision Object at index " << count << " Passed previous trigger step, passing here too.");
       TrigCompositeUtils::addDecisionID(getId().numeric(), hi.m_newDecision);
     } else {
-      ATH_MSG_DEBUG("Decision Object at index " << count << " didn't pass previous trigger step. Cannot be acceptd here.");
+      ATH_MSG_DEBUG("Decision Object at index " << count << " didn't pass previous trigger step. Cannot be accepted here.");
     }
     ++count;
   }

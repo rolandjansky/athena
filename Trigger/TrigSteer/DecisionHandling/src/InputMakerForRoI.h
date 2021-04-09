@@ -32,7 +32,7 @@
       "Name of the collection of ROI extrated from the input Decision Objects. Used as cocnrete starting handle for step's reconstruction."};
 
     ToolHandle<IViewCreatorROITool> m_roiTool{this, "RoITool", "",
-      "Tool used to supply per-Decision Object the RoI which should be processed."};
+      "Tool used to supply per-Decision Object the RoI which should be processed. If left empty and no RoIs will be attached."};
 
     Gaudi::Property<bool> m_mergeIntoSuperRoI{this, "MergeIntoSuperRoI", false,
       "If true, the output RoIs collection will contain only one ROI, this will be a SuperRoI encompassing all individual ROIs - one from each of the input Decision Objects."};
