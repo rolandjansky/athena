@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMenuReader.cxx 612011 2014-08-15 13:43:57Z krasznaa $
 
 // Local include(s):
 #include "xAODMenuReader.h"
@@ -22,7 +21,7 @@ namespace TrigConf {
    StatusCode xAODMenuReader::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
 
       // Retrieve the needed components:
       ATH_CHECK( m_configSvc.retrieve() );

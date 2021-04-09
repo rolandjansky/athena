@@ -49,8 +49,7 @@ namespace Rec {
     }
 
     StatusCode OutwardsCombinedMuonTrackBuilder::initialize() {
-        ATH_MSG_INFO("Initializing OutwardsCombinedMuonTrackBuilder"
-                     << " - package version " << PACKAGE_VERSION);
+        ATH_MSG_INFO("Initializing OutwardsCombinedMuonTrackBuilder");
 
         msg(MSG::INFO) << " with options: ";
         if (m_allowCleanerVeto) msg(MSG::INFO) << " AllowCleanerVeto";

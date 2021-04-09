@@ -19,7 +19,7 @@
 // default constructor
 Trk::CylinderSurface::CylinderSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}

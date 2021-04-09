@@ -55,14 +55,9 @@ LVL1::EFexTauAlgorithm::initialize()
 {
    ATH_MSG_DEBUG("initialize");
    ATH_CHECK(m_inputCellContainerKey.initialize());
-   if (m_use_tileCells)
-   {
-      ATH_CHECK(m_inputTileCellContainerKey.initialize());
-   }
-   else
-   {
-      ATH_CHECK(m_inputTriggerTowerContainerKey.initialize());
-   }
+   ATH_CHECK(m_inputTileCellContainerKey.initialize(m_use_tileCells));
+   ATH_CHECK(m_inputTriggerTowerContainerKey.initialize(!m_use_tileCells));
+   
    ATH_CHECK(m_outputClusterName.initialize());
    return StatusCode::SUCCESS;
 }

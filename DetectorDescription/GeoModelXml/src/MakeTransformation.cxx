@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelXml/MakeTransformation.h"
@@ -46,9 +46,12 @@ char *name2release;
 //
 //    Create and return GeoModel transform
 //
-    char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
+
+    XMLCh * alignable_tmp = XMLString::transcode("alignable");
+    char *toRelease = XMLString::transcode(element->getAttribute(alignable_tmp));
     string alignable(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&alignable_tmp);
     if (alignable.compare(string("true")) == 0) {
         return (const RCBase *) new GeoAlignableTransform(hepTransform);
     }

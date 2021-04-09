@@ -159,6 +159,7 @@ else:
 
 from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
 jtm += getTTVAToolForReco("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0, TrackContName=jtm.trackContainer, VertexContName=jtm.vertexContainer)
+jtm += getTTVAToolForReco("trackjetTVAtool", WorkingPoint="Nonprompt_All_MaxWeight", TrackContName="JetSelectedTracks_LooseTrackJets", VertexContName=jtm.vertexContainer)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
@@ -168,6 +169,15 @@ jtm += TrackVertexAssociationTool(
   TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import PV0TrackSelectionAlg
+
+jtm += PV0TrackSelectionAlg(
+  "pv0tracksel_trackjet",
+  InputTrackContainer  = "JetSelectedTracks_LooseTrackJets",
+  VertexContainer      = jtm.vertexContainer,
+  OutputTrackContainer = "PV0JetSelectedTracks_LooseTrackJets",
+  TVATool              = jtm.trackjetTVAtool
+)
 #--------------------------------------------------------------
 # Truth selection.
 #--------------------------------------------------------------
@@ -268,6 +278,15 @@ jtm += PseudoJetAlgorithm(
   InputContainer = jtm.trackselloose_trackjets.OutputContainer,
   Label = "Track",
   OutputContainer = "PseudoJetTrack",
+  SkipNegativeEnergy = True,
+)
+
+# PV0 Tracks.
+jtm += PseudoJetAlgorithm(
+  "pv0trackget",
+  InputContainer = jtm.pv0tracksel_trackjet.OutputTrackContainer,
+  Label = "Track",
+  OutputContainer = "PseudoJetPV0Track",
   SkipNegativeEnergy = True,
 )
 

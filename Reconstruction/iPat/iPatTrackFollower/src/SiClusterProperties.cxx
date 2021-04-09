@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -61,7 +61,7 @@ SiClusterProperties::~SiClusterProperties()
 StatusCode
 SiClusterProperties::initialize()
 {
-    ATH_MSG_INFO( "SiClusterProperties::initialize() - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "SiClusterProperties::initialize()" );
 
     // get the Tools
     if (! m_pixelBroadROT_Maker.empty())

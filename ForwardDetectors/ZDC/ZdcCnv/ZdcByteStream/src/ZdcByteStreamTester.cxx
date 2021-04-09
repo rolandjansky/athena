@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -30,9 +30,6 @@
 #include "ZdcByteStream/ZdcDefs.h"
 #include "ZdcByteStream/ZdcByteStreamTester.h"
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 //==================================================================================================
 ZdcByteStreamTester::ZdcByteStreamTester(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -44,23 +41,6 @@ ZdcByteStreamTester::ZdcByteStreamTester(const std::string& name, ISvcLocator* p
 }
 //==================================================================================================
 
-
-//==================================================================================================
-ZdcByteStreamTester::~ZdcByteStreamTester()
-{
-}
-//==================================================================================================
-
-
-//==================================================================================================
-StatusCode ZdcByteStreamTester::initialize()
-{
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
-
-	return StatusCode::SUCCESS;
-}
-//==================================================================================================
 
 
 //==================================================================================================
@@ -80,15 +60,6 @@ StatusCode ZdcByteStreamTester::execute()
 		msg() << "No Zdc Digits found" << endmsg;
 		return StatusCode::SUCCESS;
 	}
-
-	return StatusCode::SUCCESS;
-}
-//==================================================================================================
-
-
-//==================================================================================================
-StatusCode ZdcByteStreamTester::finalize()
-{
 
 	return StatusCode::SUCCESS;
 }

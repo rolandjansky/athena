@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_TGCRDOCONTRAWEVENTCNV_H
 #define MUONBYTESTREAM_TGCRDOCONTRAWEVENTCNV_H
 
-#include "GaudiKernel/Converter.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCnvToolInterfaces/ITGC_RDOtoByteStreamTool.h"
@@ -29,7 +29,7 @@ template <class TYPE> class CnvFactory;
   @author Tadashi Maeno
       based on RpcPadContByteStreamCnv by Ketevi A. Assamagan
 */
-class TgcRdoContByteStreamCnv: public Converter
+class TgcRdoContByteStreamCnv: public AthConstConverter
 {
 
 public:
@@ -37,11 +37,11 @@ public:
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode createObj(IOpaqueAddress* /**pAddr*/, DataObject*& /**pObj*/) override {
+  virtual StatusCode createObjConst(IOpaqueAddress* /**pAddr*/, DataObject*& /**pObj*/) const override {
     return StatusCode::FAILURE;
   }
 
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
 
   /// Storage type and class ID
   virtual long repSvcType() const override { return i_repSvcType(); }
@@ -51,8 +51,6 @@ public:
 private:
 
    ToolHandle<Muon::ITGC_RDOtoByteStreamTool>  m_tool;
-   ServiceHandle<IByteStreamEventAccess>       m_byteStreamEventAccess; 
-   ServiceHandle<StoreGateSvc>                 m_storeGate;
 };
 
 #endif

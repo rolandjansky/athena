@@ -191,7 +191,7 @@ class CMAparameters : public CablingObject
                  unsigned int layer, 
 		 unsigned short int Ch1, 
 		 unsigned short int Ch2,
-		 short int num);
+		 short int num) const;
 		 
     void give_strip_code(unsigned int logic_sector,
                          unsigned short int lh,

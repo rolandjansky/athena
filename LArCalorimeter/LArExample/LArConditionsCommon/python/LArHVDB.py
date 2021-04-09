@@ -24,15 +24,12 @@ if not conddb.isMC and not conddb.isOnline:
 
     from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
     if conddb.dbdata != 'COMP200': 
-      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
+      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",keyOutputCorr="LArHVScaleCorrRecomputed")
     else:  
-      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData",doR=False)
-    condseq += hvcond
+      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",keyOutputCorr="LArHVScaleCorrRecomputed",doR=False)
 
-    from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
-    hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr="LArHVScaleCorrRecomputed")
-    hvscale.UndoOnlineHVCorr=True
-    condseq += hvscale
+    hvcond.UndoOnlineHVCorr=True
+    condseq += hvcond
 
 if conddb.isMC:
     conddb.addFolderWithTag("LAR_OFL","/LAR/Identifier/HVLineToElectrodeMap","LARHVLineToElectrodeMap-001",className="AthenaAttributeList")

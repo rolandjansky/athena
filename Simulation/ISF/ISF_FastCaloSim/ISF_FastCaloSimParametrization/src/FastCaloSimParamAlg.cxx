@@ -84,7 +84,7 @@ FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* p
 
 StatusCode FastCaloSimParamAlg::initialize()
 {
-  ATH_MSG_DEBUG("Initializing " << this->name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing");
   ATH_CHECK(m_inputCollectionKey.initialize());
   ATH_CHECK(m_outputCollectionKey.initialize());
   m_calo_dd_man  = CaloDetDescrManager::instance();

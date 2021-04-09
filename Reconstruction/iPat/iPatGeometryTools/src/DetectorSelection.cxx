@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -35,8 +35,7 @@ StatusCode
 DetectorSelection::initialize()
 {
     // print where you are
-    ATH_MSG_DEBUG( "DetectorSelection::initialize()"
-		   << "-package version " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "DetectorSelection::initialize()" );
 
     return StatusCode::SUCCESS;
 }

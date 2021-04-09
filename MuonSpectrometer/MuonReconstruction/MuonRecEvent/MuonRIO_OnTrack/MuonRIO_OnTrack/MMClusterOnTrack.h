@@ -53,8 +53,8 @@ namespace Muon
            const Trk::LocalParameters& locpos,
            const Amg::MatrixX& locerr,
            double positionAlongStrip,
-           std::vector<float> stripDriftDists = std::vector<float>(0),
-           std::vector<Amg::MatrixX> stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
+           const std::vector<float>& stripDriftDists = std::vector<float>(0),
+           const std::vector<Amg::MatrixX>& stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
 
     // Alternate constructor that doesn't dereference the RIO link.
     MMClusterOnTrack(
@@ -64,8 +64,8 @@ namespace Muon
            const Identifier& id,
            const MuonGM::MMReadoutElement* detEl,
            double positionAlongStrip,
-           std::vector<float> stripDriftDists = std::vector<float>(0),
-           std::vector<Amg::MatrixX> stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
+           const std::vector<float>& stripDriftDists = std::vector<float>(0),
+           const std::vector<Amg::MatrixX>& stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
 
     /** @brief Destructor*/
     virtual ~MMClusterOnTrack();

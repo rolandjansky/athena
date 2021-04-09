@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_LinearSegmentMakerTool/RPC_LinearSegmentMakerTool.h"
@@ -27,7 +27,7 @@ m_pIdHelper(nullptr)
 
 StatusCode RPC_LinearSegmentMakerTool::initialize()
 {
-    ATH_MSG_INFO("Initializing RPC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO("Initializing RPC_LinearSegmentMakerTool");
 
     const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
     ATH_CHECK(detStore()->retrieve(muDetMgr));

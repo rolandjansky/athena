@@ -2439,6 +2439,12 @@ HLT_j0_aggSEP500ht_L1J20:
     0: 1
   stepFeatures:
     0: 5
+HLT_j0_dijetSEP20j12etSEP110djmass_ptrangeSEP2r3_L1J20:
+  eventCount: 10
+  stepCounts:
+    0: 10
+  stepFeatures:
+    0: 20
 HLT_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta_L1J20:
   eventCount: 0
 HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20:
@@ -3399,6 +3405,22 @@ HLT_mu20_ivarmedium_mu8noL1_L1MU20:
     4: 4
     5: 2
     6: 2
+HLT_mu20_mu6noL1_nscan_L1MU20:
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 3
+    5: 2
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 6
+    5: 4
 HLT_mu22_2mu4noL1_L1MU20:
   eventCount: 1
   stepCounts:
@@ -4558,7 +4580,7 @@ HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM:
     2: 20
     3: 20
     4: 4
-HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU25IM_2TAU20IM_2J25_3J20:
+HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20:
   eventCount: 0
   stepCounts:
     0: 5

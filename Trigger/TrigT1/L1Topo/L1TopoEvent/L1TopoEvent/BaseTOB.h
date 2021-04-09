@@ -10,7 +10,7 @@ namespace TCS {
    
    class BaseTOB {
    public:
-      BaseTOB(int roiWord);
+      BaseTOB(uint32_t roiWord, std::string tobType);
       virtual ~BaseTOB();
 
       virtual void print(std::ostream&) const = 0;
@@ -30,7 +30,8 @@ namespace TCS {
 
    private:
       
-      uint32_t m_roiWord;
+     uint32_t m_roiWord;
+     std::string m_tobName;
 
    };
    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,7 @@ BTagToolTester::BTagToolTester( const std::string & name, ISvcLocator * svcLoc)
 }
 
 StatusCode BTagToolTester::initialize() {
-  ATH_MSG_INFO( "Initialising - Package version : " << PACKAGE_VERSION);
+  ATH_MSG_INFO( "Initialising" );
   ATH_MSG_DEBUG( "SGKey = " << m_sgKey);
   ATH_MSG_DEBUG( "BTaggingEfficiencyTool = " << m_effTool );
   

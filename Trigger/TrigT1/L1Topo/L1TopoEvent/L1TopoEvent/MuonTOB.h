@@ -20,10 +20,10 @@ namespace TCS {
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
       // default constructor
-      MuonTOB(uint32_t roiWord = 0);
+      MuonTOB(uint32_t roiWord = 0, std::string tobName = "MuonTOB");
       
       // constructor with individual values
-      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0);
+      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "MuonTOB");
 
       // constructor with initial values
       MuonTOB(const MuonTOB & muon);

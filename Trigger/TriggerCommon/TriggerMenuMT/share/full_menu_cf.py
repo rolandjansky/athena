@@ -15,7 +15,7 @@ def generateChains():
     # egamma chains
     ##################################################################
     if opt.doEgammaSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
         fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
         electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
         precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
@@ -32,7 +32,7 @@ def generateChains():
             ]
         testChains += electronChains
 
-        from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
+        from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
         fastCaloSeq = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
         fastPhotonSeq = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
         precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
@@ -51,7 +51,7 @@ def generateChains():
     # muon chains
     ##################################################################
     if opt.doMuonSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
+        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
 
         MuonChains  = []
         # step1
@@ -164,7 +164,7 @@ def generateChains():
     # bjet chains
     ##################################################################
     if opt.doBjetSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
+        from TriggerMenuMT.HLTMenuConfig.Bjet.BjetMenuSequences import getBJetSequence
 
         jetSeq_a4_tc_em_presel, jetDef, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
         jetSeq_a4_tc_em_gsc_ftf, jetDef = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
@@ -236,7 +236,7 @@ def generateChains():
     # B-physics and light states chains
     ##################################################################
     if opt.doBphysicsSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
+        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
         from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, DimuEFComboHypoCfg
         
         step1_dimufast=makeChainStep("Step1_dimuFast", [muFastSequence()], multiplicity=[2])
@@ -259,10 +259,10 @@ def generateChains():
     # combined chains
     ##################################################################
     if opt.doCombinedSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
+        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfiguration import electronFastCaloCfg
         fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
         
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence
+        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence
         
         comboStep_et_mufast           = makeChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[1,1])
     #   comboStep_mufast_etcut1_step1 = makeChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[1,1])

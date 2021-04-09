@@ -253,8 +253,6 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
   if(m_debug) {
     msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolationTool[" << name() << "]" << endmsg;
     msg() << MSG::DEBUG
-	  << "package version = " << PACKAGE_VERSION << endmsg;
-    msg() << MSG::DEBUG
 	  << "Properties set as follows: " << endmsg;
     msg() << MSG::DEBUG
 	  << "removeSelf                     " << m_removeSelf << endmsg;

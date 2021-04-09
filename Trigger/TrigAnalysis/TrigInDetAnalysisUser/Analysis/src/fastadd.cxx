@@ -328,10 +328,7 @@ int main(int argc, char** argv) {
 
 
   for ( int i=1 ; i<argc ; i++ ) { 
-    if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( std::cout, argc, argv ); 
-    //    if ( std::string(argv[i])=="-v" || std::string(argv[i])=="--version" ) {
-    //      std::cout << argv[0] << " APPLgrid version " << PACKAGE_VERSION << std::endl; 
-    //  return 0;
+    if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( std::cout, argc, argv );
   }
   
   bool verbose = false; 

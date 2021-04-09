@@ -1,6 +1,7 @@
 from PhysValMonitoring.PhysValUtils import getHistogramDefinitions
 import os
 from RecExConfig.RecFlags import rec as recFlags
+import ROOT
 
 from JetTagDQA.JetTagDQAConf import JetTagDQA__PhysValBTag
 tool1 = JetTagDQA__PhysValBTag()
@@ -15,11 +16,7 @@ tool1.JVTCutLargerEtaAntiKt4EMTopoJets = 0.11
 tool1.JVTCutAntiKt4EMPFlowJets = 0.2
 tool1.truthMatchProbabilityCut = 0.75
 
-cmake_build_dir = ""
-if 'WorkDir_DIR' in os.environ:
-    cmake_build_dir = (os.environ['WorkDir_DIR'])
-
-path = cmake_build_dir + "/data/JetTagDQA/PhysValBtag_VariablesMenu.json"
+path = ROOT.PathResolver.find_file( 'JetTagDQA/PhysValBtag_VariablesMenu.json', 'DATAPATH' )
 tool1.HistogramDefinitionsVector = getHistogramDefinitions(path, 'PHYSVAL', 'ALL')
 
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")

@@ -7,7 +7,6 @@
 
 #include "JetRec/FastJetInterfaceTool.h"
 #include "JetRec/JetBottomUpSoftDrop.h"
-#include "JetRec/JetByVertexFinder.h"
 #include "JetRec/JetConstitRemover.h"
 #include "JetRec/JetConstituentsRetriever.h"
 #include "JetRec/JetDumper.h"

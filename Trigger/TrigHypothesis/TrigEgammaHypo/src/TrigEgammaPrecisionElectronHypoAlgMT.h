@@ -7,6 +7,7 @@
 #include <string>
 
 #include "DecisionHandling/HypoBase.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -21,26 +22,32 @@
  * @brief Implements precision electron selection for the new HLT framework
  **/
 class TrigEgammaPrecisionElectronHypoAlgMT : public ::HypoBase {
- public: 
 
-  TrigEgammaPrecisionElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  public: 
 
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  execute( const EventContext& context ) const override;
- 
- private: 
-  TrigEgammaPrecisionElectronHypoAlgMT();
-  ToolHandleArray< ITrigEgammaPrecisionElectronHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
-  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };     
-  SG::ReadHandleKey< xAOD::ElectronContainer > m_electronsKey { this, "Electrons", "Electrons", "Electrons in roi" };  
+    TrigEgammaPrecisionElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute( const EventContext& context ) const override;
   
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool_vloose { this, "ElectronLHSelector_vLoose", "AsgElectronLHVLooseSelector","Likelihood tool vloose tune" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool_loose { this, "ElectronLHSelector_Loose", "AsgElectronLHLooseSelector", "Likelihood tool loose tune" };  
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool_medium { this, "ElectronLHSelector_Medium", "AsgElectronLHMediumSelector", "Likelihood tool medium tune" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool_tight { this, "ElectronLHSelector_Tight", "AsgElectronLHTightSelector", "Likelihood tool tight tune" };
+  private: 
 
-  /*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
+    TrigEgammaPrecisionElectronHypoAlgMT();
+
+    Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };     
+    SG::ReadHandleKey< xAOD::ElectronContainer > m_electronsKey { this, "Electrons", "Electrons", "Electrons in roi" };  
+
+    ToolHandleArray< ITrigEgammaPrecisionElectronHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+    ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronLHTools{ this, "ElectronLHSelectorTools", {},"Likelihood tools" };
+    //ToolHandleArray<?> m_egammaElectronLHTool{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
+
+    Gaudi::Property<std::vector<std::string>> m_lhNames {this, "LHNames", {}, "LH pid names."};
+    //Gaudi::Property<std::vector<std::string>> m_dnnNames {this, "DNNNames", {}, "DNN pid names."};
+
+    /*Luminosity info*/
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
+
+    ToolHandle< GenericMonitoringTool >   m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 
 }; 

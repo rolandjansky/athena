@@ -735,7 +735,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 } else if (sfits[0].charge < sfits[1].charge) {
                     rightToFill = true;
                 } else {
-                    ATH_MSG_WARNING("  It should be CHECKED!!! ");
+                    ATH_MSG_DEBUG("  It should be CHECKED!!! ");
                     if (strip0 > 0) {
                         if (strips[strip0 - 1]) {
                             leftToFill = true;

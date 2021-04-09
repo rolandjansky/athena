@@ -19,9 +19,17 @@ Reco_tf.py \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --outputESDFile=myESD_Main_0.pool.root --outputAODFile=myAOD_Main_0.AOD.pool.root --outputHISTFile=myMergedMonitoring_Main_0.root --imf False
 
-echo "art-result: $? Reco"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName}
-echo "art-result: $? Diff"
+rc1=$?
+echo "art-result: $rc1 Reco"
+
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+  ArtPackage=$1
+  ArtJobName=$2
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
+  rc2=$?
+fi
+echo  "art-result: ${rc2} Diff"
+

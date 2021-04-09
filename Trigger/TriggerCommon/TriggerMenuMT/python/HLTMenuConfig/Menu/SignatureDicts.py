@@ -158,6 +158,7 @@ JetChainParts = {
                       'dijetSEP50j12etSEP1000djmassSEPdjdphi240',
                       'dijetSEP50j12etSEP900djmass',
                       'dijetSEP35j12etSEP1000djmass',
+                      'dijetSEP20j12etSEP110djmass',  # very loose cuts for testing
                       # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'aggSEP1000ht',
                       'aggSEP500ht',
@@ -173,7 +174,11 @@ JetChainParts = {
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['cleanLB', 'maskSEP300ceta210SEP300nphi10'], 
+    ['cleanLB', 'maskSEP300ceta210SEP300nphi10',
+     # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
+     # jets by ordering by pt, and selecting those with indices in [X,Y]
+     'ptrangeSEP0r1',  
+     'ptrangeSEP2r3'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -255,7 +260,7 @@ MuonChainParts = {
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',
@@ -434,7 +439,7 @@ TEChainParts_Default['trigType']  = ['te']
 #==========================================================
 # Electron Chains
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","BeeX"]
 # ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],
@@ -446,7 +451,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
+    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'caloInfo'       : [],

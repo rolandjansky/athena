@@ -100,6 +100,7 @@ empfgetters =  [jtm.empflowget]
 empfgetters_fe = [jtm.empflowget_fe]
 
 trackgetters = [jtm.trackget]
+pv0trackgetters = [jtm.pv0trackget]
 # Add track ghosts
 emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
@@ -131,6 +132,7 @@ if jetFlags.useTruth():
   truthgetters = [jtm.truthget]
   truthwzgetters = [jtm.truthwzget]
   trackgetters += [jtm.gtruthget]
+  pv0trackgetters += [jtm.gtruthget]
   emgetters += [jtm.gtruthget]
   lcgetters += [jtm.gtruthget]
   empfgetters += [jtm.gtruthget]
@@ -144,6 +146,7 @@ if jetFlags.useTruth():
   truthgetters   += flavorgetters
   truthwzgetters += flavorgetters
   trackgetters   += flavorgetters
+  pv0trackgetters += flavorgetters
   empfgetters    += flavorgetters
   empfgetters_fe += flavorgetters
 # Add track jet ghosts.
@@ -165,7 +168,7 @@ jtm.gettersMap["lctopo"]    = list(lcgetters)
 jtm.gettersMap["empflow"]   = list(empfgetters)
 jtm.gettersMap["empflowfe"] = list(empfgetters_fe)
 jtm.gettersMap["track"]     = list(trackgetters)
-jtm.gettersMap["pv0track"]  = list(trackgetters)
+jtm.gettersMap["pv0track"]  = list(pv0trackgetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)

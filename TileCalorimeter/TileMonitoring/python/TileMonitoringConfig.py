@@ -49,8 +49,8 @@ def TileMonitoringCfg(flags):
         acc.merge( TileJetMonitoringConfig(flags) )
 
         if flags.IOVDb.DatabaseInstance == 'CONDBR2' and flags.DQ.triggerDataAvailable:
-            from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitorConfig
-            acc.merge( TileTMDBRawChannelMonitorConfig(flags, Efficiency = True) )
+            from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
+            acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
 
 
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauRecToolBase.h"
@@ -125,7 +125,7 @@ StatusCode TauRecToolBase::readConfig() {
 TauRecToolBase::TauRecToolBase(const std::string& name) :
   asg::AsgTool(name) {
   declareProperty("inTrigger", m_in_trigger=false);
-  declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-02-00/"); 
+  declareProperty("calibFolder", m_tauRecToolsTag="tauRecTools/00-02-00");
 }
 
 StatusCode TauRecToolBase::initialize(){

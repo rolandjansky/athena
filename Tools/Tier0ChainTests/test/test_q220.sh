@@ -13,7 +13,7 @@ Reco_tf.py \
 --AMI=q220 \
 --conditionsTag 'all:CONDBR2-BLKPA-RUN2-03' \
 --athenaopts='--threads=8' \
---maxEvents=500 \
+--maxEvents=800 \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
 
@@ -25,7 +25,7 @@ if [ ${rc1} -eq 0 ]
 then
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"

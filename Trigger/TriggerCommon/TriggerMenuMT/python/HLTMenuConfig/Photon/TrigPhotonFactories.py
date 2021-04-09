@@ -20,7 +20,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMCluster
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
 
 
 # Decoration tools for egamma and photon objects:

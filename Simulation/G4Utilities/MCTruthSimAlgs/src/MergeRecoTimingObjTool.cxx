@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeRecoTimingObjTool.h"
@@ -22,7 +22,7 @@ StatusCode MergeRecoTimingObjTool::initialize()
 
 StatusCode MergeRecoTimingObjTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents)
 {
-  ATH_MSG_DEBUG ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_DEBUG ( "Calling prepareEvent()" );
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent=true;
   return StatusCode::SUCCESS;

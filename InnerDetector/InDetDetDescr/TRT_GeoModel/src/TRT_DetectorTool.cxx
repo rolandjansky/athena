@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetectorTool.h"
@@ -88,7 +88,7 @@ StatusCode TRT_DetectorTool::create()
  
   // Print the TRT version tag:
   std::string trtVersionTag = m_rdbAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node());
-  ATH_MSG_INFO("TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO("TRT Version: " << trtVersionTag );
  
 
   // Check if version is empty. If so, then the TRT cannot be built. This may or may not be intentional. We

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchStructureMetadataTool.cxx 511909 2012-07-31 11:50:19Z krasznaa $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -43,8 +42,6 @@ namespace D3PD {
    }
 
    StatusCode BunchStructureMetadataTool::initialize() {
-
-      ATH_MSG_INFO( "Initializing. Package version: " << PACKAGE_VERSION );
 
       // Retrieve the needed services:
       CHECK( m_incidentSvc.retrieve() );

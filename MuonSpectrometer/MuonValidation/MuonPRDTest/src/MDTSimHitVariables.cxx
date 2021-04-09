@@ -109,12 +109,10 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
         pdgId=genP->pdg_id();
         barcode=HepMC::barcode(genP);
       } else {
-        ATH_MSG_WARNING("GenParticle is nullptr for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", ml="<<
-        ml<<", tubelayer="<<tl<<", tube="<<tube<<")");
+        ATH_MSG_WARNING("GenParticle is nullptr for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", ml="<< ml<<", tubelayer="<<tl<<", tube="<<tube<<")");
       }
     } else {
-      ATH_MSG_WARNING("HepMcParticleLink is not valid for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", ml="<<
-      ml<<", tubelayer="<<tl<<", tube="<<tube<<")");
+      ATH_MSG_WARNING("HepMcParticleLink with barcode="<< pLink.barcode()<<" is not valid for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", ml="<< ml<<", tubelayer="<<tl<<", tube="<<tube<<")");
     }
     m_MDT_trackId.push_back(pdgId);
     m_MDT_truthEl.push_back(barcode);

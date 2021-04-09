@@ -105,8 +105,6 @@ namespace D3PD {
 
    StatusCode TrigConfMetadataTool::initialize() {
 
-      ATH_MSG_INFO( "Initializing. Package version: " << PACKAGE_VERSION );
-
       // Retrieve the needed services:
       CHECK( m_trigConfSvc.retrieve() );
       CHECK( m_incidentSvc.retrieve() );

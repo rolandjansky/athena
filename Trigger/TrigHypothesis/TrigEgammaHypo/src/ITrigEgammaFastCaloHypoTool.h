@@ -29,20 +29,12 @@ class ITrigEgammaFastCaloHypoTool
   FastClusterInfo( TrigCompositeUtils::Decision* d, 
                const TrigRoiDescriptor* r, 
                const xAOD::TrigEMCluster* c,
-	       const xAOD::TrigRingerRings* ring,
-               bool vl_acc,
-               bool l_acc,
-               bool m_acc,
-               bool t_acc,
+               const xAOD::TrigRingerRings* ring,
                const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
     roi( r ), 
     cluster(c), 
     ringerShape(ring),
-    vloose_accept(vl_acc),
-    loose_accept(l_acc),
-    medium_accept(m_acc),
-    tight_accept(t_acc),
     previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
@@ -51,10 +43,8 @@ class ITrigEgammaFastCaloHypoTool
     const TrigRoiDescriptor* roi;
     const xAOD::TrigEMCluster* cluster;
     const xAOD::TrigRingerRings* ringerShape;
-    bool vloose_accept;
-    bool loose_accept;
-    bool medium_accept;
-    bool tight_accept;
+    std::map<std::string, float> valueDecorator;
+    std::map<std::string, bool> pidDecorator;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   

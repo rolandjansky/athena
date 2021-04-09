@@ -157,12 +157,13 @@ atlas_add_test( full_menu_cf
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
                 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
-atlas_add_test( EventBuildingSequenceSetup
-                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
-                POST_EXEC_SCRIPT nopost.sh )
+
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
+atlas_add_test( EventBuildingSequences
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequences
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences
+		)
 
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
                 PROPERTIES TIMEOUT 200 

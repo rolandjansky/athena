@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MultiReaderAlg.cxx 462802 2011-10-12 16:06:24Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -41,8 +40,6 @@ namespace D3PD {
    }
 
    StatusCode MultiReaderAlg::initialize() {
-
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
       CHECK( m_d3pdSvc.retrieve() );
       CHECK( m_tools.retrieve() );

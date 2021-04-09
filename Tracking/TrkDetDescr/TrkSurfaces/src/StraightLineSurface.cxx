@@ -23,35 +23,35 @@ const Trk::NoBounds Trk::StraightLineSurface::s_boundless;
 Trk::StraightLineSurface::StraightLineSurface()
   : Surface()
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
   : Surface(htrans)
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Surface(std::move(htrans))
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // constructors by arguments
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez)
   : Surface(htrans)
   , m_lineDirection{}
-  , m_bounds(new Trk::CylinderBounds(radius, halez))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, halez))
 {}
 
 // dummy implementation
 Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
   : Surface(detelement, id)
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // copy constructor

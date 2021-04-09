@@ -20,10 +20,10 @@ namespace TCS {
 
 
       // default constructor
-      LateMuonTOB(uint32_t roiWord = 0);
+      LateMuonTOB(uint32_t roiWord = 0, std::string tobName = "LateMuonTOB");
       
       // constructor with individual values
-      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0);
+      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "LateMuonTOB");
 
       // constructor with initial values
       LateMuonTOB(const LateMuonTOB & latemuon);

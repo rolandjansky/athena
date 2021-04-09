@@ -51,10 +51,12 @@ StatusCode PhysValFE::bookHistograms(){
 
 
    // PFO vs FE comparison based on track matching
-    m_charged_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,false));
-    m_charged_PFO_FE_comparison->setDetailLevel(100);
-    m_charged_PFO_FE_comparison->initialize();
-    PFO_FE_comparison_hists=m_charged_PFO_FE_comparison->retrieveBookedHistograms();
+   if(m_compareFEtoPFO){
+      m_charged_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,false));
+      m_charged_PFO_FE_comparison->setDetailLevel(100);
+      m_charged_PFO_FE_comparison->initialize();
+      PFO_FE_comparison_hists=m_charged_PFO_FE_comparison->retrieveBookedHistograms();
+    } 
    
   }
   else if (m_useNeutralFE){
@@ -68,13 +70,14 @@ StatusCode PhysValFE::bookHistograms(){
     m_LeptonLinkerPlots_NFE->initialize();
     additional_hists=m_LeptonLinkerPlots_NFE->retrieveBookedHistograms();
     
-    //PFO vs FE comparison based on cluster matching
-    m_neutral_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,true));
-    m_neutral_PFO_FE_comparison->setDetailLevel(100);
-    m_neutral_PFO_FE_comparison->initialize();
-    PFO_FE_comparison_hists=m_neutral_PFO_FE_comparison->retrieveBookedHistograms();
-    
-    
+    if(m_compareFEtoPFO){
+      //PFO vs FE comparison based on cluster matching
+      m_neutral_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,true));
+      m_neutral_PFO_FE_comparison->setDetailLevel(100);
+      m_neutral_PFO_FE_comparison->initialize();
+      PFO_FE_comparison_hists=m_neutral_PFO_FE_comparison->retrieveBookedHistograms();
+    }
+
   }
   
 
@@ -184,14 +187,16 @@ StatusCode PhysValFE::fillHistograms(){
     }
   }
     
-  if(PFOContainerReadHandle.isValid() and FEContainerReadHandle.isValid()){
-    if(!m_useNeutralFE) {
+  if (m_compareFEtoPFO){
+    if(PFOContainerReadHandle.isValid() and FEContainerReadHandle.isValid()){
+      if(!m_useNeutralFE) {
       m_charged_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
-    }
-    else{
+     }
+     else{
       m_neutral_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
+     }    
     }
-  }
+  } 
   
   return StatusCode::SUCCESS;
 

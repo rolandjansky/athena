@@ -7,9 +7,7 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -44,8 +42,8 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
 
     HLT::Identifier m_decisionId;
 
-      
-    Gaudi::Property< bool >           m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };
+    Gaudi::Property<std::string>          m_pidName{this,"PidName", "", "Pid name"};
+    Gaudi::Property< bool >               m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };
  
     //Calorimeter electron ID  cuts
     Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
@@ -63,12 +61,9 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
     Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
     Gaudi::Property< bool >               m_acceptAll { this, "AcceptAll", false , "Ignore selection" };
     Gaudi::Property<float>                m_emEtCut{this,"EtCut", 0.0, "Et threshold"};
-    Gaudi::Property<bool>                m_loose{this,"Loose", false, "Decision for Loose tune"};
-    Gaudi::Property<bool>                m_vloose{this,"vLoose", false, "Decision for vLoose tune"};
-    Gaudi::Property<bool>                m_tight{this,"Tight", false, "Decision for tight tune"};  
-    Gaudi::Property<bool>                m_medium{this,"Medium", false, "Decision for medium tune"};
 
-    ToolHandle< GenericMonitoringTool >       m_monTool{ this, "MonTool", "", "Monitoring tool" };
+
+    ToolHandle< GenericMonitoringTool >   m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
 
 }; 

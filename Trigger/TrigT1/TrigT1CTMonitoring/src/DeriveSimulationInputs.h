@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CTMONITORING_DERIVESIMULATIONINPUTS_H
@@ -65,10 +65,9 @@ namespace TrigT1CTMonitoring {
       StatusCode fillFPIMap(unsigned int bitNum);
       StatusCode fillStoreGate(unsigned int ctpVersionNum);
 
-      virtual StatusCode initialize();
-      virtual StatusCode execute();
-      virtual StatusCode finalize();
-        
+      virtual StatusCode initialize() override;
+      virtual StatusCode execute() override;
+
       bool do_MuCTPI_input {false};
       bool do_L1Calo_input {false};
       bool do_L1Calo_sim   {false};

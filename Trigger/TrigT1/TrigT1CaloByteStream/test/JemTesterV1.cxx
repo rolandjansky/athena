@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -74,14 +74,9 @@ JemTesterV1::~JemTesterV1()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 StatusCode JemTesterV1::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   m_elementKey = new LVL1::JetElementKey();
 

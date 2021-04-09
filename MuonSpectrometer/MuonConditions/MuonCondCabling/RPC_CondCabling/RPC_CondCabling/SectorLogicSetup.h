@@ -154,7 +154,7 @@ class SectorLogicSetup : public BaseObject
     
     bool correct(CMAidentity CMA,L1RPCcabCorrection type,CMAinput it,
                  unsigned int layer,unsigned short int Channel1,
-	         unsigned short int Channel2,short int num);
+	         unsigned short int Channel2,short int num) const;
     
     std::list<unsigned int> give_strip_code(CMAidentity CMA,int logic_sector,
 					    unsigned short int lh,

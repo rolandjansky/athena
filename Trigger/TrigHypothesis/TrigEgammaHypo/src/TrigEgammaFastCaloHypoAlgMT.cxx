@@ -10,6 +10,8 @@
 #include "AthViews/ViewHelper.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+
 
 namespace TCU = TrigCompositeUtils;
 
@@ -26,19 +28,17 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
 
-  m_ringerTool_vLoose.setConstantsCalibPath( m_constantsCalibPath_vLoose ); 
-  m_ringerTool_vLoose.setThresholdsCalibPath( m_thresholdsCalibPath_vLoose );
-  m_ringerTool_Loose.setConstantsCalibPath( m_constantsCalibPath_Loose );
-  m_ringerTool_Loose.setThresholdsCalibPath( m_thresholdsCalibPath_Loose );
-  m_ringerTool_Medium.setConstantsCalibPath( m_constantsCalibPath_Medium );
-  m_ringerTool_Medium.setThresholdsCalibPath( m_thresholdsCalibPath_Medium );
-  m_ringerTool_Tight.setConstantsCalibPath( m_constantsCalibPath_Tight );
-  m_ringerTool_Tight.setThresholdsCalibPath( m_thresholdsCalibPath_Tight );
-       
-  if(m_ringerTool_vLoose.initialize().isFailure()||m_ringerTool_Loose.initialize().isFailure()||m_ringerTool_Medium.initialize().isFailure()||m_ringerTool_Tight.initialize().isFailure())
-    return StatusCode::FAILURE;
-  else
-    ATH_MSG_DEBUG( "Initialization of RingerTool completed successfully"   ); 
+  if(m_useRun3){
+    ATH_CHECK(m_ringerNNTools.retrieve());
+  }else{
+    for( size_t idx=0; idx<m_constantsCalibPaths.size(); ++idx){
+      auto* selector = new Ringer::RingerSelectorTool();
+      selector->setConstantsCalibPath(m_constantsCalibPaths[idx]);
+      selector->setThresholdsCalibPath(m_thresholdsCalibPaths[idx]);
+      ATH_CHECK(selector->initialize());
+      m_ringerTools.push_back(selector) ;
+    }
+  }
 
   ATH_CHECK( m_clustersKey.initialize() );
   ATH_CHECK( m_ringsKey.initialize(SG::AllowEmpty));
@@ -46,18 +46,30 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::initialize() {
   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
   renounce( m_ringsKey );
 
+  if ( not m_monTool.name().empty() ) 
+    CHECK( m_monTool.retrieve() );
+  
+
   ATH_MSG_DEBUG( "Initialization of FastCaloHypoAlg completed successfully");
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) const {  
+
+
+StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) const 
+{  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto timer_predict = Monitored::Timer("TIME_NN_exec");
+  auto monitoring = Monitored::Group( m_monTool, timer, timer_predict);
+
+
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
   
   // new decisions
-
   // new output decisions
   SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
@@ -67,7 +79,8 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
 
   // loop over previous decisions
   size_t counter=0;
-  for ( const auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) 
+  {
     //get RoI  
     auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::initialRoIString() );
     
@@ -85,80 +98,72 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
 
     auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
     
-     
-    // get Rings
-    bool accept_vLoose, accept_Loose, accept_Medium, accept_Tight;
-    accept_vLoose = false;
-    accept_Loose = false;
-    accept_Medium = false;
-    accept_Tight = false;
+    const xAOD::TrigRingerRings* ringerShape = nullptr; 
+    const xAOD::TrigEMCluster* emCluster = nullptr;
 
-    const xAOD::TrigRingerRingsContainer* ringHandle = nullptr;    
-    if ( not m_ringsKey.empty() ) {      
+    if ( not m_ringsKey.empty() ) {  
+
       auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);      
       ATH_CHECK( ringerShapeHandle.isValid());
-      ringHandle = ringerShapeHandle.cptr();	
+      auto ringHandle = ringerShapeHandle.cptr();	
       ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
 
       // link the rings      
       auto el = ViewHelper::makeLink( *viewEL, ringerShapeHandle, 0 );
       ATH_CHECK( el.isValid() );
       d->setObjectLink( "ringer",  el );
-      auto ringerShape = ringHandle->at(0);
-      const xAOD::TrigEMCluster *emCluster = 0;      
-      
-      if(ringerShape){
+      ringerShape = ringHandle->at(0);
+      if(ringerShape)
         emCluster = ringerShape->emCluster();
-        if(emCluster){
-         float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-         float output_vLoose, output_Loose, output_Medium, output_Tight;
-         const std::vector<float> rings = ringerShape->rings();
-         std::vector<float> refRings(rings.size());
-         refRings.assign(rings.begin(), rings.end());
-         output_vLoose = m_ringerTool_vLoose.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu );
-         output_Loose = m_ringerTool_Loose.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu );
-         output_Medium = m_ringerTool_Medium.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu );
-         output_Tight = m_ringerTool_Tight.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu );
-        
-         ATH_MSG_DEBUG(name()<< " generate as NN output_vLoose " << output_vLoose );
-         ATH_MSG_DEBUG(name()<< " generate as NN output_Loose " << output_Loose );
-         ATH_MSG_DEBUG(name()<< " generate as NN output_Medium " << output_Medium );
-         ATH_MSG_DEBUG(name()<< " generate as NN output_Tight " << output_Tight );
- 
-         accept_vLoose = m_ringerTool_vLoose.accept(output_vLoose, emCluster->et(),emCluster->eta(),avgmu) ;
-         accept_Loose = m_ringerTool_Loose.accept(output_Loose, emCluster->et(),emCluster->eta(),avgmu) ;
-         accept_Medium = m_ringerTool_Medium.accept(output_Medium, emCluster->et(),emCluster->eta(),avgmu) ;
-         accept_Tight = m_ringerTool_Tight.accept(output_Tight, emCluster->et(),emCluster->eta(),avgmu) ;
-       }
-      }
-     }
-     bool const accept_vLoose_const = accept_vLoose;
-     bool const accept_Loose_const = accept_Loose;
-     bool const accept_Medium_const = accept_Medium;
-     bool const accept_Tight_const = accept_Tight;
+    }
 
-     ATH_MSG_DEBUG("accept_vLoose_const: "<<accept_vLoose_const);
-     ATH_MSG_DEBUG("accept_Loose_const: "<<accept_Loose_const);
-     ATH_MSG_DEBUG("accept_Medium_const: "<<accept_Medium_const);
-     ATH_MSG_DEBUG("accept_Tight_const: "<<accept_Tight_const);
+    ITrigEgammaFastCaloHypoTool::FastClusterInfo info(d, roi, clusterHandle.cptr()->at(0), ringerShape , previousDecision);
 
-      // create new decision
-     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), ringHandle->at(0), accept_vLoose_const, accept_Loose_const, accept_Medium_const, accept_Tight_const, previousDecision );
+
+
+    float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+    info.valueDecorator["avgmu"] = avgmu;
+
+    // Decorate the info object with NN ringer decision
+    if(ringerShape && emCluster){
+      int idx=0;
+      for (auto& pidname : m_pidNames ){
+        if (m_useRun3){
+          auto inputs = m_ringerNNTools[0]->prepare_inputs( ringerShape , nullptr);
+          timer_predict.start();
+          float nnOutput = m_ringerNNTools[0]->predict(ringerShape, inputs);
+          timer_predict.stop();
+          info.pidDecorator[pidname] = (bool)m_ringerNNTools[idx]->accept(ringerShape, nnOutput, avgmu);
+          info.valueDecorator[pidname+"NNOutput"] = nnOutput;
+        }else{
+          const std::vector<float> rings = ringerShape->rings();
+          std::vector<float> refRings(rings.size());
+          refRings.assign(rings.begin(), rings.end());
+          timer_predict.start();
+          float nnOutput = m_ringerTools[0]->calculate( refRings, emCluster->et(), emCluster->eta(), avgmu );
+          timer_predict.stop();
+          info.pidDecorator[pidname] = m_ringerTools[idx]->accept(nnOutput, emCluster->et(),emCluster->eta(),avgmu) ;
+          info.valueDecorator[pidname+"NNOutput"] = nnOutput;
+        }
+        idx++;
+      }   
+    }
+            
+    toolInput.push_back( info );
     
 
-     // link the cluster
-     { 
-       auto clus = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
-       ATH_CHECK( clus.isValid() );
-       d->setObjectLink( TCU::featureString(),  clus );
-     }
+    // link the cluster
+    { 
+      auto clus = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
+      ATH_CHECK( clus.isValid() );
+      d->setObjectLink( TCU::featureString(),  clus );
+    }
     
-     d->setObjectLink( TCU::roiString(), roiELInfo.link );
+    d->setObjectLink( TCU::roiString(), roiELInfo.link );
     
-     TCU::linkToPrevious( d, previousDecision, context );
-     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
-     counter++;
-
+    TCU::linkToPrevious( d, previousDecision, context );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
+    counter++;
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");

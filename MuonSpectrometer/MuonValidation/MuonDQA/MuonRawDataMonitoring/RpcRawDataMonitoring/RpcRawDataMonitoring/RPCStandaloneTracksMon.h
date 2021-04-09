@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
@@ -107,8 +107,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   void bookRPCCoolHistograms_NotNorm(std::vector<std::string>::const_iterator &iter , int , int , std::string layer );
   void bookRPCCoolHistograms(std::vector<std::string>::const_iterator &iter , int , int , std::string layer );
   
-  ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiSvc;
-  ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiSvc;
+  ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
+  ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
+
   ToolHandle<Trig::TrigDecisionTool>   m_trigDec  ;
   
   StringProperty  m_triggerChainGroupRegExp   ;

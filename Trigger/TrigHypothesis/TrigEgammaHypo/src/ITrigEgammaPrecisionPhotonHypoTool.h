@@ -35,6 +35,8 @@ class ITrigEgammaPrecisionPhotonHypoTool
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
     const xAOD::Photon_v1* photon;
+    std::map<std::string, float> valueDecorator;
+    std::map<std::string, bool> pidDecorator;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   

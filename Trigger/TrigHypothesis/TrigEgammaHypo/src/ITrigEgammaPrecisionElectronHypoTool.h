@@ -6,7 +6,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODEgamma/Electron.h"
 
 /**
  * @class Base for tools doing precision Electron Hypo selection
@@ -22,45 +23,22 @@ class ITrigEgammaPrecisionElectronHypoTool
   virtual ~ITrigEgammaPrecisionElectronHypoTool(){}
 
   struct ElectronInfo {
-  ElectronInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::Electron_v1* c,
-                bool pass_vl,
-                bool pass_l,
-                bool pass_m,
-                bool pass_t,
-                float lhval_vl,
-                float lhval_l,
-                float lhval_m,
-                float lhval_t,
-                float avg_mu,
-	       const TrigCompositeUtils::Decision* previousDecision )
-  : decision( d ), 
+  ElectronInfo( TrigCompositeUtils::Decision* d, 
+                const TrigRoiDescriptor* r, 
+                const xAOD::Electron* c,
+                const TrigCompositeUtils::Decision* previousDecision ): 
+      decision( d ), 
       roi( r ), 
       electron(c), 
-      accept_vl(pass_vl),
-      accept_l(pass_l),
-      accept_m(pass_m),
-      accept_t(pass_t),
-      LHValue_vl(lhval_vl),
-      LHValue_l(lhval_l),
-      LHValue_m(lhval_m),
-      LHValue_t(lhval_t),
-      avgMu (avg_mu),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
-			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+         TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
     
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
-    const xAOD::Electron_v1* electron;
-    bool accept_vl;
-    bool accept_l;
-    bool accept_m;
-    bool accept_t;
-    float LHValue_vl;
-    float LHValue_l;
-    float LHValue_m;
-    float LHValue_t;
-    float avgMu;
+    const xAOD::Electron* electron;
+    std::map<std::string, bool> pidDecorator;
+    std::map<std::string, float> valueDecorator;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
