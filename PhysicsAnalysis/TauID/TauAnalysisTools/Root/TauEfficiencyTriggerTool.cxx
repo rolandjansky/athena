@@ -129,7 +129,7 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
   dDirection = (dDirection > 0) ? +1 : -1;
 
   // finally apply uncertainty (eff * ( 1 +/- \sum  )
-  dEfficiencyScaleFactor *= 1 + dDirection * sqrt(dTotalSystematic2);
+  dEfficiencyScaleFactor *= 1 + dDirection * std::sqrt(dTotalSystematic2);
 
   return CP::CorrectionCode::Ok;
 }
