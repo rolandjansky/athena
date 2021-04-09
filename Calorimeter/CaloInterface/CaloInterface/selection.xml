@@ -1,8 +1,6 @@
 <lcgdict>
 <class name="ICaloCellSelector" />     
-<class name="ICaloNoiseTool" />
 <class name="ICaloCellMakerTool" />   
-<class name="ICalorimeterNoiseTool" />
 <class name="ICaloMBAverageTool" />
 <class name="ICaloCellNormalizedQualityTool" />
 <class name="ICaloAffectedTool" />
