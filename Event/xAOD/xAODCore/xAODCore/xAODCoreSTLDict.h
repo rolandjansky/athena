@@ -64,9 +64,9 @@ namespace {
       std::map< std::string, std::vector< std::vector< float > > > stl_m4;
 
       // Pair type(s) belonging to that/those map type(s).
-#ifdef XAOD_ANALYSIS
+#ifdef XAOD_STANDALONE
       std::pair< std::string, std::vector< int > > stl_p1;
-#endif // XAOD_ANALYSIS
+#endif // XAOD_STANDALONE
       std::pair< std::string, std::vector< float > > stl_p2;
       std::pair< std::string, std::vector< std::vector< int > > > stl_p3;
       std::pair< std::string, std::vector< std::vector< float > > > stl_p4;
