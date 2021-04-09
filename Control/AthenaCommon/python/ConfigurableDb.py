@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurableDb.py
 # Author: Sebastien Binet (binet@cern.ch)
@@ -44,8 +44,6 @@ def _fillConfDict():
                       cfgDb[cfgName]['module'],
                       str([ d['module'] for d in dups[cfgName]]) )
       del dups
-
-      cfgDb.msg.warning( "Fix your cmt/requirements file !!" )
 
    else:
       cfgDb.msg.info( "No duplicates have been found: that's good !" )
