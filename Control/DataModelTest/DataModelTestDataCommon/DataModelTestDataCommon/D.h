@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: D.h,v 1.2 2005-12-01 19:07:54 ssnyder Exp $
@@ -35,6 +35,7 @@ struct D
   : public /*virtual*/ B
 {
   D (int d = 0) : B (d+1), m_x (d) {}
+  // cppcheck-suppress duplInheritedMember
   int m_x;
 };
 
