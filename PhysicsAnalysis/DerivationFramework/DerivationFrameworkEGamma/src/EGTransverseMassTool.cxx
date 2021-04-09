@@ -126,12 +126,12 @@ namespace DerivationFramework {
     const xAOD::MissingETContainer* particles2 = inputParticles2.ptr();
 
     // compute MET
-    if (particles2->size()==0) {
+    if (particles2->empty()) {
       if (!pt2){
 	      ATH_MSG_WARNING("No MET info found");
 	      return StatusCode::SUCCESS; 
       }
-      if (pt2->size()==0) {
+      if (pt2->empty()) {
 	      ATH_MSG_WARNING("No MET info found");
 	      return StatusCode::SUCCESS; 
       }
