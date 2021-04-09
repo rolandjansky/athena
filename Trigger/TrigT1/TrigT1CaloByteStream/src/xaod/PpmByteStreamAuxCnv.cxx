@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -56,8 +56,7 @@ long PpmByteStreamAuxCnv::storageType()
 //  Init method gets all necessary services etc.
 
 StatusCode PpmByteStreamAuxCnv::initialize() {
-  ATH_MSG_DEBUG(
-      "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing " << m_name);
 
   CHECK(Converter::initialize());
   CHECK(m_readTool.retrieve());

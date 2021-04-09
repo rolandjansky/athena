@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -84,16 +84,11 @@ L1CaloPMTScoresMon::~L1CaloPMTScoresMon()
 {
 }
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode L1CaloPMTScoresMon:: initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   StatusCode sc;
   

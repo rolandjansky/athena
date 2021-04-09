@@ -29,8 +29,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 
 StatusCode MuFastSteering::initialize()
 {
-  ATH_MSG_DEBUG("Initializing MuFastSteering - package version " << PACKAGE_VERSION);
-
   if (m_use_timer) {
     if (m_timerSvc.retrieve().isFailure()) {
       ATH_MSG_ERROR("Unable to locate TrigTimer Service");

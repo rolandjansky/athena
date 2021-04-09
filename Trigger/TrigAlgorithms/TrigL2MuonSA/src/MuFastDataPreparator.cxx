@@ -21,11 +21,6 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
 
 StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 {
-   // Get a message stream instance
-   ATH_MSG_DEBUG("Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION);
-
-   ATH_CHECK(AthAlgTool::initialize());
-
    ATH_CHECK(m_recRPCRoiTool.retrieve());
 
    if (m_use_rpc) {

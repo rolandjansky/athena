@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -871,19 +871,3 @@ TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool( IOVSVC_CAL
    }
    return StatusCode::SUCCESS;
 }
-
-
-//======================================================================================================
-
-StatusCode
-TrigT1CTMonitoring::DeriveSimulationInputs::finalize() {
-   StatusCode sc = StatusCode::SUCCESS;
-   ATH_MSG_INFO("Finalizing " << name() << " - package version " << PACKAGE_VERSION);
-   return sc;
-}
-
-
-//======================================================================================================
-
-
-

@@ -38,7 +38,7 @@ namespace TrigConf {
    StatusCode xAODConfigSvc::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
 
       // Register read handle key
       CHECK( m_eventKey.initialize() );
