@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -95,12 +95,9 @@ TBBPCRec::execute()
     ATH_MSG_DEBUG ( "TBBPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << bpcrawCont->size());
 
     TBBPCCont * bpcCont = new TBBPCCont();
-    TBBPCRawCont::const_iterator it_bc   = bpcrawCont->begin();
-    TBBPCRawCont::const_iterator last_bc   = bpcrawCont->end();
 
     // Loop over BPC
-    for(;it_bc != last_bc;it_bc++){
-      const TBBPCRaw * bpcraw= (*it_bc);
+    for (const TBBPCRaw * bpcraw : *bpcrawCont) {
       std::string name = bpcraw->getDetectorName();
       unsigned int ind=0;
       // Find calibration index for this BPC
@@ -260,7 +257,7 @@ StatusCode TBBPCRec::getnewcalib()
   int pos;
 
   std::ifstream calibfile;
-  std::string filename = PathResolver::find_file (m_calib_filename.c_str(), "DATAPATH");
+  std::string filename = PathResolver::find_file (m_calib_filename, "DATAPATH");
   calibfile.open(filename.c_str());
   if(!calibfile.good()){
     ATH_MSG_WARNING ( " Problem with file named "<< m_calib_filename << " in $DATAPATH" );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTailCatcherRec.h"
@@ -49,12 +49,9 @@ TBTailCatcherRec::execute()
     }
     
     std::vector< TBScintillator* > theScints;
-    
-    TBTailCatcherRaw::const_iterator it_scint   = tailcatchraw->begin();
-    TBTailCatcherRaw::const_iterator last_scint   = tailcatchraw->end();
+
     int ind=0;
-    for(;it_scint != last_scint;it_scint++){
-      const TBScintillatorRaw * scintraw = (*it_scint);
+    for (const TBScintillatorRaw * scintraw : *tailcatchraw) {
       std::string name = scintraw->getDetectorName();
       
       TBScintillator * scint = new TBScintillator();
