@@ -227,14 +227,15 @@ namespace MuonCombined {
         std::unique_ptr<Trk::Track> combinedTrack;
         double combinedFitChi2 = 9999.;
         if (!m_trackBuilder.empty()) {
-            combinedTrack.reset(m_trackBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack));
+            combinedTrack.reset(m_trackBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx));
             if (combinedTrack && combinedTrack->fitQuality()) {
                 combinedTrack->info().addPatternReco(extrapolatedTrack->info());
                 combinedFitChi2 = combinedTrack->fitQuality()->chiSquared() / combinedTrack->fitQuality()->doubleNumberDoF();
             }
         }
         if (combinedFitChi2 > m_badFitChi2 && !m_outwardsBuilder.empty()) {
-            std::unique_ptr<Trk::Track> outwardsTrack(m_outwardsBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack));
+            std::unique_ptr<Trk::Track> outwardsTrack(
+                m_outwardsBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx));
             if (outwardsTrack &&
                 outwardsTrack->fitQuality()->chiSquared() / outwardsTrack->fitQuality()->doubleNumberDoF() < combinedFitChi2) {
                 ATH_MSG_VERBOSE("buildCombinedTrack: choose outwards track");

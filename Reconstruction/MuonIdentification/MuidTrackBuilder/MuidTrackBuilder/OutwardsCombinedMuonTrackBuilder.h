@@ -47,7 +47,7 @@ namespace Rec {
 
         /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
         virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                        const Trk::Track& spectrometerTrack) const override;
+                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
@@ -56,19 +56,29 @@ namespace Rec {
                                            const Trk::TrackParameters* innerParameters, const Trk::TrackParameters* middleParameters,
                                            const Trk::TrackParameters* outerParameters) const override;
 
+        virtual Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
+                                           const EventContext& ctx, const Trk::TrackParameters* innerParameters,
+                                           const Trk::TrackParameters* middleParameters,
+                                           const Trk::TrackParameters* outerParameters) const override;
+
         /** ICombinedMuonTrackBuilder interface:
             propagate to perigee adding calo energy-loss and material to MS track */
         virtual Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const Trk::Vertex* vertex, float bs_x, float bs_y,
                                           float bs_z) const override;
 
+        virtual Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const EventContext& ctx, const Trk::Vertex* vertex,
+                                          float bs_x, float bs_y, float bs_z) const override;
+
         /** ICombinedMuonTrackBuilder interface:
             refit a track removing any indet measurements with optional addition of pseudoMeasurements
             according to original extrapolation */
+        virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x, float bs_y,
+                                            float bs_z) const override;
         virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
 
         using ICombinedMuonTrackBuilder::fit;
         /** refit a track */
-        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+        virtual Trk::Track* fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier = false,
                                 const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
 
         /**

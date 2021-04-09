@@ -38,11 +38,11 @@ namespace MuonCombined {
     }
 
     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                                   TrackCollection& outputTracks) {
+                                   TrackCollection& outputTracks, const EventContext& ctx) {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
 
-        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey};
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
         float beamSpotX = beamSpotHandle->beamPos()[Amg::x];
         float beamSpotY = beamSpotHandle->beamPos()[Amg::y];
         float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];
@@ -72,14 +72,14 @@ namespace MuonCombined {
             Trk::Track* standaloneTrack = nullptr;
             const Trk::Vertex* vertex = nullptr;
             if (m_extrapolationStrategy == 0u) {
-                standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
+                standaloneTrack = m_trackBuilder->standaloneFit(msTrack, ctx, vertex, beamSpotX, beamSpotY, beamSpotZ);
             } else {
                 standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
             }
             if (standaloneTrack) {
                 // Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
                 if (standaloneTrack->fitQuality()->doubleNumberDoF() == 0) {
-                    delete standaloneTrack;
+                    tracksToBeDeleted.emplace(standaloneTrack);
                     standaloneTrack = nullptr;
                     ATH_MSG_DEBUG("extrapolated track has no DOF, don't use it");
                 } else {
@@ -88,7 +88,7 @@ namespace MuonCombined {
                         mschi2 = msTrack.fitQuality()->chiSquared() / msTrack.fitQuality()->doubleNumberDoF();
                     // choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
                     if (standaloneTrack->fitQuality()->chiSquared() / standaloneTrack->fitQuality()->doubleNumberDoF() > 1000 * mschi2) {
-                        delete standaloneTrack;
+                        tracksToBeDeleted.emplace(standaloneTrack);
                         standaloneTrack = nullptr;
                         ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
                     }
@@ -125,14 +125,14 @@ namespace MuonCombined {
                     }
                 }
                 if (!skipTrack) {
-                    delete standaloneTrack;
+                    tracksToBeDeleted.emplace(standaloneTrack);
                     standaloneTrack = new Trk::Track(msTrack);
                     trackLinks[standaloneTrack] = std::make_pair(trackLink, nullptr);
                 }
             }
             if (standaloneTrack) {
                 extrapTracks->push_back(standaloneTrack);
-                tracksToBeDeleted.insert(standaloneTrack);  // insert track for deletion
+                tracksToBeDeleted.emplace(standaloneTrack);  // insert track for deletion
             }
         }
         ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
@@ -172,8 +172,7 @@ namespace MuonCombined {
                                                                   << " remaining " << tracksToBeDeleted.size()
                                                                   << "failed tracks to be deleted" << nfailed);
 
-        // delete all remaining tracks in the set
-        for (auto it = tracksToBeDeleted.begin(); it != tracksToBeDeleted.end(); ++it) delete *it;
+        for (auto& trk : tracksToBeDeleted) delete trk;
     }
 
 }  // namespace MuonCombined
