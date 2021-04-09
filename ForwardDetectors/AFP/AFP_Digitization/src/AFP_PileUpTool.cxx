@@ -10,6 +10,9 @@
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
+//#include "AFP_SimEv/AFP_SISimHit.h"
+//#include "AFP_SimEv/AFP_TDSimHitCollection.h"
+#include "AFP_DigiEv/AFP_SiDigiCollection.h"
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHitAuxContainer.h"
@@ -185,16 +188,19 @@ m_SiHitCollection = new xAOD::AFPSiHitContainer();
 
 void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, const AFP_SiDigiCollection* container) const
 {
+  AFP_SiDigiConstIter it    = container->begin();
+  AFP_SiDigiConstIter itend = container->end();
+
+  for (; it != itend; it++) {
   xAOD::AFPSiHit* xAODSiHit = new xAOD::AFPSiHit();
   siHitContainer->push_back(xAODSiHit);
-
- xAODSiHit->setStationID(-1);
- xAODSiHit->setPixelLayerID( -1 );
- xAODSiHit->setPixelColIDChip( -1 );
- xAODSiHit->setPixelRowIDChip( -1 );
- xAODSiHit->setTimeOverThreshold(-1);
- xAODSiHit->setDepositedCharge( -1 );
-
+ xAODSiHit->setStationID(it->m_nStationID);
+ xAODSiHit->setPixelLayerID(it->m_nDetectorID);
+ xAODSiHit->setPixelColIDChip(it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
+ xAODSiHit->setPixelRowIDChip(it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row 
+ xAODSiHit->setTimeOverThreshold(it->m_fADC );
+ xAODSiHit->setDepositedCharge(it->m_fADC );
+  }
  ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
  std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPSiHit" << std::endl;
 
