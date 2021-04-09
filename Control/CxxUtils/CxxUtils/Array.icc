@@ -17,6 +17,8 @@
 #include <cassert>
 
 
+// cppcheck doesn't properly handle recursive templates like this.
+#ifndef __CPPCHECK__
 namespace CxxUtils {
 
 
@@ -148,7 +150,6 @@ inline
 Array<N-1> Array<N>::operator[] (unsigned int i) const
 {
   assert (i < m_rep->m_shape[m_rep->m_shape.size() - N]);
-  // cppcheck-suppress negativeContainerIndex; false positive
   return Array<N-1> (*m_rep, m_offs + i * m_rep->m_sizes[N-1]);
 }
 
@@ -187,7 +188,6 @@ template <unsigned int N>
 inline
 typename Array<N>::const_iterator Array<N>::end () const
 {
-  // cppcheck-suppress negativeContainerIndex; false positive
   unsigned int offs = m_rep ? m_offs + size() * m_rep->m_sizes[N-1] : 0;
   return ArrayIteratorChooser<N>::make_iterator (m_rep, offs);
 }
@@ -713,7 +713,6 @@ WritableArray<N-1> WritableArray<N>::operator[] (unsigned int i) const
 {
   assert (i < this->m_rep_nc->m_shape[this->m_rep_nc->m_shape.size() - N]);
   return WritableArray<N-1> (*this->m_rep_nc,
-   // cppcheck-suppress negativeContainerIndex; false positive
                              this->m_offs + i * this->m_rep_nc->m_sizes[N-1]);
 }
 
@@ -743,7 +742,6 @@ Arrayelt* WritableArray<N>::ptr ()
  */
 template <unsigned int N>
 inline
-// cppcheck-suppress uninitMemberVarPrivate; false positive
 WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
   : Array<N> (rep, offs),
     m_rep_nc (&rep)
@@ -760,7 +758,6 @@ WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
  * match the length of the @c Arrayrep's shape.
  */
 inline
-// cppcheck-suppress uninitMemberVar  ; false positive
 WritableArray<0>::WritableArray (Arrayrep& rep)
   : Array<0> (rep),
     m_elt_nc (&rep.m_data[0])
@@ -793,7 +790,6 @@ WritableArray<0>& WritableArray<0>::operator= (Arrayelt elt)
  * instances returned from an indexing operation.
  */
 inline
-// cppcheck-suppress uninitMemberVarPrivate  ; false positive
 WritableArray<0>::WritableArray (Arrayrep& rep, unsigned int offs)
   : Array<0> (rep, offs),
     m_elt_nc (&rep.m_data[offs])
@@ -861,3 +857,4 @@ void fromArrayrep (const CaloRec::Arrayrep& rep, CxxUtils::Array<N>& x)
 
 
 } // namespace CxxUtils
+#endif // not __CPPCHECK__
