@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,9 +12,9 @@
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"

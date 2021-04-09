@@ -45,7 +45,7 @@ class BaseTrackVertexAssociationTool
 
   ASG_TOOL_CLASS(BaseTrackVertexAssociationTool, ITrackVertexAssociationTool)
 public:
-  BaseTrackVertexAssociationTool(std::string name);
+  BaseTrackVertexAssociationTool(const std::string& name);
 
   StatusCode initialize();
 

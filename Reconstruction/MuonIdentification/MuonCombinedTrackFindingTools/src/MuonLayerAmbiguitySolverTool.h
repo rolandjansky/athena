@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERAMBIGUITYSOLVERTOOL_H
@@ -33,9 +33,6 @@ namespace Muon {
 
     /**IMuonLayerAmbiguitySolverTool interface: find */   
     virtual void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const override;
-
-
-    virtual void cleanUp() const override;
 
   private:
     void buildLayerVec( const std::vector<MuonLayerRecoData>& allLayers,  

@@ -43,7 +43,17 @@ namespace TrigConf {
 
       const std::string & optical(size_t conn) const;
 
+      /**
+       * @brief CTP monitors
+       * @return map from monitor name to pair<multiplicity, threshold>
+       */
       const std::map<std::string, std::pair<size_t,std::string>> ctpMon() const { return m_ctpmon; }
+
+      /**
+       * @brief CTPIN monitors
+       * @return map from monitor name to pair<multiplicity, threshold>
+       */
+      const std::map<std::string, std::pair<size_t,std::string>> ctpinMon() const { return m_ctpinMon; }
 
       /** Clearing the configuration data */
       virtual void clear() override;
@@ -59,6 +69,7 @@ namespace TrigConf {
       std::string m_optical[12];
 
       std::map<std::string, std::pair<size_t,std::string>> m_ctpmon;
+      std::map<std::string, std::pair<size_t,std::string>> m_ctpinMon;
    };
 }
 

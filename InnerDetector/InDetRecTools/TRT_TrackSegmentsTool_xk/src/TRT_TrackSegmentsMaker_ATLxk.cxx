@@ -273,7 +273,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   int n = 0;
   for(; d!=de; ++d) {
 
-    auto w = trtcontainer->indexFindPtr((*d));
+    const auto *w = trtcontainer->indexFindPtr((*d));
 
     if(w!=nullptr) {
 
@@ -423,7 +423,7 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next(InDet::ITRT_TrackSe
       event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
 
   if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
-  return 0;
+  return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -695,7 +695,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
   double pin = 1./(pT*std::sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm, std::atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
+  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm, std::atan2(1.,condData.m_dzdr[ndzdr]),pin,nullptr);
     ++event_data.m_nlocal;
 
   Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, Tp.get(), *(event_data.m_extEventData) );

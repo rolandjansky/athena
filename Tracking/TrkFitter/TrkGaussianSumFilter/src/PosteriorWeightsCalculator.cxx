@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,7 +13,7 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include "TrkParameters/TrackParameters.h"
 #include <array>
 #include <stdexcept>
@@ -115,7 +115,7 @@ struct componentsCache
 
 } // end of anonymous namespace
 
-std::vector<Trk::ComponentParameters>
+MultiComponentState
 Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
                                          const MeasurementBase& measurement)
 {
@@ -136,8 +136,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
   }
 
   // Move  to output and update
-  std::vector<Trk::ComponentParameters> returnMultiComponentState =
-    std::move(predictedState);
+  MultiComponentState returnMultiComponentState = std::move(predictedState);
 
   // Calculate chi2 and determinant of each component.
   componentsCache determinantRandChi2{};

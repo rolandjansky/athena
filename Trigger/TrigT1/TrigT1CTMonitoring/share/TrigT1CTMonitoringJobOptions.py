@@ -145,9 +145,6 @@ include( "AtlasGeoModel/MuonGeoModel.py" )
 from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 muonCnvFlags.RpcCablingMode.set_Value_and_Lock( "new" )
 muonCnvFlags.TgcCablingMode.set_Value_and_Lock( "12-fold" )
-# Needed to decode the RoI information
-from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
 
 from PyUtils.MetaReaderPeeker import metadata
 from TrigT1CTMonitoring.TrigT1CTMonitoringConfig import *

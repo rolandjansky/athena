@@ -19,7 +19,7 @@ def getLArNoiseBurst(self):
     from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstHypoToolGen
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import cellRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import cellRecoSequence
     noiseBurstInputMakerAlg= conf2toConfigurable(clusterFSInputMaker())
 
     from AthenaCommon.CFElements import parOR, seqAND

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ namespace Trk {
   class MaterialStep {
     public:
       /** Default Constructor needed for POOL */
-      MaterialStep();
+      MaterialStep() = default;
 
       /** Constructor with arguments */
       MaterialStep(float x, float y, float z,
@@ -57,20 +57,22 @@ namespace Trk {
                    const std::vector<unsigned char>& fractions,
                    float matdEdX=0.);
 
-      /** Copy Constructor */
-      MaterialStep(const MaterialStep& mstep);
+      /** Copy / Move Constructors */
+      MaterialStep(const MaterialStep& mstep) = default;
+      MaterialStep(MaterialStep&& mstep) = default;
+
+      /** Assignment operators */
+      MaterialStep& operator=(const MaterialStep& mstep);
+      MaterialStep& operator=(MaterialStep&& mstep);
 
       /** Destructor */
-      virtual ~MaterialStep();
-
-      /** Assignment operator */
-      MaterialStep& operator=(const MaterialStep& mstep);
+      ~MaterialStep() = default;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
-      virtual MsgStream& dump(MsgStream& sl) const;
+      MsgStream& dump(MsgStream& sl) const;
       
       /** Output Method for std::ostream, to be overloaded by child classes */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      std::ostream& dump(std::ostream& sl) const;
 
       /** Access method : steplength */
       double steplength() const;
@@ -99,16 +101,12 @@ namespace Trk {
 
     protected:
       friend class ::MaterialStepCnv_p1;
-      float                         m_steplength;
-                                    
-      float                         m_hitX;
-      float                         m_hitY;
-      float                         m_hitZ;
-      float                         m_hitR;
-                                    
-      Material                      m_material;
-      
-
+      float m_steplength = 0;
+      float m_hitX = 0;
+      float m_hitY = 0;
+      float m_hitZ = 0;
+      float m_hitR = 0;
+      Material m_material{};
   };
 
   inline double MaterialStep::steplength() const { return m_steplength; }

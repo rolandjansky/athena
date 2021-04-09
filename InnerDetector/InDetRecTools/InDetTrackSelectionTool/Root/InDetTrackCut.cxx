@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetTrackCuts.cxx
@@ -11,6 +11,8 @@
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include <algorithm>
+#include <utility>
+
 
 
 // ---------------- TrackCut ----------------
@@ -103,7 +105,7 @@ StatusCode InDet::MaxSummaryValueCut::initialize()
 bool InDet::MaxSummaryValueCut::result() const
 {
   Int_t value = 0;
-  for (std::shared_ptr<SummaryAccessor> summaryAccessor : m_summaryAccessors) {
+  for (const std::shared_ptr<SummaryAccessor>& summaryAccessor : m_summaryAccessors) {
     if (!summaryAccessor) {
       ATH_MSG_WARNING( "Track summary accessor not valid. Track will not pass this cut." );
       return false;
@@ -148,7 +150,7 @@ StatusCode InDet::MinSummaryValueCut::initialize()
 bool InDet::MinSummaryValueCut::result() const
 {
   Int_t value = 0;
-  for (std::shared_ptr<SummaryAccessor> summaryAccessor : m_summaryAccessors) {
+  for (const std::shared_ptr<SummaryAccessor>& summaryAccessor : m_summaryAccessors) {
     if (!summaryAccessor) {
       ATH_MSG_WARNING( "Track summary accessor not valid. Track will not pass this cut." );
       return false;
@@ -239,7 +241,7 @@ StatusCode InDet::MaxSummaryValueRatioCut::initialize()
 bool InDet::MaxSummaryValueRatioCut::result() const
 {
   Int_t numerator = 0;
-  for (std::shared_ptr<SummaryAccessor> summaryAccessor : m_summaryAccessorsNum) {
+  for (const std::shared_ptr<SummaryAccessor>& summaryAccessor : m_summaryAccessorsNum) {
     if (!summaryAccessor) {
       ATH_MSG_WARNING( "Track summary accessor not valid. Track will not pass this cut." );
       return false;
@@ -247,7 +249,7 @@ bool InDet::MaxSummaryValueRatioCut::result() const
     numerator += summaryAccessor->getValue();
   }
   Int_t denominator = 0;
-  for (std::shared_ptr<SummaryAccessor> summaryAccessor : m_summaryAccessorsDen) {
+  for (const std::shared_ptr<SummaryAccessor>& summaryAccessor : m_summaryAccessorsDen) {
     if (!summaryAccessor) {
       ATH_MSG_WARNING( "Track summary accessor not valid. Track will not pass this cut." );
       return false;
@@ -280,7 +282,7 @@ bool InDet::MinTrtHitCut::result() const
     ATH_MSG_WARNING( "Track eta accessor not valid. Track will not pass this cut." );
     return false;
   }
-  float absEta = std::fabs(m_etaAccessor->getValue());
+  float absEta = std::abs(m_etaAccessor->getValue());
   if (absEta <= m_maxTrtEtaAcceptance || absEta > m_maxEtaForCut)
     return true;
   return MinSummaryValueCut::result();
@@ -310,7 +312,7 @@ bool InDet::MaxTrtHitRatioCut::result() const
     ATH_MSG_WARNING( "Track eta accessor not valid. Track will not pass this cut." );
     return false;
   }
-  float absEta = std::fabs(m_etaAccessor->getValue());
+  float absEta = std::abs(m_etaAccessor->getValue());
   if (absEta <= m_maxTrtEtaAcceptance || absEta > m_maxEtaForCut)
     return true;
   return MaxSummaryValueRatioCut::result();
@@ -338,7 +340,7 @@ bool InDet::D0Cut::result() const
     ATH_MSG_WARNING( "Track parameter accessor not valid. Track will not pass this cut." );
     return false;
   }
-  return std::fabs(m_paramAccessor->getValue()) <= m_maxValue;
+  return std::abs(m_paramAccessor->getValue()) <= m_maxValue;
 }
 
 // ---------------- D0SigmaCut ----------------
@@ -417,7 +419,7 @@ bool InDet::Z0Cut::result() const
     ATH_MSG_WARNING( "Track parameter accessor not valid. Track will not pass this cut." );
     return false;
   }
-  return std::fabs(m_paramAccessor->getValue()) <= m_maxValue;
+  return std::abs(m_paramAccessor->getValue()) <= m_maxValue;
 }
 
 
@@ -504,7 +506,7 @@ bool InDet::Z0SinThetaCut::result() const
     ATH_MSG_WARNING( "Theta accessor not valid. Track will not pass this cut." );
     return false;
   }
-  return std::fabs(m_Z0Accessor->getValue() * std::sin(m_ThetaAccessor->getValue())) <= m_maxValue;
+  return std::abs(m_Z0Accessor->getValue() * std::sin(m_ThetaAccessor->getValue())) <= m_maxValue;
 }
 
 // ---------------- Z0SinThetaSigmaCut ----------------
@@ -649,10 +651,10 @@ bool InDet::EtaDependentChiSqCut::result() const
   // this helper function returns true if the track passes a pseudorapidity dependent
   //   chi squared per degree of freedom cut. The current implementation is a working
   //   definition: see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackingPerformanceGuidelines
-  if (std::fabs(eta) < 1.9)
+  if (std::abs(eta) < 1.9)
     return m_fitAccessor->getChiSq() <= m_fitAccessor->getNumberDoF() * ( 4.4 + 0.32*eta*eta );
   else
-    return m_fitAccessor->getChiSq() <= m_fitAccessor->getNumberDoF() * ( 26.9 - 19.6978*std::fabs(eta) + 4.4534*eta*eta );
+    return m_fitAccessor->getChiSq() <= m_fitAccessor->getNumberDoF() * ( 26.9 - 19.6978*std::abs(eta) + 4.4534*eta*eta );
 }
 
 // ---------------- MinNSiHitsAboveEta ----------------
@@ -715,7 +717,7 @@ bool InDet::MinNSiHitsAboveEta::result() const
     return false;
   }
   //  ATH_MSG_INFO(" in MinNSiHitsAboveEta" );
-  return std::fabs(m_etaAccessor->getValue()) <= m_etaCutoff
+  return std::abs(m_etaAccessor->getValue()) <= m_etaCutoff
     || (m_pixAccessor->getValue() + m_pixDeadAccessor->getValue()
 	+ m_sctAccessor->getValue() + m_sctDeadAccessor->getValue() >= m_minSiHits);
 }
@@ -818,8 +820,8 @@ bool InDet::MinEProbHTCut::result() const
 InDet::EtaDependentSiliconHitsCut::EtaDependentSiliconHitsCut(InDet::InDetTrackSelectionTool* tool,
 						    std::vector<Double_t> eta, std::vector<Int_t> hits)
   : InDet::TrackCut(tool)
-  , m_etaCutoffs(eta)
-  , m_siHitCuts(hits)
+  , m_etaCutoffs(std::move(eta))
+  , m_siHitCuts(std::move(hits))
   , m_etaAccessor(nullptr)
   , m_sctAccessor(nullptr)
   , m_pixAccessor(nullptr)
@@ -837,7 +839,7 @@ StatusCode InDet::EtaDependentSiliconHitsCut::initialize()
     return StatusCode::FAILURE;
   }
   for (size_t i_cuts = 0; i_cuts<m_etaCutoffs.size()-1; ++i_cuts) {
-    if (std::fabs(m_etaCutoffs.at(i_cuts)) >= std::fabs(m_etaCutoffs.at(i_cuts+1))) {
+    if (std::abs(m_etaCutoffs.at(i_cuts)) >= std::abs(m_etaCutoffs.at(i_cuts+1))) {
       ATH_MSG_ERROR( "Eta cutoffs must be increasing" );
       return StatusCode::FAILURE;
     }
@@ -885,7 +887,7 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
   const int cutVecSize = m_etaCutoffs.size();
   //  ATH_MSG_INFO("cut vec size "<<cutVecSize);
 
-  float trketa = std::fabs(m_etaAccessor->getValue());
+  float trketa = std::abs(m_etaAccessor->getValue());
   int trknHits =   m_sctAccessor->getValue() + m_pixAccessor->getValue() + m_sctDeadAccessor->getValue() + m_pixDeadAccessor->getValue();
   //  ATH_MSG_INFO("eta of track "<<trketa<<" Si hits on track "<<trknHits);
   //  ATH_MSG_INFO(" ");
@@ -894,13 +896,13 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
 
   for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
 
-    //    ATH_MSG_INFO("etabin "<<i_etabin<<" eta cutoff "<<std::fabs(m_etaCutoffs.at(i_etabin))<<" Hit cut value "<<m_siHitCuts.at(i_etabin) );
+    //    ATH_MSG_INFO("etabin "<<i_etabin<<" eta cutoff "<<std::abs(m_etaCutoffs.at(i_etabin))<<" Hit cut value "<<m_siHitCuts.at(i_etabin) );
     //
     float etaMax =5.0;
-    if(i_etabin<cutVecSize-1) etaMax = std::fabs(m_etaCutoffs.at(i_etabin+1));
+    if(i_etabin<cutVecSize-1) etaMax = std::abs(m_etaCutoffs.at(i_etabin+1));
     //
 
-    if (  (trketa >= std::fabs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
+    if (  (trketa >= std::abs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
 
       if ( trknHits < m_siHitCuts.at(i_etabin)) {  
 	//     ATH_MSG_INFO("returning false");
@@ -920,8 +922,8 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
 InDet::EtaDependentPtCut::EtaDependentPtCut(InDet::InDetTrackSelectionTool* tool,
                                                     std::vector<Double_t> eta, std::vector<Double_t> pt)
   : InDet::TrackCut(tool)
-  , m_etaCutoffs(eta)
-  , m_ptCuts(pt)
+  , m_etaCutoffs(std::move(eta))
+  , m_ptCuts(std::move(pt))
   , m_etaAccessor(nullptr)
   , m_ptAccessor(nullptr)
 {
@@ -936,7 +938,7 @@ StatusCode InDet::EtaDependentPtCut::initialize()
     return StatusCode::FAILURE;
   }
   for (size_t i_cuts = 0; i_cuts<m_etaCutoffs.size()-1; ++i_cuts) {
-    if (std::fabs(m_etaCutoffs.at(i_cuts)) >= std::fabs(m_etaCutoffs.at(i_cuts+1))) {
+    if (std::abs(m_etaCutoffs.at(i_cuts)) >= std::abs(m_etaCutoffs.at(i_cuts+1))) {
       ATH_MSG_ERROR( "Eta cutoffs must be increasing" );
       return StatusCode::FAILURE;
     }
@@ -958,16 +960,16 @@ bool InDet::EtaDependentPtCut::result() const
     ATH_MSG_WARNING( "pt accessor not valid. Track will not pass." );
     return false;
   }
-  float trkpt = std::fabs(m_ptAccessor->getValue());
-  float trketa = std::fabs(m_etaAccessor->getValue());
+  float trkpt = std::abs(m_ptAccessor->getValue());
+  float trketa = std::abs(m_etaAccessor->getValue());
   const int cutVecSize = m_etaCutoffs.size();
 
   for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
 
     float etaMax =5.0;
-    if(i_etabin<cutVecSize-1) etaMax = std::fabs(m_etaCutoffs.at(i_etabin+1));
+    if(i_etabin<cutVecSize-1) etaMax = std::abs(m_etaCutoffs.at(i_etabin+1));
 
-    if (  (trketa >= std::fabs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
+    if (  (trketa >= std::abs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
 
       if ( trkpt < m_ptCuts.at(i_etabin)) {
         //     ATH_MSG_INFO("returning false");                                                                                                                                                                  
@@ -989,8 +991,8 @@ bool InDet::EtaDependentPtCut::result() const
 InDet::PtDependentSctHitsCut::PtDependentSctHitsCut(InDet::InDetTrackSelectionTool* tool,
 						    std::vector<Double_t> pt, std::vector<Int_t> sct)
   : InDet::TrackCut(tool)
-  , m_ptCutoffs(pt)
-  , m_sctHitCuts(sct)
+  , m_ptCutoffs(std::move(pt))
+  , m_sctHitCuts(std::move(sct))
   , m_ptAccessor(nullptr)
   , m_sctAccessor(nullptr)
   , m_sctDeadAccessor(nullptr)

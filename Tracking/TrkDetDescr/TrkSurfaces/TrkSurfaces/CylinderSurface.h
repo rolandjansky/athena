@@ -188,7 +188,7 @@ public:
    */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;

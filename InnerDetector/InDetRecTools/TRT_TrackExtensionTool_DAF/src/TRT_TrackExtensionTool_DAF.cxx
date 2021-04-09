@@ -177,7 +177,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
   EventData & event_data=EventData::getPrivateEventData(eventDataBaseclass);
     // -------------
     // get the last TrackStateOnSurface of the Track: this should be the outermost Silicon measurement
-    auto pTrackPar = track.trackStateOnSurfaces()->back()->trackParameters();
+    const auto *pTrackPar = track.trackStateOnSurfaces()->back()->trackParameters();
     if (!pTrackPar) {
         // if the last TSoS does not like us we use the perigee
         ATH_MSG_DEBUG("last track state has no trackParameters, use Perigee instead.");
@@ -322,7 +322,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
     if (anExtensionFailed) {
         ATH_MSG_WARNING("extensions failed: Return empty MeasurementBase vector" );
         // delete extension made so far
-        for(auto pThisROT : event_data.m_measurement) {
+        for(const auto *pThisROT : event_data.m_measurement) {
             delete (pThisROT);
         }
         event_data.m_measurement.clear();
@@ -373,7 +373,7 @@ InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex,
         } else {
             lastEndCapZ = -10000.;
         }
-        if ( (RIOlist.size() > 0) && createCompROT ) {
+        if ( (!RIOlist.empty()) && createCompROT ) {
             ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
             const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(event_data.m_propagatedTrackParameters[index-1]), m_jo_annealingFactor);
             if (!compROT) {
@@ -394,7 +394,7 @@ InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex,
         // get the id of the detElement
         IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        auto container = event_data.m_trtcontainer->indexFindPtr(detElementID);
+        const auto *container = event_data.m_trtcontainer->indexFindPtr(detElementID);
 
         if(container==nullptr) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");
@@ -434,7 +434,7 @@ InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex,
             RIOlist.push_back((*driftCircleIterator));
         }// end for (loop over DriftCircles)
     } // end for (loop over detElements)
-    if ( RIOlist.size() > 0 ) {
+    if ( !RIOlist.empty() ) {
         ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
         const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(event_data.m_propagatedTrackParameters[endIndex]), m_jo_annealingFactor);
         if (!compROT) {
@@ -514,11 +514,11 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
     }
 
     // the vector which stores the grouped RIOs
-    std::vector< std::list< const Trk::PrepRawData* >* > groupedRIOs( trackGlobalPos.size(), 0 );
+    std::vector< std::list< const Trk::PrepRawData* >* > groupedRIOs( trackGlobalPos.size(), nullptr );
     // the vector for grouped RIOs with the minimal distances to the secant
     std::vector< double > groupedRIOsMinDistance( trackGlobalPos.size() );
     // the vector for grouped RIOs with the pointer to the RIO with the minimal distance
-    std::vector< const InDet::TRT_DriftCircle* > minDistanceRIO( trackGlobalPos.size(), 0 );
+    std::vector< const InDet::TRT_DriftCircle* > minDistanceRIO( trackGlobalPos.size(), nullptr );
 
     ATH_MSG_DEBUG("looping over detElements to get the DriftCircles" );
     int createdGroupCounter=0;
@@ -529,7 +529,7 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
         // get the id of the detElement
         IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        auto container = event_data.m_trtcontainer->indexFindPtr(detElementID);
+        const auto *container = event_data.m_trtcontainer->indexFindPtr(detElementID);
         // loop over RIOs in the collection
         if(container==nullptr) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");

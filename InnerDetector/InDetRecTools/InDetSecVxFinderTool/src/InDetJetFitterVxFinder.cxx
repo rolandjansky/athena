@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -93,8 +93,8 @@ namespace InDet
     std::vector<const Trk::TrackParticleBase*>::const_iterator tracksEnd=myTracks.end();
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator tracksIter=tracksBegin;
 	 tracksIter!=tracksEnd;++tracksIter) {
-      if (m_trkFilter->decision(**tracksIter,&primaryVertex)==true) {
-	tracks.push_back(TrackParticle_pair((*tracksIter)->perigee()->momentum().perp(),*tracksIter));
+      if (m_trkFilter->decision(**tracksIter,&primaryVertex)) {
+	tracks.emplace_back((*tracksIter)->perigee()->momentum().perp(),*tracksIter);
       }
     }
 
@@ -128,7 +128,7 @@ namespace InDet
     std::vector<const Trk::TrackParticleBase*>::const_iterator tracksToAddIter;
 
 
-    Trk::VxJetCandidate* myJetCandidate=0;
+    Trk::VxJetCandidate* myJetCandidate=nullptr;
 
     for (std::vector<std::vector<const Trk::TrackParticleBase*> >::const_iterator BunchesIter=BunchesBegin;
 	 BunchesIter!=BunchesEnd;++BunchesIter) {
@@ -165,7 +165,7 @@ namespace InDet
     myCandidates.push_back(myJetCandidate);
     
 //    return new Trk::VxSecVertexInfo(myCandidates);//ownership of the single objects is taken over!
-    return 0;
+    return nullptr;
     
   }
 
@@ -201,7 +201,7 @@ namespace InDet
       tracksToAdd.push_back(*tracks3Iter);
     }
 
-    if (tracksToAdd.size()!=0) 
+    if (!tracksToAdd.empty()) 
     {
       bunchesOfTracks.push_back(tracksToAdd);
     }
@@ -221,7 +221,7 @@ namespace InDet
     std::vector<const Trk::TrackParticleBase*>::const_iterator tracksToAddIter;
 
 
-    Trk::VxJetCandidate* myJetCandidate=0;
+    Trk::VxJetCandidate* myJetCandidate=nullptr;
 
     for (std::vector<std::vector<const Trk::TrackParticleBase*> >::const_iterator BunchesIter=BunchesBegin;
 	 BunchesIter!=BunchesEnd;++BunchesIter) {
@@ -230,7 +230,7 @@ namespace InDet
         if (msgLvl(MSG::VERBOSE)) msg() << " initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
 	myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection,&vtxSeedDirection);
 	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
-        if ((*BunchesIter).size()>0) 
+        if (!(*BunchesIter).empty()) 
         {
           doTheFit(myJetCandidate,true);
         }
@@ -262,7 +262,7 @@ namespace InDet
     myCandidates.push_back(myJetCandidate);
     
 //    return new Trk::VxSecVertexInfo(myCandidates);//ownership of the single objects is taken over!
-    return 0;
+    return nullptr;
     
   }
 
@@ -291,7 +291,7 @@ namespace InDet
 	
 	//delete incompatible tracks...
 	float max_prob(1.);
-	Trk::VxVertexOnJetAxis* worseVertex(0);
+	Trk::VxVertexOnJetAxis* worseVertex(nullptr);
 	for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesIter=verticesBegin;
 	     verticesIter!=verticesEnd;++verticesIter) {
 	  if (*verticesIter==0) {
@@ -333,7 +333,7 @@ namespace InDet
 
       
 
-      if (clusteringTablePtr==0) {
+      if (clusteringTablePtr==nullptr) {
 	if (msgLvl(MSG::WARNING)) msg() <<  " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
 	noMoreVerticesToCluster=true;
       } else {

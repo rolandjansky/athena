@@ -250,7 +250,7 @@ namespace InDet {
           << (position)[1]);
   
       if(!m_clusterMaker){
-        PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,0);
+        PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,nullptr);
         return cluster;
       } else {
         ATH_MSG_VERBOSE("Cluster omega old = " << etaRow <<  " " << etaCol);       
@@ -339,7 +339,7 @@ namespace InDet {
     // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
     std::unordered_set<Identifier> setOfIdentifiers{};
-    for(const auto rdo : collection) {
+    for(const auto *const rdo : collection) {
       const Identifier rdoID= rdo->identify();
       if (m_useModuleMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
       //check for duplication:
@@ -367,7 +367,7 @@ namespace InDet {
     
     // Sort pixels in ascending columns order
     // 
-    if(collectionID.empty()) return 0;    
+    if(collectionID.empty()) return nullptr;    
     if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
     
     // initialize the networks

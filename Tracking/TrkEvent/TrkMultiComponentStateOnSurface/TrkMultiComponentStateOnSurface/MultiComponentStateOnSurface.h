@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -49,57 +49,69 @@ public:
   /** Default constructor for POOL. This should not be used! */
   MultiComponentStateOnSurface();
 
-  /** Create a MultiComponentStateOnSurface Object. This has the same form as the singular version
-     (Trk::TrackStateOnSurface) with the exception that the pointer to
-      a single track paramters vector is now repleaced with a pointer to a multi-component state */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const MultiComponentState*,
-                               const FitQualityOnSurface*,
-                               const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
-                               double modeQoverP = 0.);
+  /** Create a MultiComponentStateOnSurface Object. This has the same form as
+     the singular version (Trk::TrackStateOnSurface) with the exception that the
+     pointer to
+      a single track paramters vector is now repleaced with a pointer to a
+     multi-component state */
+  MultiComponentStateOnSurface(
+    const MeasurementBase*,
+    const MultiComponentState*,
+    const FitQualityOnSurface*,
+    const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
+    double modeQoverP = 0.);
 
-  /** Create a MultiComponentStateOnSurface Object with an explicit declaration of the track parameters to be passed to
-   * the Trk::TrackStateOnSurface base class */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const TrackParameters*,
-                               const MultiComponentState*,
-                               const FitQualityOnSurface*,
-                               const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
-                               double modeQoverP = 0.);
+  /** Create a MultiComponentStateOnSurface Object with an explicit declaration
+   * of the track parameters to be passed to the Trk::TrackStateOnSurface base
+   * class */
+  MultiComponentStateOnSurface(
+    const MeasurementBase*,
+    const TrackParameters*,
+    const MultiComponentState*,
+    const FitQualityOnSurface*,
+    const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
+    double modeQoverP = 0.);
 
   /** Create TrackStateOnSurface with TrackStateOnSurfaceType. */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const MultiComponentState*,
-                               const FitQualityOnSurface*,
-                               const MaterialEffectsBase*,
-                               const std ::bitset<NumberOfTrackStateOnSurfaceTypes>&,
-                               double modeQoverP = 0.);
+  MultiComponentStateOnSurface(
+    const MeasurementBase*,
+    const MultiComponentState*,
+    const FitQualityOnSurface*,
+    const MaterialEffectsBase*,
+    const std ::bitset<NumberOfTrackStateOnSurfaceTypes>&,
+    double modeQoverP = 0.);
 
-  /** Create a MultiComponentStateOnSurface Object with an explicit declaration o the track parameters to be passed to
-   * the base and also a TrackStateOnSurfaceType */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const TrackParameters*,
-                               const MultiComponentState*,
-                               const FitQualityOnSurface*,
-                               const MaterialEffectsBase*,
-                               const std ::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
-                               double modeQoverP = 0.);
+  /** Create a MultiComponentStateOnSurface Object with an explicit declaration
+   * o the track parameters to be passed to the base and also a
+   * TrackStateOnSurfaceType */
+  MultiComponentStateOnSurface(
+    const MeasurementBase*,
+    const TrackParameters*,
+    const MultiComponentState*,
+    const FitQualityOnSurface*,
+    const MaterialEffectsBase*,
+    const std ::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
+    double modeQoverP = 0.);
 
   /** Constructor without a FitQualityOnSurface. */
-  MultiComponentStateOnSurface(const MeasurementBase*, const MultiComponentState*);
+  MultiComponentStateOnSurface(const MeasurementBase*,
+                               const MultiComponentState*);
 
   /** Copy constructor */
   MultiComponentStateOnSurface(const MultiComponentStateOnSurface& other);
 
   /** Deleted move ctor and copy/move assignment */
-  MultiComponentStateOnSurface& operator=(const MultiComponentStateOnSurface& other) = delete;
+  MultiComponentStateOnSurface& operator=(
+    const MultiComponentStateOnSurface& other) = delete;
   MultiComponentStateOnSurface(MultiComponentStateOnSurface&& other) = delete;
-  MultiComponentStateOnSurface& operator=(MultiComponentStateOnSurface&& other) = delete;
+  MultiComponentStateOnSurface& operator=(
+    MultiComponentStateOnSurface&& other) = delete;
 
   /** Virtual destructor */
   virtual ~MultiComponentStateOnSurface();
 
-  /** Clone method for deep copy of MultiComponentStateOnSurface - overidden from base class */
+  /** Clone method for deep copy of MultiComponentStateOnSurface - overidden
+   * from base class */
   virtual TrackStateOnSurface* clone() const override final;
 
   /** This is Multi, since we MultiComponent */
@@ -130,9 +142,10 @@ operator<<(std::ostream&, const MultiComponentStateOnSurface&);
 /// Let the type system know this class inherits so we can have
 /// DataVector<const Trk::MultiComponentStateOnSurface>
 #include "AthContainers/DataVector.h"
-DATAVECTOR_BASE(const Trk::MultiComponentStateOnSurface,const Trk::TrackStateOnSurface);
-typedef DataVector<const Trk::MultiComponentStateOnSurface> TrkMultiComponentStateOnSurfaceDV;
-
+DATAVECTOR_BASE(const Trk::MultiComponentStateOnSurface,
+                const Trk::TrackStateOnSurface);
+typedef DataVector<const Trk::MultiComponentStateOnSurface>
+  TrkMultiComponentStateOnSurfaceDV;
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.icc"
 #endif

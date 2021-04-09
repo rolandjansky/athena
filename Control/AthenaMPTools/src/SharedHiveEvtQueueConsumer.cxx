@@ -7,6 +7,7 @@
 #include "AthenaInterprocess/ProcessGroup.h"
 #include "AthenaInterprocess/Incidents.h"
 
+#include "AthenaKernel/IDataShare.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IHybridProcessorHelper.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -41,8 +42,6 @@ SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
 						       , const std::string& name
 						       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_nEventsBeforeFork(0)
-  , m_debug(false)
   , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSelSeek(0)
@@ -51,9 +50,6 @@ SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
   , m_sharedRankQueue(0)
 {
   declareInterface<IAthenaMPTool>(this);
-
-  declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
-  declareProperty("Debug", m_debug);
 
   m_subprocDirPrefix = "worker_";
 }
@@ -82,7 +78,17 @@ StatusCode SharedHiveEvtQueueConsumer::initialize()
   ATH_CHECK( evtSelector()->createContext (m_evtContext) );
 
   ATH_CHECK(m_chronoStatSvc.retrieve());
-  
+
+  IConversionSvc* cnvSvc = 0;
+  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+  if(sc.isFailure() || m_dataShare==0) {
+    if(m_useSharedWriter) {
+      ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc " << cnvSvc);
+      return StatusCode::FAILURE;
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -315,6 +321,18 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
   
+  // ________________________ Make Shared Writer Client ________________________
+
+  if(m_useSharedWriter && m_dataShare) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_dataShare);
+    if (propertyServer==0 || propertyServer->setProperty("MakeStreamingToolClient", m_rankId + 1).isFailure()) {
+      ATH_MSG_ERROR("Could not change AthenaPoolCnvSvc MakeClient Property");
+      return outwork;
+    } else {
+      ATH_MSG_DEBUG("Successfully made the conversion service a share client");
+    }
+  }
+
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
     ATH_MSG_ERROR("Failed to reinitialize I/O");

@@ -19,7 +19,7 @@
 // default constructor
 Trk::ConeSurface::ConeSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}

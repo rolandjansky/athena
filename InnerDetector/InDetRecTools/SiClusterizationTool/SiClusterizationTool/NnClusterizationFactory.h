@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
@@ -130,7 +130,7 @@ namespace InDet {
     /* Estimate number of particles for both with and w/o tracks */
     /* Method 1: using older TTrainedNetworks */
     std::vector<double> estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
-                                                     std::vector<double> inputData) const;
+                                                     const std::vector<double>& inputData) const;
 
     /* Estimate number of particles for both with and w/o tracks */
     /* Method 2: using lwtnn for more flexible interfacing with an ordered vector

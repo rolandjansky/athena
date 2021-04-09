@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,34 +52,39 @@ namespace Trk {
         MaterialLayer& operator=(const MaterialLayer& lay);
                     
         /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const Surface& surfaceRepresentation() const  override;
-        
-        /** isOnLayer() method, using isOnSurface() with Layer specific tolerance */
-        virtual bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
-        
-    protected:
-       /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeLayer(const VolumeBounds&, double) override {}
-      /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                     double) const override
-      {}
+        virtual const Surface& surfaceRepresentation() const  override final;
 
-      /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer(const VolumeBounds&,
-                                            const Amg::Vector3D&,
-                                            double) override
-      {}
-      /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                  const Amg::Vector3D&,
-                                                                  double) const override
-      {}
+        /** isOnLayer() method, using isOnSurface() with Layer specific
+         * tolerance */
+        virtual bool isOnLayer(
+          const Amg::Vector3D& gp,
+          const BoundaryCheck& bcheck = BoundaryCheck(true)) const override final;
 
-      SharedObject<const Surface>
-        m_surfaceRepresentation; //!< for the navigation Volume the surface is a private member */
-      
-    private:
+      protected:
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeLayer(const VolumeBounds&, double) override final {}
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                       double) const override final
+        {}
+
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                              const Amg::Vector3D&,
+                                              double) override final
+        {}
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeAndRepositionLayer
+        ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                              const Amg::Vector3D&,
+                              double) const override final
+        {}
+
+        SharedObject<const Surface>
+          m_surfaceRepresentation; //!< for the navigation Volume the surface is
+                                   //!< a private member */
+
+      private:
         /**Default Constructor*/
         MaterialLayer(){}
             

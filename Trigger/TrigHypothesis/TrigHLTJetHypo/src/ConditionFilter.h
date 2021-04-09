@@ -6,7 +6,7 @@
 #define TRIGHLTJETHYPO_CONDITIONFILTER_H
 
 #include "./IHypoJetVectorFilter.h"
-#include "./ConditionsDefsMT.h"
+#include "./RepeatedConditionsDefs.h"
 #include <ostream>
 
 class ConditionFilter: public IHypoJetVectorFilter  {
@@ -14,7 +14,7 @@ class ConditionFilter: public IHypoJetVectorFilter  {
 
   ConditionFilter(){};
 
-  ConditionFilter(ConditionsMT&);
+  ConditionFilter(ConditionPtrs&);
 
   // find the subset of jets which satisfy a sequence of conditions
   virtual std::pair<HypoJetCIter, HypoJetCIter>
@@ -26,7 +26,7 @@ class ConditionFilter: public IHypoJetVectorFilter  {
   virtual std::string toString() const override;  
  private:
 
-  ConditionsMT m_conditions;
+  ConditionPtrs m_conditions;
   HypoJetVector m_filtered;  
 };
 

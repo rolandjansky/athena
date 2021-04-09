@@ -46,7 +46,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
+namespace{
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
@@ -56,14 +56,12 @@ static const   int EtaStationSpan     =     2;
 static const   int DoublePhiSpan      =     1;
 static const   int maxCSres           =     8;
 static const float Chi2dofCut         =     1;
-
+}
 /////////////////////////////////////////////////////////////////////////////
 
 RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-   m_first(true), 
-   m_rpcRoiSvc( "LVL1RPC::RPCRecRoiSvc", name ),
-   m_tgcRoiSvc( "LVL1TGC::TGCRecRoiSvc", name ),
+   m_first(true),   
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   // Declare the properties 
@@ -166,7 +164,9 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
+  ATH_CHECK(m_tgcRoiTool.retrieve());
+  ATH_CHECK(m_rpcRoiTool.retrieve());  
+    
   ATH_CHECK(m_idHelperSvc.retrieve() );
     
   m_hardware_name_list.push_back("XXX");
@@ -840,7 +840,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			   ( dataWord & 0x3fff ) );
       
       LVL1::RecMuonRoI roi( RoIWord,
-			    &( *m_rpcRoiSvc ), &( *m_tgcRoiSvc ),
+			    m_rpcRoiTool.get(), m_tgcRoiTool.get(),
 			    &dummy_thresholds );
       
       muctpi_rdo_roi.eta= roi.eta() ;

@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef import BjetChainConfiguration as BjetChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration import JetChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from .BjetChainConfiguration import BjetChainConfiguration
+from ..Jet.JetChainConfiguration import JetChainConfiguration
+from ..Menu.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging

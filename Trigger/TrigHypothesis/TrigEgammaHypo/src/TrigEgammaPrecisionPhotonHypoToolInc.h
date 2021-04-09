@@ -9,7 +9,6 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "StoreGate/ReadDecorHandle.h"
 
 /**
@@ -18,33 +17,34 @@
  **/
 
 class TrigEgammaPrecisionPhotonHypoToolInc : public extends<AthAlgTool, ITrigEgammaPrecisionPhotonHypoTool> { 
- public: 
-  TrigEgammaPrecisionPhotonHypoToolInc( const std::string& type, 
-			 const std::string& name, 
-			 const IInterface* parent );
+  public: 
+    TrigEgammaPrecisionPhotonHypoToolInc( const std::string& type,const std::string& name, const IInterface* parent );
 
-  virtual StatusCode initialize() override;
+    virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo>& input )  const override;
+    virtual StatusCode decide( std::vector<ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo>& input )  const override;
 
-  virtual bool decide( const ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo& i ) const override;
+    virtual bool decide( const ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo& i ) const override;
 
- private:
-  HLT::Identifier m_decisionId;
+  private:
+    HLT::Identifier m_decisionId;
+    
+    //Calorimeter electron ID  cuts
+    Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION calo selection:eta bins
+    Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
+    Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
+    Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };
+    Gaudi::Property< float >              m_RelEtConeCut { this, "RelEtConeCut", -999. , "Calo isolation cut" };
+    Gaudi::Property< std::string >        m_pidName {this, "PidName", "", "Pid name"}; 
+    
+    /* monitoring */
+    ToolHandle< GenericMonitoringTool >   m_monTool { this, "MonTool", "", "Monitoring tool" };
   
-  //Calorimeter electron ID  cuts
-  Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION calo selection:eta bins
-  Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
-  Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
-  Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };
-  Gaudi::Property< float > m_RelEtConeCut { this, "RelEtConeCut", -999. , "Calo isolation cut" };
-
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle< IAsgPhotonIsEMSelector > m_egammaPhotonCutIDTool { this, "PhotonIsEMSelector", "" };
-/*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
-
-  int findCutIndex( float eta ) const;
+    /*Luminosity info*/
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
+  
+  
+    int findCutIndex( float eta ) const;
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOL_H

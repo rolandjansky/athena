@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -528,15 +528,15 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
   PIDvalues[Trk::eProbabilityNN] = PIDNN->evaluate(scalarInputs_NN, vectorInputs_NN);
 
   ATH_MSG_DEBUG ("check NN PID calculation: ");
-  for (auto scalarInputs : scalarInputs_NN) {
+  for (const auto& scalarInputs : scalarInputs_NN) {
     ATH_MSG_DEBUG ("  scalar inputs: " << scalarInputs.first);
-    for (auto variable : scalarInputs.second) {
+    for (const auto& variable : scalarInputs.second) {
       ATH_MSG_DEBUG ("    " << variable.first << " = " << variable.second);
     }
   }
-  for (auto vectorInputs : vectorInputs_NN) {
+  for (const auto& vectorInputs : vectorInputs_NN) {
     ATH_MSG_DEBUG ("  vector inputs: " << vectorInputs.first);
-    for (auto variable : vectorInputs.second) {
+    for (const auto& variable : vectorInputs.second) {
       ATH_MSG_DEBUG ("    " << variable.first << " = " << variable.second);
     }
   }

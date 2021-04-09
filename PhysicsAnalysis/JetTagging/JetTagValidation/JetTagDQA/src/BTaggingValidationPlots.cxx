@@ -1664,7 +1664,7 @@ namespace JetTagDQA{
     for(std::vector<std::string>::const_iterator tag_iter = m_taggers.begin(); tag_iter != m_taggers.end(); ++tag_iter){
       // get the right working points and discriminant values
       std::map<std::string, double> workingPoints;
-      double discriminant_value;
+      double discriminant_value = 0;
       if(*tag_iter == "IP3D"){ workingPoints = m_IP3D_workingPoints; discriminant_value = discr_IP3D; }
       else if(*tag_iter == "IP2D"){ workingPoints = m_IP2D_workingPoints; discriminant_value = discr_IP2D; }
       else if(*tag_iter == "RNNIP"){ workingPoints = m_RNNIP_workingPoints; discriminant_value = discr_RNNIP; }

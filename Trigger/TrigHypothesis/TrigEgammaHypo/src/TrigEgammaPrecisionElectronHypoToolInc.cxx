@@ -9,7 +9,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODEgamma/Electron.h"
-
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
 
 namespace TCU = TrigCompositeUtils;
@@ -22,14 +21,15 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  
+{
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
   ATH_MSG_DEBUG( "ETthr          = " << m_eTthr    );
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
   
-   if ( m_etabin.empty() ) {
+  if ( m_etabin.empty() ) {
     ATH_MSG_ERROR(  " There are no cuts set (EtaBins property is an empty list)" );
     return StatusCode::FAILURE;
   }
@@ -38,11 +38,6 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
-
-  if (m_vloose + m_loose + m_medium + m_tight != 1) {
-    ATH_MSG_ERROR("LHTool requires exactly one of the vloose, loose, medium or tight flags to be set.");
-    return StatusCode::FAILURE;
-  }
 
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
@@ -66,11 +61,12 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto mon_mu       = Monitored::Scalar("mu",   -1.);
   auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
-  auto monitorIt    = Monitored::Group( m_monTool, 
-					       dEta, dPhi, 
-                                               etaBin, monEta,
-					       monPhi,PassedCuts,mon_lhval,mon_mu, mon_ptcone20, mon_relptcone20);
- // when leaving scope it will ship data to monTool
+  auto monitorIt    = Monitored::Group( m_monTool, dEta, dPhi, 
+                                        etaBin, monEta,
+                                        monPhi,PassedCuts,mon_lhval,mon_mu, 
+                                        mon_ptcone20, mon_relptcone20);
+
+  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
   auto roiDescriptor = input.roi;
@@ -108,10 +104,12 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
   ET  = pClus->et();
+
   // apply cuts: DeltaEta( clus-ROI )
-  ATH_MSG_DEBUG( "Electron : eta="  << pClus->eta()
-  		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
-  		 << " cut: <"   << m_detacluster          );
+  ATH_MSG_DEBUG( "Electron : eta="  << pClus->eta() 
+                  << " roi eta=" << etaRef << " DeltaEta=" << dEta
+                  << " cut: <"   << m_detacluster );
+
   
   if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) {
     ATH_MSG_DEBUG("REJECT Electron a cut failed");
@@ -148,21 +146,19 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   PassedCuts = PassedCuts + 1; // ET_em
   
  
-// This is the last step. So pass is going to be the result of LH
-
+  // This is the last step. So pass is going to be the result of LH
   // get average luminosity information to calculate LH
-
-  mon_mu = input.avgMu;
-
-  ATH_MSG_DEBUG("m_vloose_Electron: "<<m_vloose);
-  ATH_MSG_DEBUG("m_loose_Electron: "<<m_loose);
-  ATH_MSG_DEBUG("m_medium_Electron: "<<m_medium);
-  ATH_MSG_DEBUG("m_tight_Electron: "<<m_tight);
+  if(input.valueDecorator.count("avgmu")){
+    mon_mu = input.valueDecorator.at("avgmu");
+  }
+  
 
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
-    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
-  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
+        Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
+        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
 
 
   // variables based on HCAL
@@ -247,25 +243,16 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   mon_relptcone20 = relptcone20;
   ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
   
-  if(m_vloose == true){
-   ATH_MSG_DEBUG("input.vloose_accept_Electron: "<<input.accept_vl);
-   mon_lhval = input.LHValue_vl;
-   pass = input.accept_vl;
+  // Only for LH
+  if( input.valueDecorator.count(m_pidName+"LHValue")){
+    mon_lhval = input.valueDecorator.at(m_pidName+"LHValue");
   }
-  else if(m_loose == true){
-   ATH_MSG_DEBUG("input.loose_accept_Electron: "<<input.accept_l);
-   mon_lhval = input.LHValue_l;
-   pass =  input.accept_l;
-  }
-  else if(m_medium == true){
-   ATH_MSG_DEBUG("input.medium_accept_Electron: "<<input.accept_m);
-   mon_lhval = input.LHValue_m;
-   pass = input.accept_m;
-  }
-  else{
-   ATH_MSG_DEBUG("input.tight_accept_Electron: "<<input.accept_t);
-   mon_lhval = input.LHValue_t;
-   pass = input.accept_t;
+
+
+  // Should works for DNN and LH
+  if( input.pidDecorator.count(m_pidName) )
+  {
+    pass = input.pidDecorator.at(m_pidName);
   }
 
   // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
@@ -294,9 +281,10 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   return pass;
 }
 
+
+
 int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
   const float absEta = std::abs(eta);
-  
   auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
   if ( binIterator == m_etabin.end() ) {
     return -1;

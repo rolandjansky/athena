@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigHLTJetHypo.FastReductionAlgToolFactory import \
-    FastReductionAlgToolFactory
+from TrigHLTJetHypo.FastReductionAlgToolFactory import toolfactory
 
 # import modules concerned with extracting scenario paramters
 # from a scenario string
@@ -10,9 +9,22 @@ from TrigHLTJetHypo.scenario_dijet import scenario_dijet
 from TrigHLTJetHypo.scenario_fbdjnoshared import scenario_fbdjnoshared
 from TrigHLTJetHypo.scenario_fbdjshared import scenario_fbdjshared
 from TrigHLTJetHypo.scenario_simple import scenario_simple
-from TrigHLTJetHypo.prefilter_mask import prefilter_mask
 
-toolfactory = FastReductionAlgToolFactory()
+from TrigHLTJetHypo.prefilter_mask import prefilter_mask
+from TrigHLTJetHypo.prefilter_cleanLB import prefilter_cleanLB
+
+from TrigHLTJetHypo.makeConditionFilterConfigurer import (
+    makeConditionFilterConfigurer,
+)
+
+from TrigHLTJetHypo.makePassThroughFilterConfigurer import (
+    makePassThroughFilterConfigurer,
+)
+
+from TrigHLTJetHypo.make_repeatedCondConfigurer import (
+    make_repeatedCond,
+    make_repeatedCondCfgFromParams,
+)
 
 from DecisionHandling.TrigCompositeUtils import isLegId, getLegIndexInt
 
@@ -22,78 +34,53 @@ from AthenaCommon.Constants import DEBUG
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-# the following method is to be deletesd once the scenario modukes are present
-def make_repeatedCond(tree_id, tree_pid, multiplicity=1, chainPartInd=-1, conditionMakers=[]):
-    """makes a RepeatedConditionConfigurer from explicit arguments)"""
+
+def make_root_repcondconfig():
+    """make a repeated condition configurer for the fast reduction
+    root node. This will will have a single accapt all internal node."""
     
-    toolclass, name =  toolfactory('RepeatedConditionConfigTool')
-    repeated_args = {'name': name}
-    repeated_args['conditionMakers'] = conditionMakers
-    repeated_args['id'] =  tree_id
-    repeated_args['pid'] =  tree_pid
-    repeated_args['multiplicity'] = multiplicity
-    repeated_args['chainPartInd'] = chainPartInd    
-
-    return toolclass(**repeated_args)
-
-def make_repeatedObj(repArgs, conditionMakers=[]):
-    """makes a RepeatedConditionConfigurer from an objects holding
-    the necessary parameters, usually built by a scenanario_XX module."""
-
-    return make_repeatedCond(tree_id=repArgs.tree_id,
-                             tree_pid=repArgs.tree_pid,
-                             multiplicity=repArgs.multiplicity,
-                             chainPartInd=repArgs.chainPartInd,
-                             conditionMakers=conditionMakers)
-                      
-
-def make_fastreduct_rootnode():
-
     toolclass, name =  toolfactory('all')
     args = {'name':  name}
     conditionMakers = [toolclass(**args)]
 
-    repeatedCondition = make_repeatedCond(tree_id=0,
-                                          tree_pid=0,
-                                          conditionMakers=conditionMakers)
-
-    filtRepeatedCondition = make_repeatedCond(tree_id=0, tree_pid=0)
- 
-    return repeatedCondition, filtRepeatedCondition
-
+    configurer = make_repeatedCond(tree_id=0,
+                                   tree_pid=0,
+                                   conditionMakers=conditionMakers)
+    
+    return configurer
 
 def buildHypoHelperConfigTool(params):
-    """the parameter object pased in is build in modules handloing
-    scenarios. It contains the information needed to build the AlgTool
-    that intialiases a hypo helper AlgTool"""
+    """the parameter object passed in is build in the modules handling
+    scenarios. It contains the information needed to build the
+    configuration AlgTool that intialiases a hypo helper AlgTool"""
 
-    root_cond, root_filt = make_fastreduct_rootnode()
+    # check that each Condition has a Filter
+    assert len(params.repcondargs) == len(params.filterparams)
     
-    repcondobjs = [root_cond]
+    # FastReducer root node
+    repcondobjs = [make_root_repcondconfig()]
     for ra in params.repcondargs:
-        condobjs = []
-        for key, vals in ra.condargs:
-            toolclass, name = toolfactory(key)
-            vals['name'] = name
-            condobjs.append(toolclass(**vals))
+        repcondobjs.append(make_repeatedCondCfgFromParams(ra))
 
-        repcondobjs.append(make_repeatedObj(ra, condobjs))
 
-    repfiltobjs = [root_filt]
-    for ra in params.repfiltargs:
-        condobjs = []
-        for key, vals in ra.condargs:
-            toolclass, name = toolfactory(key)
-            vals['name'] = name
-            condobjs.append(toolclass(**vals))
+    # filter for FastReducer root node
+    filtConditionMakers = [makePassThroughFilterConfigurer()]
 
-        repfiltobjs.append(make_repeatedObj(ra, condobjs))
+    for ra in params.filterparams:
+        if ra.typename == 'ConditionFilter':
+            filtConditionMakers.append(makeConditionFilterConfigurer(ra))
+        elif ra.typename == 'PassThroughFilter':
+            filtConditionMakers.append(makePassThroughFilterConfigurer())
+        else:
+            raise NotImplementedError(
+                'Filter type %s not implemented' % ra.typename
+            )
 
     toolclass, name = toolfactory('HelperToolConfigTool')
                            
     vals = {'name': name,
             'conditionMakers': repcondobjs,
-            'filtConditionMakers': repfiltobjs,
+            'filterMakers': filtConditionMakers,
             'treeVector': params.treevec,
             'leafVector': params.leafvec,
             }
@@ -244,31 +231,48 @@ def make_fastreduction_configurers(chain_dict):
 
 
 def make_prefilter_configurers(chain_dict):
-    """Interim prefiltering code - handles only eta-phi holes"""
-
+    """Set up the prefilters fo the chain."""
+    
     pf_strings = []
     chain_parts = [cp for cp in chain_dict['chainParts'] if
                    cp['signature'] == 'Jet' and 'prefilters' in cp]
 
     [pf_strings.extend(cp['prefilters']) for cp in chain_parts]
-    pf_strings = [s for s in pf_strings if s.startswith('mask')]
-
-    if not  pf_strings:
-        return []
     
-    assert len(pf_strings) == 1
-    condargs = prefilter_mask(pf_strings[0])
-
-    assert len(condargs) == 2  # eta, phi
-
-    condobjs = []
-    for key, vals in condargs:
-        toolclass, name = toolfactory(key)
-        vals['name'] = name
-        condobjs.append(toolclass(**vals))
-
-    return condobjs
+    # TEMPORARY - 'cleanLB' as a prefilter string also affects reconstruction,
+    # and already appears in chain names for this purpose.
+    # Until the cleanLB hypo prefilter code is implemented, remove the string
+    # from the prefilter strings.
+    try:
+        pf_strings.remove('cleanLB')
+    except ValueError:
+        pass
     
+
+ 
+    # if not pre filter strings (pf_strings) are found in the chainDict,
+    # a PassThroughFilter configurer is made.
+
+    if not pf_strings:
+        return [makePassThroughFilterConfigurer()]
+
+    # route the prefilter strings to rhe approriate handler
+    prefilter_router = {
+        'mask': prefilter_mask,
+        'cleanLB': prefilter_cleanLB,
+    }
+
+    filters = []
+    for pf_string in pf_strings:
+        key = pf_string.split('SEP')[0]
+
+        try:
+            filters.append(prefilter_router[key](pf_string))
+        except KeyError:
+            raise RuntimeError('Unknown prefilter string: %s' % pf_string)
+        
+    return filters
+
 
 def getLabelIndices(chain_dict):
 
@@ -286,12 +290,12 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
 
     helperToolConfigTools =  make_fastreduction_configurers(chain_dict)
 
-    prefilterConfigTools = make_prefilter_configurers(chain_dict)
+    prefilterMakers = make_prefilter_configurers(chain_dict)
 
     toolclass, name = toolfactory('helper_tool')
     args = {'name': name,
             'HypoConfigurers': helperToolConfigTools,
-            'prefiltConditionMakers': prefilterConfigTools
+            'prefilterMakers': prefilterMakers
             }
     
     helper_tool = toolclass(**args)
@@ -309,4 +313,5 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
             }
     
     hypo_tool = toolclass(**args)
+
     return hypo_tool

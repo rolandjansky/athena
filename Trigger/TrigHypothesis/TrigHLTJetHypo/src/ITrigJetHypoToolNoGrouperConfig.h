@@ -28,14 +28,6 @@ public:
   virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const = 0;
 
 
-  /** return the ConditionFilters. These reduce the input jet collection
-      before it is passed to a Condition. Example: HT conditions sometimes
-      need and eta - Et filtered vector on which to do the Et sum.
-  */
-  
-  virtual std::vector<std::unique_ptr<ConditionFilter>>
-  getConditionFilters() const = 0;
-
   /*( Gives the minimum number of jets the helper using this Confiog
    class will require to pass the event. */
   virtual std::size_t requiresNJets() const =0;

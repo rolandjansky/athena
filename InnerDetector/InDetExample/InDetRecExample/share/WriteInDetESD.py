@@ -87,7 +87,10 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
    if InDetFlags.doxAOD(): 
-      excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" 
+      excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco" 
+      # remove track decorations used internally by FTAG software
+      excludedAuxData += ".-TrackCompatibility.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+
       InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
       InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
 

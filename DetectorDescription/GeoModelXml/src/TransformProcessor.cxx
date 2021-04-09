@@ -31,32 +31,35 @@ using namespace xercesc;
 
 void TransformProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
 char *tagName;
-    bool alignable = element->hasAttribute(XMLString::transcode("alignable"));
-//
-//    Do second element first, to find what sort of transform is needed (shape or logvol etc.?)
-//
-    GeoNodeList objectsToAdd;
-    DOMElement *object = element->getLastElementChild();
-    tagName = XMLString::transcode(object->getTagName());
-    string objectName(tagName);
-    gmxUtil.processorRegistry.find(objectName)->process(object, gmxUtil, objectsToAdd);
-    XMLString::release(&tagName);
-//
-//    Get the transformation
-//
-    DOMElement *transformation = element->getFirstElementChild();
-    tagName = XMLString::transcode(transformation->getTagName()); // transformation or transformationref
-//  ******* Should check here that an alignable transform is given an alignable transformation and object; to be done
-    toAdd.push_back((GeoGraphNode *)gmxUtil.geoItemRegistry.find(string(tagName))->process(transformation, gmxUtil));
-    XMLString::release(&tagName);
-//
-//    Add transformation to DetectorManager via GmxInterface, if it is alignable
+ XMLCh * alignable_tmp;
+
+ alignable_tmp = XMLString::transcode("alignable");
+ bool alignable = element->hasAttribute(alignable_tmp);
+ //
+ //    Do second element first, to find what sort of transform is needed (shape or logvol etc.?)
+ //
+ GeoNodeList objectsToAdd;
+ DOMElement *object = element->getLastElementChild();
+ tagName = XMLString::transcode(object->getTagName());
+ string objectName(tagName);
+ gmxUtil.processorRegistry.find(objectName)->process(object, gmxUtil, objectsToAdd);
+ XMLString::release(&tagName);
+ XMLString::release(&alignable_tmp);
+ //
+ //    Get the transformation
+ //
+ DOMElement *transformation = element->getFirstElementChild();
+ tagName = XMLString::transcode(transformation->getTagName()); // transformation or transformationref
+ //  ******* Should check here that an alignable transform is given an alignable transformation and object; to be done
+ toAdd.push_back((GeoGraphNode *)gmxUtil.geoItemRegistry.find(string(tagName))->process(transformation, gmxUtil));
+ XMLString::release(&tagName);
+ //
+ //    Add transformation to DetectorManager via GmxInterface, if it is alignable
 //
     if (alignable) { 
         int level;
-        istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")))) >> level;
-	//cout << "\nTransformProcessor: Add Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with GeoModel id " << 
-        //((GeoIdentifierTag *) objectsToAdd[1])->getIdentifier() << endl; // commenting out this cout, as it is spamming all ITk jobs with tens of thousands of lines of output
+	alignable_tmp = XMLString::transcode("alignable");
+        istringstream(XMLString::transcode(element->getAttribute(alignable_tmp))) >> level;
         map<string, int> index;
         gmxUtil.positionIndex.incrementLevel(); // Logvol has unfortunately already decremented this; temp. restore it
         gmxUtil.positionIndex.indices(index, gmxUtil.eval);
@@ -65,6 +68,7 @@ char *tagName;
                                              (GeoAlignableTransform *) toAdd.back());
 
         gmxUtil.positionIndex.decrementLevel(); 
+	XMLString::release(&alignable_tmp);
     }
 //
 //    And add the name and physvol etc. after the transformation

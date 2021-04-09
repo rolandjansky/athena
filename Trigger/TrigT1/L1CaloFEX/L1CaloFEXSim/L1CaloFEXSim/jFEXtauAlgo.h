@@ -65,10 +65,10 @@ protected:
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXtauAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int realValue(int ID, int eta);
-        int m_SeedIDs[3][3]={0};
-        int m_SeedConditions_ET[3][3]={0};
-        int m_SeedCluster_ET[3][3]={0};
-        int m_TTwindow[5][5]={0};
+        int m_SeedIDs[3][3]={{0}};
+        int m_SeedConditions_ET[3][3]={{0}};
+        int m_SeedCluster_ET[3][3]={{0}};
+        int m_TTwindow[5][5]={{0}};
         int m_ClusterEt = 0;
         int m_TauIsolation = 0;
         //int m_tauClusterIDs[4][5];

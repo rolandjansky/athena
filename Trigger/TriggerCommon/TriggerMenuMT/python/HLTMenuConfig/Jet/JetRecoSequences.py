@@ -21,7 +21,7 @@ from .JetRecoConfiguration import jetRecoDictToString
 def jetClusterSequence(configFlags, RoIs, clusterCalib):
 
     # Start by adding the topocluster reco sequence
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import (
             caloClusterRecoSequence, LCCaloClusterRecoSequence)
     if clusterCalib == "em":
         topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(

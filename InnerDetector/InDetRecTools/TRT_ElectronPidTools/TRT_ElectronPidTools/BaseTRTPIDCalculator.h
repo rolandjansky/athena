@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ namespace InDet
   bool FillBlob(const unsigned char*);      
 
   // Limit the allowed PID value to lie between a lower and an upper limt
-   float Limit(float prob);      
+   float Limit(float prob) const;      
 
  };
 } 

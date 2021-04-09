@@ -251,7 +251,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const EventContext& ctx,
       if (not trtDriftCircle) {
         ATH_MSG_ERROR("Could not cast TRT RoT to TRT_DriftCircleOnTracknot ");
       } else {
-        if (trtDriftCircle->highLevel() == true and not isArgonStraw and
+        if (trtDriftCircle->highLevel() and not isArgonStraw and
             not isKryptonStraw)
           information[Trk::numberOfTRTHighThresholdOutliers]++;
       }
@@ -267,7 +267,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const EventContext& ctx,
       if (not trtDriftCircle) {
         ATH_MSG_ERROR("Could not cast TRT RoT to TRT_DriftCircleOnTracknot ");
       } else {
-        if (trtDriftCircle->highLevel() == true) {
+        if (trtDriftCircle->highLevel()) {
           if (not isArgonStraw and not isKryptonStraw)
             information[Trk::numberOfTRTHighThresholdHits]++;
           assert(Trk::numberOfTRTHighThresholdHitsTotal < information.size());
@@ -372,7 +372,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
   const EventContext& ctx = Gaudi::Hive::currentContext();
   const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
   if (measurements){
-    for (const auto ms : *measurements){
+    for (const auto *const ms : *measurements){
       // check if it's a rot
       const Trk::RIO_OnTrack* rot = nullptr;
       if (ms->type(Trk::MeasurementBaseType::RIO_OnTrack)) {

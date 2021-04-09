@@ -14,7 +14,7 @@ class RepeatedConditionParams:
     """
     
     def __init__(self,  tree_id, tree_pid, chainPartInd=-1, multiplicity=1,
-                 condargs=[]):
+                 condargs=[], invert=False):
   
         self.tree_id = tree_id
         self.tree_pid = tree_pid
@@ -24,6 +24,7 @@ class RepeatedConditionParams:
         # condargs is a list with elements (key, values)
         # key is a string values is a dict
         self.condargs = condargs
+        self.invert = invert
   
     def __str__(self):
 

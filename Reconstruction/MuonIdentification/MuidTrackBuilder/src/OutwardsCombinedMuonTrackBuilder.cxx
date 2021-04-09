@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -740,9 +740,4 @@ OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters* para
 
     return new Trk::PseudoMeasurementOnTrack(localParameters, covarianceMatrix, surface);
 }
-
- void OutwardsCombinedMuonTrackBuilder::cleanUp() const {
-    if (!m_muonHoleRecovery.empty()) m_muonHoleRecovery->cleanUp();
-  }
-
 }  // namespace Rec

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTJetHypo.RepeatedConditionParams import RepeatedConditionParams
+from TrigHLTJetHypo.FilterParams import FilterParams
 from TrigHLTJetHypo.HelperConfigToolParams import HelperConfigToolParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
 from TrigHLTJetHypo.make_treevec import make_treevec
@@ -25,7 +26,7 @@ rgx = re.compile(pattern)
 def get_conditionfilter_args_from_matchdict(groupdict):
     """ Extract the arguments used by the filter of the HT condition
     from the dictionary greated during ghe regex matching to the sceanario
-    string."""
+    string. THESE CHAINS HAS DEFAULT CONDITION FILTERING"""
     
     # care! if et no match, etlo and etahi are None.
     #       if et match, missing etlo, ethi = '' 
@@ -80,12 +81,19 @@ def scenario_agg(scenario, chainPartInd):
                                            condargs=condargs)]
 
     # get the arguments needed for thr HT condition filter
+    filterparams = None
     condargs = get_conditionfilter_args_from_matchdict(groupdict)
 
-    # make repeated conditions that filter the ht condition
-    repfiltargs = [RepeatedConditionParams(tree_id=1,
-                                           tree_pid=0,
-                                           condargs=condargs)]
+    if condargs:  # has default filterinf, so always True
+
+        # make repeated conditions that filter the ht condition
+        repfiltargs = [RepeatedConditionParams(tree_id=1,
+                                               tree_pid=0,
+                                               condargs=condargs)]
+        filterparams = [FilterParams(typename='ConditionFilter',
+                                     args=repfiltargs)]
+    else:
+        filterparams = [FilterParams(typename='PassThroughFilter')]
 
     # parameters to initalise the AlgTool that initialises the helper AlgTool
 
@@ -93,10 +101,10 @@ def scenario_agg(scenario, chainPartInd):
     # node with tree_id = i
     treevec = make_treevec(repcondargs)
     assert treevec == [0, 0]
-    
+
     helper_params = HelperConfigToolParams(treevec=treevec,
                                            repcondargs=repcondargs,
-                                           repfiltargs=repfiltargs)
-    
-    return [helper_params]  # a list is one entry per FastReduction tree
+                                           filterparams=filterparams)
+
+    return [helper_params]  # a list with one entry per FastReduction tree
 

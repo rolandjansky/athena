@@ -25,13 +25,6 @@
 #include <sstream>
 
 namespace { // local funcs
-#if 0
-inline double robust_acos(double x) {
-  if ( x >=  1.0 ) return 0.0;
-  if ( x <= -1.0 ) return M_PI;
-  return std::acos(x);
-}
-#endif
 
 // limit angle difference to -pi/2 < x <= pi/2
 inline double theta_diff(double x) {
@@ -1469,9 +1462,5 @@ namespace Muon {
 
     if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Yes!" << endmsg;
     return true;
-  }
- 
-
-  void MooCandidateMatchingTool::cleanUp() const {
   }
 }

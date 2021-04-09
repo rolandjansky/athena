@@ -69,8 +69,11 @@ StatusCode DerivationFramework::VHLowTrackJetFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
      ATH_CHECK(m_electronSGKey.initialize());
+     ATH_CHECK(m_electronIsoDecorKey.initialize());
      ATH_CHECK(m_muonSGKey.initialize());
+     ATH_CHECK(m_muonIsoDecorKey.initialize());
      ATH_CHECK(m_jetSGKey.initialize());
+     ATH_CHECK(m_jetBtagDecorKey.initialize());
      ATH_CHECK(m_eventInfoKey.initialize());
      ATH_CHECK(m_primaryVerticesKey.initialize());
      return StatusCode::SUCCESS;

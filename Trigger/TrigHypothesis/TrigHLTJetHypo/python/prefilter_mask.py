@@ -1,6 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from TrigHLTJetHypo.RepeatedConditionParams import RepeatedConditionParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
+
+from TrigHLTJetHypo.make_repeatedCondConfigurer import (
+    make_repeatedCondCfgFromParams,
+)
+
+from TrigHLTJetHypo.FastReductionAlgToolFactory import toolfactory
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import DEBUG
@@ -11,19 +18,24 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-
 pattern = r'^maskSEP'\
     r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)SEP'\
     r'(?P<philo>\d*)(?P<phitype>nphi|cphi|pphi>)(?P<phihi>\d*)$'
 
 rgx = re.compile(pattern)
 
-def get_condargs(groupdict):
-    """get the elemental condition args (cuts) for the backward and forward 
-    jets"""
 
-    condargs = []
-    
+def prefilter_mask(pf_string):
+    """calculate the parameters needed to generate a ConditonFilter config 
+    AlgTool starting from the prefilter substring if it appears in the 
+    chain dict"""
+
+    assert pf_string.startswith('mask'),\
+        'routing error, module %s: bad prefilter %s' % (__name__, pf_string)
+
+    m = rgx.match(pf_string)
+    groupdict = m.groupdict()
+
     etatype = groupdict['etatype']
     etalo = groupdict['etalo']
     etahi = groupdict['etahi']
@@ -41,26 +53,26 @@ def get_condargs(groupdict):
     if phitype == 'nphi':
         phihi = '-' + phihi
 
-        
+    condargs = []
+    
     vals = defaults(etatype, lo=etalo, hi=etahi)
     condargs.append((etatype, deepcopy(vals)))
       
     vals = defaults(phitype, lo=philo, hi=phihi)
     condargs.append((phitype, deepcopy(vals)))
 
-    return condargs
-
-
-def prefilter_mask(pf_string):
-    """produce a list of obkects that carry the paramrters needed to 
-    instantiate configurers for a elemental Conditions that describe
-    an eta-phi region. The input is a prefilter string obtained from the 
-    chain_dict."""
-
-    assert pf_string.startswith('mask'),\
-        'routing error, module %s: bad prefilter string %s' % (__name__,
-                                                               pf_string)
+    repcondarg = RepeatedConditionParams(tree_id=0,
+                                         tree_pid=0,
+                                         chainPartInd=-1,
+                                         condargs=condargs,
+                                         invert=True)
     
-    m = rgx.match(pf_string)
-    groupdict = m.groupdict()
-    return  get_condargs(groupdict)
+    repConditionMaker = make_repeatedCondCfgFromParams(repcondarg)
+
+    
+    toolclass, name =  toolfactory('ConditionFilterConfigTool')
+    vals = {'name' : name,
+            'conditionMakers': [repConditionMaker]}
+    
+    return toolclass(**vals)
+

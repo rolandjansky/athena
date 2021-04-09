@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -34,8 +34,6 @@ CaloTopoTowerContainer::CaloTopoTowerContainer()
     m_minimumCellEnergy(0),
     m_minimumClusterEnergy (0),
     m_useCellWeights (false),
-    m_useNoiseTool (false),
-    m_usePileUpNoise (false),
     m_noiseSigma (0),
     m_cellESignificanceThreshold (0),
     m_caloSelection (false)
@@ -49,8 +47,6 @@ CaloTopoTowerContainer::CaloTopoTowerContainer(const CaloTowerSeg& theSegmentati
     m_minimumCellEnergy(0),
     m_minimumClusterEnergy (0),
     m_useCellWeights (false),
-    m_useNoiseTool (false),
-    m_usePileUpNoise (false),
     m_noiseSigma (0),
     m_cellESignificanceThreshold (0),
     m_caloSelection (false)
@@ -68,8 +64,6 @@ CaloTopoTowerContainer::CaloTopoTowerContainer
       m_minimumCellEnergy          (other.m_minimumCellEnergy),
       m_minimumClusterEnergy       (other.m_minimumClusterEnergy),
       m_useCellWeights             (other.m_useCellWeights),
-      m_useNoiseTool               (other.m_useNoiseTool),
-      m_usePileUpNoise             (other.m_usePileUpNoise),
       m_noiseSigma                 (other.m_noiseSigma),
       m_cellESignificanceThreshold (other.m_cellESignificanceThreshold),
       m_caloIndices                (other.m_caloIndices),
@@ -89,8 +83,6 @@ CaloTopoTowerContainer::operator= (const CaloTopoTowerContainer& other)
     m_minimumCellEnergy          = other.m_minimumCellEnergy;
     m_minimumClusterEnergy       = other.m_minimumClusterEnergy;
     m_useCellWeights             = other.m_useCellWeights;
-    m_useNoiseTool               = other.m_useNoiseTool;
-    m_usePileUpNoise             = other.m_usePileUpNoise;
     m_noiseSigma                 = other.m_noiseSigma;
     m_cellESignificanceThreshold = other.m_cellESignificanceThreshold;
     m_caloIndices                = other.m_caloIndices;
@@ -110,8 +102,6 @@ void CaloTopoTowerContainer::swap (CaloTopoTowerContainer& other)
     std::swap (m_minimumCellEnergy,         other.m_minimumCellEnergy);
     std::swap (m_minimumClusterEnergy,      other.m_minimumClusterEnergy);
     std::swap (m_useCellWeights,            other.m_useCellWeights);
-    std::swap (m_useNoiseTool,              other.m_useNoiseTool);
-    std::swap (m_usePileUpNoise,            other.m_usePileUpNoise);
     std::swap (m_noiseSigma,                other.m_noiseSigma);
     std::swap (m_cellESignificanceThreshold,other.m_cellESignificanceThreshold);
     std::swap (m_caloSelection,             other.m_caloSelection);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
@@ -115,7 +115,7 @@ namespace InDet
   std::vector< std::vector<const Trk::Track *> > result(0);
 
 //sorting the tracks on their z_0 basis.
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks,beamVertex);  
    
@@ -123,7 +123,7 @@ namespace InDet
   
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
-   const Trk::TrackParameters * exPerigee = 0;
+   const Trk::TrackParameters * exPerigee = nullptr;
    if (!indexOfSorted.empty()) exPerigee = 
 				 m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],perigeeSurface,Trk::anyDirection,true, Trk::pion);
          
@@ -225,14 +225,14 @@ namespace InDet
   std::vector< std::vector<const Trk::TrackParticleBase*> > result(0);
 
 //sorting the tracks on their z_0 basis.
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamVertex);
    
    std::vector<const Trk::TrackParticleBase *> tmp_cluster(0); 
    
 //extrapolating the tracks to the actual beam spot   
-   const Trk::TrackParameters * exPerigee(0);
+   const Trk::TrackParameters * exPerigee(nullptr);
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
    exPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[0]]->definingParameters(),
@@ -356,14 +356,14 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     //step 2: sorting in z0
     //output container  
     std::vector< std::vector<const Trk::TrackParameters *> > result(0);
-    if(preselectedTracks.size() !=0)
+    if(!preselectedTracks.empty())
       {
 	std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
 	
 	std::vector<const Trk::TrackParameters *> tmp_cluster(0); 
 	
 	//extrapolating the tracks to the actual beam spot   
-	const Trk::TrackParameters * exPerigee(0);
+	const Trk::TrackParameters * exPerigee(nullptr);
 	Trk::PerigeeSurface perigeeSurface(beamposition->position());
 	
 	exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],

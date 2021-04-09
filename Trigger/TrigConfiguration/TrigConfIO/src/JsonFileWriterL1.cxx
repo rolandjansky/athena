@@ -404,11 +404,15 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             continue;
          ctp["inputs"]["optical"]["connector" + std::to_string(conn)] = l1menu.ctp().optical(conn);
       }
-      auto ctpmon = json({});
+      json ctpmon = json::object_t{};
       for(auto & mon : l1menu.ctp().ctpMon()) {
          ctpmon[mon.first] = json({{"multiplicity",mon.second.first},{"thr",mon.second.second}});
       }
-      ctp["monitoring"] = json({{"ctpmon",ctpmon}});
+      json ctpin = json::object_t{};
+      for(auto & mon : l1menu.ctp().ctpinMon()) {
+         ctpin[mon.first] = json({{"multiplicity", mon.second.first},{"thr", mon.second.second}});
+      }
+      ctp["monitoring"] = json({{"ctpmon", ctpmon}, {"ctpin", ctpin}});
    }
 
    json jtopo = json::object_t{};

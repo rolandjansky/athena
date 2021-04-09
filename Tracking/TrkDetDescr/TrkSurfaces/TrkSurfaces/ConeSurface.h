@@ -171,7 +171,7 @@ public:
     - the default implementation is the the RotationMatrix3D of the transform */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Returns a global reference point:
      For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$

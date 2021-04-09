@@ -26,6 +26,8 @@
 
 
 // for error messages
+#include <memory>
+
 #include <typeinfo>
 
 namespace InDet {
@@ -76,7 +78,7 @@ namespace InDet {
 
     // Build the network
     try {
-      thisNN.reset(new lwt::atlas::FastGraph(config, order, "merge_1"));
+      thisNN = std::make_unique<lwt::atlas::FastGraph>(config, order, "merge_1");
     } catch (lwt::NNConfigurationException& exc) {
       ATH_MSG_ERROR("NN configuration problem: " << exc.what());
       return StatusCode::FAILURE;

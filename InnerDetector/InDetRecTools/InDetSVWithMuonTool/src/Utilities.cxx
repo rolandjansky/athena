@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -16,7 +16,7 @@ namespace InDet{
 
   
   double InDetSVWithMuonTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -131,7 +131,7 @@ namespace InDet{
   {
      TLorentzVector sum(0.,0.,0.,0.); 
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i] == NULL ) continue; 
+       if( InpTrk[i] == nullptr ) continue; 
        sum += InpTrk[i]->p4();
      }
      return sum; 

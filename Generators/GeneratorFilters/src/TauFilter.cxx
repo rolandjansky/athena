@@ -97,11 +97,8 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::ConstGenParticle
 
   if (part->end_vertex() == 0) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
 
-//  for ( auto beg: *(part->end_vertex())) nu += sumDaughterNeutrinos( beg ); //when this replace the 3 lines above the loop does not work (?)
+  for ( auto beg: *(part->end_vertex())) nu += sumDaughterNeutrinos( beg ); 
 
   return nu;
 }
@@ -119,7 +116,7 @@ StatusCode TauFilter::filterEvent() {
     }
   }
   
-  HepMC::GenParticlePtr tau;
+  HepMC::ConstGenParticlePtr tau;
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector tauvis;
   CLHEP::HepLorentzVector nutau;
@@ -148,33 +145,31 @@ StatusCode TauFilter::filterEvent() {
     }
     
     const HepMC::GenEvent* genEvt = (*itr);
-    HepMC::WeightContainer wgtsC = genEvt->weights();
+    auto wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
 
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
+    for (auto pitr: *genEvt) {
       // Look for the first tau with genstat != 3
-      if (abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3) {
-        tau = (*pitr);
-        ATH_MSG_DEBUG("found tau with barcode " << tau->barcode() << " status " << (*pitr)->status());
+      if (std::abs((pitr)->pdg_id()) == 15 && (pitr)->status() != 3) {
+        tau = pitr;
+        ATH_MSG_DEBUG("found tau with barcode " << HepMC::barcode(tau) << " status " << pitr->status());
         ATH_MSG_DEBUG("pT\t\teta\tphi\tid");
         ATH_MSG_DEBUG(tau->momentum().perp() << "\t" <<
                       tau->momentum().eta() << "\t" <<
                       tau->momentum().phi() << "\t" <<
                       tau->pdg_id() << "\t");
 
-        HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
-        HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
         int tauType = 0; 
         //TauType initialized as 0. tauType = 1 is an Tau_el, tauType = 2 is an Tau_mu, tauType = 0 is an Tau_had, tauType = 11 is a tau with tau parent, e.g a photon radiation event.
         
-        for ( ; begin != end; begin++ ) {
-          if ( (*begin)->production_vertex() != tau->end_vertex() ) continue; 
+        for ( auto beg: *(tau->end_vertex()) ) {
+          if ( (beg)->production_vertex() != tau->end_vertex() ) continue; 
          
-          else if ( abs( (*begin)->pdg_id() ) == 12 ) tauType = 1;   //Tau decays into an electron
+          else if ( std::abs( (beg)->pdg_id() ) == 12 ) tauType = 1;   //Tau decays into an electron
          
-          else if ( abs( (*begin)->pdg_id() ) == 14 ) tauType = 2;   //Tau decays into an muon
+          else if ( std::abs( (beg)->pdg_id() ) == 14 ) tauType = 2;   //Tau decays into an muon
                   	
-          else if ( abs( (*begin)->pdg_id() ) == 15 ) tauType = 11;  //Tau radiates a particle and decays into another tau
+          else if ( std::abs( (beg)->pdg_id() ) == 15 ) tauType = 11;  //Tau radiates a particle and decays into another tau
         
 				}
 

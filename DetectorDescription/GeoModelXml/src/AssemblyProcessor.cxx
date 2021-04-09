@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -36,9 +36,11 @@ GeoNameTag *physVolName;
 
     gmxUtil.positionIndex.incrementLevel();
 
-    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    XMLCh * name_tmp = XMLString::transcode("name");
+    char *name2release = XMLString::transcode(element->getAttribute(name_tmp));
     string name(name2release);
     XMLString::release(&name2release);
+    XMLString::release(&name_tmp);
 //
 //    Look for the assembly in the map; if not yet there, add it
 //
@@ -76,9 +78,11 @@ GeoNameTag *physVolName;
 //
 //    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
 //
-    char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
+    XMLCh * alignable_tmp = XMLString::transcode("alignable");
+    char *toRelease = XMLString::transcode(element->getAttribute(alignable_tmp));
     string alignable(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&alignable_tmp);
     if (alignable.compare(string("true")) == 0) {
         GeoFullPhysVol *pv = new GeoFullPhysVol(lv);
         for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
@@ -101,9 +105,11 @@ GeoNameTag *physVolName;
 
 void AssemblyProcessor::zeroId(const xercesc::DOMElement *element) {
 
-    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    XMLCh * name_tmp = XMLString::transcode("name");
+    char *name2release = XMLString::transcode(element->getAttribute(name_tmp));
     string name(name2release);
     XMLString::release(&name2release);
+    XMLString::release(&name_tmp);
 //
 //    Look for the assembly in the map; if not yet there, add it
 //

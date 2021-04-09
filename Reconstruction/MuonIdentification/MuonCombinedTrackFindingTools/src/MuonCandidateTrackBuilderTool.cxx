@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCandidateTrackBuilderTool.h"
@@ -121,11 +121,6 @@ namespace Muon {
       ATH_MSG_DEBUG("got Track: " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack) );
     }
     return refittedTrack;
-  }
-
-  void MuonCandidateTrackBuilderTool::cleanUp() const {
-    m_trackFitter->cleanUp();
-    m_muonTrackBuilder->cleanUp();
   }
 }
  

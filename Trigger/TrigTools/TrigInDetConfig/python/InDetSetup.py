@@ -354,4 +354,41 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
           viewAlgs.append(theTrackParticleCreatorAlg2)
 
 
+      if (InDetTrigFlags.doTruth()):   
+
+        from InDetTruthAlgs.InDetTruthAlgsConf import InDet__PRD_MultiTruthMaker
+        InDetTrigPRD_MultiTruthMakerSi = InDet__PRD_MultiTruthMaker (name                    = 'InDetTrigPRD_MultiTruthMakerSi',
+                                                                 PixelClusterContainerName   = 'PixelTrigClusters',
+                                                                 SCTClusterContainerName     = 'SCT_TrigClusters',
+                                                                 TRTDriftCircleContainerName = '',
+                                                                 SimDataMapNamePixel         = 'PixelSDO_Map',
+                                                                 SimDataMapNameSCT           = 'SCT_SDO_Map',
+                                                                 SimDataMapNameTRT           = '',
+                                                                 TruthNamePixel              = 'PRD_MultiTruthPixel',
+                                                                 TruthNameSCT                = 'PRD_MultiTruthSCT',
+                                                                 TruthNameTRT                = '')
+        
+        viewAlgs.append(InDetTrigPRD_MultiTruthMakerSi)
+        MyTrackCollections = ["HLT_IDTrkTrack_FS_FTF"]
+        import AthenaCommon.SystemOfUnits as Units
+        from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidation
+        InDetTrigTrackClusterAssValidation = InDet__TrackClusterAssValidation(name              = "InDetTrigTrackClusterAssValidation",
+                                                                          TracksLocation         = MyTrackCollections             ,
+                                                                          SpacePointsPixelName   = "PixelTrigSpacePoints"    ,
+                                                                          SpacePointsSCTName     = "SCT_TrigSpacePoints"    ,
+                                                                          SpacePointsOverlapName = "OverlapSpacePoints",
+                                                                          PixelClustesContainer  = 'PixelTrigClusters',
+                                                                          SCT_ClustesContainer   = 'SCT_TrigClusters',
+                                                                          MomentumCut            = 1.5 * Units.GeV,
+                                                                          RapidityCut            = 2.7     ,
+                                                                          RadiusMin              = 0.0     ,
+                                                                          RadiusMax              = 20.0 * Units.mm    ,
+                                                                          MinNumberClusters      = 7       ,
+                                                                          MinNumberClustersTRT   = 0       ,
+                                                                          MinNumberSpacePoints   = 3       ,
+                                                                          usePixel               = True     ,
+                                                                          useSCT                 = True     ,
+                                                                          useTRT                 = False     )
+        viewAlgs.append(InDetTrigTrackClusterAssValidation)
+ 
   return viewAlgs, ViewDataVerifier

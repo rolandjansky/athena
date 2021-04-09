@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -106,8 +106,8 @@ namespace InDet {
 
     bool pass(true);
     const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
-    if (timePattern.test(2) != false) pass=false;
-    if (timePattern.test(1) != true) pass=false;
+    if (timePattern.test(2)) pass=false;
+    if (!timePattern.test(1)) pass=false;
     return pass;
   } 
   
@@ -118,7 +118,7 @@ namespace InDet {
     
     bool pass(true);
     const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
-    if (timePattern.test(1) != true) pass=false;
+    if (!timePattern.test(1)) pass=false;
     return pass;
   }  
 
@@ -471,7 +471,7 @@ namespace InDet {
       const SiWidth siWidth(Amg::Vector2D(nStrips, 1), Amg::Vector2D(clusterDim.width, stripLength));
       
       SCT_Cluster* cluster = (m_clusterMaker) ? (m_clusterMaker->sctCluster(clusterId, localPos, stripGroup, siWidth, element, m_errorStrategy))
-        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element, 0));
+        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element, nullptr));
       cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
       if (tbinIter != tbinGroups.end()) {
         cluster->setHitsInThirdTimeBin(*tbinIter);

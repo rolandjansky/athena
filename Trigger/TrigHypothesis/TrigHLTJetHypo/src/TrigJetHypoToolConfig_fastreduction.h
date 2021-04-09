@@ -23,7 +23,8 @@
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 #include "./ITrigJetRepeatedConditionConfig.h"
-#include "./ConditionFilter.h"
+#include "./ITrigHypoJetVectorFilterConfig.h"
+
 
 class TrigJetHypoToolConfig_fastreduction:
 public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
@@ -38,9 +39,6 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   virtual StatusCode initialize() override;
   virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const override;
 
-  virtual std::vector<std::unique_ptr<ConditionFilter>>
-  getConditionFilters() const override;
-
   virtual std::size_t requiresNJets() const override;
   virtual StatusCode checkVals() const override;
 
@@ -48,17 +46,11 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
  private:
   ToolHandleArray<ITrigJetRepeatedConditionConfig> m_conditionMakers{
     this, "conditionMakers", {}, "hypo tree Condition builder AlgTools"};
-
-  ToolHandleArray<ITrigJetRepeatedConditionConfig>
-  m_antiConditionMakers{this, "antiConditionMakers", {},
-    "hypo tree AntiCondition builder AlgTools"};
-
-
-  ToolHandleArray<ITrigJetRepeatedConditionConfig> m_filtConditionMakers{
-    this, "filtConditionMakers", {},
-    "hypo tree Condition builder AlgTools for Condition filters"};
-
   
+  ToolHandleArray<ITrigHypoJetVectorFilterConfig> m_filterMakers{
+    this, "filterMakers", {}, "AlgTools that construct Condition filters"
+  };
+
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
 
@@ -66,6 +58,9 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
     this, "leafVector", {}, "node ids for leaf nodes"};
 
   ConditionPtrs getRepeatedConditions() const;
+
+  // function to obtain the filters associated with the leaf conditions
+  std::vector<FilterPtr> getFilters() const;
 
 
 };
