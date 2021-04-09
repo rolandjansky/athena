@@ -46,8 +46,7 @@ xAODRingSetConfWriter::xAODRingSetConfWriter( const std::string& name,
 StatusCode xAODRingSetConfWriter::initialize() {
 
   // Greet the user:
-  ATH_MSG_INFO( "Initialising " << name() << 
-      " - Package version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initialising" );
 
   // Make sure that configuration param are equivalent in size:
   if ( m_crBuilderTools.size() != m_rsMetaNames.size() )

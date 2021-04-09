@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
@@ -56,7 +56,7 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
 
 StatusCode MuonRPC_CablingSvc::initialize()
 {
-    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing");
 
     StoreGateSvc * detStore=nullptr;
     ATH_CHECK(service("DetectorStore",detStore));

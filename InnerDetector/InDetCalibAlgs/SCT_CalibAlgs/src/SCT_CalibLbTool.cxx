@@ -49,7 +49,7 @@ SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& nam
 StatusCode
 SCT_CalibLbTool::initialize() {
 
-   ATH_MSG_INFO("Initialize of " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing");
    ATH_CHECK(service("THistSvc", m_thistSvc));
 
    ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
@@ -81,15 +81,9 @@ SCT_CalibLbTool::initialize() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode
-SCT_CalibLbTool::finalize() {
-   ATH_MSG_INFO("Finalize of " << PACKAGE_VERSION);
-   return StatusCode::SUCCESS;
-}
-
 bool
 SCT_CalibLbTool::book() {
-   ATH_MSG_INFO("book() method of " << PACKAGE_VERSION);
+   ATH_MSG_INFO("book()");
    bool result{true};
    //pointers to the histos are deleted by m_thistSvc methods
    m_phistoVector.clear();
@@ -142,7 +136,7 @@ SCT_CalibLbTool::book() {
 
 bool
 SCT_CalibLbTool::read(const std::string& fileName) {
-   ATH_MSG_INFO("read() method of " << PACKAGE_VERSION);
+   ATH_MSG_INFO("read()");
    bool result{true};
    m_LbRange = numberOfLb();
    //pointers to the histos are deleted by m_thistSvc methods

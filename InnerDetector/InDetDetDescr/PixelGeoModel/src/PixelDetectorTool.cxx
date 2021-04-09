@@ -105,7 +105,7 @@ StatusCode PixelDetectorTool::create()
 
   // Print the version tag:
   pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << endmsg;
   
   
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We

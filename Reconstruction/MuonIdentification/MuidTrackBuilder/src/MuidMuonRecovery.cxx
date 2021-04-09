@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ MuidMuonRecovery::MuidMuonRecovery(const std::string& type, const std::string& n
 StatusCode
 MuidMuonRecovery::initialize()
 {
-    ATH_MSG_INFO("Initializing MuidMuonRecovery - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing MuidMuonRecovery");
 
     // get the Tools
     ATH_CHECK(m_extrapolator.retrieve());

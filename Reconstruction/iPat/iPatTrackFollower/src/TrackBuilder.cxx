@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -46,7 +46,7 @@ TrackBuilder::~TrackBuilder()
 StatusCode
 TrackBuilder::initialize()
 {
-    ATH_MSG_INFO( "TrackBuilder::initialize() - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "TrackBuilder::initialize()" );
     
     // get the Tools
     if (m_trackFitter.retrieve().isFailure())

@@ -493,7 +493,6 @@ StatusCode SCTCalib::finalize() {
       }
    }
 
-   ATH_MSG_INFO("Thank-you for using SCT_CalibAlgs, version " << PACKAGE_VERSION);
    return StatusCode::SUCCESS;
 }
 

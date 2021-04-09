@@ -46,7 +46,7 @@ MuonTrackQuery::MuonTrackQuery(const std::string& type, const std::string& name,
 StatusCode
 MuonTrackQuery::initialize()
 {
-    ATH_MSG_DEBUG("Initializing MuonTrackQuery - package version " << PACKAGE_VERSION);
+    ATH_MSG_DEBUG("Initializing MuonTrackQuery");
 
     // tool needed to refit slimmed tracks
     if (!m_fitter.empty()) {
