@@ -6,4 +6,3 @@
 #include "MdtCalibT0/T0MTSettings.h"
 #include "MdtCalibT0/T0MTSettingsT0.h"
 #include "MdtCalibT0/T0MTSettingsTMax.h"
-
