@@ -32,7 +32,7 @@ namespace MuonCombined {
     }
 
     StatusCode MuonCombinedFitTagTool::initialize() {
-        ATH_MSG_INFO("Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION);
+        ATH_MSG_INFO("Initializing MuonCombinedFitTagTool");
 
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_trackBuilder.retrieve());

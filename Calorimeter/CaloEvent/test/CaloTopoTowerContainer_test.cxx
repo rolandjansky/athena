@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CaloTopoTowerContainer_test.cxx
@@ -23,14 +23,6 @@ void test1 (StoreGateSvc* sg)
   std::cout << "test1\n";
 
   CaloTopoTowerContainer tc1 (CaloTowerSeg (10, 10, 0, 1, 0, 2));
-
-  assert (!tc1.GetUseNoiseTool());
-  tc1.SetUseNoiseTool(true);
-  assert (tc1.GetUseNoiseTool());
-
-  assert (!tc1.GetUsePileUpNoise());
-  tc1.SetUsePileUpNoise(true);
-  assert (tc1.GetUsePileUpNoise());
 
   assert (tc1.GetNoiseSigma() == 0);
   tc1.SetNoiseSigma(5.5);
@@ -120,8 +112,6 @@ void test2 (StoreGateSvc* sg)
   tc1.SetMinimumCellEnergy (10);
   tc1.SetMinimumClusterEnergy (11);
   tc1.SetUseCellWeights (true);
-  tc1.SetUseNoiseTool (false);
-  tc1.SetUsePileUpNoise (true);
   tc1.SetNoiseSigma (12);
   tc1.SetCellESignificanceThreshold (13);
   tc1.SetCaloSelection (false);
@@ -151,8 +141,7 @@ void test2 (StoreGateSvc* sg)
   assert (tc2.GetMinimumCellEnergy() == 10);
   assert (tc2.GetMinimumClusterEnergy() == 11);
   assert (tc2.GetUseCellWeights() == true);
-  assert (tc2.GetUseNoiseTool() == false);
-  assert (tc2.GetUsePileUpNoise() == true);
+
   assert (tc2.GetNoiseSigma() == 12);
   assert (tc2.GetCellESignificanceThreshold() == 13);
   assert (tc2.GetCaloSelection() == false);
@@ -182,8 +171,6 @@ void test2 (StoreGateSvc* sg)
   tc3.SetMinimumCellEnergy (20);
   tc3.SetMinimumClusterEnergy (21);
   tc3.SetUseCellWeights (false);
-  tc3.SetUseNoiseTool (true);
-  tc3.SetUsePileUpNoise (false);
   tc3.SetNoiseSigma (22);
   tc3.SetCellESignificanceThreshold (23);
   tc3.SetCaloSelection (true);
@@ -213,8 +200,6 @@ void test2 (StoreGateSvc* sg)
   assert (tc2.GetMinimumCellEnergy() == 20);
   assert (tc2.GetMinimumClusterEnergy() == 21);
   assert (tc2.GetUseCellWeights() == false);
-  assert (tc2.GetUseNoiseTool() == true);
-  assert (tc2.GetUsePileUpNoise() == false);
   assert (tc2.GetNoiseSigma() == 22);
   assert (tc2.GetCellESignificanceThreshold() == 23);
   assert (tc2.GetCaloSelection() == true);
@@ -247,8 +232,6 @@ void test2 (StoreGateSvc* sg)
   assert (tc1.GetMinimumCellEnergy() == 20);
   assert (tc1.GetMinimumClusterEnergy() == 21);
   assert (tc1.GetUseCellWeights() == false);
-  assert (tc1.GetUseNoiseTool() == true);
-  assert (tc1.GetUsePileUpNoise() == false);
   assert (tc1.GetNoiseSigma() == 22);
   assert (tc1.GetCellESignificanceThreshold() == 23);
   assert (tc1.GetCaloSelection() == true);
@@ -263,8 +246,6 @@ void test2 (StoreGateSvc* sg)
   assert (tc2.GetMinimumCellEnergy() == 10);
   assert (tc2.GetMinimumClusterEnergy() == 11);
   assert (tc2.GetUseCellWeights() == true);
-  assert (tc2.GetUseNoiseTool() == false);
-  assert (tc2.GetUsePileUpNoise() == true);
   assert (tc2.GetNoiseSigma() == 12);
   assert (tc2.GetCellESignificanceThreshold() == 13);
   assert (tc2.GetCaloSelection() == false);

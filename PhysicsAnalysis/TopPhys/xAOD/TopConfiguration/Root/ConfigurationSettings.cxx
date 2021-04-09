@@ -218,6 +218,7 @@ namespace top {
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
+    registerParameter("LargeRJetMass", "LargeRJet min. mass cut for object selection (in MeV).", "0");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
     registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
     registerParameter("LargeRJetUncertainties_NPModel",

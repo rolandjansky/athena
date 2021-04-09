@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AthContainersInterfaces/IAuxElement.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2021
+ * @brief Flag that a class may have auxiliary data associated with it.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Default constructor.
+ *        For an element not in a container.
+ */
+inline
+IAuxElement::IAuxElement()
+  : m_index (0),
+    m_privateStoreState (PrivateStoreState::NO_PRIVATE)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param index The index of this element in its container.
+ */
+inline
+IAuxElement::IAuxElement(size_t index)
+  : m_index (index),
+    m_privateStoreState (PrivateStoreState::NO_PRIVATE)
+{
+  // Check for overflow.
+  assert (m_index == index);
+}
+
+
+/**
+ * @brief Return the index of this element within its container.
+ */
+inline
+size_t IAuxElement::index() const
+{
+  return m_index;
+}
+
+
+/**
+ * @brief True if this element has no private data.
+ */
+inline
+bool IAuxElement::noPrivateData() const
+{
+  return m_privateStoreState == PrivateStoreState::NO_PRIVATE;
+}
+
+
+/**
+ * @brief True if this element currently has private data.
+ */
+inline
+bool IAuxElement::havePrivateData() const
+{
+  return m_privateStoreState == PrivateStoreState::HAVE_PRIVATE;
+}
+
+
+/**
+ * @brief True if this element had private data before it was added
+ *        to its current container.
+ */
+inline
+bool IAuxElement::hadPrivateData() const
+{
+  return m_privateStoreState == PrivateStoreState::HAD_PRIVATE;
+}
+
+
+/**
+ * @brief Set the index of this element within its container.
+ */
+inline
+void IAuxElement::setIndex (size_t index)
+{
+  m_index = index;
+  // Check for overflow.
+  assert (m_index == index);
+}
+
+
+/**
+ * @brief Record that this element does not have private data.
+ */
+inline
+void IAuxElement::setNoPrivateData()
+{
+  m_privateStoreState = PrivateStoreState::NO_PRIVATE;
+}
+
+
+/**
+ * @brief Record that this element currently has private data.
+ */
+inline
+void IAuxElement::setHavePrivateData()
+{
+  m_privateStoreState = PrivateStoreState::HAVE_PRIVATE;
+}
+
+
+/**
+ * @brief Record that this element used to have private data.
+ */
+inline
+void IAuxElement::setHadPrivateData()
+{
+  m_privateStoreState = PrivateStoreState::HAD_PRIVATE;
+}
+
+
+} // namespace SG

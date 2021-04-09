@@ -40,7 +40,7 @@ MuidTrackIsolation::MuidTrackIsolation (const std::string&type,
 StatusCode
 MuidTrackIsolation::initialize()
 {
-    ATH_MSG_INFO( "MuidTrackIsolation::initialize() - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "MuidTrackIsolation::initialize()" );
 
     // get the Tools
     if (m_intersector.retrieve().isFailure())

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -30,10 +30,6 @@
 #include "ZdcByteStream/ZdcDefs.h"
 #include "ZdcByteStream/ZdcByteStreamRawData.h"
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 //==================================================================================================
 ZdcByteStreamRawData::ZdcByteStreamRawData(const std::string& name, ISvcLocator* pSvcLocator) :
 	AthAlgorithm(name, pSvcLocator)
@@ -41,24 +37,6 @@ ZdcByteStreamRawData::ZdcByteStreamRawData(const std::string& name, ISvcLocator*
 	declareProperty("ZdcDigitsCollectionLocation", m_ZdcDigitsCollectionLocation = ZdcDefs::ZdcDigitsCollectionLocation);
 	declareProperty("ForceSlicesLUT", m_forceSlicesLut = 0);
 	declareProperty("ForceSlicesFADC", m_forceSlicesFadc = 0);
-}
-//==================================================================================================
-
-
-//==================================================================================================
-ZdcByteStreamRawData::~ZdcByteStreamRawData()
-{
-}
-//==================================================================================================
-
-
-//==================================================================================================
-StatusCode ZdcByteStreamRawData::initialize()
-{
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
-
-	return StatusCode::SUCCESS;
 }
 //==================================================================================================
 
@@ -88,14 +66,6 @@ StatusCode ZdcByteStreamRawData::execute()
 }
 //==================================================================================================
 
-
-//==================================================================================================
-StatusCode ZdcByteStreamRawData::finalize()
-{
-
-	return StatusCode::SUCCESS;
-}
-//==================================================================================================
 
 
 //==================================================================================================

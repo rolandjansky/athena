@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/Root/AuxElement.h
  * @author scott snyder <snyder@bnl.gov>
@@ -72,14 +70,6 @@ public:
 //************************************************************************
 
 
-/// Special value used to mark that an object had a private store,
-/// but it was released because it was added to a container.
-/// (And therefore we should recreate the private store if the
-/// object is later removed.)
-SG::AuxElementData* const AuxElement::s_privatePlaceholder =
-  reinterpret_cast<SG::AuxElementData*>(1);
-
-
 /**
  * @brief Create a new (empty) private store for this object.
  *
@@ -88,13 +78,13 @@ SG::AuxElementData* const AuxElement::s_privatePlaceholder =
  */
 void AuxElement::makePrivateStore()
 {
-  if (m_privateData || m_container) {
+  if (m_container) {
     throw SG::ExcBadPrivateStore ("store already exists");
   }
 
-  m_privateData = new SG::AuxElementPrivateData;
-  m_index = 0;
-  m_container = m_privateData;
+  m_container = new SG::AuxElementPrivateData;
+  IAuxElement::setIndex (0);
+  IAuxElement::setHavePrivateData();
 }
 
 
@@ -106,24 +96,24 @@ void AuxElement::makePrivateStore()
  */
 void AuxElement::releasePrivateStore()
 {
-  if (m_privateData == s_privatePlaceholder) {
+  if (hadPrivateData()) {
     // We had a private store, but it was released because this object
     // was added to a container.  Just forget about it.
-    m_privateData = 0;
+    IAuxElement::setNoPrivateData();
     return;
   }
 
-  if (!m_privateData ||
-      (m_container && m_container != m_privateData) ||
-      typeid(*m_privateData) != typeid(AuxElementPrivateData))
+  if (!havePrivateData() ||
+      !m_container ||
+      typeid(*m_container) != typeid(AuxElementPrivateData))
   {
     throw SG::ExcBadPrivateStore ("no private store exists");
   }
 
-  m_index = 0;
+  IAuxElement::setIndex (0);
+  IAuxElement::setNoPrivateData();
+  delete m_container;
   m_container = 0;
-  delete m_privateData;
-  m_privateData = 0;
 }
 
 
@@ -176,8 +166,8 @@ void AuxElement::setStore (const DataLink< SG::IConstAuxStore >& store)
  */
 bool AuxElement::usingPrivateStore() const
 {
-  return privateDataValid() && 
-    typeid(*m_privateData) == typeid(AuxElementPrivateData);
+  return havePrivateData() && 
+    typeid(*m_container) == typeid(AuxElementPrivateData);
 }
 
 
@@ -186,8 +176,8 @@ bool AuxElement::usingPrivateStore() const
  */
 bool AuxElement::usingStandaloneStore() const
 {
-  return privateDataValid() &&
-    typeid(*m_privateData) == typeid(AuxElementStandaloneData);
+  return havePrivateData() &&
+    typeid(*m_container) == typeid(AuxElementStandaloneData);
 }
 
 
@@ -200,8 +190,8 @@ bool AuxElement::usingStandaloneStore() const
  */
 const SG::IConstAuxStore* AuxElement::getConstStore() const
 {
-  if (privateDataValid())
-    return m_privateData->getConstStore();
+  if (havePrivateData())
+    return m_container->getConstStore();
   return 0;
 }
 
@@ -214,8 +204,8 @@ const SG::IConstAuxStore* AuxElement::getConstStore() const
  */
 SG::IAuxStore* AuxElement::getStore() const
 {
-  if (privateDataValid())
-    return m_privateData->getStore();
+  if (havePrivateData())
+    return m_container->getStore();
   return 0;
 }
 
@@ -244,8 +234,8 @@ void AuxElement::clearCache()
  */
 const SG::auxid_set_t& AuxElement::getAuxIDs() const
 {
-  if (privateDataValid())
-    return m_privateData->getConstStore()->getAuxIDs();
+  if (havePrivateData())
+    return m_container->getConstStore()->getAuxIDs();
   if (container())
     return container()->getAuxIDs();
   static const SG::auxid_set_t null_set;
@@ -260,8 +250,8 @@ const SG::auxid_set_t& AuxElement::getAuxIDs() const
  */
 bool AuxElement::hasStore() const
 {
-  if (privateDataValid())
-    return m_privateData->hasStore();
+  if (havePrivateData())
+    return m_container->hasStore();
   return false;
 }
 
@@ -273,8 +263,8 @@ bool AuxElement::hasStore() const
  */
 bool AuxElement::hasNonConstStore() const
 {
-  if (privateDataValid())
-    return m_privateData->hasNonConstStore();
+  if (havePrivateData())
+    return m_container->hasNonConstStore();
   return false;
 }
 
@@ -290,8 +280,8 @@ bool AuxElement::hasNonConstStore() const
  */
 bool AuxElement::clearDecorations() const
 {
-  if (privateDataValid())
-    return m_privateData->clearDecorations();
+  if (havePrivateData())
+    return m_container->clearDecorations();
   return false;
 }
 
@@ -303,9 +293,8 @@ bool AuxElement::clearDecorations() const
  */
 void AuxElement::releasePrivateStoreForDtor()
 {
-  if (m_privateData != s_privatePlaceholder)
-  {
-    delete m_privateData;
+  if (havePrivateData()) {
+    delete m_container;
   }
 }
 
@@ -325,13 +314,13 @@ AuxElement::setStore1 (const SG::IConstAuxStore* store)
     if (!m_container) {
       // Not in a container (and no private store).  Make a new object.
       AuxElementStandaloneData* data = new AuxElementStandaloneData;
-      m_privateData = data;
+      IAuxElement::setHavePrivateData();
       m_container = data;
       return data;
     }
     if (usingStandaloneStore()) {
       // Standalone --- return existing object.
-      return static_cast<AuxElementStandaloneData*> (m_privateData);
+      return static_cast<AuxElementStandaloneData*> (m_container);
     }
     // Otherwise, it's an error.
     throw ExcBadPrivateStore ("Attempt to attach a standalone store to an "
@@ -341,8 +330,8 @@ AuxElement::setStore1 (const SG::IConstAuxStore* store)
   else {
     // Getting rid of a standalone store.
     if (usingStandaloneStore()) {
-      delete m_privateData;
-      m_privateData = 0;
+      IAuxElement::setNoPrivateData();
+      delete m_container;
       m_container = 0;
     }
     else if (m_container != 0)
@@ -364,32 +353,36 @@ AuxElement::setStore1 (const SG::IConstAuxStore* store)
  */
 bool AuxElement::setIndexPrivate (size_t index, SG::AuxVectorData* container)
 {
-  // Precondition: m_privateData != 0.
-
-  if (m_privateData == s_privatePlaceholder) {
+  if (hadPrivateData()) {
     // We had a private store, but it was released because we were added
     // to a container.
 
     if (container == 0) {
       // We're being moved out of the container.  Make a new private
       // store, copy the data, and switch to it.
-      m_privateData = new SG::AuxElementPrivateData;
-      AuxElement to (m_privateData, 0);
+      auto privateData = new SG::AuxElementPrivateData;
+      AuxElement to (privateData, 0);
       to.copyAux (*this);
-      m_index = 0;
-      m_container = m_privateData;
+      IAuxElement::setIndex (0);
+      IAuxElement::setHavePrivateData();
+      m_container = privateData;
       return true;
     }
   }
-  else if (typeid(*m_privateData) == typeid(AuxElementPrivateData)) {
+  else if (havePrivateData() &&
+           typeid(*m_container) == typeid(AuxElementPrivateData))
+  {
     // We currently have a private store.
 
-    if (container != 0 && container != m_privateData) {
+    if (container != 0 && container != m_container) {
       // We're being added to a container.
       // Aux data has already been copied.
       // Release private store.
-      delete m_privateData;
-      m_privateData = s_privatePlaceholder;
+      IAuxElement::setIndex (index);
+      IAuxElement::setHadPrivateData();
+      delete m_container;
+      m_container = container;
+      return false;
     }
   }
   else {
@@ -398,7 +391,7 @@ bool AuxElement::setIndexPrivate (size_t index, SG::AuxVectorData* container)
                                   "from a container.");
   }
 
-  m_index = index;
+  IAuxElement::setIndex (index);
   m_container = container;
   return false;
 }
@@ -437,7 +430,7 @@ void AuxElement::clearAux()
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     void* dst = m_container->getDataArray (auxid);
-    r.clear (auxid, dst, m_index);
+    r.clear (auxid, dst, index());
   }
 }
 
@@ -477,18 +470,18 @@ void AuxElement::copyAux (const AuxElement& other)
     const void* src = ocont->getDataArrayAllowMissing (auxid);
     if (src) {
       void* dst = m_container->getDataArray (auxid);
-      r.copy (auxid, dst, m_index, src, oindex);
+      r.copy (auxid, dst, index(), src, oindex);
     }
     else {
       void* dst = m_container->getDataArray (auxid);
-      r.clear (auxid, dst, m_index);
+      r.clear (auxid, dst, index());
     }
   }
 
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     if (!other_ids.test (auxid)) {
       void* dst = m_container->getDataArray (auxid);
-      r.clear (auxid, dst, m_index);
+      r.clear (auxid, dst, index());
     }
   }
 }

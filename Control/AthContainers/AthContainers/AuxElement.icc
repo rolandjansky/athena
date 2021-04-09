@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxElement.icc 627952 2014-11-12 17:27:57Z ssnyder $
 /**
  * @file AthContainers/AuxElement.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -25,9 +22,7 @@ namespace SG {
  */
 inline
 AuxElement::AuxElement() 
-  : m_index(0),
-    m_container(0),
-    m_privateData(0)
+  : m_container(0)
 {
 }
 
@@ -42,9 +37,8 @@ AuxElement::AuxElement()
 inline
 AuxElement::AuxElement (SG::AuxVectorData* container,
                         size_t index)
-  : m_index(index),
-    m_container (container),
-    m_privateData(0)
+  : IAuxElement(index),
+    m_container (container)
 {
 }
 
@@ -61,9 +55,8 @@ AuxElement::AuxElement (SG::AuxVectorData* container,
  */
 inline
 AuxElement::AuxElement (const AuxElement& /*other*/)
-  : m_index(0),
-    m_container(0),
-    m_privateData(0)
+  : IAuxElement(),
+    m_container(0)
 {
 }
 
@@ -106,7 +99,7 @@ AuxElement& AuxElement::operator= (const AuxElement& other)
 inline
 AuxElement::~AuxElement()
 {
-  if (ATHCONTAINERS_UNLIKELY (m_privateData))
+  if (ATHCONTAINERS_UNLIKELY (!noPrivateData()))
     releasePrivateStoreForDtor();
 }
 
@@ -128,16 +121,6 @@ inline
 const SG::AuxVectorData* AuxElement::container() const
 {
   return m_container;
-}
-
-
-/**
- * @brief Return the index of this element within its container.
- */
-inline
-size_t AuxElement::index() const
-{
-  return m_index;
 }
 
 
@@ -229,7 +212,7 @@ const void*
 AuxElement::TypelessConstAccessor::operator() (const AuxElement& e) const
 {
   assert (e.container() != 0);
-  return (*this) (*e.container(), e.m_index);
+  return (*this) (*e.container(), e.index());
 }
 
 
@@ -348,7 +331,7 @@ typename AuxElement::ConstAccessor<T>::const_reference_type
 AuxElement::ConstAccessor<T>::operator() (const AuxElement& e) const
 {
   assert (e.container() != 0);
-  return e.container()->template getData<T> (m_auxid, e.m_index);
+  return e.container()->template getData<T> (m_auxid, e.index());
 }
 
 
@@ -454,7 +437,7 @@ typename AuxElement::Accessor<T>::reference_type
 AuxElement::Accessor<T>::operator() (AuxElement& e) const
 {
   assert (e.container() != 0);
-  return e.container()->template getData<T> (this->m_auxid, e.m_index);
+  return e.container()->template getData<T> (this->m_auxid, e.index());
 }
 
 
@@ -582,7 +565,7 @@ typename AuxElement::Decorator<T>::reference_type
 AuxElement::Decorator<T>::operator() (const AuxElement& e) const
 {
   assert (e.container() != 0);
-  return e.container()->template getDecoration<T> (m_auxid, e.m_index);
+  return e.container()->template getDecoration<T> (m_auxid, e.index());
 }
 
 
@@ -995,13 +978,13 @@ bool AuxElement::trackIndices() const
 inline
 void AuxElement::setIndex (size_t index, SG::AuxVectorData* container)
 {
-  if (ATHCONTAINERS_UNLIKELY (m_privateData != 0)) {
+  if (ATHCONTAINERS_UNLIKELY (!noPrivateData())) {
     // out-of-line piece, dealing with private store.
     setIndexPrivate (index, container);
     return;
   }
 
-  m_index = index;
+  IAuxElement::setIndex (index);
   m_container = container;
 }
 
@@ -1019,16 +1002,6 @@ inline
 void AuxElement::makePrivateStore1 (const void*)
 {
   makePrivateStore();
-}
-
-
-/**
- * @brief Helper to test if m_privateData is valid.
- */
-inline
-bool AuxElement::privateDataValid() const
-{
-  return m_privateData != 0 && m_privateData != s_privatePlaceholder;
 }
 
 

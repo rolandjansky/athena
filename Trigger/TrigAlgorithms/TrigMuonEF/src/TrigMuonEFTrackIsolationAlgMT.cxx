@@ -21,7 +21,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
 {
   ATH_MSG_DEBUG("Initialization");
 
-  ATH_MSG_DEBUG("package version = " << PACKAGE_VERSION);
   ATH_MSG_DEBUG("*** Properties set as follows ***");
   ATH_MSG_DEBUG("Track isolation tool  : " << m_onlineEfIsoTool);
   ATH_MSG_DEBUG("TrackParticles        : " << m_trackParticleKey.key());

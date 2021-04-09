@@ -106,7 +106,7 @@ CommonSmearingTool::~CommonSmearingTool()
 }
 
 /*
-  - Find the root files with smearing inputs on afs/cvmfs using PathResolver
+  - Find the root files with smearing inputs on cvmfs using PathResolver
     (more info here:
     https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
   - Call further functions to process and define NP strings and so on
@@ -258,15 +258,15 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   if (m_sSystematicSet->size() > 0)
   {
     // get uncertainties summed in quadrature
-    double dTotalSystematic2 = 0;
-    double dDirection = 0;
+    double dTotalSystematic2 = 0.;
+    double dDirection = 0.;
     for (auto syst : *m_sSystematicSet)
     {
       // check if systematic is available
       auto it = m_mSystematicsHistNames.find(syst.basename());
 
       // get uncertainty value
-      double dUncertaintySyst = 0;
+      double dUncertaintySyst = 0.;
       tmpCorrectionCode = getValue(it->second+sProng,
                                    xTau,
                                    dUncertaintySyst);
@@ -285,10 +285,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     }
 
     // now use dDirection to use up/down uncertainty
-    dDirection = (dDirection > 0) ? +1 : -1;
+    dDirection = (dDirection > 0.) ? 1. : -1.;
 
     // finally apply uncertainty (eff * ( 1 +/- \sum  )
-    dCorrection *= 1 + dDirection * sqrt(dTotalSystematic2);
+    dCorrection *= 1 + dDirection * std::sqrt(dTotalSystematic2);
   }
 
   // finally apply correction
@@ -372,7 +372,7 @@ StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSe
   }
 
   // sanity checks if systematic set is supported
-  double dDirection = 0;
+  double dDirection = 0.;
   CP::SystematicSet sSystematicSetAvailable;
   for (auto sSyst : sSystematicSet)
   {
@@ -422,7 +422,7 @@ StatusCode CommonSmearingTool::beginEvent()
   if (m_bIsConfigured)
     return StatusCode::SUCCESS;
 
-  const xAOD::EventInfo* xEventInfo = 0;
+  const xAOD::EventInfo* xEventInfo = nullptr;
   ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
   m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
   m_bIsConfigured=true;
@@ -593,7 +593,7 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     {
       TF1 f("",sTitle.c_str(), 0, 1000);
       if (sHistName.find("sf_") != std::string::npos)
-        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(m_fX(xTau)) + 1;
+        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1.) *f.Eval(m_fX(xTau)) + 1.;
       else
         dEfficiencyScaleFactor *= f.Eval(m_fX(xTau));
     }

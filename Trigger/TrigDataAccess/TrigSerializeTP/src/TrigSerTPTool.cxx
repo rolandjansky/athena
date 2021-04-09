@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -43,7 +43,7 @@ TrigSerTPTool::TrigSerTPTool( const std::string& type,
 StatusCode TrigSerTPTool::initialize(){
 
    // Greet the user:
-   ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "Initializing" );
 
    // Retrieve a custom message service:
    if( ! m_msgsvcTP.empty() ) {

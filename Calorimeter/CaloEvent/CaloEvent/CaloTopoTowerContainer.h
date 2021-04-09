@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOPOTOWERCONTAINER_H
@@ -99,9 +99,7 @@ public:
   double GetMinimumClusterEnergy() const;
   bool   GetUseCellWeights() const;
 
-  // Noise tool stuff
-  bool GetUseNoiseTool() const;
-  bool GetUsePileUpNoise() const;
+  // Noise stuff
   float GetNoiseSigma() const;
   float GetCellESignificanceThreshold() const;
 
@@ -120,9 +118,7 @@ public:
   void SetMinimumClusterEnergy(double c);
   void SetUseCellWeights(bool c);
 
-  // Noise tool stuff
-  void SetUseNoiseTool(bool c);
-  void SetUsePileUpNoise(bool c);
+  // Noise stuff
   void SetNoiseSigma(float c);
   void SetCellESignificanceThreshold(float c);
 
@@ -144,10 +140,7 @@ public:
   double m_minimumClusterEnergy;
   bool   m_useCellWeights;
 
-  // Noise tool stuff
-  bool m_useNoiseTool;
-  bool m_usePileUpNoise;
-  //  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  // Noise stuff
   float m_noiseSigma;
   float m_cellESignificanceThreshold;
 
@@ -180,11 +173,7 @@ inline double CaloTopoTowerContainer::GetMinimumClusterEnergy() const
 inline bool   CaloTopoTowerContainer::GetUseCellWeights() const
 {return m_useCellWeights;}
 
-// Noise tool stuff
-inline bool CaloTopoTowerContainer::GetUseNoiseTool() const
-{return m_useNoiseTool;}
-inline bool CaloTopoTowerContainer::GetUsePileUpNoise() const
-{return m_usePileUpNoise;}
+// Noise stuff
 inline float CaloTopoTowerContainer::GetNoiseSigma() const
 {return m_noiseSigma;}
 inline float CaloTopoTowerContainer::GetCellESignificanceThreshold() const
@@ -207,9 +196,7 @@ inline void CaloTopoTowerContainer::SetMinimumCellEnergy(double c){ m_minimumCel
 inline void CaloTopoTowerContainer::SetMinimumClusterEnergy(double c){ m_minimumClusterEnergy=c;}
 inline void CaloTopoTowerContainer::SetUseCellWeights(bool c){ m_useCellWeights=c;}
 
-// Noise tool stuff
-inline void CaloTopoTowerContainer::SetUseNoiseTool(bool c){ m_useNoiseTool=c;}
-inline void CaloTopoTowerContainer::SetUsePileUpNoise(bool c){ m_usePileUpNoise=c;}
+// Noise stuff
 inline void CaloTopoTowerContainer::SetNoiseSigma(float c){  m_noiseSigma=c;}
 inline void CaloTopoTowerContainer::SetCellESignificanceThreshold(float c){ m_cellESignificanceThreshold=c;}
 

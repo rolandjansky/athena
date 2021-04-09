@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -103,8 +103,7 @@ LArG4GenShowerLib::LArG4GenShowerLib(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode LArG4GenShowerLib::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name()
-                 << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO ( "Initializing" );
 
   ShowerLib::IShowerLib* library = NULL;
 

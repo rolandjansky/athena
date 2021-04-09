@@ -3,7 +3,6 @@
 */
 
 #include <JetRec/FastJetInterfaceTool.h>
-#include <JetRec/JetByVertexFinder.h>
 #include <JetRec/JetConstitRemover.h>
 #include <JetRec/JetConstituentsRetriever.h>
 #include <JetRec/JetDumper.h>
@@ -36,7 +35,6 @@
 #pragma link C++ namespace FastJetInterface;
 #pragma link C++ class FastJetInterfaceTool+;
 
-#pragma link C++ class JetByVertexFinder+;
 #pragma link C++ class JetConstitRemover+;
 #pragma link C++ class JetConstituentsRetriever+;
 #pragma link C++ class JetDumper+;

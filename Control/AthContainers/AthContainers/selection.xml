@@ -11,13 +11,13 @@
     <field name="m_mutex" transient="true"/>
   </class>
   <class name="SG::AuxElement">
-    <field name="m_index" transient="true"/>
     <field name="m_container" transient="true"/>
-    <field name="m_privateData" transient="true"/>
   </class>
   <class name="SG::IAuxElement">
-    <field name="m_dummy" transient="true"/>
+    <field name="m_index" transient="true"/>
+    <field name="m_privateStoreState" transient="true"/>
   </class>
+
   <class name="SG::IAuxStore"/>
   <class name="SG::IConstAuxStore"/>
   <class name="DataLink<SG::IConstAuxStore>" />

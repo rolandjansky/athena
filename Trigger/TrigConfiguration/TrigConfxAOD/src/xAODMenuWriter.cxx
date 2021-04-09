@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMenuWriter.cxx 717661 2016-01-14 08:16:47Z tbold $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -49,7 +48,7 @@ namespace TrigConf {
    StatusCode xAODMenuWriter::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "EventObjectName   = " << m_eventName );
       ATH_MSG_DEBUG( "MetaObjectName    = " << m_metaName );
       ATH_MSG_DEBUG( "OverwriteEventObj = "

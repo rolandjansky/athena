@@ -166,9 +166,6 @@ protected:
   double m_latency; // new in 2010....latency may be controlled in CscCalibTool.
 
   unsigned int m_nSamples;
-  mutable std::unique_ptr<TF1> m_addedfunc ATLAS_THREAD_SAFE = nullptr; // Guarded by m_mutex
-  mutable std::unique_ptr<TF1> m_bipolarFunc ATLAS_THREAD_SAFE = nullptr; // Guarded by m_mutex
-  mutable std::mutex m_mutex;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -52,7 +52,7 @@ CaloCellFilterAlg::CaloCellFilterAlg( const std::string& name,
 
 StatusCode CaloCellFilterAlg::initialize() {
 
-   ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "Initializing" );
    ATH_MSG_INFO( " reading CaloCellContainer " << m_cellsName );
    ATH_MSG_INFO( " CellEnergyThreshold  " << m_cellEnergyThreshold );
    ATH_MSG_INFO( " CellSigmaCut  " << m_sigmaCut );

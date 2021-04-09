@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonScatteringAngleSignificanceTool.h"
@@ -31,7 +31,7 @@ MuonScatteringAngleSignificanceTool::MuonScatteringAngleSignificanceTool(const s
 StatusCode
 MuonScatteringAngleSignificanceTool::initialize()
 {
-    ATH_MSG_INFO("Initializing MuonScatAngleSignificanceTool - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing MuonScatAngleSignificanceTool");
 
     // tool needed to refit slimmed tracks
     if (!m_fitter.empty()) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,7 @@ MuidCaloTrackStateOnSurface::~MuidCaloTrackStateOnSurface(void) {}
 StatusCode
 MuidCaloTrackStateOnSurface::initialize()
 {
-    ATH_MSG_DEBUG("Initializing CombinedMuonTrackStateOnSurface"
-                  << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_DEBUG("Initializing CombinedMuonTrackStateOnSurface");
 
     // get the Tools
     ATH_CHECK(m_caloEnergyDeposit.retrieve());

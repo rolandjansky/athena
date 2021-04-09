@@ -9,13 +9,13 @@ const unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
 const unsigned int TCS::MuonTOB::g_nBitsEta = 6;
 const unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
 
-TCS::MuonTOB::MuonTOB(uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::MuonTOB::MuonTOB(uint32_t roiWord, std::string tobName) :
+  BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values
-TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, std::string tobName) :
+  BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )

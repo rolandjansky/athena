@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 ///
 ///  @author  Vadim Kostyukhin <vadim.kostyukhin@cern.ch>
@@ -134,7 +134,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
 //Initialize---------------------------------------------------------------
    StatusCode NewVrtSecInclusiveTool::initialize(){
-     ATH_MSG_DEBUG( "Initialising NewVrtSecInclusiveTool- Package version: " << PACKAGE_VERSION ); 
+     ATH_MSG_DEBUG( "Initialising NewVrtSecInclusiveTool" );
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
      ATH_CHECK( m_extrapolator.retrieve() );
      ATH_CHECK(m_beamSpotKey.initialize());

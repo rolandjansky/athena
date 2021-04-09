@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -27,7 +27,7 @@ namespace InDet {
    StatusCode InDetTrackSmearingToolTester::initialize() {
      
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "InDetTrackSmearingTool   = " << m_smearTool );
 
       // Retrieve the tools:

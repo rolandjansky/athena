@@ -3684,8 +3684,8 @@ def dump_CaloTopoTowerContainer (t, f):
     fprint (f, '  ', t.GetMinimumCellEnergy(),
             t.GetMinimumClusterEnergy(),
             t.GetUseCellWeights(),
-            t.GetUseNoiseTool(),
-            t.GetUsePileUpNoise(),
+            False,  # was t.GetUseNoiseTool(), 
+            True,   # was t.GetUsePileUpNoise(),
             t.GetNoiseSigma(),
             t.GetCellESignificanceThreshold(),
             t.GetCaloSelection())

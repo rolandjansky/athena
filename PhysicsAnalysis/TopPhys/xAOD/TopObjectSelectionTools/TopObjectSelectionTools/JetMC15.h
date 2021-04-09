@@ -24,9 +24,10 @@ namespace top {
      *
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
+     * @param minmass The minimum mass to accept good jets.
      * @param doJVTCut To perform JVT cut - should be false for small-R jets
      */
-    JetMC15(const double ptcut, const double etamax, const bool doJVTCut);
+    JetMC15(const double ptcut, const double etamax, const double minmass, const bool doJVTCut);
 
     /**
      * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
@@ -83,8 +84,15 @@ namespace top {
     // The upper eta cut.
     double m_etamax;
 
+    // The lower mass cut threshold to apply on the object.
+    // if negative, do not apply mass cut
+    double m_masscut;
+
     // To do JVT cut - should be false for large-R jets
     bool m_applyJVTCut;
+
+    // Whether minimum mass cut should be applied
+    bool m_appyMassCut;
 
     ToolHandle<CP::IJetJvtEfficiency> m_jvt_tool;
   };

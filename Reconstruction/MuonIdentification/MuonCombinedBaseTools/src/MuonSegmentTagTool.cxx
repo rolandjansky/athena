@@ -47,7 +47,7 @@ namespace MuonCombined {
         ATH_CHECK(m_segmentSelector.retrieve());
         if (!m_caloExtensionTool.empty()) ATH_CHECK(m_caloExtensionTool.retrieve());
 
-        ATH_MSG_INFO("Initializing MuonSegmentTagTool - package version " << PACKAGE_VERSION);
+        ATH_MSG_INFO("Initializing MuonSegmentTagTool");
 
         ATH_MSG_DEBUG("Initialisation started                     ");
         ATH_MSG_DEBUG("================================           ");

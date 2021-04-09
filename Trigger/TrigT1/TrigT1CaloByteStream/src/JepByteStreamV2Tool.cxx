@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,8 +104,7 @@ JepByteStreamV2Tool::~JepByteStreamV2Tool()
 
 StatusCode JepByteStreamV2Tool::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << " - package version "
-                << PACKAGE_VERSION);
+  ATH_MSG_INFO ("Initializing " << name());
 
   ATH_CHECK( m_jemMaps.retrieve() );
   ATH_CHECK( m_errorTool.retrieve() );

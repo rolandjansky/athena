@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RootReaderD3PDSvc.cxx 452707 2011-08-08 11:45:42Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -22,9 +21,6 @@ namespace D3PD {
    }
 
    StatusCode RootReaderD3PDSvc::initialize() {
-
-      // Just print a hello...
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
       if( ( m_version < 1 ) || ( m_version > 2 ) ) {
          REPORT_MESSAGE( MSG::ERROR ) << "D3PDReader version " << m_version

@@ -28,7 +28,7 @@ def fastCaloSequence(flags):
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
 
 
-def fastCaloMenuSequence(name):
+def fastCaloMenuSequence(name, doRinger=True):
     """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     """
@@ -36,9 +36,13 @@ def fastCaloMenuSequence(name):
     # check if use Ringer and are electron because there aren't ringer for photons yet:
 
     # hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-    theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo")
-    theFastCaloHypo.CaloClusters = sequenceOut
+    if doRinger:
+      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT
+    else:
+      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT_noringer as createTrigEgammaFastCaloHypoAlgMT
+
+
+    theFastCaloHypo = createTrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo", sequenceOut)
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
@@ -46,6 +50,7 @@ def fastCaloMenuSequence(name):
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
+
 
 
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputName="CaloCellsFS"):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*    @file SCTErrMonTool.cxx
@@ -417,8 +417,6 @@ SCTErrMonTool::checkRateHists() {
       }
     } // mf moved brackets to allow online compilation
   }
-
-  ATH_MSG_INFO("SCTErrMonTool, package version " << PACKAGE_VERSION);
 
   return StatusCode::SUCCESS;
 }

@@ -44,7 +44,6 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       SCT_CalibLbTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibLbTool() = default;
       virtual StatusCode initialize();
-      virtual StatusCode finalize();
       //@}
       //@name ISCT_CalibHistoTool methods, reimplemented
       //@{

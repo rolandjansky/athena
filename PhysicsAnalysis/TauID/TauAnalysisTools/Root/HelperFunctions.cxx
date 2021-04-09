@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -413,7 +413,7 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
     double py = FinalCalibP4.Py() - Sum_ChrgPFOP4.Py();
     double pz = FinalCalibP4.Pz() - Sum_ChrgPFOP4.Pz();
 
-    double p_correctedPi0s = sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.) );
+    double p_correctedPi0s = std::sqrt( std::pow(px,2.) + std::pow(py,2.) + std::pow(pz,2.) );
     double p_vPi0s = Sum_vPi0s.P();
 
     //Calucate scale factor for the pi0 3-vector momentum
@@ -427,7 +427,7 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
       px_scaled = vPi0s[i].Px() * X;
       py_scaled = vPi0s[i].Py() * X;
       pz_scaled = vPi0s[i].Pz() * X;
-      e = sqrt( pow(px_scaled,2.) + pow(py_scaled,2.) + pow(pz_scaled,2.) + pow(mPi0,2.) );
+      e = std::sqrt( std::pow(px_scaled,2.) + std::pow(py_scaled,2.) + std::pow(pz_scaled,2.) + std::pow(mPi0,2.) );
 
       //Append the corrected pi0P4 to correctedPi0s
       TLorentzVector P4_correctedPi0s;
@@ -466,8 +466,8 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
     }
 
     TLorentzVector correctedPi0_0, correctedPi0_1;
-    correctedPi0_0.SetPtEtaPhiM( correctedPi0s[0].Pt()/cos(0.5*deltaR/sqrt(2.0)), correctedPi0s[0].Eta()+0.5*deltaR/sqrt(2.0), correctedPi0s[0].Phi()+0.5*deltaR/sqrt(2.0), correctedPi0s[0].M() );
-    correctedPi0_1.SetPtEtaPhiM( correctedPi0s[1].Pt()/cos(0.5*deltaR/sqrt(2.0)), correctedPi0s[1].Eta()-0.5*deltaR/sqrt(2.0), correctedPi0s[1].Phi()-0.5*deltaR/sqrt(2.0), correctedPi0s[1].M() );
+    correctedPi0_0.SetPtEtaPhiM( correctedPi0s[0].Pt()/cos(0.5*deltaR/std::sqrt(2.0)), correctedPi0s[0].Eta()+0.5*deltaR/std::sqrt(2.0), correctedPi0s[0].Phi()+0.5*deltaR/std::sqrt(2.0), correctedPi0s[0].M() );
+    correctedPi0_1.SetPtEtaPhiM( correctedPi0s[1].Pt()/cos(0.5*deltaR/std::sqrt(2.0)), correctedPi0s[1].Eta()-0.5*deltaR/std::sqrt(2.0), correctedPi0s[1].Phi()-0.5*deltaR/std::sqrt(2.0), correctedPi0s[1].M() );
 
     std::vector<TLorentzVector> AngleCorrectedPi0s;
     AngleCorrectedPi0s.push_back(correctedPi0_0);

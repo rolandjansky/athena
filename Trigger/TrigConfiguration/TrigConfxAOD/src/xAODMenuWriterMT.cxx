@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -50,7 +50,7 @@ namespace TrigConf
    {
 
       // Greet the user:
-      ATH_MSG_INFO("Initialising - Package version: " << PACKAGE_VERSION);
+      ATH_MSG_INFO("Initialising");
       ATH_MSG_VERBOSE("MetaDataStore = " << m_metaStore);
 
       // Retrieve the necessary service(s):

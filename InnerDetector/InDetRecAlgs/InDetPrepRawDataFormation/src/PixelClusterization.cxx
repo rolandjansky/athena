@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -196,13 +196,7 @@ namespace InDet{
     ATH_MSG_DEBUG( "PixelClusterAmbiguitiesMap recorded in StoreGate");
     return StatusCode::SUCCESS;
   }
-  //----------------------------------------------------------------------------
-  // Finalize method:
-  StatusCode PixelClusterization::finalize(){
-    ATH_MSG_INFO( "PixelClusterization::finalize() " << PACKAGE_VERSION );
-    return StatusCode::SUCCESS;
-  }
-  
+
 }// namespace closure
 
 

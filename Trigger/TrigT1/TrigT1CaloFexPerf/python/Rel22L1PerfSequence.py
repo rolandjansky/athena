@@ -50,10 +50,13 @@ def setupRun3L1CaloPerfSequence(
     from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
 
     if globalflags.DataSource()=='data':
-        if simflags.Calo.SCellType() != "EmulatedSCell":
+        if "Emulated" not in simflags.Calo.SCellType():
             log.info("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated.", simflags.Calo.SCellType())
             log.info("Changing setting to Emulated")
-            simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCell")
+            if(simflags.Calo.ApplyEmulatedPedestal()):
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCell")
+            else:
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCellNoBCID")
 
     log.info(simflags._context_name)
     simflags.print_JobProperties("tree&value")
@@ -65,7 +68,7 @@ def setupRun3L1CaloPerfSequence(
         # These are fully simulated supercells, from supercell pulse
         # collection is CaloCellContainer#SCell
         SCIn = "SCellnoBCID"
-    elif simflags.Calo.SCellType() == "EmulatedSCell":
+    elif "Emulated" in simflags.Calo.SCellType():
         #This function has options to support both LArSimple and SCEmulation (which accounts for timing) 
         from TrigT1CaloFexPerf.EmulationConfig import emulateSC 
         emulateSC(l1simAlgSeq,SCOut=simflags.Calo.SCellType() )
