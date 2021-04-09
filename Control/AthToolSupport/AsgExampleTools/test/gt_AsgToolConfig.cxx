@@ -173,6 +173,47 @@ namespace asg
     ASSERT_SUCCESS (config2.makePrivateTool (tool2));
     EXPECT_EQ ("ToolSvc." + name1 + ".myPrivateTool", tool2->name());
   }
+
+
+
+  TEST (AsgToolConfigTest, emptyArray)
+  {
+    const std::string name = makeUniqueName();
+    AsgToolConfig mainConfig ("asg::UnitTestTool2/" + name);
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (mainConfig.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    ASSERT_EQ (0u, tool->getArray().size());
+  }
+
+
+
+  TEST (AsgToolConfigTest, fillArray)
+  {
+    const std::string name = makeUniqueName();
+
+    AsgToolConfig mainConfig ("asg::UnitTestTool2/" + name);
+    {
+      auto subtool = mainConfig.createPrivateToolInArray ("regPrivateArray", "asg::UnitTestTool1");
+      ANA_MSG_INFO ("subtool = " << subtool);
+      ASSERT_SUCCESS (mainConfig.setProperty (subtool + ".propertyInt", 19));
+    }
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1");
+      ANA_CHECK_THROW (subconfig.setProperty ("propertyInt", 22));
+      auto subtool = mainConfig.addPrivateToolInArray ("regPrivateArray", subconfig);
+      ANA_MSG_INFO ("subtool = " << subtool);
+    }
+
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (mainConfig.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    ASSERT_EQ (2u, tool->getArray().size());
+    EXPECT_EQ (19, tool->getArray()[0]->getPropertyInt());
+    EXPECT_EQ (22, tool->getArray()[1]->getPropertyInt());
+  }
 }
 
 ATLAS_GOOGLE_TEST_MAIN

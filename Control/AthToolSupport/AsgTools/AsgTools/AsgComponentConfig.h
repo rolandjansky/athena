@@ -151,6 +151,48 @@ namespace asg
                                   const std::string& toolType);
 
 
+    /// \brief add a private tool from the given configuration
+    ///
+    /// This will ignore the name set in `toolConfig` and use whatever
+    /// `name` is given instead.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    StatusCode addPrivateTool (const std::string& name,
+                               AsgToolConfig toolConfig);
+
+
+    /// \brief the array version of \ref createPrivateTool
+    ///
+    /// This returns the actual name of the tool to allow setting
+    /// properties on it.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string createPrivateToolInArray (const std::string& name,
+                                          const std::string& toolType);
+
+
+    /// \brief the array version of \ref addPrivateTool
+    ///
+    /// This will ignore the name set in `toolConfig` and use whatever
+    /// `name` is given instead.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string addPrivateToolInArray (const std::string& name,
+                                       AsgToolConfig toolConfig);
+
+
 #ifdef XAOD_STANDALONE
     /// \brief make a component with the given configuration
     ///
@@ -215,20 +257,22 @@ namespace asg
     // private interface
     //
 
-    /// \brief the value of \ref type
   private:
+
+    /// \brief the value of \ref type
     std::string m_type;
 
     /// \brief the value of \ref name
-  private:
     std::string m_name;
 
-    /// \brief the map of private tools to create
-  private:
-    std::map<std::string,std::string> m_privateTools;
+    /// \brief the map of (private) tools to create
+    std::map<std::string,std::tuple<AsgToolConfig,std::string>> m_privateTools;
+
+    /// \brief the map of (private) tool handle arrays to manage, and
+    /// the tools they contain
+    std::map<std::string,std::vector<decltype(m_privateTools.cbegin())>> m_toolArrays;
 
     /// \brief the map of property values
-  private:
     std::map<std::string,std::string> m_propertyValues;
 
 
@@ -237,11 +281,29 @@ namespace asg
     ///   strong
     /// \par Failures
     ///   type or name doesn't have proper format
-  private:
     StatusCode checkTypeName (bool nestedNames) const;
+
+
+    /// \brief access the configuration for the given subtool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   unknown subtool
+    /// \{
+    struct AccessSubtoolData final
+    {
+      AsgToolConfig *config {nullptr};
+      std::string prefix;
+      std::string name;
+    };
+    AccessSubtoolData accessSubtool (const std::string& name,
+                                     std::size_t split);
+    /// \}
   };
 }
 
 #include "AsgComponentConfig.icc"
+
+#include <AsgTools/AsgToolConfig.h>
 
 #endif
