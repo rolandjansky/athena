@@ -76,36 +76,25 @@ namespace Rec {
                                             float bs_z) const override;
         virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
 
-        using ICombinedMuonTrackBuilder::fit;
         /** refit a track */
         virtual Trk::Track* fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier = false,
                                 const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
 
-        /**
-        fit a set of PrepRawData objects */
-        Trk::Track* fit(const Trk::PrepRawDataSet&, const Trk::TrackParameters& /*perigeeStartValue*/,
-                        const Trk::RunOutlierRemoval /*runOutlier*/, const Trk::ParticleHypothesis /*particleHypothesis*/) const {
-            return nullptr;
-        };
+        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+                                const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
 
+    private:
         /**
-            refit a track adding a MeasurementSet */
-        Trk::Track* fit(const Trk::Track& /*track*/, const Trk::MeasurementSet& /*measurementSet*/,
-                        const Trk::RunOutlierRemoval /*runOutlier*/, const Trk::ParticleHypothesis /*particleHypothesis*/) const {
-            return nullptr;
-        };
-
-        /**
-            fit a set of MeasurementBase objects with starting value for perigeeParameters */
+             fit a set of MeasurementBase objects with starting value for perigeeParameters */
         Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
                         const Trk::RunOutlierRemoval /*runOutlier*/, const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
         /**
             combined muon fit */
-        Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const Trk::RunOutlierRemoval runOutlier = false,
-                        const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
+        std::unique_ptr<Trk::Track> fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const EventContext& ctx,
+                                        const Trk::RunOutlierRemoval runOutlier = false,
+                                        const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    private:
         Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
         Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex) const;
