@@ -22,14 +22,14 @@ template< class IDC, class IDHELPER >
 //DRDR static should match implementation in IDC_Helper.icc (clang32)
 static  
 typename IDC::IDENTIFIABLE* 
-getCollection /*ATLAS_NOT_THREAD_SAFE*/ (  const Identifier collId, 
+getCollection ATLAS_NOT_THREAD_SAFE (  const Identifier collId, 
                                        IDC* idc, 
                                        const IDHELPER& idHelper, 
                                        MsgStream& log);
 
 template< class IDC, class IDHELPER >
 typename IDC::IDENTIFIABLE* 
-getCollection /*ATLAS_NOT_THREAD_SAFE*/ (  const Identifier collId, 
+getCollection ATLAS_NOT_THREAD_SAFE (  const Identifier collId, 
                                        IDC* idc, 
                                        const IDHELPER* idHelper, 
                                        MsgStream& log)

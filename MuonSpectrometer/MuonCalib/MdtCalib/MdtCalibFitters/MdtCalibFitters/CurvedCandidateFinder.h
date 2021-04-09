@@ -33,41 +33,37 @@
 #include <vector>
 
 // MuonCalib //
-#include "MuonCalibEventBase/MdtCalibHitBase.h"
 #include "MdtCalibFitters/CurvedLine.h"
-
+#include "MuonCalibEventBase/MdtCalibHitBase.h"
 
 namespace MuonCalib {
 
-class CurvedCandidateFinder {
+    class CurvedCandidateFinder {
+    public:
+        // Constructors //
+        CurvedCandidateFinder(const std::vector<const MdtCalibHitBase *> &hits);
+        ///< Constructor
+        ///< @param hits Vector of hits used in the candidate finding.
 
-public:
-// Constructors //
-    CurvedCandidateFinder(const std::vector<const MdtCalibHitBase *> & hits);
-    ///< Constructor
-    ///< @param hits Vector of hits used in the candidate finding.
+        // Methods //
+        const std::vector<CurvedLine> &getCandidates(const double &road_width);
+        ///< get all candidates connecting all hits
+        ///< within the given road width (mm)
+        const std::vector<CurvedLine> &getCandidates(const double &road_width, const Amg::Vector3D &est_dir);
+        ///< get all candidates connecting all hits
+        ///< within the given road width (mm);
+        ///< est_dir is the estimated direction of
+        ///< incidence
 
-// Methods //
-    const std::vector<CurvedLine> & getCandidates(const double & road_width);
-                                    ///< get all candidates connecting all hits
-                                    ///< within the given road width (mm)
-    const std::vector<CurvedLine> & getCandidates(const double & road_width,
-									const Amg::Vector3D & est_dir);
-                                    ///< get all candidates connecting all hits
-                                    ///< within the given road width (mm);
-									///< est_dir is the estimated direction of
-									///< incidence
+    private:
+        // hits //
+        std::vector<const MdtCalibHitBase *> m_hits;  // vector hits used in the
+                                                      // candidate search
 
-private:
-// hits //
-    std::vector<const MdtCalibHitBase *> m_hits; // vector hits used in the
-                                                 // candidate search
+        // candidates //
+        std::vector<CurvedLine> m_candidates;  // vector of candidate lines
+    };
 
-// candidates //
-    std::vector<CurvedLine> m_candidates; // vector of candidate lines
-
-};
-
-}
+}  // namespace MuonCalib
 
 #endif

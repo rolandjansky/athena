@@ -9,38 +9,36 @@ class TF1;
 class TDirectory;
 
 #include <cstddef>
-#include "vector"
+
 #include "list"
+#include "vector"
 
 namespace MuonCalib {
 
-class MuonCalibSegment;
-class IRtRelation;
-class MdtCalibHitBase;
-class MultilayerRtDifference_Histograms;
+    class MuonCalibSegment;
+    class IRtRelation;
+    class MdtCalibHitBase;
+    class MultilayerRtDifference_Histograms;
 
-class MultilayerRtDifference {
+    class MultilayerRtDifference {
+    public:
+        MultilayerRtDifference(int min_hits, TDirectory *control_histogram_dir = NULL);
+        MultilayerRtDifference(const MultilayerRtDifference &MLRTD);
+        virtual ~MultilayerRtDifference();
+        MultilayerRtDifference &operator=(const MultilayerRtDifference &MLRTD);
 
- public:
-  MultilayerRtDifference(int min_hits, TDirectory *control_histogram_dir=NULL);
-  MultilayerRtDifference( const MultilayerRtDifference &MLRTD );
-  virtual ~MultilayerRtDifference();
-  MultilayerRtDifference& operator=( const MultilayerRtDifference &MLRTD );
+        void Fill(const MdtCalibHitBase &hit, const IRtRelation &rt_relation);
 
-  void Fill(const MdtCalibHitBase &hit, const IRtRelation &rt_relation);
-				
-  bool DoFit(IRtRelation * rt_relation=NULL, const std::vector<MuonCalibSegment *>  *seg=NULL);
-		
-  inline const TF1 * GetFunction() const {
-    return m_polfun;
-  }
-		
- private:
-  TF1 *m_polfun;
-  MultilayerRtDifference_Histograms *m_histograms;
-  int m_min_number_of_hits;
-};
+        bool DoFit(IRtRelation *rt_relation = NULL, const std::vector<MuonCalibSegment *> *seg = NULL);
 
-}//namespace MuonCalib 
+        inline const TF1 *GetFunction() const { return m_polfun; }
+
+    private:
+        TF1 *m_polfun;
+        MultilayerRtDifference_Histograms *m_histograms;
+        int m_min_number_of_hits;
+    };
+
+}  // namespace MuonCalib
 
 #endif
