@@ -256,7 +256,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( Muon::MdtPrepDataContainer* 
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
         if ( processCsm(mdtPrepDataContainer, rdoColl2, idWithDataVect, muDetMgr).isFailure() ) {
-          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
+          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl2->identify().get_compact()));
           return false;
         }
       }
