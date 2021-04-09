@@ -11,6 +11,7 @@ from TrigHLTJetHypo.scenario_fbdjshared import scenario_fbdjshared
 from TrigHLTJetHypo.scenario_simple import scenario_simple
 
 from TrigHLTJetHypo.prefilter_mask import prefilter_mask
+from TrigHLTJetHypo.prefilter_ptrange import prefilter_ptrange
 from TrigHLTJetHypo.prefilter_cleanLB import prefilter_cleanLB
 
 from TrigHLTJetHypo.makeConditionFilterConfigurer import (
@@ -259,17 +260,14 @@ def make_prefilter_configurers(chain_dict):
     # route the prefilter strings to rhe approriate handler
     prefilter_router = {
         'mask': prefilter_mask,
+        'ptrange': prefilter_ptrange,
         'cleanLB': prefilter_cleanLB,
     }
 
     filters = []
     for pf_string in pf_strings:
         key = pf_string.split('SEP')[0]
-
-        try:
-            filters.append(prefilter_router[key](pf_string))
-        except KeyError:
-            raise RuntimeError('Unknown prefilter string: %s' % pf_string)
+        filters.append(prefilter_router[key](pf_string))
         
     return filters
 

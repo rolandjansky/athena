@@ -27,8 +27,8 @@ def prefilter_ptrange(pf_string):
     groupdict = m.groupdict()
 
     vals = {}
-    vals['begin'] = groupdict['begin']
-    vals['end'] = groupdict['end']
+    vals['begin'] = int(groupdict['begin']) - 1  # chainname indices atart at 1
+    vals['end'] = int(groupdict['end'])  # so "end" is 1 + last pos in rangw
 
     toolclass, name =  toolfactory('RangeFilterConfigTool')
     vals['name'] = name
