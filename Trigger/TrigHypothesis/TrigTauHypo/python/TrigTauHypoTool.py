@@ -244,15 +244,11 @@ def TrigL2TauHypoToolFromDict( chainDict ):
     name = chainDict['chainName']
     chainPart = chainDict['chainParts'][0]
 
-    criteria  = chainPart['selection']
     threshold = chainPart['threshold']
     from AthenaConfiguration.ComponentFactory import CompFactory
     currentHypo = CompFactory.TrigTauGenericHypoMT(name)
     currentHypo.MonTool  = ""
     currentHypo.Details  = [int(-1)]
     currentHypo.Formulas = ['y > '+threshold+'*1000.0']
-
-    if 'idperf' in criteria:
-       currentHypo.AcceptAll = True
 
     return currentHypo
