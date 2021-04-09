@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p3.h" 
@@ -104,7 +104,7 @@ void CaloClusterContainerCnv_p3::transToPers (const CaloClusterContainer* trans,
     for (int w=0; w<nMom; w++){  // here stores moment keys per container not cluster
 	   // std::cout<<"key: "<<mit.getMomentType()<<"\t";
 	    pers->m_momentContainer.m_Mkey.push_back(mit.getMomentType());  
-	    mit++; 
+	    ++mit;
 	    }
 	   // std::cout<<std::endl;
   } 
@@ -123,7 +123,7 @@ void CaloClusterContainerCnv_p3::transToPers (const CaloClusterContainer* trans,
     CaloClusterMomentStore::moment_iterator itm=(*it)->m_momentStore.begin(); 
     CaloClusterMomentStore::moment_iterator itm_e=(*it)->m_momentStore.end();
   
-    for(;itm!=itm_e;itm++) {
+    for(;itm!=itm_e;++itm) {
 	temp_Moments.push_back(itm.getMoment().getValue());
 	//std::cout<<"mom: "<<itm.getMoment().getValue()<<"\t";
 	} 

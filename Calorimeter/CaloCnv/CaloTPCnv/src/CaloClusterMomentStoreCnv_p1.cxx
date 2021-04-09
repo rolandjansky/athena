@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterMomentStoreCnv_p1.h" 
@@ -44,7 +44,7 @@ void CaloClusterMomentStoreCnv_p1::transToPers(const CaloClusterMomentStore* tra
   CaloClusterMomentStore::moment_iterator it_e=trans->end();
 
   CaloClusterMomentStore_p1::ClusterMoment mom;
-  for(;it!=it_e;it++) {
+  for(;it!=it_e;++it) {
     mom.key=it.getMomentType();
     mom.value=it.getMoment().getValue();
     pers->m_store.push_back(mom);
