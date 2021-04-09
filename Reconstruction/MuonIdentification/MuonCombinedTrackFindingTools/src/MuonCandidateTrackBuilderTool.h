@@ -56,6 +56,9 @@ namespace Muon {
 	  if(m_idHelperSvc->rpcIdHelper().doubletR(id1)!=m_idHelperSvc->rpcIdHelper().doubletR(id2)){
 	    return m_idHelperSvc->rpcIdHelper().doubletR(id1)<m_idHelperSvc->rpcIdHelper().doubletR(id2);
 	  }
+	  else if(m_idHelperSvc->rpcIdHelper().doubletZ(id1)!=m_idHelperSvc->rpcIdHelper().doubletZ(id2)){
+            return m_idHelperSvc->rpcIdHelper().doubletZ(id1)<m_idHelperSvc->rpcIdHelper().doubletZ(id2);
+          }
 	  else return mst1->globalPosition().perp() < mst2->globalPosition().perp();
 	}
       }
