@@ -2439,6 +2439,12 @@ HLT_j0_aggSEP500ht_L1J20:
     0: 1
   stepFeatures:
     0: 5
+HLT_j0_dijetSEP20j12etSEP110djmass_ptrangeSEP2r3_L1J20:
+  eventCount: 10
+  stepCounts:
+    0: 10
+  stepFeatures:
+    0: 20
 HLT_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta_L1J20:
   eventCount: 0
 HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20:

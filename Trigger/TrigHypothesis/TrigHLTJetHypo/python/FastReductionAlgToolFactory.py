@@ -26,9 +26,12 @@ class FastReductionAlgToolFactory:
             'PassThroughFilterConfigTool':
             [CompFactory.TrigJetHypoToolConfig_passthroughfilter, 0],
             
+            'RangeFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_rangefilter, 0],
+
             'RepeatedConditionConfigTool':
             [CompFactory.TrigJetConditionConfig_repeated, 0],
-
+                        
             'eta': [CompFactory.TrigJetConditionConfig_abs_eta, 0], 
             'neta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
             'ceta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
