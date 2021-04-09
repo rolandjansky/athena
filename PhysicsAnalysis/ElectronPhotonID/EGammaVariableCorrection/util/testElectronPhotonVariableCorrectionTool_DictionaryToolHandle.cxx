@@ -12,7 +12,7 @@
 #include <TError.h>
 
 // EDM include(s):
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
@@ -21,7 +21,7 @@
 int main(/*int argc, char* argv[]*/) //unused variable warnings!!
 {
     Info(MSGSOURCE, "Configuring the ElectronPhotonVariableCorrectionTool");
-    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTool");
+    asg::StandaloneToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTool");
     myTool.setProperty("ConfigFile", "EGammaVariableCorrection/EGammaVariableCorrectionTool_ExampleConf.conf").ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {

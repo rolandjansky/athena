@@ -34,7 +34,6 @@
 #include "DiTauMassTools/MissingMassTool.h"
 
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
 
 int main() {
 

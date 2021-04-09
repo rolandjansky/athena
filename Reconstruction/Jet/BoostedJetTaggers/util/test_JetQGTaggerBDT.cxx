@@ -16,6 +16,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ROOTCORE
+#include "AsgTools/StandaloneToolHandle.h"
 
 // EDM include(s):
 #include "xAODCore/ShallowAuxContainer.h"
@@ -146,8 +147,8 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing QG BDT Tagger"<<std::endl;
-  asg::AnaToolHandle<CP::JetQGTaggerBDT> m_Tagger; //!
-  m_Tagger.setName("MyTagger");
+  asg::StandaloneToolHandle<CP::JetQGTaggerBDT> m_Tagger; //!
+  m_Tagger.setTypeAndName("CP::JetQGTaggerBDT/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
   if(! m_Tagger.setProperty( "ConfigFile", "JetQGTaggerBDT/JetQGTaggerBDT50Gluon.dat") )  return 1;
   if(! m_Tagger.setProperty( "UseJetVars", 0) )  return 1;

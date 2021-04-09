@@ -5,7 +5,7 @@
 // $Id: ut_PMGSherpaVjetsSysTool_test.cxx 2016-07-13 tripiana $
 
 // Tool include(s):
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 // xAOD include(s):
 #ifdef ROOTCORE
@@ -40,9 +40,8 @@ int main() {
 #endif
 
 
-   asg::AnaToolHandle< PMGTools::IPMGSherpaVjetsSysTool > myTool;
-   ASG_SET_ANA_TOOL_TYPE(myTool, PMGTools::PMGSherpaVjetsSysTool);
-   myTool.setName("PMGSherpaVjetsSysTool");
+   asg::StandaloneToolHandle< PMGTools::IPMGSherpaVjetsSysTool > myTool;
+   myTool.setTypeAndName("PMGTools::PMGSherpaVjetsSysTool/PMGSherpaVjetsSysTool");
    ANA_CHECK( myTool.setProperty( "TruthJetContainer", "AntiKt4TruthJets" ) );  // default
    //   ANA_CHECK( myTool.setProperty( "TruthJetContainer", "AntiKt4TruthJets" ) );
    ANA_CHECK( myTool.initialize() );
