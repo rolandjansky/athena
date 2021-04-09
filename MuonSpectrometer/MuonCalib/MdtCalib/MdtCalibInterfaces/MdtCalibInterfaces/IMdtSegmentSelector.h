@@ -13,30 +13,28 @@
 #ifndef MUONCALIB_IMDTSEGMENTSELECTOR_H
 #define MUONCALIB_IMDTSEGMENTSELECTOR_H
 
-
 namespace MuonCalib {
-  /**
-     @class IMdtSegmentSelector
-     Interface class for MdtSegmentSelectors.
-     
-     @author Niels.Van.Eldik@cern.ch
-  */
-  
-  class MuonCalibSegment;
-  
-  class IMdtSegmentSelector {
-  public:
-    /** destructor */
-    virtual ~IMdtSegmentSelector() {}
-    
-    /** return true if segment satisfies selection criteria */
-    virtual bool   select(const MuonCalibSegment& seg) const = 0;
+    /**
+       @class IMdtSegmentSelector
+       Interface class for MdtSegmentSelectors.
 
-    /** set print level */
-    virtual void   setPrintLevel( int level ) = 0;
-  };
+       @author Niels.Van.Eldik@cern.ch
+    */
 
-}
+    class MuonCalibSegment;
 
+    class IMdtSegmentSelector {
+    public:
+        /** destructor */
+        virtual ~IMdtSegmentSelector() {}
+
+        /** return true if segment satisfies selection criteria */
+        virtual bool select(const MuonCalibSegment& seg) const = 0;
+
+        /** set print level */
+        virtual void setPrintLevel(int level) = 0;
+    };
+
+}  // namespace MuonCalib
 
 #endif
