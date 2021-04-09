@@ -39,19 +39,6 @@ if useTCMOFC:
 
 include("LArConditionsCommon/LArConditionsCommon_H8_jobOptions.py")
 
-# Default CaloNoiseTool, to be used by all:
-#from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-#theCaloNoiseTool = CaloNoiseToolDefault('tool')
-#theCaloNoiseTool.NMinBias                = 0
-#theCaloNoiseTool.UseTile                 = False
-#theCaloNoiseTool.IsMC                    = False
-#theCaloNoiseTool.UseSymmetry             = False
-#theCaloNoiseTool.WorkMode                = 1
-#theCaloNoiseTool.WithOF                  = True
-
-#ToolSvc += theCaloNoiseTool
-include( "CaloTools/CaloNoiseTool_TB_jobOptions.py" )
-
 #theApp.TopAlg += [ "LArRawChannelBuilder" ]
 #LArRawChannelBuilder = Algorithm("LArRawChannelBuilder");
 from LArROD.LArRODFlags import larRODFlags
