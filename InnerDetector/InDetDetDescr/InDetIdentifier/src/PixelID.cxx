@@ -49,6 +49,7 @@ PixelID::PixelID(void)
         m_ETA_INDEX_INDEX(7),
         m_ETA_MODULE_OFFSET(999),
         m_dict(0),
+        m_isITk(false),
         m_wafer_hash_max(0),
         m_pixel_hash_max(0)
 {
@@ -272,6 +273,9 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                        << std::endl;
         return (1);
     }
+    m_isITk = m_dict->m_version.find("SLHC") != std::string::npos
+      || m_dict->m_version.find("ITkHGTD") != std::string::npos;
+
 
     AtlasDetectorID::setDictVersion(dict_mgr, "InnerDetector");
 
@@ -1196,10 +1200,9 @@ PixelID::test_wafer_packing     (void) const
 bool        
 PixelID::is_innermost       (const Identifier& id) const 
 {
-  bool isSLHC = (m_dict && m_dict->m_version.find("SLHC") != std::string::npos); 
 
   // Updated definition takes into account upgrade layouts
-  if(is_barrel(id) || isSLHC) {
+  if(is_barrel(id) || m_isITk) {
     return (0 == layer_disk(id));
   }
   else {
@@ -1211,10 +1214,9 @@ PixelID::is_innermost       (const Identifier& id) const
 bool        
 PixelID::is_nexttoinnermost       (const Identifier& id) const 
 {
-  bool isSLHC = (m_dict && m_dict->m_version.find("SLHC") != std::string::npos); 
 
   // Updated definition takes into account upgrade layouts
-  if(is_barrel(id) || isSLHC) {
+  if(is_barrel(id) || m_isITk) {
     return (1 == layer_disk(id));
   }
   else {
