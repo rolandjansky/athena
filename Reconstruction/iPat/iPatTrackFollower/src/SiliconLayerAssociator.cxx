@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ SiliconLayerAssociator::~SiliconLayerAssociator()
 StatusCode
 SiliconLayerAssociator::initialize()
 {
-    ATH_MSG_INFO( "SiliconLayerAssociator::initialize() - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "SiliconLayerAssociator::initialize()" );
 
     ATH_CHECK(m_pixelConditions.retrieve());
     ATH_CHECK(m_sctConditions.retrieve());

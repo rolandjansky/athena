@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonMeanMDTdADCFillerTool.cxx, Implementation file for class MuonMeanMDTdADCFillerTool
@@ -35,7 +35,7 @@ MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool (void)
 ////////////////////////////
 StatusCode MuonMeanMDTdADCFillerTool::initialize()
 {
-  ATH_MSG_INFO( "Initializing MuonMeanMDTdADCFillerTool - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing MuonMeanMDTdADCFillerTool" );
 
   ATH_CHECK(m_edmHelperSvc.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // include header file
@@ -68,8 +68,7 @@ LArG4FastSimSvc::~LArG4FastSimSvc()
 // initialization
 StatusCode LArG4FastSimSvc::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name()
-      << " - package version " << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing" << endmsg;
 
   if (name().find("EMB") != std::string::npos) {
  	  m_detector_tag_str = "EMB";

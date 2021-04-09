@@ -49,7 +49,7 @@ namespace Trk
   iPatFitter::initialize() {
     // print name and package version
     if (!msgLvl(MSG::DEBUG)) { m_extendedDebug = false; }
-    ATH_MSG_INFO("iPatFitter::initialize() - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("iPatFitter::initialize()");
     msg(MSG::INFO) << " with options: ";
     if (m_aggregateMaterial) { msg() << " AggregateMaterial"; }
     if (m_asymmetricCaloEnergy) { msg() << " AsymmetricCaloEnergy"; }

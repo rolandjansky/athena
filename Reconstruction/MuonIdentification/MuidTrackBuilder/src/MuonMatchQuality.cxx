@@ -28,7 +28,7 @@ MuonMatchQuality::MuonMatchQuality(const std::string& type, const std::string& n
 StatusCode
 MuonMatchQuality::initialize()
 {
-    ATH_MSG_INFO("MuonMatchQuality::initialize() - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("MuonMatchQuality::initialize()");
 
     // get the tools
     if (!m_tagTool.name().empty()) {

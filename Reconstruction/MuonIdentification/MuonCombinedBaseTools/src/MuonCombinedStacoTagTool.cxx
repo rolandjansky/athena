@@ -25,7 +25,7 @@ namespace MuonCombined {
   }
 
   StatusCode MuonCombinedStacoTagTool::initialize() {
-    ATH_MSG_INFO( "Initializing MuonCombinedStacoTagTool - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing MuonCombinedStacoTagTool" );
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_tagTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());

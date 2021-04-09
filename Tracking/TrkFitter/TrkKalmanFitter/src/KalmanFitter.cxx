@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -343,7 +343,7 @@ StatusCode Trk::KalmanFitter::initialize()
   m_fitStatistics.resize(nFitStatsCodes, statVec);
   m_chiSquaredAfb.fill(0.);
   m_chiSquaredAfbNontriviality.fill(0.);
-  ATH_MSG_INFO ("initialize() successful in " << name() << " ("<<PACKAGE_VERSION<<")");
+  ATH_MSG_INFO ("initialize() successful");
   return StatusCode::SUCCESS;
 }
 

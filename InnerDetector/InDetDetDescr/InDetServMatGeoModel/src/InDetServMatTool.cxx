@@ -100,7 +100,6 @@ StatusCode InDetServMatTool::create()
   }  
   
   std::string versionTag = m_rdbAccessSvc->getChildTag("InDetServices", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "InDetServMat Package Version: " << PACKAGE_VERSION << endmsg;
   if(msgLvl(MSG::DEBUG)) msg() << "versionTag=" << versionTag <<" %%%"<< endmsg;
 
   // If versionTag is NULL then don't build.
