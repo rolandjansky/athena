@@ -1971,7 +1971,10 @@ namespace Rec {
     }
 
     /** refit a track */
-    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track,  const Trk::RunOutlierRemoval runOutlier,
+                                              const Trk::ParticleHypothesis particleHypothesis) const {
+                                             return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis); }
+    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
         ATH_MSG_VERBOSE(" fit() " << m_printer->print(track) << std::endl << m_printer->printStations(track));
         // check valid particleHypothesis
@@ -1986,14 +1989,13 @@ namespace Rec {
         // check if combined or subsystem track
         bool isCombined = m_trackQuery->isCombined(track);
         // select straightLine fitter when magnets downstream of leading measurement are off
-        ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
+        const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (fieldCondObj == nullptr) {
+        if (!fieldCondObj) {
             ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
                           << m_fieldCacheCondObjInputKey.key());
             return nullptr;
@@ -2001,7 +2003,7 @@ namespace Rec {
         fieldCondObj->getInitializedCache(fieldCache);
 
         if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
-            fitter = m_fitterSL;
+            fitter = m_fitterSL.get();
             ATH_MSG_VERBOSE(" fit (track refit method): select SL fitter ");
         }
 
@@ -2010,7 +2012,7 @@ namespace Rec {
 
         // perform fit after ensuring calo is associated for combined tracks
         // calo association for combined tracks (WARN if missing from input)
-        Trk::Track* fittedTrack = nullptr;
+        std::unique_ptr<Trk::Track> fittedTrack;
         if (isCombined && particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(track)) {
             // about to add the TSOS's describing calorimeter association to a combined muon;
             m_messageHelper->printWarning(30);
@@ -2056,9 +2058,9 @@ namespace Rec {
                 }
             }
 
-            Trk::Track* combinedTrack = new Trk::Track(track.info(), combinedTSOS, nullptr);
+            std::unique_ptr<Trk::Track> combinedTrack = std::make_unique< Trk::Track>(track.info(), combinedTSOS, nullptr);
 
-            if (combinedTrack) countAEOTs(combinedTrack, " combinedTrack track before fit ");
+            if (combinedTrack) countAEOTs(combinedTrack.get(), " combinedTrack track before fit ");
 
             caloAssociated = m_trackQuery->isCaloAssociated(*combinedTrack);
             caloAssociated = true;
@@ -2068,10 +2070,8 @@ namespace Rec {
                 ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Combined (re)Fit ...");
                 m_materialUpdator->updateCaloTSOS(*combinedTrack);
             }
-
             // FIT
-            fittedTrack = fitter->fit(*combinedTrack, false, particleHypothesis);
-            delete combinedTrack;
+            fittedTrack = fitter->fit(ctx, *combinedTrack, false, particleHypothesis);            
         } else {
             // Updates the calo TSOS with the ones from TG+corrections
             if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
@@ -2080,80 +2080,78 @@ namespace Rec {
             }
 
             // FIT
-            fittedTrack = fitter->fit(track, false, particleHypothesis);
+            fittedTrack = fitter->fit(ctx, track, false, particleHypothesis);
         }
 
         // quit if fit has failed
         if (!fittedTrack) return nullptr;
 
-        if (!checkTrack("fitInterface1", fittedTrack, fittedTrack)) {
-            delete fittedTrack;
+        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) {
             return nullptr;
         }
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-        std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
         // track cleaning
         if (runOutlier) {
             // fit with optimized spectrometer errors
 
-            if (!m_muonErrorOptimizer.empty() && !fittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrackUnique.get())) {
+            if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
+                optimizeErrors(fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get());
 
                 if (optimizedTrack) {
-                    if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
-                        fittedTrackUnique.swap(optimizedTrack);
-                        countAEOTs(fittedTrackUnique.get(), " re fit scaled errors Track ");
+                    if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrack.get())) {
+                        fittedTrack.swap(optimizedTrack);
+                        countAEOTs(fittedTrack.get(), " re fit scaled errors Track ");
                     }
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrackUnique);
+            double chi2Before = normalizedChi2(*fittedTrack);
 
             // muon cleaner
-            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
-                                                          << m_printer->printStations(*fittedTrackUnique));
+            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
+                                                          << m_printer->printStations(*fittedTrack));
 
-            if (fittedTrackUnique) countAEOTs(fittedTrackUnique.get(), " refit: fitted track before cleaning ");
+            if (fittedTrack) countAEOTs(fittedTrack.get(), " refit: fitted track before cleaning ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
 
             if (cleanTrack) countAEOTs(cleanTrack.get(), " refit: after cleaning");
 
-            if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrackUnique.get())) { cleanTrack.reset(); }
+            if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrack.get())) { cleanTrack.reset(); }
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                     ATH_MSG_DEBUG(" cleaner veto A ");
                     ++m_countStandaloneCleanerVeto;
-                    fittedTrackUnique.reset();
+                    fittedTrack.reset();
                 } else {
                     ATH_MSG_DEBUG(" keep original standalone track despite cleaner veto ");
                 }
-            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
+            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 double chi2After = normalizedChi2(*cleanTrack);
 
                 if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                     ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-                    fittedTrackUnique.swap(cleanTrack);
+                    fittedTrack.swap(cleanTrack);
                 } else {
                     ATH_MSG_VERBOSE(" keep original track despite cleaning ");
                 }
             }
 
             // FIXME: provide indet cleaner
-            if (fittedTrackUnique) {
-                ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
-                                                               << m_printer->printStations(*fittedTrackUnique));
+            if (fittedTrack) {
+                ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrack) << std::endl
+                                                               << m_printer->printStations(*fittedTrack));
             }
         }
 
         // have to use release until the whole tool uses unique_ptr
-        return fittedTrackUnique.release();
+        return fittedTrack.release();
     }
 
     std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(const EventContext& ctx, const Trk::MeasurementSet& measurementSet,

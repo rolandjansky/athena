@@ -669,4 +669,7 @@ namespace Rec {
 
         return new Trk::PseudoMeasurementOnTrack(localParameters, covarianceMatrix, surface);
     }
+    Trk::Track* OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& , const Trk::RunOutlierRemoval  ,
+                                const Trk::ParticleHypothesis ) const {return nullptr;}
+                                
 }  // namespace Rec
