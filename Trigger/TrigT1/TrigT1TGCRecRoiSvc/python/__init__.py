@@ -1,7 +1,0 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
-# File: TrigT1TGCRecRoiConfig/__init__.py
-
-__version__ = '1.0.0'
-__author__  = 'Naoko.Kanaya@cern.ch'
-__all__ = [ 'TrigT1TGCRecRoiConfig' ]
