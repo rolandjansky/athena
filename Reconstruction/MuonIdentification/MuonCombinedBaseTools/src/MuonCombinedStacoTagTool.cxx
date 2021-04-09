@@ -33,7 +33,8 @@ namespace MuonCombined {
     }
 
     void MuonCombinedStacoTagTool::combine(const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates,
-                                           InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks) const {
+                                           InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks,
+                                           const EventContext& ctx) const {
         if (!combTracks || !METracks) ATH_MSG_WARNING("No TrackCollection passed");
 
         // only combine if the back extrapolation was successfull
@@ -60,12 +61,11 @@ namespace MuonCombined {
 
             const Trk::Perigee* idPer = &idTP->indetTrackParticle().perigeeParameters();
             const Trk::Perigee* msPer = muonCandidate.extrapolatedTrack()->perigeeParameters();
-
+            std::unique_ptr<const Trk::TrackParameters> exPars;
             // check that the to perigee surfaces are the same
             if (idPer->associatedSurface() != msPer->associatedSurface()) {
                 // extrapolate to id surface
-                const Trk::TrackParameters* exPars =
-                    m_extrapolator->extrapolate(*muonCandidate.extrapolatedTrack(), idPer->associatedSurface());
+                exPars.reset(m_extrapolator->extrapolate(ctx, *muonCandidate.extrapolatedTrack(), idPer->associatedSurface()));
                 if (!exPars) {
                     ATH_MSG_WARNING("The ID and MS candidates are not expressed at the same surface: id r "
                                     << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp() << " z "
@@ -75,10 +75,9 @@ namespace MuonCombined {
                                     << " and extrapolation failed");
                     continue;
                 } else {
-                    msPer = dynamic_cast<const Trk::Perigee*>(exPars);
+                    msPer = dynamic_cast<const Trk::Perigee*>(exPars.get());
                     if (!msPer) {
                         ATH_MSG_WARNING("Extrapolation did not return a perigee!");
-                        delete exPars;
                         continue;
                     }
                 }
@@ -86,7 +85,6 @@ namespace MuonCombined {
             double chi2 = 0;
             std::unique_ptr<const Trk::Perigee> perigee =
                 theCombIdMu(idTP->indetTrackParticle().perigeeParameters(), *muonCandidate.extrapolatedTrack()->perigeeParameters(), chi2);
-            if (msPer != muonCandidate.extrapolatedTrack()->perigeeParameters()) delete msPer;
             if (!perigee) {
                 ATH_MSG_DEBUG("Combination failed");
                 continue;
@@ -132,10 +130,13 @@ namespace MuonCombined {
         }
 
         AmgSymMatrix(5) weightCB = weightID + weightMS;
-        AmgSymMatrix(5)* covCB = new AmgSymMatrix(5)(weightCB.inverse());
+        if (weightCB.determinant() == 0) {
+            ATH_MSG_WARNING(" Inversion of weightCB failed ");
+            return nullptr;
+        }
+        std::unique_ptr<AmgSymMatrix(5)> covCB = std::make_unique<AmgSymMatrix(5)>(weightCB.inverse());
         if (covCB->determinant() == 0) {
             ATH_MSG_WARNING(" Inversion of weightCB failed ");
-            delete covCB;
             return nullptr;
         }
 
@@ -166,7 +167,7 @@ namespace MuonCombined {
             parsCB[Trk::phi] += 2. * M_PI;
 
         return indetPerigee.associatedSurface().createUniqueParameters<5, Trk::Charged>(
-            parsCB[Trk::locX], parsCB[Trk::locY], parsCB[Trk::phi], parsCB[Trk::theta], parsCB[Trk::qOverP], covCB);
+            parsCB[Trk::locX], parsCB[Trk::locY], parsCB[Trk::phi], parsCB[Trk::theta], parsCB[Trk::qOverP], covCB.release());
     }
 
 }  // namespace MuonCombined

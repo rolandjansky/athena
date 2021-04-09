@@ -42,16 +42,17 @@ namespace MuonCombined {
 
         /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */
         virtual void combine(const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates,
-                             InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks) const override;
+                             InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks,
+                             const EventContext& ctx) const override;
 
     private:
-        Trk::Track* buildCombinedTrack(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
-                                       const Trk::Track* extrapolatedTrack) const;
+        std::unique_ptr<Trk::Track> buildCombinedTrack(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                       const Trk::Track* extrapolatedTrack, const EventContext& ctx) const;
 
         bool combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack) const;
 
-        Trk::Track* evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag, const Trk::Track& idTrack,
-                                            const xAOD::TrackParticle& idTrackParticle) const;
+        std::unique_ptr<Trk::Track> evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag, const Trk::Track& idTrack,
+                                                            const xAOD::TrackParticle& idTrackParticle, const EventContext& ctx) const;
 
         bool extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack) const;
 
