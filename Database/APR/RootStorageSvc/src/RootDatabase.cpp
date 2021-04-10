@@ -27,6 +27,7 @@
 
 // Root include files
 #include "TFile.h"
+#include "TFileCacheWrite.h"
 #include "TTree.h"
 #include "TSystem.h"
 #include "TTreeCache.h"
@@ -565,6 +566,13 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         opt._getValue(val);
         Long64_t v = (Long64_t)val;
         m_file->SetFileBytesRead(v);
+        return Success;
+      }
+      else if ( !strcasecmp(n,"FILECACHE_WRITE") )  {
+        double val = 0;
+        opt._getValue(val);
+        Long64_t v = (Long64_t)val;
+        new TFileCacheWrite(m_file, v); //TFile will take ownership and delete its TFileCacheWrite
         return Success;
       }
       else if ( !strcasecmp(n,"FILE_FLUSH") )  {
