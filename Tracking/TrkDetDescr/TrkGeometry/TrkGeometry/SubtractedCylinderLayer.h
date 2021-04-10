@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,98 +11,96 @@
 
 class MsgStream;
 
-#include "TrkGeometry/Layer.h"
-#include "TrkGeometrySurfaces/SubtractedCylinderSurface.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkEventPrimitives/PropDirection.h"
-
+#include "TrkGeometry/Layer.h"
+#include "TrkGeometrySurfaces/SubtractedCylinderSurface.h"
 
 namespace Trk {
 
 class LayerMaterialProperties;
 class OverlapDescriptor;
 
-  /**
-   @class SubtractedCylinderLayer
-   
-   Class to describe a cylindrical detector layer for tracking, with subtraction; it inhertis from both, 
-   Layer base class and SubtractedCylinderSurface class
-       
-   @author Sarka.Todorova@cern.ch
-  */
+/**
+ @class SubtractedCylinderLayer
 
-  class SubtractedCylinderLayer : virtual public SubtractedCylinderSurface, public Layer {
-                   
-      public:
-        /**Default Constructor*/
-        SubtractedCylinderLayer(){}
-        
-        /**Constructor with SubtractedCylinderSurface components and  MaterialProperties */
-        SubtractedCylinderLayer(const SubtractedCylinderSurface* subCyl,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      int laytyp=int(Trk::active));
-                              
-        /**Copy constructor*/
-        SubtractedCylinderLayer(const SubtractedCylinderLayer& cla);
+ Class to describe a cylindrical detector layer for tracking, with subtraction;
+ it inhertis from both, Layer base class and SubtractedCylinderSurface class
 
-        /**Copy constructor with shift*/
-        SubtractedCylinderLayer(const SubtractedCylinderLayer& cla, const Amg::Transform3D& tr);
-        
-        /**Assignment operator */
-        SubtractedCylinderLayer& operator=(const SubtractedCylinderLayer&);
-                      
-        /**Destructor*/
-        virtual ~SubtractedCylinderLayer() override{}  
-        
-        /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const SubtractedCylinderSurface& surfaceRepresentation() const override;
-        
-        /** getting the MaterialProperties back - for pre-update*/ 
-        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+ @author Sarka.Todorova@cern.ch
+*/
 
-        /** getting the MaterialProperties back - for post-update*/ 
-        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+class SubtractedCylinderLayer final : virtual public SubtractedCylinderSurface,
+                                      public Layer {
+ public:
+  /**Default Constructor*/
+  SubtractedCylinderLayer() {}
 
-        /** use the base class insideBounds (Vector2d, BoundaryCheck) */
-        using CylinderSurface::insideBounds;
+  /**Constructor with SubtractedCylinderSurface components and
+   * MaterialProperties */
+  SubtractedCylinderLayer(const SubtractedCylinderSurface* subCyl,
+                          const LayerMaterialProperties& laymatprop,
+                          double thickness = 0.,
+                          OverlapDescriptor* od = nullptr,
+                          int laytyp = int(Trk::active));
 
-        /** move the Layer */
-        virtual void moveLayer(Amg::Transform3D& shift) override final;
+  /**Copy constructor*/
+  SubtractedCylinderLayer(const SubtractedCylinderLayer& cla);
 
-        /** move the Layer */
-        virtual void moveLayer
-        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
-        {
-          const_cast<SubtractedCylinderLayer*>(this)->moveLayer(shift);
-        }
+  /**Copy constructor with shift*/
+  SubtractedCylinderLayer(const SubtractedCylinderLayer& cla,
+                          const Amg::Transform3D& tr);
 
-      private:
-        /** Resize the layer to the tracking volume - not implemented*/
-        virtual void resizeLayer(const VolumeBounds&, double) override final {}
-        /** Resize the layer to the tracking volume - not implemented*/
-        virtual void resizeLayer
-        ATLAS_NOT_THREAD_SAFE(const VolumeBounds&, double) const override final
-        {}
+  /**Assignment operator */
+  SubtractedCylinderLayer& operator=(const SubtractedCylinderLayer&);
 
-        /** Resize the layer to the tracking volume - not implemented */
-        virtual void resizeAndRepositionLayer(const VolumeBounds&,
-                                              const Amg::Vector3D&,
-                                              double) override final
-        {}
+  /**Destructor*/
+  virtual ~SubtractedCylinderLayer() override {}
 
-        /** Resize the layer to the tracking volume - not implemented */
-        virtual void resizeAndRepositionLayer
-        ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                              const Amg::Vector3D&,
-                              double) const override final
-        {}
-  };
+  /** Transforms the layer into a Surface representation for extrapolation */
+  virtual const SubtractedCylinderSurface& surfaceRepresentation()
+      const override final;
 
-} // end of namespace
+  /** getting the MaterialProperties back - for pre-update*/
+  virtual double preUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
 
-#endif // TRKGEOMETRY_SUBTRACTEDCYLINDERLAYER_H
+  /** getting the MaterialProperties back - for post-update*/
+  virtual double postUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
+
+  /** use the base class insideBounds (Vector2d, BoundaryCheck) */
+  using CylinderSurface::insideBounds;
+
+  /** move the Layer */
+  virtual void moveLayer(Amg::Transform3D& shift) override final;
+
+  /** move the Layer */
+  virtual void moveLayer
+  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
+    const_cast<SubtractedCylinderLayer*>(this)->moveLayer(shift);
+  }
+
+ private:
+  /** Resize the layer to the tracking volume - not implemented*/
+  virtual void resizeLayer(const VolumeBounds&, double) override final {}
+  /** Resize the layer to the tracking volume - not implemented*/
+  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                 double) const override final {}
+
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                        const Amg::Vector3D&,
+                                        double) override final {}
+
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
+      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
+};
+
+}  // namespace Trk
+
+#endif  // TRKGEOMETRY_SUBTRACTEDCYLINDERLAYER_H
 

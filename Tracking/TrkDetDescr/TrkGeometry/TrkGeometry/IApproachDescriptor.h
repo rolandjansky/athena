@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,10 +10,11 @@
 #define TRKGEOMETRY_IAPPROACHDESCRIPTOR_H
 
 // Trk
+#include <memory>
+
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkSurfaces/Surface.h"
-#include <memory>
 namespace Trk {
 
 /**
@@ -21,17 +22,13 @@ namespace Trk {
   just implement the delete on the objects
 */
 
-class ApproachSurfaces : public std::vector<const Surface*>
-{
-public:
+class ApproachSurfaces : public std::vector<const Surface*> {
+ public:
   // Default constructor
-  ApproachSurfaces()
-    : std::vector<const Surface*>()
-  {}
+  ApproachSurfaces() : std::vector<const Surface*>() {}
 
   // Desctructur with cleanup
-  ~ApproachSurfaces()
-  {
+  ~ApproachSurfaces() {
     for (auto& sf : (*this)) {
       delete sf;
     }
@@ -45,27 +42,24 @@ CVirtual class to decide and return which approaching surface to be taken.
 @author Andreas.Salzburger@cern.ch, made virtual by Remi.Lafaye@cern.ch
 */
 
-class IApproachDescriptor
-{
-public:
+class IApproachDescriptor {
+ public:
   // Default constructor
   IApproachDescriptor(std::unique_ptr<ApproachSurfaces> aSurfaces,
                       bool rebuild = true)
-    : m_approachSurfaces(std::move(aSurfaces))
-    , m_approachSurfaceArraySurface(nullptr)
-    , m_approachSurfaceArray(nullptr)
-    , m_rebuild(rebuild)
-  {}
+      : m_approachSurfaces(std::move(aSurfaces)),
+        m_approachSurfaceArraySurface(nullptr),
+        m_approachSurfaceArray(nullptr),
+        m_rebuild(rebuild) {}
 
   // Default constructor
   IApproachDescriptor(
-    std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
-    std::unique_ptr<Surface> aSurfaceArraySurface = nullptr)
-    : m_approachSurfaces(nullptr)
-    , m_approachSurfaceArraySurface(std::move(aSurfaceArraySurface))
-    , m_approachSurfaceArray(std::move(aSurfaceArray))
-    , m_rebuild(false)
-  {}
+      std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
+      std::unique_ptr<Surface> aSurfaceArraySurface = nullptr)
+      : m_approachSurfaces(nullptr),
+        m_approachSurfaceArraySurface(std::move(aSurfaceArraySurface)),
+        m_approachSurfaceArray(std::move(aSurfaceArray)),
+        m_rebuild(false) {}
 
   virtual ~IApproachDescriptor() = default;
 
@@ -82,10 +76,9 @@ public:
       - position & direction : pos, dir
   */
   virtual const ApproachSurfaces* approachSurfaces(
-    const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const = 0;
+      const Amg::Vector3D& pos, const Amg::Vector3D& dir) const = 0;
 
-private:
+ private:
   // register the Layer
   void registerLayerToSurfaces(const Layer& lay,
                                const ApproachSurfaces& aSurfaces);
@@ -93,47 +86,38 @@ private:
   IApproachDescriptor(const IApproachDescriptor&) = delete;
   IApproachDescriptor& operator=(const IApproachDescriptor&) = delete;
 
-protected:
+ protected:
   std::unique_ptr<ApproachSurfaces> m_approachSurfaces;
   std::unique_ptr<Surface> m_approachSurfaceArraySurface;
   std::unique_ptr<BinnedArray<ApproachSurfaces>> m_approachSurfaceArray;
   bool m_rebuild;
 };
 
-inline bool
-IApproachDescriptor::rebuild() const
-{
-  return m_rebuild;
-}
+inline bool IApproachDescriptor::rebuild() const { return m_rebuild; }
 
-inline void
-IApproachDescriptor::registerLayer(const Layer& lay)
-{
-  if (m_approachSurfaces)
-    registerLayerToSurfaces(lay, *m_approachSurfaces);
+inline void IApproachDescriptor::registerLayer(const Layer& lay) {
+  if (m_approachSurfaces) registerLayerToSurfaces(lay, *m_approachSurfaces);
   if (m_approachSurfaceArraySurface) {
     m_approachSurfaceArraySurface->associateLayer(lay);
     m_approachSurfaceArraySurface->setOwner(Trk::TGOwn);
   }
   if (m_approachSurfaceArray) {
     const std::vector<const ApproachSurfaces*>& aSurfaceObjects =
-      m_approachSurfaceArray->arrayObjects();
+        m_approachSurfaceArray->arrayObjects();
     for (auto& aSurfaces : aSurfaceObjects) {
       registerLayerToSurfaces(lay, *aSurfaces);
     }
   }
 }
 
-inline void
-IApproachDescriptor::registerLayerToSurfaces(const Layer& lay,
-                                             const ApproachSurfaces& aSurfaces)
-{
+inline void IApproachDescriptor::registerLayerToSurfaces(
+    const Layer& lay, const ApproachSurfaces& aSurfaces) {
   for (auto& aSurface : aSurfaces) {
     aSurface->associateLayer(lay);
     aSurface->setOwner(Trk::TGOwn);
   }
 }
-}
+}  // namespace Trk
 
-#endif // TRKGEOMETRY_IAPPROACHDESCRIPTOR_H
+#endif  // TRKGEOMETRY_IAPPROACHDESCRIPTOR_H
 
