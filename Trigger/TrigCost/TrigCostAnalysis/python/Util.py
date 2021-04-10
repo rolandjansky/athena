@@ -13,6 +13,41 @@ from math import fabs
 from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
+
+def saveMetadata(inputFile):
+    import json
+
+    metatree = inputFile.Get("metadata")
+    if metatree is None:
+        return None
+
+    metatree.GetEntry(0)
+    metadata = []
+
+    metadata.append({'runNumber' : metatree.runNumber})
+    metadata.append({'AtlasProject' : str(metatree.AtlasProject)})
+    metadata.append({'AtlasVersion' : str(metatree.AtlasVersion)})
+
+    metadata.append({'ChainMonitor' : metatree.ChainMonitor})
+    metadata.append({'AlgorithmMonitor' : metatree.AlgorithmMonitor})
+    metadata.append({'AlgorithmClassMonitor' : metatree.AlgorithmClassMonitor})
+    metadata.append({'ROSMonitor' : metatree.ROSMonitor})
+    metadata.append({'GlobalsMonitor' : metatree.GlobalsMonitor})
+    metadata.append({'ThreadMonitor' : metatree.ThreadMonitor})
+
+    metadata.append({'AdditionalHashMap' : str(metatree.AdditionalHashMap)})
+    metadata.append({'DoEBWeighting' : metatree.DoEBWeighting})
+    metadata.append({'BaseEventWeight' : metatree.BaseEventWeight})
+
+    metadata.append({'HLTMenu' : json.loads(str(metatree.HLTMenu))})
+
+    with open('metadata.json', 'w') as outMetaFile:
+        metafile = {}
+        metafile['text'] = 'metadata'
+        metafile['children'] = metadata
+        json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
+
+
 def exploreTree(inputFile):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 

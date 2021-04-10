@@ -6,7 +6,8 @@ log = logging.getLogger( __name__ )
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence 
+from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence
+from TriggerMenuMT.HLTMenuConfig.MinBias.ALFAMenuSequences import ALFAPerfSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -22,6 +23,8 @@ def MinBiasTrkSequenceCfg(flags):
 def MinBiasMbtsSequenceCfg(flags):
     return MinBiasMbtsSequence()
 
+def ALFAPerfSequenceCfg(flags):
+    return ALFAPerfSequence()
 
 class MinBiasChainConfig(ChainConfigurationBase):
 
@@ -44,6 +47,9 @@ class MinBiasChainConfig(ChainConfigurationBase):
         if "_sptrk" in self.chainName or "hmt" in self.chainName:
             steps.append(self.getMinBiasTrkStep())
 
+        if "_alfaperf" in self.chainName:
+            steps.append(self.getALFAPerfStep())
+
         return self.buildChain(steps)
 
     def getMinBiasMbtsStep(self):
@@ -54,3 +60,6 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
     def getMinBiasTrkStep(self):
         return self.getStep(3,'TrkCount',[MinBiasTrkSequenceCfg])
+
+    def getALFAPerfStep(self):
+        return self.getStep(1,'ALFAPerf',[ALFAPerfSequenceCfg])
