@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <string.h>
@@ -1769,12 +1769,10 @@ namespace xAOD {
          return kTRUE;
       }
 
-      if (cl) {
-        TClass* cl2 = lookupVectorType (cl);
-        if (cl2) {
-          if (*cl2->GetTypeInfo() == *aux_vec_ti)
-            return kTRUE;
-        }
+      TClass* cl2 = lookupVectorType (cl);
+      if (cl2) {
+        if (*cl2->GetTypeInfo() == *aux_vec_ti)
+          return kTRUE;
       }
 
       // If we got this far, the branch may have undergone schema evolution. If
