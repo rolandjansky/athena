@@ -1971,9 +1971,10 @@ namespace Rec {
     }
 
     /** refit a track */
-    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track,  const Trk::RunOutlierRemoval runOutlier,
+    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
-                                             return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis); }
+        return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis);
+    }
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
         ATH_MSG_VERBOSE(" fit() " << m_printer->print(track) << std::endl << m_printer->printStations(track));
@@ -2058,7 +2059,7 @@ namespace Rec {
                 }
             }
 
-            std::unique_ptr<Trk::Track> combinedTrack = std::make_unique< Trk::Track>(track.info(), combinedTSOS, nullptr);
+            std::unique_ptr<Trk::Track> combinedTrack = std::make_unique<Trk::Track>(track.info(), combinedTSOS, nullptr);
 
             if (combinedTrack) countAEOTs(combinedTrack.get(), " combinedTrack track before fit ");
 
@@ -2071,7 +2072,7 @@ namespace Rec {
                 m_materialUpdator->updateCaloTSOS(*combinedTrack);
             }
             // FIT
-            fittedTrack = fitter->fit(ctx, *combinedTrack, false, particleHypothesis);            
+            fittedTrack = fitter->fit(ctx, *combinedTrack, false, particleHypothesis);
         } else {
             // Updates the calo TSOS with the ones from TG+corrections
             if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
@@ -2086,9 +2087,7 @@ namespace Rec {
         // quit if fit has failed
         if (!fittedTrack) return nullptr;
 
-        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) {
-            return nullptr;
-        }
+        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) { return nullptr; }
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
