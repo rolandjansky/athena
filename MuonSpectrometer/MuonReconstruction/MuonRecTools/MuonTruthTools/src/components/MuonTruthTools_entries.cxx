@@ -1,6 +1,6 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #include "../MuonTruthTrackBuilder.h"
-#include "../MuonTruthSummaryTool.h"
-
 DECLARE_COMPONENT( Muon::MuonTruthTrackBuilder )
-DECLARE_COMPONENT( Muon::MuonTruthSummaryTool )
 

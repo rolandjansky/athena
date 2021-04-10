@@ -22,7 +22,6 @@ namespace Muon {
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
     ATH_CHECK(m_mmClusterCreator.retrieve());
-    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -95,10 +94,7 @@ namespace Muon {
       ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
       return 0;
     }
-	    
-    // fill validation content
-    if( !m_recoValidationTool.empty() ) m_recoValidationTool->add(intersection,mdt,localPosition.x(),err_precision );
-    
+	  
     // bound checks
     double tubeHalfLen = 0.5*detEl->getActiveTubeLength( m_idHelperSvc->mdtIdHelper().tubeLayer(id),m_idHelperSvc->mdtIdHelper().tube(id) );
     double distanceAlongTube = localPosition[Trk::locZ];
