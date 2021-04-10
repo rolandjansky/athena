@@ -993,24 +993,23 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   SG::ReadCondHandle<CaloNoise> totalNoise (m_totalNoiseKey, ctx);
 
   if(caloTES) {
-     CaloCellContainer::const_iterator caloItr;
-     for(caloItr=caloTES->begin();caloItr!=caloTES->end();caloItr++){
-       const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
+     for (const CaloCell* cell : *caloTES) {
+       const CaloDetDescrElement* caloDDE = cell->caloDDE();
        if (caloDDE->is_tile())continue;
        HWIdentifier onlID;
-       try {onlID = cabling->createSignalChannelID((*caloItr)->ID());}
+       try {onlID = cabling->createSignalChannelID(cell->ID());}
        catch(LArID_Exception& except) {
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string(cell->ID()) << " " << (std::string) except );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string(cell->ID()) );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string(cell->ID()) );
          continue;
        }
        bool connected = cabling->isOnlineConnected(onlID);
        if(!connected) continue;
-       eCalo = (*caloItr)->energy();
-       qfactor = (*caloItr)->quality();
-       gain = (*caloItr)->gain();
-       //if(qfactor > 0. || (*caloItr)->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG((*caloItr)->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<(*caloItr)->provenance());
+       eCalo = cell->energy();
+       qfactor = cell->quality();
+       gain = cell->gain();
+       //if(qfactor > 0. || cell->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cell->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<cell->provenance());
        ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
      }//loop over cells
      ATH_MSG_DEBUG("Done cells "<<nlarcell);
@@ -1018,7 +1017,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
      std::vector<HWIdentifier> chdone; 
      if (LArTES_dig) {
        LArRawChannelContainer::const_iterator caloItr;
-       for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();caloItr++){
+       for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();++caloItr){
          HWIdentifier onlID=caloItr->identify();
          bool connected = cabling->isOnlineConnected(onlID);
          if(!connected) continue;
@@ -1034,7 +1033,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
      // dirty hack, if we are already complete:
      if (nlarcell < 182468 && LArTES) { // add those raw channels, which were not from dig.
        LArRawChannelContainer::const_iterator caloItr;
-       for(caloItr=LArTES->begin();caloItr!=LArTES->end();caloItr++){
+       for(caloItr=LArTES->begin();caloItr!=LArTES->end();++caloItr){
          HWIdentifier onlID=caloItr->identify();
          if(std::find(chdone.begin(), chdone.end(), onlID) != chdone.end()) continue;
          bool connected = cabling->isOnlineConnected(onlID);
@@ -1052,7 +1051,8 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   m_nt_larcellsize = nlarcell;
   if(caloTES) {
     m_nt_cellsize    = caloTES->size();
-  } else {
+  }
+  else if (LArTES) {
      m_nt_cellsize = LArTES->size();
   }
   ATH_MSG_INFO ("lar cell size = "<<int(nlarcell));
@@ -1088,10 +1088,6 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     return StatusCode::SUCCESS;
   }    
 
-  LArDigitContainer::const_iterator it=LArDigitCont->begin();
-  LArDigitContainer::const_iterator it_end=LArDigitCont->end();
-  const LArDigit* pLArDigit;
-  
   bool store_condition = false;
   // CosmicCalo stream : Store detailed infos of cells only if Y3Sigma>1% or burst found by LArNoisyRO
   if(m_CosmicCaloStream){
@@ -1114,8 +1110,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
       m_nt_samples.push_back(samples);
       m_nt_gain.push_back(0);
     }
-    for (;it!=it_end;it++) {
-         pLArDigit = *it;  
+    for (const LArDigit* pLArDigit : *LArDigitCont) {
          HWIdentifier id2 = pLArDigit->hardwareID();
          IdentifierHash hashid2 = m_LArOnlineIDHelper->channel_Hash(id2);
           for(unsigned int j=0;j<v_IdHash.size();j++){
