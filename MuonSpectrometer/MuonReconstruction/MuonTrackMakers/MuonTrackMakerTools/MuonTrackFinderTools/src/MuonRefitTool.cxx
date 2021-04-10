@@ -37,13 +37,7 @@ namespace Muon {
         m_errorStrategySL(MuonDriftCircleErrorStrategyInput()),
         m_errorStrategyTwoStations(MuonDriftCircleErrorStrategyInput()),
         m_errorStrategy(MuonDriftCircleErrorStrategyInput()),
-        m_muonErrorStrategy(MuonDriftCircleErrorStrategyInput()),
-        m_nrefits(0),
-        m_ngoodRefits(0),
-        m_failedOutlierRemoval(0),
-        m_failedErrorUpdate(0),
-        m_failedRefit(0),
-        m_failedExtrapolationMuonEntry(0) {
+        m_muonErrorStrategy(MuonDriftCircleErrorStrategyInput()) {
         declareInterface<IMuonRefitTool>(this);
     }
 
@@ -58,7 +52,6 @@ namespace Muon {
         } else {
             m_alignErrorTool.disable();
         }
-        ATH_CHECK(m_extrapolator.retrieve());
         ATH_CHECK(m_muonExtrapolator.retrieve());
         ATH_CHECK(m_trackFitter.retrieve());
 
@@ -151,6 +144,10 @@ namespace Muon {
     }
 
     std::unique_ptr<Trk::Track> MuonRefitTool::refit(Trk::Track* track, const IMuonRefitTool::Settings* set) const {
+        return refit(track, Gaudi::Hive::currentContext(), set);
+    }
+    std::unique_ptr<Trk::Track> MuonRefitTool::refit(Trk::Track* track, const EventContext& ctx,
+                                                     const IMuonRefitTool::Settings* set) const {
         const IMuonRefitTool::Settings& settings = set ? *set : m_defaultSettings;
 
         // to keep track of the latest track
@@ -173,7 +170,7 @@ namespace Muon {
         if (settings.updateErrors) {
             ATH_MSG_DEBUG("track hits before error updating: " << m_printer->printMeasurements(*newTrack));
             std::unique_ptr<Trk::Track> updateErrorTrack =
-                m_alignmentErrors ? updateAlignmentErrors(newTrack.get(), settings) : updateErrors(newTrack.get(), settings);
+                m_alignmentErrors ? updateAlignmentErrors(newTrack.get(), ctx, settings) : updateErrors(newTrack.get(), ctx, settings);
             if (!updateErrorTrack) {
                 ATH_MSG_WARNING("Failed to update errors");
                 ++m_failedErrorUpdate;
@@ -189,7 +186,7 @@ namespace Muon {
 
             std::unique_ptr<Trk::Track> refittedTrack;
             if (track->fitQuality() && track->fitQuality()->chiSquared() < 10000 * track->fitQuality()->numberDoF())
-                refittedTrack = std::unique_ptr<Trk::Track>(m_trackFitter->fit(*newTrack, false, Trk::muon));
+                refittedTrack = std::unique_ptr<Trk::Track>(m_trackFitter->fit(ctx, *newTrack, false, Trk::muon));
             if (!refittedTrack) {
                 ATH_MSG_DEBUG("Failed to refit track");
                 ++m_failedRefit;
@@ -218,20 +215,25 @@ namespace Muon {
 
     std::vector<std::unique_ptr<Trk::Track> > MuonRefitTool::refit(std::vector<Trk::Track*>& tracks,
                                                                    const IMuonRefitTool::Settings* set) const {
+        return refit(tracks, Gaudi::Hive::currentContext(), set);
+    }
+    std::vector<std::unique_ptr<Trk::Track> > MuonRefitTool::refit(std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+                                                                   const IMuonRefitTool::Settings* set) const {
         std::vector<std::unique_ptr<Trk::Track> > refittedTracks;
         refittedTracks.reserve(tracks.size());
 
         std::vector<Trk::Track*>::const_iterator it = tracks.begin();
         std::vector<Trk::Track*>::const_iterator it_end = tracks.end();
-        for (; it != it_end; ++it) { refittedTracks.push_back(refit(*it, set)); }
+        for (; it != it_end; ++it) { refittedTracks.push_back(refit(*it, ctx, set)); }
 
         return refittedTracks;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateAlignmentErrors(Trk::Track* track, const IMuonRefitTool::Settings& settings) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateAlignmentErrors(Trk::Track* track, const EventContext& ctx,
+                                                                     const IMuonRefitTool::Settings& settings) const {
         // first scale the Mdt errors
 
-        std::unique_ptr<Trk::Track> updatedTrack = updateMdtErrors(track, settings);
+        std::unique_ptr<Trk::Track> updatedTrack = updateMdtErrors(track, ctx, settings);
 
         std::unique_ptr<Trk::Track> updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(updatedTrack.get()) : makeAEOTs(updatedTrack.get());
 
@@ -628,7 +630,8 @@ namespace Muon {
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors(Trk::Track* track, const IMuonRefitTool::Settings& settings) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors(Trk::Track* track, const EventContext& ctx,
+                                                            const IMuonRefitTool::Settings& settings) const {
         // loop over track and calculate residuals
         const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
         if (!states) {
@@ -780,7 +783,7 @@ namespace Muon {
             if (settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
-                    std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+                    std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
                     newStates.push_back(std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release())));
                     addedPerigee = true;
                     continue;
@@ -992,7 +995,8 @@ namespace Muon {
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateMdtErrors(Trk::Track* track, const IMuonRefitTool::Settings& settings) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateMdtErrors(Trk::Track* track, const EventContext& ctx,
+                                                               const IMuonRefitTool::Settings& settings) const {
         // uses the muonErrorStrategy
 
         // loop over track and calculate residuals
@@ -1074,7 +1078,7 @@ namespace Muon {
             if (settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee)) {
                 if (pars == startPars) {
                     ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars));
-                    std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+                    std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars, ctx);
                     newStates.push_back(std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release())));
                     addedPerigee = true;
                     continue;
@@ -1405,7 +1409,7 @@ namespace Muon {
         Amg::Transform3D* surfaceTransform = new Amg::Transform3D(amdbToGlobal.rotation());
         surfaceTransform->pretranslate(pars.position());
         double surfDim = 500.;
-        Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform, surfDim, surfDim);
+        std::unique_ptr<Trk::PlaneSurface> surf = std::make_unique<Trk::PlaneSurface>(surfaceTransform, surfDim, surfDim);
 
         Amg::Vector3D dir = pars.momentum().unit();
         if (dir.y() * pars.position().y() < 0.) { dir *= -1.; }
@@ -1420,7 +1424,6 @@ namespace Muon {
         Amg::Vector3D dirCh(gToStation.linear() * detEl->center());
         double chamber_angleYZ = atan2(dirCh.z(), dirCh.y());
         double angleYZ = locDir.angleYZ();
-        delete surf;
 
         const Amg::Vector3D lpos = gToStation * pars.position();
 
@@ -1516,18 +1519,18 @@ namespace Muon {
         return true;
     }
 
-    std::unique_ptr<const Trk::Perigee> MuonRefitTool::createPerigee(const Trk::TrackParameters& pars) const {
+    std::unique_ptr<const Trk::Perigee> MuonRefitTool::createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const {
         std::unique_ptr<const Trk::Perigee> perigee;
         if (m_muonExtrapolator.empty()) { return perigee; }
         Trk::PerigeeSurface persurf(pars.position());
-        const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(pars, persurf);
-        const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
+        std::unique_ptr<const Trk::TrackParameters> exPars{m_muonExtrapolator->extrapolateDirectly(ctx, pars, persurf)};
+        const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars.get());
         if (!pp) {
             ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
-            delete exPars;
             return perigee;
         }
         perigee.reset(pp);
+        exPars.release();
         return perigee;
     }
 

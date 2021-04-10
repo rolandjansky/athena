@@ -40,17 +40,20 @@ namespace Muon {
 
         /** refit a track */
         std::unique_ptr<Trk::Track> refit(Trk::Track* track, const Settings* settings = 0) const override;
+        std::unique_ptr<Trk::Track> refit(Trk::Track* track, const EventContext& ctx, const Settings* settings = 0) const override;
 
         /** refit and back extrapolate a vector of track pairs */
         std::vector<std::unique_ptr<Trk::Track> > refit(std::vector<Trk::Track*>& tracks, const Settings* settings = 0) const override;
+        std::vector<std::unique_ptr<Trk::Track> > refit(std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+                                                        const Settings* settings = 0) const override;
 
     protected:
         /** update errors on a muon track */
-        std::unique_ptr<Trk::Track> updateErrors(Trk::Track* track, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
-        std::unique_ptr<Trk::Track> updateMdtErrors(Trk::Track* track, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateMdtErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
-        std::unique_ptr<Trk::Track> updateAlignmentErrors(Trk::Track* track, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateAlignmentErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
         std::unique_ptr<Trk::Track> makeAEOTs(Trk::Track* track) const;
 
@@ -73,10 +76,11 @@ namespace Muon {
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+        /// Does not provide any method with EventContext yet
         ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this, "AlignmentErrorTool", "MuonAlign::AlignmentErrorTool"};
         ToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+
         ToolHandle<Trk::ITrackFitter> m_trackFitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"};
-        ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
         ToolHandle<Trk::IExtrapolator> m_muonExtrapolator{this, "MuonExtrapolator", "Trk::Extrapolator/MuonExtrapolator"};
         ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this, "MdtRotCreator",
                                                                   "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
@@ -124,14 +128,14 @@ namespace Muon {
 
         Settings m_defaultSettings;
 
-        mutable std::atomic<unsigned int> m_nrefits;
-        mutable std::atomic<unsigned int> m_ngoodRefits;
-        mutable std::atomic<unsigned int> m_failedOutlierRemoval;
-        mutable std::atomic<unsigned int> m_failedErrorUpdate;
-        mutable std::atomic<unsigned int> m_failedRefit;
-        mutable std::atomic<unsigned int> m_failedExtrapolationMuonEntry;
+        mutable std::atomic<unsigned int> m_nrefits{0};
+        mutable std::atomic<unsigned int> m_ngoodRefits{0};
+        mutable std::atomic<unsigned int> m_failedOutlierRemoval{0};
+        mutable std::atomic<unsigned int> m_failedErrorUpdate{0};
+        mutable std::atomic<unsigned int> m_failedRefit{0};
+        mutable std::atomic<unsigned int> m_failedExtrapolationMuonEntry{0};
 
-        std::unique_ptr<const Trk::Perigee> createPerigee(const Trk::TrackParameters& pars) const;
+        std::unique_ptr<const Trk::Perigee> createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const;
     };
 }  // namespace Muon
 
