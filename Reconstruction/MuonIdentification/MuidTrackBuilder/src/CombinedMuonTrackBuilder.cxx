@@ -234,8 +234,6 @@ namespace Rec {
         ATH_MSG_DEBUG("Retrieved tool " << m_fitterSL);
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_MSG_DEBUG("Retrieved tool " << m_idHelperSvc);
-        ATH_CHECK(m_intersector.retrieve());
-        ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
         /// handle to the magnetic field cache
         ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
         ATH_MSG_DEBUG("Setup handle for key " << m_fieldCacheCondObjInputKey);
@@ -632,7 +630,7 @@ namespace Rec {
         }
 
         // hole recovery, error optimization, attach TrackSummary
-        finalTrackBuild(combinedTrack);
+        finalTrackBuild(combinedTrack, ctx);
 
         return combinedTrack.release();
     }
@@ -1437,7 +1435,7 @@ namespace Rec {
         }
 
         // hole recovery, error optimization, attach TrackSummary
-        finalTrackBuild(track);
+        finalTrackBuild(track, ctx);
 
         if (track) {
             dumpCaloEloss(track.get(), " finalTrackBuild ");
@@ -1955,7 +1953,7 @@ namespace Rec {
             if (!m_muonErrorOptimizer.empty() && !refittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
                 countAEOTs(refittedTrack.get(), " before optimize ") == 0) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(refittedTrack.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(refittedTrack.get(), ctx);
 
                 if (optimizedTrack) {
                     if (checkTrack("standaloneRefitOpt", optimizedTrack.get(), refittedTrack.get())) {
@@ -2098,7 +2096,7 @@ namespace Rec {
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
                 optimizeErrors(fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
 
                 if (optimizedTrack) {
                     if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrack.get())) {
@@ -2223,7 +2221,7 @@ namespace Rec {
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
                 optimizeErrors(fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
                     if (checkTrack("fitInterface2Opt", optimizedTrack.get(), fittedTrack.get())) {
                         fittedTrack.swap(optimizedTrack);
@@ -2336,7 +2334,7 @@ namespace Rec {
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
                 optimizeErrors(fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
                     fittedTrack.swap(optimizedTrack);
                     countAEOTs(fittedTrack.get(), " cbfit scaled errors Track ");
@@ -3628,7 +3626,7 @@ namespace Rec {
         return parameters;
     }
 
-    void CombinedMuonTrackBuilder::finalTrackBuild(std::unique_ptr<Trk::Track>& track) const {
+    void CombinedMuonTrackBuilder::finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const {
         // as a final step:
         //   refit the track if any holes can be recovered,
         //   refit with optimization of the spectrometer hit errors,
@@ -3666,7 +3664,7 @@ namespace Rec {
         if (!m_muonErrorOptimizer.empty() && !track->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
             countAEOTs(track.get(), " before optimize ") == 0) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
-            std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get());
+            std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get(), ctx);
             if (optimizedTrack && checkTrack("finalTrackBuild2", track.get(), track.get())) {
                 track.swap(optimizedTrack);
                 countAEOTs(track.get(), " finalTrackBuilt alignment errors Track ");

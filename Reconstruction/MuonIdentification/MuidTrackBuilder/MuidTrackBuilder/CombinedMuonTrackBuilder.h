@@ -160,7 +160,7 @@ namespace Rec {
                                                                            const Trk::RecVertex* mvertex,
                                                                            const Trk::PerigeeSurface* mperigeeSurface) const;
 
-        void finalTrackBuild(std::unique_ptr<Trk::Track>& track) const;
+        void finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const;
         Trk::Track* interfaceNotImplemented() const;
 
         void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
@@ -216,11 +216,6 @@ namespace Rec {
             "SLFitter",
             "Trk::iPatFitter/iPatSLFitter",
         };  // straight line fitter
-        ToolHandle<Trk::IIntersector> m_intersector{
-            this,
-            "Intersector",
-            "Trk::RungeKuttaIntersector/RungeKuttaIntersector",
-        };
         ToolHandle<Trk::IMaterialAllocator> m_materialAllocator{
             this,
             "MaterialAllocator",
