@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -484,14 +484,11 @@ bool Muon::hasGlobalMuonTrackFit() const {
 /** get a parameter for this Muon - isolation energy in some cone for example */
 double Muon::parameter( MuonParameters::ParamDef x) const {
 
-  typedef std::pair<MuonParameters::ParamDef,float> muonParams;
-
   double result = -999.;
-  std::vector<muonParams>::const_iterator p = m_parameters.begin();
- 
-  for (;p !=m_parameters.end(); p++) {
-    if ( (*p).first == x )
-      result = (*p).second;
+
+  for (const std::pair<MuonParameters::ParamDef, float>& p : m_parameters) {
+    if ( p.first == x )
+      result = p.second;
   }
 
   return result;
@@ -894,7 +891,7 @@ void Muon::set_parameter(MuonParameters::ParamDef index, double value, bool over
 
   std::vector<muonParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == index ) break;
   }
 
