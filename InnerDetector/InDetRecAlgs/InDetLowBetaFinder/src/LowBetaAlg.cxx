@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ namespace InDet
                   CSMP_indicators.clear();
                   CSMP_indicators = ChargedSMPindicators(newtrack);
 
-                  if (CSMP_indicators.size() > 1){
+                  if (CSMP_indicators.size() > 10){
                     if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {
 
                       float TRTToTdEdx           = CSMP_indicators[0];
