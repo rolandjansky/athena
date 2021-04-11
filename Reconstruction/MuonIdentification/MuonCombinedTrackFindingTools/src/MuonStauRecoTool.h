@@ -167,9 +167,6 @@ namespace MuonCombined {
                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& t0fittedSegments,
                         const ToolHandle<Muon::IMuonPRDSelectionTool>& muonPRDSelectionTool,
                         const ToolHandle<Muon::IMuonSegmentMaker>& segmentMaker  ) const;
-
-    /** match extension to Hough maxima, extract time measurements, create candidates, run segment finding */
-    bool processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension, CandidateVec& candidates );
     
     /** associate Hough maxima and associate time measurements */
     bool extractTimeMeasurements( const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData ) const;

@@ -200,22 +200,6 @@ namespace MuonCombined {
 
   }
 
-  bool MuonStauRecoTool::processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension,
-                                                      MuonStauRecoTool::CandidateVec& candidates ) {
-
-    // loop over intersections, get associated data
-    AssociatedData associatedData;
-
-    // extract time measurements for intersection
-    if( !extractTimeMeasurements(muonSystemExtension,associatedData) ) return false;
-
-    // build candidates
-    if( !createCandidates(associatedData,candidates) ) return false;
-
-    // refine: find segments using seed beta
-    return refineCandidates(candidates);
-  }
-
   bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) const {
 
     // keep track of candidates for which segments are found
@@ -1419,7 +1403,7 @@ namespace MuonCombined {
 
       // select maximum and add it to LayerData
       if( std::abs(pull) > 5 ) continue;
-      layerData.maximumDataVec.push_back(std::shared_ptr<MaximumData>(new MaximumData(intersection,&maximum,phiClusterOnTracks)));
+      layerData.maximumDataVec.emplace_back(std::make_shared<MaximumData>(intersection,&maximum,phiClusterOnTracks));
 
     }
   }

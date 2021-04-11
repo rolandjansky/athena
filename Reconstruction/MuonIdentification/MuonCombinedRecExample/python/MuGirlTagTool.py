@@ -4,7 +4,6 @@
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool
-from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
 
