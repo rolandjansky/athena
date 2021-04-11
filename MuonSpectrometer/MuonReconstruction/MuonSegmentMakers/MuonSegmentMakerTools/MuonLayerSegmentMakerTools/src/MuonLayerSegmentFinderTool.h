@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERSEGMENTFINDERTOOL_H
@@ -18,7 +18,6 @@
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
@@ -117,11 +116,6 @@ class MuonLayerSegmentFinderTool : virtual public IMuonLayerSegmentFinderTool, p
         this,
         "NSWMuonClusterSegmentFinderTool",
         "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
-    };
-    mutable ToolHandle<IMuonRecoValidationTool> m_recoValidationTool{
-        this,
-        "MuonRecoValidationTool",
-        "",  // "Muon::MuonRecoValidationTool/MuonRecoValidationTool"
     };
 
     MuonSectorMapping m_muonSectorMapping;

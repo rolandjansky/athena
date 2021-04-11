@@ -56,8 +56,7 @@ def RecoMuonSegmentSequence(flags):
         conddb._SetAcc('DCS_OFL','COOLOFL_DCS')
         conddb.addFolder("DCS_OFL", "/MDT/DCS/HV",className='CondAttrListCollection')
         conddb.addFolder("DCS_OFL", "/MDT/DCS/LV",className='CondAttrListCollection')
-    theSegmentFinderAlg = CompFactory.MuonSegmentFinderAlg("MuonSegmentFinderAlg" + postFix,
-                                                           MuonTruthSummaryTool = '')
+    theSegmentFinderAlg = CompFactory.MuonSegmentFinderAlg("MuonSegmentFinderAlg" + postFix)
     xAODMuonSegmentCnv = CompFactory.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg" + postFix)
     from AthenaCommon.CFElements import seqAND
     recoMuonSegment = seqAND( "MuSegRecSeqForL1Muon", [muonLayerHoughAlg,mdtCondDb,theSegmentFinderAlg, xAODMuonSegmentCnv] )
