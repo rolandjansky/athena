@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -38,7 +38,7 @@
 //
 // Constructor
 //
-TileDigitsThresholdFilter::TileDigitsThresholdFilter(std::string name, ISvcLocator* pSvcLocator)
+TileDigitsThresholdFilter::TileDigitsThresholdFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_tileHWID(nullptr)
   , m_tileDspThreshold("TileCondToolDspThreshold")
