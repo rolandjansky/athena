@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1027,7 +1027,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         // dense volume boundary
         unsigned int index = solutions[iSol] - iDest - cache.m_staticBoundaries.size() - cache.m_layers.size();
         std::vector< std::pair<const Trk::TrackingVolume *, unsigned int> >::iterator dIter = cache.m_denseVols.begin();
-        while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
+        while (dIter != cache.m_denseVols.end() && index >= (*dIter).second) {
           index -= (*dIter).second;
           ++dIter;
         }
@@ -1088,7 +1088,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                              - cache.m_denseBoundaries.size() - cache.m_navigBoundaries.size();
         std::vector< std::pair<const Trk::DetachedTrackingVolume *,
                                unsigned int> >::iterator dIter = cache.m_detachedVols.begin();
-        while (index >= (*dIter).second && dIter != cache.m_detachedVols.end()) {
+        while (dIter != cache.m_detachedVols.end() && index >= (*dIter).second) {
           index -= (*dIter).second;
           ++dIter;
         }
@@ -2065,7 +2065,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
       unsigned int index = sols[is] - iDest - cache.m_trStaticBounds.size() - cache.m_trLays.size();
       std::vector< std::pair<const Trk::TrackingVolume *, unsigned int> >::iterator dIter = cache.m_denseVols.begin();
-      while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
+      while (dIter != cache.m_denseVols.end() && index >= (*dIter).second) {
         index -= (*dIter).second;
         ++dIter;
       }
