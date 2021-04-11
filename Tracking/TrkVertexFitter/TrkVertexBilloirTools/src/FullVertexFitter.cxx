@@ -529,7 +529,6 @@ namespace Trk
  		   xAOD::Vertex* fittedVertex = fit( measuredPerigees, constraint ); 
  		 
  		   //assigning the input tracks to the fitted vertex through VxTrackAtVertices
- 		   if(fittedVertex !=nullptr) 
  		   { 
  		    if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check! 
  		    { 
