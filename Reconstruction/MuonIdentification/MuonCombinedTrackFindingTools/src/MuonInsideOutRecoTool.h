@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONINSIDEOUTRECOTOOL_H
@@ -18,7 +18,6 @@
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
 #include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
@@ -89,7 +88,6 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool{this,"MuonLayerSegmentMatchingTool","Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"};
     ToolHandle<Muon::IMuonLayerAmbiguitySolverTool>  m_ambiguityResolver{this,"MuonLayerAmbiguitySolverTool","Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"};
     ToolHandle<Muon::IMuonCandidateTrackBuilderTool> m_candidateTrackBuilder{this,"MuonCandidateTrackBuilderTool","Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"};
-    ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool{this,"MuonRecoValidationTool",""};
     ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter{this,"MuonTrackBuilder","Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver{this,"TrackAmbiguityProcessor","Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
     ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider{this,"MuonLayerHashProviderTool","Muon::MuonLayerHashProviderTool"};

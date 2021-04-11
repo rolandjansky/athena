@@ -96,7 +96,6 @@ addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonCluste
 
 addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 
-addTool( "Muon::MuonTruthSummaryTool","MuonTruthSummaryTool")
 
 addTool( "Muon::MuonClusterizationTool","MuonClusterizationTool" )
 
