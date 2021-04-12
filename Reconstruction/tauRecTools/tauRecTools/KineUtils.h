@@ -26,7 +26,7 @@ class Tau1P3PKineUtils
         //! @param x eta position of object 1
         //! @param y eta position of object 2
         //!
-        static double deltaEta(double eta1, double eta2) { return std::fabs( eta1 - eta2);} 
+        static double deltaEta(double eta1, double eta2) { return std::abs(eta1 - eta2); }
 
         //!
         //! Calculates absolute value for difference in phi position,
