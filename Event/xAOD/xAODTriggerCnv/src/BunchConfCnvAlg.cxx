@@ -34,7 +34,7 @@ namespace xAODMaker {
    StatusCode BunchConfCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "  EventName = " << m_eventName );
       ATH_MSG_DEBUG( "  MetaName  = " << m_metaName );
 

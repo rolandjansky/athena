@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.h 630277 2014-11-21 19:48:39Z vscharf $
 #ifndef XAODTRIGL1CALOCNV_TRIGGERTOWERCNVTOOL_H
 #define XAODTRIGL1CALOCNV_TRIGGERTOWERCNVTOOL_H
 
@@ -25,8 +24,6 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 630277 $
-    * $Date: 2014-11-21 20:48:39 +0100 (Fri, 21 Nov 2014) $
     */
    class TriggerTowerCnvTool : public AthAlgTool,
                                public virtual ITriggerTowerCnvTool {
@@ -36,12 +33,9 @@ namespace xAODMaker {
       TriggerTowerCnvTool( const std::string& type, const std::string& name,
                            const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const DataVector<LVL1::TriggerTower>* esd,
-                                  xAOD::TriggerTowerContainer* xaod );
+                                  xAOD::TriggerTowerContainer* xaod ) override;
    }; // class TriggerTowerCnvTool
 
 } // namespace xAODMaker

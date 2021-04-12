@@ -24,7 +24,7 @@ ClusterDumper::ClusterDumper( const std::string& name,
 }
 
 StatusCode ClusterDumper::initialize() {
-  ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing" );
 
   if (!m_fileName.empty()) {
     m_fileOut.open(m_fileName);

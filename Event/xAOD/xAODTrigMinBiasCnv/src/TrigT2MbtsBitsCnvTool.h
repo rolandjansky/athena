@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2MbtsBitsCnvTool.h 785778 2016-11-22 16:26:31Z ssnyder $
 #ifndef xAODTrigMinBiasCNV_TrigT2MbtsBitsCNVTOOL_H
 #define xAODTrigMinBiasCNV_TrigT2MbtsBitsCNVTOOL_H
 
@@ -32,9 +31,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigT2MbtsBitsCnvTool( const std::string& type, const std::string& name,
                       const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigT2MbtsBitsContainer
       virtual StatusCode convert( const TrigT2MbtsBitsContainer* aod,

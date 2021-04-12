@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTauRoICnvTool.h 575635 2013-12-16 10:58:41Z krasznaa $
 #ifndef XAODTRIGGERCNV_EMTAUROICNVTOOL_H
 #define XAODTRIGGERCNV_EMTAUROICNVTOOL_H
 
@@ -24,8 +23,6 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 575635 $
-    * $Date: 2013-12-16 11:58:41 +0100 (Mon, 16 Dec 2013) $
     */
    class EmTauRoICnvTool : public AthAlgTool,
                            public virtual IEmTauRoICnvTool {
@@ -35,12 +32,9 @@ namespace xAODMaker {
       EmTauRoICnvTool( const std::string& type, const std::string& name,
                        const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const LVL1_ROI* aod,
-                                  xAOD::EmTauRoIContainer* xaod );
+                                  xAOD::EmTauRoIContainer* xaod ) override;
 
    }; // class EmTauRoICnvTool
 

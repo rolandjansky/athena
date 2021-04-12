@@ -31,7 +31,7 @@ namespace xAODMaker {
    StatusCode MissingETCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( "  AOD keys = " << m_aodKeys );
       ATH_MSG_DEBUG( "  xAOD key = " << m_xaodKey );
 

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBjetCnvTool.cxx 785653 2016-11-22 06:07:48Z ssnyder $
 
 // EDM include(s):
 #include "TrigParticle/TrigEFBjetContainer.h"
@@ -21,15 +20,6 @@ namespace xAODMaker {
 
     // Declare the interface(s) provided by the tool:
     declareInterface< ITrigBjetCnvTool >( this );
-  }
-
-  StatusCode TrigBjetCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
   }
 
   /**

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MissingETCnvTool.cxx 586841 2014-03-08 15:14:37Z khoo $
 
 // EDM include(s):
 #include "MissingETEvent/MissingET.h"
@@ -18,14 +17,6 @@ namespace xAODMaker {
       : AthAlgTool( type, name, parent ) {
 
       declareInterface< IMissingETCnvTool >( this );
-   }
-
-   StatusCode MissingETCnvTool::initialize() {
-
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    StatusCode MissingETCnvTool::add( const MissingET* aod,
