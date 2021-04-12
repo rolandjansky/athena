@@ -60,8 +60,6 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
 
   virtual unsigned int classify(const xAOD::TruthParticle *) = 0; 
 
-  virtual std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) = 0;  
-
   virtual const xAOD::TruthParticle* getParentHadron(const xAOD::TruthParticle*) = 0;
 
   virtual int getParentHadronID(const xAOD::TruthParticle*) = 0;
