@@ -34,9 +34,9 @@
 
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
+#include "SiDigitization/ISurfaceChargesGenerator.h"
 
-#include "SCT_InducedChargeModel.h"
+#include "SiDigitization/InducedChargeModel.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
@@ -77,7 +77,7 @@ namespace CLHEP {
 
 template <class HIT> class TimedHitPtr;
 
-class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
+class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesGenerator> {
  public:
 
   /**  constructor */
@@ -172,7 +172,7 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   TH1F* m_h_trap_pos{nullptr};
 
   // For Induced Charge Module, M.Togawa
-  std::unique_ptr<SCT_InducedChargeModel> m_InducedChargeModel;
+  std::unique_ptr<InducedChargeModel> m_InducedChargeModel;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

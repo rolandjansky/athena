@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "SiDigitization/SiHelper.h"
-#include "SCT_Digitization/ISCT_Amp.h"
+#include "SiDigitization/IAmplifier.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
