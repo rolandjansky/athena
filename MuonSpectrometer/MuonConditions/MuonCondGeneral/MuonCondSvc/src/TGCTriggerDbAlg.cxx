@@ -135,6 +135,8 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
   const std::string modulename[kNMODULETYPE]         = {"0","1","2a","2b","3","4","5a","5b","6","7","8a","8b"};
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
+  bool first = true;
+
   for(auto& attrmap : *readCdo) {
     const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_BW] = atr["active"].data<bool>();
@@ -143,8 +145,15 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
     std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
     std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
     ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
-    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_BW]
-                 << " active: " << writeCdo->m_active[TGCTriggerData::CW_BW] << " version: " << version);
+    if ( first ) {  
+      ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_BW]
+		    << " active: " << writeCdo->m_active[TGCTriggerData::CW_BW] << " version: " << version);
+      first = false;
+    } 
+    else { 
+      ATH_MSG_DEBUG("type: " << writeCdo->m_type[TGCTriggerData::CW_BW]
+		    << " active: " << writeCdo->m_active[TGCTriggerData::CW_BW] << " version: " << version);
+    }
 
     if (!writeCdo->m_active[TGCTriggerData::CW_BW]) continue;
 
@@ -244,6 +253,8 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
 {
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
+  bool first = true;
+
   for(auto& attrmap : *readCdo) {
     const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_EIFI] = atr["active"].data<bool>();
@@ -253,8 +264,18 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
     std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
     ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
 
-    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
+    /// preumably, as this is in a loop, there should be some ouput for the channel as well, 
+    /// although that is in a DEBUG statement, so presumably this prinout was demoted to DEBUG, 
+    /// but the following lines were forgotten  
+    if ( first ) { 
+      ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
                  << " active: " << writeCdo->m_active[TGCTriggerData::CW_EIFI] << " version: " << version);
+      first = false;
+    }
+    else { 
+      ATH_MSG_DEBUG("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
+		    << " active: " << writeCdo->m_active[TGCTriggerData::CW_EIFI] << " version: " << version);
+    }
 
     if (!writeCdo->m_active[TGCTriggerData::CW_EIFI]) continue;
 
@@ -345,15 +366,27 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
 void TGCTriggerDbAlg::fillTrigBitTile(TGCTriggerData* writeCdo,
                                       const CondAttrListCollection* readCdo)
 {
+
+  bool first = true;
+
   for(auto& attrmap : *readCdo) {
     const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_TILE] = atr["active"].data<bool>();
     writeCdo->m_type[TGCTriggerData::CW_TILE]   = atr["type"].data<std::string>();
 
     ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << atr["file"].data<std::string>());
-    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_TILE]
-                  << " active: " << writeCdo->m_active[TGCTriggerData::CW_TILE]
-                  << " version: " << atr["version"].data<std::string>());
+
+    if ( first ) { 
+      ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_TILE]
+		   << " active: " << writeCdo->m_active[TGCTriggerData::CW_TILE]
+		   << " version: " << atr["version"].data<std::string>());
+      first = false;
+    }
+    else { 
+      ATH_MSG_DEBUG("type: " << writeCdo->m_type[TGCTriggerData::CW_TILE]
+		    << " active: " << writeCdo->m_active[TGCTriggerData::CW_TILE]
+		    << " version: " << atr["version"].data<std::string>());
+    }
 
     if(!writeCdo->m_active[TGCTriggerData::CW_TILE]) continue;
 
