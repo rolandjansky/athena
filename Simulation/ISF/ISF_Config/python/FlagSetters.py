@@ -138,6 +138,7 @@ def configureFlagsATLFAST3():
     ISF_Flags.UsingGeant4 = True
     mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
     ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
     return
 
 
