@@ -42,7 +42,7 @@ namespace Simulation {
       StatusCode manipulate(HepMC::GenEvent& ge, bool applyPatch, bool removePatch) const;
       bool m_applyPatch{false};
       bool m_removePatch{false};
-      std::vector<int> m_pdgCodesToCheck{511};
+      std::vector<int> m_pdgCodesToCheck{421,511,531}; // Apply fix to neutral mesons with oscillations: B0, B0s, D0
   };
 
 }
