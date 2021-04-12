@@ -201,7 +201,7 @@ StatusCode TileMuonReceiverDecision::execute() {
 	    ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
 	  }
 	  else { 
-	    ATH_MSG_WARNING( "Too many HWID WARNINGS - suppressing further output" );
+	    ATH_MSG_WARNING( "Too many HWID WARNINGS - suppressing further output - switch to debug mode to view them all" );
 	    suppress_printout = true;
 	  }
 	}
