@@ -53,15 +53,8 @@ def IOVDbSvcCfg(configFlags):
     PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
     poolSvc.MaxFilesOpen=0
-    poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
-                         "prfile:poolcond/PoolCat_oflcond.xml",
-                         "apcfile:poolcond/PoolCat_oflcond.xml",
-                         ]
+    poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml"]
 
-    if not isMC:
-         poolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_comcond.xml",
-                               "apcfile:poolcond/PoolCat_comcond.xml",
-                               ]
     result.addService(poolSvc)
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
