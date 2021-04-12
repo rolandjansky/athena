@@ -276,6 +276,7 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
 
     double rpos = pars->position().perp();
     double zpos = fabs(pars->position().z());
+    if ( rpos < 2500 && zpos < 4000 ) continue;
     double eta    = pars->position().eta();
     double phi    = pars->position().phi();
     if ( msgLvl(MSG::DEBUG) ) {
@@ -283,7 +284,6 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
       if ( pars->covariance() ) msg() << MSG::DEBUG << " extrapolation error " << Amg::error(*pars->covariance(), Trk::locX);
       msg() << endmsg;
     }
-    if ( rpos < 2500 && zpos < 4000 ) continue;
 
     // check whether state is a measurement
     const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
