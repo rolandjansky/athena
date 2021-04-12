@@ -12,7 +12,7 @@ atlas_add_component( SCT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib Identifier GaudiKernel SiDigitization InDetCondTools InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry InDetSimData InDetConditionsSummaryService PathResolver SCT_ConditionsToolsLib SCT_ModuleDistortionsLib MagFieldConditions StoreGateLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib Identifier GaudiKernel SiDigitization InDetCondTools InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry InDetSimData InDetConditionsSummaryService PathResolver SCT_ConditionsToolsLib SCT_ModuleDistortionsLib)
 
 # Test(s) in the package:
 atlas_add_test( SCT_DigitizationMT_test

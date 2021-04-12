@@ -97,7 +97,7 @@ StatusCode TrigmuCombHypoTool::initialize()
      if( m_requireSameSign ) ATH_MSG_DEBUG( "+ Same charge sign" );
    }
    // minimum d0 cut for displaced muon triggers
-   if (m_d0min>0.) ATH_MSG_DEBUG( " Rejecting muons with d0 < "<<m_d0min<<" mm");
+   if (m_d0min>0.) ATH_MSG_DEBUG( " Rejecting muons with abs(d0) < "<<m_d0min<<" mm");
 
    return StatusCode::SUCCESS;
 }
@@ -217,7 +217,7 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
 
    //d0 cut
    bool d0Cut = true;
-   if (m_d0min>0. && idA0<m_d0min) d0Cut = false;
+   if (m_d0min>0. && std::abs(idA0)<m_d0min) d0Cut = false;
  
    result = stdCut && pikCut && sdpCut && d0Cut;
  

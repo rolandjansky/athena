@@ -64,13 +64,13 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
   }
 
   ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
-  if ( 0 == vxContainer->size()) return StatusCode::SUCCESS;
+  if (vxContainer->empty()) return StatusCode::SUCCESS;
 
   // find default PrimaryVertex (needed if TJVA is switched off or fails)
   // see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
   // code adapted from
   // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
-  const xAOD::Vertex* primaryVertex = 0;
+  const xAOD::Vertex* primaryVertex = nullptr;
   if (inTrigger()) { // trigger: find default PrimaryVertex (highest sum pt^2)
     primaryVertex = (*vxContainer)[0];
   }
@@ -92,9 +92,8 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
   // try to find new PV with TJVA
   ATH_MSG_DEBUG("TJVA enabled -> try to find new PV for the tau candidate");
 
-  float maxJVF = -100;
-  ElementLink<xAOD::VertexContainer> newPrimaryVertexLink =
-    getPV_TJVA(pTau, *vxContainer, trackContainer, maxJVF );
+  float maxJVF = -100.;
+  ElementLink<xAOD::VertexContainer> newPrimaryVertexLink = getPV_TJVA(pTau, *vxContainer, trackContainer, maxJVF );
   if (newPrimaryVertexLink.isValid()) {
     // set new primary vertex
     // will overwrite default one which was set above
@@ -248,7 +247,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
       std::vector<const xAOD::TrackParticle*> tracks = trktovxmap[vert];
       // get jet vertex fraction and sumdeltaZ scores
       std::pair<float, float> spair = getVertexScores(tracks, vert->z());
-      jvf = (sumTrackAll!=0 ? spair.first/sumTrackAll : 0);
+      jvf = (sumTrackAll!=0. ? spair.first/sumTrackAll : 0.);
       v_jvf.push_back(jvf);
       sumDz.push_back(spair.second);
     }
@@ -293,8 +292,8 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
 // sum over tracks associated to vertex of deltaZ(track-vertex) (pair second)
 std::pair<float,float> TauVertexFinder::getVertexScores(const std::vector<const xAOD::TrackParticle*>& tracks, float vx_z) const{
 
-  float sumTrackPV = 0;
-  float sumDeltaZ = 0;
+  float sumTrackPV = 0.;
+  float sumDeltaZ = 0.;
   for (auto trk : tracks){
     sumTrackPV += trk->pt();
     sumDeltaZ += std::abs(trk->z0() - vx_z + trk->vz());
@@ -308,17 +307,17 @@ float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex,
                                             const std::vector<const xAOD::TrackParticle*>& tracks,
                                             const std::vector<const xAOD::Vertex*>& matchedVertexOnline) const
 {
-  float sumTrackPV = 0;
-  float sumTrackAll = 0;
+  float sumTrackPV = 0.;
+  float sumTrackAll = 0.;
   for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
     {
       const xAOD::Vertex* ptvtx = matchedVertexOnline[iTrack];
-      if (ptvtx != nullptr) {  // C++11 feature
+      if (ptvtx != nullptr) {
         if (ptvtx->index() == vertex->index()) sumTrackPV += tracks.at(iTrack)->pt();
       }
       sumTrackAll += tracks.at(iTrack)->pt();
 
     }
-  return sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0;
+  return sumTrackAll!=0. ? sumTrackPV/sumTrackAll : 0.;
 }
 #endif

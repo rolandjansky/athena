@@ -9,7 +9,7 @@
 //   2016.4.3  for ICM (induced charge model) by Taka Kondo (KEK)
 //-----------------------------------------------
 
-#include "SCT_InducedChargeModel.h"
+#include "SiDigitization/InducedChargeModel.h"
 
 // ROOT
 #include "TH2.h"
@@ -20,26 +20,26 @@
 #include <cmath>
 #include <iostream>
 
-const double SCT_InducedChargeModel::s_kB = Gaudi::Units::k_Boltzmann / Gaudi::Units::joule; // [m^2*kg/s^2/K]
-const double SCT_InducedChargeModel::s_e = Gaudi::Units::e_SI; // [Coulomb]
+const double InducedChargeModel::s_kB = Gaudi::Units::k_Boltzmann / Gaudi::Units::joule; // [m^2*kg/s^2/K]
+const double InducedChargeModel::s_e = Gaudi::Units::e_SI; // [Coulomb]
 // Sorted depletion voltage values
-const std::vector<float> SCT_InducedChargeModel::s_VFD0 =
+const std::vector<float> InducedChargeModel::s_VFD0 =
   { -180.,  -150.,  -120.,  -90.,  -60.,  -30.,  0.,  30.,  70.};
-const std::vector<std::string> SCT_InducedChargeModel::s_VFD0str =
+const std::vector<std::string> InducedChargeModel::s_VFD0str =
   {"M180", "M150", "M120", "M90", "M60", "M30", "0", "30", "70"};
 
-SCT_InducedChargeModel::SCT_InducedChargeModel(size_t maxHash, EFieldModel model) :
-  m_msg("SCT_InducedChargeModel"),
+InducedChargeModel::InducedChargeModel(size_t maxHash, EFieldModel model) :
+  m_msg("InducedChargeModel"),
   m_EFieldModel(model)
 {
   loadICMParameters();
   m_data.resize(maxHash);
 }
 
-SCT_InducedChargeModel::SCT_InducedChargeModelData*
-SCT_InducedChargeModel::setWaferData(const float vdepl,
+InducedChargeModel::SCT_InducedChargeModelData*
+InducedChargeModel::setWaferData(const float vdepl,
                                      const float vbias,
-                                     const InDetDD::SiDetectorElement* element,
+                                     const InDetDD::SolidStateDetectorElementBase* element,
                                      const AtlasFieldCacheCondObj* fieldCondObj,
                                      const ToolHandle<ISiliconConditionsTool> siConditionsTool,
                                      CLHEP::HepRandomEngine* rndmEngine,
@@ -101,7 +101,7 @@ SCT_InducedChargeModel::setWaferData(const float vdepl,
 //---------------------------------------------------------------------
 //  transport
 //---------------------------------------------------------------------
-void SCT_InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
+void InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
                                        const bool isElectron,
                                        const double x0, const double y0,
                                        double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
@@ -188,7 +188,7 @@ void SCT_InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
 //---------------------------------------------------------------------
 //  holeTransport
 //---------------------------------------------------------------------
-void SCT_InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& data,
+void InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& data,
                                            const double x0, const double y0,
                                            double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                            const IdentifierHash hashId,
@@ -208,7 +208,7 @@ void SCT_InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& dat
 //---------------------------------------------------------------------
 //  electronTransport
 //---------------------------------------------------------------------
-void SCT_InducedChargeModel::electronTransport(const SCT_InducedChargeModelData& data,
+void InducedChargeModel::electronTransport(const SCT_InducedChargeModelData& data,
                                                const double x0, const double y0,
                                                double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                                const IdentifierHash hashId,
@@ -228,7 +228,7 @@ void SCT_InducedChargeModel::electronTransport(const SCT_InducedChargeModelData&
 //---------------------------------------------------------------
 //      Get parameters for electron or hole transport
 //---------------------------------------------------------------
-bool SCT_InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
+bool InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
                                       const bool isElectron,
                                       const double x, const double y, double& vx, double& vy, double& D,
                                       const IdentifierHash hashId,
@@ -273,7 +273,7 @@ bool SCT_InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
 //-------------------------------------------------------------------
 //    calculation of induced charge using Weighting (Ramo) function
 //-------------------------------------------------------------------
-double SCT_InducedChargeModel::induced(const SCT_InducedChargeModelData& data,
+double InducedChargeModel::induced(const SCT_InducedChargeModelData& data,
                                        const int istrip, const double x, const double y) const
 {
   // x and y are the location of charge (e or hole)
@@ -305,7 +305,7 @@ double SCT_InducedChargeModel::induced(const SCT_InducedChargeModelData& data,
 //--------------------------------------------------------------
 //   Electric Field Ex and Ey
 //--------------------------------------------------------------
-void SCT_InducedChargeModel::getEField(const SCT_InducedChargeModelData& data,
+void InducedChargeModel::getEField(const SCT_InducedChargeModelData& data,
                                        const double x, const double y, double& Ex, double& Ey) const {
   // m_EFieldModel == FlatDiodeModel 0; flat diode model
   // m_EFieldModel == FEMsolutions 1; FEM solusions
@@ -374,7 +374,7 @@ void SCT_InducedChargeModel::getEField(const SCT_InducedChargeModelData& data,
 }
 
 /////////////////////////////////////////////////////////////////////
-size_t SCT_InducedChargeModel::getFEMIndex(SCT_InducedChargeModelData& data) const {
+size_t InducedChargeModel::getFEMIndex(SCT_InducedChargeModelData& data) const {
   // Return index for s_VFD0 and EFieldModel.
   // If vdepl is out of range of s_VFD0, EFieldModel of FlatDiodeModel is returned.
   size_t iVFD = 0;
@@ -392,7 +392,7 @@ size_t SCT_InducedChargeModel::getFEMIndex(SCT_InducedChargeModelData& data) con
 
 /////////////////////////////////////////////////////////////////////
 
-void SCT_InducedChargeModel::loadICMParameters() {
+void InducedChargeModel::loadICMParameters() {
   // Loading Ramo potential and Electric field.
   // In strip pitch directions :
   //  Ramo potential : 80 divisions (81 points) with 5 um intervals from 40-440 um.
@@ -455,7 +455,7 @@ void SCT_InducedChargeModel::loadICMParameters() {
   hfile->Close();
 }
 
-void SCT_InducedChargeModel::setEField(SCT_InducedChargeModelData& data) const {
+void InducedChargeModel::setEField(SCT_InducedChargeModelData& data) const {
   if (data.m_EFieldModel!=FEMsolutions) return;
 
   size_t iVFD = getFEMIndex(data);

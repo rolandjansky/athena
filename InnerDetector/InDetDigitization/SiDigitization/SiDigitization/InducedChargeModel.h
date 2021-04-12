@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_DIGITIZATION_SCTINDUCEDCHARGEDMODEL_H
-#define SCT_DIGITIZATION_SCTINDUCEDCHARGEDMODEL_H
+#ifndef SIDIGITIZATION_INDUCEDCHARGEDMODEL_H
+#define SIDIGITIZATION_INDUCEDCHARGEDMODEL_H
 
 //-----------------------------------------------
 //   2020.8.12 Implementation in Athena by Manabu Togawa
@@ -17,7 +17,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "PathResolver/PathResolver.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
@@ -41,7 +41,7 @@
 #include <utility>
 #include <vector>
 
-class SCT_InducedChargeModel {
+class InducedChargeModel {
 
  public:
   enum EFieldModel {FlatDiodeModel=0, FEMsolutions=1, UniformE=2};
@@ -54,7 +54,7 @@ class SCT_InducedChargeModel {
     float m_VB; // applied bias voltage [Volt]
     float m_T; // temperature
     float m_depletion_depth;
-    const InDetDD::SiDetectorElement* m_element;
+    const InDetDD::SolidStateDetectorElementBase* m_element;
     Amg::Vector3D m_magneticField;
     EFieldModel m_EFieldModel;
     CLHEP::HepRandomEngine* m_rndmEngine;
@@ -63,7 +63,7 @@ class SCT_InducedChargeModel {
 
     SCT_InducedChargeModelData(const float vdepl,
                                const float vbias,
-                               const InDetDD::SiDetectorElement* element,
+                               const InDetDD::SolidStateDetectorElementBase* element,
                                const Amg::Vector3D& magneticField, // in kTesla
                                const float bulk_depth,
                                const EFieldModel model,
@@ -91,12 +91,12 @@ class SCT_InducedChargeModel {
     }
   };
 
-  SCT_InducedChargeModel(size_t maxHash, EFieldModel model=FEMsolutions);
+  InducedChargeModel(size_t maxHash, EFieldModel model=FEMsolutions);
 
   SCT_InducedChargeModelData*
     setWaferData(const float vdepl,
                  const float vbias,
-                 const InDetDD::SiDetectorElement* element,
+                 const InDetDD::SolidStateDetectorElementBase* element,
                  const AtlasFieldCacheCondObj* fieldCondObj,
                  const ToolHandle<ISiliconConditionsTool> siConditionsTool,
                  CLHEP::HepRandomEngine* rndmEngine,
@@ -186,4 +186,4 @@ class SCT_InducedChargeModel {
   static const std::vector<std::string> s_VFD0str;
 };
 
-#endif // SCT_DIGITIZATION_SCTINDUCEDCHARGEDMODEL_H
+#endif // SIDIGITIZATION_INDUCEDCHARGEDMODEL_H

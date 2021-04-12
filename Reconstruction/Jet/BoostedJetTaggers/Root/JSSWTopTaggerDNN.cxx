@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -362,10 +362,16 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties( const xAOD::Jet
     SG::ReadDecorHandle<xAOD::JetContainer, float> readTau1WTA(m_readTau1WTAKey);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readTau2WTA(m_readTau2WTAKey);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readTau3WTA(m_readTau3WTAKey);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> readTau4WTA(m_readTau4WTAKey);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readTau32WTA(m_readTau32WTAKey);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> readTau42WTA(m_readTau42WTAKey);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readSplit23(m_readSplit23Key);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readQw(m_readQwKey);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> readThrustMaj(m_readThrustMajKey);
     SG::ReadDecorHandle<xAOD::JetContainer, float> readE3(m_readE3Key);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> readL2(m_readL2Key);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> readL3(m_readL3Key);
+
 
     /// Mass and pT again
     DNN_inputValues["m"] = jet.m();
@@ -381,12 +387,28 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties( const xAOD::Jet
     DNN_inputValues["Tau1_wta"] = readTau1WTA(jet);
     DNN_inputValues["Tau2_wta"] = readTau2WTA(jet);
     DNN_inputValues["Tau3_wta"] = readTau3WTA(jet);
+    if(readTau4WTA.isAvailable()){
+      DNN_inputValues["Tau4_wta"] = readTau4WTA(jet);
+    }
 
     DNN_inputValues["Tau32_wta"] = readTau32WTA(jet);
+    if(readTau42WTA.isAvailable()){
+      DNN_inputValues["Tau42_wta"] = readTau42WTA(jet);
+    }
 
     /// Qw observable for top tagging
     DNN_inputValues["Qw"] = readQw(jet);
-  
+
+    if(readThrustMaj.isAvailable()){
+      DNN_inputValues["ThrustMaj"] = readThrustMaj(jet);
+    }
+    if(readL2.isAvailable()){
+      DNN_inputValues["L2"] = readL2(jet);
+    }
+    if(readL3.isAvailable()){
+      DNN_inputValues["L3"] = readL3(jet);
+    }
+
   }
   
   else {

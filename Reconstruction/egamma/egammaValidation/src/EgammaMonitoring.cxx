@@ -13,18 +13,8 @@
 
 
 EgammaMonitoring::EgammaMonitoring(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_LooseLH("AsgElectronLikelihoodTool/LooseLH"),
-  m_MediumLH("AsgElectronLikelihoodTool/MediumLH"),
-  m_TightLH("AsgElectronLikelihoodTool/TightLH"),
-  m_LooseLH_Photon("AsgPhotonIsEMSelector/photonLooseIsEMSelector"),
-  m_TightLH_Photon("AsgPhotonIsEMSelector/photonTightIsEMSelector"),
-  m_IsoFixedCutTight("CP::IsolationSelectionTool/IsoFixedCutTight"),
-  m_IsoFixedCutTightTrackOnly("CP::IsolationSelectionTool/IsoFixedCutTightTrackOnly"),
-  m_IsoFixedCutTightCaloOnly("CP::IsolationSelectionTool/IsoFixedCutTightCaloOnly"),
-  m_IsoFixedCutLoose("CP::IsolationSelectionTool/IsoFixedCutLoose"),
-  m_mcTruthClassifier("MCTruthClassifier/MCTruthClassifier") {
-  declareProperty("sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle");
+  AthAlgorithm(name, pSvcLocator){
+    declareProperty("sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle");
 }
 
 // ******
@@ -362,32 +352,21 @@ StatusCode EgammaMonitoring::initialize() {
   } // gamma Hists
 
   //*****************LLH Requirement********************
-  ATH_CHECK(m_LooseLH.setProperty("WorkingPoint", "LooseLHElectron"));
-  ATH_CHECK(m_LooseLH.initialize());
+  ATH_CHECK(m_LooseLH.retrieve());
   //*****************MLH Requirement********************
-  ATH_CHECK(m_MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
-  ATH_CHECK(m_MediumLH.initialize());
+  ATH_CHECK(m_MediumLH.retrieve());
   //*****************TLH Requirement********************
-  ATH_CHECK(m_TightLH.setProperty("WorkingPoint", "TightLHElectron"));
-  ATH_CHECK(m_TightLH.initialize());
-
+  ATH_CHECK(m_TightLH.retrieve());
   //*****************LLH Requirement********************
-  ANA_CHECK(m_LooseLH_Photon.setProperty("WorkingPoint", "LoosePhoton"));
-  ANA_CHECK(m_LooseLH_Photon.initialize());
+  ATH_CHECK(m_LooseLH_Photon.retrieve());
   //*****************TLH Requirement********************
-  ANA_CHECK(m_TightLH_Photon.setProperty("WorkingPoint", "TightPhoton"));
-  ANA_CHECK(m_TightLH_Photon.initialize());
-
+  ATH_CHECK(m_TightLH_Photon.retrieve());
 
   //*****************Iso Requirements********************
-  ATH_CHECK(m_IsoFixedCutTight.setProperty("PhotonWP", "FixedCutTight"));
-  ATH_CHECK(m_IsoFixedCutTight.initialize());
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.setProperty("ElectronWP", "FixedCutTightTrackOnly"));
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.initialize());
-  ATH_CHECK(m_IsoFixedCutTightCaloOnly.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-  ATH_CHECK(m_IsoFixedCutTightCaloOnly.initialize());
-  ATH_CHECK(m_IsoFixedCutLoose.setProperty("PhotonWP", "FixedCutLoose"));
-  ATH_CHECK(m_IsoFixedCutLoose.initialize());
+  ATH_CHECK(m_IsoFixedCutTight.retrieve());
+  ATH_CHECK(m_IsoFixedCutTightTrackOnly.retrieve());
+  ATH_CHECK(m_IsoFixedCutTightCaloOnly.retrieve());
+  ATH_CHECK(m_IsoFixedCutLoose.retrieve());
   //*****************MC Truth Classifier Requirement********************
   ATH_CHECK(m_mcTruthClassifier.retrieve());
 
@@ -412,7 +391,7 @@ StatusCode EgammaMonitoring::execute() {
 
   // Retrieve things from the event store
   const xAOD::EventInfo *eventInfo = nullptr;
-  ANA_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
+  ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
   const float mu = eventInfo->averageInteractionsPerCrossing();
 
   // Retrieve egamma truth particles

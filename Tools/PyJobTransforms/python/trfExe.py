@@ -943,13 +943,6 @@ class athenaExecutor(scriptExecutor):
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
         
-        # Check the consistency of parallel configuration: CLI flags + evnironment.
-        # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
-        if ((('multithreaded' in self.conf._argdict and self.conf._argdict['multithreaded'].value) or ('multiprocess' in self.conf._argdict and self.conf._argdict['multiprocess'].value)) and
-            ('ATHENA_CORE_NUMBER' not in os.environ)):
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
-                                                            'either --multithreaded or --multiprocess argument used but ATHENA_CORE_NUMBER environment not set')
-
         ## Do we need to run asetup first?
         asetupString = None
         legacyThreadingRelease = False
@@ -959,11 +952,20 @@ class athenaExecutor(scriptExecutor):
         else:
             msg.info('Asetup report: {0}'.format(asetupReport()))
 
-        # Try to detect AthenaMT mode, number of threads and number of concurrent events
-        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
+        # Check the consistency of parallel configuration: CLI flags + evnironment.
+        if ((('multithreaded' in self.conf._argdict and self.conf._argdict['multithreaded'].value) or ('multiprocess' in self.conf._argdict and self.conf._argdict['multiprocess'].value)) and
+            ('ATHENA_CORE_NUMBER' not in os.environ)):
+            # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
+            msg.warning('either --multithreaded or --multiprocess argument used but ATHENA_CORE_NUMBER environment not set. Athena will continue in Serial mode')
+            self._athenaMP = 0
+            self._athenaMT = 0
+            self._athenaConcurrentEvents = 0
+        else:
+            # Try to detect AthenaMT mode, number of threads and number of concurrent events
+            self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
 
-        # Try to detect AthenaMP mode and number of workers
-        self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
+            # Try to detect AthenaMP mode and number of workers
+            self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
 
         if self._disableMP:
             self._athenaMP = 0
