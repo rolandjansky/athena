@@ -256,10 +256,8 @@ StatusCode HLTBjetMonTool::book(){
       // Check if folder assignment is made for all chains - if not stop the program
       // Regroup chain names with identical histograms
 
-      std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
-      while (it != m_Chain2Dir.end()) {
-	ATH_MSG_DEBUG(it->first << " :: " << it->second );
-	it++;
+      for (const std::pair<const std::string, std::string>& p : m_Chain2Dir) {
+	ATH_MSG_DEBUG(p.first << " :: " << p.second );
       }
       std::map<std::string,std::string>::iterator p;
       for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16
@@ -1087,7 +1085,7 @@ StatusCode HLTBjetMonTool::book(){
 
 	    // Fetch and plot PV
 	    std::string vtxname = m_onlineVertexContainerKey.key();
-	    if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
+	    if ( vtxname.compare(0, 4, "HLT_")==0 ) vtxname.erase(0,4);
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
 	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
@@ -1097,7 +1095,7 @@ StatusCode HLTBjetMonTool::book(){
 	    // Fetch and plot BTagging information
 
 	    std::string btagname = m_onlineBTaggingContainerKey.key();
-	    if ( btagname.find("HLT_")==0 ) btagname.erase(0,4);
+	    if ( btagname.compare(0, 4, "HLT_")==0 ) btagname.erase(0,4);
 	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
 	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
 	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
