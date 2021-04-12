@@ -376,6 +376,10 @@ StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+if evgenConfig.savePileupTruthParticles:
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
+
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
