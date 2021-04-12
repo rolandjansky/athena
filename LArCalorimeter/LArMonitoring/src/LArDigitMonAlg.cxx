@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -332,7 +332,7 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
     if((*maxSam-pedestal)>pedestalRMS*m_SigmaCut)
     {
       /** Loop over the samples and get signal shape:*/
-      for(int i=0;i<pLArDigit->nsamples();i++,iterSam++){
+      for(int i=0;i<pLArDigit->nsamples();++i,++iterSam){
          sample = i;
          signal= (*iterSam-pedestal)/(*maxSam-pedestal);
          weight = (*maxSam-pedestal);
