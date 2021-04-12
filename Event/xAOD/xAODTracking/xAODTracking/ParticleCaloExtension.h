@@ -129,15 +129,14 @@ namespace xAOD {
   inline const Trk::CurvilinearParameters ParticleCaloExtension::curvilinearParameters(unsigned int index) const {
 
     // copy the correct values into the temp matrix
-    ParametersCovMatrix_t* cov = 0;
+    ParametersCovMatrix_t cov;
     if( !m_parametersCovariance[index].empty() ) {
-      cov = new ParametersCovMatrix_t();
-      trackParameterCovarianceMatrix(*cov,index);
+      trackParameterCovarianceMatrix(cov,index);
     }
     // retrieve the parameters to build the curvilinear frame
     Amg::Vector3D pos( m_parameters[index][0],m_parameters[index][1],m_parameters[index][2]);
     Amg::Vector3D mom(m_parameters[index][3],m_parameters[index][4],m_parameters[index][5]);
-    Trk::CurvilinearParameters param(pos,mom,m_charge,cov);
+    Trk::CurvilinearParameters param(pos,mom,m_charge,std::move(cov));
 
     return param;
   }

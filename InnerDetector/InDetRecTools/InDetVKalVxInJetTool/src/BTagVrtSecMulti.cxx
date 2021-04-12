@@ -667,11 +667,13 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 
           std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
           for(int ii=0; ii<nth; ii++) {
-             AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);    (*CovMtxP).setIdentity(); 
+             AmgSymMatrix(5) CovMtxP;    
+             CovMtxP.setIdentity(); 
              Trk::Perigee * tmpMeasPer  =  new Trk::Perigee( 0.,0.,  goodVertices[iv].trkAtVrt[ii][0], 
-	                                                             goodVertices[iv].trkAtVrt[ii][1],
-                                                                     goodVertices[iv].trkAtVrt[ii][2],
-                                                                Trk::PerigeeSurface(goodVertices[iv].vertex), CovMtxP );
+                                                             goodVertices[iv].trkAtVrt[ii][1],
+                                                             goodVertices[iv].trkAtVrt[ii][2],
+                                                             Trk::PerigeeSurface(goodVertices[iv].vertex), 
+                                                             std::move(CovMtxP) );
              tmpVTAV.emplace_back( 1., tmpMeasPer );
 	     if(xAODwrk){
                ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xAODwrk->tmpListTracks[ii] );

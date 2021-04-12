@@ -189,9 +189,8 @@ Trk::KalmanUpdator::combineStates(const Trk::TrackParameters& one,
   // catch [-pi,pi] phi boundary problems
   if (!diffThetaPhiWithinRange(r)) correctThetaPhiRange(r,sumCov,true);
   Amg::VectorX		  par = one.parameters() + K * r;
-  AmgSymMatrix(5)* covPar = new AmgSymMatrix(5)( K * covTrkTwo );
-  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar,false) : false ) {
-    delete covPar;
+  AmgSymMatrix(5) covPar = AmgSymMatrix(5)( K * covTrkTwo );
+  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,covPar,false) : false ) {
     ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
     return nullptr;
   }
@@ -205,7 +204,7 @@ Trk::KalmanUpdator::combineStates(const Trk::TrackParameters& one,
                                                         par[Trk::qOverP],
                                                         covPar);
   if (m_outputlevel <= 0){
-    logResult("combineStates(TP,TP)", par, *covPar);
+    logResult("combineStates(TP,TP)", par, covPar);
   }
   return comb;
 }
@@ -250,10 +249,10 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::combineStates (const T
     AmgSymMatrix(5) R_inv = R.inverse();
     AmgSymMatrix(5) K   = covTrkOne * R_inv;
     Amg::VectorX	  par = one.parameters() + K * r;
-    AmgSymMatrix(5)* covPar = new AmgSymMatrix(5)(K * covTrkTwo);
-    if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
+    AmgSymMatrix(5) covPar = AmgSymMatrix(5)(K * covTrkTwo);
+    if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,covPar) : false ) {
       ATH_MSG_WARNING( "combineStates(TP,TP,FQ): could not combine angular values."  );
-      delete covPar; return nullptr;
+      return nullptr;
     }
 
     // compute fit quality
@@ -269,7 +268,7 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator::combineStates (const T
                                                           par[Trk::qOverP],
                                                           covPar);
     if (m_outputlevel <= 0){
-      logResult("combineStates(TP,TP,FQ)", par, *covPar);
+      logResult("combineStates(TP,TP,FQ)", par, covPar);
     }
     return comb;
 
@@ -520,24 +519,23 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
   Amg::VectorX par = parTrk + K * r;
 
   // compute covariance matrix of local filteres state:
-  AmgSymMatrix(5)* covPar;
+  AmgSymMatrix(5) covPar;
   if (m_useFruehwirth8a) {
     // one can use as well: covPar = M * covTrk; see A.Gelb why.
-    covPar = new AmgSymMatrix(5)(M*covTrk);
+    covPar = AmgSymMatrix(5)(M*covTrk);
   } else {
     //   C = M*covTrk*M.T() +/- K*covRio*K.T(), supposedly more robust Gelb form.
     // bad_alloc:  covPar = new AmgSymMatrix(5)(covTrk.similarity(M) + (sign * covRio.similarity(K)));
-    covPar = new AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
+    covPar = AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
   }
-  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
+  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,covPar) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPOS,ERR): bad angles in filtered state!"  );
-    delete covPar;
     return nullptr;
   }
   if (m_outputlevel<=0) logResult(createFQoS?
 				  (sign>0?"addToState(TP,LPOS,ERR,FQ)":"removeFromState(TP,LPOS,ERR,FQ)"):
 				  (sign>0?"addToState(TP,LPOS,ERR)":"removeFromState(TP,LPOS,ERR)"),
-				  par,*covPar);
+				  par,covPar);
 
   // if a pointer is given, compute chi2
   if (createFQoS) {
@@ -547,7 +545,7 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
     } else {
       // when adding chi2 is made from the updated par
       const Amg::VectorX r_upd = rioPar - H * par;
-      fitQoS = makeChi2Object(r_upd,*covPar,covRio,-1,(nLocCoord==1?1:3));
+      fitQoS = makeChi2Object(r_upd,covPar,covRio,-1,(nLocCoord==1?1:3));
     }
   }
   // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
@@ -557,7 +555,7 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
                                                            par[Trk::phi],
                                                            par[Trk::theta],
                                                            par[Trk::qOverP],
-                                                           covPar);
+                                                           std::move(covPar));
   return updated;
 }
 
@@ -633,22 +631,21 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
   Amg::VectorX par = parTrk + K * r;
 
   // compute covariance matrix of local filteres state
-  AmgSymMatrix(5)* covPar;
+  AmgSymMatrix(5) covPar;
   if (m_useFruehwirth8a) {
     // one can use as well: covPar = M * covTrk; see A.Gelb why.
-    covPar = new AmgSymMatrix(5)(M*covTrk);
+    covPar = AmgSymMatrix(5)(M*covTrk);
   } else {
-    covPar = new AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
+    covPar = AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
   }
-  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
+  if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,covPar) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
-    delete covPar;
     return nullptr;
   }
   if (m_outputlevel<=0) logResult(createFQoS?
 				  (sign>0?"addToState(TP,LPAR,ERR,FQ)":"removeFromState(TP,LPAR,ERR,FQ)"):
 				  (sign>0?"addToState(TP,LPAR,ERR)":"removeFromState(TP,LPAR,ERR)"),
-				  par,*covPar);
+				  par,covPar);
 
   // if a pointer is given, compute chi2
   if (createFQoS) {
@@ -658,7 +655,7 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
     } else {
       // when adding chi2 is made from the updated par
       Amg::VectorX r_upd = rioPar - H * par;
-      fitQoS = makeChi2Object(r_upd,*covPar,covRio,-1,rioPar.parameterKey());
+      fitQoS = makeChi2Object(r_upd,covPar,covRio,-1,rioPar.parameterKey());
     }
   }
   // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
@@ -668,7 +665,7 @@ Trk::KalmanUpdator::calculateFilterStep(const Trk::TrackParameters& trkPar,
     par[Trk::phi],
     par[Trk::theta],
     par[Trk::qOverP],
-    covPar);
+    std::move(covPar));
 }
 
 Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key) const

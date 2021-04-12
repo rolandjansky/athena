@@ -959,7 +959,7 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
                                           data.par()[2],
                                           data.par()[3],
                                           data.par()[4],
-                                          nullptr);
+                                          std::nullopt);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1046,7 +1046,7 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlaneDBM
                                           data.par()[2],
                                           data.par()[3],
                                           data.par()[4],
-                                          nullptr);
+                                          std::nullopt);
 }
 
 ///////////////////////////////////////////////////////////////////

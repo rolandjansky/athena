@@ -270,8 +270,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 
       if ( parm->covariance() ) {
 
-	AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-	*projEM = parm->covariance()->similarity(mdtProj);
+        std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+	     projEM = parm->covariance()->similarity(mdtProj);
 	ATH_MSG_DEBUG("projected covariance(layer->MDT):" << (*projEM) );
 	projPar = new Trk::AtaStraightLine(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*tubeSurf,projEM);
 
@@ -304,15 +304,15 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pPar[1] *= zswap;
       else                                pPar[0] *= zswap;
 
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
+      std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
       if ( parm->covariance() ) {
       
-	*projEM = parm->covariance()->similarity(*pMx);
+   projEM = parm->covariance()->similarity(*pMx);
 	projPar = new Trk::AtaPlane(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*stripSurf,projEM);
   
       } else {    
 	projPar = new Trk::AtaPlane(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*stripSurf);
-        projEM = 0; 
+        projEM = std::nullopt; 
       }
       
       if (m_alignedMode && (parm->position()-projPar->position()).mag()>0.001 ) {
@@ -377,10 +377,10 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 
       if (parm->covariance()) {
       
-	AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-	*projEM = parm->covariance()->similarity(*pMx);
+        std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+	 projEM = parm->covariance()->similarity(*pMx);
 
-	ATH_MSG_DEBUG("projected covariance (layer->CSC):" << projEM );
+	ATH_MSG_DEBUG("projected covariance (layer->CSC):" << *projEM );
 	
 	projPar = new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf,projEM );
 
@@ -406,11 +406,11 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       Amg::VectorX locPar = (*pMx)*parm->parameters();
       ATH_MSG_DEBUG("projected parameters (layer->TGC):" << m_idHelperSvc->tgcIdHelper().isStrip(id) <<"," << locPar <<"," << stripSurf );
 
-      AmgMatrix(5,5)* projEM = 0;
+      std::optional<AmgMatrix(5,5)> projEM = std::nullopt;
       bool bcov = false;
 
       if (parm->covariance()) {
- 	*projEM = parm->covariance()->similarity(*pMx);
+ 	      projEM = parm->covariance()->similarity(*pMx);
         bcov = true;	
 	ATH_MSG_DEBUG("projected covariance (layer->TGC):" << (*projEM) );
 	projPar = new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf,projEM );
@@ -523,8 +523,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       pPar[1] += locWire[1];
       ATH_MSG_DEBUG("back projected parameters(MDT->layer):" << pPar );
 
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-      *projEM = parm->covariance()->similarity(mdtProjInv);
+      std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+      projEM = parm->covariance()->similarity(mdtProjInv);
 
       ATH_MSG_DEBUG("back projected covariance(MDT->layer):" << (*projEM) );   
       projPar = new Trk::AtaPlane(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*laySurf,projEM );
@@ -560,8 +560,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       //  
       ATH_MSG_DEBUG("back projected parameters(RPC->layer):" << m_idHelperSvc->rpcIdHelper().measuresPhi(id)<<"," << pPar );
 
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-      *projEM = parm->covariance()->similarityT(*pMx);
+      std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+      projEM = parm->covariance()->similarityT(*pMx);
 
       ATH_MSG_DEBUG("back projected covariance(RPC->layer):" << (*projEM) );
       projPar = new Trk::AtaPlane(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*laySurf,projEM );
@@ -613,8 +613,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         parProj[1] += locCorrLay[Trk::locY]+csc_shift[Trk::locY];
         ATH_MSG_DEBUG("back projected parameters(CSC->layer):"<<m_idHelperSvc->cscIdHelper().measuresPhi(id)<<"," << parProj );
       }
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-      *projEM = parm->covariance()->similarity(pMxInv);
+      std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+      projEM = parm->covariance()->similarity(pMxInv);
 
       ATH_MSG_DEBUG("back projected covariance(CSC->layer):"<<(*projEM) );
       projPar = new Trk::AtaPlane(parProj[0],parProj[1],parProj[2],parProj[3],parProj[4],*laySurf,projEM );
@@ -636,8 +636,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       Amg::VectorX locPar = pMxInv * parm->parameters();
       ATH_MSG_DEBUG("back projected parameters(TGC->layer):" << m_idHelperSvc->tgcIdHelper().isStrip(id)<<"," << locPar );
 
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
-      *projEM = parm->covariance()->similarity(pMxInv);
+      std::optional<AmgMatrix(5,5)> projEM = AmgMatrix(5,5){};
+      projEM = parm->covariance()->similarity(pMxInv);
 
       ATH_MSG_DEBUG("back projected covariance(TGC->layer):" << (*projEM) );
       projPar = new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*laySurf,projEM);

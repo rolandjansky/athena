@@ -166,108 +166,107 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_TGC',title='MuonRoI Thresholds TGC;MuonRoI Threshold number;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
-    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;Trigger sector',type='TH2F',
+    myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;RoI Phi',type='TH2F',
                             cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
     
     for n in range(1,16):
 
-        myGroup.defineHistogram('roi_eta_wInnCoin;MuonRoI_Eta_wInnCoin_Thr'+str(n),title='MuonRoI Eta wInnCoin Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_wInnCoin;MuonRoI_Eta_wInnCoin_Thr%02d' % n,title='MuonRoI Eta wInnCoin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_wBW3Coin;MuonRoI_Eta_wBW3Coin_Thr'+str(n),title='MuonRoI Eta wBW3Coin Thr'+str(n)+';MuonRoI Eta;Number of events',
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-
-        myGroup.defineHistogram('roi_eta_wInnCoinVeto;MuonRoI_Eta_wInnCoinVeto_Thr'+str(n),title='MuonRoI Eta wInnCoinVeto Thr'+str(n)+';MuonRoI Eta;Number of events',
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_wBW3CoinVeto;MuonRoI_Eta_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Eta wBW3CoinVeto Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_wBW3Coin;MuonRoI_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
 
-        myGroup.defineHistogram('roi_phi_wInnCoin;MuonRoI_Phi_wInnCoin_Thr'+str(n),title='MuonRoI Phi wInnCoin Thr'+str(n)+';MuonRoI Phi;Number of events',
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Phi_wBW3Coin_Thr'+str(n),title='MuonRoI Phi wBW3Coin Thr'+str(n)+';MuonRoI Phi;Number of events',
-                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_eta_wInnCoinVeto;MuonRoI_Eta_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eta wInnCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+        myGroup.defineHistogram('roi_eta_wBW3CoinVeto;MuonRoI_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
 
-        myGroup.defineHistogram('roi_phi_wInnCoinVeto;MuonRoI_Phi_wInnCoinVeto_Thr'+str(n),title='MuonRoI Phi wInnCoinVeto Thr'+str(n)+';MuonRoI Phi;Number of events',
+        myGroup.defineHistogram('roi_phi_wInnCoin;MuonRoI_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Phi wInnCoin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Phi_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Phi wBW3CoinVeto Thr'+str(n)+';MuonRoI Phi;Number of events',
+        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Phi wBW3Coin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
 
-        myGroup.defineHistogram('roi_eta_wInnCoin,roi_phi_wInnCoin;MuonRoI_EtaVsPhi_wInnCoin_Thr'+str(n),title='MuonRoI Eta vs Phi wInnCoin Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_phi_wInnCoinVeto;MuonRoI_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Phi wInnCoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+
+        myGroup.defineHistogram('roi_eta_wInnCoin,roi_phi_wInnCoin;MuonRoI_EtaVsPhi_wInnCoin_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnCoin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
-        myGroup.defineHistogram('roi_eta_wBW3Coin,roi_phi_wBW3Coin;MuonRoI_EtaVsPhi_wBW3Coin_Thr'+str(n),title='MuonRoI Eta vs Phi wBW3Coin Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_wBW3Coin,roi_phi_wBW3Coin;MuonRoI_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
 
-        myGroup.defineHistogram('roi_eta_wInnCoinVeto,roi_phi_wInnCoinVeto;MuonRoI_EtaVsPhi_wInnCoinVeto_Thr'+str(n),title='MuonRoI Eta vs Phi wInnCoinVeto Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_wInnCoinVeto,roi_phi_wInnCoinVeto;MuonRoI_EtaVsPhi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
-        myGroup.defineHistogram('roi_eta_wBW3CoinVeto,roi_phi_wBW3CoinVeto;MuonRoI_EtaVsPhi_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Eta vs Phi wBW3CoinVeto Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_wBW3CoinVeto,roi_phi_wBW3CoinVeto;MuonRoI_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi,type='TH2F')
 
-        myGroup.defineHistogram('roi_eta;MuonRoI_Eta_Thr'+str(n),title='MuonRoI Eta Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta;MuonRoI_Eta_Thr%02d' % n,title='MuonRoI Eta Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_rpc;MuonRoI_Eta_RPC_Thr'+str(n),title='MuonRoI Eta RPC Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_rpc;MuonRoI_Eta_RPC_Thr%02d' % n,title='MuonRoI Eta RPC Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_eta_tgc;MuonRoI_Eta_TGC_Thr'+str(n),title='MuonRoI Eta TGC Thr'+str(n)+';MuonRoI Eta;Number of events',
+        myGroup.defineHistogram('roi_eta_tgc;MuonRoI_Eta_TGC_Thr%02d' % n,title='MuonRoI Eta TGC Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_phi_rpc;MuonRoI_Phi_RPC_Thr'+str(n),title='MuonRoI Phi RPC Thr'+str(n)+';MuonRoI Phi;Number of events',
+        myGroup.defineHistogram('roi_phi_rpc;MuonRoI_Phi_RPC_Thr%02d' % n,title='MuonRoI Phi RPC Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=32,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_tgc;MuonRoI_Phi_TGC_Thr'+str(n),title='MuonRoI Phi TGC Thr'+str(n)+';MuonRoI Phi;Number of events',
+        myGroup.defineHistogram('roi_phi_tgc;MuonRoI_Phi_TGC_Thr%02d' % n,title='MuonRoI Phi TGC Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Thr'+str(n),type='TH2F',
-                                title='MuonRoI Eta vs Phi Thr'+str(n)+';MuonRoI Eta;MuonRoI Phi',cutmask='thrmask'+str(n),path=trigPath,
-                                xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Thr%02d' % n,type='TH2F',title='MuonRoI Eta vs Phi Thr%02d;MuonRoI Eta;MuonRoI Phi' % n,
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoin_Thr'+str(n),title='MuonRoI Eff Eta wInnCoin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_inncoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoin_Thr'+str(n),title='MuonRoI Eff Phi wInnCoin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_inncoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoin_Thr'+str(n),title='MuonRoI Eff Eta vs Phi wInnCoin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_inncoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoinVeto_Thr'+str(n),title='MuonRoI Eff Eta wInnCoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoinVeto_Thr'+str(n),title='MuonRoI Eff Phi wInnCoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoinVeto_Thr'+str(n),title='MuonRoI Eff Eta vs Phi wInnCoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_Thr'+str(n),title='MuonRoI Eff Eta wBW3Coin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3Coin_Thr'+str(n),title='MuonRoI Eff Phi wBW3Coin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Phi wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3Coin_Thr'+str(n),title='MuonRoI Eff Eta vs Phi wBW3Coin Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
-        myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Eff Eta wBW3CoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Eff Phi wBW3CoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3CoinVeto_Thr'+str(n),title='MuonRoI Eff Eta vs Phi wBW3CoinVeto Thr'+str(n)+';MuonRoI Eta;Efficiency',
+        myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
 
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_pt_rpc;MuonRoI_Eff_Pt_RPC_Thr'+str(n),title='MuonRoI_Eff_Pt_RPC_Thr'+str(n)+';Offline muon pT [GeV];Efficiency',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_pt_rpc;MuonRoI_Eff_Pt_RPC_Thr%02d' % (n,n),title='MuonRoI_Eff_Pt_RPC_Thr%02d;Offline muon pT [GeV];Efficiency' % n,
                                 type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_pt_tgc;MuonRoI_Eff_Pt_TGC_Thr'+str(n),title='MuonRoI_Eff_Pt_TGC_Thr'+str(n)+';Offline muon pT [GeV];Efficiency',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_Thr%02d' % (n,n),title='MuonRoI_Eff_Pt_TGC_Thr%02d;Offline muon pT [GeV];Efficiency' % n,
                                 type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_phi_rpc;MuonRoI_Eff_Phi_RPC_Thr'+str(n),title='MuonRoI_Eff_Phi_RPC_Thr'+str(n)+';Offline muon phi [rad.];Efficiency',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_phi_rpc;MuonRoI_Eff_Phi_RPC_Thr%02d' % (n,n),title='MuonRoI_Eff_Phi_RPC_Thr%02d;Offline muon phi [rad.];Efficiency' % n,
                                 type='TEfficiency',path=trigPath,xbins=32,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_phi_tgc;MuonRoI_Eff_Phi_TGC_Thr'+str(n),title='MuonRoI_Eff_Phi_TGC_Thr'+str(n)+';Offline muon phi [rad.];Efficiency',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_phi_tgc;MuonRoI_Eff_Phi_TGC_Thr%02d' % (n,n),title='MuonRoI_Eff_Phi_TGC_Thr%02d;Offline muon phi [rad.];Efficiency' % n,
                                 type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_eta;MuonRoI_Eff_Eta_Thr'+str(n),title='MuonRoI_Eff_Eta_Thr'+str(n)+';Offline muon eta;Efficiency',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_eta;MuonRoI_Eff_Eta_Thr%02d' % (n,n),title='MuonRoI_Eff_Eta_Thr%02d;Offline muon eta;Efficiency' % n,
                                 type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_eta,muon_phi;MuonRoI_Eff_EtaVsPhi_Thr'+str(n),title='MuonRoI_Eff_EtaVsPhi_Thr'+str(n)+';Offline muon eta; Offline muon phi',
+        myGroup.defineHistogram('muon_l1passThr%d,muon_eta,muon_phi;MuonRoI_Eff_EtaVsPhi_Thr%02d' % (n,n),title='MuonRoI_Eff_EtaVsPhi_Thr%02d;Offline muon eta; Offline muon phi' % n,
                                 type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
         
 
@@ -341,9 +340,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 suffix = suffix0+'_' if chanType == '' else suffix0+'_'+chanType+'_'
 
                 if coinType == 'SL':
-                    for thr in range(1,15):
+                    for thr in range(1,16): #1.2...15
                         cut = suffix+"coin_cutmask_pt"+str(thr)
-                        PT = "_Thr"+str(thr)
+                        PT = "_Thr%02d" % thr
                         if region == '':
                             myGroup.defineHistogram(suffix+'coin_eta,'+suffix+'coin_phi;'+suffix+'TgcCoin_Eta2Phi'+PT,
                                                     title=suffix+'TgcCoin_Eta2Phi'+PT+';Eta;Phi',
@@ -396,9 +395,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     hitDetailsPath = 'HitDetails/'
     for side in ['A', 'C']:# side-A or side-C
-        for sector in range(1,13):# Sector 01,,,12
+        for sector in range(0,16):# Sector 00...15 (00 for FI, 01..15 for EI, 01..12 for BW)
             for station in range(1,5):# M1,2,3,4
-                for phi in range(4):# internal phi 0,1,2,3
+                for phi in range(25):# internal phi 0,1,2,3...24 (0..3 for BW and EI, 1..24 for FI)
                     for eta in range(6):# eta index 1,,,5 for Endcap, and 0 for Forward
                         for lay in range(1,4):# sub-layer 1,2,3 (triplet) or 1,2 (doublet)
                             chamber_name = "%s%02dM%02df%02d%s%02dL%02d" % (side,sector,station,phi,'F' if eta==0 else 'E',eta,lay)

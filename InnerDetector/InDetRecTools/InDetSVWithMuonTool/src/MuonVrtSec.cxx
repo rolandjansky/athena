@@ -109,18 +109,17 @@ namespace InDet{
 
        std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
        for(int ii=0; ii<(int)ListTracksNearMuon.size(); ii++) {
-         AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);   (*CovMtxP).setIdentity(); 
+         AmgSymMatrix(5) CovMtxP;   
+         CovMtxP.setIdentity(); 
          Trk::Perigee * tmpMeasPer  =  new Trk::Perigee( 0.,0., TrkAtVrt[ii][0], TrkAtVrt[ii][1], TrkAtVrt[ii][2],
                                                                 Trk::PerigeeSurface(FitVertex), CovMtxP );
          tmpVTAV.emplace_back( 1., tmpMeasPer );
          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( ListTracksNearMuon[ii] );
          const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (ListTracksNearMuon[ii]->container() );
-	 TEL.setStorableObject(*cont);
+         TEL.setStorableObject(*cont);
          tmpVertex->addTrackAtVertex(TEL,1.);
        }
        return tmpVertex;
-
-
   }
 
 

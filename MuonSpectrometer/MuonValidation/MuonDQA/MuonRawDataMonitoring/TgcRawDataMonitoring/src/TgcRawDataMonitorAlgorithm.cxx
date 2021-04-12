@@ -17,6 +17,20 @@ namespace {
   constexpr float barrel_end = 1.05;
   constexpr float trigger_end = 2.4;
 
+  /// Number of channels
+  constexpr int nchan_tgc_strip = 32;
+
+  constexpr int nchan_tgc_wire_station1_lay1[] = {105,24,23,61,92};//F,E1,E2,E3,E4
+  constexpr int nchan_tgc_wire_station1_lay2[] = {104,24,23,62,91};
+  constexpr int nchan_tgc_wire_station1_lay3[] = {105,24,23,62,91};
+
+  constexpr int nchan_tgc_wire_station2[] = {125,32,32,32,103,110};//F,E1,E2,E3,E4,E5
+
+  constexpr int nchan_tgc_wire_station3[] = {122,31,30,32,106,96};//F,E1,E2,E3,E4,E5
+
+  constexpr int nchan_tgc_wire_station4_fi = 32;//FI
+  constexpr int nchan_tgc_wire_station4_ei = 24;//EI
+  constexpr int nchan_tgc_wire_station4_eis = 16;//EI(S)
 }
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm(const std::string &name, ISvcLocator *pSvcLocator) :
   AthMonitorAlgorithm(name, pSvcLocator) {
@@ -623,28 +637,28 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	  int iphi2 = (tgcHit.iphi >= 21) ? (tgcHit.iphi - 21) : (tgcHit.iphi); // 0,1,2,..,20
 	  if (iphi2 >= 0 && iphi2 <= 2) {
 	    tgcHit.sector = 1;
-	    tgcHit.f = iphi2;
+	    tgcHit.f = iphi2; // 0,1,2
 	  } else if (iphi2 >= 3 && iphi2 <= 5) {
 	    tgcHit.sector = 3;
-	    tgcHit.f = iphi2 - 3;
+	    tgcHit.f = iphi2 - 3; // 0,1,2
 	  } else if (iphi2 >= 6 && iphi2 <= 8) {
 	    tgcHit.sector = 5;
-	    tgcHit.f = iphi2 - 6;
+	    tgcHit.f = iphi2 - 6; // 0,1,2
 	  } else if (iphi2 >= 9 && iphi2 <= 10) {
 	    tgcHit.sector = 7;
-	    tgcHit.f = iphi2 - 9 + 1;
+	    tgcHit.f = iphi2 - 9 + 1; // 1,2
 	  } else if (iphi2 >= 11 && iphi2 <= 13) {
 	    tgcHit.sector = 9;
-	    tgcHit.f = iphi2 - 11;
+	    tgcHit.f = iphi2 - 11; // 0,1,2
 	  } else if (iphi2 >= 14 && iphi2 <= 15) {
 	    tgcHit.sector = 11;
-	    tgcHit.f = iphi2 - 13;
+	    tgcHit.f = iphi2 - 13; // 1,2
 	  } else if (iphi2 >= 16 && iphi2 <= 18) {
 	    tgcHit.sector = 13;
-	    tgcHit.f = iphi2 - 16;
+	    tgcHit.f = iphi2 - 16; // 0,1,2
 	  } else if (iphi2 >= 19 && iphi2 <= 20) {
 	    tgcHit.sector = 15;
-	    tgcHit.f = iphi2 - 19 + 1;
+	    tgcHit.f = iphi2 - 19 + 1; // 1,2
 	  }
 	  tgcHit.E = 1;
 	  tgcHit.L = tgcHit.igasGap;

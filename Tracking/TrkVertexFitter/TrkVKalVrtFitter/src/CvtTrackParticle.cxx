@@ -97,8 +97,8 @@ namespace Trk {
 //
 //--- Move ref. frame to the track common point refGVertex
 //    Small beamline inclination doesn't change track covariance matrix
-       AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(mPer->covariance()));
-       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,tmpCov);
+       AmgSymMatrix(5) tmpCov = AmgSymMatrix(5)(*(mPer->covariance()));
+       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,std::move(tmpCov));
        VectPerig    =  tmpPer.parameters();
 //--- Transform to internal parametrisation
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
@@ -196,8 +196,8 @@ namespace Trk {
 //--- Move ref. frame to the track common point refGVertex
 //    Small beamline inclination doesn't change track covariance matrix
 //
-       AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(mPer->covariance()));
-       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,tmpCov);
+       AmgSymMatrix(5) tmpCov = AmgSymMatrix(5)(*(mPer->covariance()));
+       const Perigee tmpPer(mPer->position(),mPer->momentum(),mPer->charge(),surfGRefPoint,std::move(tmpCov));
        VectPerig    =  tmpPer.parameters();
        //--- Transform to internal parametrisation
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],

@@ -390,7 +390,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
           predDiffPar.reset(  start->checkoutParametersDifference() );
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
                                       (start->referenceParameters()->parameters() + (*predDiffPar)),
-                                      new AmgSymMatrix(5)(*start->parametersCovariance())).release();
+                                      AmgSymMatrix(5)(*start->parametersCovariance())).release();
           delete start->checkoutParametersCovariance();
         }
       } else {
@@ -410,11 +410,11 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         AmgVector(5) updDiffPar = updatedPar->parameters()
                                   - m_trajPiece.back().referenceParameters()->parameters();
         predDiffPar = std::make_unique<AmgVector(5)>(  jac*updDiffPar );
-        AmgSymMatrix(5)* C = new AmgSymMatrix(5) (jac*(*updatedPar->covariance())*jac.transpose());
+        AmgSymMatrix(5) C =  AmgSymMatrix(5) (jac*(*updatedPar->covariance())*jac.transpose());
         // add uncertainties from material effects:
         if (input_it->materialEffects()) {
-          (*C)(Trk::phi,Trk::phi)     += std::pow(input_it->materialEffects()->sigmaDeltaPhi(),2);
-          (*C)(Trk::theta,Trk::theta) += std::pow(input_it->materialEffects()->sigmaDeltaTheta(),2);
+          (C)(Trk::phi,Trk::phi)     += std::pow(input_it->materialEffects()->sigmaDeltaPhi(),2);
+          (C)(Trk::theta,Trk::theta) += std::pow(input_it->materialEffects()->sigmaDeltaTheta(),2);
           const double& mass = m_particleMasses.mass[particleType];
           const double currQOverPsquared = std::pow((*predDiffPar)(Trk::qOverP) + input_it->referenceParameters()->parameters()[Trk::qOverP], 2);
           const double sigmaDeltaQoverPsquared =
@@ -423,7 +423,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
                  (mass * mass + 1. / currQOverPsquared) *
                  (currQOverPsquared * currQOverPsquared * currQOverPsquared))
               : 0.;
-          (*C)(Trk::qOverP, Trk::qOverP) += sigmaDeltaQoverPsquared;
+          (C)(Trk::qOverP, Trk::qOverP) += sigmaDeltaQoverPsquared;
           ATH_MSG_VERBOSE(
             "mass="
             << mass << ", qOverP_ref=" << std::scientific

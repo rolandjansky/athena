@@ -1171,11 +1171,11 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
                                                     const int& sign,
                                                     const bool& createFQoS,
                                                     std::string_view ndtext) const {
-  AmgSymMatrix(5)* C = new AmgSymMatrix(5);
-  C->setZero();
+  AmgSymMatrix(5) C;
+  C.setZero();
   for (int i=0; i<5; ++i) {
     for (int j=0; j<=i; ++j) {
-      C->fillSymmetric(i,j, covpar(i,j));
+      C.fillSymmetric(i,j, covpar(i,j));
     }
   }
 
@@ -1193,7 +1193,7 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
     else
       sprintf(reportCalledInterface,"%s,Meas-%s,%s)","removeFromState(TP,",
               ndtext2,(createFQoS?"Err,FQ":"Err"));
-    logResult((std::string)reportCalledInterface, resultPar->parameters(),*C);
+    logResult((std::string)reportCalledInterface, resultPar->parameters(),C);
   }
 
   return resultPar;

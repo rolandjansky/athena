@@ -253,11 +253,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // the updatedParameters - first a copy
   const Trk::TrackParameters* mpars = parm;
   AmgVector(5) updatedParameters(mpars->parameters());
-  AmgSymMatrix(5)* updatedCovariance = nullptr;
+  std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
   // initialize ErrorMatrix pointer
   if (m_validationMode && !m_validationIgnoreUnmeasured) {
     // the new CovarianceMatrix - a copy first
-    updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
+    updatedCovariance = mpars->covariance()
+                          ? std::optional<AmgSymMatrix(5)>(*mpars->covariance())
+                          : std::nullopt;
     double angularVariation = 0;
     double sigmaDeltaPhiSq = 0;
     double sigmaDeltaThetaSq = 0;
@@ -307,7 +309,6 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // the checks for the remove Noise mode -----------------------------------------------------
       if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
         // the covariance is invalid
-        delete updatedCovariance;
         return nullptr;
       }
 
@@ -540,10 +541,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
     const Trk::TrackParameters* mpars = parm;
     AmgVector(5) updatedParameters(mpars->parameters());
     // initialize ErrorMatrix pointer
-    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     {
       // the new CovarianceMatrix - a copy first
-      updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
+      updatedCovariance =
+        mpars->covariance()
+          ? std::optional<AmgSymMatrix(5)>(*mpars->covariance())
+          : std::nullopt;
       // only update if msUpdator exists
       double angularVariation =
         (m_doMs) ? m_msUpdator->sigmaSquare(matprop, updateMomentum, pathcorrection, particle) : 0.;
@@ -575,7 +579,6 @@ Trk::MaterialEffectsUpdator::updateImpl(
         // the checks for the remove Noise mode -----------------------------------------------------
         if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
           // the covariance is invalid
-          delete updatedCovariance;
           return nullptr;
         }
 
@@ -641,7 +644,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
         updatedParameters[Trk::phi],
         updatedParameters[Trk::theta],
         updatedParameters[Trk::qOverP],
-        updatedCovariance
+        std::move(updatedCovariance)
     );
   }
   //default if we have not returned just above
@@ -715,10 +718,10 @@ Trk::MaterialEffectsUpdator::updateImpl(
     updatedParameters[Trk::qOverP] = parm.charge() / (p + deltaP);
 
     // check if Parameters are measured parameters
-    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     if (parm.covariance() || (m_validationMode && !m_validationIgnoreUnmeasured)) {
       // the new CovarianceMatrix - a copy first
-      updatedCovariance = new AmgSymMatrix(5)(*parm.covariance());
+      updatedCovariance = AmgSymMatrix(5)(*parm.covariance());
       // only update if msUpdator exists
       double angularVariation =
         (m_doMs) ? m_msUpdator->sigmaSquare(matprop, updateMomentum, pathcorrection, particle) : 0.;
@@ -747,7 +750,6 @@ Trk::MaterialEffectsUpdator::updateImpl(
       // the checks for the remove Noise mode -----------------------------------------------------
       if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
         // the covariance is invalid
-        delete updatedCovariance;
         return nullptr;
       }
 
@@ -810,7 +812,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
         updatedParameters[Trk::phi],
         updatedParameters[Trk::theta],
         updatedParameters[Trk::qOverP],
-        updatedCovariance
+        std::move(updatedCovariance)
     );
   }
   return parm.uniqueClone();

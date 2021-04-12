@@ -161,7 +161,7 @@ MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack)
         params[Trk::qOverP] = newqoverp;
         std::unique_ptr<const Trk::TrackParameters> newlastidpar =lastmeasidpar->associatedSurface().createUniqueTrackParameters(
                 params[0], params[1], params[2], params[3], params[4],
-                new AmgSymMatrix(5)(*lastmeasidpar->covariance()));
+                AmgSymMatrix(5)(*lastmeasidpar->covariance()));
         if (newlastidpar) {
             idextrapolatedpar = std::unique_ptr<const Trk::TrackParameters>(
                 m_extrapolator->extrapolateToVolume(*newlastidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
@@ -183,8 +183,8 @@ MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack)
             return 1e5;  // Sometimes it's 0, sometimes 1e15. Maybe for comparison of chi2? Just in case, will copy this
                          // value from earlier check on ms track. EJWM.
         }
-        AmgSymMatrix(5) *newcovmat = new AmgSymMatrix(5)(*mspar->covariance());
-        for (int i = 0; i < 5; i++) (*newcovmat)(i, 4) = idcovmat(i, 4);
+        AmgSymMatrix(5) newcovmat = AmgSymMatrix(5)(*mspar->covariance());
+        for (int i = 0; i < 5; i++) (newcovmat)(i, 4) = idcovmat(i, 4);
         created_mspar = msparforextrapolator->associatedSurface().createUniqueTrackParameters(
                 params[0], params[1], params[2], params[3], params[4], newcovmat);
         msparforextrapolator = created_mspar.get();

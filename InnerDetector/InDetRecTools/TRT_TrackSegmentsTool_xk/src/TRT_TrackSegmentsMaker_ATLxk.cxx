@@ -695,8 +695,9 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
   double pin = 1./(pT*std::sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-  auto Tp = PS.createUniqueTrackParameters(0.,0.,fm, std::atan2(1.,condData.m_dzdr[ndzdr]),pin,nullptr);
-    ++event_data.m_nlocal;
+  auto Tp = PS.createUniqueTrackParameters(
+    0., 0., fm, std::atan2(1., condData.m_dzdr[ndzdr]), pin, std::nullopt);
+  ++event_data.m_nlocal;
 
   Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, Tp.get(), *(event_data.m_extEventData) );
   if(!seg) return;

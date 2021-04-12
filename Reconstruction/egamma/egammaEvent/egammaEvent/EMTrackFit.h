@@ -236,7 +236,7 @@ private:
   void fillLastMeasurement(Trk::Track *track);
   /** @brief Returns the ErrorMatrix of the perigee of the associated track. 
       If there is no associated track the error matrix will be 0*/
-  AmgSymMatrix(5)* getErrorMatrix() const; 
+  AmgSymMatrix(5) getErrorMatrix() const; 
 
  void set_parameterInt(egammaParameters::ParamDef, int, bool overwrite=false) ; 
  

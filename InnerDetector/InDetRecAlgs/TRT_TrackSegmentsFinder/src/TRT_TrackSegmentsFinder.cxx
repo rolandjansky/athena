@@ -85,7 +85,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
         double y = global_pos.y();
         double z = global_pos.z();
         std::unique_ptr<Trk::TrackParameters> par = PS.createUniqueTrackParameters(
-          0., 0., std::atan2(y, x), std::atan2(1., z / std::sqrt(x * x + y * y)), 0., nullptr);
+          0., 0., std::atan2(y, x), std::atan2(1., z / std::sqrt(x * x + y * y)), 0., std::nullopt);
         // Get AtlasFieldCache
         MagField::AtlasFieldCache fieldCache;
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};

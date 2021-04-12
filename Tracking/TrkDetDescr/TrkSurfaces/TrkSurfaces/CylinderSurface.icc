@@ -11,108 +11,113 @@ CylinderSurface::type() const
   return CylinderSurface::staticType;
 }
 
-
-
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline Surface::ChargedTrackParametersUniquePtr
-CylinderSurface::createUniqueTrackParameters(double l1,
-                                       double l2,
-                                       double phi,
-                                       double theta,
-                                       double qop,
-                                       AmgSymMatrix(5) * cov) const
+CylinderSurface::createUniqueTrackParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Charged, CylinderSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
-CylinderSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
-                                       const Amg::Vector3D& momentum,
-                                       double charge,
-                                       AmgSymMatrix(5) * cov) const
+CylinderSurface::createUniqueTrackParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Charged, CylinderSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-CylinderSurface::createUniqueNeutralParameters(double l1,
-                                               double l2,
-                                               double phi,
-                                               double theta,
-                                               double qop,
-                                               AmgSymMatrix(5) * cov) const
+CylinderSurface::createUniqueNeutralParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, CylinderSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-CylinderSurface::createUniqueNeutralParameters(const Amg::Vector3D& position,
-                                               const Amg::Vector3D& momentum,
-                                               double charge,
-                                               AmgSymMatrix(5) * cov) const
+CylinderSurface::createUniqueNeutralParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, CylinderSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 template<int DIM, class T>
 std::unique_ptr<ParametersT<DIM, T, CylinderSurface>>
-CylinderSurface::createUniqueParameters(double l1,
-                                     double l2,
-                                     double phi,
-                                     double theta,
-                                     double qop,
-                                     AmgSymMatrix(DIM) * cov) const
+CylinderSurface::createUniqueParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, CylinderSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
 std::unique_ptr<ParametersT<DIM, T, CylinderSurface>>
-CylinderSurface::createUniqueParameters(const Amg::Vector3D& position,
-                                     const Amg::Vector3D& momentum,
-                                     double charge,
-                                     AmgSymMatrix(DIM) * cov) const
+CylinderSurface::createUniqueParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, CylinderSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters */
 template<int DIM, class T>
 ParametersT<DIM, T, CylinderSurface>
 CylinderSurface::createParameters(double l1,
-                               double l2,
-                               double phi,
-                               double theta,
-                               double qop,
-                               AmgSymMatrix(DIM) * cov) const
+                                  double l2,
+                                  double phi,
+                                  double theta,
+                                  double qop,
+                                  std::optional<AmgSymMatrix(DIM)> cov) const
 {
-  return ParametersT<DIM, T, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
+  return ParametersT<DIM, T, CylinderSurface>(
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
 ParametersT<DIM, T, CylinderSurface>
 CylinderSurface::createParameters(const Amg::Vector3D& position,
-                               const Amg::Vector3D& momentum,
-                               double charge,
-                               AmgSymMatrix(DIM) * cov) const
+                                  const Amg::Vector3D& momentum,
+                                  double charge,
+                                  std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return ParametersT<DIM, T, CylinderSurface>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 inline CylinderSurface*

@@ -262,26 +262,23 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
                         const Trk::TrackParameters* params = 0;
                         const Trk::CylinderSurface* cylinder =
                             dynamic_cast<const Trk::CylinderSurface*>(&middleParams->associatedSurface());
-                        AmgSymMatrix(5)* cov =
-                            middleParams->covariance() ? new AmgSymMatrix(5)(*middleParams->covariance()) : 0;
-                        bool deleteCov = true;
+                        std::optional<AmgSymMatrix(5)> cov =
+                            middleParams->covariance() ? 
+                            std::optional<AmgSymMatrix(5)>(*middleParams->covariance()) : std::nullopt;
                         if (cylinder) {
                             params    = new const Trk::AtaCylinder(middleParams->position(), momentum,
                                                                 middleParams->charge(), *cylinder, cov);
-                            deleteCov = false;
                         } else {
                             const Trk::DiscSurface* disc =
                                 dynamic_cast<const Trk::DiscSurface*>(&middleParams->associatedSurface());
                             if (disc) {
                                 params    = new const Trk::AtaDisc(middleParams->position(), momentum,
                                                                 middleParams->charge(), *disc, cov);
-                                deleteCov = false;
                             } else {
                                 ATH_MSG_WARNING(" caloTSOS: unexpected TrackParameters type ");
                             }
                         }
                         if (params && middleTS) innerTS = innerTSOS(*params);
-                        if (deleteCov) delete cov;
                         delete params;
                     }
                 } else {

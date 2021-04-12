@@ -708,14 +708,14 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
 		throw std::logic_error("Unhandled surface.");
 	}
 	const AmgVector(5)& p = tS.localParameters();
-	AmgSymMatrix(5)* ep = new AmgSymMatrix(5)(tS.localCovariance());
+	AmgSymMatrix(5) ep = AmgSymMatrix(5)(tS.localCovariance());
 
   std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
     ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
   std::unique_ptr<const Trk::TrackParameters> segPar =
     surf->createUniqueParameters<5, Trk::Charged>(
-      p(0), p(1), p(2), p(3), p(4), ep);
+      p(0), p(1), p(2), p(3), p(4), std::move(ep));
 
   if (segPar) {
 		if (msgLvl(MSG::DEBUG)) {

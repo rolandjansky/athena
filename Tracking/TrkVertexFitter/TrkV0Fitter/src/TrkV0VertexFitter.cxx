@@ -902,15 +902,16 @@ namespace Trk
     std::vector<V0FitterTrack>::iterator BTIterf;
     for (BTIterf = v0FitterTracks.begin(); BTIterf != v0FitterTracks.end() ; ++BTIterf)
     {
-      AmgSymMatrix(5) * CovMtxP = new AmgSymMatrix(5);
-      CovMtxP->setIdentity();
+      AmgSymMatrix(5) CovMtxP;
+      CovMtxP.setIdentity();
       for (unsigned int i=0; i<5; ++i) {
         for (unsigned int j=0; j<i+1; ++j) {
           double val = V_mat(5*iterf+i,5*iterf+j);
-          CovMtxP->fillSymmetric(i,j,val);
+          CovMtxP.fillSymmetric(i,j,val);
         }
       }
-      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), Surface, CovMtxP);
+      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), 
+                                          Surface, std::move(CovMtxP));
       tracksAtVertex.emplace_back((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
       iterf++;
     }

@@ -317,13 +317,13 @@ namespace Rec {
       void Clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
 
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
                         const Amg::Vector3D & Vrt2, const std::vector<double>& VrtErr2) const;
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                        const std::vector<double> SecVrtErr, const TLorentzVector & Dir) const;
+                        const std::vector<double>& SecVrtErr, const TLorentzVector & Dir) const;
       double PntPntDist(const Amg::Vector3D & Vrt1, const Amg::Vector3D & Vrt2) const;
 
       void DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
