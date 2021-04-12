@@ -114,6 +114,12 @@ class RunFexAlgorithms(JobProperty):
     StoredValue = True
 _caloflags.append(RunFexAlgorithms)
 
+class RunEFexAlgorithms(JobProperty):
+    """Run EFex Algorithms"""
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = True
+_caloflags.append(RunEFexAlgorithms)
 
 class StoreSuperCellsInAODFULL(JobProperty):
     """ SuperCells collections are too large to be saved in the AODFULL by default """

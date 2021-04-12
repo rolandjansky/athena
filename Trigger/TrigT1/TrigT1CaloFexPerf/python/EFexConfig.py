@@ -39,6 +39,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
                                                 InputSuperCellContainer=SuperCellContainer,
                                                 OutputClusterName="eTausPerf",
                                                 CleanCellContainer=perfFlags.Calo.ApplySCQual(),
+                                                UseTileCells = perfFlags.Calo.UseAllCalo(),
                                                 CleanCellContainerSkim=False,
                                                 QualBitMask=perfFlags.Calo.QualBitMask() )
 
