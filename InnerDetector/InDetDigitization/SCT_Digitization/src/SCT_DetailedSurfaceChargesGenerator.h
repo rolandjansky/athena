@@ -17,7 +17,7 @@
 
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
+#include "SiDigitization/ISurfaceChargesGenerator.h"
 
 // Athena
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
@@ -57,7 +57,7 @@ namespace CLHEP {
  * certain key parameters were uninitialised and yet used.
  **/
 
-class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
+class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesGenerator> {
 public:
 
   /**  constructor */

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,11 +20,11 @@
 #define SCT_DIGITIZATION_SCTAMP_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_Amp.h"
+#include "SiDigitization/IAmplifier.h"
 
 #include "InDetSimEvent/SiCharge.h"
 
-class SCT_Amp : public extends<AthAlgTool, ISCT_Amp> {
+class SCT_Amp : public extends<AthAlgTool, IAmplifier> {
  public:
 
   /**  constructor */
