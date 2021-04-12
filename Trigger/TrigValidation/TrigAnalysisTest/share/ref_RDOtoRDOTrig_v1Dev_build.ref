@@ -185,15 +185,15 @@ HLT_2j35_pf_ftf_bdl1r70_split_2j35_pf_ftf_bdl1r85_split_L14J15p0ETA25:
     1: 48
     2: 24
 HLT_2j45_ftf_bmv2c1050_split_2j45_ftf_0eta320_L14J15p0ETA25:
-  eventCount: 3
+  eventCount: 2
   stepCounts:
     0: 6
     1: 4
-    2: 3
+    2: 2
   stepFeatures:
     0: 6
     1: 54
-    2: 9
+    2: 8
 HLT_2j45_ftf_bmv2c1060_split_3j45_ftf_0eta320_L15J15p0ETA25:
   eventCount: 2
   stepCounts:
