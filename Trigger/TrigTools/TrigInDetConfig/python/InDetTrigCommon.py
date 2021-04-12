@@ -313,13 +313,14 @@ def ambiguityProcessorTool_builder( name, config):
 #https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py#L499
 
 
-from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
-def ambiguitySolverAlg_builder(name, config, inputTrackScoreMap, outputTrackCollection):
+def ambiguitySolverAlg_builder(name, config, summaryTool, inputTrackScoreMap, outputTrackCollection):
 
       #Set/Get subtools
       ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.input_name),
                                                            config = config )
+      
 
+      from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
       return Trk__TrkAmbiguitySolver( name               = name,
                                       TrackInput         = inputTrackScoreMap,
                                       TrackOutput        = outputTrackCollection,
