@@ -1,9 +1,10 @@
 **For support: [Mailing list](mailto:atlas-phys-pmg-rivet@cern.ch)**
 
-Rivet contact persons in ATLAS: [Deepak Kar](mailto:deepak.kar@cern.ch)
+Rivet contacts on ATLAS: [Deepak Kar](mailto:deepak.kar@cern.ch)
 and [Neil Warrack](mailto:neil.warrack@cern.ch).
 
-For adding your awesome analysis in the official Rivet framework [see here](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RivetMCValidation).
+For adding your awesome analysis in the official Rivet 
+framework [see here](https://gitlab.cern.ch/atlas-physics/pmg/rivet-routines#atlas-internal-rivet-routines).
 
 Finally, if all else fails, you can contact the [Rivet developers](mailto:rivet-support@cern.ch),
 but remember that this is an external address and that you should not discuss anything ATLAS Internal!
@@ -20,19 +21,19 @@ for using standalone Rivet. This tutorial will focus on the Athena wrapper aroun
 In general, the latest 21.6 release should have the latest Rivet release supported by ATLAS.
 
 ```
-asetup 21.6.58,AthGeneration # or later (please avoid 21.6.19-21.6.32)
+asetup 21.6.67,AthGeneration # or later (please avoid 21.6.19-21.6.32)
 source setupRivet.sh
 ```
 
 The last line is necessary to have the main Rivet executable 
-as well as useful helper scripts (e.g. `yodamerge`, `rivet-mkhtml`, etc.)
+as well as useful helper scripts (e.g. `rivet-merge`, `yodamerge`, `rivet-mkhtml`, etc.)
 available on the command line.
 
 Occasionally it might be useful to set up the latest nightly in order to benefit
 from recent merge requests that haven't made it into a proper release yet:
 
 ```
-asetup 21.6,latest,AthGeneration,slc6
+asetup 21.6,latest,AthGeneration
 source setupRivet.sh
 ```
 
@@ -60,6 +61,7 @@ If for some reason, you do need to revert back to an older Rivet version, feel f
 
 | Rivet version | Athena release | Comments |
 | :----:  | :-------:| :----- |
+| v3.1.4 | `21.6.67,AthGeneration` | |
 | v3.1.2 | `21.6.33,AthGeneration` | |
 | v3.1.1 | `21.6.30,AthGeneration` | affected by HepMC bug |
 | v3.1.0 | `21.6.20,AthGeneration` | affected by HepMC bug |
@@ -102,7 +104,7 @@ One can use the analysis options as:
 rivet.Analyses += [ 'ATLAS_2019_I1724098:MODE=TW' ]
 ```
 
-The cross-section is deliberately set to 1.0 as the `yodamerge` script makes it very straightforward
+The cross-section is deliberately set to 1.0 as the merging scripts makes it very straightforward
 to scale the output files to some cross-section later on.
 Rivet3 will produce one histogram per variation weight in the EVNT file. If you only care about the nominal
 you can suppress the extra histograms in the output file by setting the `SkipWeights` flag to `True`.
@@ -110,7 +112,7 @@ you can suppress the extra histograms in the output file by setting the `SkipWei
 
 Hint: In the example above, the output files will be zipped since the additional variation weights can 
 increase the file size significantly. You do not need to unzip the files, since all of the other 
-Rivet scripts (`yodamerge`, `rivet-mkhtml`, etc.) happily read in zipped yodas! 
+Rivet scripts (`rivet-merge`, `rivet-mkhtml`, etc.) happily read in zipped YODAs! 
 
 More `Rivet_i` options are defined [here](src/Rivet_i.cxx).
 
@@ -226,7 +228,7 @@ grid_jO.py
 _If you want to run a custom routine, don't forget to send the compiled
 library to the grid as well!_ This can be achieved by passing the
 `--extFile=RivetMY_ANALYSIS.so` flag.
-If you are autobooking histograms from data yoda file, that file need to be
+If you are autobooking histograms from data YODA file, that file need to be
 sent as well.
 
 
@@ -327,23 +329,38 @@ over a grid container.
 
 # How to merge output files
 
-Rivet provides a handy script that can be used to merge yoda files:
+Rivet provides multiple handy scripts that can be used to merge yoda files:
+`rivet-merge` and `yodamerge` and `yodastack`. The `rivet-merge` script is
+more sophisticated in the sense that it is Rivet-based and so has access 
+to the original routine (and actually re-runs the `finalize` method over
+the merged result, provided the routine is reentrant safe).
+The other two scripts are YODA-based and so know nothing about the routines
+and just blindly merge (or stack) YODA objects with the same path.
+
+See this [page](https://gitlab.com/hepcedar/rivet/-/blob/release-3-1-x/doc/tutorials/merging.md)
+for a more extensive discussion of the differences between them, including
+short tutorials.
+
+As a rule of thumb, use `rivet-merge` if you can, otherwise fall back to the others.
+Equivalent merging (e.g. multiple grid outputs from a parallelised run over the same setup):
 
 ```
-yodamerge -o my_merged_output.yoda MY_GRID_OUTPUT/*
+rivet-merge -e -o my_merged_output.yoda.gz MY_GRID_OUTPUT/*
+yodamerge -o my_merged_output.yoda.gz MY_GRID_OUTPUT/*
 ```
 
-If you have to run Rivet over several processes, you want
-to merge the grid output as shown above for each process.
-The you can stack the resulting files into a combined output
+When you have to run Rivet over several processes and you want
+to merge the grid output as shown above for each process,
+you can stack the resulting files to yield the combined output
 file like so:
 
 ```
-yodamerge --add -o my_stacked_outpyt.yoda process1.yoda:12.34 process2.yoda:4.56
+rivet-merge -o my_stacked_outpyt.yoda.gz process1.yoda.gz:12.34 process2.yoda.gz:4.56
+yodastack -o my_stacked_outpyt.yoda.gz process1.yoda.gz:12.34 process2.yoda.gz:4.56
 ```
 
 where the optional multipliers at the end of the input files could be the sample 
-cross-sections from the PMG Central Page, thereby scaling the yoda files on the fly
+cross-sections from the PMG Central Page, thereby scaling the YODA files on the fly
 to the relevant generator cross-section.
 
 
@@ -352,7 +369,7 @@ to the relevant generator cross-section.
 There are several options, but our favourite way is the following:
 
 ```
-rivet-mkhtml --errs -o my_plots prediction1.yoda:"Title=MC 1" prediction2.yoda:"Title=MC 2"
+rivet-mkhtml --errs -o my_plots prediction1.yoda.gz:"Title=MC 1" prediction2.yoda.gz:"Title=MC 2"
 ```
 
 This will create a nice little html booklet that you can stare at in your favourite browser.
@@ -419,7 +436,7 @@ We've added this as a script to the repo too.
 ## How to use cross-section in a Rivet run:
 
 The cross-section can be set in the jOs or it can be
-set to unity and then the resulting yoda file(s) can be scaled after the run. The advantage
+set to unity and then the resulting YODA file(s) can be scaled after the run. The advantage
 of the latter approach is, the user does not have modify the joboption for (say) every jet slice.
 If the user does not set the cross-section in the JOs at all, 
 then I believe in the old version of Rivet_i, then the default value is unity.
@@ -436,7 +453,7 @@ book(_h_myhisto,"_h_myhisto",10,0,200);
 ```
 
 Omitting the `"_h_myhisto"` part will result in it being interpreted as an autobooked histogram 
-from a reference yoda file, with the numbers corresponding to `d`, `x` and `y` from the usual
+from a reference YODA file, with the numbers corresponding to `d`, `x` and `y` from the usual
 `d01-x01-y01` names assigened by HepData.
 
 
