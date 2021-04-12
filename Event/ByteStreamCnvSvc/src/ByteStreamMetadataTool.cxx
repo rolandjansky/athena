@@ -5,7 +5,6 @@
 /** @file ByteStreamMetadataTool.cxx
  *  @brief This file contains the implementation for the ByteStreamMetadataTool class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: ByteStreamMetadataTool.cxx,v 1.4 2009-05-13 22:06:51 cranshaw Exp $
  **/
 
 #include "ByteStreamMetadataTool.h"
@@ -36,7 +35,7 @@ ByteStreamMetadataTool::~ByteStreamMetadataTool()
 StatusCode
 ByteStreamMetadataTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing");
 
   ATH_CHECK(::AthAlgTool::initialize());
   ATH_CHECK(m_metadataStore.retrieve());
