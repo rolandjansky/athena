@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,12 +25,15 @@ enum eAFPStation { EAS_UNKNOWN=-1, EAS_AFP00=0, EAS_AFP01=1, EAS_AFP02=2, EAS_AF
 class AFP_Geometry
 {
 
-private:
+protected:
 	AFP_CONFIGURATION m_CfgParams;
+
+private:
 	std::map<eAFPStation, std::map<int, HepGeom::Transform3D> > m_MapSIDTransToLocal;
 	std::map<eAFPStation, std::map<int, HepGeom::Transform3D> > m_MapSIDTransToGlobal;
 
 public:
+	AFP_Geometry() {}
 	AFP_Geometry(const PAFP_CONFIGURATION pCfgParams);
 	~AFP_Geometry();
 

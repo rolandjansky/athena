@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_LocReco/AFP_SIDBasicKalman.h"
@@ -46,7 +46,7 @@ AFP_SIDBasicKalman::~AFP_SIDBasicKalman()
 	m_listResults.clear();
 }
 
-StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT])
+StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, const Float_t fsSID[SIDSTATIONID][SIDCNT], const Float_t fxSID[SIDSTATIONID][SIDCNT], const Float_t fySID[SIDSTATIONID][SIDCNT], const Float_t fzSID[SIDSTATIONID][SIDCNT])
 {
 
       	m_AmpThresh = (float)fAmpThresh;
@@ -72,27 +72,29 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 
 	
 	// x-y-z map of all pixels
+	Float_t fsSID_helper[SIDSTATIONID][SIDCNT];
 	for(Int_t nStationID = 0; nStationID < SIDSTATIONID; nStationID++)
 	{				
 		for (Int_t nPlateID = 0; nPlateID < SIDCNT; nPlateID++)
 		{
 
-                        if ( iDataType == 1) fsSID[nStationID][nPlateID] = Alpha[nStationID][nPlateID];
+                        fsSID_helper[nStationID][nPlateID] = (iDataType == 1? Alpha[nStationID][nPlateID]:fsSID[nStationID][nPlateID]);
+
 
 			for (Int_t nPixel_x = 0; nPixel_x < 336; nPixel_x++)
 			{	
 				for (Int_t nPixel_y = 0; nPixel_y < 80; nPixel_y++)
 				{	                                 		
-				m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID[nStationID][nPlateID]);		//sign changed!	
+				m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID_helper[nStationID][nPlateID]);		//sign changed!	
 				m_fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fySID[nStationID][nPlateID]+(delta_pixel_y*nPixel_y); //sign changed!
-				m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*(nPixel_x-168))*sin(fsSID[nStationID][nPlateID]); //sign changed!
+				m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*(nPixel_x-168))*sin(fsSID_helper[nStationID][nPlateID]); //sign changed!
 			        if( iDataType == 1) {
-                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneX[nStationID][nPlateID] + 168*delta_pixel_x*cos(fsSID[nStationID][0]);
+                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneX[nStationID][nPlateID] + 168*delta_pixel_x*cos(fsSID_helper[nStationID][0]);
                                 m_fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneY[nStationID][nPlateID];
-                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); }
+                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID_helper[nStationID][0]); }
                                 else {
-                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += 168*delta_pixel_x*cos(fsSID[nStationID][0]);
-                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); } 
+                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += 168*delta_pixel_x*cos(fsSID_helper[nStationID][0]);
+                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID_helper[nStationID][0]); } 
                                }
 			}
 		}
