@@ -214,6 +214,15 @@ InDetFlags.doPRDFormation        = False                       # those two will 
 InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing is false
 InDetFlags.doNewTracking      = redoPatternRecoAndTracking
 InDetFlags.doLowPt            = jobConfig['doLowPt']
+InDetFlags.doBeamGas   = False
+InDetFlags.doBackTracking = False
+InDetFlags.doVeryLowPt = False
+InDetFlags.doTRTStandalone = False
+InDetFlags.doForwardTracks = False
+InDetFlags.doLargeD0 = False
+InDetFlags.doR3LargeD0 = False
+InDetFlags.doLowPtLargeD0 = False
+
 if jobConfig['doRobustReco']:
     try:
         InDetFlags.doRobustReco = True
