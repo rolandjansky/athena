@@ -193,7 +193,7 @@ namespace G4UA
               double curL0         =  0.;
               double curRho        =  rho*relNbAtoms;
               Trk::Material elMat(curX0,curL0,curA,curZ,curRho);
-              G4String      elName =  currentEl->GetName();
+              const G4String&      elName =  currentEl->GetName();
               // add it to the table
               m_elementTable->addElement(elMat, elName);
               m_runElementTable->addElement(elMat,elName);

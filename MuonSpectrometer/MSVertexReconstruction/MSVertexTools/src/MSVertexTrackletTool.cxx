@@ -369,7 +369,7 @@ namespace Muon {
                                                        SG::WriteHandle<xAOD::TrackParticleContainer>& container) const {
         for (std::vector<Tracklet>::iterator trkItr = tracklets.begin(); trkItr != tracklets.end(); ++trkItr) {
             // create the Trk::Perigee for the tracklet
-            AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(trkItr->errorMatrix());
+            AmgSymMatrix(5) covariance = AmgSymMatrix(5)(trkItr->errorMatrix());
             Trk::Perigee* myPerigee =
                 new Trk::Perigee(0., 0., trkItr->momentum().phi(), trkItr->momentum().theta(), trkItr->charge() / trkItr->momentum().mag(),
                                  Trk::PerigeeSurface(trkItr->globalPosition()), covariance);
@@ -386,7 +386,7 @@ namespace Muon {
                                                  myPerigee->parameters()[Trk::qOverP]);
 
             std::vector<float> covMatrixVec;
-            Amg::compress(*covariance, covMatrixVec);
+            Amg::compress(covariance, covMatrixVec);
             trackparticle->setDefiningParametersCovMatrixVec(covMatrixVec);
 
             // cleanup memory

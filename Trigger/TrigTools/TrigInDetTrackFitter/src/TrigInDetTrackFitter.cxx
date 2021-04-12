@@ -695,7 +695,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField
 		double z0 = pTS->getTrackState(1);
 		double d0 = pTS->getTrackState(0);
     bool bad_cov = false;
-    auto cov = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
+    auto cov = AmgSymMatrix(5){};
     for(int i=0;i<5;i++) {
       double cov_diag = pTS->getTrackCovariance(i,i);
       if (cov_diag < 0) {
@@ -703,9 +703,9 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField
         break;
         ATH_MSG_DEBUG("REGTEST: cov(" << i << "," << i << ") =" << cov_diag << " < 0, reject track");
       }
-      (*cov)(i, i) = pTS->getTrackCovariance(i,i);
+      (cov)(i, i) = pTS->getTrackCovariance(i,i);
       for(int j=i+1;j<5;j++) {
-        cov->fillSymmetric(i, j, pTS->getTrackCovariance(i,j));
+        cov.fillSymmetric(i, j, pTS->getTrackCovariance(i,j));
       }
     }
 
@@ -716,7 +716,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField
 		else
 		{
       Trk::PerigeeSurface perigeeSurface;
-      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov.release());
+      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, std::move(cov));
       ATH_MSG_VERBOSE("perigee: " << *perigee);
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
@@ -785,10 +785,10 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
 
 
   Trk::TrkTrackState* pTS=pN->getTrackState();
-  auto pM = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
+  auto pM = AmgSymMatrix(5){};
   for(int i=0;i<5;i++) {
     for(int j=i;j<5;j++) {
-      (*pM)(i,j)=pTS->getTrackCovariance(i,j);
+      (pM)(i,j)=pTS->getTrackCovariance(i,j);
     }
   }
   const Trk::PrepRawData* pPRD=pN->getPrepRawData();
@@ -804,7 +804,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
         pTS->getTrackState(2),
         pTS->getTrackState(3),
         pTS->getTrackState(4),*pPS,
-        pM.release());
+        std::move(pM));
   }
   else if(type==3)
   {
@@ -823,7 +823,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
         pTS->getTrackState(3),
         pTS->getTrackState(4),
         *pLS,
-        pM.release());
+        std::move(pM));
   }
   if(pTP==nullptr) return nullptr;
   const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);

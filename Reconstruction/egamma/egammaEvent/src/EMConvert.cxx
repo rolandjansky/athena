@@ -841,48 +841,48 @@ AmgSymMatrix(3)* EMConvert::getVxPosErrorMatrix() const
 
 }
 
-AmgSymMatrix(5)* EMConvert::getTrk2ErrorMatrix() const
+AmgSymMatrix(5) EMConvert::getTrk2ErrorMatrix() const
 {
-  AmgSymMatrix(5)* hepSymMatrix =  new AmgSymMatrix(5);
+  AmgSymMatrix(5) hepSymMatrix;
   // Fill the matrix
-  hepSymMatrix->fillSymmetric(0,0, vertex_Covd02d02());
-  hepSymMatrix->fillSymmetric(0,1, vertex_Covd02z02());
-  hepSymMatrix->fillSymmetric(0,2, vertex_Covd02phi2());
-  hepSymMatrix->fillSymmetric(0,3, vertex_Covd02theta2());
-  hepSymMatrix->fillSymmetric(0,4, vertex_Covd02qOverP2());
-  hepSymMatrix->fillSymmetric(1,1, vertex_Covz02z02());
-  hepSymMatrix->fillSymmetric(1,2, vertex_Covz02phi2());
-  hepSymMatrix->fillSymmetric(1,3, vertex_Covz02theta2());
-  hepSymMatrix->fillSymmetric(1,4, vertex_Covz02qOverP2());
-  hepSymMatrix->fillSymmetric(2,2, vertex_Covphi2phi2());
-  hepSymMatrix->fillSymmetric(2,3, vertex_Covphi2theta2());
-  hepSymMatrix->fillSymmetric(2,4, vertex_Covphi2qOverP2());
-  hepSymMatrix->fillSymmetric(3,3, vertex_Covtheta2theta2());
-  hepSymMatrix->fillSymmetric(3,4, vertex_Covtheta2qOverP2());
-  hepSymMatrix->fillSymmetric(4,4, vertex_CovqOverP2qOverP2());
+  hepSymMatrix.fillSymmetric(0,0, vertex_Covd02d02());
+  hepSymMatrix.fillSymmetric(0,1, vertex_Covd02z02());
+  hepSymMatrix.fillSymmetric(0,2, vertex_Covd02phi2());
+  hepSymMatrix.fillSymmetric(0,3, vertex_Covd02theta2());
+  hepSymMatrix.fillSymmetric(0,4, vertex_Covd02qOverP2());
+  hepSymMatrix.fillSymmetric(1,1, vertex_Covz02z02());
+  hepSymMatrix.fillSymmetric(1,2, vertex_Covz02phi2());
+  hepSymMatrix.fillSymmetric(1,3, vertex_Covz02theta2());
+  hepSymMatrix.fillSymmetric(1,4, vertex_Covz02qOverP2());
+  hepSymMatrix.fillSymmetric(2,2, vertex_Covphi2phi2());
+  hepSymMatrix.fillSymmetric(2,3, vertex_Covphi2theta2());
+  hepSymMatrix.fillSymmetric(2,4, vertex_Covphi2qOverP2());
+  hepSymMatrix.fillSymmetric(3,3, vertex_Covtheta2theta2());
+  hepSymMatrix.fillSymmetric(3,4, vertex_Covtheta2qOverP2());
+  hepSymMatrix.fillSymmetric(4,4, vertex_CovqOverP2qOverP2());
 
   return hepSymMatrix;
 }
 
-AmgSymMatrix(5)* EMConvert::getTrk1ErrorMatrix() const
+AmgSymMatrix(5) EMConvert::getTrk1ErrorMatrix() const
 {
-  AmgSymMatrix(5)* hepSymMatrix =  new AmgSymMatrix(5);
+  AmgSymMatrix(5) hepSymMatrix;
   // Fill the matrix
-  hepSymMatrix->fillSymmetric(0,0, vertex_Covd01d01());
-  hepSymMatrix->fillSymmetric(0,1, vertex_Covd01z01());
-  hepSymMatrix->fillSymmetric(0,2, vertex_Covd01phi1());
-  hepSymMatrix->fillSymmetric(0,3, vertex_Covd01theta1());
-  hepSymMatrix->fillSymmetric(0,4, vertex_Covd01qOverP1());
-  hepSymMatrix->fillSymmetric(1,1, vertex_Covz01z01());
-  hepSymMatrix->fillSymmetric(1,2, vertex_Covz01phi1());
-  hepSymMatrix->fillSymmetric(1,3, vertex_Covz01theta1());
-  hepSymMatrix->fillSymmetric(1,4, vertex_Covz01qOverP1());
-  hepSymMatrix->fillSymmetric(2,2, vertex_Covphi1phi1());
-  hepSymMatrix->fillSymmetric(2,3, vertex_Covphi1theta1());
-  hepSymMatrix->fillSymmetric(2,4, vertex_Covphi1qOverP1());
-  hepSymMatrix->fillSymmetric(3,3, vertex_Covtheta1theta1());
-  hepSymMatrix->fillSymmetric(3,4, vertex_Covtheta1qOverP1());
-  hepSymMatrix->fillSymmetric(4,4, vertex_CovqOverP1qOverP1());
+  hepSymMatrix.fillSymmetric(0,0, vertex_Covd01d01());
+  hepSymMatrix.fillSymmetric(0,1, vertex_Covd01z01());
+  hepSymMatrix.fillSymmetric(0,2, vertex_Covd01phi1());
+  hepSymMatrix.fillSymmetric(0,3, vertex_Covd01theta1());
+  hepSymMatrix.fillSymmetric(0,4, vertex_Covd01qOverP1());
+  hepSymMatrix.fillSymmetric(1,1, vertex_Covz01z01());
+  hepSymMatrix.fillSymmetric(1,2, vertex_Covz01phi1());
+  hepSymMatrix.fillSymmetric(1,3, vertex_Covz01theta1());
+  hepSymMatrix.fillSymmetric(1,4, vertex_Covz01qOverP1());
+  hepSymMatrix.fillSymmetric(2,2, vertex_Covphi1phi1());
+  hepSymMatrix.fillSymmetric(2,3, vertex_Covphi1theta1());
+  hepSymMatrix.fillSymmetric(2,4, vertex_Covphi1qOverP1());
+  hepSymMatrix.fillSymmetric(3,3, vertex_Covtheta1theta1());
+  hepSymMatrix.fillSymmetric(3,4, vertex_Covtheta1qOverP1());
+  hepSymMatrix.fillSymmetric(4,4, vertex_CovqOverP1qOverP1());
 
   return hepSymMatrix;
 }
@@ -963,7 +963,7 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
 
   //perigee at vertex
   Amg::Vector3D globPos(vertex_x(), vertex_y(), vertex_z());
-  AmgSymMatrix(5) *trk1EM = getTrk1ErrorMatrix();
+  AmgSymMatrix(5) trk1EM = getTrk1ErrorMatrix();
     
   const Trk::PerigeeSurface   surface(globPos);
   Trk::Perigee* trkParams= new Trk::Perigee(0,
@@ -978,7 +978,7 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
 
   if(vertex_numTracks()>1){
     Trk::VxTrackAtVertex* vxtrk2 = nullptr;
-    AmgSymMatrix(5) *trk2EM = getTrk2ErrorMatrix();
+    AmgSymMatrix(5) trk2EM = getTrk2ErrorMatrix();
     const Trk::PerigeeSurface surface2(globPos);
     Trk::Perigee* trkParams2= new Trk::Perigee(0,
                                               0,

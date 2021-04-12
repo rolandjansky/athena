@@ -17,9 +17,9 @@ namespace Trk {
 template<int DIM, class T, class S>
 Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const AmgVector(DIM + 2) & parameters,
-  AmgSymMatrix(DIM) * covariance,
+  std::optional<AmgSymMatrix(DIM)> covariance,
   unsigned int cIdentifier)
-  : ParametersBase<DIM, T>(covariance)
+  : ParametersBase<DIM, T>(std::move(covariance))
   , m_position(Amg::Vector3D(parameters[x], parameters[y], parameters[z]))
   , m_momentum(Amg::Vector3D(parameters[3], parameters[4], parameters[5]))
   , m_cIdentifier(cIdentifier)
@@ -48,13 +48,12 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   double tphi,
   double ttheta,
   double tqOverP,
-  AmgSymMatrix(DIM) * cov,
+  std::optional<AmgSymMatrix(DIM)> cov,
   unsigned int cIdentifier)
-  : ParametersBase<DIM, T>()
+  : ParametersBase<DIM, T>(std::move(cov))
+  , m_position(pos)
   , m_cIdentifier(cIdentifier)
 {
-  this->m_covariance.reset(cov);
-  this->m_position = pos;
   // flip the charge according to qOverP
   if (tqOverP < 0.) {
     this->m_chargeDef.setCharge(-1.);
@@ -76,7 +75,7 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
                                    p * std::cos(ttheta));
 
   /* we need all the above for the surface*/
-  m_surface= S(this->m_position, curvilinearFrame());
+  m_surface = S(this->m_position, curvilinearFrame());
 }
 
 // full global constructor
@@ -85,14 +84,12 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const Amg::Vector3D& pos,
   const Amg::Vector3D& mom,
   double charge,
-  AmgSymMatrix(DIM) * cov,
+  std::optional<AmgSymMatrix(DIM)> cov,
   unsigned int cIdentifier)
-  : ParametersBase<DIM, T>()
+  : ParametersBase<DIM, T>(std::move(cov))
   , m_cIdentifier(cIdentifier)
 {
   this->m_chargeDef.setCharge(charge);
-  this->m_covariance.reset(cov);
-
   // assign the parameters
   this->m_parameters[Trk::locX] = 0.;
   this->m_parameters[Trk::locY] = 0.;
@@ -115,17 +112,12 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const CurvilinearParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(), nullptr, rhs.charge())
-
+  : ParametersBase<DIM, T>(rhs.parameters(), rhs.m_covariance, rhs.charge())
   , m_position(rhs.position())
   , m_momentum(rhs.momentum())
   , m_surface(rhs.m_surface)
   , m_cIdentifier(rhs.m_cIdentifier)
-{
-  if (rhs.covariance()) {
-    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance());
-  }
-}
+{}
 
 // assignment operator
 template<int DIM, class T, class S>
@@ -135,9 +127,7 @@ CurvilinearParametersT<DIM, T, S>::operator=(
 {
   if (this != &rhs) {
     m_parameters = rhs.m_parameters;
-    m_covariance = rhs.covariance()
-                     ? std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance())
-                     : nullptr;
+    m_covariance = rhs.m_covariance;
     m_position = rhs.position();
     m_momentum = rhs.momentum();
     m_surface = rhs.m_surface;
@@ -247,7 +237,6 @@ CurvilinearParametersT<DIM, T, S>::operator==(
   return ParametersBase<DIM, T>::operator==(rhs);
 }
 
-
 /** clone */
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>*
@@ -263,7 +252,6 @@ CurvilinearParametersT<DIM, T, S>::uniqueClone() const
 {
   return std::unique_ptr<CurvilinearParametersT<DIM, T, S>>(clone());
 }
-
 
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
@@ -349,8 +337,9 @@ Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(
     this->m_parameters[Trk::phi] = phi;
     this->m_parameters[Trk::theta] = theta;
     this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
-    this->m_momentum = Amg::Vector3D(
-      p * std::cos(phi) * std::sin(theta), p * std::sin(phi) * std::sin(theta), p * std::cos(theta));
+    this->m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
+                                     p * std::sin(phi) * std::sin(theta),
+                                     p * std::cos(theta));
   }
 
   // position update if needed -  loc1

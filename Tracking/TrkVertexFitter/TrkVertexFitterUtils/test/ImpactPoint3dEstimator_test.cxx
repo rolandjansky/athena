@@ -40,10 +40,10 @@ using Gaudi::Units::MeV;
 using Gaudi::Units::GeV;
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
@@ -99,13 +99,13 @@ void test1 (Trk::IImpactPoint3dEstimator& tool)
   Amg::Vector3D vert { 1.2*mm, 0.8*mm, -7*mm };
 
   double distance = 0;
-  Trk::Perigee p1 (pos1, mom1, 1, pos1, cov5().release());
+  Trk::Perigee p1 (pos1, mom1, 1, pos1, cov5());
   std::unique_ptr<Trk::PlaneSurface> s1 (tool.Estimate3dIP (&p1, &vert, distance));
   checkPlaneSurface (*s1, vert, {0.53466, 0.801692, 0.267261});
   assert( Athena_test::isEqual (distance, 3.10391, 1e-5) );
 
   distance = 0;
-  Trk::NeutralPerigee p2 (pos1, mom1, 1, pos1, cov5().release());
+  Trk::NeutralPerigee p2 (pos1, mom1, 1, pos1, cov5());
   std::unique_ptr<Trk::PlaneSurface> s2 (tool.Estimate3dIP (&p2, &vert, distance));
   checkPlaneSurface (*s2, vert, {0.534522, 0.801784, 0.267261});
   assert( Athena_test::isEqual (distance, 3.10391, 1e-5) );

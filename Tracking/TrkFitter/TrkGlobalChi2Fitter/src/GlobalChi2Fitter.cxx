@@ -331,7 +331,7 @@ namespace Trk {
       const AmgVector(5) & newpars = parforcalo->parameters();
       
       parforcalo=parforcalo->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., std::nullopt
       );
     }
 
@@ -587,7 +587,7 @@ namespace Trk {
         if (thispar != nullptr) {
           const AmgVector(5) & parvec = thispar->parameters();
           tp_closestmuon=thispar->associatedSurface().createUniqueTrackParameters(
-            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], nullptr
+            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], std::nullopt
           );
         }
         break;
@@ -733,7 +733,7 @@ namespace Trk {
         }
         
         tp_closestmuon=tmppar->associatedSurface().createUniqueTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
         );
       }
       
@@ -808,7 +808,7 @@ namespace Trk {
         
         const AmgVector(5) & newpar = firstidpar->parameters();
         firstidpar=firstidpar->associatedSurface().createUniqueTrackParameters(
-          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, nullptr
+          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, std::nullopt
         );
       }
       
@@ -888,7 +888,7 @@ namespace Trk {
       }
       
       std::unique_ptr<const TrackParameters> tmppar1(muonscatpar->associatedSurface().createUniqueTrackParameters(
-        params1[0], params1[1], params1[2], params1[3], params1[4], nullptr
+        params1[0], params1[1], params1[2], params1[3], params1[4], std::nullopt
       ));
       
       PropDirection propdir = !firstismuon ? oppositeMomentum : alongMomentum;
@@ -928,7 +928,7 @@ namespace Trk {
 
       const AmgVector(5) & newpars = tmpelosspar->parameters();
       std::unique_ptr<const TrackParameters> elosspar2(tmpelosspar->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, std::nullopt
       ));
       
       if (i == 1) {
@@ -1062,7 +1062,7 @@ namespace Trk {
         }
 
         firstscatpar=scat2->associatedSurface().createUniqueTrackParameters(
-          params2[0], params2[1], params2[2], params2[3], params2[4], nullptr
+          params2[0], params2[1], params2[2], params2[3], params2[4], std::nullopt
         );
         idscatpar = firstscatpar.get();
 
@@ -1376,7 +1376,7 @@ namespace Trk {
       
       elosspar=
         tmppar->associatedSurface().createUniqueTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
+          pars[0], pars[1], pars[2], pars[3], newqoverp, std::nullopt
         );
 
       lastscatpar = m_propagator->propagateParameters(
@@ -1429,7 +1429,7 @@ namespace Trk {
 
       std::unique_ptr<const TrackParameters>tmppar(
         elosspar->associatedSurface().createUniqueTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
+          pars[0], pars[1], pars[2], pars[3], newqoverp, std::nullopt
         )
       );
       
@@ -2146,7 +2146,7 @@ namespace Trk {
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       minpar=trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
       );
       
       trajectory.reset();
@@ -2277,7 +2277,7 @@ namespace Trk {
             param.parameters()[Trk::theta],
             param.parameters()[Trk::qOverP], 
             *plsurf,
-            new AmgSymMatrix(5)(*param.covariance())
+            AmgSymMatrix(5)(*param.covariance())
           );
           rot = m_ROTcreator->correct(*prd, atapl);
         } else {
@@ -2429,7 +2429,7 @@ namespace Trk {
           parameterVector[Trk::phi],
           parameterVector[Trk::theta],
           parameterVector[Trk::qOverP],
-          new AmgSymMatrix(5)(*hitparam->covariance())
+          AmgSymMatrix(5)(*hitparam->covariance())
         )
       );
       
@@ -2536,7 +2536,7 @@ namespace Trk {
         trajectory.setPrefit(3);
         const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
         startpar = trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
         );
 
         trajectory.reset();
@@ -2552,7 +2552,7 @@ namespace Trk {
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       startpar = trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
       );
 
       trajectory.reset();
@@ -3991,7 +3991,7 @@ namespace Trk {
     }
     
     refpar = refpar2->associatedSurface().createUniqueTrackParameters(
-      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
     );
 
     if (firstmatpar != nullptr) {
@@ -4012,7 +4012,7 @@ namespace Trk {
         startmatpar2 = startmatpar2->associatedSurface().createUniqueTrackParameters(
           newpars[0], newpars[1], newpars[2], newpars[3],
           sign / sqrt(oldp * oldp + 2 * 100 * MeV * sqrt(oldp * oldp + mass * mass) + 100 * MeV * 100 * MeV), 
-          nullptr
+          std::nullopt
         );
       }
     } else if (trajectory.m_straightline && m_p != 0) {
@@ -4020,14 +4020,14 @@ namespace Trk {
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar1 = startmatpar1->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
       );
       
       newpars = startmatpar2->parameters();
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar2 = startmatpar2->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
       );
     }
 
@@ -4278,7 +4278,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             layerpar = layerpar->associatedSurface().createUniqueTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, nullptr
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, std::nullopt
             );
             meff->setdelta_p(1000 * (qoverpbrem - qoverp));
           }
@@ -4339,7 +4339,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             prevtrackpars = layerpar->associatedSurface().createUniqueTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, nullptr
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, std::nullopt
             );
           }
 
@@ -4443,7 +4443,7 @@ namespace Trk {
             }
             
             muonpar1 = firstmuonpar->associatedSurface().createUniqueTrackParameters(
-              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
             );
           } else {
             std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
@@ -4723,7 +4723,7 @@ namespace Trk {
     if ((persurf != nullptr) && (!cache.m_acceleration || persurf->center().perp() > 5)) {
       const AmgVector(5) & pars = param.parameters();
       return param.associatedSurface().createUniqueTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], pars[4], nullptr
+        pars[0], pars[1], pars[2], pars[3], pars[4], std::nullopt
       );
     }
     
@@ -4990,7 +4990,7 @@ namespace Trk {
         }
         
         nearestpar = tmppar->associatedSurface().createUniqueTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
         );
       }
       
@@ -5018,7 +5018,7 @@ namespace Trk {
         params[Trk::qOverP] = sign / newp;
         
         per = per->associatedSurface().createUniqueTrackParameters(
-          params[0], params[1], params[2], params[3], params[4], nullptr
+          params[0], params[1], params[2], params[3], params[4], std::nullopt
         );
       }
       
@@ -5037,7 +5037,7 @@ namespace Trk {
         per->parameters()[Trk::phi],
         per->parameters()[Trk::theta],
         per->parameters()[Trk::qOverP], 
-        nullptr
+        std::nullopt
       );
     } else if (per == nullptr) {
       per = makePerigee(cache, param, matEffects);
@@ -5058,7 +5058,7 @@ namespace Trk {
       
       const AmgVector(5) & pars = per->parameters();
       per = per->associatedSurface().createUniqueTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], 0, nullptr
+        pars[0], pars[1], pars[2], pars[3], 0, std::nullopt
       );
     } else if (trajectory.numberOfPerigeeParameters() == -1) {
       trajectory.setNumberOfPerigeeParameters(5);
@@ -5234,23 +5234,23 @@ namespace Trk {
         }
       }
 
-      std::unique_ptr<AmgSymMatrix(5)> errmat = std::make_unique<AmgSymMatrix(5)>();
-      errmat->setZero();
+      AmgSymMatrix(5) errmat;
+      errmat.setZero();
       int nperparams = finaltrajectory->numberOfPerigeeParameters();
       for (int i = 0; i < nperparams; i++) {
         for (int j = 0; j < nperparams; j++) {
-          (*errmat) (j, i) = a_inv(j, i);
+          (errmat) (j, i) = a_inv(j, i);
         }
       }
       
       if (trajectory.m_straightline) {
-        (*errmat) (4, 4) = 1e-20;
+        (errmat) (4, 4) = 1e-20;
       }
 
       const AmgVector(5) & perpars = finaltrajectory->referenceParameters()->parameters();
       std::unique_ptr<const TrackParameters> measper(
         finaltrajectory->referenceParameters()->associatedSurface().createUniqueTrackParameters(
-          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat.release()
+          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], std::move(errmat)
         )
       );
       
@@ -6164,7 +6164,7 @@ namespace Trk {
 
     std::unique_ptr<const TrackParameters> newper(
       trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        d0, z0, phi, theta, qoverp, nullptr
+        d0, z0, phi, theta, qoverp, std::nullopt
       )
     );
     
@@ -6480,7 +6480,7 @@ namespace Trk {
         TrackState::MeasurementType hittype_maxsipull = state_maxsipull->measurementType();
         const TrackParameters *trackpar_maxsipull = state_maxsipull->trackParameters();
         Amg::VectorX parameterVector = trackpar_maxsipull->parameters();
-        
+
         std::unique_ptr<const TrackParameters> trackparForCorrect(
           trackpar_maxsipull->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1],
@@ -6488,10 +6488,11 @@ namespace Trk {
             parameterVector[Trk::phi],
             parameterVector[Trk::theta],
             parameterVector[Trk::qOverP],
-            state_maxsipull->hasTrackCovariance() ? new AmgSymMatrix(5)(state_maxsipull->trackCovariance()) : nullptr
-          )
-        );
-        
+            state_maxsipull->hasTrackCovariance()
+              ? std::optional<AmgSymMatrix(5)>(
+                  state_maxsipull->trackCovariance())
+              : std::nullopt));
+
         double newerror[5];
         newerror[0] = newerror[1] = newerror[2] = newerror[3] = newerror[4] = -1;
         double newpull = -1;
@@ -7899,7 +7900,7 @@ namespace Trk {
     }
 
     return surf.createUniqueTrackParameters(
-        old[0], old[1], newphi, newtheta, newqoverp, nullptr
+        old[0], old[1], newphi, newtheta, newqoverp, std::nullopt
     );
   }
 
@@ -8206,12 +8207,12 @@ __attribute__ ((flatten))
         const TrackParameters *tmptrackpar =
           state->trackParameters();
 
-        std::unique_ptr<AmgMatrix(5, 5)> trkerrmat;
+        std::optional<AmgMatrix(5, 5)> trkerrmat;
         
         if (state->hasTrackCovariance()) {
-          trkerrmat = std::make_unique<AmgSymMatrix(5)>(state->trackCovariance());
+          trkerrmat = (state->trackCovariance());
         } else {
-          trkerrmat = nullptr;
+          trkerrmat = std::nullopt;
         }
 
         const AmgVector(5) & tpars = tmptrackpar->parameters();
@@ -8221,7 +8222,7 @@ __attribute__ ((flatten))
                                                                        tpars[2],
                                                                        tpars[3],
                                                                        tpars[4],
-                                                                       trkerrmat.release())
+                                                                       std::move(trkerrmat))
         );
         state->setTrackParameters(std::move(trackpar));
         std::unique_ptr<const FitQualityOnSurface> fitQual = nullptr;
@@ -8308,7 +8309,7 @@ __attribute__ ((flatten))
           vecpluseps[2],
           vecpluseps[3],
           vecpluseps[4],
-          nullptr
+          std::nullopt
         )
       );
       std::unique_ptr<const TrackParameters> parminuseps(
@@ -8318,7 +8319,7 @@ __attribute__ ((flatten))
           vecminuseps[2],
           vecminuseps[3],
           vecminuseps[4],
-          nullptr
+          std::nullopt
         )
       );
 

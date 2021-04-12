@@ -29,11 +29,12 @@
 #include "TrkSurfaces/DistanceSolution.h"
 // Identifier
 #include "Identifier/Identifier.h"
-
+//
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"
 #include <atomic>
-#include <memory> //for unique_ptr
+#include <memory> 
+#include <optional>
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -235,7 +236,7 @@ public:
     double phi,
     double theat,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
@@ -245,7 +246,7 @@ public:
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral.  The caller assumes ownership of the returned ptr
@@ -256,7 +257,7 @@ public:
     double phi,
     double theat,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral. The caller assumes ownership of the returned ptr
@@ -265,7 +266,7 @@ public:
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double charge = 0.,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** positionOnSurface() returns a pointer to a LocalPosition on the
     Surface,<br>

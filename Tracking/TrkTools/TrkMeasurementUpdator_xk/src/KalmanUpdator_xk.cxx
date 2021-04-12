@@ -1924,15 +1924,13 @@ bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::updatorToTrackParameters
 (const Trk::TrackParameters& T,double* P,double* V) const
 {
-  AmgSymMatrix(5)* e = new AmgSymMatrix(5);
-
-  (*e)<<
-    V[ 0],V[ 1],V[ 3],V[ 6],V[10],
-    V[ 1],V[ 2],V[ 4],V[ 7],V[11],
-    V[ 3],V[ 4],V[ 5],V[ 8],V[12],
-    V[ 6],V[ 7],V[ 8],V[ 9],V[13],
-    V[10],V[11],V[12],V[13],V[14];
-  return T.associatedSurface().createUniqueTrackParameters(P[0],P[1],P[2],P[3],P[4],e);
+  AmgSymMatrix(5) e;
+  e<<  V[ 0],V[ 1],V[ 3],V[ 6],V[10],
+       V[ 1],V[ 2],V[ 4],V[ 7],V[11],
+       V[ 3],V[ 4],V[ 5],V[ 8],V[12],
+       V[ 6],V[ 7],V[ 8],V[ 9],V[13],
+       V[10],V[11],V[12],V[13],V[14];
+  return T.associatedSurface().createUniqueTrackParameters(P[0],P[1],P[2],P[3],P[4],std::move(e));
 }
 
 ///////////////////////////////////////////////////////////////////

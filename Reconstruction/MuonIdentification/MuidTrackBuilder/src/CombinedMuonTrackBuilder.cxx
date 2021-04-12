@@ -2914,7 +2914,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
                 }
                 auto correctedParameters ( parameters.associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
-                    parameterVector[Trk::theta], parameterVector[Trk::qOverP], nullptr));
+                    parameterVector[Trk::theta], parameterVector[Trk::qOverP], std::nullopt));
 
                 Trk::IMaterialAllocator::Garbage_t garbage;
                 leadingTSOS.reset( m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters, garbage));
@@ -3719,7 +3719,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
 
         parameters = parameters->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
-            parameterVector[Trk::theta], parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+            parameterVector[Trk::theta], parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
         //delete parameters;
         //parameters          = correctedParameters;
@@ -3768,7 +3768,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         parameterVector[Trk::qOverP] = parameters->charge() / (trackEnergy + caloEnergy->deltaE());
         correctedParameters          = parameters->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
-            parameterVector[Trk::theta], parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+            parameterVector[Trk::theta], parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
         // protect against spectrometer track with unrealistic energy loss
         // check material in spectrometer is not vastly greater than in the calo
@@ -3864,7 +3864,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
             correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                 parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                new AmgSymMatrix(5)(*parameters->covariance()));
+                AmgSymMatrix(5)(*parameters->covariance()));
 
             perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                             m_magFieldProperties, Trk::nonInteracting).release();
@@ -3893,7 +3893,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                     parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                    new AmgSymMatrix(5)(*parameters->covariance()));
+                    AmgSymMatrix(5)(*parameters->covariance()));
 
                 perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                 m_magFieldProperties, Trk::nonInteracting).release();
@@ -3915,7 +3915,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
             correctedParameters          = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                 parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                new AmgSymMatrix(5)(*parameters->covariance()));
+                AmgSymMatrix(5)(*parameters->covariance()));
 
             //delete parameters;
             parameters = std::move(correctedParameters);
@@ -4082,7 +4082,8 @@ CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*& parameters
     // create updated parameters
     double        charge        = parameters->charge();
     Amg::Vector3D position      = parameters->position();
-    AmgSymMatrix(5)* covariance = parameters->covariance() ? new AmgSymMatrix(5)(*(parameters->covariance())) : nullptr;
+    std::optional<AmgSymMatrix(5)> covariance = parameters->covariance() 
+      ? std::optional<AmgSymMatrix(5)>(*(parameters->covariance())) : std::nullopt;
     const Trk::Surface* surface = &(parameters->associatedSurface());
     updatedParameters =
       surface
@@ -4254,7 +4255,7 @@ CombinedMuonTrackBuilder::removeSpectrometerMaterial(std::unique_ptr<Trk::Track>
                     (**s).trackParameters()->associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                         parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                        new AmgSymMatrix(5)(*(**s).trackParameters()->covariance())).release());
+                        AmgSymMatrix(5)(*(**s).trackParameters()->covariance())).release());
 
                 type = defaultType;
                 type.set(Trk::TrackStateOnSurface::Perigee);
@@ -4287,8 +4288,8 @@ CombinedMuonTrackBuilder::removeSpectrometerMaterial(std::unique_ptr<Trk::Track>
                 trackParameters = (**s).trackParameters()->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                     parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                    (**s).trackParameters()->covariance() ? new AmgSymMatrix(5)(*(**s).trackParameters()->covariance())
-                                                          : nullptr).release();
+                    (**s).trackParameters()->covariance() ? std::optional<AmgSymMatrix(5)>(*(**s).trackParameters()->covariance())
+                                                          : std::nullopt).release();
 
                 type = defaultType;
                 type.set(Trk::TrackStateOnSurface::Measurement);
@@ -4316,8 +4317,8 @@ CombinedMuonTrackBuilder::removeSpectrometerMaterial(std::unique_ptr<Trk::Track>
             trackParameters = (**s).trackParameters()->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                 parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                (**s).trackParameters()->covariance() ? new AmgSymMatrix(5)(*(**s).trackParameters()->covariance())
-                                                      : nullptr).release();
+                (**s).trackParameters()->covariance() ? std::optional<AmgSymMatrix(5)>(*(**s).trackParameters()->covariance())
+                                                      : std::nullopt).release();
 
             type = defaultType;
 

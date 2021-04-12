@@ -304,7 +304,7 @@ Perigee*
 FitParameters::perigee(void) const
 {
   // copy 'final' covariance
-  AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5)(*m_finalCovariance);
+  AmgSymMatrix(5) covMatrix = AmgSymMatrix(5)(*m_finalCovariance);
   double pT = std::abs(m_sinTheta / m_qOverP);
   double charge = 1.;
   if (m_qOverP < 0.)
@@ -316,9 +316,9 @@ FitParameters::perigee(void) const
                        momentum,
                        charge,
                        dynamic_cast<const Trk::PerigeeSurface&>(*m_surface),
-                       covMatrix);
+                       std::move(covMatrix));
   } else {
-    return new Perigee(m_position, momentum, charge, m_vertex, covMatrix);
+    return new Perigee(m_position, momentum, charge, m_vertex, std::move(covMatrix));
   }
 }
 
@@ -626,7 +626,7 @@ FitParameters::trackParameters(MsgStream& log,
   }
 
   // propagate full covariance to form localCovariance
-  AmgSymMatrix(5)* covMatrix = nullptr;
+  std::optional<AmgSymMatrix(5)> covMatrix = std::nullopt;
   if (withCovariance && (measurement.isDrift() || measurement.isCluster() ||
                          measurement.isPerigee())) {
     Amg::Vector3D direction = intersection.direction();
@@ -678,7 +678,7 @@ FitParameters::trackParameters(MsgStream& log,
     }
 
     // similarity transform
-    covMatrix = new AmgSymMatrix(5)(
+    covMatrix = AmgSymMatrix(5)(
       jacobian * m_fullCovariance->block(0, 0, lastParameter, lastParameter) *
       jacobian.transpose());
   }
@@ -705,7 +705,7 @@ FitParameters::trackParameters(MsgStream& log,
                                      theta,
                                      measurement.qOverP(),
                                      *line,
-                                     covMatrix);
+                                     std::move(covMatrix));
     return parameters;
   }
 
@@ -718,7 +718,7 @@ FitParameters::trackParameters(MsgStream& log,
                               theta,
                               measurement.qOverP(),
                               *plane,
-                              covMatrix);
+                              std::move(covMatrix));
     return parameters;
   }
 
@@ -731,7 +731,7 @@ FitParameters::trackParameters(MsgStream& log,
                                  theta,
                                  measurement.qOverP(),
                                  *cylinder,
-                                 covMatrix);
+                                 std::move(covMatrix));
     return parameters;
   }
 
@@ -744,7 +744,7 @@ FitParameters::trackParameters(MsgStream& log,
                              theta,
                              measurement.qOverP(),
                              *disc,
-                             covMatrix);
+                             std::move(covMatrix));
     return parameters;
   }
 
@@ -757,13 +757,12 @@ FitParameters::trackParameters(MsgStream& log,
                              theta,
                              measurement.qOverP(),
                              *peri,
-                             covMatrix);
+                             std::move(covMatrix));
     return parameters;
   }
 
   log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface"
       << endmsg;
-  delete covMatrix;
   return nullptr;
 }
 
