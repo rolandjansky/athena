@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTAURECOTOOL_H
@@ -15,7 +15,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
@@ -168,9 +167,6 @@ namespace MuonCombined {
                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& t0fittedSegments,
                         const ToolHandle<Muon::IMuonPRDSelectionTool>& muonPRDSelectionTool,
                         const ToolHandle<Muon::IMuonSegmentMaker>& segmentMaker  ) const;
-
-    /** match extension to Hough maxima, extract time measurements, create candidates, run segment finding */
-    bool processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension, CandidateVec& candidates );
     
     /** associate Hough maxima and associate time measurements */
     bool extractTimeMeasurements( const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData ) const;
@@ -212,10 +208,7 @@ namespace MuonCombined {
       if( truthInfo && m_selectedPdgs.count(truthInfo->pdgId) ) return true;
       return false;
     }
-    
-    /** helper function to add Candidate to ntuple */
-    void addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const CandidateVec& candidates, int stage ) const;
-
+ 
     /** */
     void mdtTimeCalibration( const Identifier& id, float& time, float& error ) const;
     void rpcTimeCalibration( const Identifier& id, float& time, float& error ) const;
@@ -235,7 +228,6 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonSegmentMaker>             m_segmentMaker{this,"MuonSegmentMaker","Muon::DCMathSegmentMaker/DCMathSegmentMaker"};
     ToolHandle<Muon::IMuonSegmentMaker>             m_segmentMakerT0Fit{this,"MuonSegmentMakerT0Fit","Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"};
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool> m_segmentMatchingTool{this,"MuonLayerSegmentMatchingTool","Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"};
-    ToolHandle<Muon::IMuonRecoValidationTool>       m_recoValidationTool{this,"MuonRecoValidationTool",""};
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>   m_trackAmbibuityResolver{this,"TrackAmbiguityProcessor","Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
     ToolHandle<Muon::IMuonHitTimingTool>            m_hitTimingTool{this,"MuonHitTimingTool","Muon::MuonHitTimingTool/MuonHitTimingTool"};
     ToolHandle<Muon::IMuonPRDSelectionTool>         m_muonPRDSelectionTool{this,"MuonPRDSelectionTool","Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"};

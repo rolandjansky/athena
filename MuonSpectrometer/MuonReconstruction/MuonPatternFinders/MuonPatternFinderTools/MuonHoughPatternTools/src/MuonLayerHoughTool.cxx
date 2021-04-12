@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
@@ -33,11 +33,6 @@ namespace Muon {
     ATH_CHECK( m_idHelperSvc.retrieve() );
     m_ntechnologies = m_idHelperSvc->mdtIdHelper().technologyNameIndexMax()+1;
     ATH_CHECK( m_printer.retrieve() );
-    if( m_doTruth && !m_truthSummaryTool.empty() ){
-      ATH_CHECK( m_truthSummaryTool.retrieve() );
-    } else {
-      m_truthSummaryTool.disable();
-    }
     const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
     ATH_CHECK( detStore()->retrieve( muDetMgr ) );
 
@@ -1477,7 +1472,6 @@ namespace Muon {
   if( m_doTruth ){
     for( std::vector<const Trk::PrepRawData*>::iterator it=prds.begin();it!=prds.end();++it ){
       if( truthHits.count((*it)->identify()) ) outputTruthHits.insert((*it)->identify());
-      if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add((*it)->identify(),2);
     }
   }
       }
@@ -1562,7 +1556,6 @@ namespace Muon {
           else if( m_idHelperSvc->isMM(id) ) ++nmm;
 
           if( m_doTruth ){
-            if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
             if( truthHits.count(id) )       foundTruthHits.insert(id);
           }
 
@@ -1624,7 +1617,6 @@ namespace Muon {
           Identifier id = hit.tgc ? hit.tgc->phiCluster.hitList.front()->identify() : hit.prd->identify();
         
           if( m_doTruth ){
-            if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
             if( truthHits.count(id) )       foundTruthHits.insert(id);
           }
           

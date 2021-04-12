@@ -50,7 +50,6 @@ namespace MuonCombined {
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
-    if(!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
@@ -146,9 +145,6 @@ namespace MuonCombined {
       return;
     }
 
-    // fill validation content
-    if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
-
 
     /** STAGE 1
        process the muon system extension: loop over intersections, get associated data, time measurement, build beta seeds
@@ -168,7 +164,6 @@ namespace MuonCombined {
     if( !createCandidates(associatedData,candidates) ) {
       return;
     }
-    if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
 
 
     /** STAGE 3
@@ -178,7 +173,6 @@ namespace MuonCombined {
     if( !refineCandidates(candidates) ) {
       return;
     }
-    if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
 
 
     /** STAGE 4
@@ -188,7 +182,6 @@ namespace MuonCombined {
     if( !combineCandidates(indetTrackParticle,candidates) ){
       return;
     }
-    if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,2);
 
 
     /** STAGE 5
@@ -198,7 +191,6 @@ namespace MuonCombined {
     if( !resolveAmbiguities(candidates) ){
       return;
     }
-    if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,3);
 
 
     /** STAGE 6
@@ -206,23 +198,6 @@ namespace MuonCombined {
     */
     addTag( indetCandidate, *candidates.front(), tagMap, combTracks, segments );
 
-  }
-
-  bool MuonStauRecoTool::processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension,
-                                                      MuonStauRecoTool::CandidateVec& candidates ) {
-
-    // loop over intersections, get associated data
-    AssociatedData associatedData;
-
-    // extract time measurements for intersection
-    if( !extractTimeMeasurements(muonSystemExtension,associatedData) ) return false;
-
-    // build candidates
-    if( !createCandidates(associatedData,candidates) ) return false;
-    if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
-
-    // refine: find segments using seed beta
-    return refineCandidates(candidates);
   }
 
   bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) const {
@@ -253,20 +228,11 @@ namespace MuonCombined {
         // skip if no segment were found
         if( segments.empty() ) continue;
 
-        // fill validation content
-        if( !m_recoValidationTool.empty() ) {
-          for( const auto& seg : segments ) m_recoValidationTool->add(layerData.intersection,*seg,2);
-        }
 
         // match segments to intersection, store the ones that match
         std::vector< std::shared_ptr<const Muon::MuonSegment> > selectedSegments;
         m_segmentMatchingTool->select( layerData.intersection, segments, selectedSegments );
-
-        // fill validation content
-        if( !m_recoValidationTool.empty() ) {
-          for( const auto& seg : selectedSegments ) m_recoValidationTool->add(layerData.intersection,*seg,3);
-        }
-
+ 
         // add layer list
         candidate->allLayers.push_back( Muon::MuonLayerRecoData(layerData.intersection,std::move(selectedSegments)) );
       }
@@ -844,7 +810,6 @@ namespace MuonCombined {
         extractTimeMeasurementsFromTrack(*candidate);
         combinedCandidates.push_back(candidate);
 
-        if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTimeMeasurements(indetTrackParticle,candidate->stauHits);
 
 
       }
@@ -1045,10 +1010,6 @@ namespace MuonCombined {
         findSegments( *it, *maximum, t0fittedSegments, m_muonPRDSelectionTool, m_segmentMakerT0Fit );
         if( t0fittedSegments.empty() ) continue;
 
-        // fill validation content
-        if( !m_recoValidationTool.empty() ) {
-          for( const auto& seg : t0fittedSegments ) m_recoValidationTool->add(*it,*seg,0);
-        }
 
         // match segments to intersection, store the ones that match
         m_segmentMatchingTool->select( *it, t0fittedSegments, maximum->t0fittedSegments );
@@ -1056,13 +1017,6 @@ namespace MuonCombined {
         // get beta seeds for Maximum
         getBetaSeeds(*maximum);
 
-        // fill validation content
-        if( !m_recoValidationTool.empty() ) {
-          for( const auto& seg : maximum->t0fittedSegments ) {
-            if( seg->hasFittedT0() ) m_recoValidationTool->addTimeMeasurement(*it,*seg);
-            m_recoValidationTool->add(*it,*seg,1);
-          }
-        }
       }
     }
 
@@ -1326,8 +1280,6 @@ namespace MuonCombined {
       // get the timing result for the cluster
       Muon::IMuonHitTimingTool::TimingResult result = m_hitTimingTool->calculateTimingResult(clusters);
       if( result.valid ){
-        if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTimeMeasurement(intersection, cluster.hitList.front()->identify(),cluster.hitList.front()->globalPosition(),
-                                                                                     result.time, result.error );
         // add the result
         RpcTimeMeasurement rpcTimeMeasurement;
         rpcTimeMeasurement.time  = result.time;
@@ -1448,45 +1400,13 @@ namespace MuonCombined {
                     << " angle " << maximum.theta << " residual " << residualTheta );
 
       // fill validation content
-      if( !m_recoValidationTool.empty() ) m_recoValidationTool->add( intersection, maximum );
 
       // select maximum and add it to LayerData
       if( std::abs(pull) > 5 ) continue;
-      layerData.maximumDataVec.push_back(std::shared_ptr<MaximumData>(new MaximumData(intersection,&maximum,phiClusterOnTracks)));
+      layerData.maximumDataVec.emplace_back(std::make_shared<MaximumData>(intersection,&maximum,phiClusterOnTracks));
 
     }
   }
-
-  void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) const {
-    if (Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
-      ATH_MSG_WARNING("You are calling the non thread-safe MuonRecoValidationTool with multiple threads, will most likely crash");
-    }
-    if( m_recoValidationTool.empty() ) return;
-
-    ATH_MSG_DEBUG("add candidates to ntuple, stage "<<stage);
-    for( const auto& candidate : candidates ){
-      int ntimes = 0;
-      float beta = -1.;
-      float chi2ndof = -1.;
-      if( candidate->finalBetaFitResult.status != 0 ) {
-        ntimes   = candidate->stauHits.size();
-        beta     = candidate->finalBetaFitResult.beta;
-        chi2ndof = candidate->finalBetaFitResult.chi2PerDOF();
-      }else if( candidate->betaFitResult.status != 0 ) {
-        ntimes   = candidate->hits.size();
-        beta     = candidate->betaFitResult.beta;
-        chi2ndof = candidate->betaFitResult.chi2PerDOF();
-      }else{
-        ntimes   = 1;
-        beta     = candidate->betaSeed.beta;
-        chi2ndof = 0;
-      }
-      if(candidate->combinedTrack) ATH_MSG_DEBUG("candidate has combined track");
-      m_recoValidationTool->addMuonCandidate( indetTrackParticle, candidate->muonCandidate.get(), candidate->combinedTrack.get(),
-                                              ntimes, beta, chi2ndof, stage );
-    }
-  }
-
   void MuonStauRecoTool::mdtTimeCalibration( const Identifier& /*id*/, float& time, float& error ) const {
     time  -= 1.5;
     error *= 1.;
