@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -41,7 +41,7 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   , m_doOnline(false)
   , m_oldLumiblock(-1)
   , m_deltaLumiblock(0)
-  , m_nEvents(0)
+  , m_nEventsTileMon(0)
   , m_bookProfHistOnce(5, false)
   , m_profile2dHist{}
   , m_profileHist{}
@@ -92,7 +92,7 @@ StatusCode TileRawChannelTimeMonTool::initialize()
 
   ATH_CHECK(m_tileBadChanTool.retrieve());
 
-  m_nEvents = 0;
+  m_nEventsTileMon = 0;
   m_thresholds[0] = m_lowGainThreshold;
   m_thresholds[1] = m_hiGainThreshold;
 
@@ -239,8 +239,8 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
 
   ATH_MSG_DEBUG("in fillHists()");
   fillEvtInfo();
-  if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
-  ++m_nEvents;
+  if (m_nEventsTileMon % 1000 == 0) ATH_MSG_INFO(m_nEventsTileMon<<" events processed so far");
+  ++m_nEventsTileMon;
 
   m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
   int32_t current_lumiblock = getLumiBlock();
