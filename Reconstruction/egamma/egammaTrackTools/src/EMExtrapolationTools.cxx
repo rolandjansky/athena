@@ -365,7 +365,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
    */
   Trk::PerigeeSurface surface(vertex->position());
   Trk::Perigee trkPar(
-    vertex->position(), momentum.unit() * 1.e10, +1, surface, nullptr);
+    vertex->position(), momentum.unit() * 1.e10, +1, surface, std::nullopt);
   bool success = getEtaPhiAtCalo(ctx,&trkPar, etaAtCalo, phiAtCalo);
   return success;
 }

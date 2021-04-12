@@ -135,7 +135,7 @@ private:
       
   //utils
   const Trk::Track* getTrack(const Rec::TrackParticle* trackparticle);
-  const Trk::Track* getRefittedTrack(Amg::Vector3D pos, Amg::Vector3D mom, double charge);
+  const Trk::Track* getRefittedTrack(const Amg::Vector3D& pos, const Amg::Vector3D& mom, double charge);
   
   void getColor(unsigned long icolor, double& r, double& g, double& b);
   SoLineSet* createCross(double extent );

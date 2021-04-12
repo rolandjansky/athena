@@ -428,9 +428,9 @@ Trk::GsfMaterialEffectsUpdator::compute(
       return {};
     }
 
-    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     if (measuredCov && cache.deltaCovariances.size() > componentIndex) {
-      updatedCovariance = new AmgSymMatrix(5)(
+      updatedCovariance = AmgSymMatrix(5)(
         cache.deltaCovariances[componentIndex] + *measuredCov);
     }
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
@@ -440,7 +440,7 @@ Trk::GsfMaterialEffectsUpdator::compute(
         updatedStateVector[Trk::phi],
         updatedStateVector[Trk::theta],
         updatedStateVector[Trk::qOverP],
-        updatedCovariance);
+        std::move(updatedCovariance));
     double updatedWeight =
       componentParameters.second * cache.weights[componentIndex];
     computedState.emplace_back(std::move(updatedTrackParameters),

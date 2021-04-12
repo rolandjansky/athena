@@ -250,10 +250,18 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                 // first create mirrored trkParameter on the Surface of the RIO
 		            Amg::VectorX par = trkParAtRIOsurface->parameters();
                 par[Trk::locR] = (-1.0) * par[Trk::locR];
-		            AmgSymMatrix(5)* covN = trkParAtRIOsurface->covariance() ? new AmgSymMatrix(5)(*trkParAtRIOsurface->covariance()) : nullptr;
-		            auto mirrorTrkPar = trkParAtRIOsurface->associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
-																    par[Trk::phi],par[Trk::theta],
-																    par[Trk::qOverP],covN);
+                std::optional<AmgSymMatrix(5)> covN =
+                  trkParAtRIOsurface->covariance()
+                    ? std::optional<AmgSymMatrix(5)>(*trkParAtRIOsurface->covariance())
+                    : std::nullopt;
+                auto mirrorTrkPar =
+                  trkParAtRIOsurface->associatedSurface()
+                    .createUniqueTrackParameters(par[Trk::loc1],
+                                                 par[Trk::loc2],
+                                                 par[Trk::phi],
+                                                 par[Trk::theta],
+                                                 par[Trk::qOverP],
+                                                 std::move(covN));
                 // now create ROT
                 const InDet::TRT_DriftCircleOnTrack* rot2 = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(m_TRT_ROTCreator->correct(*riopointer, *mirrorTrkPar));
                 if (!rot2) {
@@ -753,10 +761,17 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     Amg::VectorX par = trkPars.parameters();
     ATH_MSG_VERBOSE("track prediction at " << par[Trk::locR]);
     par[Trk::locR] = (-1.0) * par[Trk::locR];
-    AmgSymMatrix(5)* covN = trkPars.covariance() ? new AmgSymMatrix(5)(*trkPars.covariance()) : nullptr;
-    auto mirrorTrkPar = trkPars.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
-													    par[Trk::phi],par[Trk::theta],
-													    par[Trk::qOverP],covN);
+    std::optional<AmgSymMatrix(5)> covN =
+      trkPars.covariance()
+        ? std::optional<AmgSymMatrix(5)>(*trkPars.covariance())
+        : std::nullopt;
+    auto mirrorTrkPar =
+      trkPars.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],
+                                                              par[Trk::loc2],
+                                                              par[Trk::phi],
+                                                              par[Trk::theta],
+                                                              par[Trk::qOverP],
+                                                              std::move(covN));
     const Trk::RIO_OnTrack* rot2 = m_TRT_ROTCreator->correct(rio,*mirrorTrkPar);
     if (!rot2) {
       ATH_MSG_DEBUG("2nd DriftCircleOnTrack is not created");

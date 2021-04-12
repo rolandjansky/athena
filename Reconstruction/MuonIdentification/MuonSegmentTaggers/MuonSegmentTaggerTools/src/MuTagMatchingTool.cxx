@@ -266,7 +266,7 @@ MuTagMatchingTool::flipDirection(const Trk::Perigee* inputPars) const
     if (flippedTheta < 0.) flippedTheta += pi;
     // Trk::ErrorMatrix* errorMat = new Trk::ErrorMatrix( inputPars->localErrorMatrix() );
     if (inputPars->covariance()) {
-        AmgSymMatrix(5)* covMat = new AmgSymMatrix(5)(*inputPars->covariance());
+        AmgSymMatrix(5) covMat = AmgSymMatrix(5)(*inputPars->covariance());
         const Trk::PerigeeSurface perSurf;
         return new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perSurf, covMat);
     } else {
@@ -568,7 +568,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     // CLHEP::HepVector oripars = oriPerigee->parameters();
     const AmgVector(5)& oripars = oriPerigee->parameters();
     const Trk::PerigeeSurface periSurf = nullptr;
-    const Trk::Perigee* pPerigee = new Trk::Perigee(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, 0);
+    const Trk::Perigee* pPerigee = new Trk::Perigee(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, std::nullopt);
     Amg::Vector3D       startPos = pPerigee->position();
     Amg::Vector3D       startMom = pPerigee->momentum();
     const AmgVector(5)& pars     = pPerigee->parameters();
@@ -612,7 +612,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     if (flippedTheta < 0.) flippedTheta += pi;
     const Trk::PerigeeSurface perigSurf;
     const Trk::Perigee*       flippedPerigee =
-        new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perigSurf, 0);
+        new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perigSurf,std::nullopt);
     // CLHEP::HepVector flipPars = flippedPerigee->parameters();
     const AmgVector(5)& flipPars = flippedPerigee->parameters();
     Amg::Vector3D flipPos        = flippedPerigee->position();

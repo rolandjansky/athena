@@ -58,7 +58,7 @@ class DetElementSurface : public Surface
                                 double,
                                 double,
                                 double,
-                                AmgSymMatrix(5) *) const
+                                std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -66,7 +66,7 @@ class DetElementSurface : public Surface
     createUniqueTrackParameters(const Amg::Vector3D&,
                                 const Amg::Vector3D&,
                                 double,
-                                AmgSymMatrix(5) *) const
+                                std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -77,7 +77,7 @@ class DetElementSurface : public Surface
                                   double,
                                   double,
                                   double,
-                                  AmgSymMatrix(5) *) const
+                                  std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -85,7 +85,7 @@ class DetElementSurface : public Surface
     createUniqueNeutralParameters(const Amg::Vector3D&,
                                   const Amg::Vector3D&,
                                   double,
-                                  AmgSymMatrix(5) *) const
+                                  std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }

@@ -369,7 +369,7 @@ namespace Muon {
       cov(3,3) = 1e-6;
       cov(4,4) = 1e-3/truthParticle.p4().P();
       for( unsigned int i=0;i<parameters.size()-1;++i ){
-        Trk::CurvilinearParameters pars(parameters[i].first,parameters[i].second,(truthParticle.pdgId() < 0) ? 1 : -1, new AmgSymMatrix(5)(cov) );
+        Trk::CurvilinearParameters pars(parameters[i].first,parameters[i].second,(truthParticle.pdgId() < 0) ? 1 : -1, AmgSymMatrix(5)(cov) );
         // pick destination volume
         std::string vname;
         std::string name = m_trackRecordCollectionNames.at(i).key();

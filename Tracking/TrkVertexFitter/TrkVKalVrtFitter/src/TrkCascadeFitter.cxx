@@ -652,9 +652,9 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
 //----------  Here for Eigen block(startrow,startcol,sizerow,sizecol)
          if( m_makeExtendedVertex )(*fullDeriv).block(3*it+3+0,3*it+3+0,3,3) = tmpDeriv.block(2,3*it+3+0,3,3);
 //----------
-	 AmgSymMatrix(5) *tmpCovMtx = new AmgSymMatrix(5);                      // New Eigen based EDM
-	 (*tmpCovMtx) = genCOV.similarity(tmpDeriv);                            // New Eigen based EDM
-         measPerigee =  new Perigee( 0.,0., phi, theta, invP, PerigeeSurface(FitVertex), tmpCovMtx );  // New Eigen based EDM
+	 AmgSymMatrix(5) tmpCovMtx ;                      // New Eigen based EDM
+	 tmpCovMtx = genCOV.similarity(tmpDeriv);                            // New Eigen based EDM
+         measPerigee =  new Perigee( 0.,0., phi, theta, invP, PerigeeSurface(FitVertex), std::move(tmpCovMtx) );  // New Eigen based EDM
          tmpVTAV.emplace_back( particleChi2[vertexDefinition[iv][it]] , measPerigee ) ;
       }
       std::vector<float> floatErrMtx;

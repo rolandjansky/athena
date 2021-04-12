@@ -30,10 +30,10 @@ using Gaudi::Units::MeV;
 using Gaudi::Units::GeV;
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
@@ -51,9 +51,9 @@ void test1 (Trk::GaussianTrackDensity& tool)
 
   Amg::Vector3D pos0 { 0, 0, 0 };
 
-  Trk::Perigee p1a (pos1a, mom1a,  1, pos0, cov5().release());
-  Trk::Perigee p1b (pos1b, mom1b, -1, pos0, cov5().release());
-  Trk::Perigee p1c (pos1c, mom1c, -1, pos0, cov5().release());
+  Trk::Perigee p1a (pos1a, mom1a,  1, pos0, cov5());
+  Trk::Perigee p1b (pos1b, mom1b, -1, pos0, cov5());
+  Trk::Perigee p1c (pos1c, mom1c, -1, pos0, cov5());
 
   std::vector<const Trk::TrackParameters*> v1 { &p1a, &p1b, &p1c };
   std::unique_ptr<Trk::IVertexTrackDensityEstimator::ITrackDensity> density;
@@ -109,7 +109,7 @@ void test2 (Trk::GaussianTrackDensity& tool)
     Amg::Vector3D mom { pt*cos(phi), pt*sin(phi), pt*sinh(eta) };
     double charge = etadist(rng) > 0 ? 1 : -1;
     perigees.emplace_back (std::make_unique<Trk::Perigee> (pos, mom, charge, pos0,
-                                                           cov5().release()));
+                                                           cov5()));
     pvec.push_back (perigees.back().get());
   }
 

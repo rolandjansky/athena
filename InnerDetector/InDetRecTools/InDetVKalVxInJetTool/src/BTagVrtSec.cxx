@@ -301,9 +301,10 @@ namespace InDet{
 
        std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
        for(int ii=0; ii<(int)listSecondTracks.size(); ii++) {
-         AmgSymMatrix(5) *CovMtxP=new (std::nothrow) AmgSymMatrix(5);   if(CovMtxP) (*CovMtxP).setIdentity(); 
+         AmgSymMatrix(5) CovMtxP;
+         CovMtxP.setIdentity(); 
          Trk::Perigee * tmpMeasPer  =  new (std::nothrow) Trk::Perigee( 0.,0., TrkAtVrt[ii][0], TrkAtVrt[ii][1], TrkAtVrt[ii][2],
-                                                                Trk::PerigeeSurface(fitVertex), CovMtxP );
+                                                                Trk::PerigeeSurface(fitVertex), std::move(CovMtxP) );
          tmpVTAV.emplace_back( 1., tmpMeasPer );
          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( listSecondTracks[ii] );
          const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (listSecondTracks[ii]->container() );

@@ -261,11 +261,11 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
 
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
-        covMatrix->setZero();
+        AmgSymMatrix(5) covMatrix;
+        covMatrix.setZero();
         ATH_MSG_DEBUG( " covMatrix " << covMatrix);
-        m_parameterCacheCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
-        ATH_MSG_DEBUG( " Made m_parameterCacheCov with covMatrix " << covMatrix);
+        m_parameterCacheCov = new Trk::CurvilinearParameters(npos, nmom, charge, std::move(covMatrix));
+        ATH_MSG_DEBUG( " Made m_parameterCacheCov with covMatrix " << *m_parameterCacheCov->covariance());
         return;
     }
 
@@ -290,10 +290,13 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
         m_parameterCacheMS = new Trk::CurvilinearParameters(npos, nmom, charge);
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
-        covMatrix->setZero();
-        m_parameterCacheMSCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
-        ATH_MSG_DEBUG( "m_crossedMuonEntry x " << m_parameterCacheMS->position().x() << " y " << m_parameterCacheMS->position().y() << " z " << m_parameterCacheMS->position().z() );
+        AmgSymMatrix(5) covMatrix ;
+        covMatrix.setZero();
+        m_parameterCacheMSCov = new Trk::CurvilinearParameters(npos, nmom, charge, std::move(covMatrix));
+        ATH_MSG_DEBUG("m_crossedMuonEntry x "
+                      << m_parameterCacheMS->position().x() << " y "
+                      << m_parameterCacheMS->position().y() << " z "
+                      << m_parameterCacheMS->position().z());
         m_crossedMuonEntry = true;
         Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_treeData->m_t_charge);
 // Muon Entry
@@ -701,7 +704,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     ++m_treeData->m_g4_steps;
     if(m_treeData->m_g4_stepsMS!=-1)  ++m_treeData->m_g4_stepsMS;
 }
-const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec, double scaleX0, double scaleEloss, bool reposition, bool aggregate, bool updateEloss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, double & Eloss_tot) const
+const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*>& matvec, double scaleX0, double scaleEloss, bool reposition, bool aggregate, bool updateEloss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, double & Eloss_tot) const
 {
 //
 // inputs: TSOSs for material (matvec) and scale factors for X0 (scaleX0) and Eloss (scaleEloss)

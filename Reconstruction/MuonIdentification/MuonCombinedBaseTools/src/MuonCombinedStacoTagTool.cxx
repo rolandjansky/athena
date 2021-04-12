@@ -135,10 +135,9 @@ namespace MuonCombined {
     }
 
     AmgSymMatrix(5) weightCB = weightID + weightMS ;
-    AmgSymMatrix(5)* covCB = new AmgSymMatrix(5)(weightCB.inverse());
-    if (covCB->determinant() == 0){
+    AmgSymMatrix(5) covCB =AmgSymMatrix(5)(weightCB.inverse());
+    if (covCB.determinant() == 0){
       ATH_MSG_WARNING( " Inversion of weightCB failed " ) ;
-      delete covCB;
       return nullptr;
     }
 
@@ -159,7 +158,7 @@ namespace MuonCombined {
     chi2 = diffPars.transpose() * invCovSum * diffPars;
     chi2 = chi2/5. ;
 
-    AmgVector(5) parsCB = (*covCB) * ( weightID * indetPerigee.parameters() + weightMS * parsMS ) ;
+    AmgVector(5) parsCB = (covCB) * ( weightID * indetPerigee.parameters() + weightMS * parsMS ) ;
 
     if(parsCB[Trk::phi]>M_PI)       parsCB[Trk::phi] -= 2.*M_PI;
     else if(parsCB[Trk::phi]<-M_PI) parsCB[Trk::phi] += 2.*M_PI;

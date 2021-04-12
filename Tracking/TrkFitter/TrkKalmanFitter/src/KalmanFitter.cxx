@@ -1257,11 +1257,11 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     if (resultFromPreviousIter && resultFromPreviousIter->covariance()) {
       const AmgSymMatrix(5)* cov = resultFromPreviousIter->covariance();
       std::vector<bool> isConstraint(5);
-      AmgSymMatrix(5)* covN = new AmgSymMatrix(5)(); // a 5x5 0-matrix
-      covN->setZero();
+      AmgSymMatrix(5) covN = AmgSymMatrix(5)(); // a 5x5 0-matrix
+      covN.setZero();
       for (int i=0; i<5; ++i) {
         double scale = i==4 ? 200. : 100.;
-        (*covN)(i,i) = (*cov)(i,i) < m_cov0[i] ? (*cov)(i,i)*scale : m_cov0[i];
+        (covN)(i,i) = (*cov)(i,i) < m_cov0[i] ? (*cov)(i,i)*scale : m_cov0[i];
       }
       newSeedPars = CREATE_PARAMETERS(*resultFromPreviousIter,
                                       resultFromPreviousIter->parameters(),covN).release();

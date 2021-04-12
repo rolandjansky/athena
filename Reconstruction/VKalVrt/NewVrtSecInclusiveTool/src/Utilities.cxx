@@ -55,7 +55,7 @@ namespace Rec{
 
   
   double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& signif)
+                                          const std::vector<double>& SecVrtErr, double& signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -88,7 +88,7 @@ namespace Rec{
   }
 
   double NewVrtSecInclusiveTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& signif)
+                                          const std::vector<double>& SecVrtErr, double& signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -155,7 +155,7 @@ namespace Rec{
 // significance along some direction
 //--------------------------------------------------
 double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                           const std::vector<double> SecVrtErr, const TLorentzVector & Dir)
+                                           const std::vector<double>& SecVrtErr, const TLorentzVector & Dir)
    const
    {
      Amg::Vector3D dir(Dir.Vect().Unit().X(), Dir.Vect().Unit().Y(), Dir.Vect().Unit().Z());

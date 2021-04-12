@@ -288,7 +288,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
                                          theta,
                                          qOverP,
                                          startSurface,
-                                         new AmgMatrix(5,5)(covMat->inverse().eval())); 
+                                         AmgMatrix(5,5)(covMat->inverse().eval())); 
 
    ATH_MSG_VERBOSE( "Start Parameters : " << startParameters );
 

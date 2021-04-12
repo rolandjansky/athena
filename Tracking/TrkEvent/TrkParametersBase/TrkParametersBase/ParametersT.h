@@ -64,12 +64,12 @@ public:
               double theta,
               double qop,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with parameters - extract position and momentum */
   ParametersT(const AmgVector(DIM) & parameters,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with global arguments - uses global <-> local for parameters
    */
@@ -77,7 +77,7 @@ public:
               const Amg::Vector3D& momentum,
               double charge,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with mixed arguments 1 - uses global <-> local for parameters
    */
@@ -86,7 +86,7 @@ public:
               double theta,
               double qop,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Copy constructor */
   ParametersT(const ParametersT<DIM, T, S>& rhs);
@@ -124,10 +124,9 @@ public:
 
   /** Virtual clone */
   virtual ParametersT<DIM, T, S>* clone() const override final;
-  
+
   /** Virtual clone returning unique_ptr*/
   std::unique_ptr<ParametersT<DIM, T, S>> uniqueClone() const;
-  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
@@ -158,7 +157,7 @@ protected:
    */
   ParametersT(const AmgVector(DIM) & parameters,
               const S* surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
   /*
    * friends needed for Persistency
    */

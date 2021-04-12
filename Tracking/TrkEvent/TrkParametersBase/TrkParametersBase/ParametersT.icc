@@ -23,7 +23,7 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
                                     double theta,
                                     double qop,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, sgn(qop))
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
@@ -45,8 +45,9 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
   m_parameters << loc1, loc2, phi, theta, qop;
 
   // now calculate the momentum
-  m_momentum = Amg::Vector3D(
-    p * std::cos(phi) * std::sin(theta), p * std::sin(phi) * std::sin(theta), p * std::cos(theta));
+  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
+                             p * std::sin(phi) * std::sin(theta),
+                             p * std::cos(theta));
 
   m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
 }
@@ -55,7 +56,7 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & parameters,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(parameters, cov, sgn(parameters[Trk::qOverP]))
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
@@ -90,7 +91,7 @@ ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                     const Amg::Vector3D& mom,
                                     double charge,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, charge)
   , m_position(pos)
   , m_momentum(mom)
@@ -123,8 +124,8 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                          double theta,
                                          double qop,
                                          const S& surface,
-                                         AmgSymMatrix(DIM) * cov)
-  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, 1.)
+                                         std::optional<AmgSymMatrix(DIM)> cov)
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), std::move(cov), 1.)
   , m_position(pos)
   , m_momentum(Amg::Vector3D::Zero())
   , m_surface(surface.isFree() ? surface.clone() : &surface)
@@ -143,8 +144,9 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
     p = InvalidParam::INVALID_P;
     qop = InvalidParam::INVALID_QOP;
   }
-  m_momentum = Amg::Vector3D(
-    p * std::cos(phi) * std::sin(theta), p * std::sin(phi) * std::sin(theta), p * std::cos(theta));
+  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
+                             p * std::sin(phi) * std::sin(theta),
+                             p * std::cos(theta));
 
   // get the local parameters via the surface
   Amg::Vector2D lPosition;
@@ -161,7 +163,7 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
 // Copy constructor
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(const ParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(), nullptr, rhs.charge())
+  : ParametersBase<DIM, T>(rhs.parameters(), rhs.m_covariance, rhs.charge())
   , m_position(rhs.position())
   , m_momentum(rhs.momentum())
   , m_surface(nullptr)
@@ -169,9 +171,6 @@ ParametersT<DIM, T, S>::ParametersT(const ParametersT<DIM, T, S>& rhs)
   m_surface.reset((rhs.m_surface && rhs.m_surface->isFree()
                      ? rhs.m_surface->clone()
                      : rhs.m_surface.get()));
-  if (rhs.covariance()) {
-    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance());
-  }
 }
 
 // assignment operator
@@ -181,9 +180,7 @@ ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs)
 {
   if (this != &rhs) {
     m_parameters = rhs.m_parameters;
-    m_covariance = rhs.covariance()
-                     ? std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance())
-                     : nullptr;
+    m_covariance = rhs.m_covariance;
     m_position = rhs.position();
     m_momentum = rhs.momentum();
     m_surface.reset((rhs.m_surface && rhs.m_surface->isFree())
@@ -268,10 +265,8 @@ template<int DIM, class T, class S>
 std::unique_ptr<ParametersT<DIM, T, S>>
 ParametersT<DIM, T, S>::uniqueClone() const
 {
-  return std::unique_ptr<ParametersT<DIM, T,S>>(clone());
+  return std::unique_ptr<ParametersT<DIM, T, S>>(clone());
 }
-
-
 
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
@@ -332,8 +327,9 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
       p = std::abs(1. / m_parameters[Trk::qOverP]);
     }
     double sinTheta = std::sin(theta);
-    m_momentum = Amg::Vector3D(
-      p * std::cos(phi) * sinTheta, p * std::sin(phi) * sinTheta, p * std::cos(theta));
+    m_momentum = Amg::Vector3D(p * std::cos(phi) * sinTheta,
+                               p * std::sin(phi) * sinTheta,
+                               p * std::cos(theta));
   }
 
   // position or momentum update needed
@@ -350,7 +346,7 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
 template<int DIM, class T, class S>
 Trk::ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
                                          const S* surface,
-                                         AmgSymMatrix(DIM) * cov)
+                                         std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(pars, cov)
   , m_surface(surface)
 {

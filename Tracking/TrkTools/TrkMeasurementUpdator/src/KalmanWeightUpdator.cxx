@@ -201,18 +201,18 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::combineStates ( 
       correctedTwo[Trk::phi] += (correctedTwo[Trk::phi]>0.0) ? -2*M_PI : 2*M_PI;
     }
     Amg::VectorX weightedSum = G1 * one.parameters() + G2 * correctedTwo;
-    AmgSymMatrix(5)* covNew = new AmgSymMatrix(5)(G.inverse());
-    Amg::VectorX p = (*covNew) * weightedSum;
+    AmgSymMatrix(5) covNew = AmgSymMatrix(5)(G.inverse());
+    Amg::VectorX p = covNew * weightedSum;
     if (m_outputlevel<=0) ATH_MSG_VERBOSE( "CS: p: (" << p[0] << "," << p[1] << "," << p[2] << "," << p[3] << "," << p[4] << ")"  );
     // check if combined parameter has correct angular range and correct them otherwise
     if ( (!thetaPhiWithinRange(p)) ? !correctThetaPhiRange(p) : false ) {
       ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
-      delete covNew;
       return nullptr;
     }
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
     std::unique_ptr<TrackParameters> comb = one.associatedSurface().createUniqueTrackParameters(p[Trk::loc1],p[Trk::loc2],
-                                                                          p[Trk::phi],p[Trk::theta],p[Trk::qOverP],covNew);
+                                                                          p[Trk::phi],p[Trk::theta],p[Trk::qOverP],
+                                                                          std::move(covNew));
     if (m_outputlevel<=0 && comb) logResult("combineStates(TP,TP)",*comb);
     return comb;
 }
@@ -260,18 +260,18 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::combineStates ( 
       correctedTwo[Trk::phi] += (correctedTwo[Trk::phi]>0.0) ? -2*M_PI : 2*M_PI;
     }
     Amg::VectorX weightedSum = G1 * one.parameters() + G2 * correctedTwo;
-    AmgSymMatrix(5)* covNew = new AmgSymMatrix(5)(G.inverse());
-    Amg::VectorX p = (*covNew) * weightedSum;
+    AmgSymMatrix(5) covNew = AmgSymMatrix(5)(G.inverse());
+    Amg::VectorX p = (covNew) * weightedSum;
     ATH_MSG_VERBOSE( "CS: p: (" << p[0] << "," << p[1] << "," << p[2] << "," << p[3] << "," << p[4] << ")"  );
     // check if combined parameter has correct angular range and correct them otherwise
     if ( (!thetaPhiWithinRange(p)) ? !correctThetaPhiRange(p) : false ) {
         ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
-	delete covNew;
         return nullptr;
     }
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
     std::unique_ptr<TrackParameters> comb = one.associatedSurface().createUniqueTrackParameters(p[Trk::loc1],p[Trk::loc2],
-                                                                          p[Trk::phi],p[Trk::theta],p[Trk::qOverP],covNew);
+                                                                          p[Trk::phi],p[Trk::theta],p[Trk::qOverP],
+                                                                          std::move(covNew));
     // compute fit quality:
     // chi^2 = (p_2 - p)^T G_2 (p_2 - p) + (p - p_1)^T G_1 (p - p_1)
     Amg::VectorX r2 = two.parameters() - p;
@@ -518,11 +518,11 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::calculateFilterS
   // calc updated weight matrix: GNew = GOld +/- H.T * W * H
   // NB: use of W.similarityT(H) is very inefficient. Copying of entries will be much faster...
   AmgSymMatrix(5) Gnew = GOld + sign * H.transpose()*W*H;
-  AmgSymMatrix(5)* covNew = new AmgSymMatrix(5)(Gnew.inverse());
+  AmgSymMatrix(5) covNew = AmgSymMatrix(5)(Gnew.inverse());
   // calc new track state: pNew = Gnew^{-1} * ( GOld * pOld +/- H.T * W * m)
   Amg::VectorX weightedSum = GOld * pOld + sign * H.transpose() * W * m;
 
-  Amg::VectorX pNew = (*covNew) * weightedSum;
+  Amg::VectorX pNew = (covNew) * weightedSum;
   if ( (!thetaPhiWithinRange(pNew)) ? !correctThetaPhiRange(pNew) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
     return nullptr;
@@ -541,7 +541,7 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::calculateFilterS
 
   std::unique_ptr<TrackParameters> updated = p.associatedSurface().createUniqueTrackParameters(pNew[Trk::loc1],pNew[Trk::loc2],
                                                                          pNew[Trk::phi],pNew[Trk::theta],
-                                                                         pNew[Trk::qOverP],covNew);
+                                                                         pNew[Trk::qOverP],std::move(covNew));
   return updated;
 }
 
@@ -614,18 +614,18 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::calculateFilterS
   // calc updated weight matrix: GNew = GOld +/- H.T * W * H
   // NB: use of W.similarityT(H) is very inefficient. Copying of entries will be much faster...
   AmgSymMatrix(5) Gnew = GOld + sign * H.transpose()*W*H;
-  AmgSymMatrix(5)* Cnew = new AmgSymMatrix(5)(Gnew.inverse());
+  AmgSymMatrix(5) Cnew = AmgSymMatrix(5)(Gnew.inverse());
 
   // calc new track state: pNew = Gnew^{-1} * ( GOld * pOld +/- H.T * W * m)
   Amg::VectorX weightedSum = GOld * pOld + sign * H.transpose() * W * m;
-  Amg::VectorX pNew = (*Cnew) * weightedSum;
+  Amg::VectorX pNew = (Cnew) * weightedSum;
   ATH_MSG_VERBOSE( "FS: pNew: (" << pNew[0] << "," << pNew[1] << "," << pNew[2] << "," << pNew[3] << "," << pNew[4] << ")"  );
   if ( (!thetaPhiWithinRange(pNew)) ? !correctThetaPhiRange(pNew) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
     return nullptr;
   }
   if (m_outputlevel <= 0) {
-    logOutputCov(pNew, *Cnew);
+    logOutputCov(pNew, Cnew);
   }
 
   // compute chi2 if needed
@@ -645,7 +645,7 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanWeightUpdator::calculateFilterS
                                                       pNew[Trk::phi],
                                                       pNew[Trk::theta],
                                                       pNew[Trk::qOverP],
-                                                      Cnew);
+                                                      std::move(Cnew));
   return updated;
 }
 
