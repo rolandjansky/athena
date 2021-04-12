@@ -65,7 +65,7 @@ namespace MuonCombined {
         std::multimap<double, const InDetCandidate*>
             sortedInDetCandidates;  // map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
         float probCut = .00001;     // cut on max probability: below this cut, we don't attempt to form a combined track unless no combined
-                                 // track has yet been successfully created
+                                    // track has yet been successfully created
 
         // loop over ID candidates
         for (const auto& idTP : indetCandidates) {
