@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TauRunnerAlg.h"
@@ -23,8 +23,8 @@
 // Constructor
 //-----------------------------------------------------------------------------
 TauRunnerAlg::TauRunnerAlg(const std::string &name,
-    ISvcLocator * pSvcLocator) :
-AthAlgorithm(name, pSvcLocator) {
+			   ISvcLocator * pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 //-----------------------------------------------------------------------------
@@ -38,45 +38,45 @@ TauRunnerAlg::~TauRunnerAlg() {
 //-----------------------------------------------------------------------------
 StatusCode TauRunnerAlg::initialize() {
 
-    //-------------------------------------------------------------------------
-    // No tools allocated!
-    //-------------------------------------------------------------------------
-    if (m_tools.size() == 0) {
-        ATH_MSG_ERROR("no tools given!");
-        return StatusCode::FAILURE;
-    }
+  //-------------------------------------------------------------------------
+  // No tools allocated!
+  //-------------------------------------------------------------------------
+  if (m_tools.size() == 0) {
+    ATH_MSG_ERROR("no tools given!");
+    return StatusCode::FAILURE;
+  }
 
-    ATH_CHECK( m_tauInputContainer.initialize() );
-    ATH_CHECK( m_pi0ClusterInputContainer.initialize() );
+  ATH_CHECK( m_tauInputContainer.initialize() );
+  ATH_CHECK( m_pi0ClusterInputContainer.initialize() );
 
-    ATH_CHECK( m_tauOutputContainer.initialize() );
-    ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
-    ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
-    ATH_CHECK( m_vertexOutputContainer.initialize() );
-    ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
-    ATH_CHECK( m_pi0Container.initialize() );
+  ATH_CHECK( m_tauOutputContainer.initialize() );
+  ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
+  ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
+  ATH_CHECK( m_vertexOutputContainer.initialize() );
+  ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
+  ATH_CHECK( m_pi0Container.initialize() );
 
-    //-------------------------------------------------------------------------
-    // Allocate tools
-    //-------------------------------------------------------------------------
-    ATH_CHECK( m_tools.retrieve() );
+  //-------------------------------------------------------------------------
+  // Allocate tools
+  //-------------------------------------------------------------------------
+  ATH_CHECK( m_tools.retrieve() );
 
-    ATH_MSG_INFO("List of tools in execution sequence:");
-    ATH_MSG_INFO("------------------------------------");
-    unsigned int tool_count = 0;
-    for (ToolHandle<ITauToolBase>& tool : m_tools) {
-      ++tool_count;
-      ATH_MSG_INFO(tool->type() << " - " << tool->name());
-    }
-    ATH_MSG_INFO(" ");
-    ATH_MSG_INFO("------------------------------------");
+  ATH_MSG_INFO("List of tools in execution sequence:");
+  ATH_MSG_INFO("------------------------------------");
+  unsigned int tool_count = 0;
+  for (ToolHandle<ITauToolBase>& tool : m_tools) {
+    ++tool_count;
+    ATH_MSG_INFO(tool->type() << " - " << tool->name());
+  }
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("------------------------------------");
 
-    if (tool_count == 0) {
-        ATH_MSG_ERROR("could not allocate any tool!");
-        return StatusCode::FAILURE;
-    }
+  if (tool_count == 0) {
+    ATH_MSG_ERROR("could not allocate any tool!");
+    return StatusCode::FAILURE;
+  }
 
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +100,6 @@ StatusCode TauRunnerAlg::finalize() {
   } 
 
   return StatusCode::SUCCESS;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -160,44 +159,48 @@ StatusCode TauRunnerAlg::execute() {
     *newTau = *tau;
   }
   
-    // iterate over the copy
-    for (xAOD::TauJet* pTau : *newTauCon) {
-      //-----------------------------------------------------------------
-      // Loop stops when Failure indicated by one of the tools
-      //-----------------------------------------------------------------
-      StatusCode sc;
+  // iterate over the copy
+  for (xAOD::TauJet* pTau : *newTauCon) {
+    //-----------------------------------------------------------------
+    // Loop stops when Failure indicated by one of the tools
+    //-----------------------------------------------------------------
+    StatusCode sc;
     
-      for (ToolHandle<ITauToolBase>& tool : m_tools) {
-	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
-	if ( tool->type() == "TauPi0ClusterCreator"){
-	  sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0ClusterContainer);
-	}
-	else if ( tool->type() == "TauVertexVariables"){
-	  sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);
-	}
-	else if ( tool->type() == "TauPi0ClusterScaler"){
-	  sc = tool->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
-	}
-	else if ( tool->type() == "TauPi0ScoreCalculator"){
-	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
-	}
-	else if ( tool->type() == "TauPi0Selector"){
-	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
-	}
-	else if ( tool->type() == "PanTau::PanTauProcessor"){
-	  sc = tool->executePanTau(*pTau, *pi0Container);
-	}
-	else {
-	  sc = tool->execute(*pTau);
-	}
-	if (sc.isFailure())  break;
+    for (ToolHandle<ITauToolBase>& tool : m_tools) {
+      ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
+      if ( tool->type() == "TauPi0ClusterCreator"){
+	sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0ClusterContainer);
       }
-      if (sc.isSuccess()) {
-        ATH_MSG_VERBOSE("The tau candidate has been modified successfully by all the invoked tools.");
+      else if ( tool->type() == "TauVertexVariables"){
+	sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);
       }
-    } // end iterator over shallow copy
+      else if ( tool->type() == "TauPi0ClusterScaler"){
+	sc = tool->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
+      }
+      else if ( tool->type() == "TauPi0ScoreCalculator"){
+	sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
+      }
+      else if ( tool->type() == "TauPi0Selector"){
+	sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
+      }
+      else if ( tool->type() == "PanTau::PanTauProcessor"){
+	sc = tool->executePanTau(*pTau, *pi0Container);
+      }
+      else {
+	sc = tool->execute(*pTau);
+      }
+      if (sc.isFailure())  break;
+    }
+    if (sc.isSuccess()) {
+      ATH_MSG_VERBOSE("The tau candidate has been modified successfully by all the invoked tools.");
+    }
+  } // end iterator over shallow copy
 
-  ATH_MSG_VERBOSE("The tau candidate container has been modified");
+  // sort taus by decreasing pt
+  auto sortByPt = [](const xAOD::TauJet* tau1, const xAOD::TauJet* tau2 ) { return tau1->pt() > tau2->pt(); };
+  newTauCon->sort( sortByPt );
+
+  ATH_MSG_VERBOSE("The tau container has been processed");
 
   return StatusCode::SUCCESS;
 }
