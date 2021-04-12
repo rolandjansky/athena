@@ -194,18 +194,17 @@ crossPoint(const Trk::TrackParameters& Tp,
 
   if (!useJac)
     return SU[N].first->createUniqueTrackParameters(
-      p[0], p[1], p[2], p[3], p[4], nullptr);
+      p[0], p[1], p[2], p[3], p[4], std::nullopt);
 
-  AmgSymMatrix(5)* e =
+  AmgSymMatrix(5) e =
     Trk::RungeKuttaUtils::newCovarianceMatrix(Jac, *Tp.covariance());
-  AmgSymMatrix(5)& cv = *e;
+  AmgSymMatrix(5)& cv = e;
 
   if (cv(0, 0) <= 0. || cv(1, 1) <= 0. || cv(2, 2) <= 0. || cv(3, 3) <= 0. ||
       cv(4, 4) <= 0.) {
-    delete e;
     return nullptr;
   }
-  return SU[N].first->createUniqueTrackParameters(p[0], p[1], p[2], p[3], p[4], e);
+  return SU[N].first->createUniqueTrackParameters(p[0], p[1], p[2], p[3], p[4], std::move(e));
 }
 }
 
@@ -656,7 +655,7 @@ Trk::RungeKuttaPropagator::propagateStraightLine(
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
+      return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],std::nullopt);
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
@@ -664,19 +663,19 @@ Trk::RungeKuttaPropagator::propagateStraightLine(
     }
   }
 
-  AmgSymMatrix(5)* e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
-  AmgSymMatrix(5)& cv = *e;
+  AmgSymMatrix(5) e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
+  AmgSymMatrix(5)& cv = e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; return nullptr;
+    return nullptr;
   }
 
   if(!returnCurv) {
-    return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],e);
+    return Su.createUniqueNeutralParameters(p[0],p[1],p[2],p[3],p[4],std::move(e));
   }
   else            {
     Amg::Vector3D gp(P[0],P[1],P[2]);
-    return std::make_unique<Trk::NeutralCurvilinearParameters>(gp,p[2],p[3],p[4],e);
+    return std::make_unique<Trk::NeutralCurvilinearParameters>(gp,p[2],p[3],p[4],std::move(e));
   }
 }
 
@@ -786,7 +785,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
+      return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],std::nullopt);
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
@@ -794,20 +793,19 @@ Trk::RungeKuttaPropagator::propagateRungeKutta
     }
   }
 
-  AmgSymMatrix(5)* e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
-  AmgSymMatrix(5)& cv = *e;
+  AmgSymMatrix(5) e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
+  AmgSymMatrix(5)& cv = e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e;
     return nullptr;
   }
 
   if(!returnCurv) {
-    return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],e);
+    return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],std::move(e));
   }
   else            {
     Amg::Vector3D gp(P[0],P[1],P[2]);
-    return std::make_unique<Trk::CurvilinearParameters>(gp,p[2],p[3],p[4],e);
+    return std::make_unique<Trk::CurvilinearParameters>(gp,p[2],p[3],p[4],std::move(e));
   }
 }
 

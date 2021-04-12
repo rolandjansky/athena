@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RecJobTransforms )
@@ -16,7 +16,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoRAW )
 atlas_add_test( RecoRAW
    SCRIPT python -m RecJobTransforms.RecoSteering --RAW
    POST_EXEC_SCRIPT nopost.sh
-   PROPERTIES TIMEOUT 300
+   PROPERTIES TIMEOUT 900
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoRAW )
 
 # file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoESD )

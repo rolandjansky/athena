@@ -17,7 +17,7 @@ simple_lhe_plotter.py test_powheg_Z.TXT.events
 
 echo "art-result: $? Plot"
 
-dcubeName="Powheg LHE"
+dcubeName="Powheg_LHE"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/config_file/test_04_config.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/reference_file/test_04_output_hists.root"
 

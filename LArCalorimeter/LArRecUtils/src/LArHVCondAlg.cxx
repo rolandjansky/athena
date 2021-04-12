@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LArHVCondAlg.h" 
@@ -46,7 +46,7 @@ LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthReentrantAlgorithm(name,pSvcLocator)
  {
   declareProperty("doHV",m_doHV=true,"create HV data");
-  declareProperty("doR",m_doR=true,"Use R values with current to improve HV");
+  declareProperty("doR",m_doRProp=true,"Use R values with current to improve HV");
 }
 
 //initialize
@@ -61,7 +61,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(detStore()->retrieve(m_hvLineID));
   ATH_CHECK(detStore()->retrieve(m_onlineID));
 
-  m_doR= m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers;
+  m_doR= m_doRProp && (m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers);
 
 
   // Read Handles

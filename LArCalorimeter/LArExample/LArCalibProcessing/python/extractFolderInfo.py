@@ -46,7 +46,8 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
             for cf in checkFolders:
                 if cf[-1] == "/": cf=cf[0:-1]
                 idx=len(cf)
-                if fn.startswith(cf) and (idx>=len(fn) or fn[idx]=="/"):
+                pyfn=str(fn)
+                if pyfn.startswith(cf) and (idx>=len(pyfn) or pyfn[idx]=="/"):
                     takeFolder=True
                     break                 
             if not takeFolder: continue
@@ -57,7 +58,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         #Model:
         #<timeStamp>run-lumi</timeStamp><symlinks>ILArAutoCorr</symlinks><key>LArAutoCorr</key><addrHeader><address_header service_type="71" clid="255786016" /></addrHeader><typeName>LArAutoCorrComplete</typeName>  -
         # Get Type
-        descr=f.description()
+        descr=str(f.description())
         i1=descr.find("<typeName>")+len("<typeName>")
         i2=descr.find("</typeName>",i1)
         if (i1==-1 or i2==-1):
@@ -102,7 +103,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
             itr.close()
 
             #Form tuple:
-            folderinfo=(fn,typename,key,t,minIOV,maxIOV)
+            folderinfo=(str(fn),typename,key,str(t),minIOV,maxIOV)
             folderInfoList+=[folderinfo]
 
     db.closeDatabase()

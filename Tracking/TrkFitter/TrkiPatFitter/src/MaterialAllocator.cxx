@@ -862,7 +862,7 @@ namespace Trk
                                      parameterVector[Trk::phi],
                                      parameterVector[Trk::theta],
                                      parameterVector[Trk::qOverP],
-                                     nullptr).release();
+                                     std::nullopt).release();
 
     for (std::vector<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
          r != measurements.rend();
@@ -2333,7 +2333,7 @@ namespace Trk
         parameterVector[Trk::phi],
         parameterVector[Trk::theta],
         parameterVector[Trk::qOverP],
-        nullptr);
+        std::nullopt);
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();

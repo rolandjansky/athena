@@ -585,7 +585,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
                                              updatedParameters[2],
                                              updatedParameters[3],
                                              updatedParameters[4],
-                                             nullptr)
+                                             std::nullopt)
                 .release();
 
     if (isp!=m_isp) delete parm;
@@ -1016,7 +1016,9 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::update(double tim
   }
   // -------------------------------------------------------------------------------
 
-  AmgSymMatrix(5) *errorMatrix = ( parm.covariance() ) ? new AmgSymMatrix(5)(*parm.covariance()) : nullptr;
+  std::optional<AmgSymMatrix(5)> errorMatrix =
+    (parm.covariance()) ? std::optional<AmgSymMatrix(5)>(*parm.covariance())
+                        : std::nullopt;
 
   return parm.associatedSurface()
     .createUniqueTrackParameters(updatedParameters[0],
@@ -1159,7 +1161,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::update( double /
                                  updatedParameters[2],
                                  updatedParameters[3],
                                  updatedParameters[4],
-                                 nullptr)
+                                 std::nullopt)
     .release();
 }
 

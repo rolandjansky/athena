@@ -15,9 +15,9 @@
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkSurfaces/Surface.h"
 // Amg
+#include "CxxUtils/CachedValue.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "CxxUtils/CachedValue.h"
 
 class MsgStream;
 
@@ -37,7 +37,7 @@ class ParametersT;
  @author Andreas.Salzburger@cern.ch
  */
 
-class PerigeeSurface final: public Surface
+class PerigeeSurface final : public Surface
 {
 
 public:
@@ -74,7 +74,7 @@ public:
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
- /** Use the Surface as a ParametersBase constructor, from local parameters -
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
@@ -82,7 +82,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -90,7 +90,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
@@ -100,7 +100,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
@@ -108,8 +108,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
@@ -119,7 +118,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -127,17 +126,17 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PerigeeSurface> createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) *
-                                                       cov = 0) const;
+  ParametersT<DIM, T, PerigeeSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -145,7 +144,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -170,8 +169,7 @@ public:
      into the global frame. for calculating the global position, a momentum
      direction has to be provided as well, use the appropriate function!
        */
-  const Amg::Vector3D* localToGlobal(
-    const LocalParameters& locpos) const;
+  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos) const;
 
   /** This method is the true local->global transformation.<br>
       by providing a locR and locZ coordinate such as a GlobalMomentum
@@ -256,8 +254,9 @@ public:
                             double tol1 = 0.,
                             double tol2 = 0.) const override final;
 
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override final;
+  virtual bool insideBoundsCheck(
+    const Amg::Vector2D& locpos,
+    const BoundaryCheck& bchk) const override final;
 
   /** Special method for StraightLineSurface - provides the Line direction from
    * cache: speedup */

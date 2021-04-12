@@ -70,10 +70,10 @@ for (const std::unique_ptr<Trk::NeutralPerigee>& p : v) {
 }
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
@@ -92,9 +92,9 @@ PerigeeUVec_t makePerigees1()
 
   PerigeeUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1b, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1c, cov5().release()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1b, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1c, cov5()).release());
 
   return ret;
 }
@@ -114,9 +114,9 @@ NeutralUVec_t makeNeutrals1()
 
   NeutralUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1a, mom1a,  1, pos1a, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1b, mom1b,  1, pos1b, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1c, mom1c,  1, pos1c, cov5().release()));
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1a, mom1a,  1, pos1a, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1b, mom1b,  1, pos1b, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1c, mom1c,  1, pos1c, cov5()).release());
 
   return ret;
 }
@@ -389,17 +389,17 @@ void setRefittedPerigee (xAOD::Vertex& v, unsigned i,
   std::vector< Trk::VxTrackAtVertex >& vec = v.vxTrackAtVertex();
   if (vec.size() <= i) vec.resize(i+1);
 
-  std::unique_ptr<AmgSymMatrix(5)> cov = cov5();
+  AmgSymMatrix(5) cov = cov5();
   for (int i=0; i < 5; i++) {
     for (int j=0; j < 5; j++) {
       unsigned ipos = i*5 + j;
-      (*cov)(i,j) = ipos < c.size() ? c[ipos] : 0;
+      (cov)(i,j) = ipos < c.size() ? c[ipos] : 0;
     }
   }
 
   const Amg::Vector3D& vpos = v.position();
   auto p = std::make_unique<Trk::Perigee> (pos, mom, charge, vpos,
-                                           cov.release());
+                                           cov);
   vec[i].setPerigeeAtVertex (p.release());
 }
 

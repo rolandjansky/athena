@@ -153,6 +153,7 @@ template <class TRANS, class PERS>
 inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::keepPoolObj(PERS* obj, const std::string& output) {
    std::ostringstream oss;
    oss << Gaudi::Hive::currentContext().slot();
+   std::lock_guard   lock(m_pListMutex);
    m_persObjLists[output + ":" + oss.str()].emplace_back(obj);
 }
 
@@ -161,6 +162,7 @@ template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::cleanUp(const std::string& output) {
    std::ostringstream oss;
    oss << Gaudi::Hive::currentContext().slot();
+   std::lock_guard   lock(m_pListMutex);
    m_persObjLists[output + ":" + oss.str()].clear();
    return(StatusCode::SUCCESS);
 }

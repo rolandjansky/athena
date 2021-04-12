@@ -288,22 +288,22 @@ StatusCode Trk::ExtrapolationValidation::execute()
 
 
 
-   AmgSymMatrix(5) * covariance = new AmgSymMatrix(5);
-   covariance->setZero();
+   AmgSymMatrix(5) covariance;
+   covariance.setZero();
    ATH_MSG_VERBOSE(m_covarianceLoc1[m_parameters]);
-   (*covariance)(0,0) =  m_covarianceLoc1[m_parameters];
+   covariance(0,0) =  m_covarianceLoc1[m_parameters];
    ATH_MSG_VERBOSE(m_covarianceLoc2[m_parameters]);
-   (*covariance)(1,1) =  m_covarianceLoc2[m_parameters];
+   covariance(1,1) =  m_covarianceLoc2[m_parameters];
    ATH_MSG_VERBOSE(m_covariancePhi[m_parameters]);
-   (*covariance)(2,2) =   m_covariancePhi[m_parameters];
+   covariance(2,2) =   m_covariancePhi[m_parameters];
    ATH_MSG_VERBOSE(m_covarianceTheta[m_parameters]);
-   (*covariance)(3,3) =  m_covarianceTheta[m_parameters];
+   covariance(3,3) =  m_covarianceTheta[m_parameters];
    ATH_MSG_VERBOSE(m_covarianceQoverP[m_parameters]);
-   (*covariance)(4,4) = m_covarianceQoverP[m_parameters];
-   ATH_MSG_VERBOSE("Initial Setting: \n"<<*covariance);
+   covariance(4,4) = m_covarianceQoverP[m_parameters];
+   ATH_MSG_VERBOSE("Initial Setting: \n"<<covariance);
    
 
-   m_covarianceDeterminant[m_parameters] = covariance->determinant();
+   m_covarianceDeterminant[m_parameters] = covariance.determinant();
 
    // the initial perigee with random numbers
    Trk::AtaPlane startParameters(m_parameterLoc1[m_parameters],
@@ -311,8 +311,8 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                  m_parameterPhi[m_parameters],
                                  m_parameterTheta[m_parameters],
                                  m_parameterQoverP[m_parameters],
-				 startSurface,
-				 covariance); 
+                                 startSurface,
+                                 std::move(covariance)); 
    
    ATH_MSG_VERBOSE( "Start Parameters : " << startParameters );
    if(startParameters.covariance())ATH_MSG_VERBOSE( "Start Covariance : \n" << *startParameters.covariance() );

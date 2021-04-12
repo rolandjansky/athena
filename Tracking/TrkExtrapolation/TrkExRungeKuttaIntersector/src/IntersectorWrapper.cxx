@@ -203,7 +203,7 @@ IntersectorWrapper::createParameters (Cache& cache,
 
   cache.m_parameters=surface.createUniqueTrackParameters(cache.m_intersection->position(),
                                                    cache.m_intersection->direction(),
-                                                   cache.m_charge,nullptr);
+                                                   cache.m_charge,std::nullopt);
   // unrecognized Surface
   if( !cache.m_parameters ) ATH_MSG_WARNING( " Failed to create parameters " );
 }

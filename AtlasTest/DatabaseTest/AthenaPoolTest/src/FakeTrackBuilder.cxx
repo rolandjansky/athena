@@ -60,7 +60,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   // test state #1 - arbitrary TP AtaCylinder
   // Amg::Transform3D t = Amg::Transform3D::Identity(); t.setIdentity();
   Trk::CylinderSurface surface(0, 1.0, 2*M_PI, 4.0);
-  trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+  trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;
 
@@ -68,13 +68,13 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   Amg::Translation3D amgtranslation(1.,2.,3.);
   Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation);
   DiscSurface discSf(amgTransf, 1.0, 2.0);
-  trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+  trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;
 
   // test state #3 - arbitrary AtaPlane + Estimated Brem
   PlaneSurface planeSf(amgTransf, 1.0, 2.0);
-  trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+  trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   const MaterialEffectsBase *ebr
     = new EstimatedBremOnTrack((0.7), -0.3,
   0.3, 0.03,
@@ -100,7 +100,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
     //AtaPlane on det el
     const PlaneSurface& planeDetElSf = dynamic_cast<const PlaneSurface&>(detEl->surface());
-    trackParameter = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,0).release();
+    trackParameter = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
 
     mefBase = new Trk::MaterialEffectsOnTrack(70.7,scatt,eloss,planeDetElSf, mefPattern);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);

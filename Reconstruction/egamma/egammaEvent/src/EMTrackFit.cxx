@@ -309,28 +309,28 @@ bool EMTrackFit::fillPerigeeErrors(const AmgSymMatrix(5)* errorMatrix)
 }
 
 // =======================================================================
-AmgSymMatrix(5)* EMTrackFit::getErrorMatrix() const
+AmgSymMatrix(5) EMTrackFit::getErrorMatrix() const
 {
   // Make a 5x5 matrix that is filled with zero's alternatively we could fill it with the identity matrix;
   // Chosen the identity matrix option
-  AmgSymMatrix(5)* hepSymMatrix  = new AmgSymMatrix(5);
-  hepSymMatrix->setIdentity();
+  AmgSymMatrix(5) hepSymMatrix;
+  hepSymMatrix.setIdentity();
   // Fill the matrix
-  hepSymMatrix->fillSymmetric(0,0, track_perigee_Covd0d0());
-  hepSymMatrix->fillSymmetric(0,1, track_perigee_Covd0z0());
-  hepSymMatrix->fillSymmetric(0,2, track_perigee_Covd0phi());
-  hepSymMatrix->fillSymmetric(0,3, track_perigee_Covd0theta());
-  hepSymMatrix->fillSymmetric(0,4, track_perigee_Covd0qOverP());
-  hepSymMatrix->fillSymmetric(1,1, track_perigee_Covz0z0());
-  hepSymMatrix->fillSymmetric(1,2, track_perigee_Covz0phi());
-  hepSymMatrix->fillSymmetric(1,3, track_perigee_Covz0theta());
-  hepSymMatrix->fillSymmetric(1,4, track_perigee_Covz0qOverP());
-  hepSymMatrix->fillSymmetric(2,2, track_perigee_Covphiphi());
-  hepSymMatrix->fillSymmetric(2,3, track_perigee_Covphitheta());
-  hepSymMatrix->fillSymmetric(2,4, track_perigee_CovphiqOverP());
-  hepSymMatrix->fillSymmetric(3,3, track_perigee_Covthetatheta());
-  hepSymMatrix->fillSymmetric(3,4, track_perigee_CovthetaqOverP());
-  hepSymMatrix->fillSymmetric(4,4, track_perigee_CovqOverPqOverP());
+  hepSymMatrix.fillSymmetric(0,0, track_perigee_Covd0d0());
+  hepSymMatrix.fillSymmetric(0,1, track_perigee_Covd0z0());
+  hepSymMatrix.fillSymmetric(0,2, track_perigee_Covd0phi());
+  hepSymMatrix.fillSymmetric(0,3, track_perigee_Covd0theta());
+  hepSymMatrix.fillSymmetric(0,4, track_perigee_Covd0qOverP());
+  hepSymMatrix.fillSymmetric(1,1, track_perigee_Covz0z0());
+  hepSymMatrix.fillSymmetric(1,2, track_perigee_Covz0phi());
+  hepSymMatrix.fillSymmetric(1,3, track_perigee_Covz0theta());
+  hepSymMatrix.fillSymmetric(1,4, track_perigee_Covz0qOverP());
+  hepSymMatrix.fillSymmetric(2,2, track_perigee_Covphiphi());
+  hepSymMatrix.fillSymmetric(2,3, track_perigee_Covphitheta());
+  hepSymMatrix.fillSymmetric(2,4, track_perigee_CovphiqOverP());
+  hepSymMatrix.fillSymmetric(3,3, track_perigee_Covthetatheta());
+  hepSymMatrix.fillSymmetric(3,4, track_perigee_CovthetaqOverP());
+  hepSymMatrix.fillSymmetric(4,4, track_perigee_CovqOverPqOverP());
 
 
   return hepSymMatrix;

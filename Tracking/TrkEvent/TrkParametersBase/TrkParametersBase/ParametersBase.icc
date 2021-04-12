@@ -27,38 +27,41 @@ sgn(const T& val)
 
 // Helper protected ctor*/
 template<int DIM, class T>
-ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) parameters,
-                                       AmgSymMatrix(DIM) * covariance,
-                                       const T chargeDef)
+ParametersBase<DIM, T>::ParametersBase(
+  const AmgVector(DIM) parameters,
+  std::optional<AmgSymMatrix(DIM)> covariance,
+  const T chargeDef)
   : m_parameters(parameters)
-  , m_covariance(covariance)
+  , m_covariance(std::move(covariance))
   , m_chargeDef(chargeDef)
 {}
 
 // Helper protected ctor
 template<int DIM, class T>
-Trk::ParametersBase<DIM, T>::ParametersBase(AmgSymMatrix(DIM) * covariance)
+Trk::ParametersBase<DIM, T>::ParametersBase(
+  std::optional<AmgSymMatrix(DIM)> covariance)
   : m_parameters()
-  , m_covariance(covariance)
+  , m_covariance(std::move(covariance))
   , m_chargeDef{}
 {}
 // Protected Constructor with local arguments - persistency only
 template<int DIM, class T>
-Trk::ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) & parameters,
-                                            AmgSymMatrix(DIM) * covariance)
+Trk::ParametersBase<DIM, T>::ParametersBase(
+  const AmgVector(DIM) & parameters,
+  std::optional<AmgSymMatrix(DIM)> covariance)
   : m_parameters(parameters)
-  , m_covariance(covariance)
+  , m_covariance(std::move(covariance))
   , m_chargeDef{}
 {}
 
 template<int DIM, class T>
-  const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
+const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
 {
   return m_parameters;
 }
 
 template<int DIM, class T>
-  AmgVector(DIM) & ParametersBase<DIM, T>::parameters()
+AmgVector(DIM) & ParametersBase<DIM, T>::parameters()
 {
   return m_parameters;
 }
@@ -66,13 +69,21 @@ template<int DIM, class T>
 template<int DIM, class T>
   const AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance() const
 {
-  return m_covariance.get();
+  if (m_covariance) {
+    return &(*m_covariance);
+  } else {
+    return nullptr;
+  }
 }
 
 template<int DIM, class T>
   AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance()
 {
-  return m_covariance.get();
+  if (m_covariance) {
+    return &(*m_covariance);
+  } else {
+    return nullptr;
+  }
 }
 
 template<int DIM, class T>
@@ -118,31 +129,17 @@ template<int DIM, class T>
 void
 ParametersBase<DIM, T>::setCovariance(const AmgSymMatrix(DIM) & cov)
 {
-  // if the covariance is there update in place
-  if (m_covariance) {
-    (*m_covariance) = cov;
-  } else { // otherwise create one
-    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(cov);
-  }
+  m_covariance = cov;
 }
 
 template<int DIM, class T>
 void
 ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
-                                           updatedParameters,
-                                         AmgSymMatrix(DIM) * updatedCovariance)
+                                           updatedParameters)
 {
-  // update the covariance
-  if (updatedCovariance) {
-    // make sure we did not receive what we already hold
-    if (updatedCovariance != m_covariance.get()) {
-      m_covariance.reset(updatedCovariance);
-    }
-  }
   this->updateParametersHelper(updatedParameters);
 }
 
-// update function
 template<int DIM, class T>
 void
 ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
@@ -150,12 +147,7 @@ ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
                                          const AmgSymMatrix(DIM) &
                                            updatedCovariance)
 {
-  // if the covariance is there update in place
-  if (m_covariance) {
-    (*m_covariance) = updatedCovariance;
-  } else { // otherwise create one
-    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
-  }
+  m_covariance = updatedCovariance;
   this->updateParametersHelper(updatedParameters);
 }
 /** equality operator */

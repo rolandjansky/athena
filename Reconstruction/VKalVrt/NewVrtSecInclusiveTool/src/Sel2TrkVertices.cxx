@@ -48,7 +48,6 @@ namespace Rec{
 //
 //  impact parameters with sign calculations
 //
-      std::vector<float> covPV=PrimVrt.covariance(); 
       double signifR=0.,signifZ=0.;
       std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
       std::vector<double> trackSignif(NTracks),dRdZratio(NTracks);

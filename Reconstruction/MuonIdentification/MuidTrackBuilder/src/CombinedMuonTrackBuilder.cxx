@@ -2698,7 +2698,7 @@ namespace Rec {
                     }
                     auto correctedParameters(parameters.associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                        parameterVector[Trk::qOverP], nullptr));
+                        parameterVector[Trk::qOverP], std::nullopt));
 
                     Trk::IMaterialAllocator::Garbage_t garbage;
                     leadingTSOS.reset(m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters, garbage));
@@ -3417,7 +3417,7 @@ namespace Rec {
 
             parameters = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+                parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
         }
 
         // check if the track curvature is well determined (with sufficient energy to penetrate material)
@@ -3459,7 +3459,7 @@ namespace Rec {
             parameterVector[Trk::qOverP] = parameters->charge() / (trackEnergy + caloEnergy->deltaE());
             correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+                parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
             // protect against spectrometer track with unrealistic energy loss
             // check material in spectrometer is not vastly greater than in the calo
@@ -3532,7 +3532,7 @@ namespace Rec {
 
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                    parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+                    parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
                 perigee = propagator->propagate(ctx, *correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                 m_magFieldProperties, Trk::nonInteracting);
@@ -3559,7 +3559,7 @@ namespace Rec {
 
                     correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                        parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+                        parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
                     perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                     m_magFieldProperties, Trk::nonInteracting);
@@ -3574,7 +3574,7 @@ namespace Rec {
                 parameterVector[Trk::qOverP] = parameters->charge() / trackEnergy;
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                    parameterVector[Trk::qOverP], new AmgSymMatrix(5)(*parameters->covariance()));
+                    parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
                 parameters = std::move(correctedParameters);
             }
@@ -3720,7 +3720,8 @@ namespace Rec {
         // create updated parameters
         double charge = parameters->charge();
         Amg::Vector3D position = parameters->position();
-        AmgSymMatrix(5)* covariance = parameters->covariance() ? new AmgSymMatrix(5)(*(parameters->covariance())) : nullptr;
+        std::optional<AmgSymMatrix(5)> covariance =
+            parameters->covariance() ? std::optional<AmgSymMatrix(5)>(*(parameters->covariance())) : std::nullopt;
         const Trk::Surface* surface = &(parameters->associatedSurface());
         updatedParameters = surface->createUniqueTrackParameters(position, momentum, charge, covariance).release();
 
@@ -3868,7 +3869,7 @@ namespace Rec {
                             ->associatedSurface()
                             .createUniqueTrackParameters(parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                                                          parameterVector[Trk::theta], parameterVector[Trk::qOverP],
-                                                         new AmgSymMatrix(5)(*(**s).trackParameters()->covariance()))
+                                                         AmgSymMatrix(5)(*(**s).trackParameters()->covariance()))
                             .release());
 
                     type = defaultType;
@@ -3901,8 +3902,8 @@ namespace Rec {
                             .createUniqueTrackParameters(parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
                                                          parameterVector[Trk::theta], parameterVector[Trk::qOverP],
                                                          (**s).trackParameters()->covariance()
-                                                             ? new AmgSymMatrix(5)(*(**s).trackParameters()->covariance())
-                                                             : nullptr)
+                                                             ? std::optional<AmgSymMatrix(5)>(*(**s).trackParameters()->covariance())
+                                                             : std::nullopt)
                             .release();
 
                     type = defaultType;
@@ -3929,10 +3930,11 @@ namespace Rec {
                     (**s)
                         .trackParameters()
                         ->associatedSurface()
-                        .createUniqueTrackParameters(
-                            parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                            parameterVector[Trk::qOverP],
-                            (**s).trackParameters()->covariance() ? new AmgSymMatrix(5)(*(**s).trackParameters()->covariance()) : nullptr)
+                        .createUniqueTrackParameters(parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi],
+                                                     parameterVector[Trk::theta], parameterVector[Trk::qOverP],
+                                                     (**s).trackParameters()->covariance()
+                                                         ? std::optional<AmgSymMatrix(5)>(*(**s).trackParameters()->covariance())
+                                                         : std::nullopt)
                         .release();
 
                 type = defaultType;

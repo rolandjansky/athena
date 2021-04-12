@@ -47,7 +47,7 @@ computeImpl(const Trk::MultiComponentState* uncombinedState,
 
   AmgVector(5) mean;
   mean.setZero();
-  AmgSymMatrix(5)* covariance = new AmgSymMatrix(5);
+  AmgSymMatrix(5) covariance;
   AmgSymMatrix(5) covariancePart1;
   covariancePart1.setZero();
   AmgSymMatrix(5) covariancePart2;
@@ -134,7 +134,7 @@ computeImpl(const Trk::MultiComponentState* uncombinedState,
   //
   mean[2] = CxxUtils::wrapToPi(mean[2]);
 
-  (*covariance) = covariancePart1 / sumW + covariancePart2 / (sumW * sumW);
+  covariance = covariancePart1 / sumW + covariancePart2 / (sumW * sumW);
 
   if (useMode && dimension == 5) {
 
@@ -151,49 +151,49 @@ computeImpl(const Trk::MultiComponentState* uncombinedState,
       mean[4] = modes[4];
 
       if (modes[5 + 0] > 0) {
-        double currentErr = sqrt((*covariance)(0, 0));
+        double currentErr = sqrt((covariance)(0, 0));
         currentErr = modes[5 + 0] / currentErr;
-        (*covariance)(0, 0) = modes[5 + 0] * modes[5 + 0];
-        covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
-        covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
-        covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
-        covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
+        (covariance)(0, 0) = modes[5 + 0] * modes[5 + 0];
+        covariance.fillSymmetric(1, 0, (covariance)(1, 0) * currentErr);
+        covariance.fillSymmetric(2, 0, (covariance)(2, 0) * currentErr);
+        covariance.fillSymmetric(3, 0, (covariance)(3, 0) * currentErr);
+        covariance.fillSymmetric(4, 0, (covariance)(4, 0) * currentErr);
       }
       if (modes[5 + 1] > 0) {
-        double currentErr = sqrt((*covariance)(1, 1));
+        double currentErr = sqrt((covariance)(1, 1));
         currentErr = modes[5 + 1] / currentErr;
-        covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
-        (*covariance)(1, 1) = modes[5 + 1] * modes[5 + 1];
-        covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
-        covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
-        covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
+        covariance.fillSymmetric(1, 0, (covariance)(1, 0) * currentErr);
+        (covariance)(1, 1) = modes[5 + 1] * modes[5 + 1];
+        covariance.fillSymmetric(2, 1, (covariance)(2, 1) * currentErr);
+        covariance.fillSymmetric(3, 1, (covariance)(3, 1) * currentErr);
+        covariance.fillSymmetric(4, 1, (covariance)(4, 1) * currentErr);
       }
       if (modes[5 + 2] > 0) {
-        double currentErr = sqrt((*covariance)(2, 2));
+        double currentErr = sqrt((covariance)(2, 2));
         currentErr = modes[5 + 2] / currentErr;
-        covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
-        covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
-        (*covariance)(2, 2) = modes[5 + 2] * modes[5 + 2];
-        covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
-        covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
+        covariance.fillSymmetric(2, 0, (covariance)(2, 0) * currentErr);
+        covariance.fillSymmetric(2, 1, (covariance)(2, 1) * currentErr);
+        (covariance)(2, 2) = modes[5 + 2] * modes[5 + 2];
+        covariance.fillSymmetric(3, 2, (covariance)(3, 2) * currentErr);
+        covariance.fillSymmetric(4, 2, (covariance)(4, 2) * currentErr);
       }
       if (modes[5 + 3] > 0) {
-        double currentErr = sqrt((*covariance)(3, 3));
+        double currentErr = sqrt((covariance)(3, 3));
         currentErr = modes[5 + 3] / currentErr;
-        covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
-        covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
-        covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
-        (*covariance)(3, 3) = modes[5 + 3] * modes[5 + 3];
-        covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
+        covariance.fillSymmetric(3, 0, (covariance)(3, 0) * currentErr);
+        covariance.fillSymmetric(3, 1, (covariance)(3, 1) * currentErr);
+        covariance.fillSymmetric(3, 2, (covariance)(3, 2) * currentErr);
+        (covariance)(3, 3) = modes[5 + 3] * modes[5 + 3];
+        covariance.fillSymmetric(4, 3, (covariance)(4, 3) * currentErr);
       }
       if (modes[5 + 4] > 0) {
-        double currentErr = sqrt((*covariance)(4, 4));
+        double currentErr = sqrt((covariance)(4, 4));
         currentErr = modes[5 + 4] / currentErr;
-        covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
-        covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
-        covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
-        covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
-        (*covariance)(4, 4) = modes[5 + 4] * modes[5 + 4];
+        covariance.fillSymmetric(4, 0, (covariance)(4, 0) * currentErr);
+        covariance.fillSymmetric(4, 1, (covariance)(4, 1) * currentErr);
+        covariance.fillSymmetric(4, 2, (covariance)(4, 2) * currentErr);
+        covariance.fillSymmetric(4, 3, (covariance)(4, 3) * currentErr);
+        (covariance)(4, 4) = modes[5 + 4] * modes[5 + 4];
       }
 
     } // modes[4]!=0
@@ -208,12 +208,11 @@ computeImpl(const Trk::MultiComponentState* uncombinedState,
   if (firstMeasuredCov) {
     combinedTrackParameters =
       firstParameters->associatedSurface().createUniqueTrackParameters(
-        loc1, loc2, phi, theta, qoverp, covariance);
+        loc1, loc2, phi, theta, qoverp, std::move(covariance));
   } else {
     combinedTrackParameters =
       firstParameters->associatedSurface().createUniqueTrackParameters(
-        loc1, loc2, phi, theta, qoverp, nullptr);
-    delete covariance;
+        loc1, loc2, phi, theta, qoverp, std::nullopt);
   }
 
   return std::make_unique<Trk::ComponentParameters>(
@@ -282,7 +281,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
     mergeTo.first->updateParameters(finalParameters, finalMeasuredCov);
     mergeTo.second = finalWeight;
   } else {
-    mergeTo.first->updateParameters(finalParameters, nullptr);
+    mergeTo.first->updateParameters(finalParameters);
     mergeTo.second = finalWeight;
   }
 }

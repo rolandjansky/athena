@@ -983,12 +983,12 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 // New covariance matrix calculation from old matrix and jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
+AmgSymMatrix(5)  Trk::RungeKuttaUtils::newCovarianceMatrix(
                     const double* ATH_RESTRICT J,
                     const AmgSymMatrix(5) & M)
 {
-  AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
-  AmgSymMatrix(5)& m = (*nM);
+  AmgSymMatrix(5) nM;
+  AmgSymMatrix(5)& m = nM;
 
   Eigen::Map<const AmgVector(5)> JacMap0(&J[0], 5, 1);
   const AmgVector(5) a1 = M * JacMap0; //(5x5 * 5x1)

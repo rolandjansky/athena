@@ -287,7 +287,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         RefComparisonStep.configure(self, test)
         if self.reference is None :
-            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref --logx "
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + " --noref --logx "
         else:
             self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra + " --logx "
         Step.configure(self, test)

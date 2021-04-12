@@ -1,5 +1,4 @@
 #include "../MdtRdoToPrepDataTool.h"
-#include "../MdtRdoToPrepDataToolCore.h"
 #include "../MdtRdoToPrepDataToolMT.h"
 #include "../MdtCsmContByteStreamTool.h"
 #include "../MDT_RawDataProviderTool.h"
@@ -8,7 +7,6 @@
 #include "../MdtRDO_Decoder.h"
 
 DECLARE_COMPONENT( Muon::MdtRdoToPrepDataTool )
-DECLARE_COMPONENT( Muon::MdtRdoToPrepDataToolCore )
 DECLARE_COMPONENT( Muon::MdtRdoToPrepDataToolMT )
 DECLARE_COMPONENT( Muon::MdtCsmContByteStreamTool )
 DECLARE_COMPONENT( Muon::MDT_RawDataProviderTool )

@@ -457,12 +457,19 @@ namespace xAOD {
     static const Accessor< float > acc4( "theta" );
     static const Accessor< float > acc5( "qOverP" );
     static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
-    ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(definingParametersCovMatrix());
+    ParametersCovMatrix_t cov = ParametersCovMatrix_t(definingParametersCovMatrix());
     static const Accessor< float > acc7( "beamlineTiltX" );
     static const Accessor< float > acc8( "beamlineTiltY" );
 
     if(!acc7.isAvailable( *this ) || !acc8.isAvailable( *this )){
-      Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
+      Trk::Perigee tmpPerigeeParameters(
+        acc1(*this),
+        acc2(*this),
+        acc3(*this),
+        acc4(*this),
+        acc5(*this),
+        Trk::PerigeeSurface(Amg::Vector3D(vx(), vy(), vz())),
+        std::move(cov));
       m_perigeeParameters.set(tmpPerigeeParameters);
       return *(m_perigeeParameters.ptr());
     }
@@ -472,7 +479,13 @@ namespace xAOD {
     *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
     *amgTransf *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
     *amgTransf *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
-    Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(amgTransf),cov);
+    Trk::Perigee tmpPerigeeParameters(acc1(*this),
+                                      acc2(*this),
+                                      acc3(*this),
+                                      acc4(*this),
+                                      acc5(*this),
+                                      Trk::PerigeeSurface(amgTransf),
+                                      std::move(cov));
 
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
@@ -628,13 +641,13 @@ namespace xAOD {
     static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
     // copy the correct values into the temp matrix
-    ParametersCovMatrix_t* cov = new ParametersCovMatrix_t();
+    ParametersCovMatrix_t cov;
     auto it = acc(*this).begin()+offset;
-    Amg::expand(it,it+15,*cov);
+    Amg::expand(it,it+15,cov);
     // retrieve the parameters to build the curvilinear frame
     Amg::Vector3D pos(parameterX(index),parameterY(index),parameterZ(index));
     Amg::Vector3D mom(parameterPX(index),parameterPY(index),parameterPZ(index));
-    Trk::CurvilinearParameters param(pos,mom,charge(),cov);
+    Trk::CurvilinearParameters param(pos,mom,charge(),std::move(cov));
 
     return param;
   }

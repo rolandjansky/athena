@@ -14,103 +14,106 @@ ConeSurface::type() const
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline Surface::ChargedTrackParametersUniquePtr
-ConeSurface::createUniqueTrackParameters(double l1,
-                                   double l2,
-                                   double phi,
-                                   double theta,
-                                   double qop,
-                                   AmgSymMatrix(5) * cov) const
+ConeSurface::createUniqueTrackParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Charged, ConeSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
-ConeSurface::createUniqueTrackParameters( const Amg::Vector3D& position,
-                                   const Amg::Vector3D& momentum,
-                                   double charge,
-                                   AmgSymMatrix(5) * cov) const
+ConeSurface::createUniqueTrackParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Charged, ConeSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
-
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-ConeSurface::createUniqueNeutralParameters(double l1,
-                                           double l2,
-                                           double phi,
-                                           double theta,
-                                           double qop,
-                                           AmgSymMatrix(5) * cov) const
+ConeSurface::createUniqueNeutralParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, ConeSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-ConeSurface::createUniqueNeutralParameters(const Amg::Vector3D& position,
-                                           const Amg::Vector3D& momentum,
-                                           double charge,
-                                           AmgSymMatrix(5) * cov) const
+ConeSurface::createUniqueNeutralParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, ConeSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 template<int DIM, class T>
 std::unique_ptr<ParametersT<DIM, T, ConeSurface>>
 ConeSurface::createUniqueParameters(double l1,
-                                     double l2,
-                                     double phi,
-                                     double theta,
-                                     double qop,
-                                     AmgSymMatrix(DIM) * cov) const
+                                    double l2,
+                                    double phi,
+                                    double theta,
+                                    double qop,
+                                    std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, ConeSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
 std::unique_ptr<ParametersT<DIM, T, ConeSurface>>
 ConeSurface::createUniqueParameters(const Amg::Vector3D& position,
-                                     const Amg::Vector3D& momentum,
-                                     double charge,
-                                     AmgSymMatrix(DIM) * cov) const
+                                    const Amg::Vector3D& momentum,
+                                    double charge,
+                                    std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, ConeSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters */
 template<int DIM, class T>
 ParametersT<DIM, T, ConeSurface>
 ConeSurface::createParameters(double l1,
-                               double l2,
-                               double phi,
-                               double theta,
-                               double qop,
-                               AmgSymMatrix(DIM) * cov) const
+                              double l2,
+                              double phi,
+                              double theta,
+                              double qop,
+                              std::optional<AmgSymMatrix(DIM)> cov) const
 {
-  return ParametersT<DIM, T, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
+  return ParametersT<DIM, T, ConeSurface>(l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
 ParametersT<DIM, T, ConeSurface>
 ConeSurface::createParameters(const Amg::Vector3D& position,
-                               const Amg::Vector3D& momentum,
-                               double charge,
-                               AmgSymMatrix(DIM) * cov) const
+                              const Amg::Vector3D& momentum,
+                              double charge,
+                              std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return ParametersT<DIM, T, ConeSurface>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 inline ConeSurface*

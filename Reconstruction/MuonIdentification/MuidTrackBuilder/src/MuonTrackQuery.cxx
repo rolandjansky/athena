@@ -631,7 +631,7 @@ namespace Rec {
         }
 
         if (outerTSOS->trackParameters() == perigee && perigee->momentum().dot(perigee->position()) <= 0.) {
-            AmgSymMatrix(5)* perigeeCov = new AmgSymMatrix(5)(*perigee->covariance());
+            AmgSymMatrix(5) perigeeCov = AmgSymMatrix(5)(*perigee->covariance());
 
             // need to flip
             perigee = new Trk::Perigee(perigee->position(), -perigee->momentum(), -perigee->charge(), surface, perigeeCov);
@@ -926,8 +926,9 @@ namespace Rec {
         double qOverP = -parameters.parameters()[Trk::qOverP];
         const Trk::Surface* surface = &(parameters.associatedSurface());
 
-        return surface->createUniqueTrackParameters(parameters.parameters()[Trk::d0], parameters.parameters()[Trk::z0], phi, theta, qOverP,
-                                                    parameters.covariance() ? new AmgSymMatrix(5)(*parameters.covariance()) : nullptr);
+        return surface->createUniqueTrackParameters(
+            parameters.parameters()[Trk::d0], parameters.parameters()[Trk::z0], phi, theta, qOverP,
+            parameters.covariance() ? std::optional<AmgSymMatrix(5)>(*parameters.covariance()) : std::nullopt);
     }
 
 }  // namespace Rec

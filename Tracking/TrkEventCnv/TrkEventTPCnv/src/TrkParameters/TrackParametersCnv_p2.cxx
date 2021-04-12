@@ -29,7 +29,6 @@
 
 #include <cassert>
 #include <iostream>
-
 //static bool debug=false;
 static const uint8_t CURVILINEAR=15;
 
@@ -40,8 +39,12 @@ void TrackParametersCnv_p2::persToTrans( const Trk :: TrackParameters_p2 * /**pe
 Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackParameters_p2 * persObj,MsgStream& log){
 
   // ---- Covariance matrix
-  AmgSymMatrix(5)* cov= transErrorMatrix(persObj, log);
-
+ std::optional<AmgSymMatrix(5)> cov = std::nullopt;
+  auto transcov = 
+    std::unique_ptr<AmgSymMatrix(5)>(transErrorMatrix(persObj, log));
+ if(transcov){
+    cov = (*transcov);
+ }
   // ---- Parameters
   Trk::TrackParameters    *transObj=0;
   unsigned int size=persObj->m_parameters.size();
@@ -55,9 +58,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     return transObj;
   } else {
     // Okay, not curvilinear & so we need to have a surface to handle local->global transformations etc
-    
     // ---- Surfaces 
-    
     //get surface type
     Trk::Surface::SurfaceType type = static_cast<Trk::Surface::SurfaceType>(persObj->m_surfaceType);
     
@@ -68,21 +69,30 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     
     if (surface){
       // Now create concrete parameters ...
-      if      (type==Trk::Surface::Perigee) {     transObj= new Trk::Perigee(parameters,         static_cast<const Trk::PerigeeSurface*>(surface),     cov); return transObj;}
-      else if (type==Trk::Surface::Plane)   {     transObj= new Trk::AtaPlane(parameters,        static_cast<const Trk::PlaneSurface*>(surface),       cov); return transObj;}
-      else if (type==Trk::Surface::Line)    {     transObj= new Trk::AtaStraightLine(parameters, static_cast<const Trk::StraightLineSurface*>(surface),cov); return transObj;}
+      if (type == Trk::Surface::Perigee) {
+        transObj = new Trk::Perigee(
+          parameters, static_cast<const Trk::PerigeeSurface*>(surface), cov);
+        return transObj;
+      } else if (type == Trk::Surface::Plane) {
+        transObj = new Trk::AtaPlane(
+          parameters, static_cast<const Trk::PlaneSurface*>(surface), cov);
+        return transObj;
+      } else if (type == Trk::Surface::Line) {
+        transObj = new Trk::AtaStraightLine(
+          parameters,
+          static_cast<const Trk::StraightLineSurface*>(surface),
+          cov);
+        return transObj;
+      }
     } else if (!m_nosurf) {
-      // FIXME: next line changed to DEBUG to avoid filling the derivation job options with garbage. Underlying issue should be fixed.
-      log<<MSG::DEBUG<<"No surface of type="<<type<<" created - so these parameters cannot be made!"<<endmsg;
-      delete cov;
-      return 0;
+      // FIXME: next line changed to DEBUG to avoid filling the derivation job
+      // options with garbage. Underlying issue should be fixed.
+      log << MSG::DEBUG << "No surface of type=" << type
+          << " created - so these parameters cannot be made!" << endmsg;
+      return nullptr;
     }
   }
-
-  //transObj->m_position.setZero();
-  //transObj->m_momentum.setZero();
-  delete cov;
-  return 0;
+  return nullptr;
 }
 
 AmgSymMatrix(5)* TrackParametersCnv_p2::transErrorMatrix(const Trk :: TrackParameters_p2 *persObj,MsgStream& log){
@@ -163,12 +173,13 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
       fillPersSurface(transObj, persObj, log);
     } else {
       //if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endmsg;
-      std::unique_ptr<AmgSymMatrix(5)> newcov;
-      if (transObj->covariance())
-        newcov = std::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
+      std::optional<AmgSymMatrix(5)> newcov = std::nullopt;
+      if (transObj->covariance()){
+        newcov = *(transObj->covariance());
+      }
       const Trk::CurvilinearParameters* curvilinear = 
         new Trk::CurvilinearParameters(transObj->position(), transObj->momentum(), transObj->charge(), 
-                                       newcov.release());
+                                       newcov);
       transObj = curvilinear; 
       deleteAtEnd = true; // Because the curvilinear will leak otherwise (the original parameters will be deleted when SG is wiped)
       convertTransCurvilinearToPers(transObj,persObj);

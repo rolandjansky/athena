@@ -39,8 +39,7 @@ namespace Trk {
     ref.parameters[Trk::loc2],                                                 \
     ref.parameters[Trk::phi],                                                  \
     ref.parameters[Trk::theta],                                                \
-    ref.parameters[Trk::qOverP],                                               \
-    nullptr)
+    ref.parameters[Trk::qOverP])
 #endif
 
 class LocalParameters;
