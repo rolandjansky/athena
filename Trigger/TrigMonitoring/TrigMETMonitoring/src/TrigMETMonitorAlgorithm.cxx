@@ -7,7 +7,6 @@
 
 TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("offline_met_key", m_offline_met_key = "MET_Reference_AntiKt4EMPFlow");
   declareProperty("hlt_electron_key", m_hlt_electron_key = "HLT_egamma_Electrons_GSF");
@@ -84,8 +83,6 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_mhtpufit_em_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_cssk_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_vssk_met_key.initialize() );
-
-    ATH_CHECK( m_trigDecTool.retrieve() );
 
     return AthMonitorAlgorithm::initialize();
 }
@@ -632,7 +629,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       };  
 
      for (int j=0; j<32; ++j) { //status loop
-       unsigned mask = (1<<j);
+       unsigned mask = (1u<<j);
        if (hlt_met->flag() & mask) {
          MET_status = 1.;
        } else {
@@ -652,7 +649,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
      for (int i=0; i<24; ++i) { //component loop
        for (int j=0; j<32; ++j) { //status loop
-         unsigned mask = (1<<j);
+         unsigned mask = (1u<<j);
          if (hlt_met->statusComponent(i) & mask) {
            component_status_weight = 1.;
          } else {
@@ -882,27 +879,27 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     ATH_MSG_DEBUG("mhtpufit_em_Et = " << mhtpufit_em_Et);
 
     // efficiency plots
-    if (m_trigDecTool->isPassed(m_L1Chain01)) pass_L101 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain02)) pass_L102 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain03)) pass_L103 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain04)) pass_L104 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain05)) pass_L105 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain06)) pass_L106 = 1.0;
-    if (m_trigDecTool->isPassed(m_L1Chain07)) pass_L107 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain01)) pass_HLT01 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain02)) pass_HLT02 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain03)) pass_HLT03 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain04)) pass_HLT04 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain05)) pass_HLT05 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain06)) pass_HLT06 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain07)) pass_HLT07 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain08)) pass_HLT08 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain09)) pass_HLT09 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain10)) pass_HLT10 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain11)) pass_HLT11 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain12)) pass_HLT12 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain13)) pass_HLT13 = 1.0;
-    if (m_trigDecTool->isPassed(m_HLTChain14)) pass_HLT14 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain01)) pass_L101 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain02)) pass_L102 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain03)) pass_L103 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain04)) pass_L104 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain05)) pass_L105 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain06)) pass_L106 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_L1Chain07)) pass_L107 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain01)) pass_HLT01 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain02)) pass_HLT02 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain03)) pass_HLT03 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain04)) pass_HLT04 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain05)) pass_HLT05 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain06)) pass_HLT06 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain07)) pass_HLT07 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain08)) pass_HLT08 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain09)) pass_HLT09 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain10)) pass_HLT10 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain11)) pass_HLT11 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain12)) pass_HLT12 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain13)) pass_HLT13 = 1.0;
+    if (getTrigDecisionTool()->isPassed(m_HLTChain14)) pass_HLT14 = 1.0;
     ATH_MSG_DEBUG("pass " << m_L1Chain01 << " = " << pass_L101);
     ATH_MSG_DEBUG("pass " << m_HLTChain01 << " = " << pass_HLT01);
     ATH_MSG_DEBUG("pass " << m_HLTChain02 << " = " << pass_HLT02);
