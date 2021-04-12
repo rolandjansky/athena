@@ -64,6 +64,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     TString tagTrig = tagList->At(i)->GetName();
     if (alllist.find(tagTrig) != alllist.end()) continue;
     alllist.insert(tagTrig);
+    ATH_MSG_DEBUG("adding tag trigger to all-list: " << tagTrig);
     TObjArray *arr = tagTrig.Tokenize(";");
     if (arr->GetEntries() == 0) continue;
     TagDef def;
@@ -71,6 +72,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     def.tagTrig = def.eventTrig;
     if (arr->GetEntries() == 2) def.tagTrig = TString(arr->At(1)->GetName());
     m_trigTagDefs.push_back(def);
+    ATH_MSG_DEBUG("adding [eventTag:tagTrig]=[" << def.eventTrig << "," << def.tagTrig << "]");
   }
 
   return StatusCode::SUCCESS;
@@ -1032,23 +1034,61 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
 }
 ///////////////////////////////////////////////////////////////
 bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon, const std::vector<TagDef> &list_of_triggers) const {
-    if (!m_TagAndProbe.value()) return true;
-    if (getTrigDecisionTool().empty()) return true;
-    TVector3 muonvec;
-    muonvec.SetPtEtaPhi(offline_muon->pt(), offline_muon->eta(), offline_muon->phi());
-    for (const auto &tagTrig : list_of_triggers) {
-        if (!getTrigDecisionTool()->isPassed(tagTrig.eventTrig.Data())) return false;
-        auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (tagTrig.tagTrig.Data(), TrigDefs::Physics, m_MuonEFContainerName.value());
-        for (auto aaa : features) {
-            if (!aaa.isValid()) return false;
-            auto trigmuon_link = aaa.link;
-            auto trigmuon = *trigmuon_link;
-            TVector3 trigvec;
-            trigvec.SetPtEtaPhi(trigmuon->pt(), trigmuon->eta(), trigmuon->phi());
-            if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()) return true;
-        }
+  if (!m_TagAndProbe.value()) return true;
+  if (getTrigDecisionTool().empty()){
+    ATH_MSG_DEBUG("getTrigDecisionTool() is empty");
+    return true;
+  }
+  TVector3 muonvec;
+  muonvec.SetPtEtaPhi(offline_muon->pt(), offline_muon->eta(), offline_muon->phi());
+  for (const auto &tagTrig : list_of_triggers) {
+    ATH_MSG_DEBUG("Examining [eventTag:tagTrig]=[" << tagTrig.eventTrig << "," << tagTrig.tagTrig << "]");
+    if (!getTrigDecisionTool()->isPassed(tagTrig.eventTrig.Data())){
+      ATH_MSG_DEBUG("Failed to pass eventTrig=" << tagTrig.eventTrig);
+      continue;
     }
-    return false;
+    ATH_MSG_DEBUG("Success to pass eventTrig=" << tagTrig.eventTrig);
+    ATH_MSG_DEBUG("Looking at HLT muon feature for tagTrig=" << tagTrig.tagTrig);
+    if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+      ATH_MSG_DEBUG("Performing Run2-style feature access");
+      auto cg = getTrigDecisionTool()->getChainGroup(tagTrig.tagTrig.Data());
+      auto fc = cg->features();
+      auto MuFeatureContainers = fc.get<xAOD::MuonContainer>();
+      for(auto mucont : MuFeatureContainers){
+	for(auto mu : *mucont.cptr()){
+	  TVector3 trigvec;
+	  trigvec.SetPtEtaPhi(mu->pt(), mu->eta(), mu->phi());
+	  float dr = trigvec.DeltaR(muonvec);
+	  ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
+			" while the matching window is " << m_trigMatchWindow.value());
+	  if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
+	    ATH_MSG_DEBUG("Matched!!");
+	    return true;
+	  }
+	}
+      }
+    }else{ // run 3 access
+      ATH_MSG_DEBUG("Performing Run3-style feature access");
+      auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (tagTrig.tagTrig.Data(), TrigDefs::Physics);
+      ATH_MSG_DEBUG("size of feature = " << features.size());
+      for (auto aaa : features) {
+	if (!aaa.isValid()) continue;
+	auto trigmuon_link = aaa.link;
+	auto trigmuon = *trigmuon_link;
+	TVector3 trigvec;
+	trigvec.SetPtEtaPhi(trigmuon->pt(), trigmuon->eta(), trigmuon->phi());
+	float dr = trigvec.DeltaR(muonvec);
+	ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
+		      " while the matching window is " << m_trigMatchWindow.value());
+	if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
+	  ATH_MSG_DEBUG("Matched!!");
+	  return true;
+	}
+      }
+    }
+  }
+  ATH_MSG_DEBUG("Nothing was matched...");
+  return false;
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mymuon) const {
