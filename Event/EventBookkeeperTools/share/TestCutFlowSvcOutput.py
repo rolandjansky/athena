@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Minimal athena options to execute the CutFlowSvc with algorithms
@@ -68,7 +68,7 @@ Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#IncompleteCutBookkeep
 # set debug logging
 ServiceMgr.MessageSvc.defaultLimit = 9999999
 ServiceMgr.CutFlowSvc.OutputLevel = DEBUG
-ToolSvc.CutBookkeepersTool.OutputLevel = DEBUG
+ToolSvc.BookkeeperTool.OutputLevel = DEBUG
 
 # run on 100 events
 theApp.EvtMax = 100
