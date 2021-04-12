@@ -102,6 +102,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		int pdgId = -999;
 		int barcode = -999;
 		const HepMcParticleLink& pLink = hit.particleLink();
+		barcode = pLink.barcode();
 		if (pLink.isValid()) {
 			const HepMC::GenParticle* genP = pLink.cptr();
 			if (genP) {
@@ -111,7 +112,10 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 				ATH_MSG_WARNING("GenParticle is nullptr for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<")");
 			}
 		} else {
-			ATH_MSG_WARNING("HepMcParticleLink with barcode="<< pLink.barcode()<<" is not valid for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<")");
+			// if barcode is 0, the hit was not created by a particle generated in the GenEvent step, thus link cannot be valid
+			if (msgLvl(barcode==0 ? MSG::DEBUG : MSG::WARNING)) {
+				msg(barcode==0 ? MSG::DEBUG : MSG::WARNING)<<"HepMcParticleLink with barcode="<<barcode<<" is not valid for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<")"<<endmsg;
+			}
 		}
 
 		m_TGC_trackId.push_back(pdgId);
