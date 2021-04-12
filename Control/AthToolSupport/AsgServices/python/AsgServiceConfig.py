@@ -193,9 +193,6 @@ class AsgServiceConfig( ROOT.asg.AsgServiceConfig ):
           type -- The C++ type of the private tool
         """
 
-        # First off, tell the C++ code what to do.
-        self.createPrivateTool( name, type ).ignore()
-
         # And now set up the Python object that will take care of setting
         # properties on this tool.
 
@@ -217,6 +214,10 @@ class AsgServiceConfig( ROOT.asg.AsgServiceConfig ):
         # Now set up a smart object as a property on that component.
         component._props[ toolNames[ -1 ] ] = PrivateToolConfig( self, name,
                                                                  type )
+
+        # Finally, tell the C++ code what to do.
+        self.createPrivateTool( name, type ).ignore()
+
         pass
 
     @staticmethod

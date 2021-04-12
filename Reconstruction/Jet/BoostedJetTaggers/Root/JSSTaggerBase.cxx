@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
@@ -100,15 +100,20 @@ StatusCode JSSTaggerBase::initialize() {
 
   m_decTau21WTAKey = m_containerName + "." + m_decTau21WTAKey.key();
   m_decTau32WTAKey = m_containerName + "." + m_decTau32WTAKey.key();
+  m_decTau42WTAKey = m_containerName + "." + m_decTau42WTAKey.key();
   m_decC2Key = m_containerName + "." + m_decC2Key.key();
   m_decD2Key = m_containerName + "." + m_decD2Key.key();
   m_decE3Key = m_containerName + "." + m_decE3Key.key();
-  
+  m_decL2Key = m_containerName + "." + m_decL2Key.key();
+  m_decL3Key = m_containerName + "." + m_decL3Key.key();
+
   m_readTau1WTAKey = m_containerName + "." + m_readTau1WTAKey.key();
   m_readTau2WTAKey = m_containerName + "." + m_readTau2WTAKey.key();
   m_readTau3WTAKey = m_containerName + "." + m_readTau3WTAKey.key();
+  m_readTau4WTAKey = m_containerName + "." + m_readTau4WTAKey.key();
   m_readTau21WTAKey = m_containerName + "." + m_readTau21WTAKey.key();
   m_readTau32WTAKey = m_containerName + "." + m_readTau32WTAKey.key();
+  m_readTau42WTAKey = m_containerName + "." + m_readTau42WTAKey.key();
   m_readECF1Key = m_containerName + "." + m_readECF1Key.key();
   m_readECF2Key = m_containerName + "." + m_readECF2Key.key();
   m_readECF3Key = m_containerName + "." + m_readECF3Key.key();
@@ -118,18 +123,29 @@ StatusCode JSSTaggerBase::initialize() {
   m_readSplit12Key = m_containerName + "." + m_readSplit12Key.key();
   m_readSplit23Key = m_containerName + "." + m_readSplit23Key.key();
   m_readQwKey = m_containerName + "." + m_readQwKey.key();
+  m_readThrustMajKey = m_containerName + "." + m_readThrustMajKey.key();
+  m_readL2Key = m_containerName + "." + m_readL2Key.key();
+  m_readL3Key = m_containerName + "." + m_readL3Key.key();
+  m_readECFG331Key = m_containerName + "." + m_readECFG331Key.key();
+  m_readECFG311Key = m_containerName + "." + m_readECFG311Key.key();
+  m_readECFG212Key = m_containerName + "." + m_readECFG212Key.key();
 
   ATH_CHECK( m_decTau21WTAKey.initialize() );
   ATH_CHECK( m_decTau32WTAKey.initialize() );
+  ATH_CHECK( m_decTau42WTAKey.initialize() );
   ATH_CHECK( m_decC2Key.initialize() );
   ATH_CHECK( m_decD2Key.initialize() );
   ATH_CHECK( m_decE3Key.initialize() );
+  ATH_CHECK( m_decL2Key.initialize() );
+  ATH_CHECK( m_decL3Key.initialize() );
 
   ATH_CHECK( m_readTau1WTAKey.initialize() );
   ATH_CHECK( m_readTau2WTAKey.initialize() );
   ATH_CHECK( m_readTau3WTAKey.initialize() );
+  ATH_CHECK( m_readTau4WTAKey.initialize() );
   ATH_CHECK( m_readTau21WTAKey.initialize() );
   ATH_CHECK( m_readTau32WTAKey.initialize() );
+  ATH_CHECK( m_readTau42WTAKey.initialize() );
   ATH_CHECK( m_readECF1Key.initialize() );
   ATH_CHECK( m_readECF2Key.initialize() );
   ATH_CHECK( m_readECF3Key.initialize() );
@@ -139,6 +155,12 @@ StatusCode JSSTaggerBase::initialize() {
   ATH_CHECK( m_readSplit12Key.initialize() );
   ATH_CHECK( m_readSplit23Key.initialize() );
   ATH_CHECK( m_readQwKey.initialize() );
+  ATH_CHECK( m_readThrustMajKey.initialize() );
+  ATH_CHECK( m_readL2Key.initialize() );
+  ATH_CHECK( m_readL3Key.initialize() );
+  ATH_CHECK( m_readECFG331Key.initialize() );
+  ATH_CHECK( m_readECFG311Key.initialize() );
+  ATH_CHECK( m_readECFG212Key.initialize() );
   
   ATH_CHECK( m_decTaggedKey.initialize() );
   ATH_CHECK( m_decValidPtRangeHighKey.initialize() );
@@ -363,26 +385,43 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
   /// Create write decor handles
   SG::WriteDecorHandle<xAOD::JetContainer, float> decTau21WTA(m_decTau21WTAKey);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decTau32WTA(m_decTau32WTAKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> decTau42WTA(m_decTau42WTAKey);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decC2(m_decC2Key);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decD2(m_decD2Key);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decE3(m_decE3Key);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> decL2(m_decL2Key);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> decL3(m_decL3Key);
 
   /// Create read decor handles
   SG::ReadDecorHandle<xAOD::JetContainer, float> readTau1WTA(m_readTau1WTAKey);
   SG::ReadDecorHandle<xAOD::JetContainer, float> readTau2WTA(m_readTau2WTAKey);
   SG::ReadDecorHandle<xAOD::JetContainer, float> readTau3WTA(m_readTau3WTAKey);
-  
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readTau4WTA(m_readTau4WTAKey);
+
   SG::ReadDecorHandle<xAOD::JetContainer, float> readECF1(m_readECF1Key);
   SG::ReadDecorHandle<xAOD::JetContainer, float> readECF2(m_readECF2Key);
   SG::ReadDecorHandle<xAOD::JetContainer, float> readECF3(m_readECF3Key);
 
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readECFG331(m_readECFG331Key);
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readECFG311(m_readECFG311Key);
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readECFG212(m_readECFG212Key);
+
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readL2(m_readL2Key);
+  SG::ReadDecorHandle<xAOD::JetContainer, float> readL3(m_readL3Key);
+
+
   /// WTA N-subjettiness ratios
   float tau21_wta = -999.0;
   float tau32_wta = -999.0;
+  float tau42_wta = -999.0;
 
   float tau1_wta = readTau1WTA(jet);
   float tau2_wta = readTau2WTA(jet);
   float tau3_wta = readTau3WTA(jet);
+  float tau4_wta = -999.0;
+  if(readTau4WTA.isAvailable()){
+    tau4_wta = readTau4WTA(jet);
+  }
 
   if ( tau1_wta > 1e-8 ) {
     tau21_wta = tau2_wta / tau1_wta;
@@ -391,11 +430,15 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
 
   if ( tau2_wta > 1e-8 ) {
     tau32_wta = tau3_wta / tau2_wta;
+    if(readTau4WTA.isAvailable()){
+      tau42_wta = tau4_wta / tau2_wta;
+    }
   }
   else result = 1;
 
   decTau21WTA(jet) = tau21_wta;
   decTau32WTA(jet) = tau32_wta;
+  decTau42WTA(jet) = tau42_wta;
 
   /// ECF ratios
   float C2 = -999.0;
@@ -418,7 +461,31 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
   decD2(jet) = D2;
   decE3(jet) = e3;
 
-  // TODO: Add L-series for UFO taggers
+  // L-series for UFO top taggers
+  float L2 = -999.0;
+  float L3 = -999.0;
+
+  if(!readL2.isAvailable()){
+    if(readECFG331.isAvailable() && readECFG212.isAvailable()){
+      if(readECFG212(jet) > 1e-8){
+	L2 = readECFG331(jet) / pow(readECFG212(jet), (3.0/2.0));
+      }
+      else result = 1;
+    }
+  }
+
+  if(!readL3.isAvailable()){
+    if(readECFG331.isAvailable() && readECFG311.isAvailable()){
+      if(readECFG331(jet) > 1e-8){
+	L3 = readECFG311(jet) / pow(readECFG331(jet), (1.0/3.0));
+      }
+      else result = 1;
+    }
+  }
+
+  decL2(jet) = L2;
+  decL3(jet) = L3;
+
   // TODO: Add ECFG for ANN tagger whenever it is defined
 
   return result;

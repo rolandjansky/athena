@@ -37,17 +37,22 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_mu8noL1;HLT_mu24'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu50_L1MU20'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu60_0eta105_msonly_L1MU20'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_iloose_L1MU15'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu40'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu50'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_iloose'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_ivarloose'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_ivarmedium'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_imedium'
+    tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_imedium'
 
-    tgcRawDataMonAlg.TagAndProbe = False
+    tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
 
     isBS = (inputFlags.Input.Format == 'BS')
-    # if input is raw data, objects won't be in input collections
-    if (isBS and inputFlags.DQ.triggerDataAvailable) or 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
-        tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
     if isBS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
     
@@ -400,6 +405,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 for phi in range(25):# internal phi 0,1,2,3...24 (0..3 for BW and EI, 1..24 for FI)
                     for eta in range(6):# eta index 1,,,5 for Endcap, and 0 for Forward
                         for lay in range(1,4):# sub-layer 1,2,3 (triplet) or 1,2 (doublet)
+                            if station<4 and (sector>12 or sector==0):continue # BW only 1..12 sectors
+                            if station==4 and eta==0 and sector!=0:continue # FI only sector-0
+                            if station==4 and eta==1 and sector%2==0:continue # EI only odd-sectors (1,3,5,7..15)
+                            if station==4 and eta==0 and phi==0:continue # FI only 1..24 internal phi
+                            if (station<4 or (station==4 and eta==1)) and phi>3: continue # BW and EI only 0..3 internal phi
+                            if station==1 and eta==5:continue # BW M1 has only 1..4 eta
+                            if station==4 and eta>1:continue # EI/FI eta 0 or 1
                             chamber_name = "%s%02dM%02df%02d%s%02dL%02d" % (side,sector,station,phi,'F' if eta==0 else 'E',eta,lay)
                             for s_or_w in ['S','W']:# strip or wire
                                 nbins = 100
@@ -476,6 +488,7 @@ if __name__=='__main__':
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)
     tgcRawDataMonitorAcc.OutputLevel = DEBUG
     cfg.merge(tgcRawDataMonitorAcc)
+    cfg.getEventAlgo('TgcRawDataMonAlg').OutputLevel = INFO
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg

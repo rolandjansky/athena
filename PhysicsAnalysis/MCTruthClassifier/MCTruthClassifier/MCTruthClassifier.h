@@ -83,7 +83,12 @@ public:
   virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const override;
   const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*) const;
 
-  virtual unsigned int classify(const xAOD::TruthParticle  *) const override;
+  virtual unsigned int classify(const xAOD::TruthParticle*) const override;
+
+  virtual const xAOD::TruthParticle* getParentHadron(const xAOD::TruthParticle*) const override;
+
+  virtual int getParentHadronID(const xAOD::TruthParticle*) const override;
+
 
   enum MCTC_bits : unsigned int { HadTau=0, Tau, hadron, frombsm, uncat, isbsm, isgeant, stable, totalBits };
 
@@ -175,7 +180,7 @@ private:
                                                           bool& isPrompt,
                                                           Info* info) const;
   //MCTruthPartClassifier::ParticleOrigin
-  virtual unsigned int defOrigOfParticle(const xAOD::TruthParticle*) const override;
+  std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) const;
 
   //
   MCTruthPartClassifier::ParticleOrigin defHadronType(long);

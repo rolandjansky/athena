@@ -249,6 +249,7 @@ namespace Muon {
 
             double rpos = pars->position().perp();
             double zpos = fabs(pars->position().z());
+            if (rpos < 2500 && zpos < 4000) continue;
             double eta = pars->position().eta();
             double phi = pars->position().phi();
             if (msgLvl(MSG::DEBUG)) {
@@ -256,7 +257,6 @@ namespace Muon {
                 if (pars->covariance()) msg() << MSG::DEBUG << " extrapolation error " << Amg::error(*pars->covariance(), Trk::locX);
                 msg() << endmsg;
             }
-            if (rpos < 2500 && zpos < 4000) continue;
 
             // check whether state is a measurement
             const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();

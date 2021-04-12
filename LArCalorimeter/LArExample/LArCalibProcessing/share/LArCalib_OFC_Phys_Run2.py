@@ -191,9 +191,6 @@ svcMgr.IOVDbSvc.GlobalTag   = "LARCALIB-RUN2-00" #LArCalib_Flags.globalFlagDB
 svcMgr.IOVDbSvc.DBInstance=""
 svcMgr.IOVDbSvc.dbConnection  = OutputDB
 
-from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
-svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
-
 if 'poolcat' in dir():
   svcMgr.PoolSvc.WriteCatalog="xmlcatalog_file:"+poolcat
 

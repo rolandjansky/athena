@@ -27,18 +27,18 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
     // define match if PFO and FE share same cluster index
     //nullptr catch
     if(pfo->cluster(0)==nullptr or fe->otherObjects().size()==0 or fe->otherObjects().at(0)==nullptr){
-      ATH_MSG_ERROR("PFO vs FE validation has nullptr in cluster matching/ no clusters");
+      ATH_MSG_DEBUG("PFO vs FE validation has nullptr in cluster matching/ no clusters");
       if(pfo->cluster(0)==nullptr){
-	ATH_MSG_ERROR("PFO first cluster is a dud");	
+	ATH_MSG_DEBUG("PFO first cluster is a dud");	
       }
       if(fe->otherObjects().size()==0){
-	ATH_MSG_ERROR("FE has no clusters");
+	ATH_MSG_DEBUG("FE has no clusters");
       }
       if(fe->otherObjects().at(0)==nullptr){
-	ATH_MSG_ERROR("FE cluster ptr is a dud");
+	ATH_MSG_DEBUG("FE cluster ptr is a dud");
       }
       if(pfo_ischarged or fe_ischarged){
-	ATH_MSG_ERROR("pfo or FE are misconfigured - one of these is charged when it is expected to be neutral");
+	ATH_MSG_WARNING("pfo or FE are misconfigured - one of these is charged when it is expected to be neutral");
       }
       return false;
     }
@@ -51,19 +51,19 @@ bool PFO_FE_ComparisonPlots::Match (const xAOD::PFO* pfo, const xAOD::FlowElemen
     //define match if PFO and FE share same track index
     //nullptr catch
     if(pfo->track(0)==nullptr or fe->chargedObjects().size()==0 or fe->chargedObjects().at(0)==nullptr){
-      ATH_MSG_ERROR("PFO vs FE validation has nullptr in track matching/ no tracks");
+      ATH_MSG_DEBUG("PFO vs FE validation has nullptr in track matching/ no tracks");
 
       if(pfo->track(0)==nullptr){
-	ATH_MSG_ERROR("PFO track is a dud");
+	ATH_MSG_DEBUG("PFO track is a dud");
       }
       if(fe->chargedObjects().size()==0){
-	ATH_MSG_ERROR("FE has no tracks");
+	ATH_MSG_DEBUG("FE has no tracks");
       }
       if(fe->chargedObjects().at(0)==nullptr){
-	ATH_MSG_ERROR("FE track ptr is a dud");
+	ATH_MSG_DEBUG("FE track ptr is a dud");
       }
       if(!pfo_ischarged or !fe_ischarged){
-	ATH_MSG_ERROR("pfo or FE are misconfigured - one of these is neutral when it is expected to be ");
+	ATH_MSG_WARNING("pfo or FE are misconfigured - one of these is neutral when it is expected to be charged");
       }
       return false;
     }

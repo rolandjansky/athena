@@ -29,18 +29,18 @@ public:
 #ifndef XAOD_ANALYSIS
   bool operator() (const ElementLink<Rec::TrackParticleContainer>& t1, const ElementLink<Rec::TrackParticleContainer> &t2) const
   {
-    return fabs( (*t1)->pt() ) > fabs( (*t2)->pt() );
+    return std::abs( (*t1)->pt() ) > std::abs( (*t2)->pt() );
   };
 
   bool operator() ( const Rec::TrackParticle *t1, const Rec::TrackParticle *t2 ) const
   {
-    return fabs( t1->pt() ) > fabs( t2->pt() );
+    return std::abs( t1->pt() ) > std::abs( t2->pt() );
   };
 #endif
 
   bool operator() ( const xAOD::TrackParticle *t1, const xAOD::TrackParticle *t2 ) const
   {
-    return fabs( t1->pt() ) > fabs( t2->pt() );
+    return std::abs( t1->pt() ) > std::abs( t2->pt() );
   };
 
 };

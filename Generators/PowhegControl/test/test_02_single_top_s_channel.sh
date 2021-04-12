@@ -11,7 +11,7 @@
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --jobConfig=421358 --outputTXTFile=test_powheg_single_top_s_channel.TXT.tar.gz 
 
-echo "art-result:$? Gen_tf"
+echo "art-result: $? Gen_tf"
 
 simple_lhe_plotter.py test_powheg_single_top_s_channel.TXT.events
 
