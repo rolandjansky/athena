@@ -1615,6 +1615,19 @@ class WriteDAOD_EXOT28Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Stream)
 listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
 
+class WriteDAOD_EXOT29Stream(JobProperty):
+    """EXOT29: Lepton-only Displaced vertex"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT29'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT29.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT29Stream)
+listAODtoDPD.append(WriteDAOD_EXOT29Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
