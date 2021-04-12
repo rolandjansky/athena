@@ -99,34 +99,30 @@ CondInputLoader::initialize()
   IIOVDbSvc::KeyInfo info;
   DataObjIDColl handles_to_load;
 
-  std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
     if( m_IOVDbSvc->getKeyInfo(key, info) ) {
-      folderKeyMap[info.folderName] = key;
       m_keyFolderMap[key] = info.folderName;
     } else {
       ATH_MSG_WARNING("unable to retrieve keyInfo for " << key );
     }
   }
 
-  std::map<std::string,std::string>::const_iterator itr;
-  for (auto id : m_load) {
-    itr = folderKeyMap.find(id.key());
-    if (itr != folderKeyMap.end() && id.key() != itr->second) {
-      ATH_MSG_DEBUG(" mapping folder " << id.key() << " to SGkey " 
-                    << itr->second);
-      id.updateKey( itr->second );
-    // } else {
-    //   ATH_MSG_DEBUG(" not remapping folder " << id.key());
-    }
-    if (id.key() == "") {
-      ATH_MSG_INFO("ignoring blank key for " << id );
-      continue;
-    }
-    SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
-                         StoreID::storeName(StoreID::CONDITION_STORE));
-    handles_to_load.emplace(vhk.fullKey());
-  }
+  for (const auto& itr : m_keyFolderMap) { //loop over keys of IOVDbSvc
+    for (auto id : m_load) {
+      if (id.key() == itr.second) {//CondInputLoader deals with this folder
+	if (itr.second  != itr.first) {
+	  ATH_MSG_DEBUG(" mapping folder " << id.key() << " to SGkey " 
+			<< itr.first);
+	  id.updateKey( itr.first );
+	}//end if folder-name doesn't match SG key
+
+	SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
+			       StoreID::storeName(StoreID::CONDITION_STORE));
+	handles_to_load.emplace(vhk.fullKey()); 
+	break; //quit loop over m_load
+      } // end if CondInputLoader deals with this folder
+    }//end loop over m_load
+  }//end loop over m_keyFolderMap
 
   m_load = handles_to_load;
   m_handlesToCreate = handles_to_load;
