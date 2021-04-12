@@ -11,7 +11,7 @@ atlas_add_library( ByteStreamCnvSvcBaseLib
                    src/*.cxx
                    PUBLIC_HEADERS ByteStreamCnvSvcBase
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel StoreGateLib ByteStreamData_test
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel StoreGateLib
                    PRIVATE_LINK_LIBRARIES SGTools TestTools )
 
 atlas_add_component( ByteStreamCnvSvcBase
