@@ -153,6 +153,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
   m_doSetDetectorEta = m_globalConfig->GetValue("SetDetectorEta",true);
 
+  // Rho key specified in the config file?
+  m_rhoKey_config = m_globalConfig->GetValue("RhoKey", "None");
+
   // Get name of vertex container
   m_vertexContainerName = m_globalConfig->GetValue("VertexContainerName","PrimaryVertices");
   
@@ -161,7 +164,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
     m_doJetArea = false;
     m_doResidual = false;
   } else if ( calibSeq.Contains("JetArea") ) {
-    if ( m_rhoKey.compare("auto") == 0 ) {
+    if ( m_rhoKey.compare("auto") == 0 && m_rhoKey_config.compare("None") == 0) {
       if(!m_originCorrectedClusters){
         if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoEventShape";
         else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoEventShape";
@@ -171,6 +174,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
         else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoOriginEventShape";
         else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
       }
+    }
+    else if(m_rhoKey_config.compare("None") != 0 && m_rhoKey.compare("auto") == 0){
+      m_rhoKey = m_rhoKey_config;
     }
     ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
     ATH_CHECK( m_rhkRhoKey.initialize() );
