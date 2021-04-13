@@ -8,7 +8,7 @@
 @brief Utility functions used by RatesPostProcessing
 '''
 
-def toCSV(fileName, metadata, HLTTriggers):
+def toCSV(fileName, metadata, HLTTriggers, readL1=False):
   import csv
 
   with open(fileName, mode='w') as outputCSV_file:
@@ -18,9 +18,14 @@ def toCSV(fileName, metadata, HLTTriggers):
     rates_csv_writer.writerow(['Trigger name','Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','The prescale of this chain. Only displayed for simple combinations.','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger before prescale.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
 
     for trig in HLTTriggers:
-      group_name = metadata["chainGroup"][trig.name]
-    
-      chain_id = metadata["chainID"][trig.name]
+
+      group_name = chain_id = ""
+      if readL1:
+        group_name = "None"
+        chain_id = metadata["itemID"][trig.name]
+      else:
+        group_name = metadata["chainGroup"][trig.name]
+        chain_id = metadata["chainID"][trig.name]
 
       if float(trig.rateDenominator)==0:
         print("float(trig.rateDenominator) is ZERO! This shouldn't happen")
@@ -119,6 +124,12 @@ def getMetadata(inputFile):
   metadata['chainID'] = chainid
   metadata['chainGroup'] = chaingroup
 
+  itemid = {}
+  for i in range(0, metatree.l1ItemID.size()):
+    itemid[metatree.l1ItemID.at(i).at(0)] = metatree.l1ItemID.at(i).at(1)
+
+  metadata['itemID'] = itemid
+
   bunchGroups = []
   for bg in metatree.bunchGroups:
     bunchGroups.append(bg)
@@ -131,20 +142,23 @@ def populateTriggers(inputFile, metadata, globalGroup, filter):
   from .RatesTrigger import RatesTrigger
   triggerList = []
   for key in inputFile.GetListOfKeys():
-    if key.GetName() == 'Triggers':
-      for triggerKey in key.ReadObj().GetListOfKeys():
-        if triggerKey.GetName().startswith(filter):
-          for hist in triggerKey.ReadObj().GetListOfKeys():
-            if hist.GetName() == 'data':
-              triggerList.append( RatesTrigger(triggerKey.GetName(), metadata, hist.ReadObj(), globalGroup) )
+    if key.GetName() == 'All':
+      for subdirKey in key.ReadObj().GetListOfKeys():
+        for triggerKey in subdirKey.ReadObj().GetListOfKeys():
+          if triggerKey.GetName().startswith(filter):
+            for hist in triggerKey.ReadObj().GetListOfKeys():
+              if hist.GetName() == 'data':
+                triggerList.append( RatesTrigger(triggerKey.GetName(), metadata, hist.ReadObj(), globalGroup) )
   return triggerList
 
 
 def getGlobalGroup(inputFile, filter):
   for key in inputFile.GetListOfKeys():
-    if key.GetName() == 'Globals':
-      for globalsKey in key.ReadObj().GetListOfKeys():
-        if globalsKey.GetName() == filter:
-          for hist in globalsKey.ReadObj().GetListOfKeys():
-            if hist.GetName() == 'data':
-              return hist.ReadObj()
+    if key.GetName() == 'All':
+      for subdirKey in key.ReadObj().GetListOfKeys():
+        if not subdirKey.GetName() == "Rate_Group_HLT" : pass
+        for globalsKey in subdirKey.ReadObj().GetListOfKeys():
+          if globalsKey.GetName() == filter:
+            for hist in globalsKey.ReadObj().GetListOfKeys():
+              if hist.GetName() == 'data':
+                return hist.ReadObj()
