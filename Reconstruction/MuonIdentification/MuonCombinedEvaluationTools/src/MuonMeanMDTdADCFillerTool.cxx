@@ -28,8 +28,6 @@ namespace Rec {
         declareInterface<IMuonMeanMDTdADCFiller>(this);
     }
 
-    MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool(void) {}
-
     // Athena Algorithm's Hooks
     ////////////////////////////
     StatusCode MuonMeanMDTdADCFillerTool::initialize() {
@@ -38,12 +36,6 @@ namespace Rec {
         ATH_CHECK(m_edmHelperSvc.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_eventInfo.initialize());
-
-        return StatusCode::SUCCESS;
-    }
-
-    StatusCode MuonMeanMDTdADCFillerTool::finalize() {
-        ATH_MSG_INFO("Finalizing " << name() << "...");
 
         return StatusCode::SUCCESS;
     }

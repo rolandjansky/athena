@@ -27,7 +27,7 @@ namespace Rec {
          */
         virtual double meanMDTdADCFiller(const Trk::Track& track) const = 0;
 
-        inline const InterfaceID& interfaceID() {
+        static const InterfaceID& interfaceID() {
             static const InterfaceID IID_IMuonMeanMDTdADCFiller("Rec::IMuonMeanMDTdADCFiller", 1, 0);
             return IID_IMuonMeanMDTdADCFiller;
         }

@@ -168,7 +168,7 @@ namespace MuonCombined {
             parsCB[Trk::phi] += 2. * M_PI;
 
         return indetPerigee.associatedSurface().createUniqueParameters<5, Trk::Charged>(
-            parsCB[Trk::locX], parsCB[Trk::locY], parsCB[Trk::phi], parsCB[Trk::theta], parsCB[Trk::qOverP], covCB.release());
+            parsCB[Trk::locX], parsCB[Trk::locY], parsCB[Trk::phi], parsCB[Trk::theta], parsCB[Trk::qOverP], covCB);
     }
 
 }  // namespace MuonCombined
