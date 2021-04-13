@@ -12,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CSCcabling/CSCcablingSvc.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 
 #include <inttypes.h>
 #include <vector>
@@ -45,22 +45,18 @@ namespace Muon {
 
     virtual StatusCode initialize() override final;
 
-    virtual void getDigit(const CscRawData * rawData, Identifier& moduleId,
+    virtual void getDigit(const CscRawData * rawData, const CscIdHelper* cscIdHelper, Identifier& moduleId,
                   Identifier& channelId, double& adc, double& time) const override final;
-    virtual Identifier stationIdentifier(const CscRawData* rawData) const override final;
-    virtual Identifier channelIdentifier(const CscRawData * rawData, int j) const override final;
+    virtual Identifier stationIdentifier(const CscRawData* rawData, const CscIdHelper* cscIdHelper) const override final;
+    virtual Identifier channelIdentifier(const CscRawData * rawData, const CscIdHelper* cscIdHelper, int j) const override final;
 
   private:
     std::string m_detdescr;
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<CSCcablingSvc>       m_cabling{this, "CSCcablingSvc", "CSCcablingSvc", "CSC cabling service handle"};
     ToolHandle<ICscCalibTool>          m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool handle"};
     double   m_timeOffset   ;
     double   m_samplingTime ;
     double   m_signalWidth  ;
-    // the read out structure
-    mutable CscRODReadOut m_rodReadOut ATLAS_THREAD_SAFE; // guarded by m_mutex
-    mutable std::mutex m_mutex;
   };
 }
 

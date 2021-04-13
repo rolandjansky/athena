@@ -410,10 +410,10 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc(const CscRawDataCollection& rdoColl
       for (const CscRawData* data : rdoColl) {
 	uint16_t width = data->width();
         //        Identifier stationId = decoder.stationIdentifier(data);
-        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data);
+        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data,&m_idHelperSvc->cscIdHelper());
 	for (int j=0; j<width; ++j) {
           //          Identifier channelId = decoder.channelIdentifier(data, j);
-          Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+          Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(),j);
 	  std::vector<uint16_t> samples;
 	  bool extractSamples = data->samples(j, numSamples, samples);
 	  if (!extractSamples) {

@@ -190,7 +190,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   // and this is determined by the stationID, no the RDO hash ID
   ATH_MSG_DEBUG("CSC RDO ID " << rawCollection->identify() << " with hashID " << rawCollection->identifyHash() );
   // Just use the first iterator entry as stationID does not change between data inside a single container
-  Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
+  Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD), &m_idHelperSvc->cscIdHelper() );
   if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
     ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                        << "context begin_index = " << cscContext.begin_index()
@@ -224,7 +224,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
         << " stationId : " << stationId << "  hashOffset : " << hashOffset);
 
     for (unsigned int j=0; j<width; ++j) {
-      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(), j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
       const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
@@ -358,7 +358,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       // and this is determined by the stationID, no the RDO hash ID
       ATH_MSG_DEBUG("CSC RDO ID " << (*rdoColl)->identify() << " with hashID " << (*rdoColl)->identifyHash() );
       // Just use the first iterator entry as stationID does not change between data inside a single container
-      Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
+      Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD), &m_idHelperSvc->cscIdHelper() );
       if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
         ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                            << "context begin_index = " << cscContext.begin_index()
@@ -392,7 +392,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
                         << " stationId : " << stationId << "  hashOffset : " << hashOffset);
 
         for (unsigned int j=0; j<width; ++j) {
-          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(), j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
           const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
