@@ -174,7 +174,7 @@ namespace LVL1 {
     for(int thisCol=4; thisCol<12; thisCol++){
       for(int thisRow=0; thisRow<rows/4; thisRow++){
 
-        int towerid = initialFCAL1 - ((thisCol-12) * 64) + thisRow;
+        int towerid = initialFCAL1 - ((thisCol-4) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -186,7 +186,7 @@ namespace LVL1 {
     // Let's go with FCAL0
     // set the FCAL0 part
     for(int thisCol=12; thisCol<24; thisCol++){
-      for(int thisRow=0; thisRow<rows; thisRow++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
 
         int towerid = initialFCAL0 - ((thisCol-12) * 64) + thisRow;
 
@@ -203,7 +203,7 @@ namespace LVL1 {
     for(int thisCol=24; thisCol<28; thisCol++){
       for(int thisRow=0; thisRow<rows/2; thisRow++){
 
-        int towerid = initialEMEC + ((thisCol-24) * 64) + thisRow;
+        int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -215,7 +215,7 @@ namespace LVL1 {
     for(int thisCol=28; thisCol<38; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	
-	int towerid = initialEMEC - ((thisCol-28) * 64) + thisRow;
+	int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow; //note special case -24 rather than -28, this *is* deliberate
 
 	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -257,7 +257,7 @@ namespace LVL1 {
     }
 
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -341,9 +341,9 @@ namespace LVL1 {
 	else { ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |"); }
       }
     }
-      
+
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_1));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -451,7 +451,7 @@ namespace LVL1 {
 
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_2));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_2));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -543,7 +543,6 @@ namespace LVL1 {
 
     }
 
-
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
@@ -557,7 +556,7 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_3));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_3));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -623,7 +622,7 @@ namespace LVL1 {
 	
       }
     }
-    
+
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
@@ -637,7 +636,7 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_4));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_4));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -717,7 +716,7 @@ namespace LVL1 {
     for(int thisCol=17; thisCol<21; thisCol++){
       for(int thisRow=0; thisRow<rows/2; thisRow++){
 
-        int towerid = initialEMEC + ((thisCol-17) * 64) + thisRow;
+        int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow; //note special case -7 rather than -17, this *is* deliberate
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -780,7 +779,7 @@ namespace LVL1 {
     }
 
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardCSide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();

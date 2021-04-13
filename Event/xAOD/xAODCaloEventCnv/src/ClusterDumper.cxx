@@ -65,7 +65,7 @@ StatusCode ClusterDumper::execute() {
     ATH_MSG_INFO("Did not find corresponding cell-link container");
 
   
-  for (const auto& itr: *clustercontainer) {
+  for (const auto itr: *clustercontainer) {
     const xAOD::CaloCluster& cluster=*itr;
     (*m_out) << "Kinematics :" << std::endl;
     (*m_out) << "E=" << cluster.e() << ", eta=" << cluster.eta() << ", phi=" << cluster.phi() << ", m=" << cluster.m() << ", pt=" << cluster.pt() << std::endl;

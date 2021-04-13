@@ -7,6 +7,7 @@ log = logging.getLogger('testEDM')
 from TriggerEDM import (TriggerL2List, TriggerEFList, TriggerResultsList, TriggerResultsRun1List,
                         TriggerLvl1List, TriggerIDTruth, TriggerHLTList)
 from TriggerEDMRun2 import EDMDetails
+import TriggerEDMRun1
 from CLIDComps.clidGenerator import clidGenerator
 cgen = clidGenerator("", False)
 
@@ -20,6 +21,7 @@ def main():
   serializable_names = []
   serializable_names_no_label = []
   TriggerList = TriggerL2List + TriggerEFList + TriggerResultsList + TriggerResultsRun1List + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
+  TriggerList += TriggerEDMRun1.TriggerL2List + TriggerEDMRun1.TriggerEFList + TriggerEDMRun1.TriggerResultsRun1List
   for TriggerSerializable in TriggerList:
     #print TriggerSerializable 
     serializable_name = TriggerSerializable[0]
@@ -30,6 +32,7 @@ def main():
     #Check container has a CLID
     if not isCLIDDefined(serializable_name_no_label):
       log.error("no CLID for " + serializable_name)
+      return 1
     if serializable_name_no_label not in EDMDetails.keys():
       log.error(serializable_name_no_label + " does not correspond to any name in EDMDetails")
 

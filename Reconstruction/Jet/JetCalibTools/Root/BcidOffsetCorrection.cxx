@@ -7,17 +7,17 @@
 
 BcidOffsetCorrection::BcidOffsetCorrection()
   : JetCalibrationToolBase( "BcidOffsetCorrection::BcidOffsetCorrection" ),
-    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false)//,
+    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false)//,
 { }
 
 BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name)
   : JetCalibrationToolBase( name ),
-    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false)//,
+    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false)//,
 { }
 
-BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev)
+BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool /*dev*/)
   : JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_isData(isData)//,
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_isData(isData)//,
 { }
 
 BcidOffsetCorrection::~BcidOffsetCorrection() {

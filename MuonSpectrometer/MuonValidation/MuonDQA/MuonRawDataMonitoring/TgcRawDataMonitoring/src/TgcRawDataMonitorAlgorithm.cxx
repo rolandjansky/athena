@@ -18,19 +18,19 @@ namespace {
   constexpr float trigger_end = 2.4;
 
   /// Number of channels
-  constexpr int nchan_tgc_strip = 32;
+  //constexpr int nchan_tgc_strip = 32;
 
-  constexpr int nchan_tgc_wire_station1_lay1[] = {105,24,23,61,92};//F,E1,E2,E3,E4
-  constexpr int nchan_tgc_wire_station1_lay2[] = {104,24,23,62,91};
-  constexpr int nchan_tgc_wire_station1_lay3[] = {105,24,23,62,91};
+  //constexpr int nchan_tgc_wire_station1_lay1[] = {105,24,23,61,92};//F,E1,E2,E3,E4
+  //constexpr int nchan_tgc_wire_station1_lay2[] = {104,24,23,62,91};
+  //constexpr int nchan_tgc_wire_station1_lay3[] = {105,24,23,62,91};
 
-  constexpr int nchan_tgc_wire_station2[] = {125,32,32,32,103,110};//F,E1,E2,E3,E4,E5
+  //constexpr int nchan_tgc_wire_station2[] = {125,32,32,32,103,110};//F,E1,E2,E3,E4,E5
 
-  constexpr int nchan_tgc_wire_station3[] = {122,31,30,32,106,96};//F,E1,E2,E3,E4,E5
+  //constexpr int nchan_tgc_wire_station3[] = {122,31,30,32,106,96};//F,E1,E2,E3,E4,E5
 
-  constexpr int nchan_tgc_wire_station4_fi = 32;//FI
-  constexpr int nchan_tgc_wire_station4_ei = 24;//EI
-  constexpr int nchan_tgc_wire_station4_eis = 16;//EI(S)
+  //constexpr int nchan_tgc_wire_station4_fi = 32;//FI
+  //constexpr int nchan_tgc_wire_station4_ei = 24;//EI
+  //constexpr int nchan_tgc_wire_station4_eis = 16;//EI(S)
 }
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm(const std::string &name, ISvcLocator *pSvcLocator) :
   AthMonitorAlgorithm(name, pSvcLocator) {

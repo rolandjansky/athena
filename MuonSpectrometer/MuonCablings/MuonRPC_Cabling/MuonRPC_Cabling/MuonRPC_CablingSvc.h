@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CABLING_MUONRPC_CABLINGSVC_H
@@ -220,7 +220,6 @@ public:
     Identifier              m_offline_id[2][32][10];
     const Identifier m_uninitialized_identifier;
     
-    StringProperty  m_conf_filepath;
     StringProperty  m_conf_filename;
     StringProperty  m_corr_filename;
     BooleanProperty m_cosmic_configuration;

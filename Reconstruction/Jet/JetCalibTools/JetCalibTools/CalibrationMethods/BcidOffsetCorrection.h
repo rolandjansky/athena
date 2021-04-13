@@ -49,7 +49,6 @@ class BcidOffsetCorrection
  private:
   TEnv * m_config;
   TString m_jetAlgo, m_calibAreaTag;
-  bool m_dev;
   bool m_isData;
 
   bool m_doEMECIW2bcid;
@@ -69,42 +68,27 @@ class BcidOffsetCorrection
   bool m_doFCal2InnerBcid;
 
   TH2F* m_bcid_nCells_EMECIW2;
-  TH2F* m_bcid_nCells_EMECIW3;
   TH2F* m_bcid_nCells_HEC0;
   TH2F* m_bcid_nCells_HEC1;
-  TH2F* m_bcid_nCells_HEC2;
-  TH2F* m_bcid_nCells_HEC3;
   TH2F* m_bcid_nCells_FCal0;
 
   TH2F* m_bcid_slope_EMECIW2_pos;
-  TH2F* m_bcid_slope_EMECIW3_pos;
   TH2F* m_bcid_slope_HEC0_pos;
   TH2F* m_bcid_slope_HEC1_pos;
-  TH2F* m_bcid_slope_HEC2_pos;
-  TH2F* m_bcid_slope_HEC3_pos;
 
   TH2F* m_bcid_slope_EMECIW2_neg;
-  TH2F* m_bcid_slope_EMECIW3_neg;
   TH2F* m_bcid_slope_HEC0_neg;
   TH2F* m_bcid_slope_HEC1_neg;
-  TH2F* m_bcid_slope_HEC2_neg;
-  TH2F* m_bcid_slope_HEC3_neg;
 
   TH2F* m_bcid_slope_FCal0;
 
   TH2F* m_bcid_slope_EMECIW2_8b4e_pos;
-  TH2F* m_bcid_slope_EMECIW3_8b4e_pos;
   TH2F* m_bcid_slope_HEC0_8b4e_pos;
   TH2F* m_bcid_slope_HEC1_8b4e_pos;
-  TH2F* m_bcid_slope_HEC2_8b4e_pos;
-  TH2F* m_bcid_slope_HEC3_8b4e_pos;
 
   TH2F* m_bcid_slope_EMECIW2_8b4e_neg;
-  TH2F* m_bcid_slope_EMECIW3_8b4e_neg;
   TH2F* m_bcid_slope_HEC0_8b4e_neg;
   TH2F* m_bcid_slope_HEC1_8b4e_neg;
-  TH2F* m_bcid_slope_HEC2_8b4e_neg;
-  TH2F* m_bcid_slope_HEC3_8b4e_neg;
 
   TH2F* m_bcid_slope_FCal0_8b4e;
 

@@ -332,7 +332,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
 // dump the RDO in input
 void Muon::MdtRdoToPrepDataToolCore::printInputRdo()
 {
-  printInputRdo();
+  printInputRdo1();
 }
 void Muon::MdtRdoToPrepDataToolCore::printInputRdo1() const
 {

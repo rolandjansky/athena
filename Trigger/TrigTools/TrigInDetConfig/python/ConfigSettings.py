@@ -104,7 +104,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       else:
          return 'HLT_IDTrack_Tau_IDTrig'
 
-     
+
 
 class _ConfigSettings_bjet( _ConfigSettingsBase ):
    def __init__( self ):
@@ -129,7 +129,7 @@ class _ConfigSettings_minBias( _ConfigSettingsBase ):
       self._phiHalfWidth    = 3.14159
       self._doZFinder       = True
       self._doZFinderOnly   = True
-      
+
 
 
 class _ConfigSettings_beamSpot( _ConfigSettingsBase ):
@@ -168,7 +168,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._minCluster      = 8
       self._roadWidth       = 5
-      
+
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
    def __init__( self ):
@@ -185,17 +185,7 @@ class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._minCluster      = 8
       self._roadWidth       = 5
-      self._doRecord        = False  
-
-
-class _ConfigSettings_fullScanPreLRT( _ConfigSettingsBase ):
-   def __init__( self ):
-      _ConfigSettingsBase.__init__(self)
-      self._name     = "fullScanPreLRT"
-      self._suffix   = "FS"
-      self._roi      = "HLT_Roi_FS"
-      self._doFullScan = True
-      self._vertex     = "HLT_IDVertex_FS"
+      self._doRecord        = False
 
 
 class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
@@ -270,7 +260,7 @@ class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
       self._isLRT               = True
-      
+
 
 class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
    def __init__( self ):
@@ -369,10 +359,4 @@ _ConfigSettings = {
     "muonLRT"        : _ConfigSettings_muonLRT(),
     "tauLRT"         : _ConfigSettings_tauLRT(),
     "bjetLRT"        : _ConfigSettings_bjetLRT(),
-    "fullScanLRT"    : _ConfigSettings_fullScanLRT(),
-    "fullScanPreLRT" : _ConfigSettings_fullScanPreLRT() }
-
-   
-
-
-
+    "fullScanLRT"    : _ConfigSettings_fullScanLRT() }
