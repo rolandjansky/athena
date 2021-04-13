@@ -55,8 +55,9 @@ namespace LVL1 {
     virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
     virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
 
-    virtual StatusCode NewExecute(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
-    virtual StatusCode NewExecute(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
+    virtual StatusCode ExecuteForwardASide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
+    virtual StatusCode ExecuteForwardCSide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
+    virtual StatusCode ExecuteBarrel(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
     virtual std::vector<uint32_t> getSmallRJetTOBs() override;
     virtual std::vector<uint32_t> getLargeRJetTOBs() override;
 

@@ -42,6 +42,9 @@
 
 #include <ctime>
 
+#include <iostream>
+#include <fstream>
+
 #define DEBUG_VHB 1
 
 
@@ -145,6 +148,31 @@ StatusCode eFEXDriver::finalize()
   ATH_CHECK( m_eSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_eTowerContainerRaw));
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_eTowerContainerRaw));
+
+  // STEP 3.5 - Set up a the first CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
+  if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
+    if(m_numberOfEvents == 1){
+      std::ofstream sc_tower_map;
+      sc_tower_map.open("./sc_tower_map.csv");
+      sc_tower_map << "eTowerID,scID,slot,isSplit" << "\n";
+      
+      DataVector<LVL1::eTower>::iterator thistower;
+      for (thistower = local_eTowerContainerRaw->begin(); thistower != local_eTowerContainerRaw->end(); thistower++){
+	
+	int slotcount = 0;
+	for (int layer = 0; layer<=4; layer++){
+	  std::vector<Identifier> scIDs = (*thistower)->getLayerSCIDs(layer);
+	  std::vector<int> splits = (*thistower)->getETSplits();
+	  for (long unsigned int ncell = 0; ncell < scIDs.size(); ncell++){
+	    sc_tower_map << (*thistower)->id() << "," << scIDs[ncell] << "," << slotcount << "," << splits[slotcount] << "\n";
+	    slotcount++;
+	  }
+	}
+      }
+      sc_tower_map.close();
+      
+    }
+  }
 
   // STEP 4 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::eTowerContainer> eTowerContainerSG(m_eTowerContainerSGKey/*, ctx*/);
