@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -79,6 +79,10 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
 
     tileMBTSMonAlg.TriggerChain = ''
 
+    numberOfMBTS = 32
+    energyCuts = [0.1 for mbts in range(0, numberOfMBTS)]
+    kwargs.setdefault("EnergyCuts", energyCuts)
+
     for k, v in kwargs.items():
         setattr(tileMBTSMonAlg, k, v)
 
@@ -97,16 +101,13 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
                                      xbins = 100, xmin = 0, xmax = 1000)
 
 
-
-    numberOfMBTS = 32
-
     labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
     labelsMBTS +=  ['MBTSC' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
 
 
     # 2) Configure MBTS occupancy histogram
     occupancyGroup = helper.addGroup(tileMBTSMonAlg, 'TileOccupancyMBTS', 'Tile')
-    occupancyGroup.defineHistogram('EnergyCounter;Occupancy', path = 'MBTS/Cell', type='TH1F', weight = 'SummaryEnergy',
+    occupancyGroup.defineHistogram('HitCounter;Occupancy', path = 'MBTS/Cell', type='TH1F',
                                    xlabels = labelsMBTS, title = 'Run ' + run + ': MBTS Occupancy',
                                    xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
 
