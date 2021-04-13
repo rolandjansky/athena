@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,16 +47,3 @@ Trk::VolumeExcluder& Trk::VolumeExcluder::operator=(const VolumeExcluder &vol) {
 Trk::VolumeExcluder* Trk::VolumeExcluder::clone() const 
 { return new Trk::VolumeExcluder(*this); }    
     
-
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
-/*
-MsgStream& Trk::operator << ( MsgStream& sl, const Trk::VolumeExcluder& vol)
-{ }
-
-std::ostream& Trk::operator << ( std::ostream& sl, const Trk::VolumeExcluder& vol)
-{ 
-  sl << "Trk::VolumeExcluder :" << std::endl; 
-  return sl;
-}   
-*/
-

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenObjectsFilterTool.cxx 466446 2011-11-04 15:58:28Z aad $
 
 // System include(s):
 #include <cmath>
@@ -79,9 +78,6 @@ GenObjectsFilterTool::GenObjectsFilterTool( const std::string& type,
 }
 
 StatusCode GenObjectsFilterTool::initialize() {
-
-   // Let the user know that the tool is alive:
-   ATH_MSG_INFO( "Initializing. Package version: " << PACKAGE_VERSION );
 
    // Initialize the base class:
    CHECK( AthAlgTool::initialize() );

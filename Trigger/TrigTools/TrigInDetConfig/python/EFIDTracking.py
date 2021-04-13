@@ -215,6 +215,7 @@ def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None 
    #FIXME: these alg internally don't expect EFID setting (but FTF), have to take into consideration
    ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.input_name ),
                                                     config                = config,
+                                                    summaryTool           = None, # this argument is not used at the moment
                                                     inputTrackScoreMap    = get_scoremap_name( config.input_name ), #Map of tracks and their scores, 
                                                     outputTrackCollection = config.trkTracks_IDTrig()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
 

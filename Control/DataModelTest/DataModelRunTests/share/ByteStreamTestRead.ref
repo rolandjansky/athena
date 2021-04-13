@@ -74,7 +74,7 @@ Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
-ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
+ToolSvc.TrigSer...   INFO Initializing
 APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=EAD7484F-1F40-4344-A667-BB9C47536BE6
 APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
 xAODTestReadCVec     INFO HLT_DMTest__CVec_cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 

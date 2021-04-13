@@ -8,16 +8,16 @@
 
 #ifndef TRKPARAMETERSBASE_PARAMETERSBASE_H
 #define TRKPARAMETERSBASE_PARAMETERSBASE_H
-
-// Amg
-#include "CxxUtils/checker_macros.h"
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+//
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
+// Amg
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+//system
 #include <memory>
 #include <type_traits>
-
+#include <optional>
 class MsgStream;
 
 template<typename T>
@@ -106,14 +106,6 @@ public:
   /** set covariance */
   void setCovariance(const AmgSymMatrix(DIM) & cov);
 
-  /** Update parameters and covariance.
-   * Derived classes override the
-   * implementation via updateParametersHelper
-   * as this could possibly lead to updating
-   * other data members
-   */
-  void updateParameters(const AmgVector(DIM) &, AmgSymMatrix(DIM) * = nullptr);
-
   /** Update parameters  and covariance , passing covariance by ref. A
    * covariance is created if one does not exist.  Otherwise in place update
    * occurs via assignment.
@@ -124,6 +116,15 @@ public:
    * other data members
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
+
+  /** Update parameters.
+   * Derived classes override the
+   * implementation via updateParametersHelper
+   * as this could possibly lead to updating
+   * other data members
+   */
+  void updateParameters(const AmgVector(DIM)&);
+
 
   /** Returns the charge */
   virtual double charge() const = 0;
@@ -182,13 +183,13 @@ protected:
 
   /* Helper ctors for derived classes*/
   ParametersBase(const AmgVector(DIM) parameters,
-                 AmgSymMatrix(DIM) * covariance,
+                 std::optional<AmgSymMatrix(DIM)> covariance,
                  const T chargeDef);
 
-  ParametersBase(AmgSymMatrix(DIM) * covariance);
+  ParametersBase(std::optional<AmgSymMatrix(DIM)> covariance);
 
   ParametersBase(const AmgVector(DIM) & parameters,
-                 AmgSymMatrix(DIM) * covariance = nullptr);
+                 std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /*
    * Default Move ctor/assignment, private can be used
@@ -213,7 +214,7 @@ protected:
 
   AmgVector(DIM) m_parameters; //!< contains the n parameters
   //!< contains the n x n covariance matrix
-  std::unique_ptr<AmgSymMatrix(DIM)> m_covariance;
+  std::optional<AmgSymMatrix(DIM)> m_covariance = std::nullopt;
   T m_chargeDef; //!< charge definition for this track
 
   private:

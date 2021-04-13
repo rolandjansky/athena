@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_ZDCL1CALOERRORBYTESTREAMTOOL_H
@@ -29,13 +29,9 @@ class ZdcL1CaloErrorByteStreamTool : public AthAlgTool {
  public:
    ZdcL1CaloErrorByteStreamTool(const std::string& type, const std::string& name,
                              const IInterface* parent);
-   virtual ~ZdcL1CaloErrorByteStreamTool();
 
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
-
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
 
    /// Set ROB status error
    void robError(uint32_t robid, unsigned int err);

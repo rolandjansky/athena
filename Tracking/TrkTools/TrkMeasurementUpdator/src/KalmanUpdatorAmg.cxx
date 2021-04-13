@@ -798,7 +798,7 @@ Trk::KalmanUpdatorAmg::convertToClonedTrackPars(const Trk::TrackParameters& TP,
 
   std::unique_ptr<Trk::TrackParameters> resultPar =
     TP.associatedSurface().createUniqueTrackParameters(
-      par[0], par[1], par[2], par[3], par[4], new AmgSymMatrix(5)(covPar));
+      par[0], par[1], par[2], par[3], par[4], AmgSymMatrix(5)(covPar));
   // screen output
   if (msgLvl(MSG::VERBOSE) && resultPar) {
     char reportCalledInterface[80];

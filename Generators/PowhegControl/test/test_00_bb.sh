@@ -11,13 +11,13 @@
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --jobConfig=421354 --outputTXTFile=test_powheg_bb.TXT.tar.gz 
 
-echo "art-result:$? Gen_tf"
+echo "art-result: $? Gen_tf"
 
 simple_lhe_plotter.py test_powheg_bb.TXT.events
 
 echo "art-result: $? Plot"
 
-dcubeName="Powheg LHE"
+dcubeName="Powheg_LHE"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/config_file/test_00_config.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/reference_file/test_00_output_hists.root"
 

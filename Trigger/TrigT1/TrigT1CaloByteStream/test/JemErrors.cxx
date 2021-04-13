@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,14 +104,9 @@ JemErrors::~JemErrors()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 StatusCode JemErrors::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   // Initialise individual error flags
 

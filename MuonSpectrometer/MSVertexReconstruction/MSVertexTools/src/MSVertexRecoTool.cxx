@@ -498,7 +498,7 @@ namespace Muon {
                     // store the tracklet as a Trk::Perigee
                     Amg::Vector3D trkmomentum(trkpx, trkpy, trkpz);
                     Amg::Vector3D trkgpos(X1, Y1, tracklets.at(i).globalPosition().z());
-                    AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(tracklets.at(i).errorMatrix());
+                    AmgSymMatrix(5) covariance = AmgSymMatrix(5)(tracklets.at(i).errorMatrix());
                     Trk::Perigee* myPerigee = new Trk::Perigee(0., 0., trkmomentum.phi(), trkmomentum.theta(), charge / trkmomentum.mag(),
                                                                Trk::PerigeeSurface(trkgpos), covariance);
                     TracksForVertexing[k].push_back(myPerigee);
@@ -521,7 +521,7 @@ namespace Muon {
                     float errpz = tracklets.at(i).momentum().z();
 
                     // store the tracklet as a Trk::Perigee
-                    AmgSymMatrix(5)* covariance2 = new AmgSymMatrix(5)(tracklets.at(i).errorMatrix());
+                    AmgSymMatrix(5) covariance2 = AmgSymMatrix(5)(tracklets.at(i).errorMatrix());
                     Amg::Vector3D trkerrmom(errpx, errpy, errpz);
                     Amg::Vector3D trkerrpos(x1, y1, tracklets.at(i).globalPosition().z());
                     Trk::Perigee* errPerigee = new Trk::Perigee(0., 0., trkerrmom.phi(), trkerrmom.theta(), charge / trkerrmom.mag(),
@@ -702,7 +702,7 @@ namespace Muon {
                 for (unsigned int i = 0; i < UsedTracks[k].size(); ++i) {
                     if ((*vxtrk) == UsedTracks[k].at(i).first) {
                         Tracklet trklt = tracklets.at(UsedTracks[k].at(i).second);
-                        AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(trklt.errorMatrix());
+                        AmgSymMatrix(5) covariance = AmgSymMatrix(5)(trklt.errorMatrix());
                         Trk::Perigee* myPerigee = new Trk::Perigee(0., 0., trklt.momentum().phi(), trklt.momentum().theta(),
                                                                    trklt.charge() / trklt.momentum().mag(),
                                                                    Trk::PerigeeSurface(trklt.globalPosition()), covariance);
@@ -715,7 +715,7 @@ namespace Muon {
                                                              myPerigee->parameters()[Trk::phi0], myPerigee->parameters()[Trk::theta],
                                                              myPerigee->parameters()[Trk::qOverP]);
                         std::vector<float> covMatrixVec;
-                        Amg::compress(*covariance, covMatrixVec);
+                        Amg::compress(covariance, covMatrixVec);
                         trackparticle->setDefiningParametersCovMatrixVec(covMatrixVec);
 
                         vxTrackParticles.push_back(trackparticle);
@@ -853,7 +853,7 @@ namespace Muon {
         Amg::Vector3D vxpos(MyVx.x() * std::cos(vxphi), MyVx.x() * std::sin(vxphi), MyVx.z());
         std::vector<xAOD::TrackParticle*> vxTrkTracks;
         for (std::vector<Tracklet>::iterator tracklet = tracklets.begin(); tracklet != tracklets.end(); tracklet++) {
-            AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(((Tracklet)*tracklet).errorMatrix());
+            AmgSymMatrix(5) covariance = AmgSymMatrix(5)(((Tracklet)*tracklet).errorMatrix());
             Trk::Perigee* myPerigee = new Trk::Perigee(vxpos, ((Tracklet)*tracklet).momentum(), 0, vxpos, covariance);
             xAOD::TrackParticle* myTrack = new xAOD::TrackParticle();
 
@@ -864,7 +864,7 @@ namespace Muon {
                                            myPerigee->parameters()[Trk::qOverP]);
 
             std::vector<float> covMatrixVec;
-            Amg::compress(*covariance, covMatrixVec);
+            Amg::compress(covariance, covMatrixVec);
             myTrack->setDefiningParametersCovMatrixVec(covMatrixVec);
 
             vxTrkTracks.push_back(myTrack);
@@ -917,7 +917,7 @@ namespace Muon {
             // make Trk::Track for each tracklet used in the vertex fit
             std::vector<xAOD::TrackParticle*> vxTrackParticles;
             for (std::vector<Tracklet>::iterator trklt = tracks.begin(); trklt != tracks.end(); ++trklt) {
-                AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(trklt->errorMatrix());
+                AmgSymMatrix(5) covariance = AmgSymMatrix(5)(trklt->errorMatrix());
                 Trk::Perigee* myPerigee =
                     new Trk::Perigee(0., 0., trklt->momentum().phi(), trklt->momentum().theta(), trklt->charge() / trklt->momentum().mag(),
                                      Trk::PerigeeSurface(trklt->globalPosition()), covariance);
@@ -930,7 +930,7 @@ namespace Muon {
                                                      myPerigee->parameters()[Trk::phi0], myPerigee->parameters()[Trk::theta],
                                                      myPerigee->parameters()[Trk::qOverP]);
                 std::vector<float> covMatrixVec;
-                Amg::compress(*covariance, covMatrixVec);
+                Amg::compress(covariance, covMatrixVec);
                 trackparticle->setDefiningParametersCovMatrixVec(covMatrixVec);
 
                 vxTrackParticles.push_back(trackparticle);

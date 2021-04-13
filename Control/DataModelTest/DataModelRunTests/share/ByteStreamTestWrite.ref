@@ -36,7 +36,7 @@ LoadWriteDicts       INFO Initializing LoadWriteDicts...
 ClassIDSvc           INFO  getRegistryEntries: read 3126 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 ClassIDSvc           INFO  getRegistryEntries: read 111 CLIDRegistry entries for module ALL
-ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
+ToolSvc.TrigSer...   INFO Initializing
 ClassIDSvc           INFO  getRegistryEntries: read 17980 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00

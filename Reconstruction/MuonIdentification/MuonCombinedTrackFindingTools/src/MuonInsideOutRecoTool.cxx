@@ -30,7 +30,6 @@ namespace MuonCombined {
     ATH_CHECK(m_segmentMatchingTool.retrieve());
     ATH_CHECK(m_ambiguityResolver.retrieve());
     ATH_CHECK(m_candidateTrackBuilder.retrieve());
-    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_CHECK(m_trackAmbiguityResolver.retrieve());
     //trigger does not use primary vertex
@@ -76,8 +75,6 @@ namespace MuonCombined {
       return;
     }
     
-    // fill validation content
-    if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
     
     // loop over intersections, get segments
     std::vector< Muon::MuonLayerRecoData > allLayers;
@@ -100,20 +97,11 @@ namespace MuonCombined {
       m_segmentFinder->find( *it, segments, layerPrepRawData, ctx );
       if( segments.empty() ) continue;
 
-      // fill validation content
-      if( !m_recoValidationTool.empty() ) {
-        for( const auto& seg : segments ) m_recoValidationTool->add(*it,*seg,0);
-      }
-
       // match segments to intersection
       std::vector< std::shared_ptr<const Muon::MuonSegment> > selectedSegments;
       m_segmentMatchingTool->select( *it, segments, selectedSegments );
       if( selectedSegments.empty() ) continue;
 
-      // fill validation content
-      if( !m_recoValidationTool.empty() ) {
-        for( const auto& seg : segments ) m_recoValidationTool->add(*it,*seg,1);
-      }
       
       // add to total list
       allLayers.push_back( Muon::MuonLayerRecoData(*it,std::move(selectedSegments)) );

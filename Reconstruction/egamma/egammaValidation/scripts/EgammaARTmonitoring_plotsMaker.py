@@ -166,8 +166,6 @@ photonfake_fraction_list = [
      'title': 'True Unconv #rightarrow TRT-TRT Conv'},
     {'name': 'truthPhotonUnconvRecoConv2SiTRTEfficiency', 'color': kCyan + 2,
      'title': 'True Unconv #rightarrow Si-TRT Conv'},
-    {'name': 'truthPhotonUnconvRecoUnconvEfficiency',
-        'color': kPink + 2, 'title': 'True Unconv #rightarrow Unconv'}
 ]
 
 photon_efficiency_list = [
@@ -204,7 +202,7 @@ photon_track_list = [
     {'name': 'InDetTracksMatchPion', 'color': kGreen +
         2, 'title': 'Matched to true Pion'},
     {'name': 'InDetTracksNotMatched', 'color': kCyan +
-        2, 'title': 'Not matched to truth'},
+        2, 'title': 'Not matched to truth'}
 ]
 
 photon_trackTRT_list = [
@@ -217,7 +215,7 @@ photon_trackTRT_list = [
     {'name': 'InDetTracksTRTMatchPion', 'color': kGreen +
         2, 'title': 'Matched to true Pion'},
     {'name': 'InDetTracksTRTNotMatched', 'color': kCyan +
-        2, 'title': 'Not matched to truth'},
+        2, 'title': 'Not matched to truth'}
 ]
 
 photon_trackhighpT_list = [
@@ -230,7 +228,7 @@ photon_trackhighpT_list = [
     {'name': 'InDetTracksMatchPionhighpT', 'color': kGreen +
         2, 'title': 'Matched to true Pion'},
     {'name': 'InDetTracksNotMatchedhighpT', 'color': kCyan +
-        2, 'title': 'Not matched to truth'},
+        2, 'title': 'Not matched to truth'}
 ]
 
 photon_trackTRThighpT_list = [
@@ -243,7 +241,7 @@ photon_trackTRThighpT_list = [
     {'name': 'InDetTracksTRTMatchPionhighpT', 'color': kGreen +
         2, 'title': 'Matched to true Pion'},
     {'name': 'InDetTracksTRTNotMatchedhighpT', 'color': kCyan +
-        2, 'title': 'Not matched to truth'},
+        2, 'title': 'Not matched to truth'}
 ]
 
 
@@ -403,7 +401,7 @@ def make_conversion_plot(f_base, f_nightly, result_file):
         c1.Write("ConversionRadiusTrueVsReco")
 
 
-def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, folder_list, plot_name, axis_title, normalize = False):
+def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, folder_list, plot_name, axis_title, ymin, ymax, normalize = False):
     """
     This functions created a photon validation plot with efficiencies
     and fractions
@@ -438,14 +436,8 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, fo
                 if nightly.Integral() != 0:
                     nightly.Scale(1/nightly.Integral())
 
-            baseline.SetMinimum(
-                min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
-            baseline.SetMaximum(
-                max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
-
-            if variable_name != -1:
-                baseline.SetMinimum(0.);
-                baseline.SetMaximum(1.3);
+            baseline.SetMinimum(ymin)
+            baseline.SetMaximum(ymax)
 
             baseline.GetYaxis().SetTitle(axis_title)
 
@@ -603,13 +595,13 @@ if __name__ == '__main__':
 
     if particle_type == 'gamma':
 
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonConvRecoConvEfficiency', photon_fraction_list, 'ConvertionEff_TrueConv', "Efficiency and fraction")
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonUnconvRecoConvEfficiency', photonfake_fraction_list, 'ConvertionEff_TrueUnconv', "Efficiency and fraction")
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonRecoPhotonEfficiency', photon_efficiency_list, 'PhotonEff', "Efficiency")
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracks', photon_track_list, 'Track', "Tracks", True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRT', photon_trackTRT_list, 'TrackTRT', "Tracks", True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTrackshighpT', photon_trackhighpT_list, 'TrackhighpT', "Tracks", True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRThighpT', photon_trackTRThighpT_list, 'TrackTRThighpT', "Tracks", True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonConvRecoConvEfficiency', photon_fraction_list, 'ConvertionEff_TrueConv', "Efficiency and fraction", 0., 1.3)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonUnconvRecoConvEfficiency', photonfake_fraction_list, 'ConvertionEff_TrueUnconv', "Efficiency and fraction", 0., 0.2)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonRecoPhotonEfficiency', photon_efficiency_list, 'PhotonEff', "Efficiency", 0.8, 1.15)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracks', photon_track_list, 'Track', "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRT', photon_trackTRT_list, 'TrackTRT', "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTrackshighpT', photon_trackhighpT_list, 'TrackhighpT', "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRThighpT', photon_trackTRThighpT_list, 'TrackTRThighpT', "Tracks", 0., 1.3, True)
         make_conversion_plot(baseline_file, nightly_file, output_file)
 
 

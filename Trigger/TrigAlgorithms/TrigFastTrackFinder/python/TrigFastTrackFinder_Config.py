@@ -196,15 +196,13 @@ remap  = {
     "minBias"  : "minBias400"
 }
 
-lrtSliceNames = ["electronLRT", "muonLRT", "tauLRT", "bjetLRT", "fullScanLRT"]
-
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
     def __init__(self, name, slice_name, conditionsTool=None):
         TrigFastTrackFinder.__init__(self,name)
 
         #Remapping should be now covered by SliceConfigurationSetting
- 
+
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
         config = getInDetTrigConfig( slice_name )
@@ -215,11 +213,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             self.doJseedHitDV = True
             self.dodEdxTrk    = True
 
-
-        isLRT = False
-
-        if remapped_type in lrtSliceNames:
-            isLRT = True
 
         #Global keys/names for collections
         from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
@@ -250,7 +243,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.doResMon = config.doResMon
 
-        
+
 
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(slice_name, self.doResMon)
@@ -286,7 +279,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
 
-        self.LRT_Mode = isLRT
+        self.LRT_Mode = config.isLRT
 
         self.Triplet_MaxBufferLength = 3
         self.doSeedRedundancyCheck = config.doSeedRedundancyCheck
@@ -334,7 +327,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
           TrackingCuts = EFIDTrackingCutsCosmics
-        if isLRT:
+        if config.isLRT:
             from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
             TrackingCuts = EFIDTrackingCutLRT
 
@@ -412,8 +405,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
-          
-          if config.holeSearch_FTF : 
+
+          if config.holeSearch_FTF :
               from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
               self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 
@@ -427,8 +420,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
               self.HitDVSP        = "HLT_HitDVSP"
               self.dEdxTrk        = "HLT_dEdxTrk"
               self.dEdxHit        = "HLT_dEdxHit"
-              
-              
+
+
 
 class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Muon"):

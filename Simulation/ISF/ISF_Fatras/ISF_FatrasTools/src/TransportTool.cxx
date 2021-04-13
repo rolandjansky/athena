@@ -283,8 +283,8 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
 
     if (m_validationOutput && m_errorPropagation ) {
       // input covariance matrix
-      AmgSymMatrix(5)* inputCov = new AmgSymMatrix(5);
-      inputCov->setZero();
+      AmgSymMatrix(5) inputCov;
+      inputCov.setZero();
       const Trk::TrackParameters* measuredInputPar =
         inputPar.associatedSurface()
           .createUniqueTrackParameters(inputPar.parameters()[0],
@@ -292,7 +292,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
                                        inputPar.parameters()[2],
                                        inputPar.parameters()[3],
                                        inputPar.parameters()[4],
-                                       inputCov)
+                                       std::move(inputCov))
           .release();
       eParameters = processor->extrapolateWithPathLimit(*measuredInputPar,
                                                         pathLim,

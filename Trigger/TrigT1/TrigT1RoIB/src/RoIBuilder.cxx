@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBuilder.cxx 667020 2015-05-13 20:40:26Z stelzer $
 
 // STL includes:
 #include <iomanip>
@@ -47,7 +46,6 @@ namespace ROIB {
 
       ATH_MSG_INFO( "========================================" );
       ATH_MSG_INFO( "Initialisation for RoIBuilder algorithm." );
-      ATH_MSG_INFO( " Version: " << PACKAGE_VERSION );
       ATH_MSG_INFO( "========================================" );
       // Print system info
       if( ! m_doCalo ) {
@@ -80,15 +78,6 @@ namespace ROIB {
       CHECK( m_ctpSLinkLocation.initialize() );
       CHECK( m_roibRDOLocation.initialize() );
 
-      return StatusCode::SUCCESS;
-   }
-
-   //---------------------------------
-   // finalize()
-   //---------------------------------
-   StatusCode RoIBuilder::finalize() {
-      ATH_MSG_INFO( "Finalizing " << name()
-                    << " - package version " << PACKAGE_VERSION );
       return StatusCode::SUCCESS;
    }
 

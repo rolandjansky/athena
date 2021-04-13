@@ -295,7 +295,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       updatedParameters1[Trk::qOverP] *= zinv1;
 
       // Prepare the same error on qop for step one
-      AmgSymMatrix(5)* updatedCovariance1 = new AmgSymMatrix(5)(merr);
+      AmgSymMatrix(5) updatedCovariance1 = AmgSymMatrix(5)(merr);
 
       // Change updatedPar for step one
       const Trk::TrackParameters* clonePars1 =
@@ -332,12 +332,12 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       updatedParameters2[Trk::qOverP] *= zinv2;
 
       // --- Prepare the same error on qop for step two
-      AmgSymMatrix(5)* updatedCovariance2 =
-        new AmgSymMatrix(5)(*(updatedPar->covariance()));
+      AmgSymMatrix(5) updatedCovariance2 =
+        AmgSymMatrix(5)(*(updatedPar->covariance()));
 
       // --- Change updatedPar for step two
       const Trk::TrackParameters* clonePars2 =
-        CREATE_PARAMETERS(*updatedPar, updatedParameters2, updatedCovariance2).release();
+        CREATE_PARAMETERS(*updatedPar, updatedParameters2, std::move(updatedCovariance2)).release();
       delete updatedPar;
       updatedPar = clonePars2;
 
@@ -567,8 +567,8 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
     sigmaQoverP = dna * std::fabs(updatedParameters[Trk::qOverP]);
 
-    AmgSymMatrix(5)* updatedCovariance = new AmgSymMatrix(5)(merr);
-    (*updatedCovariance)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
+    AmgSymMatrix(5) updatedCovariance = AmgSymMatrix(5)(merr);
+    (updatedCovariance)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
     const Trk::TrackParameters* clonePars =
       (updatedPar->associatedSurface())
@@ -577,7 +577,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
                                      updatedParameters[2],
                                      updatedParameters[3],
                                      updatedParameters[4],
-                                     updatedCovariance)
+                                     std::move(updatedCovariance))
         .release();
     delete updatedPar;
     updatedPar = clonePars;

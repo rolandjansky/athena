@@ -28,6 +28,7 @@
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
+#include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
@@ -36,6 +37,7 @@
 
 class JetPileupCorrection;
 class ResidualOffsetCorrection;
+class BcidOffsetCorrection;
 class EtaJESCorrection;
 class GlobalSequentialCorrection;
 class InsituDataCorrection;
@@ -121,6 +123,7 @@ private:
   std::string m_vertexContainerName;
   bool m_insituCombMassCalib;
   std::vector<TString> m_insituCombMassConfig;
+  std::string m_rhoKey_config;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
@@ -129,6 +132,7 @@ private:
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;
+  bool m_doBcid;
   bool m_doJetArea;
   bool m_doResidual;
   bool m_doOrigin;
@@ -141,6 +145,7 @@ private:
 
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;
+  BcidOffsetCorrection * m_bcidCorr;
   JetPileupCorrection * m_jetPileupCorr;
   EtaJESCorrection * m_etaJESCorr;
   GlobalSequentialCorrection * m_globalSequentialCorr;

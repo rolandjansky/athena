@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
@@ -26,7 +26,6 @@ namespace LVL1MUCTPIPHASE1 {
     // Init message
     ATH_MSG_INFO( "=======================================" );
     ATH_MSG_INFO( "Initialisation for MUCTPI_AthAlg"  );
-    ATH_MSG_INFO( "Package version: " << PACKAGE_VERSION    );
     ATH_MSG_INFO( "=======================================" );
 
     ATH_MSG_DEBUG("retrieving " << m_muctpiTool);

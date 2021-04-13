@@ -368,6 +368,7 @@ class MuonThreshold( Threshold ):
 
     def setExclusionList(self, exclusionList):
         self.rpcExclROIList = exclusionList
+        return self
 
     def setThrValue(self, thr = None, ba = None, ec = None, fw = None):
         """
@@ -390,19 +391,29 @@ class MuonThreshold( Threshold ):
 
         # set the threshold index from the pT value
         muonRoads = getTypeWideThresholdConfig(ThrType.MU)["roads"]
-        if self.baThr in muonRoads["rpc"]:
+        try:
             self.baIdx = muonRoads["rpc"][self.baThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the barrel" % self.baThr)
-        if self.ecThr in muonRoads["tgc"]:
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the barrel", self.baThr)
+            log.error("Only these barrel roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["rpc"]]))
+            raise ex
+
+        try:
             self.ecIdx = muonRoads["tgc"][self.ecThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the endcap" % self.ecThr)
-        if self.fwThr in muonRoads["tgc"]:
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the endcap", self.ecThr)
+            log.error("Only these endcaps roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["tgc"]]))
+            raise ex
+
+        try:
             self.fwIdx = muonRoads["tgc"][self.fwThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the endcap" % self.fwThr)
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the endcap", self.ecThr)
+            log.error("Only these endcaps roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["tgc"]]))
+            raise ex
+
         return self
+
 
     def json(self):
         confObj = odict()

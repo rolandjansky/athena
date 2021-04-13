@@ -283,7 +283,7 @@ namespace InDet {
       Trk::TrackParameters* tmpMeasPer =
         surface
           .createUniqueParameters<5, Trk::Charged>(
-            0., 0., iv[2], iv[3], iv[4], &em)
+            0., 0., iv[2], iv[3], iv[4], std::move(em))
           .release();
 
       Trk::VxTrackAtVertex trkV(vtxTrack.trackQuality().chiSquared(),

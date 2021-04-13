@@ -34,22 +34,22 @@ using Gaudi::Units::GeV;
 namespace {
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5a()
+AmgSymMatrix(5) cov5a()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setZero();
+  AmgSymMatrix(5) m;
+  m.setZero();
   for (int i=0; i < 5; i++) {
-    (*m)(i,i) = 1e-2;
+    (m)(i,i) = 1e-2;
   }
-  (*m)(1,1)=1;
+  (m)(1,1)=1;
   return m;
 }
 
@@ -68,9 +68,9 @@ PerigeeUVec_t makePerigees1()
 
   PerigeeUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1b, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1c, cov5().release()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1b, cov5()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1c, cov5()).release());
 
   return ret;
 }
@@ -88,9 +88,9 @@ PerigeeUVec_t makePerigees2()
 
   PerigeeUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1a, cov5a().release()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a()).release());
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1a, cov5a()).release());
 
   return ret;
 }

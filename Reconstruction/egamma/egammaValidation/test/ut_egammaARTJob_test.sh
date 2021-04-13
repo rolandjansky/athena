@@ -6,13 +6,19 @@ else
 	echo "Reco tf failure"
 fi
 
+rm tmp.ESD >> /dev/null 2>&1
+rm log.RAWtoESD >> /dev/null 2>&1
+rm log.ESDtoAOD >> /dev/null 2>&1
+
 if AODMerge_tf.py --inputAODFile=Nightly_AOD_electron.pool.root --outputAOD_MRGFile=Nightly_AOD_electron.pool.root --preExec "from egammaValidation.egammaOnlyPreExec import setRunEgammaOnlyMergeFlags; setRunEgammaOnlyMergeFlags()" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py">>/dev/null 2>&1 ; then 
 	echo "Merge success"
 else
 	echo "Merge failure"
 fi
 
-get_files -jo egamma_art_checker_joboptions.py >> /dev/null
+rm log.AODMerge >> /dev/null 2>&1
+
+get_files -jo egamma_art_checker_joboptions.py >> /dev/null 2>&1
 if athena -c "particleType='electron'" egamma_art_checker_joboptions.py >> /dev/null 2>&1; then
 	echo "Plot maker success"
 else

@@ -52,10 +52,7 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1 if ConfigFlags.Trigger.enableL1MuonPhase1 is not None else False
     if enableL1MuonPhase1:
         ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool = False
-        from PathResolver import PathResolver
-        ServiceMgr.MuonRPC_CablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")
-    else:
-        ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool = True
+        ServiceMgr.MuonRPC_CablingSvc.DatabaseRepository="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
     from IOVDbSvc.CondDB import conddb
     #
     # Cabling maps folders from DB

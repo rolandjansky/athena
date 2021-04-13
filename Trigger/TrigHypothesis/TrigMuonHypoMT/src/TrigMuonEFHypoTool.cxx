@@ -166,8 +166,41 @@ StatusCode TrigMuonEFHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolI
   for (auto& tool : toolInput){
     if(TrigCompositeUtils::passed(m_decisionId.numeric(), tool.previousDecisionIDs)){
       if(decideOnSingleObject(tool, 0)==true){
-	ATH_MSG_DEBUG("Passes selection");
-	TrigCompositeUtils::addDecisionID(m_decisionId, tool.decision);
+        if(m_nscan){
+        ATH_MSG_DEBUG("Applying narrow-scan selection");
+        float deta,dphi=10;
+        unsigned int nInCone=0;
+    	float muonR = sqrt( pow(tool.muon->eta(),2) +pow(tool.muon->phi(),2));
+    	float coneCheck=m_conesize*muonR;
+          for (auto& tooltmp : toolInput){
+            ATH_MSG_DEBUG(">>Testing Muon with pt: "<<tooltmp.muon->pt() << "GeV, eta: "
+                       << tooltmp.muon->eta() << ", phi: " << tooltmp.muon->phi());
+            if (tooltmp.muon->p4() == tool.muon->p4()) {
+            ATH_MSG_DEBUG("<< same muon, skipping...");
+            }else {
+
+      	  deta = fabs(tooltmp.muon->eta()-tool.muon->eta());
+    	  dphi = getdphi(tooltmp.muon->phi(),tool.muon->phi());
+      	  if(deta<coneCheck && dphi<m_conesize){
+      	    nInCone++;
+      	  }
+
+              ATH_MSG_DEBUG(">> dPhi is: " << dphi);
+              ATH_MSG_DEBUG(">> dEta is: " << deta);
+              ATH_MSG_DEBUG(">> dR is: " <<sqrt( pow( deta, 2) + pow( dphi, 2) ));
+
+            }  
+          } 
+          //end test nscan
+
+          if (nInCone > 0) {
+	    ATH_MSG_DEBUG("Passes narrow-scan  selection");
+	    TrigCompositeUtils::addDecisionID(m_decisionId, tool.decision);
+          }else ATH_MSG_DEBUG("Does not pass narrow-scan selection");
+        }else{
+	  ATH_MSG_DEBUG("Passes selection");
+	  TrigCompositeUtils::addDecisionID(m_decisionId, tool.decision);
+        }
       }
       else ATH_MSG_DEBUG("Does not pass selection");
     }
@@ -221,4 +254,10 @@ StatusCode TrigMuonEFHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& to
     TrigCompositeUtils::addDecisionID(m_decisionId.numeric(), toolInput[i].decision);
   }
   return StatusCode::SUCCESS;
+}
+float TrigMuonEFHypoTool::getdphi(float phi1, float phi2) const{
+  float dphi = phi1-phi2;
+  if(dphi > TMath::Pi()) dphi -= TMath::TwoPi();
+  if(dphi < -1*TMath::Pi()) dphi += TMath::TwoPi();
+  return fabs(dphi);
 }

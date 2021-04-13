@@ -47,7 +47,12 @@ class MuonPatternCalibration : virtual public IMuonPatternCalibration, public At
         RegionIdMap   mdtPrdsPerChamber;
     };
 
-    typedef std::map<int, Region>     RegionMap;
+    struct Containers
+    {
+      const Muon::RpcPrepDataContainer* m_rpcPrdContainer = nullptr;
+      const Muon::TgcPrepDataContainer* m_tgcPrdContainer = nullptr;
+    };
+    typedef std::map<int, Region> RegionMap;
     typedef RegionMap::iterator       RegionMapIt;
     typedef RegionMap::const_iterator RegionMapCit;
 
@@ -98,7 +103,7 @@ class MuonPatternCalibration : virtual public IMuonPatternCalibration, public At
                    const Amg::Vector3D& patdire, bool hasPhiMeasurements) const;
 
 
-    void retrieveTriggerHitContainers(const EventContext& ctx) const;
+    Containers retrieveTriggerHitContainers(const EventContext& ctx) const;
 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator{
         this,
@@ -132,8 +137,6 @@ class MuonPatternCalibration : virtual public IMuonPatternCalibration, public At
 
     SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_keyRpc;
     SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_keyTgc;
-    mutable const Muon::RpcPrepDataContainer*     m_rpcPrdContainer;
-    mutable const Muon::TgcPrepDataContainer*     m_tgcPrdContainer;
 };
 
 }  // namespace Muon

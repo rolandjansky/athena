@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
   // Init message stream
   
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataSectorLogic': "           );
-  ATH_MSG_INFO( "Package version = "      << PACKAGE_VERSION             );
 
   m_rpc_eventstotal = 0;
   m_rpc_event_inarea = 0; 

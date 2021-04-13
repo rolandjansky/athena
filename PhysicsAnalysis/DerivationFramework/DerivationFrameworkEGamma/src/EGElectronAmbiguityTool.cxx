@@ -23,16 +23,16 @@
 #include "TMath.h"
 
 namespace {
-  SG::AuxElement::Decorator< float > drv("DFCommonSimpleConvRadius");
-  SG::AuxElement::Decorator< float > dphiv("DFCommonSimpleConvPhi");
-  SG::AuxElement::Decorator< float > dmee("DFCommonSimpleMee");
-  SG::AuxElement::Decorator< float > dmeeVtx("DFCommonSimpleMeeAtVtx");
-  SG::AuxElement::Decorator< float > dsep("DFCommonSimpleSeparation");
-  SG::AuxElement::Decorator< int > dambi("DFCommonAddAmbiguity");
+  const SG::AuxElement::Decorator< float > drv("DFCommonSimpleConvRadius");
+  const SG::AuxElement::Decorator< float > dphiv("DFCommonSimpleConvPhi");
+  const SG::AuxElement::Decorator< float > dmee("DFCommonSimpleMee");
+  const SG::AuxElement::Decorator< float > dmeeVtx("DFCommonSimpleMeeAtVtx");
+  const SG::AuxElement::Decorator< float > dsep("DFCommonSimpleSeparation");
+  const SG::AuxElement::Decorator< int > dambi("DFCommonAddAmbiguity");
 
-  SG::AuxElement::Decorator< float > dtrv("DFCommonProdTrueRadius");
-  SG::AuxElement::Decorator< float > dtpv("DFCommonProdTruePhi");
-  SG::AuxElement::Decorator< float > dtzv("DFCommonProdTrueZ");
+  const SG::AuxElement::Decorator< float > dtrv("DFCommonProdTrueRadius");
+  const SG::AuxElement::Decorator< float > dtpv("DFCommonProdTruePhi");
+  const SG::AuxElement::Decorator< float > dtzv("DFCommonProdTrueZ");
 } //> end anonymous namespace
 
 namespace DerivationFramework {
@@ -66,7 +66,7 @@ namespace DerivationFramework {
   StatusCode EGElectronAmbiguityTool::addBranches() const
   {
 
-    static SG::AuxElement::ConstAccessor<char> aidCut(m_idCut);
+    static const SG::AuxElement::ConstAccessor<char> aidCut(m_idCut);
 
     // retrieve primary vertex
     const xAOD::Vertex *pvtx(nullptr);
@@ -75,7 +75,7 @@ namespace DerivationFramework {
       ATH_MSG_ERROR( "Failed to retrieve vertex container. Exiting." );
       return StatusCode::FAILURE;
     }
-    for (auto vertex: *vtxC) {
+    for (const auto *vertex: *vtxC) {
       if (vertex->vertexType() == xAOD::VxType::VertexType::PriVtx) {
         pvtx = vertex;
         break;
@@ -117,12 +117,12 @@ namespace DerivationFramework {
     std::set<const xAOD::TrackParticle*> eleIDtpStored, eleGSFtpStored;
     auto closeByTracks = std::make_unique<ConstDataVector<xAOD::TrackParticleContainer>>(SG::VIEW_ELEMENTS);
 
-    for (auto ele : *eleC) {
+    for (const auto *ele : *eleC) {
 
       dambi(*ele) = -1;
 
       // Electron preselection
-      if (ele->pt() < m_elepTCut || !(m_idCut.size() && aidCut.isAvailable(*ele) && aidCut(*ele)))
+      if (ele->pt() < m_elepTCut || !(!m_idCut.empty() && aidCut.isAvailable(*ele) && aidCut(*ele)))
         continue;
 
       // Just for debug
@@ -135,7 +135,7 @@ namespace DerivationFramework {
         eleIDtpStored.insert(eleIDtp);
 
       // The loop on track
-      for (auto tp : *idtpC) {
+      for (const auto *tp : *idtpC) {
 
         // Keep the electron track (I build a container to run vertexing on it...)
         if (tp == eleIDtp) {
@@ -168,7 +168,7 @@ namespace DerivationFramework {
       }
     }
 
-    if (closeByTracks->size() == 0)
+    if (closeByTracks->empty())
       return StatusCode::SUCCESS;
 
     // Record the objects into the event store
@@ -191,18 +191,18 @@ namespace DerivationFramework {
       }
 
       ATH_MSG_DEBUG("Number of input tracks " << idtpC->size() << " , number of selected close-by tracks " << idSeltpC->size() << " , number of GSF tracks " << tpC->size());
-      for (auto trk : eleIDtpStored)
+      for (const auto *trk : eleIDtpStored)
         ATH_MSG_DEBUG("ele  ID trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
-      for (auto trk : eleGSFtpStored)
+      for (const auto *trk : eleGSFtpStored)
         ATH_MSG_DEBUG("ele GSF trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
-      for (auto trk : *idSeltpC)
+      for (const auto *trk : *idSeltpC)
         ATH_MSG_DEBUG("closeby trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
     }
 
-    for (auto ele : *eleC) {
+    for (const auto *ele : *eleC) {
 
       // Electron preselection
-      if (ele->pt() < m_elepTCut || !(m_idCut.size() && aidCut.isAvailable(*ele) && aidCut(*ele)))
+      if (ele->pt() < m_elepTCut || !(!m_idCut.empty() && aidCut.isAvailable(*ele) && aidCut(*ele)))
         continue;      
 
       // Henri's circles
@@ -253,7 +253,7 @@ StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const xA
   }
   const xAOD::TrackParticle *otrkP(nullptr);
   double detaMin = 9e9;
-  for (auto tp : *tpC) {
+  for (const auto *tp : *tpC) {
     // Keep only opposite charge
     if (tp->charge() * eletrkP->charge() > 0)
       continue;
@@ -389,7 +389,7 @@ StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const xA
 
 void DerivationFramework::EGElectronAmbiguityTool::helix(const xAOD::TrackParticle *trkP, const xAOD::Vertex *pvtx, std::vector<double>&he) const {
 
-  static const double PTTOCURVATURE = -0.301;
+  constexpr double PTTOCURVATURE = -0.301;
 
   he[0] = 1./tan(trkP->theta());
   he[1] = PTTOCURVATURE*trkP->charge()/trkP->pt();

@@ -1,7 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/AuxElement.h
@@ -228,8 +227,10 @@ public:
 
   /**
    * @brief Return the index of this element within its container.
+   *
+   * Inherited from IAuxElement.
    */
-  size_t index() const;
+  using IAuxElement::index;
 
 
   /**
@@ -1195,38 +1196,10 @@ private:
   void copyAux (const AuxElement& other);
 
 
-  /**
-   * @brief Helper to test if m_privateData is valid.
-   */
-  bool privateDataValid() const;
-
-
-  /// The index of this element within its container.
-  /// Should be 0 if this object is not within a container.
-  size_t m_index;
-
   /// The container of which this object is an element.
   /// Should be null if this object is not within a container,
-  /// except for the case where this object as a private store.
-  /// In that case, @c m_container should be the same as @c m_privateData.
+  /// except that it may also point at a private store.
   SG::AuxVectorData* m_container;
-
-  /// If this object has a current private store, then this points
-  /// at the container object holding the store.  In that case,
-  /// @c m_container should have the same value.  If this object
-  /// had a private store but it was released because the object
-  /// was added to a container, then this should be set to
-  /// @c s_privatePlaceholder.  That way, we know to reconstruct
-  /// the private store in the event this object is removed from
-  /// the container.  Otherwise, if we no private store association at all,
-  /// then this should be null.
-  SG::AuxElementData* m_privateData;
-
-  /// Special value used to mark that an object had a private store,
-  /// but it was released because it was added to a container.
-  /// (And therefore we should recreate the private store if the
-  /// object is later removed.)
-  static SG::AuxElementData* const s_privatePlaceholder;
 };
 
 

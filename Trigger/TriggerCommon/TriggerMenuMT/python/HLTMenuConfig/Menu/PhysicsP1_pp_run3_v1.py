@@ -56,6 +56,8 @@ def addP1Signatures():
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
         ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online',MinBiasGroup]),
         ChainProp(name='HLT_mb_sp_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online',MinBiasGroup]),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=MinBiasGroup+['PS:Online']),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=MinBiasGroup+['PS:Online']),
     ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + [
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['RATE:Calibration','BW:Detector']),

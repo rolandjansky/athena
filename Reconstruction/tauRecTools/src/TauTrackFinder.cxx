@@ -127,7 +127,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // associated track to tau candidate and calculate charge                                                                                                    
-  float charge = 0;  
+  float charge = 0.;  
   for (unsigned int i = 0; i < tauTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = tauTracks.at(i);
 

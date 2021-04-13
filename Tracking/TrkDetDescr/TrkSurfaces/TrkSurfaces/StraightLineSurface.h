@@ -13,12 +13,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 // Trk
+#include "CxxUtils/CachedValue.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkParametersBase/ParametersT.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkSurfaces/Surface.h"
-#include "CxxUtils/CachedValue.h"
 
 class Identifier;
 class MsgStream;
@@ -90,7 +90,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -98,7 +98,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
@@ -108,7 +108,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
@@ -116,35 +116,37 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>> createUniqueParameters(
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+  createUniqueParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>> createUniqueParameters(
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+  createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, StraightLineSurface> createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) *
-                                                       cov = 0) const;
+  ParametersT<DIM, T, StraightLineSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -152,8 +154,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
-
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
@@ -165,7 +166,6 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
-
 
   /** Specified for StraightLineSurface: LocalToGlobal method without dynamic
    * memory allocation */
@@ -279,8 +279,9 @@ public:
   virtual bool insideBounds(const Amg::Vector2D& locpos,
                             double tol1 = 0.,
                             double tol2 = 0.) const override final;
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override final;
+  virtual bool insideBoundsCheck(
+    const Amg::Vector2D& locpos,
+    const BoundaryCheck& bchk) const override final;
 
   /** Return properly formatted class name for screen output */
   virtual std::string name() const override final;

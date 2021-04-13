@@ -74,6 +74,8 @@ chains = [
               groups=SingleJetGroup),
         
     ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_ptrangeSEP2r3_L1J20', groups=SingleJetGroup),
     
 ]
 

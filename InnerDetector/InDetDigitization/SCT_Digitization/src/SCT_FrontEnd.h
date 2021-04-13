@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,7 @@
 
 // Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_FrontEnd.h"
+#include "SiDigitization/IFrontEnd.h"
 
 // Athena
 #include "SiDigitization/SiChargedDiodeCollection.h"
@@ -43,7 +43,7 @@
 #include <mutex>
 #include <vector>
 
-class ISCT_Amp;
+class IAmplifier;
 class SCT_ID;
 
 namespace InDetDD {
@@ -69,7 +69,7 @@ struct SCT_FrontEndData {
   std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold
 };
 
-class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
+class  SCT_FrontEnd : public extends<AthAlgTool, IFrontEnd> {
 
  public:
 
@@ -131,7 +131,7 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   ShortProperty m_data_readout_mode{this, "DataReadOutMode", Condensed, "Front End Data Read out mode Mode: 0 is condensed mode and 1 is expanded mode"};
   BooleanProperty m_useCalibData{this, "UseCalibData", true, "Flag to set the use of calibration data for noise, Gain,offset etc."};
 
-  ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
+  ToolHandle<IAmplifier> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
   ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"}; //!< Handle to the Calibration ConditionsTool
 
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr{nullptr}; //!< Handle to SCT detector manager

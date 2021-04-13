@@ -24,13 +24,13 @@
 std::unique_ptr<Trk::ParametersBase<5, Trk::Charged>>
 Trk::PatternTrackParameters::convert(bool covariance) const
 {
-  AmgSymMatrix(5)* e = nullptr;
-  if (covariance && m_covariance != nullptr) {
-    e = new AmgSymMatrix(5)(*m_covariance);
+  std::optional<AmgSymMatrix(5)> e = std::nullopt;
+  if (covariance && m_covariance != std::nullopt) {
+    e = AmgSymMatrix(5)(*m_covariance);
   }
   const AmgVector(5)& p = m_parameters;
   return m_surface ? m_surface->createUniqueTrackParameters(
-                        p[0], p[1], p[2], p[3], p[4], e)
+                        p[0], p[1], p[2], p[3], p[4], std::move(e))
                    : nullptr;
 }
 
@@ -53,8 +53,8 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
   const AmgSymMatrix(5)* C = T->covariance();
 
   if(C) {
-    if (m_covariance == nullptr) {
-      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    if (m_covariance == std::nullopt) {
+      m_covariance = AmgSymMatrix(5)();
     }
 
     for (std::size_t i = 0; i < 5; i++) {
@@ -64,7 +64,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
     }
   }
   else {
-    m_covariance.reset(nullptr);
+    m_covariance.reset();
   }
 
   return true;
@@ -196,7 +196,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_covariance != nullptr) {
+  if (m_covariance != std::nullopt) {
     const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
       P[ 0]<<" |"<<V(0, 0) << std::endl;
@@ -260,7 +260,7 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_covariance != nullptr) {
+  if (m_covariance != std::nullopt) {
     const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
       P[ 0]<<" |"<<V(0, 0) << std::endl;
@@ -456,15 +456,15 @@ bool Trk::PatternTrackParameters::initiate
   int n = E.rows(); if(n<=0 || n>2) { return false;
 }
 
-  if (Tp.m_covariance != nullptr) {
-    if (m_covariance == nullptr) {
-      m_covariance = std::make_unique<AmgSymMatrix(5)>(*Tp.m_covariance);
+  if (Tp.m_covariance != std::nullopt) {
+    if (m_covariance == std::nullopt) {
+      m_covariance = AmgSymMatrix(5)(*Tp.m_covariance);
     } else {
       *m_covariance = *Tp.m_covariance;
     }
   } else {
-    if (m_covariance == nullptr) {
-      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    if (m_covariance == std::nullopt) {
+      m_covariance = AmgSymMatrix(5)();
     }
   }
 
@@ -513,7 +513,7 @@ void Trk::PatternTrackParameters::changeDirection()
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
 
-    if(m_covariance == nullptr) { return;
+    if(m_covariance == std::nullopt) { return;
 }
 
     m_covariance->fillSymmetric(0, 3, -(*m_covariance)(0, 3));
@@ -529,7 +529,7 @@ void Trk::PatternTrackParameters::changeDirection()
   m_parameters[ 0] = -m_parameters[ 0];
 
 
-  if(m_covariance == nullptr) { return;
+  if(m_covariance == std::nullopt) { return;
 }
 
   m_covariance->fillSymmetric(0, 1, -(*m_covariance)(0, 1));

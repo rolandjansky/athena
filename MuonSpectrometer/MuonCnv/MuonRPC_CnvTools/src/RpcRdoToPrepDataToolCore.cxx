@@ -65,8 +65,6 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
 
   // perform necessary one-off initialization
 
-  ATH_MSG_INFO("package version = "<<PACKAGE_VERSION);
-
   ATH_MSG_INFO("properties are ");
   ATH_MSG_INFO("produceRpcCoinDatafromTriggerWords "<<m_producePRDfromTriggerWords);
   ATH_MSG_INFO("reduceCablingOverlap               "<<m_reduceCablingOverlap);

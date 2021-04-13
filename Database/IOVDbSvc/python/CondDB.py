@@ -85,7 +85,7 @@ class CondDB:
             if self.isMC:
                 # Monte Carlo
                 self.dbname=self.dbmc
-                self.poolcats=['oflcond']
+                self.poolcats=[]
             else:
                 # real data
                 if (self.dbdata=='auto'):
@@ -93,7 +93,7 @@ class CondDB:
                     self.dbdata=self._InstanceFromProjectName(rec.projectName())
                     self.msg.info("Configuring database instance %s based on project tag %s", self.dbdata, rec.projectName())
                 self.dbname=self.dbdata
-                self.poolcats=['comcond','oflcond']
+                self.poolcats=[]
         elif (globalflags.DetGeo() in ['ctbh8','ctbh6']):
             self.dbmc='TMCP200'
             self.dbdata='TBDP200'

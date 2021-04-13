@@ -126,7 +126,7 @@ StatusCode StripDetectorTool::create() {
 //    Get the Database Access Service and from there the SCT version tag
 //
     std::string sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
-    msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
+    msg(MSG::INFO) << "SCT Version: " << sctVersionTag << endmsg;
 //
 //   Check if SCT version tag is empty. If so, then the SCT cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.

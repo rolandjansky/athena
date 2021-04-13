@@ -185,6 +185,9 @@ StatusCode TileMuonReceiverDecision::execute() {
       ATH_MSG_VERBOSE( "(E.0.0) Frag_id: 0x"<< MSG::hex << frag_id << MSG::dec <<" ros: "<< ros <<" drawer: "<< drawer  );
     }
 
+    int  suppression_counter = 20;
+    bool suppress_printout   = false; 
+
     for (const TileRawChannel* rawChannel : *rawChannelCollection) {
        
       ++ich;
@@ -193,7 +196,18 @@ StatusCode TileMuonReceiverDecision::execute() {
       // TMDB channel is used in COOL and goes from 0..n with n=5 for EB and n=8 in LB
       int TMDBchan = m_tileHWID->channel(adc_id) ;
       if ( TMDBchan >= upperLim ) {
-        ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	if ( !suppress_printout ) { 
+	  if ( suppression_counter-- ) { 
+	    ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	  }
+	  else { 
+	    ATH_MSG_WARNING( "Too many HWID WARNINGS - suppressing further output - switch to debug mode to view them all" );
+	    suppress_printout = true;
+	  }
+	}
+	else { 
+	  ATH_MSG_DEBUG( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	}
         continue;
       }
       // TILE channel is the Tile HW channel

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetVertexTruthMatchAlgorithm.h"
@@ -19,7 +19,7 @@ InDetVertexTruthMatchAlgorithm::InDetVertexTruthMatchAlgorithm( const std::strin
 StatusCode InDetVertexTruthMatchAlgorithm::initialize() {
 
    // Greet the user:
-   ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "Initialising" );
    ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
 
    // Retrieve the tools:

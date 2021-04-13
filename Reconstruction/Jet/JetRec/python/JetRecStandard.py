@@ -49,8 +49,8 @@ jetlog.info( myname + "  Final use topoclusters: " + str(jetFlags.useTopo()))
 
 # Skip tracks if tracks or vertices are not present in the job.
 # No action if someone has already set the flag.
-haveTracks = cfgKeyStore.isInTransient('xAOD::TrackParticleContainer','InDetTrackParticles')
-haveVertices = cfgKeyStore.isInTransient("xAOD::VertexContainer","PrimaryVertices")
+haveTracks = cfgKeyStore.isInInput('xAOD::TrackParticleContainer','InDetTrackParticles')
+haveVertices = cfgKeyStore.isInInput("xAOD::VertexContainer","PrimaryVertices")
 recTracks = rec.doInDet()
 recVertices = bool(InDetFlags.doVertexFinding) and (recTracks or haveTracks)
 jetlog.info( myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks) )

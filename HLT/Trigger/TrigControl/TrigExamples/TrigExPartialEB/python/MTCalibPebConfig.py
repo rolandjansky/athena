@@ -4,8 +4,12 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.CFElements import seqOR, parOR
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPebConfig.py')
+
+_menu_name = 'MTCalibPeb'
+_menu_file_name = 'HLTMenu_{:s}.json'.format(_menu_name)
 
 # LAR-EMB* ROBs from the file
 # /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py
@@ -123,6 +127,9 @@ def l1_seq_cfg(flags, options=default_options):
     acc = L1DecoderCfg(flags, seqName='l1Seq')
     l1_decoder_alg = acc.getEventAlgo('L1Decoder')
     l1_decoder_alg.prescaler = CompFactory.PrescalingEmulationTool()
+
+    # Need to set HLT menu file name here to avoid conflict when merging with HLT sequence CA
+    acc.getService("HLTConfigSvc").JsonFileName = _menu_file_name
 
     return acc
 
@@ -290,15 +297,20 @@ def make_summary_algs(hypo_algs):
 
 
 def hlt_seq_cfg(flags, num_chains, concurrent=False, hackCA2Global=False, hypo_algs=None):
-    acc = ComponentAccumulator(sequence='hltTop')
+    acc = ComponentAccumulator()
+
+    # Sequences need to ensure that summary algs run after all hypos
+    acc.addSequence(seqOR('hltTop'))
+    acc.addSequence(parOR('hltHypoSeq'), parentName='hltTop')
+    acc.addSequence(parOR('hltEndSeq'), parentName='hltTop')
 
     if not hypo_algs:
         hypo_algs = make_all_hypo_algs(num_chains, concurrent)
     summary_algs = make_summary_algs(hypo_algs)
     hlt_result_ca = hlt_result_cfg(flags, hypo_algs)
 
-    acc.addEventAlgo(hypo_algs)
-    acc.addEventAlgo(summary_algs)
+    acc.addEventAlgo(hypo_algs, sequenceName='hltHypoSeq')
+    acc.addEventAlgo(summary_algs, sequenceName='hltEndSeq')
     acc.merge(hlt_result_ca)
 
     # Hack to work around a shortcoming of CA2GlobalWrapper when a component
@@ -322,17 +334,16 @@ def write_dummy_menu_json(flags, chains, chain_to_streams):
     import json
     from TrigConfHLTData.HLTUtils import string2hash
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTPrescalesSetFileName
-    menu_name = 'MTCalibPeb'
     menu_dict = dict([
         ("filetype", "hltmenu"),
-        ("name", menu_name),
+        ("name", _menu_name),
         ("chains", dict()),
         ("streams", dict()),
         ("sequencers", dict())
     ])
     hlt_ps_dict = dict([
         ("filetype", "hltprescale"),
-        ("name", menu_name),
+        ("name", _menu_name),
         ("prescales", dict())
     ])
     counter = 0
@@ -351,12 +362,12 @@ def write_dummy_menu_json(flags, chains, chain_to_streams):
                     ("forceFullEventBuilding", stream['forceFullEventBuilding'])
                 ])
 
-        # Attributes not filled are not used in MTCalibPeb
         menu_dict["chains"][chain] = dict([
             ("counter", counter),
             ("nameHash", string2hash(chain)),
+            ("legMultiplicities", [1]),
             ("l1item", ''),
-            ("l1thresholds", []),
+            ("l1thresholds", ['FSNOSEED']),
             ("groups", []),
             ("streams", chain_streams),
             ("sequencers", [] )
@@ -370,9 +381,8 @@ def write_dummy_menu_json(flags, chains, chain_to_streams):
 
         counter += 1
 
-    menu_file_name = 'HLTMenu_{:s}.json'.format(menu_name)
-    log.info('Writing trigger menu to %s', menu_file_name)
-    with open(menu_file_name, 'w') as json_file:
+    log.info('Writing trigger menu to %s', _menu_file_name)
+    with open(_menu_file_name, 'w') as json_file:
         json.dump(menu_dict, json_file, indent=4, sort_keys=False)
 
     hlt_ps_file_name = getHLTPrescalesSetFileName(flags)
@@ -380,4 +390,4 @@ def write_dummy_menu_json(flags, chains, chain_to_streams):
     with open(hlt_ps_file_name, 'w') as json_file:
         json.dump(hlt_ps_dict, json_file, indent=4, sort_keys=False)
 
-    return menu_file_name
+    return _menu_file_name

@@ -36,10 +36,10 @@ using Gaudi::Units::MeV;
 using Gaudi::Units::GeV;
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5)  m;
+  m.setIdentity();
   return m;
 }
 
@@ -71,7 +71,7 @@ xAOD::TrackParticle makeTP()
   Amg::Vector3D pos { 2*mm, 0*mm, -10*mm };
   Amg::Vector3D mom { 50*GeV, 3*GeV, 2*GeV };
 
-  Trk::Perigee p (pos, mom, 1, pos0, cov5().release());
+  Trk::Perigee p (pos, mom, 1, pos0, cov5());
 
   xAOD::TrackParticle tp;
   tp.makePrivateStore();

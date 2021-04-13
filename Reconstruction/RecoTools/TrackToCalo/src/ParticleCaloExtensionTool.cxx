@@ -321,19 +321,19 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
         const CurvilinearParameters cpars(p.first->position(),
                                           p.first->momentum(),
                                           p.first->charge(),
-                                          nullptr,
+                                          std::nullopt,
                                           id);
         caloLayers.push_back(cpars);
         delete p.first;
       } else {
-        AmgSymMatrix(5)* covariance(nullptr);
+        std::optional<AmgSymMatrix(5)> covariance(std::nullopt);
         if(p.first->covariance()){
-          covariance=new AmgSymMatrix(5)(*(p.first->covariance()));
+          covariance= AmgSymMatrix(5)(*(p.first->covariance()));
         }
         CurvilinearParameters cpars(p.first->position(),
                                     p.first->momentum(),
                                     p.first->charge(),
-                                    covariance,
+                                    std::move(covariance),
                                     id);
         caloLayers.push_back(cpars);
         delete p.first;

@@ -55,7 +55,7 @@ namespace Trk
       /// modify TSOS vector
       /// FIXME: const by-value vector argument!
       const std::vector<const Trk::TrackStateOnSurface*>
-      modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec,
+      modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*>& matvec,
                        double scaleX0, double scaleEloss, bool reposition,
                        bool aggregate, bool updateEloss, double caloEnergy,
                        double caloEnergyError, double pCaloEntry,

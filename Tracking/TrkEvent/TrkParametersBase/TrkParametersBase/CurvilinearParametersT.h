@@ -55,26 +55,29 @@ public:
 
   /** Create CurvilinearParametersT from DIM+2 parameters
       - these are: global position, momentum, charge, extension */
-  CurvilinearParametersT(const AmgVector(DIM + 2) & parameters,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const AmgVector(DIM + 2) & parameters,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /**Create CurvilinearParametersT from mixed parameters: pos, local
    * parameters*/
-  CurvilinearParametersT(const Amg::Vector3D& pos,
-                         double phi,
-                         double theta,
-                         double qOverP,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const Amg::Vector3D& pos,
+    double phi,
+    double theta,
+    double qOverP,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /** Create CurvilinearParametersT from global parameters.
      -- it will throw a GaudiException if the position is not on surface  */
-  CurvilinearParametersT(const Amg::Vector3D& pos,
-                         const Amg::Vector3D& mom,
-                         double charge,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& mom,
+    double charge,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /** Copy Constructor */
   CurvilinearParametersT(const CurvilinearParametersT<DIM, T, S>&);

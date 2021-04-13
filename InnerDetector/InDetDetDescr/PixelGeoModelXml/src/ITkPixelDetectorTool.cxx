@@ -105,7 +105,7 @@ StatusCode ITkPixelDetectorTool::create() {
 //    Get the Database Access Service and from there the pixel version tag
 //
     std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag <<  "  Package Version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag );
 //
 //   Check if pixel version tag is empty. If so, then the pixel cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.

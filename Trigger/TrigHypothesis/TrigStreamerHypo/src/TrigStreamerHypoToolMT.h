@@ -36,7 +36,8 @@ class TrigStreamerHypoToolMT: public extends<AthAlgTool, ITrigStreamerHypoToolMT
 
   // Identifier is used to keep track of which tool made which decision.
   // The information is stored in the event store.
-  HLT::Identifier m_decisionId;    
+  HLT::Identifier m_decisionId;
+  Gaudi::Property<bool> m_pass{ this, "Pass", true, "Pass or reject"};
 
 };
 #endif

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -107,7 +107,8 @@ private:
   std::unique_ptr<const LArHVScaleCorrTool> m_scaleTool;
 
   bool m_doHV;
-  bool m_doR;
+  bool m_doR = true;
+  bool m_doRProp;
 
   //Internal representation of voltage & current per HV-Line (read for DCS)
   struct DCS_t {

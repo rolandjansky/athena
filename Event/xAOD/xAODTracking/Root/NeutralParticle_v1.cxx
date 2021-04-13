@@ -197,16 +197,16 @@ namespace xAOD {
     static const Accessor< float > acc4( "theta" );
     static const Accessor< float > acc5( "oneOverP" );
     static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
-    ParametersCovMatrix_t* cov = new ParametersCovMatrix_t;
-    cov->setZero();
+    ParametersCovMatrix_t cov;
+    cov.setZero();
     auto it= acc6(*this).begin();
     for (size_t irow = 0; irow<5; ++irow){
       for (size_t icol =0; icol<=irow; ++icol){
-          cov->fillSymmetric(irow,icol,*it++) ;
+          cov.fillSymmetric(irow,icol,*it++) ;
       }
     }
     Trk::NeutralPerigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),
-                                             Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
+                                             Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),std::move(cov));
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }

@@ -96,14 +96,15 @@ class L1MenuConfig(object):
     def getDefinedThreshold(self, name):
         try:
             return self._registeredThresholds[name]
-        except KeyError:
+        except KeyError as ex:
             if name.startswith("R2TOPO"):
-                raise RuntimeError("No legacy topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDefLegacy.py" % name)
+                log.error("No legacy topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDefLegacy.py", name)
             elif name.startswith("TOPO"):
-                raise RuntimeError("No topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDef.py" % name)
+                log.error("No topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDef.py", name)
             else:
                 isLegacy = any(filter(lambda x: name.startswith(x), ["EM", "TAU", "J", "XE", "TE", "XS"]))
-                raise RuntimeError("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py" % (name,"Legacy" if isLegacy else ""))
+                log.error("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py", (name,"Legacy" if isLegacy else ""))
+            raise ex
 
     def getDefinedThresholds(self):
         return self._registeredThresholds.values()

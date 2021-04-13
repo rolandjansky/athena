@@ -140,7 +140,11 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         int sign = int(eCell.materialUpdateMode);
         // a simple cross-check if the parameters are the initial ones
         AmgVector(5)      uParameters = parameters.parameters();
-        AmgSymMatrix(5)*  uCovariance = parameters.covariance() ? new AmgSymMatrix(5)(*parameters.covariance()) : 0;
+
+        std::unique_ptr<AmgSymMatrix(5)> uCovariance =
+          parameters.covariance()
+            ? std::make_unique<AmgSymMatrix(5)>(*parameters.covariance())
+            : nullptr;
         // get the material itself & its parameters
         const Trk::Material& material = materialProperties->material();
         double thicknessInX0          = materialProperties->thicknessInX0();
@@ -189,7 +193,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         // now either create new ones or update - only start parameters can not be updated
         if (eCell.leadParameters != eCell.startParameters ){
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on non-initial parameters.");
-            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,uCovariance);
+            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,*uCovariance);
         } else {
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on initial parameters, creating new ones.");
             // create new parameters
@@ -199,7 +203,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
                                                                                            uParameters[Trk::phi],
                                                                                            uParameters[Trk::theta],
                                                                                            uParameters[Trk::qOverP],
-                                                                                           uCovariance).release();
+                                                                                           *uCovariance).release();
             // these are newly created
             return tParameters;
         }

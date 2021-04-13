@@ -661,7 +661,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
   std::vector<IdentifierHash> rIds;
   {
     std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_regionSelector_TILE->ROBIDList( 0, roi, requestROBs ); // we know that the RegSelSvc is not thread safe
+    m_regionSelector_TILE->ROBIDList( 0, roi, requestROBs ); 
     m_regionSelector_TILE->HashIDList(roi, rIds);
     m_robDataProvider->addROBData( context, requestROBs );
   }
