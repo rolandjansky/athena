@@ -1226,7 +1226,7 @@ LVL1CTP::CTPSimulation::calculateMuonMultiplicity( const TrigConf::L1Threshold &
    auto ctpinMuon  = SG::makeHandle( m_iKeyMuctpi, context );
    if ( ctpinMuon.isValid() ) {
       auto & triggerline = l1menu->connector("MuCTPiOpt0").triggerLine(confThr.name());
-      multiplicity = CTPUtil::getMult( ctpinMuon->muCTPIWord(), triggerline.startbit(), triggerline.endbit() );
+      multiplicity = CTPUtil::getMuonMult( ctpinMuon->muCTPIWord(), triggerline.startbit() + (m_muonRun2Format ? 1 : 0), triggerline.endbit()+ (m_muonRun2Format ? 1 : 0) );
    }
    get2DHist( "/multi/muon/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
    ATH_MSG_DEBUG("MU MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity);
@@ -1242,7 +1242,7 @@ LVL1CTP::CTPSimulation::calculateMuonMultiplicity( const TrigConf::TriggerThresh
    unsigned int multiplicity = 0;
    auto ctpinMuon  = SG::makeHandle( m_iKeyMuctpi, context );
    if ( ctpinMuon.isValid() ) {
-      multiplicity = CTPUtil::getMult( ctpinMuon->muCTPIWord(), confThr->cableStart(), confThr->cableEnd() );
+      multiplicity = CTPUtil::getMuonMult( ctpinMuon->muCTPIWord(), confThr->cableStart(), confThr->cableEnd() );
    }
    get2DHist( "/multi/muon/muonMult" )->Fill(confThr->mapping(), multiplicity);
    ATH_MSG_DEBUG("MU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
