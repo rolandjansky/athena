@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT, TrigMissingETHypoToolMT
+from AthenaConfiguration.ComponentFactory import CompFactory
+TrigMissingETHypoAlgMT = CompFactory.TrigMissingETHypoAlgMT
+TrigMissingETHypoToolMT = CompFactory.TrigMissingETHypoToolMT
 
 class MissingETHypoAlgMT(TrigMissingETHypoAlgMT):
     __slots__ = []
