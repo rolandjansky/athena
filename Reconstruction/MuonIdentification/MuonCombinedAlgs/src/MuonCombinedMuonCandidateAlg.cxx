@@ -5,12 +5,9 @@
 #include "MuonCombinedMuonCandidateAlg.h"
 
 MuonCombinedMuonCandidateAlg::MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {
-}
+    AthAlgorithm(name, pSvcLocator) {}
 
-StatusCode
-MuonCombinedMuonCandidateAlg::initialize()
-{
+StatusCode MuonCombinedMuonCandidateAlg::initialize() {
     ATH_CHECK(m_muonCandidateTool.retrieve());
     ATH_CHECK(m_muonTrackParticleLocation.initialize());
     ATH_CHECK(m_candidateCollectionName.initialize());
@@ -18,9 +15,7 @@ MuonCombinedMuonCandidateAlg::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-MuonCombinedMuonCandidateAlg::execute()
-{
+StatusCode MuonCombinedMuonCandidateAlg::execute() {
     // retrieve MuonSpectrometer tracks
     SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
     if (!muonTrackParticles.isValid()) {

@@ -6,36 +6,29 @@
 #define MUON_IMUONSEGMENTCLEANER_H
 
 #include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonSegmentCleaner
-    ("Muon::IMuonSegmentCleaner",1,0);
+static const InterfaceID IID_IMuonSegmentCleaner("Muon::IMuonSegmentCleaner", 1, 0);
 
 namespace Muon {
 
-  class MuonSegment;
+    class MuonSegment;
 
-  /** Interface for tools resolving ambigueties and remove outliers in Muon::MuonSegment objects */
-  class IMuonSegmentCleaner : virtual public IAlgTool 
-  {      
+    /** Interface for tools resolving ambigueties and remove outliers in Muon::MuonSegment objects */
+    class IMuonSegmentCleaner : virtual public IAlgTool {
     public:
-    
-    static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID();
 
-    /** @brief Resolve hit ambiguities in a given segment 
-	@param segment a pointer to a segment
-	@return a pointer to the cleaned segment, zero if cleaning failed
-	        The ownership of the new segment is passed to the client calling the tool 
-    */
-    virtual const MuonSegment* resolve( const MuonSegment* segment ) const = 0;
+        /** @brief Resolve hit ambiguities in a given segment
+            @param segment a pointer to a segment
+            @return a pointer to the cleaned segment, zero if cleaning failed
+                    The ownership of the new segment is passed to the client calling the tool
+        */
+        virtual const MuonSegment* resolve(const MuonSegment* segment) const = 0;
+    };
 
-  };
-  
-  inline const InterfaceID& IMuonSegmentCleaner::interfaceID()
-  {
-    return IID_IMuonSegmentCleaner;
-  }
-} // end of name space
+    inline const InterfaceID& IMuonSegmentCleaner::interfaceID() { return IID_IMuonSegmentCleaner; }
+}  // namespace Muon
 
-#endif // IMuonSegmentCleaner_H
-
+#endif  // IMuonSegmentCleaner_H
