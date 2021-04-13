@@ -12,43 +12,37 @@
 #include "MuidEvent/ScatteringAngleSignificance.h"
 #include "xAODMuon/Muon.h"
 
-namespace Trk {class Track; }
+namespace Trk {
+    class Track;
+}
 
-namespace Rec 
-{
+namespace Rec {
 
+    static const InterfaceID IID_IMuonScatteringAngleSignificance("Rec::IMuonScatteringAngleSignificance", 1, 0);
 
-  static const InterfaceID IID_IMuonScatteringAngleSignificance("Rec::IMuonScatteringAngleSignificance", 1, 0);
+    /** @class IMuonScatteringAngleSignificance
+        @brief interface providing a the scattering angle significance.
 
-  /** @class IMuonScatteringAngleSignificance
-      @brief interface providing a the scattering angle significance.
+        @author Alan Poppleton, Wolfgang Liebig
+     */
 
-      @author Alan Poppleton, Wolfgang Liebig
-   */
+    class IMuonScatteringAngleSignificance : virtual public IAlgTool {
+    public:
+        static const InterfaceID& interfaceID();
 
-  class IMuonScatteringAngleSignificance : virtual public IAlgTool {
-  public:
-    static const InterfaceID& interfaceID( ) ;
+        /** @brief return significance of scattering angle pattern for tracks,
+            starting from the full muon object.
+          */
+        virtual ScatteringAngleSignificance scatteringAngleSignificance(const xAOD::Muon& muon) const = 0;
 
-    /** @brief return significance of scattering angle pattern for tracks,
-        starting from the full muon object.
-      */
-    virtual ScatteringAngleSignificance
-        scatteringAngleSignificance(const xAOD::Muon& muon) const = 0;
+        /** @brief return significance of scattering angle pattern for tracks, starting
+             from the track object (track unslimming foreseen where needed).
+          */
+        virtual ScatteringAngleSignificance scatteringAngleSignificance(const Trk::Track& track) const = 0;
+    };
 
-    /** @brief return significance of scattering angle pattern for tracks, starting
-         from the track object (track unslimming foreseen where needed).
-      */
-    virtual ScatteringAngleSignificance
-        scatteringAngleSignificance(const Trk::Track& track) const = 0;
-  
-  };
+    inline const InterfaceID& Rec::IMuonScatteringAngleSignificance::interfaceID() { return IID_IMuonScatteringAngleSignificance; }
 
-  inline const InterfaceID& Rec::IMuonScatteringAngleSignificance::interfaceID()
-    { 
-      return IID_IMuonScatteringAngleSignificance; 
-    }
+}  // namespace Rec
 
-} // end of namespace
-
-#endif 
+#endif

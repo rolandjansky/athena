@@ -4,38 +4,37 @@
 #ifndef IRECMUONCOMBINEDTOOL_H
 #define IRECMUONCOMBINEDTOOL_H
 
+#include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
-#include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "TrkTrack/TrackCollection.h"
-#include <vector>
 
 namespace MuonCombined {
 
+    /** @class IMuonCombinedTool
+        @brief interface for tools building combined muons from ID and Muon candidates
 
-  /** @class IMuonCombinedTool
-      @brief interface for tools building combined muons from ID and Muon candidates
- 
-      @author Niels van Eldik
-   */
+        @author Niels van Eldik
+     */
 
-  class IMuonCombinedTool : virtual public IAlgTool {
-  public:
-    static const InterfaceID& interfaceID( ){
-        static const InterfaceID IID_IMuonCombinedTool("MuonCombined::IMuonCombinedTool", 1, 0);
-        return   IID_IMuonCombinedTool;
-    }
+    class IMuonCombinedTool : virtual public IAlgTool {
+    public:
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonCombinedTool("MuonCombined::IMuonCombinedTool", 1, 0);
+            return IID_IMuonCombinedTool;
+        }
 
+        /**IMuonCombinedTool interface: build combined muons from ID and MS candidates */
+        virtual void combine(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates,
+                             std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combTracks,
+                             TrackCollection* METracks) const = 0;
 
-    /**IMuonCombinedTool interface: build combined muons from ID and MS candidates */    
-    virtual void combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps,
-			  TrackCollection* combTracks, TrackCollection* METracks) const = 0;
-    
-    virtual ~IMuonCombinedTool() = default;
-  };
+        virtual ~IMuonCombinedTool() = default;
+    };
 
- 
-} // end of namespace
+}  // namespace MuonCombined
 
-#endif 
+#endif
