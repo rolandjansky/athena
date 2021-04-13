@@ -29,13 +29,14 @@ public:
     bool leptonSelect(Pythia8::Event&, const std::vector<double>&, double, const std::vector<int>&, int, double, bool);
     bool cleanUndecayed(Pythia8::Event&, const std::vector<int>&);
     bool pairProperties(Pythia8::Event&, const std::vector<int>&, double, bool);
-    void descendThroughDecay(Pythia8::Event&, std::vector<Pythia8::Particle>&, int);
-    std::vector<int> getCodes(const std::vector<Pythia8::Particle>&);
-    bool compare(std::vector<int>, std::vector<int>);
-    bool passesCuts(const std::vector<Pythia8::Particle>&, const std::vector<double>&, const std::string&);
-    bool signalAccept(Pythia8::Event&, const std::vector<int>&, const std::vector<double>&, const std::vector<double>&, unsigned int);
+    void descendThroughDecay(Pythia8::Event&, std::vector<Pythia8::Particle>&, int) const;
+    std::vector<int> getCodes(const std::vector<Pythia8::Particle>&) const;
+    bool compare(std::vector<int>, std::vector<int>) const;
+    bool passesPTCuts(const std::vector<Pythia8::Particle>&) const;
+    bool passesEtaCuts(const std::vector<Pythia8::Particle>&) const;
+    bool signalAccept(Pythia8::Event&, const std::vector<int>&, unsigned int) const;
     bool userSelection(Pythia8::Event&, std::string, std::vector<double>);
-    void printSignalSelections(const std::vector<int>&,const std::vector<double>&, const std::vector<double>&, unsigned int);
+    void printSignalSelections(const std::vector<int>&,const std::vector<double>&, const std::vector<double>&, unsigned int) const;
     
     static IAtRndmGenSvc* p_AtRndmGenSvc;
     
