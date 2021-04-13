@@ -4,30 +4,29 @@
 
 #include "MuonTrackExtrapolationTool.h"
 
+#include <map>
+
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-#include "TrkSurfaces/PerigeeSurface.h"
-#include "TrkSurfaces/DistanceSolution.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkTrack/Track.h"
-#include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
+#include "TrkSurfaces/DistanceSolution.h"
+#include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkVolumes/BoundarySurface.h"
-
-#include <map>
 
 namespace Muon {
 
     MuonTrackExtrapolationTool::MuonTrackExtrapolationTool(const std::string &ty, const std::string &na, const IInterface *pa) :
-            AthAlgTool(ty, na, pa) {
-        declareInterface < IMuonTrackExtrapolationTool > (this);
+        AthAlgTool(ty, na, pa) {
+        declareInterface<IMuonTrackExtrapolationTool>(this);
     }
 
     StatusCode MuonTrackExtrapolationTool::initialize() {
-
         ATH_CHECK(m_edmHelperSvc.retrieve());
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
@@ -46,8 +45,8 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const Trk::TrackParameters &pars, Trk::ParticleHypothesis particleHypo) const {
-
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const Trk::TrackParameters &pars,
+                                                                                         Trk::ParticleHypothesis particleHypo) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName);
 
@@ -57,13 +56,12 @@ namespace Muon {
         }
 
         Trk::PropDirection dir = Trk::oppositeMomentum;
-        if (msEntrance->inside(pars.position())) {
-            dir = Trk::alongMomentum;
-        }
+        if (msEntrance->inside(pars.position())) { dir = Trk::alongMomentum; }
 
         if (m_cosmics) {
             // for cosmics try both directions
-            const Trk::TrackParameters *entryPars = m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, Trk::oppositeMomentum, particleHypo);
+            const Trk::TrackParameters *entryPars =
+                m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, Trk::oppositeMomentum, particleHypo);
             if (!entryPars) {
                 ATH_MSG_VERBOSE(" failed to extrapolate opposite momentum");
                 // retry in other direction
@@ -76,7 +74,8 @@ namespace Muon {
         return m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, dir, particleHypo);
     }
 
-    const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToIP(const Trk::TrackParameters &pars, Trk::ParticleHypothesis particleHypo) const {
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToIP(const Trk::TrackParameters &pars,
+                                                                            Trk::ParticleHypothesis particleHypo) const {
         if (m_atlasExtrapolator.empty()) return nullptr;
 
         // temporary hack to avoid crashes in Muid.
@@ -86,7 +85,11 @@ namespace Muon {
         double dirPosProduct = (pars.position() - refPos).dot(pars.momentum());
         Trk::PropDirection propDir = dirPosProduct < 0. ? Trk::alongMomentum : Trk::oppositeMomentum;
 
-        ATH_MSG_VERBOSE(" extrapolating to IP: " << m_printer->print(pars) << std::setprecision(2) << " pos " << pars.position() << " dir " << pars.momentum().unit() << (propDir == Trk::alongMomentum ? " going along momentum" : propDir == Trk::oppositeMomentum ? " going opposite momentum" : ""));
+        ATH_MSG_VERBOSE(" extrapolating to IP: " << m_printer->print(pars) << std::setprecision(2) << " pos " << pars.position() << " dir "
+                                                 << pars.momentum().unit()
+                                                 << (propDir == Trk::alongMomentum      ? " going along momentum"
+                                                     : propDir == Trk::oppositeMomentum ? " going opposite momentum"
+                                                                                        : ""));
 
         // for cosmics try both directions
         const Trk::TrackParameters *entryPars = m_atlasExtrapolator->extrapolate(pars, persurf, propDir, false, particleHypo);
@@ -102,8 +105,7 @@ namespace Muon {
         return entryPars;
     }
 
-    const Trk::TrackParameters* MuonTrackExtrapolationTool::findClosestParametersToMuonEntry(const Trk::Track &track) const {
-
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::findClosestParametersToMuonEntry(const Trk::Track &track) const {
         const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName);
 
         if (!msEntrance) {
@@ -128,17 +130,14 @@ namespace Muon {
 
             ATH_MSG_DEBUG(" Cosmic model, starting for measurement closest to muon entry record ");
             const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-            for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
-
+            for (const Trk::TrackStateOnSurface *surf : *oldTSOT) {
                 const Trk::TrackParameters *pars = surf->trackParameters();
-                if (!pars) {
-                    continue;
-                }
+                if (!pars) { continue; }
 
                 // drop states without measurement
                 if (!surf->measurementOnTrack()) continue;
 
-                double distance = pars->position().perp(); //estimateDistanceToEntryRecord(*pars);
+                double distance = pars->position().perp();  // estimateDistanceToEntryRecord(*pars);
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestPars = pars;
@@ -149,29 +148,24 @@ namespace Muon {
                     closestMeasPars = pars;
                 }
                 const Trk::MeasurementBase *meas = surf->measurementOnTrack();
-                ATH_MSG_VERBOSE(" Dist: " << std::setw(6) << (int) distance << " r " << std::setw(5) << (int) pars->position().perp() << " z " << std::setw(6) << (int) pars->position().z() << (pars->covariance() ? " measured" : "") << (meas ? m_idHelperSvc->toString(m_edmHelperSvc->getIdentifier(*meas)) : ""));
+                ATH_MSG_VERBOSE(" Dist: " << std::setw(6) << (int)distance << " r " << std::setw(5) << (int)pars->position().perp() << " z "
+                                          << std::setw(6) << (int)pars->position().z() << (pars->covariance() ? " measured" : "")
+                                          << (meas ? m_idHelperSvc->toString(m_edmHelperSvc->getIdentifier(*meas)) : ""));
             }
 
         } else if (perp < 1000. && std::abs(z) < 1000.) {
             ATH_MSG_VERBOSE(" track at IP, starting from closest measurement in muon spectrometer ");
             const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-            for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
-
+            for (const Trk::TrackStateOnSurface *surf : *oldTSOT) {
                 const Trk::TrackParameters *pars = surf->trackParameters();
-                if (!pars) {
-                    continue;
-                }
+                if (!pars) { continue; }
 
                 // check whether state is a measurement
                 const Trk::MeasurementBase *meas = surf->measurementOnTrack();
-                if (!meas) {
-                    continue;
-                }
+                if (!meas) { continue; }
 
-                const Trk::PseudoMeasurementOnTrack *pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas);
-                if (pseudo) {
-                    continue;
-                }
+                const Trk::PseudoMeasurementOnTrack *pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack *>(meas);
+                if (pseudo) { continue; }
 
                 Identifier id = m_edmHelperSvc->getIdentifier(*meas);
                 if (!m_idHelperSvc->isMuon(id)) continue;
@@ -193,13 +187,13 @@ namespace Muon {
     }
 
     double MuonTrackExtrapolationTool::estimateDistanceToEntryRecord(const Trk::TrackParameters &pars) const {
-
         const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container");
 
         if (!msEntrance) return 0;
 
         // get boundary surfaces of muon entry record
-        const std::vector<Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > > &boundarySurfs = msEntrance->boundarySurfaces();
+        const std::vector<Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > > &boundarySurfs =
+            msEntrance->boundarySurfaces();
 
         double minDistance = 1e9;
 
@@ -213,8 +207,8 @@ namespace Muon {
         return minDistance;
     }
 
-    const Trk::TrackParameters* MuonTrackExtrapolationTool::checkForSecondCrossing(const Trk::TrackParameters &firstCrossing, const Trk::Track &track) const {
-
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::checkForSecondCrossing(const Trk::TrackParameters &firstCrossing,
+                                                                                   const Trk::Track &track) const {
         double dirPosProduct = firstCrossing.position().dot(firstCrossing.momentum());
         double sign = dirPosProduct < 0. ? 1. : -1.;
         // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
@@ -226,8 +220,7 @@ namespace Muon {
         const Trk::TrackParameters *closestPars = nullptr;
         const Trk::TrackParameters *closestMeasPars = nullptr;
 
-        for (const Trk::TrackStateOnSurface* surf : *oldTSOT) {
-
+        for (const Trk::TrackStateOnSurface *surf : *oldTSOT) {
             // do not consider perigee
             if (surf->type(Trk::TrackStateOnSurface::Perigee)) continue;
 
@@ -256,26 +249,23 @@ namespace Muon {
         return closestMeasPars ? closestMeasPars : closestPars;
     }
 
-    Trk::Track* MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track) const {
-
+    Trk::Track *MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         // if straightline track and the field is on return nullptr
         bool isSL = m_edmHelperSvc->isSLTrack(track);
-        if (isSL) { // check isSL first to limit access overhead
+        if (isSL) {  // check isSL first to limit access overhead
             MagField::AtlasFieldCache fieldCache;
             // Get field cache object
             EventContext ctx = Gaudi::Hive::currentContext();
-            SG::ReadCondHandle < AtlasFieldCacheCondObj > readHandle { m_fieldCacheCondObjInputKey, ctx };
-            const AtlasFieldCacheCondObj *fieldCondObj { *readHandle };
+            SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+            const AtlasFieldCacheCondObj *fieldCondObj{*readHandle};
 
             if (!fieldCondObj) {
                 ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
                 return nullptr;
             }
             fieldCondObj->getInitializedCache(fieldCache);
-            if (fieldCache.toroidOn()) {
-                return nullptr;
-            }
+            if (fieldCache.toroidOn()) { return nullptr; }
         }
 
         const Trk::Perigee *pp = track.perigeeParameters();
@@ -303,13 +293,15 @@ namespace Muon {
             }
         }
         if (!exPars) {
-            // check mometum, this should always work for high pt track but low momentum track could get stuck 
-            if (firstPars->momentum().mag() < 7000.) ATH_MSG_DEBUG("lower energy muon lost during extrapolation ");
-            else ATH_MSG_WARNING("failed to extrapolate parameters to muon entry and perigee ");
+            // check mometum, this should always work for high pt track but low momentum track could get stuck
+            if (firstPars->momentum().mag() < 7000.)
+                ATH_MSG_DEBUG("lower energy muon lost during extrapolation ");
+            else
+                ATH_MSG_WARNING("failed to extrapolate parameters to muon entry and perigee ");
             return nullptr;
         }
 
-        // sanity check for cosmics, if we are at the IP we should not 
+        // sanity check for cosmics, if we are at the IP we should not
         if (m_cosmics && atIP) {
             double tolerance = -50.;
             const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container");
@@ -319,9 +311,10 @@ namespace Muon {
             }
         }
 
-        ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endmsg << " extrapolated pars " << m_printer->print(*exPars) << endmsg);
+        ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endmsg << " extrapolated pars " << m_printer->print(*exPars)
+                                            << endmsg);
         // create new perigee
-        const Trk::Perigee *perigee = dynamic_cast<const Trk::Perigee*>(exPars);
+        const Trk::Perigee *perigee = dynamic_cast<const Trk::Perigee *>(exPars);
         if (!perigee) {
             perigee = createPerigee(*exPars);
             delete exPars;
@@ -344,7 +337,6 @@ namespace Muon {
 
             const Trk::TrackParameters *secondEntryCrossing = checkForSecondCrossing(*perigee, track);
             if (secondEntryCrossing) {
-
                 ATH_MSG_DEBUG(" Expect second crossing ");
 
                 // create second perigee
@@ -358,7 +350,7 @@ namespace Muon {
                         delete secondExPars;
                     } else {
                         // create new perigee
-                        secondPerigee = dynamic_cast<const Trk::Perigee*>(secondExPars);
+                        secondPerigee = dynamic_cast<const Trk::Perigee *>(secondExPars);
                         if (!secondPerigee) {
                             secondPerigee = createPerigee(*secondExPars);
                             delete secondExPars;
@@ -377,10 +369,10 @@ namespace Muon {
         bool secondPerigeeWasInserted = false;
 
         // flag whether the perigees are pointing towards the IP
-        bool perigeePointsToIP = perigee->position().dot(perDir) < 0. ;
+        bool perigeePointsToIP = perigee->position().dot(perDir) < 0.;
         bool secondPerigeePointsToIP = false;
         if (secondPerigee) {
-	    ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
+            ATH_MSG_DEBUG(" second perigee pars: " << m_printer->print(*secondPerigee));
             secondPerigeePointsToIP = secondPerigee->position().dot(secondPerigee->momentum()) < 0.;
             if (perigeePointsToIP == secondPerigeePointsToIP) {
                 ATH_MSG_DEBUG(" Track has two perigee's with the same orientation with respect to the IP ");
@@ -394,17 +386,17 @@ namespace Muon {
         trackStateOnSurfaces->reserve(newSize + 11);
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tit = oldTSOT->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_prev = tit; // iterator pointing to the previous TSOS
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_prev = tit;  // iterator pointing to the previous TSOS
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_end = oldTSOT->end();
         for (; tit != tit_end; ++tit) {
-
             // remove old perigee if we didn't start from a parameter in the muon system
             if ((*tit)->trackParameters() == pp) {
                 if (m_keepOldPerigee) {
                     const Amg::VectorX &ppars = pp->parameters();
                     Amg::Transform3D *ptrans = new Amg::Transform3D(pp->associatedSurface().transform());
                     Trk::StraightLineSurface slSurf(ptrans);
-                    Trk::AtaStraightLine *slPars = new Trk::AtaStraightLine(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi], ppars[Trk::theta], ppars[Trk::qOverP], slSurf);
+                    Trk::AtaStraightLine *slPars = new Trk::AtaStraightLine(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi],
+                                                                            ppars[Trk::theta], ppars[Trk::qOverP], slSurf);
                     trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(slPars));
                 }
                 continue;
@@ -421,13 +413,12 @@ namespace Muon {
             ATH_MSG_VERBOSE(" new state " << m_printer->print(*pars) << " dist to perigee " << distanceOfPerigeeToCurrent);
 
             if (!perigeeWasInserted && distanceOfPerigeeToCurrent > 0.) {
-
-                ATH_MSG_VERBOSE(" inserting first perigee " << m_printer->print(*perigee) << " dist to prev " << distanceOfPerigeeToCurrent);
+                ATH_MSG_VERBOSE(" inserting first perigee " << m_printer->print(*perigee) << " dist to prev "
+                                                            << distanceOfPerigeeToCurrent);
 
                 // check whether we should add material between the previous TSOS and the new perigee
                 // make sure that we are not at the same TSOS (could happen if this were the first TSOS
                 if (!atIP) {
-
                     ATH_MSG_VERBOSE(" not at IP ");
 
                     // check direction of perigee wrt IP
@@ -440,11 +431,11 @@ namespace Muon {
                         if (tit_prev != tit) {
                             const Trk::MeasurementBase *meas = (*tit_prev)->measurementOnTrack();
                             if (meas) {
-
                                 ATH_MSG_VERBOSE(" trying to adding material layers extrapolating to previous measurement ");
 
                                 // collect the material going in opposite direction
-                                const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                                const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
+                                    *perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -456,7 +447,6 @@ namespace Muon {
                             }
                         } else {
                             ATH_MSG_VERBOSE(" first measurement, cannot allocated material ");
-
                         }
                     } else {
                         // we have to collect material from the perigee to the next measurement
@@ -474,9 +464,9 @@ namespace Muon {
                         // check whether a measurement, else we will assume the material is there
                         const Trk::MeasurementBase *meas = (*tit)->measurementOnTrack();
                         if (meas) {
-
                             ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
-                            const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*perigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
+                            const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
+                                *perigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -497,11 +487,13 @@ namespace Muon {
                 }
             }
             if (secondPerigee) {
-                double distanceOfSecondPerigeeToCurrent = (pars->position() - secondPerigee->position()).dot(secondPerigee->momentum().unit());
+                double distanceOfSecondPerigeeToCurrent =
+                    (pars->position() - secondPerigee->position()).dot(secondPerigee->momentum().unit());
                 if (!secondPerigeeWasInserted && distanceOfSecondPerigeeToCurrent > 0.) {
                     // hack copied code should be put into a function
 
-                    ATH_MSG_VERBOSE(" inserting second perigee " << m_printer->print(*secondPerigee) << " dist to prev " << distanceOfSecondPerigeeToCurrent);
+                    ATH_MSG_VERBOSE(" inserting second perigee " << m_printer->print(*secondPerigee) << " dist to prev "
+                                                                 << distanceOfSecondPerigeeToCurrent);
 
                     // check direction of perigee wrt IP
                     if (secondPerigeePointsToIP) {
@@ -513,11 +505,11 @@ namespace Muon {
                         if (tit_prev != tit) {
                             const Trk::MeasurementBase *meas = (*tit_prev)->measurementOnTrack();
                             if (meas) {
-
                                 ATH_MSG_VERBOSE(" trying to adding material layers extrapolating to previous measurement ");
 
                                 // collect the material going in opposite direction
-                                const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                                const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
+                                    *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -544,7 +536,8 @@ namespace Muon {
                         const Trk::MeasurementBase *meas = (*tit)->measurementOnTrack();
                         if (meas) {
                             ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
-                            const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*secondPerigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
+                            const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
+                                *secondPerigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -573,16 +566,15 @@ namespace Muon {
         }
 
         if (!perigeeWasInserted) {
-
             // check whether the previous state is a measurement, else we will assume the material is there
             if (tit_prev != tit_end) {
                 const Trk::MeasurementBase *meas = (*tit_prev)->measurementOnTrack();
                 if (meas) {
-
                     ATH_MSG_VERBOSE(" trying to adding material layers extrapolating to previous measurement ");
 
                     // collect the material going in opposite direction
-                    const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                    const std::vector<const Trk::TrackStateOnSurface *> *matvec =
+                        m_muonExtrapolator->extrapolateM(*perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -601,11 +593,11 @@ namespace Muon {
             if (tit_prev != tit_end) {
                 const Trk::MeasurementBase *meas = (*tit_prev)->measurementOnTrack();
                 if (meas) {
-
                     ATH_MSG_VERBOSE(" trying to adding material layers extrapolating to previous measurement ");
 
                     // collect the material going in opposite direction
-                    const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_muonExtrapolator->extrapolateM(*secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                    const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
+                        *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -622,34 +614,27 @@ namespace Muon {
 
         // create new track
         return new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
-
     }
 
-    TrackCollection* MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks) const {
+    TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks) const {
         TrackCollection *extrapolateTracks = new TrackCollection();
         extrapolateTracks->reserve(tracks.size());
 
         // loop over muon tracks and extrapolate them to the IP
-        for (const Trk::Track* tit : tracks) {
-
+        for (const Trk::Track *tit : tracks) {
             Trk::Track *extrapolateTrack = extrapolate(*tit);
-            if (!extrapolateTrack) {
-                continue;
-            }
+            if (!extrapolateTrack) { continue; }
 
             extrapolateTracks->push_back(extrapolateTrack);
         }
         return extrapolateTracks;
-
     }
 
-    const Trk::Perigee* MuonTrackExtrapolationTool::createPerigee(const Trk::TrackParameters &pars) const {
-        if (m_muonExtrapolator2.empty()) {
-            return nullptr;
-        }
+    const Trk::Perigee *MuonTrackExtrapolationTool::createPerigee(const Trk::TrackParameters &pars) const {
+        if (m_muonExtrapolator2.empty()) { return nullptr; }
         Trk::PerigeeSurface persurf(pars.position());
         const Trk::TrackParameters *exPars = m_muonExtrapolator2->extrapolateDirectly(pars, persurf);
-        const Trk::Perigee *pp = dynamic_cast<const Trk::Perigee*>(exPars);
+        const Trk::Perigee *pp = dynamic_cast<const Trk::Perigee *>(exPars);
         if (!pp) {
             ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
             delete exPars;
@@ -657,4 +642,4 @@ namespace Muon {
         }
         return pp;
     }
-}
+}  // namespace Muon
