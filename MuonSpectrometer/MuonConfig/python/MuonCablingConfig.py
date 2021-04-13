@@ -27,15 +27,9 @@ def RPCCablingConfigCfg(flags):
     
     MuonRPC_CablingSvc=CompFactory.MuonRPC_CablingSvc
     rpcCablingSvc = MuonRPC_CablingSvc()
-    rpcCablingSvc.ConfFileName = 'LVL1confAtlas.data' # this should come from config flag maybe ???
-    rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
-    rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
     if flags.Trigger.enableL1MuonPhase1:
         rpcCablingSvc.RPCTriggerRoadsfromCool = False
-        from PathResolver import PathResolver
-        rpcCablingSvc.DatabaseRepository=PathResolver.FindCalibDirectory("MuonRPC_Cabling/RUN3_roads_4_6_8_10_12")
-    else:
-        rpcCablingSvc.RPCTriggerRoadsfromCool = True
+        rpcCablingSvc.DatabaseRepository="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
 
     rpcCablingSvc.CosmicConfiguration     = 'HLT' in flags.IOVDb.GlobalTag  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
