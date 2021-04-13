@@ -968,8 +968,6 @@ HLT_e10_lhmedium_ivarloose_j70_0eta320_j50_0eta490_j0_dijetSEP50j12etSEP900djmas
     4: 1
 HLT_e12_lhloose_2mu10_L12MU10:
   eventCount: 0
-  stepFeatures:
-    0: 2
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
 HLT_e140_lhloose_nod0_L1EM22VHI:
@@ -1900,7 +1898,7 @@ HLT_g15_loose_2mu10_msonly_L12MU10:
     1: 1
     2: 1
   stepFeatures:
-    0: 3
+    0: 1
     1: 1
     2: 1
 HLT_g20_loose_L1EM15VH:
@@ -3346,7 +3344,7 @@ HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:
     3: 2
     4: 2
   stepFeatures:
-    0: 24
+    0: 10
     1: 8
     2: 8
     3: 8
@@ -3360,7 +3358,7 @@ HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3372,7 +3370,7 @@ HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3384,7 +3382,7 @@ HLT_mu11_mu6_bDimu_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3396,7 +3394,7 @@ HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3408,7 +3406,7 @@ HLT_mu11_mu6_bPhi_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3420,7 +3418,7 @@ HLT_mu11_mu6_bTau_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3432,7 +3430,7 @@ HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6:
     1: 1
     2: 1
   stepFeatures:
-    0: 25
+    0: 13
     1: 11
     2: 6
     3: 4
@@ -3877,12 +3875,8 @@ HLT_mu60_L1MU20:
     3: 1
 HLT_mu6_2mu4_bDimu2700_L1MU6_3MU4:
   eventCount: 0
-  stepFeatures:
-    0: 13
 HLT_mu6_2mu4_bDimu6000_L1MU6_3MU4:
   eventCount: 0
-  stepFeatures:
-    0: 13
 HLT_mu6_L1MU6:
   eventCount: 10
   stepCounts:
@@ -3958,7 +3952,7 @@ HLT_mu6_mu4_L12MU4:
     2: 2
     3: 2
   stepFeatures:
-    0: 28
+    0: 14
     1: 11
     2: 10
     3: 8

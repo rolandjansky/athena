@@ -177,7 +177,7 @@ namespace LVL1MUCTPIPHASE1 {
 
       for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
       {
-	m_theMuctpi->getMuonSectorProcessors()[i]->configureOverlapRemoval(fullFileName);
+        m_theMuctpi->getMuonSectorProcessors()[i]->configureOverlapRemoval(fullFileName);
       }
 
     } else {
@@ -230,9 +230,9 @@ namespace LVL1MUCTPIPHASE1 {
       m_theMuctpi->getMuonSectorProcessors()[i]->setMenu(l1menu);
       if (!m_theMuctpi->getMuonSectorProcessors()[i]->configurePtEncoding())
       {
-	REPORT_ERROR( StatusCode::FAILURE )
-	  << "Couldn't configure pt encoding in MuonSectorProcessor " << i;
-	return StatusCode::FAILURE;
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "Couldn't configure pt encoding in MuonSectorProcessor " << i;
+        return StatusCode::FAILURE;
       }
     }
 
@@ -311,8 +311,7 @@ namespace LVL1MUCTPIPHASE1 {
     std::string ret = m_theMuctpi->processData( &mergedInput );
     if (ret != "")
     {
-      REPORT_ERROR( StatusCode::FAILURE )
-	<< "Error while processing MUCTPI data: " << ret;
+      REPORT_ERROR( StatusCode::FAILURE ) << "Error while processing MUCTPI data: " << ret;
       return StatusCode::FAILURE;
     }
     // Save the output of the simulation
@@ -321,18 +320,17 @@ namespace LVL1MUCTPIPHASE1 {
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
 
-
     if (mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idBarrelSystem()) ||
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
       
       for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
-	if (! mergedInput.isEmptyAll( (*it) ) ){
-	  // process the input in the MUCTPI simulation
-	  m_theMuctpi->processData( &mergedInput, (*it));      
-	  // Save the output of the simulation
-	  CHECK( saveOutput( (*it) ) );	    
-	}
+        if (! mergedInput.isEmptyAll( (*it) ) ){
+          // process the input in the MUCTPI simulation
+          m_theMuctpi->processData( &mergedInput, (*it));      
+          // Save the output of the simulation
+          CHECK( saveOutput( (*it) ) );	    
+        }
       }
     }
 
@@ -442,9 +440,9 @@ namespace LVL1MUCTPIPHASE1 {
       // check that the multiplicity was properly filled
       int multSize = ctpData.size();
       if( multSize < 1 ) {
-	REPORT_ERROR( StatusCode::FAILURE )
-	  << "TriggerProcessor didn't provide correct CTP data";
-	return StatusCode::FAILURE;
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "TriggerProcessor didn't provide correct CTP data";
+        return StatusCode::FAILURE;
       }
 
       // create MuCTPI RDO
@@ -457,11 +455,11 @@ namespace LVL1MUCTPIPHASE1 {
       for (DAQData data : daqData) {
         xAODRoIs->push_back(new xAOD::MuonRoI);
 
-	LVL1::TrigT1MuonRecRoiData roiData;
-	if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
-	else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
+        LVL1::TrigT1MuonRecRoiData roiData;
+        if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
+        else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
 
-	std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
+        std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
 
         xAODRoIs->back()->initialize(data.dataWord, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
       }
