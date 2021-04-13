@@ -12,6 +12,12 @@ if( SHERPA_FOUND )
         FORCESET SHERPAVER ${SHERPA_LCGVERSION} )
 endif()
 
+# Set the OLPATH environment variable:
+if( OPENLOOPS_FOUND )
+   set( OPENLOOPS_ENVIRONMENT
+      FORCESET OLPATH ${OPENLOOPS_LCGROOT} )
+endif()
+
 # Silently declare the module found:
 set( SHERPAENVIRONMENT_FOUND TRUE )
 
