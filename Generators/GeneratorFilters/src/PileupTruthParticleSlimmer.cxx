@@ -37,7 +37,7 @@ PileupTruthParticleSlimmer::PileupTruthParticleSlimmer( const string& name, ISvc
 
 
 StatusCode PileupTruthParticleSlimmer::initialize() {
-    ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG("Initializing");
     ATH_MSG_DEBUG("xAOD input TruthParticleContainer name = " << m_xaodTruthParticleContainerName );
     ATH_MSG_DEBUG("xAOD output TruthPileupParticleContainer name = " << m_xaodTruthPileupParticleContainerName );
     ATH_CHECK(m_classifier.retrieve());
