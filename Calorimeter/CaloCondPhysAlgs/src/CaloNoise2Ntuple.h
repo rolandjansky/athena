@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloMBAverageTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
@@ -53,8 +52,6 @@ class CaloNoise2Ntuple : public AthAlgorithm {
 
   const CaloCell_ID*       m_calo_id;
 
-  ToolHandle<ICaloMBAverageTool> m_averageTool;
-
   SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
     { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
   SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
@@ -75,7 +72,6 @@ class CaloNoise2Ntuple : public AthAlgorithm {
   float m_noise;
   float m_elecNoise;
   float m_pileupNoise; 
-  float m_average;
   TTree* m_tree;
 
   int m_runNumber;
