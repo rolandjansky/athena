@@ -188,7 +188,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                              SiChargedDiodeCollection& chargedDiodes,
                                              const InDetDD::SiDetectorElement& Module,
                                              const InDetDD::PixelModuleDesign& p_design,
-                                             const PixelModuleData *moduleData,
                                              std::vector< std::pair<double, double> >& trfHitRecord,
                                              std::vector<double>& initialConditions,
                                              CLHEP::HepRandomEngine* rndmEngine,
@@ -203,12 +202,14 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const PixelID* p_pixelId = static_cast<const PixelID*>(Module.getIdHelper());
   int layer = p_pixelId->layer_disk(Module.identify());
 
+  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
+
   std::pair<double, double> trappingTimes;
   if (m_doRadDamage && Module.isBarrel()) {
     if (m_doInterpolateEfield) {
       trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluenceLayer[layer]);
     } else {
-      trappingTimes = m_radDamageUtil->getTrappingTimes(moduleData->getFluenceLayer(layer));
+      trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
     }
   }
 
@@ -307,11 +308,11 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
 
-      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : moduleData->getDistanceMap_e(layer);
-      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : moduleData->getDistanceMap_h(layer);
-      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : moduleData->getLorentzMap_e(layer);
-      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : moduleData->getLorentzMap_h(layer);
-      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : moduleData->getRamoPotentialMap(layer);
+      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
+      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
+      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : fluenceData->getLorentzMap_e(layer);
+      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : fluenceData->getLorentzMap_h(layer);
+      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : fluenceData->getRamoPotentialMap(layer);
 
       const std::size_t distance_f_e_bin_x = distanceMap_e.getBinX(dist_electrode);
       const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
