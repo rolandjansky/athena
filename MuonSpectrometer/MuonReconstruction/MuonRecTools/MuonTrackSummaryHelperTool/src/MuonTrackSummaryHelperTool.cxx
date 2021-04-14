@@ -479,9 +479,9 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
             exPars = extrapolator->extrapolateDirectly(pars, surf, Trk::anyDirection, false, Trk::muon);
             if (!exPars) {
                 if (isStraightLine) {
-                    ATH_MSG_WARNING(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");
+                    ATH_MSG_DEBUG(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");
                 } else {
-                    ATH_MSG_WARNING(" Curved track propagation to prd " << m_idHelperSvc->toString(id) << " failed");
+                    ATH_MSG_DEBUG(" Curved track propagation to prd " << m_idHelperSvc->toString(id) << " failed");
                 }
                 continue;
             }
