@@ -1,8 +1,9 @@
 The ATLAS DetCommon Mini-Project
 ===================================
 
-This is the configuration for building the DetCommon project that is
-used at P1 to configure the L1 hardware (CTP, L1Calo).
+This is the configuration for building the DetCommon project that contains
+code to read the trigger configuration. It only has `tdaq-common` and `LCG`
+dependencies. The project is e.g. used at P1 to configure the L1 hardware (CTP, L1Calo).
 
 Build Instructions
 ------------------
@@ -31,5 +32,14 @@ repository is instead used directly while building this project using
 Project Versioning Scheme
 -------------------------
 
-When in production, the version number of this project goes hand in hand with
-the version number of the Athena project.
+When in production, the project is usually built at the same time as the
+Athena project and carries the same (3-digit) version number. If a patch
+is needed (without building Athena) a 4-digit version number should be used.
+
+Use by Detectors
+----------------
+If the project is used in conjuntion with the `tdaq` project a typical 
+CMake configuration could look like this:
+```cmake
+tdaq_project( MyProject 1.0.0 USES tdaq 9.2.1 DetCommon 22.0.30 )
+```
