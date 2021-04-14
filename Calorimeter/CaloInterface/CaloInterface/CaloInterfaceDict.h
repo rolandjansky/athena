@@ -8,7 +8,6 @@
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloInterface/ICaloCellSelector.h"
-#include "CaloInterface/ICaloMBAverageTool.h"
 #include "CaloInterface/ICaloCellNormalizedQualityTool.h"
 #include "CaloInterface/ICaloAffectedTool.h"
 #include "CaloInterface/ICaloEstimatedGainTool.h"
