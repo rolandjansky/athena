@@ -681,6 +681,10 @@ namespace top {
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
                                                "weight_photonSF_effIso_DOWN");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_UP,
+                                               "weight_photonSF_Trigger_UNCERT_UP");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_DOWN,
+                                               "weight_photonSF_Trigger_UNCERT_DOWN");
           }
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
@@ -1972,6 +1976,8 @@ namespace top {
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
+          m_weight_photonSF_Trigger_UNCERT_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP);
+          m_weight_photonSF_Trigger_UNCERT_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN);
         }
 
 

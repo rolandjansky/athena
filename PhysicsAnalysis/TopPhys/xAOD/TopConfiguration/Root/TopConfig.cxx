@@ -3980,12 +3980,17 @@ namespace top {
 
   void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics,
                                                 std::vector<std::string> muon_trigger_systematics,
+                                                std::vector<std::string> photon_trigger_systematics,
                                                 std::vector<std::string> electron_tool_names,
-                                                std::vector<std::string> muon_tool_names) {
+                                                std::vector<std::string> muon_tool_names,
+                                                std::vector<std::string> photon_tool_names
+                                               ) {
     m_trigGlobalConfiguration.electron_trigger_systematics = electron_trigger_systematics;
     m_trigGlobalConfiguration.muon_trigger_systematics = muon_trigger_systematics;
+    m_trigGlobalConfiguration.photon_trigger_systematics = photon_trigger_systematics;
     m_trigGlobalConfiguration.electron_trigger_tool_names = electron_tool_names;
     m_trigGlobalConfiguration.muon_trigger_tool_names = muon_tool_names;
+    m_trigGlobalConfiguration.photon_trigger_tool_names = photon_tool_names;
     m_trigGlobalConfiguration.isConfigured = true;
     return;
   }

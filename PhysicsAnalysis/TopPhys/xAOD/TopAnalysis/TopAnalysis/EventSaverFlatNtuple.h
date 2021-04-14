@@ -403,6 +403,8 @@ namespace top {
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso_UP = 0.;
     float m_weight_photonSF_effIso_DOWN = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_UP = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;

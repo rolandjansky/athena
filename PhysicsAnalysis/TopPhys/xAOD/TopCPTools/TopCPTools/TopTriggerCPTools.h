@@ -24,6 +24,7 @@
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 // Need to have these tools held in the class
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 namespace top {
@@ -56,6 +57,8 @@ namespace top {
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
     std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactory;
     std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactoryLoose;
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> > m_photonToolsFactory;
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> > m_photonToolsFactoryLoose;
   };
 }  // namespace top
 
