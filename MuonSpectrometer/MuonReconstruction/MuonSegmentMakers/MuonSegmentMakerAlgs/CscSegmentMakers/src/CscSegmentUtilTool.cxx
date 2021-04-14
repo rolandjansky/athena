@@ -1973,16 +1973,16 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         Amg::Vector2D lposnew(etapold->localParameters()[Trk::locX], (*lpos)[Trk::locY]);
         
         // calculate the corresponding global position
-        const Amg::Vector3D* gposnew = surf.localToGlobal(lposnew);
+        const Amg::Vector3D gposnew = surf.localToGlobal(lposnew);
         const Amg::Vector3D& gdirnew = rsg.globalDirection();
         
         // create the new rots using the ROT creator
         const Trk::RIO_OnTrack* etaRot
-          = m_rotCreator->createRIO_OnTrack(*etapold->prepRawData(), *gposnew, gdirnew); 
+          = m_rotCreator->createRIO_OnTrack(*etapold->prepRawData(), gposnew, gdirnew); 
         rios->push_back(etaRot);
 
         const Trk::RIO_OnTrack* phiRot
-          = m_rotCreator->createRIO_OnTrack(*phipold->prepRawData(), *gposnew);
+          = m_rotCreator->createRIO_OnTrack(*phipold->prepRawData(), gposnew);
         rios->push_back(phiRot);
         
         // debug output, to be removed
@@ -1998,7 +1998,6 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         
         // clean up pointers
         delete lpos;
-        delete gposnew;
       } // end loop over phi
     } // end loop over eta
 

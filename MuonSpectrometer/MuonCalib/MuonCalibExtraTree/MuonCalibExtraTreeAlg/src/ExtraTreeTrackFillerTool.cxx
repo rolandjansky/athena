@@ -140,10 +140,9 @@ inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBas
   if (ismdt) {
     // Store for Mdt wire position (crossed by track for local Z) 
     Amg::Vector2D lpos(0., trackPars ? trackPars->parameters()[Trk::locZ] : 0.);
-    const Amg::Vector3D* gpos = measurement->associatedSurface().localToGlobal(lpos);
-    pos = Amg::Vector3D (gpos->x(),gpos->y(),gpos->z());
+    Amg::Vector3D gpos = measurement->associatedSurface().localToGlobal(lpos);
+    pos = Amg::Vector3D (gpos.x(),gpos.y(),gpos.z());
     ATH_MSG_DEBUG(" MDT Local position " <<  lpos << " MDT global WIRE position measurement " << pos);
-    delete gpos;
   } 
   double driftRadius(0.);
   if( measurement->localParameters().contains(Trk::locX) ){

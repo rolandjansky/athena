@@ -29,7 +29,7 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
 
   // Set global position
   Amg::Vector2D lpos(localParameters().get(Trk::locX), m_positionAlongStrip);
-  m_globalPosition = detectorElement()->surface(identify()).localToGlobalPos(lpos);
+  m_globalPosition = detectorElement()->surface(identify()).localToGlobal(lpos);
 }
 
 // Constructor with parameters
@@ -93,7 +93,7 @@ void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, c
       Amg::Vector2D lpos(localParameters().get(Trk::locX),
                          m_positionAlongStrip);
       m_globalPosition =
-        detectorElement()->surface(identify()).localToGlobalPos(lpos);
+        detectorElement()->surface(identify()).localToGlobal(lpos);
     }
 }
 

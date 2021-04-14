@@ -201,8 +201,8 @@ const Trk::MeasurementBase * AscObj_TSOS::measurement() const
 SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface,
                          const double& maxTrans ) const
 {
-  const Amg::Vector3D* origo = theSurface->localToGlobal(Amg::Vector2D(0,0));
-  const Amg::Vector3D* unitz = theSurface->localToGlobal(Amg::Vector2D(0,1));
+  const Amg::Vector3D origo = theSurface->localToGlobal(Amg::Vector2D(0,0));
+  const Amg::Vector3D unitz = theSurface->localToGlobal(Amg::Vector2D(0,1));
 
   std::vector< Amg::Vector3D > * points = trackHandle()->hackGetPointsPropagated();//FIXME
 
@@ -213,7 +213,7 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
   for ( size_t i = 0; i<points->size(); i++)
   {
     double s;
-    double dist = VP1LinAlgUtils::distPointLine2( (*points)[i], *origo, *unitz, s );
+    double dist = VP1LinAlgUtils::distPointLine2( (*points)[i], origo, unitz, s );
     if (dist < min)
     {
       min = dist;
@@ -231,16 +231,16 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
     double sp,tp,sm,tm;
     if (imin+1 < points->size() && imin >= 1)
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),*origo,*unitz,tp,sp);
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),*origo,*unitz,tm,sm);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),origo,unitz,tp,sp);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
       smin = fabs(tm - 0.5) < fabs(tp - 0.5) ? sm : sp;
     } else if (imin+1 >= points->size() && imin >= 1 )
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),*origo,*unitz,tm,sm);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
       smin = sm;
     } else
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),*origo,*unitz,tp,sp);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),origo,unitz,tp,sp);
       smin = sp;
     }
   } else {
@@ -314,8 +314,8 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
   if ( idhelper && ( isTRT||isMDT ) )
   {
     const Trk::Surface& theSurface = rio->associatedSurface();
-    const Amg::Vector3D* origo = theSurface.localToGlobal(Amg::Vector2D(0,0));
-    const Amg::Vector3D* unitz = theSurface.localToGlobal(Amg::Vector2D(0,1));
+    const Amg::Vector3D origo = theSurface.localToGlobal(Amg::Vector2D(0,0));
+    const Amg::Vector3D unitz = theSurface.localToGlobal(Amg::Vector2D(0,1));
     const Amg::Vector3D& point = m_tsos->trackParameters()->position(); //FIXME: use the one from rio when it is fixed.
     //const Amg::Vector3D& point = rio->globalPosition();
     //this is currently returning a position on the z-axis which is wrong. Re-enable this feature
@@ -323,10 +323,8 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
 
     //Get the point 'pointMeas' on the measurement z-axis which is closest to the point 'point'
     double s;
-    VP1LinAlgUtils::distPointLineParam( point, *origo, *unitz, s );
-    const Amg::Vector3D pointMeas = *origo + s*(*unitz - *origo);
-    delete origo;
-    delete unitz;
+    VP1LinAlgUtils::distPointLineParam( point, origo, unitz, s );
+    const Amg::Vector3D pointMeas = origo + s*(unitz - origo);
 
     SoLineSet * line = new SoLineSet();
     SoVertexProperty * vertices = new SoVertexProperty();

@@ -46,7 +46,7 @@ SiCluster::setDetectorElement(const InDetDD::SiDetectorElement* detEl)
   m_detEl = detEl;
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
 
