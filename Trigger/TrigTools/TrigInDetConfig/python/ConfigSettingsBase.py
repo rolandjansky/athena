@@ -47,7 +47,8 @@ class _ConfigSettingsBase() :
       self._adaptiveVertex_jet  = False
       self._vertex_jet          = None
       self._addSingleTrackVertices = False
-
+      self._minNSiHits_vtx      = None
+      
    def tracks_FTF(self):
       if self._suffix is None:
          raise Exception( "ID Trigger configuration:  called with non existent slice: ", self._name, self._input_name  )
@@ -222,8 +223,16 @@ class _ConfigSettingsBase() :
        return self._adaptiveVertex
 
    @property
+   def adaptiveVertex_jet(self):
+       return self._adaptiveVertex_jet
+
+   @property
    def addSingleTrackVertices(self):
        return self._addSingleTrackVertices
+
+   @property
+   def minNSiHits_vtx(self):
+       return self._minNSiHits_vtx
 
 
    def printout(self):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_pu40
+# art-description: art job for fsjet_vtx_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -31,6 +31,7 @@ Events  = 2000
 Threads = 8 
 Slots   = 8
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+Release = "current"
 
 preinclude_file = "RDOtoRDOTrigger:TrigInDetValidation/TIDAvtx_preinclude.py"
 
