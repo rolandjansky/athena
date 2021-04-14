@@ -246,11 +246,11 @@ private: // properties
 
    /// For SharedWriter:
    /// To use MetadataSvc to merge data placed in a certain container
-   StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer",""};
+   StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer","MetaData"};
    /// Make this instance a Streaming Client during first connect/write automatically
    IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
    /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
-   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
+   BooleanProperty m_parallelCompression{this,"ParallelCompression",true};
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"
    StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:1095"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
