@@ -16,6 +16,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ROOTCORE
+#include "AsgTools/StandaloneToolHandle.h"
 
 // EDM include(s):
 #include "xAODCore/ShallowAuxContainer.h"
@@ -183,9 +184,8 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing JSSWTopTaggerDNN Tagger"<<std::endl;
-  asg::AnaToolHandle<JSSWTopTaggerDNN> m_Tagger; //!
-  ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
-  m_Tagger.setName("MyTagger");
+  asg::StandaloneToolHandle<JSSWTopTaggerDNN> m_Tagger; //!
+  m_Tagger.setTypeAndName("JSSWTopTaggerDNN/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
   ANA_CHECK( m_Tagger.setProperty( "CalibArea",   "Local") );
   ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/temp_JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_80Eff.dat") );

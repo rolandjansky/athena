@@ -16,7 +16,7 @@
 #include "xAODEgamma/PhotonContainer.h" 
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h" 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "PATCore/AcceptData.h"
 
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
@@ -105,12 +105,12 @@ int main( int argc, char* argv[] ) {
    if (isElectron) {
    //Medium cut based Electrons
 
-     asg::AnaToolHandle<IAsgElectronIsEMSelector> electronMediumIsEMSelector ("AsgElectronIsEMSelector/electronMediumIsEMSelector");
+     asg::StandaloneToolHandle<IAsgElectronIsEMSelector> electronMediumIsEMSelector ("AsgElectronIsEMSelector/electronMediumIsEMSelector");
      ANA_CHECK(electronMediumIsEMSelector.setProperty("WorkingPoint", "MediumElectron"));
      ANA_CHECK(electronMediumIsEMSelector.setProperty("OutputLevel", mylevel));
      ANA_CHECK(electronMediumIsEMSelector.initialize());
 
-     asg::AnaToolHandle<IAsgElectronLikelihoodTool> electronMediumLHSelector ("AsgElectronLikelihoodTool/electronMediumLHSelector");
+     asg::StandaloneToolHandle<IAsgElectronLikelihoodTool> electronMediumLHSelector ("AsgElectronLikelihoodTool/electronMediumLHSelector");
      ANA_CHECK(electronMediumLHSelector.setProperty("WorkingPoint", "MediumLHElectron"));
      ANA_CHECK(electronMediumLHSelector.setProperty("OutputLevel", mylevel));
      ANA_CHECK(electronMediumLHSelector.initialize());
@@ -174,7 +174,7 @@ int main( int argc, char* argv[] ) {
    else {
      //Tight cut based photon
      
-     asg::AnaToolHandle<IAsgPhotonIsEMSelector> photonTightIsEMSelector ("AsgPhotonIsEMSelector/photonTightIsEMSelector");
+     asg::StandaloneToolHandle<IAsgPhotonIsEMSelector> photonTightIsEMSelector ("AsgPhotonIsEMSelector/photonTightIsEMSelector");
      ANA_CHECK(photonTightIsEMSelector.setProperty("WorkingPoint", "TightPhoton"));
      ANA_CHECK(photonTightIsEMSelector.setProperty("OutputLevel", mylevel));
      ANA_CHECK(photonTightIsEMSelector.initialize());
