@@ -193,26 +193,25 @@ if doObj("OFC"):
   LArOFC2Ntuple.OffId=OffIdDump
   if IsMC: 
     if SuperCells:
-       LArOFC2Ntuple.IsMC=IsMC
-       from LArRecUtils.LArOFCSCToolDefault import LArOFCSCToolDefault
-       theOFCTool = LArOFCSCToolDefault()
-       theOFCTool.Dump=True
-       ToolSvc += theOFCTool
-       LArOFC2Ntuple.OFCTool = theOFCTool
+       from LArRecUtils.LArOFCSCCondAlgDefault import LArOFCCondAlgDefault
+       ofcAlg = LArOFCSCCondAlgDefault()
     else:   
-       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/OFC"))
-       LArOFC2Ntuple.IsMC=IsMC
-       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-       theOFCTool = LArOFCToolDefault()
-       theOFCTool.Dump=True
-       ToolSvc += theOFCTool
-       LArOFC2Ntuple.OFCTool = theOFCTool
+       from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+       ofcAlg = LArOFCCondAlgDefault()
+    LArOFC2Ntuple.ContainerKey = ofcAlg.LArOFCObjKey
+
   elif IsFlat:
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/OFC"))     
-    svcMgr.LArFlatConditionSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
-  else:     
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder))
-  LArOFC2Ntuple.ContainerKey = "LArOFC"
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    folder = '/LAR/ElecCalibFlat/OFC'
+    conddb.addFolder('LAR_ONL', getDBFolderAndTag(folder), className = 'CondAttrListCollection')
+    condSequence += LArOFCCondAlg  (ReadKey=folder, WriteKey='LArOFC')
+
+  else:
+    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder) + '<key>LArOFC</key>',
+                     className='LArOFCComplete')
+
   LArOFC2Ntuple.isSC=SuperCells
   LArOFC2Ntuple.isFlat=IsFlat  
   topSequence+=LArOFC2Ntuple
