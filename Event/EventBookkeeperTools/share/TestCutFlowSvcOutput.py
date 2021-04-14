@@ -24,9 +24,14 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if 'inputFiles' in dir():
     athenaCommonFlags.FilesInput = inputFiles.split(',')  # noqa: F821
     del inputFiles
-else:
+elif 'alternativeInput' in dir() and alternativeInput is True:  # noqa: F821
     athenaCommonFlags.FilesInput = [
         '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
+    ]
+else:
+    athenaCommonFlags.FilesInput = [
+        '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MetadataTests/dummy/File1.pool.root',
+        '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MetadataTests/dummy/File2.pool.root',
     ]
 
 # get a handle to the default top-level algorithm sequence
@@ -42,13 +47,6 @@ from AthenaCommon.AppMgr import theApp
 # load POOL support
 import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
 
-# setup some configuration
-try:
-    from RecExConfig.RecFlags import rec
-    rec.mergingStreamName = 'Stream1'
-except ModuleNotFoundError:
-    pass
-
 # setup the CutFlowSvc and corresponding tools
 from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
 CreateCutFlowSvc(seq=topSequence)
@@ -59,11 +57,18 @@ topSequence += TestFilterReentrantAlg("TestReentrant1", FilterKey="TestReentrant
 topSequence += TestFilterReentrantAlg("TestReentrant2", FilterKey="TestReentrant2", Modulo=4)
 
 # output options
-from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputStream
+from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream('Stream1', 'OutputAOD.root', asAlg=True)
 Stream1.ItemList = ['xAOD::EventInfo#*', 'xAOD::EventAuxInfo#*']
-Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#CutBookkeepers', 'xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.']
-Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers', 'xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.']
+Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#CutBookkeepers*', 'xAOD::CutBookkeeperAuxContainer#CutBookkeepers*Aux.']
+Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers*', 'xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepers*Aux.']
+
+# shared writer
+if 'sharedWriter' in dir() and sharedWriter is True:  # noqa: F821
+    from AthenaMP.AthenaMPFlags import jobproperties as ampjp
+    ampjp.AthenaMPFlags.UseSharedWriter = True
+    ServiceMgr.AthenaPoolCnvSvc.OutputMetadataContainer = "MetaData" 
+    ServiceMgr.AthenaPoolCnvSvc.StreamMetaDataOnly = True
 
 # set debug logging
 ServiceMgr.MessageSvc.defaultLimit = 9999999
