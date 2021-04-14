@@ -20,21 +20,17 @@ namespace Muon {
         @author Sarka.Todorova@cern.ch
         */
 
-    static const InterfaceID IID_IMuonTGMeasTool("IMuonTGMeasTool", 1, 0);
-
     class IMuonTGMeasTool : virtual public IAlgTool {
     public:
         /** Virtual destructor */
-        virtual ~IMuonTGMeasTool(){};
+        virtual ~IMuonTGMeasTool() = default;
 
         /** AlgTool interface method */
-        static const InterfaceID& interfaceID() { return IID_IMuonTGMeasTool; };
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonTGMeasTool("IMuonTGMeasTool", 1, 0);
+            return IID_IMuonTGMeasTool;
+        };
 
-        virtual const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const = 0;
-        virtual const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const = 0;
-        virtual const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const = 0;
-        virtual const MuonTGSegments* getAllSegments() const = 0;
-        virtual const MuonTGHits* getAllHits() const = 0;
         virtual const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const = 0;
         virtual const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const = 0;
         virtual const Trk::RIO_OnTrack* measToLayer(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const = 0;

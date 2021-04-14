@@ -59,22 +59,17 @@ namespace Muon {
 
         virtual StatusCode initialize();
 
-        const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const;
-        const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const;
-        const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const;
-        const MuonTGSegments* getAllSegments() const;
-        const MuonTGHits* getAllHits() const;
-        const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const;
-        const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const;
-        const Trk::RIO_OnTrack* measToLayer(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const;
-        double residual(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const;
-        double residual(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const;
-        double residual(const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const;
-        double residual(const Trk::TrackParameters*, Identifier&) const;
-        const Identifier nearestDetEl(const Trk::Layer*, const Trk::TrackParameters*, bool measPhi, double& pitch) const;
-        const Trk::Layer* associatedLayer(Identifier id, Amg::Vector3D& gp) const;
-        const Trk::Layer* associatedLayer(Identifier id, const Trk::TrackingVolume* vol) const;
-        const Trk::Layer* match(Identifier id, const Trk::Layer* lay) const;
+        const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const override;
+        const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const override;
+        const Trk::RIO_OnTrack* measToLayer(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const override;
+        double residual(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const override;
+        double residual(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const override;
+        double residual(const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const override;
+        double residual(const Trk::TrackParameters*, Identifier&) const override;
+        const Identifier nearestDetEl(const Trk::Layer*, const Trk::TrackParameters*, bool measPhi, double& pitch) const override;
+        const Trk::Layer* associatedLayer(Identifier id, Amg::Vector3D& gp) const override;
+        const Trk::Layer* associatedLayer(Identifier id, const Trk::TrackingVolume* vol) const override;
+        const Trk::Layer* match(Identifier id, const Trk::Layer* lay) const override;
 
     private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -89,10 +84,6 @@ namespace Muon {
                                                                                "Key of input TrackingGeometry"};
 
         const MuonGM::MuonDetectorManager* m_muonDetMgr;  // nominal MuonDetectorManager from DetectorStore (used if UseDSManager=true)
-
-        // -- algorithm members
-        mutable MuonTGHits* m_hits ATLAS_THREAD_SAFE;          // Marked as thread-safe because it's disabled when running multi-threaded
-        mutable MuonTGSegments* m_segments ATLAS_THREAD_SAFE;  // Marked as thread-safe because it's disabled when running multi-threaded
 
         // projection matrices
         std::unique_ptr<AmgMatrix(5, 5)> m_tgcProjEta;

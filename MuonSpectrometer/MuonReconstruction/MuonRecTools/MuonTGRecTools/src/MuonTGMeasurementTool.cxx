@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
@@ -32,7 +32,7 @@
 
 // Constructor with parameters:
 Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent), m_muonDetMgr(nullptr), m_hits(nullptr), m_segments(nullptr) {
+    AthAlgTool(type, name, parent), m_muonDetMgr(nullptr) {
     declareInterface<Muon::IMuonTGMeasTool>(this);
 }
 
@@ -71,93 +71,6 @@ StatusCode Muon::MuonTGMeasurementTool::initialize() {
     }
     return StatusCode::SUCCESS;
 }
-
-const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getMeasurementOnLayer(const Trk::Layer* lay) const {
-    // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getMeasurementOnLayer");
-    const std::vector<const Trk::PrepRawData*>* hitsOnLayer = nullptr;
-    //
-    if (m_hits && lay) {
-        const Trk::DetachedTrackingVolume* station = lay->enclosingDetachedTrackingVolume();
-        if (!station) ATH_MSG_WARNING("no enclosing station found");
-        if (station) {
-            ATH_MSG_DEBUG("enclosing station found:" << station->name());
-            unsigned int ist = 0;
-            while (ist < m_hits->size()) {
-                if ((*m_hits)[ist]->first == station) {
-                    unsigned int il = 0;
-                    while (il < (*m_hits)[ist]->second->size()) {
-                        if ((*((*m_hits)[ist]->second))[il]->first == lay) {
-                            hitsOnLayer = new std::vector<const Trk::PrepRawData*>(*((*((*m_hits)[ist]->second))[il]->second));
-                            break;
-                        }
-                        il++;
-                    }
-                    break;
-                }
-                ist++;
-            }
-        }
-    }
-
-    if (hitsOnLayer) ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool returns " << hitsOnLayer->size() << " measurements on layer");
-
-    return hitsOnLayer;
-}
-
-const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getEtaPhiMeasurementOnLayer(const Trk::Layer* lay,
-                                                                                                     bool phi) const {
-    // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getEtaPhiMeasurementOnLayer");
-    const std::vector<const Trk::PrepRawData*>* meas = getMeasurementOnLayer(lay);
-    std::vector<const Trk::PrepRawData*>* hitsOnLayer = new std::vector<const Trk::PrepRawData*>;
-
-    if (meas) {
-        for (unsigned int ih = 0; ih < meas->size(); ih++) {
-            const Identifier id = (*meas)[ih]->identify();
-            if (m_idHelperSvc->isMdt(id)) hitsOnLayer->push_back((*meas)[ih]);
-            if (m_idHelperSvc->isRpc(id)) {
-                if (m_idHelperSvc->rpcIdHelper().measuresPhi(id) == phi) hitsOnLayer->push_back((*meas)[ih]);
-            }
-            if (m_idHelperSvc->isCsc(id)) {
-                if (m_idHelperSvc->cscIdHelper().measuresPhi(id) == phi) hitsOnLayer->push_back((*meas)[ih]);
-            }
-            if (m_idHelperSvc->isTgc(id)) {
-                if (m_idHelperSvc->tgcIdHelper().isStrip(id) == phi) hitsOnLayer->push_back((*meas)[ih]);
-            }
-        }
-        delete meas;
-    }
-
-    //  return new std::vector<const Trk::PrepRawData*>(*hitsOnLayer);
-    return hitsOnLayer;
-}
-
-const Muon::MuonTGSegments* Muon::MuonTGMeasurementTool::getAllSegments() const { return m_segments; }
-
-const Muon::MuonTGHits* Muon::MuonTGMeasurementTool::getAllHits() const { return m_hits; }
-
-const std::vector<const Trk::Segment*>* Muon::MuonTGMeasurementTool::getSegments(const Trk::DetachedTrackingVolume* station) const {
-    // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getSegments");
-    const std::vector<const Trk::Segment*>* segments = 0;
-
-    if (m_segments && station) {
-        unsigned int ist = 0;
-        while (ist < m_segments->size()) {
-            if ((*m_segments)[ist]->first == station) {
-                segments = new std::vector<const Trk::Segment*>(*((*m_segments)[ist]->second));
-                break;
-            }
-            ist++;
-        }
-    }
-
-    if (segments) ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool returns " << segments->size() << " segments");
-
-    return segments;
-}
-
 const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm,
                                                                       Identifier id) const {
     const MuonGM::MuonDetectorManager* MuonDetMgr = m_muonDetMgr;
