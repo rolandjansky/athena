@@ -20,7 +20,7 @@
 #include "TrkiPatFitterUtils/FitParameters.h"
 #include "TrkiPatFitterUtils/MeasurementProcessor.h"
 #include "TrkiPatFitterUtils/ParameterType.h" 
-
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 namespace Trk{
   
 // constructor
