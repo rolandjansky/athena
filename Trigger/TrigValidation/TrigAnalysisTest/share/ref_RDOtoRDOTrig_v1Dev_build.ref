@@ -3109,6 +3109,8 @@ HLT_mb_sp2000_trk100_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp3000_trk100_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp400_pusup300_trk40_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp400_trk40_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp5000_trk100_hmt_L1RD0_FILLED:
