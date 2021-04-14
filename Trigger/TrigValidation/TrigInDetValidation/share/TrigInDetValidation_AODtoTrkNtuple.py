@@ -175,7 +175,7 @@ if ( True ) :
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
-
+    "HLT_e.*:HLT_IDTrack_Electron_GSF",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

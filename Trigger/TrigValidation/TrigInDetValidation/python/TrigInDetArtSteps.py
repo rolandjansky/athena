@@ -90,6 +90,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
+                chains +=  "'HLT_e26_lhtight_gsf_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
@@ -233,7 +234,7 @@ def json_chains( slice ) :
         
     with open(json_fullpath) as f:
         data = json.load(f)
-       
+
     chainmap = data[slice]
 
     return chainmap['chains']
