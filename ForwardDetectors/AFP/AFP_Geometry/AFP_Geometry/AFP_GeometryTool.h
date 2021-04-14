@@ -28,7 +28,10 @@ public:
   	virtual StatusCode initialize() override;
   	virtual StatusCode finalize() override;
 
-    void SetCfgParams(PAFP_CONFIGURATION pCfgParams) { m_CfgParams=*pCfgParams; }
+        virtual void SetCfgParams(PAFP_CONFIGURATION pCfgParams) override
+        {
+          m_CfgParams=*pCfgParams;
+        }
 
 };
 
