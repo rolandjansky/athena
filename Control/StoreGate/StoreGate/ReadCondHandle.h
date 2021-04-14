@@ -114,6 +114,7 @@ namespace SG {
       msg << MSG::ERROR
           << "EventContext extension is not "
           << (ctx.hasExtension() ? "of type Atlas::ExtendedEventContext" : "set")
+          << " for key "<<key.objKey()<<"."
           << endmsg;
       throw;
     }
