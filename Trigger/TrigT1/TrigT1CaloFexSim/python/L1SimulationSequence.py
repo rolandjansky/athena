@@ -175,13 +175,14 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if simflags.Calo.RunFexAlgorithms():
 
         # eFEX
-        from TrigL1CaloUpgrade.TrigL1CaloUpgradeConfig import enableEfexAlgorithms
-        enableEfexAlgorithms ( l1simAlgSeq,
-                               SuperCellContainer = SCIn, 
-                               useTDR = False,
-                               doLArFex = False,
-                               ApplySCQual = simflags.Calo.ApplySCQual(), 
-                               SCBitMask = simflags.Calo.QualBitMask() )
+        if simflags.Calo.RunEFexAlgorithms():
+            from TrigL1CaloUpgrade.TrigL1CaloUpgradeConfig import enableEfexAlgorithms
+            enableEfexAlgorithms ( l1simAlgSeq,
+                                   SuperCellContainer = SCIn, 
+                                   useTDR = False,
+                                   doLArFex = False,
+                                   ApplySCQual = simflags.Calo.ApplySCQual(), 
+                                   SCBitMask = simflags.Calo.QualBitMask() )
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
         

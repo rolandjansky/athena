@@ -286,6 +286,7 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     )
 
     from TrigT1CaloFexPerf.EFexConfig import enableEfexAlgorithms
+    
     enableEfexAlgorithms(l1simAlgSeq, 
                          SuperCellContainer=SCIn, 
                          )
