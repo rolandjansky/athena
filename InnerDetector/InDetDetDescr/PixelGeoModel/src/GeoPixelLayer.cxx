@@ -160,27 +160,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //std::cout << "Layer Envelope (ladder only):          " 
   //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
 
-  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
-    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
-
-    // Check there is no overlap with support material
-    // Support cylinder is normally on outer side, but code also allows for the possibilty that it is on the inner side.
-    if (rminSupport < layerRadius + layerThicknessP &&
-	rmaxSupport >  layerRadius - layerThicknessN) {
-      m_gmt_mgr->msg(MSG::ERROR) 
-	<< "GeoPixelLayer: Support cylinder clashes with ladder. Support: " << rminSupport << " to " << rmaxSupport
-	<< " , Ladder extent: " << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP << endmsg;
-    }
-    layerThicknessN = std::max(layerThicknessN, layerRadius - rminSupport);
-    layerThicknessP = std::max(layerThicknessP, rmaxSupport - layerRadius);
-    //std::cout << "Support                          : " << rminSupport << " to " << rmaxSupport << std::endl; 
-  }
-  //std::cout << "Layer Envelope (ladder + support):     " 
-  //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
-
   //
-  // Make ladder services (non SLHC) and calculate envelope dimensions
+  // Make ladder services and calculate envelope dimensions
   //
   // Variables that are used later
   int maxLadType = 0;
@@ -189,7 +170,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   GeoVPhysVol* pigtailPhysVol = nullptr;
   GeoTrf::Transform3D transPigtail(GeoTrf::Transform3D::Identity());
 				
-  // Only make services in non SLHC geometries 
+  // Only make services in non IBL geometries
   if (staveLayout == 0) {
     //
     // Make LadderServices 
@@ -450,27 +431,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
       std::abort();
   } 
-
-  // SLHC only
-  // Add the "support layer" -- another way to add extra material
-  // but it has to be inside the logical layer volume
-  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
-    std::ostringstream slname;
-    slname << "PixelLayer" << m_gmt_mgr->GetLD() << "Support";
-    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
-    const GeoTube* supportCylEnv = new GeoTube(rminSupport, rmaxSupport, 0.5*length);
-    // Will generalize later. 
-    std::string matName = m_gmt_mgr->getMaterialName("LayerSupport", m_gmt_mgr->GetLD());
-    if (matName.empty()) {
-      m_gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endmsg;
-      matName = "std::Carbon";
-    }
-    const GeoMaterial *supportMat = m_mat_mgr->getMaterial(matName);
-    const GeoLogVol* supportCylLog = new GeoLogVol(slname.str(), supportCylEnv, supportMat);
-    GeoPhysVol * supportCyl = new GeoPhysVol(supportCylLog);
-    layerPhys->add(supportCyl);
-  }
 
   //
   // Extra Material. I don't think there is much room but we provide the hooks anyway   
