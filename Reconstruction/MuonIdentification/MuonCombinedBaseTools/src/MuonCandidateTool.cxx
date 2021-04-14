@@ -38,11 +38,19 @@ namespace MuonCombined {
     }
 
     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+                                   TrackCollection& outputTracks) {
+        create(tracks, outputCollection, outputTracks, Gaudi::Hive::currentContext());
+    }
+    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                                    TrackCollection& outputTracks, const EventContext& ctx) {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
 
         SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
+        if (!beamSpotHandle.isValid()) {
+            ATH_MSG_ERROR("Could not retrieve the BeamSpot data from key " << m_beamSpotKey.objKey());
+            return;
+        }
         float beamSpotX = beamSpotHandle->beamPos()[Amg::x];
         float beamSpotY = beamSpotHandle->beamPos()[Amg::y];
         float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];

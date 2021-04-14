@@ -26,7 +26,11 @@ namespace MuonCombined {
 
         /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
         virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                            TrackCollection& outputTracks, const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+                            TrackCollection& outputTracks, const EventContext& ctx) = 0;
+
+        /// Old method to maintain backwards compabilitiy
+        virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+                            TrackCollection& outputTracks) = 0;
 
         virtual ~IMuonCandidateTool() = default;
     };
