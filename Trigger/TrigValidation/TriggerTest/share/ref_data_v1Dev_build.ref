@@ -270,7 +270,6 @@ HLT_3j35_pf_ftf_bdl1r70_split_j35_pf_ftf_0eta320_L14J15p0ETA25:
   stepFeatures:
     0: 20
     1: 11
-    2: 1
 HLT_3j65_ftf_bmv2c1077_split_L1J20:
   eventCount: 0
   stepCounts:
@@ -1477,13 +1476,15 @@ HLT_j45_pf_subjesgscIS_ftf_L1J15:
     0: 7
     1: 7
 HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 5
     1: 5
+    2: 1
   stepFeatures:
     0: 5
     1: 5
+    2: 1
 HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20:
   eventCount: 5
   stepCounts:
@@ -1557,23 +1558,25 @@ HLT_j45_subjesgscIS_ftf_L1J15:
     0: 7
     1: 7
 HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 5
     1: 5
+    2: 1
   stepFeatures:
     0: 5
     1: 5
+    2: 1
 HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20:
-  eventCount: 2
+  eventCount: 1
   stepCounts:
     0: 5
     1: 5
-    2: 2
+    2: 1
   stepFeatures:
     0: 5
     1: 5
-    2: 2
+    2: 1
 HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:
   eventCount: 5
   stepCounts:
