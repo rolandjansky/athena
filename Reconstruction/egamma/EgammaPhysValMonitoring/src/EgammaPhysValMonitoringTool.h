@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EgammaPhysValMonitoringTool.h 
@@ -38,7 +38,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
-
+#include "CLHEP/Units/SystemOfUnits.h"
 
 class IMCTruthClassifier;
 namespace EgammaPhysValMonitoring {
@@ -86,15 +86,17 @@ class EgammaPhysValMonitoringTool
   /// Default constructor: 
   EgammaPhysValMonitoringTool() = delete;
 
-  StatusCode fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles);
-  StatusCode fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles);
-  StatusCode fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles);
+  StatusCode fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo);
+  StatusCode fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo);
+  StatusCode fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo);
 
   const xAOD::TruthParticle* Match(const xAOD::Egamma* particle, int pdg,
 				   const xAOD::TruthParticleContainer* truthParticles) const;
 
 
   // Containers
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoContainerKey {this,
+      "EventInfoContainerName", "EventInfo", "Input event information container"};
   SG::ReadHandleKey<xAOD::PhotonContainer> m_photonContainerKey {this,
       "PhotonContainerName", "Photons", "Input photon container"};
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerKey {this,
