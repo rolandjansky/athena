@@ -71,7 +71,7 @@ namespace JetTools{
         TA,       ///Track Assisted
         Comb,     ///Combined
     };
-    StatusCode stringToEnum(const TString& name, FFJetAllowedMassDefEnum& result)
+    inline StatusCode stringToEnum(const TString& name, FFJetAllowedMassDefEnum& result)
     {
         if (name.EqualTo("Calo",TString::kIgnoreCase)){
             result = FFJetAllowedMassDefEnum::Calo;
@@ -87,7 +87,7 @@ namespace JetTools{
         }
         return StatusCode::FAILURE;
     }
-    TString enumToString(const FFJetAllowedMassDefEnum type)
+    inline TString enumToString(const FFJetAllowedMassDefEnum type)
     {
         switch (type)
         {
