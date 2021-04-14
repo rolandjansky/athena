@@ -40,7 +40,7 @@ CondProxyProvider::~CondProxyProvider() {
 }
 //________________________________________________________________________________
 StatusCode CondProxyProvider::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
