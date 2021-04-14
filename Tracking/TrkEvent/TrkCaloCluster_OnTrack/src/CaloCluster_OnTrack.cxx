@@ -27,13 +27,13 @@ Trk::CaloCluster_OnTrack::CaloCluster_OnTrack(  const Trk::LocalParameters& locp
 {
   m_eloss = eloss;
   m_surface = surface.isFree() ? surface.clone() : &surface;
-  m_globalpos = surface.localToGlobal(m_localParams);
+  m_globalpos =
+    std::make_unique<const Amg::Vector3D>(surface.localToGlobal(m_localParams));
 }
 
 // Destructor:
 Trk::CaloCluster_OnTrack::~CaloCluster_OnTrack()
 {
-  if (m_globalpos) {delete m_globalpos;}
  // Don't delete surfaces belonging to DEs!
   if (m_surface && m_surface->isFree()) {delete m_surface;}  
   if (m_eloss) {delete m_eloss;}
@@ -52,7 +52,7 @@ Trk::CaloCluster_OnTrack::CaloCluster_OnTrack( const Trk::CaloCluster_OnTrack& c
   Trk::MeasurementBase(cot)
 {
   m_surface= cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : nullptr;
-  m_globalpos = cot.m_globalpos ? new Amg::Vector3D(*cot.m_globalpos) : nullptr;
+  m_globalpos = cot.m_globalpos ? std::make_unique<Amg::Vector3D>(*cot.m_globalpos) : nullptr;
   m_eloss= cot.m_eloss ? new Trk::EnergyLoss(*cot.m_eloss) : nullptr ;
 }
 
@@ -66,11 +66,10 @@ Trk::CaloCluster_OnTrack& Trk::CaloCluster_OnTrack::operator=(const Trk::CaloClu
 {
   if ( &cot != this) {
     if (m_surface && m_surface->isFree()) {delete m_surface;}  
-    if (m_globalpos) { delete m_globalpos;}
     if (m_eloss) {     delete m_eloss;}
     Trk::MeasurementBase::operator=(cot);
     m_surface =  cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : nullptr;
-    m_globalpos = cot.m_globalpos ? new Amg::Vector3D(*cot.m_globalpos) : nullptr;
+    m_globalpos = cot.m_globalpos ? std::make_unique<Amg::Vector3D>(*cot.m_globalpos) : nullptr;
     m_eloss= cot.m_eloss ? new Trk::EnergyLoss(*cot.m_eloss) : nullptr ;
   }
   return *this;

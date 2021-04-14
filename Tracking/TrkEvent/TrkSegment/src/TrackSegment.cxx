@@ -39,7 +39,8 @@ Trk::TrackSegment::TrackSegment(const Trk::LocalParameters& locpars,
       m_globalPosition(nullptr)
 {
   if(m_associatedSurface){
-    m_globalPosition = m_associatedSurface->localToGlobal(localParameters());
+    m_globalPosition = std::make_unique<const Amg::Vector3D>(
+      m_associatedSurface->localToGlobal(localParameters()));
   }
 }
 
@@ -48,7 +49,7 @@ Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg)
     :
     Trk::Segment(tseg),
     m_associatedSurface(tseg.m_associatedSurface ? tseg.m_associatedSurface->clone() : nullptr),
-    m_globalPosition(tseg.m_globalPosition ? new Amg::Vector3D(*tseg.m_globalPosition) : nullptr)
+    m_globalPosition(tseg.m_globalPosition ? std::make_unique<Amg::Vector3D>(*tseg.m_globalPosition) : nullptr)
 {
 }
 
@@ -58,8 +59,7 @@ Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg) noexcept
 {
   m_associatedSurface = tseg.m_associatedSurface;
   tseg.m_associatedSurface = nullptr;
-  m_globalPosition = tseg.m_globalPosition;
-  tseg.m_globalPosition = nullptr;
+  m_globalPosition = std::move(tseg.m_globalPosition);
 }
 
 Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
@@ -69,7 +69,6 @@ Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
      if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) {
        delete m_associatedSurface;
      }
-     delete m_globalPosition;
 
      // assingment operator of base class
      Trk::Segment::operator=(tseg);
@@ -80,7 +79,7 @@ Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
      } else {
        m_associatedSurface = nullptr;
      }
-     m_globalPosition = tseg.m_globalPosition ? new Amg::Vector3D(*tseg.m_globalPosition) : nullptr;
+     m_globalPosition = tseg.m_globalPosition ? std::make_unique<Amg::Vector3D>(*tseg.m_globalPosition) : nullptr;
    }
   return (*this);
 }
@@ -94,9 +93,7 @@ Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg) noexcept
     delete m_associatedSurface;
     m_associatedSurface = tseg.m_associatedSurface;
     tseg.m_associatedSurface = nullptr;
-    delete m_globalPosition;
-    m_globalPosition = tseg.m_globalPosition;
-    tseg.m_globalPosition = nullptr;
+    m_globalPosition = std::move(tseg.m_globalPosition);
   }
   return (*this);
 }
@@ -106,7 +103,6 @@ Trk::TrackSegment::~TrackSegment()
   if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) {
     delete m_associatedSurface;
   }
-  delete m_globalPosition;
 }
 
 const Amg::Vector3D& Trk::TrackSegment::globalPosition() const

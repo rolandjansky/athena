@@ -602,13 +602,9 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       }
 
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
-      const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
-      if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " << m_idHelperSvc->toString(id) );
-        continue;
-      }
+      const Amg::Vector3D gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
 
-      double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
+      double val = isEndcap ? fabs(gpos.z()) : gpos.perp();
 
       // nasty comparisons to figure out which MDT hit comes first
       if( val < detLayer.minPos ){
@@ -616,10 +612,10 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
           detLayer.last3D = detLayer.first3D;
           detLayer.maxPos = detLayer.minPos;
         }
-        detLayer.first3D = *gpos;
+        detLayer.first3D = gpos;
         detLayer.minPos = val;        
       }else if( val > detLayer.maxPos ){
-        detLayer.last3D = *gpos;
+        detLayer.last3D = gpos;
         detLayer.maxPos = val;
       }
 
@@ -629,14 +625,13 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
           maxPos = minPos;
         }
         minPos = val;
-        first3D = *gpos;
+        first3D = gpos;
       } else if (val > maxPos) {
         maxPos = val;
-        last3D = *gpos;
+        last3D = gpos;
       }
 
-      const Muon::MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack(*mprd,*gpos);
-      delete gpos;
+      const Muon::MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack(*mprd,gpos);
       if( !mdt ) {
         ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
@@ -664,25 +659,21 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       }
 
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
-      const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
-      if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
-        continue;
-      }
+      const Amg::Vector3D gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
 
       // double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
       // micormegas are always endcap
-      double val = fabs(gpos->z());
+      double val = fabs(gpos.z());
       // nasty comparisons to figure out which MDT hit comes first
       if( val < detLayer.minPos ){
         if( detLayer.maxPos < -1e8 && detLayer.minPos < 1e8 ){
           detLayer.last3D = detLayer.first3D;
           detLayer.maxPos = detLayer.minPos;
         }
-        detLayer.first3D = *gpos;
+        detLayer.first3D = gpos;
         detLayer.minPos = val;
       }else if( val > detLayer.maxPos ){
-        detLayer.last3D = *gpos;
+        detLayer.last3D = gpos;
         detLayer.maxPos = val;
       }
 
@@ -692,25 +683,25 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
           maxPos = minPos;
         }
         minPos = val;
-        first3D = *gpos;
+        first3D = gpos;
       } else if (val > maxPos) {
         maxPos = val;
-        last3D = *gpos;
+        last3D = gpos;
       }
 
-      const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*mm,*gpos);
+      const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*mm,gpos);
       if( !rot ) {
-        delete gpos;
         ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
       }
       double residual = rot->localParameters().get(Trk::locX)-lp.x();
       double pull = residual / rot->localCovariance()(Trk::locX);
-      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
+      ATH_MSG_DEBUG("Adding r " << gpos.perp() << " z " << gpos.z() << "  "
+                                << m_idHelperSvc->toString(id) << " "
+                                << residual << " pull " << pull);
       detLayer.meas.push_back(rot);
       //meas = rot;
       ++detLayer.nnsw;
-      delete gpos;
 
     }else if( stgc ) {
 
@@ -731,25 +722,21 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
 
 
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
-      const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
-      if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
-        continue;
-      }
+      const Amg::Vector3D gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
 
       // double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
       // stgcs are always endcap
-      double val = fabs(gpos->z());
+      double val = fabs(gpos.z());
       // // nasty comparisons to figure out which STGC hit comes first
       if( val < detLayer.minPos ){
         if( detLayer.maxPos < -1e8 && detLayer.minPos < 1e8 ){
           detLayer.last3D = detLayer.first3D;
           detLayer.maxPos = detLayer.minPos;
         }
-        detLayer.first3D = *gpos;
+        detLayer.first3D = gpos;
         detLayer.minPos = val;
       }else if( val > detLayer.maxPos ){
-        detLayer.last3D = *gpos;
+        detLayer.last3D = gpos;
         detLayer.maxPos = val;
       }
 
@@ -759,25 +746,25 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
           maxPos = minPos;
         }
         minPos = val;
-        first3D = *gpos;
+        first3D = gpos;
       } else if (val > maxPos) {
         maxPos = val;
-        last3D = *gpos;
+        last3D = gpos;
       }
 
-      const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*stgc,*gpos);
+      const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*stgc,gpos);
       if( !rot ) {
-        delete gpos;
         ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
       }
       double residual = rot->localParameters().get(Trk::locX) - lp.x();
       double pull = residual / rot->localCovariance()(Trk::locX);
-      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
+      ATH_MSG_DEBUG("Adding r " << gpos.perp() << " z " << gpos.z() << "  "
+                                << m_idHelperSvc->toString(id) << " "
+                                << residual << " pull " << pull);
       detLayer.meas.push_back(rot);
       //meas = rot;
       ++detLayer.nnsw;
-      delete gpos;
     }
   }
 

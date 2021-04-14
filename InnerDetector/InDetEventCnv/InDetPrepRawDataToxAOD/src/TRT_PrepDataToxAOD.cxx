@@ -218,11 +218,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
    
             
       //Set Global position
-      const Amg::Vector3D* gpos = prd->detectorElement()->surface(surfaceID).localToGlobal(prd->localPosition());
-      if(gpos){
-        xprd->setGlobalPosition(gpos->x(),gpos->y(),gpos->z());
-        delete gpos;
-      }
+      const Amg::Vector3D gpos = prd->detectorElement()->surface(surfaceID).localToGlobal(prd->localPosition());
+      xprd->setGlobalPosition(gpos.x(),gpos.y(),gpos.z());
 
 
       //TRT hit bit word

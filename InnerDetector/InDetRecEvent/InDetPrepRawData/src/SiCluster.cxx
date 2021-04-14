@@ -31,7 +31,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
 {
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
 
@@ -49,7 +49,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
 {
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
 

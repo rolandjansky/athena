@@ -984,7 +984,6 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
 
     // error 
     const Amg::Vector2D* lpos = 0;
-    //if( phiPos && !overlapPos ){
     if( phiPos ){
 
       Amg::Vector3D dir(1.,0.,0.);
@@ -1056,21 +1055,13 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
         double lyfake = 0.5*length - 50.;
         
         Amg::Vector2D locpos_plus(0.,lyfake);
-        const Amg::Vector3D* fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
+        const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
         Amg::Vector2D locpos_min(0.,-lyfake);
-        const Amg::Vector3D* fakePos_min = meas.associatedSurface().localToGlobal(locpos_min);
+        const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(locpos_min);
         
-        if( !fakePos_min || !fakePos_plus ) {
-          delete fakePos_plus;
-          delete fakePos_min;
-          ATH_MSG_WARNING(" Failed to calculate right and left phi position " );
-          return 0;
-        }
         
-        double phi_min = fakePos_min->phi();
-        double phi_plus = fakePos_plus->phi();
-        delete fakePos_plus;
-        delete fakePos_min;
+        double phi_min = fakePos_min.phi();
+        double phi_plus = fakePos_plus.phi();
 
         double phi_overlap = phiPos->phi();
         //       if( (*loverlapPos)[Trk::loc2] < 0. ) lyfake *= -1.; 
@@ -1104,25 +1095,26 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
     garbage.measurementsToBeDeleted.push_back(fake);
 
     if( msgLvl(MSG::DEBUG) ) {
-    
-      Amg::Vector2D locpos(0.,fake->localParameters().get(Trk::locY));
-      const Amg::Vector3D* fakePos = meas.associatedSurface().localToGlobal(locpos);
 
-      if( fakePos ){
-        msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperSvc->toStringChamber( id ) 
-               << "   locY " << ly
-               << "  errpr " << errPos << " phi " << fakePos->phi() << endmsg;
-        
-        if( !shiftedPos && !overlapPos && phiPos && fakePos && fabs( phiPos->phi() - fakePos->phi() ) > 0.01 ){
-	  Amg::Transform3D gToLocal = meas.associatedSurface().transform().inverse();
-          Amg::Vector3D locMeas = gToLocal*fake->globalPosition();
-          ATH_MSG_WARNING(" Problem calculating fake from IP seed: phi fake " 
-			  << fakePos->phi() << "  IP phi " << phiPos->phi() << " local meas pos " << locMeas );
-        }
-        delete fakePos;
+      Amg::Vector2D locpos(0., fake->localParameters().get(Trk::locY));
+      const Amg::Vector3D fakePos =
+        meas.associatedSurface().localToGlobal(locpos);
+
+      msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  "
+                      << m_idHelperSvc->toStringChamber(id) << "   locY " << ly
+                      << "  errpr " << errPos << " phi " << fakePos.phi()
+                      << endmsg;
+
+      if (!shiftedPos && !overlapPos && phiPos &&
+          fabs(phiPos->phi() - fakePos.phi()) > 0.01) {
+        Amg::Transform3D gToLocal =
+          meas.associatedSurface().transform().inverse();
+        Amg::Vector3D locMeas = gToLocal * fake->globalPosition();
+        ATH_MSG_WARNING(" Problem calculating fake from IP seed: phi fake "
+                        << fakePos.phi() << "  IP phi " << phiPos->phi()
+                        << " local meas pos " << locMeas);
       }
     }
-
     return fake;
   }
 
@@ -1321,22 +1313,12 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
 	}
       }
       Amg::Vector2D lpLeft(x,-halfLength);
-      const Amg::Vector3D* gposLeft = surf.localToGlobal(lpLeft);
-      if( !gposLeft ){
-        ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelperSvc->toString(id) );
-        continue;
-      }
-      double phiLeft = gposLeft->phi();
-      delete gposLeft;
+      const Amg::Vector3D gposLeft = surf.localToGlobal(lpLeft);
+      double phiLeft = gposLeft.phi();
 
       Amg::Vector2D lpRight(x,halfLength);
-      const Amg::Vector3D* gposRight = surf.localToGlobal(lpRight);
-      if( !gposRight ){
-        ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelperSvc->toString(id) );
-        continue;
-      }
-      double phiRight = gposRight->phi();
-      delete gposRight;
+      const Amg::Vector3D gposRight = surf.localToGlobal(lpRight);
+      double phiRight = gposRight.phi();
 
       if( phiOffset > 1.5*pi ){
         if( phiLeft < 0 ) phiLeft = phiOffset + phiLeft;
