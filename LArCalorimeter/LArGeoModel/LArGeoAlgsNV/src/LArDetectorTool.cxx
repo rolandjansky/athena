@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -51,6 +51,7 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
   , m_EMECVariantInner("Wheel")
   , m_EMECVariantOuter("Wheel")
   , m_activateFT(false)
+  , m_enableMBTS(true)
 {
   declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);
   declareProperty("BarrelCellVisLimit",    m_barrelVisLimit);
@@ -63,6 +64,7 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
   declareProperty("EMECVariantInner",      m_EMECVariantInner);
   declareProperty("EMECVariantOuter",      m_EMECVariantOuter);
   declareProperty("ActivateFeedThrougs",   m_activateFT);
+  declareProperty("EnableMBTS",            m_enableMBTS);
 }
 
 LArDetectorToolNV::~LArDetectorToolNV()
@@ -159,6 +161,7 @@ StatusCode LArDetectorToolNV::create()
   theLArFactory.setBuildEndcap(m_buildEndcap);
   theLArFactory.setEMECVariant(m_EMECVariantInner, m_EMECVariantOuter);
   theLArFactory.setActivateFT(m_activateFT);
+  theLArFactory.setEnableMBTS(m_enableMBTS);
 
   if(m_detector==nullptr) {
     GeoPhysVol *world=&*theExpt->getPhysVol();
