@@ -343,6 +343,9 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
   ATH_CHECK ( converterPersistentType == address.persType );
   ATH_CHECK( serialiseContainer( persistent, address, buffer ) );
 
+  RootType classDesc = RootType::ByNameNoQuiet( address.persType );
+  classDesc.Destruct( persistent );
+
   return StatusCode::SUCCESS;
 }
 
