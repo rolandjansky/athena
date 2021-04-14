@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibrationDbIOTool_H
@@ -11,36 +11,39 @@ namespace MuonGM {
 }
 
 // MuonCalibStandAloneBase
+#include <array>
+#include <memory>
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
+#include "MuonCalibDbOperations/CalibDbConnection.h"
+#include "MuonCalibDbOperations/CalibHeadOperations.h"
 #include "MuonCalibMath/SamplePoint.h"
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
-
 class RegionSelectionSvc;
 
 namespace MuonCalib {
 
-    class CalibDbConnection;
+    // class CalibDbConnection;
     class IRtRelation;
-    class CalibHeadOperations;
 
     class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool {
     public:
         /** constructor*/
         CalibrationDbIOTool(const std::string &t, const std::string &n, const IInterface *p);
         /** initialisation */
-        StatusCode initialize();
-        /** finalisation */
-        StatusCode finalize();
+        StatusCode initialize() override;
         /** write out t0 */
-        StatusCode WriteT0(MdtTubeFitContainer *t0_output, const NtupleStationId &station_id, int iov_start, int iov_end);
+        StatusCode WriteT0(MdtTubeFitContainer *t0_output, const NtupleStationId &station_id, int iov_start, int iov_end) override;
         /** load t0s*/
-        StatusCode LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int /*iov_id*/);
+        StatusCode LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int /*iov_id*/) override;
         /** write rt*/
-        StatusCode WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution *resolution, const NtupleStationId &station_id,
-                           int iov_start, int iov_end, bool /*real_rt*/, bool /*real resolution*/);
+        StatusCode WriteRt(const RtCalibrationOutput *rt_relation, std::shared_ptr<const IRtResolution> resolution,
+                           const NtupleStationId &station_id, int iov_start, int iov_end, bool /*real_rt*/,
+                           bool /*real resolution*/) override;
         /** load rts */
-        StatusCode LoadRt(std::map<NtupleStationId, IRtRelation *> &rts, std::map<NtupleStationId, IRtResolution *> &res, int /*iov_id*/);
+        StatusCode LoadRt(std::map<NtupleStationId, IRtRelation *> &rts, std::map<NtupleStationId, IRtResolution *> &res,
+                          int /*iov_id*/) override;
 
     private:
         //! path to calibration directory - job option
@@ -62,12 +65,12 @@ namespace MuonCalib {
         RegionSelectionSvc *p_reg_sel_svc;
         std::vector<MuonCalib::NtupleStationId> m_region_ids;
         /** pointer to db connection */
-        CalibDbConnection *m_connection;
-        CalibDbConnection *m_data_connections[2];
-        CalibHeadOperations *m_head_ops;
+        std::unique_ptr<CalibDbConnection> m_connection;
+        std::array<std::unique_ptr<CalibDbConnection>, 2> m_data_connections;
+        std::unique_ptr<CalibHeadOperations> m_head_ops;
         /** convert rt and resolution to points */
-        void fillRtPoints(const IRtRelation *rt_relation, std::vector<SamplePoint> &points);
-        void fillResPoints(const IRtResolution *rt_resolution, std::vector<SamplePoint> &points);
+        void fillRtPoints(std::shared_ptr<const IRtRelation> rt_relation, std::vector<SamplePoint> &points);
+        void fillResPoints(std::shared_ptr<const IRtResolution> rt_resolution, std::vector<SamplePoint> &points);
         CalibDbConnection *get_connection(int write);
     };
 

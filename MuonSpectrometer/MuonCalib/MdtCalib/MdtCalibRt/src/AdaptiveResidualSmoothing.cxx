@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 29.07.2008, AUTHOR: OLIVER KORTNER
-// 05.02.2010, JOERG v.LOEBEN
-//      - tuning the method on cosmics
-//      - new way to determine the binning according to satatistics
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "MdtCalibRt/AdaptiveResidualSmoothing.h"
 
@@ -26,29 +19,11 @@
 #include "MuonCalibMath/DataPoint.h"
 #include "MuonCalibMath/PolygonBase.h"
 #include "TSpline.h"
-
 using namespace CLHEP;
 using namespace MuonCalib;
 
-AdaptiveResidualSmoothing::AdaptiveResidualSmoothing(void) {}
-
-//*****************************************************************************
-
-//::::::::::::::::::
-//:: METHOD clear ::
-//::::::::::::::::::
-
-void AdaptiveResidualSmoothing::clear(void) {
-    m_residual_point.clear();
-    return;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::
-//:: METHOD addResidual ::
-//::::::::::::::::::::::::
-
+AdaptiveResidualSmoothing::AdaptiveResidualSmoothing() {}
+void AdaptiveResidualSmoothing::clear() { m_residual_point.clear(); }
 void AdaptiveResidualSmoothing::addResidual(const double &radius, const double &residual) {
     // make the data point //
     CLHEP::HepVector point(2);
@@ -61,20 +36,13 @@ void AdaptiveResidualSmoothing::addResidual(const double &radius, const double &
 
     return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::
-//:: METHOD addResidualsFromSegment ::
-//::::::::::::::::::::::::::::::::::::
-
 bool AdaptiveResidualSmoothing::addResidualsFromSegment(MuonCalibSegment &seg, bool curved, double road_width) {
     ///////////////
     // VARIABLES //
     ///////////////
 
     CLHEP::HepVector point(2);  // auxiliary point
-    IMdtPatRecFitter *fitter(0);
+    IMdtPatRecFitter *fitter = nullptr;
 
     ////////////////////////////////////////
     // RESIDUAL DETERMINATION AND STORAGE //
@@ -98,32 +66,32 @@ bool AdaptiveResidualSmoothing::addResidualsFromSegment(MuonCalibSegment &seg, b
 
     fitter->SetRefineSegmentFlag(false);
 
+    CurvedLine curved_track;
+    MTStraightLine straight_track;
+    IMdtSegmentFitter::HitSelection selection(seg.mdtHitsOnTrack(), 0);
+
     // perform the track fit; return in case of failure //
-    if (!fitter->fit(seg)) { return false; }
 
     // reject bad fits //
     if (curved) {
-        if (m_cfitter.chi2PerDegreesOfFreedom() > 50) { return false; }
+        if (!m_cfitter.fit(seg, selection, curved_track)) return false;
+        if (curved_track.chi2PerDegreesOfFreedom() > 50) { return false; }
     } else {
-        if (m_sfitter.chi2PerDegreesOfFreedom() > 50) { return false; }
+        if (!m_sfitter.fit(seg, selection, straight_track)) return false;
+        if (straight_track.chi2PerDegreesOfFreedom() > 50) { return false; }
     }
 
     // store the residuals //
-    for (unsigned int k = 0; k < fitter->trackHits().size(); k++) {
-        point[0] = fitter->trackHits()[k]->driftRadius();
-        point[1] = fitter->trackHits()[k]->driftRadius() - std::abs(fitter->trackHits()[k]->signedDistanceToTrack());
+    std::vector<const MdtCalibHitBase *> trackHits = curved ? curved_track.trackHits() : straight_track.trackHits();
+    for (unsigned int k = 0; k < trackHits.size(); k++) {
+        point[0] = trackHits[k]->driftRadius();
+        point[1] = trackHits[k]->driftRadius() - std::abs(trackHits[k]->signedDistanceToTrack());
         DataPoint residual_point(point, 0);
         m_residual_point.push_back(residual_point);
     }
 
     return true;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::::::::::::::
-//:: METHOD performSmoothing(., ., ., .) ::
-//:::::::::::::::::::::::::::::::::::::::::
 
 RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(const IRtRelation &rt_rel, unsigned int nb_entries_per_bin, bool fix_t_min,
                                                              bool fix_t_max) {
@@ -168,7 +136,7 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(const IRtRelation &
         corr[k].set_x2((bin_maker.getBins()[k])->centreOfGravity()[1]);
         corr[k].set_error(1.0);
     }
-    sort(rad.begin(), rad.end());
+    std::sort(rad.begin(), rad.end());
 
     std::vector<double> radi;
     radi.push_back(rad[0]);
@@ -207,12 +175,6 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(const IRtRelation &
 
     return improved_rt;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::::
-//:: METHOD performSmoothing(., ., .) ::
-//::::::::::::::::::::::::::::::::::::::
 
 RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(const IRtRelation &rt_rel, const bool &fix_t_min, const bool &fix_t_max) {
     ///////////////
@@ -334,13 +296,6 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(const IRtRelation &
 
     return improved_rt;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD t_from_r ::
-//:::::::::::::::::::::
-
 double AdaptiveResidualSmoothing::t_from_r(const IRtRelation &rt_rel, const double &r) {
     ///////////////
     // VARIABLES //

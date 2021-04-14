@@ -17,7 +17,7 @@ using namespace MuonCalib;
 //:: DEFAULT CONSTRUCTOR ::
 //:::::::::::::::::::::::::
 
-CurvedLine::CurvedLine(void) {
+CurvedLine::CurvedLine() {
     ///////////////
     // VARIABLES //
     ///////////////
@@ -187,3 +187,12 @@ void CurvedLine::init(std::vector<Amg::Vector3D>& points, std::vector<Amg::Vecto
 
     return;
 }
+void CurvedLine::setChi2(double chi2) { m_chi2 = std::isnan(chi2) ? -1 : chi2; }
+double CurvedLine::chi2() const { return m_chi2; }
+void CurvedLine::setNumberOfTrackHits(unsigned int n_hits) { m_numTrkHits = n_hits; }
+unsigned int CurvedLine::numberOfTrackHits() const { return m_numTrkHits; }
+
+double CurvedLine::chi2PerDegreesOfFreedom() const { return m_chi2 / (m_numTrkHits > 2 ? m_numTrkHits - 3 : 0.01); }
+
+void CurvedLine::setUsedHits(const std::vector<const MdtCalibHitBase*>& hits) { m_used_hits = hits; }
+const std::vector<const MdtCalibHitBase*>& CurvedLine::trackHits() const { return m_used_hits; }

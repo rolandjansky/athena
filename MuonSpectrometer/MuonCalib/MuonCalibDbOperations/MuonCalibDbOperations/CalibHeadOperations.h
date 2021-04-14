@@ -22,7 +22,7 @@ namespace MuonCalib {
     public:
         //=====================constructor - destructor=================================
         CalibHeadOperations(CalibDbConnection &db_conn);
-        inline virtual ~CalibHeadOperations() {}
+        virtual ~CalibHeadOperations();
         //=====================publlic member functions=================================
         // Get latest HeadId
         int GetLatestHeadId() const;

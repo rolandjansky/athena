@@ -70,14 +70,14 @@ public:
     void AddRunNumber(int run_number);
     ///< add a run number to the iov interval. The interval will begin
     ///< with the smallest run number, and end with the largest run number
-    bool memorize(const MuonCalib::IMdtCalibrationOutput *result);
+    bool memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result);
     ///< memorize the result of a particular calibration (given in result) for
     ///< the calibration region "regionKey"; previous calibration result
     ///< of the same type (e.g. r-t relation calibration) will be overwritten
     ///< internally if overwrite is true; the calibration which is memorized
     ///< will only be saved for ever after a call to the method
     ///< "saved_calibration_results"; method return true in case of success, false otherwise
-    bool memorize(const MuonCalib::IMdtCalibrationOutput *result, const MuonCalib::IRtResolution *resol);
+    bool memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result, std::shared_ptr<const MuonCalib::IRtResolution> resol);
     ///< memorize the result of a particular calibration (given in result) for
     ///< the calibration region "regionKey"; a previous calibration result
     ///< of the same type (e.g. r-t relation calibration) will be overwritten
@@ -91,10 +91,10 @@ public:
 
 private:
     // calibration outputs //
-    const MuonCalib::IMdtCalibrationOutput *m_results;
+    std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> m_results;
     // vector holding the results of the calibration algorithms
     // associated resolution functions //
-    const MuonCalib::IRtResolution *m_resolution;
+    std::shared_ptr<const MuonCalib::IRtResolution> m_resolution;
     // vector of pointers to associated resolution functions
 
     // postprocess calibration data - job option
@@ -128,6 +128,6 @@ private:
 
     // postprocess t0
     MuonCalib::MdtTubeFitContainer *postprocess_t0s(MuonCalib::MdtTubeFitContainer *new_t0, const MuonCalib::NtupleStationId &id);
-    inline void create_default_resolution(const MuonCalib::IRtRelation *rt);
+    inline void create_default_resolution(std::shared_ptr<const MuonCalib::IRtRelation> rt);
 };
 #endif
