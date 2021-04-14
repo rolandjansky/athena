@@ -1,20 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.06.2007, AUTHOR: OLIVER KORTNER
-// Modified: 23.11.2007 by O. Kortner, fix for problems with CLHEP vectors on
-//                                     some platforms.
-//           18.07.2008 by O. Kortner, switch from the quasianalytic fitter
-//                                     to StraightPatRec for better performance.
-//           18.08.2008 by O. Kortner, curved segment fitting enabled; time-out
-//                                     option added.
-//           04.11.2008 by O. Kortner, road width adjustable by the user.
-//				 19.11.2008 by I. Potrap,  non-limited number of steps,
-//                                     only 3 last points are used for t0-fit.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "MuonCalibStandAloneBase/T0Refinement.h"
 
 #include <fstream>
@@ -27,29 +13,17 @@
 
 using namespace MuonCalib;
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: CONSTRUCTOR ::
-//:::::::::::::::::
-
-T0Refinement::T0Refinement(void) {
+T0Refinement::T0Refinement() {
     m_time_out = 2.0;
-    m_qfitter = new StraightPatRec();
+    m_qfitter = std::make_unique<StraightPatRec>();
     m_qfitter->setRoadWidth(1.0);  // 1.0 mm road width
     m_qfitter->switchOnRefit();
     m_qfitter->setTimeOut(m_time_out);
-    m_cfitter = new CurvedPatRec();
+    m_cfitter = std::make_unique<CurvedPatRec>();
     m_cfitter->setRoadWidth(1.0);  // 1.0 mm road width
     m_cfitter->setTimeOut(m_time_out);
     m_delta_t0 = 30.0;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD getDeltaT0 ::
-//:::::::::::::::::::::::
 
 double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt, bool overwrite, double &error, bool &failed,
                                 bool curved) {
@@ -71,13 +45,12 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
     BaseFunctionFitter fitter(3);
     SimplePolynomial pol;  // polynomial base functions x^k
     std::vector<SamplePoint> my_points(3);
-    IMdtPatRecFitter *segment_fitter(0);  // pointer to the segment fitter
+    IMdtPatRecFitter *segment_fitter = nullptr;
     if (curved) {
-        segment_fitter = m_cfitter;
+        segment_fitter = m_cfitter.get();
     } else {
-        segment_fitter = m_qfitter;
+        segment_fitter = m_qfitter.get();
     }
-
     segment_fitter->SetRefineSegmentFlag(false);
     IMdtSegmentFitter::HitSelection r_selection(seg.mdtHitsOnTrack(), 0);
 
@@ -95,14 +68,15 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
         if (sigma > 10.0 && seg.mdtHOT()[k]->driftTime() < 50.0) sigma = 0.3;
         (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
     }
-
+    MTStraightLine straight_track;
+    CurvedLine curved_track;
     if (curved) {
-        if (!segment_fitter->fit(seg, r_selection)) {
+        if (!m_cfitter->fit(seg, r_selection, curved_track)) {
             failed = true;
             return 0.0;
         }
     } else {
-        if (!m_qfitter->fitCallByReference(seg, r_selection)) {
+        if (!m_qfitter->fitCallByReference(seg, r_selection, straight_track)) {
             failed = true;
             return 0.0;
         }
@@ -110,9 +84,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     my_points[0].set_x1(0.0);
     if (curved) {
-        my_points[0].set_x2(m_cfitter->chi2());
+        my_points[0].set_x2(curved_track.chi2PerDegreesOfFreedom());
     } else {
-        my_points[0].set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+        my_points[0].set_x2(straight_track.chi2PerDegreesOfFreedom());
     }
     my_points[0].set_error(1.0);
 
@@ -130,9 +104,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     my_points[1].set_x1(m_delta_t0);
     if (curved) {
-        my_points[1].set_x2(m_cfitter->chi2());
+        my_points[1].set_x2(curved_track.chi2PerDegreesOfFreedom());
     } else {
-        my_points[1].set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+        my_points[1].set_x2(straight_track.chi2PerDegreesOfFreedom());
     }
     my_points[1].set_error(1.0);
 
@@ -153,9 +127,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
         return 0.0;
     }
     if (curved) {
-        my_points[2].set_x2(m_cfitter->chi2());
+        my_points[2].set_x2(curved_track.chi2PerDegreesOfFreedom());
     } else {
-        my_points[2].set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+        my_points[2].set_x2(straight_track.chi2PerDegreesOfFreedom());
     }
     my_points[2].set_error(1.0);
 
@@ -176,9 +150,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
             return 0.0;
         }
         if (curved) {
-            my_points[2].set_x2(m_cfitter->chi2());
+            my_points[2].set_x2(curved_track.chi2PerDegreesOfFreedom());
         } else {
-            my_points[2].set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+            my_points[2].set_x2(straight_track.chi2PerDegreesOfFreedom());
         }
         my_points[2].set_error(1.0);
     }
@@ -200,9 +174,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
                 return 0.0;
             }
             if (curved) {
-                new_point.set_x2(m_cfitter->chi2());
+                new_point.set_x2(curved_track.chi2PerDegreesOfFreedom());
             } else {
-                new_point.set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+                new_point.set_x2(straight_track.chi2PerDegreesOfFreedom());
             }
             new_point.set_error(1.0);
             my_points.push_back(new_point);
@@ -224,9 +198,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
                 return 0.0;
             }
             if (curved) {
-                new_point.set_x2(m_cfitter->chi2());
+                new_point.set_x2(curved_track.chi2PerDegreesOfFreedom());
             } else {
-                new_point.set_x2(m_qfitter->chi2PerDegreesOfFreedom());
+                new_point.set_x2(straight_track.chi2PerDegreesOfFreedom());
             }
             new_point.set_error(1.0);
             my_points.push_back(new_point);
@@ -263,9 +237,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
         }
         double chisq(0.0);
         if (curved) {
-            chisq = m_cfitter->chi2();
+            chisq = curved_track.chi2PerDegreesOfFreedom();
         } else {
-            chisq = m_qfitter->chi2PerDegreesOfFreedom();
+            chisq = straight_track.chi2PerDegreesOfFreedom();
         }
 
         if (chisq < min_chi2) {
@@ -321,24 +295,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     return delta_t0_opt;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD setTimeOut ::
-//:::::::::::::::::::::::
-
 void T0Refinement::setTimeOut(const double &time_out) {
     m_time_out = time_out;
     return;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD setRoadWidth ::
-//:::::::::::::::::::::::::
-
 void T0Refinement::setRoadWidth(const double &road_width) {
     m_qfitter->setRoadWidth(road_width);
     m_cfitter->setRoadWidth(road_width);

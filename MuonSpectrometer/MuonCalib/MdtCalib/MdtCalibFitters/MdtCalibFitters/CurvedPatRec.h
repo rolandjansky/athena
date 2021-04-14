@@ -35,36 +35,16 @@ namespace MuonCalib {
     class ATLAS_NOT_THREAD_SAFE CurvedPatRec : public IMdtPatRecFitter {
     public:
         // Constructors //
-        CurvedPatRec(void);
+        CurvedPatRec();
         ///< Default constructor: road width of 0.5 mm is used.
 
         CurvedPatRec(const double& road_width);
         ///< Constructor: user defined road width [mm] for pattern recognition.
 
         // Methods //
-        double roadWidth(void) const;
+        double roadWidth() const;
         ///< get the road width used in the
         ///< pattern recognition [mm]
-        unsigned int numberOfTrackHits(void) const;
-        ///< get the number of track hits in the
-        ///< final track,
-        ///< the method returns 0, if no track
-        ///< has been reconstructed
-        const std::vector<const MdtCalibHitBase*>& trackHits(void) const;
-        ///< get a vector with a pointer to the
-        ///< hits used in the track
-        ///< reconstruction
-        double chi2(void) const;
-        ///< get the chi^2 of the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        double chi2PerDegreesOfFreedom(void) const;
-        ///< get the chi^2 per degrees of
-        ///< freedom for the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        const CurvedLine& curvedTrack(void) const;
-        ///< get the reconstructed curved track
 
         // set-method //
         void setRoadWidth(const double& r_road_width);
@@ -100,6 +80,7 @@ namespace MuonCalib {
         ///< track reconstruction;
         ///< warning: the errors of the track
         ///< radii are only approximate
+        bool fit(MuonCalibSegment& r_segment, HitSelection r_selection, CurvedLine& curved_track) const;
         void printLevel(int /*level*/){};
 
     private:
@@ -116,14 +97,6 @@ namespace MuonCalib {
         double m_time_out;    // time out for pattern recognition.
 
         // straight pattern recognition to get the approximate incidence angle //
-        mutable StraightPatRec m_sfitter;
-
-        // final track parameters //
-        mutable std::vector<const MdtCalibHitBase*> m_track_hits;
-        // pointer to hits used by the final
-        // track
-        mutable double m_chi2;              // chi^2 of the final track
-        mutable CurvedLine m_curved_track;  // curved trajectory
 
         // auxiliary methods //
         Amg::Vector3D getHitPoint(const MdtCalibHitBase* hit, const MTStraightLine& straight_track) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibFitters/MTStraightLine.h"
@@ -9,16 +9,9 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "cmath"
-
 using namespace MuonCalib;
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD init ::
-//:::::::::::::::::
-
-void MTStraightLine::init(void) {
+void MTStraightLine::init() {
     m_position = Amg::Vector3D(0.0, 0.0, 0.0);
     m_direction = Amg::Vector3D(0.0, 0.0, 0.0);
     m_position_error = Amg::Vector3D(0.0, 0.0, 0.0);
@@ -26,12 +19,6 @@ void MTStraightLine::init(void) {
 
     return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD init(const Amg::Vector3D &, ...) ::
-//::::::::::::::::::::::::::::::::::::::::::::
 
 void MTStraightLine::init(const Amg::Vector3D& r_position, const Amg::Vector3D& r_direction, const Amg::Vector3D& r_position_error,
                           const Amg::Vector3D& r_direction_error) {
@@ -43,12 +30,6 @@ void MTStraightLine::init(const Amg::Vector3D& r_position, const Amg::Vector3D& 
     return;
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD init ::
-//:::::::::::::::::
-
 void MTStraightLine::init(const double& r_a_x1, const double& r_b_x1, const double& r_a_x2, const double& r_b_x2, const double& r_a_x1_err,
                           const double& r_b_x1_err, const double& r_a_x2_err, const double& r_b_x2_err) {
     m_position = Amg::Vector3D(r_b_x1, r_b_x2, 0.0);
@@ -58,70 +39,18 @@ void MTStraightLine::init(const double& r_a_x1, const double& r_b_x1, const doub
 
     return;
 }
+Amg::Vector3D MTStraightLine::positionVector() const { return m_position; }
+Amg::Vector3D MTStraightLine::directionVector() const { return m_direction; }
+Amg::Vector3D MTStraightLine::positionError() const { return m_position_error; }
+Amg::Vector3D MTStraightLine::directionError() const { return m_direction_error; }
+double MTStraightLine::a_x1() const { return (m_direction.z() != 0.) ? m_direction.x() / m_direction.z() : 0.; }
 
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::
-//:: METHOD positionVector ::
-//:::::::::::::::::::::::::::
-
-Amg::Vector3D MTStraightLine::positionVector(void) const { return m_position; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::
-//:: METHOD directionVector ::
-//::::::::::::::::::::::::::::
-
-Amg::Vector3D MTStraightLine::directionVector(void) const { return m_direction; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD positionError ::
-//::::::::::::::::::::::::::
-
-Amg::Vector3D MTStraightLine::positionError(void) const { return m_position_error; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::
-//:: METHOD directionError ::
-//:::::::::::::::::::::::::::
-
-Amg::Vector3D MTStraightLine::directionError(void) const { return m_direction_error; }
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD a_x1 ::
-//:::::::::::::::::
-
-double MTStraightLine::a_x1(void) const {
-    if (m_direction.z() == 0.0) { return 0.0; }
-    return m_direction.x() / m_direction.z();
+double MTStraightLine::a_x1_error() const {
+    return m_direction.z() != 0.
+               ? std::hypot(m_direction_error.x() / m_direction_error.z(), m_direction_error.y() * a_x1() / m_direction_error.z())
+               : 0.;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD a_x1_error ::
-//:::::::::::::::::::::::
-
-double MTStraightLine::a_x1_error(void) const {
-    if (m_direction.z() == 0) { return 0.0; }
-
-    return std::sqrt(std::pow(m_direction_error.x() / m_direction_error.z(), 2) +
-                     std::pow(m_direction_error.y() * a_x1() / m_direction_error.z(), 2));
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD b_x1 ::
-//:::::::::::::::::
-
-double MTStraightLine::b_x1(void) const {
+double MTStraightLine::b_x1() const {
     if (m_direction.z() == 0.0) {
         MsgStream log(Athena::getMessageSvc(), "MTStraightLine");
         log << MSG::WARNING << "Class MTStraightLine, method b_x1: b_x1 not uniquely defined." << endmsg;
@@ -130,48 +59,19 @@ double MTStraightLine::b_x1(void) const {
     return (m_position.x() - m_position.z() * a_x1());
 }
 
-//*****************************************************************************
+double MTStraightLine::b_x1_error() const {
+    return std::hypot(m_position_error.x(), a_x1() * m_position_error.z(), m_position.z() * a_x1_error());
+}
+double MTStraightLine::a_x2() const { return (m_direction.z() == 0.0) ? 0. : m_direction.y() / m_direction.z(); }
+double MTStraightLine::a_x2_error() const {
+    return (m_direction.z() == 0)
+               ? 0.0
+               :
 
-//:::::::::::::::::::::::
-//:: METHOD b_x1_error ::
-//:::::::::::::::::::::::
-
-double MTStraightLine::b_x1_error(void) const {
-    return std::sqrt(std::pow(m_position_error.x(), 2) + std::pow(a_x1() * m_position_error.z(), 2) +
-                     std::pow(m_position.z() * a_x1_error(), 2));
+               std::hypot(m_direction_error.y() / m_direction_error.z(), m_direction_error.y() * a_x2() / m_direction_error.z());
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD a_x2 ::
-//:::::::::::::::::
-
-double MTStraightLine::a_x2(void) const {
-    if (m_direction.z() == 0.0) { return 0.0; }
-    return m_direction.y() / m_direction.z();
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD a_x2_error ::
-//:::::::::::::::::::::::
-
-double MTStraightLine::a_x2_error(void) const {
-    if (m_direction.z() == 0) { return 0.0; }
-
-    return std::sqrt(std::pow(m_direction_error.y() / m_direction_error.z(), 2) +
-                     std::pow(m_direction_error.y() * a_x2() / m_direction_error.z(), 2));
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD b_x2 ::
-//:::::::::::::::::
-
-double MTStraightLine::b_x2(void) const {
+double MTStraightLine::b_x2() const {
     if (m_direction.z() == 0.0) {
         MsgStream log(Athena::getMessageSvc(), "MTStraightLine");
         log << MSG::WARNING << "Class MTStraightLine, method b_x2: b_x2 not uniquely defined." << endmsg;
@@ -180,30 +80,11 @@ double MTStraightLine::b_x2(void) const {
     return (m_position.y() - m_position.z() * a_x2());
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD b_x2_error ::
-//:::::::::::::::::::::::
-
-double MTStraightLine::b_x2_error(void) const {
-    return std::sqrt(std::pow(m_position_error.y(), 2) + std::pow(a_x2() * m_position_error.z(), 2) +
-                     std::pow(m_position.z() * a_x2_error(), 2));
+double MTStraightLine::b_x2_error() const {
+    return std::hypot(m_position_error.y(), a_x2() * m_position_error.z(), m_position.z() * a_x2_error());
 }
 
-//*****************************************************************************
-
-//::::::::::::::::::::::::
-//:: METHOD pointOnLine ::
-//::::::::::::::::::::::::
-
 Amg::Vector3D MTStraightLine::pointOnLine(const double& lambda) const { return m_position + lambda * m_direction; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD signDistFrom ::
-//:::::::::::::::::::::::::
 
 double MTStraightLine::signDistFrom(const MTStraightLine& h) const {
     //:::::::::::::::::::::::::
@@ -236,12 +117,6 @@ double MTStraightLine::signDistFrom(const MTStraightLine& h) const {
     return (d.dot(n.unit()));
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD distFromLine ::
-//:::::::::::::::::::::::::
-
 double MTStraightLine::distFromLine(const Amg::Vector3D& point) const {
     //:::::::::::::::::::::::::
     //:: AUXILIARY VARIABLES ::
@@ -256,3 +131,12 @@ double MTStraightLine::distFromLine(const Amg::Vector3D& point) const {
     return std::sqrt((point - m_position).dot(point - m_position) -
                      ((point - m_position).dot(u.unit())) * ((point - m_position).dot(u.unit())));
 }
+void MTStraightLine::setChi2(double chi2) { m_chi2 = std::isnan(chi2) ? -1 : chi2; }
+double MTStraightLine::chi2() const { return m_chi2; }
+void MTStraightLine::setNumberOfTrackHits(unsigned int n_hits) { m_numTrkHits = n_hits; }
+unsigned int MTStraightLine::numberOfTrackHits() const { return m_numTrkHits; }
+
+double MTStraightLine::chi2PerDegreesOfFreedom() const { return m_chi2 / (m_numTrkHits > 2 ? m_numTrkHits - 2 : 0.01); }
+
+void MTStraightLine::setUsedHits(const std::vector<const MdtCalibHitBase*>& hits) { m_used_hits = hits; }
+const std::vector<const MdtCalibHitBase*>& MTStraightLine::trackHits() const { return m_used_hits; }

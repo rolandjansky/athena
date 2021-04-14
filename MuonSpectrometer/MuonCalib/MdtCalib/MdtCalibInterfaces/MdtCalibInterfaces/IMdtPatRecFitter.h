@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IMdtSegmentFitter.h
-//   Header file for class IMdtPatRecFitter
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// rauscher@cern.ch
-///////////////////////////////////////////////////////////////////
-
 #ifndef MUONCALIB_IMDTPATRECFITTER_H
 #define MUONCALIB_IMDTPATRECFITTER_H
 
@@ -29,29 +19,29 @@ namespace MuonCalib {
     class IMdtPatRecFitter : public IMdtSegmentFitter {
     public:
         /** constructor */
-        inline IMdtPatRecFitter() : IMdtSegmentFitter(), m_refine_segment(false), m_refit(false) {}
+        IMdtPatRecFitter() : IMdtSegmentFitter(), m_refine_segment(false), m_refit(false) {}
         /** destructor */
-        inline virtual ~IMdtPatRecFitter() {}
+        virtual ~IMdtPatRecFitter() = default;
 
         /** number of hits selected for track */
-        virtual unsigned int numberOfTrackHits(void) const = 0;
+        /// virtual unsigned int numberOfTrackHits() const = 0;
 
         /** get selected track hits */
-        virtual const std::vector<const MdtCalibHitBase *> &trackHits(void) const = 0;
+        /// virtual const std::vector<const MdtCalibHitBase *> &trackHits() const = 0;
 
         /** set refine segment flag
          @param flag if true the hit selection is changed in the segment
         */
-        inline void SetRefineSegmentFlag(const bool &flag) { m_refine_segment = flag; }
+        void SetRefineSegmentFlag(const bool flag) { m_refine_segment = flag; }
 
         /** get refine segment flag */
-        inline const bool &RefineSegmentFlag() const { return m_refine_segment; }
+        bool RefineSegmentFlag() const { return m_refine_segment; }
 
         /** switch on/off chi^2 refit after hit selection */
-        inline void switchOnRefit(void) { m_refit = true; }
-        inline void switchOffRefit(void) { m_refit = false; }
+        void switchOnRefit() { m_refit = true; }
+        void switchOffRefit() { m_refit = false; }
         /** return refit flag */
-        inline const bool &refit(void) const { return m_refit; }
+        bool refit() const { return m_refit; }
         /** set road width */
         virtual void setRoadWidth(const double &) = 0;
 

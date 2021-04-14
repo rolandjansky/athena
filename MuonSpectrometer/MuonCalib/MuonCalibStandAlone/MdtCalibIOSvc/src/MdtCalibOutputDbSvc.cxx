@@ -116,10 +116,10 @@ void MdtCalibOutputDbSvc::AddRunNumber(int run_number) {
 //::::::::::::::::::::::::::::::
 //:: METHOD memorize(., ., .) ::
 //::::::::::::::::::::::::::::::
-bool MdtCalibOutputDbSvc::memorize(const MuonCalib::IMdtCalibrationOutput *result) {
+bool MdtCalibOutputDbSvc::memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result) {
     // no overwriting is allowed //
     m_results = result;
-    m_resolution = 0;
+    m_resolution.reset();
     return true;
 }
 
@@ -128,7 +128,8 @@ bool MdtCalibOutputDbSvc::memorize(const MuonCalib::IMdtCalibrationOutput *resul
 //:::::::::::::::::::::::::::::::::
 //:: METHOD memorize(., ., ., .) ::
 //:::::::::::::::::::::::::::::::::
-bool MdtCalibOutputDbSvc::memorize(const MuonCalib::IMdtCalibrationOutput *result, const MuonCalib::IRtResolution *resol) {
+bool MdtCalibOutputDbSvc::memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result,
+                                   std::shared_ptr<const MuonCalib::IRtResolution> resol) {
     m_results = result;
     m_resolution = resol;
     return true;
@@ -140,11 +141,11 @@ bool MdtCalibOutputDbSvc::memorize(const MuonCalib::IMdtCalibrationOutput *resul
 //:: METHOD saveCalibrationResults ::
 //:::::::::::::::::::::::::::::::::::
 StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
-    if (m_results == NULL) return StatusCode::SUCCESS;
+    if (!m_results) return StatusCode::SUCCESS;
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager *MuonDetMgr = DetectorManagerHandle.cptr();
-    if (MuonDetMgr == nullptr) {
+    if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
         return StatusCode::FAILURE;
     }
@@ -170,7 +171,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
             }
         }
         // t0 calibration //
-        const T0CalibrationOutput *t0_output(dynamic_cast<const T0CalibrationOutput *>(m_results));
+        std::shared_ptr<const T0CalibrationOutput> t0_output = std::dynamic_pointer_cast<const T0CalibrationOutput>(m_results);
         if (t0_output != 0) {
             ATH_MSG_INFO("Writing out t0s.");
             MdtTubeFitContainer *new_t0s = t0_output->t0s();
@@ -187,25 +188,25 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 
         // r-t calibration //
         bool real_resolution(true), real_rt(true);
-        const RtCalibrationOutput *rt_output(dynamic_cast<const RtCalibrationOutput *>(m_results));
-        if (rt_output != 0) {
+        std::shared_ptr<const RtCalibrationOutput> rt_output = std::dynamic_pointer_cast<const RtCalibrationOutput>(m_results);
+        if (rt_output) {
             if (rt_output->rt()) {
                 if (!rt_output->rt()->HasTmaxDiff()) {
                     const IRtRelation *old_rel = m_input_service->GetRtRelation();
                     if (old_rel && old_rel->HasTmaxDiff()) {
-                        const_cast<IRtRelation *>(rt_output->rt())->SetTmaxDiff(old_rel->GetTmaxDiff());
+                        std::const_pointer_cast<IRtRelation>(rt_output->rt())->SetTmaxDiff(old_rel->GetTmaxDiff());
                     }
                 }
             }
 
             ATH_MSG_INFO("Writing out r-t relationships.");
-            if (m_resolution == NULL) {
+            if (!m_resolution) {
                 real_resolution = false;
                 create_default_resolution(rt_output->rt());
             } else {
                 real_rt = false;
             }
-            sc = m_calib_output_tool->WriteRt(rt_output, m_resolution, the_id, m_iov_start, m_iov_end, real_rt, real_resolution);
+            sc = m_calib_output_tool->WriteRt(rt_output.get(), m_resolution, the_id, m_iov_start, m_iov_end, real_rt, real_resolution);
             if (sc.isFailure()) return sc;
         }
 
@@ -222,7 +223,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 //:: METHOD reset ::
 //::::::::::::::::::
 void MdtCalibOutputDbSvc::reset() {
-    m_results = 0;
+    m_results.reset();
     return;
 }
 
@@ -280,11 +281,11 @@ MuonCalib::MdtTubeFitContainer *MdtCalibOutputDbSvc::postprocess_t0s(MuonCalib::
     return new_t0;
 }  // end MdtCalibOutputDbSvc::postprocess_t0s
 
-inline void MdtCalibOutputDbSvc::create_default_resolution(const MuonCalib::IRtRelation *rt) {
+inline void MdtCalibOutputDbSvc::create_default_resolution(std::shared_ptr<const MuonCalib::IRtRelation> rt) {
     // check if resolution is saved in input service
     const IRtResolution *old_res = m_input_service->GetResolution();
     const IRtRelation *old_rel = m_input_service->GetRtRelation();
-    if (old_res != NULL && old_rel != NULL && !m_force_default_resolution) {
+    if (old_res != nullptr && old_rel != nullptr && !m_force_default_resolution) {
         // scale the old resolution to the new rt relation
         ATH_MSG_INFO("Taken old resolution");
         std::vector<SamplePoint> res_points(100);
@@ -298,7 +299,7 @@ inline void MdtCalibOutputDbSvc::create_default_resolution(const MuonCalib::IRtR
             res_points[i].set_error(1);
         }
         RtResolutionFromPoints respoints;
-        m_resolution = new RtResolutionLookUp(respoints.getRtResolutionLookUp(res_points));
+        m_resolution = std::make_shared<RtResolutionLookUp>(respoints.getRtResolutionLookUp(res_points));
         return;
     }
     ATH_MSG_INFO("Creating default resolution");
@@ -325,5 +326,5 @@ inline void MdtCalibOutputDbSvc::create_default_resolution(const MuonCalib::IRtR
         par_vec[2] = m_flat_default_resolution;
         par_vec[3] = m_flat_default_resolution;
     }
-    m_resolution = new MuonCalib::RtResolutionLookUp(par_vec);
+    m_resolution = std::make_shared<MuonCalib::RtResolutionLookUp>(par_vec);
 }  // end MdtCalibOutputDbSvc::create_default_resolution

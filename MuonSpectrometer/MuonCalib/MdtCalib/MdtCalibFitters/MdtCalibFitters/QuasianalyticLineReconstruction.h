@@ -38,7 +38,7 @@ namespace MuonCalib {
     class ATLAS_NOT_THREAD_SAFE QuasianalyticLineReconstruction : public IMdtPatRecFitter {
     public:
         // Constructors //
-        QuasianalyticLineReconstruction(void) { init(); }
+        QuasianalyticLineReconstruction() { init(); }
         ///< Default constructor: road width for pattern recognition = 0.5 mm.
 
         QuasianalyticLineReconstruction(const double& r_road_width) { init(r_road_width); }
@@ -46,35 +46,9 @@ namespace MuonCalib {
 
         // Methods //
         // get-methods //
-        double roadWidth(void) const;
+        double roadWidth() const;
         ///< get the road width used in the
         ///< pattern recognition
-        unsigned int numberOfTrackHits(void) const;
-        ///< get the number of track hits in the
-        ///< final track,
-        ///< the method returns 0, if no track
-        ///< has been reconstructed
-        const std::vector<const MdtCalibHitBase*>& trackHits(void) const;
-        ///< get a vector with a pointer to the
-        ///< hits used in the track
-        ///< reconstruction
-        double chi2(void) const;
-        ///< get the chi^2 of the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        double chi2PerDegreesOfFreedom(void) const;
-        ///< get the chi^2 per degrees of
-        ///< freedom for the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        MTStraightLine track(void) const;
-        ///< get the final track in the local
-        ///< co-ordinate frame, i.e.
-        ///<                      z
-        ///<                      ^
-        ///<     o o o o o o      |
-        ///<  ... o o o o o ...   o--> y
-        ///<     o o o o o o     x
 
         // set-method //
         void setRoadWidth(const double& r_road_width);
@@ -112,6 +86,7 @@ namespace MuonCalib {
         ///< track reconstruction;
         ///< warning : the errors of the track
         ///< radii are only approximate
+        bool fit(MuonCalibSegment& r_segment, HitSelection r_selection, MTStraightLine& final_track) const;
         void printLevel(int /*level*/){};
 
     private:
@@ -122,16 +97,6 @@ namespace MuonCalib {
         //	... o o o o o ...   o--> x2
         //	   o o o o o o     x1
         //
-
-        // final track parameters //
-        mutable std::vector<const MdtCalibHitBase*> m_track_hits;
-        // pointer to hits used by the final
-        // track
-        mutable int m_nb_track_hits;     // number of track hits in the final
-                                         // track
-        mutable double m_chi2;           // chi^2 of the final track
-        double m_a_x1, m_b_x1;           // slope and intercept in the x1-x3 plane
-        mutable MTStraightLine m_track;  // final track
 
         // parameters for the adjustment of the track reconstruction //
         double m_r_max;       // maximum radius
@@ -148,7 +113,7 @@ namespace MuonCalib {
         std::vector<MTStraightLine> m_candidate;  // track candidates
 
         // initialization methods //
-        void init(void);
+        void init();
         // default initialization:  road width = 0.5 CLHEP::mm
         void init(const double& r_road_width);
         // initialization with user-defined road width

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // this
 #include "MuonCalibDbOperations/CalibrationDbIOTool.h"
 
-#include "MuonCalibDbOperations/CalibDbConnection.h"
 #include "MuonCalibDbOperations/CalibHeadOperations.h"
 #include "MuonCalibDbOperations/CalibRtDbOperations.h"
 #include "MuonCalibDbOperations/CalibT0DbOperations.h"
@@ -62,7 +61,6 @@ namespace MuonCalib {
         declareProperty("UseValidaedT0", m_use_validated_t0);
         m_use_validated_t0 = false;
         declareProperty("UseValidaedRt", m_use_validated_rt);
-        for (int i = 0; i < 2; i++) { m_data_connections[i] = NULL; }
         declareProperty("ReaderAccount", m_reader_account);
         declareProperty("ReaderPassword", m_reader_password);
         declareProperty("WriterAccount", m_writer_account);
@@ -70,68 +68,42 @@ namespace MuonCalib {
     }
 
     StatusCode CalibrationDbIOTool::initialize() {
-        MsgStream log(msgSvc(), name());
-
-        StatusCode sc = serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc);
-        if (!sc.isSuccess()) {
-            log << MSG::ERROR << "Cannot retrieve RegionSelectionSvc!" << endmsg;
-            return sc;
-        }
+        ATH_CHECK(serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc));
         m_region_ids = p_reg_sel_svc->GetStationsInRegions();
-        log << MSG::INFO << " CalibrationDbIOTool::initialize() - number of selected regions: " << m_region_ids.size() << endmsg;
+        ATH_MSG_INFO(" CalibrationDbIOTool::initialize() - number of selected regions: " << m_region_ids.size());
 
-        log << MSG::INFO << "open connection" << endmsg;
-        m_connection = new CalibDbConnection(m_db_ConnectionString, m_db_WorkingSchema);
-        log << MSG::INFO << "." << endmsg;
-        if (m_reader_account != "") { m_connection->SetLogin(m_reader_account, m_reader_password); }
+        ATH_MSG_INFO("open connection");
+        m_connection = std::make_unique<CalibDbConnection>(m_db_ConnectionString, m_db_WorkingSchema);
+        ATH_MSG_INFO(".");
+        if (!m_reader_account.empty()) { m_connection->SetLogin(m_reader_account, m_reader_password); }
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Cannot open connection to database!" << endmsg;
+            ATH_MSG_FATAL("Cannot open connection to database!");
             return StatusCode::FAILURE;
         }
-        log << MSG::INFO << ".." << endmsg;
-        m_head_ops = new CalibHeadOperations(*m_connection);
+        ATH_MSG_INFO("..");
+        m_head_ops = std::make_unique<CalibHeadOperations>(*m_connection);
         if (m_headid < 0) {
             m_headid = m_head_ops->GetLatestHeadId();
             if (m_headid < 0) {
-                log << MSG::FATAL << "Cannot get latest head_id for site " << m_sitename << endmsg;
+                ATH_MSG_FATAL("Cannot get latest head_id for site " << m_sitename);
                 return StatusCode::FAILURE;
             }
         }
         return StatusCode::SUCCESS;
     }
 
-    StatusCode CalibrationDbIOTool::finalize() {
-        MsgStream log(msgSvc(), name());
-        log << MSG::INFO << "CalibrationDbIOTool finalize" << endmsg;
-
-        try {
-            if (m_head_ops != NULL) delete m_head_ops;
-            if (m_connection != NULL) delete m_connection;
-
-            for (int i = 0; i < 2; i++) {
-                if (m_data_connections[i] != NULL) delete m_data_connections[i];
-            }
-        } catch (std::exception &e) {
-            log << MSG::FATAL << "Exception in finalize: " << e.what() << endmsg;
-            return StatusCode::FAILURE;
-        }
-
-        return StatusCode::SUCCESS;
-    }
-
     StatusCode CalibrationDbIOTool::WriteT0(MdtTubeFitContainer *t0, const NtupleStationId &it, int /*iov_start*/, int /*iov_end*/) {
-        MsgStream log(msgSvc(), name());
-        log << MSG::INFO << "Writing to database" << endmsg;
+        ATH_MSG_INFO("Writing to database");
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Open Connection failed!" << endmsg;
+            ATH_MSG_FATAL("Open Connection failed!");
             return StatusCode::FAILURE;
         } else {
-            if (get_connection(1) == NULL) { return StatusCode::FAILURE; }
+            if (!get_connection(1)) { return StatusCode::FAILURE; }
             m_data_connections[1]->OpenConnection();
             CalibT0DbOperations t0_op(*m_data_connections[1]);
             std::vector<int> val(0);
             if (!t0_op.WriteT0Chamber(it, t0, val, m_headid, m_sitename)) {
-                log << MSG::FATAL << "Writing t0 failed!" << endmsg;
+                ATH_MSG_FATAL("Writing t0 failed!");
                 return StatusCode::FAILURE;
             }
         }
@@ -139,9 +111,8 @@ namespace MuonCalib {
     }
 
     StatusCode CalibrationDbIOTool::LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int /*iov_id*/) {
-        MsgStream log(msgSvc(), name());
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Open Connection failed!" << endmsg;
+            ATH_MSG_FATAL("Open Connection failed!");
             return StatusCode::FAILURE;
         } else {
             if (!get_connection(0)) { return StatusCode::FAILURE; }
@@ -151,19 +122,18 @@ namespace MuonCalib {
 
             // loop on all the ids in the selected calibration region
             for (std::vector<MuonCalib::NtupleStationId>::iterator it = m_region_ids.begin(); it != m_region_ids.end(); it++) {
-                log << MSG::INFO << "Reading t0s for region " << it->regionId() << endmsg;
+                ATH_MSG_INFO("Reading t0s for region " << it->regionId());
                 MdtStationT0Container *t0;
                 t0 = t0_op.LoadT0Calibration(*it, m_headid, m_sitename);
-                if (t0 != NULL) t0s[*it] = t0;
+                if (t0 != nullptr) t0s[*it] = t0;
             }
         }
         return StatusCode::SUCCESS;
     }
 
-    StatusCode CalibrationDbIOTool::WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution *resolution,
+    StatusCode CalibrationDbIOTool::WriteRt(const RtCalibrationOutput *rt_relation, std::shared_ptr<const IRtResolution> resolution,
                                             const NtupleStationId &station_id, int /*iov_start*/, int /*iov_end*/, bool /*real_rt*/,
                                             bool /*real resolution*/) {
-        MsgStream log(msgSvc(), name());
         std::vector<SamplePoint> points;
         // fill rt poits
         fillRtPoints(rt_relation->rt(), points);
@@ -175,14 +145,14 @@ namespace MuonCalib {
             points.push_back(point);
         }
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Open Connection failed!" << endmsg;
+            ATH_MSG_FATAL("Open Connection failed!");
             return StatusCode::FAILURE;
         } else {
-            if (get_connection(1) == NULL) { return StatusCode::FAILURE; }
+            if (!get_connection(1)) { return StatusCode::FAILURE; }
             m_data_connections[1]->OpenConnection();
             CalibRtDbOperations rt_op(*m_data_connections[1]);
-            if (!rt_op.WriteUpdateRt(station_id, m_headid, m_sitename, points, 0, rt_relation->fullInfo())) {
-                log << MSG::FATAL << "Writing rt failed!" << endmsg;
+            if (!rt_op.WriteUpdateRt(station_id, m_headid, m_sitename, points, 0, rt_relation->fullInfo().get())) {
+                ATH_MSG_FATAL("Writing rt failed!");
                 return StatusCode::FAILURE;
             }
         }
@@ -191,9 +161,8 @@ namespace MuonCalib {
 
     StatusCode CalibrationDbIOTool::LoadRt(std::map<NtupleStationId, IRtRelation *> &rts, std::map<NtupleStationId, IRtResolution *> &res,
                                            int /*iov_id*/) {
-        MsgStream log(msgSvc(), name());
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Open Connection failed!" << endmsg;
+            ATH_MSG_FATAL("Open Connection failed!");
             return StatusCode::FAILURE;
         } else {
             if (!get_connection(0)) { return StatusCode::FAILURE; }
@@ -206,7 +175,7 @@ namespace MuonCalib {
                 std::vector<SamplePoint> in_points;
                 RtFullInfo full_info;
                 if (!rt_op.LoadRt(*it, m_headid, m_use_validated_rt, m_sitename, in_points, &full_info)) continue;
-                log << MSG::INFO << "Reading rts for region " << it->regionId() << endmsg;
+                ATH_MSG_INFO("Reading rts for region " << it->regionId());
                 std::vector<SamplePoint> outpoints;
                 float tmax_diff(-9e9);
                 for (unsigned int k = 0; k < in_points.size(); k++) {
@@ -231,11 +200,10 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    inline void CalibrationDbIOTool::fillRtPoints(const IRtRelation *rt, std::vector<SamplePoint> &points) {
-        MsgStream log(msgSvc(), name());
+    void CalibrationDbIOTool::fillRtPoints(std::shared_ptr<const IRtRelation> rt, std::vector<SamplePoint> &points) {
         points.clear();
         // for rt relations based on support points, write points
-        const RtRelationLookUp *rt_lookup = dynamic_cast<const RtRelationLookUp *>(rt);
+        std::shared_ptr<const RtRelationLookUp> rt_lookup = std::dynamic_pointer_cast<const RtRelationLookUp>(rt);
         const CalibFunc::ParVec &rt_param = rt->parameters();
         if (rt_lookup && static_cast<int>(rt_lookup->nPar() - 2) <= m_max_rt_points) {
             double t_min(rt_param[0]);
@@ -244,7 +212,7 @@ namespace MuonCalib {
             for (unsigned int k = 0; k < nb_points; k++) {
                 double radius(rt_param[k + 2]);
                 if (std::isnan(radius)) {
-                    log << MSG::WARNING << "Skipping NAN" << endmsg;
+                    ATH_MSG_WARNING("Skipping NAN");
                     continue;
                 }
                 SamplePoint point(t_min + bin_size * k, rt_param[k + 2], -1);
@@ -252,7 +220,7 @@ namespace MuonCalib {
             }
             return;
         }
-        const RtSpline *rt_spline = dynamic_cast<const RtSpline *>(rt);
+        std::shared_ptr<const RtSpline> rt_spline = std::dynamic_pointer_cast<const RtSpline>(rt);
         if (rt_spline && static_cast<int>(rt_param.size() / 2) <= m_max_rt_points) {
             for (unsigned int i = 0; i < rt_param.size(); i += 2) {
                 SamplePoint point(rt_param[i], rt_param[i + 1], -1);
@@ -267,15 +235,15 @@ namespace MuonCalib {
         }
     }
 
-    inline void CalibrationDbIOTool::fillResPoints(const IRtResolution *rt_resolution, std::vector<SamplePoint> &points) {
+    void CalibrationDbIOTool::fillResPoints(std::shared_ptr<const IRtResolution> rt_resolution, std::vector<SamplePoint> &points) {
         for (unsigned int i = 0; i < points.size(); i++) { points[i].set_error(rt_resolution->resolution(points[i].x1())); }
     }
 
     CalibDbConnection *CalibrationDbIOTool::get_connection(int write) {
-        if (m_data_connections[write] != 0) { return m_data_connections[write]; }
-        m_data_connections[write] = m_head_ops->GetDataConnection(m_headid, static_cast<bool>(write), m_writer_connection_string,
-                                                                  m_writer_account, m_writer_password);
-        return m_data_connections[write];
+        if (m_data_connections[write]) { return m_data_connections[write].get(); }
+        m_data_connections[write] = std::unique_ptr<CalibDbConnection>{m_head_ops->GetDataConnection(
+            m_headid, static_cast<bool>(write), m_writer_connection_string, m_writer_account, m_writer_password)};
+        return m_data_connections[write].get();
     }
 
 }  // namespace MuonCalib
