@@ -35,7 +35,7 @@ class MomentumTruthPullPlots:public PlotBase {
   TH2* dp_eloss_vs_eta;
 
   
-  void fill(const xAOD::Muon& muon, const xAOD::TrackParticle* muontpIP, const xAOD::TruthParticle& truthprt);
+  void fill(const xAOD::Muon& muon, const xAOD::TrackParticle* muontpIP, const xAOD::TruthParticle& truthprt, float weight=1.0);
   void initializePlots();
 };
 

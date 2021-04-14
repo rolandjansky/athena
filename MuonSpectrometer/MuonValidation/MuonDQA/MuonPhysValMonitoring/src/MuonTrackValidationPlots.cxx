@@ -38,15 +38,15 @@ MuonTrackValidationPlots::~MuonTrackValidationPlots()
   if (m_oMatchedMuonTrackPlots) delete m_oMatchedMuonTrackPlots;
 }
 
-void MuonTrackValidationPlots::fill(const xAOD::TrackParticle& muTP) {
-  m_oRecoMuonTrackPlots->fill(muTP);
+void MuonTrackValidationPlots::fill(const xAOD::TrackParticle& muTP, float weight) {
+  m_oRecoMuonTrackPlots->fill(muTP, weight);
 }
 
-void MuonTrackValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP){
+void MuonTrackValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP, float weight){
   if (muTP) {
-    m_oRecoMuonTrackPlots->fill(*muTP);
+    m_oRecoMuonTrackPlots->fill(*muTP, weight);
     if (truthMu) {
-      m_oMatchedMuonTrackPlots->fill(*truthMu,*muTP);
+      m_oMatchedMuonTrackPlots->fill(*truthMu,*muTP, weight);
     }
   }
 }
