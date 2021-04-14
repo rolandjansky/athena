@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2ZdcSignalsCnvTool.cxx 608072 2014-07-23 00:27:40Z azemla $
 
 // EDM include(s):
 #include "xAODTrigMinBias/TrigT2ZdcSignalsContainer.h"
@@ -21,15 +20,6 @@ namespace xAODMaker {
     
     // Declare the interface(s) provided by the tool:
     declareInterface< ITrigT2ZdcSignalsCnvTool >( this );
-  }
-  
-  StatusCode TrigT2ZdcSignalsCnvTool::initialize() {
-    
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
   }
   
   /**

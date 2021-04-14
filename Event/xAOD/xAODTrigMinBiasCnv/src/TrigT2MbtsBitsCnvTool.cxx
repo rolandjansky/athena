@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2MbtsBitsCnvTool.cxx 785778 2016-11-22 16:26:31Z ssnyder $
 
 // EDM include(s):
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
@@ -23,15 +22,7 @@ namespace xAODMaker {
     declareInterface< ITrigT2MbtsBitsCnvTool >( this );
   }
   
-  StatusCode TrigT2MbtsBitsCnvTool::initialize() {
-    
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
+
   /**
    * This is the important function of the tool. It takes the old EDM objects
    * from a TrigT2MbtsBitsContainer, and fills an xAOD::TrigT2MbtsBitsContainer with them.

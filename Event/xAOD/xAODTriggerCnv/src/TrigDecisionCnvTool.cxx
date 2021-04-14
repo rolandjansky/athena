@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 688265 2015-08-08 16:31:45Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -89,7 +88,7 @@ namespace xAODMaker {
    StatusCode TrigDecisionCnvTool::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
 
       // Retrieve the needed component(s):
       CHECK( m_tdt.retrieve() );

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMRoICnvTool.cxx 576007 2013-12-17 18:07:37Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CMMRoI.h"
@@ -21,15 +20,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ICMMRoICnvTool >( this );
-   }
-
-   StatusCode CMMRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    /**

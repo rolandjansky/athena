@@ -22,15 +22,6 @@ namespace xAODMaker {
     declareInterface< ITrigPassBitsCnvTool >( this );
   }
 
-  StatusCode TrigPassBitsCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
   /**
    * This is the important function of the tool. It takes the TrigPassBits object
    * from a TrigPassBits collection, and fills an xAOD::TrigPassBitsContainer with it.

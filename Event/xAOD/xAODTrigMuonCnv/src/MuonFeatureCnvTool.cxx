@@ -23,14 +23,6 @@ MuonFeatureCnvTool::MuonFeatureCnvTool( const std::string& type,
   declareInterface< IMuonFeatureCnvTool >( this );
 }
 
-StatusCode MuonFeatureCnvTool::initialize() {
-  
-  // Greet the user:
-  ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-  
-  // Return gracefully:
-  return StatusCode::SUCCESS;
-}
 
 StatusCode MuonFeatureCnvTool::convertMuonFeature( const MuonFeature* aodMf,
                                                    xAOD::L2StandAloneMuon* xaod ) {

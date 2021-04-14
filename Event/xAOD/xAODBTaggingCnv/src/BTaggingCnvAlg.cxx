@@ -27,7 +27,7 @@ namespace xAODMaker {
 
   StatusCode BTaggingCnvAlg::initialize() {
 
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing" );
     ATH_MSG_INFO( "AODContainerName  = " << m_aodContainerName );
     ATH_MSG_INFO( "xAODContainerName = " << m_xaodContainerName );
 

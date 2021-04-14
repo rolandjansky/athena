@@ -69,9 +69,6 @@ namespace xAODMaker {
 
    StatusCode EventInfoCnvTool::initialize() {
 
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
 #if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       // Check if the beam position will be available or not:
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -28,9 +28,6 @@ namespace xAODMaker {
     }
     
     StatusCode TrigEFBphysContainerCnvTool::initialize() {
-        
-        // Greet the user:
-        ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
         
         // Retrieve the converter tool:
         CHECK( m_cnvTool.retrieve() );

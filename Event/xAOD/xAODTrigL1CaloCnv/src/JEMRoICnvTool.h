@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMRoICnvTool.h 576052 2013-12-18 09:13:50Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_JEMROICNVTOOL_H
 #define XAODTRIGL1CALOCNV_JEMROICNVTOOL_H
 
@@ -24,8 +23,6 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576052 $
-    * $Date: 2013-12-18 10:13:50 +0100 (Wed, 18 Dec 2013) $
     */
    class JEMRoICnvTool : public AthAlgTool,
                          public virtual IJEMRoICnvTool {
@@ -35,12 +32,9 @@ namespace xAODMaker {
       JEMRoICnvTool( const std::string& type, const std::string& name,
                      const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const DataVector<LVL1::JEMRoI>* esd,
-                                  xAOD::JEMRoIContainer* xaod );
+                                  xAOD::JEMRoIContainer* xaod ) override;
 
    }; // class JEMRoICnvTool
 
