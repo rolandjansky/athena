@@ -34,9 +34,6 @@ def PFTrackExtension(tracktype):
     Returns the preselected track selection, the extension cache and the list of algorithms
     """
     
-    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
-    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
-
     tracksin, _ = trackvtxcontainers[tracktype]
     from eflowRec.eflowRecConf import PFTrackPreselAlg
     from TrackToCalo.TrackToCaloConf import Trk__PreselCaloExtensionBuilderAlg
@@ -102,9 +99,6 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
     from eflowRec.eflowRecConf import PFTrackMuonIsoTaggingAlg
     from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 
-    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
-    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
-
     tag_alg = PFTrackMuonIsoTaggingAlg(
         f"PFTrackMuonIsoTaggingAlg_{tracktype}",
         InputTracks = tracksin,
@@ -127,9 +121,6 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
 # and extrapolation into the calorimeter.
 # Parameters: track & vertex container names (offline, HLT, FTK)
 def getPFTrackSel(tracktype, extensionCache="", trackname=None):
-
-    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
-    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
 
     tracksin, verticesin = trackvtxcontainers[tracktype]
     if trackname is not None:
@@ -275,9 +266,6 @@ def PFHLTSequence(flags, clustersin, tracktype, cellsin=None):
 
     muon_mode = flags.Trigger.FSHad.PFOMuonRemoval
     if muon_mode == "None":
-        print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
-        print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
-
         tracks = trackvtxcontainers[tracktype][0]
         algs = []
         extension = ""
