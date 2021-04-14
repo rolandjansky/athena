@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaYamplTool.h"
@@ -51,21 +51,13 @@ AthenaYamplTool::~AthenaYamplTool() {
 
 //___________________________________________________________________________
 StatusCode AthenaYamplTool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthAlgTool::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthAlgTool base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing " << name());
+
    // Retrieve ChronoStatSvc
-   if (!m_chronoStatSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ChronoStatSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_chronoStatSvc.retrieve() );
    // Retrieve IncidentSvc
-   if (!m_incidentSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_incidentSvc.retrieve() );
+
    return(StatusCode::SUCCESS);
 }
 
@@ -76,7 +68,7 @@ StatusCode AthenaYamplTool::finalize() {
    if (!m_chronoStatSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release ChronoStatSvc.");
    }
-   return(::AthAlgTool::finalize());
+   return(StatusCode::SUCCESS);
 }
 
 //___________________________________________________________________________

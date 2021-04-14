@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* file contains the implementation for the AthenaSharedMemoryTool class.
@@ -55,7 +55,7 @@ AthenaSharedMemoryTool::~AthenaSharedMemoryTool() {
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    if (!::AthAlgTool::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthAlgTool base class.");
       return(StatusCode::FAILURE);
