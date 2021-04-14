@@ -19,6 +19,39 @@ from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        include(fragment)
+
+
+## EST/AOD Output
+# should be first as some other configuration might depend on it (e.g. trigger output)
+if hasattr(runArgs,"outputESDFile"):
+    rec.doESD.set_Value_and_Lock( True )
+    rec.doWriteESD.set_Value_and_Lock( True )
+    athenaCommonFlags.PoolESDOutput.set_Value_and_Lock( runArgs.outputESDFile )
+    
+if hasattr(runArgs,"outputAODFile"):
+    rec.doAOD.set_Value_and_Lock( True )
+    rec.doWriteAOD.set_Value_and_Lock( True ) 
+    athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
+    # Lock DQ configuration to prevent downstream override
+    # RB 15/12/2020: This logic was added in !36737, not sure if still needed
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    print('DQMonFlags.useTrigger override')
+    DQMonFlags.useTrigger.set_Value_and_Lock(rec.doTrigger() and DQMonFlags.useTrigger())
+
+
 ## Input
 # BS
 DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
@@ -33,15 +66,49 @@ if len(DRAWInputs) == 1:
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( getattr(runArgs, DRAWInputs[0]) )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 elif len(DRAWInputs) > 1:
-    raise RuntimeError('Impossible to run RAWtoESD with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
-        
+    raise RuntimeError('Impossible to run RAWtoALL with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
+
+
 # RDO
 if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
     ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
+if hasattr(runArgs,"inputRDO_TRIGFile"):
+    rec.readRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
+    rec.doTrigger.set_Value_and_Lock(False)
+    recAlgs.doTrigger.set_Value_and_Lock(False)
+    from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
+    HLTMonFlags.doMonTier0 = False
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    DQMonFlags.doCTPMon = False
+    DQMonFlags.doHLTMon = False
+    DQMonFlags.useTrigger = False
+    DQMonFlags.doLVL1CaloMon = False
+    # Configure HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if rec.doFileMetaData():
+       metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                        "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+       objKeyStore.addManyTypesMetaData( metadataItems )
+    # Configure other outputs
+    from TrigEDMConfig.TriggerEDM import getLvl1ESDList
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
+    objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
+    objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
     
 # EVNT (?)
 if hasattr(runArgs,"inputEVNTFile"):
@@ -54,16 +121,6 @@ if hasattr(runArgs,"inputEVNTFile"):
 if hasattr(runArgs,"trigFilterList"):
     rec.doTriggerFilter.set_Value_and_Lock(True)
     rec.triggerFilterList = "||".join(runArgs.trigFilterList)
-    
-if hasattr(runArgs,"outputESDFile"):
-    rec.doESD.set_Value_and_Lock( True )
-    rec.doWriteESD.set_Value_and_Lock( True )
-    athenaCommonFlags.PoolESDOutput.set_Value_and_Lock( runArgs.outputESDFile )
-    
-if hasattr(runArgs,"outputAODFile"):
-    rec.doAOD.set_Value_and_Lock( True )
-    rec.doWriteAOD.set_Value_and_Lock( True ) 
-    athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
 
 if hasattr(runArgs,"outputHIST_R2AFile"):
     rec.doMonitoring.set_Value_and_Lock(True)
@@ -122,17 +179,6 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 # Need to handle this properly in RecExCommon top options
 rec.OutputFileNameForRecoStep="RAWtoALL"
 
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    recoLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        recoLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"): 
-    for fragment in runArgs.preInclude:
-        include(fragment)
 
 #========================================================
 # Central topOptions (this is one is a string not a list)
