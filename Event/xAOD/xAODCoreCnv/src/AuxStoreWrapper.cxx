@@ -58,7 +58,7 @@ namespace xAODMaker {
 
    StatusCode AuxStoreWrapper::initialize() {
 
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "  StoreGate keys: " << m_keys );
 
       // Retrieve the needed component(s):

@@ -9,10 +9,14 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("PFHLTSequence")
 
 # Use the appropriate containers based on what config is desired
+# collections for the jet trigger need to be set correction in the 
+# jet trigger configuration
 trackvtxcontainers = {
-    "offline": ("InDetTrackParticles", "PrimaryVertices"),
-    "ftf": ("HLT_IDTrack_FS_FTF", "HLT_IDVertex_FS"),
+    "offline": ("InDetTrackParticles",    "PrimaryVertices")
 }
+
+
+
 # Configure the extrapolator
 def getExtrapolator():
     # Set up with trigger extrapolator instance
@@ -29,6 +33,10 @@ def PFTrackExtension(tracktype):
 
     Returns the preselected track selection, the extension cache and the list of algorithms
     """
+    
+    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
+    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
+
     tracksin, _ = trackvtxcontainers[tracktype]
     from eflowRec.eflowRecConf import PFTrackPreselAlg
     from TrackToCalo.TrackToCaloConf import Trk__PreselCaloExtensionBuilderAlg
@@ -94,6 +102,9 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
     from eflowRec.eflowRecConf import PFTrackMuonIsoTaggingAlg
     from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 
+    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
+    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
+
     tag_alg = PFTrackMuonIsoTaggingAlg(
         f"PFTrackMuonIsoTaggingAlg_{tracktype}",
         InputTracks = tracksin,
@@ -116,6 +127,10 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
 # and extrapolation into the calorimeter.
 # Parameters: track & vertex container names (offline, HLT, FTK)
 def getPFTrackSel(tracktype, extensionCache="", trackname=None):
+
+    print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
+    print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
+
     tracksin, verticesin = trackvtxcontainers[tracktype]
     if trackname is not None:
         tracksin = trackname
@@ -260,6 +275,9 @@ def PFHLTSequence(flags, clustersin, tracktype, cellsin=None):
 
     muon_mode = flags.Trigger.FSHad.PFOMuonRemoval
     if muon_mode == "None":
+        print( "SUTT: trackvtxcontainers:       ", trackvtxcontainers ) 
+        print( "SUTT: trackvtxcontainers[ftf] : ", trackvtxcontainers["ftf"] ) 
+
         tracks = trackvtxcontainers[tracktype][0]
         algs = []
         extension = ""

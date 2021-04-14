@@ -695,7 +695,7 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
     acc.merge(trigCaloDataAccessSvcCfg(flags))
 
     cellMaker = CompFactory.HLTCaloCellMaker(name,
-                                             CellsName='CaloCells',
+                                             CellsName='CaloCellsFS' if "FS" in name else "CaloCells",
                                              TrigDataAccessMT = acc.getService('TrigCaloDataAccessSvc'),
                                              monitorCells = True,
                                              ExtraInputs = CaloDataAccessSvcDependencies+

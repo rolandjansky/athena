@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -27,7 +27,7 @@ namespace xAODMaker {
   
   StatusCode TrackCollectionCnvTool::initialize() {
     // Greet the user:
-    ATH_MSG_INFO( "Initializing TrackCollectionCnvTool - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing TrackCollectionCnvTool" );
     ATH_CHECK( m_particleCreator.retrieve() );
     
     return StatusCode::SUCCESS;

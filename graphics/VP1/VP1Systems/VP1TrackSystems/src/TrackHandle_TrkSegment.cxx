@@ -130,10 +130,9 @@ const std::vector< Amg::Vector3D > * TrackHandle_TrkSegment::provide_pathInfoPoi
     //TK: Fixme: globalPosition can cause a crash!
     
     Amg::Vector2D localPos(m_segment->localParameters()[Trk::loc1], m_segment->localParameters()[Trk::loc2]);
-    const Amg::Vector3D* globalPos = m_segment->associatedSurface().localToGlobal(localPos);
-    Amg::Vector3D pointA(globalPos->x()-xOffset,globalPos->y()-yOffset,globalPos->z()-zOffset);
-    Amg::Vector3D pointB(globalPos->x()+xOffset,globalPos->y()+yOffset,globalPos->z()+zOffset);
-    delete globalPos;
+    const Amg::Vector3D globalPos = m_segment->associatedSurface().localToGlobal(localPos);
+    Amg::Vector3D pointA(globalPos.x()-xOffset,globalPos.y()-yOffset,globalPos.z()-zOffset);
+    Amg::Vector3D pointB(globalPos.x()+xOffset,globalPos.y()+yOffset,globalPos.z()+zOffset);
     
     bool hasnonmdtchamber(false);
     bool outsidechamber, success;

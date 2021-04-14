@@ -23,7 +23,7 @@ namespace xAODMaker {
    StatusCode TauJetReaderAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
 
       // Return gracefully:

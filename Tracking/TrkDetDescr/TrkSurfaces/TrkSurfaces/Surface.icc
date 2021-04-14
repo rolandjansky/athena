@@ -101,17 +101,9 @@ Surface::onSurface(const T& pars, const Trk::BoundaryCheck& bcheck) const
 }
 
 /// Local to Global implementations
-
 // From Local position
-inline Amg::Vector3D*
-Surface::localToGlobal(const Amg::Vector2D& locpos) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
-  localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), *gPosition);
-  return gPosition;
-}
 inline Amg::Vector3D
-Surface::localToGlobalPos(const Amg::Vector2D& locpos) const
+Surface::localToGlobal(const Amg::Vector2D& locpos) const
 {
   Amg::Vector3D gPosition;
   localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), gPosition);
@@ -119,17 +111,9 @@ Surface::localToGlobalPos(const Amg::Vector2D& locpos) const
 }
 
 // From local position and momentum
-inline Amg::Vector3D*
+inline Amg::Vector3D
 Surface::localToGlobal(const Amg::Vector2D& locpos,
                        const Amg::Vector3D& glomom) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
-  localToGlobal(locpos, glomom, *gPosition);
-  return gPosition;
-}
-inline Amg::Vector3D
-Surface::localToGlobalPos(const Amg::Vector2D& locpos,
-                          const Amg::Vector3D& glomom) const
 {
   Amg::Vector3D gPosition(0., 0., 0.);
   localToGlobal(locpos, glomom, gPosition);
@@ -137,16 +121,8 @@ Surface::localToGlobalPos(const Amg::Vector2D& locpos,
 }
 
 // From Local parameters
-inline Amg::Vector3D*
-Surface::localToGlobal(const LocalParameters& locpars) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
-  localToGlobal(
-    localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), *gPosition);
-  return gPosition;
-}
 inline Amg::Vector3D
-Surface::localToGlobalPos(const LocalParameters& locpars) const
+Surface::localToGlobal(const LocalParameters& locpars) const
 {
   Amg::Vector3D gPosition(0., 0., 0.);
   localToGlobal(
@@ -155,17 +131,9 @@ Surface::localToGlobalPos(const LocalParameters& locpars) const
 }
 
 // From Local parameters and momementum
-inline Amg::Vector3D*
+inline Amg::Vector3D
 Surface::localToGlobal(const LocalParameters& locpars,
                        const Amg::Vector3D& glomom) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
-  localToGlobal(localParametersToPosition(locpars), glomom, *gPosition);
-  return gPosition;
-}
-inline Amg::Vector3D
-Surface::localToGlobalPos(const LocalParameters& locpars,
-                          const Amg::Vector3D& glomom) const
 {
   Amg::Vector3D gPosition(0., 0., 0.);
   localToGlobal(localParametersToPosition(locpars), glomom, gPosition);

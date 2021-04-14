@@ -29,7 +29,6 @@ def bJetStep2Sequence():
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     
     config=getInDetTrigConfig('jet')
-    #    prmVtxKey = "HLT_IDVertex_FS"
     prmVtxKey = config.vertex
     outputRoIName = "HLT_Roi_Bjet"
 
@@ -38,7 +37,7 @@ def bJetStep2Sequence():
     InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
-    newRoITool.RoisWriteHandleKey = recordable( outputRoIName )
+    newRoITool.RoisWriteHandleKey  = recordable( outputRoIName )
     newRoITool.VertexReadHandleKey = prmVtxKey
     newRoITool.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
     #

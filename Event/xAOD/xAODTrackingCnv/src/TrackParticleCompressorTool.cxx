@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackParticleCompressorTool.cxx 789658 2016-12-14 14:28:40Z krasznaa $
 
 // Local include(s):
 #include <memory>
@@ -37,7 +36,7 @@ namespace xAODMaker {
    StatusCode TrackParticleCompressorTool::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising");
       ATH_MSG_INFO( "  OffDiagCovMatrixBits = " << m_offDiagCovMatrixBits );
       ATH_MSG_INFO( "  DiagCovMatrixBits    = " << m_diagCovMatrixBits );
       ATH_MSG_INFO( "  UseOffDiagCompr = " << m_useOffDiagCompr );

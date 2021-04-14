@@ -1,139 +1,166 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 #
 
 import sys
-from ROOT import gDirectory, gROOT, gStyle, kTRUE, kFALSE, \
-    TCanvas, TFile, TH1, \
-    TH1D, TLegend, TPad, kBlack, kBlue, kRed, kGreen, kOrange, kCyan, kPink, kGray
+from ROOT import (gDirectory, gROOT, gStyle, kTRUE,
+                  TCanvas, TFile, TLegend, TPad, kBlack, kBlue,
+                  kRed, kGreen, kOrange, kCyan, kPink, kGray)
 
 # gROOT.SetBatch(kTRUE)
 gStyle.SetOptStat(0)
 
 cluster_list = [
-
     {'name': 'clusterAll', 'title': 'Clusters - Inclusive'},
     {'name': 'cluster10GeV', 'title': 'Clusters - 10 GeV'},
     {'name': 'clusterPromptAll', 'title': 'Clusters from Prompt - Inclusive'},
     {'name': 'clusterPrompt10GeV', 'title': 'Clusters from Prompt  - 10 GeV'},
-
-
 ]
 
 cluster_list_photon = [
-    {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
-    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
-    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
-    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
-    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterUnconvPhoton',
+     'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton',
+     'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi',
+     'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi',
+     'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT',
+     'title': 'Clusters Converted Photons - TRT'},
     {'name': 'clusterConvPhotonTRTTRT',
-        'title': 'Clusters Converted Photons - TRTTRT'},
-    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+     'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT',
+     'title': 'Clusters Converted Photons - SiTRT'},
 ]
 
 photon_cluster_list = [
-    {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
-    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
-    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
-    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
-    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterUnconvPhoton',
+     'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton',
+     'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi',
+     'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi',
+     'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT',
+     'title': 'Clusters Converted Photons - TRT'},
     {'name': 'clusterConvPhotonTRTTRT',
-        'title': 'Clusters Converted Photons - TRTTRT'},
-    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+     'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT',
+     'title': 'Clusters Converted Photons - SiTRT'},
 
 ]
 
 
 electron_comparison_list = [
-    {'name': 'showerShapesAll', 'title': 'Shower Shape - Inclusive'},
-    {'name': 'showerShapes10GeV', 'title': 'Shower Shape - 10 GeV'},
-    {'name': 'isolationAll', 'title': 'Isolation'},
-    {'name': 'recoElectronAll', 'title': 'Reconstructed Electron'},
-    {'name': 'truthRecoElectronLooseLH', 'title': 'Reconstructed Electron LooseLH'},
+    {'name': 'showerShapesAll',
+     'title': 'Shower Shape - Inclusive'},
+    {'name': 'showerShapes10GeV',
+     'title': 'Shower Shape - 10 GeV'},
+    {'name': 'isolationAll',
+     'title': 'Isolation'},
+    {'name': 'recoElectronAll',
+     'title': 'Reconstructed Electron'},
+    {'name': 'truthRecoElectronLooseLH',
+     'title': 'Reconstructed Electron LooseLH'},
     {'name': 'truthRecoElectronMediumLH',
-        'title': 'Reconstructed Electron MediumLH'},
-    {'name': 'truthRecoElectronTightLH', 'title': 'Reconstructed Electron TightLH'},
-    {'name': 'truthElectronAll', 'title': 'True Electron'},
-    {'name': 'truthPromptElectronAll', 'title': 'True Prompt Electron'},
+     'title': 'Reconstructed Electron MediumLH'},
+    {'name': 'truthRecoElectronTightLH',
+     'title': 'Reconstructed Electron TightLH'},
+    {'name': 'truthElectronAll',
+     'title': 'True Electron'},
+    {'name': 'truthPromptElectronAll',
+     'title': 'True Prompt Electron'},
     {'name': 'truthElectronRecoElectronAll',
-        'title': 'True Electron Reconstructed as Electron'},
+     'title': 'True Electron Reconstructed as Electron'},
     {'name': 'truthPromptElectronWithTrack',
-        'title': 'True Prompt Electron with Track'},
+     'title': 'True Prompt Electron with Track'},
     {'name': 'truthPromptElectronWithGSFTrack',
-        'title': 'True Prompt Electron with GSFTrack'},
+     'title': 'True Prompt Electron with GSFTrack'},
     {'name': 'truthPromptElectronWithReco',
-        'title': 'True Prompt Electron with Reco Electron'},
+     'title': 'True Prompt Electron with Reco Electron'},
     {'name': 'recoElectronIsoFixedCutTightTrackOnly',
-        'title': 'Reconstructed Electron FixedCutTightTrackOnly'},
-    {'name': 'trackingEfficiency', 'title': 'Tracking Efficiency'},
-    {'name': 'GSFEfficiency', 'title': 'GSF Efficiency'},
-    {'name': 'matchingEfficiency', 'title': 'Matching  Efficiency'},
-    {'name': 'reconstructionEfficiency', 'title': 'Reconstruction Efficiency'},
+     'title': 'Reconstructed Electron FixedCutTightTrackOnly'},
+    {'name': 'trackingEfficiency',
+     'title': 'Tracking Efficiency'},
+    {'name': 'GSFEfficiency',
+     'title': 'GSF Efficiency'},
+    {'name': 'matchingEfficiency',
+     'title': 'Matching  Efficiency'},
+    {'name': 'reconstructionEfficiency',
+     'title': 'Reconstruction Efficiency'},
     {'name': 'recoElectronLooseLHEfficiency',
-        'title': 'Reconstructed Electron LooseLH Efficiency'},
+     'title': 'Reconstructed Electron LooseLH Efficiency'},
     {'name': 'recoElectronMediumLHEfficiency',
-        'title': 'Reconstructed Electron MediumLH Efficiency'},
+     'title': 'Reconstructed Electron MediumLH Efficiency'},
     {'name': 'recoElectronTightLHEfficiency',
-        'title': 'Reconstructed Electron TightLH Efficiency'},
+     'title': 'Reconstructed Electron TightLH Efficiency'},
     {'name': 'recoElectronIsoFixedCutTightTrackOnlyEfficiency',
-        'title': 'Reconstructed Electron FixedCutTighTrackOnly Efficiency'},
+     'title': 'Reconstructed Electron FixedCutTighTrackOnly Efficiency'},
 ]
 
 photon_comparison_list = [
-    {'name': 'recoPhotonAll', 'title': 'Reconstructed Photon'},
-    {'name': 'truthPhotonRecoPhoton', 'title': 'True photon reconstructed as photon'},
-    {'name': 'truthConvPhoton', 'title': 'True converted photon'},
+    {'name': 'recoPhotonAll',
+     'title': 'Reconstructed Photon'},
+    {'name': 'truthPhotonRecoPhoton',
+     'title': 'True photon reconstructed as photon'},
+    {'name': 'truthConvPhoton',
+     'title': 'True converted photon'},
     {'name': 'truthConvRecoConv',
-        'title': 'True conversion reconstructed as converted photon'},
+     'title': 'True conversion reconstructed as converted photon'},
     {'name': 'truthConvRecoConv1Si',
-        'title': 'True conversion reconstructed as 1 Si conv'},
+     'title': 'True conversion reconstructed as 1 Si conv'},
     {'name': 'truthConvRecoConv1TRT',
-        'title': 'True conversion reconstructed as 1 TRT conv'},
+     'title': 'True conversion reconstructed as 1 TRT conv'},
     {'name': 'truthConvRecoConv2Si',
-        'title': 'True conversion reconstructed as Si-Si conv'},
+     'title': 'True conversion reconstructed as Si-Si conv'},
     {'name': 'truthConvRecoConv2TRT',
-        'title': 'True conversion reconstructed as TRT-TRT conv'},
+     'title': 'True conversion reconstructed as TRT-TRT conv'},
     {'name': 'truthConvRecoConv2SiTRT',
-        'title': 'True conversion reconstructed as Si-TRT conv'},
+     'title': 'True conversion reconstructed as Si-TRT conv'},
     {'name': 'truthConvRecoUnconv',
-        'title': 'True conversion reconstructed as unconverted photon'},
+     'title': 'True conversion reconstructed as unconverted photon'},
     {'name': 'truthUnconvPhoton', 'title': 'True unconverted photon'},
     {'name': 'truthUnconvRecoConv',
-        'title': 'True unconverted reconstructed as conv photon'},
+     'title': 'True unconverted reconstructed as conv photon'},
     {'name': 'truthUnconvRecoUnconv',
-        'title': 'True unconverted reconstructed as unconverted photon'},
-    {'name': 'showerShapesAll', 'title': 'Shower Shape - Inclusive'},
-    {'name': 'showerShapes10GeV', 'title': 'Shower Shape - 10 GeV'},
-    {'name': 'isolationAll', 'title': 'Isolation'},
+     'title': 'True unconverted reconstructed as unconverted photon'},
+    {'name': 'showerShapesAll',
+     'title': 'Shower Shape - Inclusive'},
+    {'name': 'showerShapes10GeV',
+     'title': 'Shower Shape - 10 GeV'},
+    {'name': 'isolationAll',
+     'title': 'Isolation'},
     {'name': 'recoPhotonUnconvIsoFixedCutTight',
-        'title': 'FixedCutTight Unconverted Photon'},
+     'title': 'FixedCutTight Unconverted Photon'},
     {'name': 'recoPhotonUnconvIsoFixedCutTightCaloOnly',
-        'title': 'FixedCutTightCaloOnly Unconverted Photon'},
+     'title': 'FixedCutTightCaloOnly Unconverted Photon'},
     {'name': 'recoPhotonUnconvIsoFixedCutLoose',
-        'title': 'FixedCutLoose Unconverted Photon'},
+     'title': 'FixedCutLoose Unconverted Photon'},
     {'name': 'recoPhotonConvIsoFixedCutTight',
-        'title': 'FixedCutTight Converted Photon'},
+     'title': 'FixedCutTight Converted Photon'},
     {'name': 'recoPhotonConvIsoFixedCutTightCaloOnly',
-        'title': 'FixedCutTightCaloOnly Converted Photon'},
+     'title': 'FixedCutTightCaloOnly Converted Photon'},
     {'name': 'recoPhotonConvIsoFixedCutLoose',
-        'title': 'FixedCutLoose Converted Photon'},
+     'title': 'FixedCutLoose Converted Photon'},
     {'name': 'truthPhotonUnconvRecoUnconvEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'truthPhotonRecoConvEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonUnconvIsoFixedCutTightEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonUnconvIsoFixedCutTightCaloOnlyEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonUnconvIsoFixedCutLooseEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonConvIsoFixedCutTightEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonConvIsoFixedCutTightCaloOnlyEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonConvIsoFixedCutLooseEfficiency',
-        'title': 'True Conv #rightarrow Conv'},
+     'title': 'True Conv #rightarrow Conv'},
 ]
 
 photon_fraction_list = [
@@ -171,10 +198,10 @@ photonfake_fraction_list = [
 photon_efficiency_list = [
     {'name': 'truthPhotonRecoPhotonEfficiency',
         'color': kBlack, 'title': 'All photons'},
-    {'name': 'truthPhotonRecoPhotonOrElectronEfficiency', 'color': kGreen +2, 
-       'title': 'All photons + electrons'},
+    {'name': 'truthPhotonRecoPhotonOrElectronEfficiency', 'color': kGreen + 2,
+     'title': 'All photons + electrons'},
     {'name': 'truthPhotonConvRecoEfficiency', 'color': kRed,
-       'title': 'True converted'},
+     'title': 'True converted'},
     {'name': 'truthPhotonUnconvRecoEfficiency', 'color': kBlue,
         'title': 'True unconverted'}
 ]
@@ -264,7 +291,9 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
     :param f_nightly: TFile with the nightly plots
     :param result_file: TFile with the resulting comparison
     """
-    comparison_list = photon_comparison_list if type == 'gamma' else electron_comparison_list
+    comparison_list = (
+        photon_comparison_list if type == 'gamma'
+        else electron_comparison_list)
     for folder in comparison_list:
         for histo in get_key_names(f_nightly, folder['name']):
             h_base = f_base.Get(folder['name'] + '/' + histo)
@@ -375,7 +404,7 @@ def make_conversion_plot(f_base, f_nightly, result_file):
 
             if i == 0:
                 baseline.Draw("hist ")
-                
+
                 baselineDummy = baseline.Clone()
                 baselineDummy.SetLineColor(kGray+3)
                 baselineDummy.SetMarkerColor(kGray+3)
@@ -401,7 +430,10 @@ def make_conversion_plot(f_base, f_nightly, result_file):
         c1.Write("ConversionRadiusTrueVsReco")
 
 
-def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, folder_list, plot_name, axis_title, ymin, ymax, normalize = False):
+def make_photon_fraction_plot(
+        f_base, f_nightly, result_file,
+        example_folder, folder_list, plot_name,
+        axis_title, ymin, ymax, normalize=False):
     """
     This functions created a photon validation plot with efficiencies
     and fractions
@@ -467,7 +499,6 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file, example_folder, fo
 
             nightly.Draw("p same")
 
-
         leg.Draw()
         leg2.Draw()
 
@@ -522,15 +553,16 @@ def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
 
     main_pad.cd()
 
-    if y_axis_label != None:
+    if y_axis_label is not None:
         h_base.GetYaxis().SetTitle(y_axis_label)
         h_base.GetYaxis().SetTitle(y_axis_label)
 
-    if not '2D' in variable_name or 'Profile' in variable_name:
+    if '2D' not in variable_name or 'Profile' in variable_name:
         h_base.Draw()
 
     h_nightly.Draw(
-        "same p" if not '2D' in variable_name or 'Profile' in variable_name else 'colz')
+        "same p" if '2D' not in variable_name or 'Profile' in variable_name
+        else 'colz')
 
     c1.Update()
 
@@ -595,15 +627,42 @@ if __name__ == '__main__':
 
     if particle_type == 'gamma':
 
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonConvRecoConvEfficiency', photon_fraction_list, 'ConvertionEff_TrueConv', "Efficiency and fraction", 0., 1.3)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonUnconvRecoConvEfficiency', photonfake_fraction_list, 'ConvertionEff_TrueUnconv', "Efficiency and fraction", 0., 0.2)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'truthPhotonRecoPhotonEfficiency', photon_efficiency_list, 'PhotonEff', "Efficiency", 0.8, 1.15)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracks', photon_track_list, 'Track', "Tracks", 0., 1.3, True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRT', photon_trackTRT_list, 'TrackTRT', "Tracks", 0., 1.3, True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTrackshighpT', photon_trackhighpT_list, 'TrackhighpT', "Tracks", 0., 1.3, True)
-        make_photon_fraction_plot(baseline_file, nightly_file, output_file, 'InDetTracksTRThighpT', photon_trackTRThighpT_list, 'TrackTRThighpT', "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(
+            baseline_file,
+            nightly_file,
+            output_file, 'truthPhotonConvRecoConvEfficiency',
+            photon_fraction_list, 'ConvertionEff_TrueConv',
+            "Efficiency and fraction", 0., 1.3)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file,
+            output_file, 'truthPhotonUnconvRecoConvEfficiency',
+            photonfake_fraction_list, 'ConvertionEff_TrueUnconv',
+            "Efficiency and fraction", 0., 0.2)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file,
+            output_file, 'truthPhotonRecoPhotonEfficiency',
+            photon_efficiency_list, 'PhotonEff',
+            "Efficiency", 0.8, 1.15)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file, output_file,
+            'InDetTracks', photon_track_list, 'Track',
+            "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file, output_file,
+            'InDetTracksTRT',
+            photon_trackTRT_list, 'TrackTRT',
+            "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file,
+            output_file, 'InDetTrackshighpT',
+            photon_trackhighpT_list, 'TrackhighpT',
+            "Tracks", 0., 1.3, True)
+        make_photon_fraction_plot(
+            baseline_file, nightly_file,
+            output_file, 'InDetTracksTRThighpT',
+            photon_trackTRThighpT_list, 'TrackTRThighpT',
+            "Tracks", 0., 1.3, True)
         make_conversion_plot(baseline_file, nightly_file, output_file)
-
 
     make_comparison_plots(particle_type, baseline_file,
                           nightly_file, output_file)

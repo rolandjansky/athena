@@ -259,8 +259,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                # pvname = "HLT_IDVertex_FS"
-                pvname = config.vertex
+                pvname = config.vertex_jet
 
         elif jetRecoDict["constitType"] == "pf":
             gscDepth = "auto"
@@ -274,8 +273,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                   ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
                   ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-            # pvname = "HLT_IDVertex_FS"
-            pvname = config.vertex
+            pvname = config.vertex_jet
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
             calibSeq += "_Insitu"

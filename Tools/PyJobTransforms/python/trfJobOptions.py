@@ -204,6 +204,10 @@ class JobOptionsTemplate(object):
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
+                    if 'sharedWriter' in self._exe.conf.argdict:
+                        print(f"AthenaMPJobProps.AthenaMPFlags.UseSharedWriter={self._exe.conf.argdict['sharedWriter'].value}", file=runargsFile)
+                    if 'parallelCompression' in self._exe.conf.argdict:
+                        print(f"AthenaMPJobProps.AthenaMPFlags.UseParallelCompression={self._exe.conf.argdict['parallelCompression'].value}", file=runargsFile)
                 if self._exe._isCAEnabled():
                     print(os.linesep, '# Threading flags', file=runargsFile)
                     #Pass the number of threads

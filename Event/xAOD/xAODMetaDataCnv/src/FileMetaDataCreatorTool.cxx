@@ -33,8 +33,6 @@ namespace xAODMaker {
 
 StatusCode
     FileMetaDataCreatorTool::initialize() {
-      // Greet the user:
-      ATH_MSG_DEBUG("Initialising - Package version: " << PACKAGE_VERSION);
 
       ATH_CHECK(m_eventStore.retrieve());
       ATH_CHECK(m_metaDataSvc.retrieve());

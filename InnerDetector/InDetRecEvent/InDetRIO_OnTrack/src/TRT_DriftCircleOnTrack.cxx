@@ -51,7 +51,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
       static_cast<const Trk::StraightLineSurface&>(detElSurf);
 
     m_globalPosition =
-      slsf.localToGlobalPos(driftRadius, predictedTrackDirection, predictedLocZ);
+      slsf.localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ);
   }
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];

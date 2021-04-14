@@ -29,7 +29,7 @@ namespace xAODMaker {
    StatusCode DynVarFixerAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "Will be fixing dynamic variables in container(s):" );
       ATH_MSG_DEBUG( "  " << m_containers );
 

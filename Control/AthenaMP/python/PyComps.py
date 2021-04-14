@@ -97,6 +97,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
+        use_parallel_compression = jp.AthenaMPFlags.UseParallelCompression()
 
         if strategy=='SharedQueue' or strategy=='RoundRobin':
             if use_shared_reader:
@@ -110,6 +111,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaSharedMemoryTool("OutputStreamingTool_0", SharedMemoryName="OutputStream"+str(os.getpid())) ]
+                svcMgr.AthenaPoolCnvSvc.ParallelCompression=use_parallel_compression
 
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
             self.Tools += [ SharedEvtQueueProvider(UseSharedReader=use_shared_reader,

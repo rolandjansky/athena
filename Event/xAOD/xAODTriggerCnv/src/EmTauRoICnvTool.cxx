@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTauRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
 
 // EDM include(s):
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
@@ -24,14 +23,6 @@ namespace xAODMaker {
       declareInterface< IEmTauRoICnvTool >( this );
    }
 
-   StatusCode EmTauRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
 
    /**
     * This is the important function of the tool. It takes the em/tau RoI objects

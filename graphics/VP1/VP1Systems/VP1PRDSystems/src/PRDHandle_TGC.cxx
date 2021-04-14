@@ -112,9 +112,8 @@ SoTransform * PRDHandle_TGC::createTransform() const
      theHitTransform = VP1LinAlgUtils::toSoTransform(theSurface.transform());
    }
 
-   const Amg::Vector3D* theHitGPos= theSurface.localToGlobal(prd->localPosition());
-   theHitTransform->translation.setValue((*theHitGPos)[0], (*theHitGPos)[1], (*theHitGPos)[2]);
-   delete theHitGPos;
+   Amg::Vector3D theHitGPos= theSurface.localToGlobal(prd->localPosition());
+   theHitTransform->translation.setValue((theHitGPos)[0], (theHitGPos)[1], (theHitGPos)[2]);
    return theHitTransform;
 }
 

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.h 785752 2016-11-22 15:06:34Z ssnyder $
 #ifndef XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 #define XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 
@@ -26,9 +25,6 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     * @author Walter Lampl <Walter.Lampl@cern.ch>
-    *
-    * $Revision: 785752 $
-    * $Date: 2016-11-22 16:06:34 +0100 (Tue, 22 Nov 2016) $
     */
    class CaloClusterCnvTool : public AthAlgTool,
                               public virtual ICaloClusterCnvTool {
@@ -37,9 +33,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       CaloClusterCnvTool( const std::string& type, const std::string& name,
                           const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fill an existing xAOD::CaloCluster object with info
       virtual StatusCode convert( const CaloCluster* aod,

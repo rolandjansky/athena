@@ -14,6 +14,18 @@ import ROOT
 from RatesAnalysis.Util import getMetadata, populateTriggers, getGlobalGroup, toJson, toCSV
 from AthenaCommon.Logging import logging
 
+
+def getTableName(name):
+  tabName = "Table_Rate_"
+  if name == "HLT" or name == "L1":
+    tabName += "Chain" + name
+  else:
+    tabName += name
+
+  tabName += "_HLT_All.csv"
+
+  return tabName 
+
 def main():
   from argparse import ArgumentParser
   parser = ArgumentParser()
@@ -23,8 +35,6 @@ def main():
                       help='Tag identifying this processing to be used in the output folder name (any underscores will be removed)')
   parser.add_argument('--outputJSONFile', default='rates.json', 
                       help='JSON file of rates for use with the RuleBook')
-  parser.add_argument('--outputCSVFile', default='Table_Rate_ChainHLT_HLT_All.csv', 
-                      help='CSV file of rates for webpage visualization')
   parser.add_argument('--userDetails',
                       help='User supplied metadata string giving any extra details about this run.')                      
   args = parser.parse_args()
@@ -49,11 +59,15 @@ def main():
   L1Triggers = populateTriggers(inputFile, metadata, L1GlobalGroup, 'L1_')
   HLTTriggers = populateTriggers(inputFile, metadata, HLTGlobalGroup, 'HLT_')
 
+  L1Table = getTableName("L1")
+  HLTTable = getTableName("HLT")
+
   log.info("Exporting " + args.outputJSONFile)
   toJson(args.outputJSONFile, metadata, L1Triggers, HLTTriggers)
-  log.info("Exporting " + args.outputCSVFile)
-  toCSV(args.outputCSVFile, metadata, HLTTriggers)
-  
+  log.info("Exporting " + HLTTable)
+  toCSV(HLTTable, metadata, HLTTriggers)
+  log.info("Exporting " + L1Table)
+  toCSV(L1Table, metadata, L1Triggers, readL1=True)
   
 if __name__== "__main__":
   main()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,7 +44,7 @@ class LArHVData {
   hvMap m_voltage;
   std::set<Identifier> m_updatedCells;
 
-  const std::vector<LArHVData::HV_t> m_empty;
+  const std::vector<LArHVData::HV_t> m_empty {};
 
 };
 

@@ -16,14 +16,12 @@ def FTFTrackSequence(ConfigFlags):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=caloFSRoI)
+    TrkInputNoViewAlg = makeInDetAlgsNoView( config=IDTrigConfig, rois=caloFSRoI )
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
 
-    verticesname = recordable("HLT_IDVertex_FS")
-    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF() , verticesname, IDTrigConfig )
+    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
     prmVtx = vtxAlgs[-1]
 
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]

@@ -158,12 +158,12 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
       ATH_MSG_ERROR("Unable to cast conversion service to IProperty");
       return StatusCode::FAILURE;
    } else {
-      std::string propertyName = "StreamMetaDataOnly";
-      bool streamMetaDataOnly(false);
-      BooleanProperty streamMetaDataOnlyProp(propertyName, streamMetaDataOnly);
-      if (propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
-         ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
-      } else if (streamMetaDataOnlyProp.value()) {
+      std::string propertyName = "ParallelCompression";
+      bool parallelCompression(false);
+      BooleanProperty parallelCompressionProp(propertyName, parallelCompression);
+      if (propertyServer->getProperty(&parallelCompressionProp).isFailure()) {
+         ATH_MSG_INFO("Conversion service does not have ParallelCompression property");
+      } else if (parallelCompressionProp.value()) {
          int streamPort = 1095;
          propertyName = "StreamPortString";
          std::string streamPortString("");

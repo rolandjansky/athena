@@ -9,8 +9,9 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"  
 #include "GeoPrimitives/GeoPrimitives.h" 
-
+//
 #include <iosfwd>
+#include <memory>
 class MsgStream;
 
 namespace Trk {
@@ -77,7 +78,7 @@ namespace Trk {
       const Surface* m_surface;
       
       /** global position of the cluster hit*/
-      const Amg::Vector3D* m_globalpos;
+      std::unique_ptr<const Amg::Vector3D> m_globalpos;
       
       /** Energy Loss */
       const Trk::EnergyLoss* m_eloss;
