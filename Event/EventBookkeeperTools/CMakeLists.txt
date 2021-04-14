@@ -80,7 +80,7 @@ if( NOT XAOD_STANDALONE )
                    PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
 
-   if( NOT XAOD_ANALYSIS )
+   if( NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
       atlas_add_test( CutFlowSvcOutputMP
                       SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py --nprocs=2 -c sharedWriter=True
                       PROPERTIES TIMEOUT 300

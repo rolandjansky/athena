@@ -67,8 +67,6 @@ Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#IncompleteCutBookkeep
 if 'sharedWriter' in dir() and sharedWriter is True:  # noqa: F821
     from AthenaMP.AthenaMPFlags import jobproperties as ampjp
     ampjp.AthenaMPFlags.UseSharedWriter = True
-    ServiceMgr.AthenaPoolCnvSvc.OutputMetadataContainer = "MetaData" 
-    ServiceMgr.AthenaPoolCnvSvc.StreamMetaDataOnly = True
 
 # set debug logging
 ServiceMgr.MessageSvc.defaultLimit = 9999999
