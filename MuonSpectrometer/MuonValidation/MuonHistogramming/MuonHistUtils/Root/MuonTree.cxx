@@ -16,7 +16,8 @@ namespace Muon{
      m_runNumber(-999),
      m_lumiBlock(-999),
      m_eventNumber(-999),
-     m_mcChannelNumber(-999)
+     m_mcChannelNumber(-999),
+     m_mcBeamSpotWeight(1.0)
   {
   }
 
@@ -27,7 +28,8 @@ namespace Muon{
     m_runNumber(-999),
     m_lumiBlock(-999),
     m_eventNumber(-999),
-    m_mcChannelNumber(-999)
+    m_mcChannelNumber(-999),
+    m_mcBeamSpotWeight(1.0)
   {
   }
  
@@ -45,6 +47,7 @@ namespace Muon{
     m_tree->Branch("lumiBlock", &m_lumiBlock, "lumiBlock/i");
     m_tree->Branch("eventNumber", &m_eventNumber, "eventNumber/l");
     m_tree->Branch("mcChannelNumber", &m_mcChannelNumber, "mcChannelNumber/i");
+    m_tree->Branch("mcBeamSpotWeight", &m_mcBeamSpotWeight, "mcBeamSpotWeight/f");
     
     // 
     //Reco
@@ -142,11 +145,13 @@ namespace Muon{
 		m_lumiBlock = eventInfo->lumiBlock();
 		m_eventNumber = eventInfo->eventNumber();
 		m_mcChannelNumber = 0;
+		m_mcBeamSpotWeight = 1.0;
 	}
 	else	{
 		m_lumiBlock = 0;
 		m_eventNumber =  eventInfo->mcEventNumber();
 		m_mcChannelNumber = eventInfo->mcChannelNumber(); 
+		m_mcBeamSpotWeight = eventInfo->beamSpotWeight();
 	}	
   }
 

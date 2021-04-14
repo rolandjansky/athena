@@ -32,7 +32,7 @@ namespace Muon
     std::vector<PlotBase*> m_allPlots;
     std::vector<int> m_selPlots;  
     
-    void fill(const xAOD::Muon& mu);
+    void fill(const xAOD::Muon& mu, float weight=1.0);
     
     // Reco only information
     Muon::IDHitSummaryPlots         *m_oIDHitPlots;

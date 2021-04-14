@@ -47,9 +47,9 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
 
 }
 
-void MuonResolutionPlots::fill(const xAOD::TrackParticle& muPrimaryTrk, const xAOD::TruthParticle& truthMu) {
+  void MuonResolutionPlots::fill(const xAOD::TrackParticle& muPrimaryTrk, const xAOD::TruthParticle& truthMu, float weight) {
   //fill plots Res_pt,eta,phi
-  m_oResolutionPlots.fill(muPrimaryTrk, truthMu);
+    m_oResolutionPlots.fill(muPrimaryTrk, truthMu, weight);
 
   //fill plots Res_pt_vs_pt,eta,phi
   float pt = 0.001*truthMu.pt();
@@ -58,15 +58,15 @@ void MuonResolutionPlots::fill(const xAOD::TrackParticle& muPrimaryTrk, const xA
   float respt = (muPrimaryTrk.pt() - truthMu.pt())/truthMu.pt();
 
   if (m_doBinnedResolutionPlots) {
-    if ( pt < Res_pT_vs_lowpT->GetXaxis()->GetXmax() ) Res_pT_vs_lowpT->Fill(pt,respt);
-    if ( pt > Res_pT_vs_highpT->GetXaxis()->GetXmin() ) Res_pT_vs_highpT->Fill(pt,respt);
+    if ( pt < Res_pT_vs_lowpT->GetXaxis()->GetXmax() ) Res_pT_vs_lowpT->Fill(pt,respt,weight);
+    if ( pt > Res_pT_vs_highpT->GetXaxis()->GetXmin() ) Res_pT_vs_highpT->Fill(pt,respt,weight);
       
-    Res_pT_vs_pT->Fill(pt,respt);
-    Res_pT_vs_eta->Fill(eta,respt);
-    Res_pT_vs_phi->Fill(phi,respt);
+    Res_pT_vs_pT->Fill(pt,respt,weight);
+    Res_pT_vs_eta->Fill(eta,respt,weight);
+    Res_pT_vs_phi->Fill(phi,respt,weight);
 
-    Res_eta_vs_pT->Fill(pt, muPrimaryTrk.eta()-eta);
-    Res_phi_vs_pT->Fill(pt, muPrimaryTrk.phi()-phi);
+    Res_eta_vs_pT->Fill(pt, muPrimaryTrk.eta()-eta,weight);
+    Res_phi_vs_pT->Fill(pt, muPrimaryTrk.phi()-phi, weight);
   }
 }
 

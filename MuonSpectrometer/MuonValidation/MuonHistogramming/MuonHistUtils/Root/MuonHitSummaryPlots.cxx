@@ -57,36 +57,36 @@ etaphiHoles(this, "etaphiHoles", "eta+phi holes", 0, 5)
 {  }	
 
  
-void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
+  void MuonHitSummaryPlots::fill(const xAOD::Muon& muon, float weight){
 
   const xAOD::TrackParticle *tp = (muon.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon)? muon.trackParticle(xAOD::Muon::CombinedTrackParticle) : muon.trackParticle(xAOD::Muon::Primary);
   if (tp) m_oMSHitPlots.fill(*tp);
   
-  fillPlot(innerSmallHits, xAOD::innerSmallHits, muon);
-  fillPlot(innerLargeHits, xAOD::innerLargeHits, muon);
-  fillPlot(middleSmallHits, xAOD::middleSmallHits, muon);
-  fillPlot(middleLargeHits, xAOD::middleLargeHits, muon);
-  fillPlot(outerSmallHits, xAOD::outerSmallHits, muon);
-  fillPlot(outerLargeHits, xAOD::outerLargeHits, muon);
-  fillPlot(extendedSmallHits, xAOD::extendedSmallHits, muon);
-  fillPlot(extendedLargeHits, xAOD::extendedLargeHits, muon);
-  fillPlot(phiLayer1Hits, xAOD::phiLayer1Hits, muon);
-  fillPlot(phiLayer2Hits, xAOD::phiLayer2Hits, muon);
-  fillPlot(phiLayer3Hits, xAOD::phiLayer3Hits, muon);
-  fillPlot(phiLayer4Hits, xAOD::phiLayer4Hits, muon);
-  fillPlot(etaLayer1Hits, xAOD::etaLayer1Hits, muon);
-  fillPlot(etaLayer2Hits, xAOD::etaLayer2Hits, muon);
-  fillPlot(etaLayer3Hits, xAOD::etaLayer3Hits, muon);
-  fillPlot(etaLayer4Hits, xAOD::etaLayer4Hits, muon);
+  fillPlot(innerSmallHits, xAOD::innerSmallHits, muon, weight);
+  fillPlot(innerLargeHits, xAOD::innerLargeHits, muon, weight);
+  fillPlot(middleSmallHits, xAOD::middleSmallHits, muon, weight);
+  fillPlot(middleLargeHits, xAOD::middleLargeHits, muon, weight);
+  fillPlot(outerSmallHits, xAOD::outerSmallHits, muon, weight);
+  fillPlot(outerLargeHits, xAOD::outerLargeHits, muon, weight);
+  fillPlot(extendedSmallHits, xAOD::extendedSmallHits, muon, weight);
+  fillPlot(extendedLargeHits, xAOD::extendedLargeHits, muon, weight);
+  fillPlot(phiLayer1Hits, xAOD::phiLayer1Hits, muon, weight);
+  fillPlot(phiLayer2Hits, xAOD::phiLayer2Hits, muon, weight);
+  fillPlot(phiLayer3Hits, xAOD::phiLayer3Hits, muon, weight);
+  fillPlot(phiLayer4Hits, xAOD::phiLayer4Hits, muon, weight);
+  fillPlot(etaLayer1Hits, xAOD::etaLayer1Hits, muon, weight);
+  fillPlot(etaLayer2Hits, xAOD::etaLayer2Hits, muon, weight);
+  fillPlot(etaLayer3Hits, xAOD::etaLayer3Hits, muon, weight);
+  fillPlot(etaLayer4Hits, xAOD::etaLayer4Hits, muon, weight);
 
-  fillPlot(innerSmallHoles, xAOD::innerSmallHoles, muon);
-  fillPlot(innerLargeHoles, xAOD::innerLargeHoles, muon);
-  fillPlot(middleSmallHoles, xAOD::middleSmallHoles, muon);
-  fillPlot(middleLargeHoles, xAOD::middleLargeHoles, muon);
-  fillPlot(outerSmallHoles, xAOD::outerSmallHoles, muon);
-  fillPlot(outerLargeHoles, xAOD::outerLargeHoles, muon);
-  fillPlot(extendedSmallHoles, xAOD::extendedSmallHoles, muon);
-  fillPlot(extendedLargeHoles, xAOD::extendedLargeHoles, muon);
+  fillPlot(innerSmallHoles, xAOD::innerSmallHoles, muon, weight);
+  fillPlot(innerLargeHoles, xAOD::innerLargeHoles, muon, weight);
+  fillPlot(middleSmallHoles, xAOD::middleSmallHoles, muon, weight);
+  fillPlot(middleLargeHoles, xAOD::middleLargeHoles, muon, weight);
+  fillPlot(outerSmallHoles, xAOD::outerSmallHoles, muon, weight);
+  fillPlot(outerLargeHoles, xAOD::outerLargeHoles, muon, weight);
+  fillPlot(extendedSmallHoles, xAOD::extendedSmallHoles, muon, weight);
+  fillPlot(extendedLargeHoles, xAOD::extendedLargeHoles, muon, weight);
 
   int netaholes=0, nphiholes=0;
   uint8_t hitval = 0;
@@ -100,9 +100,9 @@ void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
   if (muon.summaryValue(hitval,xAOD::phiLayer3Holes)) nphiholes+=(int)hitval;
   if (muon.summaryValue(hitval,xAOD::phiLayer4Holes)) nphiholes+=(int)hitval;
 
-  etaHoles.fill(netaholes, muon.eta(), muon.phi());
-  phiHoles.fill(nphiholes, muon.eta(), muon.phi());
-  etaphiHoles.fill(netaholes+nphiholes, muon.eta(), muon.phi());    
+  etaHoles.fill(netaholes, muon.eta(), muon.phi(), weight);
+  phiHoles.fill(nphiholes, muon.eta(), muon.phi(), weight);
+  etaphiHoles.fill(netaholes+nphiholes, muon.eta(), muon.phi(), weight);    
 
   // fillPlot(phiLayer1Holes, xAOD::phiLayer1Holes, muon);
   // fillPlot(phiLayer2Holes, xAOD::phiLayer2Holes, muon);
@@ -115,37 +115,37 @@ void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
 
 }
 
-void MuonHitSummaryPlots::fill(const xAOD::TruthParticle& truthprt){
+  void MuonHitSummaryPlots::fill(const xAOD::TruthParticle& truthprt, float weight){
 
   m_oMSHitPlots.fill(truthprt);
   
-  fillPlot(innerSmallHits, "innerSmallHits", truthprt);
-  fillPlot(innerLargeHits, "innerLargeHits", truthprt);
-  fillPlot(middleSmallHits, "middleSmallHits", truthprt);
-  fillPlot(middleLargeHits, "middleLargeHits", truthprt);
-  fillPlot(outerSmallHits, "outerSmallHits", truthprt);
-  fillPlot(outerLargeHits, "outerLargeHits", truthprt);
-  fillPlot(extendedSmallHits, "extendedSmallHits", truthprt);
-  fillPlot(extendedLargeHits, "extendedLargeHits", truthprt);
-  fillPlot(phiLayer1Hits, "phiLayer1Hits", truthprt);
-  fillPlot(phiLayer2Hits, "phiLayer2Hits", truthprt);
-  fillPlot(phiLayer3Hits, "phiLayer3Hits", truthprt);
-  fillPlot(phiLayer4Hits, "phiLayer4Hits", truthprt);
-  fillPlot(etaLayer1Hits, "etaLayer1Hits", truthprt);
-  fillPlot(etaLayer2Hits, "etaLayer2Hits", truthprt);
-  fillPlot(etaLayer3Hits, "etaLayer3Hits", truthprt);
-  fillPlot(etaLayer4Hits, "etaLayer4Hits", truthprt);
+  fillPlot(innerSmallHits, "innerSmallHits", truthprt, weight);
+  fillPlot(innerLargeHits, "innerLargeHits", truthprt, weight);
+  fillPlot(middleSmallHits, "middleSmallHits", truthprt, weight);
+  fillPlot(middleLargeHits, "middleLargeHits", truthprt, weight);
+  fillPlot(outerSmallHits, "outerSmallHits", truthprt, weight);
+  fillPlot(outerLargeHits, "outerLargeHits", truthprt, weight);
+  fillPlot(extendedSmallHits, "extendedSmallHits", truthprt, weight);
+  fillPlot(extendedLargeHits, "extendedLargeHits", truthprt, weight);
+  fillPlot(phiLayer1Hits, "phiLayer1Hits", truthprt, weight);
+  fillPlot(phiLayer2Hits, "phiLayer2Hits", truthprt, weight);
+  fillPlot(phiLayer3Hits, "phiLayer3Hits", truthprt, weight);
+  fillPlot(phiLayer4Hits, "phiLayer4Hits", truthprt, weight);
+  fillPlot(etaLayer1Hits, "etaLayer1Hits", truthprt, weight);
+  fillPlot(etaLayer2Hits, "etaLayer2Hits", truthprt, weight);
+  fillPlot(etaLayer3Hits, "etaLayer3Hits", truthprt, weight);
+  fillPlot(etaLayer4Hits, "etaLayer4Hits", truthprt, weight);
 }
 
-void MuonHitSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon){
+  void MuonHitSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon, float weight){
   uint8_t hitval = 0;
   if (!muon.summaryValue(hitval,info)) return;
-  hitPlots.fill(hitval, muon.eta(), muon.phi());
+  hitPlots.fill(hitval, muon.eta(), muon.phi(),weight);
 }
 
-void MuonHitSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, const std::string& sInfo, const xAOD::TruthParticle& truthprt){
+  void MuonHitSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, const std::string& sInfo, const xAOD::TruthParticle& truthprt, float weight){
   if (!truthprt.isAvailable<uint8_t>(sInfo)) return;
-  hitPlots.fill(truthprt.auxdata<uint8_t>(sInfo), truthprt.eta(), truthprt.phi());
+  hitPlots.fill(truthprt.auxdata<uint8_t>(sInfo), truthprt.eta(), truthprt.phi(), weight);
 }
 
 
