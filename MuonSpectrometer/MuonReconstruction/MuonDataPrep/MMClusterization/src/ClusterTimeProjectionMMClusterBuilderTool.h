@@ -43,10 +43,10 @@ class ClusterTimeProjectionMMClusterBuilderTool :
                             std::vector<std::vector<uint>> &idxClusters) const;
 
 
-    StatusCode getClusterPosition(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
-                               const std::vector<uint> &idxCluster,
-                               double &clustersPosition,
-                               double &clustersPositionErrorSq) const;
+    StatusCode getClusterPositionPRD(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
+				     const std::vector<uint> &idxCluster,
+				     double &clustersPosition,
+				     double &clustersPositionErrorSq) const;
 
     StatusCode writeClusterPrd(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
                                const std::vector<uint> &idxCluster,

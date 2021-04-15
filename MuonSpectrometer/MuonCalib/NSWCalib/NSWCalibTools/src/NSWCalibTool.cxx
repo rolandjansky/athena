@@ -73,8 +73,8 @@ StatusCode Muon::NSWCalibTool::initialize()
   ATH_MSG_DEBUG("In initialize()");
   ATH_CHECK(m_idHelperSvc.retrieve());
   if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
-    ATH_MSG_ERROR("MM or STGC not part of initialized detector layout");
-    return StatusCode::FAILURE;
+    ATH_MSG_INFO("MM or STGC not part of initialized detector layout, skipping initialization");
+    return StatusCode::SUCCESS;
   }
   ATH_CHECK(m_fieldCondObjInputKey.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
@@ -231,7 +231,9 @@ int Muon::NSWCalibTool::chargeToPdo(const float charge, const Identifier& stripI
 StatusCode Muon::NSWCalibTool::finalize()
 {
   ATH_MSG_DEBUG("In finalize()");
-  m_lorentzAngleFunction->Delete();
+  if ( m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) {
+    m_lorentzAngleFunction->Delete();
+  }
   return StatusCode::SUCCESS;
 }
 

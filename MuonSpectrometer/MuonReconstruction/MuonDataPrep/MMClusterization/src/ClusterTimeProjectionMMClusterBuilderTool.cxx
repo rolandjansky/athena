@@ -40,8 +40,8 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusters(
         if (sc.isFailure()) continue;
         for (uint i_cluster = 0; i_cluster < idxClusters.size(); i_cluster++) {
             double clusterPosition, clusterPositionErrorSq;
-            sc = getClusterPosition(prdsOfLayer, idxClusters.at(i_cluster),
-                                    clusterPosition, clusterPositionErrorSq);
+            sc = getClusterPositionPRD(prdsOfLayer, idxClusters.at(i_cluster),
+				       clusterPosition, clusterPositionErrorSq);
             if (sc.isFailure()) continue;
             sc = writeClusterPrd(prdsOfLayer, idxClusters.at(i_cluster),
                                  clusterPosition, clusterPositionErrorSq, clustersVec);
@@ -111,12 +111,12 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::clusterLayer(
     return StatusCode::SUCCESS;
 }  // end of cluster layer
 
-StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPosition(
-                const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
-                const std::vector<uint> &idxCluster, double &clusterPosition,
-                double &clusterPositionErrorSq) const {
-    if (idxCluster.empty()) return StatusCode::FAILURE;
-    double qtot = 0;
+StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPositionPRD(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
+										  const std::vector<uint> &idxCluster, 
+										  double &clusterPosition,
+										  double &clusterPositionErrorSq) const {
+  if (idxCluster.empty()) return StatusCode::FAILURE;
+  double qtot = 0;
     double meanTheta = 0;
     double meanDriftDist = 0;
     double meanDriftDistError = 0;
