@@ -346,6 +346,7 @@ class MuonThreshold( Threshold ):
         self.ecIdx = None
         self.fwIdx = None
         self.tgcFlags = ""
+        self.rpcFlags = ""
         self.region = "ALL"
         self.rpcExclROIList = None
 
@@ -365,6 +366,12 @@ class MuonThreshold( Threshold ):
         """flags can be a logical expression like 'F & C | F & H | C & H'"""
         self.tgcFlags = flags
         return self
+
+    def setRPCFlags(self, flags):
+        """flags can be a logical expression like 'M'"""
+        self.rpcFlags = flags
+        return self
+
 
     def setExclusionList(self, exclusionList):
         self.rpcExclROIList = exclusionList
@@ -428,6 +435,7 @@ class MuonThreshold( Threshold ):
             confObj["ecIdx"] = self.ecIdx
             confObj["fwIdx"] = self.fwIdx
             confObj["tgcFlags"] = self.tgcFlags
+            confObj["rpcFlags"] = self.rpcFlags
             confObj["region"] = self.region
             if self.rpcExclROIList:
                 confObj["rpcExclROIList"] = self.rpcExclROIList

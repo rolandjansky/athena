@@ -73,6 +73,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThr["fwIdx"] = muThr.idxForward();
             jThr["region"] = muThr.region();
             jThr["tgcFlags"] = muThr.tgcFlags();
+            jThr["rpcFlags"] = muThr.rpcFlags();
             if(const std::string & roiExcl = muThr.rpcExclROIList(); !roiExcl.empty()) {
                jThr["rpcExclROIList"] = roiExcl;
             }
