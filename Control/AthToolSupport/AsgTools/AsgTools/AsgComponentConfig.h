@@ -270,7 +270,7 @@ namespace asg
 
     /// \brief the map of (private) tool handle arrays to manage, and
     /// the tools they contain
-    std::map<std::string,std::vector<decltype(m_privateTools.cbegin())>> m_toolArrays;
+    std::map<std::string,std::vector<std::string>> m_toolArrays;
 
     /// \brief the map of property values
     std::map<std::string,std::string> m_propertyValues;

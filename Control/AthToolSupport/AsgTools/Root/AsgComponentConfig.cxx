@@ -185,8 +185,8 @@ namespace asg
       auto& arrayData = m_toolArrays[name];
       auto myname = makeArrayName (name, arrayData.size());
       toolConfig.setName (myname);
-      auto emplace_result = m_privateTools.emplace (myname, std::make_tuple (std::move (toolConfig), name));
-      arrayData.push_back (emplace_result.first);
+      m_privateTools.emplace (myname, std::make_tuple (std::move (toolConfig), name));
+      arrayData.push_back (myname);
       return myname;
     } else
     {
@@ -313,7 +313,7 @@ namespace asg
     {
       std::vector<std::string> valueArray;
       for (const auto& tool : toolArray.second)
-        valueArray.emplace_back (component->name() + "." + tool->first);
+        valueArray.emplace_back (component->name() + "." + tool);
       std::string valueString;
       ANA_CHECK (asg::detail::GetCastStringHelper<std::vector<std::string>>::get (valueArray, valueString));
       ANA_CHECK (component->setProperty (toolArray.first, valueString));
@@ -359,7 +359,10 @@ namespace asg
     {
       std::vector<std::string> valueArray;
       for (const auto& tool : toolArray.second)
-        valueArray.push_back (std::get<0>(tool->second).typeAndName());
+      {
+        auto toolConfig = m_privateTools.find (tool);
+        valueArray.push_back (std::get<0>(toolConfig->second).typeAndName());
+      }
       std::string valueString = Gaudi::Utils::toString (valueArray);
       std::string propertyPath = prefix + m_name + "." + toolArray.first;
       joSvc->set (propertyPath, valueString);
