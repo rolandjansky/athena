@@ -14,34 +14,34 @@ namespace Trk {
   }
 
   void
-  MSHitPlots::fill(const xAOD::TrackParticle &trkprt) {
-    fillPlot(nprecLayers, xAOD::numberOfPrecisionLayers, trkprt);
-    fillPlot(nphiLayers, xAOD::numberOfPhiLayers, trkprt);
-    fillPlot(ntrigEtaLayers, xAOD::numberOfTriggerEtaLayers, trkprt);
+  MSHitPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
+    fillPlot(nprecLayers, xAOD::numberOfPrecisionLayers, trkprt, weight);
+    fillPlot(nphiLayers, xAOD::numberOfPhiLayers, trkprt, weight);
+    fillPlot(ntrigEtaLayers, xAOD::numberOfTriggerEtaLayers, trkprt, weight);
   }
 
   void
-  MSHitPlots::fill(const xAOD::TruthParticle &truthprt) {
-    fillPlot(nprecLayers, "nprecLayers", truthprt);
-    fillPlot(nphiLayers, "nphiLayers", truthprt);
-    fillPlot(ntrigEtaLayers, "ntrigEtaLayers", truthprt);
+  MSHitPlots::fill(const xAOD::TruthParticle &truthprt,float weight) {
+    fillPlot(nprecLayers, "nprecLayers", truthprt, weight);
+    fillPlot(nphiLayers, "nphiLayers", truthprt, weight);
+    fillPlot(ntrigEtaLayers, "ntrigEtaLayers", truthprt, weight);
   }
 
   void
-  MSHitPlots::fillPlot(HitTypePlots &hitPlots, xAOD::SummaryType info, const xAOD::TrackParticle &trkprt) {
+  MSHitPlots::fillPlot(HitTypePlots &hitPlots, xAOD::SummaryType info, const xAOD::TrackParticle &trkprt, float weight) {
     uint8_t hitval = 0;
 
     if (!trkprt.summaryValue(hitval, info)) {
       return;
     }
-    hitPlots.fill(hitval, trkprt.eta(), trkprt.phi());
+    hitPlots.fill(hitval, trkprt.eta(), trkprt.phi(), weight);
   }
 
   void
-  MSHitPlots::fillPlot(HitTypePlots &hitPlots, const std::string &sInfo, const xAOD::TruthParticle &truthprt) {
+  MSHitPlots::fillPlot(HitTypePlots &hitPlots, const std::string &sInfo, const xAOD::TruthParticle &truthprt, float weight) {
     if (!truthprt.isAvailable<uint8_t>(sInfo)) {
       return;
     }
-    hitPlots.fill(truthprt.auxdata<uint8_t>(sInfo), truthprt.eta(), truthprt.phi());
+    hitPlots.fill(truthprt.auxdata<uint8_t>(sInfo), truthprt.eta(), truthprt.phi(), weight);
   }
 }

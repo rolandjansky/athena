@@ -15,7 +15,7 @@ class BetaPlots: public PlotBase {
  public:
   BetaPlots(PlotBase *pParent, std::string sDir, std::string sDetType);
 
-  void fill(const xAOD::SlowMuon& smu);
+  void fill(const xAOD::SlowMuon& smu, float weight=1.0);
   
   TH1* nHits;
   TH1* avg;
@@ -35,7 +35,7 @@ class SlowMuonParamPlots: public PlotBase {
   public:
     SlowMuonParamPlots(PlotBase *pParent, std::string sDir);
 
-    void fill(const xAOD::SlowMuon& smu);
+    void fill(const xAOD::SlowMuon& smu, float weight=1.0);
 
     TH1* beta;
     BetaPlots mdtBeta;

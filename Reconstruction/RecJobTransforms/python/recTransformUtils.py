@@ -154,7 +154,7 @@ def detectRAWtoALL(argv):
     # Note if we have steering and it does _not_ contain doRAWtoALL we
     # return false, as CLI overrides JSON and AMI
     if "steering" in args:
-        if "doRAWtoALL" in args["steering"]:
+        if "doRAWtoALL" in args["steering"] or "doTRIGtoALL" in args["steering"]:
             return True
         else:
             return False
@@ -167,7 +167,7 @@ def detectRAWtoALL(argv):
         jsonParams = json.load(argfile)
         jsonParams = convertToStr(jsonParams)
         if "steering" in jsonParams:
-            if "doRAWtoALL" in jsonParams["steering"]:
+            if "doRAWtoALL" in jsonParams["steering"] or "doTRIGtoALL" in jsonParams["steering"]:
                 return True
             else:
                 return False
@@ -175,7 +175,7 @@ def detectRAWtoALL(argv):
     if "AMIConfig" in args:
         from PyJobTransforms.trfAMI import TagInfo
         tag=dict(TagInfo(args['AMIConfig']).trfs[0])
-        if "steering" in tag and "doRAWtoALL" in tag["steering"]:
+        if "steering" in tag and ("doRAWtoALL" in tag["steering"] or "doTRIGtoALL" in tag["steering"]):
             return True
         
     return False

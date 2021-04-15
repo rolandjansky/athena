@@ -20,13 +20,14 @@ namespace MuonCalib {
         /** constructor*/
         CalibrationTeeIOTool(const std::string &t, const std::string &n, const IInterface *p);
         /** initialize function */
-        StatusCode initialize();
+        StatusCode initialize() override;
         /** interface functions */
-        StatusCode WriteT0(MdtTubeFitContainer *t0_output, const NtupleStationId &station_id, int iov_start, int iov_end);
-        StatusCode WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution *resolution, const NtupleStationId &station_id,
-                           int iov_start, int iov_end, bool real_rt, bool real_resolution);
-        StatusCode LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int iov_id);
-        StatusCode LoadRt(std::map<NtupleStationId, IRtRelation *> &rts, std::map<NtupleStationId, IRtResolution *> &res, int iov_id);
+        StatusCode WriteT0(MdtTubeFitContainer *t0_output, const NtupleStationId &station_id, int iov_start, int iov_end) override;
+        StatusCode WriteRt(const RtCalibrationOutput *rt_relation, std::shared_ptr<const IRtResolution> resolution,
+                           const NtupleStationId &station_id, int iov_start, int iov_end, bool real_rt, bool real_resolution) override;
+        StatusCode LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int iov_id) override;
+        StatusCode LoadRt(std::map<NtupleStationId, IRtRelation *> &rts, std::map<NtupleStationId, IRtResolution *> &res,
+                          int iov_id) override;
 
     private:
         //! two calibration IO Tools

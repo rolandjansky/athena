@@ -241,14 +241,13 @@ const Trk::TrackParameters*
 MuTagMatchingTool::ExtrapolateTrktoMSSurface(const Trk::Surface* pSurface, const Trk::TrackParameters* pTrack,
                                              Trk::PropDirection direction) const
 {
-    if (pSurface == 0) return 0;
-    if (pTrack == 0) return 0;
-
+    if (!pSurface || !pTrack) return nullptr;
+  
     const Trk::TrackParameters* exTrk = p_IExtrapolator->extrapolate(*pTrack, *pSurface, direction, false, Trk::muon);
     if (!exTrk) {
         ATH_MSG_DEBUG(" didn't manage to extrapolate TrackParameters to abstract surface Radius "
                       << pSurface->center().perp() << " Z " << pSurface->center().z());
-        return 0;
+        return nullptr;
     }
     return exTrk;
 }
@@ -271,7 +270,7 @@ MuTagMatchingTool::flipDirection(const Trk::Perigee* inputPars) const
         return new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perSurf, covMat);
     } else {
         ATH_MSG_DEBUG("flipDirection: no covariance associated to input parameters " << *inputPars);
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -280,10 +279,9 @@ const Trk::AtaPlane*
 MuTagMatchingTool::ExtrapolateTrktoSegmentSurface(const Muon::MuonSegment* segment, const Trk::TrackParameters* pTrack,
                                                   Trk::PropDirection direction) const
 {
-    if (segment == 0) return 0;
-    if (pTrack == 0) return 0;
+    if (!segment || !pTrack) return nullptr;
 
-    const Trk::AtaPlane* matap = 0;
+    const Trk::AtaPlane* matap = nullptr;
 
     bool         isCsc(isCscSegment(segment));
     unsigned int hits(cscHits(segment));
@@ -560,7 +558,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     if (!pSurface) return;
     if (!pTrack) return;
     const Trk::Perigee* oriPerigee = pTrack->perigeeParameters();
-    if (oriPerigee == 0) {
+    if (!oriPerigee) {
         ATH_MSG_DEBUG("Couldn't get the measured Perigee from TP");
         return;
     }
@@ -914,10 +912,13 @@ MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSeg
     info.pullChamber = maxResXMdt / info.exErrorX;
 
     //  Scale covariance Matrix (if needed)
-
-    double a   = info.exErrorY * info.exErrorY;
-    double b   = info.exCovYZY;
-    double d   = info.exErrorYZ * info.exErrorYZ;
+    /// The cut off variable is used to avoid FPEs risen where
+    /// one of the matrix enties exceeds a large number and hence 
+    /// the determinant becomes tremendously larger
+    constexpr double matrix_cutoff = 1.e20;
+    double a   = std::pow(std::min(matrix_cutoff,info.exErrorY), 2);
+    double b   = std::abs(info.exCovYZY) < matrix_cutoff ?info.exCovYZY : ( info.exCovYZY < 0 ? -1. : 1) * matrix_cutoff;
+    double d   = std::pow(std::min(matrix_cutoff,info.exErrorYZ), 2);
     double det = a * d - b * b;
 
     double scale = 1.;

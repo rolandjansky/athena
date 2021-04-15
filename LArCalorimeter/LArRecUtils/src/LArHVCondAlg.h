@@ -52,13 +52,12 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 {
  
   public: 
-
-  LArHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   virtual ~LArHVCondAlg() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   StatusCode execute(const EventContext& ctx) const override;
 
 
@@ -82,11 +81,13 @@ private:
   SG::WriteCondHandleKey<LArHVCorr> m_outputHVScaleCorrKey{this, "keyOutputCorr", "LArHVScaleCorrRecomputed","Output key for LArHVScaleCorr"};
 
   //Other properties:
-  
+  Gaudi::Property<bool> m_doHV{this,"doHV",true,"create HV Scale Correction"};
+  Gaudi::Property<bool> m_doRProp{this,"doR",true,"Use R values with current to improve HV"};
   Gaudi::Property<bool> m_undoOnlineHVCorr{this,"UndoOnlineHVCorr",true,"Undo the HVCorr done online"};
   Gaudi::Property<bool> m_useCurrentEMB{this,"UseCurrentsInHVEM",false,"Use currents in EMB as well"};
   Gaudi::Property<bool> m_useCurrentFCAL1{this,"UseCurrentsInHVFCAL1",false,"Use currents in FCAL1 as well"};
   Gaudi::Property<bool> m_useCurrentOthers{this,"UseCurrentsInHVOthers", "Use currents in other partitions as well"};
+  bool m_doR = true; //will be set depending on the above properties
 
   Gaudi::Property<bool> m_doAffected{this,"doAffected",true,"create affected region info"};
   Gaudi::Property<bool> m_doAffectedHV{this,"doAffectedHV",true,"include HV non nominal regions info"};
@@ -106,10 +107,6 @@ private:
 
   std::unique_ptr<const LArHVScaleCorrTool> m_scaleTool;
 
-  bool m_doHV;
-  bool m_doR = true;
-  bool m_doRProp;
-
   //Internal representation of voltage & current per HV-Line (read for DCS)
   struct DCS_t {
     DCS_t(float ihv, float icurr) : hv(ihv),curr(icurr) {};
@@ -119,7 +116,8 @@ private:
   };
   typedef std::unordered_map<unsigned,DCS_t> voltagePerLine_t;
 
-  // //Internal representation of voltage & current per cell: 
+  // Internal representation of voltage & current per cell,
+  // definded in LArHVScaleCorrTool
   // struct HV_t {
   //   HV_t(float ihv, float iweight) : hv(ihv), weight(iweight) {};
   //   float hv; //voltage, potentially current*R corrected

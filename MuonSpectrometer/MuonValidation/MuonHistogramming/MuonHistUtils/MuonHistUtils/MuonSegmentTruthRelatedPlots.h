@@ -18,7 +18,7 @@ class MuonSegmentTruthRelatedPlots:public PlotBase {
       MuonSegmentTruthRelatedPlots(PlotBase* pParent, std::string sDir);
       ~MuonSegmentTruthRelatedPlots();
 
-      void fill(const xAOD::MuonSegment& muonSeg,const xAOD::MuonSegment& truthMuonSeg);
+      void fill(const xAOD::MuonSegment& muonSeg,const xAOD::MuonSegment& truthMuonSeg,float weight=1.0);
 
       //hit difference plots
       Trk::HitTypePlots nPrecisionHits;

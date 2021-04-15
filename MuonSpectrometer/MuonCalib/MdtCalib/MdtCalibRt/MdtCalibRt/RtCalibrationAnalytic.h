@@ -1,29 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 06.04.2006, AUTHOR: OLIVER KORTNER
-// Modified: 02.07.2006 by O. Kortner, redesign to simplified optimization.
-//           16.07.2006 by O. Kortner, optimized quality cuts.
-//           17.07.2006 by O. Kortner, compatibility with old event loop.
-//           13.12.2006 by O. Kortner and J. von Loeben, new convergence
-//                                                       criterion.
-//           27.03.2007 by O. Kortner, control histograms are written to file
-//                                     when they are switched off again.
-//           06.08.2007 by O. Kortner, option to force r(t) to be monotonically
-//                                     increasing
-//           29.10.2007 by O. Kortner, avoid double analysis in case of full
-//                                     chamber track fits.
-//           30.06.2008 by O. Kortner, m_r_max settings corrected, better hit
-//                                     selection.
-//           03.08.2008 by O. Kortner, r-t smoothing using the conventional
-//                                     autocalibration method is implemented.
-//           28.02.2009 by O. Kortner, parabolic extrapolation added.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#ifndef RtCalibrationAnalyticH
-#define RtCalibrationAnalyticH
+#ifndef RtCalibrationAnalytic__H
+#define RtCalibrationAnalytic__H
 
 //:::::::::::::::::::::::::::::::::
 //:: CLASS RtCalibrationAnalytic ::
@@ -48,14 +27,10 @@ namespace MuonCalib {
 
 }  // namespace MuonCalib
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 // STL //
+#include <memory>
 #include <string>
 #include <vector>
-
 // CLHEP //
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Vector.h"
@@ -84,7 +59,7 @@ namespace MuonCalib {
     class RtCalibrationAnalytic : public IMdtCalibration {
     public:
         // Constructors //
-        RtCalibrationAnalytic(std::string name) : IMdtCalibration(name) {
+        RtCalibrationAnalytic(const std::string &name) : IMdtCalibration(name) {
             init(0.5 * CLHEP::mm, 1, 5, true, true, true, true, 100, false, false);
         }
         ///< Default constructor: r-t accuracy is set to 0.5 mm.
@@ -97,7 +72,7 @@ namespace MuonCalib {
         ///< relating the errors in r(t) to the residuals is used.
         ///< By default no smoothing is applied after convergence.
 
-        RtCalibrationAnalytic(std::string name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
+        RtCalibrationAnalytic(const std::string &name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
                               const bool &split, const bool &full_matrix, const bool &fix_min, const bool &fix_max, const int &max_it,
                               bool do_smoothing = false, bool do_parabolic_extrapolation = false);
         ///< Constructor: r-t accuracy is set to rt_accuracy (unit: CLHEP::mm).
@@ -122,16 +97,16 @@ namespace MuonCalib {
         ///< small and larged drift radii.
 
         // Desctructor //
-        ~RtCalibrationAnalytic(void);
+        ~RtCalibrationAnalytic();
 
         // Methods //
         // get-methods //
-        double reliability(void) const;
+        double reliability() const;
         ///< get the reliability of the r-t:
         ///< 0: no convergence yet
         ///< 1: convergence, r-t is reliable
         ///< 2: convergence, r-t is unreliable
-        double estimatedRtAccuracy(void) const;
+        double estimatedRtAccuracy() const;
         ///< get the estimated r-t quality (CLHEP::mm),
         ///< the accuracy of the input r-t is
         ///< computed at the end of the
@@ -139,29 +114,29 @@ namespace MuonCalib {
         ///< accuracy of the final r-t, the
         ///< algorithm has to be rerun with the
         ///< final r-t as an input
-        int numberOfSegments(void) const;
+        int numberOfSegments() const;
         ///< get the number of segments which
         ///< were passed to the algorithm
-        int numberOfSegmentsUsed(void) const;
+        int numberOfSegmentsUsed() const;
         ///< get the number of segments which
         ///< are used in the autocalibration
-        int iteration(void) const;
+        int iteration() const;
         ///< get the number of the current
         ///< iteration
-        bool splitIntoMultilayers(void) const;
+        bool splitIntoMultilayers() const;
         ///< returns true, if segments are
         ///< internally restricted to single
         ///< multilayers;
         ///< returns false, if segments may
         ///< contain hits from both multilayers
-        bool fullMatrix(void) const;
+        bool fullMatrix() const;
         ///< returns true, if the full matrix
         ///< relating the errors in the r-t
         ///< relationship to the residuals
         ///< should be used;
         ///< returns false, if the unit matrix
         ///< is used
-        bool smoothing(void) const;
+        bool smoothing() const;
         ///< returns true, if the r-t relationship
         ///< will be smoothened using the
         ///< conventional autocalibration after
@@ -192,28 +167,28 @@ namespace MuonCalib {
         ///< histograms from the algorithms;
         ///< the algorithm will write them to
         ///< ROOT file called "file_name"
-        void switch_off_control_histograms(void);
+        void switch_off_control_histograms();
         ///< the algorithm does not produce
         ///< controll histograms (this is the
         ///< default)
-        void forceMonotony(void);
+        void forceMonotony();
         ///< force r(t) to be monotonically
         ///< increasing
-        void doNotForceMonotony(void);
+        void doNotForceMonotony();
         ///< do not force r(t) to be
         ///< monotonically increasing
-        void doSmoothing(void);
+        void doSmoothing();
         ///< requires that the r-t relationship
         ///< will be smoothened using the
         ///< conventional autocalibration after
         ///< convergence
-        void noSmoothing(void);
+        void noSmoothing();
         ///< do not smoothen the r-t relationship
         ///< after convergence
-        void doParabolicExtrapolation(void);
+        void doParabolicExtrapolation();
         ///< requires that parabolic extrapolation
         ///< will be used for small and large radii
-        void noParabolicExtrapolation(void);
+        void noParabolicExtrapolation();
         ///< no parabolic extrapolation is done
 
         // methods required by the base class "IMdtCalibration" //
@@ -230,13 +205,13 @@ namespace MuonCalib {
         ///< set the r-t relationship,
         ///< the internal autocalibration
         ///< objects are reset
-        bool analyse(void);
+        bool analyse();
         ///< perform the autocalibration with
         ///< the segments acquired so far
-        bool converged(void) const;
+        bool converged() const;
         ///< returns true, if the
         ///< autocalibration has converged
-        const IMdtCalibrationOutput *getResults(void) const;
+        const IMdtCalibrationOutput *getResults() const;
         ///< returns the final r-t relationship
 
     private:
@@ -284,14 +259,14 @@ namespace MuonCalib {
                         // pervious iteration, the algorithm has converged
 
         // r-t relationship //
-        const IRtRelation *m_rt;  // pointer to the input r-t relationship
-        double m_t_length;        // size of the drift time interval
-        double m_t_mean;          // mean value of the drift time interval
+        std::shared_ptr<const IRtRelation> m_rt;  // pointer to the input r-t relationship
+        double m_t_length;                        // size of the drift time interval
+        double m_t_mean;                          // mean value of the drift time interval
 
         // r-t output //
-        IRtRelation *m_rt_new;          // r-t as determined by the autocalibration
-        RtCalibrationOutput *m_output;  // class holding the results of the
-                                        // autocalibration
+        std::shared_ptr<IRtRelation> m_rt_new;          // r-t as determined by the autocalibration
+        std::unique_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
+                                                        // autocalibration
 
         // straight-segment fitting //
         double m_r_max;                             // maximum value for accepted drift radii
@@ -319,14 +294,14 @@ namespace MuonCalib {
         CLHEP::HepVector m_b;               // m_A*m_alpha = m_b (final autocalibration equation)
 
         // Legendre polynomial //
-        BaseFunction *m_base_function;  // pointer to the base function u
+        std::unique_ptr<BaseFunction> m_base_function;  // pointer to the base function u
 
         // control histograms //
-        TFile *m_tfile;           // ROOT file
-        TH1F *m_cut_evolution;    // cut evolution histogram
-        TH1F *m_nb_segment_hits;  // number of hits on the segments
-        TH1F *m_CL;               // confidence level distribution of the selected segments
-        TH2F *m_residuals;        // residual distribution
+        std::unique_ptr<TFile> m_tfile;           // ROOT file
+        std::unique_ptr<TH1F> m_cut_evolution;    // cut evolution histogram
+        std::unique_ptr<TH1F> m_nb_segment_hits;  // number of hits on the segments
+        std::unique_ptr<TH1F> m_CL;               // confidence level distribution of the selected segments
+        std::unique_ptr<TH2F> m_residuals;        // residual distribution
 
         // private methods //
         void init(const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord, const bool &split,
@@ -361,7 +336,7 @@ namespace MuonCalib {
 
         void display_segment(MuonCalibSegment *segment, std::ofstream &outfile);
 
-        RtRelationLookUp *performParabolicExtrapolation(const bool &min, const bool &max, const IRtRelation &in_rt);
+        std::shared_ptr<RtRelationLookUp> performParabolicExtrapolation(const bool &min, const bool &max, const IRtRelation &in_rt);
         // use parabolic extrapolations on the given r-t
         // relationship in_rt;
         // min: if true, use parabolic extrapolation towards

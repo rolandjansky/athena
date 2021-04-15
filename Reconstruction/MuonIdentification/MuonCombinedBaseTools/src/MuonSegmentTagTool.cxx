@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "AthLinks/ElementLink.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MSSurfaces.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
@@ -30,7 +31,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentContainer.h"
-
 namespace MuonCombined {
 
     MuonSegmentTagTool::MuonSegmentTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -245,7 +245,7 @@ namespace MuonCombined {
                     if (phiSeg < phiID) dPhi = -dPhi;
                     double dTheta = thetaSeg - thetaID;
 
-                    if (fabs(dPhi) < 0.6 && qID * dTheta < 0.2 && qID * dTheta > -0.6) {
+                    if (std::abs(dPhi) < 0.6 && qID * dTheta < 0.2 && qID * dTheta > -0.6) {
                         hasAngleMatch = true;
                         if (pID > 20000 * (qID * etaID - 2)) {
                             Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
@@ -318,8 +318,8 @@ namespace MuonCombined {
                 }
                 ++m_natMSEntrance;
 
-                const Trk::TrackParameters* atSurface = nullptr;
-                const Trk::TrackParameters* nextSurface = nullptr;
+                std::unique_ptr<const Trk::TrackParameters> atSurface;
+                std::unique_ptr<const Trk::TrackParameters> nextSurface;
                 std::vector<bool> hasSurf(12, false);
 
                 for (unsigned int surface_counter = 0; surface_counter < 12; ++surface_counter, ++extrapolation_counter) {
@@ -334,27 +334,19 @@ namespace MuonCombined {
 
                     switch (surface_counter) {
                         case 0:  // BI + BEE
-                            atSurface =
-                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                            atSurface.reset(
+                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction));
                             if (atSurface) hasSurf[surface_counter] = true;
                             break;
 
                         case 1:  // BM
                             if ((hasSurf[0]) && (atSurface)) {
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[0])) ATH_MSG_DEBUG("Extrap to BI failed but to BM successful: why?");
                             }
@@ -362,24 +354,12 @@ namespace MuonCombined {
 
                         case 2:  // BO
                             if ((hasSurf[0] || hasSurf[1]) && (atSurface)) {
-                                {
-                                    delete nextSurface;
-                                    nextSurface = nullptr;
-                                }
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[0] || hasSeg[1]))
                                     ATH_MSG_DEBUG("Extrap to BI/BM failed but to BO successful: why?");
@@ -389,35 +369,19 @@ namespace MuonCombined {
                             //	  case 3: // BE -> merged with BI
 
                         case 4:  // EIA
-                        {
-                            delete atSurface;
-                            atSurface = nullptr;
-                        }
-                            atSurface =
-                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                            atSurface.reset(
+                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction));
                             if (atSurface) hasSurf[surface_counter] = true;
                             break;
 
                         case 5:  // EMA
                             if ((hasSurf[4]) && (atSurface)) {
-                                {
-                                    delete nextSurface;
-                                    nextSurface = nullptr;
-                                }
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[4])) ATH_MSG_DEBUG("Extrap to EIA failed but to EMA successful: why?");
                             }
@@ -425,24 +389,12 @@ namespace MuonCombined {
 
                         case 6:  // EOA
                             if ((hasSurf[4] || hasSurf[5]) && (atSurface)) {
-                                {
-                                    delete nextSurface;
-                                    nextSurface = nullptr;
-                                }
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[4] || hasSeg[5]))
                                     ATH_MSG_DEBUG("Extrap to EMA failed but to EOA successful: why?");
@@ -450,44 +402,24 @@ namespace MuonCombined {
                             break;
 
                         case 7:  // EEA
-                        {
-                            delete atSurface;
-                            atSurface = nullptr;
-                        }
-                            atSurface =
-                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                            atSurface.reset(
+                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction));
                             break;
 
                         case 8:  // EIC
-                        {
-                            delete atSurface;
-                            atSurface = nullptr;
-                        }
-                            atSurface =
-                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                            atSurface.reset(
+                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction));
                             if (atSurface) hasSurf[surface_counter] = true;
                             break;
 
                         case 9:  // EMC
                             if ((hasSurf[8]) && (atSurface)) {
-                                {
-                                    delete nextSurface;
-                                    nextSurface = nullptr;
-                                }
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[8])) ATH_MSG_DEBUG("Extrap to EIC failed but to EMC successful: why?");
                             }
@@ -495,24 +427,12 @@ namespace MuonCombined {
 
                         case 10:  // EOC
                             if ((hasSurf[8] || hasSurf[9]) && (atSurface)) {
-                                {
-                                    delete nextSurface;
-                                    nextSurface = nullptr;
-                                }
-                                nextSurface = p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface, direction);
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface = nextSurface;
+                                atSurface.swap(nextSurface);
                             } else {
-                                {
-                                    delete atSurface;
-                                    atSurface = nullptr;
-                                }
-                                atSurface =
-                                    p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+                                atSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations],
+                                                                                               direction));
                                 if (atSurface) hasSurf[surface_counter] = true;
                                 if ((atSurface) && (hasSeg[8] || hasSeg[9]))
                                     ATH_MSG_DEBUG("Extrap to EMC failed but to EOC successful: why?");
@@ -520,12 +440,9 @@ namespace MuonCombined {
                             break;
 
                         case 11:  // EEC
-                        {
-                            delete atSurface;
-                            atSurface = nullptr;
-                        }
-                            atSurface =
-                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction);
+
+                            atSurface.reset(
+                                p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, trackAtMSEntrance[i_extrapolations], direction));
                             break;
                     }
 
@@ -556,9 +473,9 @@ namespace MuonCombined {
                         ////// extrapolated track to the abstract layer.
                         bool isMatched(false);
                         if (!m_doTable) {
-                            isMatched = p_MuTagMatchingTool->match(atSurface, *itSeg, surfaces.stationType(surface_counter));
+                            isMatched = p_MuTagMatchingTool->match(atSurface.get(), *itSeg, surfaces.stationType(surface_counter));
                         } else {
-                            if (!p_MuTagMatchingTool->surfaceMatch(atSurface, *itSeg, surfaces.stationType(surface_counter))) {
+                            if (!p_MuTagMatchingTool->surfaceMatch(atSurface.get(), *itSeg, surfaces.stationType(surface_counter))) {
                                 segVsSurf[segmentCount] = "surface";
                                 continue;
                             }
@@ -566,18 +483,18 @@ namespace MuonCombined {
                             ATH_MSG_VERBOSE("treating track " << trackCount << " (extrapolation = " << direction << ") and Segment "
                                                               << segStation[segmentCount] << " (segment " << segmentCount << ")");
 
-                            if (!p_MuTagMatchingTool->phiMatch(atSurface, *itSeg, surfaces.stationType(surface_counter))) {
+                            if (!p_MuTagMatchingTool->phiMatch(atSurface.get(), *itSeg, surfaces.stationType(surface_counter))) {
                                 segVsSurf[segmentCount] = "RghPhi";
                                 continue;
                             }
                             if (trkEtaInfo) {
                                 if ((surfaces.stationType(surface_counter)).find('B') != std::string::npos) {
-                                    if (!p_MuTagMatchingTool->thetaMatch(atSurface, *itSeg)) {
+                                    if (!p_MuTagMatchingTool->thetaMatch(atSurface.get(), *itSeg)) {
                                         segVsSurf[segmentCount] = "RghTheta";
                                         continue;
                                     }
                                 } else {
-                                    if (!p_MuTagMatchingTool->rMatch(atSurface, *itSeg)) {
+                                    if (!p_MuTagMatchingTool->rMatch(atSurface.get(), *itSeg)) {
                                         segVsSurf[segmentCount] = "RghR";
                                         continue;
                                     }
@@ -601,11 +518,11 @@ namespace MuonCombined {
                         }
                         ////// after a rough match (on station name, second coordinate and finally precision coordinate)
                         ////// extrapolate the track to the plane-surface associated to the matching segment.
-                        const Trk::AtaPlane* atSegSurface =
-                            p_MuTagMatchingTool->ExtrapolateTrktoSegmentSurface(*itSeg, trackAtMSEntrance[i_extrapolations], direction);
-                        if (!atSegSurface) continue;
+                        std::unique_ptr<const Trk::AtaPlane> atSegSurface{
+                            p_MuTagMatchingTool->ExtrapolateTrktoSegmentSurface(*itSeg, trackAtMSEntrance[i_extrapolations], direction)};
+                        if (!atSegSurface || !atSegSurface->covariance() || !Amg::valid_cov(*atSegSurface->covariance())) continue;
 
-                        MuonCombined::MuonSegmentInfo info = p_MuTagMatchingTool->muTagSegmentInfo(track, *itSeg, atSegSurface);
+                        MuonCombined::MuonSegmentInfo info = p_MuTagMatchingTool->muTagSegmentInfo(track, *itSeg, atSegSurface.get());
                         if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[*itSeg];
 
                         isMatched = p_MuTagMatchingTool->matchSegmentPosition(&info, trkEtaInfo);
@@ -617,7 +534,6 @@ namespace MuonCombined {
                                 else
                                     segVsSurf[segmentCount] = "pos";
                             }
-                            delete atSegSurface;
                             continue;
                         }
                         isMatched = p_MuTagMatchingTool->matchSegmentDirection(&info, trkEtaInfo);
@@ -629,7 +545,6 @@ namespace MuonCombined {
                                 else
                                     segVsSurf[segmentCount] = "dir";
                             }
-                            delete atSegSurface;
                             continue;
                         }
 
@@ -637,14 +552,12 @@ namespace MuonCombined {
 
                         if (!isMatched) {
                             if (m_doTable) { segVsSurf[segmentCount] = "dist"; }
-                            delete atSegSurface;
                             continue;
                         }
 
                         isMatched = p_MuTagMatchingTool->matchCombinedPull(&info);
                         if (!isMatched) {
                             if (m_doTable) { segVsSurf[segmentCount] = "cpull"; }
-                            delete atSegSurface;
                             continue;
                         }
 
@@ -652,7 +565,6 @@ namespace MuonCombined {
                             isMatched = p_MuTagMatchingTool->matchPtDependentPull(&info, track);
                             if (!isMatched) {
                                 if (m_doTable) { segVsSurf[segmentCount] = "ptpull"; }
-                                delete atSegSurface;
                                 continue;
                             }
                         }
@@ -662,11 +574,10 @@ namespace MuonCombined {
                         const Trk::Perigee* aMeasPer = track->perigeeParameters();
                         if (aMeasPer && m_removeLowPLowFieldRegion) {
                             double eta = -log(tan(aMeasPer->parameters()[Trk::theta] / 2.));
-                            double p = fabs(1.0 / (aMeasPer->parameters()[Trk::qOverP]));
-                            if (fabs(eta) > 1.4 && fabs(eta) < 1.7 && p < 6000.) isMatched = false;
+                            double p = std::abs(1.0 / (aMeasPer->parameters()[Trk::qOverP]));
+                            if (std::abs(eta) > 1.4 && std::abs(eta) < 1.7 && p < 6000.) isMatched = false;
                             if (!isMatched) {
                                 if (m_doTable) { segVsSurf[segmentCount] = "lowField"; }
-                                delete atSegSurface;
                                 continue;
                             }
                         }
@@ -676,24 +587,10 @@ namespace MuonCombined {
                         ATH_MSG_DEBUG("Tagged the track with Segment " << segmentCount);
 
                         segmentsInfo.push_back(info);
-                        delete atSegSurface;  // MuTaggedSegment creates its own MeasuredAtaPlane exTrk!! This one should be deleted.
 
                     }  // end loop over segments
 
                     if (m_doTable) trkToSegment[extrapolation_counter] = segVsSurf;
-                    if ((surface_counter == 2) || (surface_counter == 6) || (surface_counter == 7) || (surface_counter == 10) ||
-                        (surface_counter == 11)) {
-                        delete atSurface;
-                        atSurface = nullptr;
-                    }
-                    if (atSurface) {
-                        delete atSurface;
-                        atSurface = nullptr;
-                    }  // these 2 lines fix some major mem-leaks
-                    if (nextSurface) {
-                        delete nextSurface;
-                        nextSurface = nullptr;
-                    }
                 }  // end loop over MS surfaces
 
                 delete trackAtMSEntrance[i_extrapolations];

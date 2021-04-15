@@ -11,7 +11,7 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include <vector>
 #include <ctime>
@@ -79,11 +79,10 @@ int main (int argc, char* argv[])
     jet::JetFourMomAccessor endingScale(endingScaleString.Data());
 
     // Create the calib tool
-    asg::AnaToolHandle<IJetCalibrationTool> calibTool;
+    asg::StandaloneToolHandle<IJetCalibrationTool> calibTool;
     calibTool.setTypeAndName("JetCalibrationTool/MyJetCalibTool");
-    if ( !calibTool.isUserConfigured() )
     {
-        if (ASG_MAKE_ANA_TOOL(calibTool, JetCalibrationTool).isFailure())
+        if (calibTool.initialize().isFailure())
         {
             std::cout << "Failed to make ana tool" << std::endl;
             return 2;

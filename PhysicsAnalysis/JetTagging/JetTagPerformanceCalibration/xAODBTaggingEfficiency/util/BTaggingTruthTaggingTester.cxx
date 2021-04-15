@@ -1,7 +1,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgMessaging/MessageCheck.h"
 #include "AsgMessaging/MsgStream.h"
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include "FTagAnalysisInterfaces/IBTaggingTruthTaggingTool.h"
 
 
@@ -11,7 +11,7 @@
 
 int main() {
 
-  asg::AnaToolHandle<IBTaggingTruthTaggingTool> tool("BTaggingTruthTaggingTool/BtagTT_Tool");
+  asg::StandaloneToolHandle<IBTaggingTruthTaggingTool> tool("BTaggingTruthTaggingTool/BtagTT_Tool");
 
 
    //choose working point and CDI file

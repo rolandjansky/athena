@@ -51,7 +51,7 @@ namespace MuonCalib {
         std::string t0_dbfile_name(m_calib_dir + "/t0s/DB_t0" + station_id.regionId() + ".dat");
         FILE *db_file;
         db_file = fopen(t0_dbfile_name.c_str(), "w");
-        if (db_file == NULL) {
+        if (!db_file) {
             ATH_MSG_FATAL("Cannot open output file!");
             return StatusCode::FAILURE;
         }
@@ -63,15 +63,15 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode CalibrationOracleFileIOTool::WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution *resolution,
+    StatusCode CalibrationOracleFileIOTool::WriteRt(const RtCalibrationOutput *rt_relation, std::shared_ptr<const IRtResolution> resolution,
                                                     const NtupleStationId &station_id, int iov_start, int iov_end, bool /*real_rt*/,
                                                     bool /*real_resolution*/) {
         RtDataFromFile rt_data;
-        const IRtRelation *new_rt = rt_relation->rt();
-        RtDataFromFile::RtRelation *rt(new RtDataFromFile::RtRelation());
+        std::shared_ptr<const IRtRelation> new_rt = rt_relation->rt();
+        std::unique_ptr<RtDataFromFile::RtRelation> rt = std::make_unique<RtDataFromFile::RtRelation>();
         int rt_region_id(0);
         rt_data.setNRts(1);
-        rt_data.addRt(rt_region_id, rt, rt_relation->fullInfo());
+        rt_data.addRt(rt_region_id, rt.get(), rt_relation->fullInfo().get());
         if (!fill_rt(rt, new_rt, resolution)) return StatusCode::FAILURE;
         // write out the r-t relationship //
         std::string location = "location";
@@ -118,15 +118,15 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    inline bool CalibrationOracleFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt, const IRtRelation *new_rt,
-                                                     const MuonCalib::IRtResolution *resolut) {
+    bool CalibrationOracleFileIOTool::fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, std::shared_ptr<const IRtRelation> new_rt,
+                                              std::shared_ptr<const MuonCalib::IRtResolution> resolut) {
         ///////////////
         // VARIABLES //
         ///////////////
         const CalibFunc::ParVec &rt_param = new_rt->parameters();
         // parameters of the r-t relationship to be copied
-        const RtChebyshev *rt_Chebyshev(dynamic_cast<const RtChebyshev *>(new_rt));
-        const RtRelationLookUp *rt_lookup(dynamic_cast<const RtRelationLookUp *>(new_rt));
+        std::shared_ptr<const RtChebyshev> rt_Chebyshev = std::dynamic_pointer_cast<const RtChebyshev>(new_rt);
+        std::shared_ptr<const RtRelationLookUp> rt_lookup = std::dynamic_pointer_cast<const RtRelationLookUp>(new_rt);
 
         ////////////////////////
         // FILL THE r-t CLASS //

@@ -24,7 +24,7 @@ int main() {
 
 // FrameWork includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -106,7 +106,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   // creation and set properties of the tools
   // if you need to set properties, you should do so before initialization
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
+  asg::StandaloneToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
@@ -115,12 +115,12 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
-  asg::AnaToolHandle<IMETSystematicsTool> metSystTool;
+  asg::StandaloneToolHandle<IMETSystematicsTool> metSystTool;
   metSystTool.setTypeAndName("met::METSystematicsTool/metSystTool");
   // ANA_CHECK( metSystTool.setProperty("UseDevArea"      ,true )); // To get the configs from GROUPDATA/dev/METUtilities
   ANA_CHECK( metSystTool.retrieve() );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
+  asg::StandaloneToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );

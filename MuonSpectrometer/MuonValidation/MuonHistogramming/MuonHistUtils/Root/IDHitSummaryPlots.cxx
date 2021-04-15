@@ -16,9 +16,10 @@ void HitFracTypePlots::initializePlots()
   fracHits      = Book1D(m_sHitType, m_sHitLabel + ";" + m_sHitLabel + ";Entries", 30 ,0., 0.6);
   fracHitsVsEta = Book2D(m_sHitType + "vsEta", m_sHitLabel + ";" + m_sHitLabel + ";#eta;Entries", 30 , 0., 0.3, 54, -2.7, 2.7);
 }
-void HitFracTypePlots::fill(float fHits, float fEta)
+  void HitFracTypePlots::fill(float fHits, float fEta, float weight)
 {
-  fracHits->Fill(fHits);
+  fracHits->Fill(fHits, weight);
+  // can't weight this yet
   fracHitsVsEta->Fill(fHits, fEta);
 }  
   ///////////
@@ -36,7 +37,7 @@ IDHitSummaryPlots::IDHitSummaryPlots(PlotBase* pParent, std::string sDir):
   , fTRTOutliers(this, "fTRTOutliers","Fraction of TRT Outliers")
 {}
   
-void IDHitSummaryPlots::fill(const xAOD::TrackParticle& trk)
+  void IDHitSummaryPlots::fill(const xAOD::TrackParticle& trk, float /*weight*/)
 {
   float eta=trk.eta();
   float phi=trk.phi();

@@ -87,23 +87,23 @@ TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
 }
   
 
-void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks){
-  if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu );
-  if (m_oMuonHitDiffSummaryPlots) m_oMuonHitDiffSummaryPlots->fill(mu, truthMu);
-  if (m_oMuonTruthHitPlots) m_oMuonTruthHitPlots->fill(mu);
+  void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks, float weight){
+    if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu , weight);
+    if (m_oMuonHitDiffSummaryPlots) m_oMuonHitDiffSummaryPlots->fill(mu, truthMu, weight);
+    if (m_oMuonTruthHitPlots) m_oMuonTruthHitPlots->fill(mu,weight);
  
   //new for eloss
-  if (m_oMatchedRecoElossPlots) m_oMatchedRecoElossPlots->fill(truthMu, mu );
+    if (m_oMatchedRecoElossPlots) m_oMatchedRecoElossPlots->fill(truthMu, mu , weight );
  
   // Tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   //const xAOD::TrackParticle* meTrk = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
   
   if (!primaryTrk) return;
-  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( *primaryTrk );
-  if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(*primaryTrk, truthMu);
-  if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(*primaryTrk, truthMu);
-  if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(*primaryTrk, truthMu);
+  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( *primaryTrk , weight);
+  if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(*primaryTrk, truthMu, weight);
+  if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(*primaryTrk, truthMu, weight);
+  if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(*primaryTrk, truthMu, weight);
   
   if (m_oMomentumTruthPullPlots_NoTail || m_oMomentumTruthPullPlots_Tail) {
     //muon spectrometer track at MS entry (not extrapolated)
@@ -153,23 +153,23 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
     float eloss=0; 
     if (mu.parameter(eloss,xAOD::Muon::EnergyLoss)) { 
       if ( mu.energyLossType()!=xAOD::Muon::Tail ) { //to test MEASURED energy loss 
-	if (m_oMomentumTruthPullPlots_NoTail) m_oMomentumTruthPullPlots_NoTail->fill(mu, msTrk, truthMu); 
+	if (m_oMomentumTruthPullPlots_NoTail) m_oMomentumTruthPullPlots_NoTail->fill(mu, msTrk, truthMu, weight); 
       } 
       else { 
-	if (m_oMomentumTruthPullPlots_Tail) m_oMomentumTruthPullPlots_Tail->fill(mu, msTrk, truthMu); //to test PARAMETRIZED energy loss 
+	if (m_oMomentumTruthPullPlots_Tail) m_oMomentumTruthPullPlots_Tail->fill(mu, msTrk, truthMu, weight); //to test PARAMETRIZED energy loss 
       } 
     }
 #endif // not XAOD_ANALYSIS
   }
 }
 
-void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& muTP){
+  void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& muTP, float weight){
   // Tracking related plots
-  if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu );
-  if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( muTP );
-  if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(muTP, truthMu);
-  if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(muTP, truthMu);
-  if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(muTP, truthMu);
+    if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu, weight );
+    if (m_oMatchedRecoPlots) m_oMatchedRecoPlots->fill( muTP , weight);
+    if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(muTP, truthMu, weight);
+    if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(muTP, truthMu, weight);
+    if (m_oMSHitDiffPlots) m_oMSHitDiffPlots->fill(muTP, truthMu, weight);
 }
   
 }//close namespace

@@ -21,8 +21,9 @@ class IsoCorrPlots:public PlotBase {
 		const xAOD::Iso::IsolationType &isoType_cone40,
 		const xAOD::Iso::IsolationFlavour& flavour,
 		const xAOD::Iso::IsolationCaloCorrection &isoCorrType,
-		const xAOD::Iso::IsolationCorrectionParameter& isoCorrParam);
-      void fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr);
+		const xAOD::Iso::IsolationCorrectionParameter& isoCorrParam,
+		float weight=1.0);
+      void fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr, float weight=1.0);
       std::string m_sCorrType;
       
       TH1* isocorr;
@@ -40,8 +41,8 @@ class IsoCorrPlots:public PlotBase {
 class IsoPlots:public PlotBase {
     public:
       IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize);
-      void fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType);
-      void fill(float fIso, float fPt);
+      void fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType, float weight=1.0);
+      void fill(float fIso, float fPt, float weight=1.0);
       std::string m_sConeSize;
 
       TH1* cone;   
@@ -56,7 +57,7 @@ class IsoPlots:public PlotBase {
 class MuonIsolationPlots:public PlotBase {
    public:
      MuonIsolationPlots(PlotBase* pParent, std::string sDir);
-     void fill(const xAOD::Muon& muon);
+     void fill(const xAOD::Muon& muon, float weight=1.0);
      
      IsoPlots m_oPtCone20;
      IsoPlots m_oPtCone30;

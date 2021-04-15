@@ -4,7 +4,7 @@
 
 // EDM include(s):
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 
 // Project dependent include(s)
 #ifdef XAOD_STANDALONE
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
   // Create the truth classification tool:
   ANA_MSG_INFO("Creating TruthClassificationTool...");
-  asg::AnaToolHandle< CP::IClassificationTool > tool("TruthClassificationTool/TruthClassificationTool");
+  asg::StandaloneToolHandle< CP::IClassificationTool > tool("TruthClassificationTool/TruthClassificationTool");
   ANA_CHECK(tool.retrieve());
 
   const SG::AuxElement::ConstAccessor<int> truthTypeAcc("truthType");
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   const SG::AuxElement::ConstAccessor<char> passDFTightAcc("DFCommonElectronsLHTight");
 
   // Muon selection tool
-  asg::AnaToolHandle< CP::IMuonSelectionTool > muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool");
+  asg::StandaloneToolHandle< CP::IMuonSelectionTool > muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool");
   // Tight: 0, Med: 1, Loose: 2, VeryLoose: 3
   ANA_CHECK(muonSelectionTool.setProperty("MuQuality", 1));
   ANA_CHECK(muonSelectionTool.setProperty("MaxEta", 2.4));

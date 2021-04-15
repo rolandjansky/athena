@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibStandAloneBase/CalibrationTeeIOTool.h"
@@ -19,18 +19,16 @@ namespace MuonCalib {
     StatusCode CalibrationTeeIOTool::WriteT0(MdtTubeFitContainer *t0_output, const NtupleStationId &station_id, int iov_start,
                                              int iov_end) {
         ATH_MSG_INFO("Writing to tool 1");
-        StatusCode sc = m_tool1->WriteT0(t0_output, station_id, iov_start, iov_end);
+        ATH_CHECK(m_tool1->WriteT0(t0_output, station_id, iov_start, iov_end));
 
-        if (!sc.isSuccess()) return sc;
         ATH_MSG_INFO("Writing to tool 2");
         return m_tool2->WriteT0(t0_output, station_id, iov_start, iov_end);
     }
 
-    StatusCode CalibrationTeeIOTool::WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution *resolution,
+    StatusCode CalibrationTeeIOTool::WriteRt(const RtCalibrationOutput *rt_relation, std::shared_ptr<const IRtResolution> resolution,
                                              const NtupleStationId &station_id, int iov_start, int iov_end, bool real_rt,
                                              bool real_resolution) {
-        StatusCode sc = m_tool1->WriteRt(rt_relation, resolution, station_id, iov_start, iov_end, real_rt, real_resolution);
-        if (!sc.isSuccess()) return sc;
+        ATH_CHECK(m_tool1->WriteRt(rt_relation, resolution, station_id, iov_start, iov_end, real_rt, real_resolution));
         return m_tool2->WriteRt(rt_relation, resolution, station_id, iov_start, iov_end, real_rt, real_resolution);
     }
 
