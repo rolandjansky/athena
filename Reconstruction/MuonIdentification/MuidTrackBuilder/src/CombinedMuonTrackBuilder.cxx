@@ -2740,7 +2740,7 @@ namespace Rec {
             if (caloAssociated) {
                 MagField::AtlasFieldCache fieldCache;
                 // Get field cache object
-                        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
                     const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();

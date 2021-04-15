@@ -199,7 +199,7 @@ namespace Muon {
         }
 
         if (settings.extrapolateToMuonEntry) {
-            std::unique_ptr<Trk::Track> extrapolatedTrack(m_muonEntryTrackExtrapolator->extrapolate(*newTrack));
+            std::unique_ptr<Trk::Track> extrapolatedTrack(m_muonEntryTrackExtrapolator->extrapolate(*newTrack, ctx));
             if (!extrapolatedTrack) {
                 ATH_MSG_WARNING("Failed to back-extrapolate track");
                 ++m_failedExtrapolationMuonEntry;
