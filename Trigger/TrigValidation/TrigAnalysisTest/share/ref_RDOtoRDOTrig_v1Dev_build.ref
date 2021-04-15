@@ -2574,18 +2574,18 @@ HLT_g3_loose_LArPEBHLT_L1EM3:
   eventCount: 0
 HLT_g40_loose_LArPEBHLT_L1EM20VHI:
   eventCount: 0
-HLT_g45_loose_tight_6j45_L14J15p0ETA25:
+HLT_g45_loose_6j45_L14J15p0ETA25:
   eventCount: 0
   stepCounts:
-    0: 1
-    1: 1
-    2: 1
-    3: 1
+    0: 2
+    1: 2
+    2: 2
+    3: 2
   stepFeatures:
-    0: 1
-    1: 1
-    2: 1
-    3: 1
+    0: 2
+    1: 2
+    2: 2
+    3: 2
 HLT_g5_etcut_L1EM3:
   eventCount: 20
   stepCounts:
