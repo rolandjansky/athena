@@ -9,6 +9,7 @@ find_package( COOL COMPONENTS CoolKernel )
 find_package( Oracle )     # Oracle client libraries for DB access
 find_package( cx_Oracle )  # Oracle python client
 find_package( nlohmann_json )
+find_package( TBB )
 
 atlas_add_component( TrigConfigSvc
                      src/*.cxx src/components/*.cxx
