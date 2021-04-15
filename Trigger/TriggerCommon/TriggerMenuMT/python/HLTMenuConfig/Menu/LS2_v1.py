@@ -480,26 +480,90 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
+        # pflow options
+        ChainProp(name='HLT_j275_pf_ftf_bdl1r60_split_L1J100',  groups=SingleBjetGroup),
+        ChainProp(name='HLT_j300_pf_ftf_bdl1r70_split_L1J100',  groups=SingleBjetGroup),
+        ChainProp(name='HLT_j360_pf_ftf_bdl1r77_split_L1J100',  groups=SingleBjetGroup),
+
+        ChainProp(name='HLT_j45_pf_ftf_bdl1r70_split_L1J20',    groups=SingleBjetGroup),
+
+
+        # ATR-22937
+
+        # unclear which of these can go in the final menu.
+        # for now keep all to assess mistag rate.
+        ChainProp(name="HLT_3j65_pf_ftf_bdl1r60_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_3j65_pf_ftf_bdl1r70_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_3j65_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_3j65_pf_ftf_bdl1r85_split_L1J20",               groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_4j35_pf_ftf_bdl1r60_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_4j35_pf_ftf_bdl1r70_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_4j35_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
+        ChainProp(name="HLT_4j35_pf_ftf_bdl1r85_split_L1J20",               groups=MultiBjetGroup),
+
+
+        ChainProp(name="HLT_j150_pf_ftf_0eta320_2j55_pf_ftf_bdl1r70_split_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_3j35_pf_ftf_bdl1r70_split_j35_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j175_pf_ftf_bdl1r60_split_j60_pf_ftf_bdl1r60_L1J100", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_pf_ftf_bdl1r70_split_2j35_pf_ftf_bdl1r85_split_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_2j55_pf_ftf_bdl1r60_split_2j55_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j35_pf_ftf_bdl1r60_split_3j35_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_split_3j45_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        # dl1r WP does not exist -> use tightest available threshold (60% WP)
+        # the commented chains are left to document the source of the
+        # new chains
+        #ChainProp(name="HLT_j75_pf_ftf_bdl1r40_split_3j75_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+        #ChainProp(name="HLT_j85_pf_ftf_bdl1r50_split_3j85_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_j75_pf_ftf_bdl1r60_split_3j75_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        #ChainProp(name="HLT_2j45_pf_ftf_bdl1r50_split_2j45_pf_ftf_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+        ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_split_2j45_pf_ftf_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
+
+
+        # Test chains for ttbar and HH->4b chains
+        # Adding non-final b-tag selection
+        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_bdl1r60_split_j20_pf_ftf_020jvt_bdl1r60_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
+
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_split_j20_pf_ftf_0eta240_020jvt_bdl1r60_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
+
+        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_bdl1r70_split_j28_pf_ftf_020jvt_bdl1r70_split_j20_pf_ftf_020jvt_bdl1r70_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
+
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_split_j28_pf_ftf_0eta240_020jvt_bdl1r70_split_j20_pf_ftf_0eta240_020jvt_bdl1r70_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
+
+        # Boffperf to facilitate emulation studies
+        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_boffperf_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
+
+        # Tests of potential TLA chains for cost/rate
+        # ATR-23002 - b-jets
+        ChainProp(name='HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_j100_pf_ftf_0eta320_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_4j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name='HLT_4j20_pf_ftf_010jvt_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
+        ChainProp(name='HLT_3j20_pf_ftf_010jvt_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED']*2, groups=MultiBjetGroup),
+        ChainProp(name='HLT_4j20_pf_ftf_010jvt_boffperf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
+
+
+        # EMTopo Chains (likely not used)
         # ATR-22165
         ChainProp(name='HLT_j275_subjesgscIS_ftf_bdl1r60_split_L1J100',     groups=SingleBjetGroup),
         ChainProp(name='HLT_j300_subjesgscIS_ftf_bdl1r70_split_L1J100',     groups=SingleBjetGroup),
         ChainProp(name='HLT_j360_subjesgscIS_ftf_bdl1r77_split_L1J100',     groups=SingleBjetGroup),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20',       groups=SingleBjetGroup),
-        # pflow options
-        ChainProp(name='HLT_j275_pf_subjesgscIS_ftf_bdl1r60_split_L1J100',  groups=SingleBjetGroup),
-        ChainProp(name='HLT_j300_pf_subjesgscIS_ftf_bdl1r70_split_L1J100',  groups=SingleBjetGroup),
-        ChainProp(name='HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100',  groups=SingleBjetGroup),
-        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20',    groups=SingleBjetGroup),
-        ChainProp(name="HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20",     groups=SingleBjetGroup),
+
         ChainProp(name="HLT_j110_subjesgscIS_ftf_bdl1r60_split_j45_subjesgscIS_ftf_bdl1r70_split_L1J50", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
 
-        # ATR-22937
-        ChainProp(name="HLT_3j65_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
-        ChainProp(name="HLT_3j65_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
-        #
-        ChainProp(name="HLT_4j35_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
-        ChainProp(name="HLT_4j35_pf_ftf_bdl1r77_split_L1J20",               groups=MultiBjetGroup),
 
+        # MV2c10 chains (not to be used)
+        ChainProp(name="HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20",     groups=SingleBjetGroup),
+        ChainProp(name="HLT_3j65_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
+        ChainProp(name="HLT_4j35_ftf_bmv2c1077_split_L1J20",                groups=MultiBjetGroup),
 
         ChainProp(name="HLT_j150_ftf_0eta320_2j55_ftf_bmv2c1070_split_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
 
@@ -515,37 +579,6 @@ def setupMenu():
         ChainProp(name="HLT_2j35_ftf_bmv2c1060_split_3j35_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
         ChainProp(name="HLT_2j45_ftf_bmv2c1060_split_3j45_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
 
-        ChainProp(name="HLT_j150_pf_ftf_0eta320_2j55_pf_ftf_bdl1r70_split_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-
-        ChainProp(name="HLT_3j35_pf_ftf_bdl1r70_split_j35_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-
-        ChainProp(name="HLT_j175_pf_ftf_bdl1r60_split_j60_pf_ftf_bdl1r60_L1J100", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-        ChainProp(name="HLT_2j35_pf_ftf_bdl1r70_split_2j35_pf_ftf_bdl1r85_split_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-
-        ChainProp(name="HLT_2j55_pf_ftf_bdl1r60_split_2j55_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-        ChainProp(name="HLT_2j35_pf_ftf_bdl1r60_split_3j35_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-        ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_split_3j45_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-
-        #dl1r WP does not exist
-        #ChainProp(name="HLT_j75_pf_ftf_bdl1r40_split_3j75_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-        #ChainProp(name="HLT_j85_pf_ftf_bdl1r50_split_3j85_pf_ftf_L14J20", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-        #ChainProp(name="HLT_2j45_pf_ftf_bdl1r50_split_2j45_pf_ftf_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
-
-        # Adding non-final b-tag selection
-        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_bdl1r60_split_j20_pf_ftf_020jvt_bdl1r60_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
-        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_split_j20_pf_ftf_0eta240_020jvt_bdl1r60_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
-        ChainProp(name='HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_bdl1r70_split_j28_pf_ftf_020jvt_bdl1r70_split_j20_pf_ftf_020jvt_bdl1r70_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
-        ChainProp(name='HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_split_j28_pf_ftf_0eta240_020jvt_bdl1r70_split_j20_pf_ftf_0eta240_020jvt_bdl1r70_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
-        # Boffperf to facilitate emulation studies
-        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_boffperf_split_L14J15', l1SeedThresholds=['FSNOSEED']*4, groups=MultiBjetGroup),
-        # Tests of potential TLA chains for cost/rate
-        # ATR-23002 - b-jets
-        ChainProp(name='HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j100_pf_ftf_0eta320_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_4j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
-        ChainProp(name='HLT_4j20_pf_ftf_010jvt_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
-        ChainProp(name='HLT_3j20_pf_ftf_010jvt_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED']*2, groups=MultiBjetGroup),
-        ChainProp(name='HLT_4j20_pf_ftf_010jvt_boffperf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
 
     ]
 
