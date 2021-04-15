@@ -27,7 +27,13 @@ namespace Muon {
         /** @brief recover missing hits (holes) on tracks
             @return a pointer to a track, the ownership of the output track is passed to the client calling the tool.
         */
+        virtual Trk::Track* recover(const Trk::Track& track, const EventContext& ctx) const = 0;
+        /// For backward compability
         virtual Trk::Track* recover(const Trk::Track& track) const = 0;
+
+        virtual void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                      std::set<Identifier>& layIds,
+                                                      std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const = 0;
 
         /** virtual destructor **/
         virtual ~IMuonHoleRecoveryTool() = default;

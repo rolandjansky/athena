@@ -108,18 +108,17 @@ namespace Muon {
         /** @brief AlgTool initialize */
         virtual StatusCode initialize() override;
 
-        /** @brief AlgTool finalize */
-        virtual StatusCode finalize() override;
-
         /** @brief returns a new track with segments recovered using RegionSelector*/
         virtual Trk::Track* recover(const Trk::Track& track) const override;
+        virtual Trk::Track* recover(const Trk::Track& track, const EventContext& ctx) const override;
+
+        void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                              std::set<Identifier>& layIds,
+                                              std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const override;
 
     private:
-        /** @brief returns a new track with segments recovered using RegionSelector, actual implementation*/
-        Trk::Track* recoverImp(const Trk::Track& track) const;
-
-        const Trk::TrackParameters* reachableDetEl(const Trk::Track& track, const Trk::TrkDetElementBase& detEl,
-                                                   bool smallerBounds = false) const;
+        std::unique_ptr<const Trk::TrackParameters> reachableDetEl(const EventContext& ctx, const Trk::Track& track,
+                                                                   const Trk::TrkDetElementBase& detEl, bool smallerBounds = false) const;
         /** methods used by recover*/
 
         // Collect hashes through extrapolation
@@ -128,12 +127,12 @@ namespace Muon {
         // Fill already on track chamber std::set
         void fillOnTrackChambers(const Trk::Track& theTrack, MuonData& data) const;
         // Select hashes of chambers not yet on track
-        std::unique_ptr<Trk::Track> addMissingChambers(const Trk::Track* track, MuonData& data, bool addMdt) const;
+        std::unique_ptr<Trk::Track> addMissingChambers(const EventContext& ctx, const Trk::Track* track, MuonData& data, bool addMdt) const;
 
         void addHashes(DETID type, const IRoiDescriptor& roi, std::set<IdentifierHash>& hashes,
                        const std::set<IdentifierHash>& exclusion) const;
 
-        std::unique_ptr<Trk::Track> findHoles(const Trk::Track* track, MuonData& data) const;
+        std::unique_ptr<Trk::Track> findHoles(const EventContext& ctx, const Trk::Track* track, MuonData& data) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};
