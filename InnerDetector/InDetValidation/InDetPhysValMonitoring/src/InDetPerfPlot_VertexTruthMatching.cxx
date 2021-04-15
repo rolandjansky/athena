@@ -558,7 +558,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
  
             for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
                 trackTmp = vertex->trackParticle(i);
-                deltaZ = trackTmp->z0();
+                deltaZ = trackTmp->z0() - vertex->z();
                 if (trackTmp) {
                     sumPt = sumPt + trackTmp->pt();
                     sumCharge = sumCharge + trackTmp->charge();
@@ -613,7 +613,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                   fillHisto(m_vx_sumpT_split, sumPt / Gaudi::Units::GeV);
                   fillHisto(m_vx_sumCharge_split, sumCharge);
                   fillHisto(m_vx_sumCharge_N_trk_split, sumCharge/vertex->nTrackParticles());
-                  fillHisto(m_vx_z_asym_HS_split, z_asym);
+                  fillHisto(m_vx_z_asym_split, z_asym);
               }
 	   }
            if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {

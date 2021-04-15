@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+
+
 # Define a few configuration arguments that can be passed by the user via the command line.
 # Avoid the need of hacking the job option file 
 def GetCustomAthArgs():
@@ -64,4 +66,4 @@ svcMgr.THistSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECRE
 
 
 ToolSvc.InDetVertexTruthMatchTool.OutputLevel = 2
-
+#filesInput  /eos/user/h/hmaguire/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3227_r12256/AOD.23443643._000509.pool.root.1
