@@ -246,12 +246,15 @@ namespace top {
     registerParameter("LargeRJetSubstructureVariables",
                       "List of substructure variables stored in the output separated by commas. By default no variable is added to output.",
                       " ");
-    registerParameter("LargeRJetUncertainties_NPModel",
-                      "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
-                      "CategoryReduction");
+    registerParameter("LargeRJetUncertainties_JESJERJMS_NPModel",
+                      "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
+                      "CategoryJES_FullJER_FullJMS");
+    registerParameter("LargeRJetUncertainties_JMR_NPModel",
+                      "Full (10 NP; aimed at the most precise jet-dependent measurements), Simple (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR");
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
-                      "rel21/Summer2019");
+                      "rel21/Winter2021");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
