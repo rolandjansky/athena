@@ -36,13 +36,13 @@ StatusCode JetTrackMomentsTool::initialize() {
   for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
     const float minPt = m_minTrackPt[iCut];
     const std::string baseName = getMomentBaseName(minPt);
-    m_keysNumTrk.emplace_back(  m_jetContainerName + ".NumTrk"     + baseName);
-    m_keysSumPtTrk.emplace_back(m_jetContainerName + ".SumPtTrk"   + baseName);
-    m_keysTrkWidth.emplace_back(m_jetContainerName + ".TrackWidth" + baseName);
+    m_keysNumTrk.emplace_back(  m_jetContainerName + ".NumTrk"     + baseName + m_suffix);
+    m_keysSumPtTrk.emplace_back(m_jetContainerName + ".SumPtTrk"   + baseName + m_suffix);
+    m_keysTrkWidth.emplace_back(m_jetContainerName + ".TrackWidth" + baseName + m_suffix);
     if(m_doPFlowMoments){
-      m_keysNumCPFO.emplace_back(  m_jetContainerName + ".NumChargedPFO"   + baseName);
-      m_keysSumPtCPFO.emplace_back(m_jetContainerName + ".SumPtChargedPFO" + baseName);
-      m_keysCPFOWidth.emplace_back(m_jetContainerName + ".ChargedPFOWidth" + baseName);
+      m_keysNumCPFO.emplace_back(  m_jetContainerName + ".NumChargedPFO"   + baseName + m_suffix);
+      m_keysSumPtCPFO.emplace_back(m_jetContainerName + ".SumPtChargedPFO" + baseName + m_suffix);
+      m_keysCPFOWidth.emplace_back(m_jetContainerName + ".ChargedPFOWidth" + baseName + m_suffix);
     }
   }
 
