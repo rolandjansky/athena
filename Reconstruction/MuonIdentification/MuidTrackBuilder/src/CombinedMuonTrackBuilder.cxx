@@ -374,7 +374,6 @@ namespace Rec {
         // provided momentum defined (solenoid on)
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
@@ -695,7 +694,6 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (fieldCache.toroidOn()) {
@@ -865,7 +863,6 @@ namespace Rec {
                                                         const Trk::Vertex* inputVertex, float bs_x, float bs_y, float bs_z) const {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         // no SA fit with vertex constraint for Toroid off data
@@ -1460,7 +1457,6 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn()) {
@@ -1968,7 +1964,6 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
@@ -2137,7 +2132,6 @@ namespace Rec {
         // select straightLine fitter when magnets downstream of leading measurement are off
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         const Trk::ITrackFitter* fitter = m_fitter.get();
@@ -2249,7 +2243,6 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !fieldCache.solenoidOn()) {
@@ -2747,8 +2740,7 @@ namespace Rec {
             if (caloAssociated) {
                 MagField::AtlasFieldCache fieldCache;
                 // Get field cache object
-                std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
-                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
                     const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();
@@ -3375,7 +3367,6 @@ namespace Rec {
         const Trk::IPropagator* propagator = m_propagator.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
         if (!fieldCache.toroidOn()) {
             curvatureOK = true;

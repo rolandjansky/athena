@@ -24,6 +24,11 @@
 #include "muonEvent/CaloEnergy.h"
 #include "xAODTracking/Vertex.h"
 
+namespace {
+    constexpr float probCut = .00001;  // cut on max probability: below this cut, we don't attempt to form a combined track unless no
+                                       // combined track has yet been successfully created
+
+}
 namespace MuonCombined {
 
     MuonCombinedFitTagTool::MuonCombinedFitTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -56,17 +61,15 @@ namespace MuonCombined {
                                          const EventContext& ctx) const {
         ATH_MSG_DEBUG("muon candidate: " << muonCandidate.toString());
 
-        std::unique_ptr<CombinedFitTag> bestTag = 0;
-        std::unique_ptr<Trk::Track> bestCombTrack = 0;
-        std::unique_ptr<Trk::Track> bestMETrack = 0;
+        std::unique_ptr<CombinedFitTag> bestTag;
+        std::unique_ptr<Trk::Track> bestCombTrack;
+        std::unique_ptr<Trk::Track> bestMETrack;
         std::unique_ptr<Trk::Track> combinedTrack;
         std::unique_ptr<Trk::Track> METrack;
         std::unique_ptr<CombinedFitTag> currentTag;
         const InDetCandidate* bestCandidate = 0;
         std::multimap<double, const InDetCandidate*>
             sortedInDetCandidates;  // map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
-        float probCut = .00001;     // cut on max probability: below this cut, we don't attempt to form a combined track unless no combined
-                                    // track has yet been successfully created
 
         // loop over ID candidates
         for (const auto& idTP : indetCandidates) {
@@ -76,8 +79,7 @@ namespace MuonCombined {
             if (muonCandidate.extrapolatedTrack())
                 innerMatchProb =
                     m_matchQuality->innerMatchProbability(*idTP->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack());
-            double maxProb = outerMatchProb;
-            if (innerMatchProb > maxProb) maxProb = innerMatchProb;
+            const double maxProb = std::max(outerMatchProb, innerMatchProb);
             sortedInDetCandidates.insert(std::pair<double, const InDetCandidate*>(maxProb, idTP));
         }
 
@@ -147,7 +149,7 @@ namespace MuonCombined {
                 // for(auto& sidTP : sortedInDetCandidates){
                 for (rit = sortedInDetCandidates.rbegin(); rit != sortedInDetCandidates.rend(); ++rit) {
                     combinedTrack.reset(m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),
-                                                                         muonCandidate.muonSpectrometerTrack()));
+                                                                         muonCandidate.muonSpectrometerTrack(), ctx));
                     if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, *((*rit).second->indetTrackParticle().track()))) {
                         combinedTrack->info().addPatternReco((*rit).second->indetTrackParticle().track()->info());
                         combinedTrack->info().addPatternReco(muonCandidate.muonSpectrometerTrack().info());
@@ -186,9 +188,9 @@ namespace MuonCombined {
             bool haveME = true;
             if (!bestMETrack) {
                 if (muonCandidate.extrapolatedTrack())
-                    bestMETrack.reset(new Trk::Track(*muonCandidate.extrapolatedTrack()));
+                    bestMETrack = std::make_unique<Trk::Track>(*muonCandidate.extrapolatedTrack());
                 else
-                    bestMETrack.reset(new Trk::Track(muonCandidate.muonSpectrometerTrack()));
+                    bestMETrack = std::make_unique<Trk::Track>(muonCandidate.muonSpectrometerTrack());
                 haveME = false;
             }
 
