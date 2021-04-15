@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscROD_Decoder.h"
@@ -96,10 +96,10 @@ uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detd
   rodReadOut.set(&m_idHelperSvc->cscIdHelper());
   rodReadOut.setChamberBitVaue(1);
 
-  rodReadOut.decodeAddress( word );
-  Identifier moduleId  = rodReadOut.decodeAddress();
+  uint32_t address = rodReadOut.fragmentToAddress ( word );
+  Identifier moduleId  = rodReadOut.decodeAddress(address);
   //Identifier channelId = rodReadOut.decodeAddress(moduleId);
-  return rodReadOut.hashIdentifier(moduleId);
+  return rodReadOut.hashIdentifier(address, moduleId);
 }
 
 ////
@@ -109,9 +109,9 @@ Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /
   rodReadOut.set(&m_idHelperSvc->cscIdHelper());
   rodReadOut.setChamberBitVaue(1);
 
-  rodReadOut.decodeAddress( word );
-  Identifier moduleId  = rodReadOut.decodeAddress();
-  return rodReadOut.decodeAddress(moduleId);
+  uint32_t address = rodReadOut.fragmentToAddress( word );
+  Identifier moduleId  = rodReadOut.decodeAddress(address);
+  return rodReadOut.decodeAddress(address, moduleId);
 }
 
 ////
@@ -122,9 +122,10 @@ void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::v
   rodReadOut.setChamberBitVaue(1);
 
   for (unsigned int j=0; j<words.size(); ++j) {
-    rodReadOut.decodeAmplitude(words[j]);
-    samples.push_back(rodReadOut.getAmp1());
-    samples.push_back(rodReadOut.getAmp2());
+    uint16_t amp1, amp2;
+    rodReadOut.decodeAmplitude(words[j], amp1, amp2);
+    samples.push_back(amp1);
+    samples.push_back(amp2);
   }
 
 }
@@ -357,9 +358,9 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 
         ATH_MSG_DEBUG ( "cluster location word 0x" << MSG::hex << address << MSG::dec );
 
-	rodReadOut.decodeAddress( address );
-        Identifier moduleId  = rodReadOut.decodeAddress();
-        Identifier channelId = rodReadOut.decodeAddress(moduleId);
+        uint32_t addr = rodReadOut.fragmentToAddress( address );
+        Identifier moduleId  = rodReadOut.decodeAddress(addr);
+        Identifier channelId = rodReadOut.decodeAddress(addr, moduleId);
         int stationId        = m_idHelperSvc->cscIdHelper().stationName(channelId);
         int currentLayer     = m_idHelperSvc->cscIdHelper().wireLayer(channelId);
         int orientation      = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
@@ -385,9 +386,10 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 	/** decode the ADC samples */
 	std::vector<uint16_t> amplitude;
 	for (int j=0; j<totalSampleWords; ++j) {
-	    rodReadOut.decodeAmplitude(vint[counter]);
-	    amplitude.push_back(rodReadOut.getAmp1());
-	    amplitude.push_back(rodReadOut.getAmp2());
+            uint16_t amp1, amp2;
+	    rodReadOut.decodeAmplitude(vint[counter], amp1, amp2);
+	    amplitude.push_back(amp1);
+	    amplitude.push_back(amp2);
 	    counter += 1;
 	}
 	clusterCount += 1;
@@ -397,7 +399,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
         if ( orientation == 0 ) spuID = static_cast<uint16_t>( (stationId-50)*5 + currentLayer-1);
         else spuID = static_cast<uint16_t>( ( (stationId-50)+1)*5 - 1);
  
-	uint32_t hashId      = rodReadOut.hashIdentifier(moduleId);
+	uint32_t hashId      = rodReadOut.hashIdentifier(addr, moduleId);
 
         // To get rid of unhealthy word Careful!! It should be located after all the counter to look at the next words...
         if (address==0) {

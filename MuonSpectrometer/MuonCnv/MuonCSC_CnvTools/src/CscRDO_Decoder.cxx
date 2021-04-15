@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRDO_Decoder.h"
@@ -38,15 +38,14 @@ void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData, const CscIdHelpe
   CscRODReadOut rodReadOut;
   rodReadOut.set(cscIdHelper);
   rodReadOut.setChamberBitVaue(1);
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  rodReadOut.setParams(m_timeOffset, m_signalWidth);
 
-  adc = rodReadOut.findCharge( rawData->samples(), time);
+  adc = rodReadOut.findCharge( m_samplingTime, rawData->samples(), time);
 
-  // now decode the endcoded fragments 
+  // now decode the encoded fragments 
   // find the Identifier and charge
-  rodReadOut.setAddress(address);
-  moduleId   = rodReadOut.decodeAddress();
-  channelId  = rodReadOut.decodeAddress(moduleId);
+  moduleId   = rodReadOut.decodeAddress(address);
+  channelId  = rodReadOut.decodeAddress(address, moduleId);
 }
 
 
@@ -60,11 +59,10 @@ Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData, c
   CscRODReadOut rodReadOut;
   rodReadOut.set(cscIdHelper);
   rodReadOut.setChamberBitVaue(1);
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  rodReadOut.setParams(m_timeOffset, m_signalWidth);
 
   /** now decode the endcoded fragments find the Identifiers */
-  rodReadOut.setAddress(address);
-  return rodReadOut.decodeAddress();
+  return rodReadOut.decodeAddress(address);
 }
 
 Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, const CscIdHelper* cscIdHelper, int j) const 
@@ -76,17 +74,16 @@ Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, c
   CscRODReadOut rodReadOut;
   rodReadOut.set(cscIdHelper);
   rodReadOut.setChamberBitVaue(1);
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  rodReadOut.setParams(m_timeOffset, m_signalWidth);
 
   /** now decode the endcoded fragments find the Identifiers */
-  rodReadOut.setAddress(address);
-  Identifier moduleId   = rodReadOut.decodeAddress();
+  Identifier moduleId   = rodReadOut.decodeAddress(address);
   
   ATH_MSG_DEBUG ( " CscRDO_Decoder OUTPUT ::: "
                   << m_timeOffset << "  " << m_samplingTime << " " << m_signalWidth << " "
                   << "  " << m_detdescr << "  " << address << "   "
                   << moduleId << " " << j );
 
-  return rodReadOut.decodeAddress(moduleId, j);
+  return rodReadOut.decodeAddress(address, moduleId, j);
 }
 

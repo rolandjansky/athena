@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCDIGITTOCSCRDOTOOL_H
@@ -52,7 +52,6 @@ class CscDigitToCscRDOTool final : public extends<AthAlgTool, IMuonDigitizationT
   double m_startTime{}; //!< set during initialize from cscCalibTool
   double m_signalWidth{}; //!< set during initialize from cscCalibTool
   bool m_addNoise{true};
-  uint16_t m_samplingTime; //!< set during initialize from cscCalibTool
   uint16_t m_numberOfIntegration{}; //!< set during initialize from cscCalibTool
 
  protected:

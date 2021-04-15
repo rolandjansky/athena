@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -57,8 +57,8 @@ StatusCode CscDigitToCscRDOTool::initialize()
   ATH_CHECK( m_rndmSvc.retrieve() );
 
   /** initialization of CSC ROD Decoder */
-  m_samplingTime = static_cast<uint16_t>( m_cscCalibTool->getSamplingTime() ); // FIXME
-  m_samplingRate = int(1000/m_samplingTime);
+  uint16_t samplingTime = static_cast<uint16_t>( m_cscCalibTool->getSamplingTime() ); // FIXME
+  m_samplingRate = int(1000/samplingTime);
   m_signalWidth = m_cscCalibTool->getSignalWidth(); 
 
   m_numberOfIntegration =
@@ -93,7 +93,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
 
-  CscRODReadOut rodReadOut(m_startTime, m_samplingTime, m_signalWidth, m_numberOfIntegration);
+  CscRODReadOut rodReadOut(m_startTime, m_signalWidth, m_numberOfIntegration);
   // initialization but it will be updated per channel later 12/03/2009 WP
   // m_startTime is not related to rodReadOut at all but doesn't matter it's not used....by resetting later...
 
@@ -344,7 +344,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
         double charge_to_adcCount  = m_cscCalibTool->numberOfElectronsToADCCount(cscOfflineChannelHashId, cscDigit->charge());
         //        if ( charge_to_adcCount > MAX_AMPL/2.0 ) charge_to_adcCount = MAX_AMPL/2.0-1.0; 
 
-        rodReadOut.setParams(cscDigit->time()+phaseOffset, m_samplingTime, m_signalWidth); 
+        rodReadOut.setParams(cscDigit->time()+phaseOffset, m_signalWidth); 
         
         for (int i=0; i<m_numSamples; i++) {
           double samplingTime = (i+1)*(1000/m_samplingRate) + m_startTime;
