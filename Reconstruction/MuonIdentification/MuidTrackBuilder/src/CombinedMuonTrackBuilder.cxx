@@ -335,6 +335,11 @@ namespace Rec {
     }
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
+
+    Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                                      const Trk::Track& spectrometerTrack) const {
+        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
+    }
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const Trk::Track&,
                                                       const EventContext& ctx) const {
         ATH_MSG_VERBOSE("===== Start of combinedFit:: ");
@@ -369,15 +374,8 @@ namespace Rec {
         // provided momentum defined (solenoid on)
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
             std::unique_ptr<const Trk::TrackStateOnSurface> innerTSOS;
@@ -697,15 +695,8 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (fieldCache.toroidOn()) {
             // fail when solenoid off and toroid on - as extrapolation from ID is not the correct strategy
@@ -874,15 +865,8 @@ namespace Rec {
                                                         const Trk::Vertex* inputVertex, float bs_x, float bs_y, float bs_z) const {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         // no SA fit with vertex constraint for Toroid off data
         if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !fieldCache.toroidOn()) { return nullptr; }
@@ -1476,15 +1460,8 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn()) {
             // no standalone refit for Toroid off
@@ -1991,15 +1968,8 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
             fitter = m_fitterSL.get();
@@ -2167,15 +2137,8 @@ namespace Rec {
         // select straightLine fitter when magnets downstream of leading measurement are off
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         const Trk::ITrackFitter* fitter = m_fitter.get();
         if (!fieldCache.toroidOn() || std::abs(perigeeStartValue.position().z()) > m_zECToroid) {
@@ -2286,15 +2249,8 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !fieldCache.solenoidOn()) {
             fitter = m_fitterSL.get();
@@ -2791,16 +2747,8 @@ namespace Rec {
             if (caloAssociated) {
                 MagField::AtlasFieldCache fieldCache;
                 // Get field cache object
-
-                SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-                const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-                if (!fieldCondObj) {
-                    ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                                  << m_fieldCacheCondObjInputKey.key());
-                    return nullptr;
-                }
-                fieldCondObj->getInitializedCache(fieldCache);
+                std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
                     const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();
@@ -3427,16 +3375,8 @@ namespace Rec {
         const Trk::IPropagator* propagator = m_propagator.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        std::cout << __LINE__ << "My stonjek is over the ocean... My Stonjek is over the sea" << std::endl;
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
         if (!fieldCache.toroidOn()) {
             curvatureOK = true;
             propagator = m_propagatorSL.get();
@@ -3639,7 +3579,7 @@ namespace Rec {
 
             ATH_MSG_VERBOSE(" perform spectrometer hole recovery procedure... ");
 
-            std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecovery->recover(*track));
+            std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecovery->recover(*track, ctx));
 
             if (!recoveredTrack || !recoveredTrack->fitQuality() || !checkTrack("finalTrackBuild1", recoveredTrack.get(), track.get())) {
                 // final track lost, this should not happen
@@ -4201,4 +4141,32 @@ namespace Rec {
 
         return newTrackOK;
     }
+
+    const Trk::TrackingVolume* CombinedMuonTrackBuilder::getVolume(const std::string&& vol_name, const EventContext& ctx) const {
+        /// Tracking geometry is provided by the TrackingGeometryAlg
+        if (!m_trackingGeometryReadKey.empty()) {
+            SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+            if (!handle.isValid()) {
+                ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
+            }
+            return handle.cptr()->trackingVolume(vol_name);
+        }
+        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+    }
+    const AtlasFieldCacheCondObj* CombinedMuonTrackBuilder::getFieldCacheObj(const EventContext& ctx) const {
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        if (!readHandle.isValid()) {
+            ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return nullptr;
+        }
+        return readHandle.cptr();
+    }
+    bool CombinedMuonTrackBuilder::loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& fieldCache) const {
+        const AtlasFieldCacheCondObj* fieldCondObj = getFieldCacheObj(ctx);
+        if (!fieldCondObj) return false;
+        fieldCondObj->getInitializedCache(fieldCache);
+        return true;
+    }
+
 }  // namespace Rec

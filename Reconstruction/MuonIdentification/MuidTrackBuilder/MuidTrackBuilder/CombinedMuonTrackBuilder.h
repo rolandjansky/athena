@@ -71,6 +71,9 @@ namespace Rec {
         virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                                         const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
 
+        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                        const Trk::Track& spectrometerTrack) const override;
+
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
             Adds material effects as appropriate plus calo energy-loss treatment */
@@ -347,18 +350,9 @@ namespace Rec {
         bool m_addIDMSerrors;
         bool m_useRefitTrackError;
 
-        inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const {
-            /// Tracking geometry is provided by the TrackingGeometryAlg
-            if (!m_trackingGeometryReadKey.empty()) {
-                SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-                if (!handle.isValid()) {
-                    ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
-                    return nullptr;
-                }
-                return handle.cptr()->trackingVolume(vol_name);
-            }
-            return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
-        }
+        const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
+        const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;
+        bool loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& field_cache) const;
 
     };  // end of class CombinedMuonTrackBuilder
 

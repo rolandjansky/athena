@@ -49,6 +49,9 @@ namespace Rec {
         virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                                         const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
 
+        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                        const Trk::Track& spectrometerTrack) const override;
+
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
             Adds material effects as appropriate plus calo energy-loss treatment */

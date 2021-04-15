@@ -45,8 +45,11 @@ namespace Rec {
         }
         /**ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
         virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                        const Trk::Track& spectrometerTrack,
-                                        const EventContext& ctx = Gaudi::Hive::currentContext()) const = 0;
+                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const = 0;
+
+        /// Old method for backward compabilitiy. To be removed once all muon clients are migrated
+        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                        const Trk::Track& spectrometerTrack) const = 0;
 
         /**ICombinedMuonTrackBuilder interface:
            build and fit indet track extended to include MS Measurement set.

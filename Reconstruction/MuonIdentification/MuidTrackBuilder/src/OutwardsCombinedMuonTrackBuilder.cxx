@@ -89,6 +89,11 @@ namespace Rec {
     }
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
+    Trk::Track* OutwardsCombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                                              const Trk::Track& spectrometerTrack) const {
+        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
+    }
+
     Trk::Track* OutwardsCombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& /*extrapolatedTrack*/,
                                                               const Trk::Track& spectrometerTrack, const EventContext& ctx) const {
         ATH_MSG_VERBOSE("combinedFit:: ");
@@ -418,7 +423,7 @@ namespace Rec {
         }
 
         if (m_recoverCombined && fittedTrack) {
-            std::unique_ptr<Trk::Track> recoveredTrack{m_muonHoleRecovery->recover(*fittedTrack)};
+            std::unique_ptr<Trk::Track> recoveredTrack{m_muonHoleRecovery->recover(*fittedTrack, ctx)};
             double oldfitqual = fittedTrack->fitQuality()->chiSquared() / fittedTrack->fitQuality()->numberDoF();
 
             if (recoveredTrack && recoveredTrack != fittedTrack) {
