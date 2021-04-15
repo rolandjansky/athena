@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLMT_H
@@ -38,15 +38,18 @@ namespace Muon {
     
     virtual StatusCode finalize() override;
 
-    using CscRdoToCscPrepDataToolCore::decode;
-    
     virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) override;
-    virtual StatusCode decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) override;
-    virtual StatusCode decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs) override;
+    virtual StatusCode decode( const std::vector<uint32_t>& ) override {return StatusCode::FAILURE;}
 
+    virtual void printPrepData() override;
 
 
   private:
+    StatusCode decodeImpl(Muon::CscStripPrepDataContainer* outputCollection,
+                          const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) const;
+    StatusCode decodeImpl(Muon::CscStripPrepDataContainer* outputCollection,
+                          const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs) const;
+
     /// This is the key for the cache for the CSC PRD containers, can be empty
     SG::UpdateHandleKey<CscStripPrepDataCollection_Cache> m_prdContainerCacheKey ;
   };
