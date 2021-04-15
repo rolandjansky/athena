@@ -4195,6 +4195,70 @@ HLT_noalg_L1J75:
   eventCount: 6
 HLT_noalg_L1J85:
   eventCount: 5
+HLT_noalg_L1MBTSA0:
+  eventCount: 0
+HLT_noalg_L1MBTSA1:
+  eventCount: 0
+HLT_noalg_L1MBTSA10:
+  eventCount: 0
+HLT_noalg_L1MBTSA11:
+  eventCount: 0
+HLT_noalg_L1MBTSA12:
+  eventCount: 0
+HLT_noalg_L1MBTSA13:
+  eventCount: 0
+HLT_noalg_L1MBTSA14:
+  eventCount: 0
+HLT_noalg_L1MBTSA15:
+  eventCount: 0
+HLT_noalg_L1MBTSA2:
+  eventCount: 0
+HLT_noalg_L1MBTSA3:
+  eventCount: 0
+HLT_noalg_L1MBTSA4:
+  eventCount: 0
+HLT_noalg_L1MBTSA5:
+  eventCount: 0
+HLT_noalg_L1MBTSA6:
+  eventCount: 0
+HLT_noalg_L1MBTSA7:
+  eventCount: 0
+HLT_noalg_L1MBTSA8:
+  eventCount: 0
+HLT_noalg_L1MBTSA9:
+  eventCount: 0
+HLT_noalg_L1MBTSC0:
+  eventCount: 0
+HLT_noalg_L1MBTSC1:
+  eventCount: 0
+HLT_noalg_L1MBTSC10:
+  eventCount: 0
+HLT_noalg_L1MBTSC11:
+  eventCount: 0
+HLT_noalg_L1MBTSC12:
+  eventCount: 0
+HLT_noalg_L1MBTSC13:
+  eventCount: 0
+HLT_noalg_L1MBTSC14:
+  eventCount: 0
+HLT_noalg_L1MBTSC15:
+  eventCount: 0
+HLT_noalg_L1MBTSC2:
+  eventCount: 0
+HLT_noalg_L1MBTSC3:
+  eventCount: 0
+HLT_noalg_L1MBTSC4:
+  eventCount: 0
+HLT_noalg_L1MBTSC5:
+  eventCount: 0
+HLT_noalg_L1MBTSC6:
+  eventCount: 0
+HLT_noalg_L1MBTSC7:
+  eventCount: 0
+HLT_noalg_L1MBTSC8:
+  eventCount: 0
+HLT_noalg_L1MBTSC9:
+  eventCount: 0
 HLT_noalg_L1MBTS_1_1_EMPTY:
   eventCount: 0
 HLT_noalg_L1MBTS_1_EMPTY:
