@@ -73,12 +73,19 @@ multiplicative prescription will follow a pattern similar to `MUR1_MUF1_PDF30320
 * The weights correspond to the final cross-section, i.e. in practice they should be used to replace the nominal weight, 
 similar to the usual scale and PDF variations (see also this
 [twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PmgSystematicUncertaintyRecipes#On_the_fly_systematic_variations)).
-* Note that additional weights might exist with `LO1` or `LO1LO2` attached: These are are the same as the EW virtual correction 
+* As of Sherpa 2.2.11 a third approach, which exponentiates the electroweak correction, will be available as an additional on-the-fly weight
+  * additive approach: `(B + VI_QCD + VI_EW) * PS = B * (1 + delta_QCD + delta_EW) * PS`
+  * multiplicative approach: `(B + VI_QCD) * (1 + delta_EW) * PS = B * (1 + delta_QCD) * (1 + delta_EW) * PS`
+  * exponentiated approach: `(B + VI_QCD) * exp(delta_EW) * PS = B * (1+delta_QCD) * exp(delta_EW) * PS`
+* Note that for each approach additional weights might exist with `LO1` or `LO1LO2` attached: These are are the same as the EW virtual correction 
 plus - if available - subleading Born corrections, which are formally part of the NNLO EW correction. 
 Their effect is typically negligible compared to the dominant electroweak virtual correction 
 but they might still be interesting for phenomenological studies. 
 (These weights are added automatically. For processes where the corresponding libraries for these subleading Born terms don't exist yet, 
-the weights will be identical to the EW-only weights.)
+the weights will be identical to the virtual-only weights.)
+* Note that the usual on-the-fly weights for scale and PDF variations will be with respect to the QCD-only nominal and that if
+you choose a QCD+EW weight as the new nominal, you should strictly speaking evaluate the other generator systematics with respect
+to the QCD-only nominal and transfer the relative uncertainty onto the new nominal.
 ## Sherpa event record
 * Starting from 1.4.0, Sherpa follows the [current HepMC convention](http://lcgapp.cern.ch/project/simu/HepMC/206/HepMC2_user_manual.pdf). Final state particles still have status=1 but status 2 was replaced by multiple status codes: 2 for "physical" intermediate states (hadron resonances), 11 for non-physical intermediate states (e.g. parton shower evolution), 3 for particles in the hard scattering matrix element, and 4 for incoming beams. An example: If in a Z-&gt;ee sample you need the electron/positron before QEDFSR radiation, you need to select status==11
 * For NLO processes the status 3 particles from the hard scattering matrix element will contain the one additional parton emission which is matched between ME and shower. An additional level of original particles before that emission is being made available as separate status 20 particles for events where they would be different from status 3 particles. So if you want to select parton-level event kinematics, you should always use status 20 if available in the event and otherwise status 3.
