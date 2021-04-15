@@ -285,8 +285,8 @@ namespace top {
     m_largeRJetMasscut(0.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryJES_FullJER_FullJMS"),
-    m_largeRJetUncertaintiesConfigDir("SetMe"),
     m_largeRJetUncertainties_JMR_NPModel("FullJMR"),
+    m_largeRJetUncertaintiesConfigDir("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
