@@ -70,8 +70,8 @@ namespace MuonCombined {
                              Trk::SegmentCollection* segments, const EventContext& ctx) const;
 
         /** add muon candidate to indet candidate */
-        void addTag(const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, const Muon::MuonCandidate& candidate,
-                    Trk::Track* selectedTrack, TrackCollection* combTracks, TrackCollection* meTracks,
+        void addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
+                    const Muon::MuonCandidate& candidate, Trk::Track* selectedTrack, TrackCollection* combTracks, TrackCollection* meTracks,
                     Trk::SegmentCollection* segments) const;
 
         /** access data in layer */
