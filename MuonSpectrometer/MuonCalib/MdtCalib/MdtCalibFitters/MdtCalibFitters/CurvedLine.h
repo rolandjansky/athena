@@ -43,7 +43,7 @@ namespace MuonCalib {
     class CurvedLine {
     public:
         // Constructors //
-        CurvedLine(void);
+        CurvedLine();
         ///< Default constructor: a straight line through (0,0,0) pointing in
         ///< in the local x direction of the chambers is created.
 
@@ -70,6 +70,19 @@ namespace MuonCalib {
         ///< get the tangent to the line a the local
         ///< z coordinate "loc_z"
 
+        /// Cache the chi2
+        void setChi2(double chi2);
+        double chi2() const;
+
+        ///  cache the number of track hits
+        void setNumberOfTrackHits(unsigned int n_hits);
+        unsigned int numberOfTrackHits() const;
+        /// Return chi2 / number of TrackHits - 3
+        double chi2PerDegreesOfFreedom() const;
+
+        void setUsedHits(const std::vector<const MdtCalibHitBase *> &hits);
+        const std::vector<const MdtCalibHitBase *> &trackHits() const;
+
     private:
         // parameters of the curved line //
         Legendre_polynomial *m_Legendre;  // pointer to the Legendre polynomial
@@ -78,6 +91,10 @@ namespace MuonCalib {
                                           // xz plane
         Amg::VectorX m_coeff_yz;          // coefficients of the curved line in the local
                                           // yz plane
+
+        double m_chi2{-1};
+        unsigned int m_numTrkHits{0};
+        std::vector<const MdtCalibHitBase *> m_used_hits;
 
         // private methods //
         void init(std::vector<Amg::Vector3D> &points, std::vector<Amg::Vector3D> &x_and_y_errors);

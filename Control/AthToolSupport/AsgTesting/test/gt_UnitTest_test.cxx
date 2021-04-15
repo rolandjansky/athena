@@ -10,7 +10,6 @@
 // includes
 //
 
-#include <AsgTools/AnaToolHandle.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <cmath>

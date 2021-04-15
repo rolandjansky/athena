@@ -1,17 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 27.10.2007, AUTHOR: OLIVER KORTNER
-// Modified: 26.11.2007 by O. Kortner, fix for segment refinement.
-//           13.12.2007 by O. Kortner, time-out added.
-//           07.08.2008 by O. Kortner, bug fix when hits are disabled.
-//				 19.11.2008 by I. Potrap: 1) several bugs have been fixed;
-//												  2) external fitter(DCLS) replaced by
-//													  internal code of
-//linear-least-chi2-fit 				 01.12.2008 by I. Potrap, track() method and segment position are fixed
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "MdtCalibFitters/StraightPatRec.h"
 
@@ -32,32 +21,12 @@
 
 using namespace MuonCalib;
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD init ::
-//:::::::::::::::::
-
-void StraightPatRec::init(void) {
+void StraightPatRec::init() {
     init(0.5 * CLHEP::mm);  // default road width = 0.5 CLHEP::mm
     return;
 }
 
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD init(const double & r_road_width) ::
-//::::::::::::::::::::::::::::::::::::::::::::::
-
 void StraightPatRec::init(const double &r_road_width) {
-    // coverity
-    m_b_x1_err = 0.0;
-    m_b_x2_err = 0.0;
-    m_b_x2 = 0.0;
-    m_a_x1_err = 0.0;
-    m_a_x2_err = 0.0;
-    m_a_x2 = 0.0;
-
     //:::::::::::::::
     //:: VARIABLES ::
     //:::::::::::::::
@@ -86,28 +55,14 @@ void StraightPatRec::init(const double &r_road_width) {
     //:: INITIALIZE PRIVATE VARIABLES WHICH ARE ACCESSIBLE BY METHODS ::
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-    m_nb_track_hits = 0;
-    m_chi2 = 0.0;
-    m_track = MTStraightLine(null_vec, null_vec, null_vec, null_vec);
-
-    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    //:: SET THE TRACK IN THE x1-x3 PLANE (LATER VERSION MAY ALLOW TO SET ::
-    //:: USER-DEFINED VALUES)                                             ::
-    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-    m_a_x1 = 1.0;
-    m_b_x1 = 0.0;
+    // m_nb_track_hits = 0;
+    // m_chi2 = 0.0;
+    // m_track = MTStraightLine(null_vec, null_vec, null_vec, null_vec);
 
     m_fix_selection = false;
 
     return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::
-//:: METHOD tangent ::
-//::::::::::::::::::::
 
 MTStraightLine StraightPatRec::tangent(const Amg::Vector3D &r_w1, const double &r_r1, const double &r_sigma12, const Amg::Vector3D &r_w2,
                                        const double &r_r2, const double &r_sigma22, const int &r_case) const {
@@ -196,13 +151,6 @@ MTStraightLine StraightPatRec::tangent(const Amg::Vector3D &r_w1, const double &
     return tang;
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD fitCandidate ::
-//:::::::::::::::::::::::::
-//
-
 MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment &r_segment, const std::vector<unsigned int> &r_selection,
                                             const MTStraightLine &cand_line) const {
     ///////////////
@@ -211,7 +159,7 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment &r_segment, const s
     Amg::Vector3D null(0.0, 0.0, 0.0);
     Amg::Vector3D xhat(1.0, 0.0, 0.0);
 
-    int num_selected_hits(0);
+    unsigned int num_selected_hits(0);
     for (unsigned int k = 0; k < r_selection.size(); k++) {
         if (!r_selection[k]) { num_selected_hits++; }
     }
@@ -312,7 +260,7 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment &r_segment, const s
     seg_pos[2] = init_pos.z();
 
     // Rewriting segment
-    r_segment.set(refit_chi2 / static_cast<double>(num_selected_hits - 2), seg_pos, seg_dir);
+    r_segment.set(refit_chi2 / (num_selected_hits - 2), seg_pos, seg_dir);
 
     MTStraightLine aux_line(seg_pos, seg_dir, Amg::Vector3D(0.0, 0.0, 0.0), Amg::Vector3D(0.0, 0.0, 0.0));
 
@@ -321,93 +269,23 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment &r_segment, const s
         r_segment.mdtHOT()[k]->setDistanceToTrack(aux_line.signDistFrom(aux_t), r_segment.mdtHOT()[k]->sigmaDriftRadius());
     }
 
+    aux_line.setNumberOfTrackHits(num_selected_hits);
+    aux_line.setChi2(refit_chi2);
     return aux_line;
 }
 
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD roadWidth ::
-//::::::::::::::::::::::
-
-double StraightPatRec::roadWidth(void) const { return m_road_width; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::
-//:: METHOD numberOfTrackHits ::
-//::::::::::::::::::::::::::::::
-
-unsigned int StraightPatRec::numberOfTrackHits(void) const { return m_nb_track_hits; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD trackHits ::
-//::::::::::::::::::::::
-
-const std::vector<const MdtCalibHitBase *> &StraightPatRec::trackHits(void) const { return m_track_hits; }
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD chi2 ::
-//:::::::::::::::::
-
-double StraightPatRec::chi2(void) const {
-    if (m_nb_track_hits == 0) { return -1; }
-    return m_chi2;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::
-//:: METHOD chi2PerDegreesOfFreedom ::
-//::::::::::::::::::::::::::::::::::::
-
-double StraightPatRec::chi2PerDegreesOfFreedom(void) const {
-    if (m_nb_track_hits < 3) { return -1; }
-    return chi2() / static_cast<double>(numberOfTrackHits() - 2);
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::
-//:: METHOD track ::
-//::::::::::::::::::
-
-MTStraightLine StraightPatRec::track(void) const { return m_track; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD setRoadWidth ::
-//:::::::::::::::::::::::::
+double StraightPatRec::roadWidth() const { return m_road_width; }
 
 void StraightPatRec::setRoadWidth(const double &r_road_width) {
     m_road_width = std::abs(r_road_width);
     return;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD setTimeOut ::
-//:::::::::::::::::::::::
-
 void StraightPatRec::setTimeOut(const double &time_out) {
     m_time_out = time_out;
     return;
 }
 
 void StraightPatRec::setFixSelection(bool fix_sel) { m_fix_selection = fix_sel; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::
-//:: METHOD fit(.) ::
-//:::::::::::::::::::
-
 bool StraightPatRec::fit(MuonCalibSegment &r_segment) const {
     // select all hits //
     HitSelection selection(r_segment.mdtHitsOnTrack(), 0);
@@ -415,23 +293,15 @@ bool StraightPatRec::fit(MuonCalibSegment &r_segment) const {
     // call the other fit function //
     return fit(r_segment, selection);
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD fit(.,.) ::
-//:::::::::::::::::::::
-bool StraightPatRec::fit(MuonCalibSegment &r_segment,
-
-                         HitSelection r_selection) const {
-    return fitCallByReference(r_segment, r_selection);
+bool StraightPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection) const { return fitCallByReference(r_segment, r_selection); }
+bool StraightPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, MTStraightLine &line_track) const {
+    return fitCallByReference(r_segment, r_selection, line_track);
 }
-
-//*****************************************************************************
-
-bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment,
-
-                                        HitSelection &r_selection) const {
+bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment, HitSelection &r_selection) const {
+    MTStraightLine fitted_track{};
+    return fitCallByReference(r_segment, r_selection, fitted_track);
+}
+bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment, HitSelection &r_selection, MTStraightLine &fitted_track) const {
     ///////////////
     // VARIABLES //
     ///////////////
@@ -471,12 +341,11 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment,
     // RESET //
     ///////////
 
-    m_chi2 = -1.0;
-
     if (r_segment.mdtHitsOnTrack() != r_selection.size()) {
         MsgStream log(Athena::getMessageSvc(), "StraightPatRec");
         log << MSG::WARNING
-            << "fitCallByReference() - Vector with selected hits unequal to the number of hits on the segment! The user selection will be "
+            << "fitCallByReference() - Vector with selected hits unequal to the number of hits on the segment! The user selection will "
+               "be "
                "ignored!"
             << endmsg;
         r_selection.clear();
@@ -613,19 +482,17 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment,
         // MAKE THE FINAL STRAIGHT SEGMENT, IF POSSIBLE //
         //////////////////////////////////////////////////
 
+        std::vector<const MdtCalibHitBase *> used_hits;
         if (nb_candidates > 0) {
             // store track hits, rewrite hit selection //
-            m_track_hits.clear();
             for (unsigned int k = 0; k < r_selection.size(); k++) {
                 r_selection[k] = final_selection[k];
-                if (!final_selection[k]) { m_track_hits.push_back(r_segment.mdtHOT()[k]); }
+                if (!final_selection[k]) { used_hits.push_back(r_segment.mdtHOT()[k]); }
             }
 
             // Final refit //
-            m_track = fitCandidate(r_segment, final_selection, best_aux_line);
-
-            m_nb_track_hits = m_track_hits.size();
-            m_chi2 = r_segment.chi2() * (static_cast<double>(m_nb_track_hits - 2));
+            fitted_track = fitCandidate(r_segment, final_selection, best_aux_line);
+            fitted_track.setUsedHits(used_hits);
 
             if (m_refine_segment) { r_segment.refineMdtSelection(r_selection); }
 
@@ -638,10 +505,5 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment,
     }
     //=============================================================================
 
-    if (std::isnan(m_chi2)) {
-        m_chi2 = -1.0;
-        return false;
-    }
-
-    return true;
+    return fitted_track.chi2() > 0;
 }

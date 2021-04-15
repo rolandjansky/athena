@@ -81,12 +81,12 @@ class MuonPhysValMonitoringTool
 
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
 
-  void handleMuon(const xAOD::Muon* mu,const xAOD::SlowMuon *smu=0);
-  void handleSlowMuon(const xAOD::SlowMuon *smu);
-  void handleTruthMuon(const xAOD::TruthParticle* truthMu);
-  void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type);
-  void handleMuonSegment(const xAOD::MuonSegment* muSeg);
-  void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
+  void handleMuon(const xAOD::Muon* mu,const xAOD::SlowMuon *smu=0, float weight=1.0);
+  void handleSlowMuon(const xAOD::SlowMuon *smu, float weight=1.0);
+  void handleTruthMuon(const xAOD::TruthParticle* truthMu,float weight=1.0);
+  void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type, float weight=1.0);
+  void handleMuonSegment(const xAOD::MuonSegment* muSeg, float weight=1.0);
+  void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer, float weight=1.0);
   
   void handleMuonTrees(const xAOD::EventInfo* eventInfo, bool isData);
 

@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "MuonCalibDbOperations/CalibHeadOperations.h"
 
 #include "AthenaKernel/getMessageSvc.h"
@@ -24,7 +23,7 @@
 #include "iostream"
 
 namespace MuonCalib {
-
+    CalibHeadOperations::~CalibHeadOperations() {}
     CalibHeadOperations::CalibHeadOperations(CalibDbConnection& db_conn) : m_meta_connection(&db_conn) {}
 
     int CalibHeadOperations::GetLatestHeadId() const {

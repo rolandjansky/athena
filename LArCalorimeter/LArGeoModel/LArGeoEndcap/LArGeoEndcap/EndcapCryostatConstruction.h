@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,7 +38,8 @@ namespace LArGeo {
         bool fullGeo,
         std::string emecVariantInner = "Wheel",
         std::string emecVariantOuter = "Wheel",
-        bool activateFT = false
+        bool activateFT = false,
+        bool enableMBTS = true
     );
     virtual ~EndcapCryostatConstruction();
 
@@ -69,6 +70,7 @@ namespace LArGeo {
     std::string m_EMECVariantOuter;
 
     bool m_activateFT;
+    bool m_enableMBTS;
 
     friend class ::LArDetectorToolNV;
 

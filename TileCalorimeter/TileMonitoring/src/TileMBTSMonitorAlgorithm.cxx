@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMBTSMonitorAlgorithm.h"
@@ -176,8 +176,8 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     }
   }
 
-
-  fill("TileOccupancyMBTS", monEnergyCounter, monSummaryEnergy);
+  auto monHitCounter = Monitored::Collection("HitCounter", energyHitCounters);
+  fill("TileOccupancyMBTS", monHitCounter);
   fill("TileEnergySummaryMBTS", monEnergyCounter, monSummaryEnergy);
 
   fill("TileTimeSummaryMBTS", monTimeCounter, monSummaryTime);

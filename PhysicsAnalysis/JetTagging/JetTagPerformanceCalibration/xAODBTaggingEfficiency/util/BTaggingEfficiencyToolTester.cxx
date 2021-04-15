@@ -7,7 +7,7 @@
 #   include "xAODRootAccess/TStore.h"
 //#endif // XAOD_STANDALONE
 
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 
 #include <string>
@@ -23,7 +23,7 @@ int main() {
   std::string taggerName = "DL1";
   std::string workingPointName = "FixedCutBEff_70";
 
-  asg::AnaToolHandle<IBTaggingEfficiencyTool> tool("BTaggingEfficiencyTool/BTagEffTest");
+  asg::StandaloneToolHandle<IBTaggingEfficiencyTool> tool("BTaggingEfficiencyTool/BTagEffTest");
   StatusCode code1 = tool.setProperty("ScaleFactorFileName","xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root" );
   StatusCode code2 = tool.setProperty("TaggerName",    taggerName  );
   StatusCode code3 = tool.setProperty("OperatingPoint", workingPointName);

@@ -119,4 +119,4 @@ svcMgr.DetectorStore.Dump=True
 if 'poolcat' in dir():
   svcMgr.PoolSvc.WriteCatalog="xmlcatalog_file:"+poolcat
 
-svcMgr.MessageSvc.defaultLimit=9999999999
+svcMgr.MessageSvc.defaultLimit=99999999

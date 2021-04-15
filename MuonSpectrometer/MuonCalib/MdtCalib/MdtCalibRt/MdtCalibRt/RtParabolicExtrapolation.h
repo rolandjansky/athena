@@ -16,10 +16,9 @@
 ///
 /// \date 28.02.2009
 
-
+#include <MuonCalibMath/SamplePoint.h>
 
 #include <vector>
-#include <MuonCalibMath/SamplePoint.h>
 
 namespace MuonCalib {
     class IRtRelation;

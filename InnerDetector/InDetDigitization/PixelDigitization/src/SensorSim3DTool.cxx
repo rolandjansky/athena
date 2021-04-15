@@ -66,7 +66,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                          SiChargedDiodeCollection& chargedDiodes,
                                          const InDetDD::SiDetectorElement& Module,
                                          const InDetDD::PixelModuleDesign& p_design,
-                                         const PixelModuleData *moduleData,
                                          std::vector< std::pair<double, double> >& trfHitRecord,
                                          std::vector<double>& initialConditions,
                                          CLHEP::HepRandomEngine* rndmEngine,
@@ -88,21 +87,22 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   }
 
   //Calculate trapping times based on fluence (already includes check for fluence=0)
+  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
   if (m_doRadDamage) {
-    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(moduleData->getFluenceLayer3D(0));   //0 = IBL
+    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
     m_trappingTimeElectrons = trappingTimes.first;
     m_trappingTimeHoles = trappingTimes.second;
   }
-  const PixelHistoConverter& ramoPotentialMap = moduleData->getRamoPotentialMap3D(0);
-  const PixelHistoConverter& eFieldMap        = moduleData->getEFieldMap3D(0);
-  const PixelHistoConverter& xPositionMap_e   = moduleData->getXPositionMap3D_e(0);
-  const PixelHistoConverter& xPositionMap_h   = moduleData->getXPositionMap3D_h(0);
-  const PixelHistoConverter& yPositionMap_e   = moduleData->getYPositionMap3D_e(0);
-  const PixelHistoConverter& yPositionMap_h   = moduleData->getYPositionMap3D_h(0);
-  const PixelHistoConverter& timeMap_e        = moduleData->getTimeMap3D_e(0);
-  const PixelHistoConverter& timeMap_h        = moduleData->getTimeMap3D_h(0);
-  const PixelHistoConverter& avgChargeMap_e   = moduleData->getAvgChargeMap3D_e();
-  const PixelHistoConverter& avgChargeMap_h   = moduleData->getAvgChargeMap3D_h();
+  const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
+  const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
+  const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
+  const PixelHistoConverter& xPositionMap_h   = fluenceData->getXPositionMap3D_h(0);
+  const PixelHistoConverter& yPositionMap_e   = fluenceData->getYPositionMap3D_e(0);
+  const PixelHistoConverter& yPositionMap_h   = fluenceData->getYPositionMap3D_h(0);
+  const PixelHistoConverter& timeMap_e        = fluenceData->getTimeMap3D_e(0);
+  const PixelHistoConverter& timeMap_h        = fluenceData->getTimeMap3D_h(0);
+  const PixelHistoConverter& avgChargeMap_e   = fluenceData->getAvgChargeMap3D_e();
+  const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
 
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];

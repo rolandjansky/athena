@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_IDVARCALCULATOR_H
@@ -11,32 +11,31 @@
 
 
 class IDVarCalculator : public DiTauToolBase {
-public:
+ public:
 
- //-------------------------------------------------------------
- //! Constructor
- //-------------------------------------------------------------
- IDVarCalculator(const std::string& type,
-         const std::string& name,
-         const IInterface * parent);
+  //-------------------------------------------------------------
+  //! Constructor
+  //-------------------------------------------------------------
+  IDVarCalculator(const std::string& type,
+		  const std::string& name,
+		  const IInterface * parent);
 
- //-------------------------------------------------------------
- //! Destructor
- //-------------------------------------------------------------
- virtual ~IDVarCalculator();
+  //-------------------------------------------------------------
+  //! Destructor
+  //-------------------------------------------------------------
+  virtual ~IDVarCalculator();
 
- virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data,
-                            const EventContext& ctx) const override;
+  virtual StatusCode execute(DiTauCandidateData * data,
+			     const EventContext& ctx) const override;
 
- virtual void cleanup(DiTauCandidateData *) override { }
+  virtual void cleanup(DiTauCandidateData *) override { }
  
 
-private:
- bool m_useCells;
-
+ private:
+  bool m_useCells;
 
 };
 
-#endif  /* IDVARCALCULATOR_H */
+#endif // DITAUREC_IDVARCALCULATOR_H

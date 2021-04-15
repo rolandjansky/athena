@@ -41,14 +41,6 @@
 #define DEAD_HV_THRESHOLD 10 // HV <10 V="dead"
 #define MAX_LAR_CELLS 182468
 
-// constructor 
-LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthReentrantAlgorithm(name,pSvcLocator)
- {
-  declareProperty("doHV",m_doHV=true,"create HV data");
-  declareProperty("doR",m_doRProp=true,"Use R values with current to improve HV");
-}
-
 //initialize
 StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK( detStore()->retrieve (m_calocellID, "CaloCell_ID") );
@@ -63,6 +55,12 @@ StatusCode LArHVCondAlg::initialize(){
 
   m_doR= m_doRProp && (m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers);
 
+  if (m_doR) {
+    ATH_MSG_INFO("Will use currents to correct voltage-drop at HV-resistors");
+  } 
+  else {
+    ATH_MSG_INFO("Will NOT correct voltage-drop at HV-resistors");
+  }
 
   // Read Handles
   ATH_CHECK(m_cablingKey.initialize());
@@ -92,9 +90,7 @@ StatusCode LArHVCondAlg::initialize(){
      }
   }
 
-
   ATH_CHECK( m_condSvc.retrieve() );
-
 
   m_scaleTool=std::make_unique<LArHVScaleCorrTool>(m_calocellID,msg(),m_fixHVStrings); 
 
@@ -359,12 +355,6 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 
 }
-
-
-StatusCode LArHVCondAlg::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode LArHVCondAlg::fillPathAndCellHV(voltagePerCell_t& hvdata
 					   , const LArHVIdMapping* hvCabling

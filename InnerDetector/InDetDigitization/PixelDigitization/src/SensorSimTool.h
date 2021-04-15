@@ -20,6 +20,7 @@
 #include "HitManagement/TimedHitPtr.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelRadiationDamageFluenceMapData.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
@@ -39,6 +40,8 @@ public:
   virtual StatusCode initialize() {
     ATH_CHECK(AthAlgTool::initialize());
     ATH_CHECK(m_siPropertiesTool.retrieve());
+    ATH_CHECK(m_moduleDataKey.initialize());
+    ATH_CHECK(m_fluenceDataKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -48,7 +51,6 @@ public:
                                   SiChargedDiodeCollection& chargedDiodes,
                                   const InDetDD::SiDetectorElement& Module,
                                   const InDetDD::PixelModuleDesign& p_design,
-                                  const PixelModuleData *moduleData,
                                   std::vector< std::pair<double, double> >& trfHitRecord,
                                   std::vector<double>& initialConditions,
                                   CLHEP::HepRandomEngine* rndmEngine,
@@ -59,6 +61,16 @@ protected:
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool
   {
     this, "SiPropertiesTool", "SiPropertiesTool", "Tool to retrieve SiProperties"
+  };
+
+  SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+  {
+    this, "PixelModuleData", "PixelModuleData", "Pixel module data"
+  };
+
+  SG::ReadCondHandleKey<PixelRadiationDamageFluenceMapData> m_fluenceDataKey
+  {
+    this, "PixelRadiationDamageFluenceMapData", "PixelRadiationDamageFluenceMapData", "Pixel fluence map data for radiation damage"
   };
 
 };

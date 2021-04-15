@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -167,12 +167,12 @@ def generateCaloSensitiveDetectorList(ConfigFlags):
                                     result.popToolsAndMerge(accLArHEC),
                                     result.popToolsAndMerge(accLArMiniFCAL)
                                    ]
-        #todo migrate below>>>
-        #if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        #if ConfigFlags.Detector.EnableHGTD:
-        if False:
-            SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        else:
+
+        # TODO: enable when HGTD sensitive detectors are available
+        # if ConfigFlags.Detector.EnableHGTD:
+        #     SensitiveDetectorList += [ 'HGTDSensorSD' ]
+
+        if ConfigFlags.Detector.EnableMBTS:
             accMinBiasScintillator = MinBiasScintillatorSDCfg(ConfigFlags)
             SensitiveDetectorList += [ result.popToolsAndMerge(accMinBiasScintillator) ]
 

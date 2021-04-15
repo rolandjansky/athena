@@ -31,7 +31,6 @@ public:
                                   SiChargedDiodeCollection& chargedDiodes,
                                   const InDetDD::SiDetectorElement& Module,
                                   const InDetDD::PixelModuleDesign& p_design,
-                                  const PixelModuleData *moduleData,
                                   std::vector< std::pair<double, double> >& trfHitRecord,
                                   std::vector<double>& initialConditions,
                                   CLHEP::HepRandomEngine* rndmEngine,

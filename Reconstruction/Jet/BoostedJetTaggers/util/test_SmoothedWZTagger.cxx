@@ -16,6 +16,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ROOTCORE
+#include "AsgTools/StandaloneToolHandle.h"
 
 // EDM include(s):
 #include "xAODCore/ShallowAuxContainer.h"
@@ -164,9 +165,8 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing WZ Tagger"<<std::endl;
-  asg::AnaToolHandle<SmoothedWZTagger> m_Tagger; //!
-  ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
-  m_Tagger.setName("MyTagger");
+  asg::StandaloneToolHandle<SmoothedWZTagger> m_Tagger; //!
+  m_Tagger.setTypeAndName("SmoothedWZTagger/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
   //ANA_CHECK( m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/") );
   //ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat") );

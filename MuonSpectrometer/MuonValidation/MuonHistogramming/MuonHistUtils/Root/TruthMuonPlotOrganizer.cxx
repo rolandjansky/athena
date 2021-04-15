@@ -47,12 +47,12 @@ TruthMuonPlotOrganizer::~TruthMuonPlotOrganizer()
   m_allPlots.clear();
 }
   
-void TruthMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu){
+  void TruthMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, float weight){
   //General Truth Plots
-  if (m_oTruthPlots) m_oTruthPlots->fill(truthMu);
-  if (m_oTruthInfoPlots) m_oTruthInfoPlots->fill(truthMu);
-  if (m_oTruthTrkExtrapolationPlots) m_oTruthTrkExtrapolationPlots->fill(truthMu);
-  if (m_oTruthMSHitPlots) m_oTruthMSHitPlots->fill(truthMu);
+    if (m_oTruthPlots) m_oTruthPlots->fill(truthMu, weight);
+    if (m_oTruthInfoPlots) m_oTruthInfoPlots->fill(truthMu, weight);
+    if (m_oTruthTrkExtrapolationPlots) m_oTruthTrkExtrapolationPlots->fill(truthMu, weight);
+    if (m_oTruthMSHitPlots) m_oTruthMSHitPlots->fill(truthMu, weight);
 }
 
 

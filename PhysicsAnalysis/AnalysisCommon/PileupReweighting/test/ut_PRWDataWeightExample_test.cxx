@@ -9,7 +9,7 @@
 #ifdef XAOD_ANALYSIS
 #ifndef XAOD_STANDALONE
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -28,7 +28,7 @@ int main() {
   ANA_CHECK_SET_TYPE (int); //makes ANA_CHECK return ints if exiting function
 
 
-  asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
+  asg::StandaloneToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
   
   std::vector<std::string> lcFiles = {"GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root", //the unprescaled lc file
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e12_lhvloose_nod0_L1EM10VH_297730-304494_OflLumi-13TeV-005.root:HLT_e12_lhvloose_nod0_L1EM10VH",
@@ -100,7 +100,7 @@ int main() {
   
   
   /*
-  asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool2("CP::PileupReweightingTool/prw2");
+  asg::StandaloneToolHandle<CP::IPileupReweightingTool> prwTool2("CP::PileupReweightingTool/prw2");
   prwTool2.setProperty( "LumiCalcFiles" , lcFiles );
   prwTool2.setProperty( "TrigDecisionTool" , "Trig::TrigDecisionTool/TrigDecisionTool" ); //only works for athena, not for eventloop
   prwTool2.initialize();
@@ -119,7 +119,7 @@ int main() {
   return 0;
 }
 #endif
-#else //AnaToolHandle not yet in AtlasDerivation
+#else //StandaloneToolHandle not yet in AtlasDerivation
 
 int main() {
   return 0;

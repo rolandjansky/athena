@@ -27,7 +27,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
-#include "PixelConditionsData/PixelModuleData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "SensorSimTool.h"
 #include "FrontEndSimTool.h"
@@ -66,9 +65,6 @@ private:
   };
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey {
     this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"
-  };
-  SG::ReadCondHandleKey<PixelModuleData>     m_moduleDataKey{
-    this, "PixelModuleData", "PixelModuleData", "Pixel module data"
   };
   std::string m_inputObjectName {
     ""

@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RTCALIBRATIONOUTPUT_H
 #define RTCALIBRATIONOUTPUT_H
 
+#include <memory>
+
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/RtFullInfo.h"
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
-
 namespace MuonCalib {
     /**
     @class RtCalibrationOutput
@@ -19,18 +20,18 @@ namespace MuonCalib {
 
     class RtCalibrationOutput : public IMdtCalibrationOutput {
     public:
-        RtCalibrationOutput(const IRtRelation* rt_rel, const RtFullInfo* fi) :
+        RtCalibrationOutput(std::shared_ptr<const IRtRelation> rt_rel, std::shared_ptr<const RtFullInfo> fi) :
             IMdtCalibrationOutput("RtCalibrationOutput"), m_rtRelation(rt_rel), m_fullInfo(fi) {}
 
         /** access to private attributes */
-        const IRtRelation* rt() const { return m_rtRelation; }
-        const RtFullInfo* fullInfo() const { return m_fullInfo; }
+        std::shared_ptr<const IRtRelation> rt() const { return m_rtRelation; }
+        std::shared_ptr<const RtFullInfo> fullInfo() const { return m_fullInfo; }
 
     private:
         // pointer to a IRtRelation instance
-        const IRtRelation* m_rtRelation;
+        std::shared_ptr<const IRtRelation> m_rtRelation;
         /** additonal info for validation */
-        const RtFullInfo* m_fullInfo;
+        std::shared_ptr<const RtFullInfo> m_fullInfo;
     };
 }  // namespace MuonCalib
 #endif
