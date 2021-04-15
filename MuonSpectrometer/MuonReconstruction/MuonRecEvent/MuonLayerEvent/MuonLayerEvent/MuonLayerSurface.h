@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERSURFACE_H
 #define MUON_MUONLAYERSURFACE_H
 
 #include "MuonStationIndex/MuonStationIndex.h"
+#include "TrkSurfaces/Surface.h"
+#include "memory"
 
 namespace Muon {
 
