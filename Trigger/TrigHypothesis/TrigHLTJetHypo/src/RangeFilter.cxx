@@ -11,7 +11,7 @@
 RangeFilter::RangeFilter(std::size_t begin, std::size_t end):
   m_begin(begin), m_end(end) {
   if (begin > end) {throw std::out_of_range("RangeFilter begin > end");}
-  m_njets = end - begin;
+  m_nToSort = end;
 }
 
 
@@ -21,7 +21,7 @@ RangeFilter::filter (const HypoJetCIter& begin,
 			 const std::unique_ptr<ITrigJetHypoInfoCollector>&) {
 
   m_filtered.clear();
-  if (m_njets > (end - begin)) {// too few jets
+  if (m_nToSort > (end - begin)) {// too few jets
     return std::make_pair(m_filtered.begin(), m_filtered.end());
   }
 

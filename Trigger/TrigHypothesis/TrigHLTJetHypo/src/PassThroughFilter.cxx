@@ -5,12 +5,17 @@
 #include <algorithm>
 
 #include "./PassThroughFilter.h"
+#include "./ITrigJetHypoInfoCollector.h"
 
 
 std::pair<HypoJetCIter, HypoJetCIter>
 PassThroughFilter::filter (const HypoJetCIter& begin,
 			   const HypoJetCIter& end,
-			   const std::unique_ptr<ITrigJetHypoInfoCollector>&) {
+			   const std::unique_ptr<ITrigJetHypoInfoCollector>& col) {
+
+  if (col) {
+    col->collect("PassTroughFilter", "");
+  }
   
   return std::make_pair(begin, end);
 }

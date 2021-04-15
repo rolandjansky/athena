@@ -14,7 +14,7 @@ class ConditionFilter: public IHypoJetVectorFilter  {
 
   ConditionFilter(){};
 
-  ConditionFilter(ConditionPtrs&);
+  ConditionFilter(ConditionPtrs&&);
 
   // find the subset of jets which satisfy a sequence of conditions
   virtual std::pair<HypoJetCIter, HypoJetCIter>
