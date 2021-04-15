@@ -171,4 +171,14 @@ namespace FEHelpers {
     }
   }
 
+  xAOD::Type::ObjectType signalToXAODType(const xAOD::FlowElement& fe){
+    xAOD::FlowElement::signal_t st = fe.signalType();
+    if(st & xAOD::FlowElement::PFlow)       return xAOD::Type::ParticleFlow;
+    if(st & xAOD::FlowElement::CaloCluster) return xAOD::Type::CaloCluster;
+    if(st & xAOD::FlowElement::Track)       return xAOD::Type::TrackParticle;
+    if(st & xAOD::FlowElement::Muon)        return xAOD::Type::Muon;
+    if(st & xAOD::FlowElement::TCC)         return xAOD::Type::TrackCaloCluster;
+    if(st & xAOD::FlowElement::UFO)         return xAOD::Type::TrackCaloCluster; // UFO doesn't have its own xAOD type
+    return xAOD::Type::Other;
+  }
 }
