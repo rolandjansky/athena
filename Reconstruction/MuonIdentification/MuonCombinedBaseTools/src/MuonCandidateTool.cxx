@@ -38,11 +38,11 @@ namespace MuonCombined {
     }
 
     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                                   TrackCollection& outputTracks) {
+                                   TrackCollection& outputTracks) const {
         create(tracks, outputCollection, outputTracks, Gaudi::Hive::currentContext());
     }
     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                                   TrackCollection& outputTracks, const EventContext& ctx) {
+                                   TrackCollection& outputTracks, const EventContext& ctx) const {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
 
@@ -59,7 +59,7 @@ namespace MuonCombined {
 
         // Temporary collection for extrapolated tracks and links with correspondent MS tracks
         std::map<const Trk::Track*, std::pair<ElementLink<xAOD::TrackParticleContainer>, Trk::Track*> > trackLinks;
-        std::unique_ptr<TrackCollection> extrapTracks(new TrackCollection(SG::VIEW_ELEMENTS));
+        std::unique_ptr<TrackCollection> extrapTracks = std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS);
 
         std::set<const Trk::Track*> tracksToBeDeleted;
 
@@ -82,7 +82,7 @@ namespace MuonCombined {
             if (m_extrapolationStrategy == 0u) {
                 standaloneTrack = m_trackBuilder->standaloneFit(msTrack, ctx, vertex, beamSpotX, beamSpotY, beamSpotZ);
             } else {
-                standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
+                standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack, ctx);
             }
             if (standaloneTrack) {
                 // Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
