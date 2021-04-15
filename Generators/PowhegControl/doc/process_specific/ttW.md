@@ -11,8 +11,9 @@ For $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^+`$:
 
 ```py
 't t~ W+ > all'                       # all possible decays are allowed
+'t t~ W+ > all except uuu/ccc'        # all possible decays except where all W's decay to uq or cq
 't t~ W+ > b j j b~ j j j j'          # all-hadronic
-'t t~ W+ > b l+ vl b~ l- vl~ l+ vl'   # "all-leptonic"
+'t t~ W+ > b l+ vl b~ l- vl~ l+ vl'   # "all-leptonic", including taus!
 't t~ W+ > b l+ vl b~ j j l+ vl'      # exactly two positive-sign leptons
 't t~ W+ > undecayed'                 # stable resonances
 ```
@@ -21,11 +22,14 @@ For $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^-`$:
 
 ```py
 't t~ W- > all'                       # all possible decays are allowed
+'t t~ W- > all except uuu/ccc'        # all possible decays except where all W's decay to uq or cq
 't t~ W- > b j j b~ j j j j'          # all-hadronic
-'t t~ W- > b l+ vl b~ l- vl~ l- vl~'  # "all-leptonic"
+'t t~ W- > b l+ vl b~ l- vl~ l- vl~'  # "all-leptonic", including taus!
 't t~ W- > b j j b~ l- vl~ l- vl~'    # exactly two negative-sign leptons
 't t~ W- > undecayed'                 # stable resonances
 ```
+
+Note: the point of the `'t t~ W+ > all except uuu/ccc'` (and same for `W-`) is to get a slightly higher efficiency of generating events with at least one lepton (typically selected in the ATLAS event generation system using a _filter_). It's unfortunately not possible to make Powheg generate only events with at least one lepton for these processes. Sorry, kids.
 
 If you need more fine-grained control over what decays are allowed, please contact the PowhegControl maintainers and we'll see what we can do!
 

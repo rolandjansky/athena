@@ -13,9 +13,10 @@ logger = Logging.logging.getLogger("PowhegControl")
 # decay mode numbers understood by Powheg
 _decay_mode_lookup = {
     't t~ W- > all' : '33333',
+    't t~ W- > all except uuu/ccc' : '33322',
     't t~ W- > b j j b~ j j j j' : '00033',
-    't t~ W- > b l+ vl b~ l- vl~ l- vl~': '30000',
-    't t~ W- > b j j b~ l- vl~ l- vl~': '30000', # additionally need to set the "samesignleptons" parameter
+    't t~ W- > b l+ vl b~ l- vl~ l- vl~': '33300', # includes taus!
+    't t~ W- > b j j b~ l- vl~ l- vl~': '33300', # additionally need to set the "samesignleptons" parameter
     't t~ W- > undecayed' : '0',
 }
 
