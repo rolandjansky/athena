@@ -66,6 +66,6 @@ TrigJetHypoToolConfig_conditionfilter::getHypoJetVectorFilter() const {
 		 makeElementalFilterCondition);
 
   // create an filter from the vector containing the inverted condition.
-  return std::make_unique<ConditionFilter>(prefilterConditions);
+  return std::make_unique<ConditionFilter>(std::move(prefilterConditions));
 }
 

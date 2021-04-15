@@ -70,10 +70,6 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   m_prefilterMakers{this, "prefilterMakers", {},
     "configuration tool to create prefilter"};
 
-  // object that copies selected incomming jets into a new vector.
-  std::vector<FilterPtr> m_prefilters{}; 
-
-  
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
   
