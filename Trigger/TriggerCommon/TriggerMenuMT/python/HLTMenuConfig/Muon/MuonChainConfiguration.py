@@ -14,14 +14,6 @@ from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
-# this must be moved to the HypoTool file:
-def dimuDrComboHypoToolFromDict(chainDict):
-    from DecisionHandling.DecisionHandlingConf import DeltaRRoIComboHypoTool
-    name = chainDict['chainName']
-    tool= DeltaRRoIComboHypoTool(name)
-    tool.DRcut=3.
-    return tool
-
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -125,7 +117,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
             "ivar":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
-            "Dr": [['getmuFastDr', 'getmuCombDr']],
             "muoncalib":[['getmuFast']],
             "l2lrt":[['getmuFast', 'getmuComb']],
 
@@ -232,11 +223,3 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getLateMu(self):
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 
-    #--------------------
-    def getmuCombDr(self):     
-        step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict])
-        return step
-
-    def getmuFastDr(self):
-        step=self.getStep(1,"mufast", [muFastSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict]  )
-        return step
