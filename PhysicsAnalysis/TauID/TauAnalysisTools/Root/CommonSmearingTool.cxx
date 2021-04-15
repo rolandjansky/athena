@@ -183,7 +183,6 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get())) {
       bVeto = combp4->getUseCaloPtFlag(xTau);
     }
-
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
       static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
