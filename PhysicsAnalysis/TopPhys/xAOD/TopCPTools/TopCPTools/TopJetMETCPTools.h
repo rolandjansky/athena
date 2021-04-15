@@ -19,6 +19,7 @@
 // Jet include(s):
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
+#include "JetCPInterfaces/ICPJetCorrectionTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetSelector.h"
 #include "JetInterface/IJetModifier.h"
@@ -28,6 +29,7 @@
 // MET include(s):
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+
 
 namespace top {
   class TopConfig;
@@ -84,6 +86,7 @@ namespace top {
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    ToolHandle<ICPJetCorrectionTool> m_FFJetSmearingTool;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;
@@ -111,6 +114,10 @@ namespace top {
     StatusCode setupLargeRJetsCalibration();
     StatusCode setupJetsScaleFactors();
     StatusCode setupMET();
+
+
+    ICPJetCorrectionTool * setupFFJetSmearingTool(const std::string& mass_def,const std::string& config);
+
 
     ICPJetUncertaintiesTool*
     setupJetUncertaintiesTool(const std::string& name,

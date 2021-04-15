@@ -284,8 +284,9 @@ namespace top {
     m_largeRJetPtcut(25000.),
     m_largeRJetMasscut(0.),
     m_largeRJetEtacut(2.5),
-    m_largeRJetUncertainties_NPModel("CategoryReduction"),
+    m_largeRJetUncertainties_NPModel("CategoryJES_FullJER_FullJMS"),
     m_largeRJetUncertaintiesConfigDir("SetMe"),
+    m_largeRJetUncertainties_JMR_NPModel("FullJMR"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
@@ -1402,7 +1403,8 @@ namespace top {
       };
     }
 
-    this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
+    this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_JESJERJMS_NPModel"));
+    this->largeRJetUncertainties_JMR_NPModel(settings->value("LargeRJetUncertainties_JMR_NPModel"));
     this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
@@ -2414,7 +2416,7 @@ namespace top {
 
   void TopConfig::systematicsJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {	
+      for (auto s : syst) {
         m_systHashJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_list_systHash_electronInJetSubtraction->push_back(s.hash());
@@ -2430,7 +2432,7 @@ namespace top {
 
   void TopConfig::systematicsLargeRJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {	
+      for (auto s : syst) {
         m_systHashLargeRJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapLargeRJets->insert(std::make_pair(s.hash(), s));
