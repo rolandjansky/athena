@@ -20,12 +20,15 @@ def toCSV(fileName, metadata, HLTTriggers, readL1=False):
     for trig in HLTTriggers:
 
       group_name = chain_id = ""
-      if readL1:
+      if "L1Chain" in fileName:
         group_name = "None"
         chain_id = metadata["itemID"][trig.name]
-      else:
+      elif "HLTChain" in fileName:
         group_name = metadata["chainGroup"][trig.name]
         chain_id = metadata["chainID"][trig.name]
+      elif "Group" in fileName:
+        chain_id = 0
+        group_name = "All" if "GLOBAL" in trig.name else group_name
 
       if float(trig.rateDenominator)==0:
         print("float(trig.rateDenominator) is ZERO! This shouldn't happen")
@@ -110,8 +113,11 @@ def getMetadata(inputFile):
   prescales = {}
   lowers = {}
   for i in range(0, metatree.triggers.size()):
-    prescales[metatree.triggers.at(i)] = metatree.prescales.at(i)
+    prescale = metatree.prescales.at(i)
+    # Handle group prescale values
+    prescales[metatree.triggers.at(i)] = prescale if prescale > -1 else "Multiple"
     lowers[metatree.triggers.at(i)] = str(metatree.lowers.at(i))
+
   metadata['prescales'] = prescales
   metadata['lowers'] = lowers
   
@@ -139,16 +145,23 @@ def getMetadata(inputFile):
 
 
 def populateTriggers(inputFile, metadata, globalGroup, filter):
+  # Fix groups' names that are also not GLOBAL
+  def getTriggerName(name, filter):
+    if "Group" in filter and "GLOBAL" not in name:
+      return name.replace('_', ':', 1)
+    else:
+      return name
+
   from .RatesTrigger import RatesTrigger
   triggerList = []
   for key in inputFile.GetListOfKeys():
     if key.GetName() == 'All':
       for subdirKey in key.ReadObj().GetListOfKeys():
+        if filter not in subdirKey.GetName(): continue
         for triggerKey in subdirKey.ReadObj().GetListOfKeys():
-          if triggerKey.GetName().startswith(filter):
             for hist in triggerKey.ReadObj().GetListOfKeys():
               if hist.GetName() == 'data':
-                triggerList.append( RatesTrigger(triggerKey.GetName(), metadata, hist.ReadObj(), globalGroup) )
+                triggerList.append( RatesTrigger(getTriggerName(triggerKey.GetName(), filter), metadata, hist.ReadObj(), globalGroup) )
   return triggerList
 
 
@@ -158,7 +171,7 @@ def getGlobalGroup(inputFile, filter):
       for subdirKey in key.ReadObj().GetListOfKeys():
         if not subdirKey.GetName() == "Rate_Group_HLT" : pass
         for globalsKey in subdirKey.ReadObj().GetListOfKeys():
-          if globalsKey.GetName() == filter:
+          if filter in globalsKey.GetName():
             for hist in globalsKey.ReadObj().GetListOfKeys():
               if hist.GetName() == 'data':
                 return hist.ReadObj()
