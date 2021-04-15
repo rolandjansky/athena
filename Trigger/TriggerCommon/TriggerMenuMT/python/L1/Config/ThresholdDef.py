@@ -37,7 +37,7 @@ class ThresholdDef:
         ThresholdDef.alreadyExecuted = True
  
         # MU
-        # from Junpei https://indico.cern.ch/event/1011425
+        # ATR-23227
 
         MuonThreshold( "MU4"      ).setThrValue( thr=4 )                           # similar to Run-2 MU4 efficiency
         MuonThreshold( "MU4F"     ).setThrValue( thr=4 ).setTGCFlags("F")          # similar to Run-2 MU4 rate
@@ -46,10 +46,21 @@ class ThresholdDef:
         MuonThreshold( "MU10VF"   ).setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
         MuonThreshold( "MU14FCH"  ).setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
         MuonThreshold( "MU14FCHR" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
+        MuonThreshold( "MU15VFCH" ).setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20, bit lower rate than MU14
+        
+        MuonThreshold( "MU14FH"   ).setThrValue( thr=14 ).setTGCFlags("F & H") # commissioning
+        MuonThreshold( "MU8FCH"   ).setThrValue( thr=8 ).setTGCFlags("F & C & H") # for MU+X chains
+        MuonThreshold( "MU10BOM"  ).setThrValue( thr=10 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barrel-only
+        MuonThreshold( "MU12BOM"  ).setThrValue( thr=12 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barel-only, emergency
+        MuonThreshold( "MU4BOM"   ).setThrValue( thr=4 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barrel-only, commissioning
+        MuonThreshold( "MU20FC"   ).setThrValue( thr=20, ba=14 ).setTGCFlags("F & C") # alignment with toroid off
+        MuonThreshold( "MU8FH"    ).setThrValue( thr=8 ).setTGCFlags("F & H") # for late muon 
+        MuonThreshold( "MU3VFCH"  ).setThrValue( thr=3, ba=4 ).setTGCFlags("F & C & H") # 
+        MuonThreshold( "MU3V"     ).setThrValue( thr=3, ba=4 )  #  
 
         # examples for regional muons
-        MuonThreshold( 'MU20BA').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("BA")  # barrel only 
-        MuonThreshold( 'MU20EC').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("EC,FW")  # forward muon
+        #MuonThreshold( 'MU20BA').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("BA")  # barrel only 
+        #MuonThreshold( 'MU20EC').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("EC,FW")  # forward muon
 
         # backward compatible threshold names (definition like above)
         MuonThreshold( "MU6" ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
