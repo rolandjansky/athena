@@ -148,6 +148,8 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   if (m_doTriggerGroups) {
     for (const std::string& group : groups) {
+      // Ignore BW and PS groups
+      if (group.find("BW") == 0 || group.find("PS") == 0) continue;
       if (m_groups.count(group) == 0) {
         m_groups.emplace(group, std::make_unique<RatesGroup>(group, msg(), m_doHistograms, m_enableLumiExtrapolation));
         // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
@@ -503,9 +505,11 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering group histograms:");
       for (const auto& group : m_groups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/rateVsTrain")) );
+        std::string groupName = group.first;
+        std::replace( groupName.begin(), groupName.end(), ':', '_');
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -513,9 +517,9 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering global group histograms:");
       for (const auto& group : m_globalGroups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + group.first + "/rateVsTrain")) );
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -774,6 +778,18 @@ void RatesAnalysisAlg::writeMetadata() {
     triggers.push_back(trigger.first);
     lowers.push_back(trigger.second->getSeedName());
     prescales.push_back(trigger.second->getPrescale() );
+  }
+
+  for (const auto& group : m_groups) {
+    triggers.push_back(group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
+  }
+
+  for (const auto& group : m_globalGroups) {
+    triggers.push_back("RATE_GLOBAL_" + group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
   }
 
   m_metadataTree->Branch("triggers", &triggers);
