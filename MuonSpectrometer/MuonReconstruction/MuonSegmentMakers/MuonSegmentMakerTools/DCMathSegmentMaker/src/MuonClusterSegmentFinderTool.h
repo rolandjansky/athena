@@ -55,7 +55,7 @@ class MuonClusterSegmentFinderTool : virtual public IMuonClusterSegmentFinderToo
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };  //<! Id helper tool
 
-    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool{
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool{
         this,
         "SegmentAmbiguityTool",
         "Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor",
