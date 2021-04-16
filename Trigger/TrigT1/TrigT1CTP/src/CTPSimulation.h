@@ -161,8 +161,8 @@ namespace LVL1CTP {
       // gFEX
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyGFexJets    {  this, "gFexJetInput", "gL1Jets", "Input list of gFEX jets" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETPufit{  this, "gFexMETPufitInput", "gXEPUFIT_MET", "Input list of gFEX MET Pufit" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHO_MET", "Input list of gFEX MET Rho" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJ_MET", "Input list of gFEX MET JwoJ" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHOPerf", "Input list of gFEX MET Rho" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJPerf", "Input list of gFEX MET JwoJ" };
       // eFEX
       SG::ReadHandleKey< xAOD::TrigEMClusterContainer >  m_iKeyEFexCluster{  this, "eFexClusterInput", "SClusterCl", "Input list of eFEX cluster" };
       SG::ReadHandleKey< xAOD::EmTauRoIContainer >       m_iKeyEFexTau    {  this, "eFexTauInput", "SClusterTau", "Input list of eFEX tau" };

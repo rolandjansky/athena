@@ -97,6 +97,10 @@ def HLTMETMonitoringTool():
                                   primary_met            = ["pufit"],
                                   prescaled_met          = [],
                                   electron_run3_key      = "HLT_xAOD__ElectronContainer_egamma_Electrons",
+                                  l1_rho_key      = "gXERHOPerf",
+                                  l1_jwoj_key      = "gXEJWOJPerf",
+                                  l1_noisecut_key      = "gXENOISECUTPerf",
+                                  l1_jnoisecut_key      = "jNOISECUTPerf",
                                   )
 
         list = [ HLTMETMon ]

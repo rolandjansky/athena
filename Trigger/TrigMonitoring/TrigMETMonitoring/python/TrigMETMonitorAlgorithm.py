@@ -66,6 +66,11 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.hlt_muon_key = 'HLT_MuonsCB_RoI'
       TrigMETMonAlg.offline_met_key = 'MET_EMTopo'
       TrigMETMonAlg.hlt_pfsum_key = 'HLT_MET_pfsum'
+      TrigMETMonAlg.l1_jnc_key = 'jNOISECUTPerf'
+      TrigMETMonAlg.l1_jrho_key = 'jXERHOPerf'
+      TrigMETMonAlg.l1_gnc_key = 'gXENOISECUTPerf'
+      TrigMETMonAlg.l1_grho_key = 'gXERHOPerf '
+      TrigMETMonAlg.l1_gjwoj_key = 'gXEJWOJPerf'
     else:
       TrigMETMonAlg.hlt_electron_key = 'HLT_xAOD__ElectronContainer_egamma_Electrons'
       TrigMETMonAlg.hlt_muon_key = 'HLT_xAOD__MuonContainer_MuonEFInfo'

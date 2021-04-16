@@ -4,6 +4,31 @@
 
 #include "AFP_ByteStream2RawCnv/AFP_WordReadOut.h"
 
+AFP_WordReadOut::AFP_WordReadOut(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent)
+{
+}
+
+AFP_WordReadOut::~AFP_WordReadOut()
+{
+}
+
+StatusCode AFP_WordReadOut::initialize()
+{
+  if (m_linkNumTrans.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_linkNumTrans );
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_linkNumTrans );
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode AFP_WordReadOut::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
 uint32_t AFP_WordReadOut::getBits(const uint16_t start, const uint16_t stop) const
 {
   uint32_t word = 0;

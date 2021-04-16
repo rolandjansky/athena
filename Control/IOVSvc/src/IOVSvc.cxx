@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -89,35 +89,32 @@ IOVSvc::~IOVSvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::initialize() {
-  StatusCode status = AthService::initialize();
-  msg().setLevel( m_outputLevel.value() );
 
-  ATH_MSG_DEBUG( "Initializing IOVSvc version " << PACKAGE_VERSION  );
-  ATH_MSG_DEBUG( "AthService initialized"  );
+  msg().setLevel( m_outputLevel.value() );
+  ATH_MSG_DEBUG( "Initializing IOVSvc" );
 
   if (!p_sgs.isValid()) {
     ATH_MSG_ERROR("could not get the Event Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_detStore.isValid()) {
     ATH_MSG_ERROR("could not get the Detector Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_condSvc.isValid()) {
     ATH_MSG_ERROR("could not get the ConditionSvc");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::finalize()
 {
-  ATH_CHECK( AthService::finalize() );
   ATH_MSG_DEBUG( "Service finalised successfully" );
   return StatusCode::SUCCESS;
 }

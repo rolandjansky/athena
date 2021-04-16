@@ -446,14 +446,6 @@ HLT_2mu6_10invm70_L1MU6:
     3: 4
 HLT_2mu6_2j50_0eta490_j0_dijetSEP50j12etSEP900djmass_L1MJJ-500-NFF:
   eventCount: 0
-HLT_2mu6_Dr_L12MU4:
-  eventCount: 1
-  stepCounts:
-    0: 2
-    1: 1
-  stepFeatures:
-    0: 6
-    1: 2
 HLT_2mu6_L12MU6:
   eventCount: 2
   stepCounts:

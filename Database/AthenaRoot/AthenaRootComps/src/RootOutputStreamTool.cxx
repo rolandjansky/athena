@@ -47,7 +47,7 @@ RootOutputStreamTool::~RootOutputStreamTool() {
 }
 
 StatusCode RootOutputStreamTool::initialize() {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name());
   if (!::AthAlgTool::initialize().isSuccess()) {
     ATH_MSG_FATAL("Cannot initialize AlgTool base class.");
     return StatusCode::FAILURE;
