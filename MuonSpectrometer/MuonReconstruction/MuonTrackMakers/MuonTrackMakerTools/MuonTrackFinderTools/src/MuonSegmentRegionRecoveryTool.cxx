@@ -735,7 +735,7 @@ namespace Muon {
             std::unique_ptr<Trk::Track> trackWithHoles =
                 std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : 0);
             // generate a track summary for this track
-            if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(ctx,*trackWithHoles, nullptr, false); }
+            if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(ctx, *trackWithHoles, nullptr, false); }
             ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl
                                               << m_printer->printStations(*trackWithHoles));
             return trackWithHoles;
