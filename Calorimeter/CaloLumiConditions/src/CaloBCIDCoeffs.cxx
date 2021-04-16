@@ -27,7 +27,7 @@
  * @param minbias Minimum bias conditions object.
  */
 CaloBCIDCoeffs::CaloBCIDCoeffs (const std::vector<HWIdentifier>& hwids,
-                                const LArOnlineID& online_id,
+                                const LArOnlineID_Base& online_id,
                                 const ILArOFC& ofcs,
                                 const ILArShape& shapes,
                                 const ILArMinBiasAverage& minbias)
@@ -73,7 +73,7 @@ CaloBCIDCoeffs::CaloBCIDCoeffs (const std::vector<HWIdentifier>& hwids,
  * @param minbias Minimum bias conditions object.
  */
 void CaloBCIDCoeffs::fillCoeffs (const std::vector<HWIdentifier>& hwids,
-                                 const LArOnlineID& online_id,
+                                 const LArOnlineID_Base& online_id,
                                  const ILArOFC& ofcs,
                                  const ILArShape& shapes,
                                  const ILArMinBiasAverage& minbias)

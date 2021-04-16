@@ -27,6 +27,7 @@
 #include "LArROD/LArRawChannelBuilderIterAlg.h"
 #include "../LArSCSimpleMaker.h"
 #include "../LArSuperCellBCIDEmAlg.h"
+#include "../LArSuperCellBCIDAlg.h"
 
 
 typedef LArDigitPreProcessor<LArDigitContainer> LArDigProcessor;
@@ -64,6 +65,7 @@ DECLARE_COMPONENT( LArRawChannelBuilderAlg )
 DECLARE_COMPONENT( LArRawChannelBuilderIterAlg )
 DECLARE_COMPONENT( LArSCSimpleMaker )
 DECLARE_COMPONENT( LArSuperCellBCIDEmAlg )
+DECLARE_COMPONENT( LArSuperCellBCIDAlg )
 
 #include "../tests/SuperCellVsCaloCellTestAlg.h"
 DECLARE_COMPONENT( SuperCellVsCaloCellTestAlg )
