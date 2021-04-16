@@ -42,6 +42,9 @@ namespace top {
     // If ID in map then set it to full name, else keep as is.
     if (id_map.find(tightID) != id_map.end()) m_photon_selection = id_map[tightID];
     if (id_map.find(looseID) != id_map.end()) m_loose_photon_selection = id_map[looseID];
+
+    m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
+    top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
 
   bool PhotonMC16::passSelection(const xAOD::Photon& ph) const {
@@ -102,6 +105,10 @@ namespace top {
         m_usePhotonShowerShapeVariables = false;
       }
     }
+    // removing photon cluster in EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    if (!m_deadHVTool->accept(ph)) return false;
+
 
     return true;
   }

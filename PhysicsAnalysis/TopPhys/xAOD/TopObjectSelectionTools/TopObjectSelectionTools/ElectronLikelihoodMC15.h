@@ -7,7 +7,8 @@
 
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
-
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
+#include "AsgTools/AnaToolHandle.h"
 #include <memory>
 
 namespace top {
@@ -116,6 +117,10 @@ namespace top {
 
     /// decide to apply the charge ID selector tool
     bool m_applyChargeIDCut;
+
+    // Removing electron clusters from EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    asg::AnaToolHandle<IAsgDeadHVCellRemovalTool> m_deadHVTool;
   };
 }
 
