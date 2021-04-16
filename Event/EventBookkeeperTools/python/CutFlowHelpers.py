@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Creation: Karsten Koeneke
 def GetCurrentStreamName( msg ):
@@ -60,10 +60,10 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
     # Standard event bookkeepers
-    primary_name = "CutBookkeepers"
-    cutflowtool = BookkeeperTool(primary_name + "Tool",
-                                 InputCollName = primary_name,
-                                 OutputCollName= primary_name)
+    output_name = "CutBookkeepers"
+    cutflowtool = BookkeeperTool("BookkeeperTool",
+                                 InputCollName = output_name,
+                                 OutputCollName= output_name)
     svcMgr.ToolSvc += cutflowtool
 
     # Add tool to MetaDataSvc
@@ -100,15 +100,15 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         # Explicitely add file metadata from input and from transient store,
         # but only the ones that we always create.
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name+"*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"*Aux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name+"*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"*Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+output_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+output_name+"*Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+output_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+output_name+"*Aux.*" )
         pass
 
     return
 
-def CreateBookkeeperTool( name="CutBookkeepers" ):
+def CreateBookkeeperTool( name="BookkeeperTool" ):
 
   from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
 

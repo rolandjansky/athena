@@ -344,7 +344,11 @@ namespace TrigConf {
              chain->set_rerun_prescale( -1.0 ); // Not used in R3
              chain->set_pass_through( -1.0 );  // Not used in R3
              chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
- 
+
+             for (const std::string& group : loadedChain.groups()){
+                chain->addGroup(group);
+             }
+
              if (loadedHltps.isInitialized()) {
                 const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
                 chain->set_prescale( loadedPrescale.prescale );

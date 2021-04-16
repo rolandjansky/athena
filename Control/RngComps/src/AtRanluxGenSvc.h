@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATRANLUXGENSVC_H
@@ -9,7 +9,6 @@
  *  @author Paolo Calafiura
  *  @author George Stavropoulous
  *  
- *  $Id: AtRanluxGenSvc.h 729159 2016-03-11 12:58:15Z krasznaa $
  */
 
 #include <map>
@@ -52,17 +51,15 @@
  *  @endcode
  * 
  */
-class AtRanluxGenSvc : virtual public IAtRndmGenSvc,
-                       virtual public IIncidentListener,
-		       public AthService
+class AtRanluxGenSvc : public extends<AthService, IAtRndmGenSvc, IIncidentListener>
 {
 public:
     /// @name Interface to the CLHEP engine
     //@{
-    virtual CLHEP::HepRandomEngine* GetEngine(const std::string& streamName);
-    virtual void CreateStream(uint32_t seed1, uint32_t seed2,
+    virtual CLHEP::HepRandomEngine* GetEngine(const std::string& streamName) override;
+    void CreateStream(uint32_t seed1, uint32_t seed2,
 			      const std::string& streamName);
-    virtual bool CreateStream(const std::vector<uint32_t>& seeds, 
+    bool CreateStream(const std::vector<uint32_t>& seeds,
 			      const std::string& streamName);
     //@}
 
@@ -87,10 +84,10 @@ public:
     //@}
 
     virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t theSeed, 
-						const std::string& streamName);
+						const std::string& streamName) override;
     virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t eventNumber, 
 						uint32_t runNumber,
-						const std::string& streamName);
+						const std::string& streamName) override;
     ///broken, temporarily keep for backward compatibility
     CLHEP::HepRandomEngine* oldSetOnDefinedSeeds (uint32_t theSeed, 
 					   const std::string& streamName);
@@ -99,20 +96,18 @@ public:
 					   uint32_t runNumber,
 					   const std::string& streamName);
     ///seed all streams we manage, combining theSeed and the stream names
-    virtual bool setAllOnDefinedSeeds (uint32_t theSeed); 
+    virtual bool setAllOnDefinedSeeds (uint32_t theSeed) override;
     ///seed all streams, combining eventNumber, runNumber and the stream names
-    virtual bool setAllOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber);
+    virtual bool setAllOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber) override;
   
     /// @name Gaudi Service Implementation
     //@{
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode queryInterface( const InterfaceID& riid, 
-				       void** ppvInterface );
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     //@}
 
     /// IIncidentListener implementation. Handles EndEvent incident
-    virtual void handle(const Incident&);
+    virtual void handle(const Incident&) override;
 
 
 private:

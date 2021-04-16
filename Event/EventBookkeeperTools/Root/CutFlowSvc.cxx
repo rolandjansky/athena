@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class CutFlowSvc
@@ -240,6 +240,7 @@ void CutFlowSvc::handle( const Incident& inc )
     }
     else {
       std::string inputstream = *(esi->getProcessingTags().begin());
+      ATH_MSG_DEBUG("Input stream name: " << inputstream);
       if (m_inputStream.empty()) {m_inputStream=inputstream;}
       else if (m_inputStream!=inputstream) {
         const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
@@ -254,8 +255,8 @@ void CutFlowSvc::handle( const Incident& inc )
     }
   }
 
-  // Clear the file bookkeeper
-  if (inc.type() == IncidentType::BeginInputFile || inc.type() == "MetaDataStop") {
+  // Clear the local bookkeepers
+  if (inc.type() == "MetaDataStop") {
     if (!m_containers.empty()) {
       // Reset existing container
       for (size_t i = 0; i < m_containers.size(); ++i) {
@@ -268,7 +269,7 @@ void CutFlowSvc::handle( const Incident& inc )
     }
   }
 
-  ATH_MSG_DEBUG( "End incident " << inc.type() );
+  ATH_MSG_VERBOSE( "End incident " << inc.type() );
   return;
 }
 

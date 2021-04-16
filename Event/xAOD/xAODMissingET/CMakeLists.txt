@@ -13,7 +13,7 @@ atlas_add_library( xAODMissingET
    Root/*.cxx
    PUBLIC_HEADERS xAODMissingET
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODJet
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODJet PFlowUtilsLib
    PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODTracking xAODTruth )
 
 atlas_add_xaod_smart_pointer_dicts(

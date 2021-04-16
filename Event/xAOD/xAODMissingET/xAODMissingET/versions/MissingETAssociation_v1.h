@@ -29,7 +29,7 @@ namespace xAOD
   {
   public:
 
-    static bool testPolicy(unsigned int type, MissingETBase::UsageHandler::Policy p);
+    static bool testPolicy(const xAOD::IParticle& part, MissingETBase::UsageHandler::Policy p);
 
     /*! @brief Vector sum of constituents for subtractive overlap removal */                                                                                                            
     class ConstVec
@@ -354,6 +354,9 @@ namespace xAOD
     /*!@}*/
 
   protected:
+
+    static bool testPolicy(xAOD::Type::ObjectType type, MissingETBase::UsageHandler::Policy p);
+
     /// Function initialising the object to work in standalone mode
     void createPrivateStore();
 
