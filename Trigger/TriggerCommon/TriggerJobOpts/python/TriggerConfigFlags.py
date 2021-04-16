@@ -74,7 +74,7 @@ def createTriggerFlags():
         '''
         _log = logging.getLogger('TriggerConfigFlags.EDMVersion')
         _log.debug("Attempting to determine EDMVersion")
-        default_version = 3
+        default_version = -1  # intentionally invalid default value, ATR-22856
         if flags.Input.Format=="BS":
             _log.debug("Input format is ByteStream")
             inputFileName = flags.Input.Files[0]
