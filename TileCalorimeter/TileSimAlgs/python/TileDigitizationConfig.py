@@ -1,6 +1,6 @@
 """Combined Tile Digitization functions
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -14,7 +14,7 @@ def TileTriggerDigitizationCfg(flags):
     from TileSimAlgs.TileMuonReceiverConfig import TilePulseForTileMuonReceiverOutputCfg
     acc.merge( TilePulseForTileMuonReceiverOutputCfg(flags) )
 
-    if not flags.Digitization.PileUpPremixing:
+    if not flags.Digitization.PileUpPresampling:
         from TileSimAlgs.TileMuonReceiverDecisionConfig import TileMuonReceiverDecisionOutputCfg
         acc.merge( TileMuonReceiverDecisionOutputCfg(flags) )
 
@@ -46,7 +46,7 @@ def TileDigitizationCfg(flags):
     from TileSimAlgs.TileDigitsMakerConfig import TileDigitsMakerOutputCfg
     acc = TileDigitsMakerOutputCfg(flags)
 
-    if not flags.Digitization.PileUpPremixing and flags.Output.doWriteRDO:
+    if not flags.Digitization.PileUpPresampling and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
     else:

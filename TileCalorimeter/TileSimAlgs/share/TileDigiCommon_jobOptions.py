@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 include.block("TileSimAlgs/TileDigiCommon_jobOptions.py")
 ###############################################################
 #
@@ -158,7 +160,7 @@ if doTileDigitToRawChannel:
 
     TileRChMaker = theTileRawChannelGetter.TileRChMaker()
 
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         TileRChMaker.TileDigitsContainer = overlayFlags.bkgPrefix() + 'TileDigitsCnt'
 
     TileRawChannelBuilderOptATLAS = None

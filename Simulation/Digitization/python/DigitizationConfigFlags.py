@@ -72,8 +72,8 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?
     flags.addFlag("Digitization.DoXingByXingPileUp", False)
-    # Run pile-up premixing
-    flags.addFlag("Digitization.PileUpPremixing", False)
+    # Run pile-up presampling
+    flags.addFlag("Digitization.PileUpPresampling", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     # Run Calorimeter noise simulation
@@ -164,8 +164,8 @@ def digitizationRunArgsToFlags(runArgs, flags):
     if hasattr(runArgs, "jobNumber"):
         flags.Digitization.JobNumber = runArgs.jobNumber
 
-    if hasattr(runArgs, "PileUpPremixing"):
-        flags.Digitization.PileUpPremixing = runArgs.PileUpPremixing
+    if hasattr(runArgs, "PileUpPresampling"):
+        flags.Digitization.PileUpPresampling = runArgs.PileUpPresampling
 
     if hasattr(runArgs, "doAllNoise"):
         flags.Digitization.DoInnerDetectorNoise = runArgs.doAllNoise
