@@ -11,6 +11,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -70,9 +71,11 @@ public:
 private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
-  AFP_WordReadOut m_wordReadout;
+  ToolHandle<AFP_WordReadOut> m_wordReadout {this, "AFP_WordReadOut", "AFP_WordReadOut", "Tool that reads word"};
   
   static const uint32_t s_siNoHitMarker = 15;
+
+
 };
 
 #endif //> !DECODER_AFP_DECODER_H
