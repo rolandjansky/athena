@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -122,7 +122,7 @@ PileUpEventLoopMgr::~PileUpEventLoopMgr() {}
 //=========================================================================
 StatusCode PileUpEventLoopMgr::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << this->name() << " - package version " << PACKAGE_VERSION ) ;
+  ATH_MSG_INFO ( "Initializing " << this->name() ) ;
   if(!m_allowSerialAndMPToDiffer)
     {
       ATH_MSG_WARNING ( "AllowSerialAndMPToDiffer=False! This will incur serious performance penalties! But Serial and MP output will be the same." );
@@ -204,7 +204,7 @@ StatusCode PileUpEventLoopMgr::initialize()
 //=========================================================================
 StatusCode PileUpEventLoopMgr::finalize()
 {
-  ATH_MSG_INFO ( "Finalizing " << this->name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO ( "Finalizing " << this->name() );
 
   //we need to release all our BkgStreamCaches
   ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());

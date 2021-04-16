@@ -170,7 +170,7 @@ MetaDataSvc          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
 CondProxyProvider   DEBUG Property update for OutputLevel : new value = 2
-CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-00-00
+CondProxyProvider    INFO Initializing CondProxyProvider
 CondProxyProvider   DEBUG Service base class initialized successfully
 CondProxyProvider    INFO Inputs: SimplePoolFile4.root
 CondProxyProvider   DEBUG Try item: "SimplePoolFile4.root" from the collection list.
