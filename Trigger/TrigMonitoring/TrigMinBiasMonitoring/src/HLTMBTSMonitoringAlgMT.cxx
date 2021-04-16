@@ -66,7 +66,7 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
       fill("MBTSall", TrigCounts);
 
-      for (const auto &mbts_itr : *mbtsbits)
+      for (const auto mbts_itr : *mbtsbits)
       {
 
         auto mbtsHitEnergies = mbts_itr->triggerEnergies(); // energy (in pC) of signal in a counter (relative to IP), vector for all counters

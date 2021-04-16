@@ -1336,7 +1336,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
       targetPassed++;
     }
     //don't step beyond surface
-    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > std::abs( distanceToTarget)) h = distanceToTarget;
 
     //Abort if maxPath is reached or solution is diverging
     if ((targetPassed > 3 && std::abs( distanceToTarget) >= previousDistance) || (absolutePath > maxPath)) return false;
@@ -1488,7 +1488,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       cache.m_currentLayerBin = cache.m_binMat->layerBin(position);
       binIDMat        = cache.m_binMat->material(position);
       std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction0);
-      if (dist2next.first < lbu->bins() && std::abs(dist2next.second)>1. && fabs(dist2next.second)< fabs(h) ){
+      if (dist2next.first < lbu->bins() && std::abs(dist2next.second)>1. && std::abs(dist2next.second)< fabs(h) ){
         h = dist2next.second*propDir;
       }
       if (binIDMat) cache.m_material = binIDMat->first;
@@ -1558,7 +1558,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
     cache.m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
 
-    if(std::abs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));
+    if(std::abs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(std::abs(distanceStepped));
     // update straggling covariance
     if (errorPropagation && m_straggling) {
       // 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
@@ -1583,7 +1583,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     bool restart = false;
     // in case of problems, make shorter steps
     if ( propDir*path < -tol || absPath-std::abs(path)>10.) {
-      helpSoft = std::abs(path)/absPath > 0.5 ? fabs(path)/absPath : 0.5;
+      helpSoft = std::abs(path)/absPath > 0.5 ? std::abs(path)/absPath : 0.5;
     }
 
     Amg::Vector3D position(P[0],P[1],P[2]);
@@ -1733,7 +1733,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         helpSoft = 1.;
       }
       if ( (*vsIter).first != -1 && ( ic==nextSf || (*vsIter).first==1 || nextSf<0 ||
-                                      std::abs((*vsIter).second.first) < 500. ||  fabs(path)>0.5*fabs((*vsIter).second.second) )  ) {
+                                      std::abs((*vsIter).second.first) < 500. ||  std::abs(path)>0.5*fabs((*vsIter).second.second) )  ) {
         previousDistance = (*vsIter).second.first;
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
@@ -1750,7 +1750,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if(ic==startSf&&distanceEst<0&&distSol.first()>0) distanceEst = distSol.first();
         }
         // eliminate close surface if path too small
-        if (ic==nextSf && std::abs(distanceEst)<tol && fabs(path)<tol) {
+        if (ic==nextSf && std::abs(distanceEst)<tol && std::abs(path)<tol) {
           (*vsIter).first=-1; vsIter=vsBeg; restart=true; distanceToTarget=maxPath; nextSf=-1;
           continue;
         }
@@ -1760,7 +1760,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         // if (  h * propDir * distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
         if (  (*vsIter).second.first *propDir* distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
           // verify change of sign in signedDistance ( after eliminating situations where this is meaningless )
-          if ( !distSol.signedDistance() || std::abs(distSol.currentDistance(true))<tol || fabs((*vsIter).second.second)<tol
+          if ( !distSol.signedDistance() || std::abs(distSol.currentDistance(true))<tol || std::abs((*vsIter).second.second)<tol
                || (*vsIter).second.second*distSol.currentDistance(true)<0) {   // true intersection
             if (ic==nextSf) {
               ((*vsIter).first)++;
@@ -1771,12 +1771,12 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
               }
               // take care of eliminating when number of flips even - otherwise it may end up at the start !
               if ((*vsIter).first>50 && h*propDir>0 ) {
-                // std::abs(distanceEst) >= fabs(previousDistance) )  {
+                // std::abs(distanceEst) >= std::abs(previousDistance) )  {
                 (*vsIter).first = -1; vsIter = vsBeg; restart = true;
                 continue;
               }
               if ((*vsIter).first!=-1) flipDirection = true;
-            } else if ( std::abs((*vsIter).second.second)>tol && fabs(distSol.currentDistance(true))>tol ) {
+            } else if ( std::abs((*vsIter).second.second)>tol && std::abs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
               if ( ic>nextSf ) {   // easy case, already calculated
                 if (propDir*distanceEst<(*(vsBeg+nextSf)).second.first-tol)  {
@@ -1815,7 +1815,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             nextSfCand = ic;
           }
         }
-      } else if ( std::abs(path) > fabs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
+      } else if ( std::abs(path) > std::abs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
         if (distSol.numberOfSolutions()>0 ) {
@@ -1860,10 +1860,10 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     }
 
     //don't step beyond surfaces - adjust step
-    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > std::abs( distanceToTarget)) h = distanceToTarget;
 
     //don't step beyond bin boundary - adjust step
-    if (cache.m_binMat && std::abs( h) > std::fabs(distanceToNextBin)+0.001 ) {
+    if (cache.m_binMat && std::abs( h) > std::abs(distanceToNextBin)+0.001 ) {
       if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData
         //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
         h = distanceToNextBin*propDir;
