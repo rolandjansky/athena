@@ -1,20 +1,17 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file clid
 # @brief CLI to Athena CLID DB. "clid -h" for help
 # @author cetull@lbl.gov, pcalafiura@lbl.gov
 
-from __future__ import print_function
-
-import string, re
-import sys, os
 from CLIDComps.clidGenerator import clidGenerator, py2_hash
 from optparse import OptionParser
 
 #
 # options and their arguments.
 #
-parser = OptionParser(usage="%prog [options] [class name] OR [clid] (Enter %prog -h for help)", version="%prog - Athena CLID Generator v 2.1")
+parser = OptionParser(usage="%prog [options] [class name] OR [clid] (Enter %prog -h for help)", version="%prog - Athena CLID Generator v 3.0")
 parser.add_option("-b", "--cliddb", dest="cliddb",
               help="Reconcile generated CLID with CLID DataBase CLIDDB",
               metavar="CLIDDB")
@@ -34,7 +31,7 @@ parser.add_option("-s", "--silent", action="store_true", dest="silent",
 #load options
 #
 (options, args) = parser.parse_args()
-if len(args) != 1 and options.relist == None:
+if len(args) != 1 and options.relist is None:
     parser.error("takes exactly 1 argument")
 
 #
@@ -53,7 +50,7 @@ if options.debug: print ("repository = ",cgen._clidGenerator__clidRep)
 for a in args:
     try:
         i = int(a)
-    except:
+    except ValueError:
         n = a
         if options.condcont:
             if n.startswith('CondCont'):
@@ -76,7 +73,7 @@ for a in args:
         else:
             if options.silent: print (c)
             else:
-                print (c, n, cgen.getPackageFromClid(c) )
+                print (c, n)
 
 #
 # Process RegEx list

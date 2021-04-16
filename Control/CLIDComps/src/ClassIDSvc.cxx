@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  /* distance */
@@ -165,22 +165,13 @@ ClassIDSvc::getIDOfTypeInfoName(const std::string& typeInfoName,
   return sc;
 }
 
-/// get PackageInfo associated with clID (if any)
-StatusCode 
-ClassIDSvc::getPackageInfoForID(const CLID& id, Athena::PackageInfo& info) const
-{
-  lock_t lock (m_mutex);
-  maybeRescan();
-  return getPackageInfoForIDInternal (id, info);
-}
-
 
 /// associate type name with clID
 StatusCode 
 ClassIDSvc::setTypePackageForID(const CLID& id, 
-				const std::string& typeName,
-				const Athena::PackageInfo& info,
-				const std::string& typeInfoName)
+                                const std::string& typeName,
+                                const Athena::PackageInfo&,
+                                const std::string& typeInfoName)
 {
   lock_t lock (m_mutex);
   if (id < CLIDdetail::MINCLID || id > CLIDdetail::MAXCLID) {
@@ -189,7 +180,7 @@ ClassIDSvc::setTypePackageForID(const CLID& id,
                    << " : " << CLIDdetail::MAXCLID );
     return StatusCode::FAILURE;
   }
-  return uncheckedSetTypePackageForID(id, typeName, info, typeInfoName);
+  return uncheckedSetTypePackageForID(id, typeName, typeInfoName);
 }
 
 
@@ -201,13 +192,7 @@ ClassIDSvc::dump() const
 
   for (CLID clid : sortedIDs()) {
     const std::string& typeName = m_clidMap.find (clid)->second.first;
-    info() << "CLID: "<< clid
-           << " - type name: " << typeName;
-    Athena::PackageInfo pinfo;
-    if (getPackageInfoForIDInternal (clid, pinfo).isSuccess()) {
-      info() << "- Package "<< pinfo; 
-    }
-    info() << '\n';
+    info() << "CLID: "<< clid << " - type name: " << typeName << '\n';
   }
   info() << "------------------------------" << endmsg;
 }
@@ -254,18 +239,12 @@ ClassIDSvc::finalize()
       //    ostream_iterator< pair<CLID, string> > os(outfile, ':');
       //    copy(m_clidMap.begin(), m_clidMap,end(), os);
       for (CLID clid : sortedIDs()) {
-	const std::string& typeName = m_clidMap[clid].first;
-	const std::string& tiName   = m_clidMap[clid].second;
-	outfile << clid << "; " << typeName;
-        Athena::PackageInfo info;
-        if (getPackageInfoForIDInternal (clid, info).isSuccess()) {
-	  outfile << "; " << info;
-	  outfile << "; " << tiName;
-	}
-	outfile	<< endl;
+        const std::string& typeName = m_clidMap[clid].first;
+        const std::string& tiName   = m_clidMap[clid].second;
+        outfile << clid << "; " << typeName << "; " << tiName << std::endl;
       }
       ATH_MSG_INFO( "finalize: wrote " << m_clidMap.size()  <<
-		    " entries to output CLIDDB file: " << m_outputFileName );
+                    " entries to output CLIDDB file: " << m_outputFileName );
     }
     outfile.close();
   } //outputfilename != NULL
@@ -321,28 +300,6 @@ std::vector<CLID> ClassIDSvc::sortedIDs() const
   }
   std::sort (ids.begin(), ids.end());
   return ids;
-}
-
-
-/// get PackageInfo associated with clID (if any)
-StatusCode 
-ClassIDSvc::getPackageInfoForIDInternal(const CLID& id,
-                                        Athena::PackageInfo& info) const
-{
-  StatusCode sc(StatusCode::FAILURE);
-  PackageMap::const_iterator iID = m_packageMap.find(id);
-  if (iID != m_packageMap.end()) {
-    info = iID->second;
-    ATH_CONST_MSG_VERBOSE("getPackageInfoForID(" << id << 
-                          ") package name is " << info.name() << 
-                          " package version is " << info.version());
-    sc = StatusCode::SUCCESS;
-  }
-  else {
-    ATH_CONST_MSG_VERBOSE( "getPackageInfoForID(" << id <<
-                           ") no associated type name found ");
-  }
-  return sc;
 }
 
 
@@ -460,18 +417,8 @@ ClassIDSvc::processCLIDDB(const char* fileName)
 	massage(typeName);
 	//	cout << "typeName " << typeName << endl;
 
-	
-	string sinfo;
-	if (columns>=3) { 
-	  sinfo=*iToken++; 
-	  massage(sinfo);
-	} else { sinfo = "UNKNOWN-00-00-00"; }
-	Athena::PackageInfo info(sinfo);
-
-	//	cout << "info " << info << endl;
-
 	string typeInfoName;
-	if (columns>=4) { 
+	if (columns>=3) {
 	  massage(typeInfoName = *iToken++);
 	} else { typeInfoName = typeName; }
 	  
@@ -480,7 +427,6 @@ ClassIDSvc::processCLIDDB(const char* fileName)
 	if ((allOK = !typeName.empty())) {
 	  if (uncheckedSetTypePackageForID(id, 
 					   typeName,
-					   info,
 					   typeInfoName).isSuccess()) {
 	    ATH_MSG_VERBOSE( "processCLIDDB(" << fileName << 
 			     ")\n    added entry for CLID <" << id << 
@@ -516,17 +462,14 @@ bool ClassIDSvc::getRegistryEntries(const std::string& moduleName)
   for (const CLIDRegistry::tuple_t& ent : CLIDRegistry::newEntries()) {
     const CLID& clid                   = std::get<0>(ent);
     const std::string& typeName        = std::get<1>(ent);
-    const Athena::PackageInfo& pkgInfo = std::get<2>(ent);
-    const std::string& typeInfoName    = std::get<3>(ent);
+    const std::string& typeInfoName    = std::get<2>(ent);
     ATH_MSG_VERBOSE(
 		    "reading [" 
 		    << clid << ", "
 		    << typeName << ", "
-		    << pkgInfo << ", "
 		    << typeInfoName << "]");
     if (uncheckedSetTypePackageForID (clid,
                                       typeName,
-                                      pkgInfo, 
                                       typeInfoName).isSuccess())
     {
       ++nE;
@@ -550,71 +493,47 @@ bool ClassIDSvc::getRegistryEntries(const std::string& moduleName)
 
 StatusCode 
 ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id, 
-					 const std::string& typeName,
-					 const Athena::PackageInfo& info,
-					 const std::string& typeInfoName)
+                                         const std::string& typeName,
+                                         const std::string& typeInfoName)
 {
-  StatusCode sc(StatusCode::SUCCESS);
   //process "raw" typeName
   string procName(typeName);
   massage(procName);
+
   //first the id->name map
   string knownName("_____++++");
   if (getTypeNameOfIDInternal(id, knownName).isSuccess() && procName != knownName) {
-    fatal() << "uncheckedSetTypePackageForID: " << info <<
-      " can not set type name <" << procName << "> for CLID " <<
-      id << ": Known name for this ID <" << knownName << '>';
-    Athena::PackageInfo existInfo;
-    if (getPackageInfoForIDInternal(id, existInfo).isSuccess()) {
-      fatal() << " It was set by " << existInfo;
-    }
-    fatal() << endmsg;
-    sc = StatusCode::FAILURE;
+    ATH_MSG_FATAL("uncheckedSetTypePackageForID: can not set type name <"
+                  << procName << "> for CLID "
+                  << id << ": Known name for this ID <" << knownName << '>');
+    return StatusCode::FAILURE;
   } else if (procName == knownName) {
-    if (msgLevel(MSG::VERBOSE)) {
-      ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
-                      "> already set for CLID " << id);
-      Athena::PackageInfo existInfo;
-      if (getPackageInfoForIDInternal(id, existInfo).isSuccess()) {
-        ATH_MSG_VERBOSE( " It was set by " << existInfo );
-      }
-    }
-  } 
-  if (!sc.isSuccess()) return StatusCode::FAILURE;
+    ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
+                    "> already set for CLID " << id);
+  }
 
   //now the name->id map
   CLID knownID(0);
   if (getIDOfTypeNameInternal(procName, knownID).isSuccess() && id != knownID) {
-    error() << "uncheckedSetTypePackageForID: " << info << 
-      " can not set CLID <" << id << "> for type name " <<
-      procName << ": Known CLID for this name <" << knownID << '>' ;
-    Athena::PackageInfo existInfo;
-    if (getPackageInfoForIDInternal(knownID, existInfo).isSuccess()) {
-      error() << " It was set by " << existInfo; 
-    }
-    error() << endmsg;
-    sc = StatusCode::FAILURE;
+    ATH_MSG_FATAL("uncheckedSetTypePackageForID: can not set CLID <"
+                  << id << "> for type name "
+                  << procName << ": Known CLID for this name <" << knownID << '>');
+    return StatusCode::FAILURE;
   } else if (id == knownID) {
-    if (msgLevel(MSG::VERBOSE)) {
-      ATH_MSG_VERBOSE( "uncheckedSetTypePackageForID: CLID <" << id <<
-                       "> already set for type name " << procName );
-      Athena::PackageInfo existInfo;
-      if (getPackageInfoForIDInternal(id, existInfo).isSuccess()) {
-        ATH_MSG_VERBOSE( " It was set by " << existInfo);
-      }
-    }
-  } 
-  const std::string procTiName = typeInfoName.empty() 
-    ? procName
-    : typeInfoName;
+    ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: CLID <" << id <<
+                    "> already set for type name " << procName);
+  }
+  const std::string procTiName = typeInfoName.empty() ? procName : typeInfoName;
   m_clidMap[id] = std::make_pair(procName, procTiName);
   m_nameMap[procName] = id;
+
   // FIXME: should we also check for ti-name<=>clid duplicates ?
   m_tiNameMap[procTiName] = id;
-  m_packageMap[id] = info;
+
   ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: set type name <" <<
                   procName << "> for CLID " << id);
-  return sc;
+
+  return StatusCode::SUCCESS;
 }
 
 
