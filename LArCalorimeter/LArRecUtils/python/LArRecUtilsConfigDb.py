@@ -2,7 +2,6 @@
 
 from AthenaCommon.CfgGetter import addTool
 addTool("LArRecUtils.LArADC2MeVToolDefault.LArADC2MeVToolDefault" , "LArADC2MeVToolDefault")
-addTool("LArRecUtils.LArOFCToolDefault.LArOFCToolDefault" , "LArOFCToolDefault")
 addTool("LArRecUtils.LArAutoCorrTotalToolDefault.LArAutoCorrTotalToolDefault","LArAutoCorrTotalToolDefault")
 addTool("LArRecUtils.LArOFPeakRecoToolDefault.LArOFPeakRecoToolDefault","LArOFPeakRecoToolDefault")
 addTool("LArRecUtils.LArParabolaPeakRecoToolDefault.LArParabolaPeakRecoToolDefault","LArParabolaPeakRecoToolDefault")
