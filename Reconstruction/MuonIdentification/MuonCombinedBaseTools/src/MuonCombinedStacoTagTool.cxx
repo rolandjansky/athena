@@ -55,7 +55,7 @@ namespace MuonCombined {
             if (!idTP->indetTrackParticle().perigeeParameters().covariance()) continue;
 
             // ensure that id tp can be extrapolated to something
-            std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(idTP->indetTrackParticle());
+            std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(ctx,idTP->indetTrackParticle());
             if (!caloExtension) continue;
             if (caloExtension->caloLayerIntersections().empty()) continue;
 
