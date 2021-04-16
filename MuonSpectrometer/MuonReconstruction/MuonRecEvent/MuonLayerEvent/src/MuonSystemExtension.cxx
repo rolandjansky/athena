@@ -6,14 +6,10 @@
 
 namespace Muon {
 
+    MuonSystemExtension::MuonSystemExtension(std::unique_ptr<const Trk::TrackParameters> muonEntry,
+                                             std::vector<Intersection>&& intersections) :
+        m_muonEntryLayerIntersection(muonEntry.release()), m_layerIntersections(intersections) {}
 
-  MuonSystemExtension::MuonSystemExtension( std::unique_ptr<const Trk::TrackParameters> muonEntry, std::vector<Intersection>&& intersections ) :
-    m_muonEntryLayerIntersection( muonEntry.release() ),
-    m_layerIntersections(intersections)
-  {
-  }
-   
-  MuonSystemExtension::~MuonSystemExtension() {
-  }
+    MuonSystemExtension::~MuonSystemExtension() {}
 
-}
+}  // namespace Muon
