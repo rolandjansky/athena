@@ -37,7 +37,7 @@ std::string weightNameCleanup(const std::string &name)
     return {};
   }
 
-  static const std::unordered_map<std::string, std::string> substitutions =
+  static const std::vector<std::pair<std::string, std::string>> substitutions =
   {
     {" set = ", "_"}, // Powheg
     {" = ", "_"}, // Powheg
