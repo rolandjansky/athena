@@ -59,8 +59,8 @@ public:
     /// @name Interface to the CLHEP engine
     //@{
     virtual CLHEP::HepRandomEngine*	GetEngine	( const std::string& streamName ) override;
-    void		CreateStream	( uint32_t seed1, uint32_t seed2, 
-					  const std::string& streamName );
+    virtual void	CreateStream	( uint32_t seed1, uint32_t seed2, 
+					  const std::string& streamName ) override;
     //@}
 
     /// CLHEP engines typedefs:
@@ -74,8 +74,8 @@ public:
     engineConstIter	begin			(void)	const;
     engineConstIter	end			(void)	const;
     unsigned int	number_of_streams	(void)	const;    
-    void		print		( const std::string& streamName );
-    void		print		( void );
+    virtual void	print		( const std::string& streamName ) override;
+    virtual void	print		( void ) override;
     //@}
 
     virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t theSeed,
