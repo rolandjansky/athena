@@ -111,11 +111,7 @@ AthenaEventLoopMgr::~AthenaEventLoopMgr()
 //=========================================================================
 StatusCode AthenaEventLoopMgr::initialize()    
 {
-
-  // configure our MsgStream
-  info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg ;
- 
+  info() << "Initializing " << name() << endmsg ;
 
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;

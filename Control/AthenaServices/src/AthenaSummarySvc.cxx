@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -170,13 +170,10 @@ AthenaSummarySvc::~AthenaSummarySvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode AthenaSummarySvc::initialize() {
-  StatusCode status = AthService::initialize();
+
   m_log.setLevel( m_outputLevel.value() );
 
-  m_log << MSG::DEBUG << "Initializing AthenaSummarySvc version " 
-	<< PACKAGE_VERSION << endmsg;
-
-  m_log << MSG::DEBUG << "Service initialized" << endmsg;
+  m_log << MSG::DEBUG << "Initializing AthenaSummarySvc" << endmsg;
 
   int pri=100;
   p_incSvc->addListener( this, "BeginInputFile", pri, true);
@@ -236,7 +233,7 @@ StatusCode AthenaSummarySvc::initialize() {
   s_block = new char[ sysconf( _SC_PAGESIZE ) * 100 ];
 
 
-  return s_block ? status : StatusCode::FAILURE;
+  return StatusCode(s_block!=nullptr);
 
 }
 
@@ -253,21 +250,13 @@ StatusCode AthenaSummarySvc::reinitialize() {
 
 StatusCode AthenaSummarySvc::finalize() {
 
-
-  StatusCode status = createSummary();
+  createSummary().ignore();
 
   // cleanup
   delete[] s_block; s_block = nullptr;
   std::set_new_handler( m_new );
 
-
-  status = AthService::finalize();
-
-  if ( status.isSuccess() )
-    m_log << MSG::DEBUG << "Service finalised successfully" << endmsg;
-
-  return status;
-
+  return StatusCode::SUCCESS;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
