@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "GaudiKernel/IAlgTool.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 
 namespace Trk {
     class Track;
