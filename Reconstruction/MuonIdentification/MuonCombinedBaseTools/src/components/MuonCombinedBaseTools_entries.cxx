@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+#include "../ExtrapolateMuonToIPTool.h"
 #include "../MuonAlignmentUncertTool.h"
 #include "../MuonCaloTagTool.h"
 #include "../MuonCandidateTool.h"
@@ -12,7 +13,6 @@
 #include "../MuonDressingTool.h"
 #include "../MuonSegmentTagTool.h"
 #include "../TrackSegmentAssociationTool.h"
-#include "../ExtrapolateMuonToIPTool.h"
 
 using namespace MuonCombined;
 using namespace Muon;
