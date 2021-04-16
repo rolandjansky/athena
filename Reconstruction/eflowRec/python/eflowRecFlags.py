@@ -62,6 +62,13 @@ class usePFEGammaPFOAssoc(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class usePFlowFlowElementTauAssoc(JobProperty):
+    """ Flag to toggle use of linking  between tau objects and flow elements 
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
+
 class usePFFlowElementAssoc(JobProperty):
     """ Flag to toggle use of linking  between objects (egamma,muon,tau) and flow elements
     """
@@ -98,7 +105,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFEGammaPFOAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
+eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFEGammaPFOAssoc,usePFlowFlowElementTauAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

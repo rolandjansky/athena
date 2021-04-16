@@ -2,10 +2,8 @@
 
 from eflowRec.eflowRecFlags import jobproperties
 
-if jobproperties.eflowRecFlags.usePFFlowElementAssoc and jobproperties.eflowRecFlags.useFlowElements :
-    from eflowRec.eflowRecConf import PFTauFlowElementAssoc
-    PFTauFlowElementAssoc=PFTauFlowElementAssoc("PFTauFlowElementAssoc")
-    topSequence += PFTauFlowElementAssoc
+if jobproperties.eflowRecFlags.usePFFlowElementAssoc and jobproperties.eflowRecFlags.usePFlowFlowElementTauAssoc and jobproperties.eflowRecFlags.useFlowElements :
+    include("eflowRec/link_tauFE.py")
 
 if jobproperties.eflowRecFlags.doFlowElementValidation and jobproperties.eflowRecFlags.useFlowElements:
     # since FE are not added at Tier0 yet, need to add it to the eflowRec routine
