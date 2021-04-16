@@ -143,22 +143,19 @@ def TrigTauMonitoringTool():
 #       ]
 
         ztt_RNN_tau = [
-                'tau25_mediumRNN_tracktwoMVA',
+                'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
         ]
         ztt_BDT_tau = [
-                'tau25_medium1_tracktwoEF',
+                'tau25_medium1_tracktwoEF_L1TAU12IM',
         ]
         # removed ztt_tau chains
         # 'tau25_idperf_tracktwo',
         # 'tau25_perf_tracktwo',
 
         highpt_tau = [
-                'tau80_medium1_tracktwo_L1TAU60',
-                'tau160_idperf_tracktwo',
-                'tau160_medium1_tracktwo',
-                'tau160_medium1HighptL_tracktwo',
-                'tau160_medium1HighptM_tracktwo',
-                'tau160_medium1HighptH_tracktwo'
+          'tau160_idperf_tracktwo_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
         ]
 
         # get the Level1 Emulation tool from the emulation python config
