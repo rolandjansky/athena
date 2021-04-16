@@ -269,7 +269,9 @@ StatusCode BookkeeperTool::copyCutflowFromService()
   if (!cache.empty()) {
     ATH_MSG_DEBUG("Cache size: " << cache.size());
 
+    // sync the size
     CutBookkeepersLocalCache::prepareContainers(m_completeContainers, std::max(cache.size(), m_numberOfWeightVariations));
+    CutBookkeepersLocalCache::prepareContainers(m_incompleteContainers, std::max(cache.size(), m_numberOfWeightVariations));
 
     for (std::size_t i = 0; i < cache.size(); ++i) {
       xAOD::CutFlowHelpers::updateContainer(m_completeContainers.at(i), cache.at(i));
