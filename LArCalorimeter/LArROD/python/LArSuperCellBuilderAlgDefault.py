@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from LArROD.LArRODConf import LArRawChannelBuilderAlg
 from IOVDbSvc.CondDB import conddb
 
 def addLArFlatFolder (db, obj, calg, folder_base='/LAR/ElecCalibFlat/',qual=''):
@@ -13,6 +12,16 @@ def addLArFlatFolder (db, obj, calg, folder_base='/LAR/ElecCalibFlat/',qual=''):
                      className = 'CondAttrListCollection')
       condSequence += calg (ReadKey=folder, WriteKey='LAr'+obj+'SC')
     return
+
+def LArSuperCellBCIDAlgDefault():
+
+   from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
+   LArOnOffIdMappingSC()
+   from CaloRec.CaloBCIDAvgAlgSCDefault import CaloBCIDAvgAlgSCDefault
+   CaloBCIDAvgAlgSCDefault()
+   from LArROD.LArRODConf import LArSuperCellBCIDAlg
+   theSelf = LArSuperCellBCIDAlg("LArSuperCellBCIDAlgDefault",SCellContainerIn="SCellnoBCID",SCellContainerOut="SCell")
+   return theSelf
 
 def LArSuperCellBuilderAlgDefault():
 
@@ -27,13 +36,14 @@ def LArSuperCellBuilderAlgDefault():
    
    LArADC2MeVSCCondAlgDefault()
    LArOFCSCCondAlgDefault()
+   from LArROD.LArRODConf import LArRawChannelBuilderAlg
    theSelf = LArRawChannelBuilderAlg("LArSuperCellBuilderAlg")
    theSelf.CablingKey='LArOnOffIdMapSC'
    theSelf.ADC2MeVKey='LArADC2MeVSC'
    theSelf.ShapeKey='LArShapeSC'
    theSelf.PedestalKey='LArPedestalSC'
    theSelf.OFCKey='LArOFCSC'
-   theSelf.CaloCellKey='SCell'
+   theSelf.CaloCellKey='SCellnoBCID'
    theSelf.LArDigitKey='LArDigitSCL2'
    theSelf.useDB=False
    theSelf.IsSuperCell=True

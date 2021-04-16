@@ -21,7 +21,7 @@
 class ILArOFC;
 class ILArShape;
 class ILArMinBiasAverage;
-class LArOnlineID;
+class LArOnlineID_Base;
 
 
 /**
@@ -92,7 +92,7 @@ public:
    * @param minbias Minimum bias conditions object.
    */
   CaloBCIDCoeffs (const std::vector<HWIdentifier>& hwids,
-                  const LArOnlineID& online_id,
+                  const LArOnlineID_Base& online_id,
                   const ILArOFC& ofcs,
                   const ILArShape& shapes,
                   const ILArMinBiasAverage& minbias);
@@ -180,7 +180,7 @@ private:
    * @param minbias Minimum bias conditions object.
    */
   void fillCoeffs (const std::vector<HWIdentifier>& hwids,
-                   const LArOnlineID& online_id,
+                   const LArOnlineID_Base& online_id,
                    const ILArOFC& ofcs,
                    const ILArShape& shapes,
                    const ILArMinBiasAverage& minbias);
