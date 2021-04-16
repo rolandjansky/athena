@@ -230,6 +230,7 @@ namespace MuonGM {
 
     // if there's a DED at the bottom, the Rpc is rotated by 180deg around its local y axis
     // gg numbering is swapped
+    // except for BI chambers (with 3 gas gaps -> this is taken into account in localTopGasGap()
     // -> eta strip n. 1 (offline id) is "last" eta strip (local)
     int lstrip = strip;
     int lgg = gasGap;
@@ -381,7 +382,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -408,7 +409,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
