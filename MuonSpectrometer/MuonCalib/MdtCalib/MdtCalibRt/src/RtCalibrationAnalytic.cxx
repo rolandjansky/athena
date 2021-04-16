@@ -497,7 +497,6 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment &seg) {
     // hit selection vectors for refits in the first and second multilayer
     unsigned int nb_hits_in_ml[2];       // number of hits in the multilayers
     double x;                            // reduced time = (r(t)-0.5*m_r_max)/(0.5*m_r_max)
-    MTStraightLine track;                // refitted straight line
     std::vector<double> d_track;         // signed distances of the track from the anode wires of the tubes
     std::vector<double> residual_value;  // residuals
     std::vector<MTStraightLine> w;       // anode wires
@@ -613,7 +612,6 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment &seg) {
 
         // fill the autocalibration objects //
         // auxiliary variables //
-        track = track;  // refitted track
         d_track = std::vector<double>(track.numberOfTrackHits());
         residual_value = std::vector<double>(track.numberOfTrackHits());
         w = std::vector<MTStraightLine>(track.numberOfTrackHits());
