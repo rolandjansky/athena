@@ -123,7 +123,7 @@ namespace Rec {
                                         const Trk::RunOutlierRemoval runOutlier = false,
                                         const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-        bool optimizeErrors(Trk::Track* track) const;
+        bool optimizeErrors(const EventContext& ctx, Trk::Track* track) const;
         Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
         void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,

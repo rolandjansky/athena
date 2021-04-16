@@ -2059,7 +2059,7 @@ namespace Rec {
             // fit with optimized spectrometer errors
 
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrack.get())) {
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
                 std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
 
@@ -2176,7 +2176,7 @@ namespace Rec {
             // fit with optimized spectrometer errors
 
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrack.get())) {
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
                 std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
@@ -2281,7 +2281,7 @@ namespace Rec {
             // fit with optimized spectrometer errors
 
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrack.get())) {
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
                 std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
@@ -2328,14 +2328,14 @@ namespace Rec {
 
     /*   private methods follow */
 
-    bool CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const {
+    bool CombinedMuonTrackBuilder::optimizeErrors(const EventContext& ctx, Trk::Track* track) const {
         const Trk::MuonTrackSummary* muonSummary = nullptr;
         const Trk::TrackSummary* summary = track->trackSummary();
 
         if (summary) {
             muonSummary = summary->muonTrackSummary();
         } else {
-            m_trackSummary->updateTrack(*track);
+            m_trackSummary->updateTrack(ctx, *track);
             summary = track->trackSummary();
             muonSummary = summary->muonTrackSummary();
         }
@@ -3603,7 +3603,7 @@ namespace Rec {
         }
 
         // add the track summary
-        m_trackSummary->updateTrack(*track);
+        m_trackSummary->updateTrack(ctx, *track);
     }
 
     Trk::Track* CombinedMuonTrackBuilder::interfaceNotImplemented() const {
