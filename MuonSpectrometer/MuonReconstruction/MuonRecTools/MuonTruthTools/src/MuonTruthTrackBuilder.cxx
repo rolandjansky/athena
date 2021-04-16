@@ -300,7 +300,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
             Amg::Vector2D        lp(deposit->second.firstEntry(), deposit->second.secondEntry());
             const Amg::Vector3D gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 
-            double val = isEndcap ? fabs(gpos.z()) : gpos.perp();
+            double val = isEndcap ? std::abs(gpos.z()) : gpos.perp();
             // nasty comparisons to figure out which MDT hit comes first
             if (val < detLayer.minPos) {
                 if (detLayer.maxPos < -1e8 && detLayer.minPos < 1e8) {
@@ -325,7 +325,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
                 (mdt->driftRadius() - deposit->second.firstEntry()) / Amg::error(mdt->localCovariance(), Trk::locR);
             ATH_MSG_VERBOSE(" new MDT    " << m_idHelperSvc->toString(id) << " radius " << mdt->driftRadius()
                                            << " true radius " << deposit->second.firstEntry() << " pull " << pull);
-            if (fabs(pull) > 3.) ATH_MSG_VERBOSE(" hit with large pull ");
+            if (std::abs(pull) > 3.) ATH_MSG_VERBOSE(" hit with large pull ");
             detLayer.meas.push_back(mdt);
             if (m_idHelperSvc->isSmallChamber(id))
                 ++detLayer.nmdtS;
@@ -349,7 +349,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
             Amg::Vector2D        lp(deposit->second.firstEntry(), deposit->second.secondEntry());
             const Amg::Vector3D gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 
-            double val = isEndcap ? fabs(gpos.z()) : gpos.perp();
+            double val = isEndcap ? std::abs(gpos.z()) : gpos.perp();
             // nasty comparisons to figure out which MDT hit comes first
             if (val < detLayer.minPos) {
                 if (detLayer.maxPos < -1e8 && detLayer.minPos < 1e8) {
@@ -397,7 +397,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
             Amg::Vector2D        lp(deposit->second.firstEntry(), deposit->second.secondEntry());
             const Amg::Vector3D gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 
-            double val = isEndcap ? fabs(gpos.z()) : gpos.perp();
+            double val = isEndcap ? std::abs(gpos.z()) : gpos.perp();
             // // nasty comparisons to figure out which STGC hit comes first
             if (val < detLayer.minPos) {
                 if (detLayer.maxPos < -1e8 && detLayer.minPos < 1e8) {
@@ -747,13 +747,12 @@ MuonTruthTrackBuilder::createPseudo(const Trk::TrackParameters& pars, const Trk:
 {
     double ly = 0.;
     if (meas.associatedSurface().isOnSurface(pars.position(), false)) {
-        const Amg::Vector2D* lpos = meas.associatedSurface().globalToLocal(pars.position());
+      std::optional<Amg::Vector2D> lpos = meas.associatedSurface().globalToLocal(pars.position());
         if (!lpos) {
             ATH_MSG_WARNING("Failed globalToLocal ");
             return 0;
         }
         ly = (*lpos)[Trk::locY];
-        delete lpos;
     } else {
         const Trk::TrackParameters* measPars = m_extrapolator->extrapolateDirectly(
             pars, meas.associatedSurface(), Trk::anyDirection, false, Trk::nonInteracting);
@@ -907,7 +906,7 @@ MuonTruthTrackBuilder::extractMeasurements(const Trk::TrackParameters&          
         dist               = isEndcap ? diff.z() : diff.perp();
         ATH_MSG_DEBUG(" layer with sufficient phi hits: dist " << dist << " diff " << diff);
     }
-    if (fabs(dist) < phiDist) {
+    if (std::abs(dist) < phiDist) {
         ATH_MSG_DEBUG(" poor phi constraint, adding pseudo measurements ");
 
         // we have too few phi measurements so will have to invent some
@@ -928,7 +927,7 @@ MuonTruthTrackBuilder::extractMeasurements(const Trk::TrackParameters&          
             // " << posLastMeas
             // 	    << " distF " << distFirstMeas << " last " << distLastMeas << std::endl;
             // inserting after the last hit
-            addedFakePhiFirst                     = fabs(distLastMeas) < fabs(distFirstMeas);
+            addedFakePhiFirst                     = std::abs(distLastMeas) < std::abs(distFirstMeas);
             Trk::PseudoMeasurementOnTrack* pseudo = createPseudo(per, addedFakePhiFirst ? *firstMeas : *lastMeas);
             if (!pseudo) {
                 ATH_MSG_WARNING("Failed to create pseudo measurement");

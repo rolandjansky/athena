@@ -1945,7 +1945,7 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         const Trk::Surface& surf = etapold->associatedSurface();
         
         // transform the global position of the phi hit into the reference frame of the eta hit
-        const Amg::Vector2D* lpos = surf.globalToLocal(phipold->globalPosition());
+        std::optional<Amg::Vector2D> lpos = surf.globalToLocal(phipold->globalPosition());
         
         // calculate the 2D space point
         if(!lpos) {
@@ -1987,17 +1987,13 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         
         // debug output, to be removed
         const Trk::Surface& surfPhi = phipold->associatedSurface();
-        const Amg::Vector2D* lposEta = surf.globalToLocal( etaRot->globalPosition() );
-        const Amg::Vector2D* lposPhi = surfPhi.globalToLocal( phiRot->globalPosition() );
+        std::optional<Amg::Vector2D> lposEta = surf.globalToLocal( etaRot->globalPosition() );
+        std::optional<Amg::Vector2D> lposPhi = surfPhi.globalToLocal( phiRot->globalPosition() );
         ATH_MSG_VERBOSE ( " eta gp " << etapold->globalPosition()
                           << " new " << etaRot->globalPosition() << " loc " << *lposEta );
         ATH_MSG_VERBOSE ( " phi gp " << phipold->globalPosition()
                           << " new " << phiRot->globalPosition() << " loc " << *lposPhi );
-        delete lposEta;
-        delete lposPhi;
         
-        // clean up pointers
-        delete lpos;
       } // end loop over phi
     } // end loop over eta
 

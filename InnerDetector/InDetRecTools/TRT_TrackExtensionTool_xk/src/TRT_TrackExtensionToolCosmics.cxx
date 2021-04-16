@@ -336,7 +336,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());
 
 	    //get the local position of the track prediction in the frame of the driftcircle
-	    const Amg::Vector2D *lpos=dc_surface.globalToLocal((*parameterIter)->position());
+      std::optional<Amg::Vector2D> lpos=dc_surface.globalToLocal((*parameterIter)->position());
 
 	    double distance=m_roadwidth+1;
 	    if(lpos){
@@ -352,7 +352,6 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 		}
 	      }
 
-	      delete lpos;
 	    }
 
 	    if(distance<maxdist){
