@@ -180,21 +180,20 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 }
 
 // returns the LocalPosition on a surface of a GlobalPosition
-Amg::Vector2D*
+std::optional<Amg::Vector2D>
 Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo,
                                 const BoundaryCheck& bchk,
                                 double tol1,
                                 double tol2) const
 {
-  Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
+  std::optional<Amg::Vector2D> posOnSurface = globalToLocal(glopo, tol1);
   if (!bchk){
     return posOnSurface;
   }
   if (posOnSurface && insideBounds(*posOnSurface, tol1, tol2)){
     return posOnSurface;
   }
-  delete posOnSurface;
-  return nullptr;
+  return std::nullopt;
 }
 
 // checks if GlobalPosition is on Surface and inside bounds
@@ -204,12 +203,12 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
                           double tol1,
                           double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
+  std::optional<Amg::Vector2D> posOnSurface =
+    positionOnSurface(glopo, bchk, tol1, tol2);
   if (posOnSurface) {
-    delete posOnSurface;
     return true;
   }
-    return false;
+  return false;
 }
 
 // return the measurement frame

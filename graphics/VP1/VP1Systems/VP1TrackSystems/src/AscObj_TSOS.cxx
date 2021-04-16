@@ -233,7 +233,7 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
     {
       VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),origo,unitz,tp,sp);
       VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
-      smin = fabs(tm - 0.5) < fabs(tp - 0.5) ? sm : sp;
+      smin = std::abs(tm - 0.5) < std::abs(tp - 0.5) ? sm : sp;
     } else if (imin+1 >= points->size() && imin >= 1 )
     {
       VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
@@ -249,7 +249,7 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
   }
 
   //Ensure that we do not get out of bounds, preserve sign of translation.
-  if (fabs(smin) > maxTrans)
+  if (std::abs(smin) > maxTrans)
   {
     double sign = smin > 0 ? 1.0 : -1.0;
     smin = sign*maxTrans;
@@ -283,7 +283,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
   if ( idhelper && ( isTRT||isMDT ) )
   {
     //Value from the measurement
-    rioValue = fabs(rio->localParameters().get(Trk::driftRadius));
+    rioValue = std::abs(rio->localParameters().get(Trk::driftRadius));
 
     //Value from the track
     const Trk::TrackParameters* trackParams = m_tsos->trackParameters();
@@ -291,7 +291,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
     const Trk::AtaStraightLine * atas = dynamic_cast<const Trk::AtaStraightLine *>(meas);
     if (not atas) return std::nan("");
     const Amg::Vector2D& localposMeas = atas->localPosition();
-    paramValue = fabs(localposMeas[Trk::locR]);
+    paramValue = std::abs(localposMeas[Trk::locR]);
 
     if (!absolute)
     {
@@ -300,7 +300,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
     }
   }
 
-  return absolute ? fabs( rioValue - paramValue ) : fabs( rioValue - paramValue )/sigma;
+  return absolute ? std::abs( rioValue - paramValue ) : std::abs( rioValue - paramValue )/sigma;
 }
 
 void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_simple, SoSeparator*&shape_detailed)
@@ -490,13 +490,12 @@ void AscObj_TSOS::addErrors(const Trk::Surface& theSurface, const AmgSymMatrix(5
     // Shift from Surface centre to correct position
     if (applyLocalTrans) {
       SoTranslation * theTransform = new SoTranslation;
-      const Amg::Vector2D* locPosTmp = surface()->globalToLocal(p1);
+      std::optional<Amg::Vector2D> locPosTmp = surface()->globalToLocal(p1);
       if (locPosTmp) {
         theTransform->translation.setValue(locPosTmp->x(),locPosTmp->y(),0.0); 
         // std::cout<<"applyLocalTrans & Offset=("<<locPosTmp->x()<<","<<locPosTmp->y()<<std::endl;
         errSimple->addChild(theTransform);
         errDetailed->addChild(theTransform);
-        delete locPosTmp;
       } else {
         VP1Msg::message("AscObj_TSOS::addErrors - failed to get tmp position");  
       }
@@ -548,7 +547,7 @@ void AscObj_TSOS::addSurfaceToShapes( SoSeparator*&shape_simple, SoSeparator*&sh
     if (ps) {
       Amg::Vector3D z(0.0,0.0,1.0);
       double angle_z_normal = Amg::angle(z, ps->normal());
-      double abscostheta = fabs(cos(angle_z_normal));
+      double abscostheta = std::abs(cos(angle_z_normal));
       if (abscostheta>0.707) return;
     }
   }
@@ -639,7 +638,7 @@ void AscObj_TSOS::addMaterialEffectsToShapes( SoSeparator*&shape_simple, SoSepar
     const Trk::MaterialEffectsBase* matEff = m_tsos->materialEffectsOnTrack();
     const Trk::MaterialEffectsOnTrack* matEffOnTrk = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEff);
     if (matEffOnTrk){
-      const double absDeltaE = fabs(matEffOnTrk->energyLoss()->deltaE());
+      const double absDeltaE = std::abs(matEffOnTrk->energyLoss()->deltaE());
       const double radius(absDeltaE > 1*CLHEP::eV ? 5.0*exp(log(absDeltaE/CLHEP::MeV)/3.0) : 0);//\propto cube root
       //TK: radius used to be: 5.0*sqrt(absDE), but we want sphere volume \propto deltaE
       const double scale = common()->controller()->materialEffectsOnTrackScale();

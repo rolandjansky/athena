@@ -107,14 +107,14 @@ class MuonChainConfiguration(ChainConfigurationBase):
         # the muon steps are defined
         # note that bphys chains are by default noL2Comb, even though this is not in the name
         # --------------------
+        doMSonly = 'msonly' in self.chainPart['msonlyInfo']
 
         stepDictionary = {
-            "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
+            "":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA'] if doMSonly else ['getmuEFSA', 'getmuEFCB']],
             "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "l2mt":[['getmuFastl2mt', 'getmuCombl2mt'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
-            "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
-            "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
+            "noL1":[[],['getFSmuEFSA'] if doMSonly else ['getFSmuEFSA', 'getFSmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "muoncalib":[['getmuFast']],

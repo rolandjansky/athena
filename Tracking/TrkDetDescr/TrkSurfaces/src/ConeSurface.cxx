@@ -264,7 +264,7 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   double posProjAngle = acos(posProj / posLength);
   double currDist = posLength * sin(posProjAngle - atan(bounds().tanAlpha()));
   // solution on the surface
-  if (fabs(currDist) < tol)
+  if (std::abs(currDist) < tol)
     return Trk::DistanceSolution(1, currDist, true, 0.);
 
   // transform to a frame with the cone along z, with the tip a 0
@@ -286,31 +286,38 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 
   double d2bound = 0.;
   if (bound && solns.solutions != Trk::none) {
-    const Amg::Vector2D* p = nullptr;
-    if (fabs(solns.first) < fabs(solns.second))
+    std::optional<Amg::Vector2D> p = std::nullopt;
+    if (std::abs(solns.first) < std::abs(solns.second)){
       p = Surface::globalToLocal(locFramePos + solns.first * locFrameDir);
-    else
+    }
+    else{
       p = Surface::globalToLocal(locFramePos + solns.second * locFrameDir);
+    }
     if (p) {
       d2bound = bounds().minDistance(*p);
-      delete p;
     }
-    if (d2bound < 0)
+    if (d2bound < 0){
       d2bound = 0;
+    }
   }
   double totDist = d2bound > 0. ? sqrt(d2bound * d2bound + currDist * currDist) : currDist;
 
   switch (solns.solutions) {
-  case Trk::none:
+  case Trk::none:{
     return Trk::DistanceSolution(0, totDist, true, 0., 0.);
-  case Trk::one:
+  }
+  case Trk::one:{
     return Trk::DistanceSolution(1, totDist, true, solns.first);
-  case Trk::two:
-    if (fabs(solns.first) < fabs(solns.second))
+  }
+  case Trk::two:{
+    if (std::abs(solns.first) < std::abs(solns.second)){
       return Trk::DistanceSolution(2, totDist, true, solns.first, solns.second);
+    }
     return Trk::DistanceSolution(2, totDist, true, solns.second, solns.first);
-  default:
+  }
+  default:{
     return Trk::DistanceSolution(0, totDist, true, 0., 0.);
+  }
   };
 }
 
@@ -327,5 +334,5 @@ Trk::ConeSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& 
     normalC = transform() * normalC;
   // back in global frame
   double cAlpha = normalC.dot(mom.unit());
-  return (cAlpha != 0.) ? fabs(1. / cAlpha) : 1.; // ST undefined for cAlpha=0
+  return (cAlpha != 0.) ? std::abs(1. / cAlpha) : 1.; // ST undefined for cAlpha=0
 }

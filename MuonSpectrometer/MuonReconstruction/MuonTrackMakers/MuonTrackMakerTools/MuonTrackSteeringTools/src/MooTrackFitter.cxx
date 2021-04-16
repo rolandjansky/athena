@@ -523,7 +523,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
         
         double rDrift = meas->localParameters()[Trk::locR];
         double rError = Amg::error(meas->localCovariance(),Trk::locR);
-        if( usePreciseHits && m_idHelperSvc->isMdt(id) && fabs(rDrift) < 0.01 && rError > 4. ) {
+        if( usePreciseHits && m_idHelperSvc->isMdt(id) && std::abs(rDrift) < 0.01 && rError > 4. ) {
           ATH_MSG_WARNING(" MDT hit error broad but expected precise error " );
         }
       }
@@ -983,7 +983,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
     }
 
     // error 
-    const Amg::Vector2D* lpos = 0;
+    std::optional<Amg::Vector2D> lpos = std::nullopt;
     if( phiPos ){
 
       Amg::Vector3D dir(1.,0.,0.);
@@ -1004,7 +1004,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       }else{
 
 	// now get central phi position on surface of segment
-	lpos = meas.associatedSurface().globalToLocal(intersect.position,3000.);
+        lpos = meas.associatedSurface().globalToLocal(intersect.position,3000.);
 
         ATH_MSG_VERBOSE(" Used intersect with surface " << intersect.position.phi() 
 			<< "  start phi " << phiPos->phi() );
@@ -1023,15 +1023,14 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       return 0;
     }
     double ly = (*lpos)[Trk::locY];
-    delete lpos;
 
     bool shiftedPos = false;
     double halfLength = 0.5*length;
-    if( fabs(ly) > halfLength ){
+    if( std::abs(ly) > halfLength ){
       double lyold = ly;
       ly = ly < 0 ? -halfLength : halfLength;
       ATH_MSG_DEBUG(" extrapolated position outside detector, shifting it back:  " << lyold << "  size " << halfLength << "  new pos " << ly);
-      if( phiPos && fabs(lyold) - halfLength > 1000. ) {
+      if( phiPos && std::abs(lyold) - halfLength > 1000. ) {
         ATH_MSG_DEBUG(" rejecting track ");
         return 0;
       }
@@ -1048,7 +1047,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       // overlap, fake hit at 100. mm from the edge, error 100./sqrt(12.)
   
       // transform estimate of overlap position into surface frame
-      const Amg::Vector2D* loverlapPos = surf.globalToLocal(*overlapPos, 3000.);
+      std::optional<Amg::Vector2D> loverlapPos = surf.globalToLocal(*overlapPos, 3000.);
       if( !loverlapPos ){
         ATH_MSG_DEBUG(" globalToLocal failed for overlap position: " << surf.transform()*(*overlapPos) );
         // calculate position fake
@@ -1076,12 +1075,11 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
         ly = (*loverlapPos)[Trk::locY];
 
         halfLength = 0.5*length;
-        if( fabs(ly) > halfLength ){
+        if( std::abs(ly) > halfLength ){
           ly = ly < 0 ? -halfLength : halfLength;
         }
         ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " 
                                << 0.5*length << " overlapPos " << *overlapPos );
-        delete loverlapPos;
       }
     }
 
@@ -1106,7 +1104,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
                       << endmsg;
 
       if (!shiftedPos && !overlapPos && phiPos &&
-          fabs(phiPos->phi() - fakePos.phi()) > 0.01) {
+          std::abs(phiPos->phi() - fakePos.phi()) > 0.01) {
         Amg::Transform3D gToLocal =
           meas.associatedSurface().transform().inverse();
         Amg::Vector3D locMeas = gToLocal * fake->globalPosition();
@@ -1152,7 +1150,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       Amg::Vector3D globalDistance = gposLastPhi - gposFirstPhi;
 
       // calculate 'projective' distance
-      distance = fitterData.hasEndcap ? fabs(globalDistance.z()) : globalDistance.perp();
+      distance = fitterData.hasEndcap ? std::abs(globalDistance.z()) : globalDistance.perp();
  
       // if the distance between the first and last phi hit is smaller than 1000. count as 1 phi hit
       if( distance < distanceMin || distFirstEtaPhi>1000 || distLastEtaPhi>1000) {
@@ -1363,7 +1361,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
 
 
     if( diffPhi < 0 ) {
-      if( fabs(diffPhi) > m_openingAngleCut ) {
+      if( std::abs(diffPhi) > m_openingAngleCut ) {
         ATH_MSG_VERBOSE(" Inconsistent min/max, rejecting track " );
         return false;
       }
@@ -1524,7 +1522,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       if ( cosdphi >= +1.0 )      dphi = 0.0; 
       else if ( cosdphi <= -1.0 ) dphi = M_PI; 
       else                        dphi = std::acos(cosdphi); 
-      if( fabs(dphi) > 0.2 ) {
+      if( std::abs(dphi) > 0.2 ) {
         ATH_MSG_DEBUG("Large diff between phi of segment direction and of position "
                              << fitterData.firstEntry->entryPars().momentum().phi() 
                              << "  from pos " << difPos.phi() << " dphi " << dphi );
@@ -1695,8 +1693,8 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
       }   
     }
      
-    if (firstphi1) dist1=fabs((firstphi1->measurement().globalPosition()-lastphi1->measurement().globalPosition()).dot(dir1));
-    if (firstphi2) dist2=fabs((firstphi2->measurement().globalPosition()-lastphi2->measurement().globalPosition()).dot(dir2));
+    if (firstphi1) dist1=std::abs((firstphi1->measurement().globalPosition()-lastphi1->measurement().globalPosition()).dot(dir1));
+    if (firstphi2) dist2=std::abs((firstphi2->measurement().globalPosition()-lastphi2->measurement().globalPosition()).dot(dir2));
     if (dist2>dist1) {
       bestentry=entry2;
     }
@@ -1884,7 +1882,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
         
         // refit if absolute difference of the initial momentum and the final momentum is larger than 5 GeV
         double difMom = startPars.momentum().mag()-pp->momentum().mag();
-        if( fabs(difMom) > 5000. ) {
+        if( std::abs(difMom) > 5000. ) {
 
           ATH_MSG_DEBUG(" absolute difference in momentum too large, refitting track. Dif momentum= " << difMom );
           if ( msgLvl(MSG::DEBUG) ) {
@@ -2298,7 +2296,7 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
     // check whether the perigee is expressed at the point of closes approach or at muon entry
     const Trk::Perigee* perigee = track.perigeeParameters();
     if( perigee ) {
-      bool atIP = fabs(perigee->position().dot(perigee->momentum().unit())) < 10 ? true : false;
+      bool atIP = std::abs(perigee->position().dot(perigee->momentum().unit())) < 10 ? true : false;
       if( atIP ){
         ATH_MSG_DEBUG(" track extressed at perigee, cannot split it " );
         return std::make_pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> >(nullptr,nullptr);

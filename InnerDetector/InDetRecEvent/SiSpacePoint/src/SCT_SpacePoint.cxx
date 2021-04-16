@@ -46,10 +46,11 @@ namespace InDet
     m_elemIdList.second = elementIdList.second ;
     assert( (clusList.first!=0) && (clusList.second!=0) );
     assert(clusList.first->detectorElement()) ;
-    std::unique_ptr<const Amg::Vector2D> locpos{clusList.first->detectorElement()->surface().globalToLocal(position)};
+    std::optional<Amg::Vector2D> locpos{
+      clusList.first->detectorElement()->surface().globalToLocal(position)
+    };
     assert(locpos);
-    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos ) ;
-
+    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos);
   }
 
   //-------------------------------------------------------------

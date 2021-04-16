@@ -398,7 +398,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
             // The LocR of trkPar has not such a great influence and the last iterations
             // where just one straw remains in competition are done on this StraightLineSurface anyway
             // TODO: check how this can be done in a better way
-            const Amg::Vector2D* localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
+            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
             if (!localTrkPar) {
                 ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
                 ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
@@ -411,7 +411,6 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
 
             //            delete discpar;
             calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, *localTrkPar, assocSurface);
-            delete localTrkPar;
         }
     }
 
@@ -682,7 +681,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             // The LocR of trkPar has not such a great influence and the last iterations
             // where just one straw remains in competition are done on this StraightLineSurface anyway
             // TODO: check how this can be done in a better way
-            const Amg::Vector2D* localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
+            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
             if (!localTrkPar) {
                 ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
                 ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack update aborted!");
@@ -691,7 +690,6 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             }
             ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("<<(*localTrkPar)[Trk::locR]<<","<<(*localTrkPar)[Trk::locPhi]<<")");
             calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, &(compROT->containedROTs()), assgnProbVector, *localTrkPar, assocSurface);
-            delete localTrkPar;
         } // end else (nonVanishingROTsHaveCommonSurface)
     } // end TRT end-cap
 
