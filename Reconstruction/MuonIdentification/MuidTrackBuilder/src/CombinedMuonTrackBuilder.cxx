@@ -3734,7 +3734,7 @@ namespace Rec {
             countAEOTs(track.get(), " before optimize ") == 0) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
             std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get());
-            if (optimizedTrack && checkTrack("finalTrackBuild2", track.get(), track.get())) {
+            if (optimizedTrack && checkTrack("finalTrackBuild2", optimizedTrack.get(), track.get())) {
                 track.swap(optimizedTrack);
                 countAEOTs(track.get(), " finalTrackBuilt alignment errors Track ");
             }
