@@ -146,8 +146,8 @@ namespace Rec {
         /// Summarizes the available information about the ID track,
         ///            the deposited calorimeter energies and the track states into a new track
         ///   --> m_materialUpdator as only tool called , but does not provide an interface method with ctx thus far
-        std::unique_ptr<Trk::Track> createMuonTrack(const Trk::Track& muonTrack, const Trk::TrackParameters* parameters,
-                                                    const CaloEnergy* caloEnergy,
+        std::unique_ptr<Trk::Track> createMuonTrack(const EventContext& ctx, const Trk::Track& muonTrack,
+                                                    const Trk::TrackParameters* parameters, const CaloEnergy* caloEnergy,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
@@ -156,7 +156,7 @@ namespace Rec {
         std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
             const Trk::Track& spectrometerTrack) const;
 
-        const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters) const;
+        const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters, const EventContext& ctx) const;
 
         std::unique_ptr<const Trk::TrackParameters> extrapolatedParameters(const EventContext& ctx, bool& badlyDeterminedCurvature,
                                                                            const Trk::Track& spectrometerTrack,

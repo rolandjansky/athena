@@ -422,7 +422,7 @@ namespace Rec {
         if (!fieldCache.toroidOn()) {
             ATH_MSG_VERBOSE(" SL MS track: Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
             muonTrack =
-                createMuonTrack(indetTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                createMuonTrack(ctx, indetTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
                                 extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
         } else {
             // create a muon track without perigee in case of non-optimal precision -
@@ -430,18 +430,19 @@ namespace Rec {
             if (!surface) {  // extrapolate outwards to associate calorimeter material effects
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
                 muonTrack = createMuonTrack(
-                    extrapolatedTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                    ctx, extrapolatedTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
                     extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
             } else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1) {  // remove pseudo meas
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
                 muonTrack =
-                    createMuonTrack(extrapolatedTrack, nullptr, nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                    createMuonTrack(ctx, extrapolatedTrack, nullptr, nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
                                     extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
             } else {  // otherwise can just copy the extrapolated track
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack = createMuonTrack(
-                    extrapolatedTrack, extrapolatedTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
-                    extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
+                muonTrack =
+                    createMuonTrack(ctx, extrapolatedTrack, extrapolatedTrack.perigeeParameters(), nullptr,
+                                    extrapolatedTrack.trackStateOnSurfaces()->begin(), extrapolatedTrack.trackStateOnSurfaces()->end(),
+                                    extrapolatedTrack.trackStateOnSurfaces()->size());
             }
         }
 
@@ -526,8 +527,8 @@ namespace Rec {
             std::unique_ptr<Trk::Track> oldTrack(std::move(muonTrack));
 
             ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-            muonTrack = createMuonTrack(extrapolatedTrack, combinedEnergyParameters, nullptr, combinedTSOS->begin(), combinedTSOS->end(),
-                                        combinedTSOS->size());
+            muonTrack = createMuonTrack(ctx, extrapolatedTrack, combinedEnergyParameters, nullptr, combinedTSOS->begin(),
+                                        combinedTSOS->end(), combinedTSOS->size());
 
             if (indetNewTrack && muonTrack) {
                 std::unique_ptr<Trk::Track> refittedTrack(fit(*indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon));
@@ -586,7 +587,7 @@ namespace Rec {
                               << (caloEnergy->deltaE() - paramEnergy->deltaE()) / Gaudi::Units::GeV);
 
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack = createMuonTrack(extrapolatedTrack, nullptr, paramEnergy, muonTrack->trackStateOnSurfaces()->begin(),
+                muonTrack = createMuonTrack(ctx, extrapolatedTrack, nullptr, paramEnergy, muonTrack->trackStateOnSurfaces()->begin(),
                                             muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
 
                 if (muonTrack) {
@@ -1866,7 +1867,7 @@ namespace Rec {
 
         // MS entrance perigee
         if (m_perigeeAtSpectrometerEntranceLocal) {
-            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters());
+            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters(), ctx);
             if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
         }
 
@@ -2875,7 +2876,7 @@ namespace Rec {
             if (!mstrackParameters) { mstrackParameters = spectrometerTSOS.front()->trackParameters(); }
 
             if (mstrackParameters) {
-                const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(mstrackParameters);
+                const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(mstrackParameters, ctx);
                 if (entranceTSOS) { trackStateOnSurfaces->push_back(entranceTSOS); }
             }
         }
@@ -2975,7 +2976,7 @@ namespace Rec {
         return std::make_unique<Trk::Track>(info, trackStateOnSurfaces, nullptr);
     }
 
-    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createMuonTrack(const Trk::Track& muonTrack,
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createMuonTrack(const EventContext& ctx, const Trk::Track& muonTrack,
                                                                           const Trk::TrackParameters* parameters,
                                                                           const CaloEnergy* caloEnergy,
                                                                           DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
@@ -3096,9 +3097,9 @@ namespace Rec {
 
             if (!hasAlreadyPerigee && (**s).trackParameters()) {
                 if ((**s).trackParameters()) {
-                    entranceTSOS = entrancePerigee((**s).trackParameters());
+                    entranceTSOS = entrancePerigee((**s).trackParameters(), ctx);
                 } else {
-                    entranceTSOS = entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
+                    entranceTSOS = entrancePerigee(trackStateOnSurfaces->back()->trackParameters(), ctx);
                 }
 
                 if (entranceTSOS) {
@@ -3151,7 +3152,7 @@ namespace Rec {
         const Trk::Track& spectrometerTrack) const {
         const Trk::Perigee* measuredPerigee = spectrometerTrack.perigeeParameters();
 
-        if (!measuredPerigee || !measuredPerigee->covariance()) {
+        if (!measuredPerigee || !measuredPerigee->covariance() || !Amg::valid_cov(*measuredPerigee->covariance())) {
             // missing MeasuredPerigee for spectrometer track
             m_messageHelper->printWarning(38);
             return nullptr;
@@ -3298,10 +3299,10 @@ namespace Rec {
         return spectrometerTSOS;
     }
 
-    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters) const {
+    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters,
+                                                                              const EventContext& ctx) const {
         // make sure the spectrometer entrance volume is available
         if (!parameters) return nullptr;
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         const Trk::TrackingVolume* spectrometerEntrance = getVolume("MuonSpectrometerEntrance", ctx);
         if (!spectrometerEntrance) return nullptr;
 
