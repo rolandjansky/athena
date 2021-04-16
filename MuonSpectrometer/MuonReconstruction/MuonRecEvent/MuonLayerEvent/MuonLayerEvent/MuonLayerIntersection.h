@@ -8,22 +8,21 @@
 #include "MuonLayerEvent/MuonSystemExtension.h"
 
 namespace Muon {
-  
-  class MuonSegment;
 
-  struct MuonLayerIntersection {
-    /** constructor */
-    MuonLayerIntersection();
-    MuonLayerIntersection( const MuonSystemExtension::Intersection& intersection_, const std::shared_ptr<const MuonSegment>& segment_ );
+    class MuonSegment;
 
-    /** intersection with layer */
-    MuonSystemExtension::Intersection      intersection;
+    struct MuonLayerIntersection {
+        /** constructor */
+        MuonLayerIntersection();
+        MuonLayerIntersection(const MuonSystemExtension::Intersection& intersection_, const std::shared_ptr<const MuonSegment>& segment_);
 
-    /** segment */
-    std::shared_ptr<const MuonSegment>     segment;
-  };
+        /** intersection with layer */
+        MuonSystemExtension::Intersection intersection;
 
-}
+        /** segment */
+        std::shared_ptr<const MuonSegment> segment;
+    };
 
+}  // namespace Muon
 
 #endif
