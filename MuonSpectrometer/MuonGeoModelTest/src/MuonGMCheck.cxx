@@ -653,7 +653,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
                                          const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -673,7 +673,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
                                          const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1815,7 +1815,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
                              const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1827,7 +1827,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition1.x()<<", "
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
                              const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
@@ -1847,7 +1847,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
                              const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1860,7 +1860,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
                              const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
@@ -2683,8 +2683,8 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       Amg::Vector3D posctr;
       posctr = tgc->globalPosition();
       activeheight = tgc->length();
-      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/fabs(posmin.z()))/2.));
-      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/fabs(posmax.z()))/2.));
+      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/std::abs(posmin.z()))/2.));
+      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/std::abs(posmax.z()))/2.));
       if (m_idHelperSvc->tgcIdHelper().stationEta(elemId) < 0) {
 	etamin = -etamin;
 	etamax = -etamax;
@@ -2970,7 +2970,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			ATH_MSG_INFO("--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max);
  			ATH_MSG_INFO("--------> eta_min " << eta_min << " mp " << mp_eta_min << " chl " << cl_eta_min << " wl " << wl_eta_min << " strip " << N_eta_min);
  			ATH_MSG_INFO("--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max);
- 			ATH_MSG_INFO("--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min));
+ 			ATH_MSG_INFO("--------> Dphi " << std::abs(phi_max-phi_min) << " Deta " << std::abs(eta_max-eta_min));
  			
  			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
  			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;

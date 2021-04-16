@@ -268,19 +268,19 @@ public:
     double charge = 0.,
     std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
-  /** positionOnSurface() returns a pointer to a LocalPosition on the
+  /** positionOnSurface() returns the  LocalPosition on the
     Surface,<br>
     If BoundaryCheck==false it just returns the value of
     globalToLocal (including nullptr possibility),
     if BoundaryCheck==true
-    it checks whether the point is inside bounds or not (returns nullptr
-    pointer in this case).
-    The caller assumes ownership of the returned ptr.
+    it checks whether the point is inside bounds or not (returns 
+    std::nullopt in this case).
     */
-  Amg::Vector2D* positionOnSurface(const Amg::Vector3D& glopo,
-                                   const BoundaryCheck& bchk = true,
-                                   double tol1 = 0.,
-                                   double tol2 = 0.) const;
+  std::optional<Amg::Vector2D> positionOnSurface(
+    const Amg::Vector3D& glopo,
+    const BoundaryCheck& bchk = true,
+    double tol1 = 0.,
+    double tol2 = 0.) const;
 
   /** The templated Parameters OnSurface method - checks on surface pointer
    * first */
@@ -345,20 +345,20 @@ public:
                              Amg::Vector2D& loc) const = 0;
 
   /** This method returns the LocalPosition from a provided GlobalPosition.
-    If the GlobalPosition is not on the Surface, it returns a NULL pointer.
+    If the GlobalPosition is not on the Surface, it returns nullopt
     This method does not check if the calculated LocalPosition is inside surface
     bounds. If this check is needed, use positionOnSurface - only for planar,
     cylinder surface fully defined*/
-  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                               double tol = 0.) const;
+  std::optional<Amg::Vector2D> globalToLocal(const Amg::Vector3D& glopos,
+                                             double tol = 0.) const;
 
   /** This method returns the LocalPosition from a provided GlobalPosition.
-      If the GlobalPosition is not on the Surface, it returns a NULL pointer.
+      If the GlobalPosition is not on the Surface, it returns a nullopt
       This method does not check if the calculated LocalPosition is inside
      surface bounds. If this check is needed, use positionOnSurface - for
      generality with momentum */
-  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                               const Amg::Vector3D& glomom) const;
+  std::optional<Amg::Vector2D> globalToLocal(const Amg::Vector3D& glopos,
+                                             const Amg::Vector3D& glomom) const;
 
   /** Optionally specified by each surface type : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
