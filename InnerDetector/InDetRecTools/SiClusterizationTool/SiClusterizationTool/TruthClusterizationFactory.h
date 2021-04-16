@@ -71,6 +71,7 @@ namespace InDet {
    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
    std::string m_rndmEngineName;
    CLHEP::HepRandomEngine* m_rndmEngine;
+   bool m_usePUHits;
    
    };
  

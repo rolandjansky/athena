@@ -43,13 +43,15 @@ namespace InDet {
     m_incidentSvc("IncidentSvc", n),
     m_simDataCollectionName("PixelSDO_Map"),
     m_rndmSvc("AtDSFMTGenSvc",name),
-    m_rndmEngineName("TruthClustering")
+    m_rndmEngineName("TruthClustering"),
+    m_usePUHits(false)
   {
     // further properties
     declareProperty("IncidentService", m_incidentSvc );
     declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TruthClusterizationFactory");
     declareProperty("RndmEngine",m_rndmEngineName,"Random generator engine used to emualate pixel NN");
     declareProperty("InputSDOMap",  m_simDataCollectionName, "sim data collection name");
+    declareProperty("usePUHits", m_usePUHits, "Take into account PU hits as contributing particles for NN emulation");
     
     declareInterface<TruthClusterizationFactory>(this);
   } 
@@ -117,7 +119,6 @@ namespace InDet {
   {
     std::vector<double> probabilities(3,0.);
     auto rdos = pCluster.rdoList();
-        bool crazycluster(true);
     unsigned int nPartContributing = 0;
     //Initialize vector for a list of UNIQUE barcodes for the cluster
 
@@ -128,11 +129,9 @@ namespace InDet {
         if (m_simDataCollection){
             auto simDataIter = m_simDataCollection->find(rdoIter);
             if (simDataIter != m_simDataCollection->end()){
-                        crazycluster = false;
                 // get the SimData and count the individual contributions
 
                 auto simData = (simDataIter->second);
-                //auto simDataDeposits = simData.getdeposits();
 
                 for( auto deposit : simData.getdeposits() ){
                     //If deposit exists
@@ -147,14 +146,14 @@ namespace InDet {
                         //If this barcode is not found
 
                         if (!(barcodeIterator != barcodes.end())){
-                            //Add the barcode to the barcodes vector
 
-                            barcodes.push_back(deposit.first->barcode());
+                            //Only count deposits from HS to ensure consistency between full truth and standard truth PU configurations
+                            if(m_usePUHits || deposit.first.eventIndex()==0) barcodes.push_back(deposit.first->barcode());
+
                         }
                     }
                     else ATH_MSG_WARNING("No deposits found");
                 }
-                //nPartContributing = simDataDeposits.size() > nPartContributing ? simDataDeposits.size() : nPartContributing;
 
             }
         }
@@ -170,9 +169,9 @@ namespace InDet {
     ATH_MSG_VERBOSE("Smearing TruthClusterizationFactory probability output for TIDE studies");
     //If only 1 truth particles found
 
-    if (nPartContributing==1) {
+    if (nPartContributing<=1) {
         //NN will always return 100% chance of there being only 1 particle
-
+        //For pure PU case nPartContributing=0, assume that there is a single particle contributing as well
         probabilities[0] = 1.0;
     }
     //If two unique truth particles found in cluster
@@ -195,15 +194,6 @@ namespace InDet {
 
         else probabilities[0] = 1.0;
     }
-    
-    //if truth collection not found
-
-    if(crazycluster) {
-        std::vector<double> noprobabilities;
-        return noprobabilities;
-    }
-    //Else return probabilities calculated above
-
     
     return probabilities;
     
