@@ -164,7 +164,6 @@ namespace Rec {
                                                                            const Trk::PerigeeSurface* mperigeeSurface) const;
 
         void finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const;
-        Trk::Track* interfaceNotImplemented() const;
 
         void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
                             double deltaTheta = 0.) const;
@@ -173,8 +172,6 @@ namespace Rec {
         std::unique_ptr<Trk::Track> reallocateMaterial(const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
         void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
         void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
-
-        Trk::Track* trackCleaner(Trk::Track* combinedTrack, const Trk::Track* indetTrack, const Trk::Track& muonTrack) const;
 
         Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
                                                      const Trk::RecVertex* mbeamAxis) const;

@@ -2081,7 +2081,7 @@ namespace Rec {
 
             if (fittedTrack) countAEOTs(fittedTrack.get(), " refit: fitted track before cleaning ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
 
             if (cleanTrack) countAEOTs(cleanTrack.get(), " refit: after cleaning");
 
@@ -2196,7 +2196,7 @@ namespace Rec {
 
             if (fittedTrack) countAEOTs(fittedTrack.get(), " fit mstSet before cleaning ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
 
             if (cleanTrack) countAEOTs(cleanTrack.get(), " fit mstSet clean Track ");
 
@@ -2299,7 +2299,7 @@ namespace Rec {
                                                           << m_printer->printStations(*fittedTrack));
 
             if (fittedTrack) { countAEOTs(fittedTrack.get(), " cb before clean Track "); }
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
             if (cleanTrack) { countAEOTs(cleanTrack.get(), " cb after clean Track "); }
 
             if (!cleanTrack) {
@@ -3606,13 +3606,6 @@ namespace Rec {
         // add the track summary
         m_trackSummary->updateTrack(ctx, *track);
     }
-
-    Trk::Track* CombinedMuonTrackBuilder::interfaceNotImplemented() const {
-        ATH_MSG_WARNING(" this ITrackFitter interface has not been implemented."
-                        << " It is not relevant for combined muon tracks");
-        return nullptr;
-    }
-
     void CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate,
                                                   double deltaPhi, double deltaTheta) const {
         if (!parameters) return;
