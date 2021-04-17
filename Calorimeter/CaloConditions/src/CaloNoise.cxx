@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloNoise.h"
@@ -36,7 +36,6 @@ CaloNoise::~CaloNoise() {
 }
 
 
-//The following method is copied (amost unchanged) from CaloNoiseToolDB
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
 
