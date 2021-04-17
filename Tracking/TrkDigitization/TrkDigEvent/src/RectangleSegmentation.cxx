@@ -16,17 +16,17 @@
 
 Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk::RectangleBounds> mBounds,
                                                       size_t numCellsX, size_t numCellsY) :
-   m_activeBounds(mBounds),
+   m_activeBounds(std::move(mBounds)),
    m_binUtility(nullptr),
    m_binsX(numCellsX),
    m_binsY(numCellsY)
 {
     // first the x dimension if needed
     if (numCellsX > 1)
-         m_binUtility = new Trk::BinUtility(numCellsX, -mBounds->halflengthX(), mBounds->halflengthX(), Trk::open, Trk::binX); 
+         m_binUtility = new Trk::BinUtility(numCellsX, -m_activeBounds->halflengthX(), m_activeBounds->halflengthX(), Trk::open, Trk::binX); 
     // use y dimension if needed
     if (numCellsY > 1){
-        Trk::BinUtility yBinUtility(numCellsY, -mBounds->halflengthY(), mBounds->halflengthY(), Trk::open, Trk::binY);
+        Trk::BinUtility yBinUtility(numCellsY, -m_activeBounds->halflengthY(), m_activeBounds->halflengthY(), Trk::open, Trk::binY);
         if (m_binUtility)
             (*m_binUtility) += yBinUtility;
         else 
@@ -36,20 +36,20 @@ Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk:
 
  /** Constructor for ATLAS module type pixels */
 Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk::RectangleBounds> mBounds, size_t numCellsX, double longY, size_t numCellsY, double numberOfChip): 
-   m_activeBounds(mBounds),
+   m_activeBounds(std::move(mBounds)),
    m_binUtility(nullptr),
    m_binsX(numCellsX),
    m_binsY(numCellsY)
 {
     // first the x dimension if needed
     if (numCellsX > 1)
-         m_binUtility = new Trk::BinUtility(numCellsX, -mBounds->halflengthX(), mBounds->halflengthX(), Trk::open, Trk::binX); 
+         m_binUtility = new Trk::BinUtility(numCellsX, -m_activeBounds->halflengthX(), m_activeBounds->halflengthX(), Trk::open, Trk::binX); 
     // use y dimension if needed
     if (numCellsY > 1){
  
       int numCellsYinChip = numCellsY/numberOfChip;
-      double begin = -mBounds->halflengthY();
-      double end = (2. * mBounds->halflengthY() / numberOfChip) - mBounds->halflengthY();
+      double begin = -m_activeBounds->halflengthY();
+      double end = (2. * m_activeBounds->halflengthY() / numberOfChip) - m_activeBounds->halflengthY();
       std::vector<float> boundaries;
       
       boundaries.push_back(begin);
@@ -62,7 +62,7 @@ Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk:
 	boundaries.push_back(end);
 	
 	begin=end;
-	end+=(2 * mBounds->halflengthY() / numberOfChip);
+	end+=(2 * m_activeBounds->halflengthY() / numberOfChip);
 	
       }
      
