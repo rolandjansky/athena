@@ -31,8 +31,9 @@ namespace DerivationFramework {
     StatusCode initialize();
     StatusCode finalize();
     virtual StatusCode addBranches() const;
-    
-  private:
+    int getDeXTerLabel(const int ghostBFinalCount,const int ghostCFinalCount) const;
+
+   private:
     std::string m_eventInfoName;    
     std::string m_secvtxName;
     std::string m_largeJetCollectionName;
@@ -73,6 +74,9 @@ namespace DerivationFramework {
     const SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip_svmassflip;
     const SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip_svmassflip;
     const SG::AuxElement::Decorator<int> smalljet_largeJetLabel;
+    const SG::AuxElement::Decorator<int> jet_dexter_ghostBhadronCount;
+    const SG::AuxElement::Decorator<int> jet_dexter_ghostChadronCount;
+    const SG::AuxElement::Decorator<int> jet_dexter_TruthLabel;
 
   }; /// class
 
