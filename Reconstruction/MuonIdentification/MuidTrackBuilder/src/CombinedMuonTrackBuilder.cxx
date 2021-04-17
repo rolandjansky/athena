@@ -446,7 +446,6 @@ namespace Rec {
         countAEOTs(muonTrack.get(), " muonTrack track before fit ");
 
         // combined track fit
-        std::cout << "call fit() " << __LINE__ << std::endl;
         std::unique_ptr<Trk::Track> combinedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
 
         // quit if fit failure or all MS measurements removed by fit or perigee outside indet
@@ -526,7 +525,6 @@ namespace Rec {
                                         combinedTSOS->end(), combinedTSOS->size());
 
             if (indetNewTrack && muonTrack) {
-                std::cout << "call fit() " << __LINE__ << std::endl;
                 std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, *indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                 caloEnergy = caloEnergyParameters(refittedTrack.get(), muonTrack.get(), combinedEnergyParameters, muonEnergyParameters);
 
@@ -587,7 +585,6 @@ namespace Rec {
                                             muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
 
                 if (muonTrack) {
-                    std::cout << "call fit() " << __LINE__ << std::endl;
                     std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                     if (refittedTrack) { combinedTrack.swap(refittedTrack); }
                 }
@@ -2397,7 +2394,7 @@ namespace Rec {
         const Trk::TrackStateOnSurface* calo_exit = nullptr;
         const Trk::TrackStateOnSurface* ms_entrance = nullptr;
 
-        m_alignUncertTool_theta->get_track_state_measures(track, id_exit, calo_entrance, calo_exit, ms_entrance);
+        m_alignUncertTool_theta->get_track_state_measures(track.get(), id_exit, calo_entrance, calo_exit, ms_entrance);
         /// it can happen that no Calorimeter Scatterers are found.
         if (!calo_entrance || !calo_exit || !ms_entrance) {
             ATH_MSG_DEBUG(" addIDMSerrors keep original track ");
