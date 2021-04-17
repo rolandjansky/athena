@@ -198,6 +198,9 @@ TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1           =  ["AntiKt8EMPFlowJets
                                                              + "ExKtbb_dexter_pbb_negtrksflip_svmassflip."
                                                              + "ExKtbb_dexter_pb_negtrksflip_svmassflip."
                                                              + "ExKtbb_dexter_pl_negtrksflip_svmassflip."
+                                                             + "dexter_GhostBHadronsCount."
+                                                             + "dexter_GhostCHadronsCount."
+                                                             + "dexter_TruthLabel."
                                                              ]
 TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1 =  ["AntiKt8EMPFlowExKt2GASubJets."
                                                              + "AlgorithmType."
