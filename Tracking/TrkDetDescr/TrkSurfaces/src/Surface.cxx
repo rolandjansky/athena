@@ -205,10 +205,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
 {
   std::optional<Amg::Vector2D> posOnSurface =
     positionOnSurface(glopo, bchk, tol1, tol2);
-  if (posOnSurface) {
-    return true;
-  }
-  return false;
+  return static_cast<bool>(posOnSurface);
 }
 
 // return the measurement frame

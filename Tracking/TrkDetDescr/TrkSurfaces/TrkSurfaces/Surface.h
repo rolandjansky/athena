@@ -145,13 +145,25 @@ public:
   using NeutralTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
 
   /**Default Constructor
-   - needed for inherited classes */
+   for inheriting classes */
   Surface();
 
   /**Copy constructor - it resets the associated
    detector element to 0 and the identifier to invalid,
    as the copy cannot be owned by the same detector element as the original */
   Surface(const Surface& sf);
+
+  /**Assignment operator- it sets the associated
+   detector element to 0 and the associated identifier to invalid,
+   as the copy cannot be owned by the same detector element as the original */
+  Surface& operator=(const Surface& sf);
+
+  //Move operators for inheriting classes
+  Surface(Surface&& sf) noexcept = default ;
+  Surface& operator=(Surface&& sf) noexcept = default;
+  
+  /**Virtual Destructor*/
+  virtual ~Surface();
 
   /**Copy constructor with shift */
   Surface(const Surface& sf, const Amg::Transform3D& transf);
@@ -167,14 +179,6 @@ public:
 
   /**Constructor form TrkDetElement and Identifier*/
   Surface(const TrkDetElementBase& detelement, const Identifier& id);
-
-  /**Virtual Destructor*/
-  virtual ~Surface();
-
-  /**Assignment operator- it sets the associated
-   detector element to 0 and the associated identifier to invalid,
-   as the copy cannot be owned by the same detector element as the original */
-  Surface& operator=(const Surface& sf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const = 0;
@@ -468,15 +472,13 @@ public:
 protected:
   friend class ::SurfaceCnv_p1;
 
-  /** Private members are in principle implemented as pointers to
-   * objects for easy checks if they are already declared or not */
-
-  //!< Pointer to the Transforms struct*/
+  //!< Owning Pointer to the Transforms struct*/
   std::unique_ptr<Transforms> m_transforms = nullptr;
 
-  /** Pointers to the TrkDetElementBase  (not owning)*/
+  /** Not owning Pointer to the TrkDetElementBase*/
   const TrkDetElementBase* m_associatedDetElement = nullptr;
   Identifier m_associatedDetElementId;
+ 
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
    (not owning)

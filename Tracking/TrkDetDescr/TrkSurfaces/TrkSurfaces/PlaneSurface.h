@@ -68,6 +68,18 @@ public:
   /** Copy Constructor*/
   PlaneSurface(const PlaneSurface& psf) = default;
 
+  /**Assignment operator*/
+  PlaneSurface& operator=(const PlaneSurface& psf) = default;
+
+  /** Move Constructor*/
+  PlaneSurface(PlaneSurface&& psf) noexcept = default;
+
+  /**Move assignment operator*/
+  PlaneSurface& operator=(PlaneSurface&& psf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PlaneSurface() = default;
+
   /** Copy Constructor with shift*/
   PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf);
 
@@ -130,12 +142,6 @@ public:
   /** Constructor for Planes with shared object*/
   PlaneSurface(Amg::Transform3D* htrans,
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
-
-  /**Destructor*/
-  virtual ~PlaneSurface() = default;
-
-  /**Assignment operator*/
-  PlaneSurface& operator=(const PlaneSurface& psf) = default;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

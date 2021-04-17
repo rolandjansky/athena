@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,10 @@ class NoBounds final : public SurfaceBounds
 public:
   /**Default Constructor*/
   NoBounds() = default;
-
+  NoBounds(const NoBounds&) = default;
+  NoBounds& operator=(const NoBounds&) = default;
+  NoBounds(NoBounds&&) noexcept = default;
+  NoBounds& operator=(NoBounds&&) noexcept  = default;
   /** Destructor */
   ~NoBounds() = default;
 

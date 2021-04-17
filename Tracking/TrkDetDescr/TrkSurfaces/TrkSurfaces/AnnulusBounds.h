@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,12 +58,17 @@ public:
 
   /**Default Constructor, needed for persistency*/
   AnnulusBounds();
-
   /**Constructor for AnnulusBounds*/
   AnnulusBounds(double minR, double maxR, double R, double phi, double phiS);
 
   /**Copy constructor*/
   AnnulusBounds(const AnnulusBounds& annbo) = default;
+  /**Assignment operator*/
+  AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
+ /** Move constructor */
+  AnnulusBounds(AnnulusBounds&& annbo) = default;
+ /** Move assignment */
+  AnnulusBounds& operator=(AnnulusBounds&& sbo) = default;
 
   /**Destructor*/
   virtual ~AnnulusBounds() = default;
@@ -73,9 +78,6 @@ public:
 
   /** Return the type of the bounds for persistency */
   virtual BoundsType type() const override { return SurfaceBounds::Annulus; }
-
-  /**Assignment operator*/
-  AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
 
   /**Equality operator*/
   bool operator==(const SurfaceBounds& annbo) const override;
