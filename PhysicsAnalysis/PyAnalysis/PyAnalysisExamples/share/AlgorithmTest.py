@@ -30,11 +30,11 @@ theApp.nextEvent()
 # get transient Electrons which are recorded into SG by MySelectonAlg
 econ = PyParticleTools.getElectrons(myNewKey)
 for ie in range(len(econ)):
-    print "pt %f" % econ[ie].pt()
+    print ("pt %f" % econ[ie].pt())
 
 # load dict for MyDetObj
 pylcgdict.load_library("libPyAnalysisExamplesDict")
 
 # retrieve an object from DetectorStore
-obj = PyKernel.retrieveDet(g.MyDetObj,'myDetObj')
-print obj.name()
+obj = PyKernel.retrieveDet(g.AthPyEx.MyDetObj,'myDetObj')
+print (obj.name())

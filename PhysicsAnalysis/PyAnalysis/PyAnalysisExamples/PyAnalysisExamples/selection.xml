@@ -1,8 +1,8 @@
 <lcgdict>
 
-  <class name="MyCutClass" />
-  <class name="MyObj" />
-  <class name="MyDetObj" />
+  <class name="AthPyEx::MyCutClass" />
+  <class name="AthPyEx::MyObj" />
+  <class name="AthPyEx::MyDetObj" />
   <class name="AthPyEx::MyTool" />
   
 </lcgdict>
