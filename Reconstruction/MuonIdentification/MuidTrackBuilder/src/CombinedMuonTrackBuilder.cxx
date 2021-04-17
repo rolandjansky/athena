@@ -139,8 +139,6 @@ namespace Rec {
     }
 
     StatusCode CombinedMuonTrackBuilder::initialize() {
-        ATH_CHECK(AthAlgTool::initialize());
-
         ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder.");
         ATH_MSG_DEBUG(" with options: ");
 
@@ -328,18 +326,13 @@ namespace Rec {
                          << m_countExtensionCleanerVeto << " extension fits with cleaner veto" << endmsg << "     "
                          << m_countCombinedCleanerVeto << " combined fits with cleaner veto");
         }
-
         // summarize WARNINGs
         m_messageHelper->printSummary();
         return StatusCode::SUCCESS;
     }
-
-    /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                                                       const Trk::Track& spectrometerTrack) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, ctx);
+        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
     }
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const Trk::Track&,
                                                       const EventContext& ctx) const {
@@ -375,7 +368,7 @@ namespace Rec {
         // provided momentum defined (solenoid on)
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
             std::unique_ptr<const Trk::TrackStateOnSurface> innerTSOS;
@@ -453,7 +446,8 @@ namespace Rec {
         countAEOTs(muonTrack.get(), " muonTrack track before fit ");
 
         // combined track fit
-        std::unique_ptr<Trk::Track> combinedTrack(fit(indetTrack, *muonTrack, ctx, m_cleanCombined, Trk::muon));
+        std::cout << "call fit() " << __LINE__ << std::endl;
+        std::unique_ptr<Trk::Track> combinedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
 
         // quit if fit failure or all MS measurements removed by fit or perigee outside indet
         bool haveMS = false;
@@ -532,7 +526,8 @@ namespace Rec {
                                         combinedTSOS->end(), combinedTSOS->size());
 
             if (indetNewTrack && muonTrack) {
-                std::unique_ptr<Trk::Track> refittedTrack(fit(*indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon));
+                std::cout << "call fit() " << __LINE__ << std::endl;
+                std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, *indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                 caloEnergy = caloEnergyParameters(refittedTrack.get(), muonTrack.get(), combinedEnergyParameters, muonEnergyParameters);
 
                 if (caloEnergy) {
@@ -592,7 +587,8 @@ namespace Rec {
                                             muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
 
                 if (muonTrack) {
-                    std::unique_ptr<Trk::Track> refittedTrack(fit(indetTrack, *muonTrack, m_cleanCombined, Trk::muon));
+                    std::cout << "call fit() " << __LINE__ << std::endl;
+                    std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                     if (refittedTrack) { combinedTrack.swap(refittedTrack); }
                 }
             }
@@ -611,7 +607,7 @@ namespace Rec {
         }
 
         //  adds uncertainties and removes AEOTs
-        std::unique_ptr<Trk::Track> newTrack(addIDMSerrors(combinedTrack.get()));
+        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(std::move(combinedTrack))};
 
         // recollect eloss for combined track and refit
         if (newTrack) {
@@ -633,17 +629,11 @@ namespace Rec {
 
         return combinedTrack.release();
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        build and fit indet track extended to include MS Measurement set.
-        Adds material effects as appropriate plus calo energy-loss treatment */
-
     Trk::Track* CombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeasurements,
                                                          const Trk::TrackParameters* innerParameters,
                                                          const Trk::TrackParameters* middleParameters,
                                                          const Trk::TrackParameters* outerParameters) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return indetExtension(indetTrack, spectrometerMeasurements, ctx, innerParameters, middleParameters, outerParameters);
+        return indetExtension(indetTrack, spectrometerMeasurements, Gaudi::Hive::currentContext(), innerParameters, middleParameters, outerParameters);
     }
     Trk::Track* CombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeasurements,
                                                          const EventContext& ctx, const Trk::TrackParameters* innerParameters,
@@ -695,9 +685,8 @@ namespace Rec {
         const Trk::IPropagator* propagator = m_propagatorSL.get();
 
         MagField::AtlasFieldCache fieldCache;
-        // Get field cache object
+        // Get field cache object        
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
-
         if (fieldCache.toroidOn()) {
             // fail when solenoid off and toroid on - as extrapolation from ID is not the correct strategy
             //   for material effects, fit starting value etc
@@ -719,7 +708,7 @@ namespace Rec {
                 frontParameters = innerParameters->clone();
             } else {
                 // TSoS will own this
-                frontParameters = m_propagator
+                frontParameters = propagator
                                       ->propagate(ctx, *innerParameters, spectrometerMeasurements.front()->associatedSurface(),
                                                   Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                       .release();
@@ -729,7 +718,7 @@ namespace Rec {
                 frontParameters = middleParameters->clone();
             } else {
                 // TSoS will own this
-                frontParameters = m_propagator
+                frontParameters = propagator
                                       ->propagate(ctx, *middleParameters, spectrometerMeasurements.front()->associatedSurface(),
                                                   Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                       .release();
@@ -741,7 +730,7 @@ namespace Rec {
                 backParameters = outerParameters->clone();
             } else {
                 // TSoS will own this
-                backParameters = m_propagator
+                backParameters = propagator
                                      ->propagate(ctx, *outerParameters, spectrometerMeasurements.back()->associatedSurface(),
                                                  Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                      .release();
@@ -751,7 +740,7 @@ namespace Rec {
                 backParameters = middleParameters->clone();
             } else {
                 // TSoS will own this
-                backParameters = m_propagator
+                backParameters = propagator
                                      ->propagate(ctx, *middleParameters, spectrometerMeasurements.back()->associatedSurface(),
                                                  Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                      .release();
@@ -856,13 +845,13 @@ namespace Rec {
     }
     Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const Trk::Vertex* inputVertex,
                                                         float bs_x, float bs_y, float bs_z) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return standaloneFit(inputSpectrometerTrack, ctx, inputVertex, bs_x, bs_y, bs_z);
+        return standaloneFit(inputSpectrometerTrack, Gaudi::Hive::currentContext(), inputVertex, bs_x, bs_y, bs_z);
     }
     Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const EventContext& ctx,
                                                         const Trk::Vertex* inputVertex, float bs_x, float bs_y, float bs_z) const {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
+        
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         // no SA fit with vertex constraint for Toroid off data
@@ -1391,7 +1380,7 @@ namespace Rec {
         }
 
         //  adds uncertainties
-        std::unique_ptr<Trk::Track> newTrack(addIDMSerrors(track.get()));
+        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(std::move(track))};
 
         if (newTrack) {
             countAEOTs(newTrack.get(), " SA track after addIDMSerrors ");
@@ -1441,12 +1430,8 @@ namespace Rec {
 
         return track.release();
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        refit a track removing any indet measurements with possible addition of pseudoMeasurements */
     Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return standaloneRefit(combinedTrack, ctx, bs_x, bs_y, bs_z);
+        return standaloneRefit(combinedTrack, Gaudi::Hive::currentContext(), bs_x, bs_y, bs_z);
     }
     Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x, float bs_y,
                                                           float bs_z) const {
@@ -1458,6 +1443,7 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
+        
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn()) {
@@ -1943,8 +1929,7 @@ namespace Rec {
     }
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return fit(track, ctx, runOutlier, particleHypothesis);
+        return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis);
     }
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
@@ -1964,6 +1949,7 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
+        
         if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
@@ -2132,7 +2118,7 @@ namespace Rec {
         // select straightLine fitter when magnets downstream of leading measurement are off
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         const Trk::ITrackFitter* fitter = m_fitter.get();
         if (!fieldCache.toroidOn() || std::abs(perigeeStartValue.position().z()) > m_zECToroid) {
@@ -2227,8 +2213,8 @@ namespace Rec {
     }
 
     /**combined muon fit */
-    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
-                                                              const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(const EventContext& ctx, const Trk::Track& indetTrack,
+                                                              Trk::Track& extrapolatedTrack, const Trk::RunOutlierRemoval runOutlier,
                                                               const Trk::ParticleHypothesis particleHypothesis) const {
         // check valid particleHypothesis
         if (particleHypothesis != Trk::muon && particleHypothesis != Trk::nonInteracting) {
@@ -2243,7 +2229,7 @@ namespace Rec {
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !fieldCache.solenoidOn()) {
             fitter = m_fitterSL.get();
@@ -2394,7 +2380,7 @@ namespace Rec {
         return optimize > 0;
     }
 
-    Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::addIDMSerrors(std::unique_ptr<Trk::Track> track) const {
         //
         // take track and correct the two scattering planes in the Calorimeter
         // to take into account m_IDMS_rzSigma and m_IDMS_xySigma
@@ -2440,8 +2426,8 @@ namespace Rec {
                     continue;
                 }
 
-                float sigmaDeltaPhi = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_phi->get_uncertainty(track));
-                float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_theta->get_uncertainty(track));
+                float sigmaDeltaPhi = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_phi->get_uncertainty(track.get()));
+                float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_theta->get_uncertainty(track.get()));
                 float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
 
                 //
@@ -2483,8 +2469,7 @@ namespace Rec {
         ATH_MSG_DEBUG(" trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size() << " trackStateOnSurfaces found "
                                                               << trackStateOnSurfaces->size());
 
-        Trk::Track* newTrack = new Trk::Track(track->info(), trackStateOnSurfaces.release(), nullptr);
-        if (newTrack) countAEOTs(newTrack, " add IDMS errors ");
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces.release(), nullptr);
         return newTrack;
     }
 
@@ -2740,6 +2725,7 @@ namespace Rec {
             if (caloAssociated) {
                 MagField::AtlasFieldCache fieldCache;
                 // Get field cache object
+                
                 if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
@@ -3367,7 +3353,7 @@ namespace Rec {
         const Trk::IPropagator* propagator = m_propagator.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
         if (!fieldCache.toroidOn()) {
             curvatureOK = true;
             propagator = m_propagatorSL.get();

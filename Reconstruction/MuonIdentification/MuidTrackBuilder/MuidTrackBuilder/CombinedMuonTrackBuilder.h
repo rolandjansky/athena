@@ -117,14 +117,12 @@ namespace Rec {
 
         /**
             combined muon fit */
-        /// m_muonErrorOptimizer does not provide a method accepting the EventContext yet, but given that it uses the extrapolator in the
-        ///    backend we should think about adding it.
-        std::unique_ptr<Trk::Track> fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack, const EventContext& ctx,
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
                                         const Trk::RunOutlierRemoval runOutlier = false,
                                         const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
         bool optimizeErrors(const EventContext& ctx, Trk::Track* track) const;
-        Trk::Track* addIDMSerrors(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> addIDMSerrors(std::unique_ptr<Trk::Track> track) const;
 
         void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
