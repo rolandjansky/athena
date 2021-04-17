@@ -338,7 +338,8 @@ namespace Rec {
 
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                                                       const Trk::Track& spectrometerTrack) const {
-        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, ctx);
     }
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const Trk::Track&,
                                                       const EventContext& ctx) const {
@@ -641,8 +642,8 @@ namespace Rec {
                                                          const Trk::TrackParameters* innerParameters,
                                                          const Trk::TrackParameters* middleParameters,
                                                          const Trk::TrackParameters* outerParameters) const {
-        return indetExtension(indetTrack, spectrometerMeasurements, Gaudi::Hive::currentContext(), innerParameters, middleParameters,
-                              outerParameters);
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        return indetExtension(indetTrack, spectrometerMeasurements, ctx, innerParameters, middleParameters, outerParameters);
     }
     Trk::Track* CombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeasurements,
                                                          const EventContext& ctx, const Trk::TrackParameters* innerParameters,
@@ -853,12 +854,10 @@ namespace Rec {
 
         return combinedTrack;
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        propagate to perigee adding calo energy-loss and material to MS track */
     Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const Trk::Vertex* inputVertex,
                                                         float bs_x, float bs_y, float bs_z) const {
-        return standaloneFit(inputSpectrometerTrack, Gaudi::Hive::currentContext(), inputVertex, bs_x, bs_y, bs_z);
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        return standaloneFit(inputSpectrometerTrack, ctx, inputVertex, bs_x, bs_y, bs_z);
     }
     Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const EventContext& ctx,
                                                         const Trk::Vertex* inputVertex, float bs_x, float bs_y, float bs_z) const {
@@ -1446,7 +1445,8 @@ namespace Rec {
     /** ICombinedMuonTrackBuilder interface:
         refit a track removing any indet measurements with possible addition of pseudoMeasurements */
     Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const {
-        return standaloneRefit(combinedTrack, Gaudi::Hive::currentContext(), bs_x, bs_y, bs_z);
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        return standaloneRefit(combinedTrack, ctx, bs_x, bs_y, bs_z);
     }
     Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x, float bs_y,
                                                           float bs_z) const {
@@ -1941,11 +1941,10 @@ namespace Rec {
         // have to release it until the whole tool is migrated to unique_ptr
         return refittedTrack.release();
     }
-
-    /** refit a track */
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
-        return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis);
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        return fit(track, ctx, runOutlier, particleHypothesis);
     }
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
