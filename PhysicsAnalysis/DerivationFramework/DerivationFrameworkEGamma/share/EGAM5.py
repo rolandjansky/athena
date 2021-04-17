@@ -229,6 +229,14 @@ EGAM5_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
 ToolSvc += EGAM5_MaxCellDecoratorTool
 
 
+#====================================================================                 
+# PFlowAugmentationTool
+#====================================================================                 
+# for use of low mu hadronic recoil package within TagAndProbe framework
+from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__PFlowAugmentationTool
+EGAM5_PFlowAugmentationTool = DerivationFramework__PFlowAugmentationTool(name = "EGAM5_PFlowAugmentationTool")
+ToolSvc += EGAM5_PFlowAugmentationTool
+
 
 #====================================================================
 # SET UP THINNING
@@ -347,7 +355,7 @@ DerivationFrameworkJob += egam5Seq
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 egam5Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
-                                                         AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool, EGAM5_PFlowAugmentationTool] + EGAM5_ClusterEnergyPerLayerDecorators,
                                                          SkimmingTools = [EGAM5_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
@@ -385,6 +393,8 @@ EGAM5SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt4EMTopoJets_BTagging201810",
                                         "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
