@@ -41,7 +41,7 @@ P 10020 -11 -3.614714409413e+01 8.935494135385e+00 -1.202147260294e+03 1.2027237
 HepMC::IO_GenEvent-END_EVENT_LISTING
 EOF
 
-rivet -a MC_GENERIC -o test_gen_rivet_standalone.yoda.gz hepmc.events
+rivet --ignore-beams -a MC_GENERIC -o test_gen_rivet_standalone.yoda.gz hepmc.events
 
 echo "art-result: $? generate"
 
