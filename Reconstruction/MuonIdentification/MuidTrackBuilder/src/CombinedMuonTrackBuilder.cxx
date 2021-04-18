@@ -1389,7 +1389,7 @@ namespace Rec {
             if (msgLevel(MSG::DEBUG)) { countAEOTs(refittedTrack.get(), " SA track after refit "); }
             dumpCaloEloss(refittedTrack.get(), " SA refit after refine IDMS ");
 
-            if (refittedTrack && refittedTrack->fitQuality() && checkTrack("standaloneFit", refittedTrack.get(), newTrack.get())) {
+            if (refittedTrack && refittedTrack->fitQuality() && checkTrack("standaloneFit", refittedTrack.get(), track.get())) {
                 track.swap(refittedTrack);
             } else {
                 ++improvementsFailed;
