@@ -102,18 +102,18 @@ namespace Rec {
                                             float bs_z) const override;
 
         /*refit a track */
-        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
-                                const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
+        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+                                const Trk::ParticleHypothesis particleHypothesis) const override;
 
-        virtual Trk::Track* fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier = false,
-                                const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
+        virtual Trk::Track* fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
+                                const Trk::ParticleHypothesis particleHypothesis) const override;
 
     private:
         /**
             fit a set of MeasurementBase objects with starting value for perigeeParameters */
-        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::MeasurementSet& /*measurementSet*/,
-                                        const Trk::TrackParameters& /*perigeeStartValue*/, const Trk::RunOutlierRemoval /*runOutlier*/,
-                                        const Trk::ParticleHypothesis /*particleHypothesis*/) const;
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::MeasurementSet& measurementSet,
+                                        const Trk::TrackParameters& perigeeStartValue, const Trk::RunOutlierRemoval runOutlier,
+                                        const Trk::ParticleHypothesis particleHypothesis) const;
 
         /**
             combined muon fit */
@@ -122,7 +122,7 @@ namespace Rec {
                                         const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
         bool optimizeErrors(const EventContext& ctx, Trk::Track* track) const;
-        std::unique_ptr<Trk::Track> addIDMSerrors(std::unique_ptr<Trk::Track> track) const;
+        std::unique_ptr<Trk::Track> addIDMSerrors(Trk::Track* track) const;
 
         void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
