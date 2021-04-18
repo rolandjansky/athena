@@ -6,6 +6,8 @@
 #define MUON_IMUONTRACKCLEANER_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "Identifier/Identifier.h"
+#include "TrkTrack/Track.h"
 
 static const InterfaceID IID_IMuonTrackCleaner("Muon::IMuonTrackCleaner", 1, 0);
 
