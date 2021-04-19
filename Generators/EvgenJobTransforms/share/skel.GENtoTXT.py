@@ -715,7 +715,7 @@ def _checkattr(attr, required=False):
 # counting the number of events in LHE output
 with open(eventsFile) as f:
     contents = f.read()
-    count_ev = contents.count("<event>")
+    count_ev = contents.count("/event")
 
 evgenLog.info('Requested output events = '+str(count_ev))    
 print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
