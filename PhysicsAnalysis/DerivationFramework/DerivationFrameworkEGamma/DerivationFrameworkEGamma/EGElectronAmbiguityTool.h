@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,31 +9,100 @@
 #ifndef DERIVATIONFRAMEWORK_EGELECTRONAMBIGUITYTOOL_H
 #define DERIVATIONFRAMEWORK_EGELECTRONAMBIGUITYTOOL_H
 
-#include <string>
-
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
+#include "AthContainers/ConstDataVector.h"
+
+#include <string>
 
 namespace DerivationFramework {
 
   class EGElectronAmbiguityTool : public AthAlgTool, public IAugmentationTool {
     
     public: 
-      EGElectronAmbiguityTool(const std::string& t, const std::string& n, const IInterface* p);
+      EGElectronAmbiguityTool(const std::string& t,
+                              const std::string& n,
+                              const IInterface* p);
 
-      virtual StatusCode addBranches() const;
+      virtual StatusCode initialize() override final;
+      virtual StatusCode addBranches() const override final;
 
   private:
-      std::string m_containerName, m_VtxContainerName, m_tpContainerName;
+      SG::ReadHandleKey<xAOD::ElectronContainer> m_containerName{
+        this,
+        "ContainerName",
+        "Electrons",
+        "SG key of electron container"
+      };
+      SG::ReadHandleKey<xAOD::VertexContainer> m_VtxContainerName{
+        this,
+        "VtxContainerName",
+        "PrimaryVertices",
+        "SG key of vertex container"
+      };
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tpContainerName{
+        this,
+        "tpContainerName",
+        "InDetTrackParticles",
+        "SG key of track particles container"
+      };
 
-      StatusCode decorateSimple(const xAOD::Electron *ele, const xAOD::Vertex *pvtx) const;
-      void helix(const xAOD::TrackParticle *trkP, const xAOD::Vertex *pvtx, std::vector<double>& h) const;
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tpCName{
+        this,
+        "tpCName",
+        "GSFTrackParticles",
+        "SG key of TrackParticleInputContainer"
+      };
+
+      //Write decoration handle keys
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_drv{
+        "Electrons.DFCommonSimpleConvRadius"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dphiv{
+        "Electrons.DFCommonSimpleConvPhi"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dmee{
+        "Electrons.DFCommonSimpleMee"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dmeeVtx{
+        "Electrons.DFCommonSimpleMeeAtVtx"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dsep{
+        "Electrons.DFCommonSimpleSeparation"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dambi{
+        "Electrons.DFCommonAddAmbiguity"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtrv{
+        "Electrons.DFCommonProdTrueRadius"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtpv{
+        "Electrons.DFCommonProdTruePhi"
+      };
+      SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtzv{
+        "Electrons.DFCommonProdTrueZ"
+      };
+
+      StatusCode decorateSimple(const EventContext& ctx,
+                                std::unique_ptr<ConstDataVector<xAOD::TrackParticleContainer>> & tpC,
+                                const xAOD::Electron *ele,
+                                const xAOD::Vertex *pvtx) const;
+      void helix(const xAOD::TrackParticle *trkP,
+                 const xAOD::Vertex *pvtx,
+                 std::vector<double>& h) const;
 
       bool m_isMC;
 
