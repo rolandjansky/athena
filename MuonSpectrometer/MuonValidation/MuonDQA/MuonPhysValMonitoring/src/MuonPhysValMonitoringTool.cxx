@@ -175,8 +175,8 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
 
   bool separateSAFMuons = true;
   if (m_slowMuonsName!="") separateSAFMuons = false; // no such muons in case of SlowMuon reco
-  
-  std::string muonContainerName = m_muonsName.name();
+
+  std::string muonContainerName = m_muonsName;  
   for (const auto& category : m_selectMuonCategoriesStr) {
     std::string categoryPath = m_muonsName+"/"+category+"/";
     m_muonValidationPlots.push_back( new MuonValidationPlots(0, categoryPath,
