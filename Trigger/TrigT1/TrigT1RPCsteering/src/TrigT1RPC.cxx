@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPC.h"
@@ -25,9 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
-  m_cabling(nullptr) {
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -35,8 +33,6 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode TrigT1RPC::initialize(){
     ATH_MSG_INFO("Initializing");
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_cabling_getter.retrieve());
-    ATH_CHECK(m_cabling_getter->giveCabling(m_cabling));
     ATH_CHECK(m_readKey.initialize());
     ATH_CHECK(m_rpcDigitKey.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(m_useRun3Config));
@@ -79,7 +75,7 @@ StatusCode TrigT1RPC::execute() {
     
     ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_hardware_emulation)? m_cma_debug : m_fast_debug;           //
-  CMAdata patterns(&data, m_cabling, debug);                              //
+  CMAdata patterns(&data, readCdo, debug);                              //
                                                                         //
   ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << std::endl //
                   << ShowData<CMAdata>(patterns,"",m_data_detail) );      //
