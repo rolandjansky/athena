@@ -62,6 +62,8 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("ElectronIDSFFilePath", "EXPERIMENTAL! Path to a root file containing custom electron ID SFs, e.g. dev/ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/offline/efficiencySF.offline.TightLLH_d0z0_v13.root."
+                      "This should only be used by experts for testing SFs! Default: Using the most recent recommended map.", "Default");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
     registerParameter("ElectronEfficiencySystematicModel",
