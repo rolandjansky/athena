@@ -221,6 +221,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decWeightKey{this, "weightName", "weight", "SG key for weight"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEfficiencyKey{this, "efficiencyName", "efficiency", "SG key for efficiency"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEffSFKey{this, "effSFName", "effSF", "SG key for effSF"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decSigeffSFKey{this, "sigeffSFName", "sigeffSF", "SG key for effSF"};    
 
     /// Get configReader StatusCode
     StatusCode getConfigReader();
@@ -242,7 +243,8 @@ class JSSTaggerBase :   public asg::AsgTool ,
     StatusCode getWeight( const xAOD::Jet& jet, bool passSel, asg::AcceptData &acceptData ) const;
 
     /// Get scale factor and efficiency
-    std::pair<double,double> getSF( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
+    std::pair<double,double> getSF( const xAOD::Jet& jet, std::string truthLabelStr ) const;
+    std::string getTruthLabelStr( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
 
     /// Print configured cuts
     void printCuts() const;

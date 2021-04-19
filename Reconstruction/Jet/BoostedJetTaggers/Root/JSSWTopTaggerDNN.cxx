@@ -373,6 +373,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties( const xAOD::Jet
     SG::ReadDecorHandle<xAOD::JetContainer, float> readL3(m_readL3Key);
 
 
+
     /// Mass and pT again
     DNN_inputValues["m"] = jet.m();
     DNN_inputValues["pt"] = jet.pt();
