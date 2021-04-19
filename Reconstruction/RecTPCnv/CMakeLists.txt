@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RecTPCnv )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( RecTPCnv
@@ -24,138 +21,37 @@ atlas_add_dictionary( OLD_RecTPCnvDict
                       LINK_LIBRARIES RecTPCnv )
 
 # Tests in the package:
-atlas_add_test( CaloEnergyCnv_p1_test
-                SOURCES
-                test/CaloEnergyCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
+function( _add_test test )
+   atlas_add_test( ${test}
+                   SOURCES
+                   test/${test}.cxx
+                   LINK_LIBRARIES RecTPCnv TestTools )
+endfunction()
 
-atlas_add_test( CaloEnergyCnv_p2_test
-                SOURCES
-                test/CaloEnergyCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( DepositInCaloCnv_p1_test
-                SOURCES
-                test/DepositInCaloCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( DepositInCaloCnv_p2_test
-                SOURCES
-                test/DepositInCaloCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingETCnv_p1_test
-                SOURCES
-                test/MissingETCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingETCnv_p2_test
-                SOURCES
-                test/MissingETCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingETCnv_p3_test
-                SOURCES
-                test/MissingETCnv_p3_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingETCompositionCnv_p1_test
-                SOURCES
-                test/MissingETCompositionCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingETCompositionCnv_p2_test
-                SOURCES
-                test/MissingETCompositionCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtCaloCnv_p1_test
-                SOURCES
-                test/MissingEtCaloCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtCaloCnv_p2_test
-                SOURCES
-                test/MissingEtCaloCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtCaloCnv_p3_test
-                SOURCES
-                test/MissingEtCaloCnv_p3_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtRegionsCnv_p1_test
-                SOURCES
-                test/MissingEtRegionsCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtRegionsCnv_p2_test
-                SOURCES
-                test/MissingEtRegionsCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtRegionsCnv_p3_test
-                SOURCES
-                test/MissingEtRegionsCnv_p3_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtTruthCnv_p1_test
-                SOURCES
-                test/MissingEtTruthCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtTruthCnv_p2_test
-                SOURCES
-                test/MissingEtTruthCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MissingEtTruthCnv_p3_test
-                SOURCES
-                test/MissingEtTruthCnv_p3_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCaloEnergyContainerCnv_p1_test
-                SOURCES
-                test/MuonCaloEnergyContainerCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p1_test
-                SOURCES
-                test/MuonCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p2_test
-                SOURCES
-                test/MuonCnv_p2_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p3_test
-                SOURCES
-                test/MuonCnv_p3_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p4_test
-                SOURCES
-                test/MuonCnv_p4_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p5_test
-                SOURCES
-                test/MuonCnv_p5_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonCnv_p6_test
-                SOURCES
-                test/MuonCnv_p6_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonSpShowerCnv_p1_test
-                SOURCES
-                test/MuonSpShowerCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
-atlas_add_test( MuonSpShowerContainerCnv_p1_test
-                SOURCES
-                test/MuonSpShowerContainerCnv_p1_test.cxx
-                LINK_LIBRARIES RecTPCnv )
-
+_add_test( CaloEnergyCnv_p1_test )
+_add_test( CaloEnergyCnv_p2_test )
+_add_test( DepositInCaloCnv_p1_test )
+_add_test( DepositInCaloCnv_p2_test )
+_add_test( MissingETCnv_p1_test )
+_add_test( MissingETCnv_p2_test )
+_add_test( MissingETCnv_p3_test )
+_add_test( MissingETCompositionCnv_p1_test )
+_add_test( MissingETCompositionCnv_p2_test )
+_add_test( MissingEtCaloCnv_p1_test )
+_add_test( MissingEtCaloCnv_p2_test )
+_add_test( MissingEtCaloCnv_p3_test )
+_add_test( MissingEtRegionsCnv_p1_test )
+_add_test( MissingEtRegionsCnv_p2_test )
+_add_test( MissingEtRegionsCnv_p3_test )
+_add_test( MissingEtTruthCnv_p1_test )
+_add_test( MissingEtTruthCnv_p2_test )
+_add_test( MissingEtTruthCnv_p3_test )
+_add_test( MuonCaloEnergyContainerCnv_p1_test )
+_add_test( MuonCnv_p1_test )
+_add_test( MuonCnv_p2_test )
+_add_test( MuonCnv_p3_test )
+_add_test( MuonCnv_p4_test )
+_add_test( MuonCnv_p5_test )
+_add_test( MuonCnv_p6_test )
+_add_test( MuonSpShowerCnv_p1_test )
+_add_test( MuonSpShowerContainerCnv_p1_test )
