@@ -228,7 +228,7 @@ namespace Trk {
   const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  const
   {
        const Perigee* mPer = nullptr;
-       if(i_ntrk->surfaceType()==Surface::Perigee && i_ntrk->covariance()!= nullptr ) {
+       if(i_ntrk->surfaceType()==Trk::SurfaceType::Perigee && i_ntrk->covariance()!= nullptr ) {
             mPer = dynamic_cast<const Perigee*> (i_ntrk);
        }
        return mPer;

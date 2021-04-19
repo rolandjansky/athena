@@ -187,7 +187,7 @@ StatusCode Trk::LayerMaterialAnalyser::analyse(const Trk::Layer& layer,
     m_layerRotation[8] = rMatrix(2,2);
 
     // cylinder bounds 
-    if ( lSurface.type() == Trk::Surface::Cylinder ){
+    if ( lSurface.type() == Trk::SurfaceType::Cylinder ){
         m_layerType = 1;
         // cylinder bounds
         const Trk::CylinderBounds* cb = dynamic_cast<const Trk::CylinderBounds*>(&(lSurface.bounds()));
@@ -195,7 +195,7 @@ StatusCode Trk::LayerMaterialAnalyser::analyse(const Trk::Layer& layer,
             m_layerDimension0 = cb->r();
             m_layerDimension1 = cb->halflengthZ();
         }
-    } else if ( lSurface.type() == Trk::Surface::Disc ) {
+    } else if ( lSurface.type() == Trk::SurfaceType::Disc ) {
         m_layerType = 2;
         // disc bounds
         const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lSurface.bounds()));

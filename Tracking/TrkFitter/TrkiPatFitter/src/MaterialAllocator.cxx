@@ -1114,8 +1114,8 @@ namespace Trk
         if (!(**m).isPositionMeasurement()) continue;
         if (!endIndetMeasurement
             && (**m).hasIntersection(FittedTrajectory)
-            && ((**m).surface()->type() == Surface::SurfaceType::Plane
-                || (**m).surface()->type() == Surface::SurfaceType::Disc)) {
+            && ((**m).surface()->type() == Trk::SurfaceType::Plane
+                || (**m).surface()->type() == Trk::SurfaceType::Disc)) {
           const TrackSurfaceIntersection* intersection = &(**m).intersection(FittedTrajectory);
           Amg::Vector3D offset = intersection->direction() * tolerance;
           CurvilinearUVT uvt(intersection->direction());

@@ -18,10 +18,13 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+//
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
+//
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParametersBase/ParametersBase.h"
@@ -78,25 +81,6 @@ class Surface
   friend class ITrackingVolumeHelper;
 
 public:
-  /** @enum SurfaceType
-
-      This enumerator simplifies the persistency & calculations,
-      by saving a dynamic_cast to happen.
-
-      Other is reserved for the GeometrySurfaces implementation.
-
-    */
-  enum SurfaceType
-  {
-    Cone = 0,
-    Cylinder = 1,
-    Disc = 2,
-    Perigee = 3,
-    Plane = 4,
-    Line = 5,
-    Curvilinear = 6,
-    Other = 7
-  };
 
   /*
    * struct holding the transform, center, normal,

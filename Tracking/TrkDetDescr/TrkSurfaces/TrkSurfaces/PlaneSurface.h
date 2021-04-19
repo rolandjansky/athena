@@ -60,7 +60,7 @@ class PlaneSurface : public Surface
 {
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Plane;
+  static constexpr SurfaceType staticType = SurfaceType::Plane;
 
   /** Default Constructor - needed for persistency*/
   PlaneSurface();

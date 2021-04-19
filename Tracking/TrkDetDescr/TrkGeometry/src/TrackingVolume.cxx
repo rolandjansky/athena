@@ -1347,7 +1347,7 @@ void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE(
     for (const auto& clayIter : confLayers->arrayObjects())
       if (clayIter) {
         if (clayIter->surfaceRepresentation().type() ==
-                Trk::Surface::Cylinder &&
+                Trk::SurfaceType::Cylinder &&
             !(center().isApprox(clayIter->surfaceRepresentation().center())))
           clayIter->resizeAndRepositionLayer(volumeBounds(), center(),
                                              envelope);

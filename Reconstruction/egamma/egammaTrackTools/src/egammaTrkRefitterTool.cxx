@@ -353,7 +353,7 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Ev
   // calculate perigee parameters wrt. beam-spot
   const Trk::Perigee * perigee = nullptr;
   const Trk::TrackParameters* tmp =m_extrapolator->extrapolate(*track, *surface);
-  if(tmp->associatedSurface().type()==Trk::Surface::Perigee){
+  if(tmp->associatedSurface().type()==Trk::SurfaceType::Perigee){
     perigee= static_cast<const Trk::Perigee*> (tmp);
   }
   if (!perigee) {// if failure

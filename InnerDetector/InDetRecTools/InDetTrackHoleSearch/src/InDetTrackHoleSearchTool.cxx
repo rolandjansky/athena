@@ -268,7 +268,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
     //get BoundarySurface for cylinder between sct and trt
     const Trk::CylinderSurface* sctCylinder = nullptr;
     const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].get()->surfaceRepresentation());
-    if(sctSurface->type()==Trk::Surface::Cylinder){
+    if(sctSurface->type()==Trk::SurfaceType::Cylinder){
       sctCylinder= static_cast<const Trk::CylinderSurface*> (sctSurface);
     }
     if (!sctCylinder) {
@@ -297,13 +297,13 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
       if (firstsipar->parameters()[Trk::theta] < M_PI/2.) {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::NegativeEndcap");
         const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::negativeFaceXY].get()->surfaceRepresentation());
-        if(trtSurface->type()==Trk::Surface::Disc){
+        if(trtSurface->type()==Trk::SurfaceType::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       } else {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");
         const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].get()->surfaceRepresentation());
-        if(trtSurface->type()==Trk::Surface::Disc){
+        if(trtSurface->type()==Trk::SurfaceType::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       }
@@ -359,7 +359,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
   if (m_cosmic) {
     while (iterTSOS!=track.trackStateOnSurfaces()->end()
            && (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement)
-               || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::Surface::Plane)) {
+               || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::SurfaceType::Plane)) {
       ++iterTSOS;
     }
   }
@@ -380,7 +380,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
       per=nullptr;
       const Trk::TrackParameters* tmpParam= (*iterTSOS)->trackParameters();
       if (m_cosmic && tmpParam) {
-        if(tmpParam->associatedSurface().type()==Trk::Surface::Perigee){
+        if(tmpParam->associatedSurface().type()==Trk::SurfaceType::Perigee){
           per=static_cast<const Trk::Perigee*>(tmpParam) ;
         }
       }
@@ -433,7 +433,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
             id2 = (thisParameters->associatedSurface()).associatedDetectorElement()->identify();
           } else {
             ATH_MSG_VERBOSE("Surface has no detector element ID, skip it");
-            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
+            if(thisParameters->associatedSurface().type()==Trk::SurfaceType::Perigee){
               startParameters = std::move(thisParameters);
             }
             continue;
@@ -444,7 +444,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
             ATH_MSG_VERBOSE("Surface is not Pixel or SCT, stop loop over parameters in this step");
             // for collisions, we want to stop at the first trt measurement; whereas for cosmics not
             // here we will have trt measurements on the track before the first si measurement!
-            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
+            if(thisParameters->associatedSurface().type()==Trk::SurfaceType::Perigee){
               startParameters = std::move(thisParameters);
             }
             if (m_cosmic) continue;

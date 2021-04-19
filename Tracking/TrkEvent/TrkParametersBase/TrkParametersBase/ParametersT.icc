@@ -278,7 +278,7 @@ ParametersT<DIM, T, S>::type() const
 
 /** Return the Surface Type (check SurfaceType enums)*/
 template<int DIM, class T, class S>
-int
+SurfaceType
 ParametersT<DIM, T, S>::surfaceType() const
 {
   return S::staticType;
@@ -309,8 +309,8 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
     (updatedParameters[qOverP] != m_parameters[qOverP]);
 
-  if constexpr (S::staticType == Trk::Surface::Line ||
-                S::staticType == Trk::Surface::Perigee) {
+  if constexpr (S::staticType == Trk::SurfaceType::Line ||
+                S::staticType == Trk::SurfaceType::Perigee) {
     updatePosition |= updateMomentum;
   }
 

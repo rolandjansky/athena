@@ -42,7 +42,7 @@ class PerigeeSurface final : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Perigee;
+  static constexpr SurfaceType staticType = SurfaceType::Perigee;
 
   /**Default Constructor - needed for persistency*/
   PerigeeSurface();
