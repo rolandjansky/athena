@@ -30,11 +30,20 @@ NSWPRDValAlg.doSTGCRDO = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCPRD = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCFastDigit = False
 
-NSWPRDValAlg.doRPCHit = True
-NSWPRDValAlg.doRPCDigit = True
+NSWPRDValAlg.doRPCHit = False # no RPC_Hits present in RDO files
+NSWPRDValAlg.doRPCSDO = True
+NSWPRDValAlg.doRPCDigit = False # no RPC_DIGITS present in RDO files
 
-NSWPRDValAlg.doMDTHit = True
-NSWPRDValAlg.doMDTDigit = True
+NSWPRDValAlg.doMDTHit = False # no MDT_Hits present in RDO files
+NSWPRDValAlg.doMDTSDO = True
+NSWPRDValAlg.doMDTDigit = False # no MDT_DIGITS present in RDO files
+
+NSWPRDValAlg.doTGCHit = False # no TGC_Hits present in RDO files
+NSWPRDValAlg.doTGCDigit = False # no TGC_DIGITS present in RDO files
+
+NSWPRDValAlg.doCSCHit = False # no CSC_Hits present in RDO files
+NSWPRDValAlg.doCSCDigit = False # no CSC_DIGITS present in RDO files
+
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
