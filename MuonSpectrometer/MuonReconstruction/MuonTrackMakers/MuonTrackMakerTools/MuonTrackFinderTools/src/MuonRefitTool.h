@@ -39,27 +39,27 @@ namespace Muon {
         virtual StatusCode finalize() override;
 
         /** refit a track */
-        std::unique_ptr<Trk::Track> refit(Trk::Track* track, const Settings* settings = 0) const override;
-        std::unique_ptr<Trk::Track> refit(Trk::Track* track, const EventContext& ctx, const Settings* settings = 0) const override;
+        std::unique_ptr<Trk::Track> refit(const Trk::Track* track, const Settings* settings) const override;
+        std::unique_ptr<Trk::Track> refit(const Trk::Track* track, const EventContext& ctx, const Settings* settings) const override;
 
         /** refit and back extrapolate a vector of track pairs */
-        std::vector<std::unique_ptr<Trk::Track> > refit(std::vector<Trk::Track*>& tracks, const Settings* settings = 0) const override;
-        std::vector<std::unique_ptr<Trk::Track> > refit(std::vector<Trk::Track*>& tracks, const EventContext& ctx,
-                                                        const Settings* settings = 0) const override;
+        std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks, const Settings* settings) const override;
+        std::vector<std::unique_ptr<Trk::Track> > refit(const  std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+                                                        const Settings* settings) const override;
 
     protected:
         /** update errors on a muon track */
-        std::unique_ptr<Trk::Track> updateErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateErrors(const Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
-        std::unique_ptr<Trk::Track> updateMdtErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateMdtErrors(const Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
-        std::unique_ptr<Trk::Track> updateAlignmentErrors(Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> updateAlignmentErrors(const Trk::Track* track, const EventContext& ctx, const Settings& settings) const;
 
-        std::unique_ptr<Trk::Track> makeAEOTs(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> makeAEOTs(const Trk::Track* track) const;
 
-        std::unique_ptr<Trk::Track> makeSimpleAEOTs(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> makeSimpleAEOTs(const Trk::Track* track) const;
 
-        std::unique_ptr<Trk::Track> removeOutliers(Trk::Track* track, const Settings& settings) const;
+        std::unique_ptr<Trk::Track> removeOutliers(const Trk::Track* track, const Settings& settings) const;
 
         bool removeMdtOutliers(const Trk::TrackParameters& pars, const std::vector<const MdtDriftCircleOnTrack*>& hits,
                                std::set<Identifier>& removedIdentifiers, const Settings& settings) const;
