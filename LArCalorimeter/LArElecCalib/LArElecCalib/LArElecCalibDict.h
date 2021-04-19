@@ -18,7 +18,6 @@
 #include "LArElecCalib/LArVectorProxy.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArAutoCorr.h"
-#include "LArElecCalib/ILArAutoCorrTotalTool.h"
 //#include "LArElecCalib/ILArAutoCorrDecoderTool.h"
 #include "LArElecCalib/ILArCableAttenuation.h"
 #include "LArElecCalib/ILArCableLength.h"

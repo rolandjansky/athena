@@ -23,7 +23,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   - ILArAdc2GeV
   - ILArADC2MeVTool
   - ILArAutoCorr
-  - ILArAutoCorrTotalTool
   - ILArCableAttenuation
   - ILArCableLength
   - ILArCaliPulseParams
