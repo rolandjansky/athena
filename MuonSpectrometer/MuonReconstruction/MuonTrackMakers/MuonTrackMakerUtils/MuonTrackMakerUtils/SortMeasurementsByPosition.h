@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SORTMEASUREMENTSBYPOSITION_H
@@ -20,7 +20,7 @@ namespace Muon {
     class DistanceToPars {
     public:
         DistanceToPars(const Trk::TrackParameters* pars) : m_pars(pars) {}
-        double operator()(const Amg::Vector3D& pos) {
+        double operator()(const Amg::Vector3D& pos) const {
             Amg::Vector3D difPos = pos - m_pars->position();
             double sign = difPos.dot(m_pars->momentum()) < 0 ? -1. : 1.;
             return difPos.mag() * sign;
@@ -35,7 +35,7 @@ namespace Muon {
         SortTSOSsByPos(bool isEndcap) : m_isEndcap(isEndcap), m_dummyPosition(0., 0., 0.) {}
         double operator()(const Trk::TrackStateOnSurface* tsos1, const Trk::TrackStateOnSurface* tsos2) {
             if (m_isEndcap)
-                return fabs(position(*tsos1).z()) < fabs(position(*tsos2).z());
+                return std::abs(position(*tsos1).z()) < std::abs(position(*tsos2).z());
             else
                 return position(*tsos1).perp() < position(*tsos2).perp();
         }
@@ -55,13 +55,18 @@ namespace Muon {
     class SortTSOSByDistanceToPars {
     public:
         SortTSOSByDistanceToPars(const Trk::TrackParameters* pars) : m_distToPars(pars), m_dummyPosition(0., 0., 0.) {}
+        // SortTSOSByDistanceToPars(std::unique_ptr<const Trk::TrackParameters> pars) : SortTSOSByDistanceToPars(pars.get()) {}
         double operator()(const std::pair<bool, const Trk::TrackStateOnSurface*>& tsos1,
                           const std::pair<bool, const Trk::TrackStateOnSurface*>& tsos2) {
             return CxxUtils::fpcompare::less(m_distToPars(position(*tsos1.second)), m_distToPars(position(*tsos2.second)));
         }
+        double operator()(const std::unique_ptr<const Trk::TrackStateOnSurface>& tsos1,
+                          const std::unique_ptr<const Trk::TrackStateOnSurface>& tsos2) {
+            return CxxUtils::fpcompare::less(m_distToPars(position(*tsos1)), m_distToPars(position(*tsos2)));
+        }
 
     private:
-        Amg::Vector3D position(const Trk::TrackStateOnSurface& tsos) {
+        Amg::Vector3D position(const Trk::TrackStateOnSurface& tsos) const {
             if (tsos.trackParameters())
                 return tsos.trackParameters()->position();
             else if (tsos.measurementOnTrack())
@@ -107,7 +112,7 @@ namespace Muon {
             const Amg::Vector3D& pos2 = tsos2->trackParameters()->position();
             double dist = (pos2 - pos1).dot(trackDir);
 
-            if (fabs(dist) < 1e-5) {
+            if (std::abs(dist) < 1e-5) {
                 // one is a good muon hit and one is not: good muon hit comes after
                 if (okId1 && !okId2) return true;
                 if (!okId1 && okId2) return false;
@@ -133,6 +138,10 @@ namespace Muon {
             }
             return dist > 0.;
         }
+        bool operator()(const std::unique_ptr<const Trk::TrackStateOnSurface>& tsos1,
+                        const std::unique_ptr<const Trk::TrackStateOnSurface>& tsos2) const {
+            return this->operator()(tsos1.get(), tsos2.get());
+        }
 
         SortTSOSs(const IMuonEDMHelperSvc* h, const IMuonIdHelperSvc* idh) : m_helperSvc(h), m_idHelperSvc(idh) {}
 
@@ -148,8 +157,8 @@ namespace Muon {
             const Trk::MeasurementBase* m1 = getMeas(meas1);
             const Trk::MeasurementBase* m2 = getMeas(meas2);
 
-            double d1 = m_isEndcap ? fabs(m1->globalPosition().z()) : fabs(m1->globalPosition().perp());
-            double d2 = m_isEndcap ? fabs(m2->globalPosition().z()) : fabs(m2->globalPosition().perp());
+            double d1 = m_isEndcap ? std::abs(m1->globalPosition().z()) : std::abs(m1->globalPosition().perp());
+            double d2 = m_isEndcap ? std::abs(m2->globalPosition().z()) : std::abs(m2->globalPosition().perp());
             bool result = d1 < d2;
             return result;
         }
