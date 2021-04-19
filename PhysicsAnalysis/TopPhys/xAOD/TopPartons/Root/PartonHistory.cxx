@@ -724,8 +724,132 @@ namespace xAOD {
     this->auxdecor< float >("MC_Zdecay2_phi") = -1000;
     this->auxdecor< int >("MC_Zdecay2_pdgId") = -9999;
     this->auxdecor< int >("MC_Zdecay2_status") = -9999;
-    
-    
+        
  }
+
+  // Initialize variables for tZq events
+  void PartonHistory::IniVarTttt() {
+
+    //top1 variables
+    this->auxdecor< int >("MC_top1_pdgId") = -9999;
+    this->auxdecor< float >("MC_top1_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_top1_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top1_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top1_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top1_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_top1_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top1_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top1_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top1_W_m") = -1000;
+    this->auxdecor< float >("MC_top1_W_pt") = -1000;
+    this->auxdecor< float >("MC_top1_W_eta") = -1000;
+    this->auxdecor< float >("MC_top1_W_phi") = -1000;
+    this->auxdecor< float >("MC_top1_b_m") = -1000;
+    this->auxdecor< float >("MC_top1_b_pt") = -1000;
+    this->auxdecor< float >("MC_top1_b_eta") = -1000;
+    this->auxdecor< float >("MC_top1_b_phi") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay1_m") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_top1_Wdecay1_pdgId") = -9999;
+    this->auxdecor< float >("MC_top1_Wdecay2_m") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_top1_Wdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_top1_Wdecay2_pdgId") = -9999;
+
+    //top2 variables
+    this->auxdecor< int >("MC_top2_pdgId") = -9999;
+    this->auxdecor< float >("MC_top2_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_top2_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top2_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top2_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top2_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_top2_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top2_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top2_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top2_W_m") = -1000;
+    this->auxdecor< float >("MC_top2_W_pt") = -1000;
+    this->auxdecor< float >("MC_top2_W_eta") = -1000;
+    this->auxdecor< float >("MC_top2_W_phi") = -1000;
+    this->auxdecor< float >("MC_top2_b_m") = -1000;
+    this->auxdecor< float >("MC_top2_b_pt") = -1000;
+    this->auxdecor< float >("MC_top2_b_eta") = -1000;
+    this->auxdecor< float >("MC_top2_b_phi") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay1_m") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_top2_Wdecay1_pdgId") = -9999;
+    this->auxdecor< float >("MC_top2_Wdecay2_m") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_top2_Wdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_top2_Wdecay2_pdgId") = -9999;
+
+    //top3 variables
+    this->auxdecor< int >("MC_top3_pdgId") = -9999;
+    this->auxdecor< float >("MC_top3_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_top3_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top3_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top3_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top3_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_top3_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top3_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top3_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top3_W_m") = -1000;
+    this->auxdecor< float >("MC_top3_W_pt") = -1000;
+    this->auxdecor< float >("MC_top3_W_eta") = -1000;
+    this->auxdecor< float >("MC_top3_W_phi") = -1000;
+    this->auxdecor< float >("MC_top3_b_m") = -1000;
+    this->auxdecor< float >("MC_top3_b_pt") = -1000;
+    this->auxdecor< float >("MC_top3_b_eta") = -1000;
+    this->auxdecor< float >("MC_top3_b_phi") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay1_m") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_top3_Wdecay1_pdgId") = -9999;
+    this->auxdecor< float >("MC_top3_Wdecay2_m") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_top3_Wdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_top3_Wdecay2_pdgId") = -9999;
+
+    //top4 variables
+    this->auxdecor< int >("MC_top4_pdgId") = -9999;
+    this->auxdecor< float >("MC_top4_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_top4_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top4_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top4_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top4_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_top4_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_top4_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top4_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top4_W_m") = -1000;
+    this->auxdecor< float >("MC_top4_W_pt") = -1000;
+    this->auxdecor< float >("MC_top4_W_eta") = -1000;
+    this->auxdecor< float >("MC_top4_W_phi") = -1000;
+    this->auxdecor< float >("MC_top4_b_m") = -1000;
+    this->auxdecor< float >("MC_top4_b_pt") = -1000;
+    this->auxdecor< float >("MC_top4_b_eta") = -1000;
+    this->auxdecor< float >("MC_top4_b_phi") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay1_m") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay1_pt") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay1_eta") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay1_phi") = -1000;
+    this->auxdecor< int >("MC_top4_Wdecay1_pdgId") = -9999;
+    this->auxdecor< float >("MC_top4_Wdecay2_m") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay2_pt") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay2_eta") = -1000;
+    this->auxdecor< float >("MC_top4_Wdecay2_phi") = -1000;
+    this->auxdecor< int >("MC_top4_Wdecay2_pdgId") = -9999;
+
+    // Other parton-level variables
+    this->auxdecor< float >("MC_mtttt") = -1000;
+    this->auxdecor< float >("MC_HT") = -1000;
+ }
+
 }
 ADD_NS_DV_PROXY(xAOD, PartonHistoryContainer);

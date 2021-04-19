@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: CalcTopPartonHistory.cxx 800464 2017-03-13 18:06:24Z tpelzer $
@@ -686,6 +686,80 @@ namespace top {
 
     return false;
   }
+
+  // for tttt events
+  bool CalcTopPartonHistory::tttt(const xAOD::TruthParticleContainer* truthParticles, std::array<int,4> &top_pdgId, 
+				  std::array<TLorentzVector,4> &top_beforeFSR_p4, std::array<TLorentzVector,4> &top_afterFSR_p4, 
+				  std::array<TLorentzVector,4> &b_p4, std::array<TLorentzVector,4> &W_p4, 
+				  std::array<int,4> &Wdecay1_pdgId, std::array<int,4> &Wdecay2_pdgId, 
+				  std::array<TLorentzVector,4> &Wdecay1_p4, std::array<TLorentzVector,4> &Wdecay2_p4) {
+
+    int n_top = 0;
+
+    // Loop over the truth event record
+    for (const auto* const particle : *truthParticles){
+      if( std::abs(particle->pdgId()) != 6 ) continue;
+
+      // For Sherpa 2.2.10 samples : 
+      // So if you want to select parton-level event kinematics, you should always use status 20 if available in the event and otherwise status 3.
+      if( std::abs(particle->status()) == 20 && n_top >=4 ) n_top=0; // Re-fill the top-quarks kinematic
+
+      if(PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
+      top_pdgId[n_top] = particle->pdgId();
+      top_beforeFSR_p4[n_top] = particle->p4();
+
+      // demanding the last top quark after FSR
+      const xAOD::TruthParticle* top_afterFSR = PartonHistoryUtils::findAfterFSR(particle);
+
+      if(top_afterFSR == nullptr){
+	ATH_MSG_WARNING("Top quark after FSR not found.");
+	return false;
+      }
+
+      top_afterFSR_p4[n_top] = top_afterFSR->p4();
+
+      // looping over top quark children
+      for (size_t k = 0; k < top_afterFSR->nChildren(); k++) {
+	const xAOD::TruthParticle* topChildren = top_afterFSR->child(k);
+
+	if (std::abs(topChildren->pdgId()) == 24) { // W-boson
+	  W_p4[n_top] = topChildren->p4();
+
+	  // demanding the last W after FSR
+	  const xAOD::TruthParticle* W_afterFSR = PartonHistoryUtils::findAfterFSR(topChildren);
+
+	  // Extracting W decay particles if there are two children
+	  if( W_afterFSR->nChildren() == 2 ){
+	    const xAOD::TruthParticle* Wdecay1 = W_afterFSR->child(0);
+	    Wdecay1_p4[n_top] = Wdecay1->p4();
+	    Wdecay1_pdgId[n_top] = Wdecay1->pdgId();
+	    const xAOD::TruthParticle* Wdecay2 = W_afterFSR->child(1);
+	    Wdecay2_p4[n_top] = Wdecay2->p4();
+	    Wdecay2_pdgId[n_top] = Wdecay2->pdgId();
+	  }
+	  else{
+	    ATH_MSG_WARNING("W decays not found.");
+	    return false;
+	  }
+
+	}
+	else if (abs(topChildren->pdgId()) == 5) { // b-quark
+	  b_p4[n_top] = topChildren->p4();
+	}	
+      } // top quark children loop
+
+      n_top++;
+    }
+
+    // Check the number of top quarks
+    if( n_top != 4 ){
+      ATH_MSG_WARNING("The truth event record contains " << n_top << " top quarks.");
+      return false;
+    }
+
+    return true;
+  }
+
 
   StatusCode CalcTopPartonHistory::execute() {
     // Get the Truth Particles

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -60,6 +60,7 @@
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTzqPartonHistory.h"
+#include "TopPartons/CalcTtttPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -411,6 +412,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcTzqPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tttt") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTtttPartonHistory("top::CalcTtttPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcTtttPartonHistory");
   }
 
 
