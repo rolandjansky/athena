@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+#include "../ExtrapolateMuonToIPTool.h"
 #include "../MuonAlignmentUncertTool.h"
 #include "../MuonCaloTagTool.h"
 #include "../MuonCandidateTool.h"
@@ -23,3 +27,4 @@ DECLARE_COMPONENT(MuonCombinedFitTagTool)
 DECLARE_COMPONENT(MuonSegmentTagTool)
 DECLARE_COMPONENT(MuonCaloTagTool)
 DECLARE_COMPONENT(TrackSegmentAssociationTool)
+DECLARE_COMPONENT(ExtrapolateMuonToIPTool)
