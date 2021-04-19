@@ -40,12 +40,8 @@ def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs):
 
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
     if use_tracking_geometry_cond_alg:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-        condSeq += ConfiguredTrackingGeometryCondAlg()
-      kwargs.setdefault("TrackingGeometryReadKey",'AtlasTrackingGeometry')
+      cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+      kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
 
     return CfgMgr.Trk__MaterialAllocator(name,**kwargs)
 
@@ -187,13 +183,8 @@ def MuonCombinedPropagator( name='MuonCombinedPropagator', **kwargs ):
 def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
      from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
      if use_tracking_geometry_cond_alg:
-       from AthenaCommon.AlgSequence import AthSequencer
-       condSeq = AthSequencer("AthCondSeq")
-       if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-         from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-         condSeq += ConfiguredTrackingGeometryCondAlg()
-       kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
-
+       cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+       kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
      kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
      kwargs.setdefault("Fitter", getPublicTool("iPatFitter"))
      return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
@@ -447,11 +438,7 @@ def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):
     kwargs.setdefault("Chi2Cut",50000.)
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
     if use_tracking_geometry_cond_alg:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-        condSeq += ConfiguredTrackingGeometryCondAlg()
-      kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
+      cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+      kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
     return CfgMgr.MuonCombined__MuonTrackTagTestTool(name,**kwargs)
 

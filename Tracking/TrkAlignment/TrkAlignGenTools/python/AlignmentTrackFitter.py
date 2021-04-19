@@ -73,7 +73,7 @@ class AlignmentTrackFitter () :
         cond_alg = None
         if TrackingCommon.use_tracking_geometry_cond_alg:
             cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-            Fitter.TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
+            Fitter.TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey
 
         ToolSvc += Fitter
         self._fitter = Fitter
@@ -124,12 +124,8 @@ class AlignmentTrackFitter () :
 
         from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
         if use_tracking_geometry_cond_alg:
-          from AthenaCommon.AlgSequence import AthSequencer
-          condSeq = AthSequencer("AthCondSeq")
-          if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-            condSeq += ConfiguredTrackingGeometryCondAlg()
-          MuidMaterialAllocator.TrackingGeometryReadKey='AtlasTrackingGeometry'
+          cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+          MuidMaterialAllocator.TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey
 
         ToolSvc += MuidMaterialAllocator
         
