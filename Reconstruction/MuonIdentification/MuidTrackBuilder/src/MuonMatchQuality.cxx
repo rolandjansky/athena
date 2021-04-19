@@ -22,7 +22,7 @@ namespace Rec {
     }
 
     StatusCode MuonMatchQuality::initialize() {
-        ATH_MSG_INFO("MuonMatchQuality::initialize()");
+        ATH_MSG_INFO("MuonMatchQuality::initialize().");
 
         // get the tools
         if (!m_tagTool.name().empty()) {
