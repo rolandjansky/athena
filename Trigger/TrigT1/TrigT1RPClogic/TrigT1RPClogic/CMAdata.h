@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMADATA_H
@@ -15,7 +15,6 @@
 
 
 #ifndef LVL1_STANDALONE
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #endif
 
@@ -42,7 +41,6 @@ class CMAdata : public BaseObject
 #ifdef LVL1_STANDALONE
     CMAdata(const RPCdata* rpcData);
 #else
-    CMAdata(const RPCdata* rpcData,const IRPCcablingSvc* rpcCabling, const unsigned long int debug);
     CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug);
 #endif
     CMAdata(const CMAdata&);
