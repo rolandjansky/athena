@@ -91,7 +91,12 @@ Trk::MappedVertex Trk::VertexMapper::mapToLocal(const Amg::Vector3D& vertex) con
                     // find out the optimal association : 
                     // - for cylinders we want to radially hit the layer
                     // - for disks we want to move along z
-                    mDirection  = Amg::Vector3D((sLayer->surfaceRepresentation().type() == Trk::Surface::Cylinder) ? Amg::Vector3D(vertex.x(),vertex.y(),0.) : Amg::Vector3D(0.,0.,1.)).unit();
+                    mDirection = Amg::Vector3D(
+                                   (sLayer->surfaceRepresentation().type() ==
+                                    Trk::SurfaceType::Cylinder)
+                                     ? Amg::Vector3D(vertex.x(), vertex.y(), 0.)
+                                     : Amg::Vector3D(0., 0., 1.))
+                                   .unit();
                     // now intersect the layer
                     Intersection sIntersection = sLayer->surfaceRepresentation().straightLineIntersection(vertex,mDirection,false,false);
                     // check if valid

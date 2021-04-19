@@ -67,7 +67,7 @@ namespace Trk {
       virtual Amg::RotationMatrix3D measurementFrame() const override final;
       virtual PatternTrackParameters * clone() const override final;
       virtual ParametersType type() const override final;
-      virtual int surfaceType() const override final;
+      virtual SurfaceType surfaceType() const override final;
       virtual void updateParametersHelper(const AmgVector(5) &) override final;
 
       ///////////////////////////////////////////////////////////////////

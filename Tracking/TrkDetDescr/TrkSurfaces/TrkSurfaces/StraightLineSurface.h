@@ -46,7 +46,7 @@ class StraightLineSurface : public Surface
 {
 
 public:
-  static constexpr SurfaceType staticType = Surface::Line;
+  static constexpr SurfaceType staticType = SurfaceType::Line;
   /**Default Constructor - needed for persistency*/
   StraightLineSurface();
 

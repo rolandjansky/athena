@@ -47,7 +47,7 @@ class ConeSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cone;
+  static constexpr SurfaceType staticType = SurfaceType::Cone;
 
   /**Default Constructor*/
   ConeSurface();

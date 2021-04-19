@@ -398,11 +398,11 @@ template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::fillStepI
           m_materialThicknessInX0Boundary += tInX0;
         }
         // check what type of surface you have
-        if (es.surface && es.surface->type() == Trk::Surface::Cylinder) {
+        if (es.surface && es.surface->type() == Trk::SurfaceType::Cylinder) {
           m_materialThicknessInX0Cylinder += tInX0;
-        } else if (es.surface && es.surface->type() == Trk::Surface::Disc) {
+        } else if (es.surface && es.surface->type() == Trk::SurfaceType::Disc) {
           m_materialThicknessInX0Disc += tInX0;
-        } else if (es.surface && es.surface->type() == Trk::Surface::Plane) {
+        } else if (es.surface && es.surface->type() == Trk::SurfaceType::Plane) {
           m_materialThicknessInX0Plane += tInX0;
         }
         // delete the parameters if there are any there

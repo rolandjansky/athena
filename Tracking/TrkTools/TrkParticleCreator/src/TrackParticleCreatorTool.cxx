@@ -447,7 +447,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
           }
           if (!tsos->type(TrackStateOnSurface::Perigee) ||
               !(tsos->trackParameters()->surfaceType() ==
-                Trk::Surface::Perigee) ||
+                Trk::SurfaceType::Perigee) ||
               !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
             continue;
           }
@@ -771,7 +771,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
         }
         if (!tsos->type(TrackStateOnSurface::Perigee) ||
             !(tsos->trackParameters()->surfaceType() ==
-              Trk::Surface::Perigee) ||
+              Trk::SurfaceType::Perigee) ||
             !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
           continue;
         }

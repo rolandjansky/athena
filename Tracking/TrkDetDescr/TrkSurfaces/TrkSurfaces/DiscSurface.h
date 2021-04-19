@@ -48,7 +48,7 @@ class DiscSurface : public Surface
 {
 
 public:
-  static constexpr SurfaceType staticType = Surface::Disc;
+  static constexpr SurfaceType staticType = SurfaceType::Disc;
   /**Default Constructor*/
   DiscSurface();
 

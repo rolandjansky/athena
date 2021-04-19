@@ -121,7 +121,7 @@ namespace InDet {
     // Should use eigen to do all of this
 
     // ME: use the surface to find out what we do, do not hardcode the geoemtry
-    if (Trk::Surface::Plane == trkPar.associatedSurface().type()) {
+    if (Trk::SurfaceType::Plane == trkPar.associatedSurface().type()) {
 
       /// The local position parameters covariance matrix C (2x2)
       double p11 = em(Trk::locX, Trk::locX);
@@ -169,7 +169,7 @@ namespace InDet {
       nCovVtx(2, 1) = P32;
       nCovVtx(2, 2) = P33;
 
-    } else if (Trk::Surface::Line == trkPar.associatedSurface().type()) {
+    } else if (Trk::SurfaceType::Line == trkPar.associatedSurface().type()) {
 
       /// The local position parameters covariance matrix C (2x2)
       double p11 = em(Trk::locR, Trk::locR);
