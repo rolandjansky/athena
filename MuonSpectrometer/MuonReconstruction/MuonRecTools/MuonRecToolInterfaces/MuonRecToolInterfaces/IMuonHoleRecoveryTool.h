@@ -34,7 +34,7 @@ namespace Muon {
 
         virtual void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
                                                       std::set<Identifier>& layIds,
-                                                      std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const = 0;
+                                                      std::vector<std::unique_ptr<const Trk::TrackStateOnSurface> >& states) const = 0;
 
         /** virtual destructor **/
         virtual ~IMuonHoleRecoveryTool() = default;

@@ -114,7 +114,7 @@ namespace Muon {
 
         void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
                                               std::set<Identifier>& layIds,
-                                              std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const override;
+                                              std::vector<std::unique_ptr<const Trk::TrackStateOnSurface> >& states) const override;
 
     private:
         std::unique_ptr<const Trk::TrackParameters> reachableDetEl(const EventContext& ctx, const Trk::Track& track,
@@ -127,12 +127,12 @@ namespace Muon {
         // Fill already on track chamber std::set
         void fillOnTrackChambers(const Trk::Track& theTrack, MuonData& data) const;
         // Select hashes of chambers not yet on track
-        std::unique_ptr<Trk::Track> addMissingChambers(const EventContext& ctx, const Trk::Track* track, MuonData& data, bool addMdt) const;
+        std::unique_ptr<Trk::Track> addMissingChambers(const EventContext& ctx, const Trk::Track& track, MuonData& data, bool addMdt) const;
 
         void addHashes(DETID type, const IRoiDescriptor& roi, std::set<IdentifierHash>& hashes,
                        const std::set<IdentifierHash>& exclusion) const;
 
-        std::unique_ptr<Trk::Track> findHoles(const EventContext& ctx, const Trk::Track* track, MuonData& data) const;
+        std::unique_ptr<Trk::Track> findHoles(const EventContext& ctx, const Trk::Track& track, MuonData& data) const;
 
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};
