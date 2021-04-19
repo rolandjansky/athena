@@ -42,14 +42,17 @@ if rec.doTrigger():
     if ConfigFlags.Trigger.EDMVersion >= 3:
         # for Run 3 we eventually want to disable TrigConfigSvc
         tf.configurationSourceList = []
-    else:
-        # for reconstructing Run 2 data we need to run the trigger configuration
-        # from the Run 2 TriggerDB, which is done by the TrigConfigSvc(DSConfigSvc)
+    elif ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
+        # for reconstructing Run 1/2 data we need to run the trigger configuration
+        # from the Run 1/2 TriggerDB, which is done by the TrigConfigSvc(DSConfigSvc)
         tf.configurationSourceList = ['ds']
         # this configurations are in the old format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        _log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False as we are reconstructing Run 2 data")
+        _log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False as we are reconstructing Run %s data",
+                  ConfigFlags.Trigger.EDMVersion)
         ConfigFlags.Trigger.readLVL1FromJSON = False
+    else:
+        raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
 
 
@@ -89,7 +92,7 @@ if rec.doTrigger():
 
     #---------------------------------------------------------------------------    
     elif tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
-        if ConfigFlags.Trigger.EDMVersion <= 2: # Run 1+2 setup, not needed for Run 3 reco
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2: # Run 1+2 setup, not needed for Run 3 reco
             tf.readLVL1configFromXML = True # has to use the .xml file used for reco
             tf.readHLTconfigFromXML = True # has to use the .xml file used for reco
             # You have to set the 2 following files to the .xml files you want.

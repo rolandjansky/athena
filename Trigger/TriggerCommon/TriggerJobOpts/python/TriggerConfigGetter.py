@@ -211,7 +211,7 @@ class TriggerConfigGetter(Configured):
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         # define ConfigSvc (for Run 1 + 2)
-        if ConfigFlags.Trigger.EDMVersion <= 2:
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
             if not self.ConfigSrcList:
                 if (self.readPool and not self.readRDO) or (self.readRDO and not self.readPool): # (ESD, AOD, DPD) or (RDO-BS)
                     self.ConfigSrcList = ['ds']
@@ -430,7 +430,7 @@ class TriggerConfigGetter(Configured):
         writeTriggerMenu = False # Run2 offline xAOD metadata summary format. Writing of this now is deprecated. Reading supported still.
         writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.EDMVersion <= 2:
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
             if ConfigFlags.Trigger.doEDMVersionConversion:
                 # also save the menu in JSON format
                 from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
@@ -463,7 +463,7 @@ class TriggerConfigGetter(Configured):
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
                 writeTriggerMenu = True
 
-        else:
+        elif ConfigFlags.Trigger.EDMVersion >= 3:
             from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
             menuwriter = TrigConf__xAODMenuWriterMT()
             menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
@@ -480,6 +480,8 @@ class TriggerConfigGetter(Configured):
             appendCAtoAthena( acc )
             Configurable.configurableRun3Behavior -= 1
 
+        else:
+            raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
           # Set up the metadata for the output ESD and AOD:
         from RecExConfig.ObjKeyStore import objKeyStore
