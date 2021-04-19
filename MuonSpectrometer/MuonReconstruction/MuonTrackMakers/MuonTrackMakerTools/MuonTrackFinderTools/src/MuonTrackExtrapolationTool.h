@@ -37,14 +37,13 @@ namespace Muon {
         /** @brief AlgTool initilize */
         virtual StatusCode initialize() override;
 
-       
         /** @brief extrapolates a muon track to the muon entry record and returns a new track expressed at the destination.
          @param track input track
          @return a pointer to the extrapolated track, zero if extrapolation failed.
          The ownership of the track is passed to the client calling the tool.
          */
         virtual Trk::Track *extrapolate(const Trk::Track &track) const override;
-        virtual Trk::Track *extrapolate(const Trk::Track &track, const EventContext& ctx) const override;
+        virtual Trk::Track *extrapolate(const Trk::Track &track, const EventContext &ctx) const override;
 
         /** @brief extrapolates a muon track collection to the muon entry record and returns a new track expressed at the destination.
          @param tracks input track collection
@@ -52,7 +51,7 @@ namespace Muon {
          The ownership of the collection is passed to the client calling the tool.
          */
         virtual TrackCollection *extrapolate(const TrackCollection &tracks) const override;
-        virtual TrackCollection *extrapolate(const TrackCollection &tracks, const EventContext& ctx) const override;
+        virtual TrackCollection *extrapolate(const TrackCollection &tracks, const EventContext &ctx) const override;
 
     private:
         bool getMuonEntrance() const;
@@ -65,12 +64,12 @@ namespace Muon {
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
          * ownership of the new parameters */
         const Trk::TrackParameters *extrapolateToMuonEntryRecord(const Trk::TrackParameters &pars,
-                                                                 Trk::ParticleHypothesis particleHypo = Trk::muon) const ;
+                                                                 Trk::ParticleHypothesis particleHypo = Trk::muon) const;
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
          * ownership of the new parameters */
         virtual const Trk::TrackParameters *extrapolateToIP(const Trk::TrackParameters &pars,
-                                                            Trk::ParticleHypothesis particleHypo = Trk::muon) const ;
+                                                            Trk::ParticleHypothesis particleHypo = Trk::muon) const;
 
         const Trk::Perigee *createPerigee(const Trk::TrackParameters &pars) const;
 

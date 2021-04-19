@@ -74,7 +74,6 @@ namespace Muon {
 
     class MuonSegmentRegionRecoveryTool : virtual public IMuonHoleRecoveryTool, public AthAlgTool {
     public:
-        typedef std::vector<const Trk::MeasurementBase*> MeasVec;
         struct MuonData {
             std::set<IdentifierHash> mdt;
             std::map<MuonStationIndex::ChIndex, std::set<IdentifierHash> > mdtPerStation;

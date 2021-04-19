@@ -32,7 +32,7 @@
 namespace {
     struct PullCluster {
         double pull;
-        const Trk::TrackParameters* pars;
+        std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };
     typedef std::map<Identifier, PullCluster> ClusterLayerMap;
@@ -700,7 +700,6 @@ namespace Muon {
         }
 
         ClusterLayerMap cluster_layer_map;
-        std::vector<std::unique_ptr<const Trk::TrackParameters>> to_delete;
 
         unsigned int nNewHits = 0;
         // loop over prds
@@ -713,17 +712,16 @@ namespace Muon {
             if (layIds.count(layId)) { continue; }
             const Trk::Surface& surf = clus->detectorElement()->surface(id);
 
-            const Trk::TrackParameters* exPars = nullptr;
+            std::unique_ptr<const Trk::TrackParameters> exPars;
             if (pars.associatedSurface() == surf) {
                 ATH_MSG_VERBOSE(" Same surface, cloning parameters ");
-                exPars = &pars;
+                exPars = pars.uniqueClone();
             } else {
-                exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
+                exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
                 if (!exPars) {
                     ATH_MSG_WARNING(" Propagation cluster PRD failed!! ");
                     continue;
                 }
-                to_delete.emplace_back(exPars);
             }
             ATH_MSG_VERBOSE("  --- " << m_idHelperSvc->toString(id) << " error " << Amg::error(clus->localCovariance(), Trk::locX)
                                      << " measured parameters, error " << Amg::error(*exPars->covariance(), Trk::locX));
@@ -739,7 +737,7 @@ namespace Muon {
             if (!clusterOnTrack) { continue; }
 
             std::unique_ptr<const Trk::ResidualPull> resPull{
-                m_pullCalculator->residualPull(clusterOnTrack.get(), exPars, Trk::ResidualPull::Unbiased)};
+                m_pullCalculator->residualPull(clusterOnTrack.get(), exPars.get(), Trk::ResidualPull::Unbiased)};
             if (!resPull) { continue; }
             if (resPull->pull().empty()) { continue; }
             const double pullCut = m_idHelperSvc->measuresPhi(id) ? m_associationPullCutPhi : m_associationPullCutEta;
@@ -757,13 +755,13 @@ namespace Muon {
                 if (cl_it != cluster_layer_map.end()) {
                     if (pull < cl_it->second.pull) {
                         cl_it->second.pull = pull;
-                        cl_it->second.pars = exPars;
+                        cl_it->second.pars = std::move(exPars);
                         cl_it->second.clus = std::move(clusterOnTrack);
                     }
                 } else {
                     PullCluster pullClus;
                     pullClus.pull = pull;
-                    pullClus.pars = exPars;
+                    pullClus.pars = std::move(exPars);
                     pullClus.clus = std::move(clusterOnTrack);
                     cluster_layer_map[layId] = std::move(pullClus);
                 }
@@ -773,7 +771,7 @@ namespace Muon {
         // loop over cluster layer map and add the clusters to the state vector
         for (auto& cl_it : cluster_layer_map) {
             ATH_MSG_VERBOSE(" added hit " << m_idHelperSvc->toString(cl_it.second.clus->identify()));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(cl_it.second.clus.release(), cl_it.second.pars->clone(),
+            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(cl_it.second.clus.release(), cl_it.second.pars.release(),
                                                                             Trk::TrackStateOnSurface::Measurement);
             states.emplace_back(tsos);
             ++nNewHits;
@@ -792,17 +790,16 @@ namespace Muon {
 
             const Trk::Surface& surf = detEl->surface(id);
 
-            const Trk::TrackParameters* exPars = nullptr;
+            std::unique_ptr<const Trk::TrackParameters> exPars;
             if (pars.associatedSurface() == surf) {
                 ATH_MSG_DEBUG(" Same surface, cloning parameters ");
-                exPars = &pars;
+                exPars = pars.uniqueClone();
             } else {
-                exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
+                exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
                 if (!exPars) {
                     ATH_MSG_DEBUG(" Propagation cluster hole failed!! ");
                     continue;
                 }
-                to_delete.emplace_back(exPars);
             }
 
             bool inBounds = false;
@@ -815,7 +812,7 @@ namespace Muon {
             if (!inBounds) { continue; }
 
             if (m_idHelperSvc->issTgc(id)) ATH_MSG_VERBOSE(" new hole sTgc measuresPhi " << (int)m_idHelperSvc->measuresPhi(id));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars->clone());
+            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
             states.emplace_back(tsos);
             ++nholes;
             // break; // only add one hole per det el
@@ -831,7 +828,7 @@ namespace Muon {
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
         if (!MuonDetMgr) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            // return;
+            return;
         }
 
         Amg::Vector3D direction = pars.momentum().unit();
@@ -844,8 +841,6 @@ namespace Muon {
 
         unsigned int nholes = 0;
         unsigned int nstates = 0;
-
-        std::vector<std::unique_ptr<const Trk::TrackParameters>> to_delete;
 
         // set to store chambers that were already handled
         std::set<Identifier> chIds;
@@ -875,16 +870,15 @@ namespace Muon {
                 if (associatedHoles.count(id)) continue;
 
                 const Trk::Surface& surf = mdtPrd->detectorElement()->surface(id);
-                const Trk::TrackParameters* exPars = nullptr;
+                std::unique_ptr<const Trk::TrackParameters> exPars;
                 if (pars.associatedSurface() == surf) {
-                    exPars = &pars;
+                    exPars = pars.uniqueClone();
                 } else {
-                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
+                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to MDT prd failed!! ");
                         continue;
                     }
-                    to_delete.emplace_back(exPars);
                 }
 
                 Amg::Vector3D momentum = exPars->momentum();
@@ -916,12 +910,11 @@ namespace Muon {
 
                 // check whether MDT ROT has sagged wire surface, if so redo propagation
                 if (slSurf != &mdtPrd->detectorElement()->surface(id)) {
-                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, *slSurf, Trk::anyDirection, false, Trk::muon);
+                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, *slSurf, Trk::anyDirection, false, Trk::muon));
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to sagged surface failed!! ");
                         continue;
                     }
-                    to_delete.emplace_back(exPars);
                 }
 
                 if (msgLvl(MSG::VERBOSE)) {
@@ -933,7 +926,7 @@ namespace Muon {
 
                 // pointer to resPull
                 std::unique_ptr<const Trk::ResidualPull> resPull{
-                    m_pullCalculator->residualPull(mdtROT.get(), exPars, Trk::ResidualPull::Unbiased)};
+                    m_pullCalculator->residualPull(mdtROT.get(), exPars.get(), Trk::ResidualPull::Unbiased)};
                 if (!resPull) { continue; }
 
                 double pull = resPull->pull().front();
@@ -973,7 +966,7 @@ namespace Muon {
                 if (!inBounds) { continue; }
 
                 Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(
-                    mdtROT.release(), exPars->clone(),
+                    mdtROT.release(), exPars.release(),
                     (hitFlag != 0 || !m_addMeasurements) ? Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement);
                 states.emplace_back(tsos);
                 ++nstates;
@@ -986,30 +979,32 @@ namespace Muon {
             for (const Identifier& hit : chHoles) {
                 if (associatedHoles.count(hit)) continue;
                 // only create holes in the current chamber
-                Identifier ch = m_idHelperSvc->chamberId(hit);
+                const Identifier ch = m_idHelperSvc->chamberId(hit);
                 if (ch != chIdentifier) continue;
 
                 const MuonGM::MdtReadoutElement* detEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(getDetectorElement(hit, ctx));
+                if (!detEl) {
+                    ATH_MSG_WARNING("Could not pipe " << m_idHelperSvc->toString(hit) << " to a MDT element.");
+                    continue;
+                }
                 const Trk::Surface& surf = detEl->surface(hit);
 
-                const Trk::TrackParameters* exPars = nullptr;
+                std::unique_ptr<const Trk::TrackParameters> exPars;
                 if (pars.associatedSurface() == surf) {
-                    exPars = &pars;
+                    exPars = pars.uniqueClone();
                 } else {
-                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
+                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to MDT hole failed!! ");
                         continue;
                     }
-                    to_delete.emplace_back(exPars);
                 }
 
                 bool inBounds = false;
                 Amg::Vector2D locPos;
                 if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) {
                     // perform bound check do not count holes with 100. mm of bound edge
-                    inBounds = surf.bounds().insideLoc2(locPos, -100.);
-                    if (inBounds && std::abs(locPos[Trk::locR]) > detEl->innerTubeRadius()) { inBounds = false; }
+                    inBounds = surf.bounds().insideLoc2(locPos, -100.) && std::abs(locPos[Trk::locR]) <= detEl->innerTubeRadius();
                 }
                 if (!inBounds) {
                     ATH_MSG_VERBOSE(" discarding hole " << m_idHelperSvc->toString(hit) << " dist wire " << exPars->parameters()[Trk::locR]
@@ -1017,7 +1012,7 @@ namespace Muon {
                     continue;
                 }
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(hit) << " dist wire " << exPars->parameters()[Trk::locR]);
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars->clone());
+                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
                 states.emplace_back(tsos);
                 ++nholes;
                 ++nstates;

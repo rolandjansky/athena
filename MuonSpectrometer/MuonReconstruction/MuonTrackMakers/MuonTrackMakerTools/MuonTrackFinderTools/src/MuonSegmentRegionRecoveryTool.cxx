@@ -153,7 +153,6 @@ namespace Muon {
         // 3b) compare the two std::sets and make a final std::set of not-yet-on-track Hashes
         std::unique_ptr<Trk::Track> triggerRecTrack = addMissingChambers(ctx, *chRecTrack, muonData, false);
         if (triggerRecTrack) chRecTrack.swap(triggerRecTrack);
-        return chRecTrack.release();
 
         std::unique_ptr<Trk::Track> mdtRecTrack = addMissingChambers(ctx, *chRecTrack, muonData, true);
         if (mdtRecTrack) chRecTrack.swap(mdtRecTrack);
@@ -475,10 +474,7 @@ namespace Muon {
                 bool inBounds = false;
                 if (locPos) {
                     // perform bound check do not count holes with 100. mm of bound edge
-                    inBounds = surf.bounds().insideLoc2(*locPos, -100.);
-                    if (inBounds) {
-                        if (std::abs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius()) inBounds = false;
-                    }
+                    inBounds = surf.bounds().insideLoc2(*locPos, -100.) && std::abs((*locPos)[Trk::locR]) <= detElLoc->innerTubeRadius();
                 }
                 if (!inBounds) {
                     ATH_MSG_VERBOSE(" discarding hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
@@ -677,7 +673,6 @@ namespace Muon {
                 states.emplace_back(std::move(mmit));
             }
         }
-
         if (!states.empty()) {
             // states were added, create a new track
             DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
@@ -870,51 +865,50 @@ namespace Muon {
                 }
                 data.cscCols = std::move(newccols);
             }
-        }
 
-        unsigned int nstates = states.size();
-        if (m_idHelperSvc->hasSTgc() && m_idHelperSvc->stgcIdHelper().isInitialized()) {
-            m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
-            std::vector<const sTgcPrepDataCollection*> newstcols;
-            ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
-            for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
-                std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(stgcit)->front()->detectorElement())};
-                if (exPars) {
-                    newstcols.push_back(stgcit);
-                    Identifier detElId = m_idHelperSvc->detElId(stgcit->identify());
-                    std::set<Identifier> layIds;
-                    createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
-                    ATH_MSG_DEBUG("Collected new sTgc states: " << states.size());
-                    if (states.size() != nstates) {
-                        nstates = states.size();
-                        newsTgcHashes.insert(stgcit->identifyHash());
+            nstates = states.size();
+            if (m_idHelperSvc->hasSTgc() && m_idHelperSvc->stgcIdHelper().isInitialized()) {
+                m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
+                std::vector<const sTgcPrepDataCollection*> newstcols;
+                ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
+                for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(stgcit)->front()->detectorElement())};
+                    if (exPars) {
+                        newstcols.push_back(stgcit);
+                        Identifier detElId = m_idHelperSvc->detElId(stgcit->identify());
+                        std::set<Identifier> layIds;
+                        createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
+                        ATH_MSG_DEBUG("Collected new sTgc states: " << states.size());
+                        if (states.size() != nstates) {
+                            nstates = states.size();
+                            newsTgcHashes.insert(stgcit->identifyHash());
+                        }
                     }
                 }
+                data.stgcCols = std::move(newstcols);
             }
-            data.stgcCols = std::move(newstcols);
-        }
 
-        if (m_idHelperSvc->hasMM() && m_idHelperSvc->mmIdHelper().isInitialized()) {
-            m_seededSegmentFinder->extractMMPrdCols(data.mm, data.mmCols);
-            ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
-            std::vector<const MMPrepDataCollection*> newmcols;
-            for (const MMPrepDataCollection* mit : data.mmCols) {
-                std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
-                if (exPars) {
-                    newmcols.push_back(mit);
-                    Identifier detElId = m_idHelperSvc->detElId(mit->identify());
-                    std::set<Identifier> layIds;
-                    createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
-                    ATH_MSG_DEBUG("Collected new Mm states: " << states.size());
-                    if (states.size() != nstates) {
-                        nstates = states.size();
-                        newMMHashes.insert(mit->identifyHash());
+            if (m_idHelperSvc->hasMM() && m_idHelperSvc->mmIdHelper().isInitialized()) {
+                m_seededSegmentFinder->extractMMPrdCols(data.mm, data.mmCols);
+                ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
+                std::vector<const MMPrepDataCollection*> newmcols;
+                for (const MMPrepDataCollection* mit : data.mmCols) {
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
+                    if (exPars) {
+                        newmcols.push_back(mit);
+                        Identifier detElId = m_idHelperSvc->detElId(mit->identify());
+                        std::set<Identifier> layIds;
+                        createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
+                        ATH_MSG_DEBUG("Collected new Mm states: " << states.size());
+                        if (states.size() != nstates) {
+                            nstates = states.size();
+                            newMMHashes.insert(mit->identifyHash());
+                        }
                     }
                 }
+                data.mmCols = std::move(newmcols);
             }
-            data.mmCols = std::move(newmcols);
         }
-
         if (!states.empty()) {
             ATH_MSG_DEBUG("Collected new states: " << states.size());
 
@@ -928,7 +922,6 @@ namespace Muon {
             for (const Trk::TrackStateOnSurface* tsit : *oldStates) states.emplace_back(tsit->clone());
 
             std::stable_sort(states.begin(), states.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
-
             ATH_MSG_DEBUG("Filling DataVector with TSOSs " << states.size());
             DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
             trackStateOnSurfaces->reserve(states.size());
@@ -1011,7 +1004,7 @@ namespace Muon {
                 parsType << " => outbounds";
             ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(detEl.identify()) << " pars  " << parsType.str());
         }
-        if (!inbounds) { exPars.reset(); }
+        if (!inbounds) { return nullptr; }
 
         return exPars;
     }
