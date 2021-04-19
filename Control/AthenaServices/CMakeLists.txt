@@ -68,11 +68,6 @@ atlas_add_test( AthTPCnvSvc
    LOG_IGNORE_PATTERN "^ApplicationMgr +INFO"
    PROPERTIES TIMEOUT 300 )
 
-atlas_add_test( SimplePOSIXTimeKeeperSvc
-   SCRIPT test/SimplePOSIXTimeKeeperSvc.sh
-   PROPERTIES TIMEOUT 300
-   LOG_IGNORE_PATTERN "allocated job time|average time|start processing|done processing|waste some time|all times in|start of run|BeginRun" )
-
 atlas_add_test( AthDictLoaderSvc
    SCRIPT test/AthDictLoaderSvc.sh
    PROPERTIES TIMEOUT 300 )
@@ -83,8 +78,6 @@ atlas_install_python_modules( python/*.py
    POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 atlas_install_joboptions( share/AthTPCnvSvc_test.py
-   share/SimplePOSIXTimeKeeperOptions.py
-   share/SimplePOSIXTimeKeeperSvc_test.py
    share/MixingEventSelector_test.py
    share/MultiplePassBootstrap.py
    share/MultiplePass_test.py
