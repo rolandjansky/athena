@@ -115,8 +115,8 @@ namespace Muon {
                           << " Returning input (unrecovered) track ");
             return new Trk::Track(track);
         }
-        ATH_MSG_VERBOSE(" After chamber hole recovery " << m_printer->print(track) << std::endl << m_printer->printStations(track));
-
+        ATH_MSG_VERBOSE(" After chamber hole recovery " << m_printer->print(*chRecTrack) << std::endl
+                                                        << m_printer->printStations(*chRecTrack));
         // only run this on single station EM tracks
         if (m_onlyEO) {
             // should be a sl track
@@ -232,10 +232,7 @@ namespace Muon {
         }
 
         std::set<MuonStationIndex::StIndex> stations;
-        double etamin = 1e9;
-        double etamax = -1e9;
-        double phimin = 1e9;
-        double phimax = -1e9;
+        double etamin{1e9}, etamax{-1e9}, phimin{1e9}, phimax{-1e9};
         // loop over TSOSs
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
@@ -245,7 +242,7 @@ namespace Muon {
             if (!pars) continue;
 
             double rpos = pars->position().perp();
-            double zpos = fabs(pars->position().z());
+            double zpos = std::abs(pars->position().z());
             if (rpos < 2500 && zpos < 4000) continue;
             double eta = pars->position().eta();
             double phi = pars->position().phi();
@@ -352,7 +349,7 @@ namespace Muon {
                 continue;
             }
 
-            const MuonClusterOnTrack* clus = 0;
+            const MuonClusterOnTrack* clus = nullptr;
             const CompetingMuonClustersOnTrack* compRot = dynamic_cast<const CompetingMuonClustersOnTrack*>(meas);
             if (compRot) {
                 clus = &compRot->rioOnTrack(0);
@@ -400,14 +397,14 @@ namespace Muon {
         const DataVector<const Trk::TrackStateOnSurface>* oldStates = track->trackStateOnSurfaces();
         if (!oldStates) {
             ATH_MSG_WARNING(" track without states, cannot perform mdt hole search ");
-            return std::unique_ptr<Trk::Track>();
+            return nullptr;
         }
 
         SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
         if (!MuonDetMgr) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            return std::unique_ptr<Trk::Track>();
+            return nullptr;
         }
 
         std::vector<const Trk::TrackStateOnSurface*> states;
@@ -473,7 +470,7 @@ namespace Muon {
                 int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
                 int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                 double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
-                double distEdge = fabs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
+                double distEdge = std::abs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
                 double pullEdge = tubePars->covariance() ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
                 std::optional<Amg::Vector2D> locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
                 bool inBounds = false;
@@ -481,7 +478,7 @@ namespace Muon {
                     // perform bound check do not count holes with 100. mm of bound edge
                     inBounds = surf.bounds().insideLoc2(*locPos, -100.);
                     if (inBounds) {
-                        if (fabs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius()) inBounds = false;
+                        if (std::abs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius()) inBounds = false;
                     }
                 }
                 if (!inBounds) {
@@ -492,7 +489,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                                              << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
                 ++nholes;
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(tubePars.get());
+                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(tubePars.release());
                 states.push_back(tsos);
             }
             if (!nholes) ATH_MSG_DEBUG("found holes " << nholes);
@@ -739,7 +736,7 @@ namespace Muon {
                                               << m_printer->printStations(*trackWithHoles));
             return trackWithHoles;
         }
-        return std::unique_ptr<Trk::Track>();
+        return nullptr;
     }
 
     std::unique_ptr<Trk::Track> MuonSegmentRegionRecoveryTool::addMissingChambers(const EventContext& ctx, const Trk::Track* track,
@@ -782,7 +779,7 @@ namespace Muon {
                                                                << (*mit)->identifyHash());
                     }
                 }
-                std::vector<const MdtPrepData*>* prds = 0;
+                std::vector<const MdtPrepData*>* prds = nullptr;
                 std::map<int, std::vector<const MdtPrepData*> >::iterator sectorIt = mdtPrds.begin();
                 if (mdtPrds.empty()) {
                     ATH_MSG_VERBOSE("No hits selected");
@@ -827,9 +824,9 @@ namespace Muon {
                                 mseg->associatedSurface().globalToLocalDirection(segPars->momentum(), locDir);
                                 double dangleYZ = mseg->localDirection().angleYZ() - locDir.angleYZ();
                                 ATH_MSG_DEBUG("resy " << resy << " dangleYZ " << dangleYZ << " " << m_printer->print(*mseg));
-                                if (fabs(dangleYZ) < 0.05) {
+                                if (std::abs(dangleYZ) < 0.05) {
                                     bestSegment = mseg;
-                                    bestSegmentPars.reset(segPars->clone());
+                                    bestSegmentPars.swap(segPars);
                                 }
                             } else {
                                 ATH_MSG_DEBUG("Did not reach " << m_printer->print(*mseg));
@@ -1026,7 +1023,7 @@ namespace Muon {
             }
             return refittedTrack;
         }
-        return std::unique_ptr<Trk::Track>();
+        return nullptr;
         // delete newStates;
     }
 
