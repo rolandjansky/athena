@@ -1027,13 +1027,13 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
   //        << " --  element->hitPhiDirection() = " << hitSiDetElement->hitPhiDirection() << std::endl;
 
   // rectangle bounds
-  std::shared_ptr<const Trk::RectangleBounds> rectangleBounds(new Trk::RectangleBounds(halfWidth,halfLenght));
+  auto rectangleBounds = std::make_shared<const Trk::RectangleBounds>(halfWidth,halfLenght);
   ATH_MSG_VERBOSE("Initialized rectangle Bounds");
   // create the segmentation
-  std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(rectangleBounds,(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
+  std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(std::move(rectangleBounds),(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
   // build the module
   ATH_MSG_VERBOSE("Initialized rectangleSegmentation");
-  Trk::DigitizationModule * digitizationModule = new Trk::DigitizationModule(rectangleSegmentation,
+  Trk::DigitizationModule * digitizationModule = new Trk::DigitizationModule(std::move(rectangleSegmentation),
                                                                                halfThickness,
                                                                                readoutDirection,
                                                                                lorentzAngle);
