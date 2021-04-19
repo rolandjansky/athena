@@ -18,6 +18,7 @@ from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
 logger = logging.getLogger(__name__)
 
+componentRenamingDict={}
 
 baseParser = argparse.ArgumentParser()
 baseParser.add_argument(
@@ -49,6 +50,7 @@ baseParser.add_argument(
         "DetStore",
         "EvtStore",
         "NeededResources",
+        "GeoModelSvc"
     ],
     help="Ignore properties",
 )
@@ -58,6 +60,11 @@ baseParser.add_argument(
     help="Pass comps You want to rename as OldName=NewName.",
     action="append",
 )
+baseParser.add_argument(
+    "--renameCompsFile",
+    help="Pass the file containing remaps",
+)
+
 baseParser.add_argument(
     "--shortenDefaultComponents",
     help="Automatically shorten componet names that have a default name i.e. ToolX/ToolX to ToolX. It helps comparing Run2 & Run3 configurations where these are handled differently",
@@ -165,21 +172,21 @@ def loadConfigFile(fname, args) -> Dict:
         for (key, value) in dic.items():
             conf[key] = remove_irrelevant(value)
 
-    if args.renameComps:
+    if args.renameComps or args.renameCompsFile:
         compsToRename = flatten_list(args.renameComps)
-        splittedCompsNames = {
+        if args.renameCompsFile:
+            with open( args.renameCompsFile, "r") as refile:
+                compsToRename.extend( [line.rstrip('\n') for line in refile.readlines() ] )
+        global componentRenamingDict
+        componentRenamingDict.update({
             old_name: new_name
             for old_name, new_name in [
                 element.split("=") for element in compsToRename
             ]
-        }
+        })
 
         def rename_comps(comp_name):
-            return (
-                splittedCompsNames[comp_name]
-                if comp_name in splittedCompsNames
-                else comp_name
-            )
+            return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
 
         dic = conf
         conf = {}

@@ -26,6 +26,7 @@
 #include <string_view>
 #include <vector>
 #include <map>
+#include <mutex>
 
 // TBB includes
 #include "tbb/concurrent_unordered_map.h"
@@ -124,6 +125,8 @@ private:
     uint32_t eventStatus       = 0;    
     bool     isEventComplete   = false;    
     ROBMAP   robmap;
+    /// mutex for ROB cache updates
+    std::mutex eventCache_mtx;
   };
 
   /// An event cache for each slot

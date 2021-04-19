@@ -6,7 +6,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-
+#include <cmath>
 #include "TrigEgammaFastElectronHypoTool.h"
 
 namespace TCU = TrigCompositeUtils;
@@ -30,6 +30,8 @@ StatusCode TrigEgammaFastElectronHypoTool::initialize()  {
   ATH_MSG_DEBUG( "CaloTrackdEoverPLow  = " << m_caloTrackdEoverPLow );
   ATH_MSG_DEBUG( "CaloTrackdEoverPHigh = " << m_caloTrackdEoverPHigh );
   ATH_MSG_DEBUG( "TRTRatio = " << m_trtRatio );
+  ATH_MSG_DEBUG( "Do_LRT = "  <<m_doLRT);
+  ATH_MSG_DEBUG( "d0Cut = " << m_d0 );
 
   std::vector<size_t> sizes( {m_trackPt.size(), m_caloTrackDEta.size(), m_caloTrackDPhi.size(), m_caloTrackdEoverPLow.size(), m_caloTrackdEoverPHigh.size(), m_trtRatio.size() } );
 
@@ -69,12 +71,13 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
   auto eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
   auto caloEta    = Monitored::Scalar( "CaloEta", -100. );
   auto caloPhi    = Monitored::Scalar( "CaloEta", -100. );
+  auto trk_d0    = Monitored::Scalar( "d0 value", -1. );
   auto monitorIt  = Monitored::Group( m_monTool, 
 					     cutCounter, cutIndexM,
 					     ptCalo, ptTrack,    
 					     dEtaCalo, dPhiCalo,   
 					     eToverPt,   
-					     caloEta, caloPhi );
+					     caloEta, caloPhi, trk_d0);
 
   const xAOD::TrackParticle* trkIter = electron-> trackParticle();
   if ( trkIter == 0 ){  // disconsider candidates without track
@@ -91,6 +94,8 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
 
   caloEta     = electron->caloEta();
   caloPhi     = electron->caloPhi();
+
+  trk_d0      = std::fabs(trkIter->d0());
 
   float NTRHits     = ( float )( electron->nTRTHits() );
   float NStrawHits  = ( float )( electron->nTRTHiThresholdHits() );
@@ -140,6 +145,16 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
     return  pass;
   }
   cutCounter++;
+  if(m_doLRT){
+   ATH_MSG_DEBUG( "doLRT: " <<m_doLRT);
+   ATH_MSG_DEBUG( "Track d0: " <<trk_d0);
+   
+   if(trk_d0 < m_d0[cutIndex]){
+     ATH_MSG_DEBUG( "Fails d0 cut " <<trk_d0<< " < " <<m_d0[cutIndex] );
+     pass = false;
+     return pass;
+   }
+  }
   ATH_MSG_DEBUG( "Passed selection" );
   pass = true;
   return  pass;

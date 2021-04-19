@@ -138,6 +138,10 @@ class  SCT_FrontEnd : public extends<AthAlgTool, IFrontEnd> {
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr{nullptr}; //!< Handle to SCT detector manager
   const SCT_ID* m_sct_id{nullptr}; //!< Handle to SCT ID helper
 
+  //Allow a different DetMgr to be used
+  StringProperty m_detMgrName{this, "DetectorManager", "SCT", "Name of DetectorManager to retrieve"};
+  
+
 };
 
 #endif //SCT_FRONTEND_H

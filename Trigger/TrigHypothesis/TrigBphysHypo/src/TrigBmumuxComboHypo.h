@@ -57,7 +57,7 @@ class TrigBmumuxState: public ::ITrigBphysState {
   std::vector<ElementLink<xAOD::TrackParticleContainer>> tracks;
   xAOD::VertexContainer dimuons;
   xAOD::VertexAuxContainer dimuonsStore;
-
+  std::vector<std::array<size_t, 2>> trigBphysMuonIndices;
   StatusCode addTriggerObject(xAOD::TrigBphys* triggerObject) {
     if (!triggerObject) {
       return StatusCode::FAILURE;
@@ -217,12 +217,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
-  const std::vector<std::vector<double>> m_trkMass{
-    {PDG::mMuon, PDG::mMuon},
-    {PDG::mMuon, PDG::mMuon, PDG::mKaon},
-    {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mKaon}
-  };
-
+  const static std::vector<std::vector<double>> s_trkMass;
+  
 };
 
 #endif  // TRIG_TrigBmumuxComboHypo_H

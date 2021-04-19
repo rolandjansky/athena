@@ -43,7 +43,7 @@ StatusCode SCT_FrontEnd::initialize() {
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
   // Get SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr,m_detMgrName));
   // Get the amplifier tool
   ATH_CHECK(m_sct_amplifier.retrieve());
   ATH_MSG_DEBUG("SCT Amplifier tool located ");

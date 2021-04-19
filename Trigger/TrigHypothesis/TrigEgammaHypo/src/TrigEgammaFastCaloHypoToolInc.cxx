@@ -375,3 +375,4 @@ int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const
   return  binIterator - m_etabin.begin();
 }
 
+

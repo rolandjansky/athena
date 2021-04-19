@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -10,10 +10,9 @@
 #endif
 
 // Local include(s):
-#include <CxxUtils/StringUtils.h>
-#include <RootCoreUtils/StringUtil.h>
-
 #include <PATInterfaces/SystematicRegistry.h>
+#include <RootCoreUtils/StringUtil.h>
+#include <TruthUtils/WeightHelpers.h>
 #include <xAODEventInfo/EventInfo.h>
 #include <xAODMetaData/FileMetaData.h>
 
@@ -299,7 +298,7 @@ namespace PMGTools
       m_weightNames.push_back(truthWeightNames.at(idx));
       m_weightIndices[truthWeightNames.at(idx)] = idx;
 
-      std::string sysName = weightNameToSys(truthWeightNames.at(idx));
+      std::string sysName = MC::weightNameWithPrefix(truthWeightNames.at(idx));
       if (!sysName.empty()) {
         m_systematicsSet.insert(CP::SystematicVariation(sysName));
       }
@@ -331,7 +330,7 @@ namespace PMGTools
       m_weightNames.push_back(kv.first);
       m_weightIndices[kv.first] = kv.second;
 
-      std::string sysName = weightNameToSys(kv.first);
+      std::string sysName = MC::weightNameWithPrefix(kv.first);
       if (!sysName.empty()) {
         m_systematicsSet.insert(CP::SystematicVariation(sysName));
       }
@@ -367,33 +366,4 @@ namespace PMGTools
     m_systematicsSet.clear();
   }
 
-
-  std::string PMGTruthWeightTool::weightNameToSys (const std::string &name) const
-  {
-    if (name.empty()) // empty weight is nominal
-    {
-      return "";
-    }
-
-    // Trim trailing whitespace
-    std::string sys = CxxUtils::StringUtils::trim (name);
-    if (sys == "nominal" // Powheg calls it "nominal"
-      || sys == "Weight") // Sherpa names the nominal weight just "Weight"
-    {
-      return "";
-    }
-
-    sys = RCU::substitute (sys, " set = ", "_"); // Powheg
-    sys = RCU::substitute (sys, " = ", "_"); // Powheg
-    sys = RCU::substitute (sys, "=", "");
-    sys = RCU::substitute (sys, ",", "");
-    sys = RCU::substitute (sys, ".", "");
-    sys = RCU::substitute (sys, ":", "");
-    sys = RCU::substitute (sys, " ", "_");
-    sys = RCU::substitute (sys, "#", "num");
-    sys = RCU::substitute (sys, "\n", "_");
-    sys = RCU::substitute (sys, "/", "over"); // MadGraph
-
-    return generatorSystematicsPrefix + sys;
-  }
 } // namespace PMGTools

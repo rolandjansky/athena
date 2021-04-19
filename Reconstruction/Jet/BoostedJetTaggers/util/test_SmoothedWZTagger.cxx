@@ -25,6 +25,7 @@
 
 // Tool testing include(s):
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "JetUncertainties/JetUncertaintiesTool.h"
 
 #include "AsgMessaging/MessageCheck.h"
 
@@ -44,7 +45,7 @@ int main( int argc, char* argv[] ) {
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
-  bool m_isMC=true;
+  bool isMC=true;
   bool verbose=false;
 
 
@@ -73,9 +74,13 @@ int main( int argc, char* argv[] ) {
     options+=(argv[i]);
   }
 
-  if(options.find("-f")!=std::string::npos){
+  if(options.find("-f")!=std::string::npos){    
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-f")==0){
+	if( ipos+1 == argc || std::string(argv[ipos+1])[0]=='-' ) {
+	  Error( APP_NAME, "Please add the file name after -f argument" );
+	  return 1;
+	}
         fileName = argv[ipos+1];
         Info( APP_NAME, "Argument (-f) : Running on file # %s", fileName.Data() );
         break;
@@ -86,6 +91,10 @@ int main( int argc, char* argv[] ) {
   if(options.find("-event")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-event")==0){
+	if( ipos+1 == argc || std::string(argv[ipos+1])[0]=='-' ) {
+	  Error( APP_NAME, "Please add the event# after -event argument" );
+	  return 1;
+	}
         ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", ievent );
         break;
@@ -96,8 +105,12 @@ int main( int argc, char* argv[] ) {
   if(options.find("-m")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-m")==0){
-        m_isMC = atoi(argv[ipos+1]);
-        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_isMC );
+	if( ipos+1 == argc || std::string(argv[ipos+1])[0]=='-' ) {
+	  Error( APP_NAME, "Please add 0 or 1 after -m (IsMC) argument" );
+	  return 1;
+	}
+        isMC = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-m) : IsMC = %i", isMC );
         break;
       }
     }
@@ -106,6 +119,10 @@ int main( int argc, char* argv[] ) {
   if(options.find("-n")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-n")==0){
+	if( ipos+1 == argc || std::string(argv[ipos+1])[0]=='-' ) {
+	  Error( APP_NAME, "Please add NEvents after -n argument" );
+	  return 1;
+	}
         nevents = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-n) : Running on NEvents = %i", nevents );
         break;
@@ -145,7 +162,7 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open("output_SmoothedWZTagger.root", "recreate"));
   int pass,truthLabel,ntrk;
-  float sf,pt,eta,m;
+  float sf,pt,eta,m,eff,effSF,sigeffSF;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
   Tree->Branch( "sf", &sf, "sf/F" );
@@ -153,7 +170,27 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "m", &m, "m/F" );
   Tree->Branch( "eta", &eta, "eta/F" );
   Tree->Branch( "ntrk", &ntrk, "ntrk/I" );
+  Tree->Branch( "eff", &eff, "eff/F" );
+  Tree->Branch( "effSF", &effSF, "effSF/F" );  
+  Tree->Branch( "sigeffSF", &sigeffSF, "sigeffSF/F" );  
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
+
+  std::unique_ptr<JetUncertaintiesTool> jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
+  ANA_CHECK( jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20") );
+  ANA_CHECK( jetUncToolSF->setProperty("ConfigFile", "rel21/Fall2020/R10_SF_LCTopo_WTag_SigEff50.config") );
+  ANA_CHECK( jetUncToolSF->setProperty("MCType", "MC16") );
+  ANA_CHECK( jetUncToolSF->initialize() );
+
+  std::vector<std::string> pulls = {"__1down", "__1up"};
+  CP::SystematicSet jetUnc_sysSet = jetUncToolSF->recommendedSystematics();
+  const std::set<std::string> sysNames = jetUnc_sysSet.getBaseNames();
+  std::vector<CP::SystematicSet> jetUnc_sysSets;
+  for (std::string sysName: sysNames) {
+    for (std::string pull : pulls) {
+      std::string sysPulled = sysName + pull;
+      jetUnc_sysSets.push_back(CP::SystematicSet(sysPulled));
+    }
+  }  
   
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -168,11 +205,9 @@ int main( int argc, char* argv[] ) {
   asg::StandaloneToolHandle<SmoothedWZTagger> m_Tagger; //!
   m_Tagger.setTypeAndName("SmoothedWZTagger/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
-  //ANA_CHECK( m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/") );
-  //ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat") );
-  ANA_CHECK( m_Tagger.setProperty( "CalibArea", "Local") );
-  ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/temp_SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d.dat") );
-  ANA_CHECK( m_Tagger.setProperty( "IsMC", m_isMC ) );
+  ANA_CHECK( m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/") );
+  ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat") );
+  ANA_CHECK( m_Tagger.setProperty( "IsMC", isMC ) );
   ANA_CHECK( m_Tagger.retrieve() );
 
   ////////////////////////////////////////////////////
@@ -208,7 +243,7 @@ int main( int argc, char* argv[] ) {
       if(verbose) {
         std::cout << "Testing W Tagger " << std::endl;
         std::cout << "jet pt              = " << jetSC->pt() << std::endl;
-        std::cout << "jet ntrk            = " << jetSC->auxdata<int>("SmoothWContained50_ParentJetNTrkPt500") << std::endl;
+        std::cout << "jet ntrk            = " << jetSC->auxdata<int>("ParentJetNTrkPt500") << std::endl;
         std::cout << "RunningTag : " << jetSC->auxdata<bool>("SmoothWContained50_Tagged") << std::endl;
         std::cout << "result d2pass       = " << jetSC->auxdata<bool>("SmoothWContained50_PassD2") << std::endl;
         std::cout << "result ntrkpass     = " << jetSC->auxdata<bool>("SmoothWContained50_PassNtrk") << std::endl;
@@ -222,13 +257,40 @@ int main( int argc, char* argv[] ) {
       eta = jetSC->eta();
       ntrk = jetSC->auxdata<int>("ParentJetNTrkPt500");
       sf = jetSC->auxdata<float>("SmoothWContained50_SF");
+      eff = jetSC->auxdata<float>("SmoothWContained50_efficiency");
+      effSF = jetSC->auxdata<float>("SmoothWContained50_effSF");
+      sigeffSF = jetSC->auxdata<float>("SmoothWContained50_sigeffSF");
       std::cout << "pass " << pass
 		<< " truthLabel " << truthLabel
 		<< " sf " << sf
-		<< " eff " << jetSC->auxdata<float>("SmoothWContained50_effMC")
+		<< " pt " << pt*0.001
+		<< " eta " << eta
+		<< " m " << m*0.001
+		<< " eff " << eff
+		<< " effSF " << effSF
+		<< " sigeffSF " << sigeffSF
 		<< std::endl;
 
       Tree->Fill();
+
+      if ( isMC ){
+	if ( pt/1.e3 > 150 && std::abs(jetSC->eta()) < 2.0 ) {
+	  bool validForUncTool = ( pt/1.e3 >= 150 && pt/1.e3 < 2500 && m > 40000. && m < 700000.);
+	  validForUncTool &= ( m/pt >= 0 && m/pt <= 1 );
+	  validForUncTool &= ( std::abs(eta) < 2 );
+	  std::cout << "Pass: " << pass << std::endl;
+	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb) " 
+		    << effSF << " " << eff << " " << pass << std::endl;     
+	  if( validForUncTool ){
+	    for ( CP::SystematicSet sysSet : jetUnc_sysSets ){
+	      ANA_CHECK( m_Tagger->tag( *jetSC ) );
+	      ANA_CHECK( jetUncToolSF->applySystematicVariation(sysSet) );
+	      CP::CorrectionCode didApplyCorr=jetUncToolSF->applyCorrection(*jetSC);
+	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained50_SF") << std::endl;
+	    }
+	  }
+	}
+      }
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );

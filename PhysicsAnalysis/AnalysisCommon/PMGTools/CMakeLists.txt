@@ -24,7 +24,7 @@ atlas_add_library( PMGToolsLib
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATCoreLib PATInterfaces PMGAnalysisInterfacesLib xAODTruth
-   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver RootCoreUtils xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver RootCoreUtils TruthUtils xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools
