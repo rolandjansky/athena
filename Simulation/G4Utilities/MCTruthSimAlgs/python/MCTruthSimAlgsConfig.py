@@ -114,6 +114,43 @@ def getMergeTruthJetsFilterTool(name="MergeTruthJetsFilterTool", **kwargs):
     kwargs.setdefault("ActivateFilter", True )
     return getMergeTruthJetsTool(name, **kwargs)
 
+############################################################################
+
+# The earliest bunch crossing time for which interactions will be sent
+# to the Truth particle merging code.
+def TruthParticle_FirstXing():
+    return 0
+
+# The latest bunch crossing time for which interactions will be sent
+# to the Truth particle merging code.
+def TruthParticle_LastXing():
+    return 0
+
+def getTruthParticleRange(name="TruthParticleRange", **kwargs):
+    #this is the time of the xing in ns
+    kwargs.setdefault('FirstXing', TruthParticle_FirstXing() )
+    kwargs.setdefault('LastXing',  TruthParticle_LastXing() )
+    kwargs.setdefault("ItemList", ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                                   "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."])
+    return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+
+def getMergeTruthParticlesTool(name="MergeTruthParticlesTool", **kwargs):
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", TruthParticle_FirstXing() )
+        kwargs.setdefault("LastXing",  TruthParticle_LastXing() )
+
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("InTimeOutputTruthParticleCollKey", overlayFlags.bkgPrefix() + "TruthPileupParticles")
+    else:
+        kwargs.setdefault("InTimeOutputTruthParticleCollKey", "TruthPileupParticles")
+
+    return CfgMgr.MergeTruthParticlesTool(name, **kwargs)
+
+
+############################################################################
+
 def getNewMergeMcEventCollTool_Base(name="NewMergeMcEventCollTool_Base", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -30000)
@@ -234,7 +271,7 @@ def TrackRecord_FirstXing():
     return -1
 
 # The latest bunch crossing time for which interactions will be sent
-# to the Truth jet merging code.
+# to the TrackRecordCollection merging code.
 def TrackRecord_LastXing():
     return 1
 
