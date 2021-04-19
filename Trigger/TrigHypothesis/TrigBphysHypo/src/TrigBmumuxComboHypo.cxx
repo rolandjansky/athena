@@ -36,12 +36,11 @@ using TrigCompositeUtils::comboHypoAlgNodeName;
 
 using GenVecFourMom_t = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>>;
 
-
-namespace {
-static const SG::AuxElement::Accessor<std::vector<size_t>> muonIndices("MuonIndices");
-static const SG::AuxElement::ConstAccessor<std::vector<size_t>> getMuonIndices("MuonIndices");
-}  // namespace
-
+const std::vector<std::vector<double>> TrigBmumuxComboHypo::s_trkMass{
+  {PDG::mMuon, PDG::mMuon},
+  {PDG::mMuon, PDG::mMuon, PDG::mKaon},
+  {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mKaon}
+};
 
 TrigBmumuxComboHypo::TrigBmumuxComboHypo(const std::string& name, ISvcLocator* pSvcLocator)
     : ::ComboHypo(name, pSvcLocator) {}
@@ -266,6 +265,7 @@ StatusCode TrigBmumuxComboHypo::findDimuonCandidates(TrigBmumuxState& state) con
   const auto& muons = state.muons;
   std::vector<ElementLink<xAOD::TrackParticleContainer>> trackParticleLinks(2);
   std::vector<const DecisionIDContainer*> previousDecisionIDs(2, nullptr);
+  
   for (size_t itrk1 = 0; itrk1 < muons.size(); ++itrk1) {
     const xAOD::Muon* mu1 = *muons[itrk1].link;
     trackParticleLinks[0] = mu1->inDetTrackParticleLink();
@@ -308,7 +308,7 @@ StatusCode TrigBmumuxComboHypo::findDimuonCandidates(TrigBmumuxState& state) con
       // fit muons to the common vertex and pass this vertex to the dimuons collection which also takes the ownership of the created object
       xAOD::Vertex* vertex = fit(state.context, trackParticleLinks);
       if (!vertex) continue;
-      muonIndices(*vertex) = std::vector<size_t>{itrk1, itrk2};
+      state.trigBphysMuonIndices.emplace_back(std::array<size_t, 2>{itrk1, itrk2});
       state.dimuons.push_back(vertex);
 
       // convert vertex to trigger object and add it to the output xAOD::TrigBphysContainer
@@ -546,8 +546,9 @@ StatusCode TrigBmumuxComboHypo::createDecisionObjects(TrigBmumuxState& state) co
     // need to get the references to the original muon objects used to build the dimuon vertex
     // the position of this vertex in state.dimuons container is the same as for dimuonTriggerObject in trigBphysCollection
     // dimuon vertex has already been decorated with muon indices
-    const xAOD::Vertex* dimuon = state.dimuons.get(dimuonTriggerObject->index());
-    if ( !dimuon || !getMuonIndices.isAvailable(*dimuon) ) {
+    auto muonindex = dimuonTriggerObject->index();
+    const xAOD::Vertex* dimuon = state.dimuons.get(muonindex);
+    if ( !dimuon || muonindex >= state.trigBphysMuonIndices.size() ) {
       ATH_MSG_ERROR( "Failed to find original muons the dimuon vertex had been built from" );
       return StatusCode::FAILURE;
     }
@@ -556,7 +557,7 @@ StatusCode TrigBmumuxComboHypo::createDecisionObjects(TrigBmumuxState& state) co
     Decision* decision = TrigCompositeUtils::newDecisionIn(state.decisions, comboHypoAlgNodeName());
 
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
-    for (const size_t& i : getMuonIndices(*dimuon)) {
+    for (const size_t& i : state.trigBphysMuonIndices.at(muonindex)) {
       const auto& muon = state.muons.at(i);
       // attach all previous decisions: if the same previous decision is called twice, that's fine - internally takes care of that
       // we already have an array of links to the previous decisions, so there is no need to use TrigCompositeUtils::linkToPrevious()
@@ -610,7 +611,7 @@ xAOD::Vertex* TrigBmumuxComboHypo::fit(const EventContext* context,
   ATH_MSG_DEBUG( "Starting point: (" << startingPoint(0) << ", " << startingPoint(1) << ", " << startingPoint(2) << ")" );
 
   auto fitterState = m_vertexFitter->makeState(*context);
-  m_vertexFitter->setMassInputParticles(m_trkMass[static_cast<size_t>(decay)], *fitterState);
+  m_vertexFitter->setMassInputParticles(s_trkMass[static_cast<size_t>(decay)], *fitterState);
   xAOD::Vertex* vertex = m_vertexFitter->fit(tracklist, startingPoint, *fitterState);
   if (!vertex) {
     ATH_MSG_DEBUG( "Vertex fit fails" );
