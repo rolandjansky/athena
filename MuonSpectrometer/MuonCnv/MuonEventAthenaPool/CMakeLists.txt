@@ -115,7 +115,7 @@ foreach( name
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib
+      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib TestTools
       PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

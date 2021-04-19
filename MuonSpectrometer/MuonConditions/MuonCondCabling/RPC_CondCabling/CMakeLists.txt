@@ -13,7 +13,7 @@ atlas_add_library( RPC_CondCablingLib
                    src/*.cxx
                    PUBLIC_HEADERS RPC_CondCabling
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCablingTools SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier MuonIdHelpersLib PathResolver )
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCablingTools SGTools StoreGateLib AthenaPoolUtilities Identifier MuonIdHelpersLib PathResolver )
 
 atlas_add_component( RPC_CondCabling
                      src/components/*.cxx

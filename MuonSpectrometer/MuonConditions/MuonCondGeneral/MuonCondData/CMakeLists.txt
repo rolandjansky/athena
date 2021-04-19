@@ -9,6 +9,6 @@ atlas_subdir( MuonCondData )
 atlas_add_library( MuonCondData
                    src/*.cxx
                    PUBLIC_HEADERS MuonCondData
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthContainers AthenaPoolUtilities Identifier GaudiKernel StoreGateLib SGtests MuonIdHelpersLib 
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthContainers AthenaPoolUtilities Identifier GaudiKernel StoreGateLib MuonIdHelpersLib 
                    PRIVATE_LINK_LIBRARIES EventInfo )
 

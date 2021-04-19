@@ -9,10 +9,10 @@ atlas_subdir( MuonCombinePatternTools )
 atlas_add_library( MuonCombinePatternToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonCombinePatternTools
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonHoughPatternEvent MuonRecToolInterfaces MuonIdHelpersLib StoreGateLib SGtests
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonHoughPatternEvent MuonRecToolInterfaces MuonIdHelpersLib StoreGateLib
                    PRIVATE_LINK_LIBRARIES CxxUtils MuonReadoutGeometry MuonPattern MuonPrepRawData TrkSurfaces TrkParameters )
 
 atlas_add_component( MuonCombinePatternTools
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonIdHelpersLib MuonHoughPatternEvent MuonRecToolInterfaces CxxUtils StoreGateLib SGtests MuonReadoutGeometry MuonPattern MuonPrepRawData TrkSurfaces TrkParameters MuonCombinePatternToolsLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonIdHelpersLib MuonHoughPatternEvent MuonRecToolInterfaces CxxUtils StoreGateLib MuonReadoutGeometry MuonPattern MuonPrepRawData TrkSurfaces TrkParameters MuonCombinePatternToolsLib )
 
