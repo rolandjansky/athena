@@ -1542,6 +1542,8 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       dEdxTrk->makePrivateStore();
       dEdxTrk->setDetail("trk_id", i_track);
       dEdxTrk->setDetail("trk_pt", pt);
+      float eta = -log(tan(0.5*theta));
+      dEdxTrk->setDetail("trk_eta",  eta);
       dEdxTrk->setDetail("trk_dedx", dedx);
       dEdxTrk->setDetail("trk_dedx_n_usedhits", n_usedhits);
       dEdxTrk->setDetail("trk_n_hits_innermost", n_hits_innermost);
