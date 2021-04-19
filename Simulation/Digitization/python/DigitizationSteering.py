@@ -19,6 +19,7 @@ from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
 from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
+from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
 
@@ -86,6 +87,8 @@ def DigitizationMainCfg(flags):
         acc.merge(PixelDigitizationCfg(flags))
     if flags.Detector.EnableSCT:
         acc.merge(SCT_DigitizationCfg(flags))
+    if flags.Detector.EnableITkStrip:
+        acc.merge(ITkStripDigitizationCfg(flags))
     if flags.Detector.EnableTRT:
         acc.merge(TRT_DigitizationCfg(flags))
 
