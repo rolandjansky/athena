@@ -6,6 +6,7 @@ from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
+from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
 # logger
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec' )
@@ -26,7 +27,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs):
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs)
+    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs, lrtInfo='')
 
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
@@ -36,3 +37,23 @@ def precisionCaloRecoSequence(DummyFlag, RoIs):
     return (precisionRecoSequence, sequenceOut)
 
 
+def precisionCaloRecoSequence_LRT(DummyFlag, RoIs):
+    log.info('DummyFlag_LRT = %s',str(DummyFlag))
+    log.info('RoIs_LRT = %s',RoIs)
+
+    egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
+                                          name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
+                                          InputTopoCollection= "caloclusters",
+                                          OutputTopoCollection=precisionCaloMenuDefs_LRT.precisionCaloClusters,
+                                          OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs_LRT.precisionCaloClusters,
+                                          doAdd = False )
+
+    from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
+    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,lrtInfo='_LRT')
+
+    algo = egammaTopoClusterCopier()
+    algo.InputTopoCollection = caloclusters
+    precisionRecoSequence += algo
+    sequenceOut = algo.OutputTopoCollection
+
+    return (precisionRecoSequence, sequenceOut)

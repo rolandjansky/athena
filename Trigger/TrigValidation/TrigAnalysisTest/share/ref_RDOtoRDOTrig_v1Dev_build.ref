@@ -1763,6 +1763,20 @@ HLT_e5_lhloose_L1EM3:
     2: 24
     3: 24
     4: 6
+HLT_e5_lhloose_lrtloose_L1EM3:
+  eventCount: 2
+  stepCounts:
+    0: 18
+    1: 8
+    2: 7
+    3: 7
+    4: 2
+  stepFeatures:
+    0: 60
+    1: 30
+    2: 10
+    3: 10
+    4: 2
 HLT_e5_lhloose_noringer_L1EM3:
   eventCount: 6
   stepCounts:
@@ -1791,6 +1805,20 @@ HLT_e5_lhmedium_L1EM3:
     2: 23
     3: 23
     4: 4
+HLT_e5_lhmedium_lrtmedium_L1EM3:
+  eventCount: 2
+  stepCounts:
+    0: 18
+    1: 8
+    2: 7
+    3: 7
+    4: 2
+  stepFeatures:
+    0: 58
+    1: 22
+    2: 9
+    3: 9
+    4: 2
 HLT_e5_lhmedium_noringer_L1EM3:
   eventCount: 4
   stepCounts:
@@ -1857,6 +1885,20 @@ HLT_e5_lhtight_gsf_L1EM3:
     2: 23
     3: 23
     4: 4
+HLT_e5_lhtight_lrttight_L1EM3:
+  eventCount: 2
+  stepCounts:
+    0: 18
+    1: 8
+    2: 7
+    3: 7
+    4: 2
+  stepFeatures:
+    0: 57
+    1: 21
+    2: 9
+    3: 9
+    4: 2
 HLT_e5_lhtight_nod0_L1EM3:
   eventCount: 4
   stepCounts:

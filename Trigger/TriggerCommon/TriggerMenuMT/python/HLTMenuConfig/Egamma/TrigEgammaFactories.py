@@ -26,7 +26,7 @@ from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperClust
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys, TrigEgammaKeys_LRT
 
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesInConeTool
@@ -48,6 +48,22 @@ tit.TrackParticleLocation = TrigEgammaKeys.TrigElectronTracksCollectionName
 tit.VertexLocation = ''
 tit.TracksInConeTool      = tpict
 
+
+"""Configuring the TrackParticlesInConeTool for LRT"""
+TrigTrackParticlesInConeTool_LRT =  ToolFactory(xAOD__TrackParticlesInConeTool, name = 'TrigTrackParticlesInConeTool_LRT')
+
+tpict_lrt = CfgMgr.xAOD__TrackParticlesInConeTool('TrigTrackParticlesInConeTool_LRT')
+tpict_lrt.TrackParticleLocation = TrigEgammaKeys_LRT.TrigElectronTracksCollectionName_LRT
+
+"""Configuring TrackIsolationTool Tool """
+TrigTrackIsolationTool_LRT = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigTrackIsolationTool_LRT')
+tit_lrt = CfgMgr.xAOD__TrackIsolationTool('TrigTrackIsolationTool_LRT')
+tit_lrt.TrackSelectionTool.maxZ0SinTheta = 3
+tit_lrt.TrackSelectionTool.minPt         = 1000
+tit_lrt.TrackSelectionTool.CutLevel      = "Loose"
+tit_lrt.TrackParticleLocation = TrigEgammaKeys_LRT.TrigElectronTracksCollectionName_LRT
+tit_lrt.VertexLocation = ''
+tit_lrt.TracksInConeTool	  = tpict_lrt
 
 
 """Configuring EMTrackMatchBuilder Tool """
@@ -110,6 +126,24 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                     ElIsoTypes            = [[isoPar.ptcone20]],
                                     ElCorTypes            = [[]],
                                     ElCorTypesExtra       = [[]],
+                                     )
+    return TrigElectronIsolationBuilder()
+
+def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
+    TrigElectronIsolationBuilder = AlgFactory(IsolationBuilder,
+                                    name                  = name,
+                                    doAdd = False,
+                                    ElectronCollectionContainerName = 'HLT_egamma_Electrons_LRT',
+                                    CaloCellIsolationTool = None,
+                                    CaloTopoIsolationTool = None,
+                                    PFlowIsolationTool    = None,
+                                    TrackIsolationTool    = TrigTrackIsolationTool_LRT,
+                                    FeIsoTypes            = [[]],
+                                    FeCorTypes            = [[]],
+                                    FeCorTypesExtra	  = [[]],
+                                    ElIsoTypes            = [[isoPar.ptcone20]],
+                                    ElCorTypes            = [[]],
+                                    ElCorTypesExtra	  = [[]],
                                      )
     return TrigElectronIsolationBuilder()
 
