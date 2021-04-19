@@ -1,5 +1,4 @@
 #include "../LArADC2MeVTool.h"
-#include "../LArAutoCorrTotalTool.h"
 //#include "LArRecUtils/LArCellFakeProbHV.h"
 //#include "LArRecUtils/LArHVGeometryTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
@@ -26,7 +25,6 @@
 
 
 DECLARE_COMPONENT( LArADC2MeVTool )
-DECLARE_COMPONENT( LArAutoCorrTotalTool )
 //DECLARE_COMPONENT( LArCellFakeProbHV )
 //DECLARE_COMPONENT( LArHVGeometryTool )
 DECLARE_COMPONENT( LArOFPeakRecoTool )
