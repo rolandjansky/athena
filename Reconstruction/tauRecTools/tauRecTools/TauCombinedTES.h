@@ -110,28 +110,28 @@ private:
   const std::array<std::string, EtaBinning> m_etaBinNames = {"0", "1", "2", "3", "4"}; //!
   
   /// Calibration graph: mean of bias/caloEt as a function of caloEt
-  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_caloRelBias; //!
+  std::array<std::array<std::unique_ptr<TGraph>, EtaBinning>, DecayModeBinning> m_caloRelBias; //!
 
   /// Maximum Et of m_caloRelBias
-  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_caloRelBiasMaxEt; //!
+  std::array<std::array<double, EtaBinning>, DecayModeBinning> m_caloRelBiasMaxEt; //!
 
   /// Calibration graph: resolution at Calo TES as a function of caloEt
-  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_caloRes; //!
+  std::array<std::array<std::unique_ptr<TGraph>, EtaBinning>, DecayModeBinning> m_caloRes; //!
 
   /// Maximum Et of m_caloRes
-  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_caloResMaxEt; //!
+  std::array<std::array<double, EtaBinning>, DecayModeBinning> m_caloResMaxEt; //!
 
   /// Calibration graph: mean of bias/panTauEt as a funtion of panTauEt
-  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_panTauRelBias; //!
+  std::array<std::array<std::unique_ptr<TGraph>, EtaBinning>, DecayModeBinning> m_panTauRelBias; //!
   
   /// Maximum Et of m_panTauRelBias
-  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_panTauRelBiasMaxEt; //!
+  std::array<std::array<double, EtaBinning>, DecayModeBinning> m_panTauRelBiasMaxEt; //!
 
   /// Calibration graph: resolution at PanTau as a function of panTauEt
-  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_panTauRes; //!
+  std::array<std::array<std::unique_ptr<TGraph>, EtaBinning>, DecayModeBinning> m_panTauRes; //!
   
   /// Maximum Et of m_panTauRes
-  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_panTauResMaxEt; //!
+  std::array<std::array<double, EtaBinning>, DecayModeBinning> m_panTauResMaxEt; //!
   
   /// Calibration histogram: correlation coefficient of calo TES and PanTau
   std::array<std::unique_ptr<TH1F>, DecayModeBinning> m_correlationHists; //!
