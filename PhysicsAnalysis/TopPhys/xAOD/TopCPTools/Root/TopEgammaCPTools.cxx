@@ -286,6 +286,11 @@ namespace top {
     m_electronEffSFRecoFile = electronSFMapFilePath("reco");
     // - Tight
     m_electronEffSFIDFile = electronSFMapFilePath("ID");
+    std::vector<std::string> inExpID;
+    if(m_config->electronIDSFFilePath() !="Default"){
+      m_config->setPrintEIDFileWarning(true);
+      inExpID.push_back(electronSFFilePath("EXPID", electronID, electronIsolation));
+    }
     m_electronEffSFTriggerFile = electronSFMapFilePath("trigger");
     m_electronEffTriggerFile = electronSFMapFilePath("trigger");
     std::vector<std::string> inPLViso;
@@ -330,8 +335,9 @@ namespace top {
     m_electronEffSFReco = setupElectronSFToolWithMap(elSFPrefix + "Reco", m_electronEffSFRecoFile, "Reconstruction", "",
                                                      "", "", dataType, "TOTAL", "", "");
     // ID SFs
-    m_electronEffSFID = setupElectronSFToolWithMap(elSFPrefix + "ID", m_electronEffSFIDFile, "", electronID, "", "",
+    if(m_config->electronIDSFFilePath() =="Default") m_electronEffSFID = setupElectronSFToolWithMap(elSFPrefix + "ID", m_electronEffSFIDFile, "", electronID, "", "",
                                                    dataType, "TOTAL", "", "");
+    else m_electronEffSFID = setupElectronSFTool(elSFPrefix + "ID", inExpID, dataType);
     m_electronEffSFIDLoose = setupElectronSFToolWithMap(elSFPrefix + "IDLoose", m_electronEffSFIDLooseFile, "",
                                                         electronIDLoose, "", "", dataType, "TOTAL", "", "");
     // Trigger SFs
@@ -382,11 +388,15 @@ namespace top {
                                                                 m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                 m_config->electronEfficiencySystematicModelEtBinning());
       // ID SFs
-      m_electronEffSFIDCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "ID", m_electronEffSFIDFile, "",
+      if(m_config->electronIDSFFilePath() =="Default") m_electronEffSFIDCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "ID", m_electronEffSFIDFile, "",
                                                               electronID, "", "", dataType,
                                                               m_config->electronEfficiencySystematicModel(),
                                                               m_config->electronEfficiencySystematicModelEtaBinning(),
                                                               m_config->electronEfficiencySystematicModelEtBinning());
+      else m_electronEffSFIDCorrModel = setupElectronSFTool(elSFPrefixCorrModel + "ID", inExpID, dataType,
+                    m_config->electronEfficiencySystematicModel(),
+                    m_config->electronEfficiencySystematicModelEtaBinning(),
+                    m_config->electronEfficiencySystematicModelEtBinning());
       m_electronEffSFIDLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IDLoose",
                                                                    m_electronEffSFIDLooseFile, "", electronIDLoose, "",
                                                                    "", dataType,
@@ -694,6 +704,8 @@ namespace top {
       }
       file_path += ".root";
       file_path = el_calib_path + file_path;
+    } else if (type == "EXPID"){
+      file_path = m_config->electronIDSFFilePath();
     } else {
       ATH_MSG_ERROR("Unknown electron SF type");
     }

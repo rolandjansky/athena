@@ -899,6 +899,13 @@ namespace top {
     inline virtual int fwdElectronBCIDCleaningMinRun() const {return m_fwdElectronBCIDCleaningMinRun;}
     inline virtual int fwdElectronBCIDCleaningMaxRun() const {return m_fwdElectronBCIDCleaningMaxRun;}
 
+    const std::string electronIDSFFilePath() const
+    {return m_electronIDSFFile_path;}
+    bool printEIDFileWarning() const
+    {return m_eid_path_warning;}
+    void setPrintEIDFileWarning(bool flag)
+    {m_eid_path_warning = flag;}
+
     // Photon configuration
     inline virtual void photonPtcut(const float pt) {
       if (!m_configFixed) {
@@ -2336,6 +2343,10 @@ namespace top {
     bool m_useEgammaLeakageCorrection;
     bool m_useEgammaPileupCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
+
+    // experimental electronID map path
+    std::string m_electronIDSFFile_path = "Default";
+    bool m_eid_path_warning = false;
 
     //Fwd electron configuration
     float m_fwdElectronPtcut;
