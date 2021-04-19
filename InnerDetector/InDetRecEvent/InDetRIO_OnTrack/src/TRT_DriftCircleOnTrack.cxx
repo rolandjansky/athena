@@ -45,7 +45,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_rio.setElement(RIO);
 
   const Trk::Surface& detElSurf= m_detEl->surface(RIO->identify());
-  if (detElSurf.type() == Trk::Surface::Line) {
+  if (detElSurf.type() == Trk::SurfaceType::Line) {
 
     const Trk::StraightLineSurface& slsf =
       static_cast<const Trk::StraightLineSurface&>(detElSurf);

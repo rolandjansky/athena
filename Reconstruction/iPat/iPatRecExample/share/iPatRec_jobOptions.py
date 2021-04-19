@@ -70,12 +70,8 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
 
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
     if use_tracking_geometry_cond_alg:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-        condSeq += ConfiguredTrackingGeometryCondAlg()
-      iPatMaterialAllocator.TrackingGeometryReadKey='AtlasTrackingGeometry'
+      cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+      iPatMaterialAllocator.TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey
 
     ToolSvc += iPatMaterialAllocator
 

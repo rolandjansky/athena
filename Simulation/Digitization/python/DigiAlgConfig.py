@@ -43,7 +43,10 @@ def getStandardTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "MergeMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -60,7 +63,10 @@ def getStandardSignalOnlyTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
         else:
             PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -85,7 +91,10 @@ def getStandardInTimeOnlyTruthPileUpTools():
                 PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()

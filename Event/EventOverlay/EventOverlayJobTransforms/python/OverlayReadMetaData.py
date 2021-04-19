@@ -59,7 +59,8 @@ def checkTileCalibrationHitFormat(inputlist):
 
 def listOptionalContainers(inputlist):
     """Generate a list of optional containers"""
-    supported = ['TrackRecordCollection', 'CaloCalibrationHitContainer', 'HijingEventParams']
+    supported = ['TrackRecordCollection', 'CaloCalibrationHitContainer', 'HijingEventParams',
+                 "xAOD::TruthParticleContainer", "xAOD::JetContainer"]
 
     containers = {}
     for entry in inputlist:
@@ -363,7 +364,7 @@ def signalMetaDataCheck(metadatadict):
     # Check for optional containers presence
     if not skipCheck('OptionalContainers'):
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        overlayFlags.optionalContainerMap.set_Value_and_Lock(metadatadict['OptionalContainers'])
+        overlayFlags.optionalContainerMap = metadatadict['OptionalContainers']
 
     # Check for legacy EventInfo presence
     if not skipCheck('LegacyEventInfo'):
@@ -441,6 +442,20 @@ def pileupMetaDataCheck(sigsimdict,pileupsimdict):
             raise AssertionError("Some simulated sub-detectors from signal sample are missing in the background samples.")
         else:
             logOverlayReadMetadata.debug("All sub-detectors simulated in the signal sample were also simulated in the %s background sample.", longpileuptype)
+
+    # Check for optional containers presence
+    if not skipCheck('OptionalContainers'):
+        # Combine the two dictionaries
+        optionalContainers = sigsimdict['OptionalContainers']
+        for key, value in pileupsimdict['OptionalContainers'].items():
+            if  key not in ['TrackRecordCollection']:
+                if key in optionalContainers:
+                    optionalContainers[key] |= value #Here the expectation is that the values are sets
+                else:
+                    optionalContainers[key] = value
+
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        overlayFlags.optionalContainerMap.set_Value_and_Lock(optionalContainers)
 
     return result
 

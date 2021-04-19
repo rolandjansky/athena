@@ -1447,7 +1447,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           // don't repeat if identical to last update && input parameters on the layer
           bool collect = true;
           if (nextLayer == cache.m_lastMaterialLayer &&
-              nextLayer->surfaceRepresentation().type() != Trk::Surface::Cylinder) {
+              nextLayer->surfaceRepresentation().type() != Trk::SurfaceType::Cylinder) {
             ATH_MSG_DEBUG(
               "  [!] This layer is identical to the one with last material update, return layer "
               "without repeating the update");
@@ -3197,7 +3197,8 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         if (!bcheck || sf.isOnSurface(onNextLayer->position(), bcheck, m_tolerance, m_tolerance)) {
           if (sf.type() != onNextLayer->associatedSurface().type()) {
             ATH_MSG_DEBUG("mismatch in destination surface type:"
-                          << sf.type() << "," << onNextLayer->associatedSurface().type()
+                          << static_cast<int>(sf.type()) 
+                          << "," << static_cast<int>(onNextLayer->associatedSurface().type())
                           << ":distance to the destination surface:" << currentDistance);
             ManagedTrackParmPtr cParms(ManagedTrackParmPtr::recapture(
               onNextLayer,
@@ -5501,7 +5502,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                      m_includeMaterialEffects && nextLayer->isOnLayer(nextPar->position());
         // identical to last material layer ?
         if (matUp && nextLayer == cache.m_lastMaterialLayer &&
-            nextLayer->surfaceRepresentation().type() != Trk::Surface::Cylinder) {
+            nextLayer->surfaceRepresentation().type() != Trk::SurfaceType::Cylinder) {
           matUp = false;
         }
 

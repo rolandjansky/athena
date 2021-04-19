@@ -475,6 +475,10 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
   else:
     MuFastDataPreparator.MMDataPreparator   = ""
+
+  MuFastDataPreparator.RpcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+  MuFastDataPreparator.TgcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+  MuFastDataPreparator.ClusterRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 

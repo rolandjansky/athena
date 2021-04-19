@@ -17,7 +17,7 @@ Trk::DigitizationModule::DigitizationModule(std::shared_ptr<const Segmentation> 
    m_readoutDirection(readoutDirection),
    m_lorentzAngle(lorentzAngle),
    m_tanLorentzAngle(tan(lorentzAngle)),
-   m_segmentation(moduleSegmentation),
+   m_segmentation(std::move(moduleSegmentation)),
    m_boundarySurfaces(),           
    m_segmentationSurfacesX(),
    m_segmentationSurfacesY()

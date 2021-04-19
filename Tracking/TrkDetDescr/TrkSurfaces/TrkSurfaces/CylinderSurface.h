@@ -52,10 +52,26 @@ class CylinderSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cylinder;
+  static constexpr SurfaceType staticType = SurfaceType::Cylinder;
 
   /**Default Constructor*/
   CylinderSurface();
+
+  /**Copy constructor */
+  CylinderSurface(const CylinderSurface& csf);
+
+  /**Assignment operator*/
+  CylinderSurface& operator=(const CylinderSurface& csf);
+
+  /**Move constructor */
+  CylinderSurface(CylinderSurface&& csf) noexcept = default;
+
+  /**Move Assignment operator*/
+  CylinderSurface& operator=(CylinderSurface&& csf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~CylinderSurface() = default;
+
 
   /**Constructor from EigenTransform, radius and halflength*/
   CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
@@ -92,17 +108,8 @@ public:
       - speed optimized fron concentric volumes */
   CylinderSurface(CylinderBounds* cbounds);
 
-  /**Copy constructor */
-  CylinderSurface(const CylinderSurface& csf);
-
-  /**Copy constructor with shift */
+   /**Copy constructor with shift */
   CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~CylinderSurface();
-
-  /**Assignment operator*/
-  CylinderSurface& operator=(const CylinderSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

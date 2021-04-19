@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,20 +51,26 @@ public:
   /**Default Constructor, needed for persistency*/
   DiamondBounds();
 
-  /**Constructor for symmetric Diamond*/
-  DiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
-
   /**Copy constructor*/
   DiamondBounds(const DiamondBounds& diabo) = default;
+
+  /**Assignment operator*/
+  DiamondBounds& operator=(const DiamondBounds& sbo) = default;
+
+  /**Copy constructor*/
+  DiamondBounds(DiamondBounds&& diabo) noexcept = default;
+
+  /**Assignment operator*/
+  DiamondBounds& operator=(DiamondBounds&& sbo) noexcept = default;
 
   /**Destructor*/
   virtual ~DiamondBounds() = default;
 
+  /**Constructor for symmetric Diamond*/
+  DiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
+
   /**Virtual constructor*/
   DiamondBounds* clone() const override;
-
-  /**Assignment operator*/
-  DiamondBounds& operator=(const DiamondBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& diabo) const override;

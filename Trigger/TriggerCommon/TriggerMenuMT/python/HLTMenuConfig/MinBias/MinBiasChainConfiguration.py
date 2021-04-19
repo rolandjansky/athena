@@ -40,21 +40,21 @@ class MinBiasChainConfig(ChainConfigurationBase):
     def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
         steps = []
-        if "_mbts" in self.chainName:
+        if "mbts" == self.chainPart['recoAlg'][0]:
             steps.append(self.getMinBiasMbtsStep())
 
-        if "_sp" in self.chainName:
+        if self.chainPart['recoAlg'][0] in ['sp', 'sptrk', 'hmt']:
             steps.append(self.getMinBiasSpStep())
 
-        if "_sptrk" in self.chainName or "hmt" in self.chainName:
-            if "_pusup" in self.chainName:
+        if self.chainPart['recoAlg'][0] in ['sptrk', 'hmt']:
+            if self.chainPart['pileupInfo']:
                 steps.append(self.getMinBiasZFindStep())
             else:
                 steps.append(self.getMinBiasEmptyZFindStep())
 
             steps.append(self.getMinBiasTrkStep())
 
-        if "_alfaperf" in self.chainName:
+        if "alfaperf" == self.chainPart["recoAlg"][0]:
             steps.append(self.getALFAPerfStep())
 
         return self.buildChain(steps)

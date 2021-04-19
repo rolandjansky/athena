@@ -18,10 +18,13 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+//
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
+//
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParametersBase/ParametersBase.h"
@@ -78,25 +81,6 @@ class Surface
   friend class ITrackingVolumeHelper;
 
 public:
-  /** @enum SurfaceType
-
-      This enumerator simplifies the persistency & calculations,
-      by saving a dynamic_cast to happen.
-
-      Other is reserved for the GeometrySurfaces implementation.
-
-    */
-  enum SurfaceType
-  {
-    Cone = 0,
-    Cylinder = 1,
-    Disc = 2,
-    Perigee = 3,
-    Plane = 4,
-    Line = 5,
-    Curvilinear = 6,
-    Other = 7
-  };
 
   /*
    * struct holding the transform, center, normal,
@@ -145,13 +129,25 @@ public:
   using NeutralTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
 
   /**Default Constructor
-   - needed for inherited classes */
+   for inheriting classes */
   Surface();
 
   /**Copy constructor - it resets the associated
    detector element to 0 and the identifier to invalid,
    as the copy cannot be owned by the same detector element as the original */
   Surface(const Surface& sf);
+
+  /**Assignment operator- it sets the associated
+   detector element to 0 and the associated identifier to invalid,
+   as the copy cannot be owned by the same detector element as the original */
+  Surface& operator=(const Surface& sf);
+
+  //Move operators for inheriting classes
+  Surface(Surface&& sf) noexcept = default ;
+  Surface& operator=(Surface&& sf) noexcept = default;
+  
+  /**Virtual Destructor*/
+  virtual ~Surface();
 
   /**Copy constructor with shift */
   Surface(const Surface& sf, const Amg::Transform3D& transf);
@@ -167,14 +163,6 @@ public:
 
   /**Constructor form TrkDetElement and Identifier*/
   Surface(const TrkDetElementBase& detelement, const Identifier& id);
-
-  /**Virtual Destructor*/
-  virtual ~Surface();
-
-  /**Assignment operator- it sets the associated
-   detector element to 0 and the associated identifier to invalid,
-   as the copy cannot be owned by the same detector element as the original */
-  Surface& operator=(const Surface& sf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const = 0;
@@ -468,15 +456,13 @@ public:
 protected:
   friend class ::SurfaceCnv_p1;
 
-  /** Private members are in principle implemented as pointers to
-   * objects for easy checks if they are already declared or not */
-
-  //!< Pointer to the Transforms struct*/
+  //!< Owning Pointer to the Transforms struct*/
   std::unique_ptr<Transforms> m_transforms = nullptr;
 
-  /** Pointers to the TrkDetElementBase  (not owning)*/
+  /** Not owning Pointer to the TrkDetElementBase*/
   const TrkDetElementBase* m_associatedDetElement = nullptr;
   Identifier m_associatedDetElementId;
+ 
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
    (not owning)

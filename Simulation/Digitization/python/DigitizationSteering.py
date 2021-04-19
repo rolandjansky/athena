@@ -21,6 +21,7 @@ from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
+from Digitization.PileUpUtils import pileupInputCollections
 
 from AthenaCommon.Logging import logging
 logDigiSteering = logging.getLogger('DigitizationSteering')
@@ -67,12 +68,17 @@ def DigitizationMainCfg(flags):
         from MCTruthSimAlgs.MCTruthSimAlgsConfigNew import (
             SignalOnlyMcEventCollCfg,
             MergeTruthJetsCfg,
+            MergeTruthParticlesCfg,
             MergeMuonEntryLayerCfg,
             MergeCalibHitsCfg,
         )
 
         acc.merge(SignalOnlyMcEventCollCfg(flags))
-        acc.merge(MergeTruthJetsCfg(flags))
+        puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
+        if "AntiKt4TruthJets" in puCollections:
+            acc.merge(MergeTruthJetsCfg(flags))
+        if "TruthPileupParticles" in puCollections:
+            acc.merge(MergeTruthParticlesCfg(flags))
         acc.merge(MergeMuonEntryLayerCfg(flags))
         acc.merge(MergeCalibHitsCfg(flags))
 

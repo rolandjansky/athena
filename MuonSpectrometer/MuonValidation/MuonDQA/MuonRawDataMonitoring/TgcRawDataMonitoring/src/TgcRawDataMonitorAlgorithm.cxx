@@ -1198,7 +1198,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
         return nullptr;
     }
     // We want disc
-    if (param->surfaceType() != Trk::Surface::Disc) {
+    if (param->surfaceType() != Trk::SurfaceType::Disc) {
         return nullptr;
     }
     return param;
@@ -1227,7 +1227,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
         return nullptr;
     }
     //It has to be cylinder
-    if (param->surfaceType() != Trk::Surface::Cylinder) {
+    if (param->surfaceType() != Trk::SurfaceType::Cylinder) {
         return nullptr;
     }
     return param;

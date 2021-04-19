@@ -17,18 +17,18 @@
 
 Trk::TrapezoidSegmentation::TrapezoidSegmentation(std::shared_ptr<const Trk::TrapezoidBounds> mBounds,
                                                       size_t numCellsX, size_t numCellsY) :
-   m_activeBounds(mBounds),
+   m_activeBounds(std::move(mBounds)),
    m_binUtility(nullptr),
    m_binsX(numCellsX),
    m_binsY(numCellsY)
 {
     // first the x dimension if needed
     if (numCellsX > 1) {
-         m_binUtility = new Trk::BinUtility(numCellsX, -0.5*(mBounds->minHalflengthX()+mBounds->maxHalflengthX()), 0.5*(mBounds->minHalflengthX()+mBounds->maxHalflengthX()), Trk::open, Trk::binX);
+         m_binUtility = new Trk::BinUtility(numCellsX, -0.5*(m_activeBounds->minHalflengthX()+m_activeBounds->maxHalflengthX()), 0.5*(m_activeBounds->minHalflengthX()+m_activeBounds->maxHalflengthX()), Trk::open, Trk::binX);
     }
     // use y dimension if needed
     if (numCellsY > 1){
-        Trk::BinUtility yBinUtility(numCellsY, -mBounds->halflengthY(), mBounds->halflengthY(), Trk::open, Trk::binY);
+        Trk::BinUtility yBinUtility(numCellsY, -m_activeBounds->halflengthY(), m_activeBounds->halflengthY(), Trk::open, Trk::binY);
         if (m_binUtility)
             (*m_binUtility) += yBinUtility;
         else 

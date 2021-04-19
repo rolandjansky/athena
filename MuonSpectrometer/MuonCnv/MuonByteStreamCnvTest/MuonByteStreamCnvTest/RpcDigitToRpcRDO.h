@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCDIGITTORPCRDO_H
@@ -9,7 +9,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
 
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
@@ -82,7 +81,6 @@ private:
 
   BooleanProperty m_data_detail{this, "DataDetail", false, "flag to printout detailed INFO on processed data"};
 
-  ServiceHandle<IRPCcablingSvc> m_cabling{this, "MuonRPC_CablingSvc", "MuonRPC_CablingSvc", ""};
   SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   SG::WriteHandleKey<RpcPadContainer> m_padContainerKey{this,"OutputObjectName","RPCPAD","WriteHandleKey for Output RpcPadContainer"};

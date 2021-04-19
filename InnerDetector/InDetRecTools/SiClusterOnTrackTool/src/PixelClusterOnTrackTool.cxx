@@ -724,7 +724,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING(
       "Parameters are not at a plane ! Aborting cluster correction... ");
@@ -855,7 +855,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING("Parameters are not at a plane surface ! Aborting cluster "
                     "correction... ");

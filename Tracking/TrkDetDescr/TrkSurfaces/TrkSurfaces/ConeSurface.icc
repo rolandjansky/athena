@@ -5,7 +5,7 @@
 namespace Trk {
 
 /** Return the surface type */
-inline Surface::SurfaceType
+inline SurfaceType
 ConeSurface::type() const
 {
   return ConeSurface::staticType;

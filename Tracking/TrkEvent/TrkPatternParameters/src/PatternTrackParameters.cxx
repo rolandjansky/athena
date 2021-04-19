@@ -587,7 +587,7 @@ Trk::ParametersType Trk::PatternTrackParameters::type() const {
   return Trk::Pattern;
 }
 
-int Trk::PatternTrackParameters::surfaceType() const {
+Trk::SurfaceType Trk::PatternTrackParameters::surfaceType() const {
   return m_surface->type();
 }
 

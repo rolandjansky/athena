@@ -49,6 +49,12 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
   declareProperty("inputModelFileName", m_modelFileName="", "The input file name that holds the model" );
   // QuantileTransformer file name ( required for preprocessing ). Managed in the ElectronDNNCalculator.
   declareProperty("quantileFileName", m_quantileFileName="", "The input file name that holds the QuantileTransformer");
+  // Model used is a multiclass or a binary model
+  declareProperty("multiClass", m_multiClass, "Whether the given model is multiclass or not");
+  // If multiclass, how to treat the chargeflip output node when combining into one discriminant
+  declareProperty("cfSignal", m_cfSignal, "Whether to include the CF fraction in the numerator or denominator");
+  // If multiclass, fractions with which the different output nodes get multiplied before combining them
+  declareProperty("Fractions", m_fractions, "Fractions to combine the single outputs into one discriminant");
   // Variable list
   declareProperty("Variables", m_variables, "Variables used in the MVA tool");
   // The mva cut values
@@ -142,8 +148,14 @@ StatusCode AsgElectronSelectorTool::initialize()
       m_variables.push_back( substr );
     }
 
+    // Model is multiclass or not, default is binary model
+    m_multiClass = env.GetValue("multiClass", false);
     // Create an instance of the class calculating the DNN score
-    m_mvaTool = std::make_unique<ElectronDNNCalculator>(this, filename.c_str(), qfilename.c_str(), m_variables);
+    m_mvaTool = std::make_unique<ElectronDNNCalculator>(this, filename.c_str(), qfilename.c_str(), m_variables, m_multiClass);
+    // Include cf node in numerator or denominator when combining different outputs
+    m_cfSignal = env.GetValue("cfSignal", true);
+    // Fractions to multiply different outputs with before combining
+    m_fractions = AsgConfigHelper::HelperDouble("Fractions", env);
 
     // cut on MVA discriminant
     m_cutSelector = AsgConfigHelper::HelperDouble("CutSelector", env);
@@ -169,6 +181,16 @@ StatusCode AsgElectronSelectorTool::initialize()
                     " input size " << m_cutSelector.size());
       return StatusCode::FAILURE;
     }
+
+    if (m_multiClass){
+      // Fractions are only needed if multiclass model is used
+      // There are five fractions for the combination, the signal fraction is either one (cfSignal == false) or 1 - cf fraction (cfSignal == true)
+      if (m_fractions.size() != numberOfExpectedEtaBins * 5){
+        ATH_MSG_ERROR("Configuration issue : multiclass but not the right amount of fractions." << m_fractions.size());
+        return StatusCode::FAILURE;
+      }
+    }
+
 
     if (!m_cutSCT.empty()){
       if (m_cutSCT.size() != numberOfExpectedEtaBins){
@@ -631,10 +653,19 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   vars.nPixHitsPlusDeadSensors = nPixHitsPlusDeadSensors;
   vars.nSCTHitsPlusDeadSensors = nSCTHitsPlusDeadSensors;
 
-  double mvaScore = m_mvaTool->calculate(vars);
+  Eigen::Matrix<float, -1, 1> mvaScores = m_mvaTool->calculate(vars);
 
-  return transformMLOutput(mvaScore);
+  double discriminant = 0;
+  // If a binary model is used, vector will have one entry, if multiclass is used vector will have six entries
+  if (!m_multiClass){
+    discriminant = transformMLOutput(mvaScores(0, 0));
+  }
+  else{
+    // combine the six output nodes into one discriminant to cut on, any necessary transformation is applied within combineOutputs()
+    discriminant = combineOutputs(mvaScores, eta);
+  }
 
+  return discriminant;
 }
 
 //=============================================================================
@@ -749,6 +780,32 @@ double AsgElectronSelectorTool::transformMLOutput( double score ) const
   return score;
 }
 
+double AsgElectronSelectorTool::combineOutputs( const Eigen::Matrix<float, -1, 1>& mvaScores, double eta ) const{
+  unsigned int etaBin = getDiscEtaBin(eta);
+  double disc = 0;
+
+  if (m_cfSignal){
+    // Put cf node into numerator
+    disc = (mvaScores(0, 0) * (1 - m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores(1, 0) * m_fractions.at(5 * etaBin + 0))) /
+           ((mvaScores(2, 0) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores(3, 0) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores(4, 0) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores(5, 0) * m_fractions.at(5 * etaBin + 4)));
+  }
+  else{
+    // Put cf node in denominator
+    disc = mvaScores(0, 0) /
+           ((mvaScores(1, 0) * m_fractions.at(5 * etaBin + 0)) +
+            (mvaScores(2, 0) * m_fractions.at(5 * etaBin + 1)) +
+            (mvaScores(3, 0) * m_fractions.at(5 * etaBin + 2)) +
+            (mvaScores(4, 0) * m_fractions.at(5 * etaBin + 3)) +
+            (mvaScores(5, 0) * m_fractions.at(5 * etaBin + 4)));
+  }
+
+  // Log transform to have values in reasonable range
+  return std::log(disc);
+}
 
 // Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta
 unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) const

@@ -94,7 +94,7 @@ namespace {
     while ((firstidpar == nullptr) && parit != track.trackParameters()->end()) {
       if (
         ((**parit).covariance() != nullptr) &&
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         firstidpar = *parit;
       }
@@ -107,7 +107,7 @@ namespace {
       parit--;
       if (
         ((**parit).covariance() != nullptr) && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         lastidpar = *parit;
       }
@@ -632,7 +632,7 @@ namespace Trk {
       const Surface & associatedSurface = tmppar->associatedSurface();
       std::unique_ptr<Surface> muonsurf = nullptr;
       
-      if (associatedSurface.type() == Trk::Surface::Cylinder) {
+      if (associatedSurface.type() == Trk::SurfaceType::Cylinder) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder) {
           const CylinderBounds *cylbounds = static_cast <const CylinderBounds * >(&associatedSurface.bounds());
           std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(associatedSurface.transform());
@@ -640,7 +640,7 @@ namespace Trk {
           double hlength = cylbounds->halflengthZ();
           muonsurf = std::make_unique<CylinderSurface>(trans.release(), radius + 1, hlength);
         }
-      } else if (associatedSurface.type() == Trk::Surface::Disc) {
+      } else if (associatedSurface.type() == Trk::SurfaceType::Disc) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Disc) {
           double newz = (
             associatedSurface.center().z() > 0 ? 
@@ -993,12 +993,12 @@ namespace Trk {
       double dloc2 = idscatpar->parameters()[Trk::loc2] - scat2->parameters()[Trk::loc2];
       const Trk::CylinderSurface * cylsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder) 
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder) 
         cylsurf = static_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
         
       const Trk::DiscSurface * discsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder)
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder)
         discsurf = static_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
 
       if (cylsurf != nullptr) {
@@ -1147,7 +1147,7 @@ namespace Trk {
     
     if (
       (pull1 > 5 || pull2 > 5) &&
-      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::Surface::Line)
+      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::SurfaceType::Line)
     ) {
       return nullptr;
     }
@@ -1192,7 +1192,7 @@ namespace Trk {
 
       if (
         itStates2 == endState2 - 1 && 
-        tpar->associatedSurface().type() == Trk::Surface::Line && 
+        tpar->associatedSurface().type() == Trk::SurfaceType::Line && 
         tpar->position().perp() > 9000 && 
         std::abs(tpar->position().z()) < 13000
       ) {
@@ -1625,7 +1625,7 @@ namespace Trk {
 
       bool isStraightLine = 
         (*itStates2)->measurementOnTrack() != nullptr ? 
-        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::Surface::Line : 
+        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::SurfaceType::Line : 
         false;
 
       if (
@@ -2246,12 +2246,12 @@ namespace Trk {
       const RIO_OnTrack *rot = nullptr;
       const PlaneSurface *plsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Plane)
+      if (prdsurf.type() == Trk::SurfaceType::Plane)
         plsurf = static_cast < const PlaneSurface *>(&prdsurf);
 
       const StraightLineSurface *slsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Line)
+      if (prdsurf.type() == Trk::SurfaceType::Line)
         slsurf = static_cast < const StraightLineSurface *>(&prdsurf);
 
       if ((slsurf == nullptr) && (plsurf == nullptr)) {
@@ -2435,7 +2435,7 @@ namespace Trk {
       
       const RIO_OnTrack *rot = nullptr;
       
-      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::Surface::Line) {
+      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::SurfaceType::Line) {
         rot = m_broadROTcreator->correct(*prd, *hitparam);
       } else {
         rot = m_ROTcreator->correct(*prd, *trackparForCorrect);
@@ -2939,12 +2939,12 @@ namespace Trk {
           }
           
           const CylinderLayer *cyllay = nullptr;
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
             cyllay = static_cast<const CylinderLayer *>((*layerIter));
             
           const DiscLayer *disclay = nullptr;
           
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Disc)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
             disclay = static_cast<const DiscLayer *>((*layerIter));
             
           if (disclay != nullptr) {
@@ -2977,12 +2977,12 @@ namespace Trk {
       
       const CylinderSurface *cylsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cylsurf = static_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
           
       const DiscSurface *discsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         discsurf = static_cast<const DiscSurface *>(&layer->surfaceRepresentation());
 
       if (discsurf != nullptr) {
@@ -3116,19 +3116,19 @@ namespace Trk {
       const Layer * two
     ) const {
       const CylinderSurface *cyl1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl1 = static_cast<const CylinderSurface *>(&one->surfaceRepresentation());
           
       const DiscSurface *disc1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc1 = static_cast<const DiscSurface *>(&one->surfaceRepresentation());
           
       const CylinderSurface *cyl2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl2 = static_cast<const CylinderSurface *>(&two->surfaceRepresentation());
           
       const DiscSurface *disc2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
 
       if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
@@ -4136,12 +4136,12 @@ namespace Trk {
           if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Cylinder)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Cylinder)
               cylcalosurf = static_cast<const CylinderSurface *>(&tmppar->associatedSurface());
             
             const DiscSurface *disccalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Disc)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Disc)
               disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             
             if (cylcalosurf != nullptr) {
@@ -4651,7 +4651,7 @@ namespace Trk {
           addlayer = true;
         }
 
-        if (layerpar->associatedSurface().type() == Trk::Surface::Cylinder) {
+        if (layerpar->associatedSurface().type() == Trk::SurfaceType::Cylinder) {
           double cylinderradius = layerpar->associatedSurface().bounds().r();
           double trackimpact = std::abs(-refpar->position().x() * sinphi + refpar->position().y() * cosphi);
           
@@ -4717,7 +4717,7 @@ namespace Trk {
   ) const {
     const PerigeeSurface *persurf = nullptr;
     
-    if (param.associatedSurface().type() == Trk::Surface::Perigee)
+    if (param.associatedSurface().type() == Trk::SurfaceType::Perigee)
       persurf = static_cast<const PerigeeSurface *>(&param.associatedSurface());
 
     if ((persurf != nullptr) && (!cache.m_acceleration || persurf->center().perp() > 5)) {
@@ -5975,7 +5975,7 @@ namespace Trk {
       if (meff != nullptr) {
         const PlaneSurface *plsurf = nullptr;
         
-        if (thisstate->surface()->type() == Trk::Surface::Plane)
+        if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
           plsurf = static_cast < const PlaneSurface *>(thisstate->surface());
         if (meff->deltaE() == 0 || ((trajectory.prefit() == 0) && (plsurf != nullptr))) {
           weightchanged = true;
@@ -6079,7 +6079,7 @@ namespace Trk {
             
             const PlaneSurface *plsurf = nullptr;
             
-            if (thisstate->surface()->type() == Trk::Surface::Plane)
+            if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
               plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
               
             if (thisstate->materialEffects()->deltaE() == 0 || (plsurf != nullptr)) {
@@ -7027,7 +7027,7 @@ namespace Trk {
         double startfactor = startlayer->layerMaterialProperties()->alongPostFactor();
         const Surface & discsurf = startlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           startfactor = startlayer->layerMaterialProperties()->oppositePostFactor();
         }
         if (startfactor > 0.5) {
@@ -7051,7 +7051,7 @@ namespace Trk {
         double endfactor = endlayer->layerMaterialProperties()->alongPreFactor();
         const Surface & discsurf = endlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           endfactor = endlayer->layerMaterialProperties()->oppositePreFactor();
         }
         
@@ -8268,11 +8268,11 @@ __attribute__ ((flatten))
 
     const AmgVector(5) & vec = tmpprevpar->parameters();
 
-    bool cylsurf = surf->type() == Trk::Surface::Cylinder;
-    bool discsurf = surf->type() == Trk::Surface::Disc;
+    bool cylsurf = surf->type() == Trk::SurfaceType::Cylinder;
+    bool discsurf = surf->type() == Trk::SurfaceType::Disc;
     const Surface & previousSurface = tmpprevpar->associatedSurface();
-    bool thiscylsurf = previousSurface.type() == Trk::Surface::Cylinder;
-    bool thisdiscsurf = previousSurface.type() == Trk::Surface::Disc;
+    bool thiscylsurf = previousSurface.type() == Trk::SurfaceType::Cylinder;
+    bool thisdiscsurf = previousSurface.type() == Trk::SurfaceType::Disc;
 
     for (int i = 0; i < 5; i++) {
       AmgVector(5) vecpluseps = vec, vecminuseps = vec;
