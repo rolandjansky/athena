@@ -161,7 +161,7 @@ StatusCode ExKtbbAugmentation::addBranches() const{
   for (const auto jet : *jets) {
 
     std::vector<const xAOD::TruthParticle *> jetlabelpartsb;
-    std::vector<const xAOD::TruthParticle *> jetlabelpartsc;
+    std::vector<const xAOD::TruthParticle *> jetlabelpartsc;    
 
     auto constVector = jet->constituentLinks();
     for (auto constituent : constVector)
@@ -184,21 +184,22 @@ StatusCode ExKtbbAugmentation::addBranches() const{
 	  return StatusCode::FAILURE;
         } else {
           // Add Truth hadron labeling to jets
-          const auto& b_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostBHadronsFinal");
-          const auto& c_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostCHadronsFinal");
-          for (const auto &b_el : b_links)
-          {
-            const auto *bhadron = dynamic_cast<const xAOD::TruthParticle *>(*b_el);
-            if (bhadron->p4().DeltaR(subjet->p4()) < 0.3)
-              jetlabelpartsb.push_back(bhadron);
+          if(m_isMC){
+            const auto& b_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostBHadronsFinal");
+            const auto& c_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostCHadronsFinal");
+            for (const auto &b_el : b_links)
+            {
+              const auto *bhadron = dynamic_cast<const xAOD::TruthParticle *>(*b_el);
+              if (bhadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsb.push_back(bhadron);
+            }
+            for (const auto &c_el : c_links)
+            {
+              const auto *chadron = dynamic_cast<const xAOD::TruthParticle *>(*c_el);
+              if (chadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsc.push_back(chadron);
+            }
           }
-          for (const auto &c_el : c_links)
-          {
-            const auto *chadron = dynamic_cast<const xAOD::TruthParticle *>(*c_el);
-            if (chadron->p4().DeltaR(subjet->p4()) < 0.3)
-              jetlabelpartsc.push_back(chadron);
-          }
-
           // For track sd0      
 	  auto constVector = subjet->getConstituents();
 	  std::vector<double> sd0;
@@ -237,18 +238,19 @@ StatusCode ExKtbbAugmentation::addBranches() const{
         }
       }
     }
+    if(m_isMC){
+      using ParticleJetTools::childrenRemoved;
+      childrenRemoved(jetlabelpartsb, jetlabelpartsb);
+      childrenRemoved(jetlabelpartsb, jetlabelpartsc);
+      childrenRemoved(jetlabelpartsc, jetlabelpartsc);    
+      int ghostBTotalCount = jetlabelpartsb.size();
+      int ghostCTotalCount = jetlabelpartsc.size();
 
-    using ParticleJetTools::childrenRemoved;
-    childrenRemoved(jetlabelpartsb, jetlabelpartsb);
-    childrenRemoved(jetlabelpartsb, jetlabelpartsc);
-    childrenRemoved(jetlabelpartsc, jetlabelpartsc);    
-    int ghostBTotalCount = jetlabelpartsb.size();
-    int ghostCTotalCount = jetlabelpartsc.size();
+      jet_dexter_ghostBhadronCount(*jet) = ghostBTotalCount;
+      jet_dexter_ghostChadronCount(*jet) = ghostCTotalCount;
 
-    jet_dexter_ghostBhadronCount(*jet) = ghostBTotalCount;
-    jet_dexter_ghostChadronCount(*jet) = ghostCTotalCount;
-
-    jet_dexter_TruthLabel(*jet) = getDeXTerLabel(ghostBTotalCount, ghostCTotalCount);
+      jet_dexter_TruthLabel(*jet) = getDeXTerLabel(ghostBTotalCount, ghostCTotalCount);
+    }
 
     ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");
 
