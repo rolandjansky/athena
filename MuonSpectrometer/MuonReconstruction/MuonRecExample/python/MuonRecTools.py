@@ -318,7 +318,7 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
 
     if TrackingCommon.use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
         cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
+        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
 
     return Trk__GlobalChi2Fitter(name,**kwargs)
 

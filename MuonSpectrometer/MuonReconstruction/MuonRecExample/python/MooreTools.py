@@ -34,7 +34,7 @@ from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+from InDetRecExample import TrackingCommon
 #==============================================================
 
 # call  setDefaults to update flags
@@ -528,14 +528,11 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
         self.applyUserDefaults(kwargs,name)
         super(MuonTrackExtrapolationTool,self).__init__(name,**kwargs)
 
-if use_tracking_geometry_cond_alg:
-  from AthenaCommon.AlgSequence import AthSequencer
-  condSeq = AthSequencer("AthCondSeq")
-  if not getattr (condSeq, 'AtlasTrackingGeometryCondAlg', None):
-    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-    condSeq += ConfiguredTrackingGeometryCondAlg()
-  MuonTrackExtrapolationTool.setDefaultProperties(TrackingGeometryReadKey='AtlasTrackingGeometry')
-MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
+if TrackingCommon.use_tracking_geometry_cond_alg:
+  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+  MuonTrackExtrapolationTool.setDefaultProperties(TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
+else:
+  MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
 if beamFlags.beamType() == 'cosmics':
     MuonTrackExtrapolationTool.setDefaultProperties( Cosmics = True )
 
