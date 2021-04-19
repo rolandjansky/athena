@@ -81,10 +81,14 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.Truth_on():
         StreamRDO_ItemList+=["McEventCollection#*"]
         StreamRDO_ItemList+=["TrackRecordCollection#*"]
-        StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux."]
-        StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux."]
+        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux."]
+            StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux."]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=["xAOD::TruthParticleContainer#*"]
+            StreamRDO_ItemList+=["xAOD::TruthParticleAuxContainer#*"]
         if DetFlags.writeRDOPool.Calo_on():
             StreamRDO_ItemList += ["CaloCalibrationHitContainer#*"]
             # Temporary for debugging MBTSHits

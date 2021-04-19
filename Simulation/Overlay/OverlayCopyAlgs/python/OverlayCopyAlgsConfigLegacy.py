@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.ConfiguredFactory import ConfigurationError
@@ -45,6 +45,19 @@ def getCopyOutOfTimeJetTruthInfo(name="CopyOutOfTimeJetTruthInfo", **kwargs):
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+OutOfTimeAntiKt4TruthJets")        
 
     return CfgMgr.CopyJetTruthInfo(name, **kwargs)
+
+
+def getCopyPileupParticleTruthInfo(name="CopyPileupParticleTruthInfo", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TruthPileupParticles")
+        kwargs.setdefault("OutputKey", "TruthPileupParticles")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TruthPileupParticles")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TruthPileupParticles")
+
+    return CfgMgr.CopyPileupParticleTruthInfo(name, **kwargs)
 
 
 def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):

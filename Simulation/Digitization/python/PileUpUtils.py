@@ -3,7 +3,17 @@
 from math import ceil
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
+def pileupInputCollections(inputFiles):
+    if not len(inputFiles):
+        return [] #Should never hit this but just in case
+    inputFile = inputFiles[0]
+    if not inputFile:
+        return []
+    rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
+    collections = [col for col in rawCollections if not col.endswith('Aux.') ]
+    return collections
 
 def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch, nBunches):
     """Returns the toal number of needed events"""

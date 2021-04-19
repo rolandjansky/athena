@@ -19,7 +19,7 @@ from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
 from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
 from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
-    CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
+    CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyPileupParticleTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileOverlayTriggerDigitizationCfg
 from TrigT1CaloSim.TTL1OverlayConfig import LArTTL1OverlayCfg, TileTTL1OverlayCfg
@@ -56,6 +56,7 @@ def OverlayMainCfg(configFlags):
     # Add truth overlay (needed downstream)
     acc.merge(CopyMcEventCollectionCfg(configFlags))
     acc.merge(CopyJetTruthInfoCfg(configFlags))
+    acc.merge(CopyPileupParticleTruthInfoCfg(configFlags))
     acc.merge(CopyTimingsCfg(configFlags))
     acc.merge(CopyCaloCalibrationHitContainersCfg(configFlags))
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
