@@ -52,6 +52,21 @@ public:
   /**Default Constructor*/
   ConeSurface();
 
+  /**Assignment operator*/
+  ConeSurface& operator=(const ConeSurface& csf);
+
+  /**Copy constructor */
+  ConeSurface(const ConeSurface& csf);
+
+  /** Move constructor */
+  ConeSurface(ConeSurface&& annbo) = default;
+  /** Move assignment */
+  ConeSurface& operator=(ConeSurface&& sbo) = default;
+
+  /**Destructor*/
+  virtual ~ConeSurface() = default ;
+
+
   /**Constructor form HepTransform and an opening angle */
   ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
 
@@ -71,17 +86,8 @@ public:
      - bounds is not set. */
   ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
-  /**Copy constructor */
-  ConeSurface(const ConeSurface& csf);
-
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~ConeSurface();
-
-  /**Assignment operator*/
-  ConeSurface& operator=(const ConeSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

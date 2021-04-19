@@ -52,6 +52,21 @@ public:
   /**Default Constructor*/
   DiscSurface();
 
+  /**Copy Constructor*/
+  DiscSurface(const DiscSurface& psf);
+
+  /**Assignement operator*/
+  DiscSurface& operator=(const DiscSurface& dsf);
+
+  /**Copy Constructor*/
+  DiscSurface(DiscSurface&& psf) noexcept = default;
+
+  /**Assignement operator*/
+  DiscSurface& operator=(DiscSurface&& dsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~DiscSurface() = default;
+
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
   DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
@@ -101,17 +116,8 @@ public:
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);
 
-  /**Copy Constructor*/
-  DiscSurface(const DiscSurface& psf);
-
-  /**Copy Constructor with shift*/
+ /**Copy Constructor with shift*/
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~DiscSurface() = default;
-
-  /**Assignement operator*/
-  DiscSurface& operator=(const DiscSurface& dsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

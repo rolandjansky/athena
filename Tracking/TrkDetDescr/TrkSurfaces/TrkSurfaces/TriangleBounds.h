@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,6 +54,21 @@ public:
   /**Default Constructor - needed for persistency*/
   TriangleBounds();
 
+  /**Copy constructor*/
+  TriangleBounds(const TriangleBounds& tribo) = default;
+
+  /**Assignment Operator*/
+  TriangleBounds& operator=(const TriangleBounds& recbo) = default;
+
+  /**Move constructor*/
+  TriangleBounds(TriangleBounds&& tribo) noexcept = default;
+
+  /**Move Assignment Operator*/
+  TriangleBounds& operator=(TriangleBounds&& recbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~TriangleBounds() = default;
+
   /**Constructor with coordinates of vertices - floats*/
   TriangleBounds(const std::vector<std::pair<float, float>>&);
 
@@ -62,15 +77,6 @@ public:
 
   /**Constructor from three 2 Vectors */
   TriangleBounds(const Amg::Vector2D& p1, const Amg::Vector2D& p2, const Amg::Vector2D& p3);
-
-  /**Copy constructor*/
-  TriangleBounds(const TriangleBounds& tribo) = default;
-
-  /**Destructor*/
-  virtual ~TriangleBounds() = default;
-
-  /**Assignment Operator*/
-  TriangleBounds& operator=(const TriangleBounds& recbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

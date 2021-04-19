@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,10 +30,14 @@ class InvalidBounds : public SurfaceBounds
 {
 public:
   /**Default Constructor*/
-  InvalidBounds() {}
+  InvalidBounds() = default;
 
+  InvalidBounds(const InvalidBounds&) = default;
+  InvalidBounds& operator=(const InvalidBounds&) = default;
+  InvalidBounds(InvalidBounds&&) noexcept = default;
+  InvalidBounds& operator=(InvalidBounds&&) noexcept = default;
   /** Destructor */
-  ~InvalidBounds() {}
+  virtual ~InvalidBounds() = default;
 
   /**Equality operator */
   virtual bool operator==(const SurfaceBounds&) const override { return false; }

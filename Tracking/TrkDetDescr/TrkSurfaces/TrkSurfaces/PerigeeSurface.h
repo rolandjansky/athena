@@ -47,6 +47,21 @@ public:
   /**Default Constructor - needed for persistency*/
   PerigeeSurface();
 
+  /**Copy constructor*/
+  PerigeeSurface(const PerigeeSurface& pesf);
+
+  /**Assignment operator*/
+  PerigeeSurface& operator=(const PerigeeSurface& slsf);
+
+  /**Copy constructor*/
+  PerigeeSurface(PerigeeSurface&& pesf) noexcept = default;
+
+  /**Assignment operator*/
+  PerigeeSurface& operator=(PerigeeSurface&& slsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PerigeeSurface() = default;
+ 
   /**Constructor from GlobalPosition*/
   PerigeeSurface(const Amg::Vector3D& gp);
 
@@ -56,20 +71,11 @@ public:
   /**Constructor with a Transform by unique_ptr - needed for tilt */
   PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
 
-  /**Copy constructor*/
-  PerigeeSurface(const PerigeeSurface& pesf);
-
   /**Copy constructor with shift*/
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
 
-  /**Destructor*/
-  virtual ~PerigeeSurface() = default;
-
-  /**Virtual constructor*/
+ /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override final;
-
-  /**Assignment operator*/
-  PerigeeSurface& operator=(const PerigeeSurface& slsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

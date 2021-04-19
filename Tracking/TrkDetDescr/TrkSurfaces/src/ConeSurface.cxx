@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -74,8 +74,6 @@ Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans)
   , m_rotSymmetryAxis(nullptr)
 {}
 
-// destructor (will call destructor from base class which deletes objects)
-Trk::ConeSurface::~ConeSurface() = default;
 
 Trk::ConeSurface&
 Trk::ConeSurface::operator=(const ConeSurface& csf)

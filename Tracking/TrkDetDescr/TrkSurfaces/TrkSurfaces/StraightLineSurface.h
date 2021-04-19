@@ -50,6 +50,21 @@ public:
   /**Default Constructor - needed for persistency*/
   StraightLineSurface();
 
+  /**Copy constructor*/
+  StraightLineSurface(const StraightLineSurface& slsf);
+
+  /**Assignment operator*/
+  StraightLineSurface& operator=(const StraightLineSurface& slsf);
+
+  /**Move constructor*/
+  StraightLineSurface(StraightLineSurface&& slsf) noexcept = default;
+
+  /**Move Assignment operator*/
+  StraightLineSurface& operator=(StraightLineSurface&& slsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~StraightLineSurface() = default;
+
   /**Constructor from HepTransform (boundless surface)*/
   StraightLineSurface(Amg::Transform3D* htrans);
 
@@ -63,20 +78,11 @@ public:
   StraightLineSurface(const TrkDetElementBase& detelement,
                       const Identifier& id);
 
-  /**Copy constructor*/
-  StraightLineSurface(const StraightLineSurface& slsf);
-
   /**Copy constructor with shift*/
   StraightLineSurface(const StraightLineSurface& slsf,
                       const Amg::Transform3D& transf);
 
-  /**Destructor*/
-  virtual ~StraightLineSurface() = default;
-
-  /**Assignment operator*/
-  StraightLineSurface& operator=(const StraightLineSurface& slsf);
-
-  /**Equality operator*/
+    /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
   /**Implicit constructor*/
