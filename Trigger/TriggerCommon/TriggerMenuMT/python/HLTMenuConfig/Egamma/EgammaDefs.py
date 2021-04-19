@@ -25,6 +25,10 @@ class TrigEgammaKeys(object):
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel21_20180312'
 
+class TrigEgammaKeys_LRT(object):
+      """Static class to collect all string manipulation in Electron_LRT sequences """
+      outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
+      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElectronLRT_IDTrig')
 
 class TrigEgammaKeys_GSF(object):
       """Static class to collect all string manipulation in Electron sequences """

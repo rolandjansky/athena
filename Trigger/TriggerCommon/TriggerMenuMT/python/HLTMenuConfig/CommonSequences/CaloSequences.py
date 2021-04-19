@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
@@ -11,7 +11,6 @@ class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
       from TrigEDMConfig.TriggerEDMRun3 import recordable
       L2CaloClusters= recordable("HLT_FastCaloEMClusters")
-
 
 def fastCaloSequence(flags):
     """ Creates Fast Calo sequence"""
@@ -41,7 +40,7 @@ def fastCaloMenuSequence(name, doRinger=True):
     else:
       from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT_noringer as createTrigEgammaFastCaloHypoAlgMT
 
-
+    
     theFastCaloHypo = createTrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo", sequenceOut)
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
@@ -50,8 +49,6 @@ def fastCaloMenuSequence(name, doRinger=True):
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
-
-
 
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """

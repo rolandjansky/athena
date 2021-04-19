@@ -9,10 +9,14 @@ from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 
 from .ElectronMenuSequences import fastElectronMenuSequence
+from .ElectronMenuSequences_LRT import fastElectronMenuSequence_LRT
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuSequence_LRT
 from .PrecisionElectronMenuSequences import precisionElectronMenuSequence
 from .PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
+from .PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LRT
 from .PrecisionTrackingMenuSequences import precisionTrackingMenuSequence
+from .PrecisionTrackingMenuSequences_LRT import precisionTrackingMenuSequence_LRT
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
@@ -29,11 +33,20 @@ def fastElectronSequenceCfg( flags ):
 def fastElectronSequenceCfg_idperf( flags ):
     return fastElectronMenuSequence(do_idperf=True)
 
+def fastElectronSequenceCfg_lrt( flags ):
+    return fastElectronMenuSequence_LRT()
+
 def precisionCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Electron')
 
+def precisionCaloSequenceCfg_lrt( flags ):
+    return precisionCaloMenuSequence_LRT('Electron')
+
 def precisionTrackingSequenceCfg( flags ):
     return precisionTrackingMenuSequence('Electron')
+
+def precisionTrackingSequenceCfg_lrt( flags ):
+    return precisionTrackingMenuSequence_LRT('Electron')
 
 def precisionElectronSequenceCfg( flags ):
     return precisionElectronMenuSequence()
@@ -41,6 +54,8 @@ def precisionElectronSequenceCfg( flags ):
 def precisionGSFElectronSequenceCfg( flags ):
     return precisionElectronMenuSequence_GSF()
 
+def precisionElectronSequenceCfg_lrt( flags ):
+    return precisionElectronMenuSequence_LRT()
 
 # this must be moved to the HypoTool file:
 def diElectronZeeMassComboHypoToolFromDict(chainDict):
@@ -124,11 +139,15 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivarloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhtightivarmediumgsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhtightivartightgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
+          # lrt chains
+                'lhlooselrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
+                'lhmediumlrtmedium'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
+                'lhtightlrttight'   : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
 
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
-        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo']
+        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo'] + self.chainPart['lrtInfo']
         addInfo = 'etcut'
         L2IDAlg = 'noringer'
 
@@ -137,6 +156,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         
         for L2IDAlg in self.chainPart['L2IDAlg']:
             key+=L2IDAlg
+
 
         log.debug('electron key = %s', key)
         if key in stepDictionary:
@@ -165,6 +185,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def getFastElectron(self):
         stepName = "fast_electron"
         return self.getStep(2,stepName,[ fastElectronSequenceCfg])
+
+    def getFastElectron_lrt(self):
+        stepName = "fast_electron_lrt"
+        return self.getStep(2,stepName,[ fastElectronSequenceCfg_lrt])
    
     def getFastElectron_idperf(self):
         stepName = "fast_electron_idperf"
@@ -173,11 +197,18 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def getPrecisionCaloElectron(self):
         stepName = "precisionCalo_electron"
         return self.getStep(3,stepName,[ precisionCaloSequenceCfg])
+    
+    def getPrecisionCaloElectron_lrt(self):
+        stepName = "precisionCalo_electron_lrt"
+        return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt])
 
     def getPrecisionTracking(self):
         stepName = "precisionTracking_electron"
         return self.getStep(4,stepName,[ precisionTrackingSequenceCfg])
 
+    def getPrecisionTracking_lrt(self):
+        stepName = "precisionTracking_electron_lrt"
+        return self.getStep(4,stepName,[ precisionTrackingSequenceCfg_lrt])
 
     def getPrecisionElectron(self):
 
@@ -185,13 +216,13 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         log.debug(' isolation cut = %s', isocut)
 
         if "Zee" in self.chainName:
-            stepName = "precision_topoelectron"+isocut
+            stepName = "precision_topoelectron"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict])
         elif "Jpsiee" in self.chainName:
-            stepName = "precision_topoelectron"+isocut
+            stepName = "precision_topoelectron"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict])
         else:
-            stepName = "precision_electron"+isocut
+            stepName = "precision_electron"+str(isocut)
             return self.getStep(5,stepName,[ precisionElectronSequenceCfg])
 
     def getPrecisionGSFElectron(self):
@@ -200,11 +231,19 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         log.debug(' isolation cut = ' + str(isocut))
 
         if "Zee" in self.chainName:
-            stepName = "precision_topoelectron_GSF"+isocut
+            stepName = "precision_topoelectron_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict])
         if "Jpsiee" in self.chainName:
-            stepName = "precision_topoelectron_GSF"+isocut
+            stepName = "precision_topoelectron_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict])
         else:
-            stepName = "precision_electron_GSF"+isocut
+            stepName = "precision_electron_GSF"+str(isocut)
             return self.getStep(5,stepName,[ precisionGSFElectronSequenceCfg])
+
+    def getPrecisionElectron_lrt(self):
+
+        isocut = self.chainPart['isoInfo']
+        log.debug(' isolation cut = ' + str(isocut))
+
+        stepName = "precision_electron_lrt"+str(isocut)
+        return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt])

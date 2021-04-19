@@ -61,7 +61,7 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
 ####################################
 
 def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
-    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName="HLT_FastCaloEMClusters", RingerKey=RingerKey)
 
     import AthenaCommon.CfgMgr as CfgMgr
     fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloVDV")
@@ -128,15 +128,15 @@ def HLTFSTopoRecoSequence(ConfigFlags,RoIs):
     RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
-def HLTRoITopoRecoSequence(ConfigFlags, RoIs):
+def HLTRoITopoRecoSequence(ConfigFlags, RoIs, lrtInfo=''):
     import AthenaCommon.CfgMgr as CfgMgr
-    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
-    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
+    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV%s"%lrtInfo)
+    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs%s'%lrtInfo ),
                                              ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
-    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI")
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
-    RecoSequence = parOR("RoITopoClusterRecoSequence", [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI%s"%lrtInfo)
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI%s"%lrtInfo)
+    RecoSequence = parOR("RoITopoClusterRecoSequence%s"%lrtInfo, [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 
