@@ -44,7 +44,7 @@ namespace Muon {
 
         /** refit and back extrapolate a vector of track pairs */
         std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks, const Settings* settings) const override;
-        std::vector<std::unique_ptr<Trk::Track> > refit(const  std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+        std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks, const EventContext& ctx,
                                                         const Settings* settings) const override;
 
     protected:

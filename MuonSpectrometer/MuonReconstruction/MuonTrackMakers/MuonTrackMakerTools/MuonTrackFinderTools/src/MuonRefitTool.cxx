@@ -217,7 +217,7 @@ namespace Muon {
                                                                    const IMuonRefitTool::Settings* set) const {
         return refit(tracks, Gaudi::Hive::currentContext(), set);
     }
-    std::vector<std::unique_ptr<Trk::Track> > MuonRefitTool::refit(const  std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+    std::vector<std::unique_ptr<Trk::Track> > MuonRefitTool::refit(const std::vector<Trk::Track*>& tracks, const EventContext& ctx,
                                                                    const IMuonRefitTool::Settings* set) const {
         std::vector<std::unique_ptr<Trk::Track> > refittedTracks;
         refittedTracks.reserve(tracks.size());
@@ -244,9 +244,7 @@ namespace Muon {
         //
         // use the new AlignmentEffectsOnTrack class and alignmentErrorTool
         //
-        if (m_alignErrorTool.empty()) {
-            return std::make_unique<Trk::Track>(*track);
-        }
+        if (m_alignErrorTool.empty()) { return std::make_unique<Trk::Track>(*track); }
         //
         // Use the alignmentErrorTool and store a list of hits with error on position and angle
         //
@@ -1416,12 +1414,12 @@ namespace Muon {
         surf->globalToLocalDirection(dir, locDir);
 
         Amg::Vector3D locDirTrack(gToStation.linear() * dir);
-        double track_angleYZ =std::atan2(locDirTrack.z(), locDirTrack.y());
+        double track_angleYZ = std::atan2(locDirTrack.z(), locDirTrack.y());
 
         if (!detEl) return false;
         // transform nominal pointing chamber position into surface frame
         Amg::Vector3D dirCh(gToStation.linear() * detEl->center());
-        double chamber_angleYZ =std::atan2(dirCh.z(), dirCh.y());
+        double chamber_angleYZ = std::atan2(dirCh.z(), dirCh.y());
         double angleYZ = locDir.angleYZ();
 
         const Amg::Vector3D lpos = gToStation * pars.position();
