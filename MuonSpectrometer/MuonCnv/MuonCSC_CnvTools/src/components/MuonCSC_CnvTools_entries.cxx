@@ -1,5 +1,4 @@
 #include "../CscRdoToCscPrepDataTool.h"
-#include "../CscRdoToCscPrepDataToolCore.h"
 #include "../CscRdoToCscPrepDataToolMT.h"
 #include "../CSC_RawDataProviderTool.h"
 #include "../CSC_RawDataProviderToolMT.h"
@@ -9,7 +8,6 @@
 #include "../CscDigitToCscRDOTool.h"
   
 DECLARE_COMPONENT( Muon::CscRdoToCscPrepDataTool )
-DECLARE_COMPONENT( Muon::CscRdoToCscPrepDataToolCore )
 DECLARE_COMPONENT( Muon::CscRdoToCscPrepDataToolMT )
 DECLARE_COMPONENT( Muon::CscRdoContByteStreamTool )
 DECLARE_COMPONENT( Muon::CSC_RawDataProviderTool )
