@@ -630,6 +630,10 @@ namespace Rec {
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit", refittedTrack.get(), combinedTrack.get())) {
                 combinedTrack.swap(refittedTrack);
             }
+	    else if(!checkTrack("addIDMS failed",combinedTrack.get(),combinedTrack.get())){
+	        ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
+	        return nullptr;
+	    }
         }
 
         // hole recovery, error optimization, attach TrackSummary
