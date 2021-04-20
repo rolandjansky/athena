@@ -17,7 +17,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ModuleIncident.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "../src/ClassIDSvc.h"
 
 #include "AthenaKernel/CLASS_DEF.h"

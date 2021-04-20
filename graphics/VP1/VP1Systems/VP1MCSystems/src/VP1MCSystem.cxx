@@ -11,7 +11,7 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include <QListWidget>
 #include <QListWidgetItem>

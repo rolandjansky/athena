@@ -14,15 +14,12 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "EventInfo/EventInfo.h"
-//#include "EventInfo/EventType.h"
-//#include "EventInfo/EventID.h"
-//#include "EventInfo/TriggerInfo.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/ReadHandle.h"
-#include "AthenaKernel/IClassIDSvc.h"
 
 //--------------- Utility Struct Constructors ----------------
 EventCount::ObjSum::ObjSum() : num(-1)

@@ -15,7 +15,7 @@
 #include "D3PDMakerUtils/TypeNameConversions.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/System.h"
 #include "TClass.h"
 

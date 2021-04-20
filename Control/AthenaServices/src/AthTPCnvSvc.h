@@ -17,7 +17,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/ITPCnvSvc.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaBaseComps/AthService.h"

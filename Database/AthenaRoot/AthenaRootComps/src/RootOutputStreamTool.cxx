@@ -22,7 +22,7 @@
 #include "GaudiKernel/DataObject.h"
 
 // Athena
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // stl

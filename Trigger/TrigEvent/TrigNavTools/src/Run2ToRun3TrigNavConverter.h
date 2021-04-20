@@ -10,7 +10,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigNavigation.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

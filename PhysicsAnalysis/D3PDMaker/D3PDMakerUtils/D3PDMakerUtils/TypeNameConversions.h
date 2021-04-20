@@ -18,7 +18,7 @@
 #define D3PDMAKERUTILS_TYPENAMECONVERSIONS_H
 
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <typeinfo>

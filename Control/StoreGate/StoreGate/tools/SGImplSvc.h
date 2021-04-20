@@ -47,8 +47,8 @@
 
 
 // includes used in SGImplSvc.icc
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IResetable.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/SGIterator.h"
 #include "StoreGate/SGWPtr.h"
