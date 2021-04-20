@@ -12,24 +12,7 @@
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
-LArCalibLineMappingAlg::LArCalibLineMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAR/Identifier/CalibIdMap"),
-  m_writeKey("LArCalibLineMap"),
-  m_condSvc("CondSvc",name),
-  m_isSuperCell(false),
-  m_maxCalibLines(4)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-  declareProperty("isSuperCell",m_isSuperCell);
-  declareProperty("MaxCL",m_maxCalibLines,"in case of SuperCell should be set to higher value then default 4");
-}
-
-LArCalibLineMappingAlg::~LArCalibLineMappingAlg() {}
-
 StatusCode LArCalibLineMappingAlg::initialize() {
-
   ATH_MSG_DEBUG("initializing");
 
   // CondSvc
@@ -63,6 +46,7 @@ StatusCode LArCalibLineMappingAlg::execute() {
     ATH_MSG_ERROR("Failed to retrieve CondAttributeListCollection with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle);
 
   const LArOnlineID_Base* onlineID;
   if(m_isSuperCell) {
@@ -107,21 +91,14 @@ StatusCode LArCalibLineMappingAlg::execute() {
   ATH_MSG_DEBUG("BlobIdx=" << blobIdx<<", chanIdx=" << chanIdx << ", totCalibLines=" << totCalibLines);
 
 
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,calibLineMap.release()).isFailure()) {
+  if(writeHandle.record(std::move(calibLineMap)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArCalibLineMapping object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
  
   return StatusCode::SUCCESS;
 }
