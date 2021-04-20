@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbStatus.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -71,9 +71,9 @@ namespace pool {
   public:
     enum  ErrorLevel    {
       Success    = 1,
-      Info       = (1<<30),
-      Warning    = (1<<31),
-      Error      = (1<<31) + (1<<30)
+      Info       = (1u<<30),
+      Warning    = (1u<<31),
+      Error      = (1u<<31) + (1u<<30)
     };
     /// Standard Constructor. Defaults to Error
     DbStatus() : m_code(Error)                          {                     }

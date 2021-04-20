@@ -310,7 +310,7 @@ namespace pool  {
     virtual DbStatus endTransaction( ConnectionH conn, Transaction::Action typ) = 0;
 
     /// DbStatus code definitions
-    enum   {
+    enum : unsigned {
       /// Error tag
       ISTORAGESVC_ERROR         = DbStatus::Error,
       /// Invalid Database session token
