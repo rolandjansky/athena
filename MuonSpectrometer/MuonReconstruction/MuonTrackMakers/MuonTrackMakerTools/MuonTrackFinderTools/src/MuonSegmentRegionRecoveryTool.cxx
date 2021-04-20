@@ -714,31 +714,27 @@ namespace Muon {
         std::set<IdentifierHash> newsTgcHashes;
         if (addMdt) {
             ATH_MSG_DEBUG("Adding Missing MDT chambers: regions " << data.mdtPerStation.size());
-            std::map<MuonStationIndex::ChIndex, std::set<IdentifierHash>>::iterator chit = data.mdtPerStation.begin();
-            std::map<MuonStationIndex::ChIndex, std::set<IdentifierHash>>::iterator chit_end = data.mdtPerStation.end();
             std::vector<const MdtPrepDataCollection*> newmcols;
-            for (; chit != chit_end; ++chit) {
-                ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit->first) << " size  " << chit->second.size());
+            for (const auto chit :data.mdtPerStation) {
+                ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit.first) << " size  " << chit.second.size());
                 std::vector<const MdtPrepDataCollection*> cols;
-                m_seededSegmentFinder->extractMdtPrdCols(chit->second, cols);
-                std::vector<const MdtPrepDataCollection*>::iterator mit = cols.begin();
-                std::vector<const MdtPrepDataCollection*>::iterator mit_end = cols.end();
+                m_seededSegmentFinder->extractMdtPrdCols(chit.second, cols);
                 std::map<int, std::vector<const MdtPrepData*>> mdtPrds;
                 std::unique_ptr<const Trk::TrackParameters> exParsFirst;
-                for (; mit != mit_end; ++mit) {
-                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(*mit)->front()->detectorElement())};
+                for (const MdtPrepDataCollection* mit : cols) {
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
                     if (exPars) {
-                        int sector = m_idHelperSvc->sector((*mit)->identify());
-                        ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber((*mit)->identify()) << " hash "
-                                                     << (*mit)->identifyHash() << " sector " << sector);
-                        newmcols.push_back(*mit);
+                        int sector = m_idHelperSvc->sector(mit->identify());
+                        ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber(mit->identify()) << " hash "
+                                                     << mit->identifyHash() << " sector " << sector);
+                        newmcols.emplace_back(mit);
                         std::vector<const MdtPrepData*>& col = mdtPrds[sector];
-                        col.insert(col.end(), (*mit)->begin(), (*mit)->end());
+                        col.insert(col.end(), mit->begin(), mit->end());
                         if (!exParsFirst) exParsFirst.swap(exPars);
 
                     } else {
-                        ATH_MSG_DEBUG("Did not reach chamber " << m_idHelperSvc->toStringChamber((*mit)->identify()) << " hash "
-                                                               << (*mit)->identifyHash());
+                        ATH_MSG_DEBUG("Did not reach chamber " << m_idHelperSvc->toStringChamber(mit->identify()) << " hash "
+                                                               << mit->identifyHash());
                     }
                 }
                 std::vector<const MdtPrepData*>* prds = nullptr;
@@ -811,14 +807,16 @@ namespace Muon {
                     }
                 }
             }
-            data.mdtCols = newmcols;
+            data.mdtCols = std::move(newmcols);
         } else {
             unsigned int nstates = states.size();
+            {
             m_seededSegmentFinder->extractRpcPrdCols(data.rpc, data.rpcCols);
-            std::vector<const RpcPrepDataCollection*> newrcols;
+            std::vector<const RpcPrepDataCollection*> newtcols;
             for (const RpcPrepDataCollection* rit : data.rpcCols) {
                 std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
                 if (exPars) {
+                    newtcols.emplace_back(rit);
                     Identifier detElId = m_idHelperSvc->detElId(rit->identify());
                     std::set<Identifier> layIds;
                     createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
@@ -828,8 +826,9 @@ namespace Muon {
                     }
                 }
             }
-            data.rpcCols = std::move(newrcols);
-
+            data.rpcCols = std::move(newtcols);
+        }
+            {
             m_seededSegmentFinder->extractTgcPrdCols(data.tgc, data.tgcCols);
             std::vector<const TgcPrepDataCollection*> newtcols;
             for (const TgcPrepDataCollection* tgcit : data.tgcCols) {
@@ -846,7 +845,7 @@ namespace Muon {
                 }
             }
             data.tgcCols = std::move(newtcols);
-
+            }
             if (m_idHelperSvc->hasCSC() && m_idHelperSvc->cscIdHelper().isInitialized()) {
                 m_seededSegmentFinder->extractCscPrdCols(data.csc, data.cscCols);
                 std::vector<const CscPrepDataCollection*> newccols;
@@ -871,7 +870,6 @@ namespace Muon {
                 m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
                 std::vector<const sTgcPrepDataCollection*> newstcols;
                 ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
-                for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(stgcit)->front()->detectorElement())};
                     if (exPars) {
                         newstcols.push_back(stgcit);
@@ -892,8 +890,7 @@ namespace Muon {
                 m_seededSegmentFinder->extractMMPrdCols(data.mm, data.mmCols);
                 ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
                 std::vector<const MMPrepDataCollection*> newmcols;
-                for (const MMPrepDataCollection* mit : data.mmCols) {
-                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
+                   std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
                     if (exPars) {
                         newmcols.push_back(mit);
                         Identifier detElId = m_idHelperSvc->detElId(mit->identify());
@@ -966,8 +963,12 @@ namespace Muon {
             ATH_MSG_VERBOSE("Extrapolating from track (no closest point found):\n" << m_printer->print(track));
             exPars.reset(m_extrapolator->extrapolate(ctx, track, detEl.surface(), Trk::anyDirection, false, Trk::muon));
         }
+        if (!exPars){
+            ATH_MSG_DEBUG("Extrapolation did not succeed");
+        return nullptr;
+        }
         Amg::Vector2D locPos(exPars->parameters()[Trk::locX], exPars->parameters()[Trk::locY]);
-
+       
         double tolx = 100.;  // positive -> large surface
         double toly = 100.;  // positive -> large surface
         const AmgSymMatrix(5)* errMat = exPars->covariance();
@@ -992,7 +993,6 @@ namespace Muon {
             toly *= -1.;
         }
         bool inbounds = detEl.surface().insideBounds(locPos, tolx, toly);
-
         if (msgLvl(MSG::DEBUG)) {
             std::ostringstream parsType;
             parsType << "pos=(" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
@@ -1005,7 +1005,6 @@ namespace Muon {
             ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(detEl.identify()) << " pars  " << parsType.str());
         }
         if (!inbounds) { return nullptr; }
-
         return exPars;
     }
 
