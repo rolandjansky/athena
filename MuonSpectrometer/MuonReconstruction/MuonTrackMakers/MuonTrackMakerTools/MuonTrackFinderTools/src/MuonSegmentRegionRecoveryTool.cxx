@@ -870,6 +870,7 @@ namespace Muon {
                 m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
                 std::vector<const sTgcPrepDataCollection*> newstcols;
                 ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
+                for (const sTgcPrepDataCollection* stgcit :  data.stgcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(stgcit)->front()->detectorElement())};
                     if (exPars) {
                         newstcols.push_back(stgcit);
@@ -881,15 +882,17 @@ namespace Muon {
                             nstates = states.size();
                             newsTgcHashes.insert(stgcit->identifyHash());
                         }
-                    }
+                    }                
                 }
                 data.stgcCols = std::move(newstcols);
+                
             }
 
             if (m_idHelperSvc->hasMM() && m_idHelperSvc->mmIdHelper().isInitialized()) {
                 m_seededSegmentFinder->extractMMPrdCols(data.mm, data.mmCols);
                 ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
                 std::vector<const MMPrepDataCollection*> newmcols;
+                for (const MMPrepDataCollection* mit : data.mmCols) {
                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
                     if (exPars) {
                         newmcols.push_back(mit);
