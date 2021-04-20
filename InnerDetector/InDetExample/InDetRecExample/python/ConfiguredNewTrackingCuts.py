@@ -1255,8 +1255,7 @@ class ConfiguredNewTrackingCuts :
     print '* TRT used                    :  ', self.__useTRT
     print '*'  
     print '* min pT                      :  ', self.__minPT, ' MeV'
-    if self.__useEtaDepCuts:
-      print '* min pT for seeding          :  ', self.__minPT[0], ' MeV'
+    print '* min pT for seeding          :  ', self.minPTSeed(), ' MeV'
     print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
     if self.__useEtaDepCuts:
       print '* max Z IP for seeding        :  ', self.__maxZImpact[0], ' mm'
