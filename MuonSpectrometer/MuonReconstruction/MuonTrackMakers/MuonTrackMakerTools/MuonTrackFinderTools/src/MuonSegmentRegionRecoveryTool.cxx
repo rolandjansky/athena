@@ -715,7 +715,7 @@ namespace Muon {
         if (addMdt) {
             ATH_MSG_DEBUG("Adding Missing MDT chambers: regions " << data.mdtPerStation.size());
             std::vector<const MdtPrepDataCollection*> newmcols;
-            for (const auto chit :data.mdtPerStation) {
+            for (const auto chit : data.mdtPerStation) {
                 ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit.first) << " size  " << chit.second.size());
                 std::vector<const MdtPrepDataCollection*> cols;
                 m_seededSegmentFinder->extractMdtPrdCols(chit.second, cols);
@@ -725,8 +725,8 @@ namespace Muon {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
                     if (exPars) {
                         int sector = m_idHelperSvc->sector(mit->identify());
-                        ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber(mit->identify()) << " hash "
-                                                     << mit->identifyHash() << " sector " << sector);
+                        ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber(mit->identify()) << " hash " << mit->identifyHash()
+                                                     << " sector " << sector);
                         newmcols.emplace_back(mit);
                         std::vector<const MdtPrepData*>& col = mdtPrds[sector];
                         col.insert(col.end(), mit->begin(), mit->end());
@@ -811,40 +811,40 @@ namespace Muon {
         } else {
             unsigned int nstates = states.size();
             {
-            m_seededSegmentFinder->extractRpcPrdCols(data.rpc, data.rpcCols);
-            std::vector<const RpcPrepDataCollection*> newtcols;
-            for (const RpcPrepDataCollection* rit : data.rpcCols) {
-                std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
-                if (exPars) {
-                    newtcols.emplace_back(rit);
-                    Identifier detElId = m_idHelperSvc->detElId(rit->identify());
-                    std::set<Identifier> layIds;
-                    createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
-                    if (states.size() != nstates) {
-                        nstates = states.size();
-                        newRpcHashes.insert(rit->identifyHash());
+                m_seededSegmentFinder->extractRpcPrdCols(data.rpc, data.rpcCols);
+                std::vector<const RpcPrepDataCollection*> newtcols;
+                for (const RpcPrepDataCollection* rit : data.rpcCols) {
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
+                    if (exPars) {
+                        newtcols.emplace_back(rit);
+                        Identifier detElId = m_idHelperSvc->detElId(rit->identify());
+                        std::set<Identifier> layIds;
+                        createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
+                        if (states.size() != nstates) {
+                            nstates = states.size();
+                            newRpcHashes.insert(rit->identifyHash());
+                        }
                     }
                 }
+                data.rpcCols = std::move(newtcols);
             }
-            data.rpcCols = std::move(newtcols);
-        }
             {
-            m_seededSegmentFinder->extractTgcPrdCols(data.tgc, data.tgcCols);
-            std::vector<const TgcPrepDataCollection*> newtcols;
-            for (const TgcPrepDataCollection* tgcit : data.tgcCols) {
-                std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(tgcit)->front()->detectorElement())};
-                if (exPars) {
-                    newtcols.emplace_back(tgcit);
-                    Identifier detElId = m_idHelperSvc->detElId(tgcit->identify());
-                    std::set<Identifier> layIds;
-                    createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
-                    if (states.size() != nstates) {
-                        nstates = states.size();
-                        newTgcHashes.insert(tgcit->identifyHash());
+                m_seededSegmentFinder->extractTgcPrdCols(data.tgc, data.tgcCols);
+                std::vector<const TgcPrepDataCollection*> newtcols;
+                for (const TgcPrepDataCollection* tgcit : data.tgcCols) {
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(tgcit)->front()->detectorElement())};
+                    if (exPars) {
+                        newtcols.emplace_back(tgcit);
+                        Identifier detElId = m_idHelperSvc->detElId(tgcit->identify());
+                        std::set<Identifier> layIds;
+                        createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
+                        if (states.size() != nstates) {
+                            nstates = states.size();
+                            newTgcHashes.insert(tgcit->identifyHash());
+                        }
                     }
                 }
-            }
-            data.tgcCols = std::move(newtcols);
+                data.tgcCols = std::move(newtcols);
             }
             if (m_idHelperSvc->hasCSC() && m_idHelperSvc->cscIdHelper().isInitialized()) {
                 m_seededSegmentFinder->extractCscPrdCols(data.csc, data.cscCols);
@@ -870,7 +870,7 @@ namespace Muon {
                 m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
                 std::vector<const sTgcPrepDataCollection*> newstcols;
                 ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
-                for (const sTgcPrepDataCollection* stgcit :  data.stgcCols) {
+                for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(stgcit)->front()->detectorElement())};
                     if (exPars) {
                         newstcols.push_back(stgcit);
@@ -882,10 +882,9 @@ namespace Muon {
                             nstates = states.size();
                             newsTgcHashes.insert(stgcit->identifyHash());
                         }
-                    }                
+                    }
                 }
                 data.stgcCols = std::move(newstcols);
-                
             }
 
             if (m_idHelperSvc->hasMM() && m_idHelperSvc->mmIdHelper().isInitialized()) {
@@ -893,7 +892,7 @@ namespace Muon {
                 ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
                 std::vector<const MMPrepDataCollection*> newmcols;
                 for (const MMPrepDataCollection* mit : data.mmCols) {
-                   std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
+                    std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *mit->front()->detectorElement())};
                     if (exPars) {
                         newmcols.push_back(mit);
                         Identifier detElId = m_idHelperSvc->detElId(mit->identify());
@@ -966,12 +965,12 @@ namespace Muon {
             ATH_MSG_VERBOSE("Extrapolating from track (no closest point found):\n" << m_printer->print(track));
             exPars.reset(m_extrapolator->extrapolate(ctx, track, detEl.surface(), Trk::anyDirection, false, Trk::muon));
         }
-        if (!exPars){
+        if (!exPars) {
             ATH_MSG_DEBUG("Extrapolation did not succeed");
-        return nullptr;
+            return nullptr;
         }
         Amg::Vector2D locPos(exPars->parameters()[Trk::locX], exPars->parameters()[Trk::locY]);
-       
+
         double tolx = 100.;  // positive -> large surface
         double toly = 100.;  // positive -> large surface
         const AmgSymMatrix(5)* errMat = exPars->covariance();
