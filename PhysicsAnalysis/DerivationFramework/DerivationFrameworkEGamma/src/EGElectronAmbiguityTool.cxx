@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,39 +13,19 @@
 #include "xAODTruth/xAODTruthHelpers.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
-#include "AthContainers/ConstDataVector.h"
 
 #include "TMath.h"
-
-namespace {
-  const SG::AuxElement::Decorator< float > drv("DFCommonSimpleConvRadius");
-  const SG::AuxElement::Decorator< float > dphiv("DFCommonSimpleConvPhi");
-  const SG::AuxElement::Decorator< float > dmee("DFCommonSimpleMee");
-  const SG::AuxElement::Decorator< float > dmeeVtx("DFCommonSimpleMeeAtVtx");
-  const SG::AuxElement::Decorator< float > dsep("DFCommonSimpleSeparation");
-  const SG::AuxElement::Decorator< int > dambi("DFCommonAddAmbiguity");
-
-  const SG::AuxElement::Decorator< float > dtrv("DFCommonProdTrueRadius");
-  const SG::AuxElement::Decorator< float > dtpv("DFCommonProdTruePhi");
-  const SG::AuxElement::Decorator< float > dtzv("DFCommonProdTrueZ");
-} //> end anonymous namespace
 
 namespace DerivationFramework {
 
   EGElectronAmbiguityTool::EGElectronAmbiguityTool(const std::string& t,
-      const std::string& n,
-      const IInterface* p) : 
-    AthAlgTool(t,n,p)
+                                                   const std::string& n,
+                                                   const IInterface* p)
+    : AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("ContainerName",    m_containerName    = "Electrons");
-    declareProperty("VtxContainerName", m_VtxContainerName = "PrimaryVertices");
-    declareProperty("tpContainerName",  m_tpContainerName  = "InDetTrackParticles");
 
     declareProperty("isMC", m_isMC);
 
@@ -60,21 +40,60 @@ namespace DerivationFramework {
     declareProperty("radiusCut",        m_rvECCut       = 20,  "minimum radius to be classified as external conversion");
     declareProperty("meeAtVtxCut",      m_meeAtVtxECCut = 100, "maximal mass at vertex to be classified as external conversion");
     declareProperty("meeCut",           m_meeICCut      = 100, "maximal mass at primary vertex to be classified as gamma*");
+  }
 
+  StatusCode EGElectronAmbiguityTool::initialize()
+  {
+
+    ATH_CHECK( m_containerName.initialize() );
+    ATH_CHECK( m_VtxContainerName.initialize() );
+    ATH_CHECK( m_tpContainerName.initialize() );
+    ATH_CHECK( m_tpCName.initialize() );
+
+    const std::string baseName = m_containerName.key();
+    m_drv     = baseName + ".DFCommonSimpleConvRadius";
+    m_dphiv   = baseName + ".DFCommonSimpleConvPhi";
+    m_dmee    = baseName + ".DFCommonSimpleMee";
+    m_dmeeVtx = baseName + ".DFCommonSimpleMeeAtVtx";
+    m_dsep    = baseName + ".DFCommonSimpleSeparation";
+    m_dambi   = baseName + ".DFCommonAddAmbiguity";
+    m_dtrv = baseName + ".DFCommonProdTrueRadius";
+    m_dtpv = baseName + ".DFCommonProdTruePhi";
+    m_dtzv = baseName + ".DFCommonProdTrueZ";
+
+    ATH_CHECK(m_drv.initialize());
+    ATH_CHECK(m_dphiv.initialize());
+    ATH_CHECK(m_dmee.initialize());
+    ATH_CHECK(m_dmeeVtx.initialize());
+    ATH_CHECK(m_dsep.initialize());
+    ATH_CHECK(m_dambi.initialize());
+    ATH_CHECK(m_dtrv.initialize());
+    ATH_CHECK(m_dtpv.initialize());
+    ATH_CHECK(m_dtzv.initialize());
+
+    return StatusCode::SUCCESS;
   }
 
   StatusCode EGElectronAmbiguityTool::addBranches() const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> drv(m_drv, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dphiv(m_dphiv, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dmee(m_dmee, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dmeeVtx(m_dmeeVtx, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dsep(m_dsep, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, int> dambi(m_dambi, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtrv(m_dtrv, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtpv(m_dtpv, ctx);
+    SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtzv(m_dtzv, ctx);
 
     static const SG::AuxElement::ConstAccessor<char> aidCut(m_idCut);
 
     // retrieve primary vertex
     const xAOD::Vertex *pvtx(nullptr);
-    const xAOD::VertexContainer *vtxC(nullptr);
-    if (evtStore()->retrieve(vtxC,m_VtxContainerName).isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve vertex container. Exiting." );
-      return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::VertexContainer> inputVtx{ m_VtxContainerName, ctx };
+    const xAOD::VertexContainer* vtxC = inputVtx.ptr();
     for (const auto *vertex: *vtxC) {
       if (vertex->vertexType() == xAOD::VxType::VertexType::PriVtx) {
         pvtx = vertex;
@@ -82,9 +101,9 @@ namespace DerivationFramework {
       }
     }
 
-
     // retrieve electron container
-    const xAOD::ElectronContainer* eleC = evtStore()->retrieve< const xAOD::ElectronContainer >( m_containerName );
+    SG::ReadHandle<xAOD::ElectronContainer> inputElectrons{ m_containerName, ctx };
+    const xAOD::ElectronContainer* eleC = inputElectrons.ptr();
     
     if( ! eleC ) {
       ATH_MSG_ERROR ("Couldn't retrieve Electron container with key: " << m_containerName );
@@ -108,11 +127,9 @@ namespace DerivationFramework {
     ATH_MSG_DEBUG("Pvx z = " << pvtx->z() << ", number of electrons " << eleC->size());
 
     // Make a container of selected tracks : with Si hits, close to electron track 
-    const xAOD::TrackParticleContainer* idtpC(nullptr);
-    if (evtStore()->retrieve(idtpC,"InDetTrackParticles").isFailure()) {
-      ATH_MSG_ERROR("No InDetTrackParticles container found");
-      return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::TrackParticleContainer> inputTrackParticles{ m_tpContainerName, ctx };
+    const xAOD::TrackParticleContainer* idtpC = inputTrackParticles.ptr();
+
     std::set<const xAOD::TrackParticle*> alreadyStored;
     std::set<const xAOD::TrackParticle*> eleIDtpStored, eleGSFtpStored;
     auto closeByTracks = std::make_unique<ConstDataVector<xAOD::TrackParticleContainer>>(SG::VIEW_ELEMENTS);
@@ -171,31 +188,16 @@ namespace DerivationFramework {
     if (closeByTracks->empty())
       return StatusCode::SUCCESS;
 
-    // Record the objects into the event store
-    if (evtStore()->record ( closeByTracks.release(), "closeByTrackParticles").isFailure()) {
-      ATH_MSG_ERROR("Could not record the skimmed track particle container");
-      return StatusCode::FAILURE;
-    }
-
-    //
-    const xAOD::TrackParticleContainer* idSeltpC(nullptr);
     if (msgLvl(MSG::DEBUG)) {
-      if (evtStore()->retrieve(idSeltpC,"closeByTrackParticles").isFailure()) {
-        ATH_MSG_ERROR("No closeByTrackParticles container found");
-        return StatusCode::FAILURE;
-      }
-      const xAOD::TrackParticleContainer* tpC(nullptr);
-      if (evtStore()->retrieve(tpC,"GSFTrackParticles").isFailure()) {
-        ATH_MSG_ERROR("No TrackParticleInputContainer found");
-        return StatusCode::FAILURE;
-      }
+      SG::ReadHandle<xAOD::TrackParticleContainer> tpCReadHandle{ m_tpCName, ctx };
+      const xAOD::TrackParticleContainer* tpC = tpCReadHandle.ptr();
 
-      ATH_MSG_DEBUG("Number of input tracks " << idtpC->size() << " , number of selected close-by tracks " << idSeltpC->size() << " , number of GSF tracks " << tpC->size());
+      ATH_MSG_DEBUG("Number of input tracks " << idtpC->size() << " , number of selected close-by tracks " << closeByTracks->size() << " , number of GSF tracks " << tpC->size());
       for (const auto *trk : eleIDtpStored)
         ATH_MSG_DEBUG("ele  ID trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
       for (const auto *trk : eleGSFtpStored)
         ATH_MSG_DEBUG("ele GSF trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
-      for (const auto *trk : *idSeltpC)
+      for (const xAOD::TrackParticle *trk : *closeByTracks)
         ATH_MSG_DEBUG("closeby trk " << trk << " pt = " << trk->pt()*1e-3 << " eta = " << trk->eta() << " phi = " << trk->phi() << " nSi = " << xAOD::EgammaHelpers::numberOfSiHits(trk));
     }
 
@@ -206,7 +208,7 @@ namespace DerivationFramework {
         continue;      
 
       // Henri's circles
-      if (decorateSimple(ele,pvtx).isFailure()) {
+      if (decorateSimple(ctx, closeByTracks, ele, pvtx).isFailure()) {
         ATH_MSG_ERROR("Cannot decorate the electron with the simple info");
         return StatusCode::FAILURE;
       }
@@ -217,8 +219,20 @@ namespace DerivationFramework {
   }
 }
 
-StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const xAOD::Electron *ele, const xAOD::Vertex *pvtx) const {
-
+StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const EventContext& ctx,
+                                                                        std::unique_ptr<ConstDataVector<xAOD::TrackParticleContainer>> & tpC,
+                                                                        const xAOD::Electron *ele,
+                                                                        const xAOD::Vertex *pvtx) const
+{
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> drv(m_drv, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dphiv(m_dphiv, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dmee(m_dmee, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dmeeVtx(m_dmeeVtx, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dsep(m_dsep, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, int> dambi(m_dambi, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtrv(m_dtrv, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtpv(m_dtpv, ctx);
+  SG::WriteDecorHandle<xAOD::ElectronContainer, float> dtzv(m_dtzv, ctx);
 
   // This is the GSF electron track
   const xAOD::TrackParticle *eleGSFtrkP = ele->trackParticle();
@@ -246,14 +260,9 @@ StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const xA
   }
 
   // Find the closest track particle with opposite charge and a minimum nb of Si hits
-  const xAOD::TrackParticleContainer *tpC(nullptr);
-  if (evtStore()->retrieve(tpC,"closeByTrackParticles").isFailure()) {
-    ATH_MSG_ERROR ("Failed to retrieve track particle container. Exiting." );
-    return StatusCode::FAILURE;
-  }
   const xAOD::TrackParticle *otrkP(nullptr);
   double detaMin = 9e9;
-  for (const auto *tp : *tpC) {
+  for (const xAOD::TrackParticle *tp : *tpC) {
     // Keep only opposite charge
     if (tp->charge() * eletrkP->charge() > 0)
       continue;
@@ -387,8 +396,10 @@ StatusCode DerivationFramework::EGElectronAmbiguityTool::decorateSimple(const xA
   return StatusCode::SUCCESS;
 }
 
-void DerivationFramework::EGElectronAmbiguityTool::helix(const xAOD::TrackParticle *trkP, const xAOD::Vertex *pvtx, std::vector<double>&he) const {
-
+void DerivationFramework::EGElectronAmbiguityTool::helix(const xAOD::TrackParticle *trkP,
+                                                         const xAOD::Vertex *pvtx,
+                                                         std::vector<double>&he) const
+{
   constexpr double PTTOCURVATURE = -0.301;
 
   he[0] = 1./tan(trkP->theta());
