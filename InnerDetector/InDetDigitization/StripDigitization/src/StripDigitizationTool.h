@@ -4,8 +4,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef STRIPDIGITZATION_STRIPDIGITZATIONTOOL_H
-#define SSTRIPDIGITZATION_STRIPDIGITZATIONTOOL_H
+#ifndef STRIPDIGITIZATION_STRIPDIGITIZATIONTOOL_H
+#define STRIPDIGITIZATION_STRIPDIGITIZATIONTOOL_H
 /** @file StripDigitizationTool.h
  * @brief Digitize the ITkStrip using an implementation of IPileUpTool
  */
@@ -155,4 +155,4 @@ inline const InterfaceID& StripDigitizationTool::interfaceID() {
   return IID_IStripDigitizationTool;
 }
 
-#endif // STRIPDIGITZATION_STRIPDIGITZATIONTOOL_H
+#endif // not STRIPDIGITIZATION_STRIPDIGITIZATIONTOOL_H
