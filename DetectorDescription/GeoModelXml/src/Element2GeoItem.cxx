@@ -23,10 +23,12 @@ Element2GeoItem::~Element2GeoItem() {}
 const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxUtil &gmxUtil) {
 
     char *name2release;
+    XMLCh * name_tmp = XMLString::transcode("name");
 
-    name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    name2release = XMLString::transcode(element->getAttribute(name_tmp));
     string name(name2release);
     XMLString::release(&name2release);
+    XMLString::release(&name_tmp);
 
     const RCBase *item;
     map<string, const RCBase *>::iterator entry;

@@ -423,7 +423,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     // Set parameters to the new values;
     const AmgSymMatrix(5)* originalCov = trkPar->covariance();
     if(originalCov) {
-       trkPar->updateParameters(parameters, new AmgSymMatrix(5)( *originalCov ) );
+       trkPar->updateParameters(parameters, AmgSymMatrix(5)( *originalCov ) );
     } else {
        trkPar->updateParameters(parameters); 
     }

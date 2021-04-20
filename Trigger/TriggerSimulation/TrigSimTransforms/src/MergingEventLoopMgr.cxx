@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //------------------------------------------------------------------------------
@@ -205,10 +205,7 @@ namespace TrigSim {
          */
         m_log.setLevel( m_outputLevel.value() );
 
-        m_log << MSG::INFO << "Initializing TrigSim::MergingEventLoopMgr/" << name()
-              << " - package version " << PACKAGE_VERSION << endmsg;
-   
-
+        m_log << MSG::INFO << "Initializing TrigSim::MergingEventLoopMgr/" << name() << endmsg;
 
         /*
          * Does the steering make sense

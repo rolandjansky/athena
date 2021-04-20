@@ -572,8 +572,7 @@ StatusCode
 TrackFitter::initialize()
 {
   // print name and package version
-  ATH_MSG_INFO("TrackFitter::initialize() - package version "
-               << PACKAGE_VERSION);
+  ATH_MSG_INFO("TrackFitter::initialize()");
 
   // retrieve the MaterialProvider and various Intersectors
   if (m_materialAllocator.retrieve().isFailure()) {

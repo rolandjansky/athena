@@ -79,10 +79,14 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
       std::vector<const xAOD::IParticle*> tauClusters = tau->clusters();
       for (auto cluster : tauClusters) {
         const xAOD::CaloCluster* clus = static_cast<const xAOD::CaloCluster*>(cluster);
-        // Correct cluster to tau vertex
-        xAOD::CaloVertexedTopoCluster vertexedClus(*clus, tauVertex->position());
+        TLorentzVector clusterp4 = clus->p4();
+        // Correct cluster to tau vertex if it exists
+        if (tauVertex != nullptr) {
+          xAOD::CaloVertexedTopoCluster vertexedClus(*clus, tauVertex->position());
+          clusterp4 = vertexedClus.p4();
+        }
         // Check if the cluster is within R = 0.2 of tau axis
-        if (vertexedClus.p4().DeltaR(tau->p4(xAOD::TauJetParameters::IntermediateAxis)) > 0.2) continue;
+        if (clusterp4.DeltaR(tau->p4(xAOD::TauJetParameters::IntermediateAxis)) > 0.2) continue;
         // Get the index of the cluster associated to the tau
         size_t tauClusterIndex = clus->index();
 

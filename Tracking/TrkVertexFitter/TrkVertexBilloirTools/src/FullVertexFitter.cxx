@@ -473,7 +473,8 @@ namespace Trk
 					//Covariance matrix does not need to be inverted:
 					//					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->inverse().eval();
 					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->eval();
-					refittedPerigee = new Trk::Perigee ( 0.,0.,mom_at_Origin[iter][0],mom_at_Origin[iter][1],mom_at_Origin[iter][2], Surface, &newTrackErrorMatrix );
+					refittedPerigee = new Trk::Perigee ( 0.,0.,mom_at_Origin[iter][0],mom_at_Origin[iter][1],mom_at_Origin[iter][2], 
+                                               Surface, std::move(newTrackErrorMatrix) );
 					Trk::VxTrackAtVertex* tmpVxTrkAtVtx = new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, refittedPerigee, ( *BTIter ).originalPerigee );
 					tracksAtVertex.push_back ( *tmpVxTrkAtVtx );
 					iter ++;

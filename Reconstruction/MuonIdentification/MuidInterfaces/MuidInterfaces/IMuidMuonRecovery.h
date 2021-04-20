@@ -14,42 +14,35 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-namespace Trk
-{
+namespace Trk {
     class Track;
 }
 
-namespace Rec
-{
-  
-/** Interface ID for IMuidMuonRecovery*/  
-static const InterfaceID IID_IMuidMuonRecovery("IMuidMuonRecovery", 1, 0);
-  
-/**@class IMuidMuonRecovery
+namespace Rec {
 
-Base class for MuidMuonRecovery AlgTool
-     
-     
-@author niels.van.eldik@cern.ch
-*/
-class IMuidMuonRecovery : virtual public IAlgTool
-{
-public:
+    /** Interface ID for IMuidMuonRecovery*/
+    static const InterfaceID IID_IMuidMuonRecovery("IMuidMuonRecovery", 1, 0);
 
-    /**Virtual destructor*/
-    virtual ~IMuidMuonRecovery(){}
-       
-    /** AlgTool and IAlgTool interface methods */
-    static const InterfaceID&		interfaceID() { return IID_IMuidMuonRecovery; }
+    /**@class IMuidMuonRecovery
 
-    /**IMuidMuonRecovery interface:
-       algorithmic code for recovering muon spectrometer using the inner detector track */    
-    virtual Trk::Track*           recoverableMatch (const Trk::Track& indetTrack, 
-						    const Trk::Track& spectrometerTrack) const = 0;
-};
- 
-}	// end of namespace
-
-#endif // MUIDINTERFACES_IMUIDMUONRECOVERY_H_H
+    Base class for MuidMuonRecovery AlgTool
 
 
+    @author niels.van.eldik@cern.ch
+    */
+    class IMuidMuonRecovery : virtual public IAlgTool {
+    public:
+        /**Virtual destructor*/
+        virtual ~IMuidMuonRecovery() {}
+
+        /** AlgTool and IAlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_IMuidMuonRecovery; }
+
+        /**IMuidMuonRecovery interface:
+           algorithmic code for recovering muon spectrometer using the inner detector track */
+        virtual Trk::Track* recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack) const = 0;
+    };
+
+}  // namespace Rec
+
+#endif  // MUIDINTERFACES_IMUIDMUONRECOVERY_H_H

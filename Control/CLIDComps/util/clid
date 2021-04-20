@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+## @file clid
+# @brief CLI to Athena CLID DB. "clid -h" for help
+# @author cetull@lbl.gov, pcalafiura@lbl.gov
+
+from CLIDComps.clidGenerator import clidGenerator, py2_hash
+from optparse import OptionParser
+
+#
+# options and their arguments.
+#
+parser = OptionParser(usage="%prog [options] [class name] OR [clid] (Enter %prog -h for help)", version="%prog - Athena CLID Generator v 3.0")
+parser.add_option("-b", "--cliddb", dest="cliddb",
+              help="Reconcile generated CLID with CLID DataBase CLIDDB",
+              metavar="CLIDDB")
+parser.add_option("-d", "--debug", action="store_true", dest="debug",
+              help="Print debug information during execution", default=False)
+parser.add_option("-f", "--find",
+                  action="append", dest="relist", 
+                  help="Find entry whose ClassName or CLID matches regex. \n (See Python re module for syntax of REGEX.)",
+                  metavar="REGEX")
+parser.add_option("-c", "--condcont", action="store_true", dest="condcont",
+              help="Create the CLID of the conditions container", default=False)
+parser.add_option("-m", "--macro", action="store_true", dest="macro",
+              help="Print StoreGate CLASS_DEF or CONDCONT_DEF macro line", default=False)
+parser.add_option("-s", "--silent", action="store_true", dest="silent",
+              help=" Be more silent on output. Print _only_ result. \n (N.B. Overrides -m option.)", default=False)
+#
+#load options
+#
+(options, args) = parser.parse_args()
+if len(args) != 1 and options.relist is None:
+    parser.error("takes exactly 1 argument")
+
+#
+# Initialize 
+#
+if options.cliddb: 
+    cgen = clidGenerator(options.cliddb, options.debug)
+else:
+    cgen = clidGenerator("", options.debug)
+
+if options.debug: print ("repository = ",cgen._clidGenerator__clidRep)
+
+#
+# Process ClassName arguments
+#
+for a in args:
+    try:
+        i = int(a)
+    except ValueError:
+        n = a
+        if options.condcont:
+            if n.startswith('CondCont'):
+                parser.error('Class %s is already of type CondCont. Run without -c option.' % a)
+            n = 'CondCont<%s>' % a
+        c = cgen.genClidFromName(n)
+    else:
+        n = cgen.getNameFromClid(i)
+        c = i
+        if not n:
+            n = ">>>Not Found in CLIDDB<<<"
+    if options.debug: 
+        print (c,n,'(',py2_hash(n),py2_hash(n)&cgen._clidGenerator__mask,"%8x"%c,')')
+    else:
+        if options.macro:
+            if options.condcont:
+                print ("CONDCONT_DEF(",a,",",c,")")
+            else:
+                print ("CLASS_DEF(",n,",",c,", 1 )")
+        else:
+            if options.silent: print (c)
+            else:
+                print (c, n)
+
+#
+# Process RegEx list
+#
+if options.relist:
+    for p in options.relist:
+        print ('>>> Searching CLIDDB for (',p,') <<<')
+        print (cgen.findPattern(p))
+

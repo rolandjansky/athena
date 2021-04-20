@@ -371,7 +371,6 @@ AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileMuonReceiverContainer#TileMuRcvCnt"])
 #HLT
-AlignmentTriggerMuonStream.AddItem(["CosmicMuonCollection#HLT_CosmicMuons"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::L2StandAloneMuonContainer#HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::L2CombinedMuonContainer#HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::L2IsoMuonContainer#HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfo"])

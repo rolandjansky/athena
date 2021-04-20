@@ -166,13 +166,12 @@ AODFix_posttauRec()
 #
 # functionality: Flow element tau links
 #
+pdr.flag_domain('eflow')
 if recAlgs.doEFlow():
     try:
         include( "eflowRec/tauFELinkConfig.py" )
     except Exception:
         treatException("Could not set up tau-FE links")
-
-
 
 #
 # functionality : Missing Et

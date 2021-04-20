@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_useConditionsHTStatus(false),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
-  m_trtid(0),
+  m_trtid(nullptr),
   m_reject_if_first_bit(false),
   m_reject_if_first_bit_argon(true),
   m_min_trailing_edge(11.0*CLHEP::ns),
@@ -162,8 +162,7 @@ bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGa
       mask >>= 1;
     i++;
   }
-  if (foundInterval) return true;
-  return false;
+  return foundInterval;
 }
 
 
@@ -175,7 +174,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 {
 
   //Initialise a new TRT_DriftCircleCollection
-  InDet::TRT_DriftCircleCollection* rio = 0;
+  InDet::TRT_DriftCircleCollection* rio = nullptr;
 
   if (!rdo) {
     ATH_MSG_ERROR("empty TRT raw data collection");

@@ -26,7 +26,7 @@ logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 chains = [
-    ChainProp(name='HLT_j0_dijetSEP80j12etSEP700djmassSEPdjdphi260_L1J20.log',
+    ChainProp(name='HLT_j0_dijetSEP80j12etSEP700djmassSEPdjdphi260_L1J20',
               l1SeedThresholds=['FSNOSEED'],groups=MultiJetGroup),
 
     ChainProp(name='HLT_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta_L1J20',
@@ -74,6 +74,8 @@ chains = [
               groups=SingleJetGroup),
         
     ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_ptrangeSEP2r3_L1J20', groups=SingleJetGroup),
     
 ]
 

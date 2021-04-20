@@ -284,6 +284,7 @@ def TrigJetMonConfig(inputFlags):
 def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
   # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
   path = 'NoTriggerSelection' if isOnline else 'standardHistos/'
+  minNjetBin = 1 if isOnline else 0
 
   TopLevelDir  = 'HLT/JetMon/'
   TopLevelDir += 'Online/' if isOnline else 'Offline/'
@@ -330,9 +331,9 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     # To select on multiple variables simultaneously, simply combine the selection strings via &
     # Example below to select on ET > 100 GeV and |eta| > 3.2:
     # SelectSpec( 'ETeta', '100<et:GeV&|eta|<3.2', path, FillerTools = ["pt","et","m","eta"] )
-    EventHistoSpec('njets', (25,0,25), title='NJets;NJets;Entries' ),
-    EventHistoSpec('njetsPt20', (25,0,25), title='NJetsPt20;NJetsPt20;Entries' ),
-    EventHistoSpec('njetsPt50', (25,0,25), title='NJetsPt50;NJetsPt50;Entries' ),
+    EventHistoSpec('njets', (25,minNjetBin,25), title='NJets;NJets;Entries' ),
+    EventHistoSpec('njetsPt20', (25,minNjetBin,25), title='NJetsPt20;NJetsPt20;Entries' ),
+    EventHistoSpec('njetsPt50', (25,minNjetBin,25), title='NJetsPt50;NJetsPt50;Entries' ),
     # Jet multiplicity histograms can be added by using an EventHistoSpec
     # Their specifications (pT cut, ET cut, eta cuts) must be defined in the knownEventVar dictionary within JetStandardHistoSpecs.py
     # The following line is an example for a jet multiplicity histogram with ET>40 GeV, 1.0<|eta|<2.0, and binning of (10,0,10):
@@ -517,14 +518,27 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
            "phi",
            EventHistoSpec('njets', (25,0,25), title='njets;njets;Entries' ),
            EventHistoSpec('njetsEt20Eta0_32', (25,0,25), title='njetsEt20Eta0_32;njetsEt20Eta0_32;Entries' ),
+           EventHistoSpec('njetsEt30Eta0_32', (25,0,25), title='njetsEt30Eta0_32;njetsEt20Eta0_32;Entries' ),
            EventHistoSpec('njetsEt50Eta0_32', (25,0,25), title='njetsEt50Eta0_32;njetsEt50Eta0_32;Entries' ),
+           EventHistoSpec('njetsEt80Eta0_32', (25,0,25), title='njetsEt80Eta0_32;njetsEt80Eta0_32;Entries' ),
+           EventHistoSpec('njetsPt20Eta0_32', (25,0,25), title='njetsPt20Eta0_32;njetsPt20Eta0_32;Entries' ),
+           EventHistoSpec('njetsPt30Eta0_32', (25,0,25), title='njetsPt30Eta0_32;njetsPt20Eta0_32;Entries' ),
+           EventHistoSpec('njetsPt50Eta0_32', (25,0,25), title='njetsPt50Eta0_32;njetsPt50Eta0_32;Entries' ),
+           EventHistoSpec('njetsPt80Eta0_32', (25,0,25), title='njetsPt80Eta0_32;njetsPt80Eta0_32;Entries' ),
    )
-   NjetHistName = getNjetHistName(chain)
-   from JetMonitoring.JetStandardHistoSpecs import knownEventVar
-   if knownEventVar.get(NjetHistName,None) is not None:
-     trigConf.appendHistos(
-       EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
-     )
+   # Add NjetEt and NjetPt histograms for simple scenarios
+   if 'ht' not in chain and 'dijet' not in chain and 'fbdj' not in chain:
+     NjetHistName = getNjetHistName(chain)
+     from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+     if knownEventVar.get(NjetHistName,None) is not None:
+       trigConf.appendHistos(
+         EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
+       )
+     NjetHistName = NjetHistName.replace('Et','Pt')
+     if knownEventVar.get(NjetHistName,None) is not None:
+       trigConf.appendHistos(
+         EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
+       )
    if 'ftf' in chain and 'a10' not in chain: # track-based JVT variables for FTF chains
      trigConf.appendHistos("Jvt")
      trigConf.appendHistos("JVFCorr")

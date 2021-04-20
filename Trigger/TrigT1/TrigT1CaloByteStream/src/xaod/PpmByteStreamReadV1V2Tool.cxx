@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ===========================================================================
@@ -81,8 +81,7 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
 
 
 StatusCode PpmByteStreamReadV1V2Tool::initialize() {
-  ATH_MSG_INFO(
-      "Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing " << name());
 
   m_srcIdMap = new L1CaloSrcIdMap();
   CHECK(m_errorTool.retrieve());

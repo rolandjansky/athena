@@ -47,7 +47,7 @@ class DetElementSurface : public Surface
     std::ostream &              dump (std::ostream &sl) const { return sl;};
     const Identifier            associatedDetectorElementIdentifier() const {return m_id;}
     bool                        isFree() {return true;}// To avoid memory leaks
-    Surface::SurfaceType        type() const {return Surface::Other;}
+    SurfaceType        type() const {return SurfaceType::Other;}
     void                        localToGlobal(const Amg::Vector2D&, const Amg::Vector3D&, Amg::Vector3D&) const {}
     bool                        globalToLocal(const Amg::Vector3D&, const Amg::Vector3D&, Amg::Vector2D&) const {return false;}
     std::string                 name() const { return "Trk::DetElementSurface";}
@@ -58,7 +58,7 @@ class DetElementSurface : public Surface
                                 double,
                                 double,
                                 double,
-                                AmgSymMatrix(5) *) const
+                                std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -66,7 +66,7 @@ class DetElementSurface : public Surface
     createUniqueTrackParameters(const Amg::Vector3D&,
                                 const Amg::Vector3D&,
                                 double,
-                                AmgSymMatrix(5) *) const
+                                std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -77,7 +77,7 @@ class DetElementSurface : public Surface
                                   double,
                                   double,
                                   double,
-                                  AmgSymMatrix(5) *) const
+                                  std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }
@@ -85,7 +85,7 @@ class DetElementSurface : public Surface
     createUniqueNeutralParameters(const Amg::Vector3D&,
                                   const Amg::Vector3D&,
                                   double,
-                                  AmgSymMatrix(5) *) const
+                                  std::optional<AmgSymMatrix(5)> = std::nullopt) const
     {
       return nullptr;
     }

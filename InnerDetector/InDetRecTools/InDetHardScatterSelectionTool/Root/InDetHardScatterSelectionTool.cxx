@@ -3,6 +3,10 @@
 */
 
 // Local include(s):
+#include <memory>
+
+
+
 #include "InDetHardScatterSelectionTool/InDetHardScatterSelectionTool.h"
 
 // FrameWork include(s):
@@ -81,11 +85,11 @@ StatusCode InDet::InDetHardScatterSelectionTool::initialize()
     // Determine how we will sum the track pt
     switch (m_mode) {
       case Mode::SumPt2: {
-        m_sum = std::unique_ptr<::SumPt2>(new ::SumPt2());
+        m_sum = std::make_unique<::SumPt2>();
         break;
       }
       case Mode::SumPt: {
-        m_sum = std::unique_ptr<::SumPt>(new ::SumPt());
+        m_sum = std::make_unique<::SumPt>();
         break;
       }
       default: {

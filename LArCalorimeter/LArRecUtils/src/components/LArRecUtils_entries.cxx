@@ -1,5 +1,4 @@
 #include "../LArADC2MeVTool.h"
-#include "../LArAutoCorrNoiseTool.h"
 #include "../LArAutoCorrTotalTool.h"
 //#include "LArRecUtils/LArCellFakeProbHV.h"
 //#include "LArRecUtils/LArHVGeometryTool.h"
@@ -23,13 +22,11 @@
 #include "../LArHVPathologyDbCondAlg.h"
 #include "../LArHVIdMappingAlg.h"
 #include "../LArHVCondAlg.h"
-#include "../LArHVScaleCorrCondAlg.h"
 #include "../LArAutoCorrNoiseCondAlg.h"
 #include "../LArFEBConfigCondAlg.h"
 
 
 DECLARE_COMPONENT( LArADC2MeVTool )
-DECLARE_COMPONENT( LArAutoCorrNoiseTool )
 DECLARE_COMPONENT( LArAutoCorrTotalTool )
 //DECLARE_COMPONENT( LArCellFakeProbHV )
 //DECLARE_COMPONENT( LArHVGeometryTool )
@@ -47,6 +44,7 @@ DECLARE_COMPONENT( LArCondAlgDAC2uASC )
 DECLARE_COMPONENT( LArCondAlgHVScaleCorrFlat )
 DECLARE_COMPONENT( LArCondAlgHVScaleCorrSC )
 DECLARE_COMPONENT( LArCondAlgMinBiasSC )
+DECLARE_COMPONENT( LArCondAlgMinBiasAverageSC )
 DECLARE_COMPONENT( LArCondAlgMphysOverMcalFlat )
 DECLARE_COMPONENT( LArCondAlgMphysOverMcalSC )
 DECLARE_COMPONENT( LArCondAlgNoiseSC )
@@ -82,6 +80,5 @@ DECLARE_COMPONENT( LArHVPathologyDbCondAlg )
 DECLARE_COMPONENT( LArHVIdMappingAlg )
 DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
-DECLARE_COMPONENT( LArHVScaleCorrCondAlg )
 DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )
 DECLARE_COMPONENT( LArFEBConfigCondAlg )

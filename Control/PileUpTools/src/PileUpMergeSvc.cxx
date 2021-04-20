@@ -89,8 +89,7 @@ void PileUpMergeSvc::decodeIntervals() {
 StatusCode 
 PileUpMergeSvc::initialize()    {
 
-  msg() << MSG::INFO << "Initializing AthService " << name() 
-	<< " - package version " << PACKAGE_VERSION << endmsg ;
+  msg() << MSG::INFO << "Initializing " << name() << endmsg;
 
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;

@@ -25,7 +25,7 @@ const int PixelHitIndex = 0;
 
 using namespace std;
 
-PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree):
+PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *moduleTree):
   m_detectorManager(detectorManager),
   m_commonItems(commonItems),
   m_moduleTree(moduleTree) {
@@ -195,7 +195,7 @@ void PixelGmxInterface::addSensor(string typeName, map<string, int> &index, int 
   //
   //    Build up a map-structure for numerology
   //
-  Module module((unsigned int) hashId);
+  Wafer module((unsigned int) hashId);
   string errorMessage("");
   if (!m_moduleTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
 			 index["phi_module"], module, errorMessage)) {

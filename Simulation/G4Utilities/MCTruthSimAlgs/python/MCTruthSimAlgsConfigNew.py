@@ -107,6 +107,41 @@ def MergeTruthJetsFilterCfg(flags, name="MergeTruthJetsFilterTool", **kwargs):
 
 
 # The earliest bunch crossing time for which interactions will be sent
+# to the Truth particle merging code.
+def TruthParticle_FirstXing():
+    return 0
+
+
+# The latest bunch crossing time for which interactions will be sent
+# to the Truth particle merging code.
+def TruthParticle_LastXing():
+    return 0
+
+
+def TruthParticleRangeCfg(flags, name="TruthParticleRange", **kwargs):
+    """Return a Truth-Particle configured PileUpXingFolder tool"""
+    #this is the time of the xing in ns
+    kwargs.setdefault("FirstXing", TruthParticle_FirstXing())
+    kwargs.setdefault("LastXing",  TruthParticle_LastXing())
+    kwargs.setdefault("ItemList", ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                                   "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."])
+    return PileUpXingFolderCfg(flags, name, **kwargs)
+
+
+def MergeTruthParticlesCfg(flags, name="MergeTruthParticlesTool", **kwargs):
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TruthParticleRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
+        kwargs.setdefault("FirstXing", TruthParticle_FirstXing())
+        kwargs.setdefault("LastXing",  TruthParticle_LastXing())
+    kwargs.setdefault("InTimeOutputTruthParticleCollKey", "TruthPileupParticles")
+    tool = CompFactory.MergeTruthJetsTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
+    return acc
+
+
+# The earliest bunch crossing time for which interactions will be sent
 # to the TrackRecordCollection merging code.
 def TrackRecord_FirstXing():
     return -1

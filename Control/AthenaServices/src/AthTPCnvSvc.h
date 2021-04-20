@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthTPCnvSvc.h 
@@ -76,6 +76,15 @@ class AthTPCnvSvc
   ITPCnvBase* 
   p2t_cnv(const std::string& persClassName,
           Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) override;
+
+  /** @brief Return the T/P converter for a transient class.
+   *         Returns null on failure (with no warning printed).
+   *         Ownership is returned to the caller.
+   */ 
+  virtual
+  std::unique_ptr<ITPCnvBase>
+  t2p_cnv_unique(const CLID transClid) const override;
+
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

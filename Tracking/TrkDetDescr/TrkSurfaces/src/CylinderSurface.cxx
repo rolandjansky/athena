@@ -19,7 +19,7 @@
 // default constructor
 Trk::CylinderSurface::CylinderSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -109,8 +109,6 @@ Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds)
   assert(cbounds);
 }
 
-// destructor (will call destructor from base class which deletes objects)
-Trk::CylinderSurface::~CylinderSurface() = default;
 
 Trk::CylinderSurface&
 Trk::CylinderSurface::operator=(const CylinderSurface& csf)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Package : RpcRawDataMonitoring
@@ -24,7 +24,6 @@
 
 #include "xAODEventInfo/EventInfo.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"

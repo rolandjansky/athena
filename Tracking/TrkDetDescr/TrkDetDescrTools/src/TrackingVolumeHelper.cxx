@@ -718,7 +718,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
 const Trk::LayerMaterialProperties* Trk::TrackingVolumeHelper::layerMaterialProperties(const Trk::Surface& boundarySurface) const
 {
   Trk::LayerMaterialProperties* layerMaterial = nullptr;
-  if (boundarySurface.type() == Trk::Surface::Cylinder){
+  if (boundarySurface.type() == Trk::SurfaceType::Cylinder){
         const Trk::CylinderBounds* cb = dynamic_cast<const Trk::CylinderBounds*>(&boundarySurface.bounds());
         if (!cb) throw std::logic_error("Not CylinderBounds");
         // --------------- material estimation ----------------------------------------------------------------
@@ -735,7 +735,7 @@ const Trk::LayerMaterialProperties* Trk::TrackingVolumeHelper::layerMaterialProp
         }
         // --------------- material estimation ----------------------------------------------------------------
   }
-  if (boundarySurface.type() == Trk::Surface::Disc){
+  if (boundarySurface.type() == Trk::SurfaceType::Disc){
       // --------------- material estimation ----------------------------------------------------------------
       const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&boundarySurface.bounds());
       if (!db) throw std::logic_error("Not DiscBounds");

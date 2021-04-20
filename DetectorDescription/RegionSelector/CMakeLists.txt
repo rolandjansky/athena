@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RegionSelector )
@@ -7,8 +7,8 @@ atlas_subdir( RegionSelector )
 atlas_add_library( RegionSelectorLib
                    src/*.cxx
                    PUBLIC_HEADERS RegionSelector
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces IRegionSelector Identifier RegSelLUT
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities CxxUtils InDetConditionsSummaryService PathResolver StoreGateLib )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel IRegionSelector Identifier RegSelLUT
+                   PRIVATE_LINK_LIBRARIES PathResolver )
 
 atlas_add_component( RegionSelector
                      src/components/*.cxx

@@ -35,7 +35,6 @@ namespace xAODReader {
 
 
   StatusCode xAODTruthReader::initialize() {
-    ATH_MSG_INFO("Initializing; package version = " << PACKAGE_VERSION );
     ATH_MSG_INFO("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerName );
     ATH_MSG_INFO("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerName );
     return StatusCode::SUCCESS;

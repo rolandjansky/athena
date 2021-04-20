@@ -77,7 +77,7 @@ Trk::CaloClusterROI& Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& c
 Amg::Vector3D Trk::CaloClusterROI::globalPosition() const
 {
     if(m_localParams){
-      return m_surface->localToGlobalPos(*m_localParams);
+      return m_surface->localToGlobal(*m_localParams);
     }
     if(m_surface){
       return m_surface->center();

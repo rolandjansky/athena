@@ -14,7 +14,7 @@
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "RegSelLUT/IRegionIDLUT_Creator.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
 
 //forward declarations
 class IIncidentSvc;
@@ -99,9 +99,9 @@ namespace NSWL1 {
         PadTriggerValidationTree m_validation_tree;
 
         void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&);
-         L1TdrStgcTriggerLogic m_tdrLogic;
+	L1TdrStgcTriggerLogic m_tdrLogic;
+	SG::ReadCondHandleKey<IRegSelLUTCondData> m_regSelTableKey{this, "RegSelLUT", "RegSelLUTCondData_STGC", "sTGC Region Selector lookup table"};
 
-         ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC; 
     };  
 
 } // namespace NSWL1

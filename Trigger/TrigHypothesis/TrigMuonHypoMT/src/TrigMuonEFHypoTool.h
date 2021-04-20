@@ -36,6 +36,7 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   };
   virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFHypoTool::MuonEFInfo>& toolInput) const ;
+  float getdphi(float phi1, float phi2) const;
  private:
   bool passedQualityCuts(const xAOD::Muon* muon) const;
   bool decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& input, size_t cutIndex) const;
@@ -44,6 +45,10 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
 
   HLT::Identifier m_decisionId;
   // Properties:
+  Gaudi::Property< bool > m_nscan {
+    this, "NarrowScan", false, "Apply narrow scan" };
+  Gaudi::Property< float > m_conesize {
+    this, "ConeSize", 5, "Narrow scan cone size" };
   Gaudi::Property< bool > m_muonqualityCut {
     this, "MuonQualityCut", false, "Ignore selection" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {

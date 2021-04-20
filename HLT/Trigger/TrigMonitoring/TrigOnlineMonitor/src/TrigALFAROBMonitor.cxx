@@ -137,7 +137,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   const std::vector<ROIB::CTPRoI> ctpRoIVecAV = roIBResult->cTPResult().TAV();
   for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
           uint32_t roIWord = ctpRoIVecAV[iWord].roIWord();
-          ATH_MSG_INFO(" roiAV "<<std::hex<<roIWord<<std::dec);
+          ATH_MSG_DEBUG(" roiAV "<<std::hex<<roIWord<<std::dec);
   }
 
   // get the ALFA ROBs
@@ -148,7 +148,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   m_robDataProviderSvc->getROBData(ctx, m_ALFARobIds,ALFARobFragmentVec, name());
 
   if (ALFARobFragmentVec.size()==0) {
-    ATH_MSG_INFO(" No ALFA ROB found.");
+    ATH_MSG_DEBUG(" No ALFA ROB found.");
     return StatusCode::SUCCESS;
   } 
 

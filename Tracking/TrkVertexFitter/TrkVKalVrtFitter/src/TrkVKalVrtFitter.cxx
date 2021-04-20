@@ -738,22 +738,22 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
     tmpVertex->setCovariance(floatErrMtx);
 
     for(int ii=0; ii<NTrk ; ii++) {
-      AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);
-      if(covarExist){ FillMatrixP( ii, (*CovMtxP), CovFull );}
-      else          { (*CovMtxP).setIdentity();}
+      AmgSymMatrix(5) CovMtxP;
+      if(covarExist){ FillMatrixP( ii, CovMtxP, CovFull );}
+      else          { CovMtxP.setIdentity();}
       Perigee *        tmpChargPer=nullptr;
       NeutralPerigee * tmpNeutrPer=nullptr;
       if(ii<NTrk-Neutrals){
          tmpChargPer  =  new Perigee( 0.,0., TrkAtVrt[ii][0],
 	                                     TrkAtVrt[ii][1],
 				   	     TrkAtVrt[ii][2],
-				 	     PerigeeSurface(Vertex), CovMtxP );
+				 	     PerigeeSurface(Vertex), std::move(CovMtxP) );
       }else{
          tmpNeutrPer  =  new NeutralPerigee( 0.,0., TrkAtVrt[ii][0],
 	                                            TrkAtVrt[ii][1],
 						    TrkAtVrt[ii][2],
 						    PerigeeSurface(Vertex),
-					                    CovMtxP );
+					                    std::move(CovMtxP) );
       }
       tmpVTAV.emplace_back(Chi2PerTrk[ii], tmpChargPer, tmpNeutrPer );
     }

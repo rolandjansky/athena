@@ -48,7 +48,7 @@ ClusterCreator::ClusterCreator( const std::string& name,
 
 StatusCode ClusterCreator::initialize() {
 
-   ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "Initializing" );
 
    // Retrieve the needed tool(s):
    CHECK( m_cnvTool.retrieve() );

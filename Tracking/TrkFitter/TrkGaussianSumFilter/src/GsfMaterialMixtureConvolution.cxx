@@ -334,11 +334,11 @@ Trk::GsfMaterialMixtureConvolution::update(
       caches[stateIndex].deltaParameters[materialIndex];
     const AmgSymMatrix(5)* measuredCov =
       inputState[stateIndex].first->covariance();
-    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     if (measuredCov &&
         caches[stateIndex].deltaCovariances.size() > materialIndex) {
       updatedCovariance =
-        new AmgSymMatrix(5)(caches[stateIndex].deltaCovariances[materialIndex]);
+        AmgSymMatrix(5)(caches[stateIndex].deltaCovariances[materialIndex]);
     }
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
       inputState[stateIndex]
@@ -348,7 +348,7 @@ Trk::GsfMaterialMixtureConvolution::update(
                                      updatedStateVector[Trk::phi],
                                      updatedStateVector[Trk::theta],
                                      updatedStateVector[Trk::qOverP],
-                                     updatedCovariance);
+                                     std::move(updatedCovariance));
 
     Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters), 1.);
     Trk::MultiComponentState returnMultiState;
@@ -433,7 +433,7 @@ Trk::GsfMaterialMixtureConvolution::update(
                                      stateVector[Trk::phi],
                                      stateVector[Trk::theta],
                                      stateVector[Trk::qOverP],
-                                     new AmgSymMatrix(5)(measuredCov));
+                                     measuredCov);
 
     double updatedWeight = caches[stateIndex].weights[materialIndex];
 

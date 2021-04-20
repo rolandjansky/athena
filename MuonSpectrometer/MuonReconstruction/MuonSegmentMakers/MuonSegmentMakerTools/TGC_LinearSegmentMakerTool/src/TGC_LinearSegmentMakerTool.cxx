@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_LinearSegmentMakerTool/TGC_LinearSegmentMakerTool.h"
@@ -34,7 +34,7 @@ TGC_LinearSegmentMakerTool::TGC_LinearSegmentMakerTool(const std::string& type, 
 StatusCode
 TGC_LinearSegmentMakerTool::initialize()
 {
-    ATH_MSG_INFO("Initializing TGC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing TGC_LinearSegmentMakerTool");
 
     const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
     ATH_CHECK(detStore()->retrieve(muDetMgr));

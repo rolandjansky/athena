@@ -55,7 +55,7 @@ void MomentumTruthPullPlots::initializePlots()
 
 }
   
-void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParticle* msTrk, const xAOD::TruthParticle& truthMu)
+  void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParticle* msTrk, const xAOD::TruthParticle& truthMu, float weight)
 {
   if (!(muon.muonType()==xAOD::Muon::Combined || muon.muonType()==xAOD::Muon::SegmentTagged || muon.muonType()==xAOD::Muon::MuonStandAlone)) return;
 
@@ -102,19 +102,19 @@ void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParti
   if (muon.muonType()!=xAOD::Muon::SegmentTagged) {
     if (pTruth) {
       float dpCB = 0.001*(pCB-pTruth);
-      dp_CB_truthIP->Fill(dpCB);
-      dp_CB_truthIP_vs_pt->Fill(pt,dpCB);
-      dp_CB_truthIP_vs_eta->Fill(eta,dpCB);
+      dp_CB_truthIP->Fill(dpCB,weight);
+      dp_CB_truthIP_vs_pt->Fill(pt,dpCB,weight);
+      dp_CB_truthIP_vs_eta->Fill(eta,dpCB,weight);
       if (pME) {
 	float dpME = 0.001*(pME-pTruth);
-	dp_ME_truthIP->Fill(dpME);
-	dp_ME_truthIP_vs_pt->Fill(pt,dpME);
-	dp_ME_truthIP_vs_eta->Fill(eta,dpME);
+	dp_ME_truthIP->Fill(dpME,weight);
+	dp_ME_truthIP_vs_pt->Fill(pt,dpME,weight);
+	dp_ME_truthIP_vs_eta->Fill(eta,dpME,weight);
 	if (pMS && pTruthMS) {
 	  float dpMS = 0.001*(pME - pMS - pTruth + pTruthMS);
-	  dp_ME_truthIP_MS_truthMS->Fill(dpMS);
-	  dp_ME_truthIP_MS_truthMS_vs_pt->Fill(pt,dpMS);
-	  dp_ME_truthIP_MS_truthMS_vs_eta->Fill(eta,dpMS);
+	  dp_ME_truthIP_MS_truthMS->Fill(dpMS,weight);
+	  dp_ME_truthIP_MS_truthMS_vs_pt->Fill(pt,dpMS,weight);
+	  dp_ME_truthIP_MS_truthMS_vs_eta->Fill(eta,dpMS,weight);
 	}
       }
     }
@@ -123,9 +123,9 @@ void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParti
   //if (muon.muonType()==xAOD::Muon::Combined || muon.muonType()==xAOD::Muon::SegmentTagged || muon.muonType()==xAOD::Muon::MuonStandAlone) {
   if (eloss>2000 && pTruthMS && pTruth) {
     float dpEloss = 0.001*(pTruth - pTruthMS - eloss);
-    dp_eloss->Fill(dpEloss);
-    dp_eloss_vs_pt->Fill(pt,dpEloss);
-    dp_eloss_vs_eta->Fill(eta,dpEloss);
+    dp_eloss->Fill(dpEloss,weight);
+    dp_eloss_vs_pt->Fill(pt,dpEloss,weight);
+    dp_eloss_vs_eta->Fill(eta,dpEloss,weight);
   }
   
 }

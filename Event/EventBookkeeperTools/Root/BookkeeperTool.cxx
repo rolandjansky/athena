@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class BookkeeperTool
@@ -97,6 +97,7 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
 #endif
 
   // Prepare local cache
+  ATH_MSG_INFO("Preparing local cache for source '" << source << "' with " << m_numberOfWeightVariations << " variations");
   CutBookkeepersLocalCache::prepareContainers(m_completeContainers, m_numberOfWeightVariations);
   CutBookkeepersLocalCache::prepareContainers(m_incompleteContainers, m_numberOfWeightVariations);
 
@@ -107,33 +108,46 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
     return StatusCode::FAILURE;
   }
 
-  // Get the incomplete bookkeeper collection of the input metadata store
-  const xAOD::CutBookkeeperContainer *inIncomplete{};
-  // Construct input and output incomplete names
+  const xAOD::CutBookkeeperContainer *inputCollection{};
+  // Get the incomplete bookkeeper collections of the input metadata store
   std::string incompleteCollName = "Incomplete" + m_inputCollName;
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incompleteCollName)) {
-    if (inputMetaStore()->retrieve(inIncomplete, incompleteCollName).isSuccess()) {
-      // update incomplete output with any incomplete input
-      xAOD::CutFlowHelpers::updateContainer(m_incompleteContainers.at(0), inIncomplete);
-      ATH_MSG_DEBUG("Successfully merged input incomplete bookkeepers with output");
+    for (size_t i{}; i < m_numberOfWeightVariations; ++i) {
+      std::string name = incompleteCollName;
+      if (i != 0) {
+        name.append("_weight_");
+        name.append(std::to_string(i));
+      }
+      if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)
+        && inputMetaStore()->retrieve(inputCollection, name).isSuccess()) {
+        xAOD::CutFlowHelpers::updateContainer(m_incompleteContainers.at(i), inputCollection);
+      }
     }
+    ATH_MSG_DEBUG("Successfully merged input incomplete bookkeepers with output");
   } else {
-    ATH_MSG_INFO("No incomplete bookkeepers in this file with name " << incompleteCollName);
+    ATH_MSG_INFO("No incomplete bookkeepers with name '" << incompleteCollName << "' in this file");
   }
 
-  // Get the complete bookkeeper collection of the input metadata store
-  const xAOD::CutBookkeeperContainer *inComplete{};
+  // Get the complete bookkeeper collections of the input metadata store
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_inputCollName)) {
-    if (inputMetaStore()->retrieve(inComplete, m_inputCollName).isSuccess()) {
-      // Create the temporary container
-      auto [it, status] = m_inputContainers.emplace(source, CutBookkeepersLocalCache());
-      CutBookkeepersLocalCache::prepareContainers(it->second, m_numberOfWeightVariations);
-
-      xAOD::CutFlowHelpers::updateContainer(it->second.at(0), inComplete);
-      ATH_MSG_DEBUG("Successfully copied complete bookkeepers to temp container");
-    } else {
-      ATH_MSG_INFO("No complete bookkeepers in this file with name " << m_inputCollName);
+    // Create the temporary container
+    auto [it, status] = m_inputContainers.emplace(source, CutBookkeepersLocalCache());
+    CutBookkeepersLocalCache::prepareContainers(it->second, m_numberOfWeightVariations);
+    
+    for (size_t i{}; i < m_numberOfWeightVariations; ++i) {
+      std::string name = m_inputCollName;
+      if (i != 0) {
+        name.append("_weight_");
+        name.append(std::to_string(i));
+      }
+      if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)
+        && inputMetaStore()->retrieve(inputCollection, name).isSuccess()) {
+        xAOD::CutFlowHelpers::updateContainer(it->second.at(i), inputCollection);
+      }
     }
+    ATH_MSG_DEBUG("Successfully copied complete bookkeepers to temp container");
+  } else {
+    ATH_MSG_INFO("No complete bookkeepers with name '" << m_inputCollName.value() << "' in this file");
   }
 
   return StatusCode::SUCCESS;
@@ -148,6 +162,7 @@ StatusCode BookkeeperTool::endInputFile(const SG::SourceID &source)
 #ifdef XAOD_STANDALONE
   SG::SourceID source{"file"};
 #endif
+  ATH_MSG_INFO("Copying input containers for source '" << source << "'");
   ATH_CHECK(copyInputContainersToOutput(m_completeContainers, source));
 
   return StatusCode::SUCCESS;
@@ -197,8 +212,8 @@ StatusCode BookkeeperTool::metaDataStop()
       }
       xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
     } else {
-      // Only write non-empty incomplete containers
-      if (i > 0 && !m_incompleteContainers.at(i)->empty()) {
+      // Only write non-empty incomplete containers for variations
+      if (i == 0 || !m_incompleteContainers.at(i)->empty()) {
         ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), incompleteName));
         ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), incompleteName + "Aux."));
       }
@@ -208,7 +223,7 @@ StatusCode BookkeeperTool::metaDataStop()
   m_incompleteContainers.clear();
   m_completeContainers.clear();
 
-  ATH_MSG_DEBUG("Successfully copied CutBookkeepers to the output MetaDataStore");
+  ATH_MSG_INFO("Successfully copied CutBookkeepers to the output MetaDataStore");
 
   return StatusCode::SUCCESS;
 }
@@ -247,10 +262,16 @@ StatusCode BookkeeperTool::copyInputContainersToOutput(CutBookkeepersLocalCache 
 StatusCode BookkeeperTool::copyCutflowFromService()
 {
 #ifndef XAOD_STANDALONE
+  ATH_MSG_DEBUG("Copying cutflow from CutFlowSvc");
+
   // Get the bookkeeper from the current processing
   const CutBookkeepersLocalCache &cache = m_cutFlowSvcPrivate->getCutBookkeepers();
   if (!cache.empty()) {
+    ATH_MSG_DEBUG("Cache size: " << cache.size());
+
+    // sync the size
     CutBookkeepersLocalCache::prepareContainers(m_completeContainers, std::max(cache.size(), m_numberOfWeightVariations));
+    CutBookkeepersLocalCache::prepareContainers(m_incompleteContainers, std::max(cache.size(), m_numberOfWeightVariations));
 
     for (std::size_t i = 0; i < cache.size(); ++i) {
       xAOD::CutFlowHelpers::updateContainer(m_completeContainers.at(i), cache.at(i));

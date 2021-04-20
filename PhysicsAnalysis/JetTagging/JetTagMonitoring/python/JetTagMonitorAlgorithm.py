@@ -167,15 +167,7 @@ def JetTagMonitorConfig(inputFlags):
     # Add some tools. N.B. Do not use your own trigger decision tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
-    # First, add a tool that's set up by a different configuration function. 
-    # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # jetTagMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # Then, add a tool that doesn't have its own configuration function. In
+    # Add a tool that doesn't have its own configuration function. In
     # this jetTagging, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # jetTagMonAlg.MyDomainTool = MyDomainTool()

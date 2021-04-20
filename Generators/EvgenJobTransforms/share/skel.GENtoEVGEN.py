@@ -449,6 +449,9 @@ StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+if evgenConfig.savePileupTruthParticles:
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
 
 # Remove any requested items from the ItemList so as not to write out
 for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )

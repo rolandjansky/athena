@@ -39,9 +39,11 @@ GeoNameTag *physVolName;
 
     gmxUtil.positionIndex.incrementLevel();
 
-    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    XMLCh * name_tmp = XMLString::transcode("name");
+    char *name2release = XMLString::transcode(element->getAttribute(name_tmp));
     string name(name2release);
     XMLString::release(&name2release);
+    XMLString::release(&name_tmp);
 //
 //    Look for the logvol in the map; if not yet there, add it
 //
@@ -59,7 +61,8 @@ GeoNameTag *physVolName;
 //    Get the shape.
 //
         DOMDocument *doc = element->getOwnerDocument();
-        const XMLCh *shape = element->getAttribute(XMLString::transcode("shape"));
+	XMLCh * shape_tmp = XMLString::transcode("shape");
+        const XMLCh *shape = element->getAttribute(shape_tmp);
         DOMElement *refShape = doc->getElementById(shape);
         // Check it is a shape... its parent should be a <shapes>. DTD cannot do this for us.
         DOMNode *parent = refShape->getParentNode();
@@ -76,16 +79,19 @@ GeoNameTag *physVolName;
         name2release = XMLString::transcode(refShape->getNodeName());
         string shapeType(name2release);
         XMLString::release(&name2release);
+	XMLString::release(&shape_tmp);
 
         GeoShape *s = (GeoShape *) gmxUtil.geoItemRegistry.find(shapeType)->process(refShape, gmxUtil);
 //
 //    Get the material
 //
-        const XMLCh *material = element->getAttribute(XMLString::transcode("material"));
+	XMLCh * material_tmp = XMLString::transcode("material");
+        const XMLCh *material = element->getAttribute(material_tmp);
         DOMElement *refMaterial = doc->getElementById(material);
         // Check it is a material... its parent should be a <materials>. DTD cannot do this for us.
         parent = refMaterial->getParentNode();
-        if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("materials")) != 0) {
+	XMLCh * materials_tmp = XMLString::transcode("materials");
+        if (XMLString::compareIString(parent->getNodeName(), materials_tmp) != 0) {
             msglog << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
                     "Material ref was " << material << "; exiting" << endmsg;
@@ -93,16 +99,22 @@ GeoNameTag *physVolName;
         }
 
         GeoMaterial *m = (GeoMaterial *) gmxUtil.tagHandler.material.process(refMaterial, gmxUtil);
+
 //
 //    Make the LogVol and add it to the map ready for next time
 //
         lv = new GeoLogVol(name, s, m);
         store->logVol = lv;
+
+	XMLString::release(&material_tmp);
+	XMLString::release(&materials_tmp);
     }
     else { // Already in the registry; use it.
         physVolName = entry->second.name;
         lv = entry->second.logVol;
     }
+ 
+
 //
 //    Process the logvol children (side effect: sets formulae for indexes before calculating them)
 //
@@ -120,7 +132,8 @@ GeoNameTag *physVolName;
 //   Make a list of things to be added
 //
     toAdd.push_back(physVolName);
-    bool sensitive = element->hasAttribute(XMLString::transcode("sensitive"));
+    XMLCh * sensitive_tmp = XMLString::transcode("sensitive"); 
+    bool sensitive = element->hasAttribute(sensitive_tmp);
     int sensId = 0;
     //std::vector<int> extraSensIds;//extra Identfiers to be used in case we split this volume into multiple DetectorElements
     map<string, int> index;
@@ -136,12 +149,15 @@ GeoNameTag *physVolName;
       toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
       gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
     } 
+    XMLString::release(&sensitive_tmp);
     //
     //    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
     //
-    char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
+    XMLCh * alignable_tmp = XMLString::transcode("alignable");
+    char *toRelease = XMLString::transcode(element->getAttribute(alignable_tmp));
     string alignable(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&alignable_tmp);
     if (sensitive || (alignable.compare(string("true")) == 0)) {
       GeoFullPhysVol *pv = new GeoFullPhysVol(lv);
       for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
@@ -152,17 +168,21 @@ GeoNameTag *physVolName;
       //    Add sensitive volumes to detector manager via GmxInterface
       //
       if (sensitive) {
-	name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("sensitive")));
+	XMLCh * sensitive_tmp = XMLString::transcode("sensitive");
+	name2release = XMLString::transcode(element->getAttribute(sensitive_tmp));
 	string sensitiveName(name2release);
 	XMLString::release(&name2release);
+	XMLString::release(&sensitive_tmp);
 	//splitting sensors where we would like multiple DetectorElements per GeoVFullPhysVol (e.g.ITk Strips)
-	bool split = element->hasAttribute(XMLString::transcode("splitLevel"));
+	XMLCh * splitLevel_tmp = XMLString::transcode("splitLevel");
+	bool split = element->hasAttribute(splitLevel_tmp);
 	char* splitString;
 	int splitLevel = 1;
 	if (split) {
-	  splitString = XMLString::transcode(element->getAttribute(XMLString::transcode("splitLevel")));
+	  splitString = XMLString::transcode(element->getAttribute(splitLevel_tmp));
 	  splitLevel = gmxUtil.evaluate(splitString);
 	  XMLString::release(&splitString);
+	  XMLString::release(&splitLevel_tmp);
 	  for(int i=0;i<splitLevel;i++){
 	    std::string field = "eta_module";//eventually specify in Xml the field to split in?
 	    std::pair<std::string,int> extraIndex(field,i);
@@ -186,9 +206,11 @@ GeoNameTag *physVolName;
 
 void LogvolProcessor::zeroId(const xercesc::DOMElement *element) {
   
-  char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+  XMLCh * name_tmp = XMLString::transcode("name");
+  char *name2release = XMLString::transcode(element->getAttribute(name_tmp));
   string name(name2release);
   XMLString::release(&name2release);
+  XMLString::release(&name_tmp);
   //
   //    Look for the logvol in the map; if not yet there, add it
   //

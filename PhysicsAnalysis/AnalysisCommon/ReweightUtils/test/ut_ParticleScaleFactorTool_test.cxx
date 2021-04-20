@@ -3,7 +3,7 @@
 */
 
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IObservableTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
@@ -82,22 +82,22 @@ int main() {
    static const int verboseLevel = 3;
 #endif // XAOD_STANDALONE
 
-   asg::AnaToolHandle<IObservableTool> myTool("ParticleScaleFactorTool/tool1");
+   asg::StandaloneToolHandle<IObservableTool> myTool("ParticleScaleFactorTool/tool1");
    ANA_CHECK( myTool.setProperty( "File", "test.root" ) );
    ANA_CHECK( myTool.setProperty( "OutputLevel", verboseLevel ) );
    ANA_CHECK( myTool.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool2("ParticleScaleFactorTool/tool2");
+   asg::StandaloneToolHandle<IObservableTool> myTool2("ParticleScaleFactorTool/tool2");
    ANA_CHECK( myTool2.setProperty( "File", "test2.root" ) );
    ANA_CHECK( myTool2.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool2.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool3("ParticleScaleFactorTool/tool3");
+   asg::StandaloneToolHandle<IObservableTool> myTool3("ParticleScaleFactorTool/tool3");
    ANA_CHECK( myTool3.setProperty( "File", "test3.root" ) );
    ANA_CHECK( myTool3.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool3.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool4("ParticleScaleFactorTool/tool4");
+   asg::StandaloneToolHandle<IObservableTool> myTool4("ParticleScaleFactorTool/tool4");
    ANA_CHECK( myTool4.setProperty( "File", "test4.root" ) );
    ANA_CHECK( myTool4.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool4.initialize() );

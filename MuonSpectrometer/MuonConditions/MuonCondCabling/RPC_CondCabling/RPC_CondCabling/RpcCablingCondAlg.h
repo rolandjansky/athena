@@ -1,41 +1,25 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-   */
-
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef MUONCONDALG_RPCCABLINGCONDALG_H
 #define MUONCONDALG_RPCCABLINGCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include <string>
-#include <map>
-#include <vector>
-
-#include "GaudiKernel/EventIDRange.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "SGTools/TransientAddress.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeListSpecification.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "PathResolver/PathResolver.h"
-#include <fstream>
-#include <iostream>
-#include <stdlib.h>
-
-#include "RPC_CondCabling/RPCofflineId.h"
-
 #include "RPC_CondCabling/RpcCablingCondData.h"
 
+#include <string>
+#include <map>
+#include <array>
 
-class RpcCablingCondAlg: public AthAlgorithm {
+class RpcCablingCondAlg: public AthReentrantAlgorithm {
 
   public:
 
@@ -43,58 +27,13 @@ class RpcCablingCondAlg: public AthAlgorithm {
 
     virtual ~RpcCablingCondAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
+    typedef std::array<int,64> sectorMap_t;
+    typedef std::map<int,RPC_CondCabling::SectorLogicSetup*,std::less<int>> SLmap_t;
 
-    StatusCode loadParameters(const CondAttrListCollection* readCdoMap,
-                              const CondAttrListCollection* readCdoCorr,
-                              const CondAttrListCollection* readCdoEta,
-                              const CondAttrListCollection* readCdoPhi);
-    StatusCode ReadConf();
-    StatusCode buildRDOmap(RpcCablingCondData* writeCdo);
-    std::list<Identifier> give_strip_id (unsigned short int SubsystemId,
-                                         unsigned short int SectorId,
-                                         unsigned short int PADId,
-                                         unsigned short int CMAId,
-                                         unsigned short ijk,
-                                         unsigned short int Channel) const;
-
-    const std::string* m_ConfMapPString;
-    const std::string* m_corr;
-    std::vector<std::string> m_vecetaCM_File;
-    std::vector<std::string> m_vecetaTh0;
-    std::vector<std::string> m_vecetaSequence_Th;
-    std::vector<std::string> m_vecetaInfo;
-
-    std::map<std::string, std::string> m_trigroads;
-
-    std::vector<std::string> m_vecphiCM_File;
-    std::vector<std::string> m_vecphiTh0;
-    std::vector<std::string> m_vecphiInfo;
-
-    std::string m_DataName; 
-    bool m_TestbeamFlag; 
-    bool m_cosmic_configuration;
-
-    int m_MaxType; 
-    int m_SectorMap[64]; 
-    std::string m_Version; 
-
-    typedef std::map < int,RPC_CondCabling::SectorLogicSetup*,std::less < int > > SLmap;
-
-    // array; for each sectorlogic type returns the SectorLogicSetup
-    RpcCablingCondData::STvec m_SectorType;
-    //map; for each sectorlogic number returns the SectorLogicSetup
-    SLmap m_SectorLogic;
-
-    // BooleanProperty m_RPCTriggerRoadsfromCool;
-    
-    // Pad parameters
-    BooleanProperty m_ApplyFeetPadThresholds;
-    BooleanProperty m_ForceFeetPadThresholdsFromJO;
-    std::vector<unsigned short int> m_FeetPadThresholds;
-
+    ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema{this, "ReadKeySchema", "/RPC/CABLING/MAP_SCHEMA", "Key of input muon rpc map schema condition data"};
@@ -104,8 +43,52 @@ class RpcCablingCondAlg: public AthAlgorithm {
 
     SG::WriteCondHandleKey<RpcCablingCondData>  m_writeKey{this, "WriteKey", "RpcCablingCondData", "Key of output RPC cabling condition data"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    Gaudi::Property<std::string> m_database_repository{this,"DatabaseRepository","MuonRPC_Cabling/ATLAS.data"};
+    Gaudi::Property<bool> m_cosmic_configuration{this,"CosmicConfiguration",false};
+    Gaudi::Property<bool> m_ApplyFeetPadThresholds{this,"ApplyFeetPadThresholds",true,"map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)"};
+    Gaudi::Property<bool> m_ForceFeetPadThresholdsFromJO{this,"ForceFeetPadThresholdsFromJO",false,"JO override db setting"};
 
+    StatusCode setup(const CondAttrListCollection* readCdoMap,const CondAttrListCollection* readCdoCorr,const CondAttrListCollection* readCdoEta,const CondAttrListCollection* readCdoPhi,RpcCablingCondData* writeCdo) const;
+
+    std::list<Identifier> give_strip_id(const unsigned short int SubsystemId,
+                                        const unsigned short int SectorId,
+                                        const unsigned short int PADId,
+                                        const unsigned short int CMAId,
+                                        const unsigned short ijk,
+                                        const unsigned short int Channel,
+                                        const sectorMap_t& smap,
+                                        const RpcCablingCondData::STvec& sType) const;
+    bool BoardParamCheck(const unsigned short int SubId,
+                         const unsigned short int SecId,
+                         const unsigned short int PADId,
+                         const unsigned short int CMAId,
+                         const unsigned short int inputType,
+                         const unsigned int       layer,
+                         const unsigned int       type,
+                         const unsigned short int Channel1,
+                         const unsigned short int Channel2,
+                         const short int          Number) const;
+    bool CableParamCheck(const unsigned short int SubId,
+                         const unsigned short int SecId ,
+                         const unsigned short int PADId,
+                         const unsigned short int CMAId,
+                         const unsigned short int ijk,
+                         const unsigned int       type,
+                         const unsigned short int Channel1, 
+                         const unsigned short int Channel2,
+                         const short int          Number) const;
+    bool correct (const unsigned short int SubsystemId,
+                  const unsigned short int SectorId,
+                  const unsigned short int PADId,
+                  const unsigned short int CMAId,
+                  const CMAinput           it,
+                  const unsigned int       layer,
+                  const unsigned short int Channel1,
+                  const unsigned short int Channel2,
+                  const short int          number,
+                  const L1RPCcabCorrection type,
+                  const sectorMap_t&       smap,
+                  const RpcCablingCondData::STvec& sType) const;
 };
 
-#endif
+#endif // MUONCONDALG_RPCCABLINGCONDALG_H

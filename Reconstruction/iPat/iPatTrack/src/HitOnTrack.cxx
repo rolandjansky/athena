@@ -568,8 +568,7 @@ HitOnTrack::trkParameters (void) const
     	return new Trk::AtaPlane(m_intersection->position(),
     				 m_intersection->direction(),
     				 1.,
-    				 *plane,
-				 0);
+    				 *plane,std::nullopt);
     }
 
     const Trk::StraightLineSurface* line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface);
@@ -578,8 +577,7 @@ HitOnTrack::trkParameters (void) const
     	return new Trk::AtaStraightLine(m_intersection->position(),
     					m_intersection->direction(),
     					1.,
-    					*line,
-					0);
+    					*line,std::nullopt);
     }
     
     return 0;

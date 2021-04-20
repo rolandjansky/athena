@@ -52,7 +52,7 @@ namespace Trk {
 
       virtual
       const Surface&   associatedSurface ()     const override {return   *m_surface;}
-      bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
+      bool             iscovariance      ()     const {return   m_covariance != std::nullopt ;}
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
       double           sinTheta          ()     const;
@@ -67,7 +67,7 @@ namespace Trk {
       virtual Amg::RotationMatrix3D measurementFrame() const override final;
       virtual PatternTrackParameters * clone() const override final;
       virtual ParametersType type() const override final;
-      virtual int surfaceType() const override final;
+      virtual SurfaceType surfaceType() const override final;
       virtual void updateParametersHelper(const AmgVector(5) &) override final;
 
       ///////////////////////////////////////////////////////////////////
@@ -185,9 +185,9 @@ namespace Trk {
 
         m_parameters     = P.m_parameters    ;
 
-        if (P.m_covariance != nullptr) {
-          if (m_covariance == nullptr) {
-            m_covariance = std::make_unique<AmgSymMatrix(5)>(*P.m_covariance);
+        if (P.m_covariance != std::nullopt) {
+          if (m_covariance == std::nullopt) {
+            m_covariance = AmgSymMatrix(5)(*P.m_covariance);
           } else {
             *m_covariance = *P.m_covariance;
           }
@@ -212,7 +212,7 @@ namespace Trk {
       m_parameters[ 2] = p[ 2];
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
-      m_covariance.reset(nullptr);
+      m_covariance.reset();
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -222,8 +222,8 @@ namespace Trk {
   inline void PatternTrackParameters::setCovariance
     (const double* c)
     {
-      if (m_covariance == nullptr) {
-        m_covariance = std::make_unique<AmgSymMatrix(5)>();
+      if (m_covariance == std::nullopt) {
+        m_covariance = AmgSymMatrix(5)();
       }
 
       m_covariance->fillSymmetric(0, 0, c[ 0]);
@@ -278,7 +278,7 @@ namespace Trk {
 
   inline void PatternTrackParameters::diagonalization(double D)
     {
-      if (m_covariance == nullptr) {
+      if (m_covariance == std::nullopt) {
         return;
       }
 
@@ -307,7 +307,7 @@ namespace Trk {
   inline void PatternTrackParameters::addNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      if (m_covariance != nullptr) {
+      if (m_covariance != std::nullopt) {
         (*m_covariance)(2, 2)+=N.covarianceAzim();
         (*m_covariance)(3, 3)+=N.covariancePola();
         (*m_covariance)(4, 4)+=N.covarianceIMom();
@@ -330,7 +330,7 @@ namespace Trk {
   inline void PatternTrackParameters::removeNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      if (m_covariance != nullptr) {
+      if (m_covariance != std::nullopt) {
         (*m_covariance)(2, 2)-=N.covarianceAzim();
         (*m_covariance)(3, 3)-=N.covariancePola();
         (*m_covariance)(4, 4)-=N.covarianceIMom();

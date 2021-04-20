@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ===========================================================================
@@ -91,13 +91,8 @@ ZdcByteStreamReadV1V2Tool::ZdcByteStreamReadV1V2Tool(const std::string& name /*=
 // ===========================================================================
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode ZdcByteStreamReadV1V2Tool::initialize() {
-  ATH_MSG_INFO(
-      "Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
   m_srcIdMap = new ZdcSrcIdMap();
   CHECK(m_errorTool.retrieve());

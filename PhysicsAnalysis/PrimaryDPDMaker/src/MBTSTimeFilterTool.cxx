@@ -42,7 +42,7 @@ StatusCode MBTSTimeFilterTool::getTimeDifference(TimingFilterInformation& time_i
 }
 void MBTSTimeFilterTool::fillTimeDifference(TimingFilterInformation& time_info, const TileCellContainer* tileCellCnt) const{
  
-  for(const auto& tile : *tileCellCnt) {
+  for(const TileCell* tile : *tileCellCnt) {
 
     // check charge passes threshold
     const float charge = tile->energy();

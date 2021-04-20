@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOL_CSCRODREADOUT_H
@@ -23,35 +23,30 @@ public:
 
 
   CscRODReadOut();
-  CscRODReadOut(double startTime, uint16_t samplingTime, 
+  CscRODReadOut(double startTime, 
                 double signalWidth, uint16_t numIntegration);
   ~CscRODReadOut()=default;
 
   // more static header/footer information
-  uint32_t getHeaderSize()    {return ROD_HEADER_SIZE;}
-  uint32_t getFooterSize()    {return ROD_FOOTER_SIZE;}
-  uint32_t numSamples()       {return NUM_SAMPLES;}
-  uint32_t latency()          {return LATENCY;}
-  uint32_t samplingRate()     {return RATE;}
-  uint32_t numDPU()           {return NUM_DPU;}
-  void triggerInfo(uint32_t * trigger) {
-     for (int i=0; i<3; i++) *(trigger+i) = m_TRIGGER_INFO[i];
-  };
+  uint32_t getHeaderSize() const   {return ROD_HEADER_SIZE;}
+  uint32_t getFooterSize() const   {return ROD_FOOTER_SIZE;}
+  uint32_t numSamples()    const   {return NUM_SAMPLES;}
+  uint32_t latency()       const   {return LATENCY;}
+  uint32_t samplingRate()  const   {return RATE;}
+  uint32_t numDPU()        const   {return NUM_DPU;}
 
 
   // DPU header info
-  uint32_t dpuHeader()        {return DPU_HEADER_MARKER;}
-  uint32_t dpuHeaderSize()    {return DPU_HEADER_SIZE;}
+  uint32_t dpuHeader()     const   {return DPU_HEADER_MARKER;}
+  uint32_t dpuHeaderSize() const   {return DPU_HEADER_SIZE;}
 
   // get additional info
-  double   getSamplingTime()  {return m_SAMPLING_TIME;}
-  void setSamplingTime ( double time ) { m_SAMPLING_TIME = time; }
-  double   getStartTime()     {return m_TIME_OFFSET;}
-  double   getConversion()    {return m_CHARGE_TO_ADC_COUNT;}
-  double   getMaxTimeBin()    {return m_Z0;}
+  double   getStartTime()  const   {return m_TIME_OFFSET;}
+  double   getConversion() const   {return m_CHARGE_TO_ADC_COUNT;}
+  double   getMaxTimeBin() const   {return m_Z0;}
 
   // encoding
-  uint32_t getSourceID(uint16_t side, uint16_t rodId);  
+  uint32_t getSourceID(uint16_t side, uint16_t rodId) const;
   void encodeFragments(const std::vector<uint16_t>& amplitude,  
 		       std::vector<uint32_t>& v) const;
 
@@ -61,10 +56,7 @@ public:
     m_chamberBitValue = value;
   }
 
-  void setParams(double timeOffset, double samplingTime,
-		 double signalWidth);
-
-  void setParams(double samplingTime);
+  void setParams(double timeOffset, double signalWidth);
 
   // testing
   bool isDPU       (const uint32_t fragment) const;
@@ -73,49 +65,35 @@ public:
   bool isAddress   (const uint32_t fragment) const;
 
   // Decoding
-  void decodeSourceID(uint32_t sourceId); 
-  void decodeAmplitude(const uint32_t fragment);
-  void decodeAddress(const uint32_t fragment);
-  Identifier decodeAddress(); 
-  uint32_t hashIdentifier(const Identifier& moduleId);
+  void decodeSourceID(uint32_t sourceIdIDIn,
+                      uint16_t& sourceID,
+                      uint16_t& moduleType,
+                      uint16_t& subDetectorId,
+                      uint16_t& rodId) const;
+  void decodeAmplitude(const uint32_t fragment, uint16_t& amp1, uint16_t& amp2) const;
+  uint32_t fragmentToAddress(const uint32_t fragment) const;
+  Identifier decodeAddress(const uint32_t address) const;
+  uint32_t hashIdentifier(const uint32_t address, const Identifier& moduleId) const;
 
-  uint32_t numberOfStrips(const uint32_t fragment);
-  void setAddress(const uint32_t address);
-  Identifier decodeAddress(const Identifier& moduleId);
-  Identifier decodeAddress(const Identifier& moduleId, int j);
-  int findCharge(const std::vector<uint16_t>& amplitude, double& time);
+  uint32_t numberOfStrips(const uint32_t fragment) const;
+  Identifier decodeAddress(const uint32_t address, const Identifier& moduleId) const;
+  Identifier decodeAddress(const uint32_t address, const Identifier& moduleId, int j) const;
+  int findCharge(double samplingTime,
+                 const std::vector<uint16_t>& amplitude, double& time) const;
   double signal_amplitude (double samplingTime) const;
   uint32_t address (const Identifier& channelId, int& eta, int& phi) const;
 
-  // Retrieve decoded results
-  uint16_t sourceID()      const {return m_sourceID;}
-  uint16_t moduleType()    const {return m_moduleType;}
-  uint16_t subDetectorId() const {return m_subDetectorId;}
-  uint16_t rodId()         const {return m_rodId;}
-  uint16_t getAmp1()       const {return m_amp1;}
-  uint16_t getAmp2()       const {return m_amp2;}
-  uint32_t address()    const {return m_address;}
 
 private:
   const CscIdHelper* m_cscIdHelper;
-  uint16_t  m_sourceID;
-  uint16_t  m_moduleType;
-  uint16_t  m_rodId;
-  uint16_t  m_subDetectorId;
-  uint16_t  m_amp1;
-  uint16_t  m_amp2;
-  uint32_t  m_address;
   uint32_t  m_chamberBitValue;
   double  m_norm;
   	     
   double m_TIME_OFFSET; 
   double m_SIGNAL_WIDTH;  
-  double m_SAMPLING_TIME; 
   int m_NUMBER_OF_INTEGRATION;
   double m_CHARGE_TO_ADC_COUNT;
   double m_Z0; 
-
-  uint32_t m_TRIGGER_INFO[3];
 
   static const uint32_t ROD_HEADER_SIZE   = 12;
   
@@ -143,19 +121,12 @@ private:
 
 };   
 
-inline void CscRODReadOut::setParams(double timeOffset, double samplingTime,
-				     double signalWidth) {
+inline void CscRODReadOut::setParams(double timeOffset, double signalWidth) {
   m_TIME_OFFSET = timeOffset;
-  m_SAMPLING_TIME = samplingTime;
   m_SIGNAL_WIDTH = signalWidth;
-  for (int i=0; i<3; i++) m_TRIGGER_INFO[i] = 0;
 }
 
-inline void CscRODReadOut::setParams(double samplingTime) {
-  m_SAMPLING_TIME = samplingTime;
-}
-
-inline uint32_t CscRODReadOut::getSourceID(uint16_t side, uint16_t rodId) {
+inline uint32_t CscRODReadOut::getSourceID(uint16_t side, uint16_t rodId) const {
 
   uint32_t sourceIdentifier=0;
   sourceIdentifier = SOURCE_ID   << 24 |
@@ -165,11 +136,16 @@ inline uint32_t CscRODReadOut::getSourceID(uint16_t side, uint16_t rodId) {
 return sourceIdentifier;
 }
 
-inline void CscRODReadOut::decodeSourceID(uint32_t sourceID) {
-  m_sourceID        =(sourceID&0xff000000) >> 24;
-  m_moduleType      =(sourceID&0x00ff0000) >> 16;
-  m_subDetectorId   =(sourceID&0x0000ff00) >>  8;
-  m_rodId           =(sourceID&0x000000ff);
+inline void CscRODReadOut::decodeSourceID(uint32_t sourceIDIn,
+                                          uint16_t& sourceID,
+                                          uint16_t& moduleType,
+                                          uint16_t& subDetectorId,
+                                          uint16_t& rodId) const
+{
+  sourceID        =(sourceIDIn&0xff000000) >> 24;
+  moduleType      =(sourceIDIn&0x00ff0000) >> 16;
+  subDetectorId   =(sourceIDIn&0x0000ff00) >>  8;
+  rodId           =(sourceIDIn&0x000000ff);
 }
 
 inline void CscRODReadOut::set32bits(const uint16_t * v16, uint32_t & v32) const {
@@ -202,43 +178,42 @@ inline bool CscRODReadOut::isAddress(const uint32_t fragment) const {
   return (addressTest == BODY_ADDRESS);
 }
 
-inline void CscRODReadOut::decodeAmplitude(const uint32_t fragment) {
-  m_amp2 = 0x0000FFFF & fragment;
-  m_amp1 = (0xFFFF0000 & fragment) >> 16;
+inline void CscRODReadOut::decodeAmplitude(const uint32_t fragment,
+                                           uint16_t& amp1,
+                                           uint16_t& amp2) const
+{
+  amp2 = 0x0000FFFF & fragment;
+  amp1 = (0xFFFF0000 & fragment) >> 16;
 }
 
-inline void CscRODReadOut::decodeAddress(const uint32_t fragment) {
-  m_address = 0x0001FFFF & fragment;
+inline uint32_t CscRODReadOut::fragmentToAddress(const uint32_t fragment) const {
+  return 0x0001FFFF & fragment;
 }
 
-inline Identifier CscRODReadOut::decodeAddress() {
+inline Identifier CscRODReadOut::decodeAddress(const uint32_t address) const {
 
-  int stationName =  ( ( m_address & 0x00010000) >> 16 ) + 50;
-  int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
-  int stationPhi  =  ( ( m_address & 0x0000E000) >> 13 ) + 1;
+  int stationName =  ( ( address & 0x00010000) >> 16 ) + 50;
+  int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
+  int stationPhi  =  ( ( address & 0x0000E000) >> 13 ) + 1;
   
   return m_cscIdHelper->elementID(stationName,stationEta,stationPhi);
 
 }
 
-inline void CscRODReadOut::setAddress(const uint32_t address) {
-  m_address = address;
-}
-
-
 // module Id is given and strip is from address.
 // This should be flipped.
-inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId) {
+inline Identifier CscRODReadOut::decodeAddress(const uint32_t address,
+                                               const Identifier& moduleId) const
+{
+  int chamberLayer = ( (address & 0x00000800) >> 11) + m_chamberBitValue;
 
-  int chamberLayer = ( (m_address & 0x00000800) >> 11) + m_chamberBitValue;
+  int wireLayer    = ( (address & 0x00000600) >>  9) + 1;
+  int measuresPhi  = ( (address & 0x00000100) >>  8);
 
-  int wireLayer    = ( (m_address & 0x00000600) >>  9) + 1;
-  int measuresPhi  = ( (m_address & 0x00000100) >>  8);
-
-  int strip        = (  m_address & 0x000000FF) + 1; 
+  int strip        = (  address & 0x000000FF) + 1; 
 
 
-  int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
+  int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
 
   // Added to Online -> Offline id  in A side number is opposite bug#56002
   if (measuresPhi) {
@@ -250,17 +225,19 @@ inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId) {
 
 // module Id is given and strip is from address.
 // This should be flipped.
-inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId, int j) {
+inline Identifier CscRODReadOut::decodeAddress(const uint32_t address,
+                                               const Identifier& moduleId,
+                                               int j) const
+{
+  int chamberLayer = ( (address & 0x00000800) >> 11) + m_chamberBitValue;
 
-  int chamberLayer = ( (m_address & 0x00000800) >> 11) + m_chamberBitValue;
-
-  int wireLayer    = ( (m_address & 0x00000600) >>  9) + 1;
-  int measuresPhi  = ( (m_address & 0x00000100) >>  8);
-  int strip        = (  m_address & 0x000000FF) + 1 + j;
+  int wireLayer    = ( (address & 0x00000600) >>  9) + 1;
+  int measuresPhi  = ( (address & 0x00000100) >>  8);
+  int strip        = (  address & 0x000000FF) + 1 + j;
 
   // Added to Online -> Offline id  in A side number is opposite bug#56002
   if (measuresPhi) {
-    int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
+    int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
     if (stationEta>0) strip = 49-strip;
   }
 
@@ -269,17 +246,18 @@ inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId, int j
 
 // module Id is given and strip is from address.
 // This should be flipped.
-inline uint32_t CscRODReadOut::hashIdentifier(const Identifier& moduleId) {
+inline uint32_t CscRODReadOut::hashIdentifier(const uint32_t address,
+                                              const Identifier& moduleId) const
+{
+  int chamberLayer  = ( (address & 0x00000800) >> 11) + m_chamberBitValue;
 
-  int chamberLayer  = ( (m_address & 0x00000800) >> 11) + m_chamberBitValue;
-
-  int wireLayer     = ( (m_address & 0x00000600) >>  9) + 1;
-  int measuresPhi   = ( (m_address & 0x00000100) >>  8);
-  int strip         = (  m_address & 0x000000FF) + 1;
+  int wireLayer     = ( (address & 0x00000600) >>  9) + 1;
+  int measuresPhi   = ( (address & 0x00000100) >>  8);
+  int strip         = (  address & 0x000000FF) + 1;
 
   // Added to Online -> Offline id  in A side number is opposite bug#56002
   if (measuresPhi) {
-    int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
+    int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
     if (stationEta>0) strip = 49-strip;
   }
 
@@ -292,10 +270,11 @@ inline uint32_t CscRODReadOut::hashIdentifier(const Identifier& moduleId) {
 
 }
 
-inline uint32_t CscRODReadOut::numberOfStrips(const uint32_t fragment) {
-  decodeAddress(fragment);
-  Identifier moduleId = decodeAddress();
-  Identifier channelId = decodeAddress(moduleId);
+inline uint32_t CscRODReadOut::numberOfStrips(const uint32_t fragment) const
+{
+  uint32_t address = fragmentToAddress (fragment);
+  Identifier moduleId = decodeAddress(address);
+  Identifier channelId = decodeAddress(address, moduleId);
   return uint32_t(m_cscIdHelper->stripMax(channelId));
 }
 

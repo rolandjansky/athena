@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -81,11 +81,9 @@ StatusCode
 MuidCaloEnergyTool::initialize()
 {
     if (m_energyLossMeasurement) {
-        ATH_MSG_INFO("Initializing MuidCaloEnergyTool"
-                     << " - package version " << PACKAGE_VERSION << " - measured calorimeter energy deposition ");
+        ATH_MSG_INFO("Initializing MuidCaloEnergyTool - measured calorimeter energy deposition ");
     } else {
-        ATH_MSG_INFO("Initializing MuidCaloEnergyTool"
-                     << " - package version " << PACKAGE_VERSION << " - parametrized calorimeter energy deposition ");
+        ATH_MSG_INFO("Initializing MuidCaloEnergyTool - parametrized calorimeter energy deposition ");
     }
 
     // get the Tools

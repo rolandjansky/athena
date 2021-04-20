@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <class name="CaloCellContainer" id="24626824-1DB4-4CDF-9B41-1B54114BE498" >
@@ -93,8 +93,6 @@
     <field name="m_minimumCellEnergy" transient="true" />
     <field name="m_minimumClusterEnergy" transient="true" />
     <field name="m_useCellWeights" transient="true" />
-    <field name="m_useNoiseTool" transient="true" />
-    <field name="m_usePileUpNoise" transient="true" />
     <field name="m_noiseSigma" transient="true" />
     <field name="m_cellESignificanceThreshold" transient="true" />
     <field name="m_caloIndices" transient="true" />

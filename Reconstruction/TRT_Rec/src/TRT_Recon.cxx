@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -88,7 +88,7 @@ StatusCode
 TRT_Recon::initialize()
 {
     // print where you are
-    ATH_MSG_INFO( "TRT_Recon::initialize() - package version " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "TRT_Recon::initialize()" );
 
     // get the detectorSelection Tool
     if (m_detectorSelection.retrieve().isFailure())

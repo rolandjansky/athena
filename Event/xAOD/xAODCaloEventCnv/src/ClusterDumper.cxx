@@ -24,7 +24,7 @@ ClusterDumper::ClusterDumper( const std::string& name,
 }
 
 StatusCode ClusterDumper::initialize() {
-  ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing" );
 
   if (!m_fileName.empty()) {
     m_fileOut.open(m_fileName);
@@ -65,7 +65,7 @@ StatusCode ClusterDumper::execute() {
     ATH_MSG_INFO("Did not find corresponding cell-link container");
 
   
-  for (const auto& itr: *clustercontainer) {
+  for (const auto itr: *clustercontainer) {
     const xAOD::CaloCluster& cluster=*itr;
     (*m_out) << "Kinematics :" << std::endl;
     (*m_out) << "E=" << cluster.e() << ", eta=" << cluster.eta() << ", phi=" << cluster.phi() << ", m=" << cluster.m() << ", pt=" << cluster.pt() << std::endl;

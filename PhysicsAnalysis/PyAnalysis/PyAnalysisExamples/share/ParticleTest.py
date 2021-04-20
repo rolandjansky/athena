@@ -15,16 +15,16 @@ theApp.nextEvent()
 
 # get ElectronContainer from AOD
 econ = PyParticleTools.getElectrons("ElectronCollection")
-print "Electron"
-print econ.size()
+print ("Electron")
+print (econ.size())
 
 for i in range(econ.size()):
     eobj = econ[i]
-    print "Electron pt:%f" % eobj.pt()
+    print ("Electron pt:%f" % eobj.pt())
     # get TrackParticle via ElementLink
     tp = eobj.track()
-    print "TrackParticle px:%f" % tp.px()
+    print ("TrackParticle px:%f" % tp.px())
     # get egamma via Navigation
     # this should be retrieved from ESD
     eg = eobj.eg()
-    print "egamma eta:%f" % eg.eta()
+    print ("egamma eta:%f" % eg.eta())

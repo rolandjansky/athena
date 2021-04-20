@@ -418,7 +418,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const EventCon
 
   //Trk::ErrorMatrix* ie = tS.localErrorMatrix().clone();
   const AmgSymMatrix(5)& locCov = tS.localCovariance();
-  AmgSymMatrix(5)     * ie      = new AmgSymMatrix(5)(locCov);
+  AmgSymMatrix(5) ie  = locCov;
 
   std::unique_ptr<Trk::TrackParameters> newPerPar =
     surf->createUniqueTrackParameters(Vp.get(Trk::loc1),
@@ -581,9 +581,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     }
 
     const AmgSymMatrix(5) * vCM = initTP->covariance();
-    AmgSymMatrix(5) * nvCM = new AmgSymMatrix(5);
-
-    (*nvCM)<<
+    AmgSymMatrix(5) nvCM;
+     nvCM<<
       m_errorScale[0]*m_errorScale[0]*(*vCM)(0,0),0.,0.,0.,0.,
       0.,m_errorScale[1]*m_errorScale[1]*(*vCM)(1,1),0.,0.,0.,
       0.,0.,m_errorScale[2]*m_errorScale[2]*(*vCM)(2,2),0.,0.,
@@ -691,14 +690,14 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
     if(pvCM){
 
-      AmgSymMatrix(5)* pnvCM = new AmgSymMatrix(5);
+      AmgSymMatrix(5) pnvCM;
 
-      (*pnvCM)<<
-	m_errorScale[0]*m_errorScale[0]*(*pvCM)(0,0),0.,0.,0.,0.,
-	0.,m_errorScale[1]*m_errorScale[1]*(*pvCM)(1,1),0.,0.,0.,
-	0.,0.,m_errorScale[2]*m_errorScale[2]*(*pvCM)(2,2),0.,0.,
-	0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*pvCM)(3,3),0.,
-	0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*pvCM)(4,4);
+      pnvCM<<
+        m_errorScale[0]*m_errorScale[0]*(*pvCM)(0,0),0.,0.,0.,0.,
+        0.,m_errorScale[1]*m_errorScale[1]*(*pvCM)(1,1),0.,0.,0.,
+        0.,0.,m_errorScale[2]*m_errorScale[2]*(*pvCM)(2,2),0.,0.,
+        0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*pvCM)(3,3),0.,
+        0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*pvCM)(4,4);
 
       mesTP = upTP->associatedSurface().createUniqueTrackParameters(piv[0],piv[1],piv[2],piv[3],piv[4],pnvCM).release();
 
@@ -855,11 +854,11 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
 
   if(C){
 
-    AmgSymMatrix(5)* nC = new AmgSymMatrix(5);
-    (*nC) = (*C);
-    (*nC)(2,2)+=covAzim;
-    (*nC)(3,3)+=covPola;
-    (*nC)(4,4)+=covIMom;
+    AmgSymMatrix(5) nC;
+    nC = (*C);
+    nC(2,2)+=covAzim;
+    nC(3,3)+=covPola;
+    nC(4,4)+=covIMom;
     noiseTP = P1->associatedSurface().createUniqueTrackParameters(M[0],M[1],M[2],M[3],M[4],nC).release();
 
   }else{
@@ -980,15 +979,15 @@ InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParamete
   ip[4] *= correctionIMom;
 
   const AmgSymMatrix(5) * CM = TP.covariance();
-  AmgSymMatrix(5)*        nM = new AmgSymMatrix(5); (*nM) = (*CM);
+  AmgSymMatrix(5)        nM = (*CM);
 
   if(mode==0){ //Modification initiated before seed propagation
 
-    (*nM)(4,4) = 10.*(0.1*((*CM)(4,4))+covarianceIMom);
+    nM(4,4) = 10.*(0.1*((*CM)(4,4))+covarianceIMom);
   }
   if(mode==1){  //Modification initiated before pixel propagation
 
-    (*nM)(4,4)+=covarianceIMom;
+    nM(4,4)+=covarianceIMom;
   }
   const Trk::TrackParameters* newInitTrackParameters =
     TP.associatedSurface()

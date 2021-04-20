@@ -15,10 +15,11 @@
 // Identifier
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "AthContainers/DataVector.h"
+//
 #include <ostream>
 #include <vector>
-
-#include "AthContainers/DataVector.h"
+#include <memory>
 class MsgStream;
 class TrackSegmentCnv_p1;
 
@@ -97,7 +98,7 @@ class FitQuality;
     /** The surface to which the segment parameters are expressed to */
     const Surface*                  m_associatedSurface;
     /** The surface to which the segment parameters are expressed to */
-    const Amg::Vector3D*            m_globalPosition;
+    std::unique_ptr<const Amg::Vector3D>  m_globalPosition;
 
 };
 

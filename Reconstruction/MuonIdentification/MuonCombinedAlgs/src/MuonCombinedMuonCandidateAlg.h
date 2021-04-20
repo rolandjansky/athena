@@ -17,7 +17,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 class MuonCombinedMuonCandidateAlg : public AthAlgorithm {
-  public:
+public:
     MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     ~MuonCombinedMuonCandidateAlg() = default;
@@ -25,7 +25,7 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm {
     StatusCode initialize();
     StatusCode execute();
 
-  private:
+private:
     ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool{
         this,
         "MuonCandidateTool",
@@ -50,6 +50,5 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm {
         "MS extrapolated muon tracks",
     };
 };
-
 
 #endif

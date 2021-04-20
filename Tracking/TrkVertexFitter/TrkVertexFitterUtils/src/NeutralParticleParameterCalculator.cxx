@@ -194,9 +194,9 @@ namespace Trk
     // no mechanism in new EDM: symFullTrkCov.assign(fullTrkCov);
 
     Trk::PerigeeSurface perSurface(myVertex.position());
-    AmgSymMatrix(5)* covNeutral = new AmgSymMatrix(5)(globalNeutralJacobian*fullTrkCov*globalNeutralJacobian.transpose());
+    AmgSymMatrix(5) covNeutral = AmgSymMatrix(5)(globalNeutralJacobian*fullTrkCov*globalNeutralJacobian.transpose());
 
-    return new Trk::NeutralPerigee(0,0,phi,theta,qOverP,perSurface,covNeutral);
+    return new Trk::NeutralPerigee(0,0,phi,theta,qOverP,perSurface,std::move(covNeutral));
   }
   
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration     
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration     
  */
 
 #include "InDetSecVxFinderTool/JetFitterMultiStageFit.h"
@@ -72,7 +72,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
         tracksToAdd.push_back(*tracks3Iter);
     }
 
-    if (tracksToAdd.size()!=0)
+    if (!tracksToAdd.empty())
     {
         bunchesOfTracks.push_back(tracksToAdd);
     }
@@ -91,7 +91,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
     std::vector<const Trk::ITrackLink*>::const_iterator tracksToAddIter;
 
 
-    Trk::VxJetCandidate* myJetCandidate=0;
+    Trk::VxJetCandidate* myJetCandidate=nullptr;
 
     for (std::vector<std::vector<const Trk::ITrackLink*> >::const_iterator BunchesIter=BunchesBegin;
          BunchesIter!=BunchesEnd;++BunchesIter) {
@@ -101,7 +101,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
             myJetCandidate = m_initializationHelper->initializeJetCandidate(*BunchesIter, &primaryVertex, &myDirection,
                                                                             &vtxSeedDirection);
             m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
-            if ((*BunchesIter).size() > 0) {
+            if (!(*BunchesIter).empty()) {
                 doTheFit(myJetCandidate, true);
                 // Im confused, didnt the comment above say no clustering done in first iteration?
                 // yet performClustering = true in the call above??
@@ -168,7 +168,7 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
 
             //delete incompatible tracks...
             float max_prob(1.);
-            Trk::VxVertexOnJetAxis *worseVertex(0);
+            Trk::VxVertexOnJetAxis *worseVertex(nullptr);
             for (std::vector<Trk::VxVertexOnJetAxis *>::const_iterator verticesIter = verticesBegin;
                  verticesIter != verticesEnd; ++verticesIter) {
                 if (*verticesIter == 0) {
@@ -218,7 +218,7 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
         msg(MSG::VERBOSE) << "clustering table retrieved" << endmsg;
 
 
-        if (clusteringTablePtr==0) {
+        if (clusteringTablePtr==nullptr) {
             msg(MSG::WARNING) << " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
             noMoreVerticesToCluster=true;
         }

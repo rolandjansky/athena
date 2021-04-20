@@ -97,7 +97,7 @@ private:
 
         It scales by a factor (which is tunable, typically 200-1000).
         Do this only if all parameters were well constraint. */
-    AmgSymMatrix(5)* initialiseSmoother (const AmgSymMatrix(5)&) const;
+    AmgSymMatrix(5)  initialiseSmoother (const AmgSymMatrix(5)&) const;
 
     //! method to seed the smoother with a fixed error matrix
     AmgSymMatrix(5)* initialiseSmootherFixed (const AmgSymMatrix(5)&) const;

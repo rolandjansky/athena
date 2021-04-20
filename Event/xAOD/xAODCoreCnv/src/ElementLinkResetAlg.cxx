@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode ElementLinkResetAlg::initialize() {
 
       // Tell the user what's happening:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "SGKeys = " << m_keys );
 
       // Return gracefully:

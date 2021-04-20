@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,7 +74,7 @@
 #define KLGaussianMixReductionUtils_H
 
 #include "CxxUtils/features.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include <array>
 #include <cstdint>
 #include <utility>
@@ -115,7 +115,7 @@ struct MergeArray
     int8_t From = 0;
   };
   std::array<merge, GSFConstants::maxComponentsAfterConvolution> merges{};
-  int32_t numMerges=0;
+  int32_t numMerges = 0;
 };
 
 /* typedef tracking which component has been merged

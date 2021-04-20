@@ -18,7 +18,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   xAODHIEvent PATCoreAcceptLib AsgDataHandlesLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib FourMomUtils 
   xAODCaloEvent xAODEventInfo PathResolver EgammaAnalysisHelpersLib
-  ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
+  ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} EventPrimitives )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools

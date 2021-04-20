@@ -242,7 +242,7 @@ def defineMenu():
         # AFP
 
         # MBTS
-        'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY', 'L1_MBTSA0', 'L1_MBTSA1', 'L1_MBTSA2', 'L1_MBTSA3', 'L1_MBTSA4', 'L1_MBTSA5', 'L1_MBTSA6', 'L1_MBTSA7', 'L1_MBTSA8', 'L1_MBTSA9', 'L1_MBTSA10', 'L1_MBTSA11', 'L1_MBTSA12', 'L1_MBTSA13', 'L1_MBTSA14', 'L1_MBTSA15', 'L1_MBTSC0', 'L1_MBTSC1', 'L1_MBTSC2', 'L1_MBTSC3', 'L1_MBTSC4', 'L1_MBTSC5', 'L1_MBTSC6', 'L1_MBTSC7', 'L1_MBTSC8', 'L1_MBTSC9', 'L1_MBTSC10', 'L1_MBTSC11', 'L1_MBTSC12', 'L1_MBTSC13', 'L1_MBTSC14', 'L1_MBTSC15',
 
         #--------------------------------
         # TOPO items
@@ -512,6 +512,40 @@ def defineMenu():
         'L1_MBTS_1_1_EMPTY' : 168,
         'L1_MBTS_2_EMPTY' : 166,
 
+        'L1_MBTSA0' : 401,
+        'L1_MBTSA1' : 402,
+        'L1_MBTSA2' : 403,
+        'L1_MBTSA3' : 404,
+        'L1_MBTSA4' : 405,
+        'L1_MBTSA5' : 406,
+        'L1_MBTSA6' : 407,
+        'L1_MBTSA7' : 408,
+        'L1_MBTSA8' : 409,
+        'L1_MBTSA9' : 410,
+        'L1_MBTSA10' : 443,
+        'L1_MBTSA11' : 412,
+        'L1_MBTSA12' : 413,
+        'L1_MBTSA13' : 415,
+        'L1_MBTSA14' : 416,
+        'L1_MBTSA15' : 444,
+        
+        'L1_MBTSC0' : 418,
+        'L1_MBTSC1' : 419,
+        'L1_MBTSC2' : 420,
+        'L1_MBTSC3' : 421,
+        'L1_MBTSC4' : 422,
+        'L1_MBTSC5' : 423,
+        'L1_MBTSC6' : 424,
+        'L1_MBTSC7' : 434,
+        'L1_MBTSC8' : 435,
+        'L1_MBTSC9' : 436,
+        'L1_MBTSC10' : 437,
+        'L1_MBTSC11' : 438,
+        'L1_MBTSC12' : 439,
+        'L1_MBTSC13' : 440,
+        'L1_MBTSC14' : 441,
+        'L1_MBTSC15' : 442,
+        
         'L1_EM20VH_3J20' : 26,
         'L1_EM18VHI_3J20' : 172,
         'L1_MU10_3J20' : 173,

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.cxx 646315 2015-02-11 23:28:47Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -37,14 +36,6 @@ namespace xAODMaker {
       declareInterface< ITriggerTowerCnvTool >( this );
    }
 
-   StatusCode TriggerTowerCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
 
    /**
     * This is the important function of the tool. It takes the TriggerTower object

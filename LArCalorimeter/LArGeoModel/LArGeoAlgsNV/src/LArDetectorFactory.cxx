@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactory.h"
@@ -64,6 +64,7 @@ LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo, const 
   , m_testbeam(testbeam)
   , m_fullGeo(fullGeo)
   , m_activateFT(false)
+	, m_enableMBTS(true)
 {}
 
 
@@ -158,7 +159,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	barrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 
   EndcapCryostatConstruction endcapCryostatConstruction(
-    m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter, m_activateFT
+    m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter, m_activateFT, m_enableMBTS
   );
 	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
 

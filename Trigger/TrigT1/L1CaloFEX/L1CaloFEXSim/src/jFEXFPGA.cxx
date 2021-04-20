@@ -117,14 +117,14 @@ StatusCode jFEXFPGA::execute() {
 
 
     //create search window including towerIDs required for seeding.
-    int SRJet_SearchWindow[7][7] = {0};
+    int SRJet_SearchWindow[7][7] = {{0}};
     for(int i = -3 ; i <4; i++){
       for(int j = -3; j <4; j++){
         if(barrel_region){SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Thin[mphi + i][meta +j];}
         else{SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Wide[mphi + i][meta +j];}
       }
     }
-      int largeRCluster_IDs[15][15]= {0};
+      int largeRCluster_IDs[15][15]= {{0}};
       for(int i = -7; i< 8; i++ ) {
         for(int j = -7; j< 8; j++) {
           largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[mphi + i][meta +j];
@@ -255,8 +255,8 @@ StatusCode jFEXFPGA::execute() {
   for(int mphi = 8; mphi < 24; mphi++) {   
     for(int meta = 8; meta < max_meta; meta++) {    
 
-      int TT_seed_ID[3][3]={0};
-      int TT_searchWindow_ID[5][5]={0};
+      int TT_seed_ID[3][3]={{0}};
+      int TT_searchWindow_ID[5][5]={{0}};
       int TT_First_ETring[36]={0};
       int First_ETring_it = 0;
       
@@ -330,52 +330,49 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs
   const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
   
   std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Wide[0][0]);
-  
+
   ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
 
-  //comment below due to mapping bug 12.01.21 
-
-  /* 
-   for (int thisRow=rows-1; thisRow>=0; thisRow--){
+  for (int thisRow=rows-1; thisRow>=0; thisRow--){
     for (int thisCol=0; thisCol<cols; thisCol++){
       if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  "); }
       else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  |"); }
     }
-  } */
+  }
   
 }
 
 void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
 
   const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
-    const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
+  const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
     
-    std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
-
-    //this prints out the jTower IDs that each FPGA is responsible for
-    ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
-    
-    //comment below due to mapping bug 12.01.21 
-
-    /* 
-    for (int thisRow=rows-1; thisRow>=0; thisRow--){
-      for (int thisCol=0; thisCol<cols; thisCol++){
-	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
-	else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
-      }
-    }*/
-
+  std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
+  
+  //this prints out the jTower IDs that each FPGA is responsible for
+  ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
+  
+  //comment below due to mapping bug 12.01.21 
+  
+  
+  for (int thisRow=rows-1; thisRow>=0; thisRow--){
+    for (int thisCol=0; thisCol<cols; thisCol++){
+      if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
+      else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
+    }
   }
+
+}
 
 std::vector <uint32_t> jFEXFPGA::getSmallRJetTOBs()
 {
   auto tobsSort = m_SRJet_tobwords;
   
   ATH_MSG_DEBUG("number of smallRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
-    // sort tobs by their et ( 11 bits of the 32 bit tob word)
-     std::sort (tobsSort.begin(), tobsSort.end(), etSort);
-     tobsSort.resize(7);
-     return tobsSort;  
+  // sort tobs by their et ( 11 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+  tobsSort.resize(7);
+  return tobsSort;  
 
 }
 
@@ -384,11 +381,11 @@ std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
   auto tobsSort = m_LRJet_tobwords;
 
   ATH_MSG_DEBUG("number of largeRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
-    // sort tobs by their et ( 13 bits of the 32 bit tob word)
-     std::sort (tobsSort.begin(), tobsSort.end(), etSort);
-     tobsSort.resize(1);
-     return tobsSort;
-
+  // sort tobs by their et ( 13 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+  tobsSort.resize(1);
+  return tobsSort;
+  
 }
 
 

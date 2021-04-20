@@ -429,7 +429,10 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
         else if( strs.at(1)== "etcut"){
             pidname = defaultPid;
             etcut=true;
-        }
+        } else{
+	     	pidname = getProbePid(strs.at(1));
+	    }
+	// }
 	// HI is not working in master any more. So commenting out untill fixed
         // else {
 	//     if (type == "electron" && boost::contains(trigger, "ion")){

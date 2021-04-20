@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -24,16 +24,7 @@ namespace xAODMaker {
         declareInterface< ITrigEFBphysCnvTool >( this );
     }
     
-    StatusCode TrigEFBphysCnvTool::initialize() {
-        
-        // Greet the user:
-        ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-        
-        // Return gracefully:
-        return StatusCode::SUCCESS;
-    }
 
-    
     StatusCode TrigEFBphysCnvTool::convert( const TrigEFBphys* aod,
                                             xAOD::TrigBphys* xaod ) const {
         
@@ -60,7 +51,7 @@ namespace xAODMaker {
 	
 	ATH_MSG_VERBOSE("Orig vs xAOD: Eta:   " << aod->eta() << " " << xaod->eta());
 	ATH_MSG_VERBOSE("Orig vs xAOD: phi:   " << aod->phi() << " " << xaod->phi());
-        ATH_MSG_VERBOSE("Orig vs xAOD: mass:  " << aod->mass() << " " << xaod->mass());
+    ATH_MSG_VERBOSE("Orig vs xAOD: mass:  " << aod->mass() << " " << xaod->mass());
 	ATH_MSG_VERBOSE("Orig vs xAOD: roiId: " << aod->roiId() << " " << xaod->roiId());
 
 	ATH_MSG_VERBOSE("Orig vs xAOD: : particleType: " << aod->particleType() << " " << xaod->particleType());

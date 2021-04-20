@@ -250,7 +250,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       if (allowRecalibrate && m_recalibrator
           && it->measurementType() == TrackState::TRT)  {
         const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-        auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
+        auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,std::nullopt);
         Trk::TrackState::CalibrationType oldType = it->calibrationType();
 
         // the replaceMeas.-method does ownership right and detects if the
@@ -292,7 +292,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         // allow making of wire-hits for TRT fits with L/R-solving on the fly
         if ( m_recalibrator && it->measurementType() == TrackState::TRT) {
           const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-          auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
+          auto param = CREATE_PARAMETERS(*it->referenceParameters(),x,std::nullopt);
           if ( Trk::SensorBoundsCheck::areParamsInside
                 (*fittableMeasurement, param->parameters(), *predDiffCov, 1.0, -1.0)) {
             Trk::TrackState::CalibrationType oldType = it->calibrationType();
@@ -479,7 +479,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
     auto lastPropagatedPar =
       CREATE_PARAMETERS((*inputParAtStartSurface),
-                        inputParAtStartSurface->parameters(), nullptr); // remove covariance
+                        inputParAtStartSurface->parameters(), std::nullopt); // remove covariance
     for (auto it=m_utility->firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
         //gives up ownership by default, ProtoTrackStateOnSurface takes care of deletion
@@ -539,7 +539,7 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::
                                                          const AmgVector(5)& diff) const
 {
   const AmgVector(5) x = ref.parameters()+diff;
-  auto param = CREATE_PARAMETERS(ref,x,nullptr);
+  auto param = CREATE_PARAMETERS(ref,x,std::nullopt);
   char tt[80]; snprintf(tt,79,"T%.2d",istate);
   msg(MSG::VERBOSE) << tt << ptype << " GP:"
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )

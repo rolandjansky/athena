@@ -20,6 +20,8 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include "StoreGate/ReadCondHandle.h"
+#include <cmath>
+
 #include <iomanip>
 #include <ostream>
 
@@ -477,7 +479,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-        auto w = spacepointsPixel->indexFindPtr(l);
+        const auto *w = spacepointsPixel->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -504,7 +506,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-        auto w = spacepointsSCT->indexFindPtr(l);
+        const auto *w = spacepointsSCT->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -1906,7 +1908,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       /// inverse square distance of the candidate space point to the central point 
       float r2  = 1./(x*x+y*y);
       /// inverse distance of the candidate space point to the central point 
-      float dr  = sqrt(r2);
+      float dr  = std::sqrt(r2);
       /// estimate slope in z - distance traveled in transverse plane vs z direction. 
       /// rough estimate of 1/tan theta from 2 points
       float tz  = dz*dr;
@@ -1938,7 +1940,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  Vb   = data.V [b];       ///< v-coordinate of bottom SP  
       float  Ub   = data.U [b];       ///< u-coordinate of bottom SP
       float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/tan²theta - converts transverse to total squared pt
-      float sTzb2 = sqrt(Tzb2);       ///< sqrt (1+1/tan²theta) - used to convert pt to |p|
+      float sTzb2 = std::sqrt(Tzb2);       ///< sqrt (1+1/tan²theta) - used to convert pt to |p|
       float sigmaSquaredScatteringPtDependent  = Tzb2*COFK;        ///< this, when divided by the 2R², yields an approximated multiple scattering term assuming the measured pt. 
       float sigmaSquaredScatteringMinPt  = Tzb2*ipt2C;       ///< this is an approximate worst case multiple scattering term assuming the lowest 
                                       ///  pt we allow and the estimated theta angle
@@ -2202,7 +2204,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
       float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float dr  = std::sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 

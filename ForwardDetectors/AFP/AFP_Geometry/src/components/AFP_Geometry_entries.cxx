@@ -1,4 +1,3 @@
-#include "AFP_Geometry/AFP_Geometry.h"
+#include "AFP_Geometry/AFP_GeometryTool.h"
 
-DECLARE_COMPONENT( AFP_Geometry )
-
+DECLARE_COMPONENT( AFP_GeometryTool )

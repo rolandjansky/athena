@@ -25,14 +25,17 @@ class CTP(object):
     def addBunchGroup(self, name, internalNumber, bunches):
         self.bunchGroupSet.addBunchGroup(name, internalNumber, bunches)
 
-
-    def setupMonitoring(self, menuItems, menuThresholds):
+    def setupMonitoring(self, menuItems, menuThresholds, connectors):
         ##  # add the CTPIN counters
         ##  for counter in MonitorDef.ctpinCounters( menuThresholds ):
         ##      self.counters.addCounter( counter )
 
-        # add the CTPMon counters
-        for counter in MonitorDef.ctpmonCounters( menuThresholds ):
+        # add the CTPMon counters (selection defined in L1/Config/MonitorDef.py)
+        for counter in MonitorDef.ctpmonCounters( menuThresholds, connectors ):
+            self.counters.addCounter( counter )
+
+        # add the CTPIN counters (selection defined in L1/Config/MonitorDef.py)
+        for counter in MonitorDef.ctpinCounters( menuThresholds, connectors, self.inputConnectors["ctpin"] ):
             self.counters.addCounter( counter )
 
         # mark the L1 Items that they should be monitored

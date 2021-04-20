@@ -25,6 +25,10 @@ class TrigEgammaKeys(object):
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel21_20180312'
 
+class TrigEgammaKeys_LRT(object):
+      """Static class to collect all string manipulation in Electron_LRT sequences """
+      outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
+      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElectronLRT_IDTrig')
 
 class TrigEgammaKeys_GSF(object):
       """Static class to collect all string manipulation in Electron sequences """
@@ -32,61 +36,68 @@ class TrigEgammaKeys_GSF(object):
       outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
       
-      # Print configuration once:
-      mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
 
-def TrigElectronSelectors():
+
+#
+# Electron DNN Selectors
+#
+#def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
+# We should include the DNN here
+
+
+#
+# Electron LH Selectors
+#
+def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
 
     # Configure the LH selectors
     #TrigEgammaKeys.pidVersion.set_On()
-    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
-    
-    SelectorNames = {
-          'lhvloose':'AsgElectronLHVLooseSelector',
-          'lhloose':'AsgElectronLHLooseSelector',
-          'lhmedium':'AsgElectronLHMediumSelector',
+    if not ConfigFilePath:
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+
+    import collections
+    SelectorNames = collections.OrderedDict({
           'lhtight':'AsgElectronLHTightSelector',
-          }
+          'lhmedium':'AsgElectronLHMediumSelector',
+          'lhloose':'AsgElectronLHLooseSelector',
+          'lhvloose':'AsgElectronLHVLooseSelector',
+          })
      
-    ElectronToolConfigFile = {
-          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
-          'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
-          'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
+    ElectronToolConfigFile = collections.OrderedDict({
           'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
-          }
+          'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
+          'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
+          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          })
 
+    selectors = []
     mlog.debug('Configuring electron PID' )
-    SelectorTool_vloose=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhvloose'])
-    SelectorTool_vloose.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhvloose']
-    SelectorTool_vloose.usePVContainer = False 
-    SelectorTool_vloose.skipDeltaPoverP = True
+    for pidname, name in SelectorNames.items():
+      SelectorTool = CfgMgr.AsgElectronLikelihoodTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
+      SelectorTool.usePVContainer = False 
+      SelectorTool.skipDeltaPoverP = True
+      selectors.append(SelectorTool)
 
-    SelectorTool_loose=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhloose'])
-    SelectorTool_loose.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhloose']
-    SelectorTool_loose.usePVContainer = False
-    SelectorTool_loose.skipDeltaPoverP = True
-
-    SelectorTool_medium=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhmedium'])
-    SelectorTool_medium.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhmedium']
-    SelectorTool_medium.usePVContainer = False
-    SelectorTool_medium.skipDeltaPoverP = True
-
-    SelectorTool_tight=CfgMgr.AsgElectronLikelihoodTool(SelectorNames['lhtight'])
-    SelectorTool_tight.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile['lhtight']
-    SelectorTool_tight.usePVContainer = False
-    SelectorTool_tight.skipDeltaPoverP = True
-
-    return SelectorTool_vloose, SelectorTool_loose, SelectorTool_medium, SelectorTool_tight
+    return selectors
 
 
-def TrigPhotonSelectors(sel):
+
+#
+# Photon IsEM selectors
+#
+def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
+
+    if not ConfigFilePath:
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+
+    import collections
     # Configure the IsEM selectors
-
-    SelectorNames = {
-            'loose'  : 'LoosePhotonSelector',
-            'medium' : 'MediumPhotonSelector',
+    SelectorNames = collections.OrderedDict( {
             'tight'  : 'TightPhotonSelector',
-            }
+            'medium' : 'MediumPhotonSelector',
+            'loose'  : 'LoosePhotonSelector',
+            } )
     SelectorPID = {
             'loose'  : egammaPID.PhotonIDLoose,
             'medium' : egammaPID.PhotonIDMedium,
@@ -103,17 +114,67 @@ def TrigPhotonSelectors(sel):
             'tight'  : egammaPID.PhotonTight,
             }
 
-    if sel not in SelectorNames:
-        mlog.error('No selector defined for working point %s for photons :-( ', sel)
-        return
-    else:
+    selectors = []
+    for sel, name in SelectorNames.items():
         mlog.debug('Configuring photon PID for %s', sel)
-        SelectorTool = ConfiguredAsgPhotonIsEMSelector(SelectorNames[sel], SelectorPID[sel])
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        SelectorTool = ConfiguredAsgPhotonIsEMSelector(name, SelectorPID[sel])
         ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
         mlog.debug('Configuration file: %s', ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True
         SelectorTool.isEMMask = PhotonIsEMBits[sel] 
+        selectors.append(SelectorTool)
 
-        return SelectorTool
+    return selectors
+
+
+
+#
+# Electron/Photon ringer NN selectors
+#
+def createTrigEgammaFastCaloSelectors(doPhotons=False, ConfigFilePath='RingerSelectorTools/TrigL2_20210227_r3'):
+
+    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
+    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    import collections
+    # add ONNX into app service mgr
+    ServiceMgr += AthONNX__ONNXRuntimeSvc()
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TrigEgammaFastCaloSelectors') 
+
+    SelectorNames = collections.OrderedDict( {
+        "Electrons": collections.OrderedDict({
+            'tight'    : 'AsgElectronFastCaloRingerTightSelectorTool',
+            'medium'   : 'AsgElectronFastCaloRingerMediumSelectorTool',
+            'loose'    : 'AsgElectronFastCaloRingerLooseSelectorTool',
+            'vloose'   : 'AsgElectronFastCaloRingerVeryLooseSelectorTool',
+            }),
+        "Photons": collections.OrderedDict({
+            'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool',
+            'medium' : 'AsgPhotonFastCaloRingerMediumSelectorTool',
+            'loose'  : 'AsgPhotonFastCaloRingerLooseSelectorTool',
+          })
+    } )
+    
+    ToolConfigFile = {
+        "Electrons" : collections.OrderedDict({
+          'tight'   :'ElectronRingerTightTriggerConfig.conf',
+          'loose'   :'ElectronRingerLooseTriggerConfig.conf',
+          'medium'  :'ElectronRingerMediumTriggerConfig.conf',
+          'vloose'  :'ElectronRingerVeryLooseTriggerConfig.conf',
+          }),
+        "Photons" : collections.OrderedDict({
+          'tight' :'PhotonRingerTightTriggerConfig.conf',
+          'medium':'PhotonRingerMediumTriggerConfig.conf',
+          'loose' :'PhotonRingerLooseTriggerConfig.conf',
+        })
+    }
+    cand = 'Photons' if doPhotons else 'Electrons'
+    selectors = []
+    for pidname , name in SelectorNames[cand].items():
+      log.debug('Configuring electron ringer PID for %s', pidname)
+      SelectorTool=Ringer__AsgRingerSelectorTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ToolConfigFile[cand][pidname]
+      selectors.append(SelectorTool)
+    return selectors

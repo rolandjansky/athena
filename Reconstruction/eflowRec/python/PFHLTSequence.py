@@ -9,10 +9,14 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("PFHLTSequence")
 
 # Use the appropriate containers based on what config is desired
+# collections for the jet trigger need to be set correction in the 
+# jet trigger configuration
 trackvtxcontainers = {
-    "offline": ("InDetTrackParticles", "PrimaryVertices"),
-    "ftf": ("HLT_IDTrack_FS_FTF", "HLT_IDVertex_FS"),
+    "offline": ("InDetTrackParticles",    "PrimaryVertices")
 }
+
+
+
 # Configure the extrapolator
 def getExtrapolator():
     # Set up with trigger extrapolator instance
@@ -29,6 +33,7 @@ def PFTrackExtension(tracktype):
 
     Returns the preselected track selection, the extension cache and the list of algorithms
     """
+    
     tracksin, _ = trackvtxcontainers[tracktype]
     from eflowRec.eflowRecConf import PFTrackPreselAlg
     from TrackToCalo.TrackToCaloConf import Trk__PreselCaloExtensionBuilderAlg
@@ -101,7 +106,7 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
         InputVertices = trackvtxcontainers[tracktype][1],
         OutputTracks = f"PFMuonIsoTagTracks_{tracktype}",
         MinPt = flags.Trigger.FSHad.PFOMuonRemovalMinPt,
-        TrackIsoTool = xAOD__TrackIsolationTool(TrackParticleLocation=tracksin),
+        TrackIsoTool = xAOD__TrackIsolationTool(TrackParticleLocation=tracksin, VertexLocation=""),
         CaloIsoTool = xAOD__CaloIsolationTool(
             ParticleCaloExtensionTool=getExtrapolator(),
             InputCaloExtension=extcache,
@@ -116,6 +121,7 @@ def muonIsoTagSeq(flags, tracktype, tracksin, extcache, clustersin):
 # and extrapolation into the calorimeter.
 # Parameters: track & vertex container names (offline, HLT, FTK)
 def getPFTrackSel(tracktype, extensionCache="", trackname=None):
+
     tracksin, verticesin = trackvtxcontainers[tracktype]
     if trackname is not None:
         tracksin = trackname

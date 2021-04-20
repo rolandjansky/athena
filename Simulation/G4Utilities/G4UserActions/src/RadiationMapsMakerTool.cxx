@@ -38,7 +38,7 @@ namespace G4UA{
     declareProperty("NBinsR3D"          , m_config.nBinsr3d);
     declareProperty("NBinsZ3D"          , m_config.nBinsz3d);
     declareProperty("NBinsPhi3D"        , m_config.nBinsphi3d);
-    /// number of bins in logTimeCut for time dependent TID 2D maps
+    /// number of bins in logTimeCut for time dependent TID and H_T 2D maps
     declareProperty("NBinsLogTimeCut"   , m_config.nBinslogT);
     /// map ranges
     /// for Zoomed area in 2D and 3D
@@ -63,7 +63,7 @@ namespace G4UA{
     /// for Theta in 2D spectra
     declareProperty("ThetaMin"          , m_config.thetaMin);
     declareProperty("ThetaMax"          , m_config.thetaMax);
-    /// for logT in time-dependent TID 2D maps
+    /// for logT in time-dependent TID and H_T 2D maps
     declareProperty("LogTMin"           , m_config.logTMin);
     declareProperty("LogTMax"           , m_config.logTMax);
     /// for elements mass fracion 2D maps
@@ -112,7 +112,7 @@ namespace G4UA{
       <<                        m_config.zMaxZoom   << ", " 
       <<                        m_config.rMinZoom   << " < r/cm < "          << m_config.rMaxZoom   << ", " 
       <<                        m_config.phiMinZoom << " < phi/degrees < "   << m_config.phiMaxZoom << "\n" 
-      << "Time TID Maps:   " << m_config.nBinslogT  << " Time-cut bins, "
+      << "Time TID/H Maps: " << m_config.nBinslogT  << " Time-cut bins, "
       <<                        m_config.logTMin    << " < log10(t_cut/s) < "<< m_config.logTMax << "\n" 
       << "Mass frac. Maps: " << m_config.elemZMax-m_config.elemZMin+1        << " Element bins, " 
       <<                        m_config.elemZMin   << " <= Z <= < "         << m_config.elemZMax 
@@ -202,7 +202,9 @@ namespace G4UA{
     // same for misc individual maps
     
     maps.m_rz_tid_time      .resize(0);
+    maps.m_rz_ht_time       .resize(0);
     maps.m_full_rz_tid_time .resize(0);
+    maps.m_full_rz_ht_time  .resize(0);
 
     maps.m_rz_element       .resize(0);
     maps.m_full_rz_element  .resize(0);
@@ -225,7 +227,9 @@ namespace G4UA{
     // for all first ...
 
     maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    maps.m_rz_ht_time       .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
     maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    maps.m_full_rz_ht_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
 
     maps.m_rz_element       .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
     maps.m_full_rz_element  .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
@@ -607,11 +611,16 @@ namespace G4UA{
       }
     }
     
-    // time dependent TID maps zoom
+    // time dependent TID and H_T maps zoom
     TH3D * h_rz_tid_time       = new TH3D("rz_tid_time" ,"rz_tid_time"           ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
     h_rz_tid_time     ->SetXTitle(xtitle);
     h_rz_tid_time     ->SetYTitle("r [cm]");
     h_rz_tid_time     ->SetZTitle("log_{10}(t_{cut}/s)");
+
+    TH3D * h_rz_ht_time        = new TH3D("rz_ht_time"  ,"rz_ht_time"            ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    h_rz_ht_time     ->SetXTitle(xtitle);
+    h_rz_ht_time     ->SetYTitle("r [cm]");
+    h_rz_ht_time     ->SetZTitle("log_{10}(t_{cut}/s)");
 
     // element mass fraction maps zoom
     TH3D * h_rz_element       = new TH3D("rz_element" ,"rz_element"           ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.elemZMax-m_config.elemZMin+1,m_config.elemZMin-0.5,m_config.elemZMax+0.5);
@@ -632,12 +641,16 @@ namespace G4UA{
 	// if positive y hemisphere is used only -- half the volume
 	if ( m_config.posYOnly ) vol *= 0.5; 
 	double val;
-	// Time dependent TID maps
+	// Time dependent TID and H_T maps
 	for(int k=0;k<h_rz_tid_time->GetNbinsZ();k++) { 
 	  int kBin = h_rz_tid_time->GetBin(i+1,j+1,k+1); 
 	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  // TID
 	  val =maps.m_rz_tid_time[vBinT];
 	  h_rz_tid_time->SetBinContent(kBin,val/vol);
+	  // H_T
+	  val =maps.m_rz_ht_time[vBinT];
+	  h_rz_ht_time->SetBinContent(kBin,val/vol);
 	}
 	// Element mass fraction maps
 	for(int k=0;k<h_rz_element->GetNbinsZ();k++) { 
@@ -651,14 +664,21 @@ namespace G4UA{
 
     h_rz_tid_time->Write();
     h_rz_tid_time->Delete();
+    h_rz_ht_time->Write();
+    h_rz_ht_time->Delete();
     h_rz_element->Write();
     h_rz_element->Delete();
     
-    // time dependent TID maps full
+    // time dependent TID and H_T maps full
     TH3D * h_full_rz_tid_time  = new TH3D("full_rz_tid_time" ,"full_rz_tid_time" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
     h_full_rz_tid_time->SetXTitle(xtitle);
     h_full_rz_tid_time->SetYTitle("r [cm]");
     h_full_rz_tid_time->SetZTitle("log_{10}(t_{cut}/s)");
+
+    TH3D * h_full_rz_ht_time   = new TH3D("full_rz_ht_time"  ,"full_rz_ht_time"  ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    h_full_rz_ht_time->SetXTitle(xtitle);
+    h_full_rz_ht_time->SetYTitle("r [cm]");
+    h_full_rz_ht_time->SetZTitle("log_{10}(t_{cut}/s)");
 
     // element mass fraction maps full
     TH3D * h_full_rz_element  = new TH3D("full_rz_element" ,"full_rz_element" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.elemZMax-m_config.elemZMin+1,m_config.elemZMin-0.5,m_config.elemZMax+0.5);
@@ -679,12 +699,16 @@ namespace G4UA{
 	// if positive y hemisphere is used only -- half the volume
 	if ( m_config.posYOnly ) vol *= 0.5; 
 	double val;
-	// Time dependent TID maps
+	// Time dependent TID and H_T maps
 	for(int k=0;k<h_full_rz_tid_time->GetNbinsZ();k++) { 
 	  int kBin = h_full_rz_tid_time->GetBin(i+1,j+1,k+1); 
 	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  // TID
 	  val =maps.m_full_rz_tid_time[vBinT];
 	  h_full_rz_tid_time->SetBinContent(kBin,val/vol);
+	  // H_T
+	  val =maps.m_full_rz_ht_time[vBinT];
+	  h_full_rz_ht_time->SetBinContent(kBin,val/vol);
 	}
 	// Element mass fraction maps
 	for(int k=0;k<h_full_rz_element->GetNbinsZ();k++) { 
@@ -697,6 +721,8 @@ namespace G4UA{
     }
     h_full_rz_tid_time->Write();
     h_full_rz_tid_time->Delete();
+    h_full_rz_ht_time->Write();
+    h_full_rz_ht_time->Delete();
     h_full_rz_element->Write();
     h_full_rz_element->Delete();
 

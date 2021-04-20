@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Cosmic.h"
+
+#include <cmath>
 
 #include <iomanip>
 #include <ostream>
@@ -203,14 +205,14 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	auto w = spacepointsPixel->indexFindPtr(l);
+	const auto *w = spacepointsPixel->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -230,7 +232,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
@@ -238,7 +240,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-	auto w = spacepointsSCT->indexFindPtr(l);
+	const auto *w = spacepointsSCT->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -822,7 +824,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 	float x  = dx*ax+dy*ay ;
 	float y  =-dx*ay+dy*ax ;
 	float r2 = 1./(x*x+y*y);
-	float dr = sqrt(r2);
+	float dr = std::sqrt(r2);
 	data.Tz[Nb] = -dz*dr;
         
 	if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
@@ -858,7 +860,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 	float x  = dx*ax+dy*ay;
 	float y  =-dx*ay+dy*ax;
 	float r2 = 1./(x*x+y*y);
-	float dr = sqrt(r2);
+	float dr = std::sqrt(r2);
 	data.Tz[Nt] = dz*dr;
 	if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
 	
@@ -888,8 +890,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 	float A  = (data.V[t]-data.V[b])/dU                  ;
 	float B  =  data.V[t]-A*data.U[t]                    ;
 	float S2 = 1.+A*A                              ;
-	float S  = sqrt(S2)                            ;
-	float BK = fabs(B*K)                           ;
+	float S  = std::sqrt(S2)                            ;
+	float BK = std::abs(B*K)                           ;
 	if (BK > ipt*S) continue                       ; // Momentum    cut
 	dT       -= ((BK*BK)*COF*SA/S2)                ;
 	if (dT > 0.) continue                          ; // Polar angle cut
@@ -947,7 +949,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 	float dx = X-(*r)->x();
 	float dz = Z-(*r)->z();
 	float r2 = 1./(dx*dx+dy*dy);
-	float dr = sqrt(r2);
+	float dr = std::sqrt(r2);
 	data.Tz[Nb]  = dz*dr;
 	if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
 
@@ -979,7 +981,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 	float dx = (*r)->x()-X;
 	float dz = (*r)->z()-Z;
 	float r2 = 1./(dx*dx+dy*dy);
-	float dr = sqrt(r2);
+	float dr = std::sqrt(r2);
 	data.Tz[Nt]  = dz*dr;
 	if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
 

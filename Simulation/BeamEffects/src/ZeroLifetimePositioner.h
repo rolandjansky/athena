@@ -38,7 +38,7 @@ namespace Simulation {
       StatusCode manipulate(HepMC::GenEvent& ge, bool applyPatch, bool removePatch) const;
       Gaudi::Property<bool> m_applyPatch{this, "ApplyPatch", false};
       Gaudi::Property<bool> m_removePatch{this, "RemovePatch", false};
-      Gaudi::Property<std::vector<int>> m_pdgCodesToCheck{ this, "PDGCodesToCheck", {511} };
+      Gaudi::Property<std::vector<int>> m_pdgCodesToCheck{ this, "PDGCodesToCheck", {421,511,531} }; // Apply fix to neutral mesons with oscillations: B0, B0s, D0
   };
 
 }

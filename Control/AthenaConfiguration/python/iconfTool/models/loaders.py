@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import pickle
+import ast
 import logging
 from typing import Dict, List, Set, Tuple, cast
 import collections
@@ -17,6 +18,7 @@ from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
 logger = logging.getLogger(__name__)
 
+componentRenamingDict={}
 
 baseParser = argparse.ArgumentParser()
 baseParser.add_argument(
@@ -48,6 +50,7 @@ baseParser.add_argument(
         "DetStore",
         "EvtStore",
         "NeededResources",
+        "GeoModelSvc"
     ],
     help="Ignore properties",
 )
@@ -56,6 +59,16 @@ baseParser.add_argument(
     nargs="*",
     help="Pass comps You want to rename as OldName=NewName.",
     action="append",
+)
+baseParser.add_argument(
+    "--renameCompsFile",
+    help="Pass the file containing remaps",
+)
+
+baseParser.add_argument(
+    "--shortenDefaultComponents",
+    help="Automatically shorten componet names that have a default name i.e. ToolX/ToolX to ToolX. It helps comparing Run2 & Run3 configurations where these are handled differently",
+    action="store_true",
 )
 
 def loadConfigFile(fname, args) -> Dict:
@@ -159,27 +172,54 @@ def loadConfigFile(fname, args) -> Dict:
         for (key, value) in dic.items():
             conf[key] = remove_irrelevant(value)
 
-    if args.renameComps:
+    if args.renameComps or args.renameCompsFile:
         compsToRename = flatten_list(args.renameComps)
-        splittedCompsNames = {
+        if args.renameCompsFile:
+            with open( args.renameCompsFile, "r") as refile:
+                compsToRename.extend( [line.rstrip('\n') for line in refile.readlines() ] )
+        global componentRenamingDict
+        componentRenamingDict.update({
             old_name: new_name
             for old_name, new_name in [
                 element.split("=") for element in compsToRename
             ]
-        }
+        })
 
         def rename_comps(comp_name):
-            return (
-                splittedCompsNames[comp_name]
-                if comp_name in splittedCompsNames
-                else comp_name
-            )
+            return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
 
         dic = conf
         conf = {}
         for (key, value) in dic.items():
             conf[rename_comps(key)] = value
+    if args.shortenDefaultComponents:
+        dic = conf
+        conf = {}
+        def shorten(val):
+            value = val
+            # the value can possibly be a serialized object (like a list)
+            try:
+                value = ast.literal_eval(str(value))
+            except Exception:
+                pass 
 
+            if isinstance(value, str):
+                svalue = value.split("/")
+                if len(svalue) == 2 and svalue[0] == svalue[1]:
+                    return svalue[0]
+            if isinstance(value, list):
+                return [shorten(el) for el in value]
+            if isinstance(value, dict):
+                return shorten_defaults(value)
+
+            return value
+
+        def shorten_defaults(val_dict):
+            if isinstance(val_dict, dict):
+                return { key: shorten(val) for key,val in val_dict.items() }
+
+        for (key, value) in dic.items():
+            conf[key] = shorten_defaults(value)
     return conf
 
 class ComponentsFileLoader:

@@ -253,13 +253,13 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       par[Trk::phi]=sctExitTemp->parameters()[Trk::phi];
       par[Trk::theta]=sctExitTemp->parameters()[Trk::theta];
       par[Trk::qOverP]=sctExitTemp->parameters()[Trk::qOverP];
-      AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-      cov->setZero();
-      (*cov)(0,0) = 25.0;
-      (*cov)(1,1) = 400.0;
-      (*cov)(2,2) = 0.04;
-      (*cov)(3,3) = 0.16;
-      (*cov)(4,4) = 0.04*sctExitTemp->parameters()[Trk::qOverP]
+      AmgSymMatrix(5) cov;
+      cov.setZero();
+      (cov)(0,0) = 25.0;
+      (cov)(1,1) = 400.0;
+      (cov)(2,2) = 0.04;
+      (cov)(3,3) = 0.16;
+      (cov)(4,4) = 0.04*sctExitTemp->parameters()[Trk::qOverP]
         *sctExitTemp->parameters()[Trk::qOverP];
 
       std::unique_ptr<Trk::TrackParameters> sctExit =
@@ -269,7 +269,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           par[Trk::phi],
           par[Trk::theta],
           par[Trk::qOverP],
-          cov);
+          std::move(cov));
       delete sctExitTemp;
       ATH_MSG_DEBUG ("-O- At iteration " << fitIteration << " SCT exit: meas't (" <<
                      lastSctState->measurement()->localParameters()[Trk::locX] << ",  " <<

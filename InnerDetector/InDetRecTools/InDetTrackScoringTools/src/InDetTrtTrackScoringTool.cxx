@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackScoringTools/InDetTrtTrackScoringTool.h"
@@ -142,7 +142,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
 
   ///Reject track below the pT cut
 
-  EventContext ctx = Gaudi::Hive::currentContext();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
@@ -191,7 +191,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
       }
     }
     // --- prob(chi2,NDF), protect for chi2 <= 0
-    if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
+    if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       double p = 1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared());
       if ( p > 0 )
         score += log10( p );
@@ -257,7 +257,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
   // 
   // --- non binned Chi2
   
-  if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
+  if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
     int    indf  = track.fitQuality()->numberDoF();
     double chi2  = track.fitQuality()->chiSquared();
     double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
@@ -448,8 +448,7 @@ bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track) const
     int nCutTRT  = m_minTRTonTrk;
     int expected = m_selectortool->minNumberDCs(par);
     if (expected > m_minTRTonTrk) nCutTRT = expected; 
-    if (nTRT > nCutTRT) return true;
-    else return false;
+    return nTRT > nCutTRT;
 
   }
 

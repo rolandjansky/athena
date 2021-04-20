@@ -16,7 +16,7 @@ class RecoInfoPlots: public PlotBase {
   public:
     RecoInfoPlots(PlotBase *pParent, std::string sDir);
 
-    void fill(const xAOD::Muon& mu);
+    void fill(const xAOD::Muon& mu, float weight=1.0);
 
     Trk::RecoInfoPlots m_oTrkRecoInfoPlots; //ID trk chi^2, ndf
     Trk::RecoInfoPlots m_oMSTrkRecoInfoPlots; //MS trk chi^2, ndf

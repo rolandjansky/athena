@@ -22,10 +22,11 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_rhkEvtInfo("EventInfo"),
     m_rhkRhoKey(""),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), 
-    m_jetMassCorr(NULL), m_jetSmearCorr(NULL), m_insituCombMassCorr_tmp(NULL)
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false),
+    m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
+    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
+    m_bcidCorr(nullptr), m_jetPileupCorr(nullptr), m_etaJESCorr(nullptr), m_globalSequentialCorr(nullptr),
+    m_insituDataCorr(nullptr), m_jetMassCorr(nullptr), m_jetSmearCorr(nullptr), m_insituCombMassCorr_tmp(nullptr)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -49,6 +50,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
 JetCalibrationTool::~JetCalibrationTool() {
 
   if (m_globalConfig) delete m_globalConfig;
+  if (m_bcidCorr) delete m_bcidCorr;
   if (m_jetPileupCorr) delete m_jetPileupCorr;
   if (m_etaJESCorr) delete m_etaJESCorr;
   if (m_globalSequentialCorr) delete m_globalSequentialCorr;
@@ -151,6 +153,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
   m_doSetDetectorEta = m_globalConfig->GetValue("SetDetectorEta",true);
 
+  // Rho key specified in the config file?
+  m_rhoKey_config = m_globalConfig->GetValue("RhoKey", "None");
+
   // Get name of vertex container
   m_vertexContainerName = m_globalConfig->GetValue("VertexContainerName","PrimaryVertices");
   
@@ -159,7 +164,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
     m_doJetArea = false;
     m_doResidual = false;
   } else if ( calibSeq.Contains("JetArea") ) {
-    if ( m_rhoKey.compare("auto") == 0 ) {
+    if ( m_rhoKey.compare("auto") == 0 && m_rhoKey_config.compare("None") == 0) {
       if(!m_originCorrectedClusters){
         if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoEventShape";
         else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoEventShape";
@@ -169,6 +174,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
         else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoOriginEventShape";
         else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
       }
+    }
+    else if(m_rhoKey_config.compare("None") != 0 && m_rhoKey.compare("auto") == 0){
+      m_rhoKey = m_rhoKey_config;
     }
     ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
     ATH_CHECK( m_rhkRhoKey.initialize() );
@@ -186,6 +194,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
 
   if ( !calibSeq.Contains("GSC") ) m_doGSC = false;
+
+  if ( !calibSeq.Contains("Bcid") ) m_doBcid = false;
 
   //Protect against the in-situ calibration being requested when isData is false
   if ( calibSeq.Contains("Insitu") && !m_isData ) {
@@ -258,7 +268,20 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
   std::string suffix = "";
   //ATH_MSG_INFO("Initializing sub tools.");
-  if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
+  if ( calibration.EqualTo("Bcid") ){
+    ATH_MSG_INFO("Initializing BCID correction for data.");
+    suffix="_Bcid";
+    if(m_devMode) suffix+="_DEV";
+    m_globalConfig->SetValue("PileupStartingScale","JetBcidScaleMomentum");
+    m_bcidCorr = new BcidOffsetCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_isData,m_devMode);
+    if ( m_bcidCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the BCID Offset correction. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_bcidCorr);
+      return StatusCode::SUCCESS;
+    }
+  } else if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
     ATH_MSG_INFO("Initializing pileup correction.");
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
@@ -484,7 +507,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   }
 
   // Retrieve EventInfo object, which now has multiple uses
-  if ( m_doResidual || m_doGSC ) {
+  if ( m_doResidual || m_doGSC || m_doBcid) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
     SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_rhkEvtInfo);
@@ -500,7 +523,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     }
 
     // If we are applying the reisdual, then store mu
-    if (m_doResidual) {
+    if (m_doResidual || m_doBcid) {
       SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
       if(!eventInfoDecor.isPresent()) {
 	ATH_MSG_ERROR("EventInfo decoration not available!");
@@ -523,6 +546,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       
     }
 
+    // Extract the BCID information for the BCID correction
+    if (m_doBcid)
+    {
+      jetEventInfo.setRunNumber( eventObj->runNumber() );
+      jetEventInfo.setBcidDistanceFromFront( eventObj->auxdata<int>("DFCommonJets_BCIDDistanceFromFront") );
+      jetEventInfo.setBcidGapBeforeTrain( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrain") );
+      jetEventInfo.setBcidGapBeforeTrainMinus12( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrainMinus12") );
+    }
+    
     // If PV index is not zero, we need to confirm it's a reasonable value
     // To do this, we need the primary vertices
     // However, other users of the GSC may not have the PV collection (in particular: trigger GSC in 2016)

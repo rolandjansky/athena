@@ -77,7 +77,7 @@ double HitToSoNode::getTGCAngle(Identifier id) const {
   // const MuonGM::TgcReadoutElement *ele=  VP1DetInfo::muonDetMgr ()->getTgcReadoutElement(id);
   // 
   // double stripLength = ele->stripLength(gasGap,stripNo);
-  // double stripWidth=fabs(ele->stripMaxX(gasGap, stripNo, (*lp)[Trk::locZ])-ele->stripMinX(gasGap, stripNo,  (*lp)[Trk::locZ]));
+  // double stripWidth=std::abs(ele->stripMaxX(gasGap, stripNo, (*lp)[Trk::locZ])-ele->stripMinX(gasGap, stripNo,  (*lp)[Trk::locZ]));
   // 
   // double localX1=ele->stripCtrX(gasGap, stripNo,  stripLength/2.);
   // double localX2=ele->stripCtrX(gasGap, stripNo,  -stripLength/2.);
@@ -107,19 +107,17 @@ double HitToSoNode::getTGCAngle(Identifier id) const {
     Amg::Vector3D gpos_shift = tgcTrans*lpos_shift;
 
     const Trk::Surface& surf =  detEl->surface(id);
-    const Amg::Vector2D* locPos1 = surf.globalToLocal(gpos,100);
-    const Amg::Vector2D* locPos2 = surf.globalToLocal(gpos_shift,100);
+    std::optional<Amg::Vector2D> locPos1 = surf.globalToLocal(gpos,100);
+    std::optional<Amg::Vector2D> locPos2 = surf.globalToLocal(gpos_shift,100);
 
     if (!locPos1 || !locPos2) {
         VP1Msg::message("HitToSoNode::getTGCangle() Warning: global to local failed - cannot make transform!");
-        delete locPos1; delete locPos2;
         return 0;
     }
 
     Amg::Vector2D difPos = (*locPos2) - (*locPos1);
 // std::cout << " Strip pos " << *locPos1 << " shifted " << *locPos2 << " dif " << difPos << std::endl;
     double tmp= difPos[Trk::locY] / sqrt(pow(difPos[Trk::locX],2)+pow(difPos[Trk::locY],2));
-    delete locPos1; delete locPos2;
 
     tmp = (tmp>1.0) ? 1.0 : tmp;
     tmp = (tmp<-1.0) ? -1.0 : tmp;
@@ -210,7 +208,7 @@ void HitToSoNode::buildTubeShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&shap
       return;
     }
 
-    double radius = fabs(rio.localParameters().get(Trk::locR));
+    double radius = std::abs(rio.localParameters().get(Trk::locR));
     if (radius<0.15)
         radius = 0.0;//radius is so small it is better to collapse to line
         
@@ -252,7 +250,7 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
 
 
     double stripLength =100.0, stripWidth = 10.0, stripThickness=1.0;
-    const Amg::Vector2D* localposROT=0;
+    std::optional<Amg::Vector2D> localposROT=std::nullopt;
     Amg::Vector2D* localposStrip=0;
     Identifier id=rio.identify();
     fillValues(id, rio.detectorElement(), stripLength, stripWidth, stripThickness, localposStrip);
@@ -267,7 +265,7 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
 
     if( !localposROT )
     {
-        localposROT = new Amg::Vector2D;
+        localposROT = Amg::Vector2D{};
         VP1Msg::message("Warning: Local hit position was NULL");
     }
 
@@ -304,7 +302,6 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
     shape_detailed->addChild(localtrans1);
 
     delete localposStrip;
-    delete localposROT;    
 }
 
 void HitToSoNode::fillValues(Identifier& id, const Trk::TrkDetElementBase* baseDetEl, double& striplength, double& stripWidth, double& stripThickness, Amg::Vector2D*& localposStrip){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
@@ -17,7 +17,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
@@ -89,11 +88,6 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
         this,
         "MuonClusterSegmentFinderTool",
         "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
-    };
-    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{
-        this,
-        "MuonTruthSummaryTool",
-        "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool",
     };
     ToolHandle<ICscSegmentFinder> m_csc2dSegmentFinder{
         this,

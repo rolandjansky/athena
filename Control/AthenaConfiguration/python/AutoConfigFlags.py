@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.MetaReader import read_metadata
 from AthenaCommon.Logging import logging
@@ -117,6 +117,8 @@ def getDefaultDetectors(geoTag):
 
     detectors.add('LAr')
     detectors.add('Tile')
+    if DetDescrInfo(geoTag)['Common']['Run'] in ['RUN1', 'RUN2', 'RUN3']:
+        detectors.add('MBTS')
 
     detectors.add('MDT')
     detectors.add('RPC')

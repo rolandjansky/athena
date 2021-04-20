@@ -14,5 +14,7 @@ def TruthDigitizationOutputCfg(flags):
         "xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux.",
         "xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets",
         "xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux.",
-    ]
+        "xAOD::TruthParticleContainer#*TruthPileupParticles",
+        "xAOD::TruthParticleAuxContainer#*TruthPileupParticlesAux.",
+   ]
     return OutputStreamCfg(flags, "RDO", ItemList)

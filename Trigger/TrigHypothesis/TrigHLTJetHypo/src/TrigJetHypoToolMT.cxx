@@ -67,7 +67,7 @@ StatusCode TrigJetHypoToolMT::initialize(){
   }
   
   if (m_visitDebug){
-    DebugInfoCollector collector(name());
+    DebugInfoCollector collector(name() + "_init");
     CHECK(m_helper->getDescription(collector));
     auto s = collector.toString();
     

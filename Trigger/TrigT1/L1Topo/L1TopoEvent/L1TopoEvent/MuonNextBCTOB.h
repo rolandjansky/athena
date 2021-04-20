@@ -20,10 +20,10 @@ namespace TCS {
 
 
       // default constructor
-      MuonNextBCTOB(uint32_t roiWord = 0);
+      MuonNextBCTOB(uint32_t roiWord = 0, std::string tobName = "MuonNextBCTOB");
       
       // constructor with individual values
-      MuonNextBCTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0);
+      MuonNextBCTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "MuonNextBCTOB");
 
       // constructor with initial values
       MuonNextBCTOB(const MuonNextBCTOB & muonNextBC);

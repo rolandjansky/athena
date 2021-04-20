@@ -22,7 +22,6 @@
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"  
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
@@ -54,10 +53,8 @@ static const   int timeNbin	      =	  128;
 
 /////////////////////////////////////////////////////////////////////////////
 
-RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent )
-  //,m_pSummarySvc("RPCCondSummarySvc", name)
-{
+RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent ) :
+    ManagedMonitorToolBase( type, name, parent ) {
   // Declare the properties 
   declareProperty("DoRpcEsd",            m_doRpcESD		= false	); 
   declareProperty("CheckCabling",        m_checkCabling		= false	);
@@ -116,12 +113,6 @@ StatusCode RpcRawDataValAlg::initialize(){
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
-
-  // get RPC cablingSvc
-  const IRPCcablingServerSvc* RpcCabGet = nullptr;
-  ATH_CHECK(service("RPCcablingServerSvc", RpcCabGet));
-  ATH_CHECK(RpcCabGet->giveCabling(m_cabling));
-  ATH_MSG_DEBUG(" Found the RPCcablingSvc. ");
   
   m_rpc_eventstotal=0;  
   

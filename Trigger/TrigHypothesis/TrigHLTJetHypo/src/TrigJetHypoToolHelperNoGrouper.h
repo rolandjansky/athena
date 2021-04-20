@@ -23,7 +23,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
-#include "./ConditionFilter.h"
+#include "./ITrigHypoJetVectorFilterConfig.h"
 
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolNoGrouperConfig.h"
@@ -66,18 +66,12 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
    this, "HypoConfigurers", {},
    "Configurers to set up TrigJetHypoHelperNoGrouper"};
 
-  ToolHandleArray<ITrigJetConditionConfig>
-  m_prefilterConditionMakers{this, "prefiltConditionMakers", {},
-    "hypo tree Condition builder AlgTools for hypo pre-filtering"};
+  ToolHandleArray<ITrigHypoJetVectorFilterConfig>
+  m_prefilterMakers{this, "prefilterMakers", {},
+    "configuration tool to create prefilter"};
 
-  // object that copies selected incomming jets into a new vector.
-  std::unique_ptr<ConditionFilter> m_prefilter{nullptr}; 
-
-  
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
-  
-  StatusCode makePrefilter();
   
   virtual std::string toString() const override;
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -212,7 +212,7 @@ asg::AcceptData InDet::InDetSecVtxTrackSelectionTool::accept( const xAOD::TrackP
 //  }
 //#endif
 
-  for ( auto& accessor : m_trackAccessors ) {
+  for ( const auto & accessor : m_trackAccessors ) {
     if( !  accessor.second->access( trk, vtx ).isSuccess() ) {
       ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
     }

@@ -34,7 +34,6 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
     m_commonItems(nullptr),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
 
     {
@@ -45,7 +44,6 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
     declareProperty("Alignable", m_alignable);
     declareProperty("GmxFilename", m_gmxFilename);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoModelSvc", m_geoModelSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
 
@@ -64,7 +62,6 @@ StatusCode ITkPixelDetectorTool::create() {
     // Get the detector configuration.
     ATH_CHECK(m_geoDbTagSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
-    ATH_CHECK(m_geometryDBSvc.retrieve());
     GeoModelExperiment *theExpt;
     ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
     const PixelID *idHelper;
@@ -76,7 +73,6 @@ StatusCode ITkPixelDetectorTool::create() {
     m_athenaComps = new InDetDD::AthenaComps("PixelGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
 
 
@@ -105,7 +101,7 @@ StatusCode ITkPixelDetectorTool::create() {
 //    Get the Database Access Service and from there the pixel version tag
 //
     std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag <<  "  Package Version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag );
 //
 //   Check if pixel version tag is empty. If so, then the pixel cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.

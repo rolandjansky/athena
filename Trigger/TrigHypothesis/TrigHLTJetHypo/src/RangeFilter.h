@@ -26,7 +26,7 @@ class RangeFilter: public IHypoJetVectorFilter  {
  private:
   std::size_t m_begin{0};
   std::size_t m_end{0};
-  long int m_njets{0};
+  long int m_nToSort{0};
   
   HypoJetVector m_filtered{};  
 };

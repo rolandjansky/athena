@@ -25,9 +25,9 @@ namespace Trk {
   }
 
   void
-  HitTypePlots::fill(int iHits, float fEta, float fPhi) {
-    Hits->Fill(iHits);
-    HitsVsEta->Fill(iHits, fEta);
-    HitsVsPhi->Fill(iHits, fPhi);
+  HitTypePlots::fill(int iHits, float fEta, float fPhi, float weight) {
+    Hits->Fill(iHits, weight);
+    HitsVsEta->Fill(iHits, fEta, weight);
+    HitsVsPhi->Fill(iHits, fPhi, weight);
   }
 }

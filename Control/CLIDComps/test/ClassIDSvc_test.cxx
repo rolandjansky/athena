@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ClassIDSvc_test.cxx  
  * @brief unit test for ClassIDSvc
  * @author ATLAS Collaboration
- * $Id: ClassIDSvc_test.cxx,v 1.5 2009-01-19 17:02:55 binet Exp $
  ***************************************************************************/
 
 #undef NDEBUG
@@ -23,6 +22,8 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CLIDRegistry.h"
+#include "AthenaKernel/tools/AthenaPackageInfo.h"
+
 class Foo{};
 CLASS_DEF( Foo, 8101, 0) 
 class Bar{};

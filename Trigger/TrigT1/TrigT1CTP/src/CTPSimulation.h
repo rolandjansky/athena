@@ -161,8 +161,8 @@ namespace LVL1CTP {
       // gFEX
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyGFexJets    {  this, "gFexJetInput", "gL1Jets", "Input list of gFEX jets" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETPufit{  this, "gFexMETPufitInput", "gXEPUFIT_MET", "Input list of gFEX MET Pufit" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHO_MET", "Input list of gFEX MET Rho" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJ_MET", "Input list of gFEX MET JwoJ" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHOPerf", "Input list of gFEX MET Rho" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJPerf", "Input list of gFEX MET JwoJ" };
       // eFEX
       SG::ReadHandleKey< xAOD::TrigEMClusterContainer >  m_iKeyEFexCluster{  this, "eFexClusterInput", "SClusterCl", "Input list of eFEX cluster" };
       SG::ReadHandleKey< xAOD::EmTauRoIContainer >       m_iKeyEFexTau    {  this, "eFexTauInput", "SClusterTau", "Input list of eFEX tau" };
@@ -180,6 +180,9 @@ namespace LVL1CTP {
       Gaudi::Property<unsigned int> m_bunchGroupPattern { this, "BunchGroupPattern", 0x0003, "Bunchgroup pattern applied at every event, useful for simulation. Bit x corresponds to bunchgroup x" };
 
       Gaudi::Property<bool> m_doL1CaloLegacy { this, "DoL1CaloLegacy", false, "Use L1Calo legacy" };
+
+      Gaudi::Property<bool> m_muonRun2Format { this, "MuonMultiplicityRun2Format", false, "Interpret muon multiplicity in Run 2 format (bit 0 unused)" };
+
 
       // to decode the L1 Run-2 hardware ROIs from data
       LVL1::CPRoIDecoder * m_decoder { nullptr };

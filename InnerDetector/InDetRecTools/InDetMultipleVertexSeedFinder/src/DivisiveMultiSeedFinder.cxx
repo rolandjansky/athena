@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/DivisiveMultiSeedFinder.h"
@@ -118,7 +118,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::Track *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
     //std::vector<int> indexOfSorted = m_z0sort(preselectedTracks, beamposition);
     std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
@@ -208,7 +208,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
        clean_again = false;
@@ -289,7 +289,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::TrackParticleBase *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
 
@@ -384,7 +384,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
       
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
@@ -476,7 +476,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::TrackParameters *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
   
     std::vector<int> indexOfSorted =  m_sortingTool->sortedIndex(preselectedTracks, beamposition);
@@ -577,7 +577,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
       
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;

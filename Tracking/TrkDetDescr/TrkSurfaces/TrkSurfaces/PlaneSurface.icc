@@ -4,7 +4,7 @@
 
 namespace Trk {
 
-inline Surface::SurfaceType
+inline SurfaceType
 PlaneSurface::type() const
 {
   return PlaneSurface::staticType;
@@ -13,52 +13,56 @@ PlaneSurface::type() const
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline Surface::ChargedTrackParametersUniquePtr
-PlaneSurface::createUniqueTrackParameters(double l1,
-                                    double l2,
-                                    double phi,
-                                    double theta,
-                                    double qop,
-                                    AmgSymMatrix(5) * cov) const
+PlaneSurface::createUniqueTrackParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Charged, PlaneSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * charged*/
 inline Surface::ChargedTrackParametersUniquePtr
-PlaneSurface::createUniqueTrackParameters(const Amg::Vector3D& position,
-                                    const Amg::Vector3D& momentum,
-                                    double charge,
-                                    AmgSymMatrix(5) * cov) const
+PlaneSurface::createUniqueTrackParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
-   return std::make_unique<ParametersT<5, Charged, PlaneSurface>>(
-    position, momentum, charge, *this, cov);
+  return std::make_unique<ParametersT<5, Charged, PlaneSurface>>(
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-PlaneSurface::createUniqueNeutralParameters(double l1,
-                                            double l2,
-                                            double phi,
-                                            double theta,
-                                            double oop,
-                                            AmgSymMatrix(5) * cov) const
+PlaneSurface::createUniqueNeutralParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double oop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, PlaneSurface>>(
-    l1, l2, phi, theta, oop, *this, cov);
+    l1, l2, phi, theta, oop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * neutral */
 inline Surface::NeutralTrackParametersUniquePtr
-PlaneSurface::createUniqueNeutralParameters(const Amg::Vector3D& position,
-                                            const Amg::Vector3D& momentum,
-                                            double charge,
-                                            AmgSymMatrix(5) * cov) const
+PlaneSurface::createUniqueNeutralParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
   return std::make_unique<ParametersT<5, Neutral, PlaneSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters */
@@ -69,10 +73,10 @@ PlaneSurface::createUniqueParameters(double l1,
                                      double phi,
                                      double theta,
                                      double qop,
-                                     AmgSymMatrix(DIM) * cov) const
+                                     std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, PlaneSurface>>(
-    l1, l2, phi, theta, qop, *this, cov);
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
@@ -81,10 +85,10 @@ std::unique_ptr<ParametersT<DIM, T, PlaneSurface>>
 PlaneSurface::createUniqueParameters(const Amg::Vector3D& position,
                                      const Amg::Vector3D& momentum,
                                      double charge,
-                                     AmgSymMatrix(DIM) * cov) const
+                                     std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return std::make_unique<ParametersT<DIM, T, PlaneSurface>>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters */
@@ -95,9 +99,9 @@ PlaneSurface::createParameters(double l1,
                                double phi,
                                double theta,
                                double qop,
-                               AmgSymMatrix(DIM) * cov) const
+                               std::optional<AmgSymMatrix(DIM)> cov) const
 {
-  return ParametersT<DIM, T, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov);
+  return ParametersT<DIM, T, PlaneSurface>(l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
@@ -106,10 +110,10 @@ ParametersT<DIM, T, PlaneSurface>
 PlaneSurface::createParameters(const Amg::Vector3D& position,
                                const Amg::Vector3D& momentum,
                                double charge,
-                               AmgSymMatrix(DIM) * cov) const
+                               std::optional<AmgSymMatrix(DIM)> cov) const
 {
   return ParametersT<DIM, T, PlaneSurface>(
-    position, momentum, charge, *this, cov);
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Return properly formatted class name for screen output */

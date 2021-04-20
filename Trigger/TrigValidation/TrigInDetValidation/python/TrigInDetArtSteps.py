@@ -90,6 +90,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
+                chains +=  "'HLT_e26_lhtight_gsf_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
@@ -108,8 +109,8 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
             if (i=='cosmic') :
-                chains += "'HLT_mu4_cosmic_L1MU4_EMPTY'"
-                flags  += "doMuonSlice=True;setMenu='Cosmic_run3_v1';"
+                chains += "'HLT_mu4_cosmic_L1MU4'"
+                flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
@@ -233,7 +234,7 @@ def json_chains( slice ) :
         
     with open(json_fullpath) as f:
         data = json.load(f)
-       
+
     chainmap = data[slice]
 
     return chainmap['chains']
@@ -287,7 +288,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         RefComparisonStep.configure(self, test)
         if self.reference is None :
-            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref --logx "
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + " --noref --logx "
         else:
             self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra + " --logx "
         Step.configure(self, test)

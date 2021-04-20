@@ -2,6 +2,7 @@
 from functools import lru_cache
 from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
+import GaudiConfig2
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInLegs
@@ -404,7 +405,9 @@ def generateDecisionTree(flags, chains):
                     hypoAlg.HypoInputDecisions = assureUnsetOrTheSame( hypoAlg.HypoInputDecisions, imAlg.InputMakerOutputDecisions,
                         "{} hypo input".format( hypoAlg.name ) )
                     # chain selection is setup here
-                    hypoAlg.HypoTools.append( step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict ) )
+                    hypoTool = step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict )
+                    assert isinstance(hypoTool, GaudiConfig2._configurables.Configurable), "The Hypo Tool for {} is not Configurable2".format(chainDict["chainName"])
+                    hypoAlg.HypoTools.append( hypoTool )
                 pass
 
             chainDictLegs = splitChainInLegs( chain.name )

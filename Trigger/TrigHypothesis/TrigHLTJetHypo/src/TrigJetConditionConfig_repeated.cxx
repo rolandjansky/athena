@@ -3,11 +3,10 @@
 */
 
 /*
-  Instantiator for ET Condition
+  Instantiator for a Repeated Condition
  */
-#include "TrigJetConditionConfig_repeated.h"
+#include "./TrigJetConditionConfig_repeated.h"
 #include "RepeatedCondition.h"
-#include "ConditionInverter.h"
 #include "CompoundConditionMT.h"
 
 #include "GaudiKernel/StatusCode.h"
@@ -15,8 +14,8 @@
 
 
 TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::string& type,
-						     const std::string& name,
-						     const IInterface* parent) :
+								 const std::string& name,
+								 const IInterface* parent) :
   base_class(type, name, parent){
   
 }
@@ -49,17 +48,9 @@ TrigJetConditionConfig_repeated::getRepeatedCondition() const {
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
 					m_multiplicity,
-					m_chainPartInd);
+					m_chainPartInd,
+					m_invert);
 }
-
-ConditionPtr
-TrigJetConditionConfig_repeated::getRepeatedAntiCondition() const {
-  auto acc = std::make_unique<ConditionInverterMT>(getCompoundCondition());
-  return std::make_unique<RepeatedCondition>(std::move(acc),
-						    m_multiplicity,
-						    m_chainPartInd);
-}
-  
 
 
 StatusCode TrigJetConditionConfig_repeated::checkVals() const {

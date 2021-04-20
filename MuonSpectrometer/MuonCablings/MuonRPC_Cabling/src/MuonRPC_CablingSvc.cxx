@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
@@ -32,17 +32,16 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     m_condDataTool("RPCCablingDbTool"),
     m_condTriggerTool("RPCTriggerDbTool")
 {
-    declareProperty( "ConfFilePath", m_conf_filepath="MuonRPC_Cabling/" );
-    declareProperty( "ConfFileName", m_conf_filename="LVL1confAtlas.data" );
-    declareProperty( "CorrFileName", m_corr_filename="LVL1confAtlas.corr" );    
+    declareProperty( "ConfFileName", m_conf_filename="MuonRPC_Cabling/LVL1confAtlas.data" );
+    declareProperty( "CorrFileName", m_corr_filename="MuonRPC_Cabling/LVL1confAtlas.corr" );    
     declareProperty( "CosmicConfiguration", m_cosmic_configuration=false );
-    declareProperty( "DatabaseRepository",  m_database_repository="ATLAS.data" );
+    declareProperty( "DatabaseRepository",  m_database_repository="MuonRPC_Cabling/ATLAS.data" );
 
     //L. Bellagamba 04/08/2009 -> Cabling maps from Cool
     declareProperty( "RPCMapfromCool",m_RPCMapfromCool=true);
     declareProperty( "TheRpcCablingDbTool",  m_condDataTool,      "a tool reading RPC cabling maps from COOL");
     //L. Bellagamba 15/04/2010 -> Trigger roads from Cool
-    declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=false);
+    declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=true);
     declareProperty( "TheRpcTriggerDbTool",  m_condTriggerTool,      "a tool reading RPC triiger roads from COOL");
     //M. Corradi 2015/1/8
     declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true,
@@ -56,7 +55,7 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
 
 StatusCode MuonRPC_CablingSvc::initialize()
 {
-    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing");
 
     StoreGateSvc * detStore=nullptr;
     ATH_CHECK(service("DetectorStore",detStore));
@@ -858,18 +857,16 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if ( (!m_RPCMapfromCool) || tryRecoveringByReadingFromFile)
     {
       // implement the search of LVL1conf.data trought the pathresolver utility.
-      std::string conf_filename;
-      std::string conf_str = m_conf_filepath;
-      conf_filename = PathResolverFindCalibFile ( conf_str.append( std::string(m_conf_filename)) );
+      std::string conf_filename = PathResolverFindCalibFile(m_conf_filename);
       if (conf_filename.empty())
       {
 	  msg(MSG::ERROR) 
-		<< "Cannot locate " << conf_str
+		<< "Cannot locate " << conf_filename
 		<< " from ${CALIBPATH}" << endmsg;
 	  return StatusCode::FAILURE;
       }
       else msg(MSG::INFO)
-	<< "Cabling conf file <" << conf_str
+	<< "Cabling conf file <" << conf_filename
 	<< "> located at ${CALIBPATH}" << endmsg;
 
       std::string corr_filename;
@@ -1112,13 +1109,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
           else {
             
 	    // implement the search of LVL1conf.data trought the pathresolver utility.
-	    std::string conf_filename;
-	    std::string conf_str = m_conf_filepath;
-	    conf_filename = PathResolverFindCalibFile ( conf_str.append( std::string(m_conf_filename)) );
+	    std::string conf_filename = PathResolverFindCalibFile(m_conf_filename);
             if (conf_filename.empty())
 	    {
 	      msg(MSG::ERROR) 
-		<< "Cannot locate " << conf_str
+		<< "Cannot locate " << conf_filename
 		<< " from ${CALIBPATH}" << endmsg;
 	      return StatusCode::FAILURE;
 	    }

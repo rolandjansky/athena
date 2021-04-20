@@ -35,7 +35,6 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
     m_commonItems(nullptr),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
     //   ADA   m_lorentzAngleSvc("SCTLorentzAngleSvc", name) 
     {
@@ -46,7 +45,6 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
     declareProperty("Alignable", m_alignable);
     declareProperty("GmxFilename", m_gmxFilename);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoModelSvc", m_geoModelSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
     //   ADA   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
@@ -75,11 +73,6 @@ StatusCode StripDetectorTool::create() {
         msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
         return StatusCode::FAILURE;
     }
-    sc = m_geometryDBSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
-        return (StatusCode::FAILURE);
-    }
     GeoModelExperiment *theExpt;
     sc = detStore()->retrieve(theExpt, "ATLAS");
     if (sc.isFailure()) {
@@ -97,7 +90,6 @@ StatusCode StripDetectorTool::create() {
     m_athenaComps = new InDetDD::AthenaComps("StripGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
 
 
@@ -126,7 +118,7 @@ StatusCode StripDetectorTool::create() {
 //    Get the Database Access Service and from there the SCT version tag
 //
     std::string sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
-    msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
+    msg(MSG::INFO) << "SCT Version: " << sctVersionTag << endmsg;
 //
 //   Check if SCT version tag is empty. If so, then the SCT cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.

@@ -124,7 +124,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     bool TRTtypeSet = false;
     // maxium assignment propability for choosing the surface....
     Trk::CompetingRIOsOnTrack::AssignmentProb maximumAssignProb = 0;
-    const InDet::TRT_DriftCircleOnTrack* ROTwithMaximumAssgnProb = 0;
+    const InDet::TRT_DriftCircleOnTrack* ROTwithMaximumAssgnProb = nullptr;
 
     ATH_MSG_VERBOSE("trackSurfacePointer: " << &trkPar.associatedSurface() << " at ("
 		    << trkPar.associatedSurface().center().x() << ", "
@@ -174,8 +174,8 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                 // -----------------
                 // create first ROT:
                 // check if track parameters are expressed on the RIO surface
-                const Trk::TrackParameters* trkParAtRIOsurface = 0;
-                const Trk::TrackParameters* newTrackParameters = 0;
+                const Trk::TrackParameters* trkParAtRIOsurface = nullptr;
+                const Trk::TrackParameters* newTrackParameters = nullptr;
                 if ( (*RIOsurface)==((trkPar.associatedSurface())) ) {
                     // track parameters are given on the surface of the RIO, use them
                     ATH_MSG_VERBOSE("TrackParameters are on RIO surface: GP ("
@@ -200,7 +200,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                         ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
                         delete ROTvector;
                         delete assgnProbVector;
-                        return 0;
+                        return nullptr;
                     } // end if (extrapolation failed)
                     trkParAtRIOsurface = newTrackParameters;
                     ATH_MSG_VERBOSE("propagated TrackParameters on RIO surface: GP ("
@@ -250,10 +250,18 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
                 // first create mirrored trkParameter on the Surface of the RIO
 		            Amg::VectorX par = trkParAtRIOsurface->parameters();
                 par[Trk::locR] = (-1.0) * par[Trk::locR];
-		            AmgSymMatrix(5)* covN = trkParAtRIOsurface->covariance() ? new AmgSymMatrix(5)(*trkParAtRIOsurface->covariance()) : 0;
-		            auto mirrorTrkPar = trkParAtRIOsurface->associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
-																    par[Trk::phi],par[Trk::theta],
-																    par[Trk::qOverP],covN);
+                std::optional<AmgSymMatrix(5)> covN =
+                  trkParAtRIOsurface->covariance()
+                    ? std::optional<AmgSymMatrix(5)>(*trkParAtRIOsurface->covariance())
+                    : std::nullopt;
+                auto mirrorTrkPar =
+                  trkParAtRIOsurface->associatedSurface()
+                    .createUniqueTrackParameters(par[Trk::loc1],
+                                                 par[Trk::loc2],
+                                                 par[Trk::phi],
+                                                 par[Trk::theta],
+                                                 par[Trk::qOverP],
+                                                 std::move(covN));
                 // now create ROT
                 const InDet::TRT_DriftCircleOnTrack* rot2 = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(m_TRT_ROTCreator->correct(*riopointer, *mirrorTrkPar));
                 if (!rot2) {
@@ -280,17 +288,17 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     } // end for loop
 
     delete trkParWithoutError;
-    trkParWithoutError = 0;
+    trkParWithoutError = nullptr;
 
     // -------------------------------------
     // test if at least one ROT was created:
-    if (ROTvector->size() <= 0) {
+    if (ROTvector->empty()) {
         ATH_MSG_ERROR("No valid TRT_DriftCircleOnTrack could be created:");
         ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
         //clean-up
         delete ROTvector;
         delete assgnProbVector;
-        return 0;
+        return nullptr;
     }
     ATH_MSG_DEBUG("List of competing TRT ROTs contains "<< ROTvector->size() << " TRT_DriftCirclesOnTrack");
 
@@ -311,14 +319,14 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
         m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
     }
     delete baseROTvector;
-    baseROTvector=0;
+    baseROTvector=nullptr;
 
     if (!ROTwithMaximumAssgnProb) {
         ATH_MSG_ERROR("No RIO_OnTrack with maximum assignment probability!");
         //clean-up
         delete ROTvector;
         delete assgnProbVector;
-        return 0;
+        return nullptr;
     }
     // ---------------------------------
     // check if ROTs have common surface
@@ -362,9 +370,9 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     // ----------------------------------
     // calculate effective measurement:
     // TRT barrel and TRT end-cap differ
-    const Trk::LocalParameters* effectiveLocalPar = 0;
-    const Amg::MatrixX* effectiveErrMat = 0;
-    const Trk::Surface* assocSurface = 0;
+    const Trk::LocalParameters* effectiveLocalPar = nullptr;
+    const Amg::MatrixX* effectiveErrMat = nullptr;
+    const Trk::Surface* assocSurface = nullptr;
     if(TRTtype == InDetDD::TRT_BaseElement::BARREL) {
         //calculation of effective measurements for Barrel-TRT
         // surface of the trkPar does not matter for standard calc
@@ -390,20 +398,19 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
             // The LocR of trkPar has not such a great influence and the last iterations
             // where just one straw remains in competition are done on this StraightLineSurface anyway
             // TODO: check how this can be done in a better way
-            const Amg::Vector2D* localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
+            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
             if (!localTrkPar) {
                 ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
                 ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
                 //clean-up
                 delete ROTvector;
                 delete assgnProbVector;
-                return 0;
+                return nullptr;
             }
             ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("<<(*localTrkPar)[Trk::locR]<<","<<(*localTrkPar)[Trk::locPhi]<<")");
 
             //            delete discpar;
             calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, *localTrkPar, assocSurface);
-            delete localTrkPar;
         }
     }
 
@@ -413,7 +420,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
         delete effectiveErrMat;
         delete ROTvector;
         delete assgnProbVector;
-        return 0;
+        return nullptr;
     }
     if (!effectiveErrMat) {
         ATH_MSG_ERROR("Could not produce effective ErrorMatrix");
@@ -422,7 +429,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
         delete effectiveLocalPar;
         delete ROTvector;
         delete assgnProbVector;
-        return 0;
+        return nullptr;
     }
 
     // ---------------------------------------
@@ -467,7 +474,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // get maxium assignment propability for choosing the surface....
     Trk::CompetingRIOsOnTrack::AssignmentProb maximumAssignProb = 0;
     unsigned int maximumAssignProbIndex = 0;
-    const InDet::TRT_DriftCircleOnTrack* ROTwithMaximumAssgnProb = 0;
+    const InDet::TRT_DriftCircleOnTrack* ROTwithMaximumAssgnProb = nullptr;
 
     // clone TrkParameters without error to force the extrapolator to do propagation without error matrix
     const Trk::TrackParameters* trkParWithoutError = trkPar.clone();
@@ -479,7 +486,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
                                 << trkPar.associatedSurface().center().y() << ", "
                                 << trkPar.associatedSurface().center().z() << ")");
     ATH_MSG_VERBOSE("loop over ROTs:");
-    const Trk::TrackParameters* newTrackParameters = 0;
+    const Trk::TrackParameters* newTrackParameters = nullptr;
     for (unsigned int i=0; i<compROT->numberOfContainedROTs(); i++) {
         const Trk::StraightLineSurface* ROTsurfacePointer = dynamic_cast< const Trk::StraightLineSurface* > (&(compROT->rioOnTrack(i).associatedSurface()));
         if (!ROTsurfacePointer) throw std::logic_error("Unhandled surface.");
@@ -488,7 +495,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
                                     << ROTsurfacePointer->center().y() << ", "
                                     << ROTsurfacePointer->center().z() << ")");
         // check if track parameters are expressed on the RIO surface
-        const Trk::TrackParameters* trkParAtROTsurface = 0;
+        const Trk::TrackParameters* trkParAtROTsurface = nullptr;
         if ( (*ROTsurfacePointer)==((trkPar.associatedSurface())) ) {
             // track parameters are given on the surface of the ROT, use them
             ATH_MSG_VERBOSE("TrackParameters are on ROT surface: GP ("
@@ -564,10 +571,10 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         }
     } // end for loop
     delete newTrackParameters;
-    newTrackParameters = 0;
+    newTrackParameters = nullptr;
 
     delete trkParWithoutError;
-    trkParWithoutError = 0;
+    trkParWithoutError = nullptr;
 
     if (maximumAssignProb > 0. ) {
         // -----------------------------------
@@ -649,9 +656,9 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // ----------------------------------
     // calculate effective measurement:
     // TRT barrel and TRT end-cap differ
-    const Trk::LocalParameters* effectiveLocalPar = 0;
-    const Amg::MatrixX* effectiveErrMat = 0;
-    const Trk::Surface* assocSurface = 0;
+    const Trk::LocalParameters* effectiveLocalPar = nullptr;
+    const Amg::MatrixX* effectiveErrMat = nullptr;
+    const Trk::Surface* assocSurface = nullptr;
     if(isBarrel) {
         //calculation of effective measurements for Barrel-TRT
         // surface of the trkPar does not matter for standard calc
@@ -674,7 +681,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             // The LocR of trkPar has not such a great influence and the last iterations
             // where just one straw remains in competition are done on this StraightLineSurface anyway
             // TODO: check how this can be done in a better way
-            const Amg::Vector2D* localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
+            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
             if (!localTrkPar) {
                 ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
                 ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack update aborted!");
@@ -683,7 +690,6 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             }
             ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("<<(*localTrkPar)[Trk::locR]<<","<<(*localTrkPar)[Trk::locPhi]<<")");
             calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, &(compROT->containedROTs()), assgnProbVector, *localTrkPar, assocSurface);
-            delete localTrkPar;
         } // end else (nonVanishingROTsHaveCommonSurface)
     } // end TRT end-cap
 
@@ -723,18 +729,18 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     dynamic_cast< const Trk::StraightLineSurface* > (PrdSf);
   if (!DriftSurface || PrdSf != &trkPars.associatedSurface()) {
     ATH_MSG_WARNING( "detector hit is not of type drift circle!" );
-    return 0;
+    return nullptr;
   }
   if (PrdSf->center().perp()>1500. || PrdSf->center().z() > 3000.) {
     ATH_MSG_WARNING( "input PRD is in the enemy's territory, wrong detector" );
-    return 0;
+    return nullptr;
   }
 
   // --- make first ROT (the L/R solution nearest to prediction) and vectors
   const Trk::RIO_OnTrack* rot1 = m_TRT_ROTCreator->correct(rio, trkPars);
   if (!rot1) {
     ATH_MSG_WARNING( "first and only DriftCircleOnTrack could not be created.");
-    return 0;
+    return nullptr;
   }
   std::vector< const Trk::RIO_OnTrack* >* ROTvector = new std::vector<const Trk::RIO_OnTrack*>;
   std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector =
@@ -753,10 +759,17 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     Amg::VectorX par = trkPars.parameters();
     ATH_MSG_VERBOSE("track prediction at " << par[Trk::locR]);
     par[Trk::locR] = (-1.0) * par[Trk::locR];
-    AmgSymMatrix(5)* covN = trkPars.covariance() ? new AmgSymMatrix(5)(*trkPars.covariance()) : 0;
-    auto mirrorTrkPar = trkPars.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],par[Trk::loc2],
-													    par[Trk::phi],par[Trk::theta],
-													    par[Trk::qOverP],covN);
+    std::optional<AmgSymMatrix(5)> covN =
+      trkPars.covariance()
+        ? std::optional<AmgSymMatrix(5)>(*trkPars.covariance())
+        : std::nullopt;
+    auto mirrorTrkPar =
+      trkPars.associatedSurface().createUniqueTrackParameters(par[Trk::loc1],
+                                                              par[Trk::loc2],
+                                                              par[Trk::phi],
+                                                              par[Trk::theta],
+                                                              par[Trk::qOverP],
+                                                              std::move(covN));
     const Trk::RIO_OnTrack* rot2 = m_TRT_ROTCreator->correct(rio,*mirrorTrkPar);
     if (!rot2) {
       ATH_MSG_DEBUG("2nd DriftCircleOnTrack is not created");

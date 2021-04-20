@@ -126,7 +126,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
         const Trk::Perigee* perigee = nullptr;
         const Trk::TrackParameters* tp = tsos->trackParameters();
         if (tp && tp->type() == Trk::AtaSurface &&
-            tp->surfaceType() == Trk::Surface::Perigee) {
+            tp->surfaceType() == Trk::SurfaceType::Perigee) {
           perigee = static_cast<const Trk::Perigee*>(tp);
         }
         if (perigee != nullptr) {
@@ -240,7 +240,7 @@ void Trk::Track::findPerigeeImpl() const
       if ((*it)->type(TrackStateOnSurface::Perigee)) {
         const Trk::TrackParameters* tp = (*it)->trackParameters();
         if (tp && tp->type() == Trk::AtaSurface &&
-            tp->surfaceType() == Trk::Surface::Perigee) {
+            tp->surfaceType() == Trk::SurfaceType::Perigee) {
           tmpPerigeeParameters = static_cast<const Trk::Perigee*>(tp);
         }
 

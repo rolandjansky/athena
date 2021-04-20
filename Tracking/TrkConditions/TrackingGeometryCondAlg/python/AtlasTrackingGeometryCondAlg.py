@@ -173,12 +173,3 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            print (AtlasGeometryBuilder)
            print ('* [ Configuration : end   ] ***'+name+'********************************')
         
-##################################################################################    
-# add it to the ServiceManager
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-# test if TGCondAlg already in condSeq
-if not getattr(condSeq, 'AtlasTrackingGeometryCondAlg', None):
-  # now create the instance
-  AtlasTrackingGeometryCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
-  condSeq+= AtlasTrackingGeometryCondAlg

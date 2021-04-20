@@ -516,8 +516,8 @@ StatusCode CscRdoValAlg::fillHistograms() {
       const CscRawData * raw = (*ic);
       if( raw ) {
         // Identify side(A/C), sector(1-16)/layer(1-4)
-        stationId = m_cscRdoDecoderTool->stationIdentifier(raw);
-        channelId = m_cscRdoDecoderTool->channelIdentifier(raw,0);
+        stationId = m_cscRdoDecoderTool->stationIdentifier(raw,&m_idHelperSvc->cscIdHelper());
+        channelId = m_cscRdoDecoderTool->channelIdentifier(raw,&m_idHelperSvc->cscIdHelper(),0);
         int stationName = m_idHelperSvc->cscIdHelper().stationName(channelId);
         std::string stationString = m_idHelperSvc->cscIdHelper().stationNameString(stationName);
         int chamberType = stationString == "CSS" ? 0 : 1;
@@ -568,7 +568,7 @@ StatusCode CscRdoValAlg::fillHistograms() {
         for (size_t n = 0; n < raw_clus_width; n++) {
 
           // identify this strip
-          Identifier chID = m_cscRdoDecoderTool->channelIdentifier(raw, n);
+          Identifier chID = m_cscRdoDecoderTool->channelIdentifier(raw, &m_idHelperSvc->cscIdHelper(), n);
           int strip = m_idHelperSvc->cscIdHelper().strip(chID);
           float stripId = strip * xfac;         // x-axis fill value
 

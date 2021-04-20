@@ -17,7 +17,7 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include <vector>
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "AsgMessaging/AsgMessaging.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #ifdef XAOD_STANDALONE
 // xAOD include(s):
 #   include "xAODRootAccess/TEvent.h"
@@ -38,13 +38,13 @@ int main( ) {
     using namespace asg::msgUserCode;
     ANA_CHECK_SET_TYPE (int);
 
-    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>  tool ("AsgElectronEfficiencyCorrectionTool/ElectronEffCorrection");
+    asg::StandaloneToolHandle<IAsgElectronEfficiencyCorrectionTool>  tool ("AsgElectronEfficiencyCorrectionTool/ElectronEffCorrection");
     ANA_CHECK(tool.setProperty("CorrelationModel", "FULL" ) &&
             tool.setProperty("ForceDataType",1) &&
             tool.setProperty("IdKey", "Medium") &&
             tool.retrieve());
 
-    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> eccTool;
+    asg::StandaloneToolHandle<IAsgElectronEfficiencyCorrectionTool> eccTool;
     eccTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/ElectronChargeCorrection");
     ANA_CHECK(eccTool.setProperty( "CorrectionFileName", 
                 "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTight.root" )&&

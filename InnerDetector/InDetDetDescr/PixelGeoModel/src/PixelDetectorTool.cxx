@@ -105,7 +105,7 @@ StatusCode PixelDetectorTool::create()
 
   // Print the version tag:
   pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << endmsg;
   
   
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
@@ -185,7 +185,6 @@ StatusCode PixelDetectorTool::create()
     switches.setDC1Geometry(m_dc1Geometry);
     switches.setAlignable(m_alignable);
     switches.setInitialLayout(m_initialLayout);
-    if (versionName == "SLHC") switches.setSLHC();
     if (versionName == "IBL") switches.setIBL();
     switches.setDBM(m_buildDBM); //DBM flag
     switches.setDynamicAlignFolders(m_useDynamicAlignFolders);
@@ -256,10 +255,8 @@ StatusCode PixelDetectorTool::create()
 	msg(MSG::ERROR) << "Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built." << endmsg;
       }
     } else {
-      if (versionName == "SLHC") {
-	// This will become an error once the tool is ready.
-	//msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
-	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
+      if (versionName == "SLHC") { // TODO
+	msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
       } else {
 	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
       }	

@@ -9,10 +9,89 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
+  
 
+#
+# For electrons only
+#
+def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
+  
+  # make the Hypo
+  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
+  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  theFastCaloHypo.CaloClusters = sequenceOut
+
+  # Just for electrons
+  theFastCaloHypo.PidNames = ["tight", "medium", "loose", "vloose"]
+  theFastCaloHypo.UseRun3  = False
+  #theFastCaloHypo.RingerNNSelectorTools = createTrigEgammaFastCaloSelectors()
+
+  # NOTE: This will be remove next
+  pidnames = ["Tight","Medium","Loose","VeryLoose"]
+  basepath = 'RingerSelectorTools/TrigL2_20180903_v9'
+  theFastCaloHypo.ConstantsCalibPaths = [(basepath+'/TrigL2CaloRingerElectron{WP}Constants.root'.format(WP=pid)) for pid in pidnames  ]
+  theFastCaloHypo.ThresholdsCalibPaths = [(basepath+'/TrigL2CaloRingerElectron{WP}Thresholds.root'.format(WP=pid)) for pid in pidnames  ]
+
+  from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+  MonTool = GenericMonitoringTool("MonTool_"+name)
+  MonTool.Histograms = [ 
+        defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=100, xmin=0.0, xmax=100),
+  ]
+  MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
+  theFastCaloHypo.MonTool=MonTool
+
+
+  return theFastCaloHypo
+
+#
+# For photons only
+# NOTE: For future, ringer will be applied at the fast photon step
+#
+def createTrigEgammaFastCaloHypoAlgMT_noringer(name, sequenceOut):
+  
+  # make the Hypo
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
+  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  theFastCaloHypo.CaloClusters = sequenceOut
+
+  # Just for electrons
+  theFastCaloHypo.PidNames = []
+  theFastCaloHypo.UseRun3  = False
+  theFastCaloHypo.RingerNNSelectorTools = []
+  # Configure the old ringer selector
+  theFastCaloHypo.ConstantsCalibPaths = []
+  theFastCaloHypo.ThresholdsCalibPaths = []
+
+  from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+  MonTool = GenericMonitoringTool("MonTool_"+name)
+  MonTool.Histograms = [ 
+        defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=20, xmin=0.0, xmax=1000.0),
+  ]
+  MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
+  theFastCaloHypo.MonTool=MonTool
+  return theFastCaloHypo
+
+
+
+def treatPidName(pidname):
+  if 'tight' in pidname:
+    return 'tight'
+  elif 'medium' in pidname:
+    return 'medium'
+  # this should be before loose to works
+  elif 'vloose' in pidname:
+    return 'vloose'
+  else:
+    return 'loose'
+
+#
+# For electron and photons
+#
 class TrigEgammaFastCaloHypoToolConfig:
 
- 
   __operation_points  = [  'tight'    , 
                            'medium'   , 
                            'loose'    , 
@@ -20,7 +99,12 @@ class TrigEgammaFastCaloHypoToolConfig:
                            'lhtight'  , 
                            'lhmedium' , 
                            'lhloose'  , 
-                           'lhvloose' ]
+                           'lhvloose' ,
+                           #'dnntight',
+                           #'dnnmedium',
+                           #'dnnloose',
+                           #'dnnvloose',
+                           ]
 
 
   def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo):
@@ -31,9 +115,9 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__useRun3 = False
     self.__name = name
     self.__cand = cand
-    self.__threshold = float(threshold)
-    self.__sel = sel
-    self.__trackinfo = trackinfo
+    self.__threshold  = float(threshold)
+    self.__sel        = sel
+    self.__trackinfo  = trackinfo
     self.__noringerinfo = noringerinfo
 
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -53,10 +137,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     tool.F3thr          = same( 99999. , tool)
     tool.CARCOREthr     = same( -9999. , tool)
     tool.CAERATIOthr    = same( -9999. , tool)
-    tool.vLoose         = False
-    tool.Loose          = False
-    tool.Medium         = False
-    tool.Tight          = False
+    tool.PidName        = ""
 
     self.__tool = tool
 
@@ -135,9 +216,14 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
     self.tool().EtCut     = (self.etthr()-3.)*GeV  
-    self.__setupRingerConfiguration()
+    if not self.pidname() in self.__operation_points:
+      self.__log.fatal("Bad selection name: %s" % self.pidname())
+    self.tool().PidName = treatPidName(self.pidname())
 
 
+  #
+  # compile the chain
+  #
   def compile(self):
 
     if 'etcut' == self.pidname():
@@ -148,9 +234,9 @@ class TrigEgammaFastCaloHypoToolConfig:
 
     elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
       self.ringer()
-
+  
     elif self.pidname() in self.__operation_points and self.isPhoton():
-      self.noringer()
+      self.etcut()
 
     self.addMonitoring()
 
@@ -169,9 +255,11 @@ class TrigEgammaFastCaloHypoToolConfig:
             defineHistogram('Eta', type='TH1F', path='EXPERT',title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5),
             defineHistogram('Phi',type='TH1F', path='EXPERT',title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2),
             defineHistogram('Et',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4),
+            defineHistogram('NNOutput',type='TH1F', path='EXPERT',title="NN Output; NN; Count", xbins=17,xmin=-8,xmax=+8),
+
         ]
     
-        monTool.HistPath='L2CaloHypo_Ringer/MonTool'+self.__name
+        monTool.HistPath= 'FastCaloL2EgammaHypo/'+self.__name
         self.tool().MonTool=monTool
 
       else:
@@ -210,24 +298,8 @@ class TrigEgammaFastCaloHypoToolConfig:
             monTool.defineHistogram('F3', type='TH1F', path='EXPERT', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)", 
                 xbins=96, xmin=-0.1, xmax=1.1)
 
-        monTool.HistPath = 'L2CaloHypo/MonTool'+self.__name
+        monTool.HistPath = 'FastCaloL2EgammaHypo/'+self.__name
         self.tool().MonTool = monTool
-
-
-  def __setupRingerConfiguration(self):
-
-    possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'vLoose',
-                         'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'vLoose'}
-    
-    possibleTune  = { 'Tight':False, 'Medium':False, 'Loose':False, 'vLoose':False}
-    if not self.pidname() in possibleSel.keys():
-       raise RuntimeError( "Bad selection name: %s" % self.pidname() )
-    possibleTune[possibleSel[self.pidname()]] = True   
-
-    self.tool().vLoose = possibleTune['vLoose']
-    self.tool().Loose = possibleTune['Loose']
-    self.tool().Medium = possibleTune['Medium']
-    self.tool().Tight = possibleTune['Tight']
 
 
 

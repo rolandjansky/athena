@@ -247,8 +247,6 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 // For standard ATLAS stave shift down the central module, as its flag is -1.
 // PixelModuleStaggerDistance is zero for standard ATLAS geometry.
 // Not sure why PixelModuleDrDistance is defined as twice the shift.
-// For SLHC (later versions) PixelModuleDrDistance is 0 and PixelModuleStaggerDistance is non zero for
-// some layers. 
 //
     
     double xpos = m_gmt_mgr->PixelModuleStaggerDistance() *  m_gmt_mgr->PixelModuleStaggerSign(etaModule)

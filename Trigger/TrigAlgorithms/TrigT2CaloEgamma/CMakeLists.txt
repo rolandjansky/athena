@@ -6,6 +6,7 @@ atlas_subdir( TrigT2CaloEgamma )
 # Component(s) in the package:
 atlas_add_component( TrigT2CaloEgamma
                      src/*.cxx
+                     src/helpers/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthLinks AthenaBaseComps AthenaMonitoringKernelLib CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CxxUtils GaudiKernel IRegionSelector StoreGateLib TrigSteeringEvent TrigT2CaloCalibrationLib TrigT2CaloCommonLib TrigTimeAlgsLib xAODTrigCalo xAODTrigRinger )
 

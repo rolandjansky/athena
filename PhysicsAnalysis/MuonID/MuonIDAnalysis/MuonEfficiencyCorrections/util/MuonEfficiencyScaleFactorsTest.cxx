@@ -37,7 +37,7 @@
 #include "xAODCore/tools/ReadStats.h"
 
 #include "AsgTools/ToolHandle.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
@@ -55,7 +55,7 @@
 
 /// Example of how to run the MuonEfficiencyCorrections package to obtain information from muons
 
-typedef asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
+typedef asg::StandaloneToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
 
 EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomInput, bool uncorrelate_Syst) {
     EffiToolInstance tool(std::string("CP::MuonEfficiencyScaleFactors/EffiTool_") + WP);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
     tsw.Reset();
 
     // instantiate the PRW tool which is needed to get random runnumbers 
-    asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
+    asg::StandaloneToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
     std::vector<std::string> m_ConfigFiles {
         prwFilename

@@ -213,6 +213,7 @@ namespace TrigConf {
       unsigned int idxForward() const { return m_idxForward; }
       const std::string & region() const { return m_region; }
       const std::string & tgcFlags() const { return m_tgcFlags; }
+      const std::string & rpcFlags() const { return m_rpcFlags; }
       const std::string & rpcExclROIList() const { return m_rpcExclROIList; }
       std::optional<std::string> rpcExclROIList_optional() const {
          return m_rpcExclROIList.empty() ? std::nullopt : std::optional<std::string>{m_rpcExclROIList};
@@ -234,6 +235,7 @@ namespace TrigConf {
       // the isolation requirement
       std::string m_region{""}; ///< comma-separated list of BA, EC, FW or the string ALL
       std::string m_tgcFlags{""}; ///< a logical expression like 'F & C | F & H | C & H'
+      std::string m_rpcFlags{""}; ///< a logical expression like 'M'
       std::string m_rpcExclROIList{""}; ///< a string sepcifying the list of ROIs to be excluded (the lists are defined in the extraInfo_MU)
    };
 

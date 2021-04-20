@@ -557,7 +557,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
             /// get previous state:
             const TrackParameters* prevPar = trajectory.back().referenceParameters();
             if (prevPar->covariance()) {
-              prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),nullptr).release();
+              prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),std::nullopt).release();
             }
             const std::vector< const Trk::TrackStateOnSurface * >* collectedTSOS = m_extrapolator->extrapolateM(
                         *prevPar,

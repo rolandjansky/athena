@@ -33,19 +33,19 @@ ClassIDSvc          FATAL setTypeNameForID: input id 4294967294 is out of allowe
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-ClassIDSvc          ERROR uncheckedSetTypePackageForID: CLIDComps-00-06-12 can not set type name <Ble> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+ClassIDSvc          FATAL uncheckedSetTypePackageForID: can not set type name <Ble> for CLID 7890: Known name for this ID <Bla>
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-ClassIDSvc          ERROR uncheckedSetTypePackageForID: CLIDComps-00-06-12 can not set CLID <9945> for type name Bli: Known CLID for this name <9942> It was set by CLIDComps-00-06-12
+ClassIDSvc          FATAL uncheckedSetTypePackageForID: can not set CLID <9945> for type name Bli: Known CLID for this name <9942>
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-ClassIDSvc          ERROR uncheckedSetTypePackageForID: APack-00-39-98 can not set type name <Bl a> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+ClassIDSvc          FATAL uncheckedSetTypePackageForID: can not set type name <Bl a> for CLID 7890: Known name for this ID <Bla>
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-ClassIDSvc          ERROR uncheckedSetTypePackageForID: APack-00-39-98 can not set type name <B  l a> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+ClassIDSvc          FATAL uncheckedSetTypePackageForID: can not set type name <B  l a> for CLID 7890: Known name for this ID <Bla>
 <<---Error Message Ends-------
 ClassIDSvc           INFO finalize: wrote 1233 entries to output CLIDDB file: CLIDTestOut.db
 *** ClassIDSvc basic test OK ***

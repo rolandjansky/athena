@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,9 +12,9 @@
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
@@ -799,7 +799,7 @@ Trk::GaussianSumFitter::fitPRD(
                                    par[Trk::phi],
                                    par[Trk::theta],
                                    par[Trk::qOverP],
-                                   nullptr /*no errors*/),
+                                   std::nullopt/*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -861,7 +861,6 @@ Trk::GaussianSumFitter::fitMeasurements(
   // component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
 
-  AmgSymMatrix(5)* covariance = nullptr;
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
@@ -870,7 +869,7 @@ Trk::GaussianSumFitter::fitMeasurements(
                                    par[Trk::phi],
                                    par[Trk::theta],
                                    par[Trk::qOverP],
-                                   covariance /*no errors*/),
+                                   std::nullopt /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
@@ -1376,8 +1375,8 @@ Trk::GaussianSumFitter::combine(
         forwardsComponent.first->parameters() -
         smootherComponent.first->parameters();
 
-      AmgSymMatrix(5)* covarianceOfNewParameters =
-        new AmgSymMatrix(5)(K * *smootherMeasuredCov);
+      AmgSymMatrix(5) covarianceOfNewParameters =
+         AmgSymMatrix(5)(K * *smootherMeasuredCov);
 
       std::unique_ptr<Trk::TrackParameters> combinedTrackParameters =
         (forwardsComponent.first)
@@ -1387,10 +1386,9 @@ Trk::GaussianSumFitter::combine(
                                        newParameters[Trk::phi],
                                        newParameters[Trk::theta],
                                        newParameters[Trk::qOverP],
-                                       covarianceOfNewParameters);
+                                       std::move(covarianceOfNewParameters));
       // Covariance matrix object now owned by TrackParameters object. Reset
       // pointer to prevent delete
-      covarianceOfNewParameters = nullptr;
       const AmgSymMatrix(5) invertedSummedCovariance =
         summedCovariance.inverse();
       // Determine the scaling factor for the new weighting. Determined from the

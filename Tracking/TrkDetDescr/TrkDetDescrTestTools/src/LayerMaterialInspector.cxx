@@ -66,7 +66,7 @@ StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_
     float centerZ = lCenter.z();
     
     // cylinder bounds 
-    if ( lay.surfaceRepresentation().type() == Trk::Surface::Cylinder ){
+    if ( lay.surfaceRepresentation().type() == Trk::SurfaceType::Cylinder ){
         lType = 1;
         // cylinder bounds
         const Trk::CylinderBounds* cb = dynamic_cast<const Trk::CylinderBounds*>(&(lay.surfaceRepresentation().bounds()));
@@ -74,7 +74,7 @@ StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_
             dim0 = cb->r();
             dim1 = cb->halflengthZ();
         }
-    } else if ( lay.surfaceRepresentation().type() == Trk::Surface::Disc ) {
+    } else if ( lay.surfaceRepresentation().type() == Trk::SurfaceType::Disc ) {
         lType = 2;
         // disc bounds
         const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lay.surfaceRepresentation().bounds()));

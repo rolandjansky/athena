@@ -34,7 +34,7 @@ namespace xAODMaker {
   StatusCode MuonFeatureCnvAlg::initialize() {
     
     // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing" );
     ATH_MSG_INFO( "AOD MuonFeatureContainer Name: " << m_mfName );
     ATH_MSG_INFO( "AOD MuonFeatureDetailsContainer Name: " << m_mfdName );
     ATH_MSG_INFO( "xAOD L2StandAloneMuonContainer Name: " << m_xaodName );

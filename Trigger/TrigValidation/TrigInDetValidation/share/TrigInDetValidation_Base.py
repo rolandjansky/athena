@@ -19,11 +19,11 @@ try:
     opts, args = getopt.getopt(sys.argv[1:],"lcxptn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
-    print("-l(--local)    run locally with input file from art eos grid-input")
+    print("-l | --local   run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
     print("-p             run post-processing, even if -x is set")
     print("-n  N          run only on N events per job")
-    print("-c(--config)   run with config_only and print to a pkl file")
+    print("-c | --config  run with config_only and print to a pkl file")
     print("-t             test steering, dry run for all steps")
     print("")
     sys.exit(1)

@@ -83,10 +83,10 @@ class ByteStreamUnpackGetter(Configured):
         log.debug("Configured HLT result BS decoding sequence")
         return True
 
-class ByteStreamUnpackGetterRun2(Configured):
+class ByteStreamUnpackGetterRun1or2(Configured):
     def configure(self):
 
-        log = logging.getLogger("ByteStreamUnpackGetterRun2")
+        log = logging.getLogger("ByteStreamUnpackGetterRun1or2")
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
         
@@ -188,11 +188,11 @@ class TrigDecisionGetter(Configured):
 
         return True
 
-class TrigDecisionGetterRun2(Configured):
+class TrigDecisionGetterRun1or2(Configured):
     #class to setup the writing or just making of TrigDecisionObject
     def configure(self):
         
-        log = logging.getLogger("TrigDecisionGetterRun2")
+        log = logging.getLogger("TrigDecisionGetterRun1or2")
 
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
@@ -281,21 +281,29 @@ class HLTTriggerResultGetter(Configured):
         topSequence = AlgSequence()
         log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
         if TriggerFlags.readBS():
-            if ConfigFlags.Trigger.EDMVersion <= 2:
-                bs = ByteStreamUnpackGetterRun2()  # noqa: F841
-            else:
+            if ConfigFlags.Trigger.EDMVersion == 1 or \
+               ConfigFlags.Trigger.EDMVersion == 2:
+                bs = ByteStreamUnpackGetterRun1or2()  # noqa: F841
+            elif ConfigFlags.Trigger.EDMVersion >=3:
                 bs = ByteStreamUnpackGetter()  # noqa: F841
+            else:
+                raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
         xAODContainers = {}
-#        if not recAlgs.doTrigger():      #only convert when running on old data
+
         if ConfigFlags.Trigger.EDMVersion == 1:
             xaodcnvrt = xAODConversionGetter()
             xAODContainers = xaodcnvrt.xaodlist
 
-        if ConfigFlags.Trigger.EDMVersion <= 2 and (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
-            tdt = TrigDecisionGetterRun2()  # noqa: F841
-        elif ConfigFlags.Trigger.EDMVersion >= 3 and TriggerFlags.readBS():
-            tdt = TrigDecisionGetter()  # noqa: F841
+        if ConfigFlags.Trigger.EDMVersion == 1 or \
+           ConfigFlags.Trigger.EDMVersion == 2:
+            if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
+                tdt = TrigDecisionGetterRun1or2()  # noqa: F841
+        elif ConfigFlags.Trigger.EDMVersion >= 3:
+            if TriggerFlags.readBS():
+                tdt = TrigDecisionGetter()  # noqa: F841
+        else:
+            raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
         # Temporary hack to add Run-3 navigation to ESD and AOD
         if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:

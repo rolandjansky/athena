@@ -9,21 +9,16 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "MuonAlignmentData/MdtAsBuiltPar.h"
 
-class MdtAsBuiltParContainer : public DataVector<MdtAsBuiltPar>
-{
- public:
-  MdtAsBuiltParContainer();
-  ~MdtAsBuiltParContainer();
-
+class MdtAsBuiltParContainer : public DataVector<MdtAsBuiltPar> {
+public:
+    MdtAsBuiltParContainer();
+    ~MdtAsBuiltParContainer();
 };
 
-inline MdtAsBuiltParContainer::MdtAsBuiltParContainer():
-  DataVector<MdtAsBuiltPar>()
-{ } 
+inline MdtAsBuiltParContainer::MdtAsBuiltParContainer() : DataVector<MdtAsBuiltPar>() {}
 
-inline MdtAsBuiltParContainer::~MdtAsBuiltParContainer()
-{ } 
+inline MdtAsBuiltParContainer::~MdtAsBuiltParContainer() {}
 
-CLASS_DEF( MdtAsBuiltParContainer , 1205288943 , 1 )
+CLASS_DEF(MdtAsBuiltParContainer, 1205288943, 1)
 
 #endif  // MUONALIGNMENTDATA_MDTASBUILTPARPARCONTAINER_H

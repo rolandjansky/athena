@@ -81,7 +81,7 @@ class L1Menu(object):
 
 
     def setupCTPMonitoring(self):
-        self.ctp.setupMonitoring(self.items, self.thresholds)
+        self.ctp.setupMonitoring(self.items, self.thresholds, self.connectors)
         
     def check(self):
         from collections import defaultdict as dd

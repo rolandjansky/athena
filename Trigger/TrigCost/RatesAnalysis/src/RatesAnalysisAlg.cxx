@@ -10,6 +10,7 @@
 
 #include "TrigConfL1Data/BunchGroupSet.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1Menu.h"
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -147,6 +148,8 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   if (m_doTriggerGroups) {
     for (const std::string& group : groups) {
+      // Ignore BW and PS groups
+      if (group.find("BW") == 0 || group.find("PS") == 0) continue;
       if (m_groups.count(group) == 0) {
         m_groups.emplace(group, std::make_unique<RatesGroup>(group, msg(), m_doHistograms, m_enableLumiExtrapolation));
         // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
@@ -425,6 +428,27 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     }
   }
 
+  ATH_MSG_INFO("Retrieving L1 item's ID from L1 menu.");
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::L1Menu& l1menu = m_configSvc->l1Menu( Gaudi::Hive::currentContext() );
+
+    m_l1ItemID.resize(l1menu.size());
+    for (size_t i = 0; i < l1menu.size(); i++) {
+      // No groups for items
+      m_l1ItemID.at(i).resize(2);
+    }
+    
+    TrigConf::L1Menu::const_iterator item_itr = l1menu.begin();
+    TrigConf::L1Menu::const_iterator item_end = l1menu.end();
+
+    size_t c = 0;
+    for( ; item_itr != item_end; ++item_itr ) {
+      m_l1ItemID.at(c).at(0) =  (*item_itr).name();
+      m_l1ItemID.at(c).at(1) = std::to_string((*item_itr).ctpId());
+      ++c;
+    }
+  }
   
   // Print all triggers
   if (msgLevel(MSG::DEBUG)) {
@@ -459,9 +483,15 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     ATH_MSG_DEBUG("################## Registering trigger histograms:");
       for (const auto& trigger : m_triggers) {
         if (!trigger.second->doHistograms()) continue; // Not all may be doing histograming
-        ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/data")) );
-        ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsTrain")) );
+        std::string lvlSubdir = "";
+        if (trigger.second->getName().find("L1") == 0){
+          lvlSubdir = "Rate_ChainL1_HLT/";
+        } else if (trigger.second->getName().find("HLT") == 0) {
+          lvlSubdir = "Rate_ChainHLT_HLT/";
+        }
+        ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/data")) );
+        ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
         else trigger.second->clearTrainHist();
       }
     }
@@ -475,9 +505,11 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering group histograms:");
       for (const auto& group : m_groups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/rateVsTrain")) );
+        std::string groupName = group.first;
+        std::replace( groupName.begin(), groupName.end(), ':', '_');
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -485,9 +517,9 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering global group histograms:");
       for (const auto& group : m_globalGroups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/rateVsTrain")) );
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -748,6 +780,18 @@ void RatesAnalysisAlg::writeMetadata() {
     prescales.push_back(trigger.second->getPrescale() );
   }
 
+  for (const auto& group : m_groups) {
+    triggers.push_back(group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
+  }
+
+  for (const auto& group : m_globalGroups) {
+    triggers.push_back("RATE_GLOBAL_" + group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
+  }
+
   m_metadataTree->Branch("triggers", &triggers);
   m_metadataTree->Branch("lowers", &lowers);
   m_metadataTree->Branch("prescales", &prescales);
@@ -777,6 +821,7 @@ void RatesAnalysisAlg::writeMetadata() {
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
 
   m_metadataTree->Branch("hltChainIDGroup", &m_hltChainIDGroup);
+  m_metadataTree->Branch("l1ItemID", &m_l1ItemID);
 
   m_metadataTree->Branch("masterKey", &masterKey);
   m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);

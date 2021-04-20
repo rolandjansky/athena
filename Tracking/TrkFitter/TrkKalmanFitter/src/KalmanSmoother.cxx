@@ -255,9 +255,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
   // use result of forward kalman filter as initial prediction, but scale error matrix.
 
-  AmgSymMatrix(5)* firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters())->covariance());
+  AmgSymMatrix(5) firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters())->covariance());
   const AmgVector(5)& par = lastPredictedState->smoothedTrackParameters()->parameters();
-  std::unique_ptr<const TrackParameters> predPar( CREATE_PARAMETERS(*(lastPredictedState->smoothedTrackParameters()),par,firstErrMtx) );
+  std::unique_ptr<const TrackParameters> predPar(CREATE_PARAMETERS(
+    *(lastPredictedState->smoothedTrackParameters()), par, std::move(firstErrMtx)));
   // The first step of backward-filtering is done before any loop because of the
   // specially formed prediction (from the last forward parameters).
   std::unique_ptr<const TrackParameters> updatedPar =
@@ -495,7 +496,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   const AmgVector(5) x = lastPredictedState->referenceParameters()->parameters()
                        + updatedDifference->first;
   smooPar=updatedDifference? CREATE_PARAMETERS(*lastPredictedState->referenceParameters(),
-                                                       x,new AmgSymMatrix(5)(updatedDifference->second)) : nullptr ;
+                                                       x,AmgSymMatrix(5)(updatedDifference->second)) : nullptr ;
   if (msgLvl(MSG::INFO))
     monitorTrackFits(Call, (smooPar ? smooPar->eta() : 1000.));
   if (!smooPar || !fitQual) {
@@ -516,10 +517,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
 // updatedDifference->first  const AmgVector(5)& par = lastPredictedState->smoothedTrackParameters()->parameters();
   // The first step of backward-filtering is done before any loop because of the
   // specially formed prediction: result of FKF with scaled error matrix
-  AmgSymMatrix(5)* firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters()->covariance()));
+  AmgSymMatrix(5)  firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters()->covariance()));
   AmgVector(5)     firstDiff   = updatedDifference->first; // make copy and delete
   updatedDifference.reset(
-    m_updator->updateParameterDifference(firstDiff, *firstErrMtx,
+    m_updator->updateParameterDifference(firstDiff, firstErrMtx,
 					 *(lastPredictedState->measurementDifference()),
 					 lastMeasurement->localCovariance(),
 					 lastMeasurement->localParameters().parameterKey(),
@@ -573,7 +574,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     updatedDifference.reset();
     if (msgLvl(MSG::DEBUG)) {
       const AmgVector(5) x = rit->referenceParameters()->parameters()+predDiffPar;
-      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr).release();
+      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,std::nullopt).release();
       printGlobalParams( rit->positionOnTrajectory(), " extrp", param );
       delete param;
     }
@@ -612,7 +613,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       if (msgLvl(MSG::DEBUG)) {
         const AmgVector(5) x = rit->referenceParameters()->parameters()
                              + updatedDifference->first;
-        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr).release();
+        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,std::nullopt).release();
         printGlobalParams (rit->positionOnTrajectory()," updat", param );
         delete param;
       }
@@ -629,7 +630,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       smooPar = CREATE_PARAMETERS(
         *rit->referenceParameters(),
         (rit->referenceParameters()->parameters() + updatedDifference->first),
-        new AmgSymMatrix(5)(updatedDifference->second));
+        AmgSymMatrix(5)(updatedDifference->second));
       rit->checkinSmoothedPar(smooPar.release());
     } else if (m_doSmoothing) {
       std::unique_ptr< std::pair<AmgVector(5),AmgSymMatrix(5)> > smoothedDifference(
@@ -648,7 +649,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       smooPar =
         CREATE_PARAMETERS(*rit->referenceParameters(),
                           x,
-                          new AmgSymMatrix(5)(smoothedDifference->second));
+                          AmgSymMatrix(5)(smoothedDifference->second));
       rit->checkinSmoothedPar(smooPar.release());
     } else {
       smooPar.reset();
@@ -689,13 +690,13 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
 // Seed the backward filter by taking the original cov matrix and
 // - strip away the off-diagonal elements
 // - inflate the errors by a factor, which is tuned to the specific detector.
-AmgSymMatrix(5)* Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& err) const {
+AmgSymMatrix(5) Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& err) const {
   std::vector<bool> isConstraint(5);
-  AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); // a 5x5 0-matrix
-  cov->setZero();
+  AmgSymMatrix(5) cov; // a 5x5 0-matrix
+  cov.setZero();
   for (int i=0; i<5; ++i) {
     isConstraint[i] = (m_option_relErrorLimit* std::sqrt(err(i,i)) < m_initialErrors[i]);
-    (*cov)(i,i) = isConstraint[i] ? err(i,i)*m_initialCovSeedFactor : m_initialErrors[i]*m_initialErrors[i];
+    (cov)(i,i) = isConstraint[i] ? err(i,i)*m_initialCovSeedFactor : m_initialErrors[i]*m_initialErrors[i];
   }
   if (msgLvl(MSG::DEBUG)) {
     bool weakParIsDetected=false;

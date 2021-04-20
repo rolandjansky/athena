@@ -106,7 +106,7 @@ CommonEfficiencyTool::~CommonEfficiencyTool()
 }
 
 /*
-  - Find the root files with scale factor inputs on afs/cvmfs using PathResolver
+  - Find the root files with scale factor inputs on cvmfs using PathResolver
     (more info here:
     https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
   - Call further functions to process and define NP strings and so on
@@ -223,22 +223,22 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     return CP::CorrectionCode::Ok;
 
   // get uncertainties summed in quadrature
-  double dTotalSystematic2 = 0;
-  double dDirection = 0;
+  double dTotalSystematic2 = 0.;
+  double dDirection = 0.;
   for (auto syst : *m_sSystematicSet)
   {
     // check if systematic is available
     auto it = m_mSystematicsHistNames.find(syst.basename());
 
     // get uncertainty value
-    double dUncertaintySyst = 0;
+    double dUncertaintySyst = 0.;
 
     // needed for up/down decision
     dDirection = syst.parameter();
 
     // build up histogram name
     sHistName = it->second;
-    if (dDirection>0)   sHistName+="_up";
+    if (dDirection>0.)  sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
     sHistName += sMode + sMu + sMCCampaign;
@@ -260,10 +260,10 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   }
 
   // now use dDirection to use up/down uncertainty
-  dDirection = (dDirection > 0) ? +1 : -1;
+  dDirection = (dDirection > 0.) ? 1. : -1.;
 
   // finally apply uncertainty (eff * ( 1 +/- \sum  )
-  dEfficiencyScaleFactor *= 1 + dDirection * sqrt(dTotalSystematic2);
+  dEfficiencyScaleFactor *= 1. + dDirection * std::sqrt(dTotalSystematic2);
 
   return CP::CorrectionCode::Ok;
 }
@@ -370,7 +370,7 @@ StatusCode CommonEfficiencyTool::applySystematicVariation ( const CP::Systematic
   }
 
   // sanity checks if systematic set is supported
-  double dDirection = 0;
+  double dDirection = 0.;
   CP::SystematicSet sSystematicSetAvailable;
   for (auto sSyst : sSystematicSet)
   {

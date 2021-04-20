@@ -39,34 +39,31 @@
 
 namespace MuonCalib {
 
-static const InterfaceID IID_CalibSegmentPreparationTool(
-                            "MuonCalib::CalibSegmentPreparationTool", 1, 0);
+    static const InterfaceID IID_CalibSegmentPreparationTool("MuonCalib::CalibSegmentPreparationTool", 1, 0);
 
-class CalibSegmentPreparationTool : virtual public IAlgTool {
+    class CalibSegmentPreparationTool : virtual public IAlgTool {
+    public:
+        // Destructor //
+        inline virtual ~CalibSegmentPreparationTool(void){};
+        ///< Destructor
 
-public:
-// Destructor //
-    inline virtual ~CalibSegmentPreparationTool(void) {};
-                            ///< Destructor
+        // Methods //
+        static const InterfaceID &interfaceID(void) { return IID_CalibSegmentPreparationTool; };
+        ///< get the interface ID
 
-// Methods //
-    static const InterfaceID & interfaceID(void) {
-                                     return IID_CalibSegmentPreparationTool; };
-                            ///< get the interface ID
+        inline virtual void prepareSegments(const MuonCalibEvent *& /*event*/,
+                                            std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/) {
+            return;
+        };
+        ///< Method to prepare the segments. The methods
+        ///< updates segments and remove segments from the
+        ///< map in case of failure.
+        ///< \param event Current event (contains raw hits
+        ///<              and other useful objects).
+        ///> \param segments Vector of segments to be
+        ///>                 prepared.
+    };
 
-    inline virtual void prepareSegments(
-                const MuonCalibEvent *& /*event*/,
-                std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/) {
-                return; };
-                            ///< Method to prepare the segments. The methods
-                            ///< updates segments and remove segments from the
-                            ///< map in case of failure.
-                            ///< \param event Current event (contains raw hits
-                            ///<              and other useful objects).
-                            ///> \param segments Vector of segments to be
-                            ///>                 prepared.
-};
-
-}
+}  // namespace MuonCalib
 
 #endif

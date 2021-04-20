@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "SiDigitization/SiHelper.h"
-#include "SCT_Digitization/ISCT_Amp.h"
+#include "SiDigitization/IAmplifier.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
@@ -43,7 +43,7 @@ StatusCode SCT_FrontEnd::initialize() {
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
   // Get SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr,m_detMgrName));
   // Get the amplifier tool
   ATH_CHECK(m_sct_amplifier.retrieve());
   ATH_MSG_DEBUG("SCT Amplifier tool located ");
@@ -55,9 +55,6 @@ StatusCode SCT_FrontEnd::initialize() {
   } else {
     m_ReadCalibChipDataTool.disable();
   }
-
-  // Get the maximum number of strips of any module
-  m_strip_max = m_SCTdetMgr->numerology().maxNumStrips();
 
   constexpr float fC = 6242.2;
   m_Threshold = m_Threshold * fC;
@@ -131,7 +128,7 @@ StatusCode SCT_FrontEnd::initVectors(int strips, SCT_FrontEndData& data) const {
 // ----------------------------------------------------------------------
 // prepare gain and offset for the strips for a given module
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data, const int& strip_max) const {
   // now we need to generate gain and offset channel by channel: some algebra
   // for generation of partially correlated random numbers
   float W = m_OGcorr * m_GainRMS * m_Ospread / (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread);
@@ -197,7 +194,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
       if (roCell.isValid()) {
         int strip = roCell.strip();
         int i = std::max(strip - 1, 0);
-        int i_end = std::min(strip + 2, m_strip_max.load());
+        int i_end = std::min(strip + 2, strip_max);
 
         // loop over strips
         for (; i < i_end; i++) {
@@ -232,7 +229,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 // prepare gain and offset for the strips for a given module using
 // Cond Db data to get the chip calibration data
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data, const int& strip_max) const {
   // Get chip data from calib DB
   std::vector<float> gainByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "GainByChip");
   std::vector<float> gainRMSByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "GainRMSByChip");
@@ -247,7 +244,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   // Need to check if empty, most should have data, but a few old DEAD modules don't
   if (gainByChipVect.empty() or noiseByChipVect.empty()) {
     ATH_MSG_DEBUG("No calibration data in cond DB for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data)) {
+    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data,strip_max)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -258,7 +255,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   float gainMeanValue = meanValue(gainByChipVect);
   if (gainMeanValue < 0.0) {
     ATH_MSG_DEBUG("All chip gain values are 0 for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data)) {
+    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data,strip_max)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -315,7 +312,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
       if (roCell.isValid()) {
         int strip = roCell.strip();
         int i = std::max(strip - 1, 0);
-        int i_end = std::min(strip + 2, m_strip_max.load());
+        int i_end = std::min(strip + 2, strip_max);
 
         // loop over strips
         for (; i < i_end; i++) {
@@ -351,7 +348,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 // ----------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data, const int& strip_max) const {
   // Add random noise
 
   double occupancy = 0.0;
@@ -412,8 +409,8 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
   // Calculate the number of "free strips"
   int nEmptyStrips = 0;
   std::vector<int> emptyStrips;
-  emptyStrips.reserve(m_strip_max);
-  for (int i = 0; i < m_strip_max; i++) {
+  emptyStrips.reserve(strip_max);
+  for (int i = 0; i < strip_max; i++) {
     if (data.m_StripHitsOnWafer[i] == 0) {
       emptyStrips.push_back(i);
       ++nEmptyStrips;
@@ -430,7 +427,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
       const float fC = 6242.2;
       occupancy = occupancy * exp(-(0.5 / (Noise * Noise) * (m_Threshold * m_Threshold - fC * fC)));
     }
-    nNoisyStrips = CLHEP::RandPoisson::shoot(rndmEngine, m_strip_max * occupancy * mode);
+    nNoisyStrips = CLHEP::RandPoisson::shoot(rndmEngine, strip_max * occupancy * mode);
 
     // Check and adapt the number of noisy strips to the number of free strips
     if (nEmptyStrips < nNoisyStrips) {
@@ -471,9 +468,9 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 // ----------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine * rndmEngine, SCT_FrontEndData& data, const int& strip_max) const {
   const int n_chips = 6;
-  const int chipStripmax = m_strip_max / n_chips;
+  const int chipStripmax = strip_max / n_chips;
   std::vector<float> NOByChipVect(n_chips, 0.0);
   std::vector<float> ENCByChipVect(n_chips, 0.0);
   std::vector<int> nNoisyStrips(n_chips, 0);
@@ -493,7 +490,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
   // Need to check if empty, most should have data, but a few old DEAD modules don't, and 9C...
   if (NOByChipVect.empty()) {
     ATH_MSG_DEBUG("No calibration data in cond DB for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine, data)) {
+    if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine, data,strip_max)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -594,16 +591,16 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRando
   }
 
   // Contains strip hit info, reset to 0 for each wafer processed
-  data.m_StripHitsOnWafer.assign(m_strip_max, 0);
+  data.m_StripHitsOnWafer.assign(strip_max, 0);
 
   // Containes the charge for each bin on each hit strip
   if (m_data_readout_mode == Condensed) {
-    for (int i = 0; i < m_strip_max; ++i) {
+    for (int i = 0; i < strip_max; ++i) {
       data.m_Analogue[0][i] = 0.0;
       data.m_Analogue[1][i] = 0.0;
     }
   } else { // Expanded
-    for (int i = 0; i < m_strip_max; ++i) {
+    for (int i = 0; i < strip_max; ++i) {
       data.m_Analogue[0][i] = 0.0;
       data.m_Analogue[1][i] = 0.0;
       data.m_Analogue[2][i] = 0.0;
@@ -619,47 +616,47 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRando
   if (not collection.empty()) {
     // Setup gain/offset/noise to the hit and neighbouring strips
     if (m_useCalibData) { // Use calib cond DB data
-      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, side, moduleId, rndmEngine, data)) {
+      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, side, moduleId, rndmEngine, data, strip_max)) {
         ATH_MSG_ERROR("\tCan't prepare Gain and Offset");
       }
     } else { // Use JO values
-      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data)) {
+      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine, data,strip_max)) {
         ATH_MSG_ERROR("\tCan't prepare Gain and Offset");
       }
     }
 
-    if (StatusCode::SUCCESS != doSignalChargeForHits(collection, data)) {
+    if (StatusCode::SUCCESS != doSignalChargeForHits(collection, data, strip_max)) {
       ATH_MSG_ERROR("\tCan't doSignalChargeForHits");
     }
 
-    if (StatusCode::SUCCESS != doThresholdCheckForRealHits(collection, data)) {
+    if (StatusCode::SUCCESS != doThresholdCheckForRealHits(collection, data, strip_max)) {
       ATH_MSG_ERROR("\tCan't doThresholdCheckForRealHits");
     }
 
-    if (StatusCode::SUCCESS != doThresholdCheckForCrosstalkHits(collection, data)) {
+    if (StatusCode::SUCCESS != doThresholdCheckForCrosstalkHits(collection, data, strip_max)) {
       ATH_MSG_ERROR("\tCan't doThresholdCheckForCrosstalkHits");
     }
   }
 
   if (m_NoiseOn) {
     if (m_useCalibData) { // Check if using DB or not
-      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, side, rndmEngine, data)) {
+      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, side, rndmEngine, data, strip_max)) {
         ATH_MSG_ERROR("\tCan't do random noise on wafer?!");
       }
     } else { // Use JO fixed values
-      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine, data)) {
+      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine, data,strip_max)) {
         ATH_MSG_ERROR("\tCan't do random noise on wafer?!");
       }
     }
   }
 
   // Check for strips above threshold and do clustering
-  if (StatusCode::SUCCESS != doClustering(collection, data)) {
+  if (StatusCode::SUCCESS != doClustering(collection, data,strip_max)) {
     ATH_MSG_ERROR("\tCan't cluster the hits?!");
   }
 }
 
-StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& strip_max) const {
   typedef SiTotalCharge::list_t list_t;
 
   // *****************************************************************************
@@ -700,7 +697,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
           // Add Crosstalk signal for neighboring strip
           m_sct_amplifier->crosstalk(ChargesOnStrip, m_timeOfThreshold, response);
           for (short bin = 0; bin < bin_max; ++bin) {
-            if (strip + 1 < m_strip_max) {
+            if (strip + 1 < strip_max) {
               data.m_Analogue[bin][strip + 1] += data.m_GainFactor[strip + 1] * response[bin];
             }
             if (strip > 0) {
@@ -716,7 +713,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
           // Add Crosstalk signal for neighboring strip
           m_sct_amplifier->crosstalk(ChargesOnStrip, m_timeOfThreshold, response);
           for (short bin = 0; bin < bin_max; ++bin) {
-            if (strip + 1 < m_strip_max) {
+            if (strip + 1 < strip_max) {
               data.m_Analogue[bin][strip + 1] += data.m_GainFactor[strip + 1] * response[bin];
             }
             if (strip > 0) {
@@ -734,7 +731,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& strip_max) const {
   // **********************************************************************************
   // Flag strips below threshold and flag the threshold check into data.m_StripHitsOnWafer
   // **********************************************************************************
@@ -747,7 +744,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
     SiReadoutCellId roCell = diode.getReadoutCell();
     if (roCell.isValid()) {
       int strip = roCell.strip();
-      if (strip > -1 and strip < m_strip_max) {
+      if (strip > -1 and strip < strip_max) {
         if (m_data_readout_mode == Condensed) {
           if ((data.m_Analogue[0][strip] >= m_Threshold or data.m_Analogue[1][strip] < m_Threshold)) {
             SiHelper::belowThreshold(diode, true);   // Below strip diode signal threshold
@@ -812,14 +809,14 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
 // ----------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& strip_max) const {
   // Check for noise+crosstalk strips above threshold
   // data.m_StripHitsOnWafer: real hits above threshold == 1 or below/disconnected
   // == -1
   // =0 for free strips or strips with charge to be checked (data.m_Analogue[1]!=0)
   // Set 2 for crosstalk noise hits and -2 for below ones
 
-  for (int strip = 0; strip < m_strip_max; strip++) {
+  for (int strip = 0; strip < strip_max; strip++) {
     // Find strips with data.m_StripHitsOnWafer[strip] == 0
     if (data.m_StripHitsOnWafer[strip] != 0) { // real hits already checked
       continue;
@@ -887,7 +884,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const {
+StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& strip_max) const {
   // ********************************
   // now do clustering
   // ********************************
@@ -896,7 +893,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_
 
   const SCT_ModuleSideDesign& sctDesign = dynamic_cast<const SCT_ModuleSideDesign&>(collection.design());
 
-  Identifier hitStrip;
+  SiCellId hitStrip;
 
   if (m_data_readout_mode == Condensed) {
     do {
@@ -922,13 +919,13 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_
         int clusterLastStrip = strip;
 
         clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;
-        hitStrip = m_sct_id->strip_id(collection.identify(), clusterFirstStrip);
+        hitStrip = SiCellId(clusterFirstStrip);
         SiChargedDiode& HitDiode = *(collection.find(hitStrip));
         SiHelper::SetStripNum(HitDiode, clusterSize, &msg());
                                                                                       
         SiChargedDiode *PreviousHitDiode = &HitDiode;
         for (int i = clusterFirstStrip+1; i <= clusterLastStrip; ++i) {
-          hitStrip = m_sct_id->strip_id(collection.identify(), i);
+          hitStrip = SiCellId(i);
           SiChargedDiode& HitDiode2 = *(collection.find(hitStrip));
           SiHelper::ClusterUsed(HitDiode2, true);
           PreviousHitDiode->setNextInCluster(&HitDiode2);
@@ -936,21 +933,21 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_
         }
       }
       ++strip; // !< This is the starting point of the next cluster within this collection
-    } while (strip < m_strip_max);
+    } while (strip < strip_max);
   } else {
     // Expanded read out mode, basically one RDO/strip per cluster
     // But if consecutively fired strips have the same time bin, those are converted into one cluster.
     do {
       clusterSize = 1;
       if (data.m_StripHitsOnWafer[strip] > 0) {
-        hitStrip = m_sct_id->strip_id(collection.identify(), strip);
+        hitStrip = SiCellId(strip);
         SiChargedDiode& hitDiode = *(collection.find(hitStrip));
         int timeBin = SiHelper::GetTimeBin(hitDiode);
         SiChargedDiode* previousHitDiode = &hitDiode;
         // Check if consecutively fired strips have the same time bin
-        for (int newStrip=strip+1; newStrip<m_strip_max; newStrip++) {
+        for (int newStrip=strip+1; newStrip<strip_max; newStrip++) {
           if (not (data.m_StripHitsOnWafer[newStrip]>0)) break;
-          Identifier newHitStrip = m_sct_id->strip_id(collection.identify(), newStrip);
+          SiCellId newHitStrip = SiCellId(newStrip);
           SiChargedDiode& newHitDiode = *(collection.find(newHitStrip));
           if (timeBin!=SiHelper::GetTimeBin(newHitDiode)) break;
           SiHelper::ClusterUsed(newHitDiode, true);
@@ -968,7 +965,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_
 #endif
       }
       strip += clusterSize; // If more than one strip fires, those following strips are skipped.
-    } while (strip < m_strip_max);
+    } while (strip < strip_max);
   }
 
   // clusters below threshold, only from pre-digits that existed before no

@@ -7,7 +7,7 @@
 template< class IDC, class IDHELPER >
 static
 typename IDC::IDENTIFIABLE* 
-Muon::IDC_Helper::getCollection /*ATLAS_NOT_THREAD_SAFE*/
+Muon::IDC_Helper::getCollection ATLAS_NOT_THREAD_SAFE
   ( const Identifier collId,  IDC* idc, const IDHELPER& idHelper, MsgStream& log)
 {
     IdentifierHash idHash;

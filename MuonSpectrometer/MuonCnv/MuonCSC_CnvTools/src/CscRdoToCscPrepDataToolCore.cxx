@@ -135,7 +135,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
     uint16_t width = data->width();
     uint16_t totalSamples = (data->samples()).size();
     
-    Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data);
+    Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data,&m_idHelperSvc->cscIdHelper());
     uint32_t hashOffset = data->hashId();
 
     ATH_MSG_DEBUG ( " Size of online cluster in this RawData: " 
@@ -165,7 +165,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
     }
     
     for (unsigned int j=0; j<width; ++j) {
-      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(), j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
       const CscReadoutElement* descriptor = muDetMgr->getCscReadoutElement(channelId);
@@ -298,7 +298,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
         uint16_t width = data->width();
         uint16_t totalSamples = (data->samples()).size();
         
-        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data);
+        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data,&m_idHelperSvc->cscIdHelper());
         uint32_t hashOffset = data->hashId();
 
         ATH_MSG_DEBUG ( "DecodeAll*Size of online cluster in this RawData: " 
@@ -330,7 +330,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 
         
         for (unsigned int j=0; j<width; ++j) {
-          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data,&m_idHelperSvc->cscIdHelper(),j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
           const CscReadoutElement* descriptor = muDetMgr->getCscReadoutElement(channelId);

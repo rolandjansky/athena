@@ -75,6 +75,7 @@ StatusCode DumpEventDataToJsonAlg::execute()
 
 void DumpEventDataToJsonAlg::prependTestEvent()
 {
+  ATH_MSG_VERBOSE("Prepending a test event.");
   nlohmann::json j;
 
   // FIXME - this
@@ -115,7 +116,7 @@ void DumpEventDataToJsonAlg::prependTestEvent()
       track["chi2"] = 0.0;
       track["dof"] = 0.0;
 
-      double theta = 2 * std::atan(std::exp(eta));
+      double theta = 2 * std::atan(std::exp(-eta));
       // d0, z0, phi, theta, qOverP
       track["dparams"] = {0.0, 0.0, phi, theta, 0.0};
       // Add three positions (less than this might not count as a)

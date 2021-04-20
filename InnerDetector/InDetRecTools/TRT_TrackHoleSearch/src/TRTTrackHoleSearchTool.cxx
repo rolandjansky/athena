@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -42,8 +42,8 @@ TRTTrackHoleSearchTool::TRTTrackHoleSearchTool(const std::string& type, const st
 	  m_extrapolator("Trk::Extrapolator"),
 	  m_conditions_svc("TRT_ConditionsSummarySvc", name),
 	  m_has_been_called(false),
-	  m_TRT_ID(0),
-	  m_trt_outer_surf(0)
+	  m_TRT_ID(nullptr),
+	  m_trt_outer_surf(nullptr)
 {
 	declareInterface<ITrackHoleSearchTool>(this);
 
@@ -135,12 +135,12 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 		ATH_MSG_DEBUG( "  This track has " << track_states->size() << " track states on surface." );
 	} else {
 		ATH_MSG_WARNING( "  This track has null track states on surface. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	if (track_states->size() < 2) {
 		ATH_MSG_WARNING( "  Fewer than 2 TrackStatesOnSurface. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	// set beginning point of extrapolation
@@ -160,7 +160,7 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 
 	if (beginning_track_state == track_states->end()) {
 		ATH_MSG_WARNING( "  beginning_track_state == track_states->end(). No where to extrapolate to. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	// to be returned:
@@ -357,7 +357,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			
 			std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 			typePattern.set(Trk::TrackStateOnSurface::Hole);
-			holes->push_back( new Trk::TrackStateOnSurface(0, (*step)->clone(), 0, 0, typePattern) );
+			holes->push_back( new Trk::TrackStateOnSurface(nullptr, (*step)->clone(), nullptr, nullptr, typePattern) );
 			hole_count++;
 			previous_id = id;
 		} // end loop over parameters from extrapolation
@@ -454,9 +454,9 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& trac
 	}
 
 	// if we have no holes on the old track and no holes found by search, then we just copy the track
-	if(track.trackStateOnSurfaces()->size() == tsos->size() && holes->size() == 0) {
+	if(track.trackStateOnSurfaces()->size() == tsos->size() && holes->empty()) {
 		// create copy of track
-		const Trk::Track* new_track = new Trk::Track(track.info(), tsos, track.fitQuality() ? track.fitQuality()->clone() : 0);
+		const Trk::Track* new_track = new Trk::Track(track.info(), tsos, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 		return new_track;
 	}
 
@@ -484,7 +484,7 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& trac
 	}
 
 	// create copy of track
-	const Trk::Track* new_track = new Trk::Track( track.info(),tsos,track.fitQuality() ? track.fitQuality()->clone() : 0);
+	const Trk::Track* new_track = new Trk::Track( track.info(),tsos,track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 
 	return new_track;
 }

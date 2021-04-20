@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETCnvTool.cxx 785790 2016-11-22 16:48:26Z ssnyder $
 
 // System include(s):
 #include <vector>
@@ -25,15 +24,6 @@ namespace xAODMaker {
 
     // Declare the interface(s) provided by the tool:
     declareInterface< ITrigMissingETCnvTool >( this );
-  }
-
-  StatusCode TrigMissingETCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
   }
 
   /**

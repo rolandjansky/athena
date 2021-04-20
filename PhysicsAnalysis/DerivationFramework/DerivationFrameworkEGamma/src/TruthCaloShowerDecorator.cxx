@@ -42,7 +42,7 @@ namespace DerivationFramework {
 
   StatusCode TruthCaloShowerDecorator::addBranches() const
   {    
-    const xAOD::TruthParticleContainer* truthPartContainer(0);
+    const xAOD::TruthParticleContainer* truthPartContainer(nullptr);
     CHECK ( evtStore()->retrieve(truthPartContainer, m_truthParticleContainerName) );
 
     // create truth clusters
@@ -54,9 +54,9 @@ namespace DerivationFramework {
     }
 
     ATH_MSG_DEBUG("Retrieving truth clusters");
-    const xAOD::CaloClusterContainer * truthClusterContainerEtot=0;
-    const xAOD::CaloClusterContainer * truthClusterContainerEvis=0;
-    const xAOD::CaloClusterContainer * truthClusterContainerEem=0;
+    const xAOD::CaloClusterContainer * truthClusterContainerEtot=nullptr;
+    const xAOD::CaloClusterContainer * truthClusterContainerEvis=nullptr;
+    const xAOD::CaloClusterContainer * truthClusterContainerEem=nullptr;
 
     truthClusterContainerEtot = evtStore()->retrieve<const xAOD::CaloClusterContainer>("TruthLArClustersEtot");
     truthClusterContainerEvis = evtStore()->retrieve<const xAOD::CaloClusterContainer>("TruthLArClustersEvis");
@@ -75,7 +75,7 @@ namespace DerivationFramework {
     ElementLink<xAOD::CaloClusterContainer> truthClusterEem(*truthClusterContainerEem,0);
     
     ATH_MSG_DEBUG("Decorating truth parts with truth cluster energy");
-    for (const auto truthPart: *truthPartContainer) {
+    for (const auto *const truthPart: *truthPartContainer) {
       if (!truthPart) continue;
       if (truthPart->barcode() != m_singleParticleBarcode) continue;
       linkDecoratorClusterEtot(*truthPart) = truthClusterEtot;

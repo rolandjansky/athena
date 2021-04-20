@@ -371,7 +371,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,Diff
                 exclusion_list.append(r"'{}'".format(line.rstrip()))
     else:
         logging.info("No diff rules file exists, using the default list")
-        exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'"]
+        exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'", r"'(.*)TrigCostContainer(.*)'"]
 
     exclusion_list = ' '.join(exclusion_list)
 

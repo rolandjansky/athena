@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,17 +60,23 @@ public:
   /**Default Constructor*/
   DiscTrapezoidalBounds();
 
-  /**Constructor for a symmetric Trapezoid giving min X lenght, max X lenght, Rmin and R max */
-  DiscTrapezoidalBounds(double minhalfx, double maxhalfx, double rMin, double rMax, double avephi, double stereo = 0.);
-
   /**Copy constructor*/
   DiscTrapezoidalBounds(const DiscTrapezoidalBounds& disctrbo);
 
-  /**Destructor*/
-  virtual ~DiscTrapezoidalBounds();
-
   /**Assignment operator*/
   DiscTrapezoidalBounds& operator=(const DiscTrapezoidalBounds& disctrbo);
+
+  /**Move constructor*/
+  DiscTrapezoidalBounds(DiscTrapezoidalBounds&& disctrbo) noexcept = default;
+
+  /**Move Assignment operator*/
+  DiscTrapezoidalBounds& operator=(DiscTrapezoidalBounds&& disctrbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~DiscTrapezoidalBounds() =default ;
+
+  /**Constructor for a symmetric Trapezoid giving min X lenght, max X lenght, Rmin and R max */
+  DiscTrapezoidalBounds(double minhalfx, double maxhalfx, double rMin, double rMax, double avephi, double stereo = 0.);
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

@@ -49,45 +49,30 @@ def setupRun3L1CaloPerfSequence(
     log.info("globalflags.DataSource  : %s", globalflags.DataSource())
     from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
 
+    if globalflags.DataSource()=='data':
+        if "Emulated" not in simflags.Calo.SCellType():
+            log.info("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated.", simflags.Calo.SCellType())
+            log.info("Changing setting to Emulated")
+            if(simflags.Calo.ApplyEmulatedPedestal()):
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCell")
+            else:
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCellNoBCID")
+
     log.info(simflags._context_name)
     simflags.print_JobProperties("tree&value")
 
     from AthenaCommon.AlgSequence import AthSequencer
+    l1simAlgSeq = seqAND("L1SimAlgSequence")
     ## Setup the provider of the SuperCells
     if simflags.Calo.SCellType() == "Pulse":
         # These are fully simulated supercells, from supercell pulse
         # collection is CaloCellContainer#SCell
         SCIn = "SCellnoBCID"
-    elif simflags.Calo.SCellType() == "Emulated":
-
-        # Conversion Service instance 
-        from AthenaCommon.GlobalFlags import globalflags
-        handle_transBS=None
-        if ( globalflags.DataSource == "geant4" ): 
-           from LArCabling.LArCablingAccess import LArFebRodMapping
-           LArFebRodMapping()
-           from TrigT1CaloFexPerf.TransBS_forL1_config import configure_transBS
-           handle_transBS=configure_transBS()
-        from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellSeedLessMaker
-
-        SCIn="SimpleSCell"
-        from LArROD.LArSCSimpleMakerDefault import LArSCSimpleMaker
-        from LArROD.LArSCSimpleMakerDefault import LArSuperCellBCIDEmAlg
-        larscsm = LArSCSimpleMaker()
-        larscsm.CellContainer="SeedLessFS"
-        larscbea = LArSuperCellBCIDEmAlg()
-        larscbea.SCellContainerOut=SCIn
-
-        # get a handle for the super-Cell production part
-        #sCell_sequence = AthSequencer("HLTBeginSeq")
-        sCell_sequence = AlgSequence()
-        if (handle_transBS is not None):
-          sCell_sequence+=handle_transBS
-        sCell_sequence+=HLTCaloCellSeedLessMaker()
-        sCell_sequence+=larscsm
-        sCell_sequence+=larscbea
-     
-        return
+    elif "Emulated" in simflags.Calo.SCellType():
+        #This function has options to support both LArSimple and SCEmulation (which accounts for timing) 
+        from TrigT1CaloFexPerf.EmulationConfig import emulateSC 
+        emulateSC(l1simAlgSeq,SCOut=simflags.Calo.SCellType() )
+        SCIn=simflags.Calo.SCellType()
     elif simflags.Calo.SCellType() == "BCID":
         # These are fully simulated supercells with applied BCID corrections
         # This is the only kind of supercells where BCID corrections are applied
@@ -124,7 +109,6 @@ def setupRun3L1CaloPerfSequence(
         MapTileCells=simflags.Calo.UseAllCalo(),
     )
 
-    l1simAlgSeq = seqAND("L1SimAlgSequence")
     l1simAlgSeq += LVL1__JGTowerBuilder(
         "JTowerBuilder",
         UseSCQuality=simflags.Calo.ApplySCQual(),

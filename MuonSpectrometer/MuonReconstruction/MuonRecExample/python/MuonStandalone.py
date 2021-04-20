@@ -122,7 +122,6 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 
                                                         MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
                                                         MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                        MuonTruthSummaryTool = None,
                                                         PrintSummary = muonStandaloneFlags.printSummary() )
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
     if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():

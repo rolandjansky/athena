@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,7 @@
 #include "MuonCalibExtraTreeAlg/MuonCalibMuCTPIBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibCaloBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibTriggerInfoBranch.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 class MdtIdHelper;
 class CscIdHelper;
@@ -21,9 +22,6 @@ class TgcIdHelper;
 class TileID;
 class TTree;
 
-namespace LVL1 {
-  class RecMuonRoiSvc;
-}
 
 namespace MuonCalib {
 
@@ -46,13 +44,13 @@ namespace MuonCalib {
     ~MuonCalibExtraTreeTriggerAlg(); 
 
     /**       Algorithm initialize:     */
-    StatusCode initialize();     
+    StatusCode initialize()override;     
   
     /** Algorithm execute, called once per event. It performs the following tasks:    */
-    StatusCode execute();
+    StatusCode execute()override;
 
     /** Algorithm finalize */
-    StatusCode finalize();
+    StatusCode finalize()override;
 
   private:
     void addMuCTPI();
@@ -61,8 +59,9 @@ namespace MuonCalib {
     void addCalo();
     void finishEvent();
 
-    ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiService;
-    ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiService;
+    ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
+    ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
+
 
     unsigned int m_eventNumber;       //!< counter keeping track of the event
     std::string  m_eventTag;                         //!< tag of the event, describing reconstruction mechanism 

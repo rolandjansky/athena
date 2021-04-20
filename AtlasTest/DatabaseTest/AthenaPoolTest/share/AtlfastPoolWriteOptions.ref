@@ -1741,7 +1741,6 @@ TrackMaker           INFO Initialised successfully
 
 Stream1              INFO Data output: athena.root SVC='AthenaPoolCnvSvc'
 AthenaEventLoopMgrWARNING Histograms saving not required.
-AthenaEventLoopMgr   INFO No TimeKeeper selected. No time limit control on event loop.
 HistorySvc           INFO Registered 19 Algorithms
 HistorySvc           INFO Registered 30 Services
 ApplicationMgr       INFO Application Manager Initialized successfully

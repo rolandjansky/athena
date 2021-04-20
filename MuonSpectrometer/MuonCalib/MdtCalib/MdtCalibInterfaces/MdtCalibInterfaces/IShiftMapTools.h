@@ -11,24 +11,24 @@ class Identifier;
 
 namespace MuonCalib {
 
-/**
-   @class IShiftMapTools
-   Interface for the ShiftMapTools inheriting from MdtCalibrationShiftMapBase
+    /**
+       @class IShiftMapTools
+       Interface for the ShiftMapTools inheriting from MdtCalibrationShiftMapBase
 
-   @author der.andi@cern.ch
-*/
+       @author der.andi@cern.ch
+    */
 
-class IShiftMapTools : virtual public IAlgTool {
- public:
-  IShiftMapTools() { ; }
-  virtual ~IShiftMapTools() { ; }
+    class IShiftMapTools : virtual public IAlgTool {
+    public:
+        IShiftMapTools() { ; }
+        virtual ~IShiftMapTools() { ; }
 
-  /* Creates the InterfaceID and interfaceID() method */
-  DeclareInterfaceID(IShiftMapTools, 1, 0);
+        /* Creates the InterfaceID and interfaceID() method */
+        DeclareInterfaceID(IShiftMapTools, 1, 0);
 
-  /* get shift value */
-  virtual float getValue(const Identifier& id) = 0;
-};
+        /* get shift value */
+        virtual float getValue(const Identifier& id) = 0;
+    };
 
 }  // namespace MuonCalib
 

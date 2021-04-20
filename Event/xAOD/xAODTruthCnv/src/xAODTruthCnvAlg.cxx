@@ -78,7 +78,6 @@ namespace xAODMaker {
 	ATH_CHECK(incSvc.retrieve());
 	incSvc->addListener( this, "BeginRun", 10);
 
-        ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
         ATH_MSG_DEBUG("AODContainerName = " << m_aodContainerKey.key() );
         ATH_MSG_DEBUG("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerKey.key() );
         ATH_MSG_DEBUG("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerKey.key());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
   std::vector<InDet::PixelClusterParts> allMultiPClusters;
   
   
-  allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]));
-  allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]));
+  allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]);
+  allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]);
  
   
   return allMultiPClusters;
@@ -98,12 +98,12 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
   if (m_splitOnlyOnBLayer)
   {
     const InDetDD::SiDetectorElement* element=origCluster.detectorElement();
-    if (element==0) {
+    if (element==nullptr) {
       ATH_MSG_WARNING("Could not get detector element");
       return std::vector<InDet::PixelClusterParts>();
     }
     const AtlasDetectorID* aid = element->getIdHelper();
-    if (aid==0)
+    if (aid==nullptr)
     {
       ATH_MSG_WARNING("Could not get ATLASDetectorID");
       return std::vector<InDet::PixelClusterParts>();
@@ -182,7 +182,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
       ATH_MSG_ERROR("Error matrix or local position vector size is not 1, it is:" << errorMatrix.size() << " or " << localPosition.size() << ".");
     }
     
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]));
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]);
   }
   else if (nParticles==2)
   {
@@ -195,8 +195,8 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
       ATH_MSG_ERROR("Error matrix or local position vector size is not 2, it is:" << errorMatrix.size() << " or " << localPosition.size() << ".");
     }
     
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]));
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]));
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]);
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]);
   }
   else if (nParticles==3)
   {
@@ -210,9 +210,9 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
     }
     
     
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]));
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]));
-    allMultiPClusters.push_back(PixelClusterParts(rdos,totList,lvl1group,localPosition[2],errorMatrix[2]));
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[0],errorMatrix[0]);
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[1],errorMatrix[1]);
+    allMultiPClusters.emplace_back(rdos,totList,lvl1group,localPosition[2],errorMatrix[2]);
   }
   
   return allMultiPClusters;

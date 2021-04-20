@@ -16,10 +16,10 @@
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-#include "MuonRegionSelector/sTGC_RegionSelectorTable.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "RegSelLUT/RegSelSiLUT.h"
 
 #include "TTree.h"
 #include <functional>
@@ -41,8 +41,7 @@ namespace NSWL1 {
       m_rbounds({-1,-1}),
       m_ridxScheme(0),
       m_dtheta_min(0),
-      m_dtheta_max(0),
-      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this)
+      m_dtheta_max(0)
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
@@ -72,9 +71,9 @@ namespace NSWL1 {
       ATH_CHECK(this->book_branches());
       ATH_CHECK(m_incidentSvc.retrieve());
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-      ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
       ATH_CHECK( FetchDetectorEnvelope());
       ATH_CHECK(m_idHelperSvc.retrieve());
+      ATH_CHECK(m_regSelTableKey.initialize());
       return StatusCode::SUCCESS;
     }
 
@@ -87,7 +86,8 @@ namespace NSWL1 {
     StatusCode StripSegmentTool::FetchDetectorEnvelope(){
         const MuonGM::MuonDetectorManager* p_det;
         ATH_CHECK(detStore()->retrieve(p_det));
-        const auto regSelector = m_lutCreatorToolsTGC->getLUT();
+	SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
+	auto regSelector = dynamic_cast<const RegSelSiLUT*>(rh_stgcLUT->payload());
         std::vector<const RegSelModule*>  moduleList;
         for(const auto& i : m_idHelperSvc->stgcIdHelper().idVector()){// all modules
             IdentifierHash moduleHashId;            

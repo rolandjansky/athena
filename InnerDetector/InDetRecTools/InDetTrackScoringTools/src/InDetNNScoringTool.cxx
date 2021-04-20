@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -306,7 +306,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::simpleScore( const Trk::Track& track,
   const Trk::TrackParameters* input = track.trackParameters()->front();
 
   // cuts on parameters
-  EventContext ctx = Gaudi::Hive::currentContext();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
@@ -396,7 +396,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::simpleScore( const Trk::Track& track,
       }
     }
     // --- prob(chi2,NDF), protect for chi2 <= 0
-    if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
+    if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       double p = 1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared());
       if ( p > 0 )
         score += log10( p );
@@ -575,7 +575,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::ambigScore( const Trk::Track& track, 
   // --- non binned Chi2
   //
   if (!ispatterntrack) {
-    if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
+    if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       int    indf  = track.fitQuality()->numberDoF();
       double chi2  = track.fitQuality()->chiSquared();
       double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
@@ -859,10 +859,10 @@ bool InDet::InDetNNScoringTool::isEmCaloCompatible(const Trk::Track& track) cons
 
   //Switch to the track parameters of the first measurment instead of the perigee parameters 
   ATH_MSG_VERBOSE ("--> Looping over TSOS's");
-  for (auto tsos : *track.trackStateOnSurfaces() ) {
+  for (const auto *tsos : *track.trackStateOnSurfaces() ) {
     // get measurment from TSOS
-    auto meas = tsos->measurementOnTrack();
-    auto tp = tsos->trackParameters();
+    const auto *meas = tsos->measurementOnTrack();
+    const auto *tp = tsos->trackParameters();
     // if we do not have a measurement, we should just mark it
     if (!meas || !tp) {
       continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -90,7 +90,7 @@ StatusCode HltEventLoopMgr::initialize()
 
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  ATH_MSG_INFO(" ---> HltEventLoopMgr = " << name() << " initialize - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO(" ---> HltEventLoopMgr = " << name() << " initialize");
 
   //----------------------------------------------------------------------------
   // Setup properties

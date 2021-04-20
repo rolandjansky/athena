@@ -9,7 +9,7 @@
 #define PMGTOOLS_MYPMGAPP_H
 
 // EDM includes
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgMessaging/MessageCheck.h"  // for messaging
 #include "POOLRootAccess/TEvent.h"  // event looping
 #include "xAODJet/JetContainer.h"   // for jet studies
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   // test the interface
   ANA_MSG_INFO("Creating the PMGSherpa22VJetsWeightTool...");
-  asg::AnaToolHandle< IWeightTool > pmgTool("PMGTools::PMGSherpa22VJetsWeightTool/PMGSherpa22VJetsWeightTool");
+  asg::StandaloneToolHandle< IWeightTool > pmgTool("PMGTools::PMGSherpa22VJetsWeightTool/PMGSherpa22VJetsWeightTool");
   ANA_CHECK(pmgTool.setProperty("TruthJetContainer", "AntiKt4TruthWZJets"));  // default
   ANA_CHECK(pmgTool.initialize());
   // can make the subtool directly or via this cast
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   // ANA_CHECK(truthWeightTool.setProperty("OutputLevel", MSG::INFO));
   // ANA_CHECK(truthWeightTool.sysInitialize()); // must call sysInitialize to get the callbacks registered properly for an AsgMetadataTool
   // ... but better to do this through a ToolHandle
-  asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > truthWeightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
+  asg::StandaloneToolHandle< PMGTools::IPMGTruthWeightTool > truthWeightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
   ANA_CHECK(truthWeightTool.initialize());
 
   // Open the input file:

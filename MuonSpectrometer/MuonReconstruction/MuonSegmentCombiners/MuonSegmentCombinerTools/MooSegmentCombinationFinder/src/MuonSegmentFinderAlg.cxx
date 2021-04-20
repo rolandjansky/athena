@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFinderAlg.h"
@@ -34,12 +34,7 @@ MuonSegmentFinderAlg::initialize()
     ATH_CHECK(m_segmentOverlapRemovalTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_clusterSegMaker.retrieve());
-
-    if (!m_truthSummaryTool.empty())
-        ATH_CHECK(m_truthSummaryTool.retrieve());
-    else
-        m_truthSummaryTool.disable();
-
+  
     ATH_CHECK(m_clusterCreator.retrieve());
     ATH_CHECK(m_mmClusterCreator.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
@@ -127,12 +122,6 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
     ATH_MSG_DEBUG("segments before overlap removal: " << handle->size());
     m_segmentOverlapRemovalTool->removeDuplicates(handle.ptr());
 
-    if (!m_truthSummaryTool.empty()) {
-        for (unsigned int i = 0; i < handle.ptr()->size(); i++) {
-            Trk::Segment* tseg = handle.ptr()->at(i);
-            m_truthSummaryTool->add(*(dynamic_cast<const Muon::MuonSegment*>(tseg)), 3);
-        }
-    }
 
     ATH_MSG_DEBUG(" Segments after overlap removal: " << handle->size());
 

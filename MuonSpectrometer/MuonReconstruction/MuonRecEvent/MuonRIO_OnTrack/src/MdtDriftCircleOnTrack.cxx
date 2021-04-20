@@ -49,7 +49,10 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
 
   const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
 
-  if(slsf) m_globalPosition.store(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire)));
+  if (slsf){
+    m_globalPosition.store(std::make_unique<const Amg::Vector3D>(
+      slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire)));
+  }
   Amg::Vector3D loc_gDirection = predictedTrackDirection;
 
   //scaling the direction with drift radius

@@ -23,6 +23,9 @@ if not overlayFlags.isDataOverlay():
 
 if DetFlags.overlay.Truth_on():
    outStream.ItemList += [ "McEventCollection#*", "TrackRecordCollection#*" ]
+   outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                          "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
    outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt4TruthJets" ]
    outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux." ]
    outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets" ]

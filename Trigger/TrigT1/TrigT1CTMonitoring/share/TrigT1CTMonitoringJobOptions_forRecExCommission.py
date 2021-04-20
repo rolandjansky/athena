@@ -139,11 +139,7 @@ if jp.ConcurrencyFlags.NumThreads() == 0: #no monitoring for multithreaded code 
         MDTcablingSvc.RODfile    = "RODmap.data"
         from TGCcabling.TGCcablingConfig import TGCcablingConfig
         
-        # Needed to decode the RoI information
-        from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-        from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
-
-        CTmonMan.Environment = "online" 
+        CTmonMan.Environment = "online"
         CTmonMan.ManualDataTypeSetup = False
         CTmonMan.DataType            = "cosmics"
         CTmonMan.ManualRunLBSetup    = False
@@ -260,9 +256,6 @@ if jp.ConcurrencyFlags.NumThreads() == 0: #no monitoring for multithreaded code 
                                     RunOnESD = True,
                                     CompareRerun = False,
                                     FillStateCoolFolderName=UsedFillStateCoolFolderName)
-            # Needed to decode the RoI information
-            from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-            from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         CTBSMonTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON

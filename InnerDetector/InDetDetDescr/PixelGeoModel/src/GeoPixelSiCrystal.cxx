@@ -102,7 +102,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
 
   } else {
     // No empty rows.
-    if (!m_gmt_mgr->slhc() && !m_gmt_mgr->ibl()) {
+    if (!m_gmt_mgr->ibl()) {
       m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
     } else {
       if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;

@@ -23,7 +23,7 @@ int main() {
 
 // FrameWork includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -81,7 +81,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     }
   }
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
+  asg::StandaloneToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
@@ -104,7 +104,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   ANA_CHECK( event->readFrom( ifile.get() ) );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
+  asg::StandaloneToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );

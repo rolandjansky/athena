@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -111,9 +111,10 @@ private:
   std::string getFileName(const std::string& isoWP, const std::string& trigWP, bool isConv);
   
   // Set prefix of the corresponding calibration filenames:
-  std::string m_file_prefix_ID="offline.Tight";
-  std::string m_file_prefix_ISO="Isolation.isolFixedCut";
-  std::string m_file_prefix_Trig="HLT";
+  std::string m_file_prefix_ID="efficiencySF.offline.";
+  std::string m_file_prefix_ISO="efficiencySF.Isolation.";
+  std::string m_file_prefix_Trig="efficiencySF.";
+  std::string m_file_prefix_TrigEff="efficiency.";
   
   // Properties
   

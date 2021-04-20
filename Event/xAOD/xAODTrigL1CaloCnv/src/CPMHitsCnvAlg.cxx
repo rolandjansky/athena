@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode CPMHitsCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( " ESD Key: " << m_esdKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 

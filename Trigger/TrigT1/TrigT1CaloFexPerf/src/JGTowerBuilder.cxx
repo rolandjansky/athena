@@ -42,10 +42,8 @@ namespace LVL1
   StatusCode JGTowerBuilder::initialize()
   {
     ATH_CHECK(m_superCellsKey.initialize());
-    if (m_useAllCalo)
-      ATH_CHECK(m_cellsKey.initialize());
-    else
-      ATH_CHECK(m_triggerTowersKey.initialize());
+    ATH_CHECK(m_cellsKey.initialize(m_useAllCalo));
+    ATH_CHECK(m_triggerTowersKey.initialize(!m_useAllCalo));
     ATH_CHECK(m_towersKey.initialize());
     ATH_CHECK(m_mappingKey.initialize());
 

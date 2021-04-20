@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_ConditionsSummary("TRT_StrawStatusSummaryTool",this),
   m_useConditionsStatus(false),
-  m_trtid(0),
+  m_trtid(nullptr),
   m_global_offset(0),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
@@ -112,8 +112,7 @@ bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, floa
       mask >>= 1;
     i++;
   }
-  if (foundInterval) return true;
-  return false;
+  return foundInterval;
 }
 
 
@@ -177,7 +176,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 {
 
   //Initialise a new TRT_DriftCircleCollection
-  InDet::TRT_DriftCircleCollection* rio = 0;
+  InDet::TRT_DriftCircleCollection* rio = nullptr;
 
   if (!rdo) {
     ATH_MSG_ERROR("empty collection at input");

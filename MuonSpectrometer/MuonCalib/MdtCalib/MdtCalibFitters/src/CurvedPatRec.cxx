@@ -1,537 +1,300 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.04.2008, AUTHOR: OLIVER KORTNER
-// Modified: 25.07.2008 by O. Kortner, improved pattern recognition by using
-//                                     the class "CurvedCandidateFinder"
-//           04.08.2008 by O. Kortner, further improvements of the pattern
-//                                     recognition for large incidence angles.
-//           07.08.2008 by O. Kortner, bug fig in the pattern recognition.
-//           18.08.2008 by O. Kortner, update of chi^2 and segment position
-//                                     and direction added.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "MdtCalibFitters/CurvedPatRec.h"
-#include "MdtCalibFitters/CurvedCandidateFinder.h"
-#include "MuonCalibMath/Combination.h"
+
+#include <TString.h>  // for Form
+
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include <TString.h> // for Form
-#include "time.h"
+#include "MdtCalibFitters/CurvedCandidateFinder.h"
+#include "MuonCalibMath/Combination.h"
 #include "cmath"
-
+#include "time.h"
 using namespace MuonCalib;
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: DEFAULT CONSTRUCTOR ::
-//:::::::::::::::::::::::::
-
-CurvedPatRec::CurvedPatRec(void) {
-
-	m_chi2 = -1.0;
+CurvedPatRec::CurvedPatRec() {
     m_road_width = 0.5;
-    m_track_hits.clear();
     m_time_out = 10;
-
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: CONSTRUCTOR ::
-//:::::::::::::::::
-
-CurvedPatRec::CurvedPatRec(const double & road_width) {
-
-	m_chi2 = -1.0;
+CurvedPatRec::CurvedPatRec(const double &road_width) {
     m_road_width = road_width;
-    m_track_hits.clear();
     m_time_out = 10;
-
 }
 
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD roadWidth ::
-//::::::::::::::::::::::
-
-double CurvedPatRec::roadWidth(void) const {
-
-	return m_road_width;
-
+double CurvedPatRec::roadWidth() const { return m_road_width; }
+void CurvedPatRec::setRoadWidth(const double &r_road_width) { m_road_width = r_road_width; }
+void CurvedPatRec::setTimeOut(const double &time_out) { m_time_out = time_out; }
+bool CurvedPatRec::fit(MuonCalibSegment &r_segment) const {
+    // select all hits //
+    HitSelection selection(r_segment.mdtHitsOnTrack(), 0);
+    // call the other fit function //
+    return fit(r_segment, selection);
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::
-//:: METHOD numberOfTrackHits ::
-//::::::::::::::::::::::::::::::
-
-unsigned int CurvedPatRec::numberOfTrackHits(void) const {
-
-	return m_track_hits.size();
-
+bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection) const {
+    CurvedLine curved_track;
+    return fit(r_segment, r_selection, curved_track);
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD trackHits ::
-//::::::::::::::::::::::
-
-const std::vector<const MdtCalibHitBase*> & CurvedPatRec::trackHits(
-																void) const {
-
-	return m_track_hits;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD chi2 ::
-//:::::::::::::::::
-
-double CurvedPatRec::chi2(void) const {
-
-	return m_chi2;
-
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::
-//:: METHOD chi2PerDegreesOfFreedom ::
-//::::::::::::::::::::::::::::::::::::
-
-double CurvedPatRec::chi2PerDegreesOfFreedom(void) const {
-
-	return m_chi2/static_cast<double>(m_track_hits.size()-3);
-
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::
-//:: METHOD curvedTrack ::
-//::::::::::::::::::::::::
-
-const CurvedLine & CurvedPatRec::curvedTrack(void) const {
-
-	return m_curved_track;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: METHOD setRoadWidth ::
-//:::::::::::::::::::::::::
-
-void CurvedPatRec::setRoadWidth(const double & r_road_width) {
-
-	m_road_width = r_road_width;
-	return;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD setTimeOut ::
-//:::::::::::::::::::::::
-
-void CurvedPatRec::setTimeOut(const double & time_out) {
-
-	m_time_out = time_out;
-	return;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::
-//:: METHOD fit(.) ::
-//:::::::::::::::::::
-
-bool CurvedPatRec::fit(MuonCalibSegment & r_segment) const {
-
-// select all hits //
-	HitSelection selection(r_segment.mdtHitsOnTrack(), 0);
-// call the other fit function //
-	return fit(r_segment, selection);
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD fit(.,.) ::
-//:::::::::::::::::::::
-
-bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
-											HitSelection r_selection) const {
-///////////////
-// VARIABLES //
-///////////////
-
-    time_t start, end; // start and end times (needed for time-out)
-	double diff; // difference of start and end time (needed for time-out)
+bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, CurvedLine &curved_track) const {
+    ///////////////
+    // VARIABLES //
+    ///////////////
+    std::unique_ptr<StraightPatRec> sfitter = std::make_unique<StraightPatRec>();
+    time_t start, end;  // start and end times (needed for time-out)
+    double diff;        // difference of start and end time (needed for time-out)
     Combination combination;
-    std::vector<unsigned int> hit_index; // hit indices for a given combination
-    unsigned int try_nb_hits; // try to find a segment with try_nb_hits hits
-    bool segment_found(false); // flag indicating the a segment has been found
-    std::vector<const MdtCalibHitBase *> cand_track_hits; // vector of the track hits
-                                                     // found so far
-    CurvedLine aux_line; // memory for reconstructed curved lines
-	Amg::Vector3D null(0.0, 0.0, 0.0);
-	Amg::Vector3D xhat(1.0, 0.0, 0.0);
-    std::vector<Amg::Vector3D> points; // hit points for the track fit
-	std::vector<const MdtCalibHitBase*> loc_track_hits; // track hit store
+    std::vector<unsigned int> hit_index;                   // hit indices for a given combination
+    unsigned int try_nb_hits;                              // try to find a segment with try_nb_hits hits
+    bool segment_found(false);                             // flag indicating the a segment has been found
+    std::vector<const MdtCalibHitBase *> cand_track_hits;  // vector of the track hits
+                                                           // found so far
+    CurvedLine aux_line;                                   // memory for reconstructed curved lines
+    Amg::Vector3D null(0.0, 0.0, 0.0);
+    Amg::Vector3D xhat(1.0, 0.0, 0.0);
+    std::vector<Amg::Vector3D> points;                    // hit points for the track fit
+    std::vector<const MdtCalibHitBase *> loc_track_hits;  // track hit store
 
-////////////
-// RESETS //
-////////////
+    ////////////
+    // RESETS //
+    ////////////
+    time(&start);
 
-	m_chi2 = -1.0;
-    m_track_hits.clear();
-	time(&start);
+    ////////////////////////////////////////
+    // CHECK SIZE OF THE SELECTION VECTOR //
+    ////////////////////////////////////////
 
-////////////////////////////////////////
-// CHECK SIZE OF THE SELECTION VECTOR //
-////////////////////////////////////////
-
-    if (r_selection.size()!=r_segment.mdtHitsOnTrack()) {
-    	throw std::runtime_error(Form("File: %s, Line: %d\nCurvedPatRec::fit - Size of selection vector does not match the number of hits on track!", __FILE__, __LINE__));
+    if (r_selection.size() != r_segment.mdtHitsOnTrack()) {
+        throw std::runtime_error(
+            Form("File: %s, Line: %d\nCurvedPatRec::fit - Size of selection vector does not match the number of hits on track!", __FILE__,
+                 __LINE__));
     }
 
-//////////////////////
-// PREPARATORY WORK //
-//////////////////////
+    //////////////////////
+    // PREPARATORY WORK //
+    //////////////////////
 
-// perform a straight track fit to get an estimate of the incidence angle //
-	Amg::Vector3D est_dir(0.0, 0.0, 1.0);
-	m_sfitter.setRoadWidth(2.0*m_road_width);
-	m_sfitter.setTimeOut(0.5*m_time_out);
-	if (m_sfitter.fit(r_segment, r_selection)) {
-		est_dir = m_sfitter.track().directionVector();
-	}
-	
-// store track hits //
-	for (unsigned int k=0; k<r_segment.mdtHitsOnTrack(); k++) {
-        if (r_selection[k]==0 && r_segment.mdtHOT()[k]->sigmaDriftRadius()<100) {
-            m_track_hits.push_back(r_segment.mdtHOT()[k]);
-        	loc_track_hits.push_back(r_segment.mdtHOT()[k]);
-		}
+    // perform a straight track fit to get an estimate of the incidence angle //
+    Amg::Vector3D est_dir(0.0, 0.0, 1.0);
+    sfitter->setRoadWidth(2.0 * m_road_width);
+    sfitter->setTimeOut(0.5 * m_time_out);
+    MTStraightLine track;
+    if (sfitter->fit(r_segment, r_selection, track)) { est_dir = track.directionVector(); }
+
+    // store track hits //
+    for (unsigned int k = 0; k < r_segment.mdtHitsOnTrack(); k++) {
+        if (r_selection[k] == 0 && r_segment.mdtHOT()[k]->sigmaDriftRadius() < 100) { loc_track_hits.push_back(r_segment.mdtHOT()[k]); }
     }
 
-// return, if there are too few hits //
-	if (m_track_hits.size()<4) {
-		return false;
-	}
-/////////////////////////
-// PATTERN RECOGNITION //
-/////////////////////////
+    // return, if there are too few hits //
+    if (loc_track_hits.size() < 4) { return false; }
+    /////////////////////////
+    // PATTERN RECOGNITION //
+    /////////////////////////
 
-// try to find a segment with as many hits on it as possible //
+    // try to find a segment with as many hits on it as possible //
     try_nb_hits = loc_track_hits.size();
-	while (!segment_found && try_nb_hits>3) {
 
-   // reset //
-        m_chi2 = -1.0;
+    std::vector<const MdtCalibHitBase *> stored_track_hits;
+    double chi2 = -1.;
 
-   // loop over the combinations //
+    while (!segment_found && try_nb_hits > 3) {
+        // loop over the combinations //
         combination.setNewParameters(loc_track_hits.size(), try_nb_hits);
-        for (unsigned int cb=0; cb<combination.numberOfCombinations(); cb++) {
-
-   // time-out //
-            time (&end);
-            diff = difftime (end,start);
-            if (diff>m_time_out) {
-            	MsgStream log(Athena::getMessageSvc(), "CurvedPatRec");
-            	log<< MSG::WARNING << "Class CurvedPatRec, method fit: time-out for track finding after "<<m_time_out<<" seconds!"<<endmsg;
+        for (unsigned int cb = 0; cb < combination.numberOfCombinations(); cb++) {
+            // time-out //
+            time(&end);
+            diff = difftime(end, start);
+            if (diff > m_time_out) {
+                MsgStream log(Athena::getMessageSvc(), "CurvedPatRec");
+                log << MSG::WARNING << "Class CurvedPatRec, method fit: time-out for track finding after " << m_time_out << " seconds!"
+                    << endmsg;
                 return false;
             }
 
-    // analyse the hit combination //
-            if (cb==0) {
+            // analyse the hit combination //
+            if (cb == 0) {
                 combination.currentCombination(hit_index);
             } else {
                 combination.nextCombination(hit_index);
             }
             std::vector<const MdtCalibHitBase *> track_hits;
-            for (unsigned int k=0; k<try_nb_hits; k++) {
-                track_hits.push_back(loc_track_hits[hit_index[k]-1]);
-            }
+            for (unsigned int k = 0; k < try_nb_hits; k++) { track_hits.push_back(loc_track_hits[hit_index[k] - 1]); }
 
-        // find candidates //
+            // find candidates //
             CurvedCandidateFinder finder(track_hits);
-            const std::vector<CurvedLine> &candidates(finder.getCandidates(
-                                                       m_road_width, est_dir));
-			if (candidates.size()==0) {
-                continue;
-            }
+            const std::vector<CurvedLine> candidates(finder.getCandidates(m_road_width, est_dir));
+            if (candidates.empty()) { continue; }
 
-            segment_found = true; 
+            segment_found = true;
 
-        // store the track hits //
- //           m_track_hits = track_hits;
-
-            for (unsigned int cand=0; cand<candidates.size(); cand++) {
+            for (unsigned int cand = 0; cand < candidates.size(); cand++) {
                 std::vector<Amg::Vector3D> errors(track_hits.size());
-                for (unsigned int k=0; k<errors.size(); k++) {
-                    if (track_hits[k]->sigmaDriftRadius()>0.0) {
- 			            errors[k] = Amg::Vector3D(1.0,
-									track_hits[k]->sigmaDriftRadius(), 0.0);
-		            } else {
-			            errors[k] = Amg::Vector3D(1.0, 1.0, 0.0);
-		            }
-	            }
-
-        // get hit points //
-                points = getHitPoints(track_hits, candidates[cand]);
-
-        // fit a curved line through the points //
-                aux_line = CurvedLine(points, errors);
-
-        // calculate chi^2 //
-                double tmp_chi2(0.0);
-	            for (unsigned int k=0; k<track_hits.size(); k++) {
-		            MTStraightLine tang(m_curved_track.getTangent(
-										(track_hits[k]->localPosition()).z()));
-                    MTStraightLine wire(Amg::Vector3D(0.0, 
-									track_hits[k]->localPosition().y(),
-									track_hits[k]->localPosition().z()),
-									xhat, null, null);
-                    double d(std::abs(tang.signDistFrom(wire)));
-                    if (track_hits[k]->sigma2DriftRadius()!=0) {
-                        tmp_chi2 = tmp_chi2+
-                                    std::pow(d-track_hits[k]->driftRadius(), 2)/
-									track_hits[k]->sigma2DriftRadius();
+                for (unsigned int k = 0; k < errors.size(); k++) {
+                    if (track_hits[k]->sigmaDriftRadius() > 0.0) {
+                        errors[k] = Amg::Vector3D(1.0, track_hits[k]->sigmaDriftRadius(), 0.0);
                     } else {
-                        tmp_chi2 = tmp_chi2+
-                                    std::pow(d-track_hits[k]->driftRadius(), 2)/0.01;
+                        errors[k] = Amg::Vector3D(1.0, 1.0, 0.0);
                     }
-	            }
-
-        // compare chi^2 with chi^2 values found so far //
-                if (m_chi2<0) {
-                    m_chi2 = tmp_chi2;
-                    m_curved_track = aux_line;
-        // store the track hits //
-					m_track_hits = track_hits;
-               } else {
- 					if (tmp_chi2<m_chi2) {
-                        m_chi2 = tmp_chi2;
-                        m_curved_track = aux_line;
- 						m_track_hits = track_hits;
-					}
                 }
 
+                // get hit points //
+                points = getHitPoints(track_hits, candidates[cand]);
+
+                // fit a curved line through the points //
+                aux_line = CurvedLine(points, errors);
+
+                // calculate chi^2 //
+                double tmp_chi2(0.0);
+                for (unsigned int k = 0; k < track_hits.size(); k++) {
+                    MTStraightLine tang(curved_track.getTangent((track_hits[k]->localPosition()).z()));
+                    MTStraightLine wire(Amg::Vector3D(0.0, track_hits[k]->localPosition().y(), track_hits[k]->localPosition().z()), xhat,
+                                        null, null);
+                    double d(std::abs(tang.signDistFrom(wire)));
+                    if (track_hits[k]->sigma2DriftRadius() != 0) {
+                        tmp_chi2 = tmp_chi2 + std::pow(d - track_hits[k]->driftRadius(), 2) / track_hits[k]->sigma2DriftRadius();
+                    } else {
+                        tmp_chi2 = tmp_chi2 + std::pow(d - track_hits[k]->driftRadius(), 2) / 0.01;
+                    }
+                }
+
+                // compare chi^2 with chi^2 values found so far //
+                if (chi2 < 0 || tmp_chi2 < chi2) {
+                    chi2 = tmp_chi2;
+                    curved_track = aux_line;
+                    // store the track hits //
+                    stored_track_hits = track_hits;
+                }
             }
-
         }
 
-        try_nb_hits = try_nb_hits-1;
-
+        try_nb_hits = try_nb_hits - 1;
     }
 
-    if (segment_found==false) {
-        return false;
-    }
+    if (!segment_found) { return false; }
 
-///////////////////////////////
-// SECOND REFINED CURVED FIT //
-///////////////////////////////
+    ///////////////////////////////
+    // SECOND REFINED CURVED FIT //
+    ///////////////////////////////
 
-// get hit points //
-    points = getHitPoints(m_track_hits, m_curved_track);
-    std::vector<Amg::Vector3D> errors(m_track_hits.size());
-    for (unsigned int k=0; k<errors.size(); k++) {
-        if (m_track_hits[k]->sigmaDriftRadius()>0.0) {
- 		    errors[k] = Amg::Vector3D(1.0,
-									m_track_hits[k]->sigmaDriftRadius(), 0.0);
-		} else {
-		    errors[k] = Amg::Vector3D(1.0, 1.0, 0.0);
-		}
-	}
-
-// fit a curved line through the points //
-	m_curved_track = CurvedLine(points, errors);
-
-/////////////////////
-// CALCULATE CHI^2 //
-/////////////////////
-
-	m_chi2 = 0.0;
-	for (unsigned int k=0; k<m_track_hits.size(); k++) {
-		MTStraightLine tang(m_curved_track.getTangent(
-									(m_track_hits[k]->localPosition()).z()));
-		MTStraightLine wire(Amg::Vector3D(0.0, 
-									m_track_hits[k]->localPosition().y(),
-									m_track_hits[k]->localPosition().z()),
-									xhat, null, null);
-		double d(std::abs(tang.signDistFrom(wire)));
-		if (m_track_hits[k]->sigma2DriftRadius()!=0) {
-            m_chi2 = m_chi2+ std::pow(d-m_track_hits[k]->driftRadius(), 2)/
-									m_track_hits[k]->sigma2DriftRadius();
+    // get hit points //
+    points = getHitPoints(stored_track_hits, curved_track);
+    std::vector<Amg::Vector3D> errors(stored_track_hits.size());
+    for (unsigned int k = 0; k < errors.size(); k++) {
+        if (stored_track_hits[k]->sigmaDriftRadius() > 0.0) {
+            errors[k] = Amg::Vector3D(1.0, stored_track_hits[k]->sigmaDriftRadius(), 0.0);
         } else {
-            m_chi2 = m_chi2+ std::pow(d-m_track_hits[k]->driftRadius(), 2)/0.01;
+            errors[k] = Amg::Vector3D(1.0, 1.0, 0.0);
         }
-	}
+    }
 
-//////////////////////////
-// UPDATE HIT RESIDUALS //
-//////////////////////////
+    // fit a curved line through the points //
+    curved_track = CurvedLine(points, errors);
 
-	MuonCalibSegment::MdtHitIt it = r_segment.mdtHOTBegin();
-	while(it!=r_segment.mdtHOTEnd()){
+    /////////////////////
+    // CALCULATE CHI^2 //
+    /////////////////////
 
-		MdtCalibHitBase& hit = const_cast< MdtCalibHitBase& >( **it );
+    chi2 = 0.0;
+    for (unsigned int k = 0; k < stored_track_hits.size(); k++) {
+        MTStraightLine tang(curved_track.getTangent((stored_track_hits[k]->localPosition()).z()));
+        MTStraightLine wire(Amg::Vector3D(0.0, stored_track_hits[k]->localPosition().y(), stored_track_hits[k]->localPosition().z()), xhat,
+                            null, null);
+        double d(std::abs(tang.signDistFrom(wire)));
+        if (stored_track_hits[k]->sigma2DriftRadius() != 0) {
+            chi2 += std::pow(d - stored_track_hits[k]->driftRadius(), 2) / stored_track_hits[k]->sigma2DriftRadius();
+        } else {
+            chi2 += std::pow(d - stored_track_hits[k]->driftRadius(), 2) / 0.01;
+        }
+    }
 
-		Amg::Vector3D pos(0.0, (hit.localPosition()).y(),
-					(hit.localPosition()).z());
-		MTStraightLine aux_line(pos, xhat, null, null);
+    //////////////////////////
+    // UPDATE HIT RESIDUALS //
+    //////////////////////////
 
-		MTStraightLine tang(m_curved_track.getTangent(pos.z()));
+    MuonCalibSegment::MdtHitIt it = r_segment.mdtHOTBegin();
+    while (it != r_segment.mdtHOTEnd()) {
+        MdtCalibHitBase &hit = const_cast<MdtCalibHitBase &>(**it);
 
-		double dist(tang.signDistFrom(aux_line)); // track distance
-		double dist_err(1.0); // unknown error of the track distance
-		hit.setDistanceToTrack(dist, dist_err);
-    
-		++it;
+        Amg::Vector3D pos(0.0, (hit.localPosition()).y(), (hit.localPosition()).z());
+        MTStraightLine aux_line(pos, xhat, null, null);
 
-	}
+        MTStraightLine tang(curved_track.getTangent(pos.z()));
 
-	if (std::isnan(m_chi2)) {
-		m_chi2=1.0e6;
-	}
+        double dist(tang.signDistFrom(aux_line));  // track distance
+        double dist_err(1.0);                      // unknown error of the track distance
+        hit.setDistanceToTrack(dist, dist_err);
 
-///////////////////////////////////////////////
-// UPDATE SEGMENT POSITION, DIRECTION, CHI^2 //
-///////////////////////////////////////////////
+        ++it;
+    }
 
-	MTStraightLine tangent(m_curved_track.getTangent(
-												(r_segment.position()).z()));
-	r_segment.set(m_chi2/static_cast<double>(m_track_hits.size()-3),
-												tangent.positionVector(),
-												tangent.directionVector());
+    if (std::isnan(chi2)) { chi2 = 1.0e6; }
 
-	return true;
+    ///////////////////////////////////////////////
+    // UPDATE SEGMENT POSITION, DIRECTION, CHI^2 //
+    ///////////////////////////////////////////////
 
+    MTStraightLine tangent(curved_track.getTangent((r_segment.position()).z()));
+    r_segment.set(chi2 / (stored_track_hits.size() - 3), tangent.positionVector(), tangent.directionVector());
+    curved_track.setChi2(chi2);
+    curved_track.setNumberOfTrackHits(stored_track_hits.size());
+    curved_track.setUsedHits(stored_track_hits);
+    return true;
 }
 
-//*****************************************************************************
+Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase *hit, const MTStraightLine &straight_track) const {
+    /////////////////////////
+    // CALCULATE HIT POINT //
+    /////////////////////////
 
-//:::::::::::::::::::::::::
-//:: METHOD getHitPoint ::
-//:::::::::::::::::::::::::
+    Amg::Vector3D point = straight_track.positionVector() +
+                          (straight_track.directionVector().unit().dot(hit->localPosition() - straight_track.positionVector())) *
+                              straight_track.directionVector().unit();
+    Amg::Vector3D point_2 = hit->localPosition() + hit->driftRadius() * (point - hit->localPosition()).unit();
 
-Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase * hit,
-                                const MTStraightLine & straight_track) const {
-
-///////////////
-// VARIABLES //
-///////////////
-
-// 	double dy, dz; // wire coordinates in the yz (precision) plane
-// 	double my, by; // slope and intercept of the given line in the yz
-				   // (precision) plane
-// 	double d0; // distance of the track from the wire
-
-////////////////////
-// FILL VARIABLES //
-////////////////////
-
-// 	dy = (hit->localPosition()).y();
-// 	dz = (hit->localPosition()).z();
-// 	my = straight_track.m_x2();
-// 	by = straight_track.b_x2();
-
-///////////////////////////////////////////
-// CALCULATE THE POINT OF CLOSE APPROACH //
-///////////////////////////////////////////
-
-// 	double z0((dz-(by-dy)*my)/(1+my*my));
-// 	double y0(my*z0+by);
-
-/////////////////////////
-// CALCULATE HIT POINT //
-/////////////////////////
-
-  Amg::Vector3D point = straight_track.positionVector() + (straight_track.directionVector().unit().dot(hit->localPosition() - straight_track.positionVector() ) ) * straight_track.directionVector().unit();
-  Amg::Vector3D point_2 = hit->localPosition() + hit->driftRadius() * (point - hit->localPosition()).unit();
-
-  return point_2;
-	
+    return point_2;
 }
 
-//*****************************************************************************
+std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(std::vector<const MdtCalibHitBase *> track_hits,
+                                                      const MTStraightLine &straight_track) const {
+    ///////////////
+    // VARIABLES //
+    ///////////////
 
-//:::::::::::::::::::::::::
-//:: METHOD getHitPoints ::
-//:::::::::::::::::::::::::
+    std::vector<Amg::Vector3D> hit_vec;
 
-std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(
-                                std::vector<const MdtCalibHitBase*> track_hits,
-                                const MTStraightLine & straight_track) const {
+    /////////////////////
+    // FILL HIT VECTOR //
+    /////////////////////
 
-///////////////
-// VARIABLES //
-///////////////
+    for (unsigned int k = 0; k < track_hits.size(); k++) { hit_vec.emplace_back(getHitPoint(track_hits[k], straight_track)); }
 
-	std::vector<Amg::Vector3D> hit_vec;
+    ///////////////////////////
+    // RETURN THE HIT VECTOR //
+    ///////////////////////////
 
-/////////////////////
-// FILL HIT VECTOR //
-/////////////////////
-
-	for (unsigned int k=0; k<track_hits.size(); k++) {
-		hit_vec.push_back(getHitPoint(track_hits[k], straight_track));
-	}
-
-///////////////////////////
-// RETURN THE HIT VECTOR //
-///////////////////////////
-
-	return hit_vec;
-
+    return hit_vec;
 }
 
-//*****************************************************************************
+std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(std::vector<const MdtCalibHitBase *> track_hits,
+                                                      const CurvedLine &curved_track) const {
+    ///////////////
+    // VARIABLES //
+    ///////////////
 
-//:::::::::::::::::::::::::
-//:: METHOD getHitPoints ::
-//:::::::::::::::::::::::::
+    std::vector<Amg::Vector3D> hit_vec;
 
-std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(
-                                std::vector<const MdtCalibHitBase*> track_hits,
-                                const CurvedLine & curved_track) const {
-///////////////
-// VARIABLES //
-///////////////
+    /////////////////////
+    // FILL HIT VECTOR //
+    /////////////////////
 
-	std::vector<Amg::Vector3D> hit_vec;
+    for (unsigned int k = 0; k < track_hits.size(); k++) {
+        hit_vec.emplace_back(getHitPoint(track_hits[k], curved_track.getTangent((track_hits[k]->localPosition()).z())));
+    }
 
-/////////////////////
-// FILL HIT VECTOR //
-/////////////////////
+    ///////////////////////////
+    // RETURN THE HIT VECTOR //
+    ///////////////////////////
 
-	for (unsigned int k=0; k<track_hits.size(); k++) {
-		hit_vec.push_back(getHitPoint(track_hits[k],
-							curved_track.getTangent(
-									(track_hits[k]->localPosition()).z())));
-	}
-
-///////////////////////////
-// RETURN THE HIT VECTOR //
-///////////////////////////
-
-	return hit_vec;
-
+    return hit_vec;
 }

@@ -8,7 +8,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
 #include "./DebugInfoCollector.h"
-#include "./ConditionInverter.h"
 #include "./CompoundConditionMT.h"
 #include <algorithm>
 #include <sstream>
@@ -21,7 +20,6 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
 
-  CHECK(makePrefilter());
   for (const auto& config : m_configs) {
     m_matchers.push_back(config->getMatcher());
   }
@@ -53,8 +51,16 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
 
   std::pair<HypoJetCIter, HypoJetCIter> iters =
     std::make_pair(jetsIn.begin(), jetsIn.end());
-  if (m_prefilter) {
-    iters = m_prefilter->filter(jetsIn.begin(), jetsIn.end(), collector);
+  
+  // prefilters are now local variables
+  std::vector<FilterPtr> prefilters{}; 
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
+  }
+
+  for (const auto& pf : prefilters) {
+    iters = pf->filter(iters.first, iters.second, collector);
   }
   
   // see if matchers pass. Each matcher conatains a FastReducer tree.
@@ -85,12 +91,20 @@ std::string TrigJetHypoToolHelperNoGrouper::toString() const {
   std::stringstream ss;
   ss << name();
 
-  ss << "prefilter: ";
-  if (m_prefilter) {
-    ss << '\n'<<  *m_prefilter;
-  } else {
-    ss << "None";
+
+
+  std::vector<FilterPtr> prefilters{};
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
   }
+
+
+  ss << "prefilters: [" << prefilters.size() << "]:\n";
+  for (const auto& pf : prefilters){
+    ss << '\n'<<  *pf;
+  }
+  
   ss << '\n';
   
   ss << "\nMatchers [" << m_matchers.size() << "]:\n\n";
@@ -115,42 +129,5 @@ std::size_t TrigJetHypoToolHelperNoGrouper::requiresNJets() const {
   return m_configs[0]->requiresNJets();
 }
 
-StatusCode TrigJetHypoToolHelperNoGrouper::makePrefilter(){
-  /* set up the prefilter by looping over the precondition 
-     Condition maker AlgTools to obtain the elemental Conditions,
-     place these in a single compound Condition, and warp this in a
-     CondtionInverter. This is passed to the ConditionFilter object.
-  */
 
-  // if no conditions the filter will apply n inverter to an empty
-  // Compound Condition, which will kill all events.
-  if (m_prefilterConditionMakers.empty()) {
-    return StatusCode::SUCCESS;
-  }
-  
-  auto makeElementalFilterCondition = [](auto& conditionMaker)->ConditionMT {
-    return conditionMaker->getCondition();
-  };
-
-  // fill a container with pointers to an elemental condition
-  // note: IRepeatedCondition derives from IConditionMT
-  ConditionsMT prefilterConditions{};
-  std::transform(m_prefilterConditionMakers.begin(),
-		 m_prefilterConditionMakers.end(),
-		 std::back_inserter(prefilterConditions),
-		 makeElementalFilterCondition);
-
-  // create a compound condition pointer.
-  auto cc = std::make_unique<CompoundConditionMT>(prefilterConditions);
-
-  // create a conditonsMT vec, add the inversuion of the compound condition
-  // to it. With the inversion, the invert compound condition acts as veto
-  ConditionsMT condVec;
-  condVec.push_back(std::make_unique<ConditionInverterMT>(std::move(cc)));
-  
-  // create an filter from the vector containing the inverted condition.
-  m_prefilter = std::make_unique<ConditionFilter>(condVec);
-  
-  return StatusCode::SUCCESS;
-}
 

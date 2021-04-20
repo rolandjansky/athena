@@ -69,12 +69,11 @@ class TauRecRunner ( TauRecRunConfigured ) :
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
             
-            ################################
 
-        from tauRec.tauRecFlags import tauFlags
         tools+=tauFlags.tauRecToolsDevToolList()
-        #self.TauBuilderToolHandle().Tools = tools
-            
+
+        # set path to calibration area
+        TauRecRunConfigured.AddToolsToToolSvc(self, tools)
                 
         # run first part of Tau Builder
         TauRecRunConfigured.WrapTauRecToolExecHandle(self, tool=tools)

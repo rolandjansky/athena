@@ -267,13 +267,11 @@ void ParticleCaloCellAssociationTool::getCellIntersections( const Trk::CaloExten
     // always use fixed values that correspond to the Calorimeter Tracking Geometry
     // these are different from the CaloCell values
     //
-    double ratioCheck = 1;
-    if(barrel)  ratioCheck = drFix/drTG;
-    if(!barrel) ratioCheck = dzFix/dzTG;
+    
     if(cell->energy()>50.) ATH_MSG_DEBUG(" cell sampling and size "  << cell->caloDDE()->getSampling() 
                                          << " cell energy " << cell->energy() << " dzFix " << dzFix << " dzTG " 
                                          << dzTG << " drFix " << drFix << " drTG " << drTG << " barrel " 
-                                         << barrel << " ratioCheck " << ratioCheck );
+                                         << barrel);
 
     if(!barrel) dzFix = dzTG;
     if(barrel)  drFix = drTG;
@@ -326,7 +324,7 @@ void ParticleCaloCellAssociationTool::getCellIntersections( const Trk::CaloExten
                   << cell->caloDDE()->dphi()  << " x " << cell->caloDDE()->x() << " y " 
                   << cell->caloDDE()->y() << " z " << cell->caloDDE()->z() << " dx " << cell->caloDDE()->dx() << " dy " 
                   << cell->caloDDE()->dy() << " dz " << cell->caloDDE()->dz() << " volume " 
-                  << cell->caloDDE()->volume() <<  " ratioCheck " << ratioCheck  );
+                  << cell->caloDDE()->volume() );
 
     cellIntersections.push_back( std::make_pair(cell, new ParticleCellIntersection( *cell, eLoss, use3D?path:path2) ) );
   } 

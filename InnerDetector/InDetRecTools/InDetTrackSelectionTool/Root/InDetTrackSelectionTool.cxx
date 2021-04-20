@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
@@ -173,7 +173,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 
   // if the CutLevel string is set to something recognizable,
   // then do a soft set on the cuts (i.e. not overwriting those already set)
-  if (m_cutLevel != "") {
+  if (!m_cutLevel.empty()) {
     std::unordered_map<std::string, InDet::CutLevel>::const_iterator it_mapCutLevel = s_mapCutLevel.find(m_cutLevel);
     if ( it_mapCutLevel == s_mapCutLevel.end() ) {
       ATH_MSG_ERROR( "The string \"" << m_cutLevel << "\" is not recognized as a cut level. No cuts will be changed." );
@@ -759,7 +759,7 @@ asg::AcceptData InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticl
   asg::AcceptData acceptData(&m_acceptInfo); 
   bool passAll = true;
   // access all the track properties we will need
-  for ( auto& accessor : m_trackAccessors ) {
+  for ( const auto & accessor : m_trackAccessors ) {
     if(!accessor.second->access( trk, vtx ).isSuccess()) {
       ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
     }
@@ -847,7 +847,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
 
   bool passAll = true;
   // access all the track properties we will need
-  for ( auto& accessor : m_trackAccessors ) {
+  for ( const auto & accessor : m_trackAccessors ) {
     if(!accessor.second->access( track, perigee, summary ).isSuccess()) {
       ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
     }
@@ -906,7 +906,7 @@ void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t o
   ATH_MSG_WARNING( "InDetTrackSelectionTool::setCutLevel() is not designed to be called manually in Athena." );
   ATH_MSG_WARNING( "It may not behave as intended. Instead, configure it in the job options through the CutLevel property." );
 #endif // XAOD_STANDALONE
-  if (m_cutLevel != "") {
+  if (!m_cutLevel.empty()) {
     ATH_MSG_WARNING( "Cut level already set to " << m_cutLevel << ".  Calling setCutLevel() is not expected." );
   }
   setCutLevelPrivate(level, overwrite);

@@ -10,7 +10,8 @@
 // includes
 //
 
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
+#include <AsgTools/IAsgTool.h>
 
 //
 // main program
@@ -27,7 +28,7 @@ int main (int argc, char *argv [])
     return -1;
   }
 
-  asg::AnaToolHandle<asg::IAsgTool> tool (std::string (argv[1]) + "/tool");
+  asg::StandaloneToolHandle<asg::IAsgTool> tool (std::string (argv[1]) + "/tool");
   for (int iter = 2; iter != argc; ++ iter)
   {
     const std::string arg = argv[iter];

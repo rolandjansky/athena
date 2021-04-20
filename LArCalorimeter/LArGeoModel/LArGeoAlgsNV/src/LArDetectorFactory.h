@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,6 +53,7 @@ namespace LArGeo {
         m_EMECVariantOuter = outer;
     }
     void setActivateFT(bool flag)           { m_activateFT = flag; }
+    void setEnableMBTS(bool flag)           { m_enableMBTS = flag; }
 
   private:
 
@@ -72,11 +73,12 @@ namespace LArGeo {
 
     int                       m_testbeam;
 
-    bool                       m_fullGeo;  // true->FULL, false->RECO
+    bool                      m_fullGeo;  // true->FULL, false->RECO
     std::string               m_EMECVariantInner;
     std::string               m_EMECVariantOuter;
 
     bool                      m_activateFT;
+    bool                      m_enableMBTS;
   };
 
 } // namespace LArGeo

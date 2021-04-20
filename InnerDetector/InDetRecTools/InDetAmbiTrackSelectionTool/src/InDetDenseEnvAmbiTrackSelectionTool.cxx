@@ -81,7 +81,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
     ent->m_hadZ.clear();
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
-    for ( const auto ccROI : *calo) {
+    for ( const auto *const ccROI : *calo) {
       ent->m_hadF.push_back( ccROI->globalPosition().phi() );
       ent->m_hadE.push_back( ccROI->globalPosition().eta() );
       ent->m_hadR.push_back( ccROI->globalPosition().perp() );
@@ -945,7 +945,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   //  - those two track have a small separation 
   //
   trackHitDetails.m_passConversionSel = false; // make sure off to start
-  if (m_doPairSelection && tsosDetails.m_overlappingTracks.size() > 0) {
+  if (m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
     trackHitDetails.m_passConversionSel = performConversionCheck(ptrTrack, 
         prd_to_track_map, trackHitDetails, tsosDetails, ent);
   }
@@ -958,7 +958,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   // Do not process any track already modified by the conversion check
   //
   if (m_useHClusSeed && !trackHitDetails.m_passConversionSel && trackHitDetails.m_passHadronicROI && 
-    m_doPairSelection && tsosDetails.m_overlappingTracks.size() > 0) {
+    m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
     trackHitDetails.m_passConversionSel = performHadDecayCheck(ptrTrack, 
         prd_to_track_map, trackHitDetails, tsosDetails, ent);
   }
@@ -1142,7 +1142,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
   if ( trackHitDetails.m_numPixelHoles + trackHitDetails.m_numSCTHoles >= 2) { return false; }
 
   //Find the accepted track that shares the most hits our proposed track 
-  const Trk::Track*  mostOverlappingTrack(0);
+  const Trk::Track*  mostOverlappingTrack(nullptr);
   int mostOverlappingNumberOfHits(0);
   int indexOfFirstOverlappingHit(0);
   for ( std::multimap<const Trk::Track*,int>::iterator it = tsosDetails.m_overlappingTracks.begin(), 
@@ -1224,7 +1224,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performHadDecayCheck(const Trk:
   if ( trackHitDetails.m_numPixelHoles + trackHitDetails.m_numSCTHoles >= 2) { return false; }
 
   //Find the accepted track that shares the most hits our proposed track 
-  const Trk::Track*  mostOverlappingTrack(0);
+  const Trk::Track*  mostOverlappingTrack(nullptr);
   int mostOverlappingNumberOfHits(0);
   int indexOfFirstOverlappingHit(0);
   for ( std::multimap<const Trk::Track*,int>::iterator it = tsosDetails.m_overlappingTracks.begin(), 
@@ -1349,7 +1349,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   }
   if (nmeas<3) {
     ATH_MSG_DEBUG ("Less than 3 measurements, reject track !");
-    return 0;
+    return nullptr;
   }
 
   DataVector<const Trk::TrackStateOnSurface>* vecTsos = new DataVector<const Trk::TrackStateOnSurface>();
@@ -1366,7 +1366,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, vecTsos,nullptr);
   
   return newTrack;
 
@@ -1427,14 +1427,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::
   double E = Tp.eta();
 
   for (; f!=fe; ++f) {
-    double df = std::fabs(F-(*f));
-    if (df > pi        ) df = std::fabs(pi2-df);
+    double df = std::abs(F-(*f));
+    if (df > pi        ) df = std::abs(pi2-df);
     if (df < m_phiWidth) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Tp.position().z();
       double newEta =  std::atanh( newZ / std::sqrt( (*r) * (*r) + newZ*newZ ) );
  
-      double de = std::fabs(E-newEta);
+      double de = std::abs(E-newEta);
       if (de < m_etaWidth) return true;
 
     }
@@ -1466,14 +1466,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::T
   double Z = Tp.position().z();
 
   for (; f!=fe; ++f) {
-    double df = std::fabs(F-(*f));
-    if (df > pi        ) df = std::fabs(pi2-df);
+    double df = std::abs(F-(*f));
+    if (df > pi        ) df = std::abs(pi2-df);
     if (df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Z;
       double newR   = *r - R;
       double newEta =  std::atanh( newZ / std::sqrt( newR*newR + newZ*newZ ) );
-      double de = std::fabs(E-newEta);
+      double de = std::abs(E-newEta);
        
       if (de < m_etaWidthEm) return true;
     }
@@ -1503,14 +1503,14 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
 
   auto firstTsos    = track1tsos->begin();
   firstTsos += index;
-  auto firstMeas = (*firstTsos)->measurementOnTrack();
+  const auto *firstMeas = (*firstTsos)->measurementOnTrack();
 
   if (!firstMeas){
     ATH_MSG_ERROR("This is not a measurement!");
     return returnPair;
   }
   
-  auto firstRot = dynamic_cast <const Trk::RIO_OnTrack*> (firstMeas);
+  const auto *firstRot = dynamic_cast <const Trk::RIO_OnTrack*> (firstMeas);
   if (!firstRot) {
     ATH_MSG_DEBUG("This measurement is not a ROT");
     return returnPair;
@@ -1539,7 +1539,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
     } 
      
     // get measurment from TSOS
-    auto meas = (*iTsos)->measurementOnTrack();
+    const auto *meas = (*iTsos)->measurementOnTrack();
 
     // if we do not have a measurement, we should just mark it
     if (!meas) {

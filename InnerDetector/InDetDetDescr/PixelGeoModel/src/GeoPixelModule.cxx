@@ -128,10 +128,10 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   GeoNameTag *tag = new GeoNameTag(sensorName);         
   modulePhys->add(tag);
   // We give the barrel sensors an id of 100 and endcap sensors an id of 200 so that they can
-  // can be distinguished in the G4 sensitive detector. For SLHC endcap we set it to 300.
-  int idTag = 100; // barrel (same for slhc/non slhc)
+  // can be distinguished in the G4 sensitive detector.
+  int idTag = 100; // barrel
   if (m_gmt_mgr->isEndcap()) {
-    idTag = (m_gmt_mgr->slhc()) ? 300 : 200; // endcap (300: slhc, 200: non slhc)
+    idTag = 200; // endcap
   }
   modulePhys->add(new GeoIdentifierTag(idTag) );
   //Sensor is centered so we don't need the transform.

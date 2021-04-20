@@ -131,9 +131,9 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
   const TRT_DetElementsLayerVectors_xk &layer = *getLayers();
 
   int maps = 0;
-  if(layer[0].size()) ++maps;
-  if(layer[1].size()) ++maps;
-  if(layer[2].size()) ++maps;
+  if(!layer[0].empty()) ++maps;
+  if(!layer[1].empty()) ++maps;
+  if(!layer[2].empty()) ++maps;
 
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -149,7 +149,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
 
   if(!maps || !msgLvl(MSG::VERBOSE)) return out;
 
-  if(layer[1].size()) {
+  if(!layer[1].empty()) {
     int nl = layer[1].size();
     int nc = 0;
     for(unsigned int i=0; i!=layer[1].size(); ++i) nc+=layer[1][i].nElements();
@@ -181,7 +181,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
        <<std::endl;
 
   }
-  if(layer[0].size()) {
+  if(!layer[0].empty()) {
 
     int nl = layer[0].size();
     int nc = 0;
@@ -214,7 +214,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
     out<<"|------|-----------|------------|------------|------------|------|"
        <<std::endl;
   }
-  if(layer[2].size()) {
+  if(!layer[2].empty()) {
     int nl = layer[2].size();
     int nc = 0;
     for(unsigned int i=0; i!=layer[2].size(); ++i) nc+=layer[2][i].nElements();
