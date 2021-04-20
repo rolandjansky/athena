@@ -1457,7 +1457,7 @@ namespace top {
 	float prob = prob_1*y->eventProbability();
 	sumEventProbability += prob;
 
-	float log = log_1*y->logLikelihood();
+	float log = log_1+y->logLikelihood();
 	if (log > bestLLH) {
 	  bestLLH = log;
 	  bestPermutation1 = iPerm1;
