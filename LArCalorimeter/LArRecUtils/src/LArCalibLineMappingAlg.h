@@ -30,7 +30,7 @@ public:
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey{this,"ReadKey","/LAR/Identifier/CalibIdMap"};
   SG::WriteCondHandleKey<LArCalibLineMapping>  m_writeKey{this,"WriteKey","LArCalibLineMap"};
   ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
-  bool m_isSuperCell=false;
+  Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false};
   Gaudi::Property<unsigned> m_maxCalibLines{this,"MaxCL",4,"in case of SuperCell should be set to higher value then default 4"};
 
 };

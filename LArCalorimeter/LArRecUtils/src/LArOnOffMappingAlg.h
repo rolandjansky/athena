@@ -31,7 +31,7 @@ public:
   SG::ReadCondHandleKey<AthenaAttributeList> m_readKey {this,"ReadKey","/LAr/Identifier/OnOnffMap"};
   SG::WriteCondHandleKey<LArOnOffIdMapping>  m_writeKey{this,"WriteKey","LArOnOffIdMap"};
   ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
-  bool m_isSuperCell=false;
+  Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false};
 
 };
 
