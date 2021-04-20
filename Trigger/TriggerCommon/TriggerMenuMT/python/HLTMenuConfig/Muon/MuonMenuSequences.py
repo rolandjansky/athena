@@ -478,6 +478,50 @@ def muEFCBSequence():
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 
+
+def muEFCBLRTAlgSequence(ConfigFlags):
+
+    from .MuonRecoSequences import muEFCBRecoSequence
+    
+    efcbViewsMaker = EventViewCreatorAlgorithm("IMefcblrttotal")
+    #
+    efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
+    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    #
+    efcbViewsMaker.Views = "MUEFCBLRTViewRoIs" 
+    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
+    #
+    efcbViewsMaker.RequireParentView = True
+    efcbViewsMaker.ViewFallThrough = True
+    efcbViewsMaker.mergeUsingFeature = True
+
+    #outside-in reco sequence
+    muEFCBRecoSequence, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "LRT" )
+
+    #Final sequence running in view
+    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
+    muonSequence = seqAND("muonEFCBLRTSequence", [efcbViewsMaker, muEFCBRecoSequence])
+
+    return (muonSequence, efcbViewsMaker, sequenceOut)
+
+def muEFCBLRTSequence():
+
+    (muonEFCBLRTSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBLRTAlgSequence, ConfigFlags)
+
+    # setup EFCBLRT hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBLRTHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlgLRT" )
+    trigMuonEFCBLRTHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBLRTHypo.MapToPreviousDecisions=True
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFCBLRTSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = trigMuonEFCBLRTHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+
+
 ######################
 ### EF SA full scan ###
 ######################
