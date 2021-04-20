@@ -9,5 +9,5 @@ atlas_subdir( RPCcablingInterface )
 atlas_add_library( RPCcablingInterfaceLib
                    src/*.cxx
                    PUBLIC_HEADERS RPCcablingInterface
-                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools MuonIdHelpersLib StoreGateLib SGtests RPC_CondCablingLib)
+                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools MuonIdHelpersLib StoreGateLib RPC_CondCablingLib)
 

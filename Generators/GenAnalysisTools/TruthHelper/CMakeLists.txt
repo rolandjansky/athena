@@ -12,12 +12,12 @@ atlas_add_library( TruthHelper
                    src/*.cxx
                    PUBLIC_HEADERS TruthHelper
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AtlasHepMCLib GaudiKernel GeneratorObjects StoreGateLib SGtests
+                   LINK_LIBRARIES AtlasHepMCLib GaudiKernel GeneratorObjects StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel TruthUtils )
 
 atlas_add_dictionary( TruthHelperDict
                       TruthHelper/TruthHelperDict.h
                       TruthHelper/selection.xml
                       INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
-                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib StoreGateLib SGtests GaudiKernel GeneratorObjects AthenaKernel TruthUtils TruthHelper )
+                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib StoreGateLib GaudiKernel GeneratorObjects AthenaKernel TruthUtils TruthHelper )
 

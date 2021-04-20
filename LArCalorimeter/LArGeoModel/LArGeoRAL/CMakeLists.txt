@@ -13,6 +13,6 @@ atlas_add_library( LArGeoRAL
                    PUBLIC_HEADERS LArGeoRAL
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES LArGeoCode StoreGateLib SGtests
+                   LINK_LIBRARIES LArGeoCode StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel RDBAccessSvcLib GeoModelInterfaces )
 

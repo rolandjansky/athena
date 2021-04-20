@@ -15,7 +15,7 @@ atlas_add_library( McEventCollectionFilterLib
                    NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps GeneratorObjects InDetSimEvent MuonSimEvent StoreGateLib SGtests
+                   LINK_LIBRARIES AthenaBaseComps GeneratorObjects InDetSimEvent MuonSimEvent StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel )
 
 atlas_add_component( McEventCollectionFilter
