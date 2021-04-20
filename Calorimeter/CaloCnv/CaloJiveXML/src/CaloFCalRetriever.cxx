@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloFCalRetriever.h"
@@ -11,12 +11,13 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using Athena::Units::GeV;
 
@@ -63,6 +64,7 @@ namespace JiveXML {
     ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_adc2mevKey.initialize(m_doFCalCellDetails) );
 
     return StatusCode::SUCCESS;	
   }
@@ -98,6 +100,7 @@ namespace JiveXML {
   const DataMap CaloFCalRetriever::getFCalData(const CaloCellContainer* cellContainer) {
     
     ATH_MSG_DEBUG( "getFCalData()"  );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     DataMap DataMap;
 
@@ -144,15 +147,11 @@ namespace JiveXML {
       ATH_MSG_ERROR( "in getFCalData(),Could not get LArOnlineID!"  );
      }
     
-      IAlgTool* algtool;
-      ILArADC2MeVTool* adc2mevTool=0;
-      if(m_doFCalCellDetails){
-	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  ATH_MSG_ERROR( "in getFCalData(), Could not retrieve LAr ADC2MeV Tool"  );
-	} else {
-	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
-	}
-      }
+    const LArADC2MeV* adc2mev = nullptr;
+    if (m_doFCalCellDetails) {
+      SG::ReadCondHandle<LArADC2MeV> adc2mevH (m_adc2mevKey, ctx);
+      adc2mev = *adc2mevH;
+    }
 
       double energyGeV, xmm, ymm, dxmm, dymm, cellTime;
       double energyAllLArFcal = 0.;
@@ -206,14 +205,9 @@ namespace JiveXML {
 	    else pedvalue = 0;
 	    cellPedestal.push_back(DataType(pedvalue));
 	         
-            if ( adc2mevTool ){
-	       const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,fcalgain));
-	       if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
- 	       else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
-            }else{
-               adc2Mev.push_back(DataType(-1)); // write placeholder
-	       ATH_MSG_WARNING( "LArADC2MeVTool dynamic cast failed"  );
-	    }
+            LArVectorProxy polynom_adc2mev = adc2mev->ADC2MEV(cellid,fcalgain);
+            if (polynom_adc2mev.size()==0){ adc2Mev.push_back(DataType(-1)); }
+            else{ adc2Mev.push_back(DataType(polynom_adc2mev[1])); }
 	  }
 
 	  const CaloDetDescrElement* elt = (*it1)->caloDDE();

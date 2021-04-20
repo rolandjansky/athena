@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/LArDigitRetriever.h"
@@ -11,13 +11,14 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/TileID.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using CLHEP::GeV;
 
@@ -70,6 +71,7 @@ namespace JiveXML {
 
     ATH_MSG_DEBUG( "Initialising Tool"  );
     ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
+    ATH_CHECK( m_adc2mevKey.initialize() );
 
     ATH_CHECK( m_cablingKey.initialize() );
 
@@ -128,6 +130,7 @@ namespace JiveXML {
     
     //be verbose
     ATH_MSG_DEBUG( "getLArDigitData()"  );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     char rndStr[30];
     DataMap DataMap;
@@ -180,20 +183,13 @@ namespace JiveXML {
       ATH_MSG_ERROR( "in getLArDigitData(),Could not get LArOnlineID!"  );
     }
      
-    IAlgTool* algtool = nullptr;
-    ILArADC2MeVTool* adc2mevTool=0;
-
-    if ( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-      ATH_MSG_ERROR( "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool"  );
-    } else {
-      adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
-    }
+    SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
    
 //------------------------------------------------------
 //Loop over the digits and find Cell (LAr,HEC, FCAL)
 //------------------------------------------------------
 
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
     const LArOnOffIdMapping* cabling{*cablingHdl};
     if(!cabling) {
        ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
@@ -235,12 +231,7 @@ namespace JiveXML {
         if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
           else pedvalue = LArSamples[0];
 
-        const std::vector<float>* polynom_adc2mev = 0;
-        if ( adc2mevTool ){
-          polynom_adc2mev = &(adc2mevTool->ADC2MEV(LArId,largain));
-	}else{
-	  ATH_MSG_ERROR( "in getLArDigitData(), Could not access LAr ADC2MeV Tool"  );
-	}
+        LArVectorProxy polynom_adc2mev = adc2mev->ADC2MEV(LArId,largain);
         
         if ( Index >= 0 ){ // can be -1
           if ( (*cellContainer)[Index]->energy() >m_cellThreshold) {
@@ -277,10 +268,10 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
                     feedThrough.push_back(DataType(FT)); 
                      slotVec.push_back(DataType(slot)); 
-              if (!polynom_adc2mev || polynom_adc2mev->size()==0){
+              if (polynom_adc2mev.size()==0){
 		adc2Mev.push_back(DataType(-1));
               }else{ 
-		adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));	
+		adc2Mev.push_back(DataType(polynom_adc2mev[1]));	
 	      }              
               if ( m_doLArDigit ) { 
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
@@ -305,10 +296,10 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
               feedThrough.push_back(DataType(FT)); 
               slotVec.push_back(DataType(slot)); 
-              if (!polynom_adc2mev || polynom_adc2mev->size()==0)
+              if (polynom_adc2mev.size()==0)
                 adc2Mev.push_back(DataType(-1));
               else
-                adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+                adc2Mev.push_back(DataType(polynom_adc2mev[1]));
               if (m_doHECDigit){
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
                 for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(LArSamples[i]));
@@ -339,10 +330,10 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
               feedThrough.push_back(DataType(FT)); 
               slotVec.push_back(DataType(slot)); 
-              if (!polynom_adc2mev || polynom_adc2mev->size()==0)
+              if (polynom_adc2mev.size()==0)
                 adc2Mev.push_back(DataType(-1));
               else
-                adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
+                adc2Mev.push_back(DataType(polynom_adc2mev[1]));
               if (m_doFCalDigit){
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
                 for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(LArSamples[i]));
@@ -407,15 +398,11 @@ namespace JiveXML {
             else pedvalue = 0;
           cellPedestal.push_back(DataType(pedvalue));
 
-          if (!adc2mevTool)
+          LArVectorProxy polynom_adc2mev = adc2mev->ADC2MEV(cellid,largain);
+          if (polynom_adc2mev.size()==0){
             adc2Mev.push_back(DataType(-1));
-          else {
-            const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,largain));
-            if (!polynom_adc2mev || polynom_adc2mev->size()==0){
-	      adc2Mev.push_back(DataType(-1));
-            }else{
-	      adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
-	    }
+          }else{
+            adc2Mev.push_back(DataType(polynom_adc2mev[1]));
           }
             
 
