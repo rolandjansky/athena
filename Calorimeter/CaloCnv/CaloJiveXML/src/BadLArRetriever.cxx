@@ -30,13 +30,11 @@ namespace JiveXML {
   BadLArRetriever::BadLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("BadLAr"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
-
-    m_sgKey = "AllCalo"; 
 
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey" , m_sgKey);
@@ -124,7 +122,7 @@ namespace JiveXML {
 
       ATH_MSG_DEBUG( "Start iterator loop over cells"  );
       
-      for(;it1!=it2;it1++){
+      for(;it1!=it2;++it1){
 
 	if( !(*it1)->badcell() ) continue;
 	//if( (*it1)->energy() < m_cellThreshold) continue;

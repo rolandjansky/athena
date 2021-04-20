@@ -58,8 +58,8 @@ namespace JiveXML{
       /// Retrieve all the data
       virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
       const DataMap getLArDigitData(const CaloCellContainer* cellContainer, 
-								std::string datatype, 
-								CaloCell_ID::SUBCALO calotype);
+                                    const std::string& datatype, 
+                                    CaloCell_ID::SUBCALO calotype);
 
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return m_typeName; };

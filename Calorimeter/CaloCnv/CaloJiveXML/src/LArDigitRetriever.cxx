@@ -33,13 +33,12 @@ namespace JiveXML {
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("LArDigit"),
+    m_sgKey ("AllCalo"),
     m_calocell_id(nullptr)
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
-    
-    m_sgKey = "AllCalo"; 
+   
     m_sgKeyLArDigit[0] = "FREE"; // can also be: "HIGH" (for raw data)
     m_sgKeyLArDigit[1] = "LArDigitContainer_Thinned"; // used for DPD/ESD
     m_doDigit = false;
@@ -124,7 +123,7 @@ namespace JiveXML {
    * @param FormatTool the tool that will create formated output from the DataMap
    */
   const DataMap LArDigitRetriever::getLArDigitData(const CaloCellContainer* cellContainer,
-                                                   std::string datatype,
+                                                   const std::string& datatype,
                                                    CaloCell_ID::SUBCALO calotype)
   {
     
@@ -201,16 +200,14 @@ namespace JiveXML {
 
       int cellIndex[200000] = {0};
       int nLArSamples = 0;
-      LArDigitContainer::const_iterator itLAr=LArDigitCnt->begin();
-      LArDigitContainer::const_iterator itLArEnd=LArDigitCnt->end();
       HWIdentifier LArHardwareId;
       Identifier LArId;
 
       double energyGeV,cellTime;
-      
-      for (;itLAr!=itLArEnd;itLAr++){
+
+      for (const LArDigit* digit : *LArDigitCnt) {
         
-        LArHardwareId = (*itLAr)->hardwareID();
+        LArHardwareId = digit->hardwareID();
         if (!cabling->isOnlineConnected(LArHardwareId))continue;
         
         LArId = cabling->cnvToIdentifier(LArHardwareId); //converter
@@ -220,9 +217,9 @@ namespace JiveXML {
         if (Index >= 0)
           cellIndex[Index] = Index;
         
-        nLArSamples = (*itLAr)->nsamples();
-        std::vector<short> LArSamples = (*itLAr)->samples(); 
-        int largain = (*itLAr)->gain();
+        nLArSamples = digit->nsamples();
+        std::vector<short> LArSamples = digit->samples(); 
+        int largain = digit->gain();
         int FT = onlineId->feedthrough(LArHardwareId);
         int slot = onlineId->slot(LArHardwareId);
         int larchan = onlineId->channel(LArHardwareId);
@@ -341,7 +338,7 @@ namespace JiveXML {
             }//match datatype FCAL
           } //if cellThreshold
         } // if Index >0
-      } //math for itLar
+      } //digit
     
 
 // If the digits are retrived from DPD, retrieve the other cells which do not have the digits avaliable
@@ -352,7 +349,7 @@ namespace JiveXML {
         CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(calotype);
 
 
-        for (;it1!=it2;it1++) {
+        for (;it1!=it2;++it1) {
         //---------------------------------------------
 
           if ( (*it1)->energy() < m_cellThreshold ) continue;   
