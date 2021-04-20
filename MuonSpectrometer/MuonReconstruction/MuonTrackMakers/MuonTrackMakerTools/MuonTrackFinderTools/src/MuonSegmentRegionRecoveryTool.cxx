@@ -816,7 +816,7 @@ namespace Muon {
                 for (const RpcPrepDataCollection* rit : data.rpcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
                     if (exPars) {
-                        newtcols.emplace_back(rit);
+                        // newtcols.emplace_back(rit);
                         Identifier detElId = m_idHelperSvc->detElId(rit->identify());
                         std::set<Identifier> layIds;
                         createHoleTSOSsForClusterChamber(detElId, ctx, *exPars, layIds, states);
