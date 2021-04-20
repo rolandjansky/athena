@@ -130,3 +130,56 @@ def addPrivateTool( alg, toolName, typeName ):
         pass
 
     return
+
+
+def addPrivateToolInArray( alg, toolName, typeName ):
+    """Helper function for declaring a private tool in an array for a
+    dual-use algorithm
+
+    This function is meant to be used in the analysis algorithm
+    sequence configurations for setting up private tools in arrays on
+    the analysis algorithms.  Private tools that could then be
+    configured with a syntax shared between Athena and EventLoop.
+
+    Keyword arguments:
+      alg      -- The algorithm to set up the private tool on
+      toolName -- The property name with which the tool handle was declared on
+                  the algorithm. Also the instance name of the tool.
+      typeName -- The C++ type name of the private tool
+
+    """
+
+    try:
+
+        # First try to set up the private tool in an "Athena way".
+
+        # Tokenize the tool's name. In case it is a subtool of a tool, or
+        # something possibly even deeper.
+        toolNames = toolName.split( '.' )
+
+        # Look up the component that we need to set up the private tool on:
+        component = alg
+        for tname in toolNames[ 0 : -1 ]:
+            component = getattr( component, tname )
+            pass
+
+        # Let's replace all '::' namespace delimeters in the type name
+        # with '__'. Just because that's how the Athena code behaves...
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable describing this tool:
+        from AthenaCommon import CfgMgr
+        toolClass = getattr( CfgMgr, pythonTypeName )
+
+        # Finally, set up the tool handle property:
+        getattr( component, toolNames[ -1 ] ).append (toolClass( toolNames[ -1 ] ) )
+        return getattr( component, toolNames[ -1 ] )
+
+    except ( ImportError, AttributeError ):
+
+        # If that failed, then we should be in an EventLoop environment. So
+        # let's rely on the standalone specific formalism for setting up the
+        # private tool.
+        return alg.addPrivateToolInArray( toolName, typeName )
+
+    return
