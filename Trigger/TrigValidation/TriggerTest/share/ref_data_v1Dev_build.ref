@@ -672,18 +672,6 @@ HLT_7j45_subresjesgscIS_ftf_L14J15:
     0: 7
   stepFeatures:
     0: 7
-? HLT_HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1MU10_2J15_J20
-: eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_JetDS_j20_L1HT190-J15s5pETA21:
   eventCount: 19
   stepCounts:
@@ -2191,6 +2179,18 @@ HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jv
     0: 20
 ? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25
 : eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1MU20:
+  eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
