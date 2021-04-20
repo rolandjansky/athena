@@ -14,20 +14,6 @@
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
-LArOnOffMappingAlg::LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAr/Identifier/OnOnffMap"),
-  m_writeKey("LArOnOffIdMap"),
-  m_condSvc("CondSvc",name),
-  m_isSuperCell(false)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-  declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-}
-
-LArOnOffMappingAlg::~LArOnOffMappingAlg() {}
-
 StatusCode LArOnOffMappingAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
@@ -47,8 +33,6 @@ StatusCode LArOnOffMappingAlg::initialize() {
 
 
 StatusCode LArOnOffMappingAlg::execute() {
-    
-
   ATH_MSG_DEBUG("executing");
 
   SG::WriteCondHandle<LArOnOffIdMapping> writeHandle{m_writeKey};
@@ -107,7 +91,7 @@ StatusCode LArOnOffMappingAlg::execute() {
   }
 
 
-   unsigned nConnected=0;
+  unsigned nConnected=0;
 
   for (unsigned i=0;i<nChan;++i) {
     const Identifier id=Identifier(Identifier32(pBlobOnOff[i]));
