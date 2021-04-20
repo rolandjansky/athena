@@ -49,6 +49,7 @@ StatusCode RpcCablingCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle_map_schema);
   ATH_MSG_DEBUG("Size of CondAttrListCollection readCdoMap->size()= " << readCdoMap->size()); 
 
   // corr
@@ -59,6 +60,7 @@ StatusCode RpcCablingCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Size of CondAttrListCollection readCdoMap_corr->size()= " << readCdoCorr->size()); 
+  writeHandle.addDependency(readHandle_map_schema_corr);
 
   // EtaTable
   SG::ReadCondHandle<CondAttrListCollection> readHandle_cm_thr_eta{m_readKey_cm_thr_eta,ctx};
@@ -68,6 +70,7 @@ StatusCode RpcCablingCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Size of CondAttrListCollection readCdo_cm_thr_eta->size()= " << readCdoEta->size()); 
+  writeHandle.addDependency(readHandle_cm_thr_eta);
 
   // phiTable
   SG::ReadCondHandle<CondAttrListCollection> readHandle_cm_thr_phi{m_readKey_cm_thr_phi,ctx};
@@ -77,48 +80,18 @@ StatusCode RpcCablingCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Size of CondAttrListCollection readCdo_cm_thr_phi->size()= " << readCdoPhi->size()); 
+  writeHandle.addDependency(readHandle_cm_thr_phi);
 
-  // get the range of each of the read handles
-  EventIDRange range_map_schema;
-  if(!readHandle_map_schema.range(range_map_schema)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle_map_schema.key());
-    return StatusCode::FAILURE;
-  }
-
-  EventIDRange range_map_schema_corr;
-  if(!readHandle_map_schema_corr.range(range_map_schema_corr)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle_map_schema_corr.key());
-    return StatusCode::FAILURE;
-  }
-
-  EventIDRange range_cm_thr_eta;
-  if(!readHandle_cm_thr_eta.range(range_cm_thr_eta)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle_cm_thr_eta.key());
-    return StatusCode::FAILURE;
-  }
-
-  EventIDRange range_cm_thr_phi;
-  if(!readHandle_cm_thr_phi.range(range_cm_thr_phi)) {
-    ATH_MSG_FATAL( "Failed to retrieve validity range for " << readHandle_cm_thr_phi.key() );
-    return StatusCode::FAILURE;
-  }
-
-  // Create an intersection of input IOVs
-  EventIDRange rangeIntersection = EventIDRange::intersect(range_map_schema, range_map_schema_corr, range_cm_thr_eta, range_cm_thr_phi);
-  if(rangeIntersection.start()>rangeIntersection.stop()) {
-    ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
-    return StatusCode::FAILURE;
-  }
-
+ 
   std::unique_ptr<RpcCablingCondData> writeCdo{std::make_unique<RpcCablingCondData>()};
   ATH_CHECK(setup(readCdoMap,readCdoCorr,readCdoEta,readCdoPhi,writeCdo.get()));
 
-  if (writeHandle.record(rangeIntersection, std::move(writeCdo)).isFailure()) { 
-    ATH_MSG_FATAL("Could not record RpcCondCablingData " << writeHandle.key() << " with EventRange " <<  rangeIntersection << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) { 
+    ATH_MSG_FATAL("Could not record RpcCondCablingData " << writeHandle.key() << " with EventRange " <<  writeHandle.getRange() << " into Conditions Store");
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " <<  rangeIntersection );
+ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " <<  writeHandle.getRange() );
   return StatusCode::SUCCESS;
 }
 
