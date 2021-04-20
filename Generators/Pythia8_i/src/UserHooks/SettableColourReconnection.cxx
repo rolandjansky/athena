@@ -86,7 +86,7 @@ namespace Pythia8{
   private:
     
     Pythia8_UserHooks::UserSetting<int> m_modeIn;
-    Pythia8_UserHooks::UserSetting<int> m_strengthIn;
+    Pythia8_UserHooks::UserSetting<double> m_strengthIn;
     
   };
   
