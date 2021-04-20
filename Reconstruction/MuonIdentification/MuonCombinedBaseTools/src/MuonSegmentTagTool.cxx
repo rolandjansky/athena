@@ -226,24 +226,18 @@ namespace MuonCombined {
                 hasSeg.clear();
                 hasSeg.resize(12, false);
                 bool hasAngleMatch = false;
-                double phiID = track->perigeeParameters()->momentum().phi();
-                double thetaID = track->perigeeParameters()->momentum().theta();
-                double etaID = track->perigeeParameters()->momentum().eta();
-                double pID = track->perigeeParameters()->momentum().mag();
-                double qID = track->perigeeParameters()->charge();
+                const Amg::Vector3D& id_mom = track->perigeeParameters()->momentum();
+                const double qID = track->perigeeParameters()->charge();
+                const double pID = id_mom.mag();
+                const double EtaID = id_mom.eta();
                 for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
                     const Amg::Vector3D& pos = itSeg->globalPosition();
-                    std::cout<<"Freude schoener FPE funken... tochter aus Elysium "<<pos<<std::endl;
-                    double phiSeg = std::atan2(pos.y(), pos.x());
-                    double thetaSeg = std::atan2(pos.perp(), pos.z());
-                    double dotprodPhi = std::cos(phiID) * std::cos(phiSeg) +  std::sin(phiID) *  std::sin(phiSeg);
-                    double dPhi = qID * acos(dotprodPhi) - qID / pID;
-                    if (phiSeg < phiID) dPhi = -dPhi;
-                    double dTheta = thetaSeg - thetaID;
-
+                    const double thetaSeg = std::atan2(pos.perp(), pos.z());
+                    const double dPhi = qID * pos.deltaPhi(id_mom) - qID / pID;
+                    const double dTheta = thetaSeg - id_mom.theta();
                     if (std::abs(dPhi) < 0.6 && qID * dTheta < 0.2 && qID * dTheta > -0.6) {
                         hasAngleMatch = true;
-                        if (pID > 20000 * (qID * etaID - 2)) {
+                        if (pID > 20000 * (qID * EtaID - 2)) {
                             Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
                             if (!m_idHelperSvc->isCsc(chId)) hasMatch = true;
                             Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
