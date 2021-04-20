@@ -54,8 +54,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track,
                                                         const std::set<Identifier>& chamberRemovalExclusionList) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return clean(track, chamberRemovalExclusionList, ctx);
+         return clean(track, chamberRemovalExclusionList,  Gaudi::Hive::currentContext());
     }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
                                                         const EventContext& ctx) const {
@@ -74,8 +73,7 @@ namespace Muon {
         return cleanedTrack;
     }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        return clean(track, ctx);
+        return clean(track, Gaudi::Hive::currentContext());
     }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track, const EventContext& ctx) const {
         CleaningState state;
@@ -440,7 +438,7 @@ namespace Muon {
                 else if (noverlaps > 1)
                     hasPhiConstraint = true;  // ok if two overlaps
                 else if (firstPhi && lastPhi && firstPhi->pars && lastPhi->pars) {
-                    double distPhi = fabs((firstPhi->pars->position() - lastPhi->pars->position()).dot(firstPhi->pars->momentum().unit()));
+                    double distPhi = std::abs((firstPhi->pars->position() - lastPhi->pars->position()).dot(firstPhi->pars->momentum().unit()));
                     ATH_MSG_DEBUG(" Distance between phi hits " << distPhi);
                     if (distPhi > 450.) hasPhiConstraint = true;
                 }
@@ -729,7 +727,7 @@ namespace Muon {
                                 ATH_MSG_DEBUG(" calculation of residual/pull failed !!!!! ");
                                 recover = false;
                             } else {
-                                recover = !isOutsideOnTrackCut(hit.id, resPull->residual().front(), fabs(resPull->pull().front()),
+                                recover = !isOutsideOnTrackCut(hit.id, resPull->residual().front(), std::abs(resPull->pull().front()),
                                                                m_associationScaleFactor)
                                               ? true
                                               : false;
@@ -840,13 +838,11 @@ namespace Muon {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
+        if (!readHandle.isValid()){
             ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return;
         }
-        fieldCondObj->getInitializedCache(fieldCache);
+        readHandle->getInitializedCache(fieldCache);
 
         state.slFit = !fieldCache.toroidOn() || m_edmHelperSvc->isSLTrack(track);
         if (m_use_slFit) state.slFit = true;
@@ -959,7 +955,7 @@ namespace Muon {
             }
             int pullSize = resPull->pull().size();
             double residual = resPull->residual().front();
-            double pull = fabs(resPull->pull().front());
+            double pull = std::abs(resPull->pull().front());
 
             // sanity check
             if (!pseudo && pullSize != 1) {
@@ -968,12 +964,12 @@ namespace Muon {
             }
 
             bool isMDT = !pseudo ? m_idHelperSvc->isMdt(id) : false;
-            double error = pull > 0.001 ? fabs(residual / pull) : 1000.;
+            double error = pull > 0.001 ? std::abs(residual / pull) : 1000.;
             double rDrift = isMDT ? meas->localParameters()[Trk::locR] : 0.;
             double rTrack = isMDT ? pars->parameters()[Trk::locR] : 0.;
-            double rTrackAbs = fabs(rTrack);
+            double rTrackAbs = std::abs(rTrack);
             double flippedResidual = isMDT ? rDrift + rTrack : 1e10;
-            double flippedPull = isMDT ? fabs(flippedResidual / error) : 1e10;
+            double flippedPull = isMDT ? std::abs(flippedResidual / error) : 1e10;
 
             bool isNoise = false;
             bool isOutlier = isOutsideOnTrackCut(id, residual, pull, 1);
@@ -986,7 +982,7 @@ namespace Muon {
                 if (mdtdc) innerRadius = mdtdc->detectorElement()->innerTubeRadius();
             }
 
-            bool isDelta = isOutlier && isMDT && rTrackAbs < innerRadius && rTrackAbs > fabs(rDrift);
+            bool isDelta = isOutlier && isMDT && rTrackAbs < innerRadius && rTrackAbs > std::abs(rDrift);
 
             // remove all outliers that are too far from the track
             if (isOutlier) {
@@ -1077,7 +1073,7 @@ namespace Muon {
 
                 if (m_cleanCompROTs) {
                     const CompetingMuonClustersOnTrack* crot =
-                        (measuresPhi && !isMDT && m_idHelperSvc->isRpc(id)) ? dynamic_cast<const CompetingMuonClustersOnTrack*>(meas) : 0;
+                        (measuresPhi && !isMDT && m_idHelperSvc->isRpc(id)) ? dynamic_cast<const CompetingMuonClustersOnTrack*>(meas) : nullptr;
                     if (crot) {
                         ATH_MSG_DEBUG(" CompetingMuonClustersOnTrack with rots " << crot->numberOfContainedROTs());
                         double minpos = 0.;
@@ -1110,7 +1106,7 @@ namespace Muon {
                         }
                         ATH_MSG_DEBUG(" residuals: min  " << minres << " max " << maxres << " diff " << maxres - minres);
                         bool splitCompRot = false;
-                        if (fabs(maxres - minres) > 100 && absmaxres - absminres > 20 && crot->numberOfContainedROTs() < 20) {
+                        if (std::abs(maxres - minres) > 100 && absmaxres - absminres > 20 && crot->numberOfContainedROTs() < 20) {
                             ATH_MSG_DEBUG(" recoverable double cluster ");
                             splitCompRot = true;
                         }
@@ -1500,14 +1496,14 @@ namespace Muon {
         if (isMdt) {
             // if mdt residual cut is activated check whether the residual is small that 80% of the cut of
             if (m_useMdtResiCut) {
-                if (fabs(res) > cutScaleFactor * m_mdtResiCut) return true;
+                if (std::abs(res) > cutScaleFactor * m_mdtResiCut) return true;
                 return false;
             } else {
-                if (fabs(pull) > cutScaleFactor * pullCut) return true;
+                if (std::abs(pull) > cutScaleFactor * pullCut) return true;
                 return false;
             }
         } else {
-            if (fabs(pull) > cutScaleFactor * pullCut) return true;
+            if (std::abs(pull) > cutScaleFactor * pullCut) return true;
             return false;
         }
     }
