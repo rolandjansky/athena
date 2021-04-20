@@ -80,6 +80,12 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODCore xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotGenericCorrection
+      util/JetCalibTools_PlotGenericCorrection.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
    
 else()
    atlas_add_executable( JetCalibTools_Example
@@ -102,6 +108,12 @@ else()
 
    atlas_add_executable( JetCalibTools_SmearingPlots
       util/JetCalibTools_SmearingPlots.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotGenericCorrection
+      util/JetCalibTools_PlotGenericCorrection.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )

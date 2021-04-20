@@ -33,6 +33,7 @@
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
+#include "JetCalibTools/CalibrationMethods/GenericHistScaleCorrection.h"
 
 class JetPileupCorrection;
 class ResidualOffsetCorrection;
@@ -42,6 +43,7 @@ class GlobalSequentialCorrection;
 class InsituDataCorrection;
 class JMSCorrection;
 class JetSmearingCorrection;
+class GenericHistScaleCorrection;
 
 class JetCalibrationTool
   : public ::JetCalibrationToolBase {
@@ -151,6 +153,7 @@ private:
   JetSmearingCorrection* m_jetSmearCorr;
   JMSCorrection *InsituCombMassCorr;
   std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
+  GenericHistScaleCorrection* m_genericScaleCorr;
 
 }; 
 
