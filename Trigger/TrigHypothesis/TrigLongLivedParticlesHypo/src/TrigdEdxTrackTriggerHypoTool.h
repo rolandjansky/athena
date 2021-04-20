@@ -50,8 +50,6 @@ private:
    Gaudi::Property< std::vector<int> >    m_cutTrackNhighdEdxHits{ this, "cutTrackNhighdEdxHits", { int(2) },      "N high dEdx of pixel hits requirement" }; 
    Gaudi::Property< std::vector<float> >  m_cutTrackHighdEdxDef  { this, "cutTrackHighdEdxDef",   { float(1.7) },  "Definition / threshold of high dEdx hits" };
   
-   size_t m_multiplicity = 1;
-   
    ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 }; 
 
