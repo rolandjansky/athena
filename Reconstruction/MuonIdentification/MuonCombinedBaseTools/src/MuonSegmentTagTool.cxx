@@ -105,11 +105,11 @@ namespace MuonCombined {
 
         std::vector<const Muon::MuonSegment*> FilteredSegmentCollection;
         if (m_doSegmentsFilter) {
-            for (std::vector<const Muon::MuonSegment*>::const_iterator itSeg = segments.begin(); itSeg != segments.end(); ++itSeg) {
-                int quality = m_segmentSelector->quality(**itSeg);
+            for (const Muon::MuonSegment* itSeg :  segments) {
+                int quality = m_segmentSelector->quality(*itSeg);
                 ATH_MSG_DEBUG(" Segment quality " << quality);
                 if (quality < m_segmentQualityCut) continue;
-                Muon::IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(**itSeg);
+                Muon::IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(*itSeg);
                 if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta > 0) ATH_MSG_DEBUG(" CSC segment ");
 
                 if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta == 0) {
@@ -125,7 +125,7 @@ namespace MuonCombined {
                         continue;
                 }
                 if (m_segmentQualityCut > 0) {
-                    Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
+                    Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
                     Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
                     if (!m_triggerHitCut && stIndex == Muon::MuonStationIndex::EM) {
                         // don't apply the TGC requirement for the first station as it sometimes has not trigger hits due to TGC acceptance
@@ -143,12 +143,11 @@ namespace MuonCombined {
                     }
                 }
                 if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta > 0) ATH_MSG_DEBUG(" CSC segment passed");
-                FilteredSegmentCollection.push_back(*itSeg);
+                FilteredSegmentCollection.emplace_back(itSeg);
             }
         } else {
             ATH_MSG_VERBOSE("No segment filtering required. ");
-            for (std::vector<const Muon::MuonSegment*>::const_iterator itSeg = segments.begin(); itSeg != segments.end(); ++itSeg)
-                FilteredSegmentCollection.push_back((*itSeg));
+            FilteredSegmentCollection.insert(FilteredSegmentCollection.end(), segments.begin(), segments.end());
         }
         ATH_MSG_DEBUG("Filtered segments... in: " << segments.size() << ", out: " << FilteredSegmentCollection.size());
 
@@ -161,11 +160,9 @@ namespace MuonCombined {
                                            << " segments. ");
         // Checking which surfaces have segments, to avoid useless extrapolations
         std::vector<bool> hasSeg(12, false);
-        unsigned int segmentCount(0);
         if (m_doBidirectional) {
-            for (std::vector<const Muon::MuonSegment*>::iterator itSeg = FilteredSegmentCollection.begin();
-                 itSeg != FilteredSegmentCollection.end(); ++itSeg, ++segmentCount) {
-                Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
+            for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
+                Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
                 Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
                 if (stIndex == Muon::MuonStationIndex::BI || stIndex == Muon::MuonStationIndex::BE)
                     hasSeg[0] = true;
@@ -228,19 +225,18 @@ namespace MuonCombined {
             if (!m_doBidirectional) {
                 hasSeg.clear();
                 hasSeg.resize(12, false);
-                segmentCount = 0;
                 bool hasAngleMatch = false;
                 double phiID = track->perigeeParameters()->momentum().phi();
                 double thetaID = track->perigeeParameters()->momentum().theta();
                 double etaID = track->perigeeParameters()->momentum().eta();
                 double pID = track->perigeeParameters()->momentum().mag();
                 double qID = track->perigeeParameters()->charge();
-                for (std::vector<const Muon::MuonSegment*>::iterator itSeg = FilteredSegmentCollection.begin();
-                     itSeg != FilteredSegmentCollection.end(); ++itSeg, ++segmentCount) {
-                    const Amg::Vector3D& pos = (*itSeg)->globalPosition();
-                    double phiSeg = atan2(pos.y(), pos.x());
-                    double thetaSeg = atan2(pos.perp(), pos.z());
-                    double dotprodPhi = cos(phiID) * cos(phiSeg) + sin(phiID) * sin(phiSeg);
+                for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
+                    const Amg::Vector3D& pos = itSeg->globalPosition();
+                    std::cout<<"Freude schoener FPE funken... tochter aus Elysium "<<pos<<std::endl;
+                    double phiSeg = std::atan2(pos.y(), pos.x());
+                    double thetaSeg = std::atan2(pos.perp(), pos.z());
+                    double dotprodPhi = std::cos(phiID) * std::cos(phiSeg) +  std::sin(phiID) *  std::sin(phiSeg);
                     double dPhi = qID * acos(dotprodPhi) - qID / pID;
                     if (phiSeg < phiID) dPhi = -dPhi;
                     double dTheta = thetaSeg - thetaID;
@@ -248,7 +244,7 @@ namespace MuonCombined {
                     if (std::abs(dPhi) < 0.6 && qID * dTheta < 0.2 && qID * dTheta > -0.6) {
                         hasAngleMatch = true;
                         if (pID > 20000 * (qID * etaID - 2)) {
-                            Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
+                            Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
                             if (!m_idHelperSvc->isCsc(chId)) hasMatch = true;
                             Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
                             if (stIndex == Muon::MuonStationIndex::BI || stIndex == Muon::MuonStationIndex::BE)
