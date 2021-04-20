@@ -54,7 +54,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track,
                                                         const std::set<Identifier>& chamberRemovalExclusionList) const {
-         return clean(track, chamberRemovalExclusionList,  Gaudi::Hive::currentContext());
+        return clean(track, chamberRemovalExclusionList, Gaudi::Hive::currentContext());
     }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
                                                         const EventContext& ctx) const {
@@ -438,7 +438,8 @@ namespace Muon {
                 else if (noverlaps > 1)
                     hasPhiConstraint = true;  // ok if two overlaps
                 else if (firstPhi && lastPhi && firstPhi->pars && lastPhi->pars) {
-                    double distPhi = std::abs((firstPhi->pars->position() - lastPhi->pars->position()).dot(firstPhi->pars->momentum().unit()));
+                    double distPhi =
+                        std::abs((firstPhi->pars->position() - lastPhi->pars->position()).dot(firstPhi->pars->momentum().unit()));
                     ATH_MSG_DEBUG(" Distance between phi hits " << distPhi);
                     if (distPhi > 450.) hasPhiConstraint = true;
                 }
@@ -838,7 +839,7 @@ namespace Muon {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        if (!readHandle.isValid()){
+        if (!readHandle.isValid()) {
             ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return;
         }
@@ -1072,8 +1073,9 @@ namespace Muon {
                 }
 
                 if (m_cleanCompROTs) {
-                    const CompetingMuonClustersOnTrack* crot =
-                        (measuresPhi && !isMDT && m_idHelperSvc->isRpc(id)) ? dynamic_cast<const CompetingMuonClustersOnTrack*>(meas) : nullptr;
+                    const CompetingMuonClustersOnTrack* crot = (measuresPhi && !isMDT && m_idHelperSvc->isRpc(id))
+                                                                   ? dynamic_cast<const CompetingMuonClustersOnTrack*>(meas)
+                                                                   : nullptr;
                     if (crot) {
                         ATH_MSG_DEBUG(" CompetingMuonClustersOnTrack with rots " << crot->numberOfContainedROTs());
                         double minpos = 0.;
