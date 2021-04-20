@@ -173,7 +173,11 @@ public:
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
     virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? kepp for now for consistency
 
+    /** Test if point is in the active part of the detector with specified tolerances */
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol) const override;
 
+    /** Test if point is in the active part of the detector with specified tolerances  - allows forcing of most stringent check*/
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol, bool forceStringentCheck) const override;
 
 
 private:
