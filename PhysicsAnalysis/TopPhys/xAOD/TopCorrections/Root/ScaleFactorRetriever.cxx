@@ -25,6 +25,8 @@ namespace top {
     declareProperty("config", m_config);
   }
 
+  size_t ScaleFactorRetriever::s_warn_counter = 0;
+
   StatusCode ScaleFactorRetriever::initialize() {
     ATH_MSG_INFO("Initialising " << this->name());
 
@@ -190,7 +192,10 @@ namespace top {
                                               const top::topSFSyst SFSyst) const {
 
     if (!m_config->useGlobalTrigger()) {
-      ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
+      if (s_warn_counter < 5) {
+        ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
+        ++s_warn_counter;
+      }
       return 1.;
     }
 
@@ -1340,4 +1345,5 @@ namespace top {
     ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string(leptonSF(event, top::topSFSyst::nominal)));
     ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string(btagSF(event, top::topSFSyst::nominal)));
   }
+
 }  // namespace top
