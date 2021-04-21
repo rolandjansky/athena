@@ -83,9 +83,8 @@ namespace Muon {
  
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
-    ToolHandle<Muon::IMMClusterBuilderTool> m_clusterBuilderTool; //{this, "SimpleMMClusterBuilder","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"};
-    ToolHandle<Muon::INSWCalibTool> m_calibTool; //{this,"NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool"};
+    ToolHandle<Muon::IMMClusterBuilderTool> m_clusterBuilderTool{this, "SimpleMMClusterBuilder","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"};
+    ToolHandle<Muon::INSWCalibTool>  m_calibTool{this,"NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool"};
 
  }; // end of class def
 }  //  namespace Muon

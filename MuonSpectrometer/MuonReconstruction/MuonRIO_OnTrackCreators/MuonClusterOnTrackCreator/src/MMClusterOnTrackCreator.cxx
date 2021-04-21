@@ -8,13 +8,8 @@
 
 Muon::MMClusterOnTrackCreator::MMClusterOnTrackCreator
   (const std::string& ty, const std::string& na, const IInterface* pa)
-    : AthAlgTool(ty, na, pa),
-    m_clusterBuilderTool{this, "SimpleMMClusterBuilder","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"},
-  m_calibTool{this,"NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool"}
-{
+    : AthAlgTool(ty, na, pa) {
   
-  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
-  declareProperty("NSWCalibTool",m_calibTool);
   // algtool interface - necessary!
   declareInterface<IMuonClusterOnTrackCreator>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
