@@ -34,7 +34,10 @@ namespace egammaMonitoring {
   }
   
   void ParticleHistograms::fill(const xAOD::IParticle& egamma) {
+    ParticleHistograms::fill(egamma,0.);
+  }
     
+  void ParticleHistograms::fill(const xAOD::IParticle& egamma, float /*mu*/) {
     if((egamma.pt())/1000. > 0) histoMap["pT"]->Fill((egamma.pt())/1000.);
     histoMap["eta"]->Fill(egamma.eta());
     histoMap["phi"]->Fill(egamma.phi());
