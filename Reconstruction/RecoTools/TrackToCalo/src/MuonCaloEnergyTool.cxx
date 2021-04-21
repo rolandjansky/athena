@@ -58,8 +58,6 @@ namespace Rec {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode MuonCaloEnergyTool::finalize() { return StatusCode::SUCCESS; }
-
     void MuonCaloEnergyTool::calculateMuonEnergies(const Trk::Track* trk, double deltaE, double meanIoni, double sigmaIoni, double& E,
                                                    double& sigma, double& E_FSR, double& E_expected, double& E_em_meas, double& E_em_exp,
                                                    double& E_tile_meas, double& E_tile_exp, double& E_HEC_meas, double& E_HEC_exp,
@@ -114,13 +112,13 @@ namespace Rec {
 
         //    int isign = 1;
         //    if(meanIoni<0) isign = -1;
-        //    double mopIoni =  meanIoni - isign*3.59524*fabs(sigmaIoni);
+        //    double mopIoni =  meanIoni - isign*3.59524*std::abs(sigmaIoni);
         double mopIoni = meanIoni;
 
         double scale_Ionization = 0.9;
-        if (fabs(deltaE) > 0 && fabs(meanIoni) > 0) scale_Ionization = mopIoni / deltaE;
+        if (std::abs(deltaE) > 0 && std::abs(meanIoni) > 0) scale_Ionization = mopIoni / deltaE;
         double error_ratio = 0.3;
-        if (fabs(meanIoni) > 0 && sigmaIoni > 0) error_ratio = 3.59524 * fabs(sigmaIoni / meanIoni);
+        if (std::abs(meanIoni) > 0 && sigmaIoni > 0) error_ratio = 3.59524 * std::abs(sigmaIoni / meanIoni);
 
         ATH_MSG_DEBUG(" Inputs deltaE " << deltaE << " meanIoni " << meanIoni << " sigmaIoni " << sigmaIoni << " scale_Ionization "
                                         << scale_Ionization << " error_ratio " << error_ratio);
@@ -193,7 +191,7 @@ namespace Rec {
         double Eloss = 0.;
         double scaleTG = 1.0;
         if (!caloExtension.muonEntryLayerIntersection()) {
-            if (caloExtension.caloEntryLayerIntersection()->momentum().mag() - fabs(deltaE) > 1000.) {
+            if (caloExtension.caloEntryLayerIntersection()->momentum().mag() - std::abs(deltaE) > 1000.) {
                 ATH_MSG_WARNING(
                     " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum "
                     << caloExtension.caloEntryLayerIntersection()->momentum().mag());
@@ -307,11 +305,13 @@ namespace Rec {
         double sigma_Noise_tile = 0.;
 
         E_expected = 0.;
-        double phiPos = caloExtension.caloEntryLayerIntersection()->position().phi();
-        double thetaPos = caloExtension.caloEntryLayerIntersection()->position().theta();
+        const Amg::Vector3D&  extension_pos = caloExtension.caloEntryLayerIntersection()->position();
+        const double thetaPos = caloExtension.caloEntryLayerIntersection()->position().theta();
 
         for (auto it : cellIntersections) {
             const CaloCell* curr_cell = it.first;
+            const Amg::Vector3D cell_vec(curr_cell->x(),curr_cell->y(), curr_cell->z());
+            const double cell_perp = cell_vec.perp();
             int cellSampling = curr_cell->caloDDE()->getSampling();
             bool badCell = curr_cell->badcell();
             double cellEn = curr_cell->energy();
@@ -326,18 +326,16 @@ namespace Rec {
 
             double sigma_Noise = caloNoise->getEffectiveSigma(id, curr_cell->gain(), cellEn);
 
-            double thetaCell = atan2(sqrt(curr_cell->x() * curr_cell->x() + curr_cell->y() * curr_cell->y()), curr_cell->z());
-            double phiCell = atan2(curr_cell->y(), curr_cell->x());
-
-            double dtheta = thetaCell - thetaPos;
-            double dphi = acos(cos(phiPos) * cos(phiCell) + sin(phiPos) * sin(phiCell));
+           
+            double dtheta = cell_vec.theta() - thetaPos;
+            double dphi = cell_vec.deltaPhi(extension_pos);
             double celldr = curr_cell->caloDDE()->dr();
             double celldz = curr_cell->caloDDE()->dz();
-            double celldtheta = celldr / sqrt(curr_cell->x() * curr_cell->x() + curr_cell->y() * curr_cell->y());
+            double celldtheta = celldr / (cell_perp ? cell_perp : 1. );
             double celldphi = curr_cell->caloDDE()->dphi();
 
             ATH_MSG_DEBUG(" cell sampling " << cellSampling << " energy " << cellEn << " position R "
-                                            << sqrt(curr_cell->x() * curr_cell->x() + curr_cell->y() * curr_cell->y()) << " z "
+                                            << cell_perp << " z "
                                             << curr_cell->z() << " f_exp " << f_exp << " E_exp " << E_exp << " dtheta " << dtheta
                                             << " dphi " << dphi << " cell dtheta " << celldtheta << " cell dr " << celldr << " cell dz "
                                             << celldz << " cell dphi " << celldphi);
@@ -423,9 +421,9 @@ namespace Rec {
 
         double scaleError_tile = 0.20 + 0.80 * E_tile / (10000. + E_tile);
         double scaleError_HEC = 0.20 + 0.80 * E_HEC / (10000. + E_HEC);
-        double sigma_em = sqrt(500. * E_em);
-        double sigma_tile = scaleError_tile * sqrt(1000. * E_tile);
-        double sigma_HEC = scaleError_HEC * sqrt(1000. * E_HEC);
+        double sigma_em = std::sqrt(500. * E_em);
+        double sigma_tile = scaleError_tile * std::sqrt(1000. * E_tile);
+        double sigma_HEC = scaleError_HEC * std::sqrt(1000. * E_HEC);
 
         // go from e.m. scale to Muon Energy scale
 
@@ -482,13 +480,13 @@ namespace Rec {
             // do not use measured e.m. energy for muons and use expected (tile and HEC are fine)
             E = E_em_expected + E_tile + E_tile_threshold + E_HEC + E_HEC_threshold + E_dead;
             double sigma_expdead = error_ratio * (E_em_expected + E_dead);
-            sigma = sqrt(sigma_tile * sigma_tile + sigma_HEC * sigma_HEC + sigma_expdead * sigma_expdead);
+            sigma = std::sqrt(sigma_tile * sigma_tile + sigma_HEC * sigma_HEC + sigma_expdead * sigma_expdead);
             E_measured = E_tile + E_tile_threshold + E_HEC + E_HEC_threshold;
         } else {
             // no FSR
             E = E_em + E_em_threshold + E_tile + E_tile_threshold + E_HEC + E_HEC_threshold + E_dead;
             double sigma_threshold = error_ratio * E_dead;
-            sigma = sqrt(sigma_em * sigma_em + sigma_tile * sigma_tile + sigma_HEC * sigma_HEC + sigma_threshold * sigma_threshold);
+            sigma = std::sqrt(sigma_em * sigma_em + sigma_tile * sigma_tile + sigma_HEC * sigma_HEC + sigma_threshold * sigma_threshold);
             E_measured = E_em + E_em_threshold + E_tile + E_tile_threshold + E_HEC + E_HEC_threshold;
         }
 
@@ -540,10 +538,10 @@ namespace Rec {
     double MuonCaloEnergyTool::etaCorr(double eta) const {
         // measured energy* = measured energy + etaCorr(eta) * expected
 
-        int eta_index = int(fabs(eta) * (60. / 3.));
+        int eta_index = int(std::abs(eta) * (60. / 3.));
         if (eta_index > 59) return 0;
 
-        double corr[60] = {0.00368146, 0.0419526,  0.0419322,  0.0392922,  0.030304,   0.0262424,  0.0156346,  0.00590235, 0.00772249,
+       static constexpr double corr[60] = {0.00368146, 0.0419526,  0.0419322,  0.0392922,  0.030304,   0.0262424,  0.0156346,  0.00590235, 0.00772249,
                            -0.0141775, -0.0152247, -0.0174432, -0.0319056, -0.0670813, -0.128678,  -0.0982326, -0.0256406, -0.200244,
                            -0.178975,  -0.120156,  -0.124606,  -0.0961311, -0.0163201, 0.00357829, 0.0292199,  0.0110466,  -0.0375598,
                            0.0417912,  0.0386369,  -0.0689454, -0.21496,   -0.126157,  -0.210573,  -0.215757,  -0.202019,  -0.164546,
@@ -553,10 +551,10 @@ namespace Rec {
 
         // additional correction release 21
 
-        double cor21[20] = {0.999793, 1.00017, 0.990946, 0.995358, 1.01377, 1.02676, 1.03111, 1.01483, 0.995585, 1.00465,
+       static constexpr double cor21[20] = {0.999793, 1.00017, 0.990946, 0.995358, 1.01377, 1.02676, 1.03111, 1.01483, 0.995585, 1.00465,
                             1.05224,  1.05238, 1.03208,  1.02373,  1.02305, 1.03975, 1.06547, 1.0364,  1.0361,   1.0361};
 
-        int i21 = fabs(eta * 20. / 3.);
+        int i21 = std::abs(eta * 20. / 3.);
         if (i21 > 19) i21 = 19;
 
         return (cor21[i21] * corr[eta_index]);
@@ -571,7 +569,7 @@ namespace Rec {
         //
         //   one should so use: Etotal = E_observed + E_dead + ThresholdCorrection(E_observed,E_expected,sigma_Noise)
 
-        Double_t par[6] = {1.01431e+00, -2.26317e+01, 1.80901e+02, -2.33105e+01, 1.82930e+02, 1.11356e-02};
+        static constexpr double par[6] = {1.01431e+00, -2.26317e+01, 1.80901e+02, -2.33105e+01, 1.82930e+02, 1.11356e-02};
 
         double E = E_expected;
 

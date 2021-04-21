@@ -41,14 +41,13 @@ namespace Rec {
 
         virtual ~MuonCaloEnergyTool();
 
-        virtual StatusCode initialize();
-        virtual StatusCode finalize();
-
+        virtual StatusCode initialize() override;
+     
         void calculateMuonEnergies(const Trk::Track* trk, double deltaE, double meanIoni, double sigmaIoni, double& E, double& sigma,
                                    double& E_FSR, double& E_expected, double& E_em_meas, double& E_em_exp, double& E_tile_meas,
                                    double& E_tile_exp, double& E_HEC_meas, double& E_HEC_exp, double& E_dead_exp,
                                    std::vector<Identifier>* crossedCells = 0, std::vector<double>* sigmaNoise_cell = 0,
-                                   std::vector<double>* E_exp_cell = 0) const;
+                                   std::vector<double>* E_exp_cell = 0) const override;
 
     private:
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;              //!< Tool to make the step-wise extrapolation
