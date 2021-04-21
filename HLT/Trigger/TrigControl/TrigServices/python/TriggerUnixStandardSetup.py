@@ -149,6 +149,9 @@ def setupCommonServicesEnd():
     from TrigServices.TrigServicesConfig import setupMessageSvc
     setupMessageSvc()
 
+    from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
+    enableCOOLFolderUpdates()
+
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = False
     svcMgr.CoreDumpSvc.StackTrace = True
