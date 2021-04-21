@@ -620,7 +620,12 @@ namespace Rec {
             }
         } else if (newTrack.get() == combinedTrack.get())
             newTrack.release();
-
+        
+        /// Final check to avoid FPEs later on                                              
+        if (!checkTrack("addIDMS failed", combinedTrack.get(), combinedTrack.get())) {
+	        ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
+	        return nullptr;
+	    }
         // hole recovery, error optimization, attach TrackSummary
         finalTrackBuild(combinedTrack, ctx);
 
