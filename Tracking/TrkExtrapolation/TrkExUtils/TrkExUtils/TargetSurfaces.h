@@ -113,7 +113,7 @@ namespace Trk {
   typedef ExtrapolationCell<NeutralParameters> ExCellNeutral;
 
   class TargetSurfaces  
-    {
+  {
     public:
     
       /** Constructor */
@@ -181,25 +181,25 @@ namespace Trk {
       bool updateDistance(int index, Trk::TargetSurface& tt, const Amg::Vector3D& position, const Amg::Vector3D& direction);
 
        bool                              m_orderTrue;       // neutral(true)/charged(false)  
+       bool                              m_flipDirection;
+       bool                              m_absDist;
+       bool                              m_debugMode;        
+       float                             m_tolerance;
        TargetSurfaceVector               m_baseSurfaces;    // surfaces to be followed all along the path;
        std::vector<TargetSurfaceVector>  m_tempSurfaces;    // surfaces shadowed by an envelope  
        TargetSurfaceVector               m_ordered;         // ordered intersections;
 
-       float                             m_tolerance;
        Amg::Vector3D                     m_probePos;
        Amg::Vector3D                     m_probeDir;
        unsigned int                      m_numAlongPath;
        int                               m_nextSf;
        double                            m_distanceToNext;
        double                            m_lastStep;
-       bool                              m_flipDirection;
        double                            m_flipDistance;
   
        const Trk::TrackingVolume*        m_currentFrame;
        const Trk::TrackingVolume*        m_currentDense;
 
-       bool                              m_debugMode;        
-       bool                              m_absDist;
     };
            
   inline double TargetSurfaces::distanceToNext() { return m_distanceToNext; }
