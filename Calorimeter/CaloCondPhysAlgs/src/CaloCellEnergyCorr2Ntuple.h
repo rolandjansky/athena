@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloMBAverageTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
