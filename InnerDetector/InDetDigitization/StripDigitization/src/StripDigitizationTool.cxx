@@ -759,9 +759,6 @@ StatusCode StripDigitizationTool::getNextEvent(const EventContext& ctx) {
 // -----------------------------------------------------------------------------------------------
 void StripDigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const {
 
-  //skip SDO for the moment as it crashes :-S
-  return;
-
   typedef SiTotalCharge::list_t list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be

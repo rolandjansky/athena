@@ -297,7 +297,7 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   SiCellId cellId = cellIdOfPosition(pos);
   SiLocalPosition posStrip = localPositionOfCell(cellId);
   double posStripxP = m_cosNegStereo * (posStrip.xEta() - m_R) - m_sinNegStereo * posStrip.xPhi() + m_R;
-  double posStripyP = m_sinStereo * (posStrip.xEta() - m_R) + m_cosStereo * posStrip.xPhi();
+  double posStripyP = m_sinNegStereo * (posStrip.xEta() - m_R) + m_cosNegStereo * posStrip.xPhi();
   double posStripphiP = std::atan2(posStripyP, posStripxP);
   int strip, row;
   getStripRow(cellId, &strip, &row);
