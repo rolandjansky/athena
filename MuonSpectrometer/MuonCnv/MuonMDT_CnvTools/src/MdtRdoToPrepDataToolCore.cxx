@@ -657,6 +657,16 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer
       continue;
     }
       
+    // Rescale ADC/TDC of chambers using HPTDC digitization chip
+    // Must create a new digit from the old one, because MdtDigit has no methods to set ADC/TDC
+    if( m_idHelperSvc->hasHPTDC(channelId) ) {
+      int adc  = newDigit->adc()/4;
+      int tdc  = newDigit->tdc()/4;
+      int mask = newDigit->is_masked();
+      delete newDigit;
+      newDigit = new MdtDigit(channelId, tdc, adc, mask);
+      ATH_MSG_DEBUG("Change HPTDC ADC/TDC "<<m_idHelperSvc->toString(channelId)<<" Old ADC/TDC="<<adc*4<<" "<<tdc*4<<" New="<<adc<<" "<<tdc );
+    }
 
     if (newDigit->is_masked()) {
       digitStatus = Muon::MdtStatusMasked;
