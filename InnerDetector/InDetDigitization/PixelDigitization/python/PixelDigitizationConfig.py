@@ -68,7 +68,7 @@ def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
@@ -83,7 +83,7 @@ def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
@@ -97,7 +97,7 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     #This should become default for ITk once fully tested
     #if InDetGeometryFlags.isSLHC():
@@ -114,7 +114,7 @@ def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
