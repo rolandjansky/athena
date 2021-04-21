@@ -2,33 +2,11 @@
 
 from __future__ import print_function
 
-from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc, TGCcablingServerSvc
+from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr,theApp
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from AthenaCommon.Configurable import Configurable
-
-class RpcCablingServerConfig (RPCcablingServerSvc):
-    
-    def __init__(self,name = Configurable.DefaultName ):
-        super(RpcCablingServerConfig ,self).__init__(name)
-
-        if ( globalflags.DetDescrVersion().startswith('DC1') or \
-             globalflags.DetDescrVersion().startswith('DC2') or \
-             globalflags.DetDescrVersion().startswith('DC3') or \
-             globalflags.DetDescrVersion().startswith('ATLAS-CSC')):
-            self.Atlas = False
-        
-        if muonByteStreamFlags.RpcDataType()=='atlas':
-            self.Atlas = True
-
-        if muonByteStreamFlags.RpcDataType()=='oldSimulation':
-            self.Atlas = False
-    
-    def setDefaults(cls,handle):
-        if hasattr(handle,'Atlas'):
-            if handle.Atlas is not True:
-                print ("RPCcabling Server uses the old RPC cabling schema")
 
 class TgcCablingServerConfig (TGCcablingServerSvc):
 
@@ -58,16 +36,7 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
             else:
                 print ("TGCcabling Server uses the new 12-fold cabling schema")
 
-
-if "RPCcablingInterface" not in theApp.Dlls:
-    theApp.Dlls += [ "RPCcablingInterface" ]
-
 if "TGCcablingInterface" not in theApp.Dlls:
     theApp.Dlls += [ "TGCcablingInterface" ]
 
-
-RpcCablingServer = RpcCablingServerConfig()
-TgcCablingServer = TgcCablingServerConfig()
-
-ServiceMgr += RpcCablingServer
-ServiceMgr += TgcCablingServer
+ServiceMgr += TgcCablingServerConfig()
