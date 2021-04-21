@@ -658,6 +658,9 @@ class doCosmics(_modifier):
     def preSetup(self):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
+       from AthenaConfiguration.AllConfigFlags import ConfigFlags
+       ConfigFlags.Beam.Type = 'cosmics'
+
 
 class enableALFAMon(_modifier):
     """

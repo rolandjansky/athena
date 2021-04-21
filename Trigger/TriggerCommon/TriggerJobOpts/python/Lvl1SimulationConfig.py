@@ -281,6 +281,8 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
+    if ConfigFlags.Beam.Type == 'cosmics':
+        ctp.ForceBunchGroupPattern = False
     if not ConfigFlags.Trigger.enableL1MuonPhase1: # Run 2 simulation of MUCTPI sends a slightly different format to the CTP
         ctp.MuonMultiplicityRun2Format = True
     ctpSim      = seqAND("CTPSimSeq", [ctp])
