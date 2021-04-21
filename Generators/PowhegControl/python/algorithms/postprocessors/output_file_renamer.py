@@ -17,6 +17,7 @@ def output_file_renamer(output_events_name, powheg_LHE_output):
 
     @author James Robinson <james.robinson@cern.ch>
     """
+    logger.info("Starting to run PowhegControl output file renamer")
     try:
         os.rename(powheg_LHE_output, output_events_name)
         logger.info("Moved {} to {}".format(powheg_LHE_output, output_events_name))
