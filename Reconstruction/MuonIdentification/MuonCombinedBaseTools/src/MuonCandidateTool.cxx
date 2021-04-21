@@ -58,26 +58,21 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotX << ", bs_y=" << beamSpotY << ", bs_z=" << beamSpotZ);
 
         // Temporary collection for extrapolated tracks and links with correspondent MS tracks
-        struct track_link{
+        struct track_link {
             std::unique_ptr<Trk::Track> track;
             unsigned int container_index;
             bool extp_succeed;
-            track_link(std::unique_ptr<Trk::Track> _trk,
-                      unsigned int _idx,
-                      bool _succeed):
-                      track{ std::move(_trk)},
-                      container_index{_idx},
-                      extp_succeed{_succeed}{}
-            
+            track_link(std::unique_ptr<Trk::Track> _trk, unsigned int _idx, bool _succeed) :
+                track{std::move(_trk)}, container_index{_idx}, extp_succeed{_succeed} {}
         };
-        
-        std::vector<track_link > trackLinks;
+
+        std::vector<track_link> trackLinks;
 
         unsigned int index = -1;
         // Loop over MS tracks
         for (const auto* track : tracks) {
             ++index;
-            
+
             if (!track->trackLink().isValid() || !track->track()) {
                 ATH_MSG_WARNING("MuonStandalone track particle without Trk::Track");
                 continue;
@@ -91,7 +86,7 @@ namespace MuonCombined {
             if (m_extrapolationStrategy == 0u) {
                 standaloneTrack.reset(m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ));
             } else {
-                standaloneTrack.reset( m_trackExtrapolationTool->extrapolate(msTrack, ctx));
+                standaloneTrack.reset(m_trackExtrapolationTool->extrapolate(msTrack, ctx));
             }
             if (standaloneTrack) {
                 // Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
@@ -140,15 +135,13 @@ namespace MuonCombined {
                         break;
                     }
                 }
-                if (!skipTrack) {
-                    trackLinks.emplace_back(std::make_unique<Trk::Track>(msTrack), index,false);
-                }
+                if (!skipTrack) { trackLinks.emplace_back(std::make_unique<Trk::Track>(msTrack), index, false); }
             }
         }
         ///
         std::unique_ptr<TrackCollection> extrapTracks = std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS);
         extrapTracks->reserve(trackLinks.size());
-        for (const track_link& link : trackLinks) extrapTracks->push_back(link.track.get()); 
+        for (const track_link& link : trackLinks) extrapTracks->push_back(link.track.get());
         ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 
         // Resolve ambiguity between extrapolated tracks (where available)
@@ -159,8 +152,9 @@ namespace MuonCombined {
 
         // Loop over resolved tracks and build MuonCondidate collection
         for (const Trk::Track* track : *resolvedTracks) {
-            std::vector<track_link>::iterator tLink = std::find_if(trackLinks.begin(),trackLinks.end(),[&track](const track_link& link){return link.track.get() == track;});
-            
+            std::vector<track_link>::iterator tLink =
+                std::find_if(trackLinks.begin(), trackLinks.end(), [&track](const track_link& link) { return link.track.get() == track; });
+
             if (tLink == trackLinks.end()) {
                 ATH_MSG_WARNING("Unable to find internal link between MS and SA tracks!");
                 continue;
@@ -169,13 +163,15 @@ namespace MuonCombined {
             if (tLink->extp_succeed) {
                 outputTracks.push_back(tLink->track.release());
                 ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1);
-                outputCollection.push_back(new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks,tLink->container_index), saLink));
+                outputCollection.push_back(
+                    new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index), saLink));
                 // remove track from set so it is not deleted
             } else {
                 // in this case the extrapolation failed
-                outputCollection.push_back(new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks,tLink->container_index), ElementLink<TrackCollection>()));
+                outputCollection.push_back(new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index),
+                                                             ElementLink<TrackCollection>()));
             }
         }
-   }
+    }
 
 }  // namespace MuonCombined
