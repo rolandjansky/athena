@@ -161,6 +161,9 @@ if DerivationFrameworkHasTruth:
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/src/HadronOriginDecorator.cxx
 # list of ttbar samples by mc_channel_number
 HIGG8D1DSIDList=[
+                 346343,
+                 346344,
+                 346345,
                  410081,
                  410250,#in HOC, Sherpa
                  410251,#in HOC, Sherpa
