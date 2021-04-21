@@ -130,7 +130,6 @@ def setupMenu():
         ChainProp(name='HLT_e17_lhvloose_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_L1EM15VHI',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_gsf_L1EM15VHI',  groups=SingleElectronGroup),
-        ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_gsf_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM15VH', groups=SingleElectronGroup),
@@ -139,7 +138,6 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), #Placeholder for GSF chain
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
@@ -147,16 +145,11 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
         ChainProp(name='HLT_e28_idperf_loose_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
-        ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_nod0_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_nod0_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=SingleElectronGroup),
 
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
+
         ## ATR-22109
         # Note: l1SeedThresholds needs to be given explicitly, as it cannot
         # be auto-filled by DictFromChainName for L1Topo items
@@ -164,9 +157,7 @@ def setupMenu():
 
         # TnP triggers
         ## Zee triggers
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'],groups=MultiElectronGroup),
         ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH', l1SeedThresholds=['EM15VH','EM7'], groups=MultiElectronGroup), #idperf leg
-        ChainProp(name='HLT_e26_lhtight_e15_idperf_tight_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=MultiElectronGroup), #idperf leg
 
         ## Jpsiee triggers
         ChainProp(name='HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM7','EM3'], groups=MultiElectronGroup),
@@ -178,8 +169,6 @@ def setupMenu():
         ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM12','EM3'],groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM3','EM12'],groups=MultiElectronGroup),
 
-        # for moving to PhysicsP1, ATR-21242
-        # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
@@ -189,19 +178,14 @@ def setupMenu():
         ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g25_etcut_L1EM20VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g25_loose_L1EM20VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g25_tight_L1EM20VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g22_tight_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_loose_L1EM15VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_loose_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_medium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_L1EM15VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
         # Low eT photon chains for TLA
@@ -212,20 +196,8 @@ def setupMenu():
 
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM15VHI', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g22_tight_L12EM15VHI', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VH', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VHI', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g22_tight_L12EM15VH', groups=MultiPhotonGroup),
-        ChainProp(name='HLT_2g50_loose_L12EM20VH', groups=MultiPhotonGroup),
-
-        # 3photon chains
-        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
-
 
 
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
@@ -242,7 +214,6 @@ def setupMenu():
         #ATR-21882
         ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=MultiPhotonGroup),
 
-        ChainProp(name='HLT_g300_etcut_L1EM22VHI', groups=SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
