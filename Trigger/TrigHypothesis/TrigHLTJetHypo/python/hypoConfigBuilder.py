@@ -4,7 +4,7 @@ from TrigHLTJetHypo.FastReductionAlgToolFactory import toolfactory
 
 # import modules concerned with extracting scenario paramters
 # from a scenario string
-from TrigHLTJetHypo.scenario_agg import scenario_agg
+from TrigHLTJetHypo.scenario_ht import scenario_ht
 from TrigHLTJetHypo.scenario_dijet import scenario_dijet
 from TrigHLTJetHypo.scenario_fbdjnoshared import scenario_fbdjnoshared
 from TrigHLTJetHypo.scenario_fbdjshared import scenario_fbdjshared
@@ -35,6 +35,13 @@ from AthenaCommon.Constants import DEBUG
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
+# Dictionary to interpret / map scenario aliases into actual scenario strings that can be understood by scenario_XX.py
+aliasesDict = {
+  'ht'           : {},
+  'dijet'        : {'dijetAliasExample' : 'dijet20j12etSEP110djmass',},
+  'fbdjshared'   : {},
+  'fbdjnoshared' : {},
+}
 
 def make_root_repcondconfig():
     """make a repeated condition configurer for the fast reduction
@@ -105,13 +112,13 @@ def process_simple(chain_parts):
 
 
 
-def process_agg(scenario, chainPartInd):
+def process_ht(scenario, chainPartInd):
     """Obtain the paramters needed to build an AlgTool
     to initialise a jet hypo HelperAlgTool"""
 
     # obtain a list of parameter objects that will be used
     # to build a helper config AlgTools
-    helper_params = scenario_agg(scenario, chainPartInd)
+    helper_params = scenario_ht(scenario, chainPartInd)
 
     # build the helper config AlgTools
     helperconfigobjs = [buildHypoHelperConfigTool(params) for params in
@@ -171,15 +178,19 @@ def process_nonsimple(scenario, chainPartInd):
     if jet sharing among Conditions is required."""
     
     router = {
-        'agg': process_agg,
+        'ht': process_ht,
         'dijet': process_dijet,
         'fbdjshared': process_fbdjshared,
         'fbdjnoshared': process_fbdjnoshared,
     }
 
-    key = scenario.split('SEP')[0]
+    # scenario type (ht, dijet, etc)
+    key = [x for x in router if x in scenario]
 
-    return router[key](scenario, chainPartInd)  # list of HelperToolConfigTool
+    # interpret scenario aliases
+    if scenario in aliasesDict[key[0]].keys(): scenario = aliasesDict[key[0]][scenario]
+
+    return router[key[0]](scenario, chainPartInd)  # list of HelperToolConfigTool
 
 
 def make_fastreduction_configurers(chain_dict):

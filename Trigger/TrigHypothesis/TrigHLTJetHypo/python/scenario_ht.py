@@ -15,7 +15,7 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^aggSEP(?P<htlo>\d+)ht(?P<hthi>\d*)'\
+pattern = r'^ht(?P<htlo>\d+)'\
     r'(SEP(?P<etlo>\d*)et(?P<ethi>\d*))?'\
     r'(SEP(?P<etalo>\d*)eta(?P<etahi>\d*))?$'
 
@@ -55,12 +55,12 @@ def get_conditionfilter_args_from_matchdict(groupdict):
     return condargs
 
 
-def scenario_agg(scenario, chainPartInd):
+def scenario_ht(scenario, chainPartInd):
     """calculate the parameters needed to generate a hypo helper config AlgTool
     starting from a the hypoScenario which appears in the chainname for
     an HT condition. The HT condition is filtered"""
 
-    assert scenario.startswith('agg'),\
+    assert scenario.startswith('ht'),\
         'routing error, module %s: bad scenario %s' % (__name__, scenario)
 
     m = rgx.match(scenario)
@@ -68,8 +68,7 @@ def scenario_agg(scenario, chainPartInd):
 
     condargs = []
     vals = defaults('ht',
-                    groupdict['htlo'],
-                    groupdict['hthi'])
+                    groupdict['htlo'])
 
     # find the constructor arguments for each elemental condition
     condargs.append(('ht', deepcopy(vals)))
