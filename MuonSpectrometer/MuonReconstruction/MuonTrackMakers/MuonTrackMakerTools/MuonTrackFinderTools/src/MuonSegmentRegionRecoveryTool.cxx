@@ -477,7 +477,7 @@ namespace Muon {
                 int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                 double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
                 double distEdge = fabs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
-                double pullEdge = tubePars->covariance() ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
+                double pullEdge = tubePars->covariance() && Amg::valid_cov(*tubePars->covariance()) ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
                 std::optional<Amg::Vector2D> locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
                 bool inBounds = false;
                 if (locPos) {
