@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -7,16 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonTimer.h"
-#include "TrigMonMSG.h"
-
-using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonTimer");
-}
 
 namespace TimerBits
 {
@@ -46,14 +38,12 @@ TrigMonTimer::TrigMonTimer(long int tv_sec,
     
     // Yes, these are redundant checks.
     if(sec  >= TimerBits::moduloSec) {
-      std::stringstream ss;
-      ss << "TrigMonTimer ctor error! sec="  <<  sec << ", " << tv_sec;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonTimer")
+        << "ctor error! sec="  <<  sec << ", " << tv_sec;
     }
     if(usec >= 1000000) {
-      std::stringstream ss;
-      ss << "TrigMonTimer ctor error! usec=" << usec << ", " << tv_usec;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonTimer")
+        << "ctor error! usec=" << usec << ", " << tv_usec;
     }
 
     m_encoded |= (sec << TimerBits::shiftSec);

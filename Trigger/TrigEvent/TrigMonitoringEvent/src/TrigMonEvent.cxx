@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -15,7 +15,7 @@ namespace EventBits
   const uint32_t maskBxid = 0xffff0000;
   const uint32_t shftBxid = 16;
 
-  static unsigned TrigMonEventVersion = 2;
+  static const unsigned TrigMonEventVersion = 2;
 }
 
 using namespace std;
@@ -23,11 +23,6 @@ using namespace std;
 //--------------------------------------------------------------------------------------  
 // Helper function for decoding/encoding event content
 //
-void setTrigMonEventVersion(unsigned version)
-{
-  EventBits::TrigMonEventVersion = version;
-}
-
 unsigned getTrigMonEventVersion() {
   return EventBits::TrigMonEventVersion;
 }
