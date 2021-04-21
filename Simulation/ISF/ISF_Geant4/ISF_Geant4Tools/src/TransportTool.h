@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_TRANSPORTTOOL_H
@@ -152,6 +152,9 @@ namespace iGeant4
     /// Fast Simulation Master Tool
     PublicToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimMasterTool", "FastSimulationMasterTool", ""};
     /// @}
+
+    Gaudi::Property<std::map<std::string,double>> m_volumeSmartlessLevel{this, "VolumeSmartlessLevel", {}, "Allow setting of indivial volumes' smartless level"};
+
 
   };
 
