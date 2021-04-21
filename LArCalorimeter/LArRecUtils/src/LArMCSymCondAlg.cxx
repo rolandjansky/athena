@@ -9,19 +9,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 
 
-LArMCSymCondAlg::LArMCSymCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("LArOnOffIdMap"),
-  m_writeKey("LArMCSym","LArMCSym"),
-  m_condSvc("CondSvc",name) {
-  
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-  //declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-}
-
-LArMCSymCondAlg::~LArMCSymCondAlg() {}
-
 StatusCode LArMCSymCondAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
@@ -42,7 +29,6 @@ StatusCode LArMCSymCondAlg::initialize() {
 
 StatusCode LArMCSymCondAlg::execute() {
     
-
   SG::WriteCondHandle<LArMCSym> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
@@ -57,6 +43,7 @@ StatusCode LArMCSymCondAlg::execute() {
     ATH_MSG_ERROR("Failed to retrieve CondAttributeListCollection with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle);
 
   const LArOnlineID* larOnlineID=nullptr;
   const CaloCell_ID* caloCellID=nullptr;
@@ -161,21 +148,14 @@ StatusCode LArMCSymCondAlg::execute() {
 
 
   
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,mcSym.release()).isFailure()) {
+  if(writeHandle.record(std::move(mcSym)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArMCSym object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
  
   return StatusCode::SUCCESS;
