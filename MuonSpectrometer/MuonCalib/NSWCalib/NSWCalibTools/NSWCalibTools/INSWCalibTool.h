@@ -50,6 +50,7 @@ namespace Muon {
     virtual StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip&calibStrip) const = 0;
     virtual StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
     virtual StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const = 0;
+    virtual float peakTime() const = 0;
   };
   
 }

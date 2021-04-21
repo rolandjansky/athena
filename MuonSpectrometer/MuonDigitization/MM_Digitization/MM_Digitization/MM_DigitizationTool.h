@@ -166,7 +166,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<float> m_avalancheGain{this,"AvalancheGain",8.0e3,"avalanche Gain for rach gas mixture"};
 
 		// Constants vars for the MM_ElectronicsResponseSimulation
-		Gaudi::Property<float> m_peakTime{this,"peakTime",200,"The VMM peak time setting"};
 		Gaudi::Property<float> m_electronicsThreshold{this,"electronicsThreshold",15000,"threshold Voltage for histoBNL, 2*(Intrinsic noise ~3k e)"};
 		Gaudi::Property<float> m_stripdeadtime{this,"StripDeadTime",200,"dead-time for strip, default value 200 ns = 8 BCs"};
 		Gaudi::Property<float> m_ARTdeadtime{this,"ARTDeadTime",200,"dead-time for ART, default value 200 ns = 8 BCs"};
@@ -176,8 +175,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
-		// Temporary until moving away from TRandom
-		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
 
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
