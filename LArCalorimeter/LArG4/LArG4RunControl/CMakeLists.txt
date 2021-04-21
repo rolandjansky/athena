@@ -21,12 +21,12 @@ atlas_add_library( LArG4RunControl
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( LArG4RunControlDict
                       LArG4RunControl/LArG4RunControlDict.h
                       LArG4RunControl/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel LArG4RunControl )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib GaudiKernel LArG4RunControl )
 

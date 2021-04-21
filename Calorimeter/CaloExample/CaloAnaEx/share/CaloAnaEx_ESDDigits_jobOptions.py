@@ -165,10 +165,6 @@ CBNT_LArCell.SaveTimeInfo = True
 CBNT_LArCell.SaveId = True 
 CBNT_LArCell.SaveQualityInfo = True
 CBNT_LArCell.CellSigmaCut = 3.
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-CBNT_LArCell.NoiseTool = theCaloNoiseTool
 
 #CBNT for digits
 from LArROD.LArRODConf import CBNTAA_LArDigits

@@ -28,7 +28,7 @@
 import os
 # os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")' > dopps.py")
 # os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
-os.system("echo 'from TrigInDetConfig.ConfigSettings import getInDetTrigSettings ; getInDetTrigSettings(\"jet\")._TripletDoPPS=True' >> dopps.py ; cat dopps.py ")
+os.system("echo 'from TrigInDetConfig.ConfigSettings import getInDetTrigConfig ; getInDetTrigConfig(\"jet\")._TripletDoPPS=True' >> dopps.py ; cat dopps.py ")
 
 Slices  = ['fsjet']
 Events  = 2000 

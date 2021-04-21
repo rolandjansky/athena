@@ -11,7 +11,7 @@ atlas_add_library( LArGeoTBECLib
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoTBEC
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib
                    PRIVATE_LINK_LIBRARIES GeoSpecialShapes GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoRAL RDBAccessSvcLib )
 
 atlas_add_component( LArGeoTBEC

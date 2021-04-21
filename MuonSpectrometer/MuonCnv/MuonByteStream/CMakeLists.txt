@@ -14,8 +14,8 @@ atlas_add_component( MuonByteStream
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		     DEFINITIONS ${CLHEP_DEFINITIONS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CSCcablingLib RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO TrigSteeringEvent AthViews MuonMDT_CnvToolsLib MuonCSC_CnvToolsLib MuonRPC_CnvToolsLib MuonCnvToolInterfacesLib ViewAlgsLib)
+                     DEFINITIONS ${CLHEP_DEFINITIONS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib AthenaPoolUtilities CSCcablingLib MuonIdHelpersLib MuonRDO TrigSteeringEvent AthViews MuonMDT_CnvToolsLib MuonCSC_CnvToolsLib MuonRPC_CnvToolsLib MuonCnvToolInterfacesLib ViewAlgsLib MuonAlignmentData )
 
 # Install files from the package:
 atlas_install_headers( MuonByteStream )

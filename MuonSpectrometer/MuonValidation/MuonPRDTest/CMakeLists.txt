@@ -11,7 +11,7 @@ atlas_add_component( MuonPRDTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib Identifier 
 		     xAODEventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonRDO MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack 
 		     MuonRecToolInterfaces MuonSimData MuonSimEvent TrkGeometry TrkSurfaces TrkParameters TrkExInterfaces TrackRecordLib)
 
