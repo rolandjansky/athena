@@ -18,7 +18,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/SGtests.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
