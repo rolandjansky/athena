@@ -29,6 +29,7 @@ namespace DerivationFramework{
 
   //---------------------------------------------------------------------------
   StatusCode HadronOriginClassifier::initialize() {
+  // All the ttH, ttW and ttZ samples below are for multilepton final states (2LSS, 3L, 4L).
     ATH_MSG_INFO("Initialize " );
     // all Herwig++/Herwig7 showered samples
     if( m_DSID==410003 || m_DSID == 410008 //aMC@NLO+Hpp
@@ -59,6 +60,7 @@ namespace DerivationFramework{
           || (m_DSID>=410501 && m_DSID<=410508) //Powheg+P8 new main31, hdamp=1.5m // Boosted samples are included 410507 410508
           || (m_DSID>=410511 && m_DSID<=410524) //Powheg+P8 new main31, hdamp=1.5mt, radiation systematics
           || (m_DSID>=410531 && m_DSID<=410535) //Powheg+P8 allhad samples
+	  || (m_DSID>=346343 && m_DSID<=346345) //Powheg+P8 ttH
           || m_DSID==412123 // MG+P8 ttW
           || m_DSID==410155 // aMC@NlO+P8 ttW
           || m_DSID==410159 || m_DSID==410160 //aMC@NLO+P8, old settings
