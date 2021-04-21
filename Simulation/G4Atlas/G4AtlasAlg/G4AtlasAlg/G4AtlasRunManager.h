@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasRunManager_h
@@ -65,6 +65,10 @@ public:
   void SetLogLevel(int) { /* Not implemented */ }
   /// @}
 
+  void SetVolumeSmartlessLevel(const std::map<std::string,double>& nameAndValue){
+    m_volumeSmartlessLevel = nameAndValue;
+  }
+
 protected:
 
   /// @name Overridden G4 init methods for customization
@@ -100,6 +104,11 @@ private:
   /// Interface to flux recording
 
   std::unique_ptr<IFluxRecorder> m_fluxRecorder;
+
+  //Property to allow an arbitrary volume (named by string) to have its
+  //"smartless" value set
+  std::map<std::string, double> m_volumeSmartlessLevel;
+
 };
 
 #endif // G4ATLASALG_G4AtlasRunManager_h

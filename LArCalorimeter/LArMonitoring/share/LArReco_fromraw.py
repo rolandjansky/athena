@@ -177,11 +177,6 @@ from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 theBCTool = BunchCrossingTool()
 ToolSvc += theBCTool
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
-
 # variable for testing on ESD
 try:
     LArNoisyROMonForceTrigger

@@ -52,10 +52,14 @@ class muonNames(object):
     if "RoI" in name:
       self.EFSAName = recordable("HLT_Muons_RoI")
       self.EFCBName = recordable("HLT_MuonsCB_RoI")
+    if "LRT" in name:
+      self.EFSAName = recordable("HLT_Muons_RoI")
+      self.EFCBName = recordable("HLT_MuonsCB_LRT")
     return self
 
 muNames = muonNames().getNames('RoI')
 muNamesFS = muonNames().getNames('FS')
+muNamesLRT = muonNames().getNames('LRT')
 
 def isCosmic():
   #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now, ATR-22758
@@ -722,7 +726,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  signatureName = 'muon{}'.format( 'FS' if 'FS' in name else '' ) 
+  signatureName = 'muon{}'.format( 'FS' if 'FS' in name else 'LRT' if 'LRT' in name else '' ) 
   IDTrigConfig = getInDetTrigConfig( signatureName )
 
   if "FS" in name:
@@ -732,6 +736,17 @@ def muEFCBRecoSequence( RoIs, name ):
 
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
+
+  elif "LRT" in name:
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierLRT")
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks(name) ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) )]
+
+    if globalflags.InputFormat.is_bytestream():
+      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    muEFCBRecoSequence += ViewVerifyTrk
 
   else:
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
@@ -759,6 +774,11 @@ def muEFCBRecoSequence( RoIs, name ):
     PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
+  elif 'LRT' in name:
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTSeq = parOR("precisionTrackingInMuonsLRT", PTAlgs  )
+    muEFCBRecoSequence += PTSeq
+    trackParticles = PTTrackParticles[-1]
   #In case of cosmic Precision Tracking has been already called before hence no need to call here just retrieve the correct collection of tracks
   elif isCosmic():
     trackParticles = getIDTracks() 
@@ -768,10 +788,10 @@ def muEFCBRecoSequence( RoIs, name ):
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
 
-
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
                                                        InDetCandidateLocation="InDetCandidates_"+name, TrackSelector="")
+
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
@@ -791,12 +811,14 @@ def muEFCBRecoSequence( RoIs, name ):
   candidatesName = "MuonCandidates"
   if 'FS' in name:
     candidatesName = "MuonCandidates_FS"
-  theMuonCombinedAlg = MuonCombinedAlg("TrigMuonCombinedAlg_"+name, MuonCandidateLocation=candidatesName, InDetCandidateLocation="InDetCandidates_"+name)
 
+  theMuonCombinedAlg = MuonCombinedAlg("TrigMuonCombinedAlg_"+name, MuonCandidateLocation=candidatesName, InDetCandidateLocation="InDetCandidates_"+name)
 
   cbMuonName = muNames.EFCBOutInName
   if 'FS' in name:
     cbMuonName = muNamesFS.EFCBName
+  elif 'LRT' in name:
+    cbMuonName = muNamesLRT.EFCBName
 
   themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=candidatesName, TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
                                        MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",

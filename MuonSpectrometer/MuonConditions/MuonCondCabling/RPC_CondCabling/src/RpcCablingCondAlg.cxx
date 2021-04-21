@@ -490,7 +490,6 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
 
     // get pointer to RDOindex class
     writeCdo->m_HashVec.push_back(pRDOindex);
-        // std::cout << "pRDOindex="<<*pRDOindex<<std::endl;
 
     if( writeCdo->m_HashVec.size() != pRDOindex->hash()+1 ) {
       ATH_MSG_ERROR("Size of hash vector and RDO hash does not match");
