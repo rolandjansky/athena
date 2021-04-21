@@ -41,9 +41,6 @@ class RpcRDO_Decoder : public extends<AthAlgTool, IRPC_RDO_Decoder> {
 	
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
-  const IRPCcablingSvc* m_cablingSvc;
-
 };
 
 
