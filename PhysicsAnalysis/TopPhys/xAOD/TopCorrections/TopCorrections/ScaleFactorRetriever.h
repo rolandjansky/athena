@@ -479,6 +479,8 @@ namespace top {
     // Configuration
     std::shared_ptr<top::TopConfig> m_config;
     bool m_preferGlobalTriggerSF;
+
+    static size_t s_warn_counter; // print WARNING messages limited times to prevent excessive log spam
   };
 }  // namespace top
 
