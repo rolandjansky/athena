@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO: clean up flags, should only contain general settings but no alg config
@@ -124,7 +124,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doVtxMonitoringD3PD", False) # fills the D3PD parts for the unconstrained PV and the split vtx, works only with iterative finder 
   icf.addFlag("InDet.doConvVtxD3PD", False)
   icf.addFlag("InDet.doV0VtxD3PD", False)
-  icf.addFlag("InDet.doTriggerD3PD", False)
   icf.addFlag("InDet.removeTRTNoise", False)
   icf.addFlag("InDet.noTRTTiming", False)
   icf.addFlag("InDet.InDet25nsec", False )
