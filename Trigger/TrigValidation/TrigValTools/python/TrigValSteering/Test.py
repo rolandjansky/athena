@@ -98,9 +98,11 @@ class Test(object):
             else:
                 self.log.info('All exec steps succeeded')
             art_result(exec_summary, 'ExecSummary')
+        else:
+            exec_summary = self.exec_steps[0].result
 
         # Run the check steps
-        self.run_steps(self.check_steps, commands['check_steps'])
+        self.run_steps(self.check_steps, commands['check_steps'], exec_status=exec_summary)
 
         # Dump all commands to JSON
         with open('commands.json', 'w') as outfile:
@@ -123,10 +125,11 @@ class Test(object):
         self.log.info(exit_msg)
         return exit_code
 
-    def run_steps(self, steps, commands_list):
+    def run_steps(self, steps, commands_list, exec_status=0):
         previous_code = 0
         for step in steps:
-            if previous_code != 0 and step.depends_on_previous:
+            if (previous_code != 0 and step.depends_on_previous) or \
+               (exec_status != 0 and step.depends_on_exec):
                     self.log.error('Skipping step %s because previous step(s) failed', step.name)
                     step.result = 1
                     code, cmd = step.result, '# Skipped {} because of earlier failure'.format(step.name)

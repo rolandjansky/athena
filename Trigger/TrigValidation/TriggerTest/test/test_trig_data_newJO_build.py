@@ -36,8 +36,7 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [copy_jo, run]
 test.check_steps = CheckSteps.default_check_steps(test)
-[t for t in test.check_steps if isinstance(t, CheckSteps.MessageCountStep)][0].args='athena_run.log'
-
+test.get_step('MessageCount').log_regex = 'athena_run.log'
 
 chaindump = test.get_step("ChainDump")
 chaindump.args = '--json --yaml ref_data_newJO_build.new'
