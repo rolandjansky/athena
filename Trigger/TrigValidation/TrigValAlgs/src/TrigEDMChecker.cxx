@@ -1414,7 +1414,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
           const TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
           ATH_MSG_INFO("REGTEST MuonType(): ");
 
-          TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
+          const TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
           if (muonTrack) {
             printMuonTrk(muonTrack);
           } else {
@@ -1430,7 +1430,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
           }
 
           ATH_MSG_INFO("REGTEST Looking at TrigMuonEFTrack CombinedTrack()");
-          TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
+          const TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
           if (muonCbTrack) {
             printMuonTrk(muonTrack);
           } else {
