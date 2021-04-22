@@ -29,8 +29,5 @@ then
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../runOne/ | tee diffEightThreads.log
  rcDiff=${PIPESTATUS[0]}
  collateDigest.sh digestTwo.log ../runOne/digestOne.log digestDiffOneTwo.log 
- echo "art-result: $rcDiff Diff-EightThreads-TwoRuns
+ echo "art-result: $rcDiff Diff-EightThreads-TwoRuns"
 fi
-
-
-
