@@ -54,35 +54,35 @@ public:
   void SetFillJetPlots(bool fillJets, bool fillBJets);
 
   ///fill for things needing truth and track only
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false, float weight=1.0);
 
   ///fill for things needing track only
-  void fill(const xAOD::TrackParticle& particle);
-  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx); //mu dependent plots
-  void fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx);
-  void fill(const unsigned int nTracks, const unsigned int mu, const unsigned nVtx);
+  void fill(const xAOD::TrackParticle& particle, float weight=1.0);
+  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx, float weight=1.0); //mu dependent plots
+  void fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx,const float weight=1.0);
+  void fill(const unsigned int nTracks, const unsigned int mu, const unsigned nVtx, const float weight=1.0);
   ///fill for things needing truth only
-  void fill(const xAOD::TruthParticle& particle);
+  void fill(const xAOD::TruthParticle& particle, float weight);
   ///Fill for efficiency plots
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight);
 
   ///fill for things needing all truth - not just the ones from the reco tracks
   
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight=1.0); 
   ///fill reco-vertex related plots that need EventInfo
-  void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
+  void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU, const float weight=1.0);
 
-  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false, bool truthIsFromB=false);
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false, bool truthIsFromB=false);
-  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false, bool truthIsFromB=false);
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false, bool truthIsFromB=false, const float weight=1.0);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false, bool truthIsFromB=false, float weight=1.0);
+  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false, bool truthIsFromB=false, float weight=1.0);
   
   virtual ~InDetRttPlots() {/**nop**/
   };
   ///fill for Counters
-  void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter);
+  void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter, float weight);
   ///fill for fakes
-  void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx);
+  void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight);
 
   // fill IDPVM Ntuple
   void fillNtuple(const xAOD::TrackParticle& track);

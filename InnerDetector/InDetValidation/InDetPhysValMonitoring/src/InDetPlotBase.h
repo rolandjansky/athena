@@ -66,17 +66,18 @@ public:
   /// name to the created histogram than the one looked up from the XML. This can be used to instantiate 
   /// multiple, identically binned plots from a single entry in the XML. 
   void book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride="", const std::string& folder = "default");
-  //
-  void fillHisto(TProfile* pTprofile, const float bin, const float weight);
+  // weight2 allows us to weight averaging in the profile
+  void fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2=1.0);
   //
   void fillHisto(TH1* pTh1, const float value);
   void fillHisto(TH1* pTh1, const float value, const float weight);
   //
   void fillHisto(TH2* pTh2, const float xval, const float yval);
+  void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
   //
   void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
   //
-  void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted);
+  void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted, float weight);
   //
 protected:
   /// book, for use by macro
