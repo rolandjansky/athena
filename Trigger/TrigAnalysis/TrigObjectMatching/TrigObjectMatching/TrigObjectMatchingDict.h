@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_OBJECT_MATCHING_DICT_H
@@ -26,7 +26,6 @@
 #include "egammaEvent/PhotonContainer.h"
 #include "muonEvent/MuonContainer.h"
 #include "TrigMuonEvent/TrigMuonEFContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigParticle/TrigPhotonContainer.h"
 #include "TrigParticle/TrigElectronContainer.h"
 
@@ -75,7 +74,6 @@ void nevercalled_TrigObjectMatchingARA(TrigMatchTool* m1) {
   FORCETRIGGERMATCH(TrigMatch::TrigMuonL1);
   FORCETRIGGERMATCH(TrigMatch::TrigMuonL2);
   FORCETRIGGERMATCH(TrigMatch::TrigMuonEF);
-  FORCETRIGGERMATCH(TrigMuonEFInfo);
   FORCETRIGGERMATCH(CombinedMuonFeature);
   FORCETRIGGERMATCH(TrigMatch::TrigElectronL1);
   FORCETRIGGERMATCH(TrigMatch::TrigElectronL2);
