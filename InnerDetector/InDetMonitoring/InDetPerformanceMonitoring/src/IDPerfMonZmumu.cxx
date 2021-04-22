@@ -1318,8 +1318,12 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   // computing sigma_pt
   // pt = sin(theta) / qOverP --> sigma(pt) = (sin(theta)/ qOverP^2) x sigma(qOverP) // neglecting sigma(sin(theta))
   const Trk::Perigee *thePerigee   = &(trackp->perigeeParameters());
-  double sigma_qOverP = std::sqrt(trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));  
-  sigma_pt = (sin(thePerigee->parameters()[Trk::theta]) / pow(thePerigee->parameters()[Trk::qOverP],2)) * sigma_qOverP;
+  double sigma_qOverP = std::sqrt(trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP));
+  double sigma_theta  = std::sqrt(trackp->definingParametersCovMatrix()(Trk::theta,Trk::theta));
+  double sigma_pt_term1 = (sin(thePerigee->parameters()[Trk::theta]) / pow(thePerigee->parameters()[Trk::qOverP],2)) * sigma_qOverP;
+  double sigma_pt_term2 = (1./thePerigee->parameters()[Trk::qOverP]) * cos(thePerigee->parameters()[Trk::theta]) * sigma_theta;
+  double sigma_pt_term3 = (cos(thePerigee->parameters()[Trk::theta]) / pow(thePerigee->parameters()[Trk::qOverP],2)) * sigma_theta * sigma_qOverP;
+  sigma_pt = sqrt( pow(sigma_pt_term1,2) + pow(sigma_pt_term2,2) + 2 * sigma_pt_term3 * trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::theta));
 
   if (vertex == nullptr) {
     ATH_MSG_WARNING("in FillRecParametersTP. WARNING: Vertex is NULL");
