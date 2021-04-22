@@ -12,12 +12,12 @@
 #include "LArElecCalib/ILArPedestal.h"
 //#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/Units.h"
 
 #include <math.h>
@@ -28,7 +28,6 @@ using Athena::Units::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_OFCTool("LArOFCTool"),
   m_adc2mevTool("LArADC2MeVTool"),
   m_onlineHelper(0),
   m_calo_id(0),
@@ -39,7 +38,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
   m_useTDC(false),
   m_useRamp(true),
   m_useShape(true),
-  m_useOFCTool(false),
   m_ConvertADCToHighGain(false),
   m_Ecut(256*MeV),
   m_initialTimeSampleShift(0),
@@ -73,7 +71,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
  declareProperty("UseTDC",                    m_useTDC);
  declareProperty("UseRamp",m_useRamp);
  declareProperty("UseShape",m_useShape);
- declareProperty("UseOFCTool",                m_useOFCTool);
  declareProperty("ConvertADCToHighGain",m_ConvertADCToHighGain);
  declareProperty("Ecut",                      m_Ecut);
  declareProperty("UseHighGainRampIntercept",  m_useIntercept[CaloGain::LARHIGHGAIN]=false);
@@ -96,7 +93,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
  declareProperty("ADCMax",                    m_AdcMax=4095);
  declareProperty("HVcorr",                    m_hvcorr=false);
  declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
- declareProperty("OFCTool",                   m_OFCTool);
 }
 
 
@@ -104,8 +100,7 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  if (m_useOFCTool)
-    ATH_CHECK( m_OFCTool.retrieve() );
+  ATH_CHECK( m_ofcKey.initialize() );
 
   if (m_useRamp) {
     ATH_CHECK( m_adc2mevTool.retrieve() );
@@ -225,7 +220,6 @@ StatusCode TBECLArRawChannelBuilder::execute()
   float globalTimeOffset=0;
   //Pointer to conditions data objects 
   const ILArFEBTimeOffset* larFebTimeOffset=NULL;
-  const ILArOFC* larOFC=NULL;
   const ILArShape* larShape=NULL;
   //Retrieve Digit Container
 
@@ -244,10 +238,9 @@ StatusCode TBECLArRawChannelBuilder::execute()
       larShape=NULL;
     }
   }
+
   ATH_MSG_DEBUG ( "Retrieving LArOFC object" );
-  if (!m_useOFCTool) {  //OFC-Conditons object only needed if OFC's not computed on-the-fly
-    ATH_CHECK( detStore()->retrieve(larOFC) );
-  }
+  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey);
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
@@ -379,11 +372,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
     // Optimal Filtering Coefficients
     ILArOFC::OFCRef_t ofc_a;
     ILArOFC::OFCRef_t ofc_b;
-    if (m_useOFCTool) { //Use OFC-Tool to compute OFC on-the-fly
-      ofc_a=m_OFCTool->OFC_a(chid,gain);
-      //ofc_b=&(m_OFCTool->OFC_b(chid,gain));//retrieve only when needed
-    }
-    else {// get OFC from Conditions Store
+    {// get OFC from Conditions Store
       float febTimeOffset=0;
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       if (larFebTimeOffset)
@@ -528,10 +517,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
     //Check if energy is above threshold for time & quality calculation
     if (energy>m_Ecut) {
       highE++;
-      if (m_useOFCTool)  //Use OFC-Tool to compute OFC on-the-fly
-	ofc_b=m_OFCTool->OFC_b(chid,gain);
-      else 
-	ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
+      ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
       if (ofc_b.size() != ofc_a.size()) {//don't have proper number of coefficients
 	if (ofc_b.size()==0)
 	  ATH_MSG_DEBUG ( "No time-OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 

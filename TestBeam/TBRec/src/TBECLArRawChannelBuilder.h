@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArOFC.h"
 
 // sandrine
 //#include "CaloIdentifier/LArEM_ID.h"
@@ -37,7 +38,6 @@ public:
 
 private:
   //Services & Tools 
-  ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   const LArOnlineID* m_onlineHelper;
   const CaloCell_ID* m_calo_id;
@@ -48,7 +48,7 @@ private:
 
   //Algo-properties 
   std::string m_DataLocation, m_ChannelContainerName;
-  bool m_useTDC, m_useRamp, m_useShape, m_useOFCTool;
+  bool m_useTDC, m_useRamp, m_useShape;
   bool m_ConvertADCToHighGain;
   float m_Ecut;
   int m_initialTimeSampleShift;
@@ -105,6 +105,10 @@ private:
 
   // For useRamp = False
   float m_adc2mev[30];
+
+  /// Property: OFC coefficients (conditions input).
+  SG::ReadCondHandleKey<ILArOFC> m_ofcKey
+    {this, "OFCKey", "LArOFC", "SG Key of OFC conditions object" };
 };
 
 #endif
