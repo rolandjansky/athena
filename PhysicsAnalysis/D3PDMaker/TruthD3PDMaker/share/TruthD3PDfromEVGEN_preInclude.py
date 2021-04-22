@@ -55,8 +55,4 @@ jobproperties.D3PDMakerFlags.TruthWriteBSMProducts   = True
 jobproperties.D3PDMakerFlags.TruthWriteTopAndDecays  = True
 #jobproperties.D3PDMakerFlags.TruthWriteFirstN        = 10
 
-from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
-JetTagD3PDFlags.JetTrackAssoc=False
-
 rec.DPDMakerScripts.append("TruthD3PDMaker/TruthD3PDfromEVGEN_prodOptions.py")
-
