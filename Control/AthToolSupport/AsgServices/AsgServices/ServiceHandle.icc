@@ -39,7 +39,7 @@ ServiceHandle<T> ::
 ServiceHandle (T2 *parent, const std::string& propertyName,
                const std::string& serviceName,
                const std::string& propertyTitle)
-  : ServiceHandle (serviceName, parent)
+  : ServiceHandle (serviceName, parent->name())
 {
   parent->declareProperty (propertyName, *this, propertyTitle);
 }
