@@ -5,20 +5,22 @@
 include("Pythia8_i/Pythia8_Base_Fragment.py")
 
 genSeq.Pythia8.Commands += [
-   "PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"]
+   "Tune:preferLHAPDF = 2",
+   "Tune:pp = 14",
+   "PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"] # set this AFTER Tune:pp, to avoid crashed due to missing internal Pythia8 PDF data
 
 rel = os.popen("echo $AtlasVersion").read()
 print "Atlas release " + rel
 
-if rel[:2].isdigit() and int(rel[:2])<20:
-  ver =  os.popen("cmt show versions External/Pythia8").read()
-  print "Pythia8 version: " + ver
-  if 'Pythia8-01' in ver[:50]:
-   genSeq.Pythia8.Commands += [
-    "PDF:useLHAPDF=on",
-    "PDF:LHAPDFset = NNPDF23_lo_as_0130_qed"]
-  else:
-   genSeq.Pythia8.Commands += ["PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"] 
-else:
-  genSeq.Pythia8.Commands += ["PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"]
+# if rel[:2].isdigit() and int(rel[:2])<20:
+#  ver =  os.popen("cmt show versions External/Pythia8").read()
+#  print "Pythia8 version: " + ver
+#  if 'Pythia8-01' in ver[:50]:
+#   genSeq.Pythia8.Commands += [
+#    "PDF:useLHAPDF=on",
+#    "PDF:LHAPDFset = NNPDF23_lo_as_0130_qed"]
+#  else:
+#   genSeq.Pythia8.Commands += ["PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"] 
+# else:
+#  genSeq.Pythia8.Commands += ["PDF:pSet = LHAPDF6:NNPDF23_lo_as_0130_qed"]
 evgenConfig.tune = "Monash"
