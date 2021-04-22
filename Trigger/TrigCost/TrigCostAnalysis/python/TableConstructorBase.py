@@ -4,8 +4,8 @@
 #
 
 '''
-@file TableConstructor.py
-@brief Define TableConstructor base class to read ROOT histograms and convert it to csv table
+@file TableConstructorBase.py
+@brief Defines TableConstructor base class to read ROOT histograms and convert it to csv table
 '''
 
 from math import fabs

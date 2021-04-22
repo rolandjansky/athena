@@ -83,7 +83,7 @@ def exploreTree(inputFile):
             # Find and create Table Constructor for specific Table
             try:
                 className = table.GetName() + "_TableConstructor"
-                exec("from TrigCostAnalysis.TableSpecifications import " + className)
+                exec("from TrigCostAnalysis." + className + " import " + className)
                 t = eval(className + "(tableObj)")
 
                 if table.GetName() == "Chain_HLT":
