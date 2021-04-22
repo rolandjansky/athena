@@ -293,12 +293,12 @@ def muCombLRTSequence():
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg_LRT")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombLrtHypoToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muCombLRTSequence,
                          Maker       = l2muCombLRTViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombLrtHypoToolFromDict )
+                         HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
 def muCombOvlpRmSequence():

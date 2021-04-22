@@ -46,6 +46,9 @@ def setupMenu():
         ChainProp(name='HLT_mu24_LRT_l2lrt_d0loose_L1MU20',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_l2lrt_d0medium_L1MU20',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_l2lrt_d0tight_L1MU20',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_LRT_d0loose_L1MU20',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_LRT_d0medium_L1MU20',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_LRT_d0tight_L1MU20',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 

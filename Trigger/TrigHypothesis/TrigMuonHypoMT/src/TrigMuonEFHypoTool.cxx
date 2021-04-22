@@ -44,6 +44,9 @@ StatusCode TrigMuonEFHypoTool::initialize(){
       }
     }
   }
+  // minimum d0 cut for displaced muon triggers
+  if (m_d0min>0.) ATH_MSG_DEBUG( " Rejecting muons with abs(d0) < "<<m_d0min<<" mm");
+  
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
     ATH_MSG_DEBUG("MonTool name: " << m_monTool);
@@ -112,16 +115,29 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
 	    result=false;
 	  }
 	}
+	if (m_d0min>0.) {
+	  ATH_MSG_DEBUG("Muon has d0 less than "<<m_d0min<<"mm; not passing hypo");
+	  if (std::abs(tr->d0())<m_d0min) result = false;
+	}
       }
       if(result == true){
         selPt.push_back(tr->pt()/Gaudi::Units::GeV);
         selEta.push_back(tr->eta());
         selPhi.push_back(tr->phi());
       }
-      ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/Gaudi::Units::GeV << " GeV "
-      	      << " with Charge " << tr->charge()
-      	      << " and threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
-      	      << " so hypothesis is " << (result?"true":"false"));
+      if (m_d0min>0.) {
+	ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/Gaudi::Units::GeV << " GeV "
+		      << " with Charge " << tr->charge()
+		      << " and threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
+		      << " so hypothesis is " << (result?"true":"false"));
+      } else {
+	ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/Gaudi::Units::GeV << " GeV "
+		      << " with Charge " << tr->charge()
+		      << " and with d0 " << tr->d0()
+		      << " the threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
+		      << " and d0min cut is " << m_d0min<<" mm"
+		      << " so hypothesis is " << (result?"true":"false"));
+      }
     }
   }
   return result;	
