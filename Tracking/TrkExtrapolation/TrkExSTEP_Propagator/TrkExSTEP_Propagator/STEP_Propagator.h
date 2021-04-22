@@ -369,7 +369,6 @@ namespace Trk {
       // cache for differential covariance matrix contribution ( partial material dump )
       AmgSymMatrix(5)                m_covariance;
       Trk::EnergyLoss                m_combinedEloss;
-      Trk::MaterialInteraction       m_matInt;
       std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
       MagField::AtlasFieldCache    m_fieldCache;
 
