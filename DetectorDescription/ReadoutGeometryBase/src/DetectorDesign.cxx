@@ -116,6 +116,11 @@ SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
     return state;
 }
 
+SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
+                                       double phiTol, double etaTol, bool /*forceStringent*/ ) const {
+  return inDetector(localPosition,phiTol,etaTol);
+}
+
   const HepGeom::Transform3D DetectorDesign::SiHitToGeoModel() const {
     return HepGeom::Transform3D();
   }
