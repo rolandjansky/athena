@@ -180,7 +180,6 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     if ConfigFlags.Trigger.enableL1CaloLegacy:
         from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
         caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
-        caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
         caloTowerMaker.ZeroSuppress = True
         caloTowerMaker.CellType     = 3
 
@@ -198,7 +197,6 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
 
         l1CaloSim = seqAND('L1CaloLegacySimSeq',[
             caloTowerMaker,
-            #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
             LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
             LVL1__Run2JetElementMaker( 'JetElementMaker'),
             LVL1__CPMSim( 'CPMSim' ) ,
