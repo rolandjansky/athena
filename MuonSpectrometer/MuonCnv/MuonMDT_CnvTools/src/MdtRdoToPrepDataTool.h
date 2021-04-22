@@ -22,7 +22,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
+  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : public extends<MdtRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
   public:
     MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
@@ -33,7 +33,7 @@ namespace Muon
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
       
-    virtual void printPrepData() override;
+    virtual void printPrepData() const override;
 
   protected:
     virtual Muon::MdtPrepDataContainer*

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoToPrepDataTool.h"
@@ -55,8 +55,7 @@ struct ATLAS_NOT_THREAD_SAFE GetCoinCollection
 }
 
 Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p), 
-    TgcRdoToPrepDataToolCore(t, n, p)
+  : base_class(t, n, p)
 {
 }  
 
@@ -69,7 +68,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
 }
 
 StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
-  std::vector<IdentifierHash>& selectedIdHashVect)
+  std::vector<IdentifierHash>& selectedIdHashVect) const
 {
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
@@ -334,7 +333,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   return StatusCode::SUCCESS;
 }
 
-void Muon::TgcRdoToPrepDataTool::printPrepData()
+void Muon::TgcRdoToPrepDataTool::printPrepData() const
 {
   return printPrepDataImpl (m_state.m_tgcPrepDataContainer,
                             m_state.m_tgcCoinDataContainer);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPCRAWDATAPROVIDERTOOLMT_H
@@ -25,14 +25,14 @@ namespace Muon
  *
  * The main work of decoding is done in the RPC_RawDataProviderToolCore class.
  **/
-class RPC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, 
-                                        public RPC_RawDataProviderToolCore
+class RPC_RawDataProviderToolMT
+  : public extends<RPC_RawDataProviderToolCore, IMuonRawDataProviderTool>
 {
     public:
     
     RPC_RawDataProviderToolMT(const std::string& t, 
-                            const std::string& n, 
-                            const IInterface* p);
+                              const std::string& n, 
+                              const IInterface* p);
 
 
     virtual ~RPC_RawDataProviderToolMT();
@@ -40,12 +40,12 @@ class RPC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool,
     virtual StatusCode initialize() override;
 
     /** Decoding method. - current methods: let's keep them! */
-    virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
-    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll) override;
+    virtual StatusCode convert(const ROBFragmentList& vecRobs) const override;
+    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll) const override;
     /** the new ones */
-    virtual StatusCode convert() override; //!< for the entire event 
-    virtual StatusCode convert(const std::vector<IdentifierHash>&) override; //!< for a selection of rdo collections
-    virtual StatusCode convert(const std::vector<uint32_t>&) override;
+    virtual StatusCode convert() const override; //!< for the entire event 
+    virtual StatusCode convert(const std::vector<IdentifierHash>&) const override; //!< for a selection of rdo collections
+    virtual StatusCode convert(const std::vector<uint32_t>&) const override;
     /** EventContext ones **/
     virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
     virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;

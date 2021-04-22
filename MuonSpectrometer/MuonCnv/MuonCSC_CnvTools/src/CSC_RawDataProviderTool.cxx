@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,10 +28,8 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p) :
-  CSC_RawDataProviderToolCore(t, n, p)
+  base_class(t, n, p)
 {
-  declareInterface<IMuonRawDataProviderTool>(this);
-
 }
 
 //================ Destructor =================================================
@@ -54,7 +52,7 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
 //============================================================================================
 
 // new one
-StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect){
+StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect) const {
 
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
@@ -85,7 +83,7 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const EventContext& ctx) const
 
 
 StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
-                                                  const std::vector<IdentifierHash>& /* collections */){
+                                                  const std::vector<IdentifierHash>& /* collections */) const {
   return this->convert (vecRobs, Gaudi::Hive::currentContext());
 }
 

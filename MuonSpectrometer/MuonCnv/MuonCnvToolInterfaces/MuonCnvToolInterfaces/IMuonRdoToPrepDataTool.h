@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCNVTOOLINTERFACES_IMUONRDOTOPREPDATATOOL_H
@@ -10,7 +10,6 @@
 
 class IdentifierHash;
 
-static const InterfaceID IID_IMuonRdoToPrepDataTool( "Muon::IMuonRdoToPrepDataTool", 1, 0 );
 
 namespace Muon {
 
@@ -23,21 +22,21 @@ For the concrete implementations look at e.g.
 */
 class IMuonRdoToPrepDataTool : virtual public IAlgTool {
     public:
-      static const InterfaceID& interfaceID() {return IID_IMuonRdoToPrepDataTool;};
+      DeclareInterfaceID( IMuonRdoToPrepDataTool, 1, 0 );
 
     public:
       /** Decoding method. A vector of IdentifierHash are passed in, and the data corresponding to this list (i.e. in a Region of Interest) are converted.
       @param idVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'
       @return selectedIdVect This is the subset of idVect which were actually found to contain data (i.e. if you want you can use
                              this vector of hashes to optimise the retrieval of data in subsequent steps.) */
-      virtual StatusCode decode( std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect) = 0;
+      virtual StatusCode decode( std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect) const = 0;
 
       //Method for ROB based decoding. Shold decode all chambers asociated with the inputted ROB list. 
-      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) {return StatusCode::FAILURE;}
+      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) const {return StatusCode::FAILURE;}
 
       /** Method used for debugging*/ 
-      virtual void printPrepData() = 0;
-      virtual void printInputRdo() = 0;
+      virtual void printPrepData() const = 0;
+      virtual void printInputRdo() const = 0;
 };
 }
 
