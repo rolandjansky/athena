@@ -46,7 +46,7 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     return CfgMgr.EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
