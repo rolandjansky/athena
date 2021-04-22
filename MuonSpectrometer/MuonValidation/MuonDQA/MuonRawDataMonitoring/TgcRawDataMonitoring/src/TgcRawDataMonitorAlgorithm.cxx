@@ -1035,6 +1035,7 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
 ///////////////////////////////////////////////////////////////
 bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon, const std::vector<TagDef> &list_of_triggers) const {
   if (!m_TagAndProbe.value()) return true;
+  if (offline_muon == nullptr) return false;
   if (getTrigDecisionTool().empty()){
     ATH_MSG_DEBUG("getTrigDecisionTool() is empty");
     return true;
@@ -1052,10 +1053,12 @@ bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon,
     if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
       ATH_MSG_DEBUG("Performing Run2-style feature access");
       auto cg = getTrigDecisionTool()->getChainGroup(tagTrig.tagTrig.Data());
+      if(cg == nullptr) continue;
       auto fc = cg->features();
       auto MuFeatureContainers = fc.get<xAOD::MuonContainer>();
       for(auto mucont : MuFeatureContainers){
 	for(auto mu : *mucont.cptr()){
+	  if (mu == nullptr) continue;
 	  TVector3 trigvec;
 	  trigvec.SetPtEtaPhi(mu->pt(), mu->eta(), mu->phi());
 	  float dr = trigvec.DeltaR(muonvec);
@@ -1075,6 +1078,7 @@ bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon,
 	if (!aaa.isValid()) continue;
 	auto trigmuon_link = aaa.link;
 	auto trigmuon = *trigmuon_link;
+	if (trigmuon == nullptr) continue;
 	TVector3 trigvec;
 	trigvec.SetPtEtaPhi(trigmuon->pt(), trigmuon->eta(), trigmuon->phi());
 	float dr = trigvec.DeltaR(muonvec);
