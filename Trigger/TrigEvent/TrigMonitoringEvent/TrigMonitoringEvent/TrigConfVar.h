@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONF_VAR_H
@@ -16,6 +16,7 @@
 
 // Framework
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 // C/C++
 #include <iostream>
@@ -53,13 +54,13 @@ std::string str(const TrigConfVar &);
 //
 namespace Trig
 {
-  uint16_t ReserveVarId(const std::string &name);
-  uint16_t ReserveVarId(const std::string &name, uint16_t id);
+  uint16_t ReserveVarId ATLAS_NOT_THREAD_SAFE (const std::string &name);
+  uint16_t ReserveVarId ATLAS_NOT_THREAD_SAFE (const std::string &name, uint16_t id);
   
-  bool FindVarId(const std::string &name, uint16_t &id); 
-  bool FindVarName(const uint16_t id, std::string &name);
+  bool FindVarId ATLAS_NOT_THREAD_SAFE (const std::string &name, uint16_t &id);
+  bool FindVarName ATLAS_NOT_THREAD_SAFE (const uint16_t id, std::string &name);
   
-  std::vector<TrigConfVar> GetCurrentTrigConfVarVector();
+  std::vector<TrigConfVar> GetCurrentTrigConfVarVector ATLAS_NOT_THREAD_SAFE ();
 }
 
 //
