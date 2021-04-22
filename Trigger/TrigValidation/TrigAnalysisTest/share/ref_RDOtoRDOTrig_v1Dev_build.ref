@@ -4213,6 +4213,36 @@ HLT_mu24_L1MU20:
     1: 7
     2: 6
     3: 6
+HLT_mu24_LRT_d0loose_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 10
+    1: 1
+    2: 1
+HLT_mu24_LRT_d0medium_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 10
+    1: 1
+    2: 1
+HLT_mu24_LRT_d0tight_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 10
+    1: 1
+    2: 1
 HLT_mu24_LRT_l2lrt_d0loose_L1MU20:
   eventCount: 1
   stepCounts:

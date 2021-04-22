@@ -53,6 +53,7 @@ class muonNames(object):
       self.EFSAName = recordable("HLT_Muons_RoI")
       self.EFCBName = recordable("HLT_MuonsCB_RoI")
     if "LRT" in name:
+      self.L2CBName = recordable("HLT_MuonL2CBInfoLRT")
       self.EFSAName = recordable("HLT_Muons_RoI")
       self.EFCBName = recordable("HLT_MuonsCB_LRT")
     return self
@@ -596,7 +597,11 @@ def muCombRecoSequence( RoIs, name, l2mtmode=False ):
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
   muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
-  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+  if ('LRT' in name):
+    muCombAlg.L2CombinedMuonContainerName   = muNamesLRT.L2CBName
+  else:
+    muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+    
   if l2mtmode:
     muCombAlg.TrackParticlesContainerName   = getIDTracks()
   else:
