@@ -19,6 +19,7 @@ StatusCode HLTMinBiasTrkMonAlg::initialize()
   ATH_CHECK(m_trkCountsKey.initialize());
   ATH_CHECK(m_offlineTrkKey.initialize());
   ATH_CHECK(m_onlineTrkKey.initialize());
+  ATH_CHECK(m_lvl1EnergySumROIKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -120,6 +121,13 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
 
   auto nMBTrkTrkOfflineRatio = Scalar("trkSelOfflineRatio", (offlineTrkHandle->size() == 0 ? -1 : static_cast<double>(nTrkOffline)/offlineTrkHandle->size() ));
 
+  auto L1TEHandle = SG::makeHandle(m_lvl1EnergySumROIKey, context);
+  ATH_MSG_DEBUG("L1TE monitoring, handle validity " << L1TEHandle.isValid());
+  float sum_roi_sumEt = 0.;
+  if (!L1TEHandle.isValid()) sum_roi_sumEt= -1.;
+  else sum_roi_sumEt = static_cast<float>(L1TEHandle->energyT())/1000.;
+  auto L1sumEt = Scalar("L1sumEt", sum_roi_sumEt);
+  
   auto spCountsHandle = SG::makeHandle(m_spCountsKey, context);
   ATH_MSG_DEBUG("SP monitoring, handle validity " << spCountsHandle.isValid());
   if (!spCountsHandle.isValid())
@@ -132,7 +140,6 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
     return StatusCode::SUCCESS;
   }
   ATH_CHECK(spCountsHandle->size() == 1); // if object is present then it should have size == 1
-
   for (auto &trig : m_triggerList )
   {
     if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
@@ -163,7 +170,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
 
       double nTrkRatio = offlineTrkHandle->size() > 0 ? static_cast<double>(offlineTrkHandle->size()) / static_cast<double>(trkCountsHandle->at(0)->getDetail<int>("ntrks")) : -1.0;
     auto trkRatio = Scalar("nTrkRatio", nTrkRatio);
-    fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, nTrkOnline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio, pixelCL, PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP);
+    fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, nTrkOnline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio, pixelCL, PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP,L1sumEt);
     fill("EffAll", decision, whichtrigger);
   }
 }
