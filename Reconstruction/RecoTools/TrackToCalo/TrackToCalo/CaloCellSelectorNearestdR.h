@@ -10,32 +10,29 @@
 
 #include "RecoToolInterfaces/ICaloCellSelector.h"
 
+namespace Trk {
+    class CaloExtension;
 
-namespace Trk 
-{
-  class CaloExtension;
+    // Using dR from the nearest interpolation point as selection criteria
+    // the nearest interpolation point need not be at the same layer as the cell
+    // so the "missing calo cell at another layer" problem in the "classic" method
+    // is avoided.
+    // Slower as need to find nearest interpoaltion point for each calo cell
 
-  //Using dR from the nearest interpolation point as selection criteria
-  //the nearest interpolation point need not be at the same layer as the cell
-  //so the "missing calo cell at another layer" problem in the "classic" method
-  //is avoided.
-  //Slower as need to find nearest interpoaltion point for each calo cell
+    class CaloCellSelectorNearestdR : public ICaloCellSelector {
+    public:
+        CaloCellSelectorNearestdR(double coneSize);
+        ~CaloCellSelectorNearestdR();
 
-  class CaloCellSelectorNearestdR : public ICaloCellSelector {
-  public:
-    CaloCellSelectorNearestdR(double coneSize);
-    ~CaloCellSelectorNearestdR ();
+        bool preSelectAction(const Trk::CaloExtension& caloExtension);
 
-    bool preSelectAction( const Trk::CaloExtension& caloExtension );
+        bool select(const CaloCell& cell) const;  // select or reject the cell
 
-    bool select( const CaloCell& cell )const; // select or reject the cell
+    private:
+        const Trk::CaloExtension* m_caloExtension;
+        double m_coneSize2;
+    };
 
-  private:
-    const Trk::CaloExtension* m_caloExtension;
-    double m_coneSize2;
-  };
+}  // namespace Trk
 
-
-} // end of namespace
-
-#endif 
+#endif

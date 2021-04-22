@@ -5,46 +5,37 @@
 #ifndef TRACKTOCALO_CALOCELLCOLLECTOR_H
 #define TRACKTOCALO_CALOCELLCOLLECTOR_H
 
-#include "CaloGeoHelpers/CaloSampling.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 // forward declarations
-namespace Trk  { class CaloExtension; }
+namespace Trk {
+    class CaloExtension;
+}
 class CaloCellContainer;
 class CaloNoise;
-
 
 namespace Rec {
 
     class CaloCellCollector {
     public:
-        
-        enum CoreEt {
-            ET_Core,
-            ET_EMCore,
-            ET_TileCore,
-            ET_HECCore,
-            N_ET_Core
-        };
-    
-        CaloCellCollector ();
+        enum CoreEt { ET_Core, ET_EMCore, ET_TileCore, ET_HECCore, N_ET_Core };
 
-        xAOD::CaloCluster* collectCells( const Trk::CaloExtension& extension, 
-                                         const CaloCellContainer& cellContainer, 
-                                         xAOD::CaloClusterContainer& clusterContainer ) const;
+        CaloCellCollector();
 
-        void               collectEtCore( const xAOD::CaloCluster& cluster,
-                                          std::vector<float>& et_core,
-                                          const CaloNoise* caloNoise,
-                                          float sigmaNoiseCut = 3.4) const;
+        xAOD::CaloCluster* collectCells(const Trk::CaloExtension& extension, const CaloCellContainer& cellContainer,
+                                        xAOD::CaloClusterContainer& clusterContainer) const;
 
-        void               resetCoreParameters (const std::vector<std::pair<float, float> >& dEtadPhiCore,
-                                                const std::vector<float>&                    dEtadPhiDRCore,
-                                                const std::vector<bool>&                     selectEtCoreByEtadPhi);
-        
+        void collectEtCore(const xAOD::CaloCluster& cluster, std::vector<float>& et_core, const CaloNoise* caloNoise,
+                           float sigmaNoiseCut = 3.4) const;
+
+        void resetCoreParameters(const std::vector<std::pair<float, float> >& dEtadPhiCore, const std::vector<float>& dEtadPhiDRCore,
+                                 const std::vector<bool>& selectEtCoreByEtadPhi);
+
     private:
         // parameters for overall cell collection
         std::vector<std::pair<float, float> > m_dEtadPhi;
@@ -52,10 +43,10 @@ namespace Rec {
         std::vector<CaloSampling::CaloSample> m_samplesForDR;
         // parameters for overall EtCore energy collection
         std::vector<std::pair<float, float> > m_dEtadPhiCore;
-        std::vector<float>                    m_dEtadPhiDRCore;
-        std::vector<bool>                     m_selectEtCoreByEtadPhi;
-        bool                                  m_doDebug;
+        std::vector<float> m_dEtadPhiDRCore;
+        std::vector<bool> m_selectEtCoreByEtadPhi;
+        bool m_doDebug;
     };
-}
+}  // namespace Rec
 
 #endif
