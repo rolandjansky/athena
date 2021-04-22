@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
@@ -26,7 +26,7 @@ namespace Muon
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class sTgcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class sTgcRdoToPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
     {
     public:
       /** Constructor */
@@ -44,20 +44,17 @@ namespace Muon
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */
       virtual
-      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) const override;
       virtual
-      StatusCode decode(const std::vector<uint32_t>& robIds) override;
+      StatusCode decode(const std::vector<uint32_t>& robIds) const override;
 
       
       StatusCode processCollection(Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
                                    const STGC_RawDataCollection *rdoColl, 
 				   std::vector<IdentifierHash>& idWithDataVect) const;
 
-      virtual void printPrepData() override;
-      virtual void printInputRdo() override;
-
-      /** Resolve possible conflicts with IProperty::interfaceID() */
-      static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
+      virtual void printPrepData() const override;
+      virtual void printInputRdo() const override;
       
     protected:
       

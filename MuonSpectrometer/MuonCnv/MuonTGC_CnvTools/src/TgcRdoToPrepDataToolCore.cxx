@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoToPrepDataToolCore.h"
@@ -20,7 +20,7 @@
 //================ Constructor =================================================
 
 Muon::TgcRdoToPrepDataToolCore::TgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p), 
+  : base_class(t, n, p), 
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
     m_nTrackletRDOs(0), 
@@ -47,19 +47,6 @@ Muon::TgcRdoToPrepDataToolCore::TgcRdoToPrepDataToolCore(const std::string& t, c
   // DataHandle
   declareProperty("RDOContainer",   m_rdoContainerKey = std::string("TGCRDO"),"TgcRdoContainer to retrieve");
 }  
-
-//___________________________________________________________________________
-StatusCode Muon::TgcRdoToPrepDataToolCore::queryInterface(const InterfaceID& riid, void** ppvIf)
-{
-  if(riid==IMuonRdoToPrepDataTool::interfaceID()) {
-    *ppvIf = (IMuonRdoToPrepDataTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  
-  return AthAlgTool::queryInterface(riid, ppvIf);
-}
-
 
 //================ Initialization =================================================
 
@@ -116,12 +103,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::finalize()
 }
 
 //================ Decoding =================================================
-StatusCode Muon::TgcRdoToPrepDataToolCore::decode(std::vector<IdentifierHash>&, std::vector<IdentifierHash>&)
+StatusCode Muon::TgcRdoToPrepDataToolCore::decode(std::vector<IdentifierHash>&, std::vector<IdentifierHash>&) const
 {
   return StatusCode::FAILURE;
 }
 
-void Muon::TgcRdoToPrepDataToolCore::printInputRdo()
+void Muon::TgcRdoToPrepDataToolCore::printInputRdo() const
 {
   ATH_MSG_INFO("***************** Listing input TgcRdo Collections *****************************************");
 
@@ -336,7 +323,7 @@ void Muon::TgcRdoToPrepDataToolCore::printPrepDataImpl
 void Muon::TgcRdoToPrepDataToolCore::selectDecoder(getHitCollection_func& getHitCollection,
                                                    getCoinCollection_func& getCoinCollection,
                                                    const TgcRdo::const_iterator& itD, 
-                                                   const TgcRdo* rdoColl)
+                                                   const TgcRdo* rdoColl) const
 {
   StatusCode status = StatusCode::SUCCESS;
   if(!status.isSuccess()) return;

@@ -39,7 +39,7 @@ namespace Muon {
 
   /// This class is only used in a single-thread mode as CscRdoToCscPrepDataToolMT has the 
   /// equivalent functions defined for a thread-safe setup
-  class CscRdoToCscPrepDataToolCore : public AthAlgTool, virtual public IMuonRdoToPrepDataTool {
+  class CscRdoToCscPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool> {
 
   public:
     
@@ -47,14 +47,9 @@ namespace Muon {
 
     virtual ~CscRdoToCscPrepDataToolCore()=default;
     
-    /** AlgTool InterfaceID
-     */
-    static const InterfaceID& interfaceID( ) ;
-    
-    
     virtual StatusCode initialize() override;
     //debugging
-    virtual void printInputRdo() override;
+    virtual void printInputRdo() const override;
     
   protected:
     void printPrepDataImpl (const Muon::CscStripPrepDataContainer* outputCollection) const;

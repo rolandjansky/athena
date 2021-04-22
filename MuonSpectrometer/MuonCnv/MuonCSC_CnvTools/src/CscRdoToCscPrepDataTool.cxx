@@ -30,7 +30,7 @@ using namespace Muon;
 
 CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : CscRdoToCscPrepDataToolCore(type, name, parent) {
+  : base_class(type, name, parent) {
 }  
 
 StatusCode CscRdoToCscPrepDataTool::initialize(){
@@ -40,7 +40,7 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) {
+StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) const {
   // WARNING : Trigger Part is not finished.
   unsigned int sizeVectorRequested = givenIdhs.size();
   ATH_MSG_DEBUG ( "decode for " << sizeVectorRequested << " offline collections called" );
@@ -118,7 +118,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
 }  
 
 
-void CscRdoToCscPrepDataTool::printPrepData()
+void CscRdoToCscPrepDataTool::printPrepData() const
 {
   return printPrepDataImpl (m_outputCollection);
 }

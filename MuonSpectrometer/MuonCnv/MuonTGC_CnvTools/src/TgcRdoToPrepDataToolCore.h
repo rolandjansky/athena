@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLCORE_H
@@ -41,7 +41,7 @@ namespace Muon
    * This class was developed by Takashi Kubota. 
    */  
 
-  class TgcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class TgcRdoToPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
     {
     public:
       /** Constructor */
@@ -49,9 +49,6 @@ namespace Muon
       
       /** Destructor */
       virtual ~TgcRdoToPrepDataToolCore()=default;
-      
-      /** Query the IMuonRdoToPrepDataTool interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
@@ -63,13 +60,11 @@ namespace Muon
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) const override;
 
       /** Print Input RDO for debugging */ 
-      virtual void printInputRdo() override;
+      virtual void printInputRdo() const override;
       
-      /** Resolve possible conflicts with IProperty::interfaceID() */
-      static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
       
     protected:
       /** The number of recorded Bunch Crossings (BCs) is 3. Previous, current and next BCs */
@@ -193,7 +188,7 @@ namespace Muon
       /** Select decoder based on RDO type (Hit or Coincidence (Tracklet, HiPt and SL)) */
       void selectDecoder(getHitCollection_func& getHitCollection,
                          getCoinCollection_func& getCoinCollection,
-                         const TgcRdo::const_iterator& itD, const TgcRdo* rdoColl);
+                         const TgcRdo::const_iterator& itD, const TgcRdo* rdoColl) const;
 
       /** Decode RDO's of Hit */
       StatusCode decodeHits(getHitCollection_func& getHitCollection,
@@ -396,7 +391,7 @@ namespace Muon
       SG::WriteHandleKeyArray<TgcPrepDataContainer> m_outputprepdataKeys;
 
       /** Aboid compiler warning **/
-      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) override {return StatusCode::FAILURE;}
+      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) const override {return StatusCode::FAILURE;}
    }; 
 } // end of namespace
 
