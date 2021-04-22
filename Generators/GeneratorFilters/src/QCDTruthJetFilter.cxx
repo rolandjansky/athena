@@ -41,7 +41,7 @@ StatusCode QCDTruthJetFilter::filterInitialize() {
   if (m_SymEta){
     ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<abs(eta)<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
   } else {
-    ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<eta and abs(eta)<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
+    ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<eta<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
   }
 
   // Special cases: min pT is above 2 TeV or max pT is below 20 GeV, use no weighting - hard-coded range of the fit in this filter
@@ -96,7 +96,9 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     if (!(*it_truth)) continue;
 //    if (fabs( (*it_truth)->eta() ) > m_MaxEta) continue;
 //    if ((*it_truth)->eta()  > m_MaxEta || (*it_truth)->eta()  <= m_MinEta) continue;
-    if ((*it_truth)->eta()>m_MaxEta || ( (*it_truth)->eta()<=m_MinEta && !m_SymEta) || ((*it_truth)->eta()<=m_MinEta && (*it_truth)->eta()>=-m_MinEta && m_SymEta)) continue;
+//    if ((*it_truth)->eta()>m_MaxEta || ( (*it_truth)->eta()<=m_MinEta && !m_SymEta) || ((*it_truth)->eta()<=m_MinEta && (*it_truth)->eta()>=-m_MinEta && m_SymEta)) continue;
+    if ( ( m_SymEta && !(fabs((*it_truth)->eta())>=m_MinEta && fabs((*it_truth)->eta())<m_MaxEta) )
+	 || ( !m_SymEta && !((*it_truth)->eta()>=m_MinEta && (*it_truth)->eta()<m_MaxEta) )) continue;
     if (pt_lead < (*it_truth)->pt()) {
       pt_lead = (*it_truth)->pt();
       phi_lead = (*it_truth)->phi();
