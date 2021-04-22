@@ -108,12 +108,7 @@ LArG4Identifier& LArG4Identifier::operator << (element_type value)
 //-----------------------------------------------
 LArG4Identifier::element_type & LArG4Identifier::operator [] (size_type index)
 {
-  if (index >= m_fields.size ())
-    {
-      throw std::out_of_range ("LArG4Identifier::operator[]");
-    }
-
-  return (m_fields[index]);
+  return m_fields.at(index);
 }
 
 //-----------------------------------------------
@@ -153,12 +148,7 @@ void LArG4Identifier::clear ()
 //-----------------------------------------------
 LArG4Identifier::element_type LArG4Identifier::operator [] (size_type index) const
 {
-  if (index >= m_fields.size ())
-    {
-      return (0);
-    }
-
-  return (m_fields[index]);
+  return m_fields.at(index);
 }
 
 //-----------------------------------------------
