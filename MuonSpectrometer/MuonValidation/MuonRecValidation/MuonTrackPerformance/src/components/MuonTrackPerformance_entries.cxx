@@ -6,6 +6,7 @@
 #include "../MuonSegmentPerformanceAlg.h"
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 #include "MuonTrackPerformance/MuonTrackStatisticsAlg.h"
+#include "MuonTrackPerformance/MuonRecoValidationTool.h"
 
 using namespace Muon;
 
@@ -14,4 +15,5 @@ DECLARE_COMPONENT( MuonPerformanceAlg )
 DECLARE_COMPONENT( MuonSegmentPerformanceAlg )
 DECLARE_COMPONENT( MuonTrackStatisticsAlg )
 DECLARE_COMPONENT( MuonTrackStatisticsTool )
+DECLARE_COMPONENT( MuonRecoValidationTool )
 
