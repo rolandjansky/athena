@@ -5,9 +5,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthLinks/ElementLink.h"
 
-#define private public
-#   include "GeneratorObjects/McEventCollection.h"
-#undef private
+#include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 
 #include "GaudiKernel/MsgStream.h"
