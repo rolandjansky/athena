@@ -41,7 +41,6 @@
 
 
 class IegammaTrkRefitterTool;
-class IBeamCondSvc;
 
 namespace Trig{
   class TrigDecisionTool;
