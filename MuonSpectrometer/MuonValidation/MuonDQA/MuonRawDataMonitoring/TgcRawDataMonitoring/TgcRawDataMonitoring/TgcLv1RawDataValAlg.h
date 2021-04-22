@@ -59,7 +59,6 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     int m_BCID;
 
     // Express Stream flags and chain pointer
-    bool m_found_express_stream;
     bool m_found_nonmuon_express_chain;
     std::pair<std::vector<std::string>, std::vector<float> > m_expressChains;
 
@@ -94,13 +93,6 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     std::vector<float> m_L1TGCetas,  m_L1TGCphis;
     std::vector<float> m_L1RPCetas,  m_L1RPCphis;
     std::vector<float> m_L1Caloetas, m_L1Calophis;
-
-    // Vectors to read data into from collections
-    // Offline Reconstructed Muon: muid
-    std::vector<float> m_muid_pt;
-    std::vector<float> m_muid_eta;
-    std::vector<float> m_muid_phi;
-    std::vector<float> m_muid_q;
 
     // Muon Trigger: Low pT
     std::vector<int>   m_lpt_delta[2][3];    //[ws][pcn]
