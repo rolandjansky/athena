@@ -8,7 +8,7 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 //____________________________________________________________________

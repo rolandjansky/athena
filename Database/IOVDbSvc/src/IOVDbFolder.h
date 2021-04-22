@@ -9,8 +9,8 @@
 #define IOVDbSvc_IOVDbFolder_h
 
 #include <string>
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/IIOVSvc.h"

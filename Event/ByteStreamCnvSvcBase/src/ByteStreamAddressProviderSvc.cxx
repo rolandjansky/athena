@@ -9,8 +9,7 @@
 
 #include "SGTools/TransientAddress.h"
 #include "GaudiKernel/ListItem.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "eformat/SourceIdentifier.h"
 

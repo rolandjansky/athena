@@ -18,12 +18,11 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
-#include "AthenaKernel/DataBucketBase.h"
-
-#include "IOVSvc/IIOVSvcTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
+
+#include "AthenaKernel/DataBucketBase.h"
+#include "IOVSvc/IIOVSvcTool.h"
 
 using SG::DataProxy;
 using SG::TransientAddress;

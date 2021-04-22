@@ -10,7 +10,7 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ClassID.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

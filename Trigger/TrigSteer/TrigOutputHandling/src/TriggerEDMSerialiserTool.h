@@ -6,10 +6,10 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "xAODCore/AuxSelection.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaMonitoringKernel/Monitored.h"

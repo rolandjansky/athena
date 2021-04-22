@@ -14,9 +14,9 @@
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgManager.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IRCUSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 

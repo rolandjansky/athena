@@ -10,12 +10,12 @@
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/IAlgManager.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ClassID.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 

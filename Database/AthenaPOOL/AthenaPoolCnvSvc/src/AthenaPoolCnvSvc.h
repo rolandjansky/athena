@@ -13,6 +13,7 @@
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -21,7 +22,6 @@
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "PoolSvc/IPoolSvc.h"
 
 #include <vector>

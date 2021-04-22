@@ -15,6 +15,7 @@
 #include <string>
 
 // FrameWork includes
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
@@ -24,7 +25,6 @@
 
 // AthenaKernel
 #include "AthenaKernel/IDictLoaderSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/DsoDb.h"
 
 // Forward declaration
