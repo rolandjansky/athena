@@ -458,10 +458,6 @@ if doLAr :
     theADC2MeVTool = LArADC2MeVToolDefault()
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += theADC2MeVTool
-    # get public tool LArOFCTool
-    from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-    theOFCTool = LArOFCToolDefault()
-    ToolSvc += theOFCTool
 
     ToolSvc.LArADC2MeVToolDefault.UseHVScaleCorr = False
 
@@ -501,7 +497,6 @@ if doLAr :
             LArRawChannelBuilder = TBECLArRawChannelBuilder("LArRawChannelBuilder")
             LArRawChannelBuilder.UseTDC = True
             LArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
-            LArRawChannelBuilder.UseOFCTool             = False
             LArRawChannelBuilder.NOFCTimeBins = 25
             LArRawChannelBuilder.OFCTimeBin    = 1.0*ns
             LArRawChannelBuilder.BinHalfOffset = False
@@ -667,7 +662,6 @@ if doLAr :
 
     # Make sure no symmetrization:    
     ToolSvc.LArADC2MeVToolDefault.MCSym = False
-    ToolSvc.LArOFCToolDefault.FromDatabase=True
 
 
 if doDMSplit:
