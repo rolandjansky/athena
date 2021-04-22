@@ -243,39 +243,53 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     # Topo MC
     ##################################################
 
-    l1TopoSim = None
+    l1Phase1TopoSim = None
+    l1LegacyTopoSim = None
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-    l1TopoSim = L1TopoSimulation()
-    l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    l1Phase1TopoSim = L1TopoSimulation('L1Phase1TopoSimulation')
+    l1LegacyTopoSim = L1TopoSimulation('L1LegacyTopoSimulation')
+
+    l1Phase1TopoSim.IsLegacyTopo = False
+    l1LegacyTopoSim.IsLegacyTopo = True
+    
+    l1Phase1TopoSim.MonHistBaseDir = 'L1/L1Phase1TopoAlgorithms'
+    l1LegacyTopoSim.MonHistBaseDir = 'L1/L1LegacyTopoAlgorithms'
+
     if ConfigFlags.Trigger.enableL1CaloPhase1:
-        l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
-    if ConfigFlags.Trigger.enableL1MuonPhase1:
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
-        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
-        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
-        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
-        l1TopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
-        l1TopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
-    else:
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-        ToolSvc += L1MuctpiTool("L1MuctpiTool")
-        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+        l1Phase1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+        
+    l1Phase1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    l1LegacyTopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+        
+    from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
+    ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
+    l1Phase1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+    l1LegacyTopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+    l1Phase1TopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+    l1Phase1TopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+    l1LegacyTopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+    l1LegacyTopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+
     # enable the reduced (coarse) granularity topo simulation
     # currently only for MC
     from AthenaCommon.GlobalFlags  import globalflags
     if globalflags.DataSource()!='data':
-        l1TopoSim.MuonInputProvider.MuonEncoding = 1
+        l1Phase1TopoSim.MuonInputProvider.MuonEncoding = 1
+        l1LegacyTopoSim.MuonInputProvider.MuonEncoding = 1
     else:
-        l1TopoSim.MuonInputProvider.MuonEncoding = 0
+        l1Phase1TopoSim.MuonInputProvider.MuonEncoding = 0
+        l1LegacyTopoSim.MuonInputProvider.MuonEncoding = 0
 
-    l1TopoSim.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+    l1Phase1TopoSim.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+    l1LegacyTopoSim.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
     ##################################################
     # CTP MC
     ##################################################
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     ctp             = CTPSimulationInReco("CTPSimulation")
+    ctp.LegacyTopoInput = "L1TopoLegacyToCTPLocation"
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
@@ -299,8 +313,8 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     # Combination of all parts
     ##################################################
     #l1Sim = seqAND("l1Sim", [caloTowerMaker] )
-    if l1TopoSim:
-      l1Sim = seqAND("L1SimSeq", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
+    if l1Phase1TopoSim and l1LegacyTopoSim:
+      l1Sim = seqAND("L1SimSeq", [l1CaloSim, l1MuonSim, l1LegacyTopoSim, l1Phase1TopoSim, ctpSim] )
     else:
       l1Sim = seqAND("L1SimSeq", [l1CaloSim, l1MuonSim, ctpSim] )
 
@@ -343,8 +357,8 @@ def Lvl1SimulationMCCfg(flags):
 
     from AthenaCommon.CFElements import seqAND
     acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
+    
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
-
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimMCCfg
     acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
@@ -352,9 +366,14 @@ def Lvl1SimulationMCCfg(flags):
     from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MCMuonSimulationCfg
     acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
 
+    acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
+    from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationMCCfg
+    acc.merge(L1LegacyTopoSimulationMCCfg(flags), sequenceName='L1LegacyTopoSimSeq')
+    
+    acc.addSequence(seqAND('L1TopoSimSeq'), parentName='L1SimSeq')
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationMCCfg
-    acc.merge(L1TopoSimulationMCCfg(flags), sequenceName='L1SimSeq')
-
+    acc.merge(L1TopoSimulationMCCfg(flags), sequenceName='L1TopoSimSeq')
+    
     acc.addSequence(seqAND('L1CTPSimSeq'), parentName='L1SimSeq')
     from TrigT1CTP.CTPSimulationConfig import CTPMCSimulationCfg
     acc.merge(CTPMCSimulationCfg(flags), sequenceName="L1CTPSimSeq")
@@ -391,6 +410,7 @@ if __name__ == '__main__':
         p.close()
 
     status = acc.run()
+    
     if status.isFailure():
         import sys
         sys.exit(1)
