@@ -76,6 +76,9 @@ if options.unit_test:
     os.rmdir( submitDir )
     pass
 
-# Run the job using the direct driver.
-driver = ROOT.EL.DirectDriver()
+# Run the job using the local driver.  This is intentionally the local
+# driver, unlike most other tests that use the direct driver.  That
+# way it tests whether the code works correctly with that driver,
+# which is a lot more similar to the way the batch/grid drivers work.
+driver = ROOT.EL.LocalDriver()
 driver.submit( job, submitDir )
