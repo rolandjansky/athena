@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILECALIBDRAWERCMT_H
@@ -54,6 +54,8 @@ class TileCalibDrawerCmt : public TileCalibDrawerBase{
   /** @brief Ctor used when interpreting an already existing BLOB. 
       @param blob A const reference to the coral::Blob to interpret. */
   TileCalibDrawerCmt(const coral::Blob& blob);
+  /** @brief Ctor (non-const). */
+  TileCalibDrawerCmt(coral::Blob& blob);
 };
 
 #endif

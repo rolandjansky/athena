@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # TileBchTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-17
 #
@@ -457,7 +457,6 @@ class TileBchMgr(TileCalibLogger):
             hiGainDefVec.push_back(0)
             comChnDefVec = cppyy.gbl.std.vector('unsigned int')()
             comChnDefVec.push_back(0)
-            cppyy.makeClass('std::vector<unsigned int>')
             defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
             defVec.push_back(loGainDefVec)
             defVec.push_back(hiGainDefVec)
