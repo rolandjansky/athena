@@ -177,14 +177,9 @@ febSummaryMaker.CheckAllFEB=False
 #theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase,]#.getFullName()]
 #ToolSvc += theLArRawChannelBuilderPedestalDataBase
 #
-#from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-#theLArADC2MeVTool=LArADC2MeVToolDefault("LArADC2MeVTool")
-#ToolSvc+=theLArADC2MeVTool
-#
 #from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
 #theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase()
 #theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase,]#.getFullName()]
-#theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theLArADC2MeVTool
 #ToolSvc += theLArRawChannelBuilderADC2EDataBase
 #
 #from LArRecUtils.LArRecUtilsConf import LArOFPeakRecoTool
