@@ -38,14 +38,9 @@ if doUseRampBuilder:
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LArRampBuilder<tag>LArH6RampBuilder-"]
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LAruA2MeVBuilder<tag>LArH6uA2MeVBuilder-"]
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LArMphysOverMcal<tag>LArH6G4MphysOverMcal-"]
-#    Could not be here, LArADC2MeVTool not yet defined
-#    ToolSvc.LArADC2MeVTool.keyADC2DAC = "LArRampBuilder"
-#    ToolSvc.LArADC2MeVTool.keyuA2MeV = "LAruA2MeVBuilder"
-#    ToolSvc.LArADC2MeVTool.UseMphysOverMcal = True
 else:
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LArRamp<tag>LArH6Ramp-"]
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LAruA2MeV<tag>LArH6uA2MeV-"]
-#    ToolSvc.LArADC2MeVTool.UseMphysOverMcal = False
     
 if doOFCPhysShape:
     LArEC04FolderList +=["/LAR/LArElecCalibEC04/LArOFCPhys/LArOFCPhysShape<tag>LArH6OFCPhys-"]
