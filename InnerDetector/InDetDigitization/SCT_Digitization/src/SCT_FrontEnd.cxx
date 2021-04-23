@@ -985,7 +985,6 @@ StatusCode SCT_FrontEnd::addNoiseDiode(SiChargedDiodeCollection& collection, int
   collection.add(ndiode, noiseCharge); // !< add it to the collection
 
   // Get the strip back to check
-  const Identifier idstrip = m_sct_id->strip_id(collection.identify(), strip);
   SiChargedDiode *NoiseDiode = (collection.find(strip));
   if (NoiseDiode == nullptr) {
     return StatusCode::FAILURE;
