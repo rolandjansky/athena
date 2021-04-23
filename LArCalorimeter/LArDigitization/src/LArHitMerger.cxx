@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -21,14 +21,15 @@
 #include "PileUpTools/PileUpMergeSvc.h"
 
 LArHitMerger::LArHitMerger(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator), p_mergeSvc(NULL),
+  : AthAlgorithm(name, pSvcLocator),
+    p_mergeSvc(NULL),
+    m_SubDetectors ("LAr_All"),
+    m_EmBarrelHitContainerName ("LArHitEMB"),
+    m_EmEndCapHitContainerName ("LArHitEMEC"),
+    m_HecHitContainerName ("LArHitHEC"),
+    m_ForWardHitContainerName ("LArHitFCAL"),
     m_larem_id(NULL),m_larhec_id(NULL),m_larfcal_id(NULL)
 {
-  m_SubDetectors      = "LAr_All"; 
-  m_EmBarrelHitContainerName = "LArHitEMB";
-  m_EmEndCapHitContainerName = "LArHitEMEC";
-  m_HecHitContainerName      = "LArHitHEC";
-  m_ForWardHitContainerName  = "LArHitFCAL";
   //
   // ........ declare the private data as properties
   //
