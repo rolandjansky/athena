@@ -47,7 +47,7 @@ StatusCode InDetGlobalPrimaryVertexMonAlg::initialize() {
   
   
   ATH_CHECK( m_vxContainerName.initialize() );
-  ATH_CHECK( m_vxContainerNameSplit.initialize() );
+  //ATH_CHECK( m_vxContainerNameSplit.initialize() );
   
   
   return AthMonitorAlgorithm::initialize();
