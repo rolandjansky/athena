@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
 
@@ -6,29 +6,9 @@ class TriggerTowerMakerBase (LVL1__TriggerTowerMaker):
     __slots__ = []
     def __init__(self, name):
         super( TriggerTowerMakerBase, self ).__init__( name )
-        from AthenaCommon.DetFlags import DetFlags
-        from AthenaCommon.Constants import WARNING
-        if DetFlags.digitize.LVL1_on():
-            from Digitization.DigitizationFlags import jobproperties
-            self.RndmSvc=jobproperties.Digitization.rndmSvc.get_Value()
-            self.PedEngine = "%s_Pedestal"%name
-            self.DigiEngine =  "%s_Digitization"%name
-            jobproperties.Digitization.rndmSeedList.addSeed( str(self.PedEngine), 8594832, 5736213 )
-            jobproperties.Digitization.rndmSeedList.addSeed( str(self.DigiEngine), 8631309, 4492432) 
-        else:
-            self.RndmSvc = 'AtRanluxGenSvc'
-            self.PedEngine = "%s_Pedestal"%name
-            self.DigiEngine =  "%s_Digitization"%name
+        self.PedEngine = "%s_Pedestal"%name
+        self.DigiEngine =  "%s_Digitization"%name
           
-            from AthenaCommon.AppMgr import ServiceMgr
-            if not hasattr( ServiceMgr, 'AtRanluxGenSvc'):
-                from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-                ServiceMgr += AtRanluxGenSvc()
-               
-            # init random number seeds
-            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.PedEngine) + " 8594832 5736213" ]
-            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.DigiEngine) + " 8631309 4492432" ]
-            ServiceMgr.AtRanluxGenSvc.OutputLevel = WARNING # suppress 1 per event INFO messages.
     
 class TriggerTowerMaker_TTL1(TriggerTowerMakerBase) :
   __slots__ = []
