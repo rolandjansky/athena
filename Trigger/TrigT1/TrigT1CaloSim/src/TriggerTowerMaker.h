@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -81,8 +81,12 @@
 //Descriptions are given in the class declaration
 //********************************************
 
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 class ILumiBlockMuTool;
+namespace ATHRNG {
+  class RNGWrapper;
+}
+
 
 namespace LVL1
 {
@@ -133,9 +137,9 @@ class TriggerTowerMaker : public AthAlgorithm,
     TriggerTowerMaker& operator=(const TriggerTowerMaker& rhs);
 
     ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-    ServiceHandle <IAtRndmGenSvc> m_rndGenSvc;
-    CLHEP::HepRandomEngine* m_rndmPeds;
-    CLHEP::HepRandomEngine* m_rndmADCs;
+    ServiceHandle <IAthRNGSvc> m_rngSvc;
+    ATHRNG::RNGWrapper* m_rndmPeds;
+    ATHRNG::RNGWrapper* m_rndmADCs;
     ToolHandle<IL1TriggerTowerTool> m_TTtool;
     ToolHandle<IL1CaloMappingTool> m_mappingTool; 
     ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
@@ -365,7 +369,7 @@ class TriggerTowerMaker : public AthAlgorithm,
     /** Compute L1CaloCoolChannelId (including support for old geometries) */
     L1CaloCoolChannelId channelId(double eta, double phi, int layer);
     /** fetches calorimeter cells */
-    StatusCode getCaloCells();
+    StatusCode getCaloCells(const EventContext& ctx);
     /** rescale em cell energy (CaloCell calibration tuning) */
     double emCalib(double tt_eta);
     /** gets collection of input TriggerTowers for reprocessing */
@@ -374,13 +378,13 @@ class TriggerTowerMaker : public AthAlgorithm,
     StatusCode getCaloTowers();
     
     /** Convert analogue pulses to digits */
-    void digitize();
+    void digitize(const EventContext& ctx);
     
     /** Overlay recorded noise event on simulation */
     StatusCode overlay();
     
     /** Simulate PreProcessing on analogue amplitudes */
-    void preProcess();
+    void preProcess(const EventContext& ctx);
     
     /** Stores Trigger Towers in the TES, at a 
     location defined in m_outputLocation.<p>
@@ -388,7 +392,8 @@ class TriggerTowerMaker : public AthAlgorithm,
     StatusCode store();
     
     /** steps over Calo cells and creates/fills trigger towers */
-    void processCaloCells(const CaloCellContainer * cells);
+    void processCaloCells(const EventContext& ctx,
+                          const CaloCellContainer * cells);
     
     /** extract amplitudes from TTL1 */
     void processLArTowers(const LArTTL1Container * );
@@ -421,14 +426,17 @@ class TriggerTowerMaker : public AthAlgorithm,
     int slope(const Identifier& id, const CaloLVL1_ID* caloId);
    
     /** Functions to simulate processing of tower signals **/
-    std::vector<int> ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps);
+  std::vector<int> ADC(CLHEP::HepRandomEngine* rndmADCs,
+                       L1CaloCoolChannelId channel, const std::vector<double>& amps);
     int EtRange(int et, int type);
     /** return digits for current LUT slice */
-    std::vector<int> multiSliceDigits(const InternalTriggerTower* itt, int type);
+    std::vector<int> multiSliceDigits(CLHEP::HepRandomEngine* rndmADCs,
+                                      const InternalTriggerTower* itt, int type);
     /** set up map of extended ADC digits for multi-slice mode */
     void setupADCMap();
     /** noise for extra slices */
-    void sliceNoise(std::vector<double>& emAmps,
+    void sliceNoise(CLHEP::HepRandomEngine* rndmADCs,
+                    std::vector<double>& emAmps,
                     std::vector<double>& hadAmps, double eta);
     /** Pedestal Correction */
     int  IetaToElement(int eta, int layer);
