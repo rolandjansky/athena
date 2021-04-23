@@ -46,11 +46,6 @@ from AtlasGeoModel import GeoModelInit
 
 import MuonCnvExample.MuonCablingConfig
 
-import MuonRPC_Cabling.MuonRPC_CablingConfig
-#####################
-#ServiceMgr.MuonRPC_CablingSvc.RPCMapfromCool=False
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="/afs/cern.ch/user/s/stefspa/atlas/SW/rpcDev/mapsFromGabriele/LVL1confAtlasRUN2_ver012.data"
-#ServiceMgr.MuonRPC_CablingSvc.CorrFileName="/afs/cern.ch/user/s/stefspa/atlas/SW/rpcDev/mapsFromGabriele/LVL1confAtlasRUN2_ver012.corr"
 #######################
 #######################
 #ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False
