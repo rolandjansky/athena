@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -57,17 +57,17 @@ RectangleBounds::inside(const Amg::Vector2D& locpo,
   // ellipse is always at (0,0), surface is moved to ellipse position and then
   // rotated
   Amg::Vector2D p;
-  p << m_boundValues[RectangleBounds::bv_halfX],
-    m_boundValues[RectangleBounds::bv_halfY];
+  p = Amg::Vector2D (m_boundValues[RectangleBounds::bv_halfX],
+                     m_boundValues[RectangleBounds::bv_halfY]);
   elementP[0] = (rotMatrix * (p - locpo));
-  p << m_boundValues[RectangleBounds::bv_halfX],
-    -m_boundValues[RectangleBounds::bv_halfY];
+  p = Amg::Vector2D (m_boundValues[RectangleBounds::bv_halfX],
+                     -m_boundValues[RectangleBounds::bv_halfY]);
   elementP[1] = (rotMatrix * (p - locpo));
-  p << -m_boundValues[RectangleBounds::bv_halfX],
-    m_boundValues[RectangleBounds::bv_halfY];
+  p = Amg::Vector2D (-m_boundValues[RectangleBounds::bv_halfX],
+                     m_boundValues[RectangleBounds::bv_halfY]);
   elementP[2] = (rotMatrix * (p - locpo));
-  p << -m_boundValues[RectangleBounds::bv_halfX],
-    -m_boundValues[RectangleBounds::bv_halfY];
+  p = Amg::Vector2D (-m_boundValues[RectangleBounds::bv_halfX],
+                     -m_boundValues[RectangleBounds::bv_halfY]);
   elementP[3] = (rotMatrix * (p - locpo));
   std::vector<Amg::Vector2D> axis = { elementP[0] - elementP[1],
                                       elementP[0] - elementP[2],

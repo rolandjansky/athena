@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -299,6 +299,7 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
   std::vector<Amg::Vector2D> elementP(4);
 
   AmgMatrix(2, 2) normal;
+  // cppcheck-suppress constStatement
   normal << 0, -1, 1, 0;
 
   // ellipse is always at (0,0), surface is moved to ellipse position and then rotated

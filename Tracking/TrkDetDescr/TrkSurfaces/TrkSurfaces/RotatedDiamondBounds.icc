@@ -97,6 +97,7 @@ RotatedDiamondBounds::inside(const Amg::Vector2D& locpo,
   AmgMatrix(2, 2) rotMatrix;
   rotMatrix << scResult.cosC, scResult.sinC, -scResult.sinC, scResult.cosC;
   AmgMatrix(2, 2) normal;
+  // cppcheck-suppress constStatement
   normal << 0, -1, 1, 0;
   // ellipse is always at (0,0), surface is moved to ellipse position and then
   // rotated exchange locX and locY
@@ -104,21 +105,21 @@ RotatedDiamondBounds::inside(const Amg::Vector2D& locpo,
   locpoF[0] = locpo[Trk::locY];
   locpoF[1] = locpo[Trk::locX];
   Amg::Vector2D p;
-  p << -m_boundValues[RotatedDiamondBounds::bv_minHalfX],
-    -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1];
+  p = Amg::Vector2D (-m_boundValues[RotatedDiamondBounds::bv_minHalfX],
+                     -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1]);
   elementP[0] = (rotMatrix * (p - locpoF));
-  p << -m_boundValues[RotatedDiamondBounds::bv_medHalfX], 0.;
+  p = Amg::Vector2D (-m_boundValues[RotatedDiamondBounds::bv_medHalfX], 0.);
   elementP[1] = (rotMatrix * (p - locpoF));
-  p << -m_boundValues[RotatedDiamondBounds::bv_maxHalfX],
-    2. * m_boundValues[RotatedDiamondBounds::bv_halfY2];
+  p = Amg::Vector2D (-m_boundValues[RotatedDiamondBounds::bv_maxHalfX],
+                     2. * m_boundValues[RotatedDiamondBounds::bv_halfY2]);
   elementP[2] = (rotMatrix * (p - locpoF));
-  p << m_boundValues[RotatedDiamondBounds::bv_maxHalfX],
-    2. * m_boundValues[RotatedDiamondBounds::bv_halfY2];
+  p = Amg::Vector2D (m_boundValues[RotatedDiamondBounds::bv_maxHalfX],
+                     2. * m_boundValues[RotatedDiamondBounds::bv_halfY2]);
   elementP[3] = (rotMatrix * (p - locpoF));
-  p << m_boundValues[RotatedDiamondBounds::bv_medHalfX], 0.;
+  p = Amg::Vector2D (m_boundValues[RotatedDiamondBounds::bv_medHalfX], 0.);
   elementP[4] = (rotMatrix * (p - locpoF));
-  p << m_boundValues[RotatedDiamondBounds::bv_minHalfX],
-    -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1];
+  p = Amg::Vector2D (m_boundValues[RotatedDiamondBounds::bv_minHalfX],
+                     -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1]);
   elementP[5] = (rotMatrix * (p - locpoF));
   std::vector<Amg::Vector2D> axis = { normal * (elementP[1] - elementP[0]),
                                       normal * (elementP[2] - elementP[1]),

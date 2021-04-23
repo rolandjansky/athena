@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -90,48 +90,45 @@ BoundaryCheck::EllipseToPoly(int resolution) const
 
   // first add the four vertices
   std::vector<Amg::Vector2D> v((1 + resolution) * 4);
-  Amg::Vector2D p;
-  p << w, 0;
-  v[0] = p;
-  p << -w, 0;
-  v[1] = p;
-  p << 0, h;
-  v[2] = p;
-  p << 0, -h;
-  v[3] = p;
+  v[0] = Amg::Vector2D ( w,   0.);
+  v[1] = Amg::Vector2D (-w,   0.);
+  v[2] = Amg::Vector2D ( 0.,  h);
+  v[3] = Amg::Vector2D ( 0., -h);
 
   // now add a number, equal to the resolution, of equidistant points  in each
   // quadrant resolution == 3 seems to be a solid working point, but possibility
   // open to change to any number in the future
-  Amg::Vector2D t(1, 1);
   AmgSymMatrix(2) t1;
+  // cppcheck-suppress constStatement
   t1 << 1, 0, 0, -1;
   AmgSymMatrix(2) t2;
+  // cppcheck-suppress constStatement
   t2 << -1, 0, 0, -1;
   AmgSymMatrix(2) t3;
+  // cppcheck-suppress constStatement
   t3 << -1, 0, 0, 1;
   if (resolution != 3) {
     sincosCache scResult;
     for (int i = 1; i <= resolution; i++) {
       scResult = FastSinCos(M_PI_2 * i / (resolution + 1));
-      t << w * scResult.sinC, h * scResult.cosC;
+      Amg::Vector2D t (w * scResult.sinC, h * scResult.cosC);
       v[i * 4 + 0] = t;
       v[i * 4 + 1] = t1 * t;
       v[i * 4 + 2] = t2 * t;
       v[i * 4 + 3] = t3 * t;
     }
   } else {
-    t << w * s_cos22, h * s_cos67;
+    Amg::Vector2D t (w * s_cos22, h * s_cos67);
     v[4] = t;
     v[5] = t1 * t;
     v[6] = t2 * t;
     v[7] = t3 * t;
-    t << w * s_cos45, h * s_cos45;
+    t = Amg::Vector2D (w * s_cos45, h * s_cos45);
     v[8] = t;
     v[9] = t1 * t;
     v[10] = t2 * t;
     v[11] = t3 * t;
-    t << w * s_cos67, h * s_cos22;
+    t = Amg::Vector2D (w * s_cos67, h * s_cos22);
     v[12] = t;
     v[13] = t1 * t;
     v[14] = t2 * t;
