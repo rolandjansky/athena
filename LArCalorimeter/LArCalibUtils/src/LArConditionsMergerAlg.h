@@ -34,5 +34,10 @@ class LArConditionsMergerAlg: public AthAlgorithm {
 #include "LArRawConditions/LArPedestalComplete.h"
 typedef LArConditionsMergerAlg<LArPedestalComplete>  LArPedestalMerger;
 
+#include "LArRawConditions/LArOFCComplete.h"
+typedef LArConditionsMergerAlg<LArOFCComplete>  LArOFCMerger;
+
+#include "LArRawConditions/LArAutoCorrComplete.h"
+typedef LArConditionsMergerAlg<LArAutoCorrComplete> LArAutoCorrMerger;
 
 #endif
