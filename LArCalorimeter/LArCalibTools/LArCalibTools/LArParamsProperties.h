@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -137,18 +137,18 @@ namespace LArParamsProperties {
 
   // get class index from class name :
   //-----------------------------------
-  unsigned getClassIndex(std::string className);
+  unsigned getClassIndex(const std::string& className);
 
   // number of parameters contained in each data class
   //---------------------------------------------------
-  unsigned numberOfParams(std::string className);
+  unsigned numberOfParams(const std::string& className);
 
   template <class T>
   unsigned numberOfParams(const T* p) { return numberOfParams(getClassIndex(p)) ; } 
 
   // gain dependance of data class
   //-------------------------------  
-  bool isGainDependent(std::string className);
+  bool isGainDependent(const std::string& className);
 
   template <class T>
   bool isGainDependent(const T* p) { return isGainDependent(getClassIndex(p)) ; } 

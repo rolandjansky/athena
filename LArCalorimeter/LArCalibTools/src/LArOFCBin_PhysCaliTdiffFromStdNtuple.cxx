@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArOFCBin_PhysCaliTdiffFromStdNtuple.h"
@@ -48,9 +48,8 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
   ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain(m_ntuple_name.c_str());
-  for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
-	it != m_root_file_names.end(); it++ ) {
-    outfit->Add(it->c_str());
+  for (const std::string& s : m_root_file_names) {
+    outfit->Add(s.c_str());
   }
 
 
