@@ -461,7 +461,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : ['nod0'],
     'L2IDAlg'        : ['noringer'],
-    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
+    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3", "fwd"],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
     'topo'          : AllowedTopos_e,
