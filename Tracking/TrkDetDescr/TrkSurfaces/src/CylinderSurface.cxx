@@ -213,9 +213,9 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
   return (fabs(radius - bounds().r()) <= inttol);
 }
 
-bool
-Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
-{
+bool Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
+                                       const Trk::BoundaryCheck& bchk,
+                                       double tol1, double tol2) const {
   Amg::Vector3D loc3Dframe =
     Trk::Surface::m_transforms ? (transform().inverse()) * glopo : glopo;
   return (bchk ? bounds().inside3D(loc3Dframe,

@@ -141,7 +141,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
     CaloCellList myList(&cellContainer);
     // Save sampling midpoints in map
     typedef std::tuple<float, float, float> SampData;
-    typedef std::pair<CaloSample, SampData> SampDataPair;
+    using SampDataPair = std::pair<CaloSample, SampData>;
     std::map<CaloSample, SampData> sampleEtaPhiMap;
     float etot = 0;
     unsigned int samplingPattern = 0;
@@ -158,7 +158,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
             myList.select(midPoint.eta(), midPoint.phi(), m_dEtadPhi[samp].first, m_dEtadPhi[samp].second, samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
-            for (auto cell : myList) e += cell->energy();
+            for (const auto *cell : myList) e += cell->energy();
             etot += e;
             sampleEtaPhiMap.insert(SampDataPair(samp, std::make_tuple(e, midPoint.eta(), midPoint.phi())));
             if (m_doDebug)
@@ -178,7 +178,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
             myList.select(midPoint.eta(), midPoint.phi(), 0.1, samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
-            for (auto cell : myList) e += cell->energy();
+            for (const auto *cell : myList) e += cell->energy();
             etot += e;
             sampleEtaPhiMap.insert(SampDataPair(samp, std::make_tuple(e, midPoint.eta(), midPoint.phi())));
             if (m_doDebug)
@@ -187,7 +187,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
         }
     }
 
-    for (auto cell : cells) {
+    for (const auto *cell : cells) {
         if (m_doDebug)
             std::cout << "Input cell " << CaloDetDescrManager::instance()->getCalo_Mgr()->getEM_ID()->show_to_string(cell->ID()) << " "
                       << cell->eta() << "/" << cell->phi() << std::endl;
@@ -215,7 +215,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
 
     // add  cells to cluster
     cluster->setE(etot);
-    for (auto cell : cells) {
+    for (const auto *cell : cells) {
         if (!cell || !cell->caloDDE()) continue;
         int index = cellContainer.findIndex(cell->caloDDE()->calo_hash());
         if (index == -1) continue;
@@ -249,7 +249,7 @@ void Rec::CaloCellCollector::collectEtCore(const xAOD::CaloCluster& clus, std::v
     float etCoreHEC = 0;
     std::vector<float> sampEt(CaloSampling::Unknown, 0);
 
-    for (auto cell : clus) {
+    for (const auto *cell : clus) {
         CaloSample samp = cell->caloDDE()->getSampling();
         float clusEta = clus.etaSample(samp);
         float clusPhi = clus.phiSample(samp);

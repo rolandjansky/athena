@@ -94,13 +94,13 @@ public:
   ParametersT(const ParametersT<DIM, T, S>& rhs);
 
   /** Move constructor */
-  ParametersT(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   /** Assignment operator */
   ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
   /** Move assignment operator */
-  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   //** Destructor */
   virtual ~ParametersT() = default;

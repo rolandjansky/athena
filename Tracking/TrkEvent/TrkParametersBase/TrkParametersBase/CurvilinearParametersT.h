@@ -83,7 +83,7 @@ public:
   CurvilinearParametersT(const CurvilinearParametersT<DIM, T, S>&);
 
   /** Move Constructor */
-  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) = default;
+  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
@@ -91,7 +91,7 @@ public:
 
   /** Move assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
-    CurvilinearParametersT<DIM, T, S>&&) = default;
+    CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Destructor */
   virtual ~CurvilinearParametersT() = default;
