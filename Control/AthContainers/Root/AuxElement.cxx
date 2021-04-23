@@ -12,6 +12,7 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreStandalone.h"
 #include "AthContainers/exceptions.h"
+#include "CxxUtils/checker_macros.h"
 
 
 
@@ -65,6 +66,98 @@ class AuxElementStandaloneData
 public:
   using AuxElementData::setStore;
 };
+
+
+//************************************************************************
+
+
+/**
+ * @brief Out-of-line portion of destructor.
+ *
+ * Delete a private store if we have one.
+ */
+void ConstAuxElement::releasePrivateStoreForDtor()
+{
+  if (havePrivateData()) {
+    delete m_container;
+  }
+}
+
+
+/**
+ * @brief Set the index/container for this element.
+ * @param index The index of this object within the container.
+ * @param container The container holding this object.
+ *                  May be null if this object is being removed
+ *                  from a container.
+ *
+ * This is called from @c setIndex when we have a private store to deal with.
+ */
+bool ConstAuxElement::setIndexPrivate (size_t index,
+                                       const SG::AuxVectorData* container)
+{
+  if (hadPrivateData()) {
+    // We had a private store, but it was released because we were added
+    // to a container.
+
+    if (container == 0) {
+      // We're being moved out of the container.  Make a new private
+      // store, copy the data, and switch to it.
+      auto privateData = new SG::AuxElementPrivateData;
+      AuxElement to (privateData, 0);
+      to.copyAux (*this);
+      IAuxElement::setIndex (0);
+      IAuxElement::setHavePrivateData();
+      m_container = privateData;
+      return true;
+    }
+  }
+  else if (havePrivateData() &&
+           typeid(*m_container) == typeid(AuxElementPrivateData))
+  {
+    // We currently have a private store.
+
+    if (container != 0 && container != m_container) {
+      // We're being added to a container.
+      // Aux data has already been copied.
+      // Release private store.
+      IAuxElement::setIndex (index);
+      IAuxElement::setHadPrivateData();
+      delete m_container;
+      m_container = container;
+      return false;
+    }
+  }
+  else {
+    // We have a standalone store.
+    throw SG::ExcBadPrivateStore ("Attempt to add/remove a standalone object "
+                                  "from a container.");
+  }
+
+  IAuxElement::setIndex (index);
+  m_container = container;
+  return false;
+}
+
+
+/**
+ * @brief Return a set of identifiers for existing data items
+ *        for this object.
+ *
+ *        If this object has a private or standalone store, then information
+ *        from that will be returned.  Otherwise, if this element
+ *        is part of a container, then information for the container
+ *        will be returned.  Otherwise, return an empty set.
+ */
+const SG::auxid_set_t& ConstAuxElement::getAuxIDs() const
+{
+  if (havePrivateData())
+    return m_container->getConstStore()->getAuxIDs();
+  if (container())
+    return container()->getAuxIDs();
+  static const SG::auxid_set_t null_set;
+  return null_set;
+}
 
 
 //************************************************************************
@@ -190,8 +283,9 @@ bool AuxElement::usingStandaloneStore() const
  */
 const SG::IConstAuxStore* AuxElement::getConstStore() const
 {
-  if (havePrivateData())
+  if (havePrivateData()) {
     return m_container->getConstStore();
+  }
   return 0;
 }
 
@@ -204,8 +298,10 @@ const SG::IConstAuxStore* AuxElement::getConstStore() const
  */
 SG::IAuxStore* AuxElement::getStore() const
 {
-  if (havePrivateData())
-    return m_container->getStore();
+  if (havePrivateData()) {
+    SG::AuxVectorData* container_nc ATLAS_THREAD_SAFE = const_cast<SG::AuxVectorData*>(container());
+    return container_nc->getStore();
+  }
   return 0;
 }
 
@@ -218,28 +314,8 @@ SG::IAuxStore* AuxElement::getStore() const
  */
 void AuxElement::clearCache()
 {
-  if (m_container)
-    m_container->clearCache();
-}
-
-
-/**
- * @brief Return a set of identifiers for existing data items
- *        for this object.
- *
- *        If this object has a private or standalone store, then information
- *        from that will be returned.  Otherwise, if this element
- *        is part of a container, then information for the container
- *        will be returned.  Otherwise, return an empty set.
- */
-const SG::auxid_set_t& AuxElement::getAuxIDs() const
-{
-  if (havePrivateData())
-    return m_container->getConstStore()->getAuxIDs();
   if (container())
-    return container()->getAuxIDs();
-  static const SG::auxid_set_t null_set;
-  return null_set;
+    container()->clearCache();
 }
 
 
@@ -287,19 +363,6 @@ bool AuxElement::clearDecorations() const
 
 
 /**
- * @brief Out-of-line portion of destructor.
- *
- * Delete a private store if we have one.
- */
-void AuxElement::releasePrivateStoreForDtor()
-{
-  if (havePrivateData()) {
-    delete m_container;
-  }
-}
-
-
-/**
  * @brief Set the store associated with this object.
  * @param store The new store.
  *
@@ -320,7 +383,7 @@ AuxElement::setStore1 (const SG::IConstAuxStore* store)
     }
     if (usingStandaloneStore()) {
       // Standalone --- return existing object.
-      return static_cast<AuxElementStandaloneData*> (m_container);
+      return static_cast<AuxElementStandaloneData*> (container());
     }
     // Otherwise, it's an error.
     throw ExcBadPrivateStore ("Attempt to attach a standalone store to an "
@@ -339,61 +402,6 @@ AuxElement::setStore1 (const SG::IConstAuxStore* store)
                                 "object in a container or with a private store.");
     return 0;
   }
-}
-
-
-/**
- * @brief Set the index/container for this element.
- * @param index The index of this object within the container.
- * @param container The container holding this object.
- *                  May be null if this object is being removed
- *                  from a container.
- *
- * This is called from @c setIndex when we have a private store to deal with.
- */
-bool AuxElement::setIndexPrivate (size_t index, SG::AuxVectorData* container)
-{
-  if (hadPrivateData()) {
-    // We had a private store, but it was released because we were added
-    // to a container.
-
-    if (container == 0) {
-      // We're being moved out of the container.  Make a new private
-      // store, copy the data, and switch to it.
-      auto privateData = new SG::AuxElementPrivateData;
-      AuxElement to (privateData, 0);
-      to.copyAux (*this);
-      IAuxElement::setIndex (0);
-      IAuxElement::setHavePrivateData();
-      m_container = privateData;
-      return true;
-    }
-  }
-  else if (havePrivateData() &&
-           typeid(*m_container) == typeid(AuxElementPrivateData))
-  {
-    // We currently have a private store.
-
-    if (container != 0 && container != m_container) {
-      // We're being added to a container.
-      // Aux data has already been copied.
-      // Release private store.
-      IAuxElement::setIndex (index);
-      IAuxElement::setHadPrivateData();
-      delete m_container;
-      m_container = container;
-      return false;
-    }
-  }
-  else {
-    // We have a standalone store.
-    throw SG::ExcBadPrivateStore ("Attempt to add/remove a standalone object "
-                                  "from a container.");
-  }
-
-  IAuxElement::setIndex (index);
-  m_container = container;
-  return false;
 }
 
 
@@ -429,7 +437,7 @@ void AuxElement::clearAux()
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
-    void* dst = m_container->getDataArray (auxid);
+    void* dst = container()->getDataArray (auxid);
     r.clear (auxid, dst, index());
   }
 }
@@ -447,7 +455,7 @@ void AuxElement::clearAux()
  * in @c other are cleared.  (If @c other has no aux data, then all
  * aux data items for this object are cleared.)
  */
-void AuxElement::copyAux (const AuxElement& other)
+void AuxElement::copyAux (const ConstAuxElement& other)
 {
   if (!m_container) return;
   if (!m_container->hasStore()) return;
@@ -469,18 +477,18 @@ void AuxElement::copyAux (const AuxElement& other)
   for (SG::auxid_t auxid : other_ids) {
     const void* src = ocont->getDataArrayAllowMissing (auxid);
     if (src) {
-      void* dst = m_container->getDataArray (auxid);
+      void* dst = container()->getDataArray (auxid);
       r.copy (auxid, dst, index(), src, oindex);
     }
     else {
-      void* dst = m_container->getDataArray (auxid);
+      void* dst = container()->getDataArray (auxid);
       r.clear (auxid, dst, index());
     }
   }
 
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     if (!other_ids.test (auxid)) {
-      void* dst = m_container->getDataArray (auxid);
+      void* dst = container()->getDataArray (auxid);
       r.clear (auxid, dst, index());
     }
   }
