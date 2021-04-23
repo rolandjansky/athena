@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMen
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
 #MARCO
-from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonMenuSequence
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -29,7 +29,7 @@ def fastPhotonSequenceCfg( flags ):
     return fastPhotonMenuSequence()
 
 def TLAPhotonSequenceCfg( flags ):
-    photonsIn = "HLT_Roi_FastPhoton"
+    photonsIn = "HLT_FastPhotons"
     return TLAPhotonMenuSequence(flags, photonsIn)
 
 def precisionPhotonCaloSequenceCfg( flags ):
@@ -67,7 +67,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
-            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getTLAPhoton'],
+            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
             "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
@@ -104,6 +104,18 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
 
+
+ #       log.debug("MARCOLOG: Chain Name is: ", self.chainName) 
+        if "PhotonDS" in self.chainName :
+            log.debug('Adding photon trigger step getTLAPhoton')
+#            log.debug("MARCOLOG: Found PhotonDS in chain name: ", self.chainName)
+            #photonCollectionName = 'HLT_FastPhoton'
+            TLAStep = self.getTLAPhoton()
+            chainSteps+= [TLAStep]
+
+
+
+
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -123,7 +135,8 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def getTLAPhoton(self):
         stepName = "TLAPhoton"
-        print("xxxMARCO: inside getTLAPhoton")
+        log.debug("MARCOLOG: inside getTLAPhoton")
+        #return None
         return self.getStep(5, stepName, [ TLAPhotonSequenceCfg]) # does it make sense to have it at 5? should it be at 3?
 
     def getPrecisionCaloPhoton(self):

@@ -1,6 +1,9 @@
 from AthenaCommon.CFElements import parOR, seqAND
-from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFexMT
-from AthenaConfiguration.ComponentFactory import CompFactory
+from GaudiKernel.Constants import WARNING
+#from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFexMT
+
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+
 
 
 def TLAPhotonSequence(flags, photonsIn):
@@ -13,8 +16,9 @@ def TLAPhotonSequence(flags, photonsIn):
     sequenceOut = photonsIn+"_TLA"
     # initializes and configure the TLA Selector Algorithm
 
+    from TrigEgammaHypo import TrigEgammaTLAPhotonFexMTConfig
     # this has yet to be written, should be similar to the jet tla
-    TLAPhotonAlg = getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut, outputLevel=WARNING)
+    TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut, outputLevel=WARNING)
 
 
     # adds the selector to the newborn sequence)
@@ -23,32 +27,33 @@ def TLAPhotonSequence(flags, photonsIn):
     return ( recoSeq, sequenceOut )
 
 def TLAPhotonAthSequence(flags, photonsIn):
+    from AthenaConfiguration.ComponentFactory import CompFactory
 
     #creates the alg that creates the input for the TLA Algorithm. Is this necessary?
     #
-    InputMakerAlg = CompFactory.InputMakerForRoI( "XXXX" ) # what goes here?
+    InputMakerAlg = CompFactory.InputMakerForRoI( "IM_HLT_RoI_FastPhotons" ) # what goes here?
 
-    InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialRoITool() # what's the difference with ViewCreatorPreviousROITool?
+    InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool() # what's the difference with ViewCreatorPreviousROITool?
     InputMakerAlg.mergeUsingFeature = True
 
-    (TLAPhotonSequence, sequenceOut) = RecoFragmentsPool.retireve( TLAPhotonSequence, flags, photonsIn=photonsIn )
+    (tlaPhotonSequence, sequenceOut) = RecoFragmentsPool.retrieve( TLAPhotonSequence, flags, photonsIn=photonsIn )
     # the TLAPhoton sequence is now InputMakerAlg --> TrigEgammaTLAPhotonFexMT
-    TLAPhotonAthSequence = seqAND( "TLAPhotonAthSequence_"+photonsIn, [InputMakerAlg, TLAPhotonSequence] )
+    tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence_"+photonsIn, [InputMakerAlg, tlaPhotonSequence] )
 
-    return
+    return (tlaPhotonAthSequence, InputMakerAlg, sequenceOut)
 
 def TLAPhotonMenuSequence(flags, photonsIn):
 
-    from XXXX import TrigEgammaTLAPhotonHypoAlgMT
-    from XXXX import TrigEgammaTLAPhotonHypoToolFromDict # JetTLA calls a function "FromDict" from a python, investigate later
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict # JetTLA calls a function "FromDict" from a python, investigate later
 
-    (TLAPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn)
-    hypo = TrigEgammaTLAPhotonHypoAlgMT("XXXXX_"+photonsIn)
+    (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn)
+    hypo = TrigEgammaTLAPhotonHypoAlgMT("TrigEgammaTLAPhotonHypoAlgMT_"+photonsIn)
     hypo.Photons = sequenceOut
 
 
-    return MenuSequence( Sequence    = TLAPhotonAthSequence
-                         Maker       = InputMakerAlg
-                         Hypo        = hypo
+    return MenuSequence( Sequence    = tlaPhotonAthSequence,
+                         Maker       = InputMakerAlg,
+                         Hypo        = hypo,
                          HypoToolGen = TrigEgammaTLAPhotonHypoToolFromDict
                          )

@@ -429,6 +429,14 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS JetDS ESD', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS JetDS ESD', 'Jet'),
 
+    #TLA Photons
+    # completely not certain about this MARCO
+#    ('xAOD::TrigPhotonContainer#HLT_Photons_TLA',                                    'BS JetDS ESD', 'Egamma'),
+ #   ('xAOD::TrigPhotonAuxContainer#HLT_Photons_TLAAux',                              'BS JetDS ESD', 'Egamma'),
+    ('xAOD::TrigPhotonContainer#HLT_FastPhotons_TLA',                                    'BS JetDS ESD', 'Egamma'),
+    ('xAOD::TrigPhotonAuxContainer#HLT_FastPhotons_TLAAux',                              'BS JetDS ESD', 'Egamma'),
+
+
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.',          'BS ESD AODFULL', 'Jet'),
