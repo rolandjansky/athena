@@ -26,8 +26,7 @@ muonCombinedRecFlags.doCombinedFit = True
 muonRecFlags.enableErrorTuning = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, \
-  ViewCreatorPreviousROITool, ViewCreatorNamedROITool, \
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, ViewCreatorNamedROITool, \
   ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool, ViewCreatorFetchFromViewROITool
 
 #muon container names (for RoI based sequences)
@@ -289,9 +288,9 @@ def muCombLRTSequence():
 
     ### set up muCombHypo algorithm ###
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
-    #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg_LRT")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
+    trigmuCombHypo.RoILinkName = "l2lrtroi"
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombLrtHypoToolFromDict
 
@@ -420,7 +419,7 @@ def muEFCBAlgSequence(ConfigFlags):
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
     #
     efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    efcbViewsMaker.RoITool = ViewCreatorNamedROITool(ROILinkName="l2cbroi") # Spawn EventViews based on L2 CB RoIs
     #
     from .MuonRecoSequences import isCosmic
     efcbViewsMaker.Views = "MUEFCBViewRoIs" if not isCosmic() else "CosmicEFCBViewRoIs"
@@ -486,7 +485,7 @@ def muEFCBLRTAlgSequence(ConfigFlags):
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcblrttotal")
     #
     efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    efcbViewsMaker.RoITool = ViewCreatorNamedROITool(ROILinkName="l2lrtroi") # Spawn EventViews based on L2 CB RoIs
     #
     efcbViewsMaker.Views = "MUEFCBLRTViewRoIs" 
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"

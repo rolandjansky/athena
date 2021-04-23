@@ -44,7 +44,7 @@ class _ConfigSettings_muon( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name      = "muon"
       self._suffix    = "Muon"
-      self._roi       = "HLT_Roi_Muon"
+      self._roi       = "HLT_Roi_L2SAMuon"
       self._Triplet_D0Max       = 10.0
       self._doResMon            = True
       self._DoPhiFiltering      = False

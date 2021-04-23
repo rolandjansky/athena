@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOALG_H
@@ -27,6 +27,7 @@ class TrigmuCombHypoAlg
 
     SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_muCombKey {
 	this, "MuonL2CBInfoFromMuCombAlg", "MuonL2CBInfo", "Name of the input data produced by muCombMT"};
+    Gaudi::Property<std::string>m_roiLinkName{this, "RoILinkName", "l2cbroi", "Name for RoI Link"};
 };
 
 #endif
