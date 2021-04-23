@@ -73,7 +73,7 @@ AthenaOutputStream  DEBUG Found StoreGateSvc store.
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ItemListSvc         DEBUG ItemListSvc initialize
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc
+OutputStreamSeq...  DEBUG Initializing OutputStreamSequencerSvc
 OutputStreamSeq...  DEBUG Service base class initialized successfully
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
 AthenaOutputStr...   INFO Initializing AthenaOutputStream.AthenaOutputStreamTool

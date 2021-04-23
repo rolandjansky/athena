@@ -22,7 +22,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 FortranAlgorithm     INFO calling initialize_()
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully

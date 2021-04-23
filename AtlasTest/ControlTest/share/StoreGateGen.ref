@@ -22,7 +22,7 @@ AthDictLoaderSvc     INFO in initialize...[m
 AthDictLoaderSvc     INFO acquired Dso-registry[m
 ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL[m
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) [m
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00[m
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr[m
 ClassIDSvc           INFO  getRegistryEntries: read 1095 CLIDRegistry entries for module ALL[m
 WriteData            INFO in initialize()[m
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m

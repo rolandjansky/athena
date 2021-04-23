@@ -17,6 +17,7 @@ IOVDbSvc                                             INFO Cache alignment will b
 IOVDbSvc                                             INFO Global tag: OFLCOND-MC16-SDR-16 set from joboptions
 IOVDbSvc                                             INFO Initialised with 2 connections and 1 folders
 IOVDbSvc                                             INFO Service IOVDbSvc initialised successfully
+MetaDataSvc                                          INFO Initializing MetaDataSvc
 IOVDbSvc                                             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 PoolSvc                                              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
@@ -145,7 +146,7 @@ EMECConstruction                                     INFO activating LAr::EMEC::
 EndcapDMConstruction                                 INFO Start building EC electronics geometry
 GeoModelSvc                                          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 25608Kb 	 Time = 0.4S
 GeoModelSvc                                          INFO   AlgTool: GeoModelSvc.LArDetectorToolNV
-AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc                                           INFO  getRegistryEntries: read 3439 CLIDRegistry entries for module ALL
 CondInputLoader                                      INFO Initializing CondInputLoader...
 CondInputLoader                                      INFO Adding base classes:

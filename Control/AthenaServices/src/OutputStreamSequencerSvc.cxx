@@ -29,7 +29,7 @@ OutputStreamSequencerSvc::~OutputStreamSequencerSvc() {
 }
 //__________________________________________________________________________
 StatusCode OutputStreamSequencerSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name());
+   ATH_MSG_DEBUG("Initializing " << name());
 
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
