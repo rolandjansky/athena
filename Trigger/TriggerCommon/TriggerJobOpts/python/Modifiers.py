@@ -251,15 +251,6 @@ class BFieldAutoConfig(_modifier):
         if hasattr(svcMgr,'HltEventLoopMgr'):
             svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
 
-class allowCOOLUpdates(_modifier):
-    """
-    Enable COOL folder updates during the run
-    """
-    def postSetup(self):
-        if hasattr(svcMgr,'HltEventLoopMgr'):
-            from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
-            enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)
-
 class useOracle(_modifier):
     """
     Disable the use of SQLite for COOL and geometry
@@ -658,6 +649,9 @@ class doCosmics(_modifier):
     def preSetup(self):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
+       from AthenaConfiguration.AllConfigFlags import ConfigFlags
+       ConfigFlags.Beam.Type = 'cosmics'
+
 
 class enableALFAMon(_modifier):
     """

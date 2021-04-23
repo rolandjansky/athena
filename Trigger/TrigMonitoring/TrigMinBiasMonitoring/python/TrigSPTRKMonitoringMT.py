@@ -48,11 +48,17 @@ def TrigSPTRK(configFlags):
         mbEffGroup.defineHistogram( "trkSelOfflineRatio", path="Expert", title="Number of tracks reconstructed offline(selected)/offline; N sel/all", xbins=200, xmin=0.1, xmax=1.9 ) 
         mbEffGroup.defineHistogram( "nTrkOnline,nTrkOffline", type="TH2F", path="Expert", title=";N online tracks;N offline tracks", xbins=200, xmin=0, xmax=400, ybins=400, ymin=0, ymax=400 )
 
-        mbEffGroup.defineHistogram( "SctTot,nTrkOffline", type="TH2F", title="Number of SP in whole SCT detector for all events;N offline tracks", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=400 )
-        mbEffGroup.defineHistogram( "SctTot,nTrkOnline", type="TH2F",  title="Number of SP in whole SCT detector for all events;N online tracks", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=400 )
-        mbEffGroup.defineHistogram( "PixelCL,nTrkOffline", type="TH2F",  title="Number of SP in whole Pixels detector for all events;N offline tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
-        mbEffGroup.defineHistogram( "PixelCL,nTrkOnline", type="TH2F",  title="Number of SP in whole Pixels detector for all events;N online tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
-        mbEffGroup.defineHistogram( "SctTot,PixelCL", type="TH2F", title="Number of SP in whole SCT detector for all events;Number of SP in whole Pixels detector for all events", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=4000 )
+        mbEffGroup.defineHistogram( "SctTot,nTrkOffline", type="TH2F", title=";Number of SP in whole SCT detector for all events;N offline tracks", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "SctTot,nTrkOnline", type="TH2F",  title=";Number of SP in whole SCT detector for all events;N online tracks", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "PixelCL,nTrkOffline", type="TH2F",  title=";Number of SP in whole Pixels detector for all events;N offline tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "PixelCL,nTrkOnline", type="TH2F",  title=";Number of SP in whole Pixels detector for all events;N online tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "SctTot,PixelCL", type="TH2F", title=";Number of SP in whole SCT detector for all events;Number of SP in whole Pixels detector for all events", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=4000 )
+
+        mbEffGroup.defineHistogram( "L1sumEt", title=";L1 Total ET [GeV] ;Events", xbins=52, xmin=-2, xmax=50 ) 
+        mbEffGroup.defineHistogram( "nTrkOffline,L1sumEt", type="TH2F", title=";Offline Ntrk;L1 Total ET [GeV]", xbins=200, xmin=-1, xmax=400, ybins=52, ymin=-2, ymax=50   ) 
+        mbEffGroup.defineHistogram( "nTrkOnline,L1sumEt", type="TH2F", title=";Online Ntrk;L1 Total ET [GeV]",   xbins=200, xmin=-1, xmax=400, ybins=52, ymin=-2, ymax=50   ) 
+        mbEffGroup.defineHistogram( "SctTot,L1sumEt", type="TH2F", title=";Number of SP in whole SCT detector for all events;L1 Total ET [GeV]", xbins=100, xmin=0, xmax=4000, ybins=52, ymin=-2, ymax=50   ) 
+        mbEffGroup.defineHistogram( "PixelCL,L1sumEt", type="TH2F", title=";Number of SP in whole Pixels detector for all events;L1 Total ET [GeV]", xbins=100, xmin=0, xmax=4000, ybins=52, ymin=-2, ymax=50   ) 
 
         mbSpGroup = monConfig.addGroup(
             alg,
@@ -69,12 +75,12 @@ def TrigSPTRK(configFlags):
         mbSpGroup.defineHistogram( "SctECA_SP", title="Number of SCT_SP for all events in ECA", xbins=250, xmin=0, xmax=5000 )
         mbSpGroup.defineHistogram( "SctECC_SP", title="Number of SCT_SP for all events in ECC", xbins=250, xmin=0, xmax=5000 )
         # expert plots
-        mbSpGroup.defineHistogram( "SctECA_SP,SctECC_SP", type="TH2F", title="SctECA_SP;SctECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
-        mbSpGroup.defineHistogram( "PixECA_SP,PixECC_SP", type="TH2F", title="PixECA_SP;PixECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
-        mbSpGroup.defineHistogram( "SctBarr_SP,PixBarr_SP", type="TH2F", title="SctBarr_SP;PixBarr_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
-        mbSpGroup.defineHistogram( "SctECA_SP,PixECA_SP", type="TH2F", title="SctECA_SP;PixECA_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
-        mbSpGroup.defineHistogram( "SctECC_SP,PixECC_SP", type="TH2F", title="SctECC_SP;PixECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
-        mbSpGroup.defineHistogram( "SctTot,PixelCL", type="TH2F", title="Number of SP in whole SCT detector for all events;Number of SP in whole Pixels detector for all events", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "SctECA_SP,SctECC_SP", type="TH2F", title=";SctECA_SP;SctECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "PixECA_SP,PixECC_SP", type="TH2F", title=";PixECA_SP;PixECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "SctBarr_SP,PixBarr_SP", type="TH2F", title=";SctBarr_SP;PixBarr_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "SctECA_SP,PixECA_SP", type="TH2F", title=";SctECA_SP;PixECA_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "SctECC_SP,PixECC_SP", type="TH2F", title=";SctECC_SP;PixECC_SP", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
+        mbSpGroup.defineHistogram( "SctTot,PixelCL", type="TH2F", title=";Number of SP in whole SCT detector for all events;Number of SP in whole Pixels detector for all events", xbins=400, xmin=0, xmax=4000, ybins=400, ymin=0, ymax=4000 )
         
 
     return monConfig.result()

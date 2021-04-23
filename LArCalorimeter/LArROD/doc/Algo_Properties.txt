@@ -11,7 +11,6 @@ Name                        Type        Purpose
 LArRawChannelContainerName  string      output container Key
 DataLocation                string      input container key
 UseTDC                      bool        Use TDC-information y/n (set true for TB)
-UseOFCTool                  bool        Use LArOFCTool y/n (set true for MC)
 Ecut                        float       Energy threshold for time and quality calculation.
 UseHighGainRampIntercept    bool        Use ramp[0] in high gain y/n
 UseMedGainRampIntercept     bool        Use ramp[0] in medium gain y/n

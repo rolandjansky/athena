@@ -1216,7 +1216,7 @@ bool LArConditionsContainer<T>::merge(const LArConditionsContainer<T>& other) {
       const HWIdentifier hwid=it.channelId();
       const T& payload=*it;
       if (!payload.isEmpty()) {
-	const T& currentPayload=this->get(hwid,gain);
+	const T& currentPayload=const_cast<const LArConditionsContainer<T>* >(this) -> get(hwid,gain);
 	if (!currentPayload.isEmpty()) {
 	  ++nOverwrites;
 	}

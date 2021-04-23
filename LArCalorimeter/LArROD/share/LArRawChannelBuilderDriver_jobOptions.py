@@ -19,11 +19,6 @@ theLArOFPeakRecoTool.KeyShape="LArShape"
 theLArOFPeakRecoTool.UseShape=False
 ToolSvc += theLArOFPeakRecoTool
 
-if MCFlag :
-	from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-	theLArOFCTool=LArOFCToolDefault()
-	ToolSvc += theLArOFCTool
-    
 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
 theLArADC2MeVTool=LArADC2MeVToolDefault()
 ToolSvc+=theLArADC2MeVTool
@@ -37,9 +32,6 @@ LArRawChannelBuilder.LArRawChannelContainerName = LArRawChannelKey
 LArRawChannelBuilder.DefaultShiftTimeSample=1
 
 # builder tools
-# builderToolOFC = LArRawChannelBuilderToolOFC("builderToolOFC")
-# if MCFlag :
-# 	builderToolOFC.OFCTool = theLArOFCTool
 builderToolOFCIter = LArRawChannelBuilderToolOFCIter("builderToolOFCIter")
 builderToolOFCIter.minSample = 2 
 builderToolOFCIter.maxSample = 8

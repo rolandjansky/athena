@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -19,7 +19,8 @@
 // #include "CaloEvent/CaloSampling.h"
 
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include <CLHEP/Random/Randomize.h>
 
@@ -32,6 +33,7 @@
 
 // Utilities
 #include "PathResolver/PathResolver.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <sys/types.h>
 
 #include <numeric>
@@ -53,7 +55,7 @@ namespace LVL1 {
 TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   : AthAlgorithm( name, pSvcLocator ), 
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
-    m_rndGenSvc("AtRndmGenSvc", name),
+    m_rngSvc("AthRNGSvc", name),
     m_rndmPeds(0),m_rndmADCs(0),
     m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
@@ -73,7 +75,7 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_correctFir(true)
 {
  
-  declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
+  declareProperty("RngSvc", m_rngSvc, "Random number service");
   declareProperty("PedEngine",m_pedEngine = "TrigT1CaloSim_Pedestal");
   declareProperty("DigiEngine",m_digiEngine = "TrigT1CaloSim_Digitization");
   
@@ -628,9 +630,9 @@ StatusCode TriggerTowerMaker::initialize()
   ATH_CHECK( m_configSvc.retrieve() );
 
   /** get the random generator serice */
-  ATH_CHECK( m_rndGenSvc.retrieve() );
-  m_rndmPeds = m_rndGenSvc->GetEngine(m_pedEngine);
-  m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
+  ATH_CHECK( m_rngSvc.retrieve() );
+  m_rndmPeds = m_rngSvc->getEngine(this, m_pedEngine);
+  m_rndmADCs = m_rngSvc->getEngine(this, m_digiEngine);
   if (m_rndmPeds == 0 || m_rndmADCs == 0)
     ATH_MSG_ERROR ( "Failed to retrieve random engine" );
 
@@ -1290,7 +1292,8 @@ std::vector<int> TriggerTowerMaker::calcFIR(const std::vector<double>& Pulse, in
   
 void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulses)
 {
-  
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  CLHEP::HepRandomEngine* rndmPeds = m_rndmPeds->getEngine (ctx);
 
   // How to handle pedestal when truncating to 10 bit LUT range
   float round = ( m_RoundPed ? 0.5 : 0. );
@@ -1367,7 +1370,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 64; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/32.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1389,7 +1392,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped =  m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1428,7 +1431,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 64; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/32.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);         
@@ -1451,7 +1454,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1490,7 +1493,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 32; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/16.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1512,7 +1515,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1548,7 +1551,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
       for (int iphi = 0; iphi < 32; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/16.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1570,7 +1573,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1608,7 +1611,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 16; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/8.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1630,7 +1633,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1669,7 +1672,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 64; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/32.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1691,7 +1694,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1730,7 +1733,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 64; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/32.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1752,7 +1755,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1789,7 +1792,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 32; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/16.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1811,7 +1814,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1847,7 +1850,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
       for (int iphi = 0; iphi < 32; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/16.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1869,7 +1872,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_slope.insert(std::map<unsigned int, int>::value_type(idp.id(),calslope));
           m_channelNoiseCuts.insert(std::map<unsigned int, int>::value_type(idp.id(),thresh));
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1911,7 +1914,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
         for (int iphi = 0; iphi < 16; ++iphi) {
           double phi = (float(iphi)+0.5)*(M_PI/8.);
 
-          double pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          double pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           double firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 2.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -1935,7 +1938,7 @@ void TriggerTowerMaker::initLUTs(const std::vector< std::vector<double> >& Pulse
           m_offsetElement[iLayer][iElement] = pedsub;  // for FCal23 mapping
           m_threshElement[iLayer][iElement] = threshp; // for FCal23 mapping
 
-          pedvar = CLHEP::RandFlat::shoot(m_rndmPeds,-m_pedVar,m_pedVar);
+          pedvar = CLHEP::RandFlat::shoot(rndmPeds,-m_pedVar,m_pedVar);
           firped = FIRsum*(m_pedVal+pedvar);
           // p.c. 5.
           if (m_elementFir) firped = m_FIRsumElement[iLayer][iElement]*(m_pedVal+pedvar);
@@ -2102,6 +2105,9 @@ StatusCode TriggerTowerMaker::execute( )
   // make a message logging stream 
   
   ATH_MSG_VERBOSE( "Executing" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  m_rndmADCs->setSeed (m_digiEngine, ctx);
+  m_rndmPeds->setSeed (m_pedEngine, ctx);
 
   // Create a map to hold the internal towers
   m_IntTTContainer = new std::map<int, InternalTriggerTower*>;
@@ -2123,10 +2129,10 @@ StatusCode TriggerTowerMaker::execute( )
   case CELL :
     {
       ATH_MSG_VERBOSE ( "Looking for CaloCells" );
-      StatusCode temp=getCaloCells();
+      StatusCode temp=getCaloCells(ctx);
       if (temp==StatusCode::SUCCESS) {
-         digitize(); // digitisation
-         preProcess(); // FIR, BCID etc
+         digitize(ctx); // digitisation
+         preProcess(ctx); // FIR, BCID etc
       }
       break;
     }
@@ -2135,7 +2141,7 @@ StatusCode TriggerTowerMaker::execute( )
       ATH_MSG_VERBOSE ( "Looking for TriggerTower input" );
       StatusCode temp=getTriggerTowers();
       if (temp==StatusCode::SUCCESS) {
-         preProcess(); // FIR, BCID etc
+         preProcess(ctx); // FIR, BCID etc
       }
       break;
     }
@@ -2145,10 +2151,10 @@ StatusCode TriggerTowerMaker::execute( )
       ATH_MSG_VERBOSE ( "Looking for calo towers" );
       StatusCode temp=getCaloTowers();
       if (temp==StatusCode::SUCCESS) {
-        digitize(); // digitisation
+        digitize(ctx); // digitisation
         StatusCode scProceed = StatusCode::SUCCESS;
         if (m_doOverlay) scProceed = overlay();             // noise/mbias overlay
-        if (scProceed == StatusCode::SUCCESS) preProcess(); // digitisation, FIR, BCID etc
+        if (scProceed == StatusCode::SUCCESS) preProcess(ctx); // digitisation, FIR, BCID etc
       }
       break;
     }
@@ -2172,7 +2178,7 @@ StatusCode TriggerTowerMaker::execute( )
 
 /** fetches LAr & Tile calorimeter cells */
 
-StatusCode LVL1::TriggerTowerMaker::getCaloCells(){
+StatusCode LVL1::TriggerTowerMaker::getCaloCells(const EventContext& ctx){
   // Find  CaloCells in TES
   
   const CaloCellContainer* AllCells;
@@ -2195,7 +2201,7 @@ StatusCode LVL1::TriggerTowerMaker::getCaloCells(){
     }// end else if (! cells)
   }
   
-  if (sc0==StatusCode::SUCCESS) processCaloCells(AllCells);
+  if (sc0==StatusCode::SUCCESS) processCaloCells(ctx, AllCells);
  
   return StatusCode::SUCCESS;
 }
@@ -2248,8 +2254,11 @@ StatusCode LVL1::TriggerTowerMaker::store()
 
 /** steps over Calo cells and creates/fills trigger towers. */
 
-void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
+void LVL1::TriggerTowerMaker::processCaloCells(const EventContext& ctx,
+                                               const CaloCellContainer * cells)
 {
+  CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
+
   static bool showCalibVal = false;
   
   //int outputLevel = msgSvc()->outputLevel( name() );
@@ -2308,8 +2317,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       double emTTCellsEnergy = m_cells2tt->energy(emId);
       double hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT1 = findTriggerTower(tt_phi, tt_eta, key);
       TT1->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2326,8 +2335,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       emTTCellsEnergy = m_cells2tt->energy(emId);
       hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT2 = findTriggerTower(tt_phi, tt_eta, key);
       TT2->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2357,8 +2366,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       double emTTCellsEnergy = m_cells2tt->energy(emId);
       double hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT1 = findTriggerTower(tt_phi, tt_eta, key);
       TT1->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2375,8 +2384,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       emTTCellsEnergy = m_cells2tt->energy(emId);
       hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT2 = findTriggerTower(tt_phi, tt_eta, key);
       TT2->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2407,8 +2416,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       double emTTCellsEnergy = m_cells2tt->energy(emId);
       double hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT1 = findTriggerTower(tt_phi, tt_eta, key);
       TT1->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2425,8 +2434,8 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
       emTTCellsEnergy = m_cells2tt->energy(emId);
       hadTTCellsEnergy = m_cells2tt->energy(hadId);
       // add noise
-      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
-      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));
+      if (m_towerNoise) emTTCellsEnergy  += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
+      if (m_towerNoise) hadTTCellsEnergy += CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));
       // create and fill tower
       InternalTriggerTower* TT2 = findTriggerTower(tt_phi, tt_eta, key);
       TT2->addEMPeak(emTTCellsEnergy*emScale*m_sinThetaHash[Ieta]);
@@ -2791,9 +2800,9 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
 
 /** Digitize pulses and store results back in InternalTriggerTowers */
 
-void LVL1::TriggerTowerMaker::digitize()
+void LVL1::TriggerTowerMaker::digitize(const EventContext& ctx)
 {
-  
+  CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
   
   // Iterator for the InternalTriggerTower map
   std::map<int, InternalTriggerTower*>::iterator it;
@@ -2803,10 +2812,10 @@ void LVL1::TriggerTowerMaker::digitize()
   for( it=m_IntTTContainer->begin(); it!=m_IntTTContainer->end(); ++it ){
     // First process EM layer 
     L1CaloCoolChannelId emId = channelId(it->second->eta(), it->second->phi(), 0); 
-    std::vector<int> emDigits = ADC(emId, it->second->EmAmps()); // ADC simulation
+    std::vector<int> emDigits = ADC(rndmADCs, emId, it->second->EmAmps()); // ADC simulation
     // Then the hadronic    
     L1CaloCoolChannelId hadId = channelId(it->second->eta(), it->second->phi(), 1);
-    std::vector<int> hadDigits = ADC(hadId, it->second->HadAmps()); // ADC simulation
+    std::vector<int> hadDigits = ADC(rndmADCs, hadId, it->second->HadAmps()); // ADC simulation
     // and put the results back into the ITT
     it->second->addEMADC(emDigits);
     it->second->addHadADC(hadDigits);
@@ -2817,11 +2826,11 @@ void LVL1::TriggerTowerMaker::digitize()
 
 /** Emulate FIR filter, bunch-crossing identification & LUT, and create & fill TriggerTowers. */
 
-void LVL1::TriggerTowerMaker::preProcess()
+void LVL1::TriggerTowerMaker::preProcess(const EventContext& ctx)
 {
   // Pedestal Correction: Get the BCID number
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   unsigned int eventBCID = ctx.eventID().bunch_crossing_id();
+  CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
  
   // Iterator for the InternalTriggerTower map
   std::map<int, InternalTriggerTower*>::iterator it;
@@ -2859,7 +2868,7 @@ void LVL1::TriggerTowerMaker::preProcess()
     
     /// retrieve digits
     std::vector<int> emDigits = (m_timeslicesLUT)
-                              ? multiSliceDigits(it->second, towerType)
+                              ? multiSliceDigits(rndmADCs, it->second, towerType)
                               : it->second->EmADC();       // ADC counts
     /// disabled tower?
     bool disabled = (m_badEMTowers.find( key ) != m_badEMTowers.end());
@@ -2960,7 +2969,7 @@ void LVL1::TriggerTowerMaker::preProcess()
 
     /// retrieve hadronic digits
     std::vector<int> hadDigits = (m_timeslicesLUT)
-                               ? multiSliceDigits(it->second, towerType)
+                               ? multiSliceDigits(rndmADCs, it->second, towerType)
                                : it->second->HadADC();       // ADC counts
                                
     /// disabled tower?
@@ -3113,6 +3122,9 @@ LVL1::InternalTriggerTower* LVL1::TriggerTowerMaker::findTriggerTower(double tt_
 
 void LVL1::TriggerTowerMaker::addNoise()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
+
   // the TriggerTowerKey object provides the key for each trigger tower,
   // depending on its eta,phi coords. The key is an integer number that uniquely
   // identifies each tower.
@@ -3137,10 +3149,10 @@ void LVL1::TriggerTowerMaker::addNoise()
       InternalTriggerTower* TTr = findTriggerTower(tt_phi, tt_eta, key);
       
       // add noise      
-      double emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      double emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTr->addEMPeak(emnoise*emScale*m_sinThetaHash[ieta]);
       
-      double hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));     
+      double hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));     
       TTr->addHadPeak(hdnoise*hdScale*m_sinThetaHash[ieta]);
       
       // now corresponding tower at -ive eta
@@ -3150,10 +3162,10 @@ void LVL1::TriggerTowerMaker::addNoise()
 
       InternalTriggerTower* TTl = findTriggerTower(tt_phi, tt_eta, key);
   
-      emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTl->addEMPeak(emnoise*emScale*m_sinThetaHash[ieta]);
       
-      hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));  
+      hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));  
       TTl->addHadPeak(hdnoise*hdScale*m_sinThetaHash[ieta]);
 
     }  // end phi loop
@@ -3168,32 +3180,32 @@ void LVL1::TriggerTowerMaker::addNoise()
     for (int iphi = 0; iphi < 32; iphi++) {
       double temp_phi = (iphi + 0.5)*(M_PI/16.);
 
-// Get corresponding tower key and coordinates
+      // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
       double tt_phi=testKey.phi();
       double tt_eta=testKey.eta();
       int Ieta = (int)( tt_eta*10.0);
 
-// Get matching tower
+      // Get matching tower
       InternalTriggerTower* TTr = findTriggerTower(tt_phi, tt_eta, key);
 
-// add noise      
-      double emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      // add noise      
+      double emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTr->addEMPeak(emnoise*emScale*m_sinThetaHash[Ieta]);
       
-      double hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));     
+      double hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));     
       TTr->addHadPeak(hdnoise*hdScale*m_sinThetaHash[Ieta]);
       
-// now corresponding tower at -ive eta
+      // now corresponding tower at -ive eta
       key = testKey.ttKey(temp_phi,-temp_eta);
       tt_phi=testKey.phi();
       tt_eta=testKey.eta();
 
       InternalTriggerTower* TTl = findTriggerTower(tt_phi, tt_eta, key);
 
-      emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTl->addEMPeak(emnoise*emScale*m_sinThetaHash[Ieta]);
-      hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));  
+      hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));  
       TTl->addHadPeak(hdnoise*hdScale*m_sinThetaHash[Ieta]);
 
 
@@ -3209,32 +3221,32 @@ void LVL1::TriggerTowerMaker::addNoise()
     for (int iphi = 0; iphi < 16; iphi++) {
       double temp_phi = (iphi + 0.5)*(M_PI/8.);
 
-// Get corresponding tower key and coordinates
+      // Get corresponding tower key and coordinates
       unsigned int key = testKey.ttKey(temp_phi,temp_eta);
       double tt_phi=testKey.phi();
       double tt_eta=testKey.eta();
       int Ieta = (int)( tt_eta*10.0);
 
-// Get matching tower
+      // Get matching tower
       InternalTriggerTower* TTr = findTriggerTower(tt_phi, tt_eta, key);
 
-// add noise      
-      double emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      // add noise      
+      double emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTr->addEMPeak(emnoise*emScale*m_sinThetaHash[Ieta]);
       
-      double hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));     
+      double hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));     
       TTr->addHadPeak(hdnoise*hdScale*m_sinThetaHash[Ieta]);
       
-// now corresponding tower at -ive eta
+      // now corresponding tower at -ive eta
       key = testKey.ttKey(temp_phi,-temp_eta);
       tt_phi=testKey.phi();
       tt_eta=testKey.eta();
 
       InternalTriggerTower* TTl = findTriggerTower(tt_phi, tt_eta, key);
 
-      emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(tt_eta));
+      emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(tt_eta));
       TTl->addEMPeak(emnoise*emScale*m_sinThetaHash[Ieta]);
-      hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(tt_eta));  
+      hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(tt_eta));  
       TTl->addHadPeak(hdnoise*hdScale*m_sinThetaHash[Ieta]);
 
 
@@ -3268,9 +3280,10 @@ double LVL1::TriggerTowerMaker::hadNoise(double eta)
   return noise;
 }
 
-std::vector<int> LVL1::TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps)
+std::vector<int> LVL1::TriggerTowerMaker::ADC(CLHEP::HepRandomEngine* rndmADCs,
+                                              L1CaloCoolChannelId channel, const std::vector<double>& amps)
 {     
-  double adcCal = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,1.,m_gainCorr);
+  double adcCal = CLHEP::RandGaussZiggurat::shoot(rndmADCs,1.,m_gainCorr);
   double ped = m_pedVal; // Give it a default in case of trouble
 
   int coolId = channel.id();
@@ -3281,7 +3294,7 @@ std::vector<int> LVL1::TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const
 
   int nSamples = amps.size();   
   for (int i=0; i<nSamples; i++) {
-    double adcNoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,m_adcVar);
+    double adcNoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,m_adcVar);
     int digit = int( (amps[i]*adcCal/m_adcStep) + ped + adcNoise);
     if (digit > m_adcMax) digit = m_adcMax;
     if (digit < 0)        digit = 0;
@@ -3409,6 +3422,7 @@ LVL1::TriggerTowerMaker::towerType LVL1::TriggerTowerMaker::TTL1type(const Ident
 }
 
 std::vector<int> LVL1::TriggerTowerMaker::multiSliceDigits(
+                          CLHEP::HepRandomEngine* rndmADCs,
                           const InternalTriggerTower* itt, int type)
 {
   TriggerTowerMap_t::const_iterator pos = m_ADCContainer->find(itt->key());
@@ -3421,7 +3435,7 @@ std::vector<int> LVL1::TriggerTowerMaker::multiSliceDigits(
     int fullHadSlices = slicesHadADC + m_timeslicesLUT - 1;
     std::vector<double> fullEmAmps(fullEmSlices);
     std::vector<double> fullHadAmps(fullHadSlices);
-    if (m_towerNoise) sliceNoise(fullEmAmps, fullHadAmps, itt->eta());
+    if (m_towerNoise) sliceNoise(rndmADCs, fullEmAmps, fullHadAmps, itt->eta());
     int offset = m_timeslicesLUT / 2;
     for (int sl = 0; sl < slicesEmADC; ++ sl) {
       fullEmAmps[sl + offset] = itt->EmAmps()[sl];
@@ -3431,8 +3445,8 @@ std::vector<int> LVL1::TriggerTowerMaker::multiSliceDigits(
     }
     L1CaloCoolChannelId emId  = channelId(itt->eta(), itt->phi(), 0); 
     L1CaloCoolChannelId hadId = channelId(itt->eta(), itt->phi(), 1); 
-    std::vector<int> fullEmDigits  = ADC(emId,fullEmAmps); // ADC simulation
-    std::vector<int> fullHadDigits = ADC(hadId,fullHadAmps);
+    std::vector<int> fullEmDigits  = ADC(rndmADCs, emId,fullEmAmps); // ADC simulation
+    std::vector<int> fullHadDigits = ADC(rndmADCs, hadId,fullHadAmps);
     // Save for later iterations/slices
     std::vector<int> dummyA(fullEmSlices);
     std::vector<int> dummyB(fullHadSlices);
@@ -3503,7 +3517,8 @@ void LVL1::TriggerTowerMaker::setupADCMap()
   }
 }
 
-void LVL1::TriggerTowerMaker::sliceNoise(std::vector<double>& emAmps,
+void LVL1::TriggerTowerMaker::sliceNoise(CLHEP::HepRandomEngine* rndmADCs,
+                                         std::vector<double>& emAmps,
                                          std::vector<double>& hadAmps,
                                                      double eta)
 {
@@ -3515,13 +3530,13 @@ void LVL1::TriggerTowerMaker::sliceNoise(std::vector<double>& emAmps,
   std::vector<double>::iterator pos  = emAmps.begin();
   std::vector<double>::iterator pose = emAmps.end();
   for (; pos != pose; ++pos) {
-    double emnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,emNoise(eta));
+    double emnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,emNoise(eta));
     *pos += emnoise*emScale*sintheta;
   }
   pos  = hadAmps.begin();
   pose = hadAmps.end();
   for (; pos != pose; ++pos) {
-    double hdnoise = CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,hadNoise(eta));     
+    double hdnoise = CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,hadNoise(eta));     
     *pos += hdnoise*hdScale*sintheta;
   }
   return;

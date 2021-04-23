@@ -18,7 +18,7 @@ StatusCode RpcSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
   const MuonSimDataCollection* mdtSdoContainer = nullptr;
   ATH_CHECK( m_evtStore->retrieve(mdtSdoContainer, m_ContainerName.c_str()) );
 
-  for (const auto coll : *mdtSdoContainer ) {
+  for (const auto& coll : *mdtSdoContainer ) {
 
     const Identifier id = coll.first;
     const MuonSimData mdt_sdo = coll.second;

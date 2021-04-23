@@ -23,8 +23,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
-  class CscRdoToCscPrepDataToolMT : public CscRdoToCscPrepDataToolCore {
-
+  class CscRdoToCscPrepDataToolMT
+    : public extends<CscRdoToCscPrepDataToolCore,IMuonRdoToPrepDataTool>
+  {
   public:
     
     CscRdoToCscPrepDataToolMT(const std::string& type, const std::string& name,
@@ -38,10 +39,10 @@ namespace Muon {
     
     virtual StatusCode finalize() override;
 
-    virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) override;
-    virtual StatusCode decode( const std::vector<uint32_t>& ) override {return StatusCode::FAILURE;}
+    virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) const override;
+    virtual StatusCode decode( const std::vector<uint32_t>& ) const override {return StatusCode::FAILURE;}
 
-    virtual void printPrepData() override;
+    virtual void printPrepData() const override;
 
 
   private:

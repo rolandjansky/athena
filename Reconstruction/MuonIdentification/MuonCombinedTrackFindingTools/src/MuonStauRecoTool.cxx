@@ -82,10 +82,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG(" extending " << inDetCandidates.size());
 
         if (meTracks) ATH_MSG_DEBUG("Not currently creating ME tracks for staus");
-
-        InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
-        InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
-        for (; it != it_end; ++it) { handleCandidate(**it, tagMap, combTracks, segments); }
+        for (const InDetCandidate* it : inDetCandidates) { handleCandidate(*it, tagMap, combTracks, segments); }
     }
 
     MuonStauRecoTool::TruthInfo* MuonStauRecoTool::getTruth(const xAOD::TrackParticle& indetTrackParticle) const {
@@ -137,6 +134,8 @@ namespace MuonCombined {
         // exit if no MuonSystemExtension was found
         if (!muonSystemExtension) { return; }
 
+        // fill validation content
+        if (!m_recoValidationTool.empty()) m_recoValidationTool->addTrackParticle(indetTrackParticle, *muonSystemExtension);
         /** STAGE 1
            process the muon system extension: loop over intersections, get associated data, time measurement, build beta seeds
         */
@@ -151,11 +150,15 @@ namespace MuonCombined {
         CandidateVec candidates;
         if (!createCandidates(associatedData, candidates)) { return; }
 
+        if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 0);
+
         /** STAGE 3
             refine candidates: find segments using the beta seed of the candidate
         */
 
         if (!refineCandidates(candidates)) { return; }
+
+        if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 1);
 
         /** STAGE 4
             combineCandidates: run the combined reconstruction
@@ -163,12 +166,14 @@ namespace MuonCombined {
 
         if (!combineCandidates(indetTrackParticle, candidates)) { return; }
 
+        if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 2);
         /** STAGE 5
            resolve ambiguities
         */
 
         if (!resolveAmbiguities(candidates)) { return; }
 
+        if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 3);
         /** STAGE 6
             create tag
         */
@@ -200,9 +205,18 @@ namespace MuonCombined {
                 // skip if no segment were found
                 if (segments.empty()) continue;
 
+                // fill validation content
+                if (!m_recoValidationTool.empty()) {
+                    for (const auto& seg : segments) m_recoValidationTool->add(layerData.intersection, *seg, 2);
+                }
+
                 // match segments to intersection, store the ones that match
                 std::vector<std::shared_ptr<const Muon::MuonSegment> > selectedSegments;
                 m_segmentMatchingTool->select(layerData.intersection, segments, selectedSegments);
+                // fill validation content
+                if (!m_recoValidationTool.empty()) {
+                    for (const auto& seg : selectedSegments) m_recoValidationTool->add(layerData.intersection, *seg, 3);
+                }
 
                 // add layer list
                 candidate->allLayers.push_back(Muon::MuonLayerRecoData(layerData.intersection, std::move(selectedSegments)));
@@ -785,6 +799,7 @@ namespace MuonCombined {
                 // extract times form track
                 extractTimeMeasurementsFromTrack(*candidate);
                 combinedCandidates.push_back(candidate);
+                if (!m_recoValidationTool.empty()) m_recoValidationTool->addTimeMeasurements(indetTrackParticle, candidate->stauHits);
             }
         }
 
@@ -1031,7 +1046,7 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("  addHit: distance " << distance << " time " << time << " beta"
                                                       << calculateBeta(time + calculateTof(1, distance), distance));
             }
-            hits.push_back(Muon::TimePointBetaFitter::Hit(distance, time, error));
+            if (error!=0.) hits.emplace_back(distance, time, error);
         };
 
         // add rpc measurements
@@ -1390,4 +1405,35 @@ namespace MuonCombined {
     float MuonStauRecoTool::calculateBeta(const float time, const float dist) const {
         return time != 0. ? dist * inverseSpeedOfLight / time : 20.;
     }
+    void MuonStauRecoTool::addCandidatesToNtuple(const xAOD::TrackParticle& indetTrackParticle,
+                                                 const MuonStauRecoTool::CandidateVec& candidates, int stage) const {
+        if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+            ATH_MSG_WARNING("You are calling the non thread-safe MuonRecoValidationTool with multiple threads, will most likely crash");
+        }
+        if (m_recoValidationTool.empty()) return;
+
+        ATH_MSG_DEBUG("add candidates to ntuple, stage " << stage);
+        for (const auto& candidate : candidates) {
+            int ntimes = 0;
+            float beta = -1.;
+            float chi2ndof = -1.;
+            if (candidate->finalBetaFitResult.status != 0) {
+                ntimes = candidate->stauHits.size();
+                beta = candidate->finalBetaFitResult.beta;
+                chi2ndof = candidate->finalBetaFitResult.chi2PerDOF();
+            } else if (candidate->betaFitResult.status != 0) {
+                ntimes = candidate->hits.size();
+                beta = candidate->betaFitResult.beta;
+                chi2ndof = candidate->betaFitResult.chi2PerDOF();
+            } else {
+                ntimes = 1;
+                beta = candidate->betaSeed.beta;
+                chi2ndof = 0;
+            }
+            if (candidate->combinedTrack) ATH_MSG_DEBUG("candidate has combined track");
+            m_recoValidationTool->addMuonCandidate(indetTrackParticle, candidate->muonCandidate.get(), candidate->combinedTrack.get(),
+                                                   ntimes, beta, chi2ndof, stage);
+        }
+    }
+
 }  // namespace MuonCombined

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4Identifier.hh
@@ -17,8 +17,8 @@
 // this ever becomes an Athena-only application, we can make the
 // switch.
 
-#ifndef __LArG4Identifier_h__
-#define __LArG4Identifier_h__
+#ifndef LARG4CODE_LARG4IDENTIFIER_H
+#define LARG4CODE_LARG4IDENTIFIER_H
 
 //  LArG4Identifier :
 //  
@@ -96,18 +96,6 @@
 //                                       /1 == /1/3  
 //
 //
-//  error_code last_error ()             : returns the last error code 
-//                                         produced by the most recent 
-//                                         identifier operation. The possible
-//                                         values are :
-//
-//                                             none
-//                                             bad_parameter
-//                                             field_not_found
-//
-//  const std::string last_error_text () : returns a text describing the 
-//                                         last error.
-//
 //  ----------------------------------------------------
 //
 //  Example of how to use an identifier :
@@ -117,10 +105,6 @@
 //  LArG4Identifier id;
 //
 //  id << 125 << 236 << 306 << 2222;
-//  if (id.last_error () != LArG4Identifier::none)
-//    {
-//      cout << "Error : " << id.last_error_text () << endl;
-//    }
 //
 //  for (size_type i = 0; i < id.fields (); ++i)
 //    {
@@ -149,19 +133,6 @@ public:
     {
       max_value = SHRT_MAX
     } max_value_type;
-
-    //----------------------------------------------------------------
-    // Possible errors that may occur in operations.
-    //----------------------------------------------------------------
-  typedef enum
-    {
-      none,                 // success
-      bad_parameter,        // bad value for any method parameter
-      field_not_found,      // the field number is not found
-      
-      errors,
-      get
-    } error_code;
 
     //----------------------------------------------------------------
     // Constructors
@@ -243,22 +214,6 @@ LArG4Identifier& operator=(const LArG4Identifier&);//coverity issue fix.
   int match (const LArG4Identifier& other) const;
 
     //----------------------------------------------------------------
-    // Error management
-    //----------------------------------------------------------------
-
-    //----------------------------------------------------------------
-    // Return the error produced in the last operation
-    // The value identifier::none represents the successful condition.
-    //----------------------------------------------------------------
-  error_code last_error () const;
-
-    //----------------------------------------------------------------
-    // Return a textual equivalent to the error produced
-    // in the last operation
-    //----------------------------------------------------------------
-  const std::string last_error_text () const;
-
-    //----------------------------------------------------------------
     // Utilities
     //----------------------------------------------------------------
 
@@ -277,12 +232,6 @@ private:
     //----------------------------------------------------------------
   element_vector m_fields;
 
-    //----------------------------------------------------------------
-    // Maintains the last error code (shared by all objects).
-    //----------------------------------------------------------------
-  error_code set_last_error (error_code code = get) const;
-
-
 };
 
-#endif // __LArG4Identifier_h__
+#endif // LARG4CODE_LARG4IDENTIFIER_H

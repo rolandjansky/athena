@@ -1,37 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
 #include <cmath>
 #include <exception>
 #include <iostream>
+#include <vector>
+#include <memory>
 
 namespace Trk {
 
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-
 void vkGetEigVal(double ci[], double d[], int n);
+void dsinv(long int , double *, long int, long int *) noexcept;
+int vkcholInv(double ci[], double co[], long int DIM);
+int vkSInvSVD(double *ci,long int DIM, double *co, double Chk);
+double checkMatrixInversion(double mtx[], double invmtx[], int DIM);
 
 double cfSmallEigenvalue(double *cov,long int n )
 {
-//    double dest[400], eig[20], eigv[400];
-//    long int  i, j, k, ib;
-/* -------------------------------*/
-/*  Smallest eigenvalue of matrix */
-/* -------------------------------*/
-//    if (n > 20 || n <= 1) return -1;
-//    k = 0;
-//    for (i = 1; i <= n; ++i) {
-//	ib = (i - 1) * n;
-//	for (j = 1; j <= i; ++j) {
-//	    dest[ib + j - 1] = cov[k];
-//	    dest[(j - 1) * n + i - 1] = cov[k];
-//            k++;
-//	}
-//    }
-//    digx(dest, eig, eigv, n, 0);
-    
     if (n > 100 || n <= 1) return -1;
     double eig[100];
     vkGetEigVal(cov, eig, n);
@@ -42,7 +29,6 @@ double cfSmallEigenvalue(double *cov,long int n )
 
 int cfInv5(double *cov, double *wgt )
 {
-    extern void dsinv(long int , double *, long int, long int *) noexcept;
     double dest[25];
     long int  i, j, k, N;
 /* -----------------------------------------*/
@@ -55,7 +41,7 @@ int cfInv5(double *cov, double *wgt )
     N = 4;
     k = 0;
     for (i=0; i<N; ++i)  for (j=0; j<=i; ++j) {
-	    dest[ i*N + j ] = dest[ j*N + i ] = cov[k]; wgt[k]=0.; k++; }
+          dest[ i*N + j ] = dest[ j*N + i ] = cov[k]; wgt[k]=0.; k++; }
 
     double X[4]={cov[10], cov[11], cov[12], cov[13]};
 
@@ -79,70 +65,24 @@ int cfInv5(double *cov, double *wgt )
 }
 
 
-
 int cfdinv(double *cov, double *wgt, long int NI )
 {
-    extern void dsinv(long int , double *, long int, long int *) noexcept;
-
-    double dest[100]              /* was [10][10] */;
-    long int  i, j, k, n, ib;
-     
-/* ------------------------*/
-/*  Matrix inversion       */
-/* Author: V.Kostioukhine  */
-/* ------------------------*/
-    /* Parameter adjustments */
-    --wgt;
-    --cov;
-
-    /* Function Body */
-    n = NI;
-    n = n >= 0 ? n : -n;
-    if (n > 10 || n <= 1) return -1;
-/* -- RESTORE MATRIX */
-    k = 0;
-    for (i = 1; i <= n; ++i) {
-	ib = (i - 1) * n;
-	for (j = 1; j <= i; ++j) {
-	    ++k;
-	    dest[ib + j - 1] = cov[k];
-	    dest[(j - 1) * n + i - 1] = cov[k];
-	}
+    long int n = std::abs(NI);
+    if (n <= 1) return -1;
+    long int  jerr=0;;
+    
+//---Robust inversion if COV is suspected ill-defined
+     if (NI>0) {
+       jerr=vkSInvSVD(cov,NI,wgt, 1.e-18);
+       //--Check if inverted matrix is at approximately correct
+       if(!jerr){  if(checkMatrixInversion(cov, wgt, n)>0.1) jerr=-2; } 
+       return jerr;
     }
-/* -- Check */
-    if (NI > 0) {
-        double add, eig[10] /*,eigv[100]*/;
-	//digx(dest, eig, eigv, n, 0);
-        vkGetEigVal(cov, eig, n);
-	if (eig[0] <= eig[n - 1] * 1.e-12) {
-	    add = eig[n - 1] * 1.e-12;
-	    if(eig[0]<0) add += fabs(eig[0]) ;
-	    for (i = 1; i <= n; ++i) {
-		ib = (i - 1) * n + i;
-		dest[ib - 1] += add;
-	    }
-          //std::cout<<" in dsinv="<<n<<", "<<eig[0]<<", "<<eig[n-1]<<'\n';
-          //std::cout<<" cov="; for(int ik=1; ik<=n*(n+1)/2; ik++) std::cout<<cov[ik]<<", ";  std::cout<<'\n';
-          //if(eig[0]<-1.)std::terminate();
-	}
-    }
-/* -- INVERT */
-/* ccc      CALL DINV(N,DEST,N,TMP,JERR) */
-    long int jerr;
-    dsinv(n, dest, n, &jerr);
-    //if (eig[0]<=eig[n-1]*1.e-12 && NI>0)std::cout<<" in dsinv="<<jerr<<'\n'; 
-    if(jerr)return jerr;
-/* -- PACK MATRIX */
-    k = 0;
-    for (i = 1; i <= n; ++i) {
-	ib = (i - 1) * n;
-	for (j = 1; j <= i; ++j) {
-	    ++k;
-	    wgt[k] = dest[ib + j - 1];
-	}
-    }
-    return 0;
-} 
+//---If COV is believed good 
+    jerr=vkcholInv(cov, wgt, n);
+    if(!jerr){  if(checkMatrixInversion(cov, wgt, n)>0.1) jerr=-2; } 
+    return jerr;
+}
 
 
 void  dsinv(long int n, double *a, long int DIM, long int *ifail) noexcept
@@ -241,51 +181,31 @@ L399:
     return;
 } 
 
-
-
-void scaleg(double *g, double *scale, long int N, long int mfirst) noexcept
-{
-
-   long int g_dim1, g_offset, i__, j;
-
-
-#define g_ref(a_1,a_2) g[(a_2)*(g_dim1) + (a_1)]
-
-
 /* SCALE G MATRIX SO THAT IT'S ELEMENTS ARE ABOUT 1. OF THE ORDER OF */
 /* MAGNITUDE. IN THE EQUATION A*X=B CHANGE THE UNITS SO */
 /* A(I,J) -> A(I,J)*C(I)*C(J), B(I) -> B(I)*C(I), X(I) -> X(I)/C(I) */
 /* MFIRST >= N */
 /* Author: V.Kostyukhin */
 /*-----------------------------------------------------*/
+void scaleg(double g[], double scale[], long int N, long int mfirst) noexcept
+{
+   if (N <= 1) return;
+   int g_dim1=mfirst;
+#define g_ref(a_1,a_2) g[(a_2)*(g_dim1) + (a_1)]
+   for(int i=0; i<N; i++){
+     if( g_ref(i,i)==0. )continue;
+     scale[i] = 1./std::sqrt(std::abs(g_ref(i,i)));
+     g_ref(i, i) = d_sign( 1., g_ref(i, i));
+   }
 
-    /* Parameter adjustments */
-    --scale;
-    g_dim1 = mfirst;
-    g_offset = g_dim1 + 1;
-    g -= g_offset;
-
-    /* Function Body */
-    double tmp=0.;
-    for (i__ = 1; i__ <= N; ++i__) {
-	scale[i__] = 1.;
-	if (g_ref(i__, i__) == 0.)  			continue;
-	tmp = std::sqrt(fabs(g_ref(i__, i__)));
-	//scale[i__] = 1./tmp;           g_ref(i__, i__) = d_sign( 1., g_ref(i__, i__)); //VK old version -> diag==1
-	scale[i__] = 1./std::sqrt(tmp);   g_ref(i__, i__) = d_sign( tmp, g_ref(i__, i__));  //VK new version -> diag=sqrt(diag_old)
-    }
-
-    if (N <= 1) return;
-    for (j = 1; j <= N; ++j) {
-	for (i__ = 1; i__ <= N; ++i__) {
-	    if(j==i__) continue;
-	    g_ref(i__, j) *= scale[i__] * scale[j];
-	}
-    }
-} 
-
+   for(int i=0; i<N; i++){
+     for(int j=0; j<N; j++){
+        if(j==i) continue;
+        g_ref(i,j) *= scale[i] * scale[j];
+   }}
 #undef g_ref
-#undef max
+}
+
 
 //
 //  Solution of A*x = B via LU decomposition
@@ -297,19 +217,17 @@ int vkLUdcmp(double *a, long int n, int *indx)
 	int i,imax=0,j,k;
 	double big,dum,sum,temp;
 	double dint=1.0;
-        double TINY=1.e-30;
+	double TINY=1.e-30;
 //make indeces start from 1....
-        a    -= (n+1);
-        indx -= 1;
+	a    -= (n+1);
+	indx -= 1;
 
-	double * vv = new double[n+1];
-
+	std::vector<double> vv(n+1,0.);
 
 	for (i=1;i<=n;i++) {
 		big=0.0;
-		for (j=1;j<=n;j++)
-			if ((temp=fabs(a[i*n+j])) > big) big=temp;
-		if (big == 0.0) {delete[] vv; return -1;}
+		for (j=1;j<=n;j++) { if ((temp=std::abs(a[i*n+j])) > big) big=temp;}
+		if (big == 0.0) return -1;
 		vv[i]=1.0/big;
 	}
 	for (j=1;j<=n;j++) {
@@ -324,7 +242,7 @@ int vkLUdcmp(double *a, long int n, int *indx)
 			for (k=1;k<j;k++)
 				sum -= a[i*n+k]*a[k*n+j];
 			a[i*n+j]=sum;
-			if ( (dum=vv[i]*fabs(sum)) >= big) {
+			if ( (dum=vv[i]*std::abs(sum)) >= big) {
 				big=dum;
 				imax=i;
 			}
@@ -345,8 +263,7 @@ int vkLUdcmp(double *a, long int n, int *indx)
 			for (i=j+1;i<=n;i++) a[i*n+j] *= dum;
 		}
 	}
-	delete[] vv;
-        return 0;
+	return 0;
 }
 
 void vkLUbksb(double *a, long int n, int *indx, double *b)
@@ -378,27 +295,26 @@ void vkLUbksb(double *a, long int n, int *indx, double *b)
 //  Matrix (*a) left decomposed
 //
 int vkMSolve(double *a, double *b, long int n, double *ainv=nullptr)
-{   
-   int *indx=new int[n+1]; double * Scale=new double[n]; 
-   scaleg(a,Scale,n,n);
-   int ierr = vkLUdcmp( a, n, indx);
-   if( ierr ){delete[] indx; delete[] Scale; return -1;}
+{
+   std::unique_ptr<int[]>  indx(new int[n+1]); 
+   std::unique_ptr<double[]> Scale(new double[n]); 
+   scaleg(a,Scale.get(),n,n);
+   int ierr = vkLUdcmp( a, n, indx.get());
+   if( ierr )return -1;
    for(int i=0;i<n;i++)b[i]*=Scale[i];
-   vkLUbksb(a, n, indx, b);
+   vkLUbksb(a, n, indx.get(), b);
    for(int i=0;i<n;i++)b[i]*=Scale[i];
    if(ainv){  //Also invert matrix on request
      int i,j;
-     double *tmp =new double[n];
+     std::unique_ptr<double[]> tmp(new double[n]); 
      for(j=0; j<n; j++){ 
        for(i=0;i<n;i++)tmp[i]=0.;
        tmp[j]=1.;
-       vkLUbksb(a, n, indx, tmp);
+       vkLUbksb(a, n, indx.get(), tmp.get());
        for(i=0;i<n;i++)ainv[i+j*n]=tmp[i];
      }
-     delete[] tmp;
      for(i=0;i<n;i++) for(j=0;j<n;j++) ainv[i+j*n] *= Scale[i]*Scale[j];
    }
-   delete[] indx; delete[] Scale;
    return 0;
 }
 
@@ -407,30 +323,30 @@ int vkMSolve(double *a, double *b, long int n, double *ainv=nullptr)
 // SVD method 
 //
 
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+#define SIGN(a,b) ((b) >= 0.0 ? std::abs(a) : -std::abs(a))
 
 double vkPythag(double a, double b)
 {
-	double absa,absb;
-	absa=fabs(a);
-	absb=fabs(b);
-	if (absa > absb) return absa*std::sqrt(1.0+(absb/absa)*absb/absa);
-	return (absb == 0.0 ? 0.0 : absb*std::sqrt(1.0+(absa/absb)*absa/absb));
+   double absa,absb;
+   absa=std::abs(a);
+   absb=std::abs(b);
+   if (absa > absb) return absa*std::sqrt(1.0+(absb/absa)*absb/absa);
+   return (absb == 0.0 ? 0.0 : absb*std::sqrt(1.0+(absa/absb)*absa/absb));
 }
 
 void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 {
 	int flag,i,its,j,jj,k,l=0, nm=0;
-	double anorm,c,f,g,h,s,scale,x,y,z,*rv1;
+	double anorm,c,f,g,h,s,scale,x,y,z;
 
-	rv1=new double[n+1]; 
+	std::vector<double> rv1(n+1,0.); 
 	g=scale=anorm=0.0;
 	for (i=1;i<=n;i++) {
 		l=i+1;
 		rv1[i]=scale*g;
 		g=s=scale=0.0;
 		if (i <= m) {
-			for (k=i;k<=m;k++) scale += fabs(a[k][i]);
+			for (k=i;k<=m;k++) scale += std::abs(a[k][i]);
 			if (scale) {
 				for (k=i;k<=m;k++) {
 					a[k][i] /= scale;
@@ -451,7 +367,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 		w[i]=scale *g;
 		g=s=scale=0.0;
 		if (i <= m && i != n) {
-			for (k=l;k<=n;k++) scale += fabs(a[i][k]);
+			for (k=l;k<=n;k++) scale += std::abs(a[i][k]);
 			if (scale) {
 				for (k=l;k<=n;k++) {
 					a[i][k] /= scale;
@@ -469,7 +385,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 				for (k=l;k<=n;k++) a[i][k] *= scale;
 			}
 		}
-	        double nanorm=fabs(w[i])+fabs(rv1[i]);
+		double nanorm=std::abs(w[i])+std::abs(rv1[i]);
 		if(anorm < nanorm) anorm = nanorm;
 	}
 	for (i=n;i>=1;i--) {
@@ -508,11 +424,11 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 			flag=1;
 			for (l=k;l>=1;l--) {
 				nm=l-1;
-				if ( (fabs(rv1[l])+anorm) == anorm) {
+				if ( (std::abs(rv1[l])+anorm) == anorm) {
 					flag=0;
 					break;
 				}
-				if ( (fabs(w[nm])+anorm) == anorm) break;
+				if ( (std::abs(w[nm])+anorm) == anorm) break;
 			}
 			if (flag) {
 				c=0.0;
@@ -520,7 +436,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 				for (i=l;i<=k;i++) {
 					f=s*rv1[i];
 					rv1[i]=c*rv1[i];
-					if ( (fabs(f)+anorm) == anorm) break;
+					if ( (std::abs(f)+anorm) == anorm) break;
 					g=w[i];
 					h=vkPythag(f,g);
 					w[i]=h;
@@ -593,31 +509,29 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 			w[k]=x;
 		}
 	}
-	delete[] rv1;
 }
 
 
 //Invert square matrix using SVD + solve linear equation if needed
-// Doesn't work for the moment!!!
 //
 int vkInvSVD(double *ci,long int DIM, double *co, double Chk, double *bvect=nullptr)
 {
 int i,j,k;
-double **a   = new double*[DIM+1]; double  *ab   = new double[(DIM+1)*(DIM+1)];
-double **v   = new double*[DIM+1]; double  *vb   = new double[(DIM+1)*(DIM+1)];
-double **res = new double*[DIM+1]; double  *resb = new double[(DIM+1)*(DIM+1)];
+double **a   = new double*[DIM+1]; std::unique_ptr<double[]> ab(new double[(DIM+1)*(DIM+1)]);
+double **v   = new double*[DIM+1]; std::unique_ptr<double[]> vb(new double[(DIM+1)*(DIM+1)]);
+std::unique_ptr<double[]> w(new double[DIM+1]);
+if( !a || !v || !ab || !vb || !w){ delete[] a; delete[] v; return -1; }
 for(i=0; i<DIM+1; i++){   a[i] = &ab[i*(DIM+1)];
-    			  v[i] = &vb[i*(DIM+1)];
-  			res[i] = &resb[i*(DIM+1)];}
-double  *w = new double[DIM+1];
+                          v[i] = &vb[i*(DIM+1)];}
+std::vector<std::vector<double>> res;  res.resize(DIM+1,std::vector<double>(DIM+1,0.));
 
 for( i=1; i<=DIM; i++) for( j=i; j<=DIM; j++)  a[i][j]=ci[(j-1)*DIM+i-1];
 
-  vkSVDCmp ( a, DIM, DIM, w, v);
+  vkSVDCmp ( a, DIM, DIM, w.get(), v);
 
 // Singular value limitation
 double svMax=0.; for(k=1; k<=DIM; k++) if( svMax < w[k] ) svMax=w[k];
-for(k=1; k<=DIM; k++){  /*std::cout<<w[k]<<'\n';*/  if( w[k]<0. || fabs(w[k]/svMax)<Chk) w[k]=0.; }
+for(k=1; k<=DIM; k++){  /*std::cout<<w[k]<<'\n';*/  if( w[k]<0. || std::abs(w[k]/svMax)<Chk) w[k]=0.; }
 // Get inverse matrix
 for(i=1; i<=DIM; i++){
   for(j=1; j<=DIM; j++){
@@ -633,7 +547,7 @@ for(i=1; i<=DIM; i++){
 for( i=1; i<=DIM; i++)  for( j=1; j<=DIM; j++) { co[(j-1)*DIM+i-1]= res[i][j]; }
 
 if(bvect){
-  double  *rside = new double[DIM+1];
+  std::vector<double> rside(DIM+1,0.);
   for( i=1; i<=DIM; i++) rside[i]=bvect[i-1]; 
   //----
   for( i=1; i<=DIM; i++)  {
@@ -641,11 +555,10 @@ if(bvect){
     for( j=1; j<=DIM; j++) sum += res[i][j]*rside[j];
     bvect[i-1]=sum;
   }
-  delete[] rside;
 }
 
 //Cleaning
-delete[] w; delete[] a; delete[] ab; delete[] v; delete[] vb; delete[] res; delete[] resb;
+delete[] a; delete[] v;
 
 return 0;
 }
@@ -656,23 +569,24 @@ return 0;
 int vkSInvSVD(double *ci,long int DIM, double *co, double Chk)
 {
 int i,j,k;
-double **a   = new double*[DIM+1]; double  *ab   = new double[(DIM+1)*(DIM+1)];
-double **v   = new double*[DIM+1]; double  *vb   = new double[(DIM+1)*(DIM+1)];
-double **res = new double*[DIM+1]; double  *resb = new double[(DIM+1)*(DIM+1)];
+double **a   = new double*[DIM+1];  std::unique_ptr<double[]> ab(new double[(DIM+1)*(DIM+1)]);
+double **v   = new double*[DIM+1];  std::unique_ptr<double[]> vb(new double[(DIM+1)*(DIM+1)]);
+std::unique_ptr<double[]> w(new double[DIM+1]);
+if( !a || !v || !ab || !vb || !w){ delete[] a; delete[] v; return -1; }
 for(i=0; i<DIM+1; i++){   a[i] = &ab[i*(DIM+1)];
-    			  v[i] = &vb[i*(DIM+1)];
-  			res[i] = &resb[i*(DIM+1)];}
-double  *w = new double[DIM+1];
+                          v[i] = &vb[i*(DIM+1)];}
+std::vector<std::vector<double>> res;  res.resize(DIM+1,std::vector<double>(DIM+1,0.));
+
 
 for( i=1; i<=DIM; i++) {
    for( j=i; j<=DIM; j++) { k=(j-1)*j/2 + i; a[i][j]=a[j][i]=ci[k-1];}
 }
 
-  vkSVDCmp ( a, DIM, DIM, w, v);
+  vkSVDCmp ( a, DIM, DIM, w.get(), v);
 
 // Singular value limitation
 double svMax=0.; for(k=1; k<=DIM; k++) if( svMax < w[k] ) svMax=w[k];
-for(k=1; k<=DIM; k++){  /*std::cout<<w[k]<<'\n';*/  if( w[k]<0. || fabs(w[k]/svMax)<Chk) w[k]=0.; }
+for(k=1; k<=DIM; k++){  /*std::cout<<w[k]<<'\n';*/  if( w[k]<0. || std::abs(w[k]/svMax)<Chk) w[k]=0.; }
 // Get inverse matrix
 for(i=1; i<=DIM; i++){
   for(j=1; j<=DIM; j++){
@@ -685,10 +599,9 @@ for(i=1; i<=DIM; i++){
 } 
 //
 // Get output matrix in symmetric way
-k=0;
-for( i=1; i<=DIM; i++)  for( j=1; j<=i; j++) { co[k]= res[j][i]; k++; }
+k=0; for( i=1; i<=DIM; i++)  for( j=1; j<=i; j++) { co[k]= res[j][i]; k++; }
 //Cleaning
-delete[] w; delete[] a; delete[] ab; delete[] v; delete[] vb; delete[] res; delete[] resb;
+delete[] a; delete[] v;
 
 return 0;
 }
@@ -698,51 +611,45 @@ return 0;
 
 int vkjacobi(double **a, int n, double d[], double **v)
 {
-        bool getEVect= true; if( v==nullptr )getEVect=false;
+	bool getEVect= true; if( v==nullptr )getEVect=false;
 	int j,iq,ip,i;
 	double tresh,theta,tau,t,sm,s,h,g,c;
 
-	double *b=new double[n+1];
-	double *z=new double[n+1];
+	std::vector<double> b(n+1,0.);
+	std::vector<double> z(n+1,0.);
+
 	if(getEVect){
 	  for (ip=1;ip<=n;ip++) {
 		for (iq=1;iq<=n;iq++) v[ip][iq]=0.0;
 		v[ip][ip]=1.0;
 	  }
-        }
+	}
 	for (ip=1;ip<=n;ip++) {
 		b[ip]=d[ip]=a[ip][ip];
-		z[ip]=0.0;
 	}
 	int nrot=0;
 	for (i=1;i<=1000;i++) {
 		sm=0.0;
 		for (ip=1;ip<=n-1;ip++) {
 			for (iq=ip+1;iq<=n;iq++)
-				sm += fabs(a[ip][iq]);
+				sm += std::abs(a[ip][iq]);
 		}
-		if (sm == 0.0) {
-			delete[] z;
-			delete[] b;
-			return nrot;
-		}
-		if (i < 4)
-			tresh=0.2*sm/(n*n);
-		else
-			tresh=0.0;
+		if (sm == 0.0) return nrot;
+		if (i < 4) tresh=0.2*sm/(n*n);
+		else       tresh=0.0;
 		for (ip=1;ip<=n-1;ip++) {
 			for (iq=ip+1;iq<=n;iq++) {
-				g=100.0*fabs(a[ip][iq]);
-				if (i > 4 && (double)(fabs(d[ip])+g) == (double)fabs(d[ip])
-					&& (double)(fabs(d[iq])+g) == (double)fabs(d[iq]))
+				g=100.0*std::abs(a[ip][iq]);
+				if (i > 4 && (std::abs(d[ip])+g) == std::abs(d[ip])
+					  && (std::abs(d[iq])+g) == std::abs(d[iq]))
 					a[ip][iq]=0.0;
-				else if (fabs(a[ip][iq]) > tresh) {
+				else if (std::abs(a[ip][iq]) > tresh) {
 					h=d[iq]-d[ip];
-					if ((double)(fabs(h)+g) == (double)fabs(h))
+					if ((std::abs(h)+g) == std::abs(h))
 						t=(a[ip][iq])/h;
 					else {
 						theta=0.5*h/(a[ip][iq]);
-						t=1.0/(fabs(theta)+std::sqrt(1.0+theta*theta));
+						t=1.0/(std::abs(theta)+std::sqrt(1.0+theta*theta));
 						if (theta < 0.0) t = -t;
 					}
 					c=1.0/std::sqrt(1+t*t);
@@ -763,11 +670,11 @@ int vkjacobi(double **a, int n, double d[], double **v)
 					for (j=iq+1;j<=n;j++) {
 						ROTATE(a,ip,j,iq,j)
 					}
-	                                if(getEVect){
+					if(getEVect){
 					  for (j=1;j<=n;j++) {
 					  	ROTATE(v,j,ip,j,iq)
 					  }
-	                                }
+					}
 					++nrot;
 				}
 			}
@@ -778,9 +685,7 @@ int vkjacobi(double **a, int n, double d[], double **v)
 			z[ip]=0.0;
 		}
 	}
-	delete[] z;
-	delete[] b;
-        return 0;   //not enough sweeps
+	return 0;   //not enough sweeps
 }
 #undef ROTATE
 //-------------------------------------------
@@ -789,7 +694,8 @@ int vkjacobi(double **a, int n, double d[], double **v)
 void vkGetEigVal(double ci[], double d[], int n)
 {
   int i,j,k; d--;
-  double **a = new double*[n+1]; double  *ab = new double[(n+1)*(n+1)]; 
+  double **a = new double*[n+1]; std::unique_ptr<double[]> ab(new double[(n+1)*(n+1)]);
+  if( !a || !ab) { delete[] a; return;}
   for(i=0; i<n+1; i++) a[i] =&ab[i*(n+1)];
 
   for( i=1; i<=n; i++) {
@@ -803,14 +709,15 @@ void vkGetEigVal(double ci[], double d[], int n)
      if (k != i) { d[k]=d[i]; d[i]=p; }
   }
 
-  delete[] a; delete[] ab;
+  delete[] a;
 }
 
 void vkGetEigVect(double ci[], double d[], double vect[], int n)
 {
   int i,j,k; d--;
-  double **a = new double*[n+1]; double  *ab = new double[(n+1)*(n+1)]; 
-  double **v = new double*[n+1]; double  *vb = new double[(n+1)*(n+1)]; 
+  double **a = new double*[n+1]; std::unique_ptr<double[]> ab(new double[(n+1)*(n+1)]);
+  double **v = new double*[n+1]; std::unique_ptr<double[]> vb(new double[(n+1)*(n+1)]);
+  if( !a || !ab || !v || !vb) { delete[] a; delete[] v; return;}
   for(i=0; i<n+1; i++) a[i] =&ab[i*(n+1)];
   for(i=0; i<n+1; i++) v[i] =&vb[i*(n+1)];
 
@@ -823,14 +730,80 @@ void vkGetEigVect(double ci[], double d[], double vect[], int n)
   for (i=1;i<n;i++) {
      double p=d[k=i]; for (j=i+1;j<=n;j++) if (d[j] < p) p=d[k=j];
      if (k != i) { d[k]=d[i]; d[i]=p;
-   	           for (j=1;j<=n;j++) { p=v[j][i]; v[j][i]=v[j][k]; v[j][k]=p;}
+              for (j=1;j<=n;j++) { p=v[j][i]; v[j][i]=v[j][k]; v[j][k]=p;}
      }
   }
 
   k=0; for (i=1;i<=n;i++) for(j=1;j<=n;j++) vect[k++]=v[j][i];
 
-  delete[] a; delete[] ab;
-  delete[] v; delete[] vb;
+  delete[] a; delete[] v;
 }
 
+int vkcholInv(double ci[], double co[], long int DIM)
+{
+  int i,j,k;
+  std::vector<double> p(DIM,0);
+  std::vector<std::vector<double>> a; a.resize(DIM,std::vector<double>(DIM,0.));
+
+  for( i=0; i<DIM; i++) for( j=i; j<DIM; j++) {k=j*(j+1)/2+i; a[i][j]=a[j][i]=ci[k];}
+
+  double sum=0;
+  for(i=0; i<DIM; i++) {
+    for(j=i; j<DIM; j++) {
+      sum=a[i][j];
+      for(k=i-1; k>=0; k--) sum -= a[i][k]*a[j][k];
+      if (i == j) {
+         if (sum <= 0.0) return -1;
+         p[i]=std::sqrt(sum);
+      } else a[j][i]=sum/p[i];
+    }
+  }
+  
+  for(i=0; i<DIM; i++) {
+    a[i][i]=1.0/p[i];
+    for(j=i+1; j<DIM; j++) {
+       sum=0.0;
+       for(k=i; k<j; k++) sum -= a[j][k]*a[k][i];
+       a[j][i]=sum/p[j];
+    }
+  }
+
+  for(i=0; i<DIM; i++){
+    for(j=i; j<DIM; j++){
+       int ind=j*(j+1)/2+i;
+       co[ind]=0.;
+       for(k=0; k<DIM; k++){
+          if( k<i || k<j)continue;
+          co[ind] += a[k][i]*a[k][j];
+        } 
+  } }
+
+  return 0;
+}
+
+double checkMatrixInversion(double mtx[], double invmtx[], int DIM)
+{
+  //std::vector<std::vector<double>> r; r.resize(DIM,std::vector<double>(DIM,0.));
+
+  int i,j,k;
+
+  double maxDiff=0.;
+  for( i=0; i<DIM; i++){
+    for(j=i; j<DIM; j++){
+      double mcheck=0.;
+      for( k=0; k<DIM; k++) mcheck+=mtx[k>=i?k*(k+1)/2+i:i*(i+1)/2+k]*invmtx[k>=j?k*(k+1)/2+j:j*(j+1)/2+k];
+      //r[i][j]=mcheck;
+      if(i!=j) maxDiff = (maxDiff > std::abs(mcheck))    ? maxDiff : std::abs(mcheck);
+      if(i==j) maxDiff = (maxDiff > std::abs(1.-mcheck)) ? maxDiff : std::abs(1.-mcheck);
+    } 
+  }
+
+  //if(maxDiff<0.5 || maxDiff<0.5){
+  //  std::cout<<"--------INVCHK="<<DIM<<'\n';
+  //  for( i=0; i<DIM; i++){  for(j=0; j<DIM; j++) std::cout<<r[i][j]<<", "; std::cout<<'\n';}
+  //}
+
+  return maxDiff;
+}
+  
 }  /* end of VKalVrtCore namespace */

@@ -24,7 +24,7 @@ class TH1;
 class InDetPerfPlot_Vertex: public InDetPlotBase {
 public:
   InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::string& dirName);
-  void fill(const xAOD::Vertex& vertex);
+  void fill(const xAOD::Vertex& vertex, float weight);
 private:
   ///@name Position of vertex
   ///@{

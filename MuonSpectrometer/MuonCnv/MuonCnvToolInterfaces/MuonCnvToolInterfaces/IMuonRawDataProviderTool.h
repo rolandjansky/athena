@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCNVTOOLINTERFACES_IMUONRAWDATAPROVIDERTOOL_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/EventContext.h"
 #include <vector>
 
-static const InterfaceID IID_IMuonRawDataProviderTool( "Muon::IMuonRawDataProviderTool", 1, 0 );
 
 namespace Muon
 {
@@ -21,20 +20,17 @@ namespace Muon
 class IMuonRawDataProviderTool : virtual public IAlgTool
 {
 public:
-    static const InterfaceID& interfaceID()
-    {
-        return IID_IMuonRawDataProviderTool;
-    };
+    DeclareInterfaceID( IMuonRawDataProviderTool, 1, 0 );
 
 public:
     /** Decoding method. - current methods: let's keep them! */
     typedef std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> ROBFragmentList;
-    virtual StatusCode convert(const ROBFragmentList&) = 0;
-    virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&) = 0;
+    virtual StatusCode convert(const ROBFragmentList&) const = 0;
+    virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&) const = 0;
     /** the new ones */
-    virtual StatusCode convert() = 0; //!< for the entire event 
-    virtual StatusCode convert(const std::vector<IdentifierHash>&) = 0; //!< for a selection of rdo collections
-    virtual StatusCode convert(const std::vector<uint32_t>&){return StatusCode::FAILURE;}
+    virtual StatusCode convert() const = 0; //!< for the entire event 
+    virtual StatusCode convert(const std::vector<IdentifierHash>&) const = 0; //!< for a selection of rdo collections
+    virtual StatusCode convert(const std::vector<uint32_t>&) const {return StatusCode::FAILURE;}
     /** Event Context functions **/
     virtual StatusCode convert(const EventContext&) const {return StatusCode::FAILURE;}
     virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const {return StatusCode::FAILURE;}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_CONFIG_H
@@ -15,6 +15,7 @@
 
 // Framework
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 // C/C++
 #include <vector>
@@ -54,7 +55,7 @@ class TrigMonConfig
   
   void clear();
   void clearStrings();
-  void processConfig();
+  void processConfig ATLAS_NOT_THREAD_SAFE ();
   
   void setEventID(uint32_t event, uint32_t lumi, uint32_t run, 
 		  uint32_t sec,   uint32_t nsec);

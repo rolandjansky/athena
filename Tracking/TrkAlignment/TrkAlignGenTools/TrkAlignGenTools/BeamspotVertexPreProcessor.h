@@ -38,7 +38,6 @@
    -> updated 2015 Matthias Danninger
 */
  
-class IBeamCondSvc;
 
 namespace Trk {
   class IGlobalTrackFitter;

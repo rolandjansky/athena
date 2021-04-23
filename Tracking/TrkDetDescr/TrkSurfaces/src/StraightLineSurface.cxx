@@ -122,7 +122,7 @@ Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
 // true global to local method - fully defined
 bool
 Trk::StraightLineSurface::globalToLocal(const Amg::Vector3D& glopos,
-                                        const Amg::Vector3D& glomom,
+                                        const Amg::Vector3D&  glomom,
                                         Amg::Vector2D& locpos) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
@@ -145,7 +145,9 @@ __attribute__ ((flatten))
 #endif
 // isOnSurface check
 bool
-Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, 
+                                      const BoundaryCheck& bchk, 
+                                      double tol1, double tol2) const
 {
   if (!bchk)
     return true;
@@ -180,7 +182,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
 
 // return the measurement frame
 Amg::RotationMatrix3D
-Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
+Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&  glomom) const
 {
   Amg::RotationMatrix3D mFrame;
   // construct the measurement frame

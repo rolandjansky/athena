@@ -2649,10 +2649,10 @@ double Trk::STEP_Propagator::dEds( Cache& cache, double p) const
   if (cache.m_particle == Trk::geantino || cache.m_particle == Trk::nonInteractingMuon) return 0.;
   if (cache.m_material->x0()==0 || cache.m_material->averageZ()==0) return 0.;
 
-  cache.m_delIoni = cache.m_matInt.dEdl_ionization(p, cache.m_material, cache.m_particle,
+  cache.m_delIoni = Trk::MaterialInteraction::dEdl_ionization(p, cache.m_material, cache.m_particle,
                                              cache.m_sigmaIoni, cache.m_kazL);
 
-  cache.m_delRad  = cache.m_matInt.dEdl_radiation(p, cache.m_material, cache.m_particle, cache.m_sigmaRad);
+  cache.m_delRad  = Trk::MaterialInteraction::dEdl_radiation(p, cache.m_material, cache.m_particle, cache.m_sigmaRad);
 
   double eLoss = m_MPV ? 0.9*cache.m_delIoni + 0.15*cache.m_delRad : cache.m_delIoni + cache.m_delRad;
 

@@ -252,7 +252,7 @@ def setupRun3L1CaloPerfSequence(
                          SuperCellContainer=SCIn,
                         )
 
-    if simflags.EnableDebugOutput() or True:
+    if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")
         from AthenaCommon.AlgSequence import dumpSequence
 

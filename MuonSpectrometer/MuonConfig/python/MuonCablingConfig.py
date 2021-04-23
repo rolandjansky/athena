@@ -24,7 +24,7 @@ def RPCCablingConfigCfg(flags):
         dbRepo="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
 
     RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
-    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo,CosmicConfiguration=('HLT' in flags.IOVDb.GlobalTag)) # CosmicConfiguration was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
+    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)
     acc.addCondAlgo( RpcCablingAlg )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders

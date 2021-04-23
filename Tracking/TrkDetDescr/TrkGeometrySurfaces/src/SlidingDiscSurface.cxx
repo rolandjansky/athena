@@ -121,15 +121,16 @@ Trk::SlidingDiscSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::V
 
 bool
 Trk::SlidingDiscSurface::isOnSurface(const Amg::Vector3D& glopo,
-                                     Trk::BoundaryCheck bchk,
+                                     const Trk::BoundaryCheck& bchk,
                                      double tol1,
                                      double tol2) const
 {
   Amg::Vector3D loc3D0 = m_align ? m_align->inverse() * glopo : glopo; // used to retrieve localEta bin
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
   float offset = (*m_depth)[m_etaBin->bin(loc3D0)];
-  if (fabs(loc3Dframe.z() - offset) > (s_onSurfaceTolerance + tol1))
+  if (std::fabs(loc3Dframe.z() - offset) > (s_onSurfaceTolerance + tol1)){
     return false;
+  }
   return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi()), tol1, tol2) : true);
 }
 

@@ -251,7 +251,7 @@ public:
 
   /**This method checks if a globalPosition in on the Surface or not*/
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

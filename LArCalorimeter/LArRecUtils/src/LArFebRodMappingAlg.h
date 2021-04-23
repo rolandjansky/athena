@@ -19,17 +19,18 @@ class LArFebRodMappingAlg: public AthAlgorithm {
 
 public:
 
-  LArFebRodMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArFebRodMappingAlg();
+  using AthAlgorithm::AthAlgorithm;
+
+  virtual ~LArFebRodMappingAlg() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
 
 
  private:
-  SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey;
-  SG::WriteCondHandleKey<LArFebRodMapping>  m_writeKey;
-  ServiceHandle<ICondSvc> m_condSvc;
+  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey  {this,"ReadKey","/LAR/Identifier/FebRodMap"};
+  SG::WriteCondHandleKey<LArFebRodMapping>   m_writeKey {this,"WriteKey","LArFebRodMap"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
 };
 

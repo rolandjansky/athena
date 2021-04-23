@@ -47,6 +47,10 @@ class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
   
   private:
     // Properties:
+
+    Gaudi::Property<bool> m_doForward{this, "DoForward", false,
+                                       "Do Forward clusters"};
+  
     Gaudi::Property<float> m_l1eta{this, "L1ForceEta", -10.0, "Forced LVL1 eta"};
     Gaudi::Property<float> m_l1phi{this, "L1ForcePhi", -10.0, "Forced LVL1 phi"};
     Gaudi::Property<double> m_etaWidth{this, "EtaWidth", 0.1, "Eta Width of the Region of Interest"};

@@ -20,12 +20,12 @@
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "xAODTracking/VertexContainer.h"
-
 namespace Muon {
     struct MuonCandidate;
     struct MuonLayerPrepRawData;
@@ -102,6 +102,7 @@ namespace MuonCombined {
         ToolHandle<Muon::MuonLayerHashProviderTool> m_layerHashProvider{this, "MuonLayerHashProviderTool",
                                                                         "Muon::MuonLayerHashProviderTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+        ToolHandle<Muon::IMuonRecoValidationTool> m_recoValidationTool{this, "MuonRecoValidationTool", ""};
 
         Gaudi::Property<double> m_idTrackMinPt{this, "IDTrackMinPt", 2500};
         Gaudi::Property<bool> m_ignoreSiAssocated{this, "IgnoreSiAssociatedCandidates", true};

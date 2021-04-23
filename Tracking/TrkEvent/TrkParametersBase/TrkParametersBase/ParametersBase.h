@@ -196,8 +196,8 @@ protected:
    * Default Move ctor/assignment, private can be used
    * only by derived classes.
    */
-  ParametersBase(ParametersBase&&) = default;
-  ParametersBase& operator=(ParametersBase&&) = default;
+  ParametersBase(ParametersBase&&) noexcept = default;
+  ParametersBase& operator=(ParametersBase&&) noexcept  = default;
   /*
    * Default copy ctor/assignment
    * Deleted due unique_ptr.

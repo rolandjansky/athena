@@ -86,8 +86,12 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
             'BTagging/201903/rnnip/antikt4empflow/network.json',
             'BTagging/201903/dl1r/antikt4empflow/network.json',
             'BTagging/201903/dl1/antikt4empflow/network.json',
+        ],
+        'AntiKtVR30Rmax4Rmin02Track': [
+            'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
+            'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
+            'BTagging/201903/dl1/antiktvr30rmax4rmin02track/network.json',
         ]
-
     }
 
     acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags))

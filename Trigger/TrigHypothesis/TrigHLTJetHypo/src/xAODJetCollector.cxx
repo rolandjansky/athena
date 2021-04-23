@@ -63,13 +63,6 @@ HypoJetVector xAODJetCollector::hypoJets(int chainPartInd) const {
 }
 
 
-void xAODJetCollector::addOneJet(const pHypoJet jet,
-
-				 int chainPartInd){
-  m_jets[chainPartInd].push_back(jet);
-}
-
-
 std::size_t xAODJetCollector::size() const {return hypoJets().size();}
 
 bool xAODJetCollector::empty() const {return hypoJets().empty();}

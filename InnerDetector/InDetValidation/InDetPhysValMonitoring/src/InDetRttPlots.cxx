@@ -114,7 +114,7 @@ void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
 //
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool isFromB) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool isFromB, float weight) {
   // fill measurement bias, resolution, and pull plots
 
   // fill ITK resolutions (bias / resolutions)
@@ -147,7 +147,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
 
     }
 
-    if (barcode < 200000 && barcode != 0 && prob > 0.5) m_trtExtensionPlots.fill(particle, truthParticle);
+    if (barcode < 200000 && barcode != 0 && prob > 0.5) m_trtExtensionPlots.fill(particle, truthParticle, weight);
 
 
   }
@@ -155,7 +155,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
   if(m_iDetailLevel >= 200){
     float barcode = truthParticle.barcode();
     if (barcode < 200000 && barcode != 0) { 
-      m_hitsMatchedTracksPlots->fill(particle);
+      m_hitsMatchedTracksPlots->fill(particle, weight);
     }
   }
 }
@@ -165,12 +165,12 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
 //
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
-  m_hitResidualPlot.fill(particle);
-  m_hitEffPlot.fill(particle);
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, float weight) {
+  m_hitResidualPlot.fill(particle, weight);
+  m_hitEffPlot.fill(particle, weight);
   // fill pt plots
-  m_trackParameters.fill(particle);
-  m_anTrackingPlots.fill(particle);
+  m_trackParameters.fill(particle, weight);
+  m_anTrackingPlots.fill(particle, weight);
 
   if(m_iDetailLevel >= 200){
     std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
@@ -181,36 +181,36 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
     bool isTRTStandalone = patternInfo.test(20);
     bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-    if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_trkParaSiSPSeededFinderPlots->fill(particle);
-    else if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_trkParaInDetExtensionProcessorPlots->fill(particle);
-    else if(isTRTSeededTrackFinder and not isTRTStandalone) m_trkParaTRTSeededTrackFinderPlots->fill(particle);
-    else if(isTRTStandalone) m_trkParaTRTStandalonePlots->fill(particle);
-    else if(isSiSpacePointsSeedMaker_LargeD0) m_trkParaSiSpacePointsSeedMaker_LargeD0Plots->fill(particle);
+    if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_trkParaSiSPSeededFinderPlots->fill(particle, weight);
+    else if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_trkParaInDetExtensionProcessorPlots->fill(particle, weight);
+    else if(isTRTSeededTrackFinder and not isTRTStandalone) m_trkParaTRTSeededTrackFinderPlots->fill(particle, weight);
+    else if(isTRTStandalone) m_trkParaTRTStandalonePlots->fill(particle, weight);
+    else if(isSiSpacePointsSeedMaker_LargeD0) m_trkParaSiSpacePointsSeedMaker_LargeD0Plots->fill(particle, weight);
 
   }
 
-  m_hitsRecoTracksPlots.fill(particle);
-  m_trtExtensionPlots.fill(particle);
+  m_hitsRecoTracksPlots.fill(particle, weight);
+  m_trtExtensionPlots.fill(particle, weight);
 }
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx, float weight) {
 
-  m_trtExtensionPlots.fill(particle, mu, nVtx);
-
-}
-
-void
-InDetRttPlots::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx) { 
-
-  m_anTrackingPlots.fill(nTrkANT, nTrkSTD, nTrkBAT, mu, nVtx);
+  m_trtExtensionPlots.fill(particle, mu, nVtx, weight);
 
 }
 
 void
-InDetRttPlots::fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices) {
+InDetRttPlots::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx, const float weight) { 
 
- m_nTracks.fill(ntracks, mu, nvertices);
+  m_anTrackingPlots.fill(nTrkANT, nTrkSTD, nTrkBAT, mu, nVtx, weight);
+
+}
+
+void
+InDetRttPlots::fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices, const float weight) {
+
+  m_nTracks.fill(ntracks, mu, nvertices, weight);
 
   
 }
@@ -219,9 +219,9 @@ InDetRttPlots::fill(const unsigned int ntracks, const unsigned int mu, const uns
 //
 
 void
-InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
+InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle, float weight) {
   // fill truth plots 
-  m_trackParameters.fill(truthParticle);
+  m_trackParameters.fill(truthParticle, weight);
 }
 
 //
@@ -229,10 +229,10 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
 //
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx) {
-  m_effPlots.fill(truth, isGood);
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
+  m_effPlots.fill(truth, isGood, weight);
 
-  m_anTrackingPlots.fillEfficiency(truth, track, isGood, mu, nVtx);
+  m_anTrackingPlots.fillEfficiency(truth, track, isGood, mu, nVtx, weight);
   if(m_iDetailLevel >= 200){
     if(isGood){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
@@ -243,17 +243,17 @@ InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Trac
       bool isTRTStandalone = patternInfo.test(20);
       bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_effSiSPSeededFinderPlots->fill(truth, isGood);
-      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_effInDetExtensionProcessorPlots->fill(truth, isGood);
-      if(isTRTSeededTrackFinder and not isTRTStandalone) m_effTRTSeededTrackFinderPlots->fill(truth, isGood);
-      if(isTRTStandalone) m_effTRTStandalonePlots->fill(truth, isGood);
-      if(isSiSpacePointsSeedMaker_LargeD0) m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood);
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_effSiSPSeededFinderPlots->fill(truth, isGood, weight);
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight);
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight);
+      if(isTRTStandalone) m_effTRTStandalonePlots->fill(truth, isGood, weight);
+      if(isSiSpacePointsSeedMaker_LargeD0) m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight);
     } else {
-      m_effSiSPSeededFinderPlots->fill(truth, isGood);
-      m_effInDetExtensionProcessorPlots->fill(truth, isGood);
-      m_effTRTSeededTrackFinderPlots->fill(truth, isGood);
-      m_effTRTStandalonePlots->fill(truth, isGood);
-      m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood);
+      m_effSiSPSeededFinderPlots->fill(truth, isGood, weight);
+      m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight);
+      m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight);
+      m_effTRTStandalonePlots->fill(truth, isGood, weight);
+      m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight);
 
     }
     
@@ -266,17 +266,17 @@ InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Trac
 //
 
 void
-InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx){
+InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight){
 
-  m_missingTruthFakePlots.fill(track, !isAssociatedTruth);
-  m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx);
+  m_missingTruthFakePlots.fill(track, !isAssociatedTruth, weight);
+  m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx, weight);
   if(m_iDetailLevel >= 200){
-    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track);
-    else m_hitsFakeTracksPlots->fill(track);
+    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track, weight);
+    else m_hitsFakeTracksPlots->fill(track, weight);
   }
   if(isAssociatedTruth) {
-    m_fakePlots.fill(track, isFake);
-      m_anTrackingPlots.fillFakeRate(track, isFake, mu, nVtx);
+    m_fakePlots.fill(track, isFake, weight);
+      m_anTrackingPlots.fillFakeRate(track, isFake, mu, nVtx, weight);
 
     if(m_iDetailLevel >= 200){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
@@ -287,11 +287,11 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
       bool isTRTStandalone = patternInfo.test(20);
       bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_fakeSiSPSeededFinderPlots->fill(track, isFake); //No extensions 
-      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_fakeInDetExtensionProcessorPlots->fill(track, isFake); //Extensions but not Back-tracking
-      if(isTRTSeededTrackFinder and not isTRTStandalone) m_fakeTRTSeededTrackFinderPlots->fill(track, isFake); //BackTracking
-      if(isTRTStandalone) m_fakeTRTStandalonePlots->fill(track, isFake); //TRT standalone
-      if(isSiSpacePointsSeedMaker_LargeD0) m_fakeSiSpacePointsSeedMaker_LargeD0Plots->fill(track, isFake); //ANT
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_fakeSiSPSeededFinderPlots->fill(track, isFake, weight); //No extensions 
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_fakeInDetExtensionProcessorPlots->fill(track, isFake, weight); //Extensions but not Back-tracking
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_fakeTRTSeededTrackFinderPlots->fill(track, isFake, weight); //BackTracking
+      if(isTRTStandalone) m_fakeTRTStandalonePlots->fill(track, isFake, weight); //TRT standalone
+      if(isSiSpacePointsSeedMaker_LargeD0) m_fakeSiSpacePointsSeedMaker_LargeD0Plots->fill(track, isFake, weight); //ANT
     }
   }
 
@@ -303,95 +303,96 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 //Fill Vertexing Plots
 //
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
   // fill vertex container general properties
   // m_verticesVsMuPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
+
   for (const auto& vtx : vertexContainer.stdcont()) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) {
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, found xAOD::VxType::NoVtx");
       continue; // skip dummy vertex
     }
-    m_vertexPlots.fill(*vtx);
+    m_vertexPlots.fill(*vtx, weight);
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
     if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-      m_hardScatterVertexPlots.fill(*vtx);
+      m_hardScatterVertexPlots.fill(*vtx, weight);
       if(truthHSVertices.size()>0)m_hardScatterVertexTruthMatchingPlots.fill(*vtx,truthHSVertices[0]);
-      else m_hardScatterVertexTruthMatchingPlots.fill(*vtx);
+      else m_hardScatterVertexTruthMatchingPlots.fill(*vtx); 
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
     }
   }
   if(m_iDetailLevel >= 200){
-    m_vertexTruthMatchingPlots->fill(vertexContainer, truthHSVertices, truthPUVertices);
+    m_vertexTruthMatchingPlots->fill(vertexContainer, truthHSVertices, truthPUVertices, weight);
   }
 }
 
 
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU) {
-  m_verticesVsMuPlots.fill(vertexContainer, nPU);
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU, float weight) {
+  m_verticesVsMuPlots.fill(vertexContainer, nPU, weight);
 }
 
 //
 //Fill Counters
 //
 void
-InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter) {
-  m_nTracks.fill(freq, counter);
+InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter, float weight) {
+  m_nTracks.fill(freq, counter, weight);
 }
 
 //Track in Jet Plots
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked, bool truthIsFromB){
-  m_trkInJetPlots->fill(track, jet);
+InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked, bool truthIsFromB, float weight){
+  m_trkInJetPlots->fill(track, jet,weight);
   if (m_iDetailLevel >= 200){
     if (isFake){
-      m_trkInJetPlots_fake->fill(track,jet); 
+      m_trkInJetPlots_fake->fill(track,jet,weight); 
     }
     else if (isUnlinked){
-      m_trkInJetPlots_unlinked->fill(track,jet); 
+      m_trkInJetPlots_unlinked->fill(track,jet,weight); 
     }
     else {
-      m_trkInJetPlots_matched->fill(track,jet); 
+      m_trkInJetPlots_matched->fill(track,jet,weight); 
     }
   }
   if(isBjet && m_doTrackInBJetPlots){
-    m_trkInJetPlots_bjets->fill(track, jet);
+    m_trkInJetPlots_bjets->fill(track, jet,weight);
     if ( truthIsFromB ) { // truth from B decay
-      m_trkInJetPlots_truthFromB->fill(track, jet);
+      m_trkInJetPlots_truthFromB->fill(track, jet,weight);
     }
      
     if (m_iDetailLevel >= 200){
       if (isFake){
-        m_trkInJetPlots_fake_bjets->fill(track,jet); 
+        m_trkInJetPlots_fake_bjets->fill(track,jet,weight); 
       }
       else if (isUnlinked){
-        m_trkInJetPlots_unlinked_bjets->fill(track,jet); 
+        m_trkInJetPlots_unlinked_bjets->fill(track,jet,weight); 
       }
       else {
-        m_trkInJetPlots_matched_bjets->fill(track,jet); 
+        m_trkInJetPlots_matched_bjets->fill(track,jet,weight); 
       }
     }
   }
 }
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, bool isEfficient, bool isBjet, bool truthIsFromB) {
-  m_trkInJetPlots->fillEfficiency(truth, jet, isEfficient); 
-  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillEfficiency(truth, jet, isEfficient);
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, bool isEfficient, bool isBjet, bool truthIsFromB, float weight) {
+  m_trkInJetPlots->fillEfficiency(truth, jet, isEfficient, weight); 
+  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillEfficiency(truth, jet, isEfficient, weight);
   
   if ( isBjet and m_doTrackInBJetPlots and truthIsFromB ) { // truth is from B
-    m_trkInJetPlots_truthFromB->fillEfficiency(truth, jet, isEfficient);
+    m_trkInJetPlots_truthFromB->fillEfficiency(truth, jet, isEfficient, weight);
   }
 }
 
 void
-InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isFake, bool isBjet, bool truthIsFromB) {
-  m_trkInJetPlots->fillFakeRate(track, jet, isFake); 
-  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake); 
+InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isFake, bool isBjet, bool truthIsFromB, float weight) {
+  m_trkInJetPlots->fillFakeRate(track, jet, isFake, weight); 
+  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake, weight); 
 
   if ( isBjet and m_doTrackInBJetPlots and truthIsFromB ) { // truth is from B
-    m_trkInJetPlots_truthFromB->fillFakeRate(track, jet, isFake);
+    m_trkInJetPlots_truthFromB->fillFakeRate(track, jet, isFake, weight);
   }
 }
 

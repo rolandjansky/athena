@@ -6,8 +6,7 @@
 
 Muon::MdtRdoToPrepDataToolMT::MdtRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   :
-  AthAlgTool(t,n,p),
-  MdtRdoToPrepDataToolCore(t,n,p)
+  base_class(t,n,p)
 {
   declareProperty("MdtPrdContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the MDT PRD container");
 }
@@ -21,7 +20,7 @@ StatusCode Muon::MdtRdoToPrepDataToolMT::initialize()
     return StatusCode::SUCCESS;
 }
 
-void Muon::MdtRdoToPrepDataToolMT::printPrepData(  )
+void Muon::MdtRdoToPrepDataToolMT::printPrepData(  ) const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 

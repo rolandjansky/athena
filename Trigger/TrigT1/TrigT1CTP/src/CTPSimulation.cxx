@@ -653,8 +653,8 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
          ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(1));
          ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(0));
          ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(1));
-         auto h0 = *get1DHist("/input/topo/Topo1El");
-         auto h1 = *get1DHist("/input/topo/Topo2El");
+         auto h0 = *get1DHist("/input/topo/Topo2El");
+         auto h1 = *get1DHist("/input/topo/Topo3El");
          for(unsigned int i=0; i<32; ++i) {
             uint32_t mask = 0x1; mask <<= i;
             if( (topoInput->cableWord1(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0

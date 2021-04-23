@@ -16,7 +16,7 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^dijetSEP'\
+pattern = r'^dijet'\
     r'((?P<j12etlo>\d*)j12et(?P<j12ethi>\d*)SEP|'\
     r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
     r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP)'\
@@ -83,16 +83,16 @@ def scenario_dijet(scenario, chainPartInd):
 
 
     example scenarios:
-    dijetSEP50j1etSEP80j2etSEP0j1eta240SEP0j2eta320SEP700djmass 
+    dijet50j1etSEP80j2etSEP0j1eta240SEP0j2eta320SEP700djmass
        mixed j1/j2 et/eta values
    
-    dijetSEP80j12etSEP0j12eta240SEP700djmass                    
+    dijet80j12etSEP0j12eta240SEP700djmass
        same et/eta cuts for j1 and j2
 
-    dijetSEP80j12etSEP700djmassSEP26djdphi
+    dijet80j12etSEP700djmassSEP26djdphi
        including delta phi cut
 
-    dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta
+    dijet70j12etSEP1000djmassSEP20djdphiSEP40djdeta
        including delta eta cut
 
     The tree vector is [0, 0, 1, 1]

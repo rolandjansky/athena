@@ -10,8 +10,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p), 
-    TgcRdoToPrepDataToolCore(t, n, p)
+  : base_class(t, n, p)
 {
 }  
 
@@ -24,7 +23,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
 }
 
 StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
-  std::vector<IdentifierHash>& selectedIdHashVect)
+  std::vector<IdentifierHash>& selectedIdHashVect) const
 {
   // MT version of this method always adds containers. Caching will be added later.
 
@@ -247,7 +246,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   return StatusCode::SUCCESS;
 }
 
-void Muon::TgcRdoToPrepDataToolMT::printPrepData()
+void Muon::TgcRdoToPrepDataToolMT::printPrepData() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 

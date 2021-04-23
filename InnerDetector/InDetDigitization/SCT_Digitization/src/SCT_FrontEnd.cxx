@@ -452,11 +452,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
           noise_tbin = 4; // !< now 1,2 or 4
         }
         if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, noise_tbin)) {
-          ATH_MSG_ERROR("Can't add noise hit diode to collection");
+          ATH_MSG_ERROR("Can't add noise hit diode to collection (1)");
         }
       } else {
         if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2)) {
-          ATH_MSG_ERROR("Can't add noise hit diode to collection");
+          ATH_MSG_ERROR("Can't add noise hit diode to collection (2)");
         }
       }
     }
@@ -551,11 +551,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
             noise_tbin = 4; // !< now 1, 2 or 4
           }
           if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, noise_tbin)) {
-            ATH_MSG_ERROR("Can't add noise hit diode to collection");
+            ATH_MSG_ERROR("Can't add noise hit diode to collection (3)");
           }
         } else {
           if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2)) {
-            ATH_MSG_ERROR("Can't add noise hit diode to collection");
+            ATH_MSG_ERROR("Can't add noise hit diode to collection (4)");
           }
         }
       }
@@ -829,7 +829,8 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
         } else {
           data.m_StripHitsOnWafer[strip] = 2; // Crosstalk+Noise hit
           if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2)) {
-            ATH_MSG_ERROR("Can't add noise hit diode to collection");
+	    
+            ATH_MSG_ERROR("Can't add noise hit diode to collection (5)");
           }
         }
       } else { // Expanded
@@ -847,7 +848,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
           if (have_hit_bin == 2 or have_hit_bin == 3 or have_hit_bin == 6 or have_hit_bin == 7) {
             data.m_StripHitsOnWafer[strip] = 2; // Crosstalk+Noise hit
             if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin)) {
-              ATH_MSG_ERROR("Can't add noise hit diode to collection");
+              ATH_MSG_ERROR("Can't add noise hit diode to collection (6)");
             }
           } else {
             data.m_StripHitsOnWafer[strip] = -2; // Below threshold
@@ -856,7 +857,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
           if (have_hit_bin == 2 or have_hit_bin == 3) {
             data.m_StripHitsOnWafer[strip] = 2; // Noise hit
             if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin)) {
-              ATH_MSG_ERROR("Can't add noise hit diode to collection");
+              ATH_MSG_ERROR("Can't add noise hit diode to collection (7)");
             }
           } else {
             data.m_StripHitsOnWafer[strip] = -2; // Below threshold
@@ -868,11 +869,11 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
             data.m_StripHitsOnWafer[strip] = 2; // !< Crosstalk+Noise hit
             if (m_data_readout_mode == Expanded) { // !< check for exp mode or not
               if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin)) {
-                ATH_MSG_ERROR("Can't add noise hit diode to collection");
+                ATH_MSG_ERROR("Can't add noise hit diode to collection (8)");
               }
             } else {
               if (StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2)) {
-                ATH_MSG_ERROR("Can't add noise hit diode to collection");
+                ATH_MSG_ERROR("Can't add noise hit diode to collection (9)");
               }
             }
           }
@@ -984,13 +985,11 @@ StatusCode SCT_FrontEnd::addNoiseDiode(SiChargedDiodeCollection& collection, int
   collection.add(ndiode, noiseCharge); // !< add it to the collection
 
   // Get the strip back to check
-  const Identifier idstrip = m_sct_id->strip_id(collection.identify(), strip);
-  SiChargedDiode *NoiseDiode = (collection.find(idstrip));
+  SiChargedDiode *NoiseDiode = (collection.find(strip));
   if (NoiseDiode == nullptr) {
     return StatusCode::FAILURE;
   }
   SiHelper::SetTimeBin(*NoiseDiode, tbin, &msg()); // set timebin info
-
   return StatusCode::SUCCESS;
 }
 

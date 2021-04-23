@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -92,18 +92,10 @@ ROBDataProviderSvc::ROBDataProviderSvc(const std::string& name, ISvcLocator* svc
   declareProperty("filterEmptyROB", m_filterEmptyROB = false);
 }
 
-// Destructor.
-ROBDataProviderSvc::~ROBDataProviderSvc() {
-  // the eventsCache take care of cleaaning itself
-}
 
 // Initialization
 StatusCode ROBDataProviderSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing");
    m_eventsCache = SG::SlotSpecificObj<EventCache>( SG::getNSlots() );
    
    for (unsigned int i = 0; i < m_filterRobWithStatus.value().size(); i++) {
@@ -151,25 +143,11 @@ StatusCode ROBDataProviderSvc::initialize() {
    return(StatusCode::SUCCESS);
 }
 
-// /// Query interface
-// StatusCode ROBDataProviderSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-//    if (IROBDataProviderSvc::interfaceID().versionMatch(riid)) {
-//       *ppvInterface = dynamic_cast<IROBDataProviderSvc*>(this);
-//    } else {
-//       // Interface is not directly available: try out a base class
-//       return(::AthService::queryInterface(riid, ppvInterface));
-//    }
-//    addRef();
-//    return(StatusCode::SUCCESS);
-// }
 
 /**
     - in offline only check that given ROB ids are in the map, issue an
       error if not
 */
-  
-
-
 void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName) {
   const EventContext context{ Gaudi::Hive::currentContext() };
   return addROBData( context, robIds, callerName );

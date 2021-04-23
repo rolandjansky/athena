@@ -16,7 +16,7 @@ logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 
-pattern = r'^fbdjnosharedSEP'\
+pattern = r'^fbdjnoshared'\
     r'(?P<j1etlo>\d*)et(?P<j1ethi>\d*)SEP'\
     r'(?P<j2etlo>\d*)et(?P<j2ethi>\d*)SEP'\
     r'(?P<masslo>\d*)mass(?P<masshi>\d*)SEP'\

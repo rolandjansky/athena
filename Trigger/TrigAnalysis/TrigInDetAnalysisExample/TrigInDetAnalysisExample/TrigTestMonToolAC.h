@@ -13,7 +13,6 @@
 #define TIDAEXAMPLE_TRIGTESTMONTOOLAC_H
 
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 

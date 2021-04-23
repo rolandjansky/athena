@@ -11,8 +11,8 @@
 
 #include "StoreGate/TypelessWriteHandleKey.h"
 #include "StoreGate/exceptions.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 

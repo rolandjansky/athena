@@ -14,15 +14,6 @@
 
 #include <fstream>
 
-LArHVIdMappingAlg::LArHVIdMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc",name)
-{
-  //declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-}
-
-LArHVIdMappingAlg::~LArHVIdMappingAlg() {}
-
 StatusCode LArHVIdMappingAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
@@ -53,7 +44,7 @@ StatusCode LArHVIdMappingAlg::execute() {
 
   SG::ReadCondHandle<AthenaAttributeList> readHandle{m_readKey};
   const AthenaAttributeList* attr{*readHandle};
-
+  writeHandle.addDependency(readHandle);
   // Reading of input conditions data, copied from LArHVCablingTool
   if (attr==nullptr) {
     ATH_MSG_WARNING( " Cannot find /LAR/IdentifierOfl/HVLineToElectrodeMap from database, Use ASCII file indeed !!!");
@@ -117,23 +108,16 @@ StatusCode LArHVIdMappingAlg::execute() {
 
   fillHVMap(elecLineMap, lineElecMap, hvlineID, electrodeID);
 
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
 
-
-  if(writeHandle.record(rangeW,HVIdMap.release()).isFailure()) {
+  if(writeHandle.record(std::move(HVIdMap)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArCalibLineMapping object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
   
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
  
   return StatusCode::SUCCESS;

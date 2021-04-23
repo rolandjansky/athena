@@ -57,7 +57,7 @@ namespace Muon {
 
         virtual ~MuonTGMeasurementTool() = default;
 
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
 
         const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const override;
         const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const override;

@@ -183,7 +183,7 @@ const std::vector<HLT::Identifier>& TrigJetHypoToolMT::getIDs() const{
 
 
 const HLT::Identifier& TrigJetHypoToolMT::getID(std::size_t i) const{
-  return m_decisionIDs[i];
+  return m_decisionIDs.at(i-m_startLabelIndex);
 }
     
 

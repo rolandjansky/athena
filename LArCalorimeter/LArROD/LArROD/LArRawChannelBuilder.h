@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -23,7 +23,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "LArElecCalib/ILArOFCTool.h"
+#include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRawEvent/LArDigitContainer.h"
@@ -45,7 +45,6 @@ public:
 
 private:
   //Services & Tools 
-  ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   const LArOnlineID* m_onlineHelper;
   //LArRoI_Map* m_roiMap;
@@ -59,7 +58,7 @@ private:
     { this, "TBPhaseLocation", "TBPhase", "" };
   SG::WriteHandleKey<LArRawChannelContainer> m_ChannelContainerName
     { this, "LArRawChannelContainerName", "LArRawChannels", "" };
-  bool m_useTDC, m_useOFCTool;
+  bool m_useTDC;
   float m_Ecut;
   int m_initialTimeSampleShift;
   int m_NOFCPhases;
@@ -117,6 +116,9 @@ private:
   std::string m_pedestalKey;
   std::string m_shapesKey;
 
+  /// Property: OFC coefficients (conditions input).
+  SG::ReadCondHandleKey<ILArOFC> m_ofcKey
+   {this, "OFCKey", "LArOFC", "SG Key of OFC conditions object" };
 };
 
 #endif

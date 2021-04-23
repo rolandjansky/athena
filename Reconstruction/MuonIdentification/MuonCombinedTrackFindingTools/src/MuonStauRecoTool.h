@@ -34,6 +34,7 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
 #include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkToolInterfaces/IUpdator.h"
@@ -207,6 +208,13 @@ namespace MuonCombined {
             return false;
         }
 
+        /** helper function to add Candidate to ntuple */
+        void addCandidatesToNtuple(const xAOD::TrackParticle& indetTrackParticle, const CandidateVec& candidates, int stage) const;
+
+        /** match extension to Hough maxima, extract time measurements, create candidates, run segment finding */
+        bool processMuonSystemExtension(const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension,
+                                        CandidateVec& candidates);
+
         /** */
         void mdtTimeCalibration(const Identifier& id, float& time, float& error) const;
         void rpcTimeCalibration(const Identifier& id, float& time, float& error) const;
@@ -229,6 +237,8 @@ namespace MuonCombined {
                                                                 "Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"};
         ToolHandle<Muon::IMuonLayerSegmentMatchingTool> m_segmentMatchingTool{
             this, "MuonLayerSegmentMatchingTool", "Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"};
+
+        ToolHandle<Muon::IMuonRecoValidationTool> m_recoValidationTool{this, "MuonRecoValidationTool", ""};
         ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_trackAmbibuityResolver{this, "TrackAmbiguityProcessor",
                                                                                "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
         ToolHandle<Muon::IMuonHitTimingTool> m_hitTimingTool{this, "MuonHitTimingTool", "Muon::MuonHitTimingTool/MuonHitTimingTool"};

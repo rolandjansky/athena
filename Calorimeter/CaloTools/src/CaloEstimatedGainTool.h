@@ -7,8 +7,6 @@
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2019
  * @brief Estimate gain used to read out a certain energy.
- *
- * Used to be part of ICaloNoiseTool.
  */
 
 

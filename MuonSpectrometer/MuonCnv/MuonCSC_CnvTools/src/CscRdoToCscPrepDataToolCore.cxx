@@ -24,20 +24,12 @@ using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
 
-static const InterfaceID IID_ICscRdoToCscPrepDataToolCore
-("CscRdoToCscPrepDataToolCore",1,0);
-
-const InterfaceID& CscRdoToCscPrepDataToolCore::interfaceID()
-{ 
-  return IID_ICscRdoToCscPrepDataToolCore; 
-}
 
 CscRdoToCscPrepDataToolCore::CscRdoToCscPrepDataToolCore
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_cabling( "CSCcablingSvc" ,name)
 {
-  declareInterface<IMuonRdoToPrepDataTool>(this);
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
   declareProperty("DecodeData",          m_decodeData = true );
   // DataHandle
@@ -106,7 +98,7 @@ void CscRdoToCscPrepDataToolCore::printPrepDataImpl (const Muon::CscStripPrepDat
 }  
 
 
-void CscRdoToCscPrepDataToolCore::printInputRdo() {
+void CscRdoToCscPrepDataToolCore::printInputRdo() const {
   return;
 }
   

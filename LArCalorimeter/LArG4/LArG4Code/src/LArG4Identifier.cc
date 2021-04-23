@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,7 +48,6 @@ static void show_vector (const LArG4Identifier::element_vector& v)
 //-----------------------------------------------
 LArG4Identifier::LArG4Identifier ()
 {
-  set_last_error (none);
 }
 
 //-----------------------------------------------
@@ -57,16 +56,12 @@ LArG4Identifier::LArG4Identifier (const LArG4Identifier& other)
   : TObject()
 #endif
 {
-  set_last_error (none);
-
   m_fields = other.m_fields;
 }
 
 //-----------------------------------------------
 LArG4Identifier::LArG4Identifier (const LArG4Identifier& other, size_type start)
 {
-  set_last_error (none);
-
   if (start < other.fields ())
     {
       element_vector::const_iterator it = other.m_fields.begin ();
@@ -91,7 +86,6 @@ LArG4Identifier& LArG4Identifier::operator=(const LArG4Identifier& other)
 {
  if(this != &other)
    {
-     set_last_error (none); //for consistency with copy-constructor.
      m_fields = other.m_fields;
    }
  return *this;
@@ -100,16 +94,12 @@ LArG4Identifier& LArG4Identifier::operator=(const LArG4Identifier& other)
 //-----------------------------------------------
 void LArG4Identifier::add (element_type value)
 {
-  set_last_error (none);
-
   m_fields.push_back (value);
 }
 
 //-----------------------------------------------
 LArG4Identifier& LArG4Identifier::operator << (element_type value)
 {
-  set_last_error (none);
-
   m_fields.push_back (value);
 
   return (*this);
@@ -118,8 +108,6 @@ LArG4Identifier& LArG4Identifier::operator << (element_type value)
 //-----------------------------------------------
 LArG4Identifier::element_type & LArG4Identifier::operator [] (size_type index)
 {
-  set_last_error (none);
-
   if (index >= m_fields.size ())
     {
       throw std::out_of_range ("LArG4Identifier::operator[]");
@@ -131,8 +119,6 @@ LArG4Identifier::element_type & LArG4Identifier::operator [] (size_type index)
 //-----------------------------------------------
 void LArG4Identifier::set (const std::string& text)
 {
-  set_last_error (none);
-
   clear ();
   if (text.size () == 0) return;
   const char* ctext = text.c_str ();
@@ -167,12 +153,8 @@ void LArG4Identifier::clear ()
 //-----------------------------------------------
 LArG4Identifier::element_type LArG4Identifier::operator [] (size_type index) const
 {
-  set_last_error (none);
-
   if (index >= m_fields.size ())
     {
-      set_last_error (field_not_found);
-
       return (0);
     }
 
@@ -297,27 +279,6 @@ int LArG4Identifier::prefix_less (const LArG4Identifier& other) const
   return (0);
 }
 
-  // Error management
-//-----------------------------------------------
-LArG4Identifier::error_code LArG4Identifier::last_error () const
-{
-  return (set_last_error (get));
-}
-
-//-----------------------------------------------
-const std::string LArG4Identifier::last_error_text () const
-{
-  static const std::string text[] = {
-    "none",
-    "bad parameter",
-    "field not found"
-  };
-  
-  error_code code = last_error ();
-  
-  return (text[code]);
-}
-
 //-----------------------------------------------
 LArG4Identifier::operator std::string () const
 {
@@ -346,18 +307,5 @@ LArG4Identifier::operator std::string () const
 void LArG4Identifier::show () const
 {
   show_vector (m_fields);
-}
-
-//----------------------------------------------------------------
-LArG4Identifier::error_code LArG4Identifier::set_last_error (error_code code) const
-{
-  static thread_local error_code last = none;
-  
-  if (code != get)
-    {
-      last = code;
-    }
-  
-  return (last);
 }
 

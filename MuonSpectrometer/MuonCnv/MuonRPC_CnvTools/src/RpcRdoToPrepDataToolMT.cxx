@@ -46,8 +46,7 @@ Muon::RpcRdoToPrepDataToolMT::MyState::MyState (const RpcIdHelper& idHelper,
 
 Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
-  : AthAlgTool( type, name, parent ),
-    RpcRdoToPrepDataToolCore( type, name, parent )
+  : base_class( type, name, parent )
 {
   declareProperty("RpcPrdContainerCacheKey", m_prdContainerCacheKey, 
     "Optional external cache for the RPC PRD container");
@@ -78,7 +77,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
 
 
 /// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect )
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const
 {
   ATH_MSG_DEBUG("Calling Core decode function from MT decode function (hash vector)");
   MyState state (m_idHelperSvc->rpcIdHelper(), msg());
@@ -95,7 +94,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& i
 }
 
 /// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( const std::vector<uint32_t>& robIds )
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( const std::vector<uint32_t>& robIds ) const
 {
   ATH_MSG_DEBUG("Calling Core decode function from MT decode function (ROB vector)");
   MyState state (m_idHelperSvc->rpcIdHelper(), msg());
@@ -392,7 +391,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMTCoinData (Muon::RpcCoinDataContainer& 
 }
 
 
-void Muon::RpcRdoToPrepDataToolMT::printPrepData()
+void Muon::RpcRdoToPrepDataToolMT::printPrepData() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 

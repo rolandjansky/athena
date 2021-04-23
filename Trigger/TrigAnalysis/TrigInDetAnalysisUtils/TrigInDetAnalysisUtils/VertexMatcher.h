@@ -19,12 +19,12 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 
 
+
 class VertexMatcher : public BestMatcher<TIDA::Vertex> {
 
 public:
 
-
-  VertexMatcher( const std::string& s, double d=20) : BestMatcher<TIDA::Vertex>( s, d*d ) { }  
+  VertexMatcher( const std::string& s, double d=3 ) : BestMatcher<TIDA::Vertex>( s, d*d ) { }  
 
   ~VertexMatcher() { }
   

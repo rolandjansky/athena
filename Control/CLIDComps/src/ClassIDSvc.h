@@ -19,11 +19,9 @@
 #include <utility> // for std::pair
 
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/Service.h"
-
 #include "GaudiKernel/DirSearchPath.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
 
 #include "AthenaKernel/CLIDRegistry.h"
 

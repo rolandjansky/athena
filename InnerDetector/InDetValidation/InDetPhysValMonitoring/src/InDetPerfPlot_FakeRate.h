@@ -29,7 +29,7 @@ class InDetPerfPlot_FakeRate: public InDetPlotBase {
 public:
   InDetPerfPlot_FakeRate(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle& track, const bool isFake);
+  void fill(const xAOD::TrackParticle& track, const bool isFake, float weight);
 private:
   TEfficiency* m_fakerate_vs_eta;
   TEfficiency* m_fakerate_vs_pt;

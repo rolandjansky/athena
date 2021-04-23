@@ -489,6 +489,7 @@ class ChainCompStep(RefComparisonStep):
         self.args = ''
         self.auto_report_result = True
         self.output_stream = Step.OutputStream.FILE_AND_STDOUT
+        self.depends_on_exec = True  # skip if ExecSteps failed
 
     def configure(self, test):
         if not self.reference_from_release:
@@ -625,6 +626,7 @@ class MessageCountStep(Step):
         self.print_on_fail = None
         self.thresholds = {}
         self.auto_report_result = True
+        self.depends_on_exec = True  # skip if ExecSteps failed
 
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
@@ -651,6 +653,12 @@ class MessageCountStep(Step):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
         log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
+        if not log_files and not dry_run:
+            self.log.error('%s found no log files matching the pattern %s', self.name, self.log_regex)
+            self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, '# (internal) {} -> failed'.format(self.name)
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False

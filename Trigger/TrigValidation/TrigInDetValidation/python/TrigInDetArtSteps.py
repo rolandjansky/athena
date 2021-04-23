@@ -77,6 +77,7 @@ class TrigInDetReco(ExecStep):
         for i in self.slices:
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                chains += "'HLT_mu6_LRT_idperf_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
@@ -214,6 +215,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_RawDataProviderToolMT.h"
@@ -12,7 +12,7 @@ Muon::MDT_RawDataProviderToolMT::MDT_RawDataProviderToolMT(const std::string& t,
 						       const std::string& n,
 						       const IInterface*  p )
   :
-  MDT_RawDataProviderToolCore(t,n,p),
+  base_class(t,n,p),
   m_rdoContainerCacheKey("")
 {
   declareInterface<Muon::IMuonRawDataProviderTool>(this);
@@ -39,7 +39,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::finalize()
 }
 
 // the new one 
-StatusCode Muon::MDT_RawDataProviderToolMT::convert() //call decoding function using list of all detector ROBId's
+StatusCode Muon::MDT_RawDataProviderToolMT::convert() const //call decoding function using list of all detector ROBId's
 {
   return this->convert( Gaudi::Hive::currentContext() );
 }
@@ -55,7 +55,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::convert(const EventContext& ctx) con
   return convert(readCdo->getAllROBId(), ctx);
 }
 
-StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& HashVec)
+StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& HashVec) const
 {
   return this->convert(HashVec, Gaudi::Hive::currentContext() );
 }
@@ -71,7 +71,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<Identifier
   return convert(readCdo->getROBId(HashVec), ctx);
 }
 
-StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds)
+StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds) const
 { 
   return this->convert(robIds, Gaudi::Hive::currentContext() );
 }
@@ -84,7 +84,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::convert(const std::vector<uint32_t>&
 }
 
 StatusCode Muon::MDT_RawDataProviderToolMT::convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
- const std::vector<IdentifierHash>&)
+ const std::vector<IdentifierHash>&) const
 {
   return this->convert(vecRobs, Gaudi::Hive::currentContext() );
 }
@@ -95,7 +95,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::convert( const std::vector<const OFF
   return convert(vecRobs, ctx);
 }
 
-StatusCode Muon::MDT_RawDataProviderToolMT::convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs){
+StatusCode Muon::MDT_RawDataProviderToolMT::convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs) const {
   return this->convert(vecRobs, Gaudi::Hive::currentContext() );
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -79,6 +79,10 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
       // set objectLink
       newd->setObjectLink( featureString(), muCombEL );
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
+
+      //set roi link (to use same roi in EF CB step)
+      auto roiLink = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newd, "roi");
+      newd->setObjectLink(m_roiLinkName.value(), roiLink.link);
 
       // DEBUG
       ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");

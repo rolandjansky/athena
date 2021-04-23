@@ -99,7 +99,7 @@ class DetElementSurface : public Surface
     virtual Trk::DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D&,
                                            const Amg::Vector3D&, bool) const {return 0;}
 
-    virtual bool isOnSurface(const Amg::Vector3D&, Trk::BoundaryCheck, double, double) const {return false;}
+    virtual bool isOnSurface(const Amg::Vector3D&, const Trk::BoundaryCheck&, double, double) const {return false;}
 
 private:
     Identifier  m_id;

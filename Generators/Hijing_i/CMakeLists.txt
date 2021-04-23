@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Hijing_i )
@@ -15,9 +15,9 @@ atlas_add_library( Hijing_iLib
    Hijing_i/*.h src/*.cxx src/*.F src/Hijing_modified/*.f
    PUBLIC_HEADERS Hijing_i
    INCLUDE_DIRS ${HIJING_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS 
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   PRIVATE_DEFINITIONS -DHIJINGVERSION=\"${HIJING_VERSION}\"
+   PRIVATE_DEFINITIONS HIJINGVERSION=\"${HIJING_VERSION}\"
+                       FVOIDP=INTEGER*${CMAKE_SIZEOF_VOID_P}
    LINK_LIBRARIES ${HIJING_LIBRARIES} ${CLHEP_LIBRARIES}
    GeneratorFortranCommonLib GeneratorModulesLib StoreGateLib
    PRIVATE_LINK_LIBRARIES AtlasHepMCLib AthenaKernel GaudiKernel

@@ -30,7 +30,7 @@ InDetPerfPlot_VerticesVsMu::initializePlots() {
 }
 
 void
-InDetPerfPlot_VerticesVsMu::fill(const xAOD::VertexContainer& vertices, unsigned int nPU) {
+InDetPerfPlot_VerticesVsMu::fill(const xAOD::VertexContainer& vertices, unsigned int nPU, float weight) {
   // fill number of vertices
   int nGoodVertices(0);
 
@@ -40,5 +40,5 @@ InDetPerfPlot_VerticesVsMu::fill(const xAOD::VertexContainer& vertices, unsigned
     }
     nGoodVertices++;
   }
-  fillHisto(m_vx_n_vs_mu, nGoodVertices, nPU);
+  fillHisto(m_vx_n_vs_mu, nGoodVertices, nPU,weight);
 }

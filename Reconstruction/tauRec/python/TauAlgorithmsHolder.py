@@ -18,8 +18,8 @@ bAODmode = False
 
 # standard container names
 _DefaultVertexContainer = "PrimaryVertices"
-_DefaultTrackContainer ="InDetTrackParticles"
-_DefaultLargeD0TrackContainer ="InDetLargeD0TrackParticles"
+_DefaultTrackContainer = "InDetTrackParticles"
+_DefaultLargeD0TrackContainer = "InDetLargeD0TrackParticles"
 
 ######################################################################## 
 def setPrefix(prefix): 
@@ -384,7 +384,7 @@ def getPi0ScoreCalculator():
 
     from tauRecTools.tauRecToolsConf import TauPi0ScoreCalculator
     TauPi0ScoreCalculator = TauPi0ScoreCalculator(name = _name,
-        BDTWeightFile = 'TauPi0BDTWeights.root',
+        BDTWeightFile = tauFlags.tauRecPi0ScoreConfig(),
         )
 
     cached_instances[_name] = TauPi0ScoreCalculator
@@ -398,10 +398,9 @@ def getPi0Selector():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-    pi0EtCuts = jobproperties.tauRecFlags.pi0EtCuts()
-    pi0MVACuts_1prong = jobproperties.tauRecFlags.pi0MVACuts_1prong()
-    pi0MVACuts_mprong = jobproperties.tauRecFlags.pi0MVACuts_mprong()
+    pi0EtCuts = tauFlags.pi0EtCuts()
+    pi0MVACuts_1prong = tauFlags.pi0MVACuts_1prong()
+    pi0MVACuts_mprong = tauFlags.pi0MVACuts_mprong()
      
 
     from tauRecTools.tauRecToolsConf import TauPi0Selector
@@ -422,9 +421,8 @@ def getTauShotFinder():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-    shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
-    shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
+    shotPtCut_1Photon = tauFlags.shotPtCut_1Photon()
+    shotPtCut_2Photons = tauFlags.shotPtCut_2Photons()
 
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
@@ -659,8 +657,8 @@ def getTauTrackRNNClassifier():
     import cppyy
     cppyy.load_library('libxAODTau_cDict')
 
-    _RNN = TrackRNN(name = _name + "_0",
-                    InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig()[0],
+    _RNN = TrackRNN(name = _name + "_TrackRNN",
+                    InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig(),
                     calibFolder = tauFlags.tauRecToolsCVMFSPath(),
                    )
     ToolSvc += _RNN
@@ -710,8 +708,8 @@ def getTauWPDecoratorJetRNN():
     _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "rnnid_mc16d_flat_1p.root",
-                                       flatteningFile3Prong = "rnnid_mc16d_flat_3p.root",
+                                       flatteningFile1Prong = tauFlags.tauRecTauJetRNNWPConfig()[0],
+                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
@@ -763,8 +761,8 @@ def getTauWPDecoratorEleRNN():
     _name = sPrefix + 'TauWPDecoratorEleRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong="rnneveto_mc16d_flat_1p.root",
-                                       flatteningFile3Prong="rnneveto_mc16d_flat_3p.root",
+                                       flatteningFile1Prong = tauFlags.tauRecTauEleRNNWPConfig()[0],
+                                       flatteningFile3Prong = tauFlags.tauRecTauEleRNNWPConfig()[1],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNMedium,
