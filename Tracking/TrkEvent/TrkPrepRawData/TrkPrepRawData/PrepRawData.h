@@ -18,6 +18,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <atomic>
+#include <memory>
 #include <iostream>
 #include <vector>
 
@@ -149,7 +150,7 @@ private:
   /**Stores the identifiers of the RDOs.*/
   std::vector<Identifier> m_rdoList;
   /**See derived classes for definition of ErrorMatrix */
-  const Amg::MatrixX* m_localCovariance;
+  std::unique_ptr<const Amg::MatrixX> m_localCovariance;
 
   /**Stores its own position (index) in collection plus the hash id for the
      collection (needed for the EL to IDC) */
