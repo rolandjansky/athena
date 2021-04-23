@@ -2,7 +2,7 @@
 #ifdef MINBIAS 
 pT     = 400;
 #else
-pT     = 3000;
+pT     = 1000;
 #endif
 
 eta    = 2.5;
