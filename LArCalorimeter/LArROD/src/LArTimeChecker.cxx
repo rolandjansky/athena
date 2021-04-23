@@ -8,7 +8,6 @@
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 
