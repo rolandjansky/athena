@@ -78,6 +78,8 @@
 #include "GeneratorFilters/M4MuIntervalFilter.h"
 #include "GeneratorFilters/SameParticleHardScatteringFilter.h"
 #include "GeneratorFilters/PileupTruthParticleSlimmer.h"
+#include "GeneratorFilters/DecayTimeFilter.h"
+
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -154,6 +156,7 @@ DECLARE_ALGORITHM_FACTORY(ALPDecayPositionFilter)
 DECLARE_ALGORITHM_FACTORY(M4MuIntervalFilter)
 DECLARE_ALGORITHM_FACTORY(SameParticleHardScatteringFilter)
 DECLARE_ALGORITHM_FACTORY(PileupTruthParticleSlimmer)
+DECLARE_ALGORITHM_FACTORY(DecayTimeFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -230,5 +233,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(M4MuIntervalFilter)
     DECLARE_ALGORITHM(SameParticleHardScatteringFilter)
     DECLARE_ALGORITHM(PileupTruthParticleSlimmer)
+    DECLARE_ALGORITHM(DecayTimeFilter)
 }
 
