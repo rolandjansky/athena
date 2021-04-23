@@ -8,12 +8,12 @@ testChains = {
 #ifndef VTXANALYSIS
 
     "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon",
-    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuonForEF",
+    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
     "HLT_mu6_ivarmedium_L1MU6:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso",
     "HLT_mu6_ivarmedium_L1MU6:HLT_IDTrack_MuonIso_IDTrig:HLT_Roi_MuonIso",
 
     "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon",
-    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuonForEF",
+    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
     "HLT_mu26_ivarmedium_L1MU20:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso",
     "HLT_mu26_ivarmedium_L1MU20:HLT_IDTrack_MuonIso_IDTrig:HLT_Roi_MuonIso",
     "HLT_mu28_ivarmedium_L1MU20:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso",
