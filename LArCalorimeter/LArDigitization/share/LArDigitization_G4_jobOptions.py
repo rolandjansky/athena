@@ -35,13 +35,6 @@ digitmaker1.Nsamples = LArNSamples
 # Calorimeter Noise
 digitmaker1.NoiseOnOff = jobproperties.Digitization.doCaloNoise.get_Value()
 
-# ADC2MeVTool
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theADC2MeVTool = LArADC2MeVToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theADC2MeVTool
-digitmaker1.ADC2MeVTool = theADC2MeVTool
-
 #########################################################################
 #
 # end of LArDigitization job Options fragment
