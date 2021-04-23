@@ -144,7 +144,7 @@ Trk::SlidingCylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
 
 bool
 Trk::SlidingCylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
-                                         Trk::BoundaryCheck bchk,
+                                         const Trk::BoundaryCheck& bchk,
                                          double tol1,
                                          double tol2) const
 {

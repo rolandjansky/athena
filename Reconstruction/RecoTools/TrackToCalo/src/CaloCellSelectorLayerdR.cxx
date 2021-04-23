@@ -44,8 +44,7 @@ namespace Trk {
         int samplingID = dde->getSampling();
         if (!std::get<0>(m_midPoints[samplingID])) return false;
         double dr = Utils::deltaR2(std::get<1>(m_midPoints[samplingID]), dde->eta(), std::get<2>(m_midPoints[samplingID]), dde->phi());
-        if (dr < m_coneSize2) { return true; }
-        return false;
+        return dr < m_coneSize2;
     }
 
 }  // namespace Trk

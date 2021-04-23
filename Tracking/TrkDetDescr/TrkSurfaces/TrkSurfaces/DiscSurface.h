@@ -221,7 +221,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 

@@ -199,7 +199,7 @@ Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo,
 // checks if GlobalPosition is on Surface and inside bounds
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
-                          BoundaryCheck bchk,
+                          const BoundaryCheck& bchk,
                           double tol1,
                           double tol2) const
 {

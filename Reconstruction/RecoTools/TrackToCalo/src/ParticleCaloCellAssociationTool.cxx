@@ -116,7 +116,7 @@ namespace Rec {
         CaloExtensionHelpers::pathLenLayerMap(extension, pathLenLayerMap);
 
         ATH_MSG_DEBUG("Getting cells intersections using cells " << cells.size());
-        for (auto cell : cells) {
+        for (const auto *cell : cells) {
             // get sampling and look up entry/exit points
             CaloSampling::CaloSample sample = cell->caloDDE()->getSampling();
 
@@ -180,7 +180,7 @@ namespace Rec {
                     int dscut = 1;
                     if (!barrel) dscut = 0;
                     const CaloCell* cellFound = nullptr;
-                    for (auto celln : cells) {
+                    for (const auto *celln : cells) {
                         if (cell == celln) continue;
                         if (cell->caloDDE()->getSubCalo() == celln->caloDDE()->getSubCalo()) {
                             int dsample = isample - celln->caloDDE()->getSampling();
@@ -228,7 +228,7 @@ namespace Rec {
                     int dscut = 1;
                     if (barrel) dscut = 0;
                     const CaloCell* cellFound = nullptr;
-                    for (auto celln : cells) {
+                    for (const auto *celln : cells) {
                         if (cell == celln) continue;
                         if (cell->caloDDE()->getSubCalo() == celln->caloDDE()->getSubCalo()) {
                             int isample2 = celln->caloDDE()->getSampling();

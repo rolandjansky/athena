@@ -132,7 +132,7 @@ namespace Rec {
         SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation);
         if (indetTrackParticles.isValid()) {
             // check ID trackparticles
-            for (auto it : *indetTrackParticles) {
+            for (const auto *it : *indetTrackParticles) {
                 if ((*it).track() == trk) {
                     tp = &(*it);
                     break;
@@ -147,7 +147,7 @@ namespace Rec {
 
         SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
         if (!tp && muonTrackParticles.isValid()) {
-            for (auto it : *muonTrackParticles) {
+            for (const auto *it : *muonTrackParticles) {
                 if ((*it).track() == trk) {
                     tp = &(*it);
                     break;

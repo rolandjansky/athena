@@ -29,7 +29,7 @@ namespace Trk {
             return StatusCode::FAILURE;
         }
         auto cache = std::make_unique<CaloExtensionCollection>();
-        if (tracks->size() > 0)
+        if (!tracks->empty())
             // Use the index of the last track as a good guess of the largest index
             // present in the container. This will be the right value if the view
             // has not been sorted differently from the original container
