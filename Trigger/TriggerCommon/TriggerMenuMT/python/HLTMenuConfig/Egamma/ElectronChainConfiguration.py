@@ -7,6 +7,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfigu
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
+from ..CommonSequences.CaloSequences import fastCaloFWDMenuSequence
+
 
 from .ElectronMenuSequences import fastElectronMenuSequence
 from .ElectronMenuSequences_LRT import fastElectronMenuSequence_LRT
@@ -26,6 +28,9 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 
 def electronFastCaloCfg( flags ):
     return fastCaloMenuSequence("Electron")
+
+def electronFWDFastCaloCfg( flags ):
+    return fastCaloFWDMenuSequence("Electron")
 
 def fastElectronSequenceCfg( flags ):
     return fastElectronMenuSequence(do_idperf=False)
@@ -125,7 +130,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivarloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhtightivarmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhtightivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-        # gsf sequences. For now just settin gup as normal non-gsf chains
+                # gsf sequences. For now just settin gup as normal non-gsf chains
                 'lhloosegsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhvloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhmediumgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
@@ -139,11 +144,13 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivarloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhtightivarmediumgsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhtightivartightgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-          # lrt chains
+                # lrt chains
                 'lhlooselrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
                 'lhmediumlrtmedium'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
                 'lhtightlrttight'   : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
 
+                # forward sequences
+                'etcutfwd' : ['getFWDFastCalo']
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
@@ -173,14 +180,19 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         
         return myChain
 
-    # --------------------
+    # -------------------------------
     # Configuration of electron steps
-    # --------------------
+    # -------------------------------
 
     def getFastCalo(self):
         stepName       = "FastCalo_electron"
         fastCaloCfg    = electronFastCaloCfg
         return self.getStep(1,stepName,[ fastCaloCfg])
+
+    def getFWDFastCalo(self):
+        stepName       = "FastCalo_FWD_electron"
+        fastCaloCfg    = electronFWDFastCaloCfg
+        return self.getStep(1, stepName, [fastCaloCfg])
 
     def getFastElectron(self):
         stepName = "fast_electron"

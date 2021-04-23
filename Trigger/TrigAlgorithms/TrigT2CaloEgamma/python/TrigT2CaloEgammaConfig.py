@@ -141,3 +141,25 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
 
         self.MonTool = monTool
 
+
+
+
+class T2CaloEgamma_ReFastFWDAlgo (CompFactory.T2CaloEgammaForwardReFastAlgo):
+    __slots__ = []
+    def __init__ (self, name="T2CaloEgamma_ReFastFWDAlgo", ClustersName="HLT_FWDFastCaloEMClusters", 
+                        doRinger=False, RingerKey="HLT_FWDFastCaloRinger"):
+        super(T2CaloEgamma_ReFastFWDAlgo, self).__init__(name)
+        # here put your customizations
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+            from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+            svcMgr += TrigCaloDataAccessSvc()
+
+        self.IReAlgToolList = []
+        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), 
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), 
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        
+        self.EtaWidth = 0.2
+        self.PhiWidth = 0.2
+
