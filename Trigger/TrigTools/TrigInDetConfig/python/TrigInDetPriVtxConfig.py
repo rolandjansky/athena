@@ -329,16 +329,38 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
 
     singleTrackVertices = config.addSingleTrackVertices 
-
-    vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
-                                                                        SeedFinder        = seedFinder,
-                                                                        VertexFitterTool  = vertexFitterTool,
-                                                                        TrackSelector     = trackSelectorTool,
-                                                                        useBeamConstraint = True,
-                                                                        addSingleTrackVertices = singleTrackVertices,
-                                                                        selectiontype     = 0, # what is this?
-                                                                        do3dSplitting     = doVtx3DFinding)
+    tracksMaxZinterval  = config.TracksMaxZinterval 
     
+    acts = False
+
+    if acts is False:
+        vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
+                                                                    SeedFinder        = seedFinder,
+                                                                    VertexFitterTool  = vertexFitterTool,
+                                                                    TrackSelector     = trackSelectorTool,
+                                                                    useBeamConstraint = True,
+                                                                    TracksMaxZinterval = tracksMaxZinterval,
+                                                                    addSingleTrackVertices = singleTrackVertices,
+                                                                    selectiontype     = 0, # what is this?
+                                                                    do3dSplitting     = doVtx3DFinding )
+    # not yet     
+    # else:
+    #     from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+        
+    #     actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+        
+    #     actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+    #     actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
+        
+    #     vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
+    #                                                          TrackSelector      = trackSelectorTool,
+    #                                                          useBeamConstraint  = True,
+    #                                                          tracksMaxZinterval = 3,#mm 
+    #                                                          do3dSplitting      = doVtx3DFinding, 
+    #                                                          TrackingGeometryTool = actsTrackingGeometryTool,
+    #                                                          ExtrapolationTool  = actsExtrapolationTool )
+         
+
     ToolSvc += vertexFinderTool
    
     return vertexFinderTool
@@ -395,9 +417,10 @@ def adaptiveMultiVertexSeedFinder_builder( signature, config, doVtx3DFinding ):
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import getInDetTrigTrackToVertexIPEstimator
         from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
         seedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder" + signature,
-                                          IPEstimator = getInDetTrigTrackToVertexIPEstimator()
-                                                      # Mode1dFinder = # default, no setting needed
-                                                     )
+                                          IPEstimator = getInDetTrigTrackToVertexIPEstimator() )
+                                          # Mode1dFinder = # default, no setting needed
+        
+        
     ToolSvc += seedFinder
 
     return seedFinder

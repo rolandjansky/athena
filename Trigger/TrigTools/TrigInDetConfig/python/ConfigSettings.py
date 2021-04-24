@@ -161,8 +161,9 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._vertex              = "HLT_IDVertex_FS" 
       self._adaptiveVertex      = True
-      # this is being evaluated and may be added 
+      # these are being evaluated and may be added 
       # self._addSingleTrackVertices = True
+      # self._TracksMaxZinterval = 3
       self._vertex_jet          = "HLT_IDVertex_FSJet" 
       self._adaptiveVertex_jet  = False
       self._doFullScan      = True
