@@ -23,8 +23,8 @@ def SiDetElementsRoadMaker_xkCfg( flags, **kwargs ):
   acc.addCondAlgo( CompFactory.InDet.SiDetElementsRoadCondAlg_xk() )
   tool = CompFactory.InDet.SiDetElementsRoadMaker_xk( name,
                                                       PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
-                                                      usePixel     = flags.Detector.RecoPixel,
-                                                      useSCT       = flags.Detector.RecoSCT,
+                                                      usePixel     = flags.Detector.EnablePixel,
+                                                      useSCT       = flags.Detector.EnableSCT,
                                                       RoadWidth    = flags.InDet.Tracking.roadWidth,
                                                         )
   acc.addPublicTool( tool )
@@ -99,8 +99,8 @@ def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
                                                          PropagatorTool        = acc.getPublicTool( "InDetTrigPatternPropagator" ),
                                                          UpdatorTool           = acc.getPublicTool( "InDetTrigPatternUpdator" ),
                                                          RIOonTrackTool        = acc.getPublicTool( "InDetTrigRotCreator" ),
-                                                         usePixel              = flags.Detector.RecoPixel,
-                                                         useSCT                = flags.Detector.RecoSCT,
+                                                         usePixel              = flags.Detector.EnablePixel,
+                                                         useSCT                = flags.Detector.EnableSCT,
                                                          PixelClusterContainer = 'PixelTrigClusters',
                                                          SCT_ClusterContainer  = 'SCT_TrigClusters',
                                                          PixelSummaryTool      = pixelCondSummaryTool,
@@ -202,9 +202,9 @@ def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
                                                        PixelToTPIDTool= None, #InDetTrigPixelToTPIDTool,
                                                        DoSharedHits  = False,
                                                        TRTStrawSummarySvc = trtStrawSummaryTool,
-                                                       usePixel      = flags.Detector.RecoPixel,
-                                                       useSCT        = flags.Detector.RecoSCT,
-                                                       useTRT        = flags.Detector.RecoTRT,
+                                                       usePixel      = flags.Detector.EnablePixel,
+                                                       useSCT        = flags.Detector.EnableSCT,
+                                                       useTRT        = flags.Detector.EnableTRT,
                                                          )
 
   acc.addPublicTool( tool )
@@ -552,9 +552,9 @@ def spacePointsMakingCfg(flags, signature):
                                                                     SpacePointsPixelName   = "PixelTrigSpacePoints",
                                                                     SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = flags.Detector.RecoPixel,
-                                                                    ProcessSCTs            = flags.Detector.RecoSCT,
-                                                                    ProcessOverlaps        = flags.Detector.RecoSCT,
+                                                                    ProcessPixels          = flags.Detector.EnablePixel,
+                                                                    ProcessSCTs            = flags.Detector.EnableSCT,
+                                                                    ProcessOverlaps        = flags.Detector.EnableSCT,
                                                                     SpacePointCacheSCT     = InDetCacheNames.SpacePointCacheSCT,
                                                                     SpacePointCachePix     = InDetCacheNames.SpacePointCachePix,)
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)

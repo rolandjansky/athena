@@ -58,16 +58,16 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
     kwargs.setdefault("HoleSearch", acc.getPrimary())
     result.merge(acc)
 
-  if not flags.Detector.RecoTRT:
+  if not flags.Detector.EnableTRT:
     kwargs.setdefault("TRTStrawSummarySvc", "")
 
   kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
   kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
   kwargs.setdefault("DoSharedHits", False)
-  kwargs.setdefault("usePixel", flags.Detector.RecoPixel)
-  kwargs.setdefault("useSCT", flags.Detector.RecoSCT)
-  kwargs.setdefault("useTRT", flags.Detector.RecoTRT)
+  kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
+  kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
+  kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
 
   result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs), primary=True)
   return result
@@ -76,7 +76,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   result = ComponentAccumulator()
 
   if 'SctSummaryTool' not in kwargs:
-    if flags.Detector.RecoSCT:
+    if flags.Detector.EnableSCT:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
       kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
@@ -88,8 +88,8 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
     kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
-  kwargs.setdefault("UsePixel", flags.Detector.RecoPixel)
-  kwargs.setdefault("UseSCT", flags.Detector.RecoSCT)
+  kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
+  kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)
 
   indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
   result.setPrivateTools(indet_boundary_check_tool)
