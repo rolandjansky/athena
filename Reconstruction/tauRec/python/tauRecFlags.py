@@ -109,14 +109,14 @@ class tauRecCalibrateLCConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='TES_MC16a_prelim.root'
+    StoredValue='CaloTES_R22_v1.root'
 
 class tauRecMvaTESConfig(JobProperty):
     """Config file for MvaTESEvaluator
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='MvaTES_20170207_v2_BDTG.weights.root'
+    StoredValue='MVATES_r22_mar1.weights.root'
 
 class tauRecCombinedTESConfig(JobProperty):
     """Config file for TauCombinedTES

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
 from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly, tauMonitoringCaloOnlyMVA, tauMonitoringPreselection, tauMonitoringPrecision, tauMonitoringPrecisionMVA
@@ -309,7 +309,8 @@ def TrigTauRecMergedMTOnlyMVACfg(flags):
                                                 VertexCorrection = False))
     # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
     tools.append(CompFactory.MvaTESVariableDecorator(Key_vertexInputContainer='',
-                                                    VertexCorrection = False))
+                                                     EventShapeKey='',
+                                                     VertexCorrection = False))
     tools.append(CompFactory.MvaTESEvaluator(WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')) #TODO use tauFlags.tauRecMvaTESConfig() once available
 
     for tool in tools:
