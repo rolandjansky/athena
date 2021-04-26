@@ -513,6 +513,7 @@ class TriggerConfigGetter(Configured):
 
             enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
             enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+            enhancedBiasWeightCompAlg.FinalDecisionKey = "HLTNav_Summary"
 
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
