@@ -15,6 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "CxxUtils/CachedValue.h"
 #include <atomic>
+#include <memory>
 class MsgStream;
 class TrackCnv_p1;
 class TrackCnv_p2;
@@ -285,17 +286,18 @@ namespace Trk
         *									   
         * These objects link the various parameters related to a surface,	   
         * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
-        */									   
-       DataVector<const TrackStateOnSurface>* m_trackStateVector{nullptr};		   
+        */
+       std::unique_ptr<DataVector<const TrackStateOnSurface>>
+         m_trackStateVector{ nullptr };
 
-        /**									   
-        * A vector of TrackParameters: these can be any of the classes that	   
-        * derive from Trk::TrackParameters, for example, Perigee, MeasuredPerigee, 
-        * AtaCylinder etc.							   
-        *									   
-        * It is created in the return method by looping over all		   
-        * Trk::TrackStateOnSurface adding their pointers to the payload 
-        * of m_cachedParameterVector				   
+       /**
+        * A vector of TrackParameters: these can be any of the classes that
+        * derive from Trk::TrackParameters, for example, Perigee,
+        * MeasuredPerigee, AtaCylinder etc.
+        *
+        * It is created in the return method by looping over all
+        * Trk::TrackStateOnSurface adding their pointers to the payload
+        * of m_cachedParameterVector
         */									   
        CxxUtils::CachedValue<DataVector<const TrackParameters>> m_cachedParameterVector;	   
     
@@ -330,7 +332,7 @@ namespace Trk
         * A pointer to the Track's FitQuality. This is guaranteed to		   
         * exist and will never be null. 					   
         */									   
-       const FitQuality*   m_fitQuality{nullptr};					   
+       std::unique_ptr<const FitQuality> m_fitQuality{nullptr};
         									        									   
        /**									   
         * Datamember to cache the TrackSummary  				   

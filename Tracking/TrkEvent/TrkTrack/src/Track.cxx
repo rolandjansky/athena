@@ -74,8 +74,7 @@ Trk::Track::operator=(const Trk::Track& rhs)
 {
   if (this != &rhs) {
     // First clear this object
-    delete m_fitQuality;
-    m_fitQuality = nullptr;
+    m_fitQuality.reset(nullptr);
     m_trackSummary.reset(nullptr);
     // Invalidate the caches
     m_cachedParameterVector.reset();
@@ -85,8 +84,7 @@ Trk::Track::operator=(const Trk::Track& rhs)
     m_perigeeParameters.reset();
     // The following is a DataVector and so will delete
     // the contained objects automatically.
-    delete m_trackStateVector;
-    m_trackStateVector = nullptr;
+    m_trackStateVector.reset();
 
     //copy payload of rhs to this
     copyHelper(rhs);
@@ -102,7 +100,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
 
   // create & copy other variables if available
   if (rhs.fitQuality() != nullptr) {
-    m_fitQuality = new Trk::FitQuality(*(rhs.m_fitQuality));
+    m_fitQuality = std::make_unique<Trk::FitQuality>(*(rhs.m_fitQuality));
   }
   // create & copy other variables
   if (rhs.trackSummary() != nullptr) {
@@ -110,7 +108,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
   }
   // Create the TrackStateVector and the perigeeParameters
   if (rhs.m_trackStateVector != nullptr) {
-    m_trackStateVector = new DataVector<const Trk::TrackStateOnSurface>;
+    m_trackStateVector = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     m_trackStateVector->reserve(rhs.m_trackStateVector->size());
 
     TSoS_iterator itTSoSEnd = rhs.m_trackStateVector->end();
@@ -137,58 +135,13 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
   }
 }
 
-Trk::Track::Track(Trk::Track&& rhs) noexcept
-  : m_trackStateVector(std::move(rhs.m_trackStateVector))
-  , m_cachedParameterVector(std::move(rhs.m_cachedParameterVector))
-  , m_cachedMeasurementVector(std::move(rhs.m_cachedMeasurementVector))
-  , m_cachedOutlierVector(std::move(rhs.m_cachedOutlierVector))
-  , m_perigeeParameters(std::move(rhs.m_perigeeParameters))
-  , m_fitQuality(std::move(rhs.m_fitQuality))
-  , m_trackSummary(std::move(rhs.m_trackSummary))
-  , m_trackInfo(std::move(rhs.m_trackInfo))
-{
-  // Leave the rhs in valid
-  // but undefined state make the ptr null.
-  rhs.m_trackStateVector = nullptr;
-  rhs.m_fitQuality = nullptr;
-
-#ifndef NDEBUG
-  s_numberOfInstantiations++; // new Track, so increment total count
-#endif
-}
+Trk::Track::Track(Trk::Track&& rhs) noexcept = default;
 
 Trk::Track&
-Trk::Track::operator=(Trk::Track&& rhs) noexcept
-{
-  if (this != &rhs) {
-    // First clear this object
-    // same as dtor of the object
-    delete m_fitQuality;
-    delete m_trackStateVector;
-    // move from rhs to this
-    m_trackStateVector = std::move(rhs.m_trackStateVector);
-    m_cachedParameterVector = std::move(rhs.m_cachedParameterVector);
-    m_cachedMeasurementVector = std::move(rhs.m_cachedMeasurementVector);
-    m_cachedOutlierVector = std::move(rhs.m_cachedOutlierVector);
-    m_perigeeParameters = std::move(rhs.m_perigeeParameters);
-    m_fitQuality = std::move(rhs.m_fitQuality);
-    m_trackSummary = std::move(rhs.m_trackSummary);
-    m_trackInfo = std::move(rhs.m_trackInfo);
-    // Leave the rhs in valid
-    // but undefined state make the ptr null.
-    rhs.m_trackStateVector = nullptr;
-    rhs.m_fitQuality = nullptr;
-  }
-  return *this;
-}
+Trk::Track::operator=(Trk::Track&& rhs) noexcept = default;
 
 Trk::Track::~Track()
 {
-  delete m_fitQuality;
-  // the following is DataVectors
-  // and so delete the contained objects automatically.
-  delete m_trackStateVector;
-
 #ifndef NDEBUG
   s_numberOfInstantiations--; // delete Track, so decrement total count
 #endif
@@ -331,15 +284,13 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() cons
 
 void Trk::Track::setFitQuality(const FitQuality* quality)
 {
-  delete m_fitQuality;
-  m_fitQuality = quality;
+  m_fitQuality.reset(quality);
 }
 
 void Trk::Track::setTrackStateOnSurfaces(
   DataVector<const Trk::TrackStateOnSurface>* input)
 {
-  delete m_trackStateVector;  // delete existing
-  m_trackStateVector = input; // add new
+  m_trackStateVector.reset(input); // add new
   reset();                    // reset caches
 }
 
