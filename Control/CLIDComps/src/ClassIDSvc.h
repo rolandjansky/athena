@@ -1,5 +1,3 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
@@ -35,9 +33,8 @@
  * "OutputFileName" at finalize time.
  */
 
-
-class ClassIDSvc : virtual public IClassIDSvc, 
-                   virtual public IIncidentListener, 
+class ClassIDSvc : virtual public IClassIDSvc,
+                   virtual public IIncidentListener,
                    public Service
 {
 private:
@@ -94,35 +91,24 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode reinitialize() override;
   ///dump CLIDmap to outputFileName;
-  virtual StatusCode finalize() override; 
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
   ///implement IIncidentListener
   void handle(const Incident &inc) override;
 
-  
   // Standard Constructor
   ClassIDSvc(const std::string& name, ISvcLocator* svc);
-        
-  // Standard Destructor
-  virtual ~ClassIDSvc() {};
 
 private:
-  // Return all registered IDs in sorted order.
+  /// Return all registered IDs in sorted order.
   std::vector<CLID> sortedIDs() const;
-
-  /// get id associated with type name (if any)
-  StatusCode getIDOfTypeNameInternal(const std::string& typeName,
-                                     CLID& id) const;
-  /// get type name associated with clID (if any)
-  StatusCode getTypeNameOfIDInternal(const CLID& id,
-                                     std::string& typeName) const;
 
   /// get clids from CLIDDB and from registry entries
   StatusCode fillDB();
   /// load clid/names from a "db" file
-  bool processCLIDDB(const char* fileName);
+  bool processCLIDDB(const std::string& fileName);
   /// load clid/names from a DLL registry
   bool getRegistryEntries(const std::string& moduleName);
 
@@ -141,7 +127,7 @@ private:
     "List of db files with (CLID, class_name) entries. Loaded at init in svc maps. Files are looked up in DATAPATH"};
 
   Gaudi::Property<std::string> m_outputFileName{this, "OutputFileName", "NULL",
-    "Path to clid.db file for writing. By default ('NULL') do not create the file."};
+    "Path to clid.db file for writing. By default ('NULL') to not create the file."};
   //@}
   CLIDMap m_clidMap;
   NameMap m_nameMap;
