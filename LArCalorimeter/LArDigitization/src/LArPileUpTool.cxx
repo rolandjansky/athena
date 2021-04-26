@@ -88,6 +88,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_scaleStripXtalk=1.;          // scale factor for strip to strip cross-talk
   m_scaleStripMiddle=1.;         // scale factor for strip-middle cross-talk
   m_scaleMiddleXtalk=1.;         // scale factor for middle to middle cross-talk
+  m_scaleMiddleBackXtalk=1.;     // scale factor for middle to back cross-talk
   m_LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
   m_HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
   m_LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
@@ -148,6 +149,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("scaleStripXtalk",m_scaleStripXtalk,"Scale factor for strip xtalk");
   declareProperty("scaleStripMiddle",m_scaleStripMiddle,"Scale factor for strip-middle xtalk");
   declareProperty("scaleMiddleXtalk",m_scaleMiddleXtalk,"Scale factor for middle xtalk");
+  declareProperty("scaleMiddleBackXtalk",m_scaleMiddleBackXtalk,"Scale factor for middle-back xtalk");
   declareProperty("LowGainThreshEM",m_LowGainThresh[EM],"Medium/Low gain transition in EM");
   declareProperty("HighGainThreshEM",m_HighGainThresh[EM],"Medium/High gain transition in EM");
   declareProperty("LowGainThreshHEC",m_LowGainThresh[HEC],"Medium/Low gain transition in HEC");
@@ -1791,11 +1793,11 @@ void LArPileUpTool::cross_talk(const IdentifierHash& hashId,
       || (ibec==3 && sampling ==1) )                         // inner wheel
   {
      if (ibec==1) {
-      fcr = this->get_middleback_xtalk(eta);
+      fcr = this->get_middleback_xtalk(eta)*m_scaleMiddleBackXtalk;
      } else if(ibec==2) {
-      fcr = this->get_middleback_xtalk_ecow(eta);
+      fcr = this->get_middleback_xtalk_ecow(eta)*m_scaleMiddleBackXtalk;
      } else if(ibec==3) {
-      fcr = this->get_middleback_xtalk_eciw(eta);  // same size of middle and back in IW
+      fcr = this->get_middleback_xtalk_eciw(eta)*m_scaleMiddleBackXtalk;  // same size of middle and back in IW
      }
 // next sampling
      result=m_larem_id->get_neighbours(hashId,
@@ -1818,12 +1820,12 @@ void LArPileUpTool::cross_talk(const IdentifierHash& hashId,
     if (ibec==1) {
      // eta2 = eta for middle layer cells
      int eta2=2*eta;
-     fcr=0.5*(this->get_middleback_xtalk(eta2)+this->get_middleback_xtalk(eta2+1));
+     fcr=0.5*(this->get_middleback_xtalk(eta2)+this->get_middleback_xtalk(eta2+1))*m_scaleMiddleBackXtalk;
     } else if(ibec==2) {
      int eta2=3+2*eta;
-     fcr=0.5*(this->get_middleback_xtalk_ecow(eta)+this->get_middleback_xtalk(eta2+1));
+     fcr=0.5*(this->get_middleback_xtalk_ecow(eta)+this->get_middleback_xtalk(eta2+1))*m_scaleMiddleBackXtalk;
     } else if(ibec==3) {
-     fcr=this->get_middleback_xtalk_eciw(eta);
+     fcr=this->get_middleback_xtalk_eciw(eta)*m_scaleMiddleBackXtalk;
     }
 // previous sampling, expect two channels in middle for barrel + OW, one for IW
     result = m_larem_id->get_neighbours(hashId,
