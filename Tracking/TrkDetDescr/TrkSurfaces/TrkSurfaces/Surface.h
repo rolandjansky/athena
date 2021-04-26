@@ -152,10 +152,15 @@ public:
   /**Copy constructor with shift */
   Surface(const Surface& sf, const Amg::Transform3D& transf);
 
-  /**Constructor with HepGeom::Transform3D, passing ownership */
+  /**Constructor with Amg::Transform3D reference */
+  Surface(const Amg::Transform3D& htrans);
+
+  /**Constructor with Amg::Transform3D, passing ownership 
+   * compatibility prerfer to use ref*/
   Surface(Amg::Transform3D* htrans);
 
-  /**Constructor with HepGeom::Transform3D, by unique_ptr */
+  /**Constructor with Amg::Transform3D, by unique_ptr 
+   * compatibility prefer the use ref*/
   Surface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /**Constructor from TrkDetElement*/

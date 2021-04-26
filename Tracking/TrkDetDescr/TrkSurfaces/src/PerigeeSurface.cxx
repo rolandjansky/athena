@@ -31,19 +31,29 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp)
   Surface::m_transforms = std::make_unique<Transforms>(transform, gp, s_xAxis);
 }
 
-Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
-  : Surface()
+Trk::PerigeeSurface::PerigeeSurface(const Amg::Transform3D& tTransform)
+  : Surface() // default for base
   , m_lineDirection{}
 {
-  if (tTransform) {
-    Surface::m_transforms = std::make_unique<Transforms>(
-      *tTransform, tTransform->translation(), s_xAxis);
-  }
+
+  Surface::m_transforms =
+    std::make_unique<Transforms>(tTransform, tTransform.translation(), s_xAxis);
 }
 
-Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform)
-  : Surface(std::move(tTransform))
+Trk::PerigeeSurface::PerigeeSurface(
+  std::unique_ptr<Amg::Transform3D> tTransform)
+  : Surface() // default ctor base
   , m_lineDirection{}
+{
+  Surface::m_transforms = tTransform
+                            ? std::make_unique<Transforms>(
+                                *tTransform, tTransform->translation(), s_xAxis)
+                            : nullptr;
+}
+
+// delegate to the unique_ptr one here.
+Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
+  : PerigeeSurface(std::unique_ptr<Amg::Transform3D>(tTransform))
 {}
 
 #if defined(FLATTEN) && defined(__GNUC__)
