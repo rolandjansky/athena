@@ -123,8 +123,7 @@ AthenaMtesEventLoopMgr::~AthenaMtesEventLoopMgr()
 
 StatusCode AthenaMtesEventLoopMgr::initialize()    
 {
-  info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg;
+  info() << "Initializing " << name() << endmsg;
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
   if(!sc.isSuccess()) {
