@@ -364,7 +364,7 @@ class HistoSpec(ToolSpec):
             name = name +"," + retrieveVarToolConf( self.yvar).vname()
         if self.nVar>2:
             name = name +"," + retrieveVarToolConf( self.zvar).vname()
-            
+
         name = name+";"+self.groupName()
 
         #print ' uuuuuuuuuuu ', self.name , ' --> ', name,  hargs
@@ -391,12 +391,22 @@ class EventHistoSpec(ToolSpec):
         self.bins = bins
         self.hargs = ConfigDict( **args)
 
+    def histName(self):
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        histname = self.name
+        while knownEventVar.get(histname,None) is None: #try to remove suffixes in the form of "_SelectionName" when using with external SelectSpecs
+          if "_" in histname:
+            histnamesplit = histname.split("_")
+            histname = histname.replace("_"+histnamesplit[-1],"")
+          else:
+            raise JetMonSpecException(" Unknown EventHisto specification : '{}' ".format(histname))
+        return histname
 
     def toTool(self):
         from AthenaConfiguration.ComponentFactory import CompFactory
         from JetMonitoring.JetStandardHistoSpecs import knownEventVar
         # force the property "VarName" to simply be the name of the variable specification:
-        v = knownEventVar[self.name]
+        v = knownEventVar[self.histName()]
         v.VarName = v.name
         tool = CompFactory.JetHistoEventLevelFiller( self.name+"hfiller",
                                                 Var = v.toTool(),
@@ -405,14 +415,13 @@ class EventHistoSpec(ToolSpec):
         return tool
 
     def defineHisto(self, parentAlg, monhelper , path):
-        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
         hargs = dict(xbins = self.bins[0],xmin = self.bins[1], xmax=self.bins[2],
                      type='TH1F', )
         hargs.update( **self.hargs)
         # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
         bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
         group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
-        group.defineHistogram(knownEventVar[self.name].VarName, path=path, **hargs)
+        group.defineHistogram(self.histName()+";"+self.name, path=path, **hargs) #give a recognisable histogram name in case of SelectSpec usage
 
 
 
@@ -452,8 +461,6 @@ class SelectSpec(ToolSpec):
                 return
             args['Selector'] = selSpec
 
-
-
         self.name = selname
         self.path = path
         ConfigDict.__init__(self, **args)
@@ -484,7 +491,8 @@ class SelectSpec(ToolSpec):
         for i,tconf in enumerate(self.FillerTools):
             tconf.topLevelDir = self.topLevelDir
             tconf.bottomLevelDir = self.bottomLevelDir
-            tconf = tconf.clone(newname=tconf.name+suffix)
+            newname = tconf.name if suffix in tconf.name else tconf.name+suffix #prevent duplicating of Selection name when loading external SelectSpecs
+            tconf = tconf.clone(newname=newname)
             self.FillerTools[i] = tconf # re-assign the modified conf so it's consistently re-used elsewhere 
             selTool.FillerTools += [ tconf.toTool() ] # assign a configured tool to the JetHistoSelectSort instance
         return selTool
@@ -613,10 +621,10 @@ def retrieveHistoToolConf(alias):
           --> if not found and contain a ';' build a HistoSpec for a 2D histograms
         * if alias is a ToolSpec, returns it directly
     """
-    from JetMonitoring.JetStandardHistoSpecs import knownHistos
     if isinstance(alias, ToolSpec):
         return alias
     elif isinstance(alias,str):        
+        from JetMonitoring.JetStandardHistoSpecs import knownHistos
         # get it from knownHistos
         c = knownHistos.get(alias,None)
         if c :
