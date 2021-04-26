@@ -16,7 +16,6 @@
 #include "MuonTrackMonitoring/MuonGenericTracksMon.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkMeasurementBase/MeasurementBase.h" 
 #include "TrkTrack/TrackStateOnSurface.h"

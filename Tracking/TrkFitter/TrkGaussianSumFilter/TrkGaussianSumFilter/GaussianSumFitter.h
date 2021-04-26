@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,9 +9,10 @@
  * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
  */
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilterUtils/GsfMeasurementUpdator.h"
+#include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
+//
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -19,12 +20,14 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
-#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
+//
 #include <atomic>
 
 namespace Trk {
@@ -126,8 +129,9 @@ private:
     const CaloCluster_OnTrack* ccot = nullptr) const;
 
   /** Method for combining the forwards fitted state and the smoothed state */
-  MultiComponentState combine(const MultiComponentState&,
-                              const MultiComponentState&) const;
+  MultiComponentState combine(
+    const MultiComponentState&,
+    const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
   MultiComponentState addCCOT(
@@ -191,7 +195,6 @@ private:
     "Store Multicomponent State (preferred if we slim later on) or Single "
     "state in final trajectory"
   };
-
 
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
