@@ -111,8 +111,6 @@ ITkPixelRDOAnalysis::ITkPixelRDOAnalysis(const std::string& name, ISvcLocator *p
   , m_h_brlinclEtaIndex_perLayer{}
   , m_h_brlflatPhiIndex_perLayer{}
   , m_h_brlflatEtaIndex_perLayer{}
-  , m_h_brlPhiIndex_perLayer{}
-  , m_h_brlEtaIndex_perLayer{}
   , m_h_ecPhiIndex_perLayer{}
   , m_h_ecEtaIndex_perLayer{}
   , m_h_PhiIndexInnermost(nullptr)
