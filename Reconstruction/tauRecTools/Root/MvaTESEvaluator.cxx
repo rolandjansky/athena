@@ -7,7 +7,6 @@
 #include "tauRecTools/HelperFunctions.h"
 
 #include <TTree.h>
-
 #include <vector>
 
 //_____________________________________________________________________________
@@ -39,18 +38,17 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   if(!inTrigger()) {
     availableVars.insert( std::make_pair("TauJetsAuxDyn.mu", &vars.mu) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtxPU", &vars.nVtxPU) );
-    
+    availableVars.insert( std::make_pair("TauJetsAuxDyn.rho", &vars.rho) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanCenterLambda", &vars.center_lambda) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanFirstEngDens", &vars.first_eng_dens) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanSecondLambda", &vars.second_lambda) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanPresamplerFrac", &vars.presampler_frac) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanEMProbability", &vars.eprobability) );
-    
+    availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanEMProbability", &vars.eprobability) );    
+    availableVars.insert( std::make_pair("TauJetsAuxDyn.ptTauAxisEM/TauJetsAuxDyn.ptDetectorAxis", &vars.ptEM_D_ptLC) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.pt_combined", &vars.ptCombined) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptDetectorAxis/TauJetsAuxDyn.pt_combined", &vars.ptLC_D_ptCombined) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.pt_combined", &vars.ptConstituent_D_ptCombined) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.etaPanTauCellBased", &vars.etaConstituent) );
-    
+    availableVars.insert( std::make_pair("TauJetsAuxDyn.etaPanTauCellBased", &vars.etaConstituent) );    
     availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n", &vars.PanTauBDT_1p0n_vs_1p1n) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn", &vars.PanTauBDT_1p1n_vs_1pXn) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn", &vars.PanTauBDT_3p0n_vs_3pXn) );
@@ -70,11 +68,9 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.etaDetectorAxis", &vars.etaDetectorAxis) );
   }
 
-  // Retrieve event info
+  // Retrieve average pileup
   static const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
-  static const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
   vars.mu = acc_mu(xTau);
-  vars.nVtxPU = acc_nVtxPU(xTau);
 
   // Retrieve cluster moments
   xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, vars.center_lambda);
@@ -84,6 +80,15 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, vars.presampler_frac);
 
   if(!inTrigger()) {
+    static const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
+    vars.nVtxPU = acc_nVtxPU(xTau);
+
+    static const SG::AuxElement::ConstAccessor<float> acc_rho("rho");
+    vars.rho = acc_rho(xTau);
+    
+    static const SG::AuxElement::ConstAccessor<float> acc_ptIntermediateAxisEM("ptIntermediateAxisEM");
+    float ptIntermediateAxisEM = acc_ptIntermediateAxisEM(xTau);
+    vars.ptEM_D_ptLC = (xTau.ptIntermediateAxis()!=0.) ? ptIntermediateAxisEM/xTau.ptIntermediateAxis() : 0.;
 
     // Retrieve pantau and LC-precalib TES
     vars.etaConstituent = xTau.etaPanTauCellBased();
