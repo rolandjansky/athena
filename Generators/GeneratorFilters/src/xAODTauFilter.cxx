@@ -146,7 +146,7 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     }
     
     const HepMC::GenEvent* genEvt = (*itr);
-    HepMC::WeightContainer wgtsC = genEvt->weights();
+    auto wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
 }
 
