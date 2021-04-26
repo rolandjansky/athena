@@ -11,7 +11,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 
-def precisionEtcutSequence(ConfigFlags):
+def precisionTrackingSequence(ConfigFlags):
     """ fourth step:  precision electron....."""
     InViewRoIs = "precisionEtcut"
     # EVCreator:
@@ -36,18 +36,19 @@ def precisionEtcutSequence(ConfigFlags):
     theSequence = seqAND("precisionEtcutSequence", [precisionEtcutViewsMaker, precisionEtcutInViewAlgs] )
     return (theSequence,precisionEtcutViewsMaker,precisionCaloMenuDefs.precisionCaloClusters,trackparticles)
 
+
 def precisionTrackingMenuSequence(name):
     """ Creates precisionCalo MENU sequence """
-    (sequence, precisionEtcutViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionEtcutSequence, ConfigFlags)
+    (sequence, precisionTrackingViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackingSequence, ConfigFlags)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionEtcutHypoAlgMT
-    from TrigEgammaHypo.TrigEgammaPrecisionEtcutHypoTool import TrigEgammaPrecisionEtcutHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
 
-    thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo")
+    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlgMT(name+"precisionEtcutHypo")
 
     return MenuSequence( Sequence    = sequence,
-                         Maker       = precisionEtcutViewsMaker, 
-                         Hypo        = thePrecisionEtcutHypo,
-                         HypoToolGen = TrigEgammaPrecisionEtcutHypoToolFromDict)
+                         Maker       = precisionTrackingViewsMaker, 
+                         Hypo        = thePrecisionTrackingHypo,
+                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict)
 

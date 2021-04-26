@@ -41,13 +41,13 @@ def precisionTrackingMenuSequence_LRT(name):
     (sequence, precisionTrackViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackSequence_LRT, ConfigFlags)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionEtcutHypoAlgMT
-    from TrigEgammaHypo.TrigEgammaPrecisionEtcutHypoTool import TrigEgammaPrecisionEtcutHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
 
-    thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo_LRT")
+    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlgMT(name+"precisionEtcutHypo_LRT")
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackViewsMaker, 
-                         Hypo        = thePrecisionEtcutHypo,
-                         HypoToolGen = TrigEgammaPrecisionEtcutHypoToolFromDict)
+                         Hypo        = thePrecisionTrackingHypo,
+                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict)
 
