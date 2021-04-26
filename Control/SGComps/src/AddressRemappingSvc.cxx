@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AddressRemappingSvc.cxx
  *  @brief This file contains the implementation for the AddressRemappingSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: AddressRemappingSvc.cxx,v 1.7 2009-05-04 15:47:18 calaf Exp $
  **/
 
 #include "AddressRemappingSvc.h"
@@ -45,8 +44,7 @@ AddressRemappingSvc::~AddressRemappingSvc() {
 }
 //__________________________________________________________________________
 StatusCode AddressRemappingSvc::initialize() {
-   ATH_MSG_VERBOSE("Initializing " << name() << " - package version "
-                << PACKAGE_VERSION);
+   ATH_MSG_VERBOSE("Initializing " << name());
 
    ATH_CHECK( ::AthService::initialize() );
    ATH_CHECK( m_clidSvc.retrieve() );
@@ -173,24 +171,13 @@ StatusCode AddressRemappingSvc::initInputRenames()
   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
-StatusCode AddressRemappingSvc::finalize() {
-   StatusCode status = m_clidSvc.release();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Cannot release ClassIDSvc");
-      return(status);
-   }
-   status = m_proxyDict.release();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Cannot release IProxyDict");
-      return(status);
-   }
+StatusCode AddressRemappingSvc::finalize()
+{
+   ATH_CHECK( m_clidSvc.release() );
+   ATH_CHECK( m_proxyDict.release() );
    ATH_CHECK( m_RCUSvc.release() );
    ATH_CHECK( m_algResourcePool.release() );
-   status = ::AthService::finalize();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Can not finalize Service base class.");
-      return(status);
-   }
+   ATH_CHECK( ::AthService::finalize() );
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________

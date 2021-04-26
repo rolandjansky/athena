@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -168,8 +168,7 @@ bool HiveMgrSvc::exists( const DataObjID& id) {
 } 
 
 StatusCode HiveMgrSvc::initialize() {
-  verbose() << "Initializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Initializing " << name() << endmsg;
 
   if ( !(Service::initialize().isSuccess()) )  {
     fatal() << "Unable to initialize base class" << endmsg;
@@ -219,8 +218,7 @@ void HiveMgrSvc::handle(const Incident &inc) {
 }
 
 StatusCode HiveMgrSvc::finalize() {
-  info() <<  "Finalizing " << name() 
-         << " - package version " << PACKAGE_VERSION << endmsg ;
+  info() <<  "Finalizing " << name() << endmsg;
 
   for (SG::HiveEventSlot& s : m_slots) {
     // The impl services are not set to active, so ServiceManager
