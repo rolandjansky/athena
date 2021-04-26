@@ -3,7 +3,7 @@
 */
 
 #include "Gaudi/Property.h"
-#include "TrigEgammaPrecisionEtcutHypoAlgMT.h"
+#include "TrigEgammaPrecisionTrackingHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
@@ -11,18 +11,18 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaPrecisionEtcutHypoAlgMT::TrigEgammaPrecisionEtcutHypoAlgMT( const std::string& name, 
-					  ISvcLocator* pSvcLocator ) :
+TrigEgammaPrecisionTrackingHypoAlgMT::TrigEgammaPrecisionTrackingHypoAlgMT( const std::string& name, 
+    ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::initialize() {
+StatusCode TrigEgammaPrecisionTrackingHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigEgammaPrecisionTrackingHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
@@ -36,7 +36,7 @@ StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::execute( const EventContext& conte
   TCU::DecisionContainer* outputDecision = outputHandle.ptr();
 
   // input for decision
-  std::vector<ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo> toolInput;
+  std::vector<ITrigEgammaPrecisionTrackingHypoTool::ClusterInfo> toolInput;
 
   // loop over previous decisions
   size_t counter=0;
