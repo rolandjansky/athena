@@ -317,8 +317,14 @@ namespace JetTagDQA {
       // get the curent track
       const xAOD::TrackParticle* track = *(assocTracks.at(i));  
 
+      // only try accessing the truth values if not on data
+      int origin = 0;
+      if(!m_isData){
+        origin = m_trackTruthOriginTool->getTrackOrigin(track);
+      }
+
       // add the truth values to the vector
-      truthValues.insert( std::make_pair( track, m_trackTruthOriginTool->getTrackOrigin(track) ) );
+      truthValues.insert( std::make_pair( track, origin ) );
     }
 
     // also loop over the tracks associated to the MSV vertices -> can be missing in the other track list
@@ -342,8 +348,14 @@ namespace JetTagDQA {
         // get the curent track
         const xAOD::TrackParticle* track = *(MSV_assocTracks.at(i));  
         
+        // only try accessing the truth values if not on data
+        int origin = 0;
+        if(!m_isData){
+          origin = m_trackTruthOriginTool->getTrackOrigin(track);
+        }
+
         // add the truth values to the vector
-        truthValues.insert( std::make_pair( track, m_trackTruthOriginTool->getTrackOrigin(track) ) );
+        truthValues.insert( std::make_pair( track, origin ) );
       }
     }
 
