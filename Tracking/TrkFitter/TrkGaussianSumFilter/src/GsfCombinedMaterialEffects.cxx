@@ -261,7 +261,7 @@ bool Trk::GsfCombinedMaterialEffects::readBHParameters() {
 }
 
 void Trk::GsfCombinedMaterialEffects::compute(
-    IMultiStateMaterialEffects::Cache& cache,
+    GsfMaterial::Combined& cache,
     const Trk::ComponentParameters& componentParameters,
     const Trk::MaterialProperties& materialProperties, double pathLength,
     Trk::PropDirection direction,
@@ -270,14 +270,14 @@ void Trk::GsfCombinedMaterialEffects::compute(
   /*
    * 1.  Retrieve multiple scattering corrections
    */
-  Trk::GSFScatteringCache cache_multipleScatter;
+  GsfMaterial::Scattering cache_multipleScatter;
   this->scattering(cache_multipleScatter, componentParameters,
                    materialProperties, pathLength);
 
   /*
    * 2. Retrieve energy loss corrections
    */
-  Trk::GSFEnergyLossCache cache_energyLoss;
+  GsfMaterial::EnergyLoss cache_energyLoss;
   if (particleHypothesis == electron) {
     this->BetheHeitler(cache_energyLoss, componentParameters,
                        materialProperties, pathLength, direction);
@@ -324,7 +324,7 @@ void Trk::GsfCombinedMaterialEffects::compute(
 }
 
 void Trk::GsfCombinedMaterialEffects::scattering(
-    Trk::GSFScatteringCache& cache,
+    GsfMaterial::Scattering& cache,
     const ComponentParameters& componentParameters,
     const MaterialProperties& materialProperties, double pathLength) const {
   // Reset the cache
@@ -362,7 +362,7 @@ void Trk::GsfCombinedMaterialEffects::scattering(
 }
 
 void Trk::GsfCombinedMaterialEffects::energyLoss(
-    Trk::GSFEnergyLossCache& cache,
+    GsfMaterial::EnergyLoss& cache,
     const ComponentParameters& componentParameters,
     const MaterialProperties& materialProperties, double pathLength,
     PropDirection direction, ParticleHypothesis particleHypothesis) const {
@@ -401,7 +401,7 @@ void Trk::GsfCombinedMaterialEffects::energyLoss(
 }
 
 void Trk::GsfCombinedMaterialEffects::BetheHeitler(
-    Trk::GSFEnergyLossCache& cache,
+    GsfMaterial::EnergyLoss& cache,
     const Trk::ComponentParameters& componentParameters,
     const Trk::MaterialProperties& materialProperties, double pathLength,
     Trk::PropDirection direction, Trk::ParticleHypothesis) const {
