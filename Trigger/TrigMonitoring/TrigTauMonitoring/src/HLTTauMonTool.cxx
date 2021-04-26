@@ -1341,6 +1341,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   {
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/EFTau");
     hist("hEFEt")->Fill(aEFTau->pt()/GeV);
+    hist("hEFEt2")->Fill(aEFTau->pt()/GeV);
     hist("hEFEta")->Fill(aEFTau->eta());
     int num_vxt = m_mu_online;
     //try {num_vxt = aEFTau->auxdata< int >("NUMVERTICES");}
@@ -1360,7 +1361,9 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 
     hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
     hist2("hEFEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/GeV);
+    hist2("hEFEt2VsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/GeV);
     hist2("hEFEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/GeV);
+    hist2("hEFEt2VsEta")->Fill(aEFTau->eta(),aEFTau->pt()/GeV);
     if(aEFTau->detail(xAOD::TauJetParameters::etEMAtEMScale, etEM) && aEFTau->detail(xAOD::TauJetParameters::etHadAtEMScale, etHad))
     {
       hist("hEFEtRaw")->Fill( (etEM + etHad)/GeV);
@@ -3029,30 +3032,59 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     if(trigItemShort == "tau25_idperf_tracktwo"){
       setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
 
-      if( HLTTauMatching("tau25_idperf_tracktwo_L1TAU12IM", TauTLV, 0.2)){
-        hist2("hRecoTau25EtaVsPhiDenom")->Fill(eta,phi);
+      if (getTDT()->getNavigationFormat() == "TriggerElement") {
+        if( HLTTauMatching("tau25_idperf_tracktwo", TauTLV, 0.2)){
+          hist2("hRecoTau25EtaVsPhiDenom")->Fill(eta,phi);
+        } 
+        
+        if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)){
+          hist2("hRecoHLT25EtaVsPhiNum")->Fill(eta,phi);
+          profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,1);
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,1);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,1);
+          profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,1);
+          profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,1);
+          profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,1);
+          profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,1);
+          profile("TProfRecoHLT25MuEfficiency")->Fill(mu,1);
+        }
+        else if( HLTTauMatching("tau25_idperf_tracktwo", TauTLV, 0.2)  ){
+          profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,0);
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,0);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,0);
+          profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,0);
+          profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,0);
+          profile("TProfRecoHLT25MuEfficiency")->Fill(mu,0);
+        }
       }
+      else {
+        if( HLTTauMatching("tau25_idperf_tracktwo_L1TAU12IM", TauTLV, 0.2)){
+          hist2("hRecoTau25EtaVsPhiDenom")->Fill(eta,phi);
+        }
 
-      if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)){    
-        hist2("hRecoHLT25EtaVsPhiNum")->Fill(eta,phi);
-        profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,1);
-        if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,1);
-        if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,1);
-        profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,1);
-        profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,1);
-        profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,1);
-        profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,1);
-        profile("TProfRecoHLT25MuEfficiency")->Fill(mu,1);
-      }
-      else if( HLTTauMatching("tau25_idperf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
-        profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,0);
-        profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,0);
-        if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,0);
-        if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,0);
-        profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,0);
-        profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,0);
-        profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,0);
-        profile("TProfRecoHLT25MuEfficiency")->Fill(mu,0);      
+        if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)){
+          hist2("hRecoHLT25EtaVsPhiNum")->Fill(eta,phi);
+          profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,1);
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,1);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,1);
+          profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,1);
+          profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,1);
+          profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,1);
+          profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,1);
+          profile("TProfRecoHLT25MuEfficiency")->Fill(mu,1);
+        }
+        else if( HLTTauMatching("tau25_idperf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
+          profile("TProfRecoHLT25PtEfficiency")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25EtaEfficiency")->Fill(eta,0);
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency")->Fill(pt/GeV,0);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25PhiEfficiency")->Fill(phi,0);
+          profile("TProfRecoHLT25NTrackEfficiency")->Fill(ntracks,0);
+          profile("TProfRecoHLT25NVtxEfficiency")->Fill(nvtx,0);
+          profile("TProfRecoHLT25MuEfficiency")->Fill(mu,0);
+        }     
       }
     }
      
@@ -3067,35 +3099,70 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     
     if(trigItemShort=="tau25_perf_tracktwo"){
       setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-      if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
-        hist2("hRecoTau25EtaVsPhiDenom_2")->Fill(eta,phi);
-      }
-      
-      if( HLTTauMatching("tau25_medium1_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
-        if(ntracks == 1) {
-          profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,1);
-        }
-        if(ntracks > 1) {
-          profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,1);
+
+      if (getTDT()->getNavigationFormat() == "TriggerElement") {
+        if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)  ){
+          hist2("hRecoTau25EtaVsPhiDenom_2")->Fill(eta,phi);
         }
 
-        hist2("hRecoHLT25EtaVsPhiNum_2")->Fill(eta,phi);
-        profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,1);
-        profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,1);
-        profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,1);
-        profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,1);
-        profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,1);
-        profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,1);
+        if( HLTTauMatching("tau25_medium1_tracktwo", TauTLV, 0.2)  ){
+          if(ntracks == 1) {
+            profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,1);
+          }
+          if(ntracks > 1) {
+            profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,1);
+          }
+
+          hist2("hRecoHLT25EtaVsPhiNum_2")->Fill(eta,phi);
+          profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,1);
+          profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,1);
+          profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,1);
+          profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,1);
+          profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,1);
+          profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,1);
+        }
+        else if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)  ){
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,0);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,0);
+          profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,0);
+          profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,0);
+          profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,0);
+          profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,0);
+        } 
       }
-      else if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
-        if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,0);
-        if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,0);
-        profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,0);
-        profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,0);
-        profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,0);
-        profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,0);
-        profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,0);
-        profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,0);    
+      else {
+        if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
+          hist2("hRecoTau25EtaVsPhiDenom_2")->Fill(eta,phi);
+        }
+      
+        if( HLTTauMatching("tau25_medium1_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
+          if(ntracks == 1) {
+            profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,1);
+          }
+          if(ntracks > 1) {
+            profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,1);
+          }
+
+          hist2("hRecoHLT25EtaVsPhiNum_2")->Fill(eta,phi);
+          profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,1);
+          profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,1);
+          profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,1);
+          profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,1);
+          profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,1);
+          profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,1);
+        }
+        else if( HLTTauMatching("tau25_perf_tracktwo_L1TAU12IM", TauTLV, 0.2)  ){
+          if(ntracks==1)   profile("TProfRecoHLT25Pt1PEfficiency_2")->Fill(pt/GeV,0);
+          if(ntracks>1)   profile("TProfRecoHLT25Pt3PEfficiency_2")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25PtEfficiency_2")->Fill(pt/GeV,0);
+          profile("TProfRecoHLT25EtaEfficiency_2")->Fill(eta,0);
+          profile("TProfRecoHLT25PhiEfficiency_2")->Fill(phi,0);
+          profile("TProfRecoHLT25NTrackEfficiency_2")->Fill(ntracks,0);
+          profile("TProfRecoHLT25NVtxEfficiency_2")->Fill(nvtx,0);
+          profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,0);    
+        }
       }  
     }    
   } 
