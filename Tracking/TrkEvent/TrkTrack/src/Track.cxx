@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkTrack/Track.h"
@@ -145,6 +145,7 @@ Trk::Track::Track(Trk::Track&& rhs) noexcept
   , m_perigeeParameters(std::move(rhs.m_perigeeParameters))
   , m_fitQuality(std::move(rhs.m_fitQuality))
   , m_trackSummary(std::move(rhs.m_trackSummary))
+  , m_trackInfo(std::move(rhs.m_trackInfo))
 {
   // Leave the rhs in valid
   // but undefined state make the ptr null.
@@ -172,6 +173,7 @@ Trk::Track::operator=(Trk::Track&& rhs) noexcept
     m_perigeeParameters = std::move(rhs.m_perigeeParameters);
     m_fitQuality = std::move(rhs.m_fitQuality);
     m_trackSummary = std::move(rhs.m_trackSummary);
+    m_trackInfo = std::move(rhs.m_trackInfo);
     // Leave the rhs in valid
     // but undefined state make the ptr null.
     rhs.m_trackStateVector = nullptr;
