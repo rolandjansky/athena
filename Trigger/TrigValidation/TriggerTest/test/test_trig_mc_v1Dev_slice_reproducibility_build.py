@@ -8,9 +8,7 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Step
-import json
-import os
+from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 
 def hist_rename_pre_exec(file_name):
@@ -24,7 +22,7 @@ def hist_rename_pre_exec(file_name):
     return pre_exec
 
 
-def generate_steps(slice_name = None):
+def generate_exec_steps(slice_name = None):
     name = slice_name or 'FullMenu'
     # athena
     ex = ExecStep.ExecStep(name)
@@ -42,86 +40,19 @@ def generate_steps(slice_name = None):
     cd.type = 'other'
     cd.executable = 'chainDump.py'
     cd.input = ''
-    cd.args = '-f {:s} --json ChainDump.{:s}.json'.format(hist_file_name, name)
+    cd.args = '-f {:s} --yaml ChainDump.{:s}.yml'.format(hist_file_name, name)
     cd.auto_report_result = False
 
     return [ex, cd]
 
 
-class CompareSlicesToFullMenuStep( Step.Step ):
-    def __init__( self, name='CompareSlicesToFullMenu' ):
-        super( CompareSlicesToFullMenuStep, self ).__init__( name )
-        self.ref_name = 'FullMenu'
-        self.slice_names = None
-        self.required = True
-        self.auto_report_result = True
-
-    def compare_counts(self, data, ref_key, slice_key, log_file):
-        all_good = True
-        for count_type in ['HLTChain', 'HLTDecision']:
-            counts_ref = data[ref_key][count_type]['counts']
-            counts_slice = data[slice_key][count_type]['counts']
-            for item_name in counts_slice.keys():
-                if not item_name.startswith('HLT_'):
-                    continue  # Skip 'All', streams and groups
-                slice_count = counts_slice[item_name]['count']
-                ref_count = counts_ref[item_name]['count']
-                if slice_count != ref_count:
-                    all_good = False
-                    log_file.write('ERROR {:s} count difference {:s}, {:s}: {:d}, {:s}: {:d}\n'.format(
-                        count_type, item_name, slice_key, slice_count, ref_key, ref_count))
-                else:
-                    log_file.write('INFO {:s} count matches {:s}, {:s}: {:d}, {:s}: {:d}\n'.format(
-                        count_type, item_name, slice_key, slice_count, ref_key, ref_count))
-        return all_good
-
-    def fail_run(self, cmd):
-        cmd += ' -> failed'
-        self.result = 1
-        self.report_result()
-        return self.result, cmd
-
-    def run( self, dry_run=False ):
-        self.log.info( 'Running %s comparing %s with slices %s ',
-                       self.name, self.ref_name, str( self.slice_names ) )
-
-        # Command to report in commands.json
-        cmd = '# (internal) {}'.format(self.name)
-
-        if dry_run:
-            self.result = 0
-            return self.result, cmd+' -> skipped'
-
-        error = False
-        counts_data = {}
-        with open(self.get_log_file_name(), 'w') as log_file:
-            for key in [self.ref_name] + self.slice_names:
-                file_name = 'ChainDump.'+key+'.json'
-                if not os.path.isfile(file_name):
-                    log_file.write('ERROR the counts file {:s} does not exist\n'.format(file_name))
-                    error = True
-                    if key in slice_names:
-                        slice_names.remove(key)
-                    continue
-                with open(file_name, 'r') as json_file:
-                    counts_data[key] = json.load(json_file)
-            if self.ref_name not in counts_data.keys():
-                log_file.write('ERROR reference not loaded, cannot compare anything')
-                return self.fail_run(cmd)
-            for key in self.slice_names:
-                same = self.compare_counts(counts_data, self.ref_name, key, log_file)
-                if same:
-                    log_file.write('INFO Counts for {:s} are consistent with {:s}\n'.format(key, self.ref_name))
-                else:
-                    log_file.write('ERROR Counts for {:s} differ from {:s}\n'.format(key, self.ref_name))
-                    error = True
-
-        if error:
-            return self.fail_run(cmd)
-        else:
-            self.result = 0
-            self.report_result()
-            return self.result, cmd
+def generate_chaincomp_step(slice_name):
+    step = CheckSteps.ChainCompStep('ChainComp.'+slice_name)
+    step.args += ' --matchingOnly'
+    step.required = True
+    step.input_file = 'ChainDump.{:s}.yml'.format(slice_name)
+    step.reference = 'ChainDump.FullMenu.yml'
+    return step
 
 
 # Test configuration
@@ -129,22 +60,21 @@ slice_names = ['Bjet', 'Bphysics', 'Egamma', 'Jet', 'MET', 'Muon', 'Tau']
 
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = generate_steps()  # Full menu
+test.exec_steps = generate_exec_steps()  # Full menu
 for name in slice_names:
-    test.exec_steps.extend(generate_steps(name))
-
-cross_check = CompareSlicesToFullMenuStep()
-cross_check.slice_names = slice_names
+    test.exec_steps.extend(generate_exec_steps(name))
 
 merge_log = CheckSteps.LogMergeStep()
 merge_log.merged_name = 'athena.merged.log'
 merge_log.log_files = [ step.get_log_file_name() for step in test.exec_steps ]
-merge_log.log_files.append(cross_check.get_log_file_name())
 
 check_log = CheckSteps.CheckLogStep('CheckLog')
 check_log.log_file = merge_log.merged_name
 
-test.check_steps = [ cross_check, merge_log, check_log ]
+chain_comp_steps = [generate_chaincomp_step(name) for name in slice_names]
+
+test.check_steps = [ merge_log, check_log ]
+test.check_steps.extend(chain_comp_steps)
 
 import sys
 sys.exit(test.run())
