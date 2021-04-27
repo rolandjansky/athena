@@ -24,10 +24,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   
-  struct TagDef{
-    TString eventTrig;
-    TString tagTrig;
-  };
   struct MyMuon{
     const xAOD::Muon* muon;
     std::vector<double> extPosZ;
@@ -115,6 +111,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
   StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
+  BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
   BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD/Coin"};
@@ -140,13 +137,14 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_endcapPivotPlaneMaximumRadius{this,"endcapPivotPlaneMaximumRadius", 11977.,"maximum radius of pivot plane in endcap region"};
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};
   
-  std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
   void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
   
-  bool triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
+  bool triggerMatching(const TVector3&, const std::set<TString>& ) const; // trigger matching to single cb-muon triggers
+  bool triggerNonMuonFired() const;
+  bool getListOfSingleMuonTriggers(std::set<TString>&) const;
 
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };

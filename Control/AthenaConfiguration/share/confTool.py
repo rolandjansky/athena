@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("file", nargs="+", help="Files to work with")
     parser.add_argument(
         "--ignoreMissing",
-        help="Don't report components existing in only of the two configuartions",
+        help="Don't report components existing in only of the two configurations",
         action="store_true",
     )
     parser.add_argument(
@@ -51,7 +51,6 @@ def parse_args():
         help="Print all parameters in component with difference even, if there are no differences.",
         action="store_true",
     )
-
 
     args = parser.parse_args()
     main(args)

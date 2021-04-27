@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILECALIBDRAWERINT_H
@@ -50,6 +50,8 @@ class TileCalibDrawerInt : public TileCalibDrawerDat<uint32_t>
  protected:
   /** @brief Ctor. */
   TileCalibDrawerInt(const coral::Blob& blob);
+  /** @brief Ctor (non-const).*/
+  TileCalibDrawerInt(coral::Blob& blob);
   
 };
 

@@ -155,9 +155,6 @@ private:
   TH1* m_h_brlflatPhiIndex_perLayer[33];
   TH1* m_h_brlflatEtaIndex_perLayer[33];
    
-  TH1* m_h_brlPhiIndex_perLayer[33];
-  TH1* m_h_brlEtaIndex_perLayer[33];
-   
   TH1* m_h_ecPhiIndex_perLayer[33];
   TH1* m_h_ecEtaIndex_perLayer[33];
   

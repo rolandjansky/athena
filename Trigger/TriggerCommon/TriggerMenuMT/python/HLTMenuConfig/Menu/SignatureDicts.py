@@ -442,7 +442,7 @@ TEChainParts_Default['trigType']  = ['te']
 #==========================================================
 # Electron Chains
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","BeeX"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","bBeeM6000"]
 # ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],

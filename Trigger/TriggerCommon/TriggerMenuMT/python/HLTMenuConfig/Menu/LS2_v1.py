@@ -19,7 +19,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, 
                                                                 MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
                                                                 SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
                                                                 MuonJetGroup, TauMETGroup, MuonMETGroup, EgammaJetGroup,
-                                                                JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup)
+                                                                JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup,
+                                                                BphysElectronGroup)
 
 def setupMenu():
 
@@ -177,6 +178,8 @@ def setupMenu():
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
 
+        #ATR-22749
+        ChainProp(name='HLT_2e5_lhvloose_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], groups=BphysElectronGroup),
 
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
@@ -812,6 +815,6 @@ def setupMenu():
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
 
 
-        ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        # ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']), # ATR-23347, transient menu compilation error...
         ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
     ]

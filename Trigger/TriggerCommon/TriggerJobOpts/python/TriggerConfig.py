@@ -9,7 +9,7 @@ from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
 
 def __isCombo(alg):
-    return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
+    return hasProp( alg, "MultiplicitiesMap" )
 
 def __stepNumber(stepName):
     """extract step number frmo strings like Step2... -> 2"""
@@ -293,9 +293,8 @@ def triggerOutputCfg(flags, hypos):
     offlineWriteBS = False
     writePOOL = False
 
-    isPartition = len(flags.Trigger.Online.partitionName) > 0
     if flags.Trigger.writeBS:
-        if isPartition:
+        if flags.Trigger.Online.isPartition:
             onlineWriteBS = True
         else:
             offlineWriteBS = True
@@ -388,14 +387,14 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
     PEBKeys = []
     for hypoList in hypos.values():
         for hypo in hypoList:
-            if hypo.getType() == 'PEBInfoWriterAlg':
+            if hypo.getFullJobOptName().startswith('PEBInfoWriterAlg/'):
                 PEBKeys.append(str(hypo.HypoOutputDecisions))
 
     PEBKeys = sorted(set(PEBKeys))
     __log.debug('Setting StreamTagMakerTool.PEBDecisionKeys = %s', PEBKeys)
     stmaker.PEBDecisionKeys = PEBKeys
 
-    acc = ComponentAccumulator("HLTTop")
+    acc = ComponentAccumulator()
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
@@ -548,7 +547,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
             if not any([ outputType in el[1].split() for outputType in edmSet ]):
                 continue
             collType, collName = el[0].split("#")
-            if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
+            if "Aux" in collType: # the GapFiller crates appropriate Aux objects
                 continue
             if len(el) >= 4: # see if there is an alias
                 aliases = [ x for x in el[3:]  if "alias:" in x ] # assume that the description can be: (.... , [alias:Blah | inViews:XYZ | inViews:XYZ, alias:Blah])
@@ -649,7 +648,7 @@ def triggerRunCfg( flags, menu=None ):
 
     # Configure output writing
     outputAcc, edmSet = triggerOutputCfg( flags, hypos )
-    acc.merge( outputAcc )
+    acc.merge( outputAcc, sequenceName="HLTTop" )
 
     if edmSet:
         mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( flags, [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )

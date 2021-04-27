@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/AuxTypeRegistry.cxx
@@ -28,6 +28,17 @@ AuxTypeRegistry& AuxTypeRegistry::instance()
 {
   static AuxTypeRegistry auxTypeRegistry ATLAS_THREAD_SAFE;
   return auxTypeRegistry;
+}
+
+
+/**
+ * @brief Return the total number of registered auxiliary variable.
+ *
+ * (This will be one more than the current largest auxid.)
+ */
+size_t AuxTypeRegistry::numVariables() const
+{
+  return m_types.size();
 }
 
 

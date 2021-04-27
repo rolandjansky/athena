@@ -26,28 +26,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
 
-    tgcRawDataMonAlg.TagTrigList = 'HLT_mu26_ivarmedium'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_ivarmedium'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_ivarmedium_L1MU20'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu6'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu6_L1MU6'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu6_idperf'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu14'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_mu8noL1;HLT_mu20'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_mu8noL1;HLT_mu24'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu50_L1MU20'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu60_0eta105_msonly_L1MU20'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_iloose_L1MU15'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu40'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu50'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_iloose'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_ivarloose'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_ivarmedium'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu24_imedium'
-    tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_imedium'
-
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
+    tgcRawDataMonAlg.UseNonMuonTriggers = True
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
@@ -157,13 +138,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             title='MuonRoI Thr vs BadMF;MuonRoI Thresholds;MuonRoI BadMF',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
-    myGroup.defineHistogram('roi_ismorecand;MuonRoI_isMoreCandInRoI',title='MuonRoI isMoreCandInRoI Flag;isMoreCandInRoI Flag;Number of events',
+    myGroup.defineHistogram('roi_ismorecand;MuonRoI_RpcIsMoreCandInRoI',title='MuonRoI RpcIsMoreCandInRoI Flag;RpcIsMoreCandInRoI Flag;Number of events',
                             cutmask='roi_rpc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
-    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_IsMoreCandInRoI',type='TH2F',
-                            title='MuonRoI Eta vs Phi IsMoreCandInRoI;MuonRoI Eta;MuonRoI Phi',cutmask='roi_ismorecand',path=trigPath,
+    myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_RpcIsMoreCandInRoI',type='TH2F',
+                            title='MuonRoI Eta vs Phi RpcIsMoreCandInRoI;MuonRoI Eta;MuonRoI Phi',cutmask='roi_ismorecand',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-    myGroup.defineHistogram('roi_thr,roi_ismorecand;MuonRoI_ThrVsIsMoreCandInRoI',type='TH2F',
-                            title='MuonRoI Thr vs IsMoreCandInRoI;MuonRoI Thresholds;MuonRoI IsMoreCandInRoI',cutmask='roi_rpc',path=trigPath,
+    myGroup.defineHistogram('roi_thr,roi_ismorecand;MuonRoI_ThrVsRpcIsMoreCandInRoI',type='TH2F',
+                            title='MuonRoI Thr vs RpcIsMoreCandInRoI;MuonRoI Thresholds;MuonRoI RpcIsMoreCandInRoI',cutmask='roi_rpc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
     myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_RPC',title='MuonRoI Thresholds RPC;MuonRoI Threshold number;Number of events',
@@ -280,6 +261,36 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
     myGroup.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
                             path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
+
+    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors;TgcPrd_BWSectorsVsLB',
+                            title='TgcPrd_BWSectorsVsLB;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors_strip;TgcPrd_BWSectorsVsLB_Strip',
+                            title='TgcPrd_BWSectorsVsLB_Strip;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('lb_for_hit,hit_bw24sectors_wire;TgcPrd_BWSectorsVsLB_Wire',
+                            title='TgcPrd_BWSectorsVsLB_Wire;Luminosity block;TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+
+    myGroup.defineHistogram('hit_bw24sectors,hit_bwtiming;TgcPrd_BWSectorsVsTiming',
+                            title='TgcPrd_BWSectorsVsTiming;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
+                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+    myGroup.defineHistogram('hit_bw24sectors_strip,hit_bwtiming_strip;TgcPrd_BWSectorsVsTiming_Strip',
+                            title='TgcPrd_BWSectorsVsTiming_Strip;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
+                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+    myGroup.defineHistogram('hit_bw24sectors_wire,hit_bwtiming_wire;TgcPrd_BWSectorsVsTiming_Wire',
+                            title='TgcPrd_BWSectorsVsTiming_Wire;TGC BW Sectors(+ for A-side, - for C-side);Timing',type='TH2F',
+                            path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
+
+    myGroup.defineHistogram('hit_bwfulleta,hit_bw24sectors;TgcPrd_BWSectorsVsEta',
+                            title='TgcPrd_BWSectorsVsEta;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('hit_bwfulleta_strip,hit_bw24sectors_strip;TgcPrd_BWSectorsVsEta_Strip',
+                            title='TgcPrd_BWSectorsVsEta_Strip;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('hit_bwfulleta_wire,hit_bw24sectors_wire;TgcPrd_BWSectorsVsEta_Wire',
+                            title='TgcPrd_BWSectorsVsEta_Wire;iEta (0 for Forward, >0 for Endcap);TGC BW Sectors(+ for A-side, - for C-side)',type='TH2F',
+                            path=hitPath,xbins=6,xmin=-0.5,xmax=5.5,ybins=25,ymin=-12.5,ymax=12.5,opt='kAddBinsDynamically')
 
     for side in ['A', 'C']:# side-A or side-C
         for station in range(1,5):# M1,2,3,4
@@ -460,13 +471,13 @@ if __name__=='__main__':
     Configurable.configurableRun3Behavior = 1
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO,DEBUG
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob
 
-    inputs = glob.glob('/data01/L1MuonSimulation/aaron/runs3_zmumu/*/AOD.pool.root')
+    inputs = glob.glob('/data02/data/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3334_r9857/*')
 
     ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
@@ -486,7 +497,6 @@ if __name__=='__main__':
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)
-    tgcRawDataMonitorAcc.OutputLevel = DEBUG
     cfg.merge(tgcRawDataMonitorAcc)
     cfg.getEventAlgo('TgcRawDataMonAlg').OutputLevel = INFO
 

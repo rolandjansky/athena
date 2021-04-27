@@ -6,6 +6,7 @@ atlas_subdir( LArCafJobs )
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree MathCore Matrix Hist Graf RIO )
+find_package( CLHEP )
 
 
 # Component(s) in the package:
