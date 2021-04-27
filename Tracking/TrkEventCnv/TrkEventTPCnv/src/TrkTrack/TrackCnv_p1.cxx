@@ -22,8 +22,8 @@ void TrackCnv_p1::persToTrans( const Trk::Track_p1 *persObj,
 {
 //    transObj->m_author = static_cast<Trk::Track::TrackAuthor>( persObj->m_author );
 //    transObj->m_particleHypo = static_cast<Trk::ParticleHypothesis>( persObj->m_particleHypo );
-  transObj->m_fitQuality = createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log );
-  transObj->m_trackStateVector = m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log );
+  transObj->m_fitQuality.reset(createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log ));
+  transObj->m_trackStateVector.reset(m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log ));
 
 //forwarding the TrackInfo from old to new version
   Trk::TrackInfo::TrackFitter  fitter = Trk::TrackInfo::Unknown;
