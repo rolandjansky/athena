@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCSLBDATAHELPER_H
@@ -44,6 +44,9 @@ namespace Muon
       TgcSlbDataHelper(void);
       /** Destructor */
       virtual ~TgcSlbDataHelper(void);
+
+      TgcSlbDataHelper (const TgcSlbDataHelper&) = delete;
+      TgcSlbDataHelper& operator= (const TgcSlbDataHelper&) = delete;
   
       /** Convert to Hits. 
        *  subDetectorID and ROD ID are dummy. */
