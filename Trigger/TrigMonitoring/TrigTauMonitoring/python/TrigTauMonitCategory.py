@@ -30,6 +30,9 @@ monitoring_tau_pp = [
     'tau25_idperf_tracktwo',
     'tau25_idperf_tracktwoEF',
     'tau25_idperf_tracktwoMVA',
+    'tau25_medium1_tracktwo',
+    'tau25_medium1_tracktwoEF',
+    'tau25_mediumRNN_tracktwoMVA',
     # 2015
     'tau80_medium1_track',
     'tau80_medium1_tracktwo',
