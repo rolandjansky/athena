@@ -5845,12 +5845,6 @@ HLT_tau80_mediumRNN_tracktwo_tau60_mediumRNN_tracktwo_03dRAB_L1TAU60_2TAU40:
     2: 7
 HLT_timeburner_L1All:
   eventCount: 0
-HLT_unconvtrk0_fslrt_L1XE50:
-  eventCount: 9
-  stepCounts:
-    0: 9
-  stepFeatures:
-    0: 9
 HLT_unconvtrk50_isohpttrack_L1XE50:
   eventCount: 1
   stepCounts:

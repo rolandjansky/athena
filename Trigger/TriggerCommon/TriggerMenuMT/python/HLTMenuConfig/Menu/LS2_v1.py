@@ -816,5 +816,5 @@ def setupMenu():
 
 
         # ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']), # ATR-23347, transient menu compilation error...
-        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        # ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']), #ATR-23347, transitent menu compilation error...
     ]
