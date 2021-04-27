@@ -1291,17 +1291,19 @@ def reportEventsPassedSimFilter(log):
     except IOError, e:
         msg.warning('Failed to open transform logfile {0}: {1:s}'.format(log, e))
 
+    resimevents = None
     passed_events = 0
     total_events = 0
-    line_matched_counter = 0
     for line, lineCounter in myGen:
         m = regExp.match(line) 
         if m:
-            line_matched_counter += 1
             passed_events += int(m.group('events'))
             total_events += int(m.group('total'))
+            resimevents = passed_events
 
-    if line_matched_counter == 0 :
-        msg.warning("No line matched with the regExp for extracting events passed the ISF_SimEventFilter")
-    else:
+    if resimevents:
         msg.info("Summary of events passed the ISF_SimEventFilter: {0} events of total {1}".format(passed_events, total_events) )
+    else:
+        msg.warning("No line matched with the regExp for extracting events passed the ISF_SimEventFilter")
+
+    return resimevents
