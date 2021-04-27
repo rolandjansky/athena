@@ -93,7 +93,7 @@ def l2PhotonAlgCfg( flags ):
     #from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    photonFex= CompFactory.TrigEgammaFastPhotonFexMT("EgammaFastPhotonFex_1")
+    photonFex= CompFactory.TrigEgammaFastPhotonReAlgo("EgammaFastPhotonFex_1")
     #photonFex= L2PhotonFex_1()
     photonFex.TrigEMClusterName = recordable("HLT_FastCaloEMClusters")
     photonFex.PhotonsName = recordable("HLT_FastPhotons")

@@ -21,8 +21,9 @@ def fastPhotonMenuSequence():
     ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
 
-    from TrigEgammaHypo.TrigEgammaFastPhotonFexMTConfig import EgammaFastPhotonFex_1
-    thePhotonFex= EgammaFastPhotonFex_1()
+
+    from TrigEgammaFastRec.TrigEgammaFastPhotonConfig import TrigEgammaFastPhoton_ReFastAlgo 
+    thePhotonFex = TrigEgammaFastPhoton_ReFastAlgo ()
     thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
