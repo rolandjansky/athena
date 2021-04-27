@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCWireDoubletSB_hh
@@ -10,7 +10,7 @@ namespace LVL1TGCTrigger {
 
 class TGCWireDoubletSB : public TGCDoubletSB {
 public:
-  TGCWireDoubletSB(const TGCArguments* tgcargs):TGCDoubletSB(tgcargs){
+  TGCWireDoubletSB():TGCDoubletSB(){
     m_maxDev=7;
     m_nChAdj=4;
     m_iChBase=9;

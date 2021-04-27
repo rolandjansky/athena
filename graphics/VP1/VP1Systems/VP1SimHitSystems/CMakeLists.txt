@@ -21,6 +21,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 atlas_add_library( VP1SimHitSystems VP1SimHitSystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1SimHitSystems
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES VP1Base Qt5::Core Qt5::Widgets GL StoreGateLib SGtests
+                   LINK_LIBRARIES VP1Base Qt5::Core Qt5::Widgets GL StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoAdaptors GeoPrimitives ForwardRegion_SimEv InDetSimEvent MuonSimEvent VP1Utils )
 

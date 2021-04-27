@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
             && (intersectionOutcome[1]<=startingPoint[4])
           ) {
          /// we found a compatible detector element - add to our list  
-         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
+         lDE.emplace_back(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1])); 
          used[i]=true;
       }
     }
@@ -211,7 +211,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
       m_elements[i].intersect(&(startingPoint[0]),&(searchDirection[0]),&(intersectionOutcome[0]));
 
       if((intersectionOutcome[0]-startingPoint[4])<=0 && (intersectionOutcome[1]-startingPoint[4])<=0.) {
-         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
+         lDE.emplace_back(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1])); 
          used[i]=true;
       }
     }

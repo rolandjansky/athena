@@ -22,10 +22,8 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 					       const std::string& n,
 					       const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  base_class(t,n,p)
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
   //  template for property declaration
   declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
 		  "Muon::MMPrepDataContainer to record");
@@ -254,7 +252,7 @@ void Muon::MmRdoToPrepDataToolCore::processRDOContainer( Muon::MMPrepDataContain
 
 // methods for ROB-based decoding
 StatusCode Muon::MmRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, 
-					       std::vector<IdentifierHash>& idWithDataVect )
+					       std::vector<IdentifierHash>& idWithDataVect ) const
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
@@ -274,7 +272,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& i
 } 
 
 StatusCode Muon::MmRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds, 
-					       const std::vector<IdentifierHash>& chamberHashInRobs )
+					       const std::vector<IdentifierHash>& chamberHashInRobs ) const
 {
   ATH_MSG_DEBUG("Size of the robIds" << robIds.size() );
   ATH_MSG_DEBUG("Size of the chamberHash" << chamberHashInRobs.size() );
@@ -282,7 +280,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& r
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MmRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds )
+StatusCode Muon::MmRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds ) const
 {
 
   ATH_MSG_DEBUG("Size of the robIds" << robIds.size() );
@@ -292,14 +290,14 @@ StatusCode Muon::MmRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& r
 
 
 // printout methods
-void Muon::MmRdoToPrepDataToolCore::printInputRdo() {
+void Muon::MmRdoToPrepDataToolCore::printInputRdo() const {
 
 
   return;
 }
 
 
-void Muon::MmRdoToPrepDataToolCore::printPrepData() {
+void Muon::MmRdoToPrepDataToolCore::printPrepData() const {
 
 
   return;

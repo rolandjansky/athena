@@ -629,19 +629,19 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     AmgVector(5) par;
     par.setZero();
     const std::vector<double> cov0{250., 250., 0.25, 0.25, 0.000001};
-    AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-    cov->setZero();
+    AmgSymMatrix(5) cov;
+    cov.setZero();
     for (int i=0, j=0; i<5; ++i) {
       if (fittableMeasurement->localParameters().contains(((Trk::ParamDefs)i))) {
         par[((Trk::ParamDefs)i)] = fittableMeasurement->localParameters()[((Trk::ParamDefs)i)];
-        (*cov)(i,i) = fittableMeasurement->localCovariance()(j,j);
+        (cov)(i,i) = fittableMeasurement->localCovariance()(j,j);
         ATH_MSG_VERBOSE ("Stabilise " << i << " with "
 			 << fittableMeasurement->localParameters()[((Trk::ParamDefs)i)] << " and +/- "
                          << fittableMeasurement->localCovariance()(j,j));
         ++j;
       } else {
         par[((Trk::ParamDefs)i)] = predPar->parameters()[((Trk::ParamDefs)i)];
-        (*cov)(i,i) = cov0[i];
+        (cov)(i,i) = cov0[i];
       }
     }
     updatedPar = CREATE_PARAMETERS(*predPar,par,cov).release();
@@ -802,8 +802,11 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
     }
   }
 
-  AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); cov->setZero();
-  for (int i=0; i<5; ++i) (*cov)(i,i) = cov0[i];
+  AmgSymMatrix(5) cov ; 
+  cov.setZero();
+  for (int i=0; i<5; ++i) {
+    (cov)(i,i) = cov0[i];
+  }
   const AmgVector(5)& par = inputParAtStartSurface->parameters();
   // TODO: check does one need covariance here?
   const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov).release();

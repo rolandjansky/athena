@@ -3,11 +3,10 @@
 */
 
 /*
-  Instantiator for ET Condition
+  Instantiator for a Repeated Condition
  */
-#include "TrigJetConditionConfig_repeated.h"
+#include "./TrigJetConditionConfig_repeated.h"
 #include "RepeatedCondition.h"
-#include "ConditionInverter.h"
 #include "CompoundConditionMT.h"
 
 #include "GaudiKernel/StatusCode.h"
@@ -15,14 +14,15 @@
 
 
 TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::string& type,
-						     const std::string& name,
-						     const IInterface* parent) :
+								 const std::string& name,
+								 const IInterface* parent) :
   base_class(type, name, parent){
   
 }
 
 
 StatusCode TrigJetConditionConfig_repeated::initialize() {
+  ATH_MSG_INFO("initialising " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -30,7 +30,11 @@ std::unique_ptr<IConditionMT>
 TrigJetConditionConfig_repeated::getCompoundCondition() const {
   std::vector<ConditionMT> elements;
   for(const auto& el : m_elementConditions){
-    elements.push_back(el->getCondition());
+    
+    auto cond = el->getCondition();
+    if (cond != nullptr) {
+      elements.push_back(std::move(cond));
+    }
   }
   
   return std::make_unique<CompoundConditionMT>(elements);
@@ -43,18 +47,10 @@ TrigJetConditionConfig_repeated::getRepeatedCondition() const {
 
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
-					       m_multiplicity,
-					       m_chainPartInd);
+					m_multiplicity,
+					m_chainPartInd,
+					m_invert);
 }
-
-ConditionPtr
-TrigJetConditionConfig_repeated::getRepeatedAntiCondition() const {
-  auto acc = std::make_unique<ConditionInverterMT>(getCompoundCondition());
-  return std::make_unique<RepeatedCondition>(std::move(acc),
-						    m_multiplicity,
-						    m_chainPartInd);
-}
-  
 
 
 StatusCode TrigJetConditionConfig_repeated::checkVals() const {
@@ -67,12 +63,3 @@ StatusCode TrigJetConditionConfig_repeated::checkVals() const {
   
   return StatusCode::SUCCESS;
 }
-
-bool TrigJetConditionConfig_repeated::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_repeated::capacity() const {
-  return getRepeatedCondition()->capacity();
-}
-

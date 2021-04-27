@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
 #define TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -38,7 +37,7 @@ namespace MuonGM {
 
 namespace Muon {
 
-class MuonTruthDecorationAlg : public AthAlgorithm  {
+class MuonTruthDecorationAlg : public AthReentrantAlgorithm  {
 
 public:
   typedef std::map<Muon::MuonStationIndex::ChIndex, std::vector<Identifier> >   ChamberIdMap;
@@ -47,14 +46,15 @@ public:
   MuonTruthDecorationAlg(const std::string &name,ISvcLocator *pSvcLocator);
 
   // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize()override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
-  void addTrackRecords( xAOD::TruthParticle& truthParticle, const xAOD::TruthVertex* vertex ) const;
-  void addHitCounts( xAOD::TruthParticle& truthParticle, ChamberIdMap* ids = 0 ) const;
+  void addTrackRecords( const EventContext& ctx,xAOD::TruthParticle& truthParticle) const;
+  void addHitCounts(const EventContext& ctx, xAOD::TruthParticle& truthParticle, ChamberIdMap& ids) const;
   void addHitIDVectors( xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
-  void createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink,SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+  void createSegments( const EventContext& ctx, 
+                       const ElementLink< xAOD::TruthParticleContainer >& truthLink,SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
                        const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
 
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerName{this,"TruthParticleContainerName","TruthParticles"};
@@ -68,7 +68,6 @@ private:
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
   ToolHandle<IMCTruthClassifier> m_truthClassifier{this,"MCTruthClassifier","MCTruthClassifier/MCTruthClassifier"};
   ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator"};
 

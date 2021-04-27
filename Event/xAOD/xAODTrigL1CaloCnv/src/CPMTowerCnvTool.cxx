@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTowerCnvTool.cxx 691832 2015-08-28 08:21:40Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CPMTowerCollection.h"
@@ -34,15 +33,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ICPMTowerCnvTool >( this );
-   }
-
-   StatusCode CPMTowerCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    /**

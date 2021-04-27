@@ -37,9 +37,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 
 class IegammaTrkRefitterTool;
-class IBeamCondSvc;
 
 namespace Trig{
   class TrigDecisionTool;
@@ -128,7 +129,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
 
   /** used for truth parameters**/
-  ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
 
   /* vertex */
@@ -190,6 +191,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_positive_d0{};
   double m_positive_z0_err{};
   double m_positive_d0_err{};
+  double m_positive_sigma_pt{};
   double m_positive_z0_PV{};
   double m_positive_d0_PV{};
   double m_positive_z0_PVerr{};
@@ -217,6 +219,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_d0{};
   double m_negative_z0_err{};
   double m_negative_d0_err{};
+  double m_negative_sigma_pt{};
   double m_negative_z0_PV{};
   double m_negative_d0_PV{};
   double m_negative_z0_PVerr{};

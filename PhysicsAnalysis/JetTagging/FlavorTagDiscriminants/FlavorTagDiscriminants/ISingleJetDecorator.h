@@ -22,6 +22,8 @@ public:
 
   // Names of the decorations being added
   virtual std::set<std::string> getDecoratorKeys() const = 0;
+  virtual std::set<std::string> getAuxInputKeys() const = 0;
+  virtual std::set<std::string> getConstituentAuxInputKeys() const = 0;
 };
 
 

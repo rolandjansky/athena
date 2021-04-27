@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 log=logging.getLogger('TriggerConfigFlags')
 
@@ -25,8 +26,14 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
 
-    # Enable Run-3 LVL1 simulation and/or decoding
-    flags.addFlag('Trigger.enableL1Phase1', False)
+#    # Enable Run-3 LVL1 simulation and/or decoding
+#    flags.addFlag('Trigger.enableL1Phase1', False)
+
+    # Enable Run-3 LVL1 muon simulation and/or decoding
+    flags.addFlag('Trigger.enableL1MuonPhase1', False)
+
+    # Enable Run-3 LVL1 calo simulation and/or decoding
+    flags.addFlag('Trigger.enableL1CaloPhase1', False)
 
     # Enable usage of new L1 menu   
     flags.addFlag('Trigger.readLVL1FromJSON', True)
@@ -67,7 +74,7 @@ def createTriggerFlags():
         '''
         _log = logging.getLogger('TriggerConfigFlags.EDMVersion')
         _log.debug("Attempting to determine EDMVersion")
-        default_version = 3
+        default_version = -1  # intentionally invalid default value, ATR-22856
         if flags.Input.Format=="BS":
             _log.debug("Input format is ByteStream")
             inputFileName = flags.Input.Files[0]
@@ -341,6 +348,18 @@ def createTriggerFlags():
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
+
+    # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
+    # When we use component accumulators for this in the HLT maybe we should revisit this
+    # PFO-muon removal option for the full-scan hadronic signatures.
+    # Options are:
+    #   "None": Do no PFO-muon removal
+    #   "Calo": Use the calo-tagging tools from the muon slice
+    #   "Iso" : Use the mainly isolation-based selections based on the MET associator package
+    flags.addFlag("Trigger.FSHad.PFOMuonRemoval", "None")
+
+    # the minimum pT threshold to use for the muon removal
+    flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:

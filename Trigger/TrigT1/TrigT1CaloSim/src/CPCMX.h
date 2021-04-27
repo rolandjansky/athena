@@ -26,10 +26,12 @@
  #include "GaudiKernel/ToolHandle.h"
  
  #include "AthContainers/DataVector.h"
- #include "GaudiKernel/DataSvc.h"
 
  // Include for the configuration service:
  #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+ #include "TrigT1CaloEvent/CMXCPTob.h"
+ #include "TrigT1CaloEvent/CPCMXTopoData.h"
+ #include "TrigT1CaloEvent/CMXCPHits.h"
 
 // Outputs to CTP
 #include "TrigT1Interfaces/EmTauCTP.h"
@@ -83,25 +85,22 @@
  private: // Private attributes
 
    /** Where to store the CMXCPHits (for CMX readout simulation) */
-   std::string   m_CMXCPHitLocation;
+   SG::WriteHandleKey<DataVector<CMXCPHits>> m_CMXCPHitsLocation { this, "CMXCPHitsLocation", TrigT1CaloDefs::CMXCPHitsLocation};
    /** Where to store the CMXCPTobs (for CMX readout simulation) */
-   std::string   m_CMXCPTobLocation;
+   SG::WriteHandleKey<DataVector<CMXCPTob>> m_CMXCPTobLocation { this, "CMXCPTobLocation", TrigT1CaloDefs::CMXCPTobLocation};
    /** Locations of real-time outputs in StoreGate */
-   std::string m_TopoOutputLocation ;
+   SG::WriteHandleKey<DataVector<CPCMXTopoData>> m_TopoOutputLocation { this, "TopoOutputLocation", TrigT1CaloDefs::EmTauTopoTobLocation};
 
-    //std::string m_CTPOutputLocation ;
    SG::WriteHandleKey<EmTauCTP> m_CTPOutputKey { this, "CTPOutputLocation", TrigT1CaloDefs::EmTauCTPLocation, "Output to CTP" };
 
 
    /** Location of input data in StoreGate */
-   std::string   m_CPMCMXDataLocation;
+   SG::ReadHandleKey<DataVector<LVL1::CPMCMXData>> m_CPMCMXDataLocation { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation};
    
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
+    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
    
-   /** CTP info*/
-   EmTauCTP* m_emTauCTP;
-
    /** Topo format parameters */
    static const int s_SourceLocal = 3;
    static const int s_SourceTotal = 4;

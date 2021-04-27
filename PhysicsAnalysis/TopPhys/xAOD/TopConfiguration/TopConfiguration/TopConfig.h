@@ -1125,6 +1125,12 @@ namespace top {
       }
     }
 
+    inline virtual void largeRJetMasscut(const float m) {
+      if (!m_configFixed) {
+        m_largeRJetMasscut = m;
+      }
+    }
+
     inline virtual void largeRJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_largeRJetEtacut = eta;
@@ -1150,6 +1156,7 @@ namespace top {
     }
 
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
+    inline virtual float largeRJetMasscut()  const {return m_largeRJetMasscut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::map<std::string,std::string> largeRJetSubstructureVariables() const {return m_largeRJetSubstructureVariables;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
@@ -1782,6 +1789,14 @@ namespace top {
     const std::string& bTaggingCalibration_Light() const
     {return m_btagging_calibration_Light;};
 
+    // egamma calibration
+    bool printEgammaCalibModelWarning() const
+    {return m_egamma_calibmodel_warning;}
+    void setPrintEgammaCalibModelWarning(bool flag)
+    {m_egamma_calibmodel_warning = flag;}
+    const std::string& egammaCalibration() const
+    {return m_egamma_calibration_model;};
+
     // LHAPDF settings
 
     inline virtual std::vector<std::string> LHAPDFSets() {return m_lhapdf_options.pdf_set_names;}
@@ -2319,7 +2334,8 @@ namespace top {
     std::string m_ghostTracksQuality;
 
     // Large R jet configuration
-    float m_largeRJetPtcut; // large R jet object selection pT cut
+    float m_largeRJetPtcut; // large R jet object selection lower pT cut
+    float m_largeRJetMasscut; // large R jet object selection lower mass cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::map<std::string,std::string> m_largeRJetSubstructureVariables;
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
@@ -2503,6 +2519,10 @@ namespace top {
     std::string m_btagging_calibration_B = "default";
     std::string m_btagging_calibration_C = "default";
     std::string m_btagging_calibration_Light = "default";
+
+    // EGamma calibration to be used
+    bool m_egamma_calibmodel_warning = false;
+    std::string m_egamma_calibration_model = "es2018_R21_v0";
 
     // b-tag SF helpers - one of each per WP
     // will be set in the BTagScaleFactorCalculator

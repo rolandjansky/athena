@@ -20,11 +20,11 @@ TGCHighPtBoard::TGCHighPtBoard():
   m_nChInTSBRegion(0)
 {
   for( int i=0; i<NumberOfChip; i+=1){
-    for( int j=0; j<NumberOfDSBOut; j+=1){
+    for( int j=0; j<s_NumberOfDSBOut; j+=1){
       m_DSB[i][j]=0;
       m_DSBOut[i][j]=0;
     }
-    for( int j=0; j<NumberOfTSBOut; j+=1){
+    for( int j=0; j<s_NumberOfTSBOut; j+=1){
       m_TSB[i][j]=0;
       m_TSBOut[i][j]=0;
     }
@@ -43,14 +43,14 @@ TGCHighPtBoard::~TGCHighPtBoard()
 {
   int i,j;
   for( i=0; i<NumberOfChip; i+=1){
-    for( j=0; j<NumberOfDSBOut; j+=1){
+    for( j=0; j<s_NumberOfDSBOut; j+=1){
       m_DSB[i][j]=0;
       if(m_DSBOut[i][j]!=0){
         delete m_DSBOut[i][j];
         m_DSBOut[i][j]=0;
       }
     }
-    for( j=0; j<NumberOfTSBOut; j+=1){
+    for( j=0; j<s_NumberOfTSBOut; j+=1){
       m_TSB[i][j]=0;
       if(m_TSBOut[i][j]!=0){
         delete m_TSBOut[i][j];
@@ -107,13 +107,13 @@ void TGCHighPtBoard::deleteSlaveBoardOut()
 {
   int i,j;
   for( j=0; j<NumberOfChip; j+=1){
-    for( i=0; i<NumberOfDSBOut; i+=1){
+    for( i=0; i<s_NumberOfDSBOut; i+=1){
       if(m_DSBOut[j][i]!=0){
         delete m_DSBOut[j][i];
         m_DSBOut[j][i]=0;
       }
     }
-    for( i=0; i<NumberOfTSBOut; i+=1){
+    for( i=0; i<s_NumberOfTSBOut; i+=1){
       if(m_TSBOut[j][i]!=0){
         delete m_TSBOut[j][i];
         m_TSBOut[j][i]=0;
@@ -126,13 +126,13 @@ void TGCHighPtBoard::collectInput()
 {
   int i,j;
   for( j=0; j<NumberOfChip; j+=1){
-    for( i=0; i<NumberOfDSBOut; i+=1)
+    for( i=0; i<s_NumberOfDSBOut; i+=1)
       if(m_DSB[j][i]){
         m_DSBOut[j][i]=m_DSB[j][i]->getOutput();
         m_DSB[j][i]->eraseOutput();
         if(m_DSBOut[j][i]) m_DSBOut[j][i]->print();
       }
-    for( i=0; i<NumberOfTSBOut; i+=1) 
+    for( i=0; i<s_NumberOfTSBOut; i+=1) 
       if(m_TSB[j][i]){
         m_TSBOut[j][i]=m_TSB[j][i]->getOutput();
         m_TSB[j][i]->eraseOutput();
@@ -425,7 +425,7 @@ void TGCHighPtBoard::showResult() const
   std::cout << " region=" << ( (m_region==FORWARD) ? "FWD" : "END");
   std::cout.width(2);
   std::cout << " id=" << m_id << std::endl;
-  for( j=0; j<NumberOfTSBOut; j+=1){
+  for( j=0; j<s_NumberOfTSBOut; j+=1){
     for( i=0; i<NumberOfChip; i+=1){
       if(m_TSBOut[i][j]!=0){
         for( k=0; k<m_TSBOut[i][j]->getNumberOfData(); k+=1)
@@ -564,11 +564,11 @@ TGCHighPtBoard::TGCHighPtBoard(const TGCHighPtBoard& right)
    m_nChInTSBRegion(0)
 {
   for(int j=0; j<NumberOfChip; j+=1){
-    for(int i=0; i<NumberOfDSBOut; i+=1){
+    for(int i=0; i<s_NumberOfDSBOut; i+=1){
       m_DSB[j][i] = right.m_DSB[j][i];
       m_DSBOut[j][i]=0;
     }
-    for(int i=0; i<NumberOfTSBOut; i+=1){
+    for(int i=0; i<s_NumberOfTSBOut; i+=1){
       m_TSB[j][i] = right.m_TSB[j][i];
       m_TSBOut[j][i]=0;
     }
@@ -605,14 +605,14 @@ TGCHighPtBoard& TGCHighPtBoard::operator=(const TGCHighPtBoard& right)
     else m_lowPtBoardOut = 0;
 
     for(int j=0; j<NumberOfChip; j+=1){
-      for(int i=0; i<NumberOfDSBOut; i+=1){
+      for(int i=0; i<s_NumberOfDSBOut; i+=1){
         m_DSB[j][i] = right.m_DSB[j][i];
         if(m_DSBOut[j][i]!=0){
           delete m_DSBOut[j][i];
           m_DSBOut[j][i]= new TGCSlaveBoardOut(*right.m_DSBOut[j][i]);
         }
       }
-      for(int i=0; i<NumberOfTSBOut; i+=1){
+      for(int i=0; i<s_NumberOfTSBOut; i+=1){
         m_TSB[j][i] = right.m_TSB[j][i];
         if(m_TSBOut[j][i]!=0){
           delete m_TSBOut[j][i];

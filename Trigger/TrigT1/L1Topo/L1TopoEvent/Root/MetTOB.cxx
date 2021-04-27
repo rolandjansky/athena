@@ -9,18 +9,18 @@ const unsigned int TCS::MetTOB::g_nBitsEy = 15;
 const unsigned int TCS::MetTOB::g_nBitsEt = 15;
 
 // default constructor
-TCS::MetTOB::MetTOB() : BaseTOB(0)
+TCS::MetTOB::MetTOB() : BaseTOB(0,"MetTOB")
 {}
 
 // constructor with initial values
-TCS::MetTOB::MetTOB(int ex, int ey, unsigned int et) : BaseTOB(0)
+TCS::MetTOB::MetTOB(int ex, int ey, unsigned int et) : BaseTOB(0,"MetTOB")
    , m_Ex( sizeCheckM(ex, nBitsEx()) )
    , m_Ey( sizeCheckM(ey, nBitsEy()) )
    , m_Et( sizeCheck(et, nBitsEt()) )
 {}
 
 // constructor with initial values
-TCS::MetTOB::MetTOB(const MetTOB & met) : BaseTOB(0)
+TCS::MetTOB::MetTOB(const MetTOB & met) : BaseTOB(0,"MetTOB")
    , m_Ex( met.m_Ex )
    , m_Ey( met.m_Ey )
    , m_Et( met.m_Et )

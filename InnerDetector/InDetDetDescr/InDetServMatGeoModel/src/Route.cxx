@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/Route.h"
@@ -14,7 +14,7 @@ ServiceVolume* Route::entryVolume( double pos, bool ascending, Athena::MsgStream
   msg << MSG::DEBUG  << "entering entryVolume with ascending = " << ascending 
        << " and pos = " << pos << endmsg;
 
-  if (volumes().empty()) return 0;
+  if (volumes().empty()) return nullptr;
 
   //  if (volumes().front()->contains(pos)) return volumes().front();
   //  else if (volumes().back()->contains(pos)) return volumes().back();
@@ -52,10 +52,10 @@ ServiceVolume* Route::exitVolume( bool ascending, Athena::MsgStreamMember& msg) 
   msg << MSG::DEBUG  << "entering exitVolume with ascending = " << ascending 
        << " and route.exit() = " << exit() << endmsg;
 
-  if (m_exitVolume != 0) return m_exitVolume;
+  if (m_exitVolume != nullptr) return m_exitVolume;
 
   // returns the volume closest to the exit point, coming from the given direction
-  if (volumes().empty()) return 0;
+  if (volumes().empty()) return nullptr;
   if ( ascending) {
     for (VolumeContainer::const_iterator i=volumes().begin(); i!=volumes().end(); ++i) {
       if ((**i).contains(exit())) return *i;

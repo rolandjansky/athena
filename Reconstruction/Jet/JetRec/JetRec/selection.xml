@@ -1,7 +1,6 @@
 <lcgdict>
 <class name="FastJetInterfaceTool"/>
 <class name="JetBottomUpSoftDrop"/>
-<class name="JetByVertexFinder"/>
 <class name="JetConstitRemover"/>
 <class name="JetConstituentsRetriever"/>
 <class name="JetDumper"/>

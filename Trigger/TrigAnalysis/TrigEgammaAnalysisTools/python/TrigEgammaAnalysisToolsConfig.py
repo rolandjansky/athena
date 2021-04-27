@@ -1,5 +1,3 @@
-
-
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
@@ -14,12 +12,6 @@ import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
 cppyy.load_library('libElectronPhotonSelectorToolsDict')
-
-# Following loads the online selectors
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-ElectronPidTools()
-PhotonPidTools()
 
 # Offline selectors -- taken from latest conf
 LooseElectronSelector             = CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")

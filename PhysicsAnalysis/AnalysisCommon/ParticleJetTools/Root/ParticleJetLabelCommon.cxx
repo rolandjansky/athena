@@ -93,37 +93,54 @@ namespace ParticleJetTools {
   // End of code copied from ParticleJetDeltaRLabelTool
 
   void setJetLabels(xAOD::Jet& jet,
-                    const PartonCounts& counts,
+                    const Particles& particles,
                     const LabelNames& names) {
+
+    // we also want to save the maximum pt of the labeling partons
+    auto maxPt = [](const auto& container) -> float {
+      if (container.size() == 0) return NAN;
+      auto itr = std::max_element(container.begin(), container.end(),
+                                  [](auto* p1, auto* p2) {
+                                    return p1->pt() < p2->pt();
+                                  });
+      return (*itr)->pt();
+
+    };
+
     // set truth label for jets above pt threshold
     // hierarchy: b > c > tau > light
-    if (counts.b)
+    if (particles.b.size()) {
       jet.setAttribute<int>(names.singleint, 5);
-    else if (counts.c)
+      jet.setAttribute<float>(names.pt, maxPt(particles.b));
+    } else if (particles.c.size()) {
       jet.setAttribute<int>(names.singleint, 4);
-    else if (counts.tau)
+      jet.setAttribute<float>(names.pt, maxPt(particles.c));
+    } else if (particles.tau.size()) {
       jet.setAttribute<int>(names.singleint, 15);
-    else
+      jet.setAttribute<float>(names.pt, maxPt(particles.tau));
+    } else {
       jet.setAttribute<int>(names.singleint, 0);
+      jet.setAttribute<float>(names.pt, NAN);
+    }
 
-    if (counts.b) {
-      if (counts.b >= 2)
+    if (particles.b.size()) {
+      if (particles.b.size() >= 2)
         jet.setAttribute<int>(names.doubleint, 55);
 
-      else if (counts.c)
+      else if (particles.c.size())
         jet.setAttribute<int>(names.doubleint, 54);
 
       else
         jet.setAttribute<int>(names.doubleint, 5);
 
-    } else if (counts.c) {
-      if (counts.c >= 2)
+    } else if (particles.c.size()) {
+      if (particles.c.size() >= 2)
         jet.setAttribute<int>(names.doubleint, 44);
 
       else
         jet.setAttribute<int>(names.doubleint, 4);
 
-    } else if (counts.tau)
+    } else if (particles.tau.size())
       jet.setAttribute<int>(names.doubleint, 15);
 
     else

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_LowMomentum.h"
+
+#include <cmath>
 
 #include <iomanip>
 #include <limits>
@@ -190,14 +192,14 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-        auto w = spacepointsPixel->indexFindPtr(l);
+        const auto *w = spacepointsPixel->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -219,14 +221,14 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-        auto w = spacepointsSCT->indexFindPtr(l);
+        const auto *w = spacepointsSCT->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -664,8 +666,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::buildBeamFrameWork(EventData& da
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
   const Amg::Vector3D &cb =     beamSpotHandle->beamPos();
-  double     tx = tan(beamSpotHandle->beamTilt(0));
-  double     ty = tan(beamSpotHandle->beamTilt(1));
+  double     tx = std::tan(beamSpotHandle->beamTilt(0));
+  double     ty = std::tan(beamSpotHandle->beamTilt(1));
 
   double ph   = atan2(ty,tx);
   double th   = acos(1./sqrt(1.+tx*tx+ty*ty));
@@ -911,7 +913,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         float dx = X-(*r)->x();
         float dy = Y-(*r)->y();
         float dZ = Z-(*r)->z();
-        data.Tz[Nb] = dZ/sqrt(dx*dx+dy*dy);
+        data.Tz[Nb] = dZ/std::sqrt(dx*dx+dy*dy);
         if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
         data.Zo[Nb] = Z-R*data.Tz[Nb];
 
@@ -943,7 +945,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         float dx = X-(*r)->x();
         float dy = Y-(*r)->y();
         float dZ = (*r)->z()-Z;
-        data.Tz[Nt]   = dZ/sqrt(dx*dx+dy*dy);
+        data.Tz[Nt]   = dZ/std::sqrt(dx*dx+dy*dy);
         if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
         data.Zo[Nt]   = Z-R*data.Tz[Nt];
 
@@ -970,7 +972,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       float x  = dx*ax+dy*ay;
       float y  =-dx*ay+dy*ax;
       float r2 = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float dr  = std::sqrt(r2);
 
       i < Nb ?  data.Tz[i] = -dz*dr :  data.Tz[i] = dz*dr;
 
@@ -998,12 +1000,12 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         float A  = (data.V[t]-data.V[b])/dU;
         float B  =  data.V[t]-A*data.U[t];
         float S2 = 1.+A*A;
-        float S  = sqrt(S2);
-        float BK = fabs(B*K);
+        float S  = std::sqrt(S2);
+        float BK = std::abs(B*K);
         if (BK > m_iptmin*S || BK < m_iptmax*S) continue; // Momentum    cut
         if (dT > 0. && dT  > (BK*BK/S2)*cof*SA) continue; // Polar angle cut
 
-        float Im = fabs((A-B*R)*R);
+        float Im = std::abs((A-B*R)*R);
         if (Im > m_diver) continue;
 
         newOneSeed(data, data.SP[b]->spacepoint,(*r0)->spacepoint,data.SP[t]->spacepoint,data.Zo[b],Im);
@@ -1075,11 +1077,11 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::isZCompatible
 {
   if (Zv < m_zmin || Zv > m_zmax) return false;
 
-  if (data.l_vertex.size()==0) return true;
+  if (data.l_vertex.empty()) return true;
 
   float dZmin = std::numeric_limits<float>::max();
   for (const float& v : data.l_vertex) {
-    float dZ = fabs(v-Zv);
+    float dZ = std::abs(v-Zv);
     if (dZ<dZmin) dZmin=dZ;
   }
   return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);

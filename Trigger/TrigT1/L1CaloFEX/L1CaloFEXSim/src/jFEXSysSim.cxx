@@ -22,6 +22,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
 #include <ctime>
 
@@ -50,8 +53,9 @@ namespace LVL1 {
     
     ATH_CHECK(m_jTowerContainerSGKey.initialize());
 
-    ATH_CHECK( m_jFEXSimTool.retrieve() );
-
+    ATH_CHECK(m_jFEXSimTool.retrieve() );
+    
+    ATH_CHECK(m_jFexOutKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -170,7 +174,7 @@ namespace LVL1 {
     for(int thisCol=4; thisCol<12; thisCol++){
       for(int thisRow=0; thisRow<rows/4; thisRow++){
 
-        int towerid = initialFCAL1 - ((thisCol-12) * 64) + thisRow;
+        int towerid = initialFCAL1 - ((thisCol-4) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -182,7 +186,7 @@ namespace LVL1 {
     // Let's go with FCAL0
     // set the FCAL0 part
     for(int thisCol=12; thisCol<24; thisCol++){
-      for(int thisRow=0; thisRow<rows; thisRow++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
 
         int towerid = initialFCAL0 - ((thisCol-12) * 64) + thisRow;
 
@@ -199,7 +203,7 @@ namespace LVL1 {
     for(int thisCol=24; thisCol<28; thisCol++){
       for(int thisRow=0; thisRow<rows/2; thisRow++){
 
-        int towerid = initialEMEC + ((thisCol-24) * 64) + thisRow;
+        int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -211,7 +215,7 @@ namespace LVL1 {
     for(int thisCol=28; thisCol<38; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	
-	int towerid = initialEMEC - ((thisCol-28) * 64) + thisRow;
+	int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow; //note special case -24 rather than -28, this *is* deliberate
 
 	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -253,7 +257,7 @@ namespace LVL1 {
     }
 
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -337,9 +341,9 @@ namespace LVL1 {
 	else { ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |"); }
       }
     }
-      
+
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_1));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -447,7 +451,7 @@ namespace LVL1 {
 
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_2));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_2));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -539,7 +543,6 @@ namespace LVL1 {
 
     }
 
-
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
@@ -553,7 +556,7 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_3));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_3));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -619,7 +622,7 @@ namespace LVL1 {
 	
       }
     }
-    
+
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
@@ -633,7 +636,7 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_4));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_4));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -713,7 +716,7 @@ namespace LVL1 {
     for(int thisCol=17; thisCol<21; thisCol++){
       for(int thisRow=0; thisRow<rows/2; thisRow++){
 
-        int towerid = initialEMEC + ((thisCol-17) * 64) + thisRow;
+        int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow; //note special case -7 rather than -17, this *is* deliberate
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
         tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
@@ -776,16 +779,30 @@ namespace LVL1 {
     }
 
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardCSide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
     m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
 
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    auto jContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSRJetRoIAuxContainer > jAuxContainer = std::make_unique<xAOD::jFexSRJetRoIAuxContainer> ();
+    jContainer->setStore(jAuxContainer.get());
+
+    // iterate over all SRJEt Tobs and fill EDM with them   
+    for( auto const& [jfex, tobs] : m_allSmallRJetTobs ){
+    for(auto &tob : tobs){
+        ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);  
+        ATH_CHECK(fillEDM(jfex,tob, jContainer));
+      }  
+    }
+    
+    SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexHandle(m_jFexOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexHandle.record(std::move(jContainer),std::move(jAuxContainer)));
 
 
-    //Collate TOBS returned from jFEXSims. Should that be here?
     // ToDo
     // To implement
     // {--Implement--}
@@ -799,6 +816,23 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
 
   }
+
+  StatusCode jFEXSysSim::fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexSRJetRoI* myEDM = new xAOD::jFexSRJetRoI();
+    jContainer->push_back( myEDM );
+
+    myEDM->initialize(jFEXNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting jFEX Number:  " << +myEDM->jFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
+
+    return StatusCode::SUCCESS;
+
+  }
+
+
 
   
 } // end of namespace bracket

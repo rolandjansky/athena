@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -11,7 +11,6 @@
 //
 //     Individual lower energy thresholds for each cell are computed as three
 //     times the noise RMS value of the cell when the two PMTs are in High Gain
-//     using CaloNoiseToolDB tool.
 //
 //     For DSP usage, thresholds in MeV are multiply by 2 and round off in order
 //     to compare them with reconstructed energies at the DSP which have a 0.5 MeV
@@ -25,6 +24,8 @@
 //*****************************************************************************
 
 #include "TileCalibAlgs/TileMuId2DBAlg.h"
+#include "CaloIdentifier/CaloGain.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <fstream>
 
@@ -33,9 +34,7 @@ using namespace std;
 
 TileMuId2DBAlg::TileMuId2DBAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator), 
-  m_calo_id(0),
-  m_noise(0.0),
-  m_module(0)
+  m_calo_id(0)
 {
 }
 
@@ -49,11 +48,11 @@ TileMuId2DBAlg::~TileMuId2DBAlg()
 
 StatusCode TileMuId2DBAlg::initialize()
 {
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id = m_caloIdMgr->getCaloCell_ID();
+  const CaloIdManager* caloIdMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
+  m_calo_id = caloIdMgr->getCaloCell_ID();
 
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
-  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_CHECK( m_totalNoiseKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -91,29 +90,28 @@ StatusCode TileMuId2DBAlg::execute()
   ATH_MSG_INFO ( "caloCellMax: " << caloCellMax );
   ATH_MSG_INFO ( "Start loop over TileCal cells " << caloCellMax-caloCellMin );
 
+  SG::ReadCondHandle<CaloNoise> totalNoise (m_totalNoiseKey);
+
   for (unsigned int i=caloCellMin;i<caloCellMax;i++) {
 
     IdentifierHash idHash = i;
     Identifier id = m_calo_id->cell_id(idHash);
-    const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
     int subCalo;
     IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
 
-    //m_eta = calodde->eta();
-    //m_phi = calodde->phi();
-    m_module = m_calo_id->module(id);
+    int module = m_calo_id->module(id);
 
     CaloGain::CaloGain gain=CaloGain::TILEHIGHHIGH;
 
-    m_noise = m_noiseTool->totalNoiseRMS(calodde,gain);
+    float cell_noise = totalNoise->getNoise(id,gain);
 
-    if( m_calo_id->is_tile_barrel(id)    && m_calo_id->is_tile_negative(id) ) noise[1][m_module][idSubHash-22*m_module] = 3*m_noise;
+    if( m_calo_id->is_tile_barrel(id)    && m_calo_id->is_tile_negative(id) ) noise[1][module][idSubHash-22*module] = 3*cell_noise;
 
-    if( m_calo_id->is_tile_barrel(id)    && m_calo_id->is_tile_positive(id) ) noise[0][m_module][idSubHash-(23*m_module+22*64)] = 3*m_noise;
+    if( m_calo_id->is_tile_barrel(id)    && m_calo_id->is_tile_positive(id) ) noise[0][module][idSubHash-(23*module+22*64)] = 3*cell_noise;
 
-    if( m_calo_id->is_tile_extbarrel(id) && m_calo_id->is_tile_negative(id) ) noise[3][m_module][idSubHash-(12*m_module+23*64+22*64)] = 3*m_noise;
+    if( m_calo_id->is_tile_extbarrel(id) && m_calo_id->is_tile_negative(id) ) noise[3][module][idSubHash-(12*module+23*64+22*64)] = 3*cell_noise;
 
-    if( m_calo_id->is_tile_extbarrel(id) && m_calo_id->is_tile_positive(id) ) noise[2][m_module][idSubHash-(12*m_module+12*64+23*64+22*64)] = 3*m_noise;
+    if( m_calo_id->is_tile_extbarrel(id) && m_calo_id->is_tile_positive(id) ) noise[2][module][idSubHash-(12*module+12*64+23*64+22*64)] = 3*cell_noise;
 
   }
 

@@ -32,8 +32,6 @@ class Run2TileMuCoincidenceMap;
 
 namespace LVL1TGCTrigger {
 
-const int MaxNumberOfWireHighPtBoard = 2;
-
 class TGCDatabaseManager;
 class TGCHighPtBoard;
 class TGCHighPtChipOut;
@@ -56,16 +54,14 @@ class TGCSectorLogic
 
   TGCSectorLogic(const TGCSectorLogic& right);
 
-  const TGCSLSelectorOut* getSelectorOutput() const { return m_selectorOut; }
-  void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const ;
+  const TGCSLSelectorOut* getSelectorOutput() const { return m_selectorOut.get(); }
+  void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut) const;
 
   int  getTileMuonWord() const;
   int  getInnerStationWord() const;
 
-  void eraseSelectorOut(); 
-
   void clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
-               int bidIn);
+               int bidIn, bool process=true);
 
   int getId() const;
   int getModuleID() const;
@@ -82,7 +78,7 @@ class TGCSectorLogic
 
   void setTMDB(const TGCTMDB* tmdb);
   void setNSW(std::shared_ptr<const TGCNSW> nsw);
-  void showResult(TGCSLSelectorOut* out);
+  void showResult();
  
   int getNumberOfSubSectorCluster() const; 
   int getNumberOfSubSector() const; 
@@ -146,7 +142,7 @@ private:
   // for Run2
   TGCSLPreSelector m_preSelector; 
   TGCSLSelector m_selector;
-  TGCSLSelectorOut* m_selectorOut;
+  std::shared_ptr<TGCSLSelectorOut> m_selectorOut;
   
   // for Run3
   TGCTrackSelector m_trackSelector;

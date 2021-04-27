@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/HistoryContainer.h"
@@ -22,21 +22,18 @@ HistoryContainer::HistoryContainer(CellInfo* cellInfo)
 }
 
 HistoryContainer::HistoryContainer(const HistoryContainer& other) 
-  : m_data(other.m_data), 
-    m_cellInfo(0)
+  : m_data(other.m_data)
 { 
   ClassCounts::incrementInstanceCount("HistoryContainer"); 
-  if (other.m_cellInfo) m_cellInfo = new CellInfo(*other.m_cellInfo); 
+  if (other.m_cellInfo) m_cellInfo = std::make_unique<CellInfo>(*other.m_cellInfo); 
 }
 
 
 HistoryContainer::~HistoryContainer()
 {
-  ClassCounts::decrementInstanceCount("HistoryContainer"); 
-  for (std::vector<const DataContainer*>::iterator data = m_data.begin(); 
-       data != m_data.end(); data++) 
-    if (*data) delete *data;
-  if (m_cellInfo) delete m_cellInfo;
+  ClassCounts::decrementInstanceCount("HistoryContainer");
+  for (const DataContainer* data : m_data)
+    delete data;
 }
   
 
@@ -56,10 +53,10 @@ bool HistoryContainer::isValid() const
 {
   if (!m_cellInfo || !m_cellInfo->isValid()) return false;
   if (nDataContainers() == 0) return false;
-  
-  for (std::vector<const DataContainer*>::const_iterator data = m_data.begin(); 
-       data != m_data.end(); data++) 
-    if (!(*data)->isValid()) return false;
+
+  for (const DataContainer* data : m_data) {
+    if (!data->isValid()) return false;
+  }
   
   return true;
 }

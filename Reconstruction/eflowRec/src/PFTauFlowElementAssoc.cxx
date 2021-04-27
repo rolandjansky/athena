@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFTauFlowElementAssoc.h"
@@ -7,6 +7,7 @@
 #include "xAODTau/TauTrack.h"
 #include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/FlowElement.h"
+#include "tauRecTools/HelperFunctions.h"
 
 typedef ElementLink<xAOD::TauJetContainer> TauJetLink_t;
 typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
@@ -72,10 +73,20 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
 
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauNeutralFEWriteDecorHandle) {
+      // Get tau vertex
+      const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
       // Get the clusters associated to the tau
-      std::vector< ElementLink<xAOD::IParticleContainer> > tauClusters = tau->clusterLinks();
-      for (auto clusLink : tauClusters) {
-        const xAOD::IParticle* clus = *clusLink;
+      std::vector<const xAOD::IParticle*> tauClusters = tau->clusters();
+      for (auto cluster : tauClusters) {
+        const xAOD::CaloCluster* clus = static_cast<const xAOD::CaloCluster*>(cluster);
+        TLorentzVector clusterp4 = clus->p4();
+        // Correct cluster to tau vertex if it exists
+        if (tauVertex != nullptr) {
+          xAOD::CaloVertexedTopoCluster vertexedClus(*clus, tauVertex->position());
+          clusterp4 = vertexedClus.p4();
+        }
+        // Check if the cluster is within R = 0.2 of tau axis
+        if (clusterp4.DeltaR(tau->p4(xAOD::TauJetParameters::IntermediateAxis)) > 0.2) continue;
         // Get the index of the cluster associated to the tau
         size_t tauClusterIndex = clus->index();
 
@@ -105,7 +116,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauChargedFEWriteDecorHandle) {
       // Get tau tracks associated to the tau
-      std::vector<const xAOD::TauTrack*> tauTracks = tau->tracks(xAOD::TauJetParameters::coreTrack);
+      std::vector<const xAOD::TauTrack*> tauTracks = tau->tracks();
       for (auto tauTrack : tauTracks) {
         // Get track associated to the tau track to use for matching
         const xAOD::TrackParticle* tauIDTrack = tauTrack->track();

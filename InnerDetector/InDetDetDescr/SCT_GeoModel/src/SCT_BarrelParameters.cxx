@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
@@ -481,8 +481,7 @@ SCT_BarrelParameters::bearingMaterial() const
 bool 
 SCT_BarrelParameters::includeFSI() const
 {
-  if (m_rdb->brlFSISize() > 0) {return true;}
-  return false;
+  return m_rdb->brlFSISize() > 0;
 }
 
 double 
@@ -860,7 +859,6 @@ SCT_BarrelParameters::activeLength() const
 bool 
 SCT_BarrelParameters::isOldGeometry() const
 {
-  if (m_rdb->brlGeneral()->isFieldNull("CYLINDERLENGTH")) {return true;}
-  return false;
+  return m_rdb->brlGeneral()->isFieldNull("CYLINDERLENGTH");
 }
 

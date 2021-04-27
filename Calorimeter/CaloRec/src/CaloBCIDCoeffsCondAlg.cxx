@@ -13,6 +13,8 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 #include "GaudiKernel/ICondSvc.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "LArIdentifier/LArOnlineID.h"
 
 
 /**
@@ -20,7 +22,7 @@
  */
 StatusCode CaloBCIDCoeffsCondAlg::initialize()
 {
-  ATH_CHECK( m_mcSymKey.initialize() );
+  if ( !m_isSC ) ATH_CHECK( m_mcSymKey.initialize() );
   ATH_CHECK( m_ofcKey.initialize() );
   ATH_CHECK( m_shapeKey.initialize() );
   ATH_CHECK( m_minBiasAvgKey.initialize() );
@@ -30,7 +32,18 @@ StatusCode CaloBCIDCoeffsCondAlg::initialize()
   ATH_CHECK( condSvc.retrieve() );
   ATH_CHECK( condSvc->regHandle (this, m_outputCoeffsKey) );
 
-  ATH_CHECK( detStore()->retrieve (m_laronline_id, "LArOnlineID") );
+  
+  if ( m_isSC ) {
+	const LArOnline_SuperCellID* ll;
+	ATH_CHECK(detStore()->retrieve(ll,"LArOnline_SuperCellID"));
+	m_laronline_id = (const LArOnlineID_Base*)ll;
+  }
+  else {
+	const LArOnlineID* ll;
+	ATH_CHECK(detStore()->retrieve(ll,"LArOnlineID"));
+	m_laronline_id = (const LArOnlineID_Base*)ll;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -47,18 +60,27 @@ StatusCode CaloBCIDCoeffsCondAlg::execute (const EventContext& ctx) const
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<LArMCSym>           mcsym      (m_mcSymKey, ctx);
+  std::vector<HWIdentifier> hwids ;
+  if (!m_isSC) {
+	SG::ReadCondHandle<LArMCSym>           mcsym      (m_mcSymKey, ctx);
+	hwids = mcsym->symIds();
+  }
+  else {
+     for(long long unsigned int i=0;i<m_laronline_id->channelHashMax();i++){
+ 	hwids.push_back( m_laronline_id->channel_Id((IdentifierHash)i) );
+     }
+  }
   SG::ReadCondHandle<ILArOFC>            ofcs       (m_ofcKey,   ctx);
   SG::ReadCondHandle<ILArShape>          shapes     (m_shapeKey, ctx);
   SG::ReadCondHandle<ILArMinBiasAverage> minBiasAvg (m_minBiasAvgKey, ctx);
 
-  auto coeffs = std::make_unique<CaloBCIDCoeffs> (mcsym->symIds(),
-                                                  *m_laronline_id,
+  auto coeffs = std::make_unique<CaloBCIDCoeffs> (hwids,
+                                                  *((const LArOnlineID_Base*)m_laronline_id),
                                                   **ofcs,
                                                   **shapes,
                                                   **minBiasAvg);
 
-  outputCoeffs.addDependency (mcsym, ofcs, shapes, minBiasAvg);
+  outputCoeffs.addDependency (ofcs, shapes, minBiasAvg);
   ATH_CHECK( outputCoeffs.record (std::move (coeffs)) );
   ATH_MSG_INFO( "recorded new " << outputCoeffs.key() << " with range " << outputCoeffs.getRange() );
   return StatusCode::SUCCESS;

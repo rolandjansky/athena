@@ -55,7 +55,6 @@ namespace LVL1 {
 
 
       // Services and input tools
-      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Service to provide the L1Topo menu" };
       ServiceHandle<ITHistSvc> m_histSvc { this, "HistSvc", "THistSvc/THistSvc", "Histogramming service for L1Topo algorithms" };
 
       ToolHandle<IInputTOBConverter> m_emtauInputProvider  { this, "EMTAUInputProvider",  "LVL1::EMTauInputProvider/EMTauInputProvider",   "Tool to fill the EMTAU TOBs of the topo input event"         };
@@ -66,6 +65,9 @@ namespace LVL1 {
       // outputs
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { this, "TopoCTPLocation", LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { this, "TopoOverflowCTPLocation", LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP"}; ///< SG key of overflow bits for CTP
+     
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_legacyTopoCTPLocation { this, "LegacyTopoCTPLocation", LVL1::DEFAULT_L1TopoLegacyCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_legacyTopoOverflowCTPLocation { this, "LegacyTopoOverflowCTPLocation", LVL1::DEFAULT_L1TopoLegacyOverflowCTPLocation, "StoreGate key of topo overflow output for CTP"}; ///< SG key of overflow bits for CTP
 
       Gaudi::Property<bool> m_isLegacyTopo { this, "IsLegacyTopo", false, "Simulation of Legacy L1Topo boards" };
       Gaudi::Property<bool> m_enableInputDump { this, "EnableInputDump", false, "Enable writing of input data for standalone running" };

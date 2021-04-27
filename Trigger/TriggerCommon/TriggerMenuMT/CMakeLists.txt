@@ -109,6 +109,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
+                       scripts/trigmenu_modify_precale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
                        scripts/generateUnprescaledLists.py
@@ -157,20 +158,13 @@ atlas_add_test( full_menu_cf
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
                 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
-atlas_add_test( LS2_emu_menu_DH
-                SCRIPT test_emu_step_menu_processing.sh
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH
-                PROPERTIES TIMEOUT 500
-                POST_EXEC_SCRIPT nopost.sh )
 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
-atlas_add_test( EventBuildingSequenceSetup
-                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
-                POST_EXEC_SCRIPT nopost.sh )
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
+atlas_add_test( EventBuildingSequences
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequences
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences
+		)
 
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
                 PROPERTIES TIMEOUT 200 

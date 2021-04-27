@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
            
 #include "CxxUtils/checker_macros.h"
@@ -8,8 +8,7 @@
 
 Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface*  p)
   :
-  AthAlgTool(t,n,p),
-  MdtRdoToPrepDataToolCore(t,n,p)
+  base_class(t,n,p)
 {
 }
 
@@ -21,8 +20,16 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+void Muon::MdtRdoToPrepDataTool::printPrepData(  ) const
 {
+  printPrepDataImpl( m_mdtPrepDataContainer );
+}
+
+Muon::MdtPrepDataContainer*
+Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer (unsigned int sizeVectorRequested,
+                                                       bool& fullEventDone) const
+{
+  fullEventDone = false;
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
@@ -31,18 +38,22 @@ Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDa
 
     if (status.isFailure() || !handle.isValid() ) 	{
       ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainerKey.key());	
-      return FAILED;
+      return nullptr;
     }
     m_mdtPrepDataContainer = handle.ptr();
-    return ADDED;
   }
   else {
     const Muon::MdtPrepDataContainer* outputCollection_c = 0;
     if (evtStore()->retrieve (outputCollection_c, m_mdtPrepDataContainerKey.key()).isFailure())
     {
-      return FAILED;
+      return nullptr;
     }
     m_mdtPrepDataContainer = const_cast<Muon::MdtPrepDataContainer*> (outputCollection_c);
   }
-  return ALREADYCONTAINED;
+  fullEventDone = m_fullEventDone;
+
+  // if requesting full event, set the full event done flag to true
+  if (sizeVectorRequested == 0) m_fullEventDone=true;
+
+  return m_mdtPrepDataContainer;
 }

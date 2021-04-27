@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1_CTMONITORING_BSMONITORING_H
@@ -15,13 +15,12 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/IObjectIterator.h"
 #include "CoolKernel/IObject.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 // RPC and TGC includes for access to SL data
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
@@ -67,9 +66,6 @@ namespace LVL1 {
 
 
 namespace TrigT1CTMonitoring {
-
-  const std::string ID_RecRpcRoiSvc = "LVL1RPC::RPCRecRoiSvc";
-  const std::string ID_RecTgcRoiSvc = "LVL1TGC::TGCRecRoiSvc";
 
   typedef std::map<std::string, LWHist*> HistMap_t;
 
@@ -167,8 +163,8 @@ namespace TrigT1CTMonitoring {
     unsigned int m_eventNumber{0};
 
     ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger Config Service" };
-    ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiSvc{ this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"}; 
-    ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiSvc{ this, "TGCRecRoiSvc", "LVL1TGC::TGCRecRoiSvc"}; 
+    ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
+    ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
 
     Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
 

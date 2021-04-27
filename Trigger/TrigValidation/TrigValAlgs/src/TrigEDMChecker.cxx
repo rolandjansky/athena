@@ -1414,7 +1414,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
           const TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
           ATH_MSG_INFO("REGTEST MuonType(): ");
 
-          TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
+          const TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
           if (muonTrack) {
             printMuonTrk(muonTrack);
           } else {
@@ -1430,7 +1430,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
           }
 
           ATH_MSG_INFO("REGTEST Looking at TrigMuonEFTrack CombinedTrack()");
-          TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
+          const TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
           if (muonCbTrack) {
             printMuonTrk(muonTrack);
           } else {
@@ -4033,7 +4033,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
     }
     std::vector< LinkInfo<xAOD::IParticleContainer> > passFeatures = m_trigDec->features<xAOD::IParticleContainer>(item);
     if (passFeatures.size()) {
-      ATH_MSG_INFO("    " << item << " Passed IParticle features size: " << passFeatures.size());
+      ATH_MSG_INFO("    " << item << " Passed Final IParticle features size: " << passFeatures.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : passFeatures) {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
@@ -4042,16 +4042,34 @@ StatusCode TrigEDMChecker::dumpTDT() {
             std::string state = "ACTIVE";
             if (li.state == ActiveState::INACTIVE) state = "INACTIVE";
             else if (li.state == ActiveState::UNSET) state = "UNSET";
-            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " index:" << li.link.index() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
           } catch (const std::exception& e) {
             ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
           }
         }
       }
     }
-    std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+    std::vector< LinkInfo<xAOD::IParticleContainer> > passAndFailFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+    if (passAndFailFeatures.size()) {
+      ATH_MSG_INFO("    " << item << " Passed+Failed Final IParticle features size: " << passAndFailFeatures.size());
+      for (const LinkInfo<xAOD::IParticleContainer>& li : passAndFailFeatures) {
+        if (!li.isValid()) {
+          ATH_MSG_WARNING("      Unable to access feature - link invalid.");
+        } else {
+          try {
+            std::string state = "ACTIVE";
+            if (li.state == ActiveState::INACTIVE) state = "INACTIVE";
+            else if (li.state == ActiveState::UNSET) state = "UNSET";
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " index:" << li.link.index() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
+          } catch (const std::exception& e) {
+            ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
+          }
+        }
+      }
+    }
+    std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions, "", TrigDefs::allFeaturesOfType);
     if (allFeatures.size()) {
-      ATH_MSG_INFO("    " << item << " Passed+Failed IParticle features size: " << allFeatures.size());
+      ATH_MSG_INFO("    " << item << " Passed+Failed ALL IParticle features size: " << allFeatures.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : allFeatures) {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
@@ -4060,7 +4078,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
             std::string state = "ACTIVE";
             if (li.state == ActiveState::INACTIVE) state = "INACTIVE";
             else if (li.state == ActiveState::UNSET) state = "UNSET";
-            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " index:" << li.link.index() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
           } catch (const std::exception& e) {
             ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
           }

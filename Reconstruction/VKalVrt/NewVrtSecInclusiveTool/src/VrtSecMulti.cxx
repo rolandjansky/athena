@@ -589,7 +589,7 @@ namespace Rec{
           tmpVertex->makePrivateStore();
           tmpVertex->setPosition(GoodVertices[iv].vertex);
           int NERMS=GoodVertices[iv].vertexCov.size();
-	  NERMS=6;
+          NERMS=6;
           std::vector<float> floatErrMtx;   floatErrMtx.resize(NERMS);
           for(int i=0; i<NERMS; i++) floatErrMtx[i]=GoodVertices[iv].vertexCov[i];
           tmpVertex->setCovariance(floatErrMtx);
@@ -597,11 +597,13 @@ namespace Rec{
 
           std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
           for(int ii=0; ii<nth; ii++) {
-             AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);    (*CovMtxP).setIdentity(); 
+             AmgSymMatrix(5) CovMtxP;    
+             CovMtxP.setIdentity(); 
              Trk::Perigee * tmpMeasPer  =  new Trk::Perigee( 0.,0.,  GoodVertices[iv].trkAtVrt[ii][0], 
 	                                                             GoodVertices[iv].trkAtVrt[ii][1],
                                                                      GoodVertices[iv].trkAtVrt[ii][2],
-                                                                Trk::PerigeeSurface(GoodVertices[iv].vertex), CovMtxP );
+                                                                Trk::PerigeeSurface(GoodVertices[iv].vertex), 
+                                                                std::move(CovMtxP) );
              tmpVTAV.push_back( Trk::VxTrackAtVertex( 1., tmpMeasPer) );
 	     if(xAODwrk){            //No way to store a link to Rec::TrackParticleContainer 
                ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xAODwrk->tmpListTracks[ii] );

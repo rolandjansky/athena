@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFCellLevelSubtractionTool.h"
@@ -112,6 +112,8 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
 unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int n, eflowData& data) const {
   unsigned int nMatches(0);
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   /* Create eflowTrackClusterLink after matching */
   unsigned int nTrack = data.tracks->size();
   for (unsigned int iTrack=0; iTrack<nTrack; ++iTrack) {
@@ -131,7 +133,7 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
     for (auto& matchpair : bestClusters_02) {
       eflowRecCluster* theCluster = matchpair.first;
       float distancesq = matchpair.second;
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster, ctx);
       if(distancesq<0.15*0.15) {
 	// Narrower cone is a subset of the selected clusters
 	// Distance returned is deltaR^2
@@ -147,7 +149,7 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
     nMatches++;
     for (auto& matchpair : bestClusters) {
       eflowRecCluster* theCluster = matchpair.first;
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster, ctx);
       thisEfRecTrack->addClusterMatch(trackClusterLink);
       theCluster->addTrackMatch(trackClusterLink);
     }

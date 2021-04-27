@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,12 +52,9 @@ TBMWPCRec::execute()
     ATH_MSG_DEBUG ( "TBMWPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << mwpcrawCont->size());
     
     TBMWPCCont * mwpcCont = new TBMWPCCont();
-    TBMWPCRawCont::const_iterator it_bc   = mwpcrawCont->begin();
-    TBMWPCRawCont::const_iterator last_bc   = mwpcrawCont->end();
 
     // Loop over MWPC
-    for(;it_bc != last_bc;it_bc++){
-      const TBMWPCRaw * mwpcraw= (*it_bc);
+    for (const TBMWPCRaw* mwpcraw : *mwpcrawCont) {
       std::string name = mwpcraw->getDetectorName();
       unsigned int ind=0;
       // Find calibration index for this MWPC

@@ -27,6 +27,7 @@ if __name__=='__main__':
   Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
+  #
   ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art//TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_LS2_v1_chain/AOD.pool.root"]
 
   ConfigFlags.Exec.MaxEvents = args.maxEvents
@@ -53,10 +54,12 @@ if __name__=='__main__':
   from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
   tdt_ca = getTrigDecisionTool(ConfigFlags)
   tdt = tdt_ca.getPrimary()
+  tdt.OutputLevel = args.loglevel
   cfg.merge(tdt_ca)
 
   checker = CompFactory.TrigEDMChecker()
   checker.doDumpAll                       = False
+  checker.OutputLevel                     = args.loglevel
   checker.TriggerDecisionTool             = tdt
   checker.DumpNavigationForChain          = args.chain
   checker.dumpTrigCompositeContainers     = [args.collection] if args.collection is not None else []

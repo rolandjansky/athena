@@ -211,7 +211,7 @@ class TriggerConfigGetter(Configured):
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         # define ConfigSvc (for Run 1 + 2)
-        if ConfigFlags.Trigger.EDMVersion <= 2:
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
             if not self.ConfigSrcList:
                 if (self.readPool and not self.readRDO) or (self.readRDO and not self.readPool): # (ESD, AOD, DPD) or (RDO-BS)
                     self.ConfigSrcList = ['ds']
@@ -243,15 +243,13 @@ class TriggerConfigGetter(Configured):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
             else: # Does not have xAODMeta
-                # Run-3 Trigger Configuration Services
+                # Run-3 Trigger Configuration Services (just producing menu data)
                 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
                 svcMgr += getL1ConfigSvc(ConfigFlags)
                 svcMgr += getHLTConfigSvc(ConfigFlags)
-
-                # Needed for TrigConf::xAODMenuWriterMT
-                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
                 svcMgr += TrigConfigSvc("TrigConfigSvc")
-                svcMgr.TrigConfigSvc.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON and ConfigFlags.Trigger.triggerMenuSetup != "Physics_pp_v7_primaries"
+                svcMgr.TrigConfigSvc.UseNewConfig = True
 
         else:
             # non-MT (Run-2) Trigger Configuration
@@ -429,14 +427,14 @@ class TriggerConfigGetter(Configured):
 
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
-        writeTriggerMenu = True
-        writeMenuJSON = False
+        writeTriggerMenu = False # Run2 offline xAOD metadata summary format. Writing of this now is deprecated. Reading supported still.
+        writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.EDMVersion <= 2:
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
             if ConfigFlags.Trigger.doEDMVersionConversion:
                 # also save the menu in JSON format
                 from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
-                dbKeys = fetchRun3ConfigFiles(GetRunNumber(), GetLBNumber())
+                dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
 
                 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc, TrigConf__HLTConfigSvc, TrigConf__HLTPrescaleCondAlg, TrigConf__L1PrescaleCondAlg
                 from AthenaCommon.AlgSequence import AthSequencer
@@ -457,30 +455,19 @@ class TriggerConfigGetter(Configured):
 
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
-                menuwriter.IsHLTJSONConfig = True
-                menuwriter.IsL1JSONConfig = True
-                menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-                menuwriter.WritexAODTriggerMenuJson = True
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-                menuwriter.LVL1ConfigSvc = l1ConfigSvc
-                menuwriter.HLTConfigSvc = hltConfigSvc
-                writeTriggerMenu = menuwriter.WritexAODTriggerMenu
-                writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
+                writeMenuJSON = True
                 topAlgs += menuwriter
             else:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
+                writeTriggerMenu = True
 
-        else:
+        elif ConfigFlags.Trigger.EDMVersion >= 3:
             from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
             menuwriter = TrigConf__xAODMenuWriterMT()
-            menuwriter.IsHLTJSONConfig = True
-            menuwriter.IsL1JSONConfig = ConfigFlags.Trigger.readLVL1FromJSON
-            menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-            menuwriter.WritexAODTriggerMenuJson = True
             menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-            writeTriggerMenu = menuwriter.WritexAODTriggerMenu
-            writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
+            writeMenuJSON = True
             topAlgs += menuwriter
             # Schedule also the prescale conditions algs
             from AthenaCommon.Configurable import Configurable
@@ -493,6 +480,8 @@ class TriggerConfigGetter(Configured):
             appendCAtoAthena( acc )
             Configurable.configurableRun3Behavior -= 1
 
+        else:
+            raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
           # Set up the metadata for the output ESD and AOD:
         from RecExConfig.ObjKeyStore import objKeyStore
@@ -528,19 +517,34 @@ class TriggerConfigGetter(Configured):
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
 
-def fetchRun3ConfigFiles(run, lb):
+""" Retrieve Run2 trigger configuration from the database and save as Run3 .JSON files with known name.
+    The Run3 offline trigger infrastructure should then be configured from these .JSON files.
+"""
+def fetchRun3ConfigFiles(isMC, run, lb):
     import subprocess
-    from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
-    triggerDBKeys = getTrigConfFromCool(run, lb)
-    triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1' 
-    filesFetchStatus = subprocess.run("TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys), shell=True)
+    triggerDBKeys = {}
+    if isMC:
+        triggerDBKeys['DB'] = TriggerFlags.triggerDbConnection()
+        triggerDBKeys['SMK'] = TriggerFlags.triggerDbKeys()[0]
+        triggerDBKeys['L1PSK'] = TriggerFlags.triggerDbKeys()[1]
+        triggerDBKeys['HLTPSK'] = TriggerFlags.triggerDbKeys()[2]
+        triggerDBKeys['BGSK'] = TriggerFlags.triggerDbKeys()[3]
+    else:
+        from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
+        triggerDBKeys = getTrigConfFromCool(run, lb)
+        triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+
+    cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys)
+    log = logging.getLogger( "TriggerConfigGetter.py" )
+    log.info("Running command '%s'", cmd)
+    filesFetchStatus = subprocess.run(cmd, shell=True)
     assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
     return triggerDBKeys
     
 
 
 if __name__ == "__main__":
-    keys = fetchRun3ConfigFiles(360026, 151)
+    keys = fetchRun3ConfigFiles(isMC=False, run=360026, lb=151)
     for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
         assert  k in keys, "Missing key {}".format(k)
         assert v == keys[k], "Wrong value {}".format(v)

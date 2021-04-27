@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatTool.h"
@@ -39,8 +39,8 @@ InDetServMatTool::InDetServMatTool( const std::string& type, const std::string& 
     m_builderTool(""),
     m_devVersion(false),
     m_forFrozenShowers(false),
-    m_manager(0),
-    m_athenaComps(0)
+    m_manager(nullptr),
+    m_athenaComps(nullptr)
 {
   declareProperty("DevVersion",m_devVersion);
   declareProperty("FrozenShowers",m_forFrozenShowers);
@@ -100,7 +100,6 @@ StatusCode InDetServMatTool::create()
   }  
   
   std::string versionTag = m_rdbAccessSvc->getChildTag("InDetServices", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "InDetServMat Package Version: " << PACKAGE_VERSION << endmsg;
   if(msgLvl(MSG::DEBUG)) msg() << "versionTag=" << versionTag <<" %%%"<< endmsg;
 
   // If versionTag is NULL then don't build.
@@ -160,7 +159,7 @@ StatusCode InDetServMatTool::create()
     }
   }
   
-  if ( 0 == m_detector ) {
+  if ( nullptr == m_detector ) {
     // Create the InDetServMatNode instance
     try {   
       //
@@ -234,7 +233,7 @@ StatusCode InDetServMatTool::clear()
   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::InDetServMatManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   return StatusCode::SUCCESS;
 }

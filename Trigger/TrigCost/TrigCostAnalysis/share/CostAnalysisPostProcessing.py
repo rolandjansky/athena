@@ -10,7 +10,7 @@
 '''
 
 import ROOT
-from TrigCostAnalysis.Util import exploreTree
+from TrigCostAnalysis.Util import exploreTree, saveMetadata
 from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
@@ -25,6 +25,7 @@ def main():
 
     if inputFile.IsOpen():
         exploreTree(inputFile)
+        saveMetadata(inputFile)
     else:
         log.error("File %s not found", args.file)
 

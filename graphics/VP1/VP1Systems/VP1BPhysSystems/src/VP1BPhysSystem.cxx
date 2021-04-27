@@ -21,16 +21,18 @@
 #include "VP1TrackSystems/TrackPropagationHelper.h"
 
 
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoVertexProperty.h>
-#include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoMatrixTransform.h>
-#include <Inventor/nodes/SoLineSet.h>
-#include <Inventor/nodes/SoSphere.h>
-#include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoBaseColor.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/nodes/SoMatrixTransform.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoVertexProperty.h>
 #include <QFileDialog>
+#include <utility>
+
 
 
 #include "StoreGate/StoreGateSvc.h"
@@ -1025,18 +1027,18 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 
 }
 //___________________________________________________________
-const Trk::Track* VP1BPhysSystem::getRefittedTrack(Amg::Vector3D position, Amg::Vector3D momentum, double charge) {
+const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position, const Amg::Vector3D& momentum, double charge) {
 
   
-	Amg::Vector3D pos(position);
-	Amg::Vector3D mom(momentum);
+	const Amg::Vector3D& pos(std::move(position));
+	const Amg::Vector3D& mom(std::move(momentum));
 
 	// init the error matrix
 	AmgSymMatrix(5) covMtxP;
 	covMtxP.setIdentity();
   
-	AmgSymMatrix(5)* errMatr = &covMtxP;
-	Trk::Perigee * measuredPerigee  =  new Trk::Perigee( pos, mom, charge, pos, errMatr );
+	AmgSymMatrix(5) errMatr = covMtxP;
+	Trk::Perigee * measuredPerigee  =  new Trk::Perigee( pos, mom, charge, pos, std::move(errMatr) );
 
 	//creates parameter base for the new track
 	const Trk::TrackParameters* p = dynamic_cast<const Trk::TrackParameters* >(measuredPerigee);

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CxxUtils/src/exctrace/exctrace_collector.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -21,6 +19,8 @@
 #include <execinfo.h>
 #include <cstdio>
 #include <typeinfo>
+#include <utility>
+#include <algorithm>
 #include "CxxUtils/checker_macros.h"
 
 // Maximum stack depth.
@@ -28,22 +28,35 @@ static
 const int bt_depth = 100;
 
 // Static buffer used to save the backtrace.
-int exctrace_last_depth = 0;
-void* exctrace_last_trace[bt_depth];
+static thread_local int exctrace_last_depth = 0;
+static thread_local void* exctrace_last_trace[bt_depth];
 
 // The real __cxa_throw function.
-typedef void throwfn (void*, std::type_info*, void (*dest)(void*));
+typedef void throwfn (void*, void*, void (*dest)(void*));
 static throwfn* old_throw;
+
+extern "C" {
+  // Function to retrieve the last trace.
+  // extern "C" because we want to find it with dlsym.
+  int exctrace_get_last_trace (int max_depth, void* trace[])
+  {
+    int ncopy = std::min (exctrace_last_depth, max_depth);
+    std::copy (exctrace_last_trace, exctrace_last_trace+ncopy, trace);
+    return ncopy;
+  }
+}
 
 
 // The __cxa_throw hook function.
 // Record a backtrace, then chain to the real throw function.
 extern "C" void __cxa_throw (void* thrown_exception,
-                             std::type_info* tinfo,
+                             void* tinfo,
                              void (*dest)(void*))
 {
   exctrace_last_depth = backtrace (exctrace_last_trace, bt_depth);
   old_throw (thrown_exception, tinfo, dest);
+  // not reached
+  std::abort();
 }
 
 

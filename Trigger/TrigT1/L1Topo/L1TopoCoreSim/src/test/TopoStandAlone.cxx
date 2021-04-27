@@ -101,7 +101,7 @@ int run(int argc, const char* argv[]) {
    // read the menu
    TrigConf::L1Menu l1menu;
    TrigConf::JsonFileLoader fileLoader;
-fileLoader.loadFile(argv[1], l1menu);
+   fileLoader.loadFile(argv[1], l1menu);
 
 
    //TFile *f = new TFile(argc>=4 ? argv[3] : "L1TopoSimulation.root","RECREATE");
@@ -122,7 +122,8 @@ fileLoader.loadFile(argv[1], l1menu);
 
    // instantiate steering
    TCS::TopoSteering steering;
-   steering.setUseBitwise(false);
+   steering.setUseBitwise(true);
+   steering.setLegacyMode(false);
    steering.setupFromConfiguration(l1menu);
 
    steering.setMsgLevel( msgLvl );

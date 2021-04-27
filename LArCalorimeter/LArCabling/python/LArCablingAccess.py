@@ -31,7 +31,6 @@ def LArOnOffIdMappingSC():
     condSequence = AthSequencer("AthCondSeq")
     folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
     if hasattr(condSequence,"LArOnOffMappingAlgSC") :
-      if (condSequence.LArOnOffMappingAlgSC.ReadKey==folder):
         return #Already there....
 
     #for the moment SC mapping is only in MC database

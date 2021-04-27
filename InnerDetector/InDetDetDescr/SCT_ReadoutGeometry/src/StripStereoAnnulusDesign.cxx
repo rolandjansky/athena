@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
@@ -124,10 +124,10 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
     int stripP = strip + 1;
 
     if (stripM >= m_firstStrip[row]) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_firstStrip[row] + m_nStrips[row]) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 
     return;
@@ -297,7 +297,7 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   SiCellId cellId = cellIdOfPosition(pos);
   SiLocalPosition posStrip = localPositionOfCell(cellId);
   double posStripxP = m_cosNegStereo * (posStrip.xEta() - m_R) - m_sinNegStereo * posStrip.xPhi() + m_R;
-  double posStripyP = m_sinStereo * (posStrip.xEta() - m_R) + m_cosStereo * posStrip.xPhi();
+  double posStripyP = m_sinNegStereo * (posStrip.xEta() - m_R) + m_cosNegStereo * posStrip.xPhi();
   double posStripphiP = std::atan2(posStripyP, posStripxP);
   int strip, row;
   getStripRow(cellId, &strip, &row);

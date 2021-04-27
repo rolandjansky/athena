@@ -13,7 +13,6 @@
 #define TIDAEXAMPLE_TRIGTESTMONTOOLAC_H
 
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
@@ -147,6 +146,7 @@ public:
   bool m_legacy;
 
   double m_fiducial_radius;
+
 };
 
 

@@ -293,12 +293,9 @@ Amg::Vector3D PRDHandleBase::Imp::positionPRD(const Trk::PrepRawData* prd)
     return Amg::Vector3D(0.0,0.0,0.0);
   const Trk::Surface& theSurface = prd->detectorElement()->surface(prd->identify());
 
-  const Amg::Vector3D* hitpos = theSurface.localToGlobal(prd->localPosition());
-  if (!hitpos)
-    return Amg::Vector3D(0.0,0.0,0.0);
+  const Amg::Vector3D hitpos = theSurface.localToGlobal(prd->localPosition());
 
-  const Amg::Vector3D pos(*hitpos);
-  delete hitpos;
+  const Amg::Vector3D pos(hitpos);
   return pos;
 }
 
@@ -352,10 +349,10 @@ Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
     return Amg::Transform3D::Identity();
   }
   const Trk::Surface& theSurface = prd->detectorElement()->surface(prd->identify());
-  const Amg::Vector3D* theHitGPos;
+  Amg::Vector3D theHitGPos;
   if ( transformUsesSurfacePositionOnly() ) {
     // for tubes, should use position of center of tube (if drawing full tube)
-    theHitGPos= new Amg::Vector3D (theSurface.center());
+    theHitGPos= Amg::Vector3D(theSurface.center());
   } else {
     // for clusters or short tubes, use position of hit.
     theHitGPos = theSurface.localToGlobal(prd->localPosition()); //theSurface 'new s' a Vector3D and returns pointer
@@ -365,9 +362,8 @@ Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
 //  return HepGeom::Transform3D( HepGeom::Translate3D(theHitGPos->x()-t.x(),theHitGPos->y()-t.y(),theHitGPos->z()-t.z()) * (theSurface.transform()) );
   Amg::Vector3D t;
   t = Amg::getTranslationVectorFromTransform(theSurface.transform());
-  Amg::Translation3D transl = Amg::Translation3D(theHitGPos->x()-t.x(), theHitGPos->y()-t.y(), theHitGPos->z()-t.z());
+  Amg::Translation3D transl = Amg::Translation3D(theHitGPos.x()-t.x(), theHitGPos.y()-t.y(), theHitGPos.z()-t.z());
   Amg::Transform3D transf = transl * (theSurface.transform());
-  delete theHitGPos;
   return transf;
 }
 
@@ -383,19 +379,18 @@ SoTransform * PRDHandleBase::createTransform() const
   const Trk::Surface& theSurface = prd->detectorElement()->surface(prd->identify());
   SoTransform * theHitTransform = VP1LinAlgUtils::toSoTransform(theSurface.transform());
 
-  const Amg::Vector3D* theHitGPos;
+  Amg::Vector3D theHitGPos;
   if ( transformUsesSurfacePositionOnly() ) {
     // for tubes, should use position of center of tube (if drawing full tube)
-    theHitGPos= new Amg::Vector3D (theSurface.center());
+    theHitGPos= Amg::Vector3D (theSurface.center());
   } else {
     // for strips, clusters or short tubes, use position of hit.
     theHitGPos = theSurface.localToGlobal(prd->localPosition());
   }
-  if ((*theHitGPos)[0]!=(*theHitGPos)[0] || (*theHitGPos)[1]!=(*theHitGPos)[1] || (*theHitGPos)[2]!=(*theHitGPos)[2]){
+  if ((theHitGPos)[0]!=(theHitGPos)[0] || (theHitGPos)[1]!=(theHitGPos)[1] || (theHitGPos)[2]!=(theHitGPos)[2]){
     std::cerr<<"PRDHandleBase::createTransform() NaN in globalposition"<<std::endl;
   }
-  theHitTransform->translation.setValue((*theHitGPos)[0], (*theHitGPos)[1], (*theHitGPos)[2]);
-  delete theHitGPos;
+  theHitTransform->translation.setValue((theHitGPos)[0], (theHitGPos)[1], (theHitGPos)[2]);
   return theHitTransform;
 }
 

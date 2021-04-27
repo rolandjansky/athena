@@ -473,7 +473,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.etaWidth                  = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
            InDetAmbiTrackSelectionTool.minPtBjetROI              = 10000
-           InDetAmbiTrackSelectionTool.doEmCaloSeed              = True   #Only split in cluster in region of interest
+           InDetAmbiTrackSelectionTool.doEmCaloSeed              = InDetFlags.doCaloSeededAmbi()   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.phiWidthEM                = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidthEM                = 0.05     #Split cluster ROI size

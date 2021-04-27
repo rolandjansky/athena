@@ -15,5 +15,5 @@ atlas_add_library( ISF_InterfacesLib
                    PUBLIC_HEADERS ISF_Interfaces
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives GaudiKernel GeneratorObjects ISF_Event StoreGateLib SGtests TrackRecordLib )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives GaudiKernel GeneratorObjects ISF_Event StoreGateLib TrackRecordLib )
 

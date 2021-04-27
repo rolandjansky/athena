@@ -499,7 +499,7 @@ Trk::LayerTreeObject* Trk::MaterialMapper::layerTreeObject(const Trk::Layer& lay
                 treeName  += "_";
                 treeName  += m_layerTreePrefix;
 
-        TString layerType = (lay.surfaceRepresentation().type() == Trk::Surface::Cylinder) ? 
+        TString layerType = (lay.surfaceRepresentation().type() == Trk::SurfaceType::Cylinder) ? 
                 "CylinderLayer_" : "DiscLayer_";
         if (full) treeName += "full_";
                 treeName  += layerType;

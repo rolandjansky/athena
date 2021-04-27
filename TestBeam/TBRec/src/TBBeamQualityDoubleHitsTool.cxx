@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -22,11 +22,10 @@
 #include <ios>
 #include <algorithm>
 
-TBBeamQualityDoubleHitsTool::TBBeamQualityDoubleHitsTool(const std::string& name,
-							 const std::string& type,
+TBBeamQualityDoubleHitsTool::TBBeamQualityDoubleHitsTool(const std::string& type,
+							 const std::string& name,
 							 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr),
+  : TBBeamQualityTool(type,name,parent),
     m_Scint1ADC(0),
     m_Scint2ADC(0)
 {
@@ -54,7 +53,7 @@ StatusCode TBBeamQualityDoubleHitsTool::initializeTool()
   return StatusCode::SUCCESS;
 }//init
 
-StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_particles)
+StatusCode TBBeamQualityDoubleHitsTool::accept(const std::vector<std::string>& particles)
 {//accept
   MsgStream log(msgSvc(),name());
     
@@ -68,13 +67,13 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
     // wide/narrow beam selection to be added
     
     // Hadrons
-    if (m_particles[0]=="pi+" || m_particles[0]=="pi-" || m_particles[0]=="p+" ) {
+    if (particles[0]=="pi+" || particles[0]=="pi-" || particles[0]=="p+" ) {
       m_ScintCut1ADC= 270;
       m_ScintCut2ADC = 265;
     }
     
     // Leptons
-    if (m_particles[0]=="e+" || m_particles[0]=="e-" || m_particles[0]=="mu+" || m_particles[0]=="mu-" ) {
+    if (particles[0]=="e+" || particles[0]=="e-" || particles[0]=="mu+" || particles[0]=="mu-" ) {
       m_ScintCut1ADC= 280;
       m_ScintCut2ADC = 275;
     }
@@ -86,56 +85,35 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
       << "m_ScintCut2ADC: "<< m_ScintCut2ADC 
       <<endmsg;
   
-  // checking out StoreGateSvc
-  StatusCode sc = service("StoreGateSvc",m_StoreGate);
-  if ( sc.isFailure() )
-    {
-      log << MSG::ERROR
-	  << "Cannot alllocate StoreGate service!"
-	  << endmsg;
-    }
-  
-  TBScintillatorCont * scint;
-  
-  sc = m_StoreGate->retrieve(scint, m_SGScintkey);
-  
-    if (sc.isFailure()){
-      log << MSG::DEBUG
-	  << "Can't Retrieve "
-	  << m_SGScintkey
-	  <<" from SG"
-	  << endmsg;
-    }else { //else
+  TBScintillatorCont * scintCont = nullptr;
+  if (evtStore()->retrieve(scintCont, m_SGScintkey).isFailure()) {
+    log << MSG::DEBUG
+        << "Can't Retrieve "
+        << m_SGScintkey
+        <<" from SG"
+        << endmsg;
+  }
+  else {
       
-      m_Scint1ADC = 0;
-      m_Scint2ADC = 0;    
-      
-      TBScintillatorCont::const_iterator it_scint   = scint->begin();
-      TBScintillatorCont::const_iterator last_scint   = scint->end();
-      
-      
-    for(;it_scint!=last_scint;it_scint++) {
-      
-      const TBScintillator * scint = (*it_scint);
-      
+    m_Scint1ADC = 0;
+    m_Scint2ADC = 0;    
+
+    for (const TBScintillator* scint : *scintCont) {
       std::string detect = scint->getDetectorName();
-      
       if (detect==m_scint_names[m_ScintCut1]){
-	m_Scint1ADC = scint->getSignal();
+        m_Scint1ADC = scint->getSignal();
       }
       if (detect==m_scint_names[m_ScintCut2]){
-	m_Scint2ADC = scint->getSignal();
+        m_Scint2ADC = scint->getSignal();
       }
     }
-    
-    } //else   
-    
-    
-    if (m_Scint1ADC>m_ScintCut1ADC && m_Scint2ADC>m_ScintCut2ADC) {
-      return StatusCode::FAILURE;
-    }
-    else {
-      return StatusCode::SUCCESS;  
-    }
+  }
+
+  if (m_Scint1ADC>m_ScintCut1ADC && m_Scint2ADC>m_ScintCut2ADC) {
+    return StatusCode::FAILURE;
+  }
+  else {
+    return StatusCode::SUCCESS;  
+  }
     
 }//accept

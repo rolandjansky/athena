@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSwitches.h"
@@ -11,7 +11,6 @@ PixelSwitches::PixelSwitches()
     m_initialLayout(false),
     m_dc1Geometry(false),
     m_alignable(true),
-    m_slhc(false),
     m_ibl(false),
     m_dbm(false),
     m_dynAlignFolders(false)
@@ -37,9 +36,6 @@ bool PixelSwitches::dc1Geometry() const {return m_dc1Geometry;}
 
 void PixelSwitches::setAlignable(bool flag) {m_alignable = flag;}
 bool PixelSwitches::alignable() const {return m_alignable;}
-
-void PixelSwitches::setSLHC(bool flag) {m_slhc = flag;}
-bool PixelSwitches::slhc() const {return m_slhc;}
 
 void PixelSwitches::setIBL(bool flag) {m_ibl = flag;}
 bool PixelSwitches::ibl() const {return m_ibl;}

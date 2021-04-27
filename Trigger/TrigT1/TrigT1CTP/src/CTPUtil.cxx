@@ -67,7 +67,7 @@ namespace LVL1CTP {
 
    }
 
-   int CTPUtil::getMult( const std::vector<unsigned int>& words, unsigned int startbit, unsigned int endbit ) {
+   int CTPUtil::getMuonMult( const std::vector<unsigned int>& words, unsigned int startbit, unsigned int endbit ) {
       std::bitset<256> bits = convertToBitset(words);
       std::bitset<256> mask = pow( 2, endbit - startbit + 1 ) - 1;
       bits >>= startbit;
@@ -89,55 +89,43 @@ namespace LVL1CTP {
 
 
    std::bitset<256> CTPUtil::convertToBitset(const std::vector<uint32_t>& words) {
-    
       std::bitset<256> bitset;
-
       for (size_t i(0); i < words.size(); ++i) {
          std::bitset<256> bs = words[i];
          bs <<= (i * 32);
          bitset |= bs;
       }
-
       return bitset;
    }
-    
-    
+
+
    std::bitset<512> CTPUtil::convertToLargeBitset(const std::vector<ROIB::CTPRoI>& words) {
-        
       std::bitset<512> bitset;
-        
       for (size_t i(0); i < words.size(); ++i) {
          std::bitset<512> bs = words[i].roIWord();
          bs <<= (i * 32);
          bitset |= bs;
       }
-        
       return bitset;
    }
-    
+
    std::bitset<512> CTPUtil::convertToLargeBitset(const std::vector<uint32_t>& words) {
-        
       std::bitset<512> bitset;
-        
       for (size_t i(0); i < words.size(); ++i) {
          std::bitset<512> bs = words[i];
          bs <<= (i * 32);
          bitset |= bs;
       }
-        
       return bitset;
    }
 
    std::bitset<256> CTPUtil::convertToBitset(const std::vector<ROIB::CTPRoI>& words) {
-    
       std::bitset<256> bitset;
-
       for (size_t i(0); i < words.size(); ++i) {
          std::bitset<256> bs = words[i].roIWord();
          bs <<= (i * 32);
          bitset |= bs;
       }
-
       return bitset;
    }
 

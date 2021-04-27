@@ -2,6 +2,7 @@
 
 from AthenaCommon.SystemOfUnits import GeV
 
+
 def _IncTool(name, threshold, sel):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -45,14 +46,7 @@ def _IncTool(name, threshold, sel):
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
-    
-    etaBinsLen = len( tool.EtaBins ) - 1
-    for prop in "ETthr ET2thr".split():
-        propLen = len( getattr( tool, prop ) ) 
-        assert propLen == etaBinsLen , "In " + name + " " + prop + " has length " + str( propLen ) + " which is different from EtaBins which has length " + str( etaBinsLen )
-
-    #assert  _l( EtaBins, tool.ETthr, tool.HADETthr, tool.CARCOREthr, tool.CARCOREthr ) , "All list properties should have equal length ( as EtaBins )"
-    #print tool
+ 
     return tool
 
 

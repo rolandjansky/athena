@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_INSITUDATACORRECTION_H
@@ -42,18 +42,21 @@ class InsituDataCorrection
 
  private:
   double getInsituCorr(double pt, double eta, std::string calibstep) const;
+  double getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep, bool isTAmass) const;
   TH2D * combineCalibration(TH2D *h2d, TH1D *h);
+  TH2D * invertHistogram(TH2D *h2d);
  
  private:
   TEnv * m_config;
   TString m_jetAlgo, m_calibAreaTag;
   bool m_dev;
 
-  TH2D * m_insituCorr;
-  double m_insituEtaMax, m_insituPtMin, m_insituPtMax;
+  std::unique_ptr<TH2D> m_insituCorr;
+  std::unique_ptr<TH2D> m_insituCorr_JMS;
+  std::unique_ptr<TH2D> m_insituCorr_JMS_TA;
+  double m_insituEtaMax, m_insituPtMin, m_insituPtMax, m_insituEtaMax_JMS, m_insituPtMin_JMS, m_insituPtMax_JMS, m_insituMassMin_JMS, m_insituMassMax_JMS;
   double m_relhistoPtMax, m_abshistoPtMax;
-
-  TH2D * m_insituCorr_ResidualMCbased;
+  std::unique_ptr<TH2D> m_insituCorr_ResidualMCbased;
   double m_insituEtaMax_ResidualMCbased, m_insituPtMin_ResidualMCbased, m_insituPtMax_ResidualMCbased;
 
   bool m_applyRelativeandAbsoluteInsitu;
@@ -61,6 +64,9 @@ class InsituDataCorrection
 
   bool m_applyResidualMCbasedInsitu;
   bool m_applyEtaRestrictionResidualMCbased;
+
+  bool m_applyInsituCaloTAjets;
+  bool m_applyInsituJMS;
 
 };
 

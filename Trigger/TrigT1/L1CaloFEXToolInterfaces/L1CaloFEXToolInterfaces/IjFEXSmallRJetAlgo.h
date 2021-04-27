@@ -23,15 +23,14 @@ namespace LVL1{
     public:
       static const InterfaceID& interfaceID ( ) ;
       virtual StatusCode safetyTest() = 0;
-      virtual void setup(int inputTable[5][5]) = 0;
-      virtual void setupCluster(int inputTable[4][5]) =0;
+      virtual void setup(int inputTable[7][7], bool barrel_region) = 0;
       virtual bool isSeedLocalMaxima() = 0;
       virtual void buildSeeds() = 0;
       virtual unsigned int getRealPhi() =0;
       virtual unsigned int getRealEta() =0;
       virtual unsigned int getTTowerET() = 0;
       virtual unsigned int getSmallClusterET() =0;
-      //virtual unsigned int getClusterET(int smallRJetClusterIDs[4][5]) =0;
+      virtual unsigned int getSmallETRing() =0;
       virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() = 0; 
 
    private:

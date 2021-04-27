@@ -10,6 +10,7 @@
 #define ASG_TOOLS__I_UNIT_TEST_TOOL2_H
 
 #include <AsgTools/IAsgTool.h>
+#include <AsgTools/ToolHandleArray.h>
 
 namespace asg
 {
@@ -41,6 +42,11 @@ namespace asg
   public:
     virtual bool
     wasUserConfigured (const std::string& handleName) const = 0;
+
+    /// \brief get the tool handle array
+  public:
+    virtual const ToolHandleArray<IUnitTestTool1>&
+    getArray () const = 0;
   };
 }
 

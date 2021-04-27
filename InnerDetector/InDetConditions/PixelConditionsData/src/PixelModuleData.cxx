@@ -315,22 +315,6 @@ bool PixelModuleData::getCablingMapToFile() const { return m_cablingMapToFile; }
 void PixelModuleData::setCablingMapFileName(std::string cablingMapFileName) { m_cablingMapFileName = cablingMapFileName; }
 std::string PixelModuleData::getCablingMapFileName() const { return m_cablingMapFileName; }
 
-// Map for radiation damage simulation
-void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
-double PixelModuleData::getFluenceLayer(int layer) const { return m_fluenceLayer.at(layer); }
-
-void PixelModuleData::setLorentzMap_e(std::vector<PixelHistoConverter> lorentzMap_e) { m_lorentzMap_e = lorentzMap_e; }
-void PixelModuleData::setLorentzMap_h(std::vector<PixelHistoConverter> lorentzMap_h) { m_lorentzMap_h = lorentzMap_h; }
-const PixelHistoConverter& PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
-const PixelHistoConverter& PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
-
-void PixelModuleData::setDistanceMap_e(std::vector<PixelHistoConverter> distanceMap_e) { m_distanceMap_e = distanceMap_e; }
-void PixelModuleData::setDistanceMap_h(std::vector<PixelHistoConverter> distanceMap_h) { m_distanceMap_h = distanceMap_h; }
-const PixelHistoConverter& PixelModuleData::getDistanceMap_e(int layer) const { return m_distanceMap_e.at(layer); }
-const PixelHistoConverter& PixelModuleData::getDistanceMap_h(int layer) const { return m_distanceMap_h.at(layer); }
-
-void PixelModuleData::setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
-const PixelHistoConverter& PixelModuleData::getRamoPotentialMap(int layer) const { return m_ramoPotentialMap.at(layer); }
 // Distortion parameters
 void PixelModuleData::setDistortionInputSource(int distortionInputSource) { m_distortionInputSource = distortionInputSource; }
 int PixelModuleData::getDistortionInputSource() const { return m_distortionInputSource; }

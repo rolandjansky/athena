@@ -145,6 +145,7 @@ StatusCode TrigTestMonToolAC::init() {
 								 m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 								 m_keepAllEvents );
       ac->set_fiducial_radius( m_fiducial_radius );
+      ac->set_ptmin( m_pTCutOffline );
       m_sequences.push_back( ac );
     }
 

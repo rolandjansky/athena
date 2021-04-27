@@ -25,6 +25,7 @@ StatusCode PhysValFE::initialize(){
   ATH_CHECK(m_ElectronContainerHandleKey.initialize());
   ATH_CHECK(m_PhotonContainerHandleKey.initialize());
   ATH_CHECK(m_TauJetContainerHandleKey.initialize());
+  ATH_CHECK(m_eventInfoReadHandleKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -50,10 +51,12 @@ StatusCode PhysValFE::bookHistograms(){
 
 
    // PFO vs FE comparison based on track matching
-    m_charged_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,false));
-    m_charged_PFO_FE_comparison->setDetailLevel(100);
-    m_charged_PFO_FE_comparison->initialize();
-    PFO_FE_comparison_hists=m_charged_PFO_FE_comparison->retrieveBookedHistograms();
+   if(m_compareFEtoPFO){
+      m_charged_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,false));
+      m_charged_PFO_FE_comparison->setDetailLevel(100);
+      m_charged_PFO_FE_comparison->initialize();
+      PFO_FE_comparison_hists=m_charged_PFO_FE_comparison->retrieveBookedHistograms();
+    } 
    
   }
   else if (m_useNeutralFE){
@@ -67,13 +70,14 @@ StatusCode PhysValFE::bookHistograms(){
     m_LeptonLinkerPlots_NFE->initialize();
     additional_hists=m_LeptonLinkerPlots_NFE->retrieveBookedHistograms();
     
-    //PFO vs FE comparison based on cluster matching
-    m_neutral_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,true));
-    m_neutral_PFO_FE_comparison->setDetailLevel(100);
-    m_neutral_PFO_FE_comparison->initialize();
-    PFO_FE_comparison_hists=m_neutral_PFO_FE_comparison->retrieveBookedHistograms();
-    
-    
+    if(m_compareFEtoPFO){
+      //PFO vs FE comparison based on cluster matching
+      m_neutral_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,true));
+      m_neutral_PFO_FE_comparison->setDetailLevel(100);
+      m_neutral_PFO_FE_comparison->initialize();
+      PFO_FE_comparison_hists=m_neutral_PFO_FE_comparison->retrieveBookedHistograms();
+    }
+
   }
   
 
@@ -104,15 +108,20 @@ StatusCode PhysValFE::fillHistograms(){
       //Vertex finding logic based on logic in JetRecTools/PFlowPseudoJetGetter tool
       //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
       for (auto vertex : *vertexContainerReadHandle) {
-	if (xAOD::VxType::PriVtx == vertex->vertexType() ) {
-	theVertex = vertex;
-	break;
-	}//If we have a vertex of type primary vertex
+	      if (xAOD::VxType::PriVtx == vertex->vertexType() ) {
+	      theVertex = vertex;
+	      break;
+	      }//If we have a vertex of type primary vertex
       }//iterate over the vertices and check their type
 
       if (nullptr == theVertex) ATH_MSG_WARNING("Did not find either a PriVtx or a NoVtx in this event");
       
     }//if valid read handle
+  }
+
+  SG::ReadHandle<xAOD::EventInfo> eventInfoReadHandle(m_eventInfoReadHandleKey);
+  if (!eventInfoReadHandle.isValid()){
+    ATH_MSG_WARNING("Invalid ReadHandle for xAOD::EventInfo with key: " << eventInfoReadHandle.key());
   }
 
   SG::ReadHandle<xAOD::FlowElementContainer> FEContainerReadHandle(m_FEContainerHandleKey);
@@ -124,8 +133,8 @@ StatusCode PhysValFE::fillHistograms(){
 
   for (auto theFE : *FEContainerReadHandle){
     if(theFE){
-       if (!m_useNeutralFE) m_FEChargedValidationPlots->fill(*theFE,theVertex);
-       else if (m_useNeutralFE) m_FENeutralValidationPlots->fill(*theFE);
+       if (!m_useNeutralFE) m_FEChargedValidationPlots->fill(*theFE,theVertex,*eventInfoReadHandle);
+       else if (m_useNeutralFE) m_FENeutralValidationPlots->fill(*theFE,*eventInfoReadHandle);
     }
     else ATH_MSG_WARNING("Invalid pointer to xAOD::FlowElement");
   }
@@ -142,8 +151,8 @@ StatusCode PhysValFE::fillHistograms(){
   }
   else{
     for (auto Muon: *MuonContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Muon);
-      else m_LeptonLinkerPlots_NFE->fill(*Muon);
+      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Muon,*eventInfoReadHandle);
+      else m_LeptonLinkerPlots_NFE->fill(*Muon,*eventInfoReadHandle);
     }
   }
   SG::ReadHandle<xAOD::ElectronContainer> ElectronContainerReadHandle(m_ElectronContainerHandleKey);
@@ -152,8 +161,8 @@ StatusCode PhysValFE::fillHistograms(){
   }
   else{
     for (auto Electron: *ElectronContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Electron);
-    else m_LeptonLinkerPlots_NFE->fill(*Electron);
+      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Electron,*eventInfoReadHandle);
+    else m_LeptonLinkerPlots_NFE->fill(*Electron,*eventInfoReadHandle);
     }
   }
 
@@ -163,8 +172,8 @@ StatusCode PhysValFE::fillHistograms(){
   }
   else{
     for (auto Photon: *PhotonContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Photon);
-      else m_LeptonLinkerPlots_NFE->fill(*Photon);
+      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Photon,*eventInfoReadHandle);
+      else m_LeptonLinkerPlots_NFE->fill(*Photon,*eventInfoReadHandle);
     }
   }
   SG::ReadHandle<xAOD::TauJetContainer> TauJetContainerReadHandle(m_TauJetContainerHandleKey);
@@ -173,19 +182,21 @@ StatusCode PhysValFE::fillHistograms(){
   }
   else{
     for (auto Tau: *TauJetContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Tau);
-      else m_LeptonLinkerPlots_NFE->fill(*Tau);
+      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Tau,*eventInfoReadHandle);
+      else m_LeptonLinkerPlots_NFE->fill(*Tau,*eventInfoReadHandle);
     }
   }
     
-  if(PFOContainerReadHandle.isValid() and FEContainerReadHandle.isValid()){
-    if(!m_useNeutralFE) {
+  if (m_compareFEtoPFO){
+    if(PFOContainerReadHandle.isValid() and FEContainerReadHandle.isValid()){
+      if(!m_useNeutralFE) {
       m_charged_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
-    }
-    else{
+     }
+     else{
       m_neutral_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
+     }    
     }
-  }
+  } 
   
   return StatusCode::SUCCESS;
 

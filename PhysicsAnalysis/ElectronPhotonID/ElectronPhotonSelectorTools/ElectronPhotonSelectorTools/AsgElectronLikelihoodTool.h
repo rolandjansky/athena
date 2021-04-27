@@ -85,8 +85,6 @@ public:
 
   // Main methods for IAsgCalculatorTool interface
 public:
-  /** The main result method: the actual likelihood is calculated here */
-  double calculate(const xAOD::IParticle* part) const;
 
   virtual double calculate(const EventContext& ctx,
                            const xAOD::IParticle* part) const override final;

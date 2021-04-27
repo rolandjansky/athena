@@ -63,7 +63,6 @@ IOVDbSvc             INFO Initialised with 3 connections and 14 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
-ByteStreamAddre...   INFO initialized 
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
 ClassIDSvc           INFO  getRegistryEntries: read 2745 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
@@ -709,7 +708,6 @@ IOVDbSvc                                                          INFO Initialis
 IOVDbSvc                                                          INFO Service IOVDbSvc initialised successfully
 IOVDbSvc                                                          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 ByteStreamAddressProviderSvc                                      INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
-ByteStreamAddressProviderSvc                                      INFO initialized 
 ByteStreamAddressProviderSvc                                      INFO -- Will fill Store with id =  0
 ClassIDSvc                                                        INFO  getRegistryEntries: read 2745 CLIDRegistry entries for module ALL
 IOVDbSvc                                                          INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.

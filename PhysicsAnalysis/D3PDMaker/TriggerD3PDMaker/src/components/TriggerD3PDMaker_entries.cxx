@@ -17,7 +17,6 @@
 #include "../EmTau_ROIObjectDecisionFillerTool.h"
 #include "../JetET_ROIFillerTool.h"
 #include "../EnergySum_ROIFillerTool.h"
-#include "../MuCTPI_RDOFillerTool.h"
 #include "../CTP_RDOFillerTool.h"
 
 // Additional tools:
@@ -44,7 +43,6 @@ DECLARE_COMPONENT( D3PD::EmTau_ROIthrPatternFillerTool )
 DECLARE_COMPONENT( D3PD::EmTau_ROIObjectDecisionFillerTool )
 DECLARE_COMPONENT( D3PD::JetET_ROIFillerTool )
 DECLARE_COMPONENT( D3PD::EnergySum_ROIFillerTool )
-DECLARE_COMPONENT( D3PD::MuCTPI_RDOFillerTool )
 DECLARE_COMPONENT( D3PD::CTP_RDOFillerTool )
 
 DECLARE_COMPONENT( D3PD::TrigConfMetadataTool )

@@ -7,7 +7,7 @@ atlas_subdir( TrigT1RPCsteering )
 atlas_add_component( TrigT1RPCsteering
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AtlasHepMCLib GaudiKernel GeneratorObjects MuonDigitContainer MuonIdHelpersLib MuonReadoutGeometry RPC_CondCablingLib RPCcablingInterfaceLib TrigT1RPChardwareLib StoreGateLib TrigT1Interfaces TrigT1RPClogicLib )
+                     LINK_LIBRARIES AthenaBaseComps AtlasHepMCLib GaudiKernel GeneratorObjects MuonDigitContainer MuonIdHelpersLib MuonRDO MuonReadoutGeometry RPC_CondCablingLib TrigT1RPChardwareLib StoreGateLib TrigT1Interfaces TrigT1RPClogicLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

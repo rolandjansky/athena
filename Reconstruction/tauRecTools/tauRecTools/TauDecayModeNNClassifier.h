@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_TAUDECAYMODENNCLASSIFIER_H
@@ -46,7 +46,7 @@ private:
   std::string m_outputName;      //!
   std::string m_probPrefix;      //!
   std::string m_weightFile;      //!
-  std::size_t m_maxChargedPFOs;  //!
+  std::size_t m_maxTauTracks;  //!
   std::size_t m_maxNeutralPFOs;  //!
   std::size_t m_maxShotPFOs;     //!
   std::size_t m_maxConvTracks;   //!
@@ -78,6 +78,7 @@ namespace tauRecTools
     TauDecayModeNNVariable() = delete;
     static const std::size_t nClasses = 5;
     static const std::set<std::string> sCommonP4Vars;
+    static const std::set<std::string> sTrackIPVars;
     static const std::set<std::string> sNeutralPFOVars;
     static const std::array<std::string, nClasses> sModeNames;
     static float deltaPhi(const TLorentzVector &p4, const TLorentzVector &p4_tau);

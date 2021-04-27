@@ -11,6 +11,6 @@ atlas_add_library( LArGeoCode
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoCode
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES StoreGateLib SGtests
+                   LINK_LIBRARIES StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel GeoModelInterfaces RDBAccessSvcLib )
 

@@ -32,7 +32,7 @@ const Trk::NoBounds Trk::PlaneSurface::s_boundless;
 // default constructor
 Trk::PlaneSurface::PlaneSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 
@@ -53,7 +53,7 @@ __attribute__ ((flatten))
 // constructor from CurvilinearUVT
 Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const CurvilinearUVT& curvUVT)
   : Trk::Surface()
-  , m_bounds(new Trk::NoBounds())
+  , m_bounds(nullptr) // curvilinear surfaces are boundless
 {
   Amg::Translation3D curvilinearTranslation(position.x(), position.y(), position.z());
   // create the rotation
@@ -61,25 +61,19 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
   curvilinearRotation.col(0) = curvUVT.curvU();
   curvilinearRotation.col(1) = curvUVT.curvV();
   curvilinearRotation.col(2) = curvUVT.curvT();
-  // curvilinear surfaces are boundless
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>();
-  (*Trk::Surface::m_transform) = curvilinearRotation;
-  Trk::Surface::m_transform->pretranslate(position);
-  Trk::Surface::m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
-  Trk::Surface::m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  Amg::Transform3D transform{};
+  transform = curvilinearRotation;
+  transform.pretranslate(position);
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(transform);
 }
 
 // construct form TrkDetElementBase
 Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::Transform3D* transf)
   : Trk::Surface(detelement)
-  , m_bounds()
+  , m_bounds(nullptr)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
-  if (m_transform) {
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(m_transform->translation());
-    Trk::Surface::m_normal =
-      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  if(transf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
   }
 }
 
@@ -88,39 +82,36 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
                                 const Identifier& id,
                                 Amg::Transform3D* transf)
   : Trk::Surface(detelement, id)
-  , m_bounds()
+  , m_bounds(nullptr)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
-  if (m_transform) {
-    Trk::Surface::m_center =
-      std::make_unique<Amg::Vector3D>(m_transform->translation());
-    Trk::Surface::m_normal =
-      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+  if(transf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
   }
+
 }
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans)
   : Trk::Surface(htrans)
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Trk::Surface(std::move(htrans))
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // construct rectangle module
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::RectangleBounds(halephi, haleta))
+  , m_bounds(std::make_shared<Trk::RectangleBounds>(halephi, haleta))
 {}
 
 // construct trapezoidal module with parameters
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double minhalephi, double maxhalephi, double haleta)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::TrapezoidBounds(minhalephi, maxhalephi, haleta))
+  , m_bounds(std::make_shared<Trk::TrapezoidBounds>(minhalephi, maxhalephi, haleta))
 {}
 
 // construct annulus module with parameters
@@ -166,10 +157,10 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::EllipseBounds* tb
 {}
 
 // construct module with shared boundaries - change to reference
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
-  : Trk::Surface(htrans)
-  , m_bounds(tbounds)
-{}
+Trk::PlaneSurface::PlaneSurface(
+    Amg::Transform3D* htrans,
+    Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
+    : Trk::Surface(htrans), m_bounds(tbounds) {}
 
 bool
 Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
@@ -228,11 +219,14 @@ Trk::PlaneSurface::globalToLocalDirection(const Amg::Vector3D& glodir, Trk::Loca
 }
 
 bool
-Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo,  
+                               const Trk::BoundaryCheck& bchk, 
+                               double tol1, double tol2) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
-  if (fabs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1))
+  if (fabs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1)){
     return false;
+  }
   return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe(0), loc3Dframe(1)), tol1, tol2) : true);
 }
 

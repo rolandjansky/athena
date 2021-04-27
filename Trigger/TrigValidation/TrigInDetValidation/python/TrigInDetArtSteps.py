@@ -74,12 +74,10 @@ class TrigInDetReco(ExecStep):
     def configure(self, test):
         chains = '['
         flags = ''
-        lrt = False
         for i in self.slices:
-            if ('LRT' in i):
-                lrt = True
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                chains += "'HLT_mu6_LRT_idperf_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
@@ -93,6 +91,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
+                chains +=  "'HLT_e26_lhtight_gsf_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
@@ -110,15 +109,15 @@ class TrigInDetReco(ExecStep):
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
-
+            if (i=='cosmic') :
+                chains += "'HLT_mu4_cosmic_L1MU4'"
+                flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
-        if (lrt):
-            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False)'
 
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )
@@ -145,9 +144,9 @@ class TrigInDetReco(ExecStep):
         if (self.postexec_trig != ' '):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
         if (self.postinclude_trig != ''):
-            self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
+            self.args += ' --postInclude "{:s}" '.format(self.postinclude_trig)
         if (self.preinclude_trig != ''):
-            self.args += ' --preInclude "RDOtoRDOTrigger:{:s}" '.format(self.preinclude_trig)
+            self.args += ' --preInclude "{:s}" '.format(self.preinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -156,7 +155,7 @@ class TrigInDetReco(ExecStep):
 ##################################################
 
 class TrigInDetAna(ExecStep):
-    def __init__(self, name='TrigInDetAna', lrt=False):
+    def __init__(self, name='TrigInDetAna', extraArgs=None):
         ExecStep.__init__(self, name )
         self.type = 'athena'
         self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
@@ -167,8 +166,9 @@ class TrigInDetAna(ExecStep):
         self.input = ''
         self.perfmon=False
         self.imf=False
-        if (lrt):
-            self.args = ' -c "LRT=True" '
+        if extraArgs is not None:
+            self.args = extraArgs
+
 
 ##################################################
 # Additional exec (athena) steps - RDO to CostMonitoring
@@ -214,6 +214,8 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
@@ -234,7 +236,7 @@ def json_chains( slice ) :
         
     with open(json_fullpath) as f:
         data = json.load(f)
-       
+
     chainmap = data[slice]
 
     return chainmap['chains']
@@ -288,8 +290,8 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         RefComparisonStep.configure(self, test)
         if self.reference is None :
-            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + "--noref"
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + " --noref --logx "
         else:
-            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra
+            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra + " --logx "
         Step.configure(self, test)
 

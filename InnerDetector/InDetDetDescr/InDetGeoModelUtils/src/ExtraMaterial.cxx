@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
@@ -19,13 +19,15 @@
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+
 
 namespace InDetDD {
   ExtraMaterial::ExtraMaterial(IRDBRecordset_ptr xMatTable, const StoredMaterialManager* matManager)
-    : m_xMatTable(xMatTable),
+    : m_xMatTable(std::move(xMatTable)),
     m_matManager(matManager)
   {}
 
@@ -36,12 +38,12 @@ namespace InDetDD {
 
   void
   ExtraMaterial::add(GeoPhysVol* parent, const std::string& region, double zParent) {
-    add(parent, 0, region, zParent);
+    add(parent, nullptr, region, zParent);
   }
 
   void
   ExtraMaterial::add(GeoFullPhysVol* parent, const std::string& region, double zParent) {
-    add(0, parent, region, zParent);
+    add(nullptr, parent, region, zParent);
   }
 
   void

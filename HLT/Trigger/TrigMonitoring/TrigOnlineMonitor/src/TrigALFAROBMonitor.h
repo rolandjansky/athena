@@ -3,7 +3,8 @@
 */
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+//#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/HistoProperty.h"
@@ -44,13 +45,11 @@ private:
    * @return value of the message level for this algorithm.
    */
 
-  ServiceHandle<ITHistSvc>         m_rootHistSvc;
-  std::string                      m_keyRBResult;      // Key to retrieve the RoIBResult from SG
-  std::string                      m_keyL1Result;      // key to retrieve the L1Result from SG
-  
-  typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
-  /// Reference to the ROBDataProviderSvc service
+
   ServiceHandle<IROBDataProviderSvc>           m_robDataProviderSvc;
+  SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey  { this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
+  SG::ReadHandleKey<ROIB::RoIBResult> m_RBResultKey{ this, "RoIBBResultRHKey", "RoIBResult", "StoreGate key for reading RoIB results" };
+
 
   /// Source identifiers for ROB fragments
   IntegerProperty                  m_lvl1CTPROBid ;
@@ -60,12 +59,9 @@ private:
 
   UnsignedIntegerProperty          m_ctpModuleID;
 
-  SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
-
   /// Switch for setting the debug StreamTag and name for debug stream
   BooleanProperty                  m_setDebugStream;
   StringProperty                   m_debugStreamName;
-
   StringProperty		   m_calibrationStreamName;
 
   /// Switch for ROB checksum test

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArConditionsTest/LArCablingTest.h"
@@ -62,10 +62,7 @@ StatusCode LArCablingTest::execute() {
      return StatusCode::FAILURE;
   }
   if (m_mode & 1) {
-    std::vector<HWIdentifier>::const_iterator it1 = m_onlineId->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it1_e = m_onlineId->channel_end();
-    for (;it1!=it1_e;it1++) {
-      const HWIdentifier hwid = *it1;
+    for (HWIdentifier hwid : m_onlineId->channel_range()) {
       if (m_print)
 	print(hwid,outfile,cabling,clCont);
       const Identifier id=cabling->cnvToIdentifier(hwid);
@@ -75,10 +72,7 @@ StatusCode LArCablingTest::execute() {
     }
   }
   if (m_mode & 2) {
-    std::vector<Identifier>::const_iterator it2=m_caloCellId->cell_begin();
-    std::vector<Identifier>::const_iterator it2_e=m_caloCellId->cell_end();
-    for(;it2!=it2_e;it2++) {
-      const Identifier id=*it2;
+    for (Identifier id : m_caloCellId->cell_range()) {
       if (!m_caloCellId->is_tile(id)) {
 	const HWIdentifier hwid=cabling->createSignalChannelID(id);
 	if (m_print)
@@ -87,12 +81,7 @@ StatusCode LArCablingTest::execute() {
     }
   }
   if (m_mode & 4) {
-    //     std::vector<Identifier> ids(200000);
-    std::vector<HWIdentifier>::const_iterator it1 = m_onlineId->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it1_e = m_onlineId->channel_end();
-    size_t nId=0;
-    for (;it1!=it1_e;it1++,nId++) {
-      const HWIdentifier hwid = *it1;
+    for (HWIdentifier hwid : m_onlineId->channel_range()) {
       bool result=cabling->isOnlineConnected(hwid);
       if (m_print)
 	std::cout << "Connected 0x" << std::hex << hwid.get_identifier32().get_compact() << ":"<<result << std::dec << std::endl;
@@ -100,10 +89,7 @@ StatusCode LArCablingTest::execute() {
   }
 
   if (m_mode & 8) {
-    std::vector<HWIdentifier>::const_iterator it3=m_onlineId->feb_begin();
-    std::vector<HWIdentifier>::const_iterator it3_e=m_onlineId->feb_end();
-    for(;it3!=it3_e;++it3) {
-      const HWIdentifier FEBID=*it3;
+    for (HWIdentifier FEBID : m_onlineId->feb_range()) {
 #ifdef LARREADOUTMODULEID_H //Old version
       const uint32_t RODID=rodCont->getReadoutModuleID(FEBID).id();
 #else //New version, LArReadoutModuleID replaced my HWIdentifier

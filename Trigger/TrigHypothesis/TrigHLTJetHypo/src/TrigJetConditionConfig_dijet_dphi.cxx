@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -41,12 +41,4 @@ StatusCode TrigJetConditionConfig_dijet_dphi::checkVals() const {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-bool TrigJetConditionConfig_dijet_dphi::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_dijet_dphi::capacity() const {
-  return getCondition()->capacity();
 }

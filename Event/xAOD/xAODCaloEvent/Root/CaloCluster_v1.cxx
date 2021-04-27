@@ -33,7 +33,8 @@ namespace xAOD {
     : IParticle(other),
       m_samplingPattern(other.samplingPattern()),
       m_cellLinks(nullptr),
-      m_recoStatus(other.m_recoStatus) {
+      m_recoStatus(other.m_recoStatus),
+      m_secondTime(other.m_secondTime) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
@@ -58,6 +59,7 @@ namespace xAOD {
     m_recoStatus=other.m_recoStatus;
     setSignalState(other.signalState());
     m_samplingPattern=other.m_samplingPattern;
+    m_secondTime = other.m_secondTime;
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      const CaloClusterCellLink* links=other.getCellLinks();
@@ -922,6 +924,15 @@ namespace xAOD {
     return true;
   }
 
+  void  CaloCluster_v1::setSecondTime(CaloCluster_v1::flt_t stime) { m_secondTime = stime; }
+
+  CaloCluster_v1::flt_t CaloCluster_v1::secondTime() const {
+    if ( m_secondTime < 0. ) { 
+      double stime(0.); return this->retrieveMoment(SECOND_TIME,stime) ? stime : 0.; 
+    } else { 
+      return m_secondTime; 
+    }
+  }
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 size_t CaloCluster_v1::size() const {

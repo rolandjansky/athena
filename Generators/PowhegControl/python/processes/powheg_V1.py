@@ -51,12 +51,13 @@ class PowhegV1(PowhegBase):
             "pwgremnupb*.dat",
             "pwgstat*.dat",
             "pwgubound*.dat",
-            "pwgxgrid.dat"
+            "pwgxgrid*.dat"
         ]
 
     @property
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
+        """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
         return self.integration_file_names
 
     @property

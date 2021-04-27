@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
@@ -329,7 +329,7 @@ class doCaloSeededAmbi(InDetFlagsJobProperty):
     """Use Calo ROIs to seed specific cuts for the ambi"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doCaloSeededRefit(InDetFlagsJobProperty):
     """Use Calo ROIs to seed refif for the ambi processor"""
@@ -839,12 +839,6 @@ class doConvVtxD3PD(InDetFlagsJobProperty):
     StoredValue  = False
         
 class doV0VtxD3PD(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
-class doTriggerD3PD(InDetFlagsJobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['bool']
@@ -1833,10 +1827,6 @@ class InDetJobProperties(JobPropertyContainer):
       # control to run LowBetaFinder
       self.doLowBetaFinder          = self.doLowBetaFinder() and DetFlags.haveRIO.TRT_on()
 
-      #track to vertex decorations in AOD creation only
-      from RecExConfig.RecFlags import rec
-      self.doTTVADecos              =  self.doTTVADecos() and not rec.doAODMerging()
-
       #
       # --------------------------------------------------------------------
       # ---- Statistics
@@ -2033,7 +2023,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doD3PDCreation(self):
     return (self.doTrkD3PD() or self.doPixelTrkD3PD() or self.doSctTrkD3PD() or
             self.doTrtTrkD3PD() or self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or
-            self.doV0VtxD3PD() or self.doTriggerD3PD())
+            self.doV0VtxD3PD())
   
   def doMonitoring(self):
     return (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or
@@ -2071,6 +2061,8 @@ class InDetJobProperties(JobPropertyContainer):
     "Disable all ID reco: pre-processing, tracking, post-processing ..."
     if self.disableInDetReco():
        self.doCaloSeededBrem          = False # disables ROI creation
+       self.doCaloSeededAmbi          = False # disables ROI creation also for the hadronic calo
+       self.doTTVADecos               = False # Disables TTVA decorations 
        self.preProcessing             = False
        self.doHadCaloSeededSSS        = False
        #self.doPRDFormation            = False
@@ -2507,9 +2499,6 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or self.doV0VtxD3PD():
           print(ntupleString)
 
-       if self.doTriggerD3PD():
-          print('* D3PD trigger tree activated')
-
     # -----------------------------------------
     if (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or self.doMonitoringTRT() or self.doMonitoringAlignment()):
        print('*')
@@ -2756,7 +2745,6 @@ _list_InDetJobProperties = [Enabled,
                             doVtxMonitoringD3PD,
                             doConvVtxD3PD,
                             doV0VtxD3PD,
-                            doTriggerD3PD,
                             removeTRTNoise,
                             noTRTTiming,
                             InDet25nsec,

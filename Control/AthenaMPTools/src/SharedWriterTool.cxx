@@ -80,18 +80,18 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     else {
       m_writer = writeClientsProp.value().size();
     }
-    propertyName = "StreamMetaDataOnly";
-    bool streamMetaDataOnly(false);
-    BooleanProperty streamMetaDataOnlyProp(propertyName,streamMetaDataOnly);
-    if(propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
-      ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
+    propertyName = "ParallelCompression";
+    bool parallelCompression(false);
+    BooleanProperty parallelCompressionProp(propertyName,parallelCompression);
+    if(propertyServer->getProperty(&parallelCompressionProp).isFailure()) {
+      ATH_MSG_INFO("Conversion service does not have ParallelCompression property");
     }
     else {
       IService* poolSvc;
       if(serviceLocator()->service("PoolSvc", poolSvc).isFailure() || poolSvc==0) {
         ATH_MSG_ERROR("Error retrieving PoolSvc");
       }
-      else if(streamMetaDataOnlyProp.value()) {
+      else if(parallelCompressionProp.value()) {
         propertyServer = dynamic_cast<IProperty*>(poolSvc);
         if (propertyServer==0 || propertyServer->setProperty("FileOpen", "update").isFailure()) {
           ATH_MSG_ERROR("Could not change PoolSvc FileOpen Property");

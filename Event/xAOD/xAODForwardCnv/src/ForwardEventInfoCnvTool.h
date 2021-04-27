@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -29,9 +29,6 @@ namespace xAODMaker {
     *         egamma (ForwardEventInfo) Container into an xAOD::ForwardEventInfoContainer.
     *
     * @author Andrzej Zemla <azemla@cern.ch>
-    *
-    * $Revision$
-    * $Date$
     */
   class ForwardEventInfoCnvTool : public AthAlgTool,
 			  public virtual IForwardEventInfoCnvTool {
@@ -41,12 +38,9 @@ namespace xAODMaker {
     ForwardEventInfoCnvTool( const std::string& type, const std::string& name,
 		     const IInterface* parent );
 
-    /// Function initializing the tool
-    virtual StatusCode initialize();
-
-    /// Function that fills an existing xAOD::ForwardEventInfoContainer 
+    /// Function that fills an existing xAOD::ForwardEventInfoContainer
     virtual StatusCode convert( const MBTSCollisionTime* aod,
-				xAOD::ForwardEventInfoContainer* xaod) const;
+				xAOD::ForwardEventInfoContainer* xaod) const override;
     
   }; // class ForwardEventInfoCnvTool
 

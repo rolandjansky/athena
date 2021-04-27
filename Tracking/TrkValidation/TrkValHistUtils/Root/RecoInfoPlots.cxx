@@ -25,13 +25,13 @@ namespace Trk {
   }
 
   void
-  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt) {
+  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
     float chi2 = trkprt.chiSquared();
     int ndf = trkprt.numberDoF();
 
-    trackfitchi2->Fill(chi2);
-    trackfitndof->Fill(ndf);
-    trackcon->Fill(chi2 / ndf);
-    trackchi2prob->Fill(TMath::Prob(chi2, ndf));
+    trackfitchi2->Fill(chi2,weight);
+    trackfitndof->Fill(ndf,weight);
+    trackcon->Fill(chi2 / ndf, weight);
+    trackchi2prob->Fill(TMath::Prob(chi2, ndf), weight);
   }
 }

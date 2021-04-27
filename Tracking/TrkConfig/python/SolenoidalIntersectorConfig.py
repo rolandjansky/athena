@@ -8,7 +8,7 @@ def SolenoidalIntersectorCfg(flags, name='SolenoidalIntersector', **kwargs):
     result = ComponentAccumulator()
 
     cls = CompFactory.Trk.SolenoidParametrizationCondAlg # TrkExSolenoidalIntersector
-    condalg = cls (AtlasFieldCacheCondObj = 'fieldCondObj',
+    condalg = cls (name='SolenoidParametrizationCondAlg', AtlasFieldCacheCondObj = 'fieldCondObj',
                    WriteKey = 'SolenoidParametrization')
     result.addCondAlgo (condalg)
 

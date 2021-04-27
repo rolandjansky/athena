@@ -17,21 +17,21 @@
 #include <sstream>
 //----------------------------------------------
 
-#include "PixelGeoModelXml/ModuleTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 class MsgStream;
 namespace InDetDD {class SiDetectorDesign; class PixelDetectorManager; class SiCommonItems;}
 
 class PixelGmxInterface: public GmxInterface {
  public:
-  PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree);
+  PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *moduleTree);
   ~PixelGmxInterface();
   int sensorId(std::map<std::string, int> &index) const override final;
   void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters) override final;
   void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
 		 GeoVFullPhysVol *fpv) override final;
   //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
-  void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
+  void makePixelModule(const std::string& typeName, std::map<std::string, std::string> &par);
 
   template <typename T> void getparm(const std::string typeName, const std::string name, 
 				     const std::map<std::string, std::string> &par, T &value) {
@@ -65,13 +65,13 @@ class PixelGmxInterface: public GmxInterface {
       }
   }
 
-  std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
+  std::string getstr(const std::string& typeName, const std::string& name, const std::map<std::string, std::string> &par);
 
  private:
   std::map<std::string, int> m_geometryMap;
   InDetDD::PixelDetectorManager *m_detectorManager;
   InDetDD::SiCommonItems *m_commonItems;
-  ModuleTree *m_moduleTree;
+  WaferTree *m_moduleTree;
   std::unique_ptr<MsgStream> m_log;
 };
 

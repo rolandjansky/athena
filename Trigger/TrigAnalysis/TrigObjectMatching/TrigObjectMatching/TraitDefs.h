@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_OBJECT_MATCHING_TRAIT_DEFS_H
@@ -9,7 +9,6 @@
 
 #include "AthContainers/DataVector.h"
 
-#include "TrigObjectMatching/TrigMuonEFInfoDistanceFunctor.h"
 #include "TrigObjectMatching/ClusterDistanceFunctor.h"
 
 namespace TrigMatch {
@@ -94,14 +93,13 @@ namespace TrigMatch {
     DECLARE_ATTACHED_CONTAINER(TrigPhoton, TrigPhotonContainer)
     DECLARE_ATTACHED_CONTAINER(TrigElectron, TrigElectronContainer)
     DECLARE_ATTACHED_CONTAINER(TrigL2Bjet, TrigL2BjetContainer)
-    DECLARE_ATTACHED_CONTAINER(CosmicMuon, CosmicMuonCollection)
-    DECLARE_ATTACHED_CONTAINER(MdtTrackSegment, MdtTrackSegmentCollection)
+    //DECLARE_ATTACHED_CONTAINER(CosmicMuon, CosmicMuonCollection)
+    //DECLARE_ATTACHED_CONTAINER(MdtTrackSegment, MdtTrackSegmentCollection)
     DECLARE_ATTACHED_CONTAINER(TrigL2Bphys, TrigL2BphysContainer)
     DECLARE_ATTACHED_CONTAINER(TrigInDetTrack, TrigInDetTrackCollection)
     DECLARE_ATTACHED_CONTAINER(TrigVertex, TrigVertexCollection)
     DECLARE_ATTACHED_CONTAINER(CaloCluster, CaloClusterContainer)
     DECLARE_ATTACHED_CONTAINER(TrigMuonEF, TrigMuonEFContainer)
-    DECLARE_ATTACHED_CONTAINER(TrigMuonEFInfo, TrigMuonEFInfoContainer)
     DECLARE_ATTACHED_CONTAINER(CaloShower, CaloShowerContainer)
     DECLARE_ATTACHED_CONTAINER(egamma, egammaContainer)
     DECLARE_ATTACHED_CONTAINER_NAMESPACE(Rec, TrackParticle, TrackParticleContainer)
@@ -193,7 +191,6 @@ namespace TrigMatch {
         }; \
     }
         
-class TrigMuonEFInfo;
 class egamma;
 class EmTau_ROI;
 class TrigElectron;
@@ -203,8 +200,6 @@ namespace Analysis {
     class Photon;
 }
 
-DECLARE_DEFAULT_METRIC(TrigMuonEFInfo, TrigMuonEFInfoDistanceFunctor, TrigMuonEFInfoDistanceFunctorRight)
-namespace TrigMatch { template<> struct MetricTraits< TrigMuonEFInfo, TrigMuonEFInfo > { typedef TrigMuonEFInfoDistanceFunctorBoth type; }; }
 //DECLARE_DEFAULT_METRIC_SINGLE(egamma, ClusterDistanceFunctor)
 namespace TrigMatch { template<> struct MetricTraits<egamma,egamma> { typedef ClusterDistanceFunctor<egamma,egamma> type; }; }
 DECLARE_DEFAULT_METRIC_PAIR(Analysis::Electron, egamma, ClusterDistanceFunctor)

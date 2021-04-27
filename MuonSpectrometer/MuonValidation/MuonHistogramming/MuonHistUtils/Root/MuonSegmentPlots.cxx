@@ -120,13 +120,13 @@ MuonSegmentPlots::~MuonSegmentPlots()
 {
 }
 
-void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
+  void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg, float weight)
 {
   float chi2 = muSeg.chiSquared();
   float ndof = muSeg.numberDoF();
   segmentfitChi2->Fill(chi2);
   segmentfitNdof->Fill(ndof);
-  if (ndof>0) segmentfitChi2oNdof->Fill(muSeg.chiSquared()/muSeg.numberDoF());
+  if (ndof>0) segmentfitChi2oNdof->Fill(muSeg.chiSquared()/muSeg.numberDoF(), weight);
 
   float x=muSeg.x();
   float y=muSeg.y();
@@ -134,22 +134,23 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   float segt0 = muSeg.t0();
   float segt0err = muSeg.t0error();
 
-  t0->Fill(segt0);
-  t0err->Fill(segt0err);
+  t0->Fill(segt0,weight);
+  t0err->Fill(segt0err,weight);
   if (y>0) { 
-    t0_top->Fill(segt0);
-    t0err_top->Fill(segt0err);
+    t0_top->Fill(segt0,weight);
+    t0err_top->Fill(segt0err,weight);
   } else {
-    t0_bottom->Fill(segt0);
-    t0err_bottom->Fill(segt0err);
+    t0_bottom->Fill(segt0,weight);
+    t0err_bottom->Fill(segt0err,weight);
   }
 
-  sector->Fill(muSeg.sector());
-  etaIndex->Fill(muSeg.etaIndex());
+  sector->Fill(muSeg.sector(),weight);
+  etaIndex->Fill(muSeg.etaIndex(),weight);
 
-  nPrecisionHits->Fill(muSeg.nPrecisionHits());
-  nPhiLayers->Fill(muSeg.nPhiLayers());
-  nTrigEtaLayers->Fill(muSeg.nTrigEtaLayers());
+  nPrecisionHits->Fill(muSeg.nPrecisionHits(),weight);
+  nPhiLayers->Fill(muSeg.nPhiLayers(),weight);
+  nTrigEtaLayers->Fill(muSeg.nTrigEtaLayers(),weight);
+  // not sure how to implement weights here JEF 8/4/2021
   nPrecisionHits_nTriggerHits->Fill(muSeg.nPrecisionHits(), muSeg.nPhiLayers() + muSeg.nTrigEtaLayers()); ///@@@!!! phi hits not trigger hits (CSC?)
 
   // if (muSeg.technology()==Muon::MuonStationIndex::MDT && (muSeg.chamberIndex()>=Muon::MuonStationIndex::BIS && muSeg.chamberIndex()<=Muon::MuonStationIndex::BEE)){
@@ -159,7 +160,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   //   else B_MDT_withPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
   // }
 
-
+  // not sure how to implement weights here for these chamber/sector Index plots JEF 8/4/2021
   int chIndex = muSeg.chamberIndex();
   float chambernorm = 1/Chamberarea[chIndex];//weight of the segment using the chamber eta-phi area
   chamberIndex->Fill(chIndex);
@@ -222,17 +223,17 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   //if (globalDir.z() != 0 ) eta = atan2(globalDir.perp(), globalDir.z());//fix the global eta direction
   float phi = globalDir.phi();
   if (phi>M_PI) phi-=2*M_PI;
-  etadir->Fill(eta);
-  phidir->Fill(phi);
+  etadir->Fill(eta,weight);
+  phidir->Fill(phi,weight);
   etaphidir->Fill(eta,phi);
 
   
   if (isBarrel) {
     xypos_barrel->Fill(x,y, chambernorm);
-    etadir_barrel->Fill(eta);
+    etadir_barrel->Fill(eta,weight);
   } else {
     xypos_endcap->Fill(x,y, chambernorm);
-    etadir_endcap->Fill(eta);
+    etadir_endcap->Fill(eta,weight);
   }
 
 }

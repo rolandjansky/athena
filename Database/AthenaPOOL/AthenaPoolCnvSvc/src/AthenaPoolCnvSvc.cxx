@@ -285,32 +285,27 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       }
    }
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
-	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
+	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient()) {
-      if (m_streamMetaDataOnly && outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") == std::string::npos) {
+      if (m_parallelCompression && outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") == std::string::npos) {
          ATH_MSG_DEBUG("connectOutput SKIPPED for metadata-only server: " << outputConnectionSpec);
          return(StatusCode::SUCCESS);
       }
-      if (!m_streamMetaDataOnly && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer())) {
+      if (!m_parallelCompression && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer())) {
          ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
          return(StatusCode::SUCCESS);
       }
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
-      if (streamClient == m_streamClientFiles.size()) {
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      if (it == m_streamClientFiles.end()) {
          m_streamClientFiles.push_back(outputConnection);
-      }
-      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
-         streamClient = 0;
       }
    }
 
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_parallelCompression) {
       outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
@@ -378,12 +373,11 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
 // This is called after all DataObjects are converted.
    std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
-	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
+	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(outputConnection);
       }
@@ -411,12 +405,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
-      std::size_t streamClient = 0;
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == outputConnection) break;
-         streamClient++;
-      }
-      if (streamClient == m_streamClientFiles.size()) {
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           outputConnection);
+      if (it == m_streamClientFiles.end()) {
          ATH_MSG_DEBUG("commitOutput SKIPPED for unconnected file: " << outputConnection << ".");
          return(StatusCode::SUCCESS);
       }
@@ -586,7 +578,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          return(StatusCode::FAILURE);
       }
    }
-   if (m_streamMetaDataOnly && !fileName.empty()) {
+   if (m_parallelCompression && !fileName.empty()) {
       ATH_MSG_DEBUG("commitOutput SKIPPED for metadata-only server: " << outputConnectionSpec);
       return(StatusCode::SUCCESS);
    }
@@ -604,7 +596,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       return(StatusCode::FAILURE);
    }
    const std::string oldOutputConnection = outputConnection;
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_parallelCompression) {
       m_fileCommitCounter[outputConnection] = m_fileCommitCounter[outputConnection] + 1;
       if (m_fileFlushSetting[outputConnection] > 0 && m_fileCommitCounter[outputConnection] % m_fileFlushSetting[outputConnection] == 0) {
          doCommit = true;
@@ -669,7 +661,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
 StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectionSpec) {
    std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
-	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
+	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient()) {
@@ -685,7 +677,7 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectio
       }
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_parallelCompression) {
       outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
@@ -716,13 +708,12 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
    }
    Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
-	   && (!m_streamMetaDataOnly || placement->containerName().substr(0, m_metadataContainerProp.value().size()) == m_metadataContainerProp.value())) {
-      std::size_t streamClient = 0;
+	   && (!m_parallelCompression || placement->containerName().substr(0, m_metadataContainerProp.value().size()) == m_metadataContainerProp.value())) {
       std::string fileName = placement->fileName();
-      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-         if (*iter == fileName) break;
-         streamClient++;
-      }
+      auto it = std::find (m_streamClientFiles.begin(),
+                           m_streamClientFiles.end(),
+                           fileName);
+      size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(fileName);
       }
@@ -815,13 +806,11 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
       } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
-         std::size_t streamClient = 0;
          std::string fileName = placement->fileName();
-         for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-            if (*iter == fileName) break;
-            streamClient++;
-         }
-         if (streamClient == m_streamClientFiles.size()) {
+         auto it = std::find (m_streamClientFiles.begin(),
+                              m_streamClientFiles.end(),
+                              fileName);
+         if (it == m_streamClientFiles.end()) {
             ATH_MSG_DEBUG("registerForWrite SKIPPED for unconnected file: " << fileName << ".");
             Token* tempToken = new Token();
             tempToken->setClassID(pool::DbReflex::guid(classDesc));
@@ -831,7 +820,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
             token = m_poolSvc->registerForWrite(placement, obj, classDesc);
          }
       } else {
-         if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+         if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_parallelCompression) {
             placement->setFileName(placement->fileName() + m_streamPortString.value());
          }
          if (m_persSvcPerOutput) {

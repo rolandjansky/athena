@@ -167,6 +167,9 @@ def main(args):
             if hasattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.')
                 event_number = event_info.eventNumber
+            elif hasattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.'):
+                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.')
+                event_number = event_info.eventNumber
             elif hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
                 event_number = event_info.eventNumber

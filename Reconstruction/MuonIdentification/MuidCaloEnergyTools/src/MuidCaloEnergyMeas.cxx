@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,8 +66,7 @@ MuidCaloEnergyMeas::~MuidCaloEnergyMeas(void) {}
 StatusCode
 MuidCaloEnergyMeas::initialize()
 {
-    ATH_MSG_INFO("Initializing MuidCaloEnergyMeas AlgTool"
-                 << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing MuidCaloEnergyMeas AlgTool");
 
     // retrieve TileID helper and TileIfno from det store
     if (StatusCode::SUCCESS != detStore()->retrieve(m_tileID)) {

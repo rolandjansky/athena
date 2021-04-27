@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -30,7 +30,7 @@ using namespace Muon;
 
 CscRdoToCscPrepDataToolMT::CscRdoToCscPrepDataToolMT
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : CscRdoToCscPrepDataToolCore(type, name, parent) {
+  : base_class(type, name, parent) {
     declareProperty("CscStripPrdContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the CSC RDO container");
 }  
 
@@ -49,7 +49,7 @@ StatusCode CscRdoToCscPrepDataToolMT::finalize() {
 }
 
 
-StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) {
+StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) const {
   // WARNING : Trigger Part is not finished.
   unsigned int sizeVectorRequested = givenIdhs.size();
   ATH_MSG_DEBUG ( "decode for " << sizeVectorRequested << " offline collections called" );
@@ -87,15 +87,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
     ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKey.key());
   }
   // Pass the container from the handle
-  m_outputCollection = outputHandle.ptr();
-
-
-  if (sizeVectorRequested == 0) {
-    m_fullEventDone=true;
-    ATH_MSG_DEBUG ( "decoding the entire event " );
-  } else {
-    m_fullEventDone=false;
-  }
+  Muon::CscStripPrepDataContainer* outputCollection = outputHandle.ptr();
 
   // retrieve the pointer to the RDO container
   // this will just get the pointer from memory if the container is already recorded in SG 
@@ -115,14 +107,14 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
   if (sizeVectorRequested)  {
     // seeded decoding
     for (unsigned int i=0; i<sizeVectorRequested; ++i) {
-      if (CscRdoToCscPrepDataToolMT::decode(rdoContainer, givenIdhs[i],decodedIdhs).isFailure()) {
+      if (decodeImpl(outputCollection, rdoContainer, givenIdhs[i],decodedIdhs).isFailure()) {
         ATH_MSG_ERROR ( "Unable to decode CSC RDO " << i << "th into CSC PrepRawData" );
         return StatusCode::FAILURE;
       }
     }
   } else {
     // unseeded decoding
-    if (CscRdoToCscPrepDataToolMT::decode(rdoContainer, decodedIdhs).isFailure()) {
+    if (decodeImpl(outputCollection, rdoContainer, decodedIdhs).isFailure()) {
       ATH_MSG_ERROR ( "Unable to decode CSC RDO " );
       return StatusCode::FAILURE;
     }	
@@ -131,9 +123,10 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
   return StatusCode::SUCCESS;
 }  
 
-StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {
-  
-    
+
+StatusCode CscRdoToCscPrepDataToolMT::decodeImpl(Muon::CscStripPrepDataContainer* outputCollection,
+                                                 const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) const
+{
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
   const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
@@ -145,7 +138,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   }
 
   //These collections can be empty for the trigger
-  if(!m_outputCollection || m_outputCollection->size()==0){
+  if(!outputCollection || outputCollection->size()==0){
     ATH_MSG_DEBUG("Stored empty collection.");
     return StatusCode::SUCCESS;
   }
@@ -190,7 +183,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   // and this is determined by the stationID, no the RDO hash ID
   ATH_MSG_DEBUG("CSC RDO ID " << rawCollection->identify() << " with hashID " << rawCollection->identifyHash() );
   // Just use the first iterator entry as stationID does not change between data inside a single container
-  Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
+  Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD), &m_idHelperSvc->cscIdHelper() );
   if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
     ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                        << "context begin_index = " << cscContext.begin_index()
@@ -200,7 +193,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   }
   ATH_MSG_DEBUG("Create CSC PRD Collection with hash " << cscHashId << " (givenHashId is " << givenHashId << ")");
   std::unique_ptr<CscStripPrepDataCollection> collection = nullptr;
-  CscStripPrepDataContainer::IDC_WriteHandle lock = m_outputCollection->getWriteHandle( cscHashId );
+  CscStripPrepDataContainer::IDC_WriteHandle lock = outputCollection->getWriteHandle( cscHashId );
   // Note that if the hash check above works, we should never reach this step where the lock is present
   if( lock.alreadyPresent() ) {
      ATH_MSG_DEBUG ( "CSC PRD collection already exist with collection hash = " << cscHashId << " collection filling is skipped!");
@@ -224,7 +217,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
         << " stationId : " << stationId << "  hashOffset : " << hashOffset);
 
     for (unsigned int j=0; j<width; ++j) {
-      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+      const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(), j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
       const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
@@ -312,9 +305,9 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
 }
 
 //************** Process for all in case of Offline
-StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
+StatusCode CscRdoToCscPrepDataToolMT::decodeImpl(Muon::CscStripPrepDataContainer* outputCollection,
+                                                 const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs) const
 {
-  
   typedef CscRawDataContainer::const_iterator collection_iterator;
   
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
@@ -358,7 +351,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       // and this is determined by the stationID, no the RDO hash ID
       ATH_MSG_DEBUG("CSC RDO ID " << (*rdoColl)->identify() << " with hashID " << (*rdoColl)->identifyHash() );
       // Just use the first iterator entry as stationID does not change between data inside a single container
-      Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
+      Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD), &m_idHelperSvc->cscIdHelper() );
       if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
         ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                            << "context begin_index = " << cscContext.begin_index()
@@ -369,7 +362,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
 
       ATH_MSG_DEBUG("Create CSC PRD Collection with hash " << cscHashId);
       std::unique_ptr<CscStripPrepDataCollection> collection = nullptr;
-      CscStripPrepDataContainer::IDC_WriteHandle lock = m_outputCollection->getWriteHandle( cscHashId );
+      CscStripPrepDataContainer::IDC_WriteHandle lock = outputCollection->getWriteHandle( cscHashId );
       if( lock.alreadyPresent() ) {
          ATH_MSG_DEBUG ( "CSC PRD collection already exist with collection hash = " << cscHashId << " collection filling is skipped!");
          continue;
@@ -392,7 +385,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
                         << " stationId : " << stationId << "  hashOffset : " << hashOffset);
 
         for (unsigned int j=0; j<width; ++j) {
-          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(), j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
           const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
@@ -506,4 +499,14 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
     }
   }
   return  StatusCode::SUCCESS;
+}
+
+
+void CscRdoToCscPrepDataToolMT::printPrepData() const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> k (m_prdContainerCacheKey.key());
+  k.initialize().ignore();
+  printPrepDataImpl( SG::makeHandle(k, ctx).get() );
 }

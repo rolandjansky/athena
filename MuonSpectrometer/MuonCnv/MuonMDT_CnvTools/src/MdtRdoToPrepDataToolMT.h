@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMdtRdoToPrepDataToolMT_H
@@ -22,7 +22,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MdtRdoToPrepDataToolMT : virtual public MdtRdoToPrepDataToolCore
+  class MdtRdoToPrepDataToolMT : public extends<MdtRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
   public:
     MdtRdoToPrepDataToolMT(const std::string&,const std::string&,const IInterface*);
@@ -32,9 +32,13 @@ namespace Muon
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
+
+    virtual void printPrepData() const override;
       
   protected:
-    virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;
+    virtual Muon::MdtPrepDataContainer*
+    setupMdtPrepDataContainer (unsigned int sizeVectorRequested,
+                               bool& fullEventDone) const override;
 
   private:
     /// This is the key for the cache for the MDT PRD containers, can be empty

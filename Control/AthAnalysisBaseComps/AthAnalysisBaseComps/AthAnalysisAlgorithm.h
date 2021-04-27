@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisAlgorithm.h 
@@ -36,9 +36,7 @@ public:
   AthAnalysisAlgorithm(const std::string& name);
 
   /// Constructor with parameters: 
-  AthAnalysisAlgorithm(const std::string& name
-		       , ISvcLocator* pSvcLocator
-		       , const std::string& version=PACKAGE_VERSION);
+  AthAnalysisAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual ~AthAnalysisAlgorithm() override;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #-----Python imports---#
 import os, sys, shutil
@@ -97,6 +97,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
+        use_parallel_compression = jp.AthenaMPFlags.UseParallelCompression()
 
         if strategy=='SharedQueue' or strategy=='RoundRobin':
             if use_shared_reader:
@@ -110,6 +111,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaSharedMemoryTool("OutputStreamingTool_0", SharedMemoryName="OutputStream"+str(os.getpid())) ]
+                svcMgr.AthenaPoolCnvSvc.ParallelCompression=use_parallel_compression
 
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
             self.Tools += [ SharedEvtQueueProvider(UseSharedReader=use_shared_reader,
@@ -118,11 +120,10 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                                                    ChunkSize=chunk_size) ]
 
             if (self.nThreads >= 1):
+                if(pileup):
+                    raise Exception('Running pileup digitization in mixed MP+MT currently not supported')
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
-                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=use_shared_reader,
-                                                           UseSharedWriter=use_shared_writer,
-                                                           IsPileup=pileup,
-                                                           IsRoundRobin=(strategy=='RoundRobin'),
+                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedWriter=use_shared_writer, 
                                                            EventsBeforeFork=events_before_fork,
                                                            Debug=debug_worker)   ]
             else:

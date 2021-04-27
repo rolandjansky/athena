@@ -28,7 +28,7 @@ namespace xAODMaker {
     StatusCode TrigxAODBphysReaderAlg::initialize() {
         
         // Greet the user:
-        ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+        ATH_MSG_INFO( "Initializing" );
         ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
         
         // Return gracefully:

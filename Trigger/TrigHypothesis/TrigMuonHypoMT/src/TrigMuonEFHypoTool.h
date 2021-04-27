@@ -36,6 +36,7 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   };
   virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFHypoTool::MuonEFInfo>& toolInput) const ;
+  float getdphi(float phi1, float phi2) const;
  private:
   bool passedQualityCuts(const xAOD::Muon* muon) const;
   bool decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& input, size_t cutIndex) const;
@@ -44,6 +45,10 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
 
   HLT::Identifier m_decisionId;
   // Properties:
+  Gaudi::Property< bool > m_nscan {
+    this, "NarrowScan", false, "Apply narrow scan" };
+  Gaudi::Property< float > m_conesize {
+    this, "ConeSize", 5, "Narrow scan cone size" };
   Gaudi::Property< bool > m_muonqualityCut {
     this, "MuonQualityCut", false, "Ignore selection" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
@@ -58,6 +63,9 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
     this, "RequireThreeStations", false, "Apply cut on N GoodPrecisionLayers in endcaps"};
   Gaudi::Property<bool> m_doSA{
     this, "RequireSAMuons", false, "Apply cut on SA muons (otherwise require combined muons)"};
+   Gaudi::Property< float > m_d0min {
+        this, "MinimumD0", 0., "lower d0 cut (mm)"};
+
   // Other members:   
   std::vector<size_t> m_bins={0};
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

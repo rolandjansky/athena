@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EndcapCryostatConstruction
@@ -79,7 +79,7 @@ typedef std::map<int, unsigned int, std::less<int> > planeIndMap;
 
 LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(
     bool fullGeo, std::string emecVariantInner,
-    std::string emecVariantOuter, bool activateFT
+    std::string emecVariantOuter, bool activateFT, bool enableMBTS
 ) :
   //  cryoEnvelopePhysical(NULL),
   m_fcalVisLimit(-1),
@@ -88,7 +88,8 @@ LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(
   m_fullGeo(fullGeo),
   m_EMECVariantInner(emecVariantInner),
   m_EMECVariantOuter(emecVariantOuter),
-  m_activateFT(activateFT)
+  m_activateFT(activateFT),
+  m_enableMBTS(enableMBTS)
 {
 
   m_fcal = new FCALConstruction();
@@ -788,7 +789,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   //__________________________ MBTS+moderator+JM tube _____________________________________
-  if(m_pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
+  if(m_enableMBTS && m_pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
     // DB related stuff first
     IRDBRecordset_ptr mbtsTubs   = m_pAccessSvc->getRecordsetPtr("MBTSTubs", detectorKey, detectorNode);
     IRDBRecordset_ptr mbtsScin   = m_pAccessSvc->getRecordsetPtr("MBTSScin", detectorKey, detectorNode);

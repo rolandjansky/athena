@@ -14,16 +14,16 @@
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "MuidInterfaces/IMuonAlignmentUncertTool.h"
+#include <atomic>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
+#include "MuidInterfaces/IMuonAlignmentUncertTool.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -32,6 +32,7 @@
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -39,14 +40,12 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "TrkGeometry/TrackingGeometry.h"
-#include <atomic>
 
 class CaloEnergy;
 class MessageHelper;
@@ -56,317 +55,295 @@ namespace Trk {
     class PseudoMeasurementOnTrack;
     class RecVertex;
     class TrackStateOnSurface;
-}
+}  // namespace Trk
 
 namespace Rec {
 
-class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
-  public:
-    CombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~CombinedMuonTrackBuilder();
+    class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
+    public:
+        CombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
+        virtual ~CombinedMuonTrackBuilder();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
 
-    /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-    virtual
-    Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                            const Trk::Track& spectrometerTrack) const override;
+        /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
+        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                        const Trk::Track& spectrometerTrack) const override;
 
-    /** ICombinedMuonTrackBuilder interface:
-        build and fit indet track extended to include MS Measurement set.
-        Adds material effects as appropriate plus calo energy-loss treatment */
-   virtual
-    Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                               const Trk::TrackParameters* innerParameters,
-                               const Trk::TrackParameters* middleParameters,
-                               const Trk::TrackParameters* outerParameters) const override;
+        /** ICombinedMuonTrackBuilder interface:
+            build and fit indet track extended to include MS Measurement set.
+            Adds material effects as appropriate plus calo energy-loss treatment */
+        virtual Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
+                                           const Trk::TrackParameters* innerParameters, const Trk::TrackParameters* middleParameters,
+                                           const Trk::TrackParameters* outerParameters) const override;
 
-    /** ICombinedMuonTrackBuilder interface:
-        propagate to perigee adding calo energy-loss and material to MS track */
-    virtual
-    Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const Trk::Vertex* vertex, float bs_x, float bs_y,
-                              float bs_z) const override;
+        /** ICombinedMuonTrackBuilder interface:
+            propagate to perigee adding calo energy-loss and material to MS track */
+        virtual Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const Trk::Vertex* vertex, float bs_x, float bs_y,
+                                          float bs_z) const override;
 
-    /** ICombinedMuonTrackBuilder interface:
-        refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-    virtual
-    Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
+        /** ICombinedMuonTrackBuilder interface:
+            refit a track removing any indet measurements with optional addition of pseudoMeasurements */
+        virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
 
-    using ICombinedMuonTrackBuilder::fit;
+        using ICombinedMuonTrackBuilder::fit;
 
-    /*refit a track */
-    virtual
-    Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
-                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
+        /*refit a track */
+        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+                                const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
 
-    /**
-        fit a set of MeasurementBase objects with starting value for perigeeParameters */
-    Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const;
+        /**
+            fit a set of MeasurementBase objects with starting value for perigeeParameters */
+        Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
+                        const Trk::RunOutlierRemoval /*runOutlier*/, const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
-    /**
-        combined muon fit */
-    Trk::Track* fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
-                    const Trk::RunOutlierRemoval  runOutlier         = false,
-                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
+        /**
+            combined muon fit */
+        Trk::Track* fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack, const Trk::RunOutlierRemoval runOutlier = false,
+                        const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    void cleanUp() const override;
+    private:
+        bool optimizeErrors(Trk::Track* track) const;
+        Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
-  private:
-    bool        optimizeErrors(Trk::Track* track) const;
-    Trk::Track* addIDMSerrors(Trk::Track* track) const;
-
-    void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>&                trackStateOnSurfaces,
-                            DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
-                            DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const;
-
-    const CaloEnergy* caloEnergyParameters(const Trk::Track* combinedTrack, const Trk::Track* muonTrack,
-                                           const Trk::TrackParameters*& combinedEnergyParameters,
-                                           const Trk::TrackParameters*& muonEnergyParameters) const;
-
-    Trk::Track* createExtrapolatedTrack(const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters,
-                                        Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
-                                        const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& trackStateOnSurfaces,
-                                        const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis,
-                                        const Trk::PerigeeSurface* mperigeeSurface,
-                                        const Trk::Perigee*        seedParameter = nullptr) const;
-
-    Trk::Track* createIndetTrack(const Trk::TrackInfo&                                      info,
-                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
-                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const;
-
-    Trk::Track* createMuonTrack(const Trk::Track& muonTrack, const Trk::TrackParameters* parameters,
-                                const CaloEnergy*                                          caloEnergy,
+        void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
-                                DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
+                                DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const;
 
-    const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track) const;
+        const CaloEnergy* caloEnergyParameters(const Trk::Track* combinedTrack, const Trk::Track* muonTrack,
+                                               const Trk::TrackParameters*& combinedEnergyParameters,
+                                               const Trk::TrackParameters*& muonEnergyParameters) const;
 
-    
-    std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> 
-                                    createSpectrometerTSOS(const Trk::Track& spectrometerTrack) const;
+        Trk::Track* createExtrapolatedTrack(const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters,
+                                            Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
+                                            const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& trackStateOnSurfaces,
+                                            const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis,
+                                            const Trk::PerigeeSurface* mperigeeSurface, const Trk::Perigee* seedParameter = nullptr) const;
 
-    const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters) const;
+        Trk::Track* createIndetTrack(const Trk::TrackInfo& info, DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
+                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const;
 
-    const Trk::TrackParameters* extrapolatedParameters(bool&                      badlyDeterminedCurvature,
-                                                       const Trk::Track&          spectrometerTrack,
-                                                       const Trk::RecVertex*      mvertex,
-                                                       const Trk::PerigeeSurface* mperigeeSurface) const;
+        Trk::Track* createMuonTrack(const Trk::Track& muonTrack, const Trk::TrackParameters* parameters, const CaloEnergy* caloEnergy,
+                                    DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
+                                    DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
-    void        finalTrackBuild(std::unique_ptr<Trk::Track>& track) const;
-    Trk::Track* interfaceNotImplemented() const;
+        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track) const;
 
-    void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false,
-                        double deltaPhi = 0., double deltaTheta = 0.) const;
+        std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
+            const Trk::Track& spectrometerTrack) const;
 
-    double            normalizedChi2(const Trk::Track& track) const;
-    const Trk::Track* reallocateMaterial(const Trk::Track& spectrometerTrack) const;
-    void              replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
-    void              removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
+        const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters) const;
 
-    Trk::Track* trackCleaner(Trk::Track* combinedTrack, const Trk::Track* indetTrack,
-                             const Trk::Track& muonTrack) const;
+        const Trk::TrackParameters* extrapolatedParameters(bool& badlyDeterminedCurvature, const Trk::Track& spectrometerTrack,
+                                                           const Trk::RecVertex* mvertex, const Trk::PerigeeSurface* mperigeeSurface) const;
 
-    Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
-                                                 const Trk::RecVertex* mbeamAxis) const;
+        void finalTrackBuild(std::unique_ptr<Trk::Track>& track) const;
+        Trk::Track* interfaceNotImplemented() const;
 
-    void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
-    int  countAEOTs(const Trk::Track* track, const std::string& txt) const;
-    bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
+        void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
+                            double deltaTheta = 0.) const;
 
-    // helpers, managers, tools
-    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
-        this,
-        "CaloEnergyParam",
-        "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
-    };
-    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_caloTSOS{
-        this,
-        "CaloTSOS",
-        "Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface",
-    };
-    ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{
-        this,
-        "Cleaner",
-        "Muon::MuonTrackCleaner/MuidTrackCleaner",
-    };
-    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscRotCreator{
-        this,
-        "CscRotCreator",
-        "",
-    };
-    ToolHandle<Trk::IExtrapolator> m_extrapolator{
-        this,
-        "Extrapolator",
-        "Trk::Extrapolator/AtlasExtrapolator",
-    };
-    ToolHandle<Trk::ITrackFitter> m_fitter{
-        this,
-        "Fitter",
-        "Trk::iPatFitter/iPatFitter",
-    };  // curved track fitter
-    ToolHandle<Trk::ITrackFitter> m_fitterSL{
-        this,
-        "SLFitter",
-        "Trk::iPatFitter/iPatSLFitter",
-    };  // straight line fitter
-    ToolHandle<Trk::IIntersector> m_intersector{
-        this,
-        "Intersector",
-        "Trk::RungeKuttaIntersector/RungeKuttaIntersector",
-    };
-    ToolHandle<Trk::IMaterialAllocator> m_materialAllocator{
-        this,
-        "MaterialAllocator",
-        "",
-    };
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
-        this,
-        "MdtRotCreator",
-        "",
-    };
-    ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
-        this,
-        "MuonErrorOptimizer",
-        "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
-    };
-    ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
-        this,
-        "MuonHoleRecovery",
-        "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
-    };
-    ToolHandle<Trk::IPropagator> m_propagator{
-        this,
-        "Propagator",
-        "Trk::IntersectorWrapper/IntersectorWrapper",
-    };
-    ToolHandle<Trk::IPropagator> m_propagatorSL{
-        this,
-        "SLPropagator",
-        "Trk::StraightLinePropagator/MuonStraightLinePropagator",
-    };
-    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{
-        this,
-        "Printer",
-        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
-    };
-    ToolHandle<Rec::IMuonTrackQuery> m_trackQuery{
-        this,
-        "TrackQuery",
-        "Rec::MuonTrackQuery/MuonTrackQuery",
-    };
-    ToolHandle<Trk::ITrackSummaryTool> m_trackSummary{
-        this,
-        "TrackSummaryTool",
-        "Trk::TrackSummaryTool/MuidTrackSummaryTool",
-    };
-    ToolHandle<Trk::ITrkMaterialProviderTool> m_materialUpdator{
-        this,
-        "CaloMaterialProvider",
-        "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool",
-    };
-    
-    /// ToolHandles to retrieve the uncertainties for theta and phi for 
-    /// the scattering uncertainties
-    ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_theta;
-    ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_phi;
-    
+        double normalizedChi2(const Trk::Track& track) const;
+        const Trk::Track* reallocateMaterial(const Trk::Track& spectrometerTrack) const;
+        void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
+        void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+        Trk::Track* trackCleaner(Trk::Track* combinedTrack, const Trk::Track* indetTrack, const Trk::Track& muonTrack) const;
 
-    // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
-        this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
-    
-    SG::ReadCondHandleKey<Trk::TrackingGeometry>   m_trackingGeometryReadKey {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+        Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
+                                                     const Trk::RecVertex* mbeamAxis) const;
 
+        void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
+        int countAEOTs(const Trk::Track* track, const std::string& txt) const;
+        bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
 
-    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
+        // helpers, managers, tools
+        ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
+            this,
+            "CaloEnergyParam",
+            "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
+        };
+        ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_caloTSOS{
+            this,
+            "CaloTSOS",
+            "Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface",
+        };
+        ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{
+            this,
+            "Cleaner",
+            "Muon::MuonTrackCleaner/MuidTrackCleaner",
+        };
+        ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscRotCreator{
+            this,
+            "CscRotCreator",
+            "",
+        };
+        ToolHandle<Trk::IExtrapolator> m_extrapolator{
+            this,
+            "Extrapolator",
+            "Trk::Extrapolator/AtlasExtrapolator",
+        };
+        ToolHandle<Trk::ITrackFitter> m_fitter{
+            this,
+            "Fitter",
+            "Trk::iPatFitter/iPatFitter",
+        };  // curved track fitter
+        ToolHandle<Trk::ITrackFitter> m_fitterSL{
+            this,
+            "SLFitter",
+            "Trk::iPatFitter/iPatSLFitter",
+        };  // straight line fitter
+        ToolHandle<Trk::IIntersector> m_intersector{
+            this,
+            "Intersector",
+            "Trk::RungeKuttaIntersector/RungeKuttaIntersector",
+        };
+        ToolHandle<Trk::IMaterialAllocator> m_materialAllocator{
+            this,
+            "MaterialAllocator",
+            "",
+        };
+        ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
+            this,
+            "MdtRotCreator",
+            "",
+        };
+        ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
+            this,
+            "MuonErrorOptimizer",
+            "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
+        };
+        ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
+            this,
+            "MuonHoleRecovery",
+            "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
+        };
+        ToolHandle<Trk::IPropagator> m_propagator{
+            this,
+            "Propagator",
+            "Trk::IntersectorWrapper/IntersectorWrapper",
+        };
+        ToolHandle<Trk::IPropagator> m_propagatorSL{
+            this,
+            "SLPropagator",
+            "Trk::StraightLinePropagator/MuonStraightLinePropagator",
+        };
+        ToolHandle<Muon::MuonEDMPrinterTool> m_printer{
+            this,
+            "Printer",
+            "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        };
+        ToolHandle<Rec::IMuonTrackQuery> m_trackQuery{
+            this,
+            "TrackQuery",
+            "Rec::MuonTrackQuery/MuonTrackQuery",
+        };
+        ToolHandle<Trk::ITrackSummaryTool> m_trackSummary{
+            this,
+            "TrackSummaryTool",
+            "Trk::TrackSummaryTool/MuidTrackSummaryTool",
+        };
+        ToolHandle<Trk::ITrkMaterialProviderTool> m_materialUpdator{
+            this,
+            "CaloMaterialProvider",
+            "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool",
+        };
 
-    Trk::MagneticFieldProperties m_magFieldProperties;
+        /// ToolHandles to retrieve the uncertainties for theta and phi for
+        /// the scattering uncertainties
+        ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_theta;
+        ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_phi;
 
-    // other configuration and tolerances
-    mutable std::atomic_bool m_perigeeAtSpectrometerEntranceLocal{false};
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    bool     m_allowCleanerVeto;
-    bool     m_cleanCombined;
-    bool     m_cleanStandalone;
-    bool     m_perigeeAtSpectrometerEntrance;
-    bool     m_reallocateMaterial;
-    double   m_badFitChi2;
-    double   m_largeImpact;
-    double   m_largeMomentumChange;
-    double   m_largeMomentumError;
-    double   m_largePhiError;
-    double   m_lineMomentum;
-    double   m_lowMomentum;
-    unsigned m_maxWarnings;
-    double   m_minEnergy;
-    double   m_numberSigmaFSR;
-    bool     m_redoRots;
-    double   m_vertex2DSigmaRPhi;
-    double   m_vertex2DSigmaZ;
-    double   m_vertex3DSigmaRPhi;
-    double   m_vertex3DSigmaZ;
-    double   m_zECToroid;
+        // Read handle for conditions object to get the field cache
+        SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                                  "Name of the Magnetic Field conditions object key"};
+        ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{
+            this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
 
+        SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
+                                                                               "Key of the TrackingGeometry conditions data."};
 
-    // dummy (unused - kept for backwards compatibility)
-    bool m_indetSlimming;
-    bool m_inputSlimming;
+        ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this, "TrackingVolumesSvc", "TrackingVolumesSvc/TrackingVolumesSvc"};
 
-    // constants
-    std::unique_ptr<const Trk::Volume>         m_calorimeterVolume;
-    std::unique_ptr<const Trk::Volume>         m_indetVolume;
-   
+        Trk::MagneticFieldProperties m_magFieldProperties;
 
-    // vertex region and phi modularity for pseudo-measurement constraints
-    std::unique_ptr<Trk::RecVertex>      m_beamAxis;
-    std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
-    double               m_sigmaPhiSector;
-    std::unique_ptr<Trk::RecVertex>      m_vertex;
+        // other configuration and tolerances
+        mutable std::atomic_bool m_perigeeAtSpectrometerEntranceLocal{false};
 
-    // counters
-    mutable std::atomic_uint m_countAcceptedStandaloneFit;
-    mutable std::atomic_uint m_countBeamAxis;
-    mutable std::atomic_uint m_countCombinedCleanerVeto;
-    mutable std::atomic_uint m_countDegradedStandaloneFit;
-    mutable std::atomic_uint m_countExtensionCleanerVeto;
-    mutable std::atomic_uint m_countStandaloneCleanerVeto;
-    mutable std::atomic_uint m_countVertexRegion;
+        bool m_allowCleanerVeto;
+        bool m_cleanCombined;
+        bool m_cleanStandalone;
+        bool m_perigeeAtSpectrometerEntrance;
+        bool m_reallocateMaterial;
+        double m_badFitChi2;
+        double m_largeImpact;
+        double m_largeMomentumChange;
+        double m_largeMomentumError;
+        double m_largePhiError;
+        double m_lineMomentum;
+        double m_lowMomentum;
+        unsigned m_maxWarnings;
+        double m_minEnergy;
+        double m_numberSigmaFSR;
+        bool m_redoRots;
+        double m_vertex2DSigmaRPhi;
+        double m_vertex2DSigmaZ;
+        double m_vertex3DSigmaRPhi;
+        double m_vertex3DSigmaZ;
+        double m_zECToroid;
 
-    // count warnings
-    std::unique_ptr<MessageHelper> m_messageHelper;
+        // dummy (unused - kept for backwards compatibility)
+        bool m_indetSlimming;
+        bool m_inputSlimming;
 
-    bool m_updateWithCaloTG;
-    bool m_useCaloTG;
-    bool m_iterateCombinedTrackFit;
-    bool m_refineELossCombinedTrackFit;
-    bool m_refineELossStandAloneTrackFit;
-    bool m_addElossID;
-    bool m_addIDMSerrors;
-    bool m_useRefitTrackError;
-    
-    inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name) const{
-        /// Tracking geometry is provided by the TrackingGeometryAlg
-        if (!m_trackingGeometryReadKey.empty()){
-           SG::ReadCondHandle<Trk::TrackingGeometry>  handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
-           if (!handle.isValid()){
-               ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
-               return nullptr;
-           }
-           return handle.cptr()->trackingVolume(vol_name);
- 
+        // constants
+        std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
+        std::unique_ptr<const Trk::Volume> m_indetVolume;
+
+        // vertex region and phi modularity for pseudo-measurement constraints
+        std::unique_ptr<Trk::RecVertex> m_beamAxis;
+        std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
+        double m_sigmaPhiSector;
+        std::unique_ptr<Trk::RecVertex> m_vertex;
+
+        // counters
+        mutable std::atomic_uint m_countAcceptedStandaloneFit;
+        mutable std::atomic_uint m_countBeamAxis;
+        mutable std::atomic_uint m_countCombinedCleanerVeto;
+        mutable std::atomic_uint m_countDegradedStandaloneFit;
+        mutable std::atomic_uint m_countExtensionCleanerVeto;
+        mutable std::atomic_uint m_countStandaloneCleanerVeto;
+        mutable std::atomic_uint m_countVertexRegion;
+
+        // count warnings
+        std::unique_ptr<MessageHelper> m_messageHelper;
+
+        bool m_updateWithCaloTG;
+        bool m_useCaloTG;
+        bool m_iterateCombinedTrackFit;
+        bool m_refineELossCombinedTrackFit;
+        bool m_refineELossStandAloneTrackFit;
+        bool m_addElossID;
+        bool m_addIDMSerrors;
+        bool m_useRefitTrackError;
+
+        inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name) const {
+            /// Tracking geometry is provided by the TrackingGeometryAlg
+            if (!m_trackingGeometryReadKey.empty()) {
+                SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+                if (!handle.isValid()) {
+                    ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                    return nullptr;
+                }
+                return handle.cptr()->trackingVolume(vol_name);
+            }
+            return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
         }
-        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);    
-    }
 
-};  // end of class CombinedMuonTrackBuilder
-
+    };  // end of class CombinedMuonTrackBuilder
 
 }  // end of namespace Rec
 

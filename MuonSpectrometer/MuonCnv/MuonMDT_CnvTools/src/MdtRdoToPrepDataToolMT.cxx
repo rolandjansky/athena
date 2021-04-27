@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRdoToPrepDataToolMT.h"
 
 Muon::MdtRdoToPrepDataToolMT::MdtRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   :
-  AthAlgTool(t,n,p),
-  MdtRdoToPrepDataToolCore(t,n,p)
+  base_class(t,n,p)
 {
   declareProperty("MdtPrdContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the MDT PRD container");
 }
@@ -21,9 +20,20 @@ StatusCode Muon::MdtRdoToPrepDataToolMT::initialize()
     return StatusCode::SUCCESS;
 }
 
-Muon::MdtRdoToPrepDataToolMT::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataToolMT::setupMdtPrepDataContainer()
+void Muon::MdtRdoToPrepDataToolMT::printPrepData(  ) const
 {
-  m_fullEventDone=false;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer> k (m_mdtPrepDataContainerKey.key());
+  k.initialize().ignore();
+  printPrepDataImpl( SG::makeHandle(k, ctx).get() );
+}
+
+Muon::MdtPrepDataContainer*
+Muon::MdtRdoToPrepDataToolMT::setupMdtPrepDataContainer (unsigned int /*sizeVectorRequested*/,
+                                                         bool& fullEventDone) const
+{
+  fullEventDone = false;
 
   SG::WriteHandle< Muon::MdtPrepDataContainer >handle(m_mdtPrepDataContainerKey);
 
@@ -34,7 +44,7 @@ Muon::MdtRdoToPrepDataToolMT::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrep
     StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(m_idHelperSvc->mdtIdHelper().module_hash_max()));
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainerKey.key()); 
-      return FAILED;
+      return nullptr;
     }
     ATH_MSG_DEBUG("Created container " << m_mdtPrepDataContainerKey.key());
   } 
@@ -43,17 +53,16 @@ Muon::MdtRdoToPrepDataToolMT::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrep
     SG::UpdateHandle<MdtPrepDataCollection_Cache> update(m_prdContainerCacheKey);
     if (!update.isValid()){
       ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKey.key());
-      return FAILED;
+      return nullptr;
     }
     StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(update.ptr()));
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of MDT PrepData Container using cache " 
         << m_prdContainerCacheKey.key() << " - " <<m_mdtPrepDataContainerKey.key()); 
-      return FAILED;
+      return nullptr;
     }
     ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKey.key());
   }
   // Pass the container from the handle
-  m_mdtPrepDataContainer = handle.ptr();
-  return ADDED;
+  return handle.ptr();
 }

@@ -10,6 +10,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
+from InDetRecExample import TrackingCommon
 
 topSequence = AlgSequence()
 
@@ -70,8 +71,8 @@ if not use_tracking_geometry_cond_alg :
 	acc = TrackingGeometrySvcCfg(flags)
 	geom_svc = acc.getPrimary()
 else :
-	from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-	geom_cond_key = 'AtlasTrackingGeometry'
+  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+  geom_cond_key = cond_alg.TrackingGeometryWriteKey
 #
 # get propagator
 #

@@ -39,8 +39,6 @@ GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(
 #######################################
 # now the trigger related things
 #######################################
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr += RegSelSvcDefault()
 
 include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 

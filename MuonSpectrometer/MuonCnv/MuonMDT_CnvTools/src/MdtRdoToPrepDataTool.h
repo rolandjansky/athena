@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMdtRdoToPrepDataTool_H
@@ -22,7 +22,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
+  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : public extends<MdtRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
   public:
     MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
@@ -33,8 +33,18 @@ namespace Muon
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
       
+    virtual void printPrepData() const override;
+
   protected:
-    virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;
+    virtual Muon::MdtPrepDataContainer*
+    setupMdtPrepDataContainer (unsigned int sizeVectorRequested,
+                               bool& fullEventDone) const override;
+
+  private:
+    mutable Muon::MdtPrepDataContainer* m_mdtPrepDataContainer = nullptr;
+
+    //keepTrackOfFullEventDecoding
+    mutable bool m_fullEventDone = false;
   }; 
 } // end of namespace
 

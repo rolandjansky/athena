@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DetectorTool.h"
@@ -63,7 +63,7 @@ SCT_DetectorTool::create()
   ATH_CHECK(m_rdbAccessSvc.retrieve());
   // Print the SCT version tag:
   std::string sctVersionTag{m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node())};
-  ATH_MSG_INFO("SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION);
+  ATH_MSG_INFO("SCT Version: " << sctVersionTag);
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (sctVersionTag.empty()) {

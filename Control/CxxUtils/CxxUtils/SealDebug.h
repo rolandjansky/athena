@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,6 +27,7 @@
 //# include "SealBase/Macros.h"                   wlav
 //# include "SealBase/sysapi/IOTypes.h"           wlav
 # include <cstddef>
+# include <atomic>
 
 // wlav copied from SealBase/sysapi/DebugAids.h
 // Windows doesn't have this, so fake a suitable substitute
@@ -60,7 +61,7 @@ class DebugAids
 {
 public:
     // Miscellaneous functions
-    static IOFD			stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd = IOFD_INVALID);
+    static IOFD			stacktraceFd (IOFD fd = IOFD_INVALID);
     static void			stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd = IOFD_INVALID);
     static void			coredump (int sig, ...);
     // sss
@@ -69,7 +70,7 @@ public:
     static void                 setStackTraceAddr2Line ATLAS_NOT_THREAD_SAFE (const char* path);
 
 private:
-    static IOFD			s_stackTraceFd;
+    static std::atomic<IOFD>	 s_stackTraceFd;
 };
 
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>

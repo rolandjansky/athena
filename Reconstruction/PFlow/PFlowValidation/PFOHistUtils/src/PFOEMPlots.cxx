@@ -32,19 +32,10 @@ namespace PFO {
     }
   }
 
-  void PFOEMPlots::fill(const xAOD::PFO& PFO){
-    m_PFO_ptEM->Fill(PFO.ptEM()/1000.0);
-    m_PFO_etaEM->Fill(PFO.etaEM());
-    m_PFO_phiEM->Fill(PFO.phiEM());
-    m_PFO_mEM->Fill(PFO.mEM()/1000.0);
-  }
-  void PFOEMPlots::fill(const xAOD::FlowElement& FE){
-    std::cout<<"PFOEMPlots To be filled if needed"<<std::endl;
-    // dump pt just to remove -wunused parameter warnings - remove if this function is actually needed
-    std::cout<<"FE pt"<<FE.pt()<<std::endl;
-    //    m_FE_ptEM->Fill(FE.pt()/1000.0); // temporary assignment, will need to change to match above EM function calls soon
-    //  m_FE_etaEM->Fill(FE.eta());
-    // m_FE_phiEM->Fill(FE.phi());
-    // m_FE_mEM->Fill(FE.m()/1000.0);
-  }
+  void PFOEMPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
+    m_PFO_ptEM->Fill(PFO.ptEM()/1000.0,eventInfo.beamSpotWeight());
+    m_PFO_etaEM->Fill(PFO.etaEM(),eventInfo.beamSpotWeight());
+    m_PFO_phiEM->Fill(PFO.phiEM(),eventInfo.beamSpotWeight());
+    m_PFO_mEM->Fill(PFO.mEM()/1000.0,eventInfo.beamSpotWeight());
+  }  
 }

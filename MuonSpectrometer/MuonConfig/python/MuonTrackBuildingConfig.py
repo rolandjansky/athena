@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -32,6 +32,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     
     kwargs.setdefault("Propagator",      muon_prop)
     # kwargs.setdefault("SLFit" ,          ) # Was "not jobproperties.BField.allToroidOn()" but do not have access to Field here.
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("SLFit", False)
     kwargs.setdefault("ReducedChi2Cut",  flags.Muon.Chi2NDofCut)
     
     momentum_estimator=""
@@ -200,17 +202,17 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     result.setPrivateTools(matching)
     return result
     
-def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=True, **kwargs):
+def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=False, **kwargs):
     Muon__MooCandidateMatchingTool=CompFactory.Muon.MooCandidateMatchingTool
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonStraightLineExtrapolatorCfg
     
     result = ComponentAccumulator()
 
     # Won't explicitly configure MuonEDMHelperSvc
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
 
-    acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
+    acc = MuonStraightLineExtrapolatorCfg(flags)
     slextrap = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("SLExtrapolator", slextrap)
@@ -464,7 +466,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("MooBuilderTool",       builder) 
     kwargs.setdefault("TrackRefinementTool",       builder) 
     
-    acc = MooCandidateMatchingToolCfg(flags)
+    acc = MooCandidateMatchingToolCfg(flags, doSegmentPhiMatching=True)
     cand_matching_tool = acc.getPrimary()
     kwargs["CandidateMatchingTool"] = cand_matching_tool
     result.merge(acc)
@@ -510,7 +512,7 @@ def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
     
     return Muon__MuonTrackSelectorTool(name, **kwargs)
 
-def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
+def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder", **kwargs):
     MuPatTrackBuilder=CompFactory.MuPatTrackBuilder
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py#L162
     result=ComponentAccumulator()
@@ -531,7 +533,7 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
     from MuonConfig.MuonSegmentNameFixConfig import MuonSegmentNameFixCfg
     result.merge(MuonSegmentNameFixCfg(flags))
     
-    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
+    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks", **kwargs)
 
     result.addEventAlgo( track_builder, primary=True )
     return result

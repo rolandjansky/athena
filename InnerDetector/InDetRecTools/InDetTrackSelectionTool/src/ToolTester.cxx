@@ -30,7 +30,7 @@ InDet::ToolTester::ToolTester( const std::string& name, ISvcLocator* svcLoc )
 StatusCode InDet::ToolTester::initialize() {
 
   // Greet the user:
-  ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initialising" );
   ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
   ATH_MSG_DEBUG( "TrackSelectionTool  = " << m_selTool );
 
@@ -68,7 +68,7 @@ StatusCode InDet::ToolTester::execute(const EventContext &ctx) const {
   // Loop over them:
   for ( const xAOD::TrackParticle* track : *tracks ) {
     const xAOD::Vertex* foundVertex = nullptr;
-    for (const auto vertex : *vertices)
+    for (const auto *const vertex : *vertices)
     {
       for (const auto& tpLink : vertex->trackParticleLinks())
       {

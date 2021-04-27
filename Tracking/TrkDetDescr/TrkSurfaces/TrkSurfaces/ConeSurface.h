@@ -47,10 +47,25 @@ class ConeSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cone;
+  static constexpr SurfaceType staticType = SurfaceType::Cone;
 
   /**Default Constructor*/
   ConeSurface();
+
+  /**Assignment operator*/
+  ConeSurface& operator=(const ConeSurface& csf);
+
+  /**Copy constructor */
+  ConeSurface(const ConeSurface& csf);
+
+  /** Move constructor */
+  ConeSurface(ConeSurface&& annbo) = default;
+  /** Move assignment */
+  ConeSurface& operator=(ConeSurface&& sbo) = default;
+
+  /**Destructor*/
+  virtual ~ConeSurface() = default ;
+
 
   /**Constructor form HepTransform and an opening angle */
   ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
@@ -71,17 +86,8 @@ public:
      - bounds is not set. */
   ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
-  /**Copy constructor */
-  ConeSurface(const ConeSurface& csf);
-
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~ConeSurface();
-
-  /**Assignment operator*/
-  ConeSurface& operator=(const ConeSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -97,7 +103,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -105,8 +111,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
-
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
@@ -116,7 +121,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
@@ -125,7 +130,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
@@ -135,7 +140,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -143,17 +148,17 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface> createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) *
-                                                       cov = 0) const;
+  ParametersT<DIM, T, ConeSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -161,7 +166,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -171,7 +176,7 @@ public:
     - the default implementation is the the RotationMatrix3D of the transform */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Returns a global reference point:
      For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
@@ -179,13 +184,12 @@ public:
     */
   virtual const Amg::Vector3D& globalReferencePoint() const override;
 
-  //using from the base class
+  // using from the base class
   using Trk::Surface::normal;
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D* normal(
-    const Amg::Vector2D& locpo) const override;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& locpo) const override final;
 
   /**Return method for the rotational symmetry axis - the z-Axis of the
    * HepTransform */

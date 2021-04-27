@@ -219,6 +219,12 @@ void* TBufferFileWorkaround::ReadObjectAnyNV(const TClass *clCast)
 
 
 bool TrigTSerializer::s_decodingError = false;
+std::vector<std::string>    TrigTSerializer::s_dictsToIgnore = {
+   "CosmicMuonCollection_tlp1", "MdtTrackSegmentCollection_tlp1",
+   "CosmicMuonCollection_p1", "CosmicMuon_p1", "MdtTrackSegmentCollection_p1",
+   "MdtTrackSegment_p1", "MdtTrackSegmentCollection_p2", "PanTauDetails_p1",
+   "SG::IAuxStoreCompression"
+};
 
 TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
   declareInterface<ITrigSerializerToolBase>( this );
@@ -233,6 +239,15 @@ TrigTSerializer::~TrigTSerializer(){
 StatusCode TrigTSerializer::initialize(){
   ATH_MSG_DEBUG( "TrigTSerializer::initialize " << name() );
 
+  // copy missing dictionary names from the property to the static member
+  s_dictsToIgnore.insert( std::end(s_dictsToIgnore), std::begin(m_ignoreMissingDicts.value()), std::end(m_ignoreMissingDicts.value()) );
+  std::string msg;
+  for( auto n:s_dictsToIgnore ) {
+     if( not msg.empty() ) msg += ", ";
+     msg += n;
+  }
+  ATH_MSG_DEBUG( "Suppressing missing dictionary warnings for: " << msg );
+     
   if (!m_onlineMode)
     add_previous_streamerinfos();
 
@@ -258,7 +273,26 @@ StatusCode TrigTSerializer::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void TrigTSerializer::add_previous_streamerinfos(){
+bool TrigTSerializer::bsDictWarningFilter(int level, bool abort_bool,
+                                            const char* location, const char *msg)
+{
+   if( level == kWarning and gDebug == 0 ) {
+      if( strstr(msg, "no dictionary for class") ) {
+         for( std::string &type : s_dictsToIgnore ) {
+            if( strstr(msg, type.c_str()) ) {
+               return false;
+            }
+         }
+      }
+   }
+   DefaultErrorHandler(level,abort_bool, location, msg);
+   return false;
+}
+
+
+void TrigTSerializer::add_previous_streamerinfos()
+{
+  RootUtils::WithRootErrorHandler hand( bsDictWarningFilter );
   //temporary 
   std::string extStreamerInfos = "bs-streamerinfos.root";
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");

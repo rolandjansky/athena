@@ -218,6 +218,7 @@ namespace top {
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
+    registerParameter("LargeRJetMass", "LargeRJet min. mass cut for object selection (in MeV).", "0");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
     registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
     registerParameter("LargeRJetUncertainties_NPModel",
@@ -419,7 +420,7 @@ namespace top {
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
     registerParameter("TopPartonHistory", "Topology to be assumed when reconstructing parton-level history.", "False",
-                      {"ttbar", "tb", "Wtb", "ttz", "ttgamma", "tHq", "False"});
+                      {"ttbar", "ttbarlight", "tb", "Wtb", "tchannel", "ttz", "ttgamma", "tHq", "tZq", "False"});
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
     
     registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
@@ -543,6 +544,8 @@ namespace top {
                       "The calibration to use for the b-tagging SFs (Light-jets)."
                       " Default 'default'",
                       "default");
+
+    registerParameter("EGammaCalibrationModel", "To override default EGammaCalibration model, Default 'es2018_R21_v0'", "es2018_R21_v0");
 
     registerParameter("PRWConfigFiles",
                       "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options",

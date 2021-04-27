@@ -207,6 +207,7 @@ StatusCode MM_DigitizationTool::initialize() {
     TF1* lorentzAngleFunction;
 
     ATH_CHECK(m_calibrationTool->mmGasProperties(vDrift, longDiff, transDiff, interactionDensityMean, interactionDensitySigma,  lorentzAngleFunction));
+    float peakTime = m_calibrationTool->peakTime();
 
 	m_driftVelocity = vDrift;
 
@@ -221,9 +222,9 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
-	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
+	m_ElectronicsResponseSimulation->setPeakTime(peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
-	m_timeWindowUpperOffset += m_peakTime; // account for peak time in time window
+	m_timeWindowUpperOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);

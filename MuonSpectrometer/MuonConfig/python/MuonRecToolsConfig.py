@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Configuration of tools shared between Segment Finding and Track Building
 
@@ -100,7 +100,8 @@ def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kw
     
     result.merge(acc)
     
-    acc = MuonExtrapolatorCfg(flags)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    acc = AtlasExtrapolatorCfg(flags)
     extrap = acc.getPrimary()
     acc.addPublicTool(extrap)
     result.merge(acc)
@@ -162,6 +163,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
 def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     Muon__MuonTrackCleaner=CompFactory.Muon.MuonTrackCleaner
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     # declareProperty("Helper",m_edmHelperSvc);
     # declareProperty("Printer",m_printer);
     # declareProperty("MdtRotCreator",  m_mdtRotCreator );
@@ -184,7 +186,7 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     
     # For PullCalculator, just let it get default for moment. FIXME
     
-    extrapolator_CA = MuonExtrapolatorCfg(flags)
+    extrapolator_CA = AtlasExtrapolatorCfg(flags)
     extrapolator = extrapolator_CA.getPrimary()
     acc.addPublicTool( extrapolator ) # TODO remove
     result.merge( extrapolator_CA )
@@ -202,6 +204,10 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
 
     # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("Iterate", False)
+        kwargs.setdefault("RecoverOutliers", False)
 
     # FIXME - do remaining tools
 
@@ -255,7 +261,7 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     mult_scat_updator = Trk__MultipleScatteringUpdator(name="AtlasMultipleScatteringUpdator")
     result.addPublicTool(mult_scat_updator) # TODO remove 
     
-    material_effects_updator = Trk__MaterialEffectsUpdator( EnergyLossUpdator=energy_loss_updator, MultipleScatteringUpdator=mult_scat_updator)
+    material_effects_updator = Trk__MaterialEffectsUpdator( name="MuonMaterialEffectsUpdator", EnergyLossUpdator=energy_loss_updator, MultipleScatteringUpdator=mult_scat_updator)
     result.addPublicTool(material_effects_updator)
     kwargs.setdefault("MaterialEffectsUpdators", [material_effects_updator])
     
@@ -266,7 +272,7 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     kwargs.setdefault("Navigator", navigator)
     
     if 'Propagators' not in kwargs:
-        acc = MuonSTEP_PropagatorCfg(flags, Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
+        acc = MuonSTEP_PropagatorCfg(flags, name="MuonPropagator", Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
         muon_prop = acc.getPrimary()
         result.merge(acc)
         result.addPublicTool(muon_prop)
@@ -341,7 +347,7 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator',**kwargs):
     result.merge(acc)
     kwargs.setdefault("Propagators", [ prop ]) 
     kwargs.setdefault("ResolveMuonStation", False)
-    acc = MuonExtrapolatorCfg(flags, name=name)
+    acc = MuonExtrapolatorCfg(flags, name=name, **kwargs)
     result.setPrivateTools(acc.getPrimary())
     result.merge(acc)
     

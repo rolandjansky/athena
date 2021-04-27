@@ -316,27 +316,23 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   if  (passingLegs.size()!=0){
     // launching the tools:
     ///////////////////////
-    if (m_hypoTools.size()>0){
-      for ( auto& tool: m_hypoTools ) {
-        ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
-        ATH_CHECK( tool->decide( passingLegs, context ) );
+    for ( auto& tool: m_hypoTools ) {
+      ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
+      ATH_CHECK( tool->decide( passingLegs, context ) );
       }
-    }
+    
   }
 
   // this is only for debug:
   if (msgLvl(MSG::DEBUG)){
-    DecisionIDContainer passing;
-    for (auto const& element : passingLegs) {
-      passing.insert(element.first);
+    for (auto const& [id, decisions] : passingLegs) {
+      ATH_MSG_DEBUG("" << (decisions.empty() ? "failing " : "passing "+std::to_string(decisions.size())+" decisions ") << id );
     }
-    for (auto p: passing)
-    ATH_MSG_DEBUG("Passing "<<HLT::Identifier(p));
   }
 
   // need to pass all combinations, since not all element pass the decID
   ATH_CHECK( copyDecisions( passingLegs, context ) );
-  
+
   return StatusCode::SUCCESS;
 }
 

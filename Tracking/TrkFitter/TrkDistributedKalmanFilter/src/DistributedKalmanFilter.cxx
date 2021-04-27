@@ -808,18 +808,19 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
       const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
       if(pPS==nullptr) return pTSS;
       
-      AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
+      AmgSymMatrix(5) pM;;
 
-      for(int i=0;i<5;i++) 
-	for(int j=0;j<5;j++)
-	  (*pM)(i,j)=pTS->getTrackCovariance(i,j);
-  
+      for(int i=0;i<5;i++) {
+        for(int j=0;j<5;j++){
+	      pM(i,j)=pTS->getTrackCovariance(i,j);
+        }
+      }
       pTP=new Trk::AtaPlane(pTS->getTrackState(0),
 			    pTS->getTrackState(1),
 			    pTS->getTrackState(2),
 			    pTS->getTrackState(3),
 			    pTS->getTrackState(4),*pPS,
-			    pM);
+			    std::move(pM));
     }
   else if(type==3)
     {
@@ -827,11 +828,13 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
       const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
       if(pLS==nullptr) return pTSS;
 
-      AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
+      AmgSymMatrix(5) pM;
 
-      for(int i=0;i<5;i++) 
-	for(int j=0;j<5;j++)
-	  (*pM)(i,j)=pTS->getTrackCovariance(i,j);
+      for(int i=0;i<5;i++) {
+        for(int j=0;j<5;j++){
+          (pM)(i,j)=pTS->getTrackCovariance(i,j);
+        }
+      }
 
       if((pTS->getTrackState(2)<-M_PI) ||(pTS->getTrackState(2)>M_PI))
 	printf("Phi is beyond the range\n");
@@ -842,7 +845,7 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
 				   pTS->getTrackState(3),
 				   pTS->getTrackState(4),
 				   *pLS,
-				   pM);
+				   std::move(pM));
     }
   if(pTP==nullptr) return nullptr;
   const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);
@@ -862,11 +865,11 @@ Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState*
 
   Trk::Perigee* pMP=nullptr;
 
-  AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
+  AmgSymMatrix(5) pM;
 
   for(int i=0;i<5;i++){
     for (int j = 0; j < 5; j++){
-      (*pM)(i, j) = pTS->getTrackCovariance(i, j);
+      (pM)(i, j) = pTS->getTrackCovariance(i, j);
     }
   }
   const Trk::PerigeeSurface perSurf;
@@ -876,7 +879,7 @@ Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState*
                          pTS->getTrackState(3),
                          pTS->getTrackState(4),
                          perSurf,
-                         pM);
+                         std::move(pM));
   return pMP;
 }
 

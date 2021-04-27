@@ -8,6 +8,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
 
@@ -276,13 +278,13 @@ class ComboMaker(AlgNode):
         self.mult=list(multiplicity)
         self.legIds = list(legIds)
         self.comboHypoCfg = comboHypoCfg
-        Alg = RecoFragmentsPool.retrieve( self.create, name )
+        Alg = self.create(name)
         log.debug("ComboMaker init: Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
 
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
-        return self.comboHypoCfg(name)
+        return self.comboHypoCfg(name=name)
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
@@ -536,16 +538,16 @@ class MenuSequence(object):
 
 
 class MenuSequenceCA(MenuSequence):
-    ''' MenuSequence with Compoment Accumulator '''
+    ''' MenuSequence with Component Accumulator '''
 
     def __init__(self, ca, HypoToolGen ):
         self.ca = ca
         allAlgs = ca.getEventAlgos()
         inputMaker = [ a for a in allAlgs if isInputMakerBase(a)]
-        assert len(inputMaker) == 1, "Wrong number of input makers in the compnent accumulator {}".format(len(inputMaker))
+        assert len(inputMaker) == 1, "Wrong number of input makers in the component accumulator {}".format(len(inputMaker))
         inputMaker = inputMaker[0]
         hypoAlg = [ a for a in allAlgs if isHypoAlg(a)]
-        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the compnent accumulator {}".format(len(hypoAlg))
+        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the component accumulator {}".format(len(hypoAlg))
         hypoAlg = hypoAlg[0]
         MenuSequence.__init__(self, ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
 
@@ -584,7 +586,6 @@ class Chain(object):
         self.vseeds=L1Thresholds
 
 
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
@@ -674,14 +675,7 @@ class Chain(object):
             return
 
         for step in self.steps:
-             # TODO: make  this as an error  when exceptions are handled
-            if len(self.L1decisions) != len(step.sequences) and not step.isEmpty:
-                log.error("setSeedsToSequences: found %d L1seeds and %d sequences in chain %s  step  %s: is this correct?", len(self.L1decisions), len(step.sequences),self.name, step.name)
-                raise RuntimeError("[setSeedsToSequences] L1 seeding issue")
-            for seed, seq in zip(self.L1decisions, step.sequences):
-                    seq.setSeed( seed )
-                    log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
-
+            step.setSeedsToSequences()
     
     def createHypoTools(self):
         """ This is extrapolating the hypotool configuration from the chain name"""
@@ -818,6 +812,7 @@ class ChainStep(object):
         self.stepDicts = chainDicts # one dict per leg
         self.isEmpty=(sum(multiplicity)==0 or isEmpty)
         self.relabelLegIdsForJets()
+        self.setChainPartIndices()
         self.legIds = self.getLegIds() if len(multiplicity) > 1 else [0]
         self.makeCombo()
 
@@ -858,6 +853,15 @@ class ChainStep(object):
                 self.stepDicts[i]['chainName'] = legName(oldLegName,nLegs)
                 nLegs += nLegParts
         return
+    
+    def setChainPartIndices(self):
+    
+        leg_counter = 0
+        for step_dict in self.stepDicts:
+            for chainPart in step_dict['chainParts']:
+                chainPart['chainPartIndex'] =  leg_counter
+                leg_counter += 1
+        return
 
     def getLegIds(self):
         leg_ids = []
@@ -895,6 +899,12 @@ class ChainStep(object):
             return list(self.combo.getChains())
         return self.getChainLegs()
 
+    def setSeedsToSequences(self):
+        for seed, seq in zip( [d["chainParts"][0]["L1threshold"] for d in self.stepDicts], self.sequences):
+            l1Collection = mapThresholdToL1DecisionCollection(seed)
+            seq.setSeed( l1Collection )
+            log.debug( "setSeedsToSequences: ChainStep %s adding seed %s to sequence %s", self.name, l1Collection, seq.name )
+
     def __repr__(self):
         if len(self.sequences) == 0:
             return "--- ChainStep %s ---\n is Empty, ChainDict = %s "%(self.name,  ' '.join(map(str, [dic['chainName'] for dic in self.stepDicts])) )
@@ -927,13 +937,16 @@ class InEventRecoCA( ComponentAccumulator ):
         self.addSequence( self.mainSeq )
 
         self.inputMakerAlg = inputMaker
+        if not self.inputMakerAlg:
+            self.inputMakerAlg = CompFactory.InputMakerForRoI("IM"+name, 
+                                                               RoITool = CompFactory.ViewCreatorInitialROITool())
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
     pass
 
     def mergeReco( self, ca ):
-        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        """ Merged CA moving reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.name )
 
     def addRecoAlgo( self, algo ):
@@ -971,7 +984,7 @@ class InViewRecoCA(ComponentAccumulator):
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
     def mergeReco( self, ca ):
-        """ Merge CA movnig reconstruction algorithms into the right sequence """
+        """ Merge CA moving reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.name )
 
     def addRecoAlgo( self, algo ):
@@ -992,9 +1005,11 @@ class SelectionCA(ComponentAccumulator):
         self.merge(other, sequenceName=self.stepRecoSequence.name)
 
     def mergeHypo(self, other):
+        """To be used when the hypo alg configuration comes with auxiliary tools/services"""
         self.merge(other, sequenceName=self.stepViewSequence.name)
 
     def addHypoAlgo(self, algo):
+        """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
 class RecoFragmentsPool(object):
@@ -1016,6 +1031,10 @@ class RecoFragmentsPool(object):
             bound = sig.bind(*args, **kwargs)
             bound.apply_defaults()
             return dict(bound.arguments)
+
+        from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+        if not(isinstance(flags,AthConfigFlags) or flags is None):
+            raise TypeError("RecoFragmentsPool: First argument for creator function passed to retrieve() must be of type ConfigFlags or None")
 
         allargs = bind_callargs(creator, flags, **kwargs)
         # First arg is flags, which we don't want to depend on

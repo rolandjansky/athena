@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNTAA_TBTPValidation.h"
@@ -342,10 +342,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_overflow_TBADCRawCont->resize(nADC);
 
     unsigned NtupleVectorIndex = 0;
-    TBADCRawCont::const_iterator it_adc   = adcCont->begin();
-    TBADCRawCont::const_iterator last_adc = adcCont->end();
-    for(;it_adc!=last_adc;it_adc++,NtupleVectorIndex++) {
-      const TBADCRaw * adc = (*it_adc);
+    for (const TBADCRaw* adc : *adcCont) {
       (*m_adc)[NtupleVectorIndex]                          = adc-> getADC();
       (*m_tbDetectorName_TBADCRawCont)[NtupleVectorIndex]  = adc-> getDetectorName();	
       (*m_overflow_TBADCRawCont)[NtupleVectorIndex]        = adc-> isOverflow();
@@ -369,10 +366,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_overflow_TBTDCRawCont->resize(nTDC);
 
     unsigned NtupleVectorIndex = 0;
-    TBTDCRawCont::const_iterator it_tdc   = tdcCont->begin();
-    TBTDCRawCont::const_iterator last_tdc = tdcCont->end();
-    for(;it_tdc!=last_tdc;it_tdc++,NtupleVectorIndex++) {
-      const TBTDCRaw * tdc = (*it_tdc);
+    for (const TBTDCRaw* tdc : *tdcCont) {
       (*m_tdc_raw)[NtupleVectorIndex]                      = tdc-> getTDC();
       (*m_underThreshold_raw)[NtupleVectorIndex]           = tdc-> isUnderThreshold();
       (*m_tbDetectorName_TBTDCRawCont)[NtupleVectorIndex]  = tdc-> getDetectorName();
@@ -458,10 +452,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_overflow_TBBPCCont        ->resize(nBPCCont);
      
     unsigned NtupleVectorIndex = 0;
-    TBBPCCont::const_iterator it_TBBPCCont  = BPCCont->begin();
-    TBBPCCont::const_iterator last_BBPCCont = BPCCont->end();
-    for(;it_TBBPCCont!=last_BBPCCont;it_TBBPCCont++,NtupleVectorIndex++) {
-       const TBBPC * bpc = (*it_TBBPCCont);
+    for (const TBBPC* bpc : *BPCCont) {
      	(*m_xPos)[NtupleVectorIndex]                      = bpc-> getXPos();
      	(*m_yPos)[NtupleVectorIndex]                      = bpc-> getYPos();
      	(*m_xErr)[NtupleVectorIndex]                      = bpc-> getXErr();
@@ -498,10 +489,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
       m_samples->reserve( ( (*(LArDigitContainer->begin()))->nsamples() ) * nLArDigits);
 
     unsigned NtupleVectorIndex = 0;
-    TBLArDigitContainer::const_iterator it_LArDigitContainer   = LArDigitContainer->begin();
-    TBLArDigitContainer::const_iterator last_LArDigitContainer = LArDigitContainer->end();
-    for(;it_LArDigitContainer!=last_LArDigitContainer;it_LArDigitContainer++,NtupleVectorIndex++) {
-      const LArDigit * larDigit = (*it_LArDigitContainer);
+    for (const LArDigit* larDigit : *LArDigitContainer) {
       (*m_channelID)[NtupleVectorIndex] = larDigit->hardwareID().get_identifier32().get_compact() ;
       (*m_gain)[NtupleVectorIndex] = (unsigned char)larDigit->gain();
 
@@ -834,7 +822,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_finalize()
   return StatusCode::SUCCESS;
 }
 
-std::string CBNTAA_TBTPValidation::add_name(const char* base, const std::string extension) {
+std::string CBNTAA_TBTPValidation::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

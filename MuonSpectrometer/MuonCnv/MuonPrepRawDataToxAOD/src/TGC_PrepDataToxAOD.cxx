@@ -72,7 +72,7 @@ void TGC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     if( clus ) {
       const Trk::TrackParameters* pars =
         clus->associatedSurface()
-          .createUniqueTrackParameters(gposCor, gposCor.unit(), 1., nullptr)
+          .createUniqueTrackParameters(gposCor, gposCor.unit(), 1., std::nullopt)
           .release();
       if (pars) {
         const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( clus, pars, Trk::ResidualPull::HitOnly );

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger include(s):
 #include "TrigT1Result/CTP_RIO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
+#include "RecCTPByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRecCTPByteStreamTool( "RecCTPByteStreamTool", 1, 0 );
@@ -25,33 +25,9 @@ const InterfaceID & RecCTPByteStreamTool::interfaceID() {
  */
 RecCTPByteStreamTool::RecCTPByteStreamTool( const std::string& type, const std::string& name,
                                             const IInterface* parent )
-  : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
+  : AthAlgTool( type, name, parent ) {
 
   declareInterface< RecCTPByteStreamTool >( this );
-}
-
-/**
- * The destructor doesn't do anything.
- */
-RecCTPByteStreamTool::~RecCTPByteStreamTool() {
-
-}
-
-/**
- * The function creates a CTPSrcIdMap object that is used in the conversion
- * and initialises the base class.
- */
-StatusCode RecCTPByteStreamTool::initialize() {
-  m_srcIdMap = new CTPSrcIdMap();
-  return StatusCode::SUCCESS;
-}
-
-/**
- * The function deletes the CTPSrcIdMap object and finalises the base class.
- */
-StatusCode RecCTPByteStreamTool::finalize() {
-  delete m_srcIdMap;
-  return StatusCode::SUCCESS;
 }
 
 /**
@@ -62,7 +38,7 @@ StatusCode RecCTPByteStreamTool::convert( const ROBF* rob, CTP_RIO*& result ) {
 
    ATH_MSG_DEBUG("executing convert() from ROBFragment to RIO");
 
-   const uint32_t ctpRodId = m_srcIdMap->getRodID();
+   const uint32_t ctpRodId = m_srcIdMap.getRodID();
    const uint32_t rodId = rob->rod_source_id();
 
    ATH_MSG_DEBUG(" expected ROD sub-detector ID: 0x" << std::hex << ctpRodId 

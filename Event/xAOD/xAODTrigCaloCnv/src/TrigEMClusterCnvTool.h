@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigEMClusterCnvTool.h 785764 2016-11-22 15:40:18Z ssnyder $
 #ifndef XAODTRIGCALOCNV_TRIGEMCLUSTERCNVTOOL_H
 #define XAODTRIGCALOCNV_TRIGEMCLUSTERCNVTOOL_H
 
@@ -34,9 +33,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigEMClusterCnvTool( const std::string& type, const std::string& name,
 			      const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigEMCluster
       virtual StatusCode convert( const TrigEMClusterContainer* aod,

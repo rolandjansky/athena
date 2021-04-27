@@ -55,18 +55,22 @@ def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
 
     return jettrackselloose
 
-def getTrackVertexAssocTool(trkopt=""):
+def getTrackVertexAssocTool(trkopt="", theSequence=None):
     if trkopt: "_{}".format(trkopt)
     # Track-vertex association
     # This is to be deprecated
     # In fact can probably be switched already to match legacy master
     # but for a future MR
-    idtvassoc = CompFactory.getComp("CP::TrackVertexAssociationTool")(
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    idtvassoc = getTTVAToolForReco(
         "idloosetvassoc",
         WorkingPoint = "Custom",
         d0_cut = 2.0,
         dzSinTheta_cut = 2.0,
-        TrackContName = trackcollectionmap[trkopt]["Tracks"]
+        TrackContName = trackcollectionmap[trkopt]["Tracks"],
+        VertexContName = trackcollectionmap[trkopt]["Vertices"],
+        returnCompFactory = True,
+        add2Seq=theSequence
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(
@@ -74,7 +78,7 @@ def getTrackVertexAssocTool(trkopt=""):
         TrackParticleContainer  = trackcollectionmap[trkopt]["Tracks"],
         TrackVertexAssociation  = trackcollectionmap[trkopt]["TVA"],
         VertexContainer         = trackcollectionmap[trkopt]["Vertices"],
-        TrackVertexAssoTool     = idtvassoc,
+        TrackVertexAssoTool     = idtvassoc
     )
     return jettvassoc
 
@@ -83,8 +87,10 @@ def getTrackUsedInFitTool(trkopt=""):
     # InDet decorator tool:
     IDUsedInFitTrkDecoTool = CompFactory.getComp("InDet::InDetUsedInFitTrackDecoratorTool")(
         "IDUsedInFitTrkDecoTool",
-        TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
-        VertexContainer = trackcollectionmap[trkopt]["Vertices"]
+        TrackContainer       = trackcollectionmap[trkopt]["Tracks"],
+        VertexContainer      = trackcollectionmap[trkopt]["Vertices"],
+        AMVFVerticesDecoName = "TTVA_AMVFVertices_forReco",
+        AMVFWeightsDecoName  = "TTVA_AMVFWeights_forReco"
     )
     # Jet wrapper:
     JetUsedInFitTrkDecoTool = CompFactory.JetUsedInFitTrackDecoratorTool(

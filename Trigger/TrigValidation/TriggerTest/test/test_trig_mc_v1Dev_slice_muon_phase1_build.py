@@ -12,11 +12,11 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'ttbar_phase1'
+ex.input = 'ttbar'
 ex.threads = 1
 precommand = ''.join([
   "setMenu='LS2_v1';",
-  "enableL1Phase1=True;",
+  "enableL1MuonPhase1=True;",
   "enableL1CaloLegacy=True;",  # TODO: fix LvlSimulationConfig to be able to disable this
   "doEmptyMenu=True;",
   "doMuonSlice=True;",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SIDBASICKALMAN_H
@@ -47,7 +47,7 @@ class AFP_SIDBasicKalman
                 std::map<Int_t, SIDHITPOS> m_MapSIDHitPos;
 
 	public:
-		StatusCode Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT]);
+		StatusCode Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, const Float_t fsSID[SIDSTATIONID][SIDCNT], const Float_t fxSID[SIDSTATIONID][SIDCNT], const Float_t fySID[SIDSTATIONID][SIDCNT], const Float_t fzSID[SIDSTATIONID][SIDCNT]);
 		StatusCode Execute();
 		StatusCode Finalize(std::list<SIDRESULT>* pListResults);
 		

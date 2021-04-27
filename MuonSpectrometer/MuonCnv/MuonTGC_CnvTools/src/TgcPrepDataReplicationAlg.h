@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TgcPrepDataReplicationAlg_h
@@ -8,11 +8,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonTGC_CnvTools/ITgcPrepDataReplicationTool.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon 
 {
 
-  class TgcPrepDataReplicationAlg:public AthAlgorithm
+  class ATLAS_NOT_THREAD_SAFE TgcPrepDataReplicationAlg:public AthAlgorithm
   {
   public:
     TgcPrepDataReplicationAlg(const std::string& name, ISvcLocator* pSvcLocator); // Constructor

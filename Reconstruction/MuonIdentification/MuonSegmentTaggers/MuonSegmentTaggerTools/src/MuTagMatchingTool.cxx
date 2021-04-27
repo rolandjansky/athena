@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuTagMatchingTool.h"
@@ -24,26 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/Track.h"
-
-namespace {
-// local helper functions
-#if 0
-  /** Limit deltaPhi between -pi < dPhi <= +pi */
-  inline double limit_deltaPhi(double deltaPhi) {
-    while (deltaPhi >  +M_PI) deltaPhi -= 2.*M_PI;
-    while (deltaPhi <= -M_PI) deltaPhi += 2.*M_PI;
-    return deltaPhi;
-  }
-
-  /** Limit deltaTheta between -pi/2 < dPhi <= +pi/2 */
-  inline double limit_deltaTheta(double deltaTheta) {
-    while (deltaTheta >  +M_PI/2.) deltaTheta -= M_PI;
-    while (deltaTheta <= -M_PI/2.) deltaTheta += M_PI;
-    return deltaTheta;
-  }
-#endif
-
-}  // namespace
 
 
 MuTagMatchingTool::MuTagMatchingTool(const std::string& t, const std::string& n, const IInterface* p)
@@ -129,6 +109,13 @@ MuTagMatchingTool::initialize()
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_pullCalculator.retrieve());
 
+    if (!m_trackingGeometryReadKey.empty()) {
+        ATH_CHECK(m_trackingGeometryReadKey.initialize());
+    } else {
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+    }
+
+    
     return StatusCode::SUCCESS;
 }
 
@@ -230,31 +217,16 @@ MuTagMatchingTool::surfaceMatch(const Trk::TrackParameters* atSurface, const Muo
 const Trk::TrackParameters*
 MuTagMatchingTool::ExtrapolateTrktoMSEntrance(const Trk::Track* pTrack, Trk::PropDirection direction) const
 {
-    if (pTrack == 0) return 0;
-
-    StatusCode sc;
-
-    const Trk::TrackingGeometry* trackingGeometry = 0;
-
-
-    sc = detStore()->retrieve(trackingGeometry, "AtlasTrackingGeometry");
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Could not find tracking geometry. Exiting.");
-        return 0;
-    }
+    if (!pTrack) return nullptr;
 
     const Trk::TrackParameters* exTrk            = nullptr;
-    const Trk::TrackingVolume*  MSEntranceVolume = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-
-    //  if( m_extrapolatePerigee ){
-    exTrk =
-        p_IExtrapolator->extrapolateToVolume(*(pTrack->perigeeParameters()), *MSEntranceVolume, direction, Trk::muon);
-    //  } else { // using perigee parameters arbitrarily; to be changed if new extrapolateToVolume is available
-    //    exTrk = p_IExtrapolator->extrapolateToVolume( *( pTrack->trackParameters() ),
-    //						  *MSEntranceVolume,
-    //						  direction,
-    //						  Trk::muon ) ;
-    //  }
+    const Trk::TrackingVolume*  MSEntranceVolume = getVolume("MuonSpectrometerEntrance");
+    if (!MSEntranceVolume){
+        return nullptr;
+    }
+    
+    exTrk = p_IExtrapolator->extrapolateToVolume(*(pTrack->perigeeParameters()), *MSEntranceVolume, direction, Trk::muon);
+   
     if (!exTrk)
         ATH_MSG_DEBUG("Track could not be extrapolated to MS entrance...");
     else
@@ -269,14 +241,13 @@ const Trk::TrackParameters*
 MuTagMatchingTool::ExtrapolateTrktoMSSurface(const Trk::Surface* pSurface, const Trk::TrackParameters* pTrack,
                                              Trk::PropDirection direction) const
 {
-    if (pSurface == 0) return 0;
-    if (pTrack == 0) return 0;
-
+    if (!pSurface || !pTrack) return nullptr;
+  
     const Trk::TrackParameters* exTrk = p_IExtrapolator->extrapolate(*pTrack, *pSurface, direction, false, Trk::muon);
     if (!exTrk) {
         ATH_MSG_DEBUG(" didn't manage to extrapolate TrackParameters to abstract surface Radius "
                       << pSurface->center().perp() << " Z " << pSurface->center().z());
-        return 0;
+        return nullptr;
     }
     return exTrk;
 }
@@ -294,12 +265,12 @@ MuTagMatchingTool::flipDirection(const Trk::Perigee* inputPars) const
     if (flippedTheta < 0.) flippedTheta += pi;
     // Trk::ErrorMatrix* errorMat = new Trk::ErrorMatrix( inputPars->localErrorMatrix() );
     if (inputPars->covariance()) {
-        AmgSymMatrix(5)* covMat = new AmgSymMatrix(5)(*inputPars->covariance());
+        AmgSymMatrix(5) covMat = AmgSymMatrix(5)(*inputPars->covariance());
         const Trk::PerigeeSurface perSurf;
         return new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perSurf, covMat);
     } else {
         ATH_MSG_DEBUG("flipDirection: no covariance associated to input parameters " << *inputPars);
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -308,10 +279,9 @@ const Trk::AtaPlane*
 MuTagMatchingTool::ExtrapolateTrktoSegmentSurface(const Muon::MuonSegment* segment, const Trk::TrackParameters* pTrack,
                                                   Trk::PropDirection direction) const
 {
-    if (segment == 0) return 0;
-    if (pTrack == 0) return 0;
+    if (!segment || !pTrack) return nullptr;
 
-    const Trk::AtaPlane* matap = 0;
+    const Trk::AtaPlane* matap = nullptr;
 
     bool         isCsc(isCscSegment(segment));
     unsigned int hits(cscHits(segment));
@@ -385,11 +355,9 @@ MuTagMatchingTool::phiMatch(const Trk::TrackParameters* atSurface, const Muon::M
         } else
             ATH_MSG_DEBUG(" track not extrapolated to a disc ");
     }
-
+    if (std::abs(cosphi) > 1.) return false;
     double errPhi = std::hypot(PHI_CUT, sigma_phi);
-
     // if the difference between exTrk and Segment phi position falls within the errPhi, accept as rough match
-    //  if( std::acos(cosphi) < errPhi ) return true;
     if (std::acos(std::abs(cosphi)) < errPhi)
         return true;  // BRes: TEMPORARY - segment direction not sure, so I'm making this match symmetric wrt Pi/2
     //  else ATH_MSG_DEBUG( std::setw(30) << "roughPhi failed:  d_phi = " << std::setw(10) << std::acos(cosphi)
@@ -590,7 +558,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     if (!pSurface) return;
     if (!pTrack) return;
     const Trk::Perigee* oriPerigee = pTrack->perigeeParameters();
-    if (oriPerigee == 0) {
+    if (!oriPerigee) {
         ATH_MSG_DEBUG("Couldn't get the measured Perigee from TP");
         return;
     }
@@ -598,7 +566,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     // CLHEP::HepVector oripars = oriPerigee->parameters();
     const AmgVector(5)& oripars = oriPerigee->parameters();
     const Trk::PerigeeSurface periSurf = nullptr;
-    const Trk::Perigee* pPerigee = new Trk::Perigee(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, 0);
+    const Trk::Perigee* pPerigee = new Trk::Perigee(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, std::nullopt);
     Amg::Vector3D       startPos = pPerigee->position();
     Amg::Vector3D       startMom = pPerigee->momentum();
     const AmgVector(5)& pars     = pPerigee->parameters();
@@ -642,7 +610,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
     if (flippedTheta < 0.) flippedTheta += pi;
     const Trk::PerigeeSurface perigSurf;
     const Trk::Perigee*       flippedPerigee =
-        new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perigSurf, 0);
+        new Trk::Perigee(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perigSurf,std::nullopt);
     // CLHEP::HepVector flipPars = flippedPerigee->parameters();
     const AmgVector(5)& flipPars = flippedPerigee->parameters();
     Amg::Vector3D flipPos        = flippedPerigee->position();
@@ -944,10 +912,13 @@ MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSeg
     info.pullChamber = maxResXMdt / info.exErrorX;
 
     //  Scale covariance Matrix (if needed)
-
-    double a   = info.exErrorY * info.exErrorY;
-    double b   = info.exCovYZY;
-    double d   = info.exErrorYZ * info.exErrorYZ;
+    /// The cut off variable is used to avoid FPEs risen where
+    /// one of the matrix enties exceeds a large number and hence 
+    /// the determinant becomes tremendously larger
+    constexpr double matrix_cutoff = 1.e20;
+    double a   = std::pow(std::min(matrix_cutoff,info.exErrorY), 2);
+    double b   = std::abs(info.exCovYZY) < matrix_cutoff ?info.exCovYZY : ( info.exCovYZY < 0 ? -1. : 1) * matrix_cutoff;
+    double d   = std::pow(std::min(matrix_cutoff,info.exErrorYZ), 2);
     double det = a * d - b * b;
 
     double scale = 1.;

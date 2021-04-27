@@ -10,21 +10,15 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def HLTCaloCellMakerCfg( flags, cellsname, cdaSvc ):
     result = ComponentAccumulator()
-    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
     
     result.merge(trigCaloDataAccessSvcCfg(flags))
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
                                                     DataObjects = [('TrigRoiDescriptorCollection', f"StoreGateSvc+{caloFSRoI}"),
                                                                   ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
     result.addEventAlgo( verifier )
-    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-
-    cellmaker.RoIs = caloFSRoI
-    cellmaker.TrigDataAccessMT = cdaSvc
-    cellmaker.CellsName = cellsname
-    cellmaker.ExtraInputs = CaloDataAccessSvcDependencies
-
-    result.addEventAlgo(cellmaker)
+    from TrigCaloRec.TrigCaloRecConfig import hltCaloCellMakerCfg
+    result.merge(hltCaloCellMakerCfg(flags, name="HLTCaloCellMaker_FS", roisKey="HLT_FSRoI"))
     return result
 
 def generateChains( flags, chainDict ):
@@ -48,7 +42,7 @@ def generateChains( flags, chainDict ):
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
     
-    cellmakerCfg = HLTCaloCellMakerCfg(flags, cellsname, cdaSvc)
+    cellmakerCfg = HLTCaloCellMakerCfg(flags, cellsname, cdaSvc) #TODO use topo cluter config from TrigCaloRec
 
     InEventReco.mergeReco( cellmakerCfg )
 

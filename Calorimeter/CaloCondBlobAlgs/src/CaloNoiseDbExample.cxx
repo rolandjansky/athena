@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCondBlobAlgs/CaloNoiseDbExample.h"
-//#include "CaloInterface/ICaloNoiseTool.h"
 
 //=== Gaudi includes
 #include "GaudiKernel/MsgStream.h"

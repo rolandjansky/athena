@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MCBunchCrossingTool.cxx 780643 2016-10-27 03:39:39Z ssnyder $
 
 // System include(s):
 #include <cstdlib>
@@ -46,8 +45,7 @@ namespace Trig {
    StatusCode MCBunchCrossingTool::initialize() {
 
       // Report about the initialization:
-      ATH_MSG_INFO( "Initializing MCBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing MCBunchCrossingTool" );
       ATH_MSG_INFO( "  Maximal bunch spacing: " << m_maxBunchSpacing << " ns" );
       ATH_MSG_INFO( "  Length of train front: " << m_frontLength << " ns" );
       ATH_MSG_INFO( "  Length of train tail : " << m_tailLength << " ns" );

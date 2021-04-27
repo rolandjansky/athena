@@ -1,16 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCSLPreSelectorOut_hh
-#define TGCSLPreSelectorOut_hh
+#ifndef TrigT1TGC_TGCSLPreSelectorOut_h
+#define TrigT1TGC_TGCSLPreSelectorOut_h
 
-#include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 
 namespace LVL1TGCTrigger {
-const int NCandidateInSLPreSelector = 2;
 
-class TGCSLPreSelectorOut {
+class TGCSLPreSelectorOut
+{
+ public:
+  static constexpr int NCandidateInSLPreSelector = 2;
+
 public:
   void setIdSSC(int ptLevel, int order, int idSSCIn);
   void setR(int ptLevel, int order, int rIn);
@@ -122,6 +125,6 @@ void TGCSLPreSelectorOut::setInnerVeto(int ptLevel, int order, bool vetoIn)
 }
 
 
-} //end of namespace bracket
+}   //end of namespace
 
-#endif // TGCSLPreSelectorOut_hh
+#endif

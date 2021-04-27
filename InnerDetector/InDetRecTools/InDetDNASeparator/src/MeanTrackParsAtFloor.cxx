@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ void Trk::MeanTrackParsAtFloor::addTrackParsToFloor(const Trk::TrackParameters& 
     dps  += (dpopb - dps)/double(nen);
   }
 
-  if (internalBrem != NULL) {
+  if (internalBrem != nullptr) {
 
     if (internalBrem->foundByForwardFilter()) {
       ++nnf;
@@ -56,7 +56,7 @@ void Trk::MeanTrackParsAtFloor::addTrackParsToFloor(const Trk::TrackParameters& 
       dnb += (internalBrem->addSigmaQoverP()/fabs(tpars.parameters()[Trk::qOverP]) - dnb)
         /double(nnb);
     }
-  } else if (officialBrem != NULL) {
+  } else if (officialBrem != nullptr) {
 
     if (officialBrem->searchDirection() == Trk::outside) {
       ++nnf;

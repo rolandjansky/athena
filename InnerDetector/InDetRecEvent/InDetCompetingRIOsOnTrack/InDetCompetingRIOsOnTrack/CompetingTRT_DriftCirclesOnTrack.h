@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ namespace InDet {
     //! Assignment operator
     CompetingTRT_DriftCirclesOnTrack& operator=(const CompetingTRT_DriftCirclesOnTrack& compROT);
     /** Move assignment operator */
-    CompetingTRT_DriftCirclesOnTrack& operator=(CompetingTRT_DriftCirclesOnTrack&& compROT);
+    CompetingTRT_DriftCirclesOnTrack& operator=(CompetingTRT_DriftCirclesOnTrack&& compROT) noexcept;
     
 
     /** @brief Constructor with all parameters: PLEASE do not use directly,

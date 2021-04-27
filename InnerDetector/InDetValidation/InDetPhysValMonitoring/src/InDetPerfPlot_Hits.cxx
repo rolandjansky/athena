@@ -188,7 +188,7 @@ InDetPerfPlot_Hits::initializePlots() {
 }
 
 void
-InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track) {
+InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track, float weight) {
 
   float eta = track.eta();
   float phi = track.phi();
@@ -198,59 +198,59 @@ InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track) {
   uint8_t iInnerMostPixelShared(0), iPixelShared(0), iSCTShared(0); 
 
   if (track.summaryValue(iInnerMostPixelHits, xAOD::numberOfInnermostPixelLayerHits)) {
-    fillHisto(m_nInnerMostPixelHits, iInnerMostPixelHits);
-    fillHisto(m_nInnerMostPixelHits_vs_eta, eta, iInnerMostPixelHits);
-    fillHisto(m_nInnerMostPixelHits_vs_phi, phi, iInnerMostPixelHits);
+    fillHisto(m_nInnerMostPixelHits, iInnerMostPixelHits, weight);
+    fillHisto(m_nInnerMostPixelHits_vs_eta, eta, iInnerMostPixelHits, weight);
+    fillHisto(m_nInnerMostPixelHits_vs_phi, phi, iInnerMostPixelHits, weight);
   }
   if (track.summaryValue(iNextToInnerMostPixelHits, xAOD::numberOfNextToInnermostPixelLayerHits)) {
-    fillHisto(m_nNextToInnerMostPixelHits, iNextToInnerMostPixelHits);
-    fillHisto(m_nNextToInnerMostPixelHits_vs_eta, eta, iNextToInnerMostPixelHits);
-    fillHisto(m_nNextToInnerMostPixelHits_vs_phi, phi, iNextToInnerMostPixelHits);
+    fillHisto(m_nNextToInnerMostPixelHits, iNextToInnerMostPixelHits, weight);
+    fillHisto(m_nNextToInnerMostPixelHits_vs_eta, eta, iNextToInnerMostPixelHits, weight);
+    fillHisto(m_nNextToInnerMostPixelHits_vs_phi, phi, iNextToInnerMostPixelHits, weight);
   }
   if (track.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    fillHisto(m_nPixelHits, iPixHits);
-    fillHisto(m_nPixelHits_vs_eta, eta, iPixHits);
-    fillHisto(m_nPixelHits_vs_phi, phi, iPixHits);
+    fillHisto(m_nPixelHits, iPixHits, weight);
+    fillHisto(m_nPixelHits_vs_eta, eta, iPixHits, weight);
+    fillHisto(m_nPixelHits_vs_phi, phi, iPixHits, weight);
   }
   if (track.summaryValue(iSctHits, xAOD::numberOfSCTHits)) {
-    fillHisto(m_nSCTHits, iSctHits);
-    fillHisto(m_nSCTHits_vs_eta, eta, iSctHits);
-    fillHisto(m_nSCTHits_vs_phi, phi, iSctHits);
+    fillHisto(m_nSCTHits, iSctHits, weight);
+    fillHisto(m_nSCTHits_vs_eta, eta, iSctHits, weight);
+    fillHisto(m_nSCTHits_vs_phi, phi, iSctHits, weight);
   }
   if (track.summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
-    fillHisto(m_nTRTHits, iTrtHits);
-    fillHisto(m_nTRTHits_vs_eta, eta, iTrtHits);
-    fillHisto(m_nTRTHits_vs_phi, phi, iTrtHits);
+    fillHisto(m_nTRTHits, iTrtHits, weight);
+    fillHisto(m_nTRTHits_vs_eta, eta, iTrtHits, weight);
+    fillHisto(m_nTRTHits_vs_phi, phi, iTrtHits, weight);
   }
   if (track.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    fillHisto(m_nPixelHoles, iPixHoles);
-    fillHisto(m_nPixelHoles_vs_eta, eta, iPixHoles);
-    fillHisto(m_nPixelHoles_vs_phi, phi, iPixHoles);
+    fillHisto(m_nPixelHoles, iPixHoles, weight);
+    fillHisto(m_nPixelHoles_vs_eta, eta, iPixHoles, weight);
+    fillHisto(m_nPixelHoles_vs_phi, phi, iPixHoles, weight);
   }
   if (track.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    fillHisto(m_nSCTHoles, iSCTHoles);
-    fillHisto(m_nSCTHoles_vs_eta, eta, iSCTHoles);
-    fillHisto(m_nSCTHoles_vs_phi, phi, iSCTHoles);
+    fillHisto(m_nSCTHoles, iSCTHoles, weight);
+    fillHisto(m_nSCTHoles_vs_eta, eta, iSCTHoles, weight);
+    fillHisto(m_nSCTHoles_vs_phi, phi, iSCTHoles, weight);
   }
   if (track.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
-    fillHisto(m_nTRTHighThresholdHits, iTrtHTHits);
-    fillHisto(m_nTRTHighThresholdHits_vs_eta, eta, iTrtHTHits);
-    fillHisto(m_nTRTHighThresholdHits_vs_phi, phi, iTrtHTHits);
+    fillHisto(m_nTRTHighThresholdHits, iTrtHTHits, weight);
+    fillHisto(m_nTRTHighThresholdHits_vs_eta, eta, iTrtHTHits, weight);
+    fillHisto(m_nTRTHighThresholdHits_vs_phi, phi, iTrtHTHits, weight);
   }
   if (track.summaryValue(iInnerMostPixelShared, xAOD::numberOfInnermostPixelLayerSharedHits)) {
-    fillHisto(m_nInnerMostPixelSharedHits, iInnerMostPixelShared);
-    fillHisto(m_nInnerMostPixelSharedHits_vs_eta, eta, iInnerMostPixelShared);
-    fillHisto(m_nInnerMostPixelSharedHits_vs_phi, phi, iInnerMostPixelShared);
+    fillHisto(m_nInnerMostPixelSharedHits, iInnerMostPixelShared, weight);
+    fillHisto(m_nInnerMostPixelSharedHits_vs_eta, eta, iInnerMostPixelShared, weight);
+    fillHisto(m_nInnerMostPixelSharedHits_vs_phi, phi, iInnerMostPixelShared, weight);
   }
   if (track.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
-    fillHisto(m_nPixelSharedHits, iPixelShared);
-    fillHisto(m_nPixelSharedHits_vs_eta, eta, iPixelShared);
-    fillHisto(m_nPixelSharedHits_vs_phi, phi, iPixelShared);
+    fillHisto(m_nPixelSharedHits, iPixelShared, weight);
+    fillHisto(m_nPixelSharedHits_vs_eta, eta, iPixelShared, weight);
+    fillHisto(m_nPixelSharedHits_vs_phi, phi, iPixelShared, weight);
   }
   if (track.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
-    fillHisto(m_nSCTSharedHits, iSCTShared);
-    fillHisto(m_nSCTSharedHits_vs_eta, eta, iSCTShared);
-    fillHisto(m_nSCTSharedHits_vs_phi, phi, iSCTShared);
+    fillHisto(m_nSCTSharedHits, iSCTShared, weight);
+    fillHisto(m_nSCTSharedHits_vs_eta, eta, iSCTShared, weight);
+    fillHisto(m_nSCTSharedHits_vs_phi, phi, iSCTShared, weight);
   }
 
   // expert plots
@@ -263,79 +263,79 @@ InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track) {
     uint8_t iPixelDeadSensors(0), iSCTDeadSensors(0);
 
     if (track.summaryValue(iInnerMostPixelOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
-      fillHisto(m_nInnerMostPixelOutliers, iInnerMostPixelOutliers);
-      fillHisto(m_nInnerMostPixelOutliers_vs_eta, eta, iInnerMostPixelOutliers);
-      fillHisto(m_nInnerMostPixelOutliers_vs_phi, phi, iInnerMostPixelOutliers);
+      fillHisto(m_nInnerMostPixelOutliers, iInnerMostPixelOutliers, weight);
+      fillHisto(m_nInnerMostPixelOutliers_vs_eta, eta, iInnerMostPixelOutliers, weight);
+      fillHisto(m_nInnerMostPixelOutliers_vs_phi, phi, iInnerMostPixelOutliers, weight);
     }
     if (track.summaryValue(iInnerMostPixelSplit, xAOD::numberOfInnermostPixelLayerSplitHits)) {
-      fillHisto(m_nInnerMostPixelSplitHits, iInnerMostPixelSplit);
-      fillHisto(m_nInnerMostPixelSplitHits_vs_eta, eta, iInnerMostPixelSplit);
-      fillHisto(m_nInnerMostPixelSplitHits_vs_phi, phi, iInnerMostPixelSplit);
+      fillHisto(m_nInnerMostPixelSplitHits, iInnerMostPixelSplit, weight);
+      fillHisto(m_nInnerMostPixelSplitHits_vs_eta, eta, iInnerMostPixelSplit, weight);
+      fillHisto(m_nInnerMostPixelSplitHits_vs_phi, phi, iInnerMostPixelSplit, weight);
     }
     if (track.summaryValue(iExpectedInnerMostPixelHits, xAOD::expectInnermostPixelLayerHit)) {
-      fillHisto(m_nExpectedInnerMostPixelHits, iExpectedInnerMostPixelHits);
-      fillHisto(m_nExpectedInnerMostPixelHits_vs_eta, eta, iExpectedInnerMostPixelHits);
-      fillHisto(m_nExpectedInnerMostPixelHits_vs_phi, phi, iExpectedInnerMostPixelHits);
+      fillHisto(m_nExpectedInnerMostPixelHits, iExpectedInnerMostPixelHits, weight);
+      fillHisto(m_nExpectedInnerMostPixelHits_vs_eta, eta, iExpectedInnerMostPixelHits, weight);
+      fillHisto(m_nExpectedInnerMostPixelHits_vs_phi, phi, iExpectedInnerMostPixelHits, weight);
     }
     if (track.summaryValue(iExpectedNextToInnerMostPixelHits, xAOD::expectNextToInnermostPixelLayerHit)) {
-      fillHisto(m_nExpectedNextToInnerMostPixelHits, iExpectedNextToInnerMostPixelHits);
-      fillHisto(m_nExpectedNextToInnerMostPixelHits_vs_eta, eta, iExpectedNextToInnerMostPixelHits);
-      fillHisto(m_nExpectedNextToInnerMostPixelHits_vs_phi, phi, iExpectedNextToInnerMostPixelHits);
+      fillHisto(m_nExpectedNextToInnerMostPixelHits, iExpectedNextToInnerMostPixelHits, weight);
+      fillHisto(m_nExpectedNextToInnerMostPixelHits_vs_eta, eta, iExpectedNextToInnerMostPixelHits, weight);
+      fillHisto(m_nExpectedNextToInnerMostPixelHits_vs_phi, phi, iExpectedNextToInnerMostPixelHits, weight);
     }
     if (track.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {
-      fillHisto(m_nPixelOutliers, iPixelOutliers);
-      fillHisto(m_nPixelOutliers_vs_eta, eta, iPixelOutliers);
-      fillHisto(m_nPixelOutliers_vs_phi, phi, iPixelOutliers);
+      fillHisto(m_nPixelOutliers, iPixelOutliers, weight);
+      fillHisto(m_nPixelOutliers_vs_eta, eta, iPixelOutliers, weight);
+      fillHisto(m_nPixelOutliers_vs_phi, phi, iPixelOutliers, weight);
     }
     if (track.summaryValue(iPixelContribLayers, xAOD::numberOfContribPixelLayers)) {
-      fillHisto(m_nPixelContribLayers, iPixelContribLayers);
-      fillHisto(m_nPixelContribLayers_vs_eta, eta, iPixelContribLayers);
-      fillHisto(m_nPixelContribLayers_vs_phi, phi, iPixelContribLayers);
+      fillHisto(m_nPixelContribLayers, iPixelContribLayers, weight);
+      fillHisto(m_nPixelContribLayers_vs_eta, eta, iPixelContribLayers, weight);
+      fillHisto(m_nPixelContribLayers_vs_phi, phi, iPixelContribLayers, weight);
     }
     if (track.summaryValue(iPixelSplit, xAOD::numberOfPixelSplitHits)) {
-      fillHisto(m_nPixelSplitHits, iPixelSplit);
-      fillHisto(m_nPixelSplitHits_vs_eta, eta, iPixelSplit);
-      fillHisto(m_nPixelSplitHits_vs_phi, phi, iPixelSplit);
+      fillHisto(m_nPixelSplitHits, iPixelSplit, weight);
+      fillHisto(m_nPixelSplitHits_vs_eta, eta, iPixelSplit, weight);
+      fillHisto(m_nPixelSplitHits_vs_phi, phi, iPixelSplit, weight);
     }
     if (track.summaryValue(iPixelGanged, xAOD::numberOfGangedPixels)) {
-      fillHisto(m_nPixelGangedHits, iPixelGanged);
-      fillHisto(m_nPixelGangedHits_vs_eta, eta, iPixelGanged);
-      fillHisto(m_nPixelGangedHits_vs_phi, phi, iPixelGanged);
+      fillHisto(m_nPixelGangedHits, iPixelGanged, weight);
+      fillHisto(m_nPixelGangedHits_vs_eta, eta, iPixelGanged, weight);
+      fillHisto(m_nPixelGangedHits_vs_phi, phi, iPixelGanged, weight);
     }
     if (track.summaryValue(iPixelGangedFakes, xAOD::numberOfGangedFlaggedFakes)) {
-      fillHisto(m_nPixelGangedHitsFlaggedFakes, iPixelGangedFakes);
-      fillHisto(m_nPixelGangedHitsFlaggedFakes_vs_eta, eta, iPixelGangedFakes);
-      fillHisto(m_nPixelGangedHitsFlaggedFakes_vs_phi, phi, iPixelGangedFakes);
+      fillHisto(m_nPixelGangedHitsFlaggedFakes, iPixelGangedFakes, weight);
+      fillHisto(m_nPixelGangedHitsFlaggedFakes_vs_eta, eta, iPixelGangedFakes, weight);
+      fillHisto(m_nPixelGangedHitsFlaggedFakes_vs_phi, phi, iPixelGangedFakes, weight);
     }
     if (track.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-      fillHisto(m_nSCTOutliers, iSCTOutliers);
-      fillHisto(m_nSCTOutliers_vs_eta, eta, iSCTOutliers);
-      fillHisto(m_nSCTOutliers_vs_phi, phi, iSCTOutliers);
+      fillHisto(m_nSCTOutliers, iSCTOutliers, weight);
+      fillHisto(m_nSCTOutliers_vs_eta, eta, iSCTOutliers, weight);
+      fillHisto(m_nSCTOutliers_vs_phi, phi, iSCTOutliers, weight);
     }
     if (track.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
-      fillHisto(m_nSCTDoubleHoles, iSCTDoubleHoles);
-      fillHisto(m_nSCTDoubleHoles_vs_eta, eta, iSCTDoubleHoles);
-      fillHisto(m_nSCTDoubleHoles_vs_phi, phi, iSCTDoubleHoles);
+      fillHisto(m_nSCTDoubleHoles, iSCTDoubleHoles, weight);
+      fillHisto(m_nSCTDoubleHoles_vs_eta, eta, iSCTDoubleHoles, weight);
+      fillHisto(m_nSCTDoubleHoles_vs_phi, phi, iSCTDoubleHoles, weight);
     }
     if (track.summaryValue(iTRTOutliers, xAOD::numberOfTRTOutliers)) {
-      fillHisto(m_nTRTOutliers, iTRTOutliers);
-      fillHisto(m_nTRTOutliers_vs_eta, eta, iTRTOutliers);
-      fillHisto(m_nTRTOutliers_vs_phi, phi, iTRTOutliers);
+      fillHisto(m_nTRTOutliers, iTRTOutliers, weight);
+      fillHisto(m_nTRTOutliers_vs_eta, eta, iTRTOutliers, weight);
+      fillHisto(m_nTRTOutliers_vs_phi, phi, iTRTOutliers, weight);
     }
     if (track.summaryValue(iTRTHTOutliers, xAOD::numberOfTRTHighThresholdOutliers)) {
-      fillHisto(m_nTRTHighThresholdOutliers, iTRTHTOutliers);
-      fillHisto(m_nTRTHighThresholdOutliers_vs_eta, eta, iTRTHTOutliers);
-      fillHisto(m_nTRTHighThresholdOutliers_vs_phi, phi, iTRTHTOutliers);
+      fillHisto(m_nTRTHighThresholdOutliers, iTRTHTOutliers, weight);
+      fillHisto(m_nTRTHighThresholdOutliers_vs_eta, eta, iTRTHTOutliers, weight);
+      fillHisto(m_nTRTHighThresholdOutliers_vs_phi, phi, iTRTHTOutliers, weight);
     }
     if (track.summaryValue(iPixelDeadSensors, xAOD::numberOfPixelDeadSensors)) {
-      fillHisto(m_nPixelDeadSensors, iPixelDeadSensors);
-      fillHisto(m_nPixelDeadSensors_vs_eta, eta, iPixelDeadSensors);
-      fillHisto(m_nPixelDeadSensors_vs_phi, phi, iPixelDeadSensors);
+      fillHisto(m_nPixelDeadSensors, iPixelDeadSensors, weight);
+      fillHisto(m_nPixelDeadSensors_vs_eta, eta, iPixelDeadSensors, weight);
+      fillHisto(m_nPixelDeadSensors_vs_phi, phi, iPixelDeadSensors, weight);
     }
     if (track.summaryValue(iSCTDeadSensors, xAOD::numberOfSCTDeadSensors)) {
-      fillHisto(m_nSCTDeadSensors, iSCTDeadSensors);
-      fillHisto(m_nSCTDeadSensors_vs_eta, eta, iSCTDeadSensors);
-      fillHisto(m_nSCTDeadSensors_vs_phi, phi, iSCTDeadSensors);
+      fillHisto(m_nSCTDeadSensors, iSCTDeadSensors, weight);
+      fillHisto(m_nSCTDeadSensors_vs_eta, eta, iSCTDeadSensors, weight);
+      fillHisto(m_nSCTDeadSensors_vs_phi, phi, iSCTDeadSensors, weight);
     }
 
   }

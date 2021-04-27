@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,8 +17,8 @@
 PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc):
   AthService(name,svc),
   m_detStore("DetectorStore", name),
-  m_detManager(0),
-  m_idHelper(0)
+  m_detManager(nullptr),
+  m_idHelper(nullptr)
 {
 }
 

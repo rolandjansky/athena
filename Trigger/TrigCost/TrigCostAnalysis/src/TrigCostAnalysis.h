@@ -180,16 +180,21 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      */
     uint32_t getOnlineSlot(const xAOD::TrigCompositeContainer* costCollection) const;
 
-
     /**
      * @brief High watermark for pre-cached string hashes for the SLOT category. Corresponding to SG and View IProxyDict names.
      * @param[in] max Pre-compute string hashes for View or Slot multiplicities up to this number.
      */
     StatusCode checkUpdateMaxView(const size_t max);
 
+    /**
+     * @brief Write to outpute tree (if any) the metadata needed downstream.
+     */
+    void writeMetadata();
+
     std::unordered_map<std::string, std::unique_ptr<MonitoredRange> > m_monitoredRanges; //!< Owned storage of Ranges. Keyed on Range name.
     std::unordered_map<uint32_t, std::string > m_algTypeMap; //!< Cache of algorithm's type, read from configuration data.
     std::set<std::string> m_storeIdentifiers; //!< Identifiers of object stores, needed to cache STORE string-hash values
+    TTree* m_metadataTree; //!< Used to write out some metadata needed by post-processing (e.g. bunchgroup, lumi)
 
     mutable std::atomic<size_t> m_fullEventDumps; //!< Counter to keep track of how many events have been full-dumped
     mutable std::atomic<size_t> m_maxViewsNumber; //!< What is the maximum number of View instances we've so far cached string hashes to cover?

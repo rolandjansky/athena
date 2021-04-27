@@ -18,7 +18,6 @@
 #include "TH2.h"
 #include <iostream>
 
-using namespace std;
 using namespace TCS;
 
 
@@ -37,13 +36,13 @@ public:
          delete h;
    }
    
-   void setL1TopoHistSvc(shared_ptr<IL1TopoHistSvc> histSvc) {
+   void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
       m_histSvc = histSvc;
    }
 
    void registerHist(TH1 * h) {
       // histograms in the L1Topo framework are put in a algorithm specific folder
-      string newHistName = m_name + "/" + h->GetName();
+      std::string newHistName = m_name + "/" + h->GetName();
       h->SetName(newHistName.c_str());
 
       if( m_histSvc ) {
@@ -55,7 +54,7 @@ public:
   
    void registerHist(TH2 * h) {
       // histograms in the L1Topo framework are put in a algorithm specific folder
-      string newHistName = m_name + "/" + h->GetName();
+      std::string newHistName = m_name + "/" + h->GetName();
       h->SetName(newHistName.c_str());
 
       if( m_histSvc ) {
@@ -90,10 +89,10 @@ private:
    std::string m_name;
 
    // histogram service
-   shared_ptr<IL1TopoHistSvc> m_histSvc;
+   std::shared_ptr<IL1TopoHistSvc> m_histSvc;
 
    // store histograms locally if no hist service is available
-   vector<TH1 *> m_localHistStore;
+   std::vector<TH1 *> m_localHistStore;
 
 };
 
@@ -259,11 +258,11 @@ void ConfigurableAlg::registerHist(TH2 * h) {
 }
 
 void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax) {
-  string newTitle = to_string((int)xmin)+title+to_string((int)xmax);
-  std::string newname=name+"_"+to_string((int)xmin)+title+to_string((int)xmax);
-  std::replace( newname.begin(), newname.end(), '-', 'n');
-  std::replace( newname.begin(), newname.end(), ' ', '_');
-  regName.push_back(m_name+"/"+newname);
+  std::string newTitle = std::to_string((int)xmin)+title+std::to_string((int)xmax);
+  std::string newName=name+"_"+std::to_string((int)xmin)+title+std::to_string((int)xmax);
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+  regName.push_back(m_name+"/"+newName);
 
   float xmin_new,xmax_new;
   if ( xmin > 0.0)
@@ -289,20 +288,20 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmax_new=70;
   }
 
-  TH1 *h = new TH1F(newname.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
+  TH1 *h = new TH1F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
   h->GetXaxis()->SetTitle(title.c_str());
   m_impl->registerHist(h);
 }
 
 void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax) {
   auto usPos = title.find(" vs ");
-  string xName = title.substr(0,usPos);
-  string yName = title.substr(usPos+4);
-  string newTitle = to_string((int)xmin)+xName+to_string((int)xmax)+" vs "+to_string((int)ymin)+yName+to_string((int)ymax);
-  std::string newname=name+"_"+to_string((int)xmin)+xName+to_string((int)xmax)+"_"+to_string((int)ymin)+yName+to_string((int)ymax);
-  std::replace( newname.begin(), newname.end(), '-', 'n');
-  std::replace( newname.begin(), newname.end(), ' ', '_');
-  regName.push_back(m_name+"/"+newname);
+  std::string xName = title.substr(0,usPos);
+  std::string yName = title.substr(usPos+4);
+  std::string newTitle = std::to_string((int)xmin)+xName+std::to_string((int)xmax)+" vs "+std::to_string((int)ymin)+yName+std::to_string((int)ymax);
+  std::string newName=name+"_"+std::to_string((int)xmin)+xName+std::to_string((int)xmax)+"_"+std::to_string((int)ymin)+yName+std::to_string((int)ymax);
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+  regName.push_back(m_name+"/"+newName);
 
   float xmin_new,xmax_new;
   if ( xmin > 0.0)
@@ -350,7 +349,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymax_new=70;
   }
 
-  TH2 *h = new TH2F(newname.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
+  TH2 *h = new TH2F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
   h->GetXaxis()->SetTitle(xName.c_str());
   h->GetYaxis()->SetTitle(yName.c_str());
   m_impl->registerHist(h);
@@ -370,7 +369,7 @@ namespace TCS {
    std::ostream &
    operator<<(std::ostream & o, const TCS::ConfigurableAlg & alg) {
 
-      o << "algorithm '" << alg.fullname() << "'" << endl;
+      o << "algorithm '" << alg.fullname() << "'" << std::endl;
       o << alg.parameters();
       return o;
 

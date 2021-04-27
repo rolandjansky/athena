@@ -70,13 +70,14 @@ class TrigEgammaFastElectronHypoTool : virtual public ::AthAlgTool
   HLT::Identifier m_decisionId;
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to electrons ( false ) or RoIs/clusters with electrons ( false ), relevant only in when multiplicity > 1" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
+  Gaudi::Property<bool>  m_doLRT{ this, "DoLRT", false, "apply d0 cut for LRT triggers" };
   Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  { float( 5.0*Gaudi::Units::GeV ) }, "Track pT requirement ( separate threshold for each electron )" };
   Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", {0}, "Delta Eta between the track and cluster"      }; //loose cut
   Gaudi::Property< std::vector<float> > m_caloTrackDPhi{ this,  "CaloTrackdPHI", {0}, "Delta Phi between track and cluster"     }; //loose cut
   Gaudi::Property< std::vector<float> > m_caloTrackdEoverPLow{ this,  "CaloTrackdEoverPLow", {0}, "Min E over Pt cut "};
   Gaudi::Property< std::vector<float> > m_caloTrackdEoverPHigh{ this,  "CaloTrackdEoverPHigh", {0}, "Max E over pT cut" };
   Gaudi::Property< std::vector<float> > m_trtRatio{ this,  "TRTRatio", {0}, "TRT HT ratio" };
-
+  Gaudi::Property< std::vector<float> > m_d0{ this,  "d0Cut", {0}, "d0 cut" };
   
   size_t m_multiplicity = 1;
 

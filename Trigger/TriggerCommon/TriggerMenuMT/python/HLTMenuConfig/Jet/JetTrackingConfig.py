@@ -3,79 +3,148 @@
 #
 
 from AthenaCommon.CFElements import parOR
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
+from JetRecTools.JetRecToolsConfig import getTrackVertexAssocTool
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
+# these keys are not used in this file, they are used elsewhere, so 
+# wouldn;t it be better to actually define them in the file where they 
+# are needed ?
+
 trkcollskeys = ["Tracks", "Vertices", "TVA", "GhostTracks", "GhostTracksLabel", "JetTracks"]
 
+
+
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
+
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
-    tracksname = ""
-    verticesname = ""
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
+
+    trackcollmap = None
 
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
         viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=RoIs)
         jetTrkSeq += viewAlgs
-        tracksname =  IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
-        verticesname = recordable("HLT_IDVertex_FS")
+
+        # add the collections for the eflowRec reconstriction in the trigger
+        from eflowRec.PFHLTSequence import trackvtxcontainers
+        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet )
+
+        # now run he actual vertex finders and TTVA tools
+        _                 = jetVertex( "amvf", jetTrkSeq, trkopt+"_amvf", IDTrigConfig, verticesname=IDTrigConfig.vertex,     adaptiveVertex=IDTrigConfig.adaptiveVertex, )
+        trackcollmap      = jetVertex( "jet",  jetTrkSeq, trkopt,         IDTrigConfig, verticesname=IDTrigConfig.vertex_jet, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
+        
+
+    return jetTrkSeq, trackcollmap
+
+
+
+
+def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVertex=None, selector=None ):
+
+    # run the vertex algorithm ...
+
+    if verticesname is None:
+        verticesname = config.vertex
+    
+    if adaptiveVertex is None:
+        adaptiveVertex = config.adaptiveVertex
+
+    tracksname = config.tracks_FTF() 
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", tracksname, verticesname, IDTrigConfig )
-    prmVtx = vtxAlgs[-1]
-    jetTrkSeq += prmVtx
+    vtxAlgs = makeVertices( signature, tracksname, verticesname, config, adaptiveVertex )
+    prmVtx  = vtxAlgs[-1]
+    jetseq += prmVtx
 
+    outmap = None
+
+    # track to vertex association ...
+        
     tvaname = "JetTrackVtxAssoc_"+trkopt
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
-    trkcolls = {
-        "Tracks":           tracksname,
-        "Vertices":         verticesname,
-        "TVA":              tvaname,
-        "GhostTracks" :     ghosttracksname,
-        "GhostTracksLabel": label,
-    }
-
+    
+        
     from JetRecTools.JetRecToolsConfig import trackcollectionmap
     if trkopt not in trackcollectionmap.keys():
+        trkcolls = {
+            "Tracks":           tracksname,
+            "Vertices":         verticesname,
+            "TVA":              tvaname,
+            "GhostTracks" :     ghosttracksname,
+            "GhostTracksLabel": label 
+        }
+            
         trackcollectionmap[trkopt] = trkcolls
-
-    # Track decoration.
-    trkdecortool = CompFactory.getComp('InDet::InDetUsedInFitTrackDecoratorTool') \
-                   ("jetTrkDecorTool",
-                    TrackContainer  = trackcollectionmap[trkopt]["Tracks"],
-                    VertexContainer = trackcollectionmap[trkopt]["Vertices"]
-                    )
-    trkdecoralg = CompFactory.getComp('InDet::InDetUsedInVertexFitTrackDecorator') \
-                  ("jetTrkDecorAlg",
-                   UsedInFitDecoratorTool = trkdecortool
-                   )
-    jetTrkSeq += conf2toConfigurable( trkdecoralg )
-
+            
+    # why is some of this adding of parameters to the trackcollectionmap
+    # done here, and some in getTrackSelTool ? Could these two functions 
+    # not be combined or broken up into more transparent smaller functions ?
+        
     # Jet track selection
-    jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
-    jettracksname = jettrackselloose.OutputContainer
-    jettvassoc = getTrackVertexAssocTool(trkopt)
-
+    jettrackselloose =  getTrackSelTool_Trig( trkopt, doWriteTracks=True )
+    jettracksname    = jettrackselloose.OutputContainer
+    
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
+    
+    prepname         = "jetalg_TrackPrep"+trkopt
+    jettvassoc       = getTrackVertexAssocTool( trkopt, jetseq )
 
-    jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
+    jettrkprepalg       = CompFactory.JetAlgorithm(prepname)
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
-    jetTrkSeq += conf2toConfigurable( jettrkprepalg )
-
+    jetseq             += conf2toConfigurable( jettrkprepalg )
+    
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+label,
         InputContainer=tracksname,
         OutputContainer=ghosttracksname,
         Label=label,
         SkipNegativeEnergy=True
-        )
-    jetTrkSeq += conf2toConfigurable( pjgalg )
+    )
+    
+    jetseq += conf2toConfigurable( pjgalg )
 
-    return jetTrkSeq, trackcollectionmap[trkopt]
+    outmap = trackcollectionmap[trkopt]
+
+    return outmap
+
+
+
+
+
+def getTrackSelTool_Trig( trkopt="", doWriteTracks=False, cutLevel="Loose", minPt=500 ):
+
+    from JetRecTools.JetRecToolsConfig import trackcollectionmap
+
+    # Track selector needs its own hierarchical config getter in JetRecTools?
+    idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
+        "idtrackselloose",
+        CutLevel         = cutLevel,
+        minPt            = minPt,
+        UseTrkTrackTools = False,
+        Extrapolator     = "",
+        TrackSummaryTool = ""
+    )
+    jettrackselloose = CompFactory.JetTrackSelectionTool(
+        "jettrackselloose",
+        Selector        = idtrackselloose
+    )
+    # Should phase this out completely!
+    # Make a jet track selection alg
+    # Elsewhere just use the ID track tool directly
+    if doWriteTracks:
+        jettracksname = "JetSelectedTracks"
+        # hack to retain the curent track collection name with "trkopt"
+        # extnsion, and extend onle for additional vertex collections
+        if trkopt: 
+            jettracksname += "_{}".format(trkopt)
+        jettrackselloose.InputContainer  = trackcollectionmap[trkopt]["Tracks"]
+        jettrackselloose.OutputContainer = jettracksname
+
+    return jettrackselloose
+

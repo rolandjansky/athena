@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-12-02_v2.root";
+      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -53,9 +53,9 @@ namespace top {
     }
     // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as
     // its the same as the eff used in the calibration
-    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1);aMC@NLO+Pythia8;Herwig7.1.3;Sherpa228
+    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1);aMC@NLO+Pythia8;Herwig7.1.3;Sherpa228;Sherpa2210;Herwigpp721
     // Default changed from 410501 to 410470 in the CDI release of October 2018
-    m_efficiency_maps = "default;410558;410470;410250;default;410464;411233;421152";
+    m_efficiency_maps = "default;410558;410470;410250;default;410464;411233;421152;700122;600666";
 
     // Configure all tagger/WP/calibration with helper function touching member variables
     // Calibrated and uncalibrated working points for EMTopo jets for all algorithms

@@ -16,13 +16,12 @@ MuonHoughHit::MuonHoughHit(const Trk::PrepRawData* prd):m_orig_weight(1.)
   const Trk::TrkDetElementBase* element = prd->detectorElement();
   const Identifier identifier  = prd->identify();
 
-  const Amg::Vector3D* globalpos = element->surface(identifier).Trk::Surface::localToGlobal(prd->localPosition());
+  const Amg::Vector3D globalpos = element->surface(identifier).Trk::Surface::localToGlobal(prd->localPosition());
   
-  m_hitx = globalpos->x(); // does this what i expect?
-  m_hity = globalpos->y();
-  m_hitz = globalpos->z();
+  m_hitx = globalpos.x(); // does this what i expect?
+  m_hity = globalpos.y();
+  m_hitz = globalpos.z();
 
-  delete globalpos;
 
   double hitr2 = m_hitx*m_hitx+m_hity*m_hity;
   m_radius = std::sqrt(hitr2);

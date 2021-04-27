@@ -21,7 +21,7 @@ from .JetRecoConfiguration import jetRecoDictToString
 def jetClusterSequence(configFlags, RoIs, clusterCalib):
 
     # Start by adding the topocluster reco sequence
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import (
             caloClusterRecoSequence, LCCaloClusterRecoSequence)
     if clusterCalib == "em":
         topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
@@ -91,7 +91,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
         from eflowRec.PFHLTSequence import PFHLTSequence
         (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(
             PFHLTSequence,
-            configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"])
+            configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"], cellsin="CaloCellsFS")
         buildSeq += pfseq
         jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=jetNamePrefix)
     else:

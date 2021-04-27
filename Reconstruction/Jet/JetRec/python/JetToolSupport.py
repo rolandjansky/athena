@@ -306,17 +306,13 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding
-  #            -1: Separate finding for each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   rndseed: RandomOption for the finder
   #   variableRMinRadius: Min radius for variable-R finding
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
-  # returns lofinder, hifinder where finder is the lowest-level finder and hifinder
-  #         is the highest.
-  def addJetFinderTool(self, toolname, alg, radius, ivtx =None,
+  # returns the created finder
+  def addJetFinderTool(self, toolname, alg, radius,
                        ghostArea =0.0, ptmin =0.0, rndseed =1,
                        variableRMinRadius =-1.0, variableRMassScale =-1.0, constmods=[]):
     myname = "JetToolManager:addJetFinderTool: "
@@ -347,18 +343,7 @@ class JetToolManager:
     finder.JetBuilder = self.m_jetBuilder
     self += finder
     self.finders += [finder]
-    hifinder = finder
-    if type(ivtx) is int:
-      from JetRec.JetRecConf import JetByVertexFinder
-      vfinder = JetByVertexFinder(
-        toolname + "ByVertex",
-        JetFinder = finder,
-        Vertex = ivtx
-      )
-      self += vfinder
-      self.finders += [vfinder]
-      hifinder = vfinder
-    return (finder, hifinder)
+    return finder
 
   # Create a jet finder and rectool.
   #   output = name for output container (and JetRecTool)
@@ -372,9 +357,6 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding (unless gettersin = ztrack or pv0track)
-  #            -1: Separate finding fore each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   ptminFilter: If > 0, then this is used as the pT threhold for filtering jets.
   #   rndseed: RandomOption for the finder
@@ -385,7 +367,7 @@ class JetToolManager:
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
   def addJetFinder(self, output, alg, radius, gettersin, modifiersin =None,
-                   consumers =None, ivtxin =None,
+                   consumers =None,
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
@@ -400,21 +382,17 @@ class JetToolManager:
     # Accumulate all PseudoJetGetters such that we can schedule all
     # needed PseudoJetAlgorithms before jet building
     self.allGetters += [getter for getter in getters if getter not in self.allGetters]
-    # If jet finding by vertex is not specified, check for special input type names
-    ivtx = ivtxin
-    if ivtx is None:
-      if gettersin == "ztrack": ivtx = -1        # Find tracs separatesly for each vertex
-      elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
+
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale, constmods=constmods)
+    finder = self.addJetFinderTool(output+"Finder", alg, radius, ghostArea, ptmin, rndseed, 
+                                   variableRMinRadius, variableRMassScale, constmods=constmods)
     jetrec = JetRecTool(output)
     jetrec.InputPseudoJets = [str(getter.OutputContainer) for getter in getters]
-    jetrec.JetFinder = hifinder
+    jetrec.JetFinder = finder
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt, constmods=constmods)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, gettersin, output, calibOpt, constmods=constmods)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     if consumers is not None:
       jetrec.JetConsumers = consumers
@@ -679,9 +657,6 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding (unless gettersin = ztrack or pv0track)
-  #            -1: Separate finding fore each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   ptminFilter: If > 0, then this is used as the pT threhold for filtering jets.
   #   rndseed: RandomOption for the finder
@@ -692,7 +667,7 @@ class JetToolManager:
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
   def addJetReclusterer(self, output, alg, radius, input, modifiersin =None,
-                        consumers =None, ivtx =None,
+                        consumers =None,
                         ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                         isTrigger =False, useTriggerStore =False,
                         variableRMinRadius =-1.0, variableRMassScale =-1.0,
@@ -701,13 +676,13 @@ class JetToolManager:
     from JetRec.JetRecConf import JetRecTool
     from JetRec.JetRecConf import JetReclusterer
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale, constmods=constmods)
+    finder = self.addJetFinderTool(output+"Finder", alg, radius, ghostArea, ptmin, rndseed, 
+                                   variableRMinRadius, variableRMassScale, constmods=constmods)
     reclname = output + "Reclusterer"
     groomer = JetReclusterer(
       reclname,
       JetConstituentsRetriever = self.tools["jconretriever"],
-      JetFinder = hifinder
+      JetFinder = finder
     )
     self += groomer
     jetrec = JetRecTool(output)

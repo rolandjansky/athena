@@ -76,7 +76,8 @@ namespace Muon {
 
 
 
-  MuonTrackTruthTool::ResultVec MuonTrackTruthTool::match( const TrackCollection& tracks ) const {
+  MuonTrackTruthTool::ResultVec MuonTrackTruthTool::match(const TruthTree& truth_tree,   
+                                                          const TrackCollection& tracks ) const {
     ResultVec result;
     result.reserve(tracks.size());
     
@@ -85,7 +86,7 @@ namespace Muon {
     TrackCollection::const_iterator tit_end = tracks.end();
     for( ;tit!=tit_end;++tit ){
 
-      MuonTrackTruth match = getTruth(**tit);
+      MuonTrackTruth match = getTruth(truth_tree, **tit);
       if( !match.truthTrack ) continue;
 
       if( match.numberOfMatchedHits() == 0 ) continue;
@@ -100,7 +101,8 @@ namespace Muon {
     return result;
   }
 
-  MuonTrackTruthTool::SegmentResultVec MuonTrackTruthTool::match(const std::vector<const MuonSegment*>& segments ) const {
+  MuonTrackTruthTool::SegmentResultVec MuonTrackTruthTool::match(const TruthTree& truth_tree,  
+                                                                 const std::vector<const MuonSegment*>& segments ) const {
     SegmentResultVec result;
     result.reserve(segments.size());
 
@@ -110,7 +112,7 @@ namespace Muon {
     for( ;sit!=sit_end;++sit ){
       
       // create truth association 
-      result.push_back( std::make_pair(*sit,getTruth(**sit)) );    
+      result.push_back( std::make_pair(*sit,getTruth(truth_tree, **sit)) );    
     }
     
     // sort result per muon and per number of matched hits
@@ -123,11 +125,11 @@ namespace Muon {
 									   std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const {
 
     
-    clear();
-
+    std::map<int,int> barcode_map;
+    MuonTrackTruthTool::TruthTree truth_tree;
     if( truthTrackCol->empty() ) {
       ATH_MSG_WARNING(" TrackRecordCollection is empty ");
-      return m_truthTree;
+      return truth_tree;
     }
 
     const HepMC::GenEvent* genEvent = nullptr;
@@ -150,8 +152,8 @@ namespace Muon {
       }
 
       // check whether barcode is already in, skip if that is the case
-      if( m_barcodeMap.count(barcode) ){
-	ATH_MSG_VERBOSE(" barcode " << barcode << " already in map, final state barcode " << m_barcodeMap[barcode]);	  
+      if( barcode_map.count(barcode) ){
+	ATH_MSG_VERBOSE(" barcode " << barcode << " already in map, final state barcode " << barcode_map[barcode]);	  
 	continue;
       }
       ATH_MSG_VERBOSE(" found new particle with pdgid " << PDGCode << " in truth record, barcode " << barcode);
@@ -199,45 +201,46 @@ namespace Muon {
                 if( (*pit)->production_vertex() ) ATH_MSG_VERBOSE(" vertex: r  " << (*pit)->production_vertex()->position().perp() 
                                                                     << " z " << (*pit)->production_vertex()->position().z());
 		// sanity check 
-		if( m_barcodeMap.count(code) ) ATH_MSG_VERBOSE("  pre-existing barcode " << code);
+		if( barcode_map.count(code) ) ATH_MSG_VERBOSE("  pre-existing barcode " << code);
 	      }
 		
 	      // enter barcode
-	      m_barcodeMap[code] = barcode;
+	      barcode_map[code] = barcode;
 	    }
 	  }else{
 	    ATH_MSG_WARNING(" empty truth trajectory " << barcode);
 	  }
 	}
       }else{
-	// add one to one relation
-	m_barcodeMap[barcode] = barcode;
+        // add one to one relation
+        barcode_map[barcode] = barcode;
       }
       
-      if( m_truthTree.count(barcode) ) {
+      if( truth_tree.count(barcode) ) {
 	ATH_MSG_WARNING(" found muon barcode twice in truth record: " << barcode);
 	continue;
       }
 	
-      TruthTreeEntry& entry = m_truthTree[barcode];
+      TruthTreeEntry& entry = truth_tree[barcode];
       entry.truthTrack = &(*tr_it);
-      entry.truthTrajectory = truthTrajectory.get();
-      m_truthTrajectoriesToBeDeleted.push_back(std::move(truthTrajectory));
+      //entry.truthTrajectory = truthTrajectory.get();
+      entry.truthTrajectory = std::move(truthTrajectory);
+      //m_truthTrajectoriesToBeDeleted.push_back(std::move(truthTrajectory));
     }
     
     // add sim data collections
     for(const MuonSimDataCollection* simDataMap : muonSimData){
-      addSimDataToTree(simDataMap);
+      addSimDataToTree(truth_tree, barcode_map,simDataMap);
     }
     if(cscSimDataMap){
-      addCscSimDataToTree(cscSimDataMap);
+      addCscSimDataToTree(truth_tree, barcode_map,cscSimDataMap);
     }
 
     unsigned int ngood(0);
     std::vector<int> badBarcodes;
     // erase entries with too few hits or no track record
-    TruthTreeIt it = m_truthTree.begin();
-    for( ;it!=m_truthTree.end();++it ){
+    TruthTreeIt it = truth_tree.begin();
+    for( ;it!=truth_tree.end();++it ){
       bool erase = false;
       unsigned int nhits = it->second.mdtHits.size() + it->second.rpcHits.size() + it->second.tgcHits.size() + 
 	it->second.cscHits.size() + it->second.stgcHits.size() + it->second.mmHits.size();
@@ -257,17 +260,17 @@ namespace Muon {
     
     std::vector<int>::iterator badIt = badBarcodes.begin();
     std::vector<int>::iterator badIt_end = badBarcodes.end();
-    for( ;badIt!=badIt_end;++badIt ) m_truthTree.erase(*badIt);
+    for( ;badIt!=badIt_end;++badIt ) truth_tree.erase(*badIt);
 
-    if( ngood != m_truthTree.size() ){
-      ATH_MSG_WARNING(" Problem cleaning map: size " << m_truthTree.size() << " accepted entries " << ngood);
+    if( ngood != truth_tree.size() ){
+      ATH_MSG_WARNING(" Problem cleaning map: size " << truth_tree.size() << " accepted entries " << ngood);
     }
     
     
     if( m_doSummary || msgLvl(MSG::DEBUG) ){
-      ATH_MSG_INFO(" summarizing truth tree: number of particles " << m_truthTree.size());
-      TruthTreeIt it = m_truthTree.begin();
-      TruthTreeIt it_end = m_truthTree.end();
+      ATH_MSG_INFO(" summarizing truth tree: number of particles " << truth_tree.size());
+      TruthTreeIt it = truth_tree.begin();
+      TruthTreeIt it_end = truth_tree.end();
       for( ;it!=it_end;++it ){
 	if( !it->second.truthTrack ) ATH_MSG_INFO(" no TrackRecord ");
 	else{
@@ -285,11 +288,13 @@ namespace Muon {
       }
     }
 
-    return m_truthTree;
+    return truth_tree;
   }
 
 
-  void MuonTrackTruthTool::addSimDataToTree( const MuonSimDataCollection* simDataCol ) const {
+  void MuonTrackTruthTool::addSimDataToTree(TruthTree& truth_tree,
+                                            std::map<int,int>& barcode_map, 
+                                            const MuonSimDataCollection* simDataCol ) const {
 
     // loop over sim collection and check whether identifiers are on track
     MuonSimDataCollection::const_iterator it = simDataCol->begin();
@@ -303,16 +308,16 @@ namespace Muon {
       std::vector<MuonSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
         int barcodeIn = dit->first.barcode();
-	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
-	if( bit == m_barcodeMap.end() ){
+	std::map<int,int>::const_iterator bit = barcode_map.find(barcodeIn);
+	if( bit == barcode_map.end() ){
 	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
 	int barcode = bit->second;
 
-	TruthTreeIt eit = m_truthTree.find(barcode);
-	if( eit == m_truthTree.end() ){
+	TruthTreeIt eit = truth_tree.find(barcode);
+	if( eit == truth_tree.end() ){
 	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
 	  continue;
 	}
@@ -367,7 +372,7 @@ namespace Muon {
     }    
   }
 
-  void MuonTrackTruthTool::addCscSimDataToTree( const CscSimDataCollection* simDataCol ) const {
+  void MuonTrackTruthTool::addCscSimDataToTree(TruthTree& truth_tree, std::map<int,int>& barcode_map, const CscSimDataCollection* simDataCol ) const {
 
     // loop over sim collection and check whether identifiers are on track
     CscSimDataCollection::const_iterator it = simDataCol->begin();
@@ -382,16 +387,16 @@ namespace Muon {
       for( ;dit!=dit_end;++dit ){
 
 	int barcodeIn = manipulateBarCode(dit->first.barcode());
-	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
-	if( bit == m_barcodeMap.end() ){
+	std::map<int,int>::const_iterator bit = barcode_map.find(barcodeIn);
+	if( bit == barcode_map.end() ){
 	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
 	int barcode = bit->second;
 
-	TruthTreeIt eit = m_truthTree.find(barcode);
-	if( eit == m_truthTree.end() ){
+	TruthTreeIt eit = truth_tree.find(barcode);
+	if( eit == truth_tree.end() ){
 	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
 	  continue;
 	}
@@ -405,18 +410,23 @@ namespace Muon {
     }    
   }
 
-  MuonTrackTruth MuonTrackTruthTool::getTruth( const Muon::MuonSegment& segment ) const {
+  MuonTrackTruth MuonTrackTruthTool::getTruth(const TruthTree& truth_tree,   
+                                              const Muon::MuonSegment& segment ) const {
 
-    return getTruth(segment.containedMeasurements(),true);
+    return getTruth(truth_tree, segment.containedMeasurements(),true);
   }
 
 
-  MuonTrackTruth MuonTrackTruthTool::getTruth( const Trk::Track& track, bool restrictedTruth ) const {
-    if( track.measurementsOnTrack() ) return getTruth(track.measurementsOnTrack()->stdcont(),restrictedTruth);
+  MuonTrackTruth MuonTrackTruthTool::getTruth( const TruthTree& truth_tree,  
+                                               const Trk::Track& track, 
+                                               bool restrictedTruth ) const {
+    if( track.measurementsOnTrack() ) return getTruth(truth_tree, track.measurementsOnTrack()->stdcont(),restrictedTruth);
     return MuonTrackTruth();
   }
 
-  MuonTrackTruth MuonTrackTruthTool::getTruth( const std::vector<const MuonSegment*>& segments, bool restrictedTruth ) const {
+  MuonTrackTruth MuonTrackTruthTool::getTruth(const TruthTree& truth_tree,   
+                                              const std::vector<const MuonSegment*>& segments, 
+                                              bool restrictedTruth ) const {
     Trk::RoT_Extractor rotExtractor;
     std::set<Identifier> ids;
     std::vector<const Trk::MeasurementBase*> measurements;
@@ -440,12 +450,13 @@ namespace Muon {
 	ids.insert(id);
       }
     }
-    return getTruth(measurements,restrictedTruth);
+    return getTruth(truth_tree, measurements,restrictedTruth);
   }
 
 
-  MuonTrackTruth MuonTrackTruthTool::getTruth( const std::vector<const Trk::MeasurementBase*>& measurements,
-					       bool restrictedTruth ) const {
+  MuonTrackTruth MuonTrackTruthTool::getTruth(const TruthTree& truth_tree,   
+                                              const std::vector<const Trk::MeasurementBase*>& measurements,
+					                          bool restrictedTruth ) const {
 
     MuonTrackTruth bestMatch;
     bestMatch.truthTrack = 0;
@@ -453,8 +464,8 @@ namespace Muon {
 
     unsigned int   nmatchedHitsBest = 0;
     // loop over muons and match hits
-    TruthTreeIt tit = m_truthTree.begin();
-    TruthTreeIt tit_end = m_truthTree.end();
+    TruthTreeConstIt tit = truth_tree.begin();
+    TruthTreeConstIt tit_end = truth_tree.end();
     for( ;tit!=tit_end;++tit ){
       
       unsigned int nhits = tit->second.mdtHits.size() + tit->second.cscHits.size() + tit->second.rpcHits.size() + tit->second.tgcHits.size() 
@@ -474,8 +485,8 @@ namespace Muon {
     return bestMatch;
   }
 
-  MuonTrackTruth MuonTrackTruthTool::getTruth( const std::vector<const Trk::MeasurementBase*>& measurements,
-                                               TruthTreeEntry& truthEntry, bool restrictedTruth ) const {
+  MuonTrackTruth MuonTrackTruthTool::getTruth(const std::vector<const Trk::MeasurementBase*>& measurements,
+                                              const TruthTreeEntry& truthEntry, bool restrictedTruth ) const {
     
     Trk::RoT_Extractor rotExtractor;
     MuonTrackTruth trackTruth;
@@ -492,7 +503,7 @@ namespace Muon {
         continue;
       }
 
-      const Trk::RIO_OnTrack* rot = 0;
+      const Trk::RIO_OnTrack* rot = nullptr;
       rotExtractor.extract(rot,meas);
       if( !rot ) {
         if( !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas) ) ATH_MSG_WARNING(" Could not get rot from measurement ");
@@ -702,12 +713,6 @@ namespace Muon {
       truth.matchedHits.insert(layid);
       truth.matchedChambers.insert(chid);
     }
-  }
-
-  void MuonTrackTruthTool::clear() const {
-    m_truthTree.clear();
-    m_barcodeMap.clear();
-    m_truthTrajectoriesToBeDeleted.clear();
   }
 
   HepMC::ConstGenParticlePtr MuonTrackTruthTool::getMother( const TruthTrajectory& traj, const int barcodeIn ) const {

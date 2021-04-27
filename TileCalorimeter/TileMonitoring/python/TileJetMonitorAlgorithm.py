@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -60,6 +60,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
         jetCleaningTool = CompFactory.JetCleaningTool()
         jetCleaningTool.CutLevel = "LooseBad"
         jetCleaningTool.DoUgly = False
+        jetCleaningTool.JetContainer = str(jetContainer)
 
         tileJetMonAlg.JetCleaningTool = jetCleaningTool
         result.addPublicTool(jetCleaningTool)

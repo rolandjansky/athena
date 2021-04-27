@@ -97,7 +97,6 @@ factor:
 * SFJetIDHadTau: scale factors for boosted di-tau jet identification of true hadronic tau decays
 
 The InputFilePath* strings are predefined to load the files in
-/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/ or
 /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ using PathResolver, but own
 files can be used as well. If you plan to do this, please contact the author as
 there are requirements on the input file for some EfficiencyCorrectionTypes. For

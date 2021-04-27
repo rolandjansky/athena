@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBPLANETRACKINGALGO_H
@@ -24,12 +24,12 @@ class TBPlaneTrackingAlgo : public AthAlgorithm {
   // Contructor & Destructor //
   /////////////////////////////
   TBPlaneTrackingAlgo(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TBPlaneTrackingAlgo(){};
+  virtual ~TBPlaneTrackingAlgo(){};
 
   // public methods //
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   void FillRandomHit();

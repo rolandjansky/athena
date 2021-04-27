@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBTREE_CALOCLUSTERH6_H
@@ -10,7 +10,8 @@
 // Make ROOT TTree for CaloClusters for H6 CBT
 //
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <TRandom.h>
 
@@ -20,32 +21,28 @@ class CaloCell_ID;
 class CaloDetDescrManager;
 class CaloCluster;
 class IToolSvc;
-class ICaloNoiseTool;
 class LArDigitContainer;
 class ILArPedestal;
-class ILArADC2MeVTool;
 
 class TBTree_CaloClusterH6: public AthAlgorithm {
  public:    
   
   TBTree_CaloClusterH6(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TBTree_CaloClusterH6();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private: 
   void clear();
   /** Get Xcryo and Ytable from a text file */
   StatusCode getXcryoYtable(float &x, float &y, float &eBeam);
-  StatusCode getNoise(CaloCluster const * const cluster);
   
   std::string m_suffix;
   int m_nEvent;                     // counter
   int m_nEventRejected;             // counter
   int m_nEventAccepted;             // counter
   int m_nEventRandomTrigger;        // counter
-  bool m_addNoise;
   bool m_addMoments;
   bool m_addGain;
   bool m_addTime;
@@ -109,7 +106,6 @@ class TBTree_CaloClusterH6: public AthAlgorithm {
   std::vector<int>* m_cell_id;
   std::vector<int>* m_cell_ind_cluster;
   std::vector<float>* m_cell_energy;
-  std::vector<float>* m_cell_noise;
   std::vector<int>* m_cell_gain;
   std::vector<float>* m_cell_time;
   std::vector<float>* m_cell_quality;
@@ -129,12 +125,9 @@ class TBTree_CaloClusterH6: public AthAlgorithm {
   std::vector<float>* m_wtcSignal;
 
   // Names and pointers
-  std::string m_digitContainerName;
   std::string m_caloCellContainerName;    // Cell container name
   std::string m_clusterContainerName;     // Cluster container
   std::string m_WTCContainerName;         // Warm TailCatcher
-  std::string m_noiseToolName;            // Noise tool name
-  std::string m_OFNoiseSuppToolName;      // Noise tool name for OFNoiseSupp
   std::string m_TBTreeName;               // TBTree name
   std::string m_rootfile_name;            // name of the ROOT file with TBTree
   TFile* m_rootfile;                      // and its pointer
@@ -142,16 +135,12 @@ class TBTree_CaloClusterH6: public AthAlgorithm {
 
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
-  ICaloNoiseTool* m_noiseTool;
-  ICaloNoiseTool* m_OFNoiseSupp;
-  const ILArADC2MeVTool* m_adc2mevTool;
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
 
   /** Text file containing xCryo and yTable */
   std::string m_txtFileWithXY;
-  // Random generator
-  TRandom m_rndm;
-
 };
 
 #endif

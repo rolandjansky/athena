@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -114,8 +114,8 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
                                    PixelGeometryManager* mgr,
                                    InDetDD::Zone * pixZone) 
   : GeoVPixelFactory(ddmgr, mgr),
-    m_pixServBuilder(0),
-    m_servMatBuilder(0),
+    m_pixServBuilder(nullptr),
+    m_servMatBuilder(nullptr),
     m_layerShift(0)
 {
   
@@ -177,138 +177,14 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
   initialize("simple");
   initialize("envelope");
 
- // If not slhc, procced as usual : all services are added at a time
-  //  if not SLHC, check all services vs pixel
-  if(!m_gmt_mgr->slhc())
-    {
-      m_pixServBuilder = new InDetDD::VolumeBuilder(topZone, m_services);
-      m_pixServBuilder->setMaterialManager(m_mat_mgr);
-      
-      if (m_gmt_mgr->athenaComps()->serviceBuilderTool()) {
-	const std::vector<const InDetDD::ServiceVolume *> & services = m_gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
-	m_servMatBuilder = new InDetDD::VolumeBuilder(topZone, services);
-	m_servMatBuilder->setMaterialManager(m_mat_mgr);
-      }
-      return;
-    }
-
-
-  // ----------------------  SES-modif
-  // If SLHC, proceed radially to add services (to avoid volume overlaps) : pixel - barrelstrip - PST - OuterPixel - other
-
+  // all services are added at a time
   m_pixServBuilder = new InDetDD::VolumeBuilder(topZone, m_services);
   m_pixServBuilder->setMaterialManager(m_mat_mgr);
-   
   if (m_gmt_mgr->athenaComps()->serviceBuilderTool()) {
     const std::vector<const InDetDD::ServiceVolume *> & services = m_gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
-
-    std::vector<const InDetDD::ServiceVolume *> servicesBarrelStrip;
-    double svc1_rMin = 99999., svc1_rMax = 0.;
-    std::vector<const InDetDD::ServiceVolume *> servicesPST;
-    double svc2_rMin = 99999., svc2_rMax = 0.;
-    std::vector<const InDetDD::ServiceVolume *> servicesOutPix;
-    double svc3_rMin = 99999., svc3_rMax = 0.;
-    std::vector<const InDetDD::ServiceVolume *> servicesOther;
-    double safety=0.001*Gaudi::Units::mm;
-
-    for(std::vector<const InDetDD::ServiceVolume *>::const_iterator it=services.begin(); it!=services.end(); ++it)
-      {
-	const std::string volName=(*it)->volName();
-	if(volName.find("BarrelStrip")!=std::string::npos){
-	  //	  std::cout<<"sort services : barrel strip "<<volName<<std::endl;
-	  servicesBarrelStrip.push_back((*it));
-	  if((*it)->rmin()<svc1_rMin) svc1_rMin=(*it)->rmin();
-	  if((*it)->rmax()>svc1_rMax) svc1_rMax=(*it)->rmax();
-	}
-	else if(volName.find("PST")!=std::string::npos){
-	  //	  std::cout<<"sort services : PST "<<volName<<std::endl;
-	  servicesPST.push_back((*it));
-	  if((*it)->rmin()<svc2_rMin) svc2_rMin=(*it)->rmin();
-	  if((*it)->rmax()>svc2_rMax) svc2_rMax=(*it)->rmax();
-	}
-	else if(volName.find("OuterPixel")!=std::string::npos){
-	  //	  std::cout<<"sort services : OuterPixel-BarrelStrip "<<volName<<std::endl;
-	  servicesOutPix.push_back((*it));
-	  if(volName.find("ZPath")!=std::string::npos){
-	    if((*it)->rmin()<svc3_rMin) svc3_rMin=(*it)->rmin();
-	    if((*it)->rmax()>svc3_rMax) svc3_rMax=(*it)->rmax();
-	  }
-	}
-	else{
-	  //	  std::cout<<"sort services : other "<<volName<<std::endl;
-	  servicesOther.push_back((*it));
-	}
-      }
-    
-    // 1. Reduce pixel tube (pixel) and check BarrelStrip
-    double barrelStripThick = (pixelRmax-svc2_rMax);
-    std::cout<<"GEOPIXELSERVICES : add level 1  barrel strip "<<barrelStripThick<<std::endl;
-
-    InDetDD::Zone * pixZoneInit = new InDetDD::TubeZone("Pixel",-pixelZmax,pixelZmax,pixelRmax-barrelStripThick+safety,pixelRmax);
-
-    InDetDD::UnboundedZone topZoneInit("Mother");
-    pixZoneInit->add(new InDetDD::TubeZone("C",-endcapZmax,-endcapZmin,endcapRmin,endcapRmax, true));
-    pixZoneInit->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
-    pixZoneInit->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
-    topZoneInit.add(pixZoneInit);
-    
-    if (barrelPresent) initialize("barrel");
-    if (endcapAPresent || endcapCPresent) initialize("endcap");
-    initialize("simple");
-
-    // 2. Reduce pixel tube (pixel-BarrelStrip) and check PST
-    std::cout<<"GEOPIXELSERVICES : add level 2"<<std::endl;
-    InDetDD::Zone * pixZoneBarrelStrip = new InDetDD::TubeZone("Pixel",-pixelZmax,pixelZmax,pixelRmin,pixelRmax-barrelStripThick);
-
-    InDetDD::UnboundedZone topZoneBarrelStrip("Mother");
-    pixZoneBarrelStrip->add(new InDetDD::TubeZone("C",-endcapZmax,-endcapZmin,endcapRmin,endcapRmax, true));
-    pixZoneBarrelStrip->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
-    pixZoneBarrelStrip->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
-    topZoneBarrelStrip.add(pixZoneBarrelStrip);
-    
-    if (barrelPresent) initialize("barrel");
-    if (endcapAPresent || endcapCPresent) initialize("endcap");
-    initialize("simple");
-
-    // 3. Reduce pixel tube (pixel-BarrelStrip-PST) and check Outer Pixel
-    double PSTThick = (pixelRmax-svc2_rMin);
-    std::cout<<"GEOPIXELSERVICES : add level 3     PST "<<PSTThick<<std::endl;
-    InDetDD::Zone * pixZonePST = new InDetDD::TubeZone("Pixel",-pixelZmax,pixelZmax,pixelRmin,pixelRmax-PSTThick);
-
-    InDetDD::UnboundedZone topZonePST("Mother");
-    pixZonePST->add(new InDetDD::TubeZone("C",-endcapZmax,-endcapZmin,endcapRmin,endcapRmax, true));
-    pixZonePST->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
-    pixZonePST->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
-    topZonePST.add(pixZonePST);
-    
-    if (barrelPresent) initialize("barrel");
-    if (endcapAPresent || endcapCPresent) initialize("endcap");
-    initialize("simple");
-    
-    // 4. Reduce pixel tube (pixel-BarrelStrip-PST-OuterPixel) and check other services
-    double outerPixThick=pixelRmax-svc3_rMin;
-    std::cout<<"GEOPIXELSERVICES : add level 4    OuterPix "<<outerPixThick<<std::endl;
-    InDetDD::Zone * pixZoneOutPix = new InDetDD::TubeZone("Pixel",-pixelZmax,pixelZmax,pixelRmin,pixelRmax-outerPixThick-safety);
-
-    InDetDD::UnboundedZone topZoneOutPix("Mother");
-    pixZoneOutPix->add(new InDetDD::TubeZone("C",-endcapZmax,-endcapZmin,endcapRmin,endcapRmax, true));
-    pixZoneOutPix->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
-    pixZoneOutPix->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
-    topZoneOutPix.add(pixZoneOutPix);
-    
-    if (barrelPresent) initialize("barrel");
-    if (endcapAPresent || endcapCPresent) initialize("endcap");
-    initialize("simple");
-    
-
-    // Build services
-    m_servMatBuilder = new InDetDD::VolumeBuilder(topZoneInit, servicesBarrelStrip);
-    m_servMatBuilder->addServices(topZoneBarrelStrip, servicesPST);
-    m_servMatBuilder->addServices(topZonePST, servicesOutPix);
-    m_servMatBuilder->addServices(topZoneOutPix, servicesOther);
+    m_servMatBuilder = new InDetDD::VolumeBuilder(topZone, services);
     m_servMatBuilder->setMaterialManager(m_mat_mgr);
-
- }
+  }
 }
 
 GeoPixelServices::~GeoPixelServices() 
@@ -479,5 +355,5 @@ void GeoPixelServices::initializeOld(const std::string & a)
 // For interface
 GeoVPhysVol* GeoPixelServices::Build() 
 {
-  return 0;
+  return nullptr;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_ENHANCEDBIASWEIGHTCOMPALG_H
@@ -11,6 +11,7 @@
 #include "TrigConfData/HLTPrescalesSet.h"
 #include "TrigConfData/L1PrescalesSet.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include <vector>
 #include <string>
@@ -28,6 +29,7 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
     virtual StatusCode initialize() override;
     virtual StatusCode start() override;
     virtual StatusCode execute(const EventContext& context) const override;
+    virtual StatusCode stop() override;
 
   private:
     /**
@@ -64,8 +66,9 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
       uint8_t isUnbiased {};
     };
 
-    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
+    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
+    ToolHandle<Trig::TrigDecisionTool> m_tdt{this, "TrigDecisionTool", ""};
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "", "Final stage of all decisions" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_EBWeightKey {this, "EBWeight", "HLT_EBWeight", "Computed EB Weight"};
 
     SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_HLTPrescaleSetInputKey {this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
@@ -91,6 +94,15 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
 
     /// L1 items for EB chains from HLT Menu
     std::map<TrigCompositeUtils::DecisionID, std::vector<std::string>> m_EBChainIdToItem;
+
+    /// Name of xml output file
+    mutable std::string m_outputFilename;
+
+    /// List of calculated weight + unbiased flag pairs to be saved in xml
+    mutable std::vector<std::pair<int, bool>> m_ebWeights;
+
+    /// Map of event number to index in m_ebWeights vector to be saved in xml
+    mutable std::map<int, int> m_eventToWeight;
 
 };
 

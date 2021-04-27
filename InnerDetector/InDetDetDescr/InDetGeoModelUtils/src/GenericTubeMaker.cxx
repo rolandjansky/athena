@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/GenericTubeMaker.h"
@@ -35,7 +35,7 @@ namespace InDetDD {
 
   const GeoShape*
   GenericTubeMaker::buildShape() {
-    const GeoShape* shape = 0;
+    const GeoShape* shape = nullptr;
 
     switch (m_volData.shape()) {
     case TubeVolData::TUBE:
@@ -73,23 +73,23 @@ namespace InDetDD {
 
   void
   GenericTubeMaker::placeVolume(GeoPhysVol* parent, GeoVPhysVol* child, double zParent) {
-    placeVolume(parent, 0, child, zParent);
+    placeVolume(parent, nullptr, child, zParent);
   }
 
   void
   GenericTubeMaker::placeVolume(GeoFullPhysVol* fullparent, GeoVPhysVol* child, double zParent) {
-    placeVolume(0, fullparent, child, zParent);
+    placeVolume(nullptr, fullparent, child, zParent);
   }
 
   void
   GenericTubeMaker::placeVolTwoSide(GeoPhysVol* parentPos, GeoPhysVol* parentNeg, GeoVPhysVol* child, double zParent) {
-    placeVolTwoSide(parentPos, parentNeg, 0, 0, child, zParent);
+    placeVolTwoSide(parentPos, parentNeg, nullptr, nullptr, child, zParent);
   }
 
   void
   GenericTubeMaker::placeVolTwoSide(GeoFullPhysVol* fullparentPos, GeoFullPhysVol* fullparentNeg, GeoVPhysVol* child,
                                     double zParent) {
-    placeVolTwoSide(0, 0, fullparentPos, fullparentNeg, child, zParent);
+    placeVolTwoSide(nullptr, nullptr, fullparentPos, fullparentNeg, child, zParent);
   }
 
   void
@@ -97,7 +97,7 @@ namespace InDetDD {
     for (int iRepeat = 0; iRepeat < m_volData.nRepeat(); iRepeat++) {
       double phi = m_volData.phiStep() * iRepeat;
 
-      GeoTransform* xform = 0;
+      GeoTransform* xform = nullptr;
       double zOffset = m_volData.zMid() - zParent;
       if (zOffset != 0 || iRepeat > 0) {
         xform = new GeoTransform(GeoTrf::TranslateZ3D(zOffset) * GeoTrf::RotateZ3D(phi));

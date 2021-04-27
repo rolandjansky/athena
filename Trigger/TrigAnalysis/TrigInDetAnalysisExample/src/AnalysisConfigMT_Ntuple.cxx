@@ -164,8 +164,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 	/// FIXME: should really have hardcoded limits encoded as 
 	///        const variables 
 	Filter_etaPT       filterRef(5,500);   
-	Filter_etaPT       filter_etaPT(3.0,1000);
-	Filter_pdgIdpTeta  filter_pdgIdpTeta(m_TruthPdgId,3.0,1000); // |eta|<3, pt>1GeV 
+	Filter_etaPT       filter_etaPT(3.0,m_ptmin);
+	Filter_pdgIdpTeta  filter_pdgIdpTeta(m_TruthPdgId,3.0,m_ptmin); // |eta|<3, pt>1GeV 
 
 	TrackFilter*        truthFilter = &filter_etaPT;
 

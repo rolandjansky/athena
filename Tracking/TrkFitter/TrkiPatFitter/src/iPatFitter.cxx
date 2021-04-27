@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <iomanip>
-#include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
@@ -49,7 +49,7 @@ namespace Trk
   iPatFitter::initialize() {
     // print name and package version
     if (!msgLvl(MSG::DEBUG)) { m_extendedDebug = false; }
-    ATH_MSG_INFO("iPatFitter::initialize() - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("iPatFitter::initialize()");
     msg(MSG::INFO) << " with options: ";
     if (m_aggregateMaterial) { msg() << " AggregateMaterial"; }
     if (m_asymmetricCaloEnergy) { msg() << " AsymmetricCaloEnergy"; }
@@ -700,7 +700,11 @@ namespace Trk
         Amg::Vector3D position = s.trackParameters()->position();
         measurement1 = std::make_unique<FitMeasurement>(s.alignmentEffectsOnTrack(), direction, position);
       }
-      if (s.measurementOnTrack()) {
+    const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
+    if (measurementBase) {
+        if (!Amg::valid_cov(measurementBase->localCovariance())){
+            continue;
+        }
         // option to skip vertex measurement (i.e. when not at front of list)
         if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&s.surface())) {
           measurement1.reset();
@@ -708,7 +712,7 @@ namespace Trk
         }
         haveMeasurement = true;
         surface = &s.measurementOnTrack()->associatedSurface();
-        measurement2 = std::make_unique<FitMeasurement>(hit, nullptr, s.measurementOnTrack());
+        measurement2 = std::make_unique<FitMeasurement>(hit, nullptr, measurementBase);
         if (s.type(TrackStateOnSurface::Outlier)) { measurement2->setOutlier(); }
         // redundant surely??
         // if (measurement2->isCluster() || measurement2->isDrift()) haveMeasurement = true;
@@ -723,15 +727,14 @@ namespace Trk
 //	    Peter
 //	    measurement2->alignmentParameter(0);
         if (misAlignmentNumber) {
-          const Trk::MeasurementBase* meas = s.measurementOnTrack();
           Identifier id = Identifier();
-          if (meas) {
-            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+          if (measurementBase) {
+            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(measurementBase);
             if (rot) {
               id = rot->identify();
             } else {
               const Muon::CompetingMuonClustersOnTrack* crot =
-                dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+                dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(measurementBase);
               if (crot && !crot->containedROTs().empty() && crot->containedROTs().front()) {
                 id = crot->containedROTs().front()->identify();
               }
@@ -911,7 +914,7 @@ namespace Trk
     //This lock should no be needed , leaving it for now
     // until we are sure all function pass thread safety
     // requirements
-    std::scoped_lock lock(m_fitProcedureMutex);
+    /// std::scoped_lock lock(m_fitProcedureMutex);
 
     const FitProcedureQuality& quality =
       m_fitProcedure->execute(cache,

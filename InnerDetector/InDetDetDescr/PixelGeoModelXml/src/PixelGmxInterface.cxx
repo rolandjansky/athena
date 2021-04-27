@@ -25,7 +25,7 @@ const int PixelHitIndex = 0;
 
 using namespace std;
 
-PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree):
+PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *moduleTree):
   m_detectorManager(detectorManager),
   m_commonItems(commonItems),
   m_moduleTree(moduleTree) {
@@ -74,7 +74,7 @@ void PixelGmxInterface::addSensorType(string clas, string typeName, map<string, 
   }
 }
 
-void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &par){
+void PixelGmxInterface::makePixelModule(const string& typeName, map<string, string> &par){
 
   //
   // Get all parameters.
@@ -144,7 +144,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
-string PixelGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
+string PixelGmxInterface::getstr(const string& typeName, const string& name, const map<string, string> &par) {
   map<string, string>::const_iterator found;
   if ((found = par.find(name)) != par.end()) {
     return found->second;
@@ -195,7 +195,7 @@ void PixelGmxInterface::addSensor(string typeName, map<string, int> &index, int 
   //
   //    Build up a map-structure for numerology
   //
-  Module module((unsigned int) hashId);
+  Wafer module((unsigned int) hashId);
   string errorMessage("");
   if (!m_moduleTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
 			 index["phi_module"], module, errorMessage)) {

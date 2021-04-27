@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *
@@ -31,11 +31,12 @@
 #include "TrkParameters/TrackParameters.h"
 // we may save out some private stuff
 #include "TTree.h"
-class IBeamCondSvc;
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 
 namespace Trk
 {
@@ -107,7 +108,7 @@ public:
 
    bool passHitsFilter( const Trk::TrackParameters* , float vtxR, float absvz ) const;
 
-   bool V0kine( const std::vector<Amg::Vector3D>, const Amg::Vector3D &position , float & , float & ) const;
+   bool V0kine( const std::vector<Amg::Vector3D>&, const Amg::Vector3D &position , float & , float & ) const;
 
 
    const std::vector<Amg::Vector3D> getVertexMomenta( xAOD::Vertex * myxAODVertex ) const ;
@@ -152,7 +153,7 @@ public:
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
    
-   ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
    bool m_useBeamConstraint;
    double m_significanceCutSeeding;
@@ -171,7 +172,7 @@ public:
 
    std::vector<const Trk::TrackParameters*> * m_seedperigees;
 
-   void SGError(std::string errService);
+   void SGError(const std::string& errService);
 
    virtual void printParameterSettings();
  

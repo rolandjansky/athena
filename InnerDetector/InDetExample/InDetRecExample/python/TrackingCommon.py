@@ -632,14 +632,13 @@ def getTrackingGeometryCondAlg(name="AtlasTrackingGeometryCondAlg",**kwargs) :
     the_name = makeName( name, kwargs )
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
     alg = ConfiguredTrackingGeometryCondAlg(the_name)
-    # alg.TrackingGeometryWriteKey = 'AlignedTrackingGeometry'
     return alg
 
 
 @makePublicTool
 def getAtlasNavigator(name='AtlasNavigator', **kwargs) :
     the_name = makeName( name, kwargs)
-    if use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryKey' not in kwargs :
         cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
         kwargs = setDefaults(kwargs, TrackingGeometryKey=cond_alg.TrackingGeometryWriteKey)
     elif 'TrackingGeometrySvc' not in kwargs :

@@ -29,7 +29,7 @@ namespace xAODMaker {
 
   StatusCode GSFTrackParticleMapCnvAlg::initialize() {
 
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing" );
     ATH_MSG_INFO( "AODContainerNameGSF = " << m_aodContainerNameGSF );
     ATH_MSG_INFO( "xAODContainerName = " << m_xaodContainerName );
     ATH_MSG_INFO( "AODContainerNameGSF = " << m_aodContainerNameGSF );

@@ -63,16 +63,19 @@ namespace {
       std::map< std::string, std::vector< std::vector< int > > > stl_m3;
       std::map< std::string, std::vector< std::vector< float > > > stl_m4;
 
+      // Pair type(s) belonging to that/those map type(s).
+#ifdef XAOD_STANDALONE
+      std::pair< std::string, std::vector< int > > stl_p1;
+#endif // XAOD_STANDALONE
+      std::pair< std::string, std::vector< float > > stl_p2;
+      std::pair< std::string, std::vector< std::vector< int > > > stl_p3;
+      std::pair< std::string, std::vector< std::vector< float > > > stl_p4;
+
       // "Other" type(s).
       std::bitset< 3 > stl_o1; // 3 == CaloCluster::NSTATES
       std::bitset< 11 > stl_o2; // 11 == xAOD::NumberOfTrackRecoInfo
       std::set< uint32_t > stl_o3;
    };
 }
-
-// specializations to be picked up by class patterns in the selection.xml
-template struct std::pair<std::string, std::vector<float> >;
-template struct std::pair<std::string, std::vector< std::vector<int> > >;
-template struct std::pair<std::string, std::vector< std::vector<float> > >;
 
 #endif // XAODCORE_XAODCORESTLDICT_H

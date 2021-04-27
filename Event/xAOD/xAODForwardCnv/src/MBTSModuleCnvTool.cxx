@@ -28,14 +28,6 @@ namespace xAODMaker {
     declareInterface< IMBTSModuleCnvTool >(this);
   }
   
-  StatusCode MBTSModuleCnvTool::initialize() {
-
-    ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MBTSModuleCnvTool::convert( const TileCellContainer* aod,
 				       xAOD::MBTSModuleContainer* xaod) const
   {  

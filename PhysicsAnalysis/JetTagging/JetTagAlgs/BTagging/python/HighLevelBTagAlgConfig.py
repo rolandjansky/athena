@@ -46,7 +46,7 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
     options['BTaggingCollectionName'] = BTaggingCollection
     options['TrackContainer'] = TrackCollection
     options['JetDecorator'] = dl2
-    options['name'] = Name.lower()
+    options['name'] = '_'.join([Name.lower(), BTaggingCollection])
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__HighLevelBTagAlg(**options))

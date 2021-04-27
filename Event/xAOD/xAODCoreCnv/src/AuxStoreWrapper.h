@@ -16,9 +16,9 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IClassIDSvc.h"
 
 // Forward declaration(s):
 namespace SG {

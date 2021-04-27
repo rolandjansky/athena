@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -41,7 +41,9 @@ class opt:
     endJobAfterGenerate = False       # Finish job after menu generation
     failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
+#    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
+    enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
+    enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
 #Individual slice flags
     doCalibSlice        = True
@@ -197,7 +199,9 @@ if 'doL1Sim' not in globals():
 
 # Translate opts to flags for LVL1
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
-ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
+#ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
+ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
+ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 
 #-------------------------------------------------------------
@@ -224,8 +228,7 @@ setModifiers = ['noLArCalibFolders',
 if ConfigFlags.Input.isMC:  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
-    setModifiers += ['allowCOOLUpdates',
-                     'BFieldAutoConfig',
+    setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
@@ -608,7 +611,8 @@ if opt.reverseViews or opt.filterViews:
     viewMakers = collectViewMakers( topSequence )
     theFilter = []
     if opt.filterViews:
-        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS" ]
+        # no idea why the FS vertex would be needed here, but I'll add the FSJet vertex also for good measure
+        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS", "HLT_IDVertex_FSJet" ]
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter

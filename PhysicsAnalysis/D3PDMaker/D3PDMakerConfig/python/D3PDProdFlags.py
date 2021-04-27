@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file D3PDMakerConfig/python/D3PDProdFlags.py
 # @author scott snyder <snyder@bnl.gov>
@@ -95,35 +94,6 @@ class WriteMuonD3PD (JobProperty):
     SubSteps = ['a2d', 'e2d']
 jobproperties.D3PDProdFlags.add_JobProperty (WriteMuonD3PD)
 listAllKnownD3PD.append (prodFlags.WriteMuonD3PD)
-
-
-#######################################################
-#
-#                     Trigger D3PDs
-
-class WriteTriggerD3PD (JobProperty):
-    """Produce the Trigger D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_TRIG'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "TriggerD3PDMaker/TriggerD3PD_prodJobOFragment.py"
-    TreeNames = ['trigger']
-    SubSteps = ['e2d', 'a2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteTriggerD3PD)
-listAllKnownD3PD.append (prodFlags.WriteTriggerD3PD)
-
-
-
-#
-#
-#######################################################
-
-
-# Jet tag D3PDs
-_importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')

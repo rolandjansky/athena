@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorTool.h"
@@ -183,7 +183,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
     std::string AtlasVersion = geoModel->atlasVersion();
     std::string MuonVersion = geoModel->muonVersionOverride();
 
-    ATH_MSG_INFO("create MuonDetectorTool - package version = " << PACKAGE_VERSION);
+    ATH_MSG_INFO("create MuonDetectorTool");
     ATH_MSG_INFO("(from GeoModelSvc)    AtlasVersion = <" << AtlasVersion << ">  MuonVersion = <" << MuonVersion << ">");
 
     // Unless we are using custom muons, the switch positions are going to

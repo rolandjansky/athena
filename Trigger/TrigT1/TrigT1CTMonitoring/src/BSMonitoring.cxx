@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Gaudi includes
@@ -39,9 +39,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 // ROOT includes
-#include "Rtypes.h"// for Int_t
-#include "TH1F.h"// for SetRangeUser
-#include "TH2F.h"// for SetRangeUser
+#include "Rtypes.h" // for Int_t
+#include "TH1F.h" // for SetRangeUser
+#include "TH2F.h" // for SetRangeUser
 #include "TMath.h" // for Pi()
 
 //LWHists includes:
@@ -49,7 +49,7 @@
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
 
-#include "AthenaMonitoring/AthenaMonManager.h"//for environment
+#include "AthenaMonitoring/AthenaMonManager.h" //for environment
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include <cmath>
@@ -73,10 +73,10 @@ TrigT1CTMonitoring::BSMonitoring::initialize()
   // connect to the config service
   ATH_CHECK( m_configSvc.retrieve() );
 
-  // connect to RPC and TGC RoI services
+  // connect to RPC and TGC RoI tools
   if ( m_processMuctpi ) {
-    ATH_CHECK( m_rpcRoiSvc.retrieve() );
-    ATH_CHECK( m_tgcRoiSvc.retrieve() );
+    ATH_CHECK( m_rpcRoiTool.retrieve() );
+    ATH_CHECK( m_tgcRoiTool.retrieve() );
   }
 
   return StatusCode::SUCCESS;

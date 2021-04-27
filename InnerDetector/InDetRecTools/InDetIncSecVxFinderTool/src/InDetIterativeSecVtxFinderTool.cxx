@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -33,7 +33,6 @@
 //#include <TMath.h>
 
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
@@ -77,7 +76,6 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
           m_SeedFinder("Trk::IndexedCrossDistancesSeedFinder", this ),
           m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator", this ),
           m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory", this ),
-          m_iBeamCondSvc("BeamCondSvc",n),
           m_useBeamConstraint(false),
           m_significanceCutSeeding(10),
           m_maximumChi2cutForSeeding(6.*6.),
@@ -106,7 +104,6 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("BaseTrackSelector",m_trkFilter);
     declareProperty("SecVtxTrackSelector",m_SVtrkFilter);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("SeedFinder"       , m_SeedFinder);
     declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
     declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
@@ -142,8 +139,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
-  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition.setPosition(beamSpotHandle->beamVtx().position());
+  beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
@@ -205,8 +203,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
 
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
-  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition.setPosition(beamSpotHandle->beamVtx().position());
+  beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
   bool selectionPassed;
   m_trkdefiPars.clear() ;
@@ -355,10 +354,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
     xAOD::Vertex theconstraint;
     if (m_useBeamConstraint) {
       theconstraint = xAOD::Vertex(); // Default constructor creates a private store
-      theconstraint.setPosition( m_iBeamCondSvc->beamVtx().position() );
-      theconstraint.setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
-      theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), 
-                                    m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      theconstraint.setPosition( beamSpotHandle->beamVtx().position() );
+      theconstraint.setCovariancePosition( beamSpotHandle->beamVtx().covariancePosition() );
+      theconstraint.setFitQuality( beamSpotHandle->beamVtx().fitQuality().chiSquared(), 
+                                    beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF() );
 
       seedVertex = m_SeedFinder->findSeed( m_privtx.x(), m_privtx.y(),
                                            perigeeList, &theconstraint );
@@ -550,7 +550,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
     m_dir = -99999.9 ;
     m_hif = -1.0 ;
 
-    if (perigeesToFit.size()==0)
+    if (perigeesToFit.empty())
     {
       if(msgLvl(MSG::DEBUG))
       {
@@ -585,9 +585,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
     //to reassign vertices you look ino what is already in myVxCandidate
     //you do it only ONCE!
 
-    xAOD::Vertex * myxAODVertex = 0;
+    xAOD::Vertex * myxAODVertex = nullptr;
 
-    if (m_useBeamConstraint && perigeesToFit.size()>0)
+    if (m_useBeamConstraint && !perigeesToFit.empty())
     {
       myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
     }
@@ -605,11 +605,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
     m_v0mass = -199.9 ;
 
-    m_goodVertex = myxAODVertex != 0 && m_ndf >0 && m_ntracks >=2 ;
+    m_goodVertex = myxAODVertex != nullptr && m_ndf >0 && m_ntracks >=2 ;
 
     if (msgLvl(MSG::DEBUG))
     {
-      ATH_MSG_DEBUG( " xAOD::Vertex : " << ( myxAODVertex != 0 ? 1 : 0 ) 
+      ATH_MSG_DEBUG( " xAOD::Vertex : " << ( myxAODVertex != nullptr ? 1 : 0 ) 
 		     << ",  #dof = " << m_ndf << ",  #tracks (weight>0.01) = " << m_ntracks );
     }
 
@@ -728,7 +728,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
             
           const Trk::TrackParameters* trackPerigee=(*tracksIter).initialPerigee();
                         
-          if (trackPerigee==0)
+          if (trackPerigee==nullptr)
           {
             ATH_MSG_ERROR( " Cast to perigee gives 0 pointer " );
           }
@@ -825,9 +825,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
         Amg::Vector3D fitposition = myxAODVertex->position() ;
         delete myxAODVertex;
-        myxAODVertex=0;
+        myxAODVertex=nullptr;
           
-        if (m_useBeamConstraint && perigeesToFit.size()>0)
+        if (m_useBeamConstraint && !perigeesToFit.empty())
         {
           myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
         }
@@ -840,7 +840,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
           
         countTracksAndNdf( myxAODVertex, m_ndf, m_ntracks);
           
-        m_goodVertex = myxAODVertex != 0 && m_ndf >0 && m_ntracks >=2 ;
+        m_goodVertex = myxAODVertex != nullptr && m_ndf >0 && m_ntracks >=2 ;
 
         if (msgLvl(MSG::DEBUG))
         {
@@ -968,12 +968,12 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
         int ngroom = 0 ;
         if ( perigeesToFit.size() >= 2 ) 
         {
-          groomed = NULL ;
+          groomed = nullptr ;
           groomed=m_iVertexFitter->fit( perigeesToFit, myxAODVertex->position()  ) ;
 
           countTracksAndNdf( groomed, m_ndf, ngroom );
 
-          goodgroom = ( groomed != NULL && m_ndf > 0 && ngroom >= 2 ) ;
+          goodgroom = ( groomed != nullptr && m_ndf > 0 && ngroom >= 2 ) ;
         }
 
         if ( perigeesToFit.size() < 2 ||  ! goodgroom  )
@@ -993,7 +993,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
           {
 //              removeCompatibleTracks( groomed,  perigeesToFit,  seedTracks);
             delete groomed ;
-            groomed=0;
+            groomed=nullptr;
           }
 
           removeCompatibleTracks( myxAODVertex,  perigeesToFit,  seedTracks);
@@ -1005,7 +1005,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 //        myxAODVertex->setTrackParticleLinks( groomed->trackParticleLinks() ) ;
 
         delete groomed ;
-        groomed=0;
+        groomed=nullptr;
 
         ATH_MSG_DEBUG( " new vertex after grooming with reminded tracks : " << ngroom  
 		       << " with Chi2/dof " << myxAODVertex->chiSquared()/myxAODVertex->numberDoF() );
@@ -1044,7 +1044,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
         ATH_MSG_DEBUG( " radiiPattern filter hasn't affect in tracks : " << m_ntracks 
 		       << " with VxType : " << myxAODVertex->vertexType() );
         delete groomed ;
-        groomed = 0 ;
+        groomed = nullptr ;
 #ifdef MONITORTUNES
         mDecor_HitsFilter( *myxAODVertex ) = m_hif ;
 #endif
@@ -1129,7 +1129,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 // redo the fit
     xAOD::Vertex * QxAODVertex = new xAOD::Vertex() ;
     QxAODVertex = m_iVertexFitter->fit( perigeesToFit, (*vxIter)->position() );
-    if ( QxAODVertex == NULL ) 
+    if ( QxAODVertex == nullptr ) 
     {
       ++vxIter ;
       continue ;
@@ -1249,7 +1249,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
           {
             ATH_MSG_VERBOSE( " svperigee retrieved " );
 
-            float pt = svperigee->parameters()[Trk::theta]/std::fabs( svperigee->parameters()[Trk::qOverP] ) ;
+            float pt = svperigee->parameters()[Trk::theta]/std::abs( svperigee->parameters()[Trk::qOverP] ) ;
             ATH_MSG_VERBOSE( " track perigee parameters retrieved " );
             pt2 += pt*pt*0.000001 ;
 
@@ -1271,7 +1271,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
               error  =  std::sqrt(   (*svperigee->covariance())(Trk::d0,Trk::d0) 
                                    + (*svperigee->covariance())(Trk::z0,Trk::z0)
                                  );	
-            xdoe.push_back( std::fabs( distance/error ) ) ;
+            xdoe.push_back( std::abs( distance/error ) ) ;
 #endif
           } 
 
@@ -1346,7 +1346,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }
 
-bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > momenta, const Amg::Vector3D & posi, 
+bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >& momenta, const Amg::Vector3D & posi, 
                                              float & mass, float &modir ) const
 {
   mass = -99.9 ;
@@ -1709,7 +1709,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
 
     m_evtNum = 0 ;
 
-    if (m_createSplitVertices==true && m_useBeamConstraint==true)
+    if (m_createSplitVertices && m_useBeamConstraint)
     {
       ATH_MSG_FATAL( " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." );
       return StatusCode::FAILURE;
@@ -1743,12 +1743,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not find BeamCondSvc." );
-      return sc;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     if(m_trkFilter.retrieve().isFailure()) {
       ATH_MSG_ERROR(" Unable to retrieve "<<m_trkFilter );
@@ -1768,7 +1763,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
     m_seedperigees = new std::vector<const Trk::TrackParameters*> () ;
 
 #ifdef MONITORTUNES
-    ITHistSvc*     hist_root=0;
+    ITHistSvc*     hist_root=nullptr;
 
     m_leastmodes = new std::vector<int>() ;
     m_sdFsmwX = new std::vector< std::vector < float > >() ;
@@ -1837,12 +1832,12 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
   beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
   */
-
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
-  typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
+  using TrackDataVecIter = DataVector<Trk::Track>::const_iterator;
 
   bool selectionPassed;
   for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
@@ -1884,10 +1879,10 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   std::vector<Trk::ITrackLink*> selectedTracks;
 
   // TODO: change trkFilter to allow for this replacement
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-
-  typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
+  using TrackParticleDataVecIter = DataVector<Trk::TrackParticleBase>::const_iterator;
 
   bool selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
@@ -1943,18 +1938,18 @@ StatusCode InDetIterativeSecVtxFinderTool::finalize()
     
     delete m_seedac ;
 
-    m_leastmodes = 0 ;
-    m_sdFsmwX = 0 ;
-    m_sdFsmwY = 0 ;
-    m_sdFsmwZ = 0 ;
-    m_sdcrsWght = 0 ;
-    m_nperiseed = 0 ;
-    m_seedX = 0 ;
-    m_seedY = 0 ;
-    m_seedZ = 0 ;
-    m_seedXYdist = 0 ;
-    m_seedZdist = 0 ;
-    m_seedac = 0 ;
+    m_leastmodes = nullptr ;
+    m_sdFsmwX = nullptr ;
+    m_sdFsmwY = nullptr ;
+    m_sdFsmwZ = nullptr ;
+    m_sdcrsWght = nullptr ;
+    m_nperiseed = nullptr ;
+    m_seedX = nullptr ;
+    m_seedY = nullptr ;
+    m_seedZ = nullptr ;
+    m_seedXYdist = nullptr ;
+    m_seedZdist = nullptr ;
+    m_seedac = nullptr ;
 
 #endif
 
@@ -1967,7 +1962,7 @@ void InDetIterativeSecVtxFinderTool::printParameterSettings()
   ATH_MSG_INFO( "VertexFitter " << m_iVertexFitter );
 }
 
-void InDetIterativeSecVtxFinderTool::SGError(std::string errService)
+void InDetIterativeSecVtxFinderTool::SGError(const std::string& errService)
 {
   ATH_MSG_FATAL( errService << " not found. Exiting !" );
     return;
@@ -1995,7 +1990,7 @@ double InDetIterativeSecVtxFinderTool::compatibility(const Trk::TrackParameters 
   returnValue += trackParameters2D.dot(weightReduced*trackParameters2D);
   
   delete myLinearizedTrack;
-  myLinearizedTrack=0;
+  myLinearizedTrack=nullptr;
 
   return returnValue;
 }
@@ -2103,7 +2098,7 @@ float InDetIterativeSecVtxFinderTool::removeTracksInBadSeed( xAOD::Vertex * myxA
 
     const Trk::TrackParameters* measPerigee = (*tracksAtVertexIter).initialPerigee() ;
 
-    if ( measPerigee == NULL ) continue ;
+    if ( measPerigee == nullptr ) continue ;
 
     tot ++ ;
     bool hf = passHitsFilter( measPerigee, position.perp(), fabs( position.z() ) ) ;
@@ -2111,7 +2106,7 @@ float InDetIterativeSecVtxFinderTool::removeTracksInBadSeed( xAOD::Vertex * myxA
     float pt = 0. ;
     const Trk::TrackParameters * svperigee = (*tracksAtVertexIter).perigeeAtVertex() ;
     if ( svperigee ) 
-      pt = svperigee->parameters()[Trk::theta]/std::fabs( svperigee->parameters()[Trk::qOverP] ) ;
+      pt = svperigee->parameters()[Trk::theta]/std::abs( svperigee->parameters()[Trk::qOverP] ) ;
 
     pt_tot += pt ;
 
@@ -2189,7 +2184,7 @@ const std::vector< Amg::Vector3D > InDetIterativeSecVtxFinderTool::getVertexMome
       double theta = sv_perigee->parameters()[Trk::theta];
       double phi = sv_perigee->parameters()[Trk::phi];
 
-      m_TrkAtVtxMomenta.push_back( Amg::Vector3D( qp*sin(theta)*cos(phi), qp*sin(theta)*sin(phi), qp*cos(theta) ) ) ;
+      m_TrkAtVtxMomenta.emplace_back( qp*sin(theta)*cos(phi), qp*sin(theta)*sin(phi), qp*cos(theta) ) ;
 
     }
 
@@ -2314,7 +2309,7 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
     
     const Trk::TrackParameters* myPerigee=(*perigeesToFitIter);
     
-    if (myPerigee==0)
+    if (myPerigee==nullptr)
     {
       ATH_MSG_ERROR( " Cast to perigee gives 0 pointer " );
     }

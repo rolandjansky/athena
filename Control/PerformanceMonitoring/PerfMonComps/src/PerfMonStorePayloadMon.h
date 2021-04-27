@@ -20,7 +20,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 namespace PerfMon {

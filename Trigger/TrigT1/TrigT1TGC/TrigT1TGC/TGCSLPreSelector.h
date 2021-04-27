@@ -5,12 +5,13 @@
 #ifndef TGCSLPreSelector_hh
 #define TGCSLPreSelector_hh
 
-class TGCSectorLogic;
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
 
 namespace LVL1TGCTrigger {
+
 class TGCRPhiCoincidenceOut;
 class TGCSLPreSelectorOut;
+class TGCSectorLogic;
 
 class TGCSLPreSelector {
 public:

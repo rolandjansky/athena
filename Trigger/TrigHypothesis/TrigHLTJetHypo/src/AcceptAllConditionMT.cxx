@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./AcceptAllConditionMT.h"
@@ -9,12 +9,6 @@
 #include <sstream>
 #include <cmath>
 #include <TLorentzVector.h>
-
-AcceptAllConditionMT::AcceptAllConditionMT(std::size_t capacity) :
-
-m_capacity(capacity){
-}
-
 
 bool 
 AcceptAllConditionMT::isSatisfied(const HypoJetVector& ips,
@@ -44,6 +38,6 @@ AcceptAllConditionMT::isSatisfied(const HypoJetVector& ips,
 std::string AcceptAllConditionMT::toString() const {
   std::stringstream ss;
   
-  ss << "AcceptAllConditionMT (" << this << ") capacity " <<  m_capacity <<'\n';
+  ss << "AcceptAllConditionMT (" << this << ")\n";
   return ss.str();
 }

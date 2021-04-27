@@ -382,31 +382,10 @@ class TrigMufastHypoConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
+        thresholds = ['passthrough']
     else:
-       thresholds = getThresholdsFromDict( chainDict )
-
-    config = TrigmuCombHypoConfig()
-
-    tight = False # can be probably decoded from some of the proprties of the chain, expert work
-
-    acceptAll = False
-    if chainDict['chainParts'][0]['signature'] == 'Bphysics':
-        acceptAll = True
-
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
-
-    addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
-
-    return tool
-
-def TrigmuCombLrtHypoToolFromDict( chainDict ):
-
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
-    else:
-       thresholds = getThresholdsFromDict( chainDict )
+        thresholds = getThresholdsFromDict( chainDict )
 
     config = TrigmuCombHypoConfig()
 
@@ -434,7 +413,7 @@ def TrigmuCombLrtHypoToolFromDict( chainDict ):
 
 def TrigmuCombHypoToolwORFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -495,7 +474,7 @@ def Trigl2IOHypoToolwORFromDict( chainDict ):
 # muComb Hypo for L2 multi-track SA mode
 def Trigl2mtCBHypoToolwORFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -633,18 +612,32 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
 
 def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['addInfo']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
 
-    if 'muonqual' in chainDict['chainParts'][0]['chainPartName']:
+    if 'muonqual' in chainDict['chainParts'][0]['addInfo']:
        muonquality = True
     else:
        muonquality = False
 
+    if 'nscan' in chainDict['chainParts'][0]['addInfo']:
+       narrowscan = True
+    else:
+       narrowscan = False
+
+
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality)
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality, narrowscan)
+    d0cut=0.
+    if 'd0loose' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0loose']
+    elif 'd0medium' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0medium']
+    elif 'd0tight' in chainDict['chainParts'][0]['lrtInfo']:
+        d0cut=trigMuonLrtd0Cut['d0tight']
+    tool.MinimumD0=d0cut  
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
@@ -665,14 +658,19 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
             thresholds.append(thr)
-    if 'muonqual' in chainName:
+        if 'nscan' in cparts:
+            narrowscan=True
+        else:
+            narrowscan=False
+
+    if 'muonqual' in chainDict['chainParts'][0]['addInfo']:
        muonquality = True
     else:
        muonquality = False
 
     config = TrigMuonEFCombinerHypoConfig()
 
-    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality)
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality, narrowscan)
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
@@ -680,7 +678,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFCombinerHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality, narrowscan):
 
         tool = CompFactory.TrigMuonEFHypoTool( thresholdHLT )  
         nt = len(thresholds)
@@ -690,6 +688,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
         tool.MuonQualityCut = muonquality
         tool.RequireSAMuons=False
+        tool.NarrowScan=narrowscan
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
@@ -714,7 +713,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
 def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
-    if 'ivarperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'ivarperf' in chainDict['chainParts'][0]['isoInfo']:
         thresholds = 'passthrough'
     else:
         thresholds = cparts[0]['isoInfo']

@@ -11,7 +11,7 @@
 //================ Constructor =================================================
 Muon::TgcPrepDataReplicationTool::TgcPrepDataReplicationTool
   (const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p)
+  : base_class(t, n, p)
 {
   for(int ibc = 0; ibc < BC_NUM; ibc++) m_tgcPrepDataContainer[ibc] = 0;
 }  
@@ -51,7 +51,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::finalize()
 
 
 //================ Decoding ====================================================
-StatusCode Muon::TgcPrepDataReplicationTool::replicate()
+StatusCode Muon::TgcPrepDataReplicationTool::replicate() const
 {
   bool hasContainer[BC_NUM] = {false}; 
   ATH_MSG_VERBOSE("replicate");
@@ -82,7 +82,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::replicate()
 }
 
 
-StatusCode Muon::TgcPrepDataReplicationTool::convertAllBCto3BC()
+StatusCode Muon::TgcPrepDataReplicationTool::convertAllBCto3BC() const
 {
 
   const Muon::TgcPrepDataContainer* tgcAll = 0;
@@ -151,7 +151,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::convertAllBCto3BC()
 }
 
 
-StatusCode Muon::TgcPrepDataReplicationTool::convert3BCtoAllBC()
+StatusCode Muon::TgcPrepDataReplicationTool::convert3BCtoAllBC() const
 {
   // cleanup
   m_tgcPrepDataContainer[BC_ALL]->cleanup();
@@ -226,7 +226,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::convert3BCtoAllBC()
 
 
 Muon::TgcPrepData*
-Muon::TgcPrepDataReplicationTool::makeTgcPrepData(Muon::TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap)
+Muon::TgcPrepDataReplicationTool::makeTgcPrepData(Muon::TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap) const
 {
   Identifier channelId = (*itr)->identify();
   IdentifierHash tgcHashId = (*itr)->collectionHash();
@@ -241,19 +241,4 @@ Muon::TgcPrepDataReplicationTool::makeTgcPrepData(Muon::TgcPrepDataCollection::c
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;
-}
-
-
-
-
-StatusCode Muon::TgcPrepDataReplicationTool::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  ATH_MSG_DEBUG("queryInterface()");
-  if(ITgcPrepDataReplicationTool::interfaceID().versionMatch(riid)) {
-    *ppvIf = dynamic_cast<ITgcPrepDataReplicationTool*>(this);
-    addRef();
-    ATH_MSG_DEBUG("InterfaceID successfully matched with ITgcPrepDataReplicationTool one.");
-    return StatusCode::SUCCESS;
-  }
-
-  return AthAlgTool::queryInterface(riid, ppvIf);
 }

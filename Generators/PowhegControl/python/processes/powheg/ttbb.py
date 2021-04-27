@@ -70,6 +70,8 @@ class ttbb(PowhegRES):
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf", 1)
+        self.add_keyword("bornsuppfact")
+        self.add_keyword("bornzerodamp")
         self.add_keyword("btlscalect", 1)
         self.add_keyword("btlscalereal", 1)
         self.add_keyword("clobberlhe")

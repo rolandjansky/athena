@@ -28,26 +28,19 @@ TrackParticlePerigeeAtBSAssociationTool::TrackParticlePerigeeAtBSAssociationTool
    const std::string& name,
    const IInterface* parent)
     : Base (type, name, parent),
-      m_iBeamCondSvc(0),
       m_trackToVertexTool("Reco::TrackToVertex")
 {
   declareProperty ("TrackToVertexTool", m_trackToVertexTool);
-  declareProperty("BeamCondSvcName", m_beamCondSvcName = "BeamCondSvc");
 }
 
 StatusCode TrackParticlePerigeeAtBSAssociationTool::initialize(){
 
   CHECK( Base::initialize() );
 
-  // Pick up the BeamConditionService
-  StatusCode sc = service(m_beamCondSvcName, m_iBeamCondSvc);
-  if (sc.isFailure() || m_iBeamCondSvc == 0) {
-    REPORT_MESSAGE (MSG::WARNING) << "Could not find BeamCondSvc: " <<  m_beamCondSvcName;
-    REPORT_MESSAGE (MSG::WARNING) << "Will use nominal beamspot at (0,0,0)";
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   // Pick up the TrackToVertex tool
-  sc = m_trackToVertexTool.retrieve();
+  StatusCode sc = m_trackToVertexTool.retrieve();
   if(sc.isFailure()){
     REPORT_MESSAGE (MSG::ERROR) << "Could not retrieve TrackToVertexTool";
     return StatusCode::FAILURE;
@@ -68,11 +61,10 @@ TrackParticlePerigeeAtBSAssociationTool::get (const Rec::TrackParticle& track)
   // Protect against bad tracks.
   if (track.measuredPerigee()->covariance() && track.measuredPerigee()->covariance()->rows()==0)
     return 0;
-
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   /// Pick up the beamspot
   Amg::Vector3D beamSpot(0,0,0);
-  if (m_iBeamCondSvc)
-    beamSpot = m_iBeamCondSvc->beamVtx().position();
+  beamSpot = beamSpotHandle->beamVtx().position();
 
   return m_trackToVertexTool->perigeeAtVertex(track, beamSpot);
 }
@@ -88,8 +80,8 @@ TrackParticlePerigeeAtBSAssociationTool::get (const xAOD::TrackParticle& track)
 {
   /// Pick up the beamspot
   Amg::Vector3D beamSpot(0,0,0);
-  if (m_iBeamCondSvc)
-    beamSpot = m_iBeamCondSvc->beamVtx().position();
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamSpot = beamSpotHandle->beamVtx().position();
 
   return m_trackToVertexTool->perigeeAtVertex(track, beamSpot);
 }

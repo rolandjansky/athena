@@ -10,7 +10,7 @@
 // This include is needed at the top before any includes regarding lwtnn
 // since it includes Eigen in a specific way which causes compilation errors
 // if not included before lwtnn
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "EventPrimitives/EventPrimitives.h"
 
 #include "AsgMessaging/AsgMessagingForward.h"
 #include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
@@ -77,13 +77,14 @@ public:
   ElectronDNNCalculator( AsgElectronSelectorTool* owner,
                          const std::string& modelFileName,
                          const std::string& quantileFileName,
-                         const std::vector<std::string>& variablesName);
+                         const std::vector<std::string>& variablesName,
+                         const bool multiClass);
 
   /** Standard destructor*/
   ~ElectronDNNCalculator() {};
 
   /** Get the prediction of the DNN model*/
-  double calculate( const MVAEnum::MVACalcVars& varsStruct ) const;
+  Eigen::Matrix<float, -1, 1> calculate( const MVAEnum::MVACalcVars& varsStruct ) const;
 
 private:
   /** transform the input variables according to a given QuantileTransformer.*/
@@ -98,6 +99,8 @@ private:
   MVAEnum::QTVars m_quantiles;
   /// Reference values for the QuantileTransformer. Basically just equidistant bins between 0 and 1.
   std::vector<double> m_references;
+  /// Whether the used model is a multiclass model or not.
+  bool m_multiClass;
 
 };
 

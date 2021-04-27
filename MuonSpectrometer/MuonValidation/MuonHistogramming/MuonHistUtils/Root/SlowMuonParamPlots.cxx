@@ -29,42 +29,42 @@ void BetaPlots::initializePlots()
   rms = Book1D( m_sDetType+"rms", "; rms;Entries",20,0,20);  
 }
 
-void BetaPlots::fill(const xAOD::SlowMuon& smu)
+  void BetaPlots::fill(const xAOD::SlowMuon& smu, float weight)
 {
   if (m_sDetType=="rpc" || m_sDetType=="Rpc" || m_sDetType=="RPC") {
-    nHits->Fill( smu.nRpcHits() );
-    ndf->Fill( smu.rpcBetaDof() );
+    nHits->Fill( smu.nRpcHits(), weight );
+    ndf->Fill( smu.rpcBetaDof(), weight );
     if (smu.rpcBetaDof()>0) {
-      avg->Fill( smu.rpcBetaAvg() );
-      rms->Fill( smu.rpcBetaRms() );
-      chi2->Fill( smu.rpcBetaChi2() );
-      ndf->Fill( smu.rpcBetaDof() );
-      chi2ndf->Fill( smu.rpcBetaChi2()/smu.rpcBetaDof() );
-      chi2prob->Fill( TMath::Prob(smu.rpcBetaChi2(), smu.rpcBetaDof()) );
+      avg->Fill( smu.rpcBetaAvg(), weight );
+      rms->Fill( smu.rpcBetaRms(), weight );
+      chi2->Fill( smu.rpcBetaChi2(), weight );
+      ndf->Fill( smu.rpcBetaDof(), weight );
+      chi2ndf->Fill( smu.rpcBetaChi2()/smu.rpcBetaDof(), weight );
+      chi2prob->Fill( TMath::Prob(smu.rpcBetaChi2(), smu.rpcBetaDof()), weight );
     }
   }
   else if (m_sDetType=="mdt" || m_sDetType=="Mdt" || m_sDetType=="MDT") {
     //nHits->Fill( smu.nMdtHits() );
-    ndf->Fill( smu.mdtBetaDof() );
+    ndf->Fill( smu.mdtBetaDof(), weight );
     if (smu.mdtBetaDof()>0) {
-      avg->Fill( smu.mdtBetaAvg() );
-      rms->Fill( smu.mdtBetaRms() );
-      chi2->Fill( smu.mdtBetaChi2() );
-      ndf->Fill( smu.mdtBetaDof() );	    
-      chi2ndf->Fill( smu.mdtBetaChi2()/smu.mdtBetaDof() );
-      chi2prob->Fill( TMath::Prob(smu.mdtBetaChi2(), smu.mdtBetaDof()) );
+      avg->Fill( smu.mdtBetaAvg(), weight );
+      rms->Fill( smu.mdtBetaRms(), weight );
+      chi2->Fill( smu.mdtBetaChi2(), weight );
+      ndf->Fill( smu.mdtBetaDof(), weight );	    
+      chi2ndf->Fill( smu.mdtBetaChi2()/smu.mdtBetaDof(), weight );
+      chi2prob->Fill( TMath::Prob(smu.mdtBetaChi2(), smu.mdtBetaDof()), weight );
     }
   }
   else if (m_sDetType=="calo" || m_sDetType=="Calo" || m_sDetType=="CALO") {
-    nHits->Fill( smu.nTileCells() );
-    ndf->Fill( smu.caloBetaDof() );
+    nHits->Fill( smu.nTileCells(), weight );
+    ndf->Fill( smu.caloBetaDof(), weight );
     if (smu.caloBetaDof()>0) {
-      avg->Fill( smu.caloBetaAvg() );
-      rms->Fill( smu.caloBetaRms() );
-      chi2->Fill( smu.caloBetaChi2() );
-      ndf->Fill( smu.caloBetaDof() );
-      chi2ndf->Fill( smu.caloBetaChi2()/smu.caloBetaDof() );
-      chi2prob->Fill( TMath::Prob(smu.caloBetaChi2(), smu.caloBetaDof()) );
+      avg->Fill( smu.caloBetaAvg(), weight );
+      rms->Fill( smu.caloBetaRms(), weight );
+      chi2->Fill( smu.caloBetaChi2(), weight );
+      ndf->Fill( smu.caloBetaDof(), weight );
+      chi2ndf->Fill( smu.caloBetaChi2()/smu.caloBetaDof(),weight );
+      chi2prob->Fill( TMath::Prob(smu.caloBetaChi2(), smu.caloBetaDof()), weight );
     }
   }
 
@@ -85,12 +85,12 @@ void SlowMuonParamPlots::initializePlots()
   beta = Book1D("beta", "beta;beta;Entries",150,0,1.5);  
 }
 
-void SlowMuonParamPlots::fill(const xAOD::SlowMuon& smu)
+  void SlowMuonParamPlots::fill(const xAOD::SlowMuon& smu, float weight)
 {
-  beta->Fill( smu.beta() );
-  mdtBeta.fill( smu );
-  rpcBeta.fill( smu );
-  caloBeta.fill( smu );
+  beta->Fill( smu.beta(), weight );
+  mdtBeta.fill( smu , weight);
+  rpcBeta.fill( smu, weight );
+  caloBeta.fill( smu, weight );
   
 }  
 

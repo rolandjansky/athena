@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,6 +55,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                     << " stream=" << cbk->inputStream()
                     << " N=" << cbk->nAcceptedEvents()
                     << " W=" << cbk->sumOfEventWeights()
+                    << " W2=" << cbk->sumOfEventWeightsSquared()
                     << " nc=" << cbk->nChildren());
       }
       index++;
@@ -92,6 +93,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                     << " stream=" << cbk->inputStream()
                     << " N=" << cbk->nAcceptedEvents()
                     << " W=" << cbk->sumOfEventWeights()
+                    << " W2=" << cbk->sumOfEventWeightsSquared()
                     << " nc=" << cbk->nChildren());
       }
       index++;
@@ -120,6 +122,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " stream=" << cbk->inputStream()
                    << " N=" << cbk->nAcceptedEvents()
                    << " W=" << cbk->sumOfEventWeights()
+                   << " W2=" << cbk->sumOfEventWeightsSquared()
                    << " nc=" << cbk->nChildren());
     }
   } else {
@@ -139,6 +142,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " stream=" << cbk->inputStream()
                    << " N=" << cbk->nAcceptedEvents()
                    << " W=" << cbk->sumOfEventWeights()
+                   << " W2=" << cbk->sumOfEventWeightsSquared()
                    << " nc=" << cbk->nChildren());
     }
   } else {

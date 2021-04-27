@@ -145,9 +145,6 @@ include( "AtlasGeoModel/MuonGeoModel.py" )
 from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 muonCnvFlags.RpcCablingMode.set_Value_and_Lock( "new" )
 muonCnvFlags.TgcCablingMode.set_Value_and_Lock( "12-fold" )
-# Needed to decode the RoI information
-from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
 
 from PyUtils.MetaReaderPeeker import metadata
 from TrigT1CTMonitoring.TrigT1CTMonitoringConfig import *
@@ -201,7 +198,7 @@ elif RunSimOnData:
     #writes this to the usual MuCTPICTP storegate location
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.enableL1Phase1:
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
         topSequence += L1MuctpiPhase1_on_Data()
     else:

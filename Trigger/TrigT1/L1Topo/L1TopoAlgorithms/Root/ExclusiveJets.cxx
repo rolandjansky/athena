@@ -20,6 +20,7 @@
 #include "L1TopoAlgorithms/ExclusiveJets.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(ExclusiveJets)
 
@@ -113,8 +114,8 @@ TCS::ExclusiveJets::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 	      
 	      //In the ticket ATR-17320, pT_offline were defined as A*pT_L1+B, where A=1.4 and B=20 for run2
 	      //A and B definition might change according to run3 configuration.               
-	      double xi_1 = (1.4*parType_t((*tob1)->Et())+20.)*exp((*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp((*tob2)->etaDouble());
-	      double xi_2 = (1.4*parType_t((*tob1)->Et())+20.)*exp(-1.*(*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp(-1.*(*tob2)->etaDouble());
+	      unsigned int xi_1 = TSU::Kinematics::calcXi1(*tob1,*tob2);
+	      unsigned int xi_2 = TSU::Kinematics::calcXi2(*tob1,*tob2);
 	      
 	      const int eta1 = (*tob1)->eta();
 	      const int eta2 = (*tob2)->eta();

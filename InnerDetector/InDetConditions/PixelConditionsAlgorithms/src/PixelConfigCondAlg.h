@@ -20,6 +20,7 @@
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelRadiationDamageFluenceMapData.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
@@ -36,6 +37,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Key for basic pixel parameters
     SG::WriteCondHandleKey<PixelModuleData> m_writeKey
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
+
+    SG::WriteCondHandleKey<PixelRadiationDamageFluenceMapData> m_writeFluenceMapKey
+    {this, "WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData", "Output key for radiation damage fluence map"};
 
     // Digitization parameters
     Gaudi::Property<double> m_bunchSpace
@@ -125,6 +129,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  DisalbePix:             [N/A]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]
     //  BiasVoltage:            [N/A]      [ 500, 500, 500]      [ 500, 500, 500]      [ 500, 500, 500]
     //
+    // IBL 3D:                           
+    //  Fluence(e14):           [N/A]                [0.50]                [0.50]                [50.0]
+    //
     // See  https://twiki.cern.ch/twiki/bin/view/Atlas/PixelConditionsRUN2
     // for further details.
     //
@@ -153,6 +160,8 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  BiasVoltage: [ 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]
     //  Fluence(e14):[ n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a]
     //
+    // ITK 3D:                           
+    //  Fluence(e14):[ n/a]
     //====================================================================================
 
     //====================================================================================
@@ -258,6 +267,14 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_DBMDisableProbability2016
     {this, "DBMDisableProbability2016", {9e-3,9e-3,9e-3}, "Disable probability of DBM pixel layers in 2015/2016"};
 
+    // IBL 3D RUN2 2015/2016
+    Gaudi::Property<std::vector<double>> m_3DFluence2016
+    {this, "Barrel3DFluence2016", {5.0e15}, "Barrel3D fluence for radiation damage in 2016"};
+
+    Gaudi::Property<std::vector<std::string>> m_3DFluenceMap2016
+    {this, "Barrel3DFluenceMap2016", {"PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"},
+                                      "Barrel3D fluence map for radiation damage in 2016"};
+
     //====================================================================================
     // Barrel RUN2 2017
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2017
@@ -357,6 +374,14 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_DBMDisableProbability2017
     {this, "DBMDisableProbability2017", {9e-3,9e-3,9e-3}, "Disable probability of DBM pixel layers in 2017"};
 
+    // IBL 3D RUN2 2017
+    Gaudi::Property<std::vector<double>> m_3DFluence2017
+    {this, "Barrel3DFluence2017", {0.50e14}, "Barrel3D fluence for radiation damage in 2017"};
+
+    Gaudi::Property<std::vector<std::string>> m_3DFluenceMap2017
+    {this, "Barrel3DFluenceMap2017", {"PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"},
+                                      "Barrel3D fluence map for radiation damage in 2017"};
+
     //====================================================================================
     // Barrel RUN2 2018
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2018
@@ -455,6 +480,14 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_DBMDisableProbability2018
     {this, "DBMDisableProbability2018", {9e-3,9e-3,9e-3}, "Disable probability of DBM pixel layers in 2018"};
+
+    // IBL 3D RUN2 2018
+    Gaudi::Property<std::vector<double>> m_3DFluence2018
+    {this, "Barrel3DFluence2018", {5.0e15}, "Barrel3D fluence for radiation damage in 2018"};
+
+    Gaudi::Property<std::vector<std::string>> m_3DFluenceMap2018
+    {this, "Barrel3DFluenceMap2018", {"PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"},
+                                      "Barrel3D fluence map for radiation damage in 2018"};
 
     //====================================================================================
     // Barrel RUN1
@@ -594,6 +627,14 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrITK
     {this, "EndcapLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in ITK"};
+
+    // ITK 3D
+    Gaudi::Property<std::vector<double>> m_3DFluenceITK
+    {this, "Barrel3DFluenceITK", {0.0e14}, "Barrel3D fluence for radiation damage in ITK"};
+
+    Gaudi::Property<std::vector<std::string>> m_3DFluenceMapITK
+    {this, "Barrel3DFluenceMapITK", {"PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"},
+                                     "Barrel3D fluence map for radiation damage in ITK"};
 
     //====================================================================================
     // The following parameters are default values which will be overwritten by the one 

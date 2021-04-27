@@ -37,32 +37,32 @@ m_oPtVarCone40(this,"", "ptvarcone40")
 #endif // not XAOD_ANALYSIS
 {}	
 
-void MuonIsolationPlots::fill(const xAOD::Muon& muon)
+  void MuonIsolationPlots::fill(const xAOD::Muon& muon, float weight)
 {
-  m_oPtCone20.fill(muon, xAOD::Iso::ptcone20);
-  m_oPtCone30.fill(muon, xAOD::Iso::ptcone30);
-  m_oPtCone40.fill(muon, xAOD::Iso::ptcone40);
+  m_oPtCone20.fill(muon, xAOD::Iso::ptcone20, weight);
+  m_oPtCone30.fill(muon, xAOD::Iso::ptcone30, weight);
+  m_oPtCone40.fill(muon, xAOD::Iso::ptcone40, weight);
 
-  m_oEtCone20.fill(muon, xAOD::Iso::etcone20);
-  m_oEtCone30.fill(muon, xAOD::Iso::etcone30);
-  m_oEtCone40.fill(muon, xAOD::Iso::etcone40);
+  m_oEtCone20.fill(muon, xAOD::Iso::etcone20, weight);
+  m_oEtCone30.fill(muon, xAOD::Iso::etcone30, weight);
+  m_oEtCone40.fill(muon, xAOD::Iso::etcone40, weight);
 
-  m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20);
-  m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30);
-  m_oTopoEtCone40.fill(muon, xAOD::Iso::topoetcone40);
+  m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20, weight);
+  m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30, weight);
+  m_oTopoEtCone40.fill(muon, xAOD::Iso::topoetcone40, weight);
 #ifndef XAOD_ANALYSIS
-  m_oNEFlowIso20.fill(muon, xAOD::Iso::neflowisol20);
-  m_oNEFlowIso30.fill(muon, xAOD::Iso::neflowisol30);
-  m_oNEFlowIso40.fill(muon, xAOD::Iso::neflowisol40);
+  m_oNEFlowIso20.fill(muon, xAOD::Iso::neflowisol20, weight);
+  m_oNEFlowIso30.fill(muon, xAOD::Iso::neflowisol30, weight);
+  m_oNEFlowIso40.fill(muon, xAOD::Iso::neflowisol40, weight);
   
-  m_oPtVarCone20.fill(muon, xAOD::Iso::ptvarcone20);
-  m_oPtVarCone30.fill(muon, xAOD::Iso::ptvarcone30);
-  m_oPtVarCone40.fill(muon, xAOD::Iso::ptvarcone40);
+  m_oPtVarCone20.fill(muon, xAOD::Iso::ptvarcone20, weight);
+  m_oPtVarCone30.fill(muon, xAOD::Iso::ptvarcone30, weight);
+  m_oPtVarCone40.fill(muon, xAOD::Iso::ptvarcone40, weight);
 
-  m_oEtCone_coreCone.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
-  m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
-  m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
-  m_oEtCone_coreMuon.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreMuon, xAOD::Iso::coreEnergy);
+  m_oEtCone_coreCone.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
+  m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
+  m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
+  m_oEtCone_coreMuon.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreMuon, xAOD::Iso::coreEnergy, weight);
 #endif // not XAOD_ANALYSIS
 
 }
@@ -78,7 +78,7 @@ void IsoPlots::initializePlots()
   conerel = Book1D(m_sConeSize + "rel", m_sConeSize + "rel;" + m_sConeSize + "rel;Entries", 40, 0., 2.);
 }
   
-void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType)
+  void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType, float weight)
 {
   float fIso = 0;
   try{
@@ -87,12 +87,12 @@ void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoT
   catch(SG::ExcBadAuxVar&){
     return;
   }
-  if (fIso) fill(fIso, muon.pt());
+  if (fIso) fill(fIso, muon.pt(),weight);
 }
-void IsoPlots::fill(float fIso, float fPt)
+  void IsoPlots::fill(float fIso, float fPt,float  weight)
 {
-  cone->Fill(fIso*0.001);
-  conerel->Fill(fIso/fPt);
+  cone->Fill(fIso*0.001, weight);
+  conerel->Fill(fIso/fPt, weight);
 }
 
 
@@ -117,7 +117,8 @@ void IsoCorrPlots::fill(const xAOD::Muon& muon,
 			const xAOD::Iso::IsolationType &isoType_cone40,
 			const xAOD::Iso::IsolationFlavour& flavour,
 			const xAOD::Iso::IsolationCaloCorrection &isoCorrType,
-			const xAOD::Iso::IsolationCorrectionParameter& isoCorrParam)
+			const xAOD::Iso::IsolationCorrectionParameter& isoCorrParam,
+			float weight)
 {
     float fIso20 = 0;
     float fIso30 = 0;
@@ -134,16 +135,16 @@ void IsoCorrPlots::fill(const xAOD::Muon& muon,
       return;
     }
     if (fIso20 && fIso30 && fIso40)
-      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr);
+      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr, weight);
 }
 
-void IsoCorrPlots::fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr)
+  void IsoCorrPlots::fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr,float weight)
 {
-  isocorr->Fill(fIsoCorr*0.001);
-  isocorr_relPt->Fill(fIsoCorr/fPt);
-  isocorr_relIsocone20->Fill(fIsoCorr/fIso20);
-  isocorr_relIsocone30->Fill(fIsoCorr/fIso30);
-  isocorr_relIsocone40->Fill(fIsoCorr/fIso40);
+  isocorr->Fill(fIsoCorr*0.001,weight);
+  isocorr_relPt->Fill(fIsoCorr/fPt,weight);
+  isocorr_relIsocone20->Fill(fIsoCorr/fIso20,weight);
+  isocorr_relIsocone30->Fill(fIsoCorr/fIso30,weight);
+  isocorr_relIsocone40->Fill(fIsoCorr/fIso40,weight);
 }
 #endif // not XAOD_ANALYSIS
 

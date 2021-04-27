@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysis.h"
@@ -223,9 +223,9 @@ namespace Muon {
 
     // loop over hits
     int bestTagCandidateIndex = -1; 
-    float bestRes = 1e99;
+    float bestRes = FLT_MAX;
     int bestCombinedCandidateIndex = -1; 
-    float bestCombinedRes = 1e99;
+    float bestCombinedRes = FLT_MAX;
     unsigned int ncandidates = 0;
     unsigned int ncombinedCandidates = 0;
     for( std::vector<int>::const_iterator it=indexVec.begin();it!=indexVec.end();++it ){

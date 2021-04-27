@@ -40,10 +40,6 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  /** Build single track conversion candidate. Trk::Track interface.  */
-  xAOD::Vertex* buildSingleTrackConversion(const Trk::Track* track) const;
-  /** Select single track conversion candidates.  Trk::Track interface. */
-  bool selectSingleTrackConversion(const Trk::Track* track) const;
   /** Build single track conversion candidate. xAOD::TrackParticle interface. */
   xAOD::Vertex* buildSingleTrackParticleConversion(
     const xAOD::TrackParticle*,
@@ -52,18 +48,6 @@ public:
   bool selectSingleTrackParticleConversion(const xAOD::TrackParticle*) const;
 
 protected:
-  /** Conversion helper tool. */
-  ToolHandle<InDet::ConversionFinderUtils> m_helpertool{
-    this,
-    "ConversionFinderHelperTool",
-    "InDet::ConversionFinderUtils",
-    "Helper for conversion finding"
-  };
-  //!< Track extrapolator tool.
-  ToolHandle<Trk::IExtrapolator> m_extrapolator{ this,
-                                                 "Extrapolator",
-                                                 "",
-                                                 "Track Extrapolator Tool" };
   double m_minInitR; /** Minimum initial hit radius in order to consider track
                         as coming from photon conversion */
   double m_minInitR_noBLay; /** Minimum initial hit radius in order to consider

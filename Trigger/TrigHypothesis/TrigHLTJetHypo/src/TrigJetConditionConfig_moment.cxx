@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -37,10 +37,3 @@ StatusCode TrigJetConditionConfig_moment::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
-bool TrigJetConditionConfig_moment::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_moment::capacity() const {
-  return getCondition()->capacity();
-}

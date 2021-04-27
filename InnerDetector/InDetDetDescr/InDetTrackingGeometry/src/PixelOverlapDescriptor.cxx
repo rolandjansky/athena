@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ bool InDet::PixelOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIn
                                                             
 {
     // first add the target surface - it's always worth 
-    cSurfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
+    cSurfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
     
     
     // make sure the return vector is cleared
@@ -50,7 +50,7 @@ bool InDet::PixelOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIn
       double positionPhi  = pos.phi() + M_PI;
       // 8-cell-connectivity depending on track/surface geometry
       // nPhi - can be jump + or -
-      const InDetDD::SiDetectorElement* nElement = 0;
+      const InDetDD::SiDetectorElement* nElement = nullptr;
       // robust mode --> return 9 surfaces
       if (m_robustMode) {
 	addNextInPhi(sElement,cSurfaces);

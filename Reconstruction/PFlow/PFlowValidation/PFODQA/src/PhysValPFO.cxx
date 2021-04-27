@@ -16,6 +16,7 @@ StatusCode PhysValPFO::initialize(){
 
   ATH_CHECK(m_vertexContainerReadHandleKey.initialize());
   ATH_CHECK(m_PFOContainerHandleKey.initialize());
+  ATH_CHECK(m_eventInfoReadHandleKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -60,15 +61,20 @@ StatusCode PhysValPFO::fillHistograms(){
       //Vertex finding logic based on logic in JetRecTools/PFlowPseudoJetGetter tool
       //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
       for (auto vertex : *vertexContainerReadHandle) {
-	if (xAOD::VxType::PriVtx == vertex->vertexType() ) {
-	theVertex = vertex;
-	break;
-	}//If we have a vertex of type primary vertex
+	      if (xAOD::VxType::PriVtx == vertex->vertexType() ) {
+	        theVertex = vertex;
+	        break;
+	      }//If we have a vertex of type primary vertex
       }//iterate over the vertices and check their type
 
       if (nullptr == theVertex) ATH_MSG_WARNING("Did not find either a PriVtx or a NoVtx in this event");
       
     }//if valid read handle
+  }
+
+  SG::ReadHandle<xAOD::EventInfo> eventInfoReadHandle(m_eventInfoReadHandleKey);
+  if (!eventInfoReadHandle.isValid()){
+    ATH_MSG_WARNING("Invalid ReadHandle for xAOD::EventInfo with key: " << eventInfoReadHandle.key());
   }
 
   SG::ReadHandle<xAOD::PFOContainer> PFOContainerReadHandle(m_PFOContainerHandleKey);
@@ -78,8 +84,8 @@ StatusCode PhysValPFO::fillHistograms(){
   }
   for (auto thePFO : *PFOContainerReadHandle){
     if(thePFO){
-       if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);
-       else if (m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
+       if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex,*eventInfoReadHandle);
+       else if (m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO,*eventInfoReadHandle);
     }
     else ATH_MSG_WARNING("Invalid pointer to xAOD::PFO");
   }

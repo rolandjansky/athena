@@ -61,14 +61,14 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
 
   auto mon = Monitored::Group( m_monTool, mon_totalCharge, mon_chi2, mon_mass, mon_pT_trk1, mon_pT_trk2, mon_Lxy);
 
-  if (m_acceptAll || (isInMassRange(trigBphys->mass()) && passedChi2Cut(trigBphys->fitchi2()) && passedChargeCut(totalCharge(trigBphys)) && 
+  if (m_acceptAll || (isInMassRange(trigBphys->mass()) && passedChi2Cut(trigBphys->fitchi2()) && passedChargeCut(totalCharge(trigBphys)) &&
              trigBphys->lxy() > m_LxyCut )) {
     mon_Lxy = trigBphys->lxy();
     mon_totalCharge = totalCharge(trigBphys);
     mon_chi2 = trigBphys->fitchi2();
-    mon_mass = trigBphys->mass();
-    mon_pT_trk1 = trigBphys->trackParticle(0)->pt();
-    mon_pT_trk2 = trigBphys->trackParticle(1)->pt();
+    mon_mass = 0.001 * trigBphys->mass();
+    mon_pT_trk1 = 0.001 * trigBphys->trackParticle(0)->pt();
+    mon_pT_trk2 = 0.001 * trigBphys->trackParticle(1)->pt();
     ATH_MSG_DEBUG( "accepting event" );
     return true;
   }

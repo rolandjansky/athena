@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/DataStore.h"
@@ -31,9 +31,8 @@ DataStore::DataStore()
   
 DataStore::~DataStore()
 {
-  for (std::vector<HistoryContainer*>::iterator hist = m_cellHistories.begin(); 
-       hist != m_cellHistories.end(); hist++) 
-    if (*hist) delete *hist;
+  for (HistoryContainer* h : m_cellHistories)
+    delete h;
 }
 
 

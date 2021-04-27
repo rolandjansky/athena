@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCSLSelector.h"
@@ -9,35 +9,37 @@
 
 namespace LVL1TGCTrigger {
 
-// select Highest Pt tracks from all Pt Level. 
-TGCSLSelectorOut* TGCSLSelector::select(TGCSLPreSelectorOut* PSOut,
-					TGCSLSelectorOut* out)
-{
-  int pt,i,j,nCan=0;
-  int ptStart=NumberOfPtLevel;
-  for( i=0;(i<NumberOfPtLevel)&&(nCan<NCandidateInSLSelector); i+=1){
-    pt=ptStart-i;
-    for( j=0;(j<NCandidateInSLPreSelector)&&
-	   (nCan<NCandidateInSLSelector); j+=1) {
+TGCSLSelector::TGCSLSelector(const TGCSectorLogic* sl)
+ : m_sectorLogic(sl)
+{}
 
-      if(PSOut->getHit(pt,j)){
+TGCSLSelector::~TGCSLSelector()
+{}
+
+// select Highest Pt tracks from all Pt Level. 
+bool TGCSLSelector::select(TGCSLPreSelectorOut* in, std::shared_ptr<TGCSLSelectorOut> out)
+{
+  int nCan=0;
+  int ptStart=NumberOfPtLevel;
+  for(int i=0; (i<NumberOfPtLevel)&&(nCan<TGCSLSelectorOut::s_NCandidateInSLSelector); i++) {
+    int pt = ptStart - i;
+    for(int j=0; (j<TGCSLPreSelectorOut::NCandidateInSLPreSelector)&&
+	         (nCan<TGCSLSelectorOut::s_NCandidateInSLSelector); j++) {
+
+      if(in->getHit(pt, j)){
 	out->setPtLevel(nCan,pt);
-	int R= 2*PSOut->getIdSSC(pt,j)+PSOut->getR(pt,j) - (m_sectorLogic->getRegion()==Endcap ? 1 : 0);
-	out->setR(nCan,R);
-	out->setPhi(nCan,PSOut->getPhi(pt,j));
-	out->setDR(nCan,2*PSOut->getDR(pt,j));
-	out->setDPhi(nCan,PSOut->getDPhi(pt,j));
-	out->setInnerVeto(nCan,PSOut->getInnerVeto(pt,j));
+	int R = 2 * in->getIdSSC(pt,j) + in->getR(pt,j) - (m_sectorLogic->getRegion()==Endcap ? 1 : 0);
+	out->setR(nCan, R);
+	out->setPhi(nCan, in->getPhi(pt,j));
+	out->setDR(nCan, 2 * in->getDR(pt,j));
+	out->setDPhi(nCan, in->getDPhi(pt,j));
+	out->setInnerVeto(nCan, in->getInnerVeto(pt,j));
 	nCan++;
       }
 
     }
   }
-  return out;
+  return (nCan>0) ? true : false;
 }
-TGCSLSelector::TGCSLSelector( const TGCSectorLogic* sL): 
-  m_sectorLogic(sL) 
-{ 
-} 
 
-} //end of namespace bracket
+}   // end of namespace

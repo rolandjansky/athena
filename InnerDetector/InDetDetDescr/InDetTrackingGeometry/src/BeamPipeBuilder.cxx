@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 InDet::BeamPipeBuilder::BeamPipeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_beamPipeFromDb(true),
-  m_beamPipeMgr(0),
+  m_beamPipeMgr(nullptr),
   m_beamPipeMgrName("BeamPipe"),
   m_beamPipeEnvelope(1.*Gaudi::Units::mm),
   m_beamPipeOffsetX(0.*Gaudi::Units::mm),
@@ -113,7 +113,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
-        const GeoTube* beamPipeTube = 0;
+        const GeoTube* beamPipeTube = nullptr;
         if (beamPipeLogVolume){
             // get the geoShape and translate
             Trk::GeoShapeConverter geoShaper;
@@ -125,7 +125,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
 		if(beamPipeTopVolume->getNameOfChildVol(i)=="SectionC03"){
 		  PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
 		  const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
-		  const GeoTube* childTube = 0;
+		  const GeoTube* childTube = nullptr;
 
 		  if (childLogVolume){
 		    childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
@@ -163,7 +163,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
 					   m_beamPipeRho);
   
   // binned layer material for the beam pipe possible
-  Trk::LayerMaterialProperties* beamPipeLayerMaterial=0;
+  Trk::LayerMaterialProperties* beamPipeLayerMaterial=nullptr;
   if (  m_beamPipeBinsZ == 1) 
      beamPipeLayerMaterial = new Trk::HomogeneousLayerMaterial(beamPipeMaterial, 1.0);
   else { 

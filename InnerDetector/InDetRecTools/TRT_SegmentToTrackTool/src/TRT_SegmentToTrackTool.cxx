@@ -164,7 +164,7 @@ namespace InDet {
     // Get the track segment information about the initial track parameters
     //
     const AmgVector(5)&             par  = tS.localParameters();
-    AmgSymMatrix(5)*                ep   = new AmgSymMatrix(5)(tS.localCovariance());
+    AmgSymMatrix(5)                ep   = AmgSymMatrix(5)(tS.localCovariance());
     const Trk::TrackParameters* segPar =
       tS.associatedSurface()
         .createUniqueTrackParameters(par[Trk::loc1],
@@ -172,7 +172,7 @@ namespace InDet {
                                      par[Trk::phi],
                                      par[Trk::theta],
                                      par[Trk::qOverP],
-                                     ep)
+                                     std::move(ep))
         .release();
 
     if(segPar) {
@@ -181,7 +181,6 @@ namespace InDet {
       ATH_MSG_DEBUG ("Could not get initial TRT segment parameters! ");
       // clean up
       delete fq; fq = nullptr;
-      delete ep; ep = nullptr;
       return nullptr;
     }
 
@@ -572,27 +571,27 @@ namespace InDet {
 	if(firstmeaspar && firstmeaspar->position().perp()<2000*mm && std::abs(firstmeaspar->position().z())<3000*mm){
 
 	  // Modify first measurement so that it has reasonable errors on z and theta
-	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*(firstmeaspar->covariance()));
+	  AmgSymMatrix(5) fcovmat = AmgSymMatrix(5)(*(firstmeaspar->covariance()));
 	  // factors by which we like to scale the cov, this takes the original segment errors into account
-	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (*fcovmat)(1,1));
-	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (*fcovmat)(3,3));
+	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (fcovmat)(1,1));
+	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (fcovmat)(3,3));
 	  // now do it
-	  (*fcovmat)(1,0)=scaleZ*((*fcovmat)(1,0));
-	  (*fcovmat)(0,1) = (*fcovmat)(1,0);
-	  (*fcovmat)(1,1)=tS.localCovariance()(1,1);
-	  (*fcovmat)(2,1)=scaleZ*((*fcovmat)(2,1));
-	  (*fcovmat)(1,2) = (*fcovmat)(2,1);
-	  (*fcovmat)(3,1)=scaleZ*scaleTheta*((*fcovmat)(3,1));
-	  (*fcovmat)(1,3) = (*fcovmat)(3,1);
-	  (*fcovmat)(4,1)=scaleZ*((*fcovmat)(4,1));
-	  (*fcovmat)(1,4) = (*fcovmat)(4,1);
-	  (*fcovmat)(3,0)=scaleTheta*((*fcovmat)(3,0));
-	  (*fcovmat)(0,3) = (*fcovmat)(3,0);
-	  (*fcovmat)(3,2)=scaleTheta*((*fcovmat)(3,2));
-	  (*fcovmat)(2,3) = (*fcovmat)(3,2);
-	  (*fcovmat)(3,3)=tS.localCovariance()(3,3);
-	  (*fcovmat)(4,3)=scaleTheta*((*fcovmat)(4,3));
-	  (*fcovmat)(3,4) = (*fcovmat)(4,3);
+	  fcovmat(1,0)=scaleZ*((fcovmat)(1,0));
+	  fcovmat(0,1) = (fcovmat)(1,0);
+	  fcovmat(1,1)=tS.localCovariance()(1,1);
+	  fcovmat(2,1)=scaleZ*((fcovmat)(2,1));
+	  fcovmat(1,2) = (fcovmat)(2,1);
+	  fcovmat(3,1)=scaleZ*scaleTheta*((fcovmat)(3,1));
+	  fcovmat(1,3) = (fcovmat)(3,1);
+	  fcovmat(4,1)=scaleZ*((fcovmat)(4,1));
+	  fcovmat(1,4) = (fcovmat)(4,1);
+	  fcovmat(3,0)=scaleTheta*((fcovmat)(3,0));
+	  fcovmat(0,3) = (fcovmat)(3,0);
+	  fcovmat(3,2)=scaleTheta*((fcovmat)(3,2));
+	  fcovmat(2,3) = (fcovmat)(3,2);
+	  fcovmat(3,3)=tS.localCovariance()(3,3);
+	  fcovmat(4,3)=scaleTheta*((fcovmat)(4,3));
+	  fcovmat(3,4) = (fcovmat)(4,3);
 
 	  // const Amg::VectorX& par = firstmeaspar->parameters();
 	  const AmgVector(5)& par = firstmeaspar->parameters();
@@ -603,7 +602,7 @@ namespace InDet {
               par[Trk::phi],
               par[Trk::theta],
               par[Trk::qOverP],
-              fcovmat).release();
+              std::move(fcovmat)).release();
 
           // now take parameters at first measurement and exptrapolate to perigee
 	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(*updatedPars,perTrack->associatedSurface(),

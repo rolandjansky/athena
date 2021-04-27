@@ -2234,6 +2234,7 @@ class argSubstepSteering(argSubstep):
     # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
+    # "doTRIGtoALL" - produce AODs directly from trigger RDOs
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
@@ -2245,6 +2246,10 @@ class argSubstepSteering(argSubstep):
                                                   ('out', '+', 'ESD'), ('out', '+', 'AOD'), ('out', '+', 'HIST_R2A')],
                                      'RAWtoESD': [('in', '-', 'BS'), ('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'),
                                                   ('out', '-', 'ESD'),],
+                                     'ESDtoAOD': [('in', '-', 'ESD'), ('out', '-', 'AOD'),]},
+                      'doTRIGtoALL': {'RAWtoALL': [('in', '+', 'RDO_TRIG'),
+                                                   ('out', '+', 'ESD'), ('out', '+', 'AOD'), ('out', '+', 'HIST_R2A')],
+                                     'RAWtoESD': [('in', '-', 'RDO_TRIG'), ('out', '-', 'ESD'),],
                                      'ESDtoAOD': [('in', '-', 'ESD'), ('out', '-', 'AOD'),]}
                       }
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -131,7 +131,7 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
        
 //
 //
-     ITHistSvc*     hist_root=0;
+     ITHistSvc*     hist_root=nullptr;
      if(m_FillHist){
 
        StatusCode sc = service( "THistSvc", hist_root); 

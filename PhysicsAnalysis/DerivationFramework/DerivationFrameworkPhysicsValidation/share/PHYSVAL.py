@@ -161,9 +161,8 @@ SeqPHYSVAL += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
 # FLAVOUR TAGGING   
 #====================================================================
 
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYSVAL)
-
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],SeqPHYSVAL)
 
 #====================================================================
 # TC-LVT Vertices 
@@ -189,6 +188,7 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
@@ -208,6 +208,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -274,7 +275,8 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10LCTopoJets':'xAOD::JetContainer', 'AntiKt10LCTopoJetsAux':'xAOD::JetAuxContainer',
-                                            'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer'
+                                            'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer',
+                                            'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer'   
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool

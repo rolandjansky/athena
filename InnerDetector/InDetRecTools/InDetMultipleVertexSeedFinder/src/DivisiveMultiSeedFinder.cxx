@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/DivisiveMultiSeedFinder.h"
@@ -9,7 +9,6 @@
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
@@ -46,11 +45,7 @@ namespace InDet
    return StatusCode::FAILURE;
   }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
    
-  if(m_beamService.retrieve().isFailure())
-  {
-   msg(MSG::ERROR)<<"Unable to retrieve "<<m_beamService<<endmsg;
-   return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"BeamSpot service retrieved"<<endmsg; 
+  ATH_CHECK(m_beamSpotKey.initialize());
    
   if ( m_extrapolator.retrieve().isFailure() ) 
   {                              
@@ -67,7 +62,6 @@ namespace InDet
                m_sepDistance(0.5), 
                m_nRemaining(1),
                m_ignoreBeamSpot(false),
-               m_beamService("BeamCondSvc",n),
                m_extrapolator("Trk::Extrapolator"), 
                m_vtxSeedFinder("Trk::CrossDistancesSeedFinder")
  {
@@ -88,8 +82,7 @@ namespace InDet
 //vertex finder tool (needed when no beam spot is available)
   declareProperty("VertexSeedFinder",m_vtxSeedFinder);
 
-//beam spot service  
-  declareProperty("BeamSpotSvc", m_beamService);
+
   
 //extrapolator
   declareProperty("Extrapolator",m_extrapolator);   
@@ -106,8 +99,8 @@ namespace InDet
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-//selecting with respect to the beam spot
-  Trk::RecVertex beamrecposition(m_beamService->beamVtx());  
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());  
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
@@ -125,7 +118,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::Track *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
     //std::vector<int> indexOfSorted = m_z0sort(preselectedTracks, beamposition);
     std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
@@ -215,7 +208,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
        clean_again = false;
@@ -264,8 +257,8 @@ namespace InDet
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
   
 //selecting with respect to the beam spot
-
-  Trk::RecVertex beamrecposition(m_beamService->beamVtx());    
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());    
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   Trk::Vertex* beamposition=&beamrecposition;
@@ -296,7 +289,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::TrackParticleBase *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
 
@@ -391,7 +384,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
       
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;
@@ -443,8 +436,9 @@ namespace InDet
 
 
   xAOD::Vertex * beamposition = new xAOD::Vertex();
-  beamposition->setPosition(m_beamService->beamVtx().position());
-  beamposition->setCovariancePosition(m_beamService->beamVtx().covariancePosition());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  beamposition->setPosition(beamSpotHandle->beamVtx().position());
+  beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
   // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
   //Trk::Vertex* beamposition=&beamrecposition;
@@ -482,7 +476,7 @@ namespace InDet
 //step 2: sorting in z0
 //output container  
   std::vector< std::vector<const Trk::TrackParameters *> > result(0);
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
   
     std::vector<int> indexOfSorted =  m_sortingTool->sortedIndex(preselectedTracks, beamposition);
@@ -583,7 +577,7 @@ namespace InDet
 //      std::cout<<"Outliers size:        "<<core_outl.size()<<std::endl;
 //      ++clean_count;           
 //-------------------End of debug output -----------------------------------------
-      if(core_cluster.size()==0)
+      if(core_cluster.empty())
       {
       
        msg(MSG::INFO)  << "Core cluster has 0 size, remaining tracks are discarded. "<< endmsg;

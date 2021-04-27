@@ -72,8 +72,9 @@ MomentConditionMT::isSatisfied(const HypoJetVector& ips,
 std::string MomentConditionMT::toString() const {
   std::stringstream ss;
   ss << "MomentConditionMT (" << this << ") "
-     << " Et threshold: " 
-     << m_min
+     << " moment: " << m_moment 
+     << " min " << m_min
+     << " max " << m_max
      <<'\n';
 
   return ss.str();

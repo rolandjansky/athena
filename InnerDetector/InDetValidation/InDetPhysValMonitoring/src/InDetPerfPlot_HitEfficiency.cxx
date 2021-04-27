@@ -49,7 +49,7 @@ InDetPerfPlot_HitEfficiency::initializePlots() {
 }
 
 void
-InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
+InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt, float weight) {
   if (m_debug) {
     ATH_MSG_INFO("Filling HitEfficiency");
   }
@@ -74,7 +74,7 @@ InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
         const int region = result_region[idx]; // BARREL OR ENDCAP
         float eta = std::fabs(trkprt.eta());
         
-        fillHisto(m_HitEfficiencyVsEta[det][region], eta, isHit);
+        fillHisto(m_HitEfficiencyVsEta[det][region], eta, isHit, weight);
       }
     }
   }

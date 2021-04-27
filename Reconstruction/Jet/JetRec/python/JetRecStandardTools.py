@@ -32,7 +32,6 @@ from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool2
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
-from JetRecTools.JetRecToolsConf import JetUsedInFitTrackDecoratorTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 
 try:
@@ -158,14 +157,9 @@ else:
 # Track-vertex association.
 #--------------------------------------------------------------
 
-# Need to add used-in-fit decorator beforehand:
-from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
-jtm += InDet__InDetUsedInFitTrackDecoratorTool("jetUsedInFitTrkDecoTool", TrackContainer = jtm.trackContainer, VertexContainer = jtm.vertexContainer)
-
-jtm += JetUsedInFitTrackDecoratorTool("tvassocdeco", Decorator = jtm.jetUsedInFitTrkDecoTool)
-
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0)
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+jtm += getTTVAToolForReco("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0, TrackContName=jtm.trackContainer, VertexContName=jtm.vertexContainer)
+jtm += getTTVAToolForReco("trackjetTVAtool", WorkingPoint="Nonprompt_All_MaxWeight", TrackContName="JetSelectedTracks_LooseTrackJets", VertexContName=jtm.vertexContainer)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
@@ -175,6 +169,15 @@ jtm += TrackVertexAssociationTool(
   TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import PV0TrackSelectionAlg
+
+jtm += PV0TrackSelectionAlg(
+  "pv0tracksel_trackjet",
+  InputTrackContainer  = "JetSelectedTracks_LooseTrackJets",
+  VertexContainer      = jtm.vertexContainer,
+  OutputTrackContainer = "PV0JetSelectedTracks_LooseTrackJets",
+  TVATool              = jtm.trackjetTVAtool
+)
 #--------------------------------------------------------------
 # Truth selection.
 #--------------------------------------------------------------
@@ -275,6 +278,15 @@ jtm += PseudoJetAlgorithm(
   InputContainer = jtm.trackselloose_trackjets.OutputContainer,
   Label = "Track",
   OutputContainer = "PseudoJetTrack",
+  SkipNegativeEnergy = True,
+)
+
+# PV0 Tracks.
+jtm += PseudoJetAlgorithm(
+  "pv0trackget",
+  InputContainer = jtm.pv0tracksel_trackjet.OutputTrackContainer,
+  Label = "Track",
+  OutputContainer = "PseudoJetPV0Track",
   SkipNegativeEnergy = True,
 )
 

@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#Note: This tool is used as CaloCellCorrection tool and by the CaloNoiseTool
+#Note: This tool is used by CaloCellCorrection tool
 def LArCellHVCorrDefault(name="LArCellHVCorrDefault"):
     # check if tool already exists
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

@@ -348,8 +348,8 @@ void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH
 //______________________________________________________________________________
 void SelectionCutRNNJetScoreSigTrans::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  info.addCut( "JetBDTScore",
-               "Selection of taus according to their JetBDTScore" );
+  info.addCut( "JetRNNScoreSigTrans",
+               "Selection of taus according to their JetRNNScore" );
 }
 //______________________________________________________________________________
 bool SelectionCutRNNJetScoreSigTrans::accept(const xAOD::TauJet& xTau,

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETCnvTool.h 785790 2016-11-22 16:48:26Z ssnyder $
 #ifndef xAODTrigMissingETCNV_TrigMissingETCNVTOOL_H
 #define xAODTrigMissingETCNV_TrigMissingETCNVTOOL_H
 
@@ -25,8 +24,6 @@ namespace xAODMaker {
     * @author Gordon Watts <Gordon.Watts@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 785790 $
-    * $Date: 2016-11-22 17:48:26 +0100 (Tue, 22 Nov 2016) $
     */
    class TrigMissingETCnvTool : public AthAlgTool,
                                 public virtual ITrigMissingETCnvTool {
@@ -35,9 +32,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigMissingETCnvTool( const std::string& type, const std::string& name,
                       const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigMissingETContainer
       virtual StatusCode convert( const TrigMissingETContainer* aod,

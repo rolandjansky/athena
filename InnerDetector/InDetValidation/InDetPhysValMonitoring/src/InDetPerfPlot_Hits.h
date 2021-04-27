@@ -24,7 +24,7 @@
 class InDetPerfPlot_Hits: public InDetPlotBase {
 public:
   InDetPerfPlot_Hits(InDetPlotBase* pParent, const std::string& dirName);
-  void fill(const xAOD::TrackParticle& track);
+  void fill(const xAOD::TrackParticle& track, float weight);
 private:
   //
   //1D

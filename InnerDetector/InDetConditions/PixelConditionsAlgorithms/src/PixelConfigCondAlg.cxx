@@ -39,6 +39,11 @@ StatusCode PixelConfigCondAlg::initialize() {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
+  ATH_CHECK(m_writeFluenceMapKey.initialize());
+  if (m_condSvc->regHandle(this,m_writeFluenceMapKey).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeFluenceMapKey.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -52,8 +57,15 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS; 
   }
 
+  SG::WriteCondHandle<PixelRadiationDamageFluenceMapData> writeFluenceMapHandle(m_writeFluenceMapKey, ctx);
+  if (writeFluenceMapHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeFluenceMapHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS; 
+  }
+
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
+  std::unique_ptr<PixelRadiationDamageFluenceMapData> writeFluenceCdo(std::make_unique<PixelRadiationDamageFluenceMapData>());
 
   const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,                     0,                       
                                               0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
@@ -65,6 +77,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   //==============
   EventIDRange rangeDeadMap{start, stop};
   if (!m_readDeadMapKey.empty()) {
+    ATH_MSG_INFO("Obsolate!! It shouldn't be called here..." << m_readDeadMapKey.key());
+
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readDeadMapKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
@@ -173,7 +187,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
   // mapping files for radiation damage simulation
   std::vector<std::string> mapsPath_list;
-
+  std::vector<std::string> mapsPath_list3D;
 
   int currentRunNumber = ctx.eventID().run_number();
   if (currentRunNumber<222222) {
@@ -210,10 +224,11 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluenceRUN1);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluenceRUN1);
     for (size_t i=0; i<m_BarrelFluenceMapRUN1.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMapRUN1[i]));
     }
+
   }
   else if (currentRunNumber<240000) {  // RUN2 (mc15)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2016);
@@ -269,10 +284,17 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluence2016);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluence2016);
     for (size_t i=0; i<m_BarrelFluenceMap2016.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2016[i]));
     }
+
+    // Radiation damage simulation for 3D sensor
+    writeFluenceCdo -> setFluenceLayer3D(m_3DFluence2016);
+    for (size_t i=0; i<m_3DFluenceMap2016.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2016[i]));
+    }
+
   }
   else if (currentRunNumber<250000) {  // RUN4
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdITK);
@@ -301,9 +323,15 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluenceITK);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluenceITK);
     for (size_t i=0; i<m_BarrelFluenceMapITK.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMapITK[i]));
+    }
+
+    // Radiation damage simulation for 3D sensor
+    writeFluenceCdo -> setFluenceLayer3D(m_3DFluenceITK);
+    for (size_t i=0; i<m_3DFluenceMapITK.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMapITK[i]));
     }
 
   }
@@ -352,10 +380,17 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluence2016);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluence2016);
     for (size_t i=0; i<m_BarrelFluenceMap2016.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2016[i]));
     }
+
+    // Radiation damage simulation for 3D sensor
+    writeFluenceCdo -> setFluenceLayer3D(m_3DFluence2016);
+    for (size_t i=0; i<m_3DFluenceMap2016.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2016[i]));
+    }
+
   }
   else if (currentRunNumber<310000) {  // RUN2 2017 (mc16d)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2017);
@@ -402,10 +437,17 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluence2017);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluence2017);
     for (size_t i=0; i<m_BarrelFluenceMap2017.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2017[i]));
     }
+
+    // Radiation damage simulation for 3D sensor
+    writeFluenceCdo -> setFluenceLayer3D(m_3DFluence2017);
+    for (size_t i=0; i<m_3DFluenceMap2017.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2017[i]));
+    }
+
   }
   else {  // RUN2 2018 (mc16e)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2018);
@@ -452,12 +494,20 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluence2018);
+    writeFluenceCdo -> setFluenceLayer(m_BarrelFluence2018);
     for (size_t i=0; i<m_BarrelFluenceMap2018.size(); i++) {
       mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2018[i]));
     }
+
+    // Radiation damage simulation for 3D sensor
+    writeFluenceCdo -> setFluenceLayer3D(m_3DFluence2018);
+    for (size_t i=0; i<m_3DFluenceMap2018.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2018[i]));
+    }
+
   }
 
+  // Create mapping file for radiation damage simulation
   std::vector<PixelHistoConverter> ramoPotentialMap;
   std::vector<PixelHistoConverter> lorentzMap_e;
   std::vector<PixelHistoConverter> lorentzMap_h;
@@ -511,11 +561,108 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
     mapsFile->Close();
   }
-  writeCdo -> setLorentzMap_e(lorentzMap_e);
-  writeCdo -> setLorentzMap_h(lorentzMap_h);
-  writeCdo -> setDistanceMap_e(distanceMap_e);
-  writeCdo -> setDistanceMap_h(distanceMap_h);
-  writeCdo -> setRamoPotentialMap(ramoPotentialMap);
+  writeFluenceCdo -> setLorentzMap_e(lorentzMap_e);
+  writeFluenceCdo -> setLorentzMap_h(lorentzMap_h);
+  writeFluenceCdo -> setDistanceMap_e(distanceMap_e);
+  writeFluenceCdo -> setDistanceMap_h(distanceMap_h);
+  writeFluenceCdo -> setRamoPotentialMap(ramoPotentialMap);
+
+  // Create mapping file for radiation damage simulation for 3D sensor
+  std::vector<PixelHistoConverter> ramoPotentialMap3D;
+  std::vector<PixelHistoConverter> eFieldMap3D;
+  std::vector<PixelHistoConverter> xPositionMap3D_e;
+  std::vector<PixelHistoConverter> xPositionMap3D_h;
+  std::vector<PixelHistoConverter> yPositionMap3D_e;
+  std::vector<PixelHistoConverter> yPositionMap3D_h;
+  std::vector<PixelHistoConverter> timeMap3D_e;
+  std::vector<PixelHistoConverter> timeMap3D_h;
+  PixelHistoConverter avgChargeMap3D_e;
+  PixelHistoConverter avgChargeMap3D_h;
+
+  for (unsigned int i=0; i<mapsPath_list3D.size(); i++) {
+    ATH_MSG_INFO("Using maps located in: "<<mapsPath_list3D.at(i) << " for 3D sensor layer No." << i);
+    std::unique_ptr<TFile> mapsFile3D(TFile::Open((mapsPath_list3D.at(i)).c_str(), "READ")); //this is the ramo potential
+
+    if (!mapsFile3D) {
+      ATH_MSG_FATAL("Cannot open file: " << mapsPath_list3D.at(i));
+      return StatusCode::FAILURE;
+    }
+
+    //Setup ramo weighting field map
+    std::unique_ptr<TH2F> ramoPotentialMap3D_hold(mapsFile3D->Get<TH2F>("ramo"));
+    std::unique_ptr<TH2F> eFieldMap3D_hold(mapsFile3D->Get<TH2F>("efield"));
+    if (!ramoPotentialMap3D_hold || !eFieldMap3D_hold) {
+      ATH_MSG_FATAL("Did not find a Ramo potential or e-field map for 3D and an approximate form is available yet. Exit...");
+      return StatusCode::FAILURE;
+    }
+    ramoPotentialMap3D_hold->SetDirectory(nullptr);
+    eFieldMap3D_hold->SetDirectory(nullptr);
+    ramoPotentialMap3D.emplace_back();
+    eFieldMap3D.emplace_back();
+    ATH_CHECK(ramoPotentialMap3D.back().setHisto2D(ramoPotentialMap3D_hold.get()));
+    ATH_CHECK(eFieldMap3D.back().setHisto2D(eFieldMap3D_hold.get()));
+
+    //Now setup the E-field.
+    std::unique_ptr<TH3F> xPositionMap3D_e_hold(mapsFile3D->Get<TH3F>("xPosition_e"));
+    std::unique_ptr<TH3F> xPositionMap3D_h_hold(mapsFile3D->Get<TH3F>("xPosition_h"));
+    std::unique_ptr<TH3F> yPositionMap3D_e_hold(mapsFile3D->Get<TH3F>("yPosition_e"));
+    std::unique_ptr<TH3F> yPositionMap3D_h_hold(mapsFile3D->Get<TH3F>("yPosition_h"));
+    std::unique_ptr<TH2F> timeMap3D_e_hold(mapsFile3D->Get<TH2F>("etimes"));
+    std::unique_ptr<TH2F> timeMap3D_h_hold(mapsFile3D->Get<TH2F>("htimes"));
+
+    if (!xPositionMap3D_e_hold || !xPositionMap3D_h_hold || !yPositionMap3D_e_hold || !yPositionMap3D_h_hold || !timeMap3D_e_hold || !timeMap3D_h_hold) {
+      ATH_MSG_FATAL("Cannot find one of the maps.");
+      return StatusCode::FAILURE;
+    }
+
+    xPositionMap3D_e_hold->SetDirectory(nullptr);
+    xPositionMap3D_h_hold->SetDirectory(nullptr);
+    yPositionMap3D_e_hold->SetDirectory(nullptr);
+    yPositionMap3D_h_hold->SetDirectory(nullptr);
+    timeMap3D_e_hold->SetDirectory(nullptr);
+    timeMap3D_h_hold->SetDirectory(nullptr);
+
+    //Now, determine the time to reach the electrode and the trapping position.
+    xPositionMap3D_e.emplace_back();
+    xPositionMap3D_h.emplace_back();
+    yPositionMap3D_e.emplace_back();
+    yPositionMap3D_h.emplace_back();
+    timeMap3D_e.emplace_back();
+    timeMap3D_h.emplace_back();
+    ATH_CHECK(xPositionMap3D_e.back().setHisto3D(xPositionMap3D_e_hold.get()));
+    ATH_CHECK(xPositionMap3D_h.back().setHisto3D(xPositionMap3D_h_hold.get()));
+    ATH_CHECK(yPositionMap3D_e.back().setHisto3D(yPositionMap3D_e_hold.get()));
+    ATH_CHECK(yPositionMap3D_h.back().setHisto3D(yPositionMap3D_h_hold.get()));
+    ATH_CHECK(timeMap3D_e.back().setHisto2D(timeMap3D_e_hold.get()));
+    ATH_CHECK(timeMap3D_h.back().setHisto2D(timeMap3D_h_hold.get()));
+
+    std::unique_ptr<TH2F> avgCharge3D_e_hold(mapsFile3D->Get<TH2F>("avgCharge_e"));
+    std::unique_ptr<TH2F> avgCharge3D_h_hold(mapsFile3D->Get<TH2F>("avgCharge_h"));
+
+    if (!avgCharge3D_e_hold || !avgCharge3D_h_hold) {
+      ATH_MSG_ERROR("Cannot find one of the charge maps.");
+      return StatusCode::FAILURE;
+    }
+
+    avgCharge3D_e_hold->SetDirectory(nullptr);
+    avgCharge3D_h_hold->SetDirectory(nullptr);
+
+    // Get average charge data (for charge chunk effect correction)
+    ATH_CHECK(avgChargeMap3D_e.setHisto2D(avgCharge3D_e_hold.get()));
+    ATH_CHECK(avgChargeMap3D_h.setHisto2D(avgCharge3D_h_hold.get()));
+
+    mapsFile3D->Close();
+  }
+  writeFluenceCdo -> setRamoPotentialMap3D(ramoPotentialMap3D);
+  writeFluenceCdo -> setEFieldMap3D(eFieldMap3D);
+  writeFluenceCdo -> setXPositionMap3D_e(xPositionMap3D_e);
+  writeFluenceCdo -> setXPositionMap3D_h(xPositionMap3D_h);
+  writeFluenceCdo -> setYPositionMap3D_e(yPositionMap3D_e);
+  writeFluenceCdo -> setYPositionMap3D_h(yPositionMap3D_h);
+  writeFluenceCdo -> setTimeMap3D_e(timeMap3D_e);
+  writeFluenceCdo -> setTimeMap3D_h(timeMap3D_h);
+  writeFluenceCdo -> setAvgChargeMap3D_e(avgChargeMap3D_e);
+  writeFluenceCdo -> setAvgChargeMap3D_h(avgChargeMap3D_h);
 
   //=======================
   // Combine time interval
@@ -533,6 +680,12 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
+  if (writeFluenceMapHandle.record(rangeW, std::move(writeFluenceCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record PixelRadiationDamageFluenceMapData " << writeFluenceMapHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("recorded new CDO " << writeFluenceMapHandle.key() << " with range " << rangeW << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

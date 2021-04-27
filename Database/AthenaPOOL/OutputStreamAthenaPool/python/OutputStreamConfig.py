@@ -106,4 +106,3 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    result.addEventAlgo(outputStream)
    return result
-

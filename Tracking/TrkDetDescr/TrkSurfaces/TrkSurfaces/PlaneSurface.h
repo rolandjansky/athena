@@ -59,15 +59,26 @@ class ParametersT;
 class PlaneSurface : public Surface
 {
 public:
-
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Plane;
+  static constexpr SurfaceType staticType = SurfaceType::Plane;
 
   /** Default Constructor - needed for persistency*/
   PlaneSurface();
 
   /** Copy Constructor*/
   PlaneSurface(const PlaneSurface& psf) = default;
+
+  /**Assignment operator*/
+  PlaneSurface& operator=(const PlaneSurface& psf) = default;
+
+  /** Move Constructor*/
+  PlaneSurface(PlaneSurface&& psf) noexcept = default;
+
+  /**Move assignment operator*/
+  PlaneSurface& operator=(PlaneSurface&& psf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PlaneSurface() = default;
 
   /** Copy Constructor with shift*/
   PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf);
@@ -132,12 +143,6 @@ public:
   PlaneSurface(Amg::Transform3D* htrans,
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
 
-  /**Destructor*/
-  virtual ~PlaneSurface() = default;
-
-  /**Assignment operator*/
-  PlaneSurface& operator=(const PlaneSurface& psf) = default;
-
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
@@ -155,7 +160,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -163,7 +168,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
@@ -173,7 +178,7 @@ public:
     double phi,
     double theta,
     double oop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters
    * - neutral */
@@ -181,7 +186,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge = 0.,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
@@ -191,7 +196,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -199,17 +204,17 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, PlaneSurface> createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) *
-                                                       cov = 0) const;
+  ParametersT<DIM, T, PlaneSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -217,7 +222,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /**This method returns the bounds by reference, static NoBounds in case of no
    * boundaries*/
@@ -228,14 +233,15 @@ public:
                             double tol1 = 0.,
                             double tol2 = 0.) const override;
 
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override final;
+  virtual bool insideBoundsCheck(
+    const Amg::Vector2D& locpos,
+    const BoundaryCheck& bchk) const override final;
 
   /** This method returns true if the GlobalPosition is on the Surface for both,
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

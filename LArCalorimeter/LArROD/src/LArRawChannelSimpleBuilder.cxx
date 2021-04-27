@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelSimpleBuilder.h"
@@ -260,11 +260,6 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
 
       if ( iloop == 0 ) {
 
-        if (pSum == 0) {
-          ATH_MSG_ERROR( " don't have pSum pointer." );
-          continue;
-        }
-  
 	if ( pSum->size() == 0) 
 //	  pSum->resize(nSamples-nAverage+1,0);
 	  pSum->resize(nSamples,0);
@@ -468,7 +463,7 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
 	  //ADC2MeV (a.k.a. Ramp)   
 	  const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
 	  //Check ramp coefficents
-	  if (ramp.size()>0 && ramp[1]<500 && ramp[1]>0) {
+	  if (ramp.size()>1 && ramp[1]<500 && ramp[1]>0) {
 	    energy=0;
 	    for (unsigned i=1;i<ramp.size();i++)
 	      {energy+=ramp[i]*ADCPeakPower; //pow(ADCPeak,i);

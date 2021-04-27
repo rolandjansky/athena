@@ -9,14 +9,14 @@ AlgScheduler.ShowDataFlow( True )
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import MenuAlignment
-from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
+from .TriggerConfigHLT  import TriggerConfigHLT
+from .HLTCFConfig import makeHLTTree
+from .DictFromChainName import dictFromChainName
+from .ChainDictTools import splitInterSignatureChainDict
+from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
+from .ChainMerging import mergeChainDefs
+from .MenuAlignmentTools import MenuAlignment
+from ..CommonSequences import EventBuildingSequences
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -336,7 +336,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
         # align event building sequences
-        EventBuildingSequenceSetup.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+        EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
 
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
@@ -465,30 +465,31 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.error('[__generateChainConfigs] No Chain Configuration found for %s',chainName)
             raise Exception("[__generateChainConfigs] chain generation failed, exiting.")
 
-        elif len(listOfChainConfigs)>1:
+        else:
+            if len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
                 theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
-
-                if len(mainChainDict['extraComboHypos']) > 0:
-                    try:
-                        functionToCall ='GenerateCombinedChainDefs.addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)' 
-                        log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
-                        theChainConfig = eval(functionToCall)
-                    except RuntimeError:
-                        log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
-                        log.error('[__generateChainConfigs] I am in the extraComboHypos section, for %s ', mainChainDict['extraComboHypos'])
-                        log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
-                        raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
+            else:
+                theChainConfig = listOfChainConfigs[0]
+            
+            if len(mainChainDict['extraComboHypos']) > 0:
+                try:
+                    functionToCall ='GenerateCombinedChainDefs.addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)' 
+                    log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
+                    theChainConfig = eval(functionToCall)
+                except RuntimeError:
+                    log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
+                    log.error('[__generateChainConfigs] I am in the extraComboHypos section, for %s ', mainChainDict['extraComboHypos'])
+                    log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
+                    raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
                         
 
-        else:
-            theChainConfig = listOfChainConfigs[0]
-
+        
         # Configure event building strategy
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
+            EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

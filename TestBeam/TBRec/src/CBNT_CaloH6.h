@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //######################################################
@@ -23,26 +23,25 @@
 // #include "LArDetDescr/LArDetDescrManager.h"
 
 // NOISE
-class ICaloNoiseTool;
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <fstream>
 #include <string>
 #include <vector>
-
-class StoreGateSvc;
 
 class CBNT_CaloH6 : public CBNT_TBRecBase
 {
  public:
   CBNT_CaloH6(const std::string & name, ISvcLocator * pSvcLocator);
   
-  ~CBNT_CaloH6();
+  virtual ~CBNT_CaloH6();
   
   //standart algorithm methods
-  virtual StatusCode CBNT_initialize();
-  virtual StatusCode CBNT_execute();
-  virtual StatusCode CBNT_finalize();
-  virtual StatusCode CBNT_clear();
+  virtual StatusCode CBNT_initialize() override;
+  virtual StatusCode CBNT_execute() override;
+  virtual StatusCode CBNT_finalize() override;
+  virtual StatusCode CBNT_clear() override;
   
  private:
   // LArDetDescrManager* m_larMgr;
@@ -52,8 +51,8 @@ class CBNT_CaloH6 : public CBNT_TBRecBase
   const LArHEC_ID* m_hecID_help;
   const LArFCAL_ID* m_fcalID_help;
 
-  // noise tool pointer
-  ToolHandle<ICaloNoiseTool> m_noiseTool;
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
   
   float m_noiseSigma;
   

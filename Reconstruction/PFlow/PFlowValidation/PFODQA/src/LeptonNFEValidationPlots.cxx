@@ -11,22 +11,22 @@ LeptonNFEValidationPlots::LeptonNFEValidationPlots(PlotBase* pParent, const std:
 														       m_TauJetMatchedNFEPlots(this,"/Leptonlinks/",LeptonContainerName,true,17)
 {}
 
-void LeptonNFEValidationPlots::fill(const xAOD::Photon& phot){
+void LeptonNFEValidationPlots::fill(const xAOD::Photon& phot, const xAOD::EventInfo& eventInfo){
   // photon plots
-  m_PhotonMatchedNFEPlots.fill(phot);
+  m_PhotonMatchedNFEPlots.fill(phot,eventInfo);
 }
-void LeptonNFEValidationPlots::fill(const xAOD::Electron& el){
+void LeptonNFEValidationPlots::fill(const xAOD::Electron& el, const xAOD::EventInfo& eventInfo){
   //electron plots
- m_ElectronMatchedNFEPlots.fill(el);
+ m_ElectronMatchedNFEPlots.fill(el,eventInfo);
 }
-void LeptonNFEValidationPlots::fill(const xAOD::Muon& muon){
+void LeptonNFEValidationPlots::fill(const xAOD::Muon& muon, const xAOD::EventInfo& eventInfo){
   //muon plots
-   m_MuonMatchedNFEPlots.fill(muon);
+   m_MuonMatchedNFEPlots.fill(muon,eventInfo);
 }
 
-void LeptonNFEValidationPlots::fill(const xAOD::TauJet& tau){
+void LeptonNFEValidationPlots::fill(const xAOD::TauJet& tau, const xAOD::EventInfo& eventInfo){
   // taujet plots
-   m_TauJetMatchedNFEPlots.fill(tau);
+   m_TauJetMatchedNFEPlots.fill(tau,eventInfo);
 }
 
 

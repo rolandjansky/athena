@@ -151,10 +151,10 @@ void TPhotonMCShifterTool::LoadFFs(int preselection, const std::string& file)
      throw std::runtime_error( "Couldn't open file: " + m_corr_file );
   }
   if (!f->FindKey(Form("TUNE%d",preselection))) {
-    std::cout << "Directory TUNE" << preselection << " does not exist in fudge factor file. Aborting" << std::endl;
-    exit(-1);
+    throw std::runtime_error("Directory TUNE " + std::to_string(preselection) +
+                             " does not exist in fudge factor file.");
   }
-  
+
   h_u_rhad1 = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD1_UNCONV",preselection));
   h_u_rhad1->SetDirectory(nullptr);
  

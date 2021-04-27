@@ -81,6 +81,7 @@
 #include "GeneratorFilters/HTFilter.h"
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
+#include "GeneratorFilters/xAODTauFilter.h"
 
 DECLARE_COMPONENT( ElectronFilter )
 DECLARE_COMPONENT( LeptonFilter )
@@ -165,3 +166,4 @@ DECLARE_COMPONENT( DecaysFinalStateFilter )
 DECLARE_COMPONENT( HTFilter )
 DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )
+DECLARE_COMPONENT( xAODTauFilter )

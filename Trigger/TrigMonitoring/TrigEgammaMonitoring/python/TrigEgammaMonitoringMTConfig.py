@@ -594,7 +594,7 @@ class TrigEgammaMonAlgBuilder:
                               self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
     self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
-    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ehad1 ; Count", 20, -1, 1))
+    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ethad1 ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("Rhad", "Rhad; Rhad ; Count", 35, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 30, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0.4, 1.2))

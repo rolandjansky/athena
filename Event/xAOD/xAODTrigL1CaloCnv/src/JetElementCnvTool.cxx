@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElementCnvTool.cxx 691832 2015-08-28 08:21:40Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JetElementCollection.h"
@@ -36,14 +35,6 @@ namespace xAODMaker {
       declareInterface< IJetElementCnvTool >( this );
    }
 
-   StatusCode JetElementCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
 
    /**
     * This is the important function of the tool. It takes the JetElement object

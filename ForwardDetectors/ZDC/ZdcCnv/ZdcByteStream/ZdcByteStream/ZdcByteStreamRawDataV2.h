@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -33,11 +33,9 @@ class ZdcByteStreamRawDataV2: public AthReentrantAlgorithm
 {
 public:
 	ZdcByteStreamRawDataV2(const std::string& name, ISvcLocator* pSvcLocator);
-	virtual ~ZdcByteStreamRawDataV2();
 
 	virtual StatusCode initialize() override;
 	virtual StatusCode execute(const EventContext& ctx) const override;
-	virtual StatusCode finalize() override;
 
 private:
 	typedef std::map<unsigned int, const xAOD::TriggerTower*> ZdcTriggerTowersMap;

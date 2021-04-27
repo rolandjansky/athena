@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,8 +14,7 @@
 #include "TrigT1Result/MuCTPI_RIO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/RecMuCTPIByteStreamCnv.h"
-#include "TrigT1ResultByteStream/MuCTPISrcIdMap.h"
+#include "RecMuCTPIByteStreamCnv.h"
 
 /**
  * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the
@@ -23,21 +22,8 @@
  */
 RecMuCTPIByteStreamCnv::RecMuCTPIByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
-    m_tool( "RecMuCTPIByteStreamTool" ), m_srcIdMap( 0 ),
+    m_tool( "RecMuCTPIByteStreamTool" ),
     m_robDataProvider( "ROBDataProviderSvc", "RecMuCTPIByteStreamCnv" ) {
-
-}
-
-/**
- * The destructor actually does some cleanup, it deletes the CTPSrcIdMap
- * object that is created in the initialize() function.
- */
-RecMuCTPIByteStreamCnv::~RecMuCTPIByteStreamCnv() {
-
-  if( m_srcIdMap ) {
-    delete m_srcIdMap;
-    m_srcIdMap = 0;
-  }
 
 }
 
@@ -80,13 +66,7 @@ StatusCode RecMuCTPIByteStreamCnv::initialize() {
   ATH_CHECK(  m_robDataProvider.retrieve() );
   log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
 
-  //
-  // Create MuCTPISrcIdMap:
-  //
-  m_srcIdMap = new MuCTPISrcIdMap();
-
   return StatusCode::SUCCESS;
-
 }
 
 /**
@@ -109,7 +89,7 @@ StatusCode RecMuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*
   log << MSG::DEBUG << " Creating Objects  " << *( pBS_Addr->par() ) << endmsg;
 
   // get SourceID
-  const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
+  const uint32_t robId = m_srcIdMap.getRobID( m_srcIdMap.getRodID() );
 
   std::vector< uint32_t > vID;
   vID.push_back( robId );
@@ -129,7 +109,7 @@ StatusCode RecMuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*
     // size check
     if ( robFrags.size() != 1 ) {
       log << MSG::WARNING << " Number of ROB fragments for source ROB ID " << MSG::hex << newRobId << " (ROD ID " 
-          << m_srcIdMap->getRodID() << MSG::dec << ") is " << robFrags.size() << endmsg;
+          << m_srcIdMap.getRodID() << MSG::dec << ") is " << robFrags.size() << endmsg;
       MuCTPI_RIO * result = new MuCTPI_RIO;
       pObj = SG::asStorable( result ) ;
       return StatusCode::SUCCESS;

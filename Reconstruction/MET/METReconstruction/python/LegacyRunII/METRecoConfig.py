@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr
@@ -241,7 +241,8 @@ class METConfig:
                                                               maxZ0SinTheta=3,
                                                               maxD0=2,
                                                               minPt=500)
-        self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
+        from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+        self.trkvxtool=getTTVAToolForReco("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            

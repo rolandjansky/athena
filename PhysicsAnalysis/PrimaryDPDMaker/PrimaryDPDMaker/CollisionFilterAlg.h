@@ -23,9 +23,9 @@ class CollisionFilterAlg : public AthReentrantAlgorithm
   CollisionFilterAlg( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~CollisionFilterAlg()=default; 
 
-  StatusCode initialize() override ;
-  StatusCode execute(const EventContext& ctx) const ;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override ;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
  private:
 

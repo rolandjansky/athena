@@ -19,6 +19,7 @@ from DerivationFrameworkJetEtMiss import METCommon
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+import re
 
 #====================================================================
 # SET UP STREAM   
@@ -101,15 +102,17 @@ from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 if ConfigFlags.Trigger.EDMVersion == 3:
-   trigger_names_notau = [
-      "HLT_mu26_ivarmedium_L1MU20",
-      "HLT_mu50_L1MU20",
-      "HLT_e26_etcut_L1EM22VHI",
-      "HLT_e26_lhmedium_L1EM22VHI",
-      "HLT_mu22_mu8noL1_L1MU20",
-      "HLT_e7_lhmedium_mu24_L1MU20",
-   ]
-   trigger_names_tau = ["HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM",]   
+   r_tau = re.compile("HLT_.*tau.*")
+   r_notau = re.compile("HLT_[1-9]*(e|mu|g).*") 
+   r_veto = re.compile("HLT_.*(LRT).*")   
+   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
+      result_tau = r_tau.match(chain_name)
+      result_notau = r_notau.match(chain_name)
+      result_veto = r_veto.match(chain_name)
+      if result_tau is not None and result_veto is None: trigger_names_tau.append(chain_name)
+      if result_notau is not None and result_veto is None: trigger_names_notau.append(chain_name)
+   trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
+   trigger_names_notau = list(trigger_names_notau)
 else:
    for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
       if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)

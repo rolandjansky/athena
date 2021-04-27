@@ -11,7 +11,7 @@ from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
 from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
+from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from libpyeformat_helper import SubDetector
@@ -63,7 +63,7 @@ def myMenu():
 
 LS2_v1.setupMenu = myMenu
 
-# Override the pebInfoWriterTool function from EventBuildingSequenceSetup
+# Override the pebInfoWriterTool function from EventBuildingSequences
 def myPebInfoWriterTool(name, eventBuildType):
     log.debug('Executing myPebInfoWriterTool')
     tool = None
@@ -130,7 +130,7 @@ def myPebInfoWriterTool(name, eventBuildType):
 
     return tool
 
-EventBuildingSequenceSetup.pebInfoWriterTool = myPebInfoWriterTool
+EventBuildingSequences.pebInfoWriterTool = myPebInfoWriterTool
 
 # Define streams and override StreamInfo
 myAllStreams = [

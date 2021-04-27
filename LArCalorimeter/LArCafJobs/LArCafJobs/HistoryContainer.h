@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,7 +39,7 @@ namespace LArSamples {
     unsigned int nDataContainers() const { return m_data.size(); }
     const DataContainer* dataContainer(unsigned int i) const { return m_data[i]; }
   
-    const CellInfo* cellInfo() const { return m_cellInfo; }
+    const CellInfo* cellInfo() const { return m_cellInfo.get(); }
     
     /** @brief append data (takes ownership) */
     void add(const DataContainer* data) { m_data.push_back(data); }
@@ -53,10 +53,10 @@ namespace LArSamples {
 
    private:
    
-    CellInfo* cell_info() const { return m_cellInfo; }
+    CellInfo* cell_info() const { return m_cellInfo.get(); }
 
     std::vector<const DataContainer*> m_data;
-    CellInfo* m_cellInfo;
+    std::unique_ptr<CellInfo> m_cellInfo;
 
     HistoryContainer& operator= (const HistoryContainer&);
   };

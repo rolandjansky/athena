@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETMATERIALMANAGER_H
@@ -39,21 +39,21 @@ public:
 
   InDetMaterialManager(const std::string & managerName, StoreGateSvc* detStore);
   InDetMaterialManager(const std::string & managerName, StoreGateSvc* detStore,
-		       IRDBRecordset_ptr weightTable,
+		       const IRDBRecordset_ptr& weightTable,
 		       const std::string & space = "",
 		       bool extraFunctionality = false);
   InDetMaterialManager(const std::string & managerName, StoreGateSvc* detStore,
-		       IRDBRecordset_ptr weightTable,
-		       IRDBRecordset_ptr compositionTable,
+		       const IRDBRecordset_ptr& weightTable,
+		       const IRDBRecordset_ptr& compositionTable,
 		       const std::string & space = "");
   InDetMaterialManager(const std::string & managerName, 
 		       InDetDD::AthenaComps *);
   ~InDetMaterialManager();
 
-  void addWeightTable(IRDBRecordset_ptr weightTable, const std::string & space = "");
-  void addWeightMaterial(std::string materialName, std::string materialBase, double weight, int linearWeightFlag);
-  void addCompositionTable(IRDBRecordset_ptr compositionTable, const std::string & space = "");
-  void addScalingTable(IRDBRecordset_ptr scalingTable);
+  void addWeightTable(const IRDBRecordset_ptr& weightTable, const std::string & space = "");
+  void addWeightMaterial(const std::string& materialName, const std::string& materialBase, double weight, int linearWeightFlag);
+  void addCompositionTable(const IRDBRecordset_ptr& compositionTable, const std::string & space = "");
+  void addScalingTable(const IRDBRecordset_ptr& scalingTable);
 
 
   bool hasMaterial(const std::string &materialName) const;
@@ -189,7 +189,7 @@ private:
   const StoredMaterialManager * retrieveManager(const StoreGateSvc* detStore);
   const GeoMaterial* getAdditionalMaterial(const std::string & materialName) const; 
   bool compareDensity(double d1, double d2) const;
-  void addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string & space);
+  void addWeightTableOld(const IRDBRecordset_ptr& weightTable, const std::string & space);
 
   // Internal versions. The public versions allow materials to be have extra scaling.
   const GeoMaterial* getMaterialInternal(const std::string & materialName) const;

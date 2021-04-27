@@ -278,7 +278,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::attrListCollToObject(CondAt
             token=attrList["PoolRef"].data<std::string>();
 	}
         // FIXME exception
-	catch(std::exception& x) {
+	catch(const std::exception& x) {
 	    ATH_MSG_ERROR("PoolRef not found in attribute list");
 	    return(StatusCode::FAILURE);
 	}

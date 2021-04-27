@@ -14,6 +14,7 @@ def setupRun3L1CaloPerfSequence(
             sequence = AlgSequence(
                 "AthAlgSeq"
             )  # everything is added to the AthAlqSequence (which is then put in front of everything)
+                #"topSequence"
         else:
             sequence = AlgSequence()  # everything is added to the topSequence
 
@@ -48,14 +49,30 @@ def setupRun3L1CaloPerfSequence(
     log.info("globalflags.DataSource  : %s", globalflags.DataSource())
     from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
 
+    if globalflags.DataSource()=='data':
+        if "Emulated" not in simflags.Calo.SCellType():
+            log.info("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated.", simflags.Calo.SCellType())
+            log.info("Changing setting to Emulated")
+            if(simflags.Calo.ApplyEmulatedPedestal()):
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCell")
+            else:
+                simflags.Calo.SCellType.set_Value_and_Lock("EmulatedSCellNoBCID")
+
     log.info(simflags._context_name)
     simflags.print_JobProperties("tree&value")
 
+    from AthenaCommon.AlgSequence import AthSequencer
+    l1simAlgSeq = seqAND("L1SimAlgSequence")
     ## Setup the provider of the SuperCells
     if simflags.Calo.SCellType() == "Pulse":
         # These are fully simulated supercells, from supercell pulse
         # collection is CaloCellContainer#SCell
         SCIn = "SCellnoBCID"
+    elif "Emulated" in simflags.Calo.SCellType():
+        #This function has options to support both LArSimple and SCEmulation (which accounts for timing) 
+        from TrigT1CaloFexPerf.EmulationConfig import emulateSC 
+        emulateSC(l1simAlgSeq,SCOut=simflags.Calo.SCellType() )
+        SCIn=simflags.Calo.SCellType()
     elif simflags.Calo.SCellType() == "BCID":
         # These are fully simulated supercells with applied BCID corrections
         # This is the only kind of supercells where BCID corrections are applied
@@ -78,7 +95,6 @@ def setupRun3L1CaloPerfSequence(
         LVL1__METJWoJPerfFex,
     )
 
-    from AthenaCommon.AlgSequence import AthSequencer
 
     condSequence = AthSequencer("AthCondSeq")
     condSequence += LVL1__JTowerMappingDataCondAlg(
@@ -93,7 +109,6 @@ def setupRun3L1CaloPerfSequence(
         MapTileCells=simflags.Calo.UseAllCalo(),
     )
 
-    l1simAlgSeq = seqAND("L1SimAlgSequence")
     l1simAlgSeq += LVL1__JGTowerBuilder(
         "JTowerBuilder",
         UseSCQuality=simflags.Calo.ApplySCQual(),
@@ -237,7 +252,7 @@ def setupRun3L1CaloPerfSequence(
                          SuperCellContainer=SCIn,
                         )
 
-    if simflags.EnableDebugOutput() or True:
+    if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")
         from AthenaCommon.AlgSequence import dumpSequence
 

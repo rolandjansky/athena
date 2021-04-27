@@ -1,5 +1,4 @@
 #include "../CaloCellPedestalCorr.h"
-#include "../CaloCellMBAverageCorr.h"
 #include "../CaloCellNeighborsAverageCorr.h"
 #include "../CaloCellRandomizer.h"
 #include "../CaloCellRescaler.h"
@@ -8,7 +7,6 @@
 
 
 DECLARE_COMPONENT( CaloCellPedestalCorr )
-DECLARE_COMPONENT( CaloCellMBAverageCorr )
 DECLARE_COMPONENT( CaloCellNeighborsAverageCorr )
 DECLARE_COMPONENT( CaloCellRandomizer )
 DECLARE_COMPONENT( CaloCellRescaler )

@@ -31,10 +31,7 @@ namespace InDet
     assert (clus!=nullptr);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
-
-    std::unique_ptr<const Amg::Vector3D> tmpPos{clus->detectorElement()->surface().localToGlobal(clus->localPosition())};
-    assert (tmpPos) ;
-    m_position = *tmpPos;
+    m_position = clus->detectorElement()->surface().localToGlobal(clus->localPosition());
 
     m_clusList = {clus,nullptr};
     m_elemIdList.first = elementId ;

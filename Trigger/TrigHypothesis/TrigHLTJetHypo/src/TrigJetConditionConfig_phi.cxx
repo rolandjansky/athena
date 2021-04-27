@@ -70,12 +70,3 @@ StatusCode TrigJetConditionConfig_phi::checkVals() const {
   
   return StatusCode::SUCCESS;
 }
-
-
-bool TrigJetConditionConfig_phi::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_phi::capacity() const {
-  return getCondition()->capacity();
-}

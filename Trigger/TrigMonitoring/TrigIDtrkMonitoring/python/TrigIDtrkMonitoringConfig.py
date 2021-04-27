@@ -178,9 +178,10 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         tidamuon.ntupleChainNames += [
                                 "Offline",
                                 "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
                                 "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
+                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
+                                "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT"
                         ]
                 else:
                         tidamuon.ntupleChainNames += [

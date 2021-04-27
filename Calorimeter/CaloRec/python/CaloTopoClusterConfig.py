@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -135,6 +135,7 @@ def getTopoMoments(configFlags):
                                 ,"AVG_TILE_Q"
                                 ,"PTD"
                                 ,"MASS"
+                                , "SECOND_TIME"
                                 ]
 
     # Disable for now, as broken on MC
@@ -301,11 +302,9 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
 
 # Steering options for trigger
 # Maybe offline reco options should be extracted from flags elsewhere
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloTopoClusters",doLCCalib=None):
     result=ComponentAccumulator()
 
-    if not clustersname:
-        clustersname = "CaloTopoClusters"
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg
@@ -340,7 +339,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     # EnergyCut                     = 500*MeV,
 
 
-    CaloTopoCluster=CaloClusterMaker(clustersname)
+    CaloTopoCluster=CaloClusterMaker(clustersname+"Maker")
     CaloTopoCluster.ClustersOutputName=clustersname
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]

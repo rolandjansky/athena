@@ -29,6 +29,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
 
+#include <iostream>
+#include <fstream>
+
 namespace LVL1 {
 
   // default constructor for persistency
@@ -252,6 +255,31 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
       }
     }
   }
+
+
+  //-----------------------------------------------------------
+  // Set up a the second CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
+  if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
+    SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey);
+    if(!jk_eFEXFPGA_eTowerContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
+    }
+    
+    std::ofstream tower_fpga_efex_map;
+    tower_fpga_efex_map.open ("./tower_fpga_efex_map.csv", std::ios_base::app);
+    
+    for (int thisRow=rows-1; thisRow>=0; thisRow--){
+      for (int thisCol=0; thisCol<cols; thisCol++){
+	
+	const LVL1::eTower * tmpTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[thisRow][thisCol]);
+	
+	tower_fpga_efex_map << m_efexid << "," << m_id << "," << m_eTowersIDs[thisRow][thisCol] << "," << tmpTower->eta() << "," << tmpTower->phi() << "\n";
+	
+      }
+    }
+  }
+  //------------------------------------------------------------
+
   
 }
 

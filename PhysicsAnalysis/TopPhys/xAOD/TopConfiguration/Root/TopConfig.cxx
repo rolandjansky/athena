@@ -274,6 +274,7 @@ namespace top {
     m_ghostTracksQuality("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
+    m_largeRJetMasscut(0.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
     m_largeRJetUncertaintiesConfigDir("SetMe"),
@@ -1290,6 +1291,7 @@ namespace top {
 
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
+    this->largeRJetMasscut(std::stof(settings->value("LargeRJetMass")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     
     
@@ -1552,6 +1554,9 @@ namespace top {
     m_btagging_calibration_C = settings->value("BTaggingCalibrationC");
     m_btagging_calibration_Light = settings->value("BTaggingCalibrationLight");
     m_bTagSystsExcludedFromEV = settings->value("BTaggingSystExcludedFromEV");
+
+    // egamma calibration model
+    m_egamma_calibration_model = settings->value("EGammaCalibrationModel");
 
     // Set translatio ndictionary for MCMC maps
     if (settings->value("RedefineMCMCMap") != " ") {

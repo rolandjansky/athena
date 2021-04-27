@@ -19,7 +19,6 @@ UPDATE : 25/06/2018
 #include "egammaUtils/CandidateMatchHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCore/ShallowCopy.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"

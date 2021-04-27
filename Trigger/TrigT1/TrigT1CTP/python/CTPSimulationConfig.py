@@ -24,13 +24,13 @@ def CTPMCSimulationCfg(flags):
                                                         eFexClusterInput = "",
                                                         eFexTauInput = "",
                                                         TopoInput = "L1TopoToCTPLocation",
-                                                        LegacyTopoInput = ""
+                                                        LegacyTopoInput = "L1TopoLegacyToCTPLocation"
                                                         ))
     log.info("Not all part of CTP simulation are enabled yet")
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
         roib = CompFactory.ROIB.RoIBuilder("RoIBuilder",
                                             DoCalo = flags.Trigger.enableL1CaloLegacy,
-                                            DoMuon = not flags.Trigger.enableL1Phase1)
+                                            DoMuon = not flags.Trigger.enableL1MuonPhase1)
         acc.addEventAlgo(roib)
 
 

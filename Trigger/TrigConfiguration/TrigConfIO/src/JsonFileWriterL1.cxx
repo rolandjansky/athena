@@ -20,7 +20,7 @@ bool
 TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1Menu & l1menu) const
 {
 
-   json items({});
+   json items = json::object_t{};
    for( auto & item : l1menu ) {
       json jItem({});
       jItem["name"] = item.name();
@@ -35,7 +35,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       items[item.name()] = jItem;
    };
 
-   json thresholds({});
+   json thresholds = json::object_t{};
    for(const std::string & thrType : l1menu.thresholdTypes()) {
       json jThresholsByType({});
       // first the thresholds of this type
@@ -54,6 +54,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThr["voltage"] = thr->getAttribute<float>("voltage");
          }
 
+         // value
          try {
             if(thr->hasAttribute("value")) {
                auto & caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(*thr); // for MBTSII
@@ -61,6 +62,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // MU
          try {
             auto muThr = dynamic_cast<const TrigConf::L1Threshold_MU &>(*thr);
             jThr["baThr"] = muThr.ptBarrel();
@@ -71,11 +73,13 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThr["fwIdx"] = muThr.idxForward();
             jThr["region"] = muThr.region();
             jThr["tgcFlags"] = muThr.tgcFlags();
+            jThr["rpcFlags"] = muThr.rpcFlags();
             if(const std::string & roiExcl = muThr.rpcExclROIList(); !roiExcl.empty()) {
                jThr["rpcExclROIList"] = roiExcl;
             }
          } catch(std::bad_cast&) {};
 
+         // TAU
          try {
             auto tauThr = dynamic_cast<const TrigConf::L1Threshold_TAU &>(*thr);
             std::string isobits = "00000";
@@ -86,6 +90,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThr["isobits"] = isobits;
          } catch(std::bad_cast&) {};
 
+         // EM
          try {
             auto EMThr = dynamic_cast<const TrigConf::L1Threshold_EM &>(*thr);
             jThr["thrValues"] = json::array_t({});
@@ -107,6 +112,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // JET
          try {
             auto JThr = dynamic_cast<const TrigConf::L1Threshold_JET &>(*thr);
             jThr["thrValues"] = json::array_t({});
@@ -123,6 +129,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // TE
          try {
             auto teThr = dynamic_cast<const TrigConf::L1Threshold_TE &>(*thr);
             //jThr["thrValues"] = json::array_t({});
@@ -136,6 +143,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // ZB
          try {
             auto zbThr = dynamic_cast<const TrigConf::L1Threshold_ZB &>(*thr);
             jThr["seed"] = zbThr.seed();
@@ -143,7 +151,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThr["seedMultiplicity"] = zbThr.seedMultiplicity();
          } catch(std::bad_cast&) {};
 
-
+         // eEM
          try {
             auto eEMThr = dynamic_cast<const TrigConf::L1Threshold_eEM &>(*thr);
             jThr["reta"] = TrigConf::Selection::wpToString(eEMThr.reta());
@@ -160,6 +168,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // jJ
          try {
             auto jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*thr);
             jThr["ranges"] = json::array_t({});
@@ -221,7 +230,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          }
       }
 
-      if(thrType == "EM") {
+      if(thrType == "EM" && l1menu.run()>1) {
          auto & eminfo = l1menu.thrExtraInfo().EM();
          for(const std::string isoSet : { "EMIsoForEMthr", "HAIsoForEMthr" }) {
             jThrType["isolation"][isoSet]["thrtype"] = isoSet;
@@ -242,7 +251,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          }
       }
 
-      if(thrType == "TAU") {
+      if(thrType == "TAU" && l1menu.run()>1) {
          auto & tauinfo = l1menu.thrExtraInfo().TAU();
          const std::string isoSet{ "EMIsoForTAUthr" };
          jThrType["isolation"][isoSet]["thrtype"] = isoSet;
@@ -321,7 +330,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          }
       }
 
-      std::vector<std::string> legacyCalo = {"EM", "JET", "TAU", "XE", "TE", "XS", "ZB", "R2TOPO"};
+      std::vector<std::string> legacyCalo = {"EM", "JET", "TAU", "XE", "TE", "XS", "ZB", "JB", "JF", "JE", "R2TOPO"};
       if( std::any_of(begin(legacyCalo), end(legacyCalo), [&thrType](const std::string &c) { return c==thrType; }) ) {
          thresholds["legacyCalo"][thrType] = jThrType;
       } else {
@@ -329,8 +338,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       }
    };
 
-
-   json boards;
+   json boards = json::object_t{};
    for( auto & bname : l1menu.boardNames() ) {
       auto & bdef = l1menu.board(bname);
       boards[bname] = json{ {"connectors", bdef.connectorNames()}, {"type", bdef.type()} };
@@ -338,8 +346,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          boards[bname]["legacy"] = true;
    };
 
-
-   json connectors;
+   json connectors = json::object_t{};
    for( auto & cname : l1menu.connectorNames() ) {
       auto jConn = json{};
       auto & cdef = l1menu.connector(cname);
@@ -377,7 +384,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       connectors[cname] = jConn;
    }
 
-   json ctp;
+   json ctp = json::object_t{};
    {
       for(size_t slot=7; slot<=9; ++slot) {
          std::string sName = "slot" + std::to_string(slot);
@@ -386,25 +393,31 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             ctp["inputs"]["ctpin"][sName]["connector" + std::to_string(conn)] = l1menu.ctp().ctpin(slot,conn);
          }
       }
+      ctp["inputs"]["electrical"] = json::object_t{};
       for(size_t conn=0; conn<3; ++conn) {
          if(l1menu.ctp().electrical(conn)=="")
             continue;
          ctp["inputs"]["electrical"]["connector" + std::to_string(conn)] = l1menu.ctp().electrical(conn);
       }
+      ctp["inputs"]["optical"] = json::object_t{};
       for(size_t conn=0; conn<12; ++conn) {
          if(l1menu.ctp().optical(conn)=="")
             continue;
          ctp["inputs"]["optical"]["connector" + std::to_string(conn)] = l1menu.ctp().optical(conn);
       }
-      auto ctpmon = json({});
+      json ctpmon = json::object_t{};
       for(auto & mon : l1menu.ctp().ctpMon()) {
          ctpmon[mon.first] = json({{"multiplicity",mon.second.first},{"thr",mon.second.second}});
       }
-      ctp["monitoring"] = json({{"ctpmon",ctpmon}});
+      json ctpin = json::object_t{};
+      for(auto & mon : l1menu.ctp().ctpinMon()) {
+         ctpin[mon.first] = json({{"multiplicity", mon.second.first},{"thr", mon.second.second}});
+      }
+      ctp["monitoring"] = json({{"ctpmon", ctpmon}, {"ctpin", ctpin}});
    }
 
-   json jtopo;
-   {
+   json jtopo = json::object_t{};
+   if(l1menu.run()>1) {
       std::map<L1TopoAlgorithm::AlgorithmType,std::string> algTypeNames = {
          {L1TopoAlgorithm::AlgorithmType::SORTING, "sortingAlgorithms"},
          {L1TopoAlgorithm::AlgorithmType::DECISION, "decisionAlgorithms"},
@@ -473,11 +486,9 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       }
    }
 
-   json j;
+   json j = json::object_t{};
    j["filetype"] = "l1menu";
-   if(l1menu.isRun2()) {
-      j["run"] = 2;
-   }
+   j["run"] = l1menu.run();
    j["name"] = l1menu.name();
    j["items"] = items;
    j["thresholds"] = thresholds;
@@ -485,7 +496,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
    j["boards"] = boards;
    j["connectors"] = connectors;
    j["ctp"] = ctp;
-
 
    std::ofstream outfile(filename);
    outfile << std::setw(4) << j << std::endl;

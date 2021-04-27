@@ -13,6 +13,6 @@ atlas_add_library( LArGeoFcal
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoFcal
                    INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib
                    PRIVATE_LINK_LIBRARIES GeoModelUtilities GaudiKernel LArReadoutGeometry RDBAccessSvcLib  )
 

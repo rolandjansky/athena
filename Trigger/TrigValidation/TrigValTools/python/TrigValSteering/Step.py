@@ -39,7 +39,8 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
-        self.depends_on_previous = False
+        self.depends_on_previous = False  # skip if previous step in the current step list failed
+        self.depends_on_exec = False  # (only for CheckSteps) skip if ExecSteps failed
         self.timeout = None
         self.prmon = False
         self.prmon_interval = 5  # monitoring interval in seconds

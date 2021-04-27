@@ -248,7 +248,7 @@ namespace MuonGM {
 
     int m_dbR, m_dbZ, m_dbPhi;
     bool m_hasDEDontop;
-    int m_nlayers;  // default=2, all BIS RPCs always have 3 gas gaps
+    int m_nlayers;  // default=2, all BI RPCs always have 3 gas gaps, need this flag since amdb only supports a maximum of 2 gas gaps, so this is steering the hardcoded third gas gap for Run3/4 layouts based on amdb primary numbers
 
     int m_nphigasgaps;
     int m_netagasgaps;

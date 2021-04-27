@@ -230,6 +230,7 @@ namespace MuonGM {
 
     // if there's a DED at the bottom, the Rpc is rotated by 180deg around its local y axis
     // gg numbering is swapped
+    // except for BI chambers (with 3 gas gaps -> this is taken into account in localTopGasGap()
     // -> eta strip n. 1 (offline id) is "last" eta strip (local)
     int lstrip = strip;
     int lgg = gasGap;
@@ -307,8 +308,8 @@ namespace MuonGM {
   {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
     double xgg=0;
-    if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
-      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED
+    if (m_nlayers==3) { // the BI RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED, cf. ATLASSIM-5021
     } else {
       xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
       if (gasGap == 1) return xgg;
@@ -381,7 +382,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -408,7 +409,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 

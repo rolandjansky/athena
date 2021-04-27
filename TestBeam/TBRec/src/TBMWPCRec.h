@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBMWPCREC
@@ -24,12 +24,11 @@ class TBMWPCRec : public AthAlgorithm
  public:
 
   TBMWPCRec(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TBMWPCRec();
+  virtual ~TBMWPCRec();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 
  private:

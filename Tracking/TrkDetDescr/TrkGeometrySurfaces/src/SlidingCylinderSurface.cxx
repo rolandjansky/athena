@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ Trk::SlidingCylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
   Amg::Vector3D loc3D0 = m_align ? (m_align->inverse() * glopos) : glopos;
   float offset = (*m_depth)[m_etaBin->bin(loc3D0)];
   // do the transformation or not
-  if (Trk::Surface::m_transform) {
+  if (Trk::Surface::m_transforms) {
     const Amg::Transform3D& surfaceTrans = transform();
     Amg::Transform3D inverseTrans(surfaceTrans.inverse());
     Amg::Vector3D loc3Dframe(inverseTrans * glopos);
@@ -144,12 +144,12 @@ Trk::SlidingCylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
 
 bool
 Trk::SlidingCylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
-                                         Trk::BoundaryCheck bchk,
+                                         const Trk::BoundaryCheck& bchk,
                                          double tol1,
                                          double tol2) const
 {
   Amg::Vector3D loc3D0 = m_align ? m_align->inverse() * glopo : glopo;
-  Amg::Vector3D loc3Dframe = m_transform ? (transform().inverse()) * glopo : glopo;
+  Amg::Vector3D loc3Dframe = m_transforms ? (transform().inverse()) * glopo : glopo;
   float offset = (*m_depth)[m_etaBin->bin(loc3D0)];
   // recalculate r to match bounds
   Amg::Vector3D loc3Dbase((loc3Dframe.perp() - offset) * cos(loc3Dframe.phi()),

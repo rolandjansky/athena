@@ -16,6 +16,8 @@
 #include "L1CaloFEXSim/jTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
 namespace LVL1 {
   
@@ -36,7 +38,9 @@ Interface definition for jFEXSysSim
     virtual void cleanup() = 0;
 
     virtual int calcTowerID(int eta, int phi, int mod) = 0 ;
-    
+
+    //virtual StatusCode fillEDM(uint8_t jFEXNumber, uint32_t tobWord) = 0;  
+    virtual StatusCode fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
   private:
 
   };

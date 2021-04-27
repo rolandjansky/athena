@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO: clean up flags, should only contain general settings but no alg config
@@ -29,7 +29,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doMinimalReco", False) # Turn running of minimal reconstruction on and off
   icf.addFlag("InDet.doDVRetracking", False) # Turn running of large-d0 retracking mode on and off. This flag assumes that the processing is done from a (D)ESD file
   icf.addFlag("InDet.postProcessing", True) # Turn running of post processing on and off
-  icf.addFlag("InDet.doTruth", True) # Turn running of truth matching on and off
+  icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   icf.addFlag("InDet.loadTools", True) # Turn loading of tools on and off
   icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
   icf.addFlag("InDet.doLowPt",True) # Turn running of doLowPt second pass on and off
@@ -124,7 +124,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doVtxMonitoringD3PD", False) # fills the D3PD parts for the unconstrained PV and the split vtx, works only with iterative finder 
   icf.addFlag("InDet.doConvVtxD3PD", False)
   icf.addFlag("InDet.doV0VtxD3PD", False)
-  icf.addFlag("InDet.doTriggerD3PD", False)
   icf.addFlag("InDet.removeTRTNoise", False)
   icf.addFlag("InDet.noTRTTiming", False)
   icf.addFlag("InDet.InDet25nsec", False )

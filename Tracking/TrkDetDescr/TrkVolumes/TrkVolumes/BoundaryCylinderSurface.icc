@@ -1,94 +1,78 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // BoundaryCylinderSurface.icc, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-template <class Tvol> inline BoundaryCylinderSurface<Tvol>&
-   BoundaryCylinderSurface<Tvol>::operator=(const BoundaryCylinderSurface<Tvol>& bcs)
+template<class Tvol>
+inline const Surface&
+BoundaryCylinderSurface<Tvol>::surfaceRepresentation() const
 {
-  if (this!=&bcs){
-    delete BoundarySurface<Tvol>::m_insideVolume;
-    delete BoundarySurface<Tvol>::m_outsideVolume;
-    delete Surface::m_transform;
-    delete Surface::m_center;
-    delete Surface::m_normal;
-    delete CylinderSurface::m_bounds;
-    BoundarySurface<Tvol>::m_insideVolume        = bcs.m_insideVolume;
-    BoundarySurface<Tvol>::m_outsideVolume       = bcs.m_outsideVolume;
-    BoundarySurface<Tvol>::m_insideVolumeArray   = bcs.m_insideVolumeArray ;
-    BoundarySurface<Tvol>::m_outsideVolumeArray  = bcs.m_outsideVolumeArray ;
-    Surface::m_transform  = (bcs.m_transform) ? new Amg::Transform3D(*bcs.m_transform) : nullptr;
-    Surface::m_center     = (bcs.m_center)    ? new Amg::Vector3D(*bcs.m_center) : nullptr;
-    Surface::m_normal     = (bcs.m_normal)    ? new Amg::Vector3D(*bcs.m_normal) : nullptr ;
-    Surface::m_associatedDetElement   = bcs.m_associatedDetElement;   // copy by pointer as CylinderSurface does not have ownership 
-    Surface::m_associatedDetElementId = bcs.m_associatedDetElementId;
-    m_bounds =  bcs.m_bounds;
-  }
   return *this;
-
 }
-
-template <class Tvol> inline const Tvol* BoundaryCylinderSurface<Tvol>::attachedVolume(const TrackParameters& parms,
-                                                                       PropDirection dir) const
+template<class Tvol>
+inline const Tvol*
+BoundaryCylinderSurface<Tvol>::attachedVolume(const TrackParameters& parms,
+                                              PropDirection dir) const
 {
   const Tvol* attVolume = nullptr;
-  // (ST) buggy line - assumes the parms are at this boundary surface ! 
-  // const HepGeom::Vector3D<double>* localNormal = this->surfaceRepresentation().normal(parms.localPosition());
-  // replacing with
-  const Amg::Vector2D* locPos = this->surfaceRepresentation().globalToLocal(parms.position());
-  const Amg::Vector3D* localNormal = nullptr;
+  auto locPos = this->surfaceRepresentation().globalToLocal(parms.position());
+  Amg::Vector3D localNormal{};
   if (locPos) {
     localNormal = this->surfaceRepresentation().normal(*locPos);
-    delete locPos;
-  }	
-  if (!localNormal) return attVolume;
-  // (ST) end patch
+  } else {
+    return attVolume;
+  }
 
-  if ( (*localNormal).dot(dir*parms.momentum()) > 0.){ 
+  if (localNormal.dot(dir * parms.momentum()) > 0.) {
     attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
-      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(parms.position());
+    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()) {
+      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(
+        parms.position());
     }
   } else {
     attVolume = BoundarySurface<Tvol>::m_insideVolume;
-    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
-      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(parms.position());
+    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()) {
+      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(
+        parms.position());
     }
   }
- delete localNormal;
- return attVolume;  
+  return attVolume;
 }
 
-template <class Tvol> inline const Tvol* BoundaryCylinderSurface<Tvol>::attachedVolume(const Amg::Vector3D& pos,
-                                                                       const Amg::Vector3D& mom,
-                                                                       PropDirection dir) const
+template<class Tvol>
+inline const Tvol*
+BoundaryCylinderSurface<Tvol>::attachedVolume(const Amg::Vector3D& pos,
+                                              const Amg::Vector3D& mom,
+                                              PropDirection dir) const
 {
   const Tvol* attVolume = nullptr;
-  //const Amg::Vector2D* lp = CylinderSurface::globalToLocal(pos, 2.*Gaudi::Units::mm); // FIXME: previous call with 2mm hard coded tolerance, new interface doesn't allow setting tolerance
-  Amg::Vector2D* lp = new Amg::Vector2D;                                                // FIXME: call without tolerance, check if still ok
-  CylinderSurface::globalToLocal(pos, pos, *lp);                                        // FIXME: call without tolerance, check if still ok
-  
-  if (lp) 
-  { const Amg::Vector3D* localNormal = CylinderSurface::normal(*lp);
-    delete lp;
-    if ( (*localNormal).dot(dir*mom) > 0.){
+  // const Amg::Vector2D* lp =
+  // CylinderSurface::globalToLocal(pos, 2.*Gaudi::Units::mm);
+  Amg::Vector2D lp{};
+  // The new interface returns true or false , based on internal tolerance
+  // there is not nullptr to check.
+  const bool intol = CylinderSurface::globalToLocal(pos, pos, lp);
+
+  if (intol) {
+    Amg::Vector3D localNormal = CylinderSurface::normal(lp);
+    if (localNormal.dot(dir * mom) > 0.) {
       attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-      if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
-        attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(pos);
+      if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()) {
+        attVolume =
+          BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(pos);
       }
     } else {
       attVolume = BoundarySurface<Tvol>::m_insideVolume;
-      if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
-        attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(pos);
+      if (BoundarySurface<Tvol>::m_insideVolumeArray.get()) {
+        attVolume =
+          BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(pos);
       }
     }
-      delete localNormal;      
-   }
+  }
 
-   return attVolume;  
+  return attVolume;
 }
-
 

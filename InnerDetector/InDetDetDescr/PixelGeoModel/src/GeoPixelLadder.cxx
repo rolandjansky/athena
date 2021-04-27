@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelLadder.h"
@@ -30,7 +30,7 @@ GeoPixelLadder::GeoPixelLadder(InDetDD::PixelDetectorManager* m_DDmgr,
                                GeoPixelSiCrystal& theSensor,
 			       GeoPixelStaveSupport* staveSupport) :
   GeoVPixelFactory (m_DDmgr, mgr),
-  m_theLadder(0),
+  m_theLadder(nullptr),
   m_theSensor(theSensor),
   m_staveSupport(staveSupport)
 {
@@ -60,7 +60,7 @@ GeoPixelLadder::GeoPixelLadder(InDetDD::PixelDetectorManager* m_DDmgr,
     m_thicknessN = std::max(m_thicknessN, m_staveSupport->thicknessN()+safety); 
   }
   
-  const GeoShape * ladderShape = 0;
+  const GeoShape * ladderShape = nullptr;
 
   // If upper and lower thicknesses are within 100 um. Make them the same.
   if (std::abs(m_thicknessP - m_thicknessN) < 0.1*Gaudi::Units::mm) {
@@ -159,7 +159,7 @@ GeoPixelLadder::~GeoPixelLadder(){
 GeoVPhysVol* GeoPixelLadder::Build( ) {
 
   // Something went wrong while building the ladder logical volume 
-  if(!m_theLadder) return 0;
+  if(!m_theLadder) return nullptr;
 
   // Create the ladder physVolume
   GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
@@ -247,8 +247,6 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 // For standard ATLAS stave shift down the central module, as its flag is -1.
 // PixelModuleStaggerDistance is zero for standard ATLAS geometry.
 // Not sure why PixelModuleDrDistance is defined as twice the shift.
-// For SLHC (later versions) PixelModuleDrDistance is 0 and PixelModuleStaggerDistance is non zero for
-// some layers. 
 //
     
     double xpos = m_gmt_mgr->PixelModuleStaggerDistance() *  m_gmt_mgr->PixelModuleStaggerSign(etaModule)

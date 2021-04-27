@@ -14,45 +14,43 @@
 #ifndef MUONCALIB_DCSLFITTER_H
 #define MUONCALIB_DCSLFITTER_H
 
-#include "MdtCalibInterfaces/IMdtSegmentFitter.h"
-
-#include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MdtCalibInterfaces/IMdtSegmentFitter.h"
+#include "MuonCalibEventBase/MuonCalibSegment.h"
 
 namespace MuonCalib {
-/**@class DCSLFitter
-   Straight line fitter for drift circles
-   
-   @author Niels.Van.Eldik@cern.ch
-*/
-    
+    /**@class DCSLFitter
+       Straight line fitter for drift circles
 
-  class DCSLFitter : public IMdtSegmentFitter {
-  public:
-    DCSLFitter() : m_debug(false) {}
-  
-    /** fit using all hits */
-    bool fit( MuonCalibSegment& seg ) const;
-
-    /** fit subset of the hits.
-	If the HitSelection vector contains a 0 for a given hit the hit is used
-	else the hit is not included in the fit.
-	The size of the HitSelection vector should be equal to the number of hits on track else
-	no fit is performed.
+       @author Niels.Van.Eldik@cern.ch
     */
-    bool fit( MuonCalibSegment& seg, HitSelection selection ) const;
 
-    /** set print level */
-    void printLevel(int level);
-  private:
-  
-    bool m_debug;
-    
-    double getY( const Amg::Vector3D& p ) const { return p.z(); }
-    double getZ( const Amg::Vector3D& p ) const { return p.y(); }
-    Amg::Vector3D getVec( double x, double y, double z) const { return Amg::Vector3D( x, z, y ); }
-  };
+    class DCSLFitter : public IMdtSegmentFitter {
+    public:
+        DCSLFitter() : m_debug(false) {}
 
-}
+        /** fit using all hits */
+        bool fit(MuonCalibSegment& seg) const;
+
+        /** fit subset of the hits.
+            If the HitSelection vector contains a 0 for a given hit the hit is used
+            else the hit is not included in the fit.
+            The size of the HitSelection vector should be equal to the number of hits on track else
+            no fit is performed.
+        */
+        bool fit(MuonCalibSegment& seg, HitSelection selection) const;
+
+        /** set print level */
+        void printLevel(int level);
+
+    private:
+        bool m_debug;
+
+        double getY(const Amg::Vector3D& p) const { return p.z(); }
+        double getZ(const Amg::Vector3D& p) const { return p.y(); }
+        Amg::Vector3D getVec(double x, double y, double z) const { return Amg::Vector3D(x, z, y); }
+    };
+
+}  // namespace MuonCalib
 
 #endif

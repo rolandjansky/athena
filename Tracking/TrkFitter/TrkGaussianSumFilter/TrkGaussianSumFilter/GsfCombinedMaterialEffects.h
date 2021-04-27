@@ -157,12 +157,6 @@ private:
     "Parametrization of Bethe Heitler material effects for high X0"
   };
 
-  ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{
-    this,
-    "EnergyLossUpdator",
-    "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",
-    ""
-  };
 };
 } // end Trk namespace
 

@@ -34,18 +34,18 @@ namespace LVL1MUCTPIPHASE1 {
     SimController();
     ~SimController();
 
-    void configureTopo(const std::string& barrelFileName,
-		       const std::string& ecfFileName,
-		       const std::string& side0LUTFileName,
-		       const std::string& side1LUTFileName);
-    void configureOverlapRemoval(const std::string& lutFile);
+    std::vector<std::string> configureTopo(const std::string& barrelFileName,
+					   const std::string& ecfFileName,
+					   const std::string& side0LUTFileName,
+					   const std::string& side1LUTFileName);
 
-    bool processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
+    std::string processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
     void setConfiguration( const Configuration& conf );
 
     LVL1::MuCTPIL1Topo getL1TopoData(int bcid);
 
     TriggerProcessor* getTriggerProcessor();
+    std::vector<MuonSectorProcessor*>& getMuonSectorProcessors();
 
   private:
 

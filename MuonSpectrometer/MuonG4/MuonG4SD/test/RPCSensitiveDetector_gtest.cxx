@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/RPCSensitiveDetector.h"
@@ -38,7 +38,7 @@ class RPCSensitiveDetectortest : public ::testing::Test {
 TEST_F ( RPCSensitiveDetectortest, Initialize )
 {
   G4HCofThisEvent hce;
-  RPCSensitiveDetector sd1("name1", "name1", 2); // name, hitCollectionName, nGasGaps; all non-BIS RPCs (Run1+2) have 2 gas gaps, only BIS RPCs have 3 gas gaps
+  RPCSensitiveDetector sd1("name1", "name1", 2); // name, hitCollectionName, nGasGaps; all non-BI RPCs (Run1+2) have 2 gas gaps, only BI RPCs have 3 gas gaps
   sd1.Initialize( &hce );
   ASSERT_TRUE(sd1.m_myRPCHitColl.isValid()); //check if initialization of m_myRPCHitColl is successful
 
@@ -75,7 +75,7 @@ TEST_F ( RPCSensitiveDetectortest, ProcessHits )
   G4String nop3 = "gamma";
   DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);//invoking of this function aims to setting testing environment.
 
-  RPCSensitiveDetector sd2("name2", "name2", 2); // name, hitCollectionName, nGasGaps; all non-BIS RPCs (Run1+2) have 2 gas gaps, only BIS RPCs have 3 gas gaps
+  RPCSensitiveDetector sd2("name2", "name2", 2); // name, hitCollectionName, nGasGaps; all non-BI RPCs (Run1+2) have 2 gas gaps, only BI RPCs have 3 gas gaps
   sd2.Initialize( &hce );//initialize the hit collection m_myRPCHitColl
   sd2.ProcessHits(&sp, &th );//invoke the tested member function
 

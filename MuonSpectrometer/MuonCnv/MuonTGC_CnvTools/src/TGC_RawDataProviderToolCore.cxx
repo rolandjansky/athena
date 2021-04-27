@@ -14,7 +14,6 @@ Muon::TGC_RawDataProviderToolCore::TGC_RawDataProviderToolCore(
 						       const std::string& n,
 						       const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_cabling(nullptr),
   m_robDataProvider("ROBDataProviderSvc",n) 
 {
 }
@@ -38,11 +37,12 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
   ATH_CHECK(m_rdoContainerKey.initialize());
 
   //try to configure the cabling service
-  StatusCode sc = getCabling();
-  if(sc.isFailure()) {
-      ATH_MSG_ERROR( "TGCcablingServerSvc not yet configured, but this needs to be available when TGC_RawDataProviderToolCore is initalised as we cannot create it on the fly during event processing inside const decode functions.");
-      return StatusCode::FAILURE;
+  if (!getCabling()) {
+    // ??? Is deferred initialization still needed here?
+    ATH_MSG_INFO( "TGCcablingServerSvc not yet configured; postpone TGCcabling initialization at first event. " );
   }
+
+  m_hid2re.fillAllRobIds();
   
   return StatusCode::SUCCESS;
 }
@@ -72,36 +72,37 @@ StatusCode Muon::TGC_RawDataProviderToolCore::convertIntoContainer(const std::ve
   return StatusCode::SUCCESS;
 }
 
-StatusCode  Muon::TGC_RawDataProviderToolCore::getCabling() {
-  const ITGCcablingServerSvc* TgcCabGet = 0;
-  StatusCode sc = service("TGCcablingServerSvc", TgcCabGet, true);
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get TGCcablingServerSvc !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE( " TGCcablingServerSvc retrieved" );
-  } 
+const ITGCcablingSvc*  Muon::TGC_RawDataProviderToolCore::getCabling() const
+{
+  const ITGCcablingSvc* cabling = m_cabling.get();
+  if (cabling) {
+    return cabling;
+  }
 
-  sc = TgcCabGet->giveCabling(m_cabling);
-  if(sc.isFailure()) {
+  ServiceHandle<ITGCcablingServerSvc> TgcCabGet ("TGCcablingServerSvc", name());
+  if (TgcCabGet.retrieve().isFailure()) {
+    ATH_MSG_FATAL( "Could not get TGCcablingServerSvc !" );
+    return nullptr;
+  }
+
+  if (TgcCabGet->giveCabling(cabling).isFailure()) {
     ATH_MSG_FATAL( "Could not get ITGCcablingSvc from the Server !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE( "ITGCcablingSvc obtained" );
-  }    
+    return nullptr;
+  }
+
+  m_cabling.set (cabling);
   
-  m_hid2re.set(m_cabling); 
-  
-  return StatusCode::SUCCESS;
+  return cabling;
 }
 
 
-std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataProviderToolCore::getROBData(const std::vector<IdentifierHash>& rdoIdhVect) const {
-
+std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataProviderToolCore::getROBData(const std::vector<IdentifierHash>& rdoIdhVect) const
+{
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
-  if(!m_cabling) {
-      ATH_MSG_ERROR("Could not get cabling, return empty vector of ROB fragments");
-      return vecOfRobf;
+  const ITGCcablingSvc* cabling = getCabling();
+  if(!cabling) {
+    ATH_MSG_ERROR("Could not get cabling, return empty vector of ROB fragments");
+    return vecOfRobf;
   }
 
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -116,7 +117,7 @@ std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataPr
       continue;
     }
     const Identifier tgcId = Id;
-    uint32_t rodId = m_hid2re.getRodID(tgcId);
+    uint32_t rodId = m_hid2re.getRodID(tgcId, cabling);
     uint32_t robId = m_hid2re.getRobID(rodId);
     std::vector<uint32_t>::iterator it_robId = std::find(robIds.begin(), robIds.end(), robId); 
     if(it_robId==robIds.end()) {

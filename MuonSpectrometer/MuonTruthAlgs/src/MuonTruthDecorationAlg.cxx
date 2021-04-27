@@ -20,11 +20,18 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 
+
+namespace{
+    const SG::AuxElement::Decorator<int> dec_truthOrigin{"truthOrigin"};
+    const SG::AuxElement::Decorator<int> dec_truthType{"truthType"};
+    const std::vector<float> emptyVec;
+  
+}
 namespace Muon {
 
   // Constructor with parameters:
   MuonTruthDecorationAlg::MuonTruthDecorationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name,pSvcLocator),
+    AthReentrantAlgorithm(name,pSvcLocator),
     m_muonMgr(nullptr) {
   }
 
@@ -39,7 +46,6 @@ namespace Muon {
     ATH_CHECK(m_SDO_TruthNames.initialize());
     if (!m_CSC_SDO_TruthNames.empty()) ATH_CHECK(m_CSC_SDO_TruthNames.initialize());
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(detStore()->retrieve(m_muonMgr));
@@ -47,10 +53,9 @@ namespace Muon {
   }
 
   // Execute method:
-  StatusCode MuonTruthDecorationAlg::execute()
-  {
+  StatusCode MuonTruthDecorationAlg::execute(const EventContext& ctx) const  {
     // skip if no input data found
-    SG::ReadHandle<xAOD::TruthParticleContainer> truthContainer(m_truthParticleContainerName);
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthContainer(m_truthParticleContainerName,ctx);
     if(!truthContainer.isPresent()) return StatusCode::SUCCESS;
     if(!truthContainer.isValid()){
       ATH_MSG_WARNING("truth container "<<truthContainer.name()<<" not valid");
@@ -58,11 +63,11 @@ namespace Muon {
     }
 
     // create output container
-    SG::WriteHandle<xAOD::TruthParticleContainer> muonTruthContainer(m_muonTruthParticleContainerName);
+    SG::WriteHandle<xAOD::TruthParticleContainer> muonTruthContainer(m_muonTruthParticleContainerName,ctx);
     ATH_CHECK(muonTruthContainer.record(std::make_unique<xAOD::TruthParticleContainer>(),std::make_unique<xAOD::TruthParticleAuxContainer>()));
     ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_muonTruthParticleContainerName );
 
-    SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer(m_muonTruthSegmentContainerName);
+    SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer(m_muonTruthSegmentContainerName,ctx);
     if(m_createTruthSegment){
       ATH_CHECK(segmentContainer.record(std::make_unique<xAOD::MuonSegmentContainer>(),std::make_unique<xAOD::MuonSegmentAuxContainer>()));
       ATH_MSG_DEBUG( "Recorded MuonSegmentContainer with key: " << segmentContainer.name() );
@@ -70,8 +75,7 @@ namespace Muon {
 
     // loop over truth coll
     for( const auto truth : *truthContainer ){
-      if( truth->status() != 1 ) continue;
-      if( abs(truth->pdgId()) != 13 || truth->pt() < 1000. ) continue;
+      if( truth->status() != 1 || !truth->isMuon() || truth->pt() < 1000. ) continue;
       xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
       muonTruthContainer->push_back( truthParticle );
       truthParticle->setPdgId(truth->pdgId());
@@ -94,25 +98,21 @@ namespace Muon {
 
       // if configured look up truth classification
       if( !m_truthClassifier.empty() ){
-	// if configured also get truth classification
-	auto truthClass = m_truthClassifier->particleTruthClassifier(truth);
-	type = truthClass.first;
-	origin = truthClass.second;
-	ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
-	int& theType   = const_cast<xAOD::TruthParticle*>(truthParticle)->auxdata<int>("truthType");
-	int& theOrigin = const_cast<xAOD::TruthParticle*>(truthParticle)->auxdata<int>("truthOrigin");
-	theType = static_cast<int>(type);
-	theOrigin = static_cast<int>(origin);
-	iType = static_cast<int>(type);
-	iOrigin = static_cast<int>(origin);
+            // if configured also get truth classification
+            auto truthClass = m_truthClassifier->particleTruthClassifier(truth);
+            int iType = truthClass.first;
+            int iOrigin = truthClass.second;
+            ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
+            dec_truthOrigin(*truthParticle) = iOrigin;
+            dec_truthType(*truthParticle) = iType;
       }
 
-      // add track records
-      addTrackRecords(*truthParticle,truth->prodVtx());
+      /// add track records
+      addTrackRecords(ctx,*truthParticle);
       ChamberIdMap ids;
 
       // add hit counts
-      addHitCounts(*truthParticle,&ids);
+      addHitCounts(ctx, *truthParticle, ids);
 
       //add hit ID vectors
       addHitIDVectors(*truthParticle,ids);
@@ -125,7 +125,7 @@ namespace Muon {
 
       // create segments
       if( m_createTruthSegment && goodMuon ){
-	createSegments(truthLink,segmentContainer,ids);
+            createSegments(ctx, truthLink,segmentContainer,ids);
       }
     }
 
@@ -135,12 +135,14 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  void MuonTruthDecorationAlg::createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink, SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+  void MuonTruthDecorationAlg::createSegments(const EventContext& ctx, 
+                                              const ElementLink< xAOD::TruthParticleContainer >& truthLink, 
+                                              SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
                                                const MuonTruthDecorationAlg::ChamberIdMap& ids) const {
 
     std::vector<SG::ReadHandle<MuonSimDataCollection> > sdoCollections(6);
     for(const SG::ReadHandleKey<MuonSimDataCollection>& k : m_SDO_TruthNames){
-      SG::ReadHandle<MuonSimDataCollection> col(k);
+      SG::ReadHandle<MuonSimDataCollection> col(k,ctx);
       if(!col.isPresent()){
 	ATH_MSG_DEBUG("MuonSimDataCollection "<<col.name()<<" not in StoreGate");
 	continue;
@@ -236,7 +238,7 @@ namespace Muon {
 	    }
 	  }
 	  else{
-      SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
+      SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames,ctx);
 	    auto pos = cscCollection->find(id);
 	    if( pos != cscCollection->end() ) {
 	      const MuonGM::CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(id);
@@ -294,16 +296,16 @@ namespace Muon {
     }
   }
 
-  void MuonTruthDecorationAlg::addTrackRecords( xAOD::TruthParticle& truthParticle,
-                                                const xAOD::TruthVertex* vertex ) const {
+  void MuonTruthDecorationAlg::addTrackRecords( const EventContext& ctx,xAOD::TruthParticle& truthParticle ) const {
 
     // first loop over track records, store parameters at the different positions
     int barcode = truthParticle.barcode();
+    const xAOD::TruthVertex* vertex = truthParticle.prodVtx();
     std::vector< std::pair< Amg::Vector3D, Amg::Vector3D > > parameters;
     if( vertex ) parameters.push_back( std::make_pair(Amg::Vector3D(vertex->x(),vertex->y(),vertex->z()),
                                                       Amg::Vector3D(truthParticle.px(),truthParticle.py(),truthParticle.pz())) );
 
-    for( SG::ReadHandle<TrackRecordCollection>& col : m_trackRecordCollectionNames.makeHandles() ){
+    for( SG::ReadHandle<TrackRecordCollection>& col : m_trackRecordCollectionNames.makeHandles(ctx) ){
       if(!col.isPresent()) continue;
       const std::string name = col.key();
       float& x   = truthParticle.auxdata<float>(name+"_x");
@@ -367,7 +369,7 @@ namespace Muon {
       cov(3,3) = 1e-6;
       cov(4,4) = 1e-3/truthParticle.p4().P();
       for( unsigned int i=0;i<parameters.size()-1;++i ){
-        Trk::CurvilinearParameters pars(parameters[i].first,parameters[i].second,(truthParticle.pdgId() < 0) ? 1 : -1, new AmgSymMatrix(5)(cov) );
+        Trk::CurvilinearParameters pars(parameters[i].first,parameters[i].second,(truthParticle.pdgId() < 0) ? 1 : -1, AmgSymMatrix(5)(cov) );
         // pick destination volume
         std::string vname;
         std::string name = m_trackRecordCollectionNames.at(i).key();
@@ -397,7 +399,7 @@ namespace Muon {
         epy=-99999.;
         epz=-99999.;
 
-        const Trk::TrackParameters* exPars = m_extrapolator->extrapolateToVolume(pars,*volume,Trk::alongMomentum,Trk::muon);
+        std::unique_ptr<const Trk::TrackParameters> exPars { m_extrapolator->extrapolateToVolume(ctx,pars,*volume,Trk::alongMomentum,Trk::muon)};
         if( exPars ){
           ex = exPars->position().x();
           ey = exPars->position().y();
@@ -417,22 +419,20 @@ namespace Muon {
                           << " res p " << (parameters[i+1].second.mag() - exPars->momentum().mag())
                           << " error " << errorp << " cov " << (*exPars->covariance())(Trk::qOverP,Trk::qOverP)
                           << " pull p " << (parameters[i+1].second.mag() - exPars->momentum().mag())/errorp);
-          delete exPars;
         }
       }
     }
-    std::vector<float> emptyVec;
     for( unsigned int i=0;i<m_trackRecordCollectionNames.size();i++){
       const std::string name = m_trackRecordCollectionNames.at(i).key();
       if(!truthParticle.isAvailable<std::vector<float> >(name+"_cov_extr")){
-	truthParticle.auxdata<std::vector<float> >(name+"_cov_extr")=emptyVec;
+        truthParticle.auxdata<std::vector<float> >(name+"_cov_extr")=emptyVec;
       }
     }
   }
 
 
-  void MuonTruthDecorationAlg::addHitCounts( xAOD::TruthParticle& truthParticle,
-					     MuonTruthDecorationAlg::ChamberIdMap* ids) const {
+  void MuonTruthDecorationAlg::addHitCounts(const EventContext& ctx, xAOD::TruthParticle& truthParticle,
+					     MuonTruthDecorationAlg::ChamberIdMap& ids) const {
     int barcode = truthParticle.barcode();
 
     std::vector<unsigned int> nprecHitsPerChamberLayer;
@@ -443,7 +443,7 @@ namespace Muon {
     ntrigEtaHitsPerChamberLayer.resize(Muon::MuonStationIndex::PhiIndexMax);
     ATH_MSG_DEBUG("addHitCounts: barcode " << barcode);
     // loop over detector technologies
-    for( SG::ReadHandle<PRD_MultiTruthCollection>& col : m_PRD_TruthNames.makeHandles() ){
+    for( SG::ReadHandle<PRD_MultiTruthCollection>& col : m_PRD_TruthNames.makeHandles(ctx) ){
       if(!col.isPresent()){
 	ATH_MSG_DEBUG("PRD_MultiTruthCollection "<<col.name()<<" not in StoreGate");
 	continue;
@@ -461,20 +461,19 @@ namespace Muon {
 	Muon::MuonStationIndex::ChIndex chIndex = !isTgc ? m_idHelperSvc->chamberIndex(id) : Muon::MuonStationIndex::ChUnknown;
 
 	// add identifier to map
-	if( ids ) {
 	  if( isTgc ){ // TGCS should be added to both EIL and EIS
 	    Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
 	    if( index == Muon::MuonStationIndex::T4 ){
-	      (*ids)[Muon::MuonStationIndex::EIS].push_back(id);
-	      (*ids)[Muon::MuonStationIndex::EIL].push_back(id);
+	      ids[Muon::MuonStationIndex::EIS].push_back(id);
+	      ids[Muon::MuonStationIndex::EIL].push_back(id);
 	    }else{
-	      (*ids)[Muon::MuonStationIndex::EMS].push_back(id);
-	      (*ids)[Muon::MuonStationIndex::EML].push_back(id);
+	     ids[Muon::MuonStationIndex::EMS].push_back(id);
+	      ids[Muon::MuonStationIndex::EML].push_back(id);
 	    }
 	  }else{
-	    (*ids)[chIndex].push_back(id);
-	  }
-	}
+	    ids[chIndex].push_back(id);
+        }
+	
 	if( m_idHelperSvc->issTgc(id) ) {
 	  int index = m_idHelperSvc->phiIndex(id);
 	  if( measPhi ) ++nphiHitsPerChamberLayer[index];

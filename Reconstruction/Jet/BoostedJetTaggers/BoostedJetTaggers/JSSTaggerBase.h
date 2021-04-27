@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_JSSTAGGERBASE_H
@@ -132,18 +132,23 @@ class JSSTaggerBase :   public asg::AsgTool ,
     /// WriteDecorHandle keys for JSS moments
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decTau21WTAKey{this, "Tau21WTAName", "Tau21_wta", "SG key for Tau21_wta"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decTau32WTAKey{this, "Tau32WTAName", "Tau32_wta", "SG key for Tau32_wta"};
-    
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decTau42WTAKey{this, "Tau42WTAName", "Tau42_wta", "SG key for Tau42_wta"};
+
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decC2Key{this, "C2Name", "C2", "SG key for C2"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decD2Key{this, "D2Name", "D2", "SG key for D2"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decE3Key{this, "e3Name", "e3", "SG key for e3"};
-    
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decL2Key{this, "L2Name", "L2", "SG key for L2"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decL3Key{this, "L3Name", "L3", "SG key for L3"};
+
     /// ReadDecorHandle keys for JSS moments
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau1WTAKey{this, "Tau1WTAName", "Tau1_wta", "SG key for Tau1_wta"};
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau2WTAKey{this, "Tau2WTAName", "Tau2_wta", "SG key for Tau2_wta"};
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau3WTAKey{this, "Tau3WTAName", "Tau3_wta", "SG key for Tau3_wta"};
- 
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau4WTAKey{this, "Tau4WTAName", "Tau4_wta", "SG key for Tau4_wta"};
+
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau21WTAKey{this, "Tau21WTAName", "Tau21_wta", "SG key for Tau21_wta"};
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau32WTAKey{this, "Tau32WTAName", "Tau32_wta", "SG key for Tau32_wta"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readTau42WTAKey{this, "Tau42WTAName", "Tau42_wta", "SG key for Tau42_wta"};
     
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readECF1Key{this, "ECF1Name", "ECF1", "SG key for ECF1"};
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readECF2Key{this, "ECF2Name", "ECF2", "SG key for ECF2"};
@@ -157,6 +162,15 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readSplit23Key{this, "Split23Name", "Split23", "SG key for Split23"};
     
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_readQwKey{this, "QwName", "Qw", "SG key for Qw"};
+
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readThrustMajKey{this, "ThrustMajName", "ThrustMaj", "SG key for ThrustMaj"};
+
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readL2Key{this, "L2Name", "L2", "SG key for L2"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readL3Key{this, "L3Name", "L3", "SG key for L3"};
+
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readECFG331Key{this, "ECFG331Name", "ECFG_3_3_1", "SG key for ECFG_3_3_1"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readECFG311Key{this, "ECFG311Name", "ECFG_3_1_1", "SG key for ECFG_3_1_1"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_readECFG212Key{this, "ECFG212Name", "ECFG_2_1_2", "SG key for ECFG_2_1_2"};
 
     /// Strings for cut functions
     std::string m_strMassCutLow;
@@ -207,6 +221,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decWeightKey{this, "weightName", "weight", "SG key for weight"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEfficiencyKey{this, "efficiencyName", "efficiency", "SG key for efficiency"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEffSFKey{this, "effSFName", "effSF", "SG key for effSF"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decSigeffSFKey{this, "sigeffSFName", "sigeffSF", "SG key for effSF"};    
 
     /// Get configReader StatusCode
     StatusCode getConfigReader();
@@ -228,7 +243,8 @@ class JSSTaggerBase :   public asg::AsgTool ,
     StatusCode getWeight( const xAOD::Jet& jet, bool passSel, asg::AcceptData &acceptData ) const;
 
     /// Get scale factor and efficiency
-    std::pair<double,double> getSF( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
+    std::pair<double,double> getSF( const xAOD::Jet& jet, std::string truthLabelStr ) const;
+    std::string getTruthLabelStr( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
 
     /// Print configured cuts
     void printCuts() const;

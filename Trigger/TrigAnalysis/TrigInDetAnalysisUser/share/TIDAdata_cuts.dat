@@ -1,4 +1,10 @@
-pT     = 3000;
+
+#ifdef MINBIAS 
+pT     = 400;
+#else
+pT     = 1000;
+#endif
+
 eta    = 2.5;
 #if defined(LARGED0)
 	a0=10;
@@ -18,7 +24,6 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-dumpflag = 1;
 
 #if defined(LRT)
 	a0v = 100.;

@@ -5,52 +5,45 @@
 #ifndef MUON_IMUONTRACKREFINER_H
 #define MUON_IMUONTRACKREFINER_H
 
-#include <vector>
 #include <memory>
+#include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
 
-
-static const InterfaceID IID_IMuonTrackRefiner
-    ("Muon::IMuonTrackRefiner",1,0);
+static const InterfaceID IID_IMuonTrackRefiner("Muon::IMuonTrackRefiner", 1, 0);
 
 namespace Trk {
-  class Track;
-  class MeasurementBase;
-}
+    class Track;
+    class MeasurementBase;
+}  // namespace Trk
 
 namespace Muon {
 
-  class MuPatTrack;
-  class MuPatHit;
-  
-  /** @brief The IMuonTrackRefiner is a pure virtual interface for tools which refine the hit content of a given track
+    class MuPatTrack;
+    class MuPatHit;
 
-      The following interface is available.
-      @code
-         MuPatTrack* refine( MuPatTrack& track );
-      @endcode					      
+    /** @brief The IMuonTrackRefiner is a pure virtual interface for tools which refine the hit content of a given track
 
-  */  
-  class IMuonTrackRefiner : virtual public IAlgTool 
-  {      
-    public:
-    /** access to tool interface */
-    static const InterfaceID& interfaceID();
+        The following interface is available.
+        @code
+           MuPatTrack* refine( MuPatTrack& track );
+        @endcode
 
-    /** @brief interface for tools which refine the hit content of a given track
-	@param track input track
-        @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    virtual void refine( MuPatTrack& track,
-                         std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
-                         std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted ) const = 0;
+    class IMuonTrackRefiner : virtual public IAlgTool {
+    public:
+        /** access to tool interface */
+        static const InterfaceID& interfaceID();
 
-  };
-  
-  inline const InterfaceID& IMuonTrackRefiner::interfaceID()
-  {
-    return IID_IMuonTrackRefiner;
-  }
-} // end of name space
+        /** @brief interface for tools which refine the hit content of a given track
+            @param track input track
+            @return new refined track. Pointer could be zero, ownership passed to caller
+        */
+        virtual void refine(MuPatTrack& track, std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
+                            std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted) const = 0;
+    };
 
-#endif // IMuonTrackRefiner_H
+    inline const InterfaceID& IMuonTrackRefiner::interfaceID() { return IID_IMuonTrackRefiner; }
+}  // namespace Muon
+
+#endif  // IMuonTrackRefiner_H

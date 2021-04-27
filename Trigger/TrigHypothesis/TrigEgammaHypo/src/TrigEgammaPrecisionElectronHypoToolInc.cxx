@@ -9,7 +9,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODEgamma/Electron.h"
-
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
 
 namespace TCU = TrigCompositeUtils;
@@ -22,25 +21,18 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  
+{
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
   ATH_MSG_DEBUG( "ETthr          = " << m_eTthr    );
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
   
-   if ( m_etabin.empty() ) {
+  if ( m_etabin.empty() ) {
     ATH_MSG_ERROR(  " There are no cuts set (EtaBins property is an empty list)" );
     return StatusCode::FAILURE;
   }
-
-  // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
-  ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
-  CHECK( m_egammaElectronLHTool.retrieve() );
-
-  // Retrieving Luminosity info
-  ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
-  ATH_CHECK( m_avgMuKey.initialize() );
 
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
@@ -54,7 +46,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 }
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ctx) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input) const {
 
   bool pass = false;
 
@@ -69,11 +61,12 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto mon_mu       = Monitored::Scalar("mu",   -1.);
   auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
-  auto monitorIt    = Monitored::Group( m_monTool, 
-					       dEta, dPhi, 
-                                               etaBin, monEta,
-					       monPhi,PassedCuts,mon_lhval,mon_mu, mon_ptcone20, mon_relptcone20);
- // when leaving scope it will ship data to monTool
+  auto monitorIt    = Monitored::Group( m_monTool, dEta, dPhi, 
+                                        etaBin, monEta,
+                                        monPhi,PassedCuts,mon_lhval,mon_mu, 
+                                        mon_ptcone20, mon_relptcone20);
+
+  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
   auto roiDescriptor = input.roi;
@@ -111,10 +104,12 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
   ET  = pClus->et();
+
   // apply cuts: DeltaEta( clus-ROI )
-  ATH_MSG_DEBUG( "Electron : eta="  << pClus->eta()
-  		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
-  		 << " cut: <"   << m_detacluster          );
+  ATH_MSG_DEBUG( "Electron : eta="  << pClus->eta() 
+                  << " roi eta=" << etaRef << " DeltaEta=" << dEta
+                  << " cut: <"   << m_detacluster );
+
   
   if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) {
     ATH_MSG_DEBUG("REJECT Electron a cut failed");
@@ -151,38 +146,19 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   PassedCuts = PassedCuts + 1; // ET_em
   
  
-// This is the last step. So pass is going to be the result of LH
-
+  // This is the last step. So pass is going to be the result of LH
   // get average luminosity information to calculate LH
-
-  float avg_mu = 0;
-  float lhval=0;
-  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey, ctx);
-  if(eventInfoDecor.isPresent()) {
-    avg_mu = eventInfoDecor(0);
-    ATH_MSG_DEBUG("Average mu " << avg_mu);
-    mon_mu = avg_mu;
-    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron,avg_mu);
-    pass = (bool) accept;
-  
-    // Monitor the LH value
-    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron,avg_mu);
-    ATH_MSG_DEBUG("LHValue with avgmu " << lhval);
-    mon_lhval = lhval;
-  }  
-  else{
-    ATH_MSG_WARNING("EventInfo decoration not available!");
-    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron);
-    pass = (bool) accept;
-    // Monitor the LH value
-    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron);
-    ATH_MSG_DEBUG("LHValue without avgmu " << lhval);
-    mon_lhval = lhval;
+  if(input.valueDecorator.count("avgmu")){
+    mon_mu = input.valueDecorator.at("avgmu");
   }
+  
+
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
-    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
-  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
+        Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
+        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
 
 
   // variables based on HCAL
@@ -266,6 +242,18 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
   mon_relptcone20 = relptcone20;
   ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
+  
+  // Only for LH
+  if( input.valueDecorator.count(m_pidName+"LHValue")){
+    mon_lhval = input.valueDecorator.at(m_pidName+"LHValue");
+  }
+
+
+  // Should works for DNN and LH
+  if( input.pidDecorator.count(m_pidName) )
+  {
+    pass = input.pidDecorator.at(m_pidName);
+  }
 
   // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
   ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
@@ -293,9 +281,10 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   return pass;
 }
 
+
+
 int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
   const float absEta = std::abs(eta);
-  
   auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
   if ( binIterator == m_etabin.end() ) {
     return -1;
@@ -304,10 +293,10 @@ int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input,const EventContext& ctx )  const {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input)  const {
   for ( auto& i: input ) {
     if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i, ctx ) ) {
+      if ( decide( i ) ) {
         TCU::addDecisionID( m_decisionId, i.decision );
       }
     }

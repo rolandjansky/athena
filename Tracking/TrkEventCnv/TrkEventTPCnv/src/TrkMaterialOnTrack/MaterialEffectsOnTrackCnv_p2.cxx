@@ -2,9 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-#include "TrkMaterialOnTrack/EnergyLoss.h"
+#include <cmath>
+
 #include <typeinfo>
 #include <cmath>
 
@@ -17,7 +19,7 @@ void MaterialEffectsOnTrackCnv_p2 :: persToTrans(
    MsgStream& log) 
 {
    fillTransFromPStore( &m_mefBaseCnv, persObj->m_mefBase, transObj, log );
-   if ( (fabs(persObj->m_deltaPhi)+fabs(persObj->m_deltaTheta) > 1.0e-10) ||
+   if ( (std::abs(persObj->m_deltaPhi)+std::abs(persObj->m_deltaTheta) > 1.0e-10) ||
         (persObj->m_sigmaDeltaPhi + persObj->m_sigmaDeltaTheta > 1.0e-10) ) {
      transObj->m_scatteringAngles =
        new Trk::ScatteringAngles(persObj->m_deltaPhi,persObj->m_deltaTheta,

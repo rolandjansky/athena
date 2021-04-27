@@ -243,7 +243,7 @@ namespace Athena {                             // wlav
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 /** The default output file descriptor for #stacktrace().  */
-IOFD			DebugAids::s_stackTraceFd = IOFD_INVALID;
+std::atomic<IOFD>  DebugAids::s_stackTraceFd = IOFD_INVALID;
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
 
@@ -578,15 +578,19 @@ extern "C" void xl__trbk (void);
     effective for #stacktrace(), but can be overridden by the
     argument given to that function.  */
 IOFD
-DebugAids::stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
+DebugAids::stacktraceFd (IOFD fd /* = IOFD_INVALID */)
 {
-    if (s_stackTraceFd == IOFD_INVALID)
-	s_stackTraceFd = STDERR_HANDLE;
-
-    IOFD old = s_stackTraceFd;
-    if (fd != IOFD_INVALID)
-	s_stackTraceFd = fd;
-    return old;
+  IOFD old = s_stackTraceFd;
+  if (fd == IOFD_INVALID) {
+    if (old == IOFD_INVALID) {
+      s_stackTraceFd.compare_exchange_strong (old, STDERR_HANDLE);
+      return s_stackTraceFd;
+    }
+  }
+  else {
+    s_stackTraceFd.compare_exchange_strong (old, fd);
+  }
+  return old;
 }
 
 /** Produce a stack trace.
@@ -606,11 +610,8 @@ DebugAids::stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 void
 DebugAids::stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 {
-    if (s_stackTraceFd == IOFD_INVALID)
-	s_stackTraceFd = STDERR_HANDLE;
-
     if (fd == IOFD_INVALID)
-	fd = s_stackTraceFd;
+      fd = stacktraceFd();
 
     std::cerr.flush ();
     fflush (stderr);

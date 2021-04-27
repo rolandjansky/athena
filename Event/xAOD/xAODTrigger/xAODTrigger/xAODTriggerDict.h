@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
@@ -67,6 +67,20 @@
 #include "xAODTrigger/versions/eFexEMRoI_v1.h"
 #include "xAODTrigger/versions/eFexEMRoIContainer_v1.h"
 #include "xAODTrigger/versions/eFexEMRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/eFexTauRoI.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
+#include "xAODTrigger/versions/eFexTauRoI_v1.h"
+#include "xAODTrigger/versions/eFexTauRoIContainer_v1.h"
+#include "xAODTrigger/versions/eFexTauRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexSRJetRoI_v1.h"
+#include "xAODTrigger/versions/jFexSRJetRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexSRJetRoIAuxContainer_v1.h"
 
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
@@ -143,6 +157,9 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, EmTauRoIContainer_v2 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexEMRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexTauRoIContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexSRJetRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexJetRoIContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexGlobalRoIContainer_v1 );

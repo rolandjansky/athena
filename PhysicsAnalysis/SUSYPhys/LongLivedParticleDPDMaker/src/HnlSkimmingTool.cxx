@@ -71,6 +71,8 @@ StatusCode DerivationFramework::HnlSkimmingTool::initialize()
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
   ATH_CHECK(m_muonSGKey.initialize());
   ATH_CHECK(m_electronSGKey.initialize());
+  ATH_CHECK(m_muonIsoDecorKey.initialize());
+  ATH_CHECK(m_electronIsoDecorKey.initialize());
 
   return StatusCode::SUCCESS;
 }

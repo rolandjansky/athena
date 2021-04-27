@@ -65,8 +65,8 @@ private:
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;               //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
 
    // tools
-   ServiceHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
-   ServiceHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
+   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
+   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool;        //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
 
    ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;                       //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink
    ToolHandle<LVL1::IL1JetTools> m_JetTool;                           //!< property, see @link RoIBResultToAOD::RoIBResultToAOD @endlink

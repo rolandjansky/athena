@@ -2,6 +2,7 @@ Athena               INFO executing ROOT6Setup
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
+EventInfoCnvAlg      INFO Initializing EventInfoCnvAlg
 PoolSvc             DEBUG OutputLevel is 2
 AthenaPoolCnvSvc    DEBUG Registering all Tools in ToolHandleArray OutputStreamingTool
 EventSelector       DEBUG Initializing EventSelector

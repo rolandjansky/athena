@@ -37,10 +37,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
         ATH_MSG_DEBUG("TrkToLeptonPVTool TrkVKalVrtFitter found");
      }
      //-----
-     if(m_beamService.retrieve().isFailure()) {
-       ATH_MSG_DEBUG("Can't retrieve BeamService");
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK(m_beamSpotKey.initialize());
      //-----
      return StatusCode::SUCCESS;
    }
@@ -116,15 +113,17 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
           BEAM.setCovariancePosition(beamcov);
           beamtiltX= eventINFO->beamTiltXZ();
           beamtiltY= eventINFO->beamTiltYZ();
-     }         
-     if(m_beamService && fullxAOD ){
+     }
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     
+     if(beamSpotHandle.isValid() && fullxAOD ){
           ATH_MSG_DEBUG("Beam service is present");
-          BEAM.setPosition(m_beamService->beamVtx().position());
-          beamcov  = m_beamService->beamVtx().covariancePosition();
+          BEAM.setPosition(beamSpotHandle->beamVtx().position());
+          beamcov  = beamSpotHandle->beamVtx().covariancePosition();
           beamcov(2,2) *= 1.e6;  //Remove any constraint in Z direction
           BEAM.setCovariancePosition(beamcov);
-          beamtiltX= m_beamService->beamTilt(0);
-          beamtiltY= m_beamService->beamTilt(1);
+          beamtiltX= beamSpotHandle->beamTilt(0);
+          beamtiltY= beamSpotHandle->beamTilt(1);
      }         
      if(fullxAOD){ ATH_MSG_DEBUG("xAOD data"); }
      else        { ATH_MSG_DEBUG("DxAOD data");}

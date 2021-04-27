@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEVENTSTREAMER_H
@@ -27,14 +27,12 @@ class TBEventStreamer : public AthAlgorithm
   TBEventStreamer(const std::string& name, ISvcLocator* pService);
   virtual ~TBEventStreamer();
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  protected:
 
-//  std::vector<std::string> m_toolNames;
-//  std::vector<TBEventStreamerTool*> m_tools;
   ToolHandleArray<TBEventStreamerTool> m_tools;
 
   std::map<ToolHandle<TBEventStreamerTool>, unsigned int> m_acceptCounter;

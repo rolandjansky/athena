@@ -63,17 +63,17 @@ int JetSubStructureHistos::buildHistos(){
 
 
 
-int JetSubStructureHistos::fillHistosFromJet(const xAOD::Jet &j){
+int JetSubStructureHistos::fillHistosFromJet(const xAOD::Jet &j, float weight){
   //For definitions see JetSubStructureMomentTools
   
-  if( j.getAttribute<float>("Tau1") > 1e-8 ) m_tau21->Fill( j.getAttribute<float>("Tau2") / j.getAttribute<float>("Tau1") );
-  if( j.getAttribute<float>("Tau2") > 1e-8 ) m_tau32->Fill( j.getAttribute<float>("Tau3") / j.getAttribute<float>("Tau2") );
-  if( j.getAttribute<float>("Tau1_wta") > 1e-8 ) m_tau21_wta->Fill( j.getAttribute<float>("Tau2_wta") / j.getAttribute<float>("Tau1_wta") );
-  if( j.getAttribute<float>("Tau2_wta") > 1e-8 ) m_tau32_wta->Fill( j.getAttribute<float>("Tau3_wta") / j.getAttribute<float>("Tau2_wta") );
+  if( j.getAttribute<float>("Tau1") > 1e-8 ) m_tau21->Fill( j.getAttribute<float>("Tau2") / j.getAttribute<float>("Tau1"), weight );
+  if( j.getAttribute<float>("Tau2") > 1e-8 ) m_tau32->Fill( j.getAttribute<float>("Tau3") / j.getAttribute<float>("Tau2"), weight );
+  if( j.getAttribute<float>("Tau1_wta") > 1e-8 ) m_tau21_wta->Fill( j.getAttribute<float>("Tau2_wta") / j.getAttribute<float>("Tau1_wta"), weight );
+  if( j.getAttribute<float>("Tau2_wta") > 1e-8 ) m_tau32_wta->Fill( j.getAttribute<float>("Tau3_wta") / j.getAttribute<float>("Tau2_wta"), weight );
 
-  if( j.getAttribute<float>("ECF1") > 1e-8 ) m_C1->Fill( j.getAttribute<float>("ECF2") / pow( j.getAttribute<float>("ECF1"), 2.0) );
-  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_C2->Fill( ( j.getAttribute<float>("ECF3") * j.getAttribute<float>("ECF1") ) / pow( j.getAttribute<float>("ECF2"), 2.0) );
-  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_D2->Fill( ( j.getAttribute<float>("ECF3") * pow( j.getAttribute<float>("ECF1"), 3.0 ) ) / pow( j.getAttribute<float>("ECF2"), 3.0) );
+  if( j.getAttribute<float>("ECF1") > 1e-8 ) m_C1->Fill( j.getAttribute<float>("ECF2") / pow( j.getAttribute<float>("ECF1"), 2.0), weight );
+  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_C2->Fill( ( j.getAttribute<float>("ECF3") * j.getAttribute<float>("ECF1") ) / pow( j.getAttribute<float>("ECF2"), 2.0), weight );
+  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_D2->Fill( ( j.getAttribute<float>("ECF3") * pow( j.getAttribute<float>("ECF1"), 3.0 ) ) / pow( j.getAttribute<float>("ECF2"), 3.0), weight );
 
   return 0;
 }

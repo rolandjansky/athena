@@ -250,8 +250,6 @@ ToolSvc+= KinkTrkZeeFinalFilterTool
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZeeFilterKernel",
                                                      SkimmingTools = [KinkTrkZeeFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZeeFilterKernel"])
-topSequence.RPVLL_KinkedTrackZeeFilterKernel.ExtraInputs = [('std::vector<float>', KinkTrkDiEleMassStr),
-                                                            ('std::vector<float>', KinkTrkProbeEleEtStr)]
 
 ##
 ## Selecting low-pT probe muons
@@ -287,6 +285,4 @@ ToolSvc+= KinkTrkZmumuFinalFilterTool
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZmumuFilterKernel",
                                                      SkimmingTools = [KinkTrkZmumuFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZmumuFilterKernel"])
-topSequence.RPVLL_KinkedTrackZmumuFilterKernel.ExtraInputs = [('std::vector<float>', KinkTrkDiMuMassStr),
-                                                              ('std::vector<float>', KinkTrkProbeMuPtStr)]
 

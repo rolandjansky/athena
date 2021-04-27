@@ -5,28 +5,34 @@
 #==============================================================
 from AthenaCommon.GlobalFlags import globalflags
 
-from AthenaCommon.AlgSequence         import AlgSequence
-TopLocRecSeq  = AlgSequence()
-
 #-- SiD part ------------------------------------------------------------
 
-from AFP_LocReco.AFP_LocRecoConf      import AFP_SIDLocReco
-TopLocRecSeq += AFP_SIDLocReco("AFP_SIDLocReco")
+# get AFP_GeometryTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+AFP_Geometry_tool = CompFactory.getComp("AFP_GeometryTool")("AFP_Geometry_tool")
 
 # select between a real data or a simulation mode - Simulation = 0, RealData = 1
 if globalflags.DataSource()=='data':
-        AFP_SIDLocReco.DataType = 1
+        AFP_SIDLocReco_DataType = 1
 else:
-        AFP_SIDLocReco.DataType = 0
+        AFP_SIDLocReco_DataType = 0
 
-# select algo for tracker reco
-AFP_SIDLocReco.ListAlgoSID = ["SIDBasicKalman"]
-AFP_SIDLocReco.AmpThresh = 5000.	
+AFP_SIDLocReco_ListAlgoSID = ["SIDBasicKalman"]
+AFP_SIDLocReco_AmpThresh = 5000.
+
+# convert EventInfo to xAOD::EventInfo
+if( not globalflags.InputFormat.is_bytestream() and ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+        xAODEventInfoCnvAlgDefault (sequence = topSequence, OutputLevel=WARNING)
+
+# actually setup the track reco
+from AFP_LocReco.AFP_LocRecoConf      import AFP_SIDLocReco
+topSequence += AFP_SIDLocReco("AFP_SIDLocReco", OutputLevel=WARNING, AFP_Geometry = AFP_Geometry_tool, vecListAlgoSID = AFP_SIDLocReco_ListAlgoSID, DataType = AFP_SIDLocReco_DataType, AmpThresh = AFP_SIDLocReco_AmpThresh)
 
 #-- TiD part ------------------------------------------------------------
 
 from AFP_LocReco.AFP_LocRecoConf      import AFP_TDLocReco
-TopLocRecSeq += AFP_TDLocReco("AFP_TDLocReco")
+topSequence += AFP_TDLocReco("AFP_TDLocReco")
 
 # select between a real data or a simulation mode - Simulation = 0, RealData = 1
 if globalflags.DataSource()=='data':

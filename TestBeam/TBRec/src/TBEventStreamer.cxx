@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,9 +41,7 @@ StatusCode TBEventStreamer::initialize()
   ATH_MSG_INFO ( "------------------------------------" );
   ATH_MSG_INFO ( " " );
   unsigned int toolCtr = 0;
-  ToolHandleArray<TBEventStreamerTool>::iterator fTool = m_tools.begin();
-  ToolHandleArray<TBEventStreamerTool>::iterator lTool = m_tools.end();
-  for ( ; fTool != lTool; fTool++ ) {
+  for (ToolHandle<TBEventStreamerTool>& tool : m_tools) {
       toolCtr++;
       ATH_MSG_INFO (std::setw(2)
                     //<< std::setiosflags(std::ios_base::right)
@@ -52,9 +50,9 @@ StatusCode TBEventStreamer::initialize()
                     //<< std::setw(36)
                     //<< std::setfill('.')
                     //<< std::setiosflags(std::ios_base::left)
-                    << (*fTool)->type()
+                    << tool->type()
                     //<< std::setfill('.')
-                    << (*fTool)->name() );
+                    << tool->name() );
                     //<< std::setfill(' ')
     }
 
@@ -64,24 +62,20 @@ StatusCode TBEventStreamer::initialize()
 
 StatusCode TBEventStreamer::execute()
 {
-  // invoke tools
-  ToolHandleArray<TBEventStreamerTool>::iterator fTool = m_tools.begin();
-  ToolHandleArray<TBEventStreamerTool>::iterator lTool = m_tools.end();
-
   bool successFlag = true;
-  while ( successFlag && fTool != lTool )
+  for (ToolHandle<TBEventStreamerTool>& tool : m_tools)
     {
-      m_invokeCounter[*fTool]++;
-      successFlag = (*fTool)->accept() == StatusCode::SUCCESS;
+      m_invokeCounter[tool]++;
+      successFlag = tool->accept() == StatusCode::SUCCESS;
       if ( successFlag )
 	{
-	  m_acceptCounter[*fTool]++;
+	  m_acceptCounter[tool]++;
 	}
       else
 	{
-	  m_rejectCounter[*fTool]++;
+	  m_rejectCounter[tool]++;
+          break;
 	}
-      fTool++;
     }
 
    setFilterPassed(successFlag); 
@@ -91,15 +85,13 @@ StatusCode TBEventStreamer::execute()
 StatusCode TBEventStreamer::finalize()
 {
   // print summary
-  ToolHandleArray<TBEventStreamerTool>::iterator fTool = m_tools.begin();
-  ToolHandleArray<TBEventStreamerTool>::iterator lTool = m_tools.end();
-  for ( ; fTool != lTool; fTool++ ) {
+  for (ToolHandle<TBEventStreamerTool>& tool : m_tools) {
     ATH_MSG_INFO ( "Tool "
-                   << (*fTool)->name()
+                   << tool->name()
                    << " (invoked/accept/reject) "
-                   << "(" << m_invokeCounter[*fTool]
-                   << "/" << m_acceptCounter[*fTool]
-                   << "/" << m_rejectCounter[*fTool]
+                   << "(" << m_invokeCounter[tool]
+                   << "/" << m_acceptCounter[tool]
+                   << "/" << m_rejectCounter[tool]
                    << ")" );
     }
 

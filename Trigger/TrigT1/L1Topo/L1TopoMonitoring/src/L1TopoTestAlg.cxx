@@ -17,8 +17,9 @@ L1TopoTestAlg::L1TopoTestAlg(const std::string& name, ISvcLocator* pSvcLocator )
 
 StatusCode L1TopoTestAlg::initialize()
 {
+  // Comment out old TrigConfigSvc for now, update to json menu later
   ATH_MSG_INFO ("initialize");
-  CHECK( m_l1topoConfigSvc.retrieve() );
+  //  CHECK( m_l1topoConfigSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 

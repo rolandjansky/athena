@@ -77,7 +77,7 @@ TGCDatabaseManager::TGCDatabaseManager()
    m_tgcArgs(nullptr)
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
-    for(int i=0; i<NumberOfPatchPanelType; i+=1){
+    for(int i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){
        for(int k=0; k<TotalNumForwardBackwardType; k+=1){
          m_ASDToPP[j][i][k] = 0;
        }
@@ -108,7 +108,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   ATH_MSG_DEBUG("Read database for connection from ASD to PP.");
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1) {
-    for( i=0; i<NumberOfPatchPanelType; i+=1){
+    for( i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){
        for( k=0; k<TotalNumForwardBackwardType; k+=1){
 	 m_ASDToPP[j][i][k] = new TGCConnectionASDToPP;
 	 status = status && 
@@ -194,7 +194,7 @@ TGCDatabaseManager::~TGCDatabaseManager()
 
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1){
-    for( i=0; i<NumberOfPatchPanelType; i+=1){
+    for( i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){
       for( k=0; k<TotalNumForwardBackwardType; k+=1){
 	if(m_ASDToPP[j][i][k]!=0) delete m_ASDToPP[j][i][k];
 	m_ASDToPP[j][i][k]=0;
@@ -218,7 +218,7 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
-    for(int i=0; i<NumberOfPatchPanelType; i+=1){
+    for(int i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){
       for(int  k=0; k<TotalNumForwardBackwardType; k+=1){
 	m_ASDToPP[j][i][k] = 0;
       }
@@ -241,7 +241,7 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
 {
   if(this!=&right){
     for( int j=0; j<NumberOfRegionType; j+=1){
-      for( int i=0; i<NumberOfPatchPanelType; i+=1){
+      for( int i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){
 	for( int k=0; k<TotalNumForwardBackwardType; k+=1){
 	  if(m_ASDToPP[j][i][k]!=0) delete m_ASDToPP[j][i][k];
 	  m_ASDToPP[j][i][k] = new TGCConnectionASDToPP;

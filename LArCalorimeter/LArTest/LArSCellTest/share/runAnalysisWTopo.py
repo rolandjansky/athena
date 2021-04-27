@@ -119,10 +119,6 @@ from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFex
 from TrigL1CaloUpgradeAnalysis.TrigL1CaloUpgradeAnalysisConf import LArFexAnalysis
 from TrigL1CaloUpgradeAnalysis.TrigL1CaloUpgradeAnalysisConf import CaloBandwidth
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool=CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
 topSequence+=TrigT1CaloforwEFex(EnableMonitoring=True,CleanCellContainer=True)
 topSequence+=DumpAll(name="DumpAllClFor",InputClusterName="SClusterFor",CaloTopoIsolationTool=TrigCaloTopoIsolationTool);
 
@@ -140,7 +136,7 @@ topSequence+=DumpAll(name="DumpAllCl",InputClusterName="SClusterCl",CaloTopoIsol
 topSequence+=DumpAll(name="DumpAllCl1Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars1Sig",SaveLayer1Cells=False,CaloTopoIsolationTool=TrigCaloTopoIsolationTool)
 topSequence+=DumpAll(name="DumpAllCl2Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars2Sig",SaveLayer1Cells=False,CaloTopoIsolationTool=TrigCaloTopoIsolationTool)
 topSequence+=DumpAll(name="DumpAllCl3Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars3Sig",SaveLayer1Cells=False,CaloTopoIsolationTool=TrigCaloTopoIsolationTool)
-topSequence+=CaloBandwidth(EtInSigma=2.0,CaloNoiseTool=theCaloNoiseTool)
+topSequence+=CaloBandwidth(EtInSigma=2.0)
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgo",InputClusterName="SCluster")
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgoCl",InputClusterName="SClusterCl")
 topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgo",InputClusterName="SCluster")

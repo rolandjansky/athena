@@ -8,45 +8,42 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 
 namespace Trk {
-  class Track;
+    class Track;
 }
 
 namespace MuonAlign {
-  class MuonAlignErrorExampleAlg : public AthAlgorithm {
+    class MuonAlignErrorExampleAlg : public AthAlgorithm {
     public:
-      MuonAlignErrorExampleAlg(const std::string& name, ISvcLocator* pSvcLocator);
-      StatusCode initialize();
-      StatusCode execute();
-      StatusCode finalize();
+        MuonAlignErrorExampleAlg(const std::string& name, ISvcLocator* pSvcLocator);
+        StatusCode initialize();
+        StatusCode execute();
+        StatusCode finalize();
+
     private:
-      void muonTrack(const Trk::Track* track) const;
+        void muonTrack(const Trk::Track* track) const;
 
-      ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this,"alignErrorTool","MuonAlign::AlignmentErrorTool"};
+        ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this, "alignErrorTool", "MuonAlign::AlignmentErrorTool"};
 
-      // FOR DEBUGGING
-      TFile* m_debug;
-      TH1F* m_cham_per_dev;
-      TH1F* m_dev_per_track;
-      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-      ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool{this,"idTool","MuonCalib::IdToFixedIdTool/IdToFixedIdTool"};
-      std::string hardwareName(MuonCalib::MuonFixedId calibId) const;
-      std::string side(MuonCalib::MuonFixedId calibId) const;
-      std::string sectorString(MuonCalib::MuonFixedId calibId) const;
-      int sector(MuonCalib::MuonFixedId calibId) const;
-      int hardwareEta(MuonCalib::MuonFixedId calibId) const;
-      bool isSmallSector(MuonCalib::MuonFixedId calibId) const;
-
-  };
-}
+        // FOR DEBUGGING
+        TFile* m_debug;
+        TH1F* m_cham_per_dev;
+        TH1F* m_dev_per_track;
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+        ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool{this, "idTool", "MuonCalib::IdToFixedIdTool/IdToFixedIdTool"};
+        std::string hardwareName(MuonCalib::MuonFixedId calibId) const;
+        std::string side(MuonCalib::MuonFixedId calibId) const;
+        std::string sectorString(MuonCalib::MuonFixedId calibId) const;
+        int sector(MuonCalib::MuonFixedId calibId) const;
+        int hardwareEta(MuonCalib::MuonFixedId calibId) const;
+        bool isSmallSector(MuonCalib::MuonFixedId calibId) const;
+    };
+}  // namespace MuonAlign
 
 #endif
-

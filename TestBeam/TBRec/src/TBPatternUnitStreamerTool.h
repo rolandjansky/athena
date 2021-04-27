@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBPATTERNUNITSTREAMERTOOL_H
@@ -44,9 +44,9 @@ class TBPatternUnitStreamerTool : public TBEventStreamerTool
 			    const IInterface* parent);
   virtual ~TBPatternUnitStreamerTool();
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual StatusCode accept();
+  virtual StatusCode accept() override;
 
  protected:
 

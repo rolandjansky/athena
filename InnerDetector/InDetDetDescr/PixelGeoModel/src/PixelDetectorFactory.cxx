@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactory.h"
@@ -35,7 +35,7 @@ using InDetDD::SiCommonItems;
 PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComps,
 					   const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_detectorManager(0),
+    m_detectorManager(nullptr),
     m_useDynamicAlignFolders(false)
 {
   // Create the detector manager
@@ -50,7 +50,6 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
   m_geometryManager->SetDC1Geometry(switches.dc1Geometry());
   m_geometryManager->SetAlignable(switches.alignable());
   m_geometryManager->SetInitialLayout(switches.initialLayout());
-  m_geometryManager->SetSLHC(switches.slhc());
   m_geometryManager->SetIBL(switches.ibl());
 
   // get switch for DBM
@@ -209,7 +208,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   // Check that there are no missing elements.
   // Bypass checks for standard ATLAS.
-  if (m_geometryManager->ibl() || m_geometryManager->slhc()) {
+  if (m_geometryManager->ibl()) {
     doChecks();
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INSWCalibTool_h
 #define INSWCalibTool_h
@@ -19,13 +19,13 @@ static const InterfaceID IID_INSWCalibTool("Muon::INSWCalibTool",1,0);
 namespace NSWCalib { 
 
   struct CalibratedStrip {
-    double charge;
-    double time;
-    double resTime;
-    double distDrift;
-    double resTransDistDrift;
-    double resLongDistDrift;
-    double dx;
+    double charge = 0;
+    double time = 0;
+    double resTime = 0;
+    double distDrift = 0;
+    double resTransDistDrift = 0;
+    double resLongDistDrift = 0;
+    double dx = 0;
     Identifier identifier;
   };
 
@@ -50,6 +50,7 @@ namespace Muon {
     virtual StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip&calibStrip) const = 0;
     virtual StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
     virtual StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const = 0;
+    virtual float peakTime() const = 0;
   };
   
 }

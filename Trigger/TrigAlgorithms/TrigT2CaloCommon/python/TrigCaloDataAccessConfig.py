@@ -71,6 +71,9 @@ def trigCaloDataAccessSvcCfg( flags ):
     
     acc.merge( LArRoIMapCfg( flags ) )
 
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
+    acc.merge( LArOnOffIdMappingCfg( flags ))
+
     #setup region selector
     from RegionSelector.RegSelToolConfig import (regSelTool_TTEM_Cfg,regSelTool_TTHEC_Cfg,
                                                  regSelTool_FCALEM_Cfg,regSelTool_FCALHAD_Cfg,regSelTool_TILE_Cfg)

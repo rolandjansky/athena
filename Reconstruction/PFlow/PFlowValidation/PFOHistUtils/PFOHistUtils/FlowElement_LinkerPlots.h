@@ -9,6 +9,7 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/FlowElement.h"
 #include <string>
+#include "xAODEventInfo/EventInfo.h"
 
 namespace PFO{
 
@@ -16,11 +17,8 @@ namespace PFO{
 
   public:
     FlowElement_LinkerPlots(PlotBase *pParent, std::string sDir, std::string sFEContainerName, bool doNeutralFE);
-//~FlowElement_LinkerPlots();    
 
-
-
-    void fill(const xAOD::FlowElement& FE);
+    void fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo);
 
   private:
 

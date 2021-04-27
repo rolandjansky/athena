@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcROD_Decoder.h"
@@ -14,8 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 Muon::RpcROD_Decoder::RpcROD_Decoder (const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type,name,parent) {
-    declareInterface< IRpcROD_Decoder  >( this );
+  base_class(type,name,parent) {
     declareProperty("SpecialROBNumber",m_specialROBNumber=-1);
     declareProperty("Sector13Data",m_sector13Data=false);
     declareProperty("DataErrorPrintLimit",m_maxprinterror=1000);

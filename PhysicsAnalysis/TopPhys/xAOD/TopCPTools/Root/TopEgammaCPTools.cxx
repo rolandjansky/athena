@@ -27,6 +27,7 @@
 namespace top {
   EgammaCPTools::EgammaCPTools(const std::string& name) :
     asg::AsgTool(name),
+    m_egammaCalibrationModel("es2018_R21_v0"),
     m_electronEffTriggerFile("SetMe"),
     m_electronEffTriggerLooseFile("SetMe"),
     m_electronEffSFTriggerFile("SetMe"),
@@ -87,6 +88,10 @@ namespace top {
 
     if (m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()) {
       if (m_config->makeAllCPTools()) {// skiping calibrations on mini-xAODs
+        if(m_config->egammaCalibration() != m_egammaCalibrationModel){
+          m_config->setPrintEgammaCalibModelWarning(true);
+          m_egammaCalibrationModel = m_config->egammaCalibration();
+        }
         top::check(setupCalibration(), "Failed to setup Egamma calibration tools");
       }
       if (m_config->useFwdElectrons() && m_config->makeAllCPTools()) {
@@ -138,7 +143,7 @@ namespace top {
     } else {
       IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-                                  "ESModel", "es2018_R21_v0"),
+                                  "ESModel", m_egammaCalibrationModel),
                  "Failed to set ESModel for " + egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                   "decorrelationModel",
@@ -337,6 +342,7 @@ namespace top {
 	electronIsolation == "PLVLoose") {
       m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
     }
+    else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIso = nullptr;
     else {
       m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
 						      electronIsolation, "", dataType, "TOTAL", "", "");
@@ -345,6 +351,7 @@ namespace top {
 	electronIsolationLoose == "PLVLoose") {
       m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
     }
+    else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLoose = nullptr;
     else {
       m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
 							   electronIDLoose, electronIsolationLoose, "", dataType, "TOTAL", "",
@@ -412,6 +419,7 @@ namespace top {
 							  m_config->electronEfficiencySystematicModelEtaBinning(),
 							  m_config->electronEfficiencySystematicModelEtBinning());
       }
+      else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIsoCorrModel = nullptr;
       else {
 	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
 								 electronID, electronIsolation, "", dataType,
@@ -427,6 +435,7 @@ namespace top {
 							       m_config->electronEfficiencySystematicModelEtBinning());
 
       }
+      else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLooseCorrModel = nullptr;
       else {
 	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
 								      m_electronEffSFIsoLooseFile, "", electronIDLoose,

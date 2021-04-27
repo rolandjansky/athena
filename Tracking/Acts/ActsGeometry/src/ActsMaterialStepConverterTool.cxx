@@ -63,7 +63,7 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
     Acts::MaterialInteraction interaction;
 
     Acts::Vector3 pos{step->hitX(), step->hitY(), step->hitZ()};
-    Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), step->rho()),step->steplength());
+    Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), (step->rho() * Acts::UnitConstants::g) ),step->steplength());
     interaction.position = pos;
 
     double x_dir = pos.x() - prev_pos.x();

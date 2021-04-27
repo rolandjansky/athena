@@ -21,25 +21,48 @@ trigMultiTrkComboHypoToolDict = {
 }
 
 
-def DimuL2ComboHypoCfg(name):
+def StreamerDimuL2ComboHypoCfg(name):
     log.debug('DimuL2ComboHypoCfg.name = %s ', name)
 
     config = TrigMultiTrkComboHypoConfig()
     hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
         trigSequenceName = 'Dimu',
         trigLevel = 'L2',
         trackCollection='HLT_IDTrack_Muon_FTF')
     return hypo
 
+def StreamerDimuL2IOComboHypoCfg(name):
+    log.debug('DimuL2IOComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'Dimu',
+        trigLevel = 'L2IO')
+    return hypo
+
 def DimuEFComboHypoCfg(name):
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
     log.debug('DimuEFComboHypoCfg.name = %s ', name)
 
     config = TrigMultiTrkComboHypoConfig()
     hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
         trigSequenceName = 'Dimu',
         trigLevel = 'EF',
-        muonCollection = muonNames().getNames('RoI').EFCBName)
+        outputTrigBphysCollection = 'HLT_DimuEF')
+    return hypo
+
+def StreamerDimuEFComboHypoCfg(name):
+    log.debug('StreamerDimuEFComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'StreamerDimu',
+        trigLevel = 'EF')
+    hypo.chi2 = 20.
+    hypo.massRanges = [ (100., 6000.) ]
     return hypo
 
 def TrigMultiTrkComboHypoToolFromDict(chainDict):
@@ -49,44 +72,44 @@ def TrigMultiTrkComboHypoToolFromDict(chainDict):
 
 class TrigMultiTrkComboHypoConfig(object):
 
-    def ConfigurationComboHypo(self, trigSequenceName='Dimu', trigLevel='L2', trackCollection='', muonCollection=''):
+    def ConfigurationComboHypo(self, isStreamer='False', trigSequenceName='Dimu', trigLevel='L2', trackCollection='', outputTrigBphysCollection='TrigBphysContainer'):
 
-        trigLevelDict = {'L2':0, 'EF':1}
+        trigLevelDict = {'L2':0, 'L2IO':1, 'EF':2}
 
         try:
             value = trigLevelDict[trigLevel]
             log.debug('TrigMultiTrkComboHypo.trigLevel = %s ', value)
         except KeyError:
-            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
+            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2, L2IO or EF, but %s provided.', trigLevel)
+
+        baseName = 'Streamer'+trigSequenceName+trigLevel if isStreamer else trigSequenceName+trigLevel
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         VertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
-            name = 'TrigBphysFitter_'+trigSequenceName+trigLevel,
+            name = 'TrigBphysFitter_'+baseName,
             FirstMeasuredPoint = False,
             MakeExtendedVertex = False,
             Extrapolator = AtlasExtrapolator())
 
         VertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
-            name = 'VertexPointEstimator_'+trigSequenceName+trigLevel,
+            name = 'VertexPointEstimator_'+baseName,
             MinDeltaR = [-10000., -10000., -10000.],
             MaxDeltaR = [ 10000.,  10000.,  10000.],
             MaxPhi    = [ 10000.,  10000.,  10000.],
             MaxChi2OfVtxEstimation = 2000.)
 
         tool = CompFactory.TrigMultiTrkComboHypo(
-            name = trigSequenceName+trigLevel+'ComboHypo',
+            name = baseName+'ComboHypo',
+            isStreamer = isStreamer,
             trigLevel = trigLevel,
             nTracks = 2,
             massRanges = [ (100., 20000.) ],
             TrackCollectionKey = trackCollection,
-            MuonCollectionKey = muonCollection,
+            TrigBphysCollectionKey = outputTrigBphysCollection,
             VertexFitter = VertexFitter,
             VertexPointEstimator = VertexPointEstimator,
             CheckMultiplicityMap = False,
-            MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+trigSequenceName+trigLevel))
-
-        if trigLevel == 'EF':
-            tool.TrigBphysCollectionKey = 'HLT_'+trigSequenceName+trigLevel
+            MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+baseName))
 
         return tool
 

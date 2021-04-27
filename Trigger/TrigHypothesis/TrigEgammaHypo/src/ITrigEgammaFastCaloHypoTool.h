@@ -12,8 +12,6 @@
 
 
 
-
-
 /**
  * @class Base for tools dooing Egamma Fast Calo Hypo selection
  * @brief 
@@ -31,7 +29,7 @@ class ITrigEgammaFastCaloHypoTool
   FastClusterInfo( TrigCompositeUtils::Decision* d, 
                const TrigRoiDescriptor* r, 
                const xAOD::TrigEMCluster* c,
-	       const xAOD::TrigRingerRings* ring,
+               const xAOD::TrigRingerRings* ring,
                const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
     roi( r ), 
@@ -45,6 +43,8 @@ class ITrigEgammaFastCaloHypoTool
     const TrigRoiDescriptor* roi;
     const xAOD::TrigEMCluster* cluster;
     const xAOD::TrigRingerRings* ringerShape;
+    std::map<std::string, float> valueDecorator;
+    std::map<std::string, bool> pidDecorator;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   

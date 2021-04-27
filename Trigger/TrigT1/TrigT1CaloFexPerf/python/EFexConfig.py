@@ -8,11 +8,6 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
 
     from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as perfFlags
 
-    # the CaloNoiseTool as global tool
-    from AthenaCommon.AppMgr import ToolSvc
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    ToolSvc += CaloNoiseToolDefault()
-
     # eFEX clusters 
     if doEle:
         from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf import LVL1__EFexEMAlgorithm
@@ -38,6 +33,7 @@ def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell',
         algSequence += LVL1__EFexTauAlgorithm(  name="EFexTauAlgorithm",
                                                 InputSuperCellContainer=SuperCellContainer,
                                                 OutputClusterName="eTausPerf",
+                                                UseTileCells=perfFlags.Calo.UseAllCalo(),
                                                 CleanCellContainer=perfFlags.Calo.ApplySCQual(),
                                                 CleanCellContainerSkim=False,
                                                 QualBitMask=perfFlags.Calo.QualBitMask() )

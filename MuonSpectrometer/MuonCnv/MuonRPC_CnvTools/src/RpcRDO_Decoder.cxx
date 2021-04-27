@@ -1,55 +1,29 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcRDO_Decoder.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonDigitContainer/RpcDigit.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRDO/RpcFiredChannel.h"
 
 Muon::RpcRDO_Decoder::RpcRDO_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent ) :
-  AthAlgTool(type,name,parent)
+  base_class(type,name,parent)
 {
-  declareInterface<IRPC_RDO_Decoder>( this );
 }
 
 StatusCode Muon::RpcRDO_Decoder::initialize()
 {
-  ATH_CHECK(AthAlgTool::initialize());
   ATH_MSG_DEBUG ("initialize");
-        
-  // get RPC cablingSvc
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
-  if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
-  
-  sc = RpcCabGet->giveCabling(m_cablingSvc);
-  if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
-    m_cablingSvc = nullptr;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
-  }
-
   ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
-
-
 std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel* fChan,
 							uint16_t& sectorID, uint16_t& padId,
-							uint16_t& cmaId, const RpcCablingCondData* /*rpcCab*/) const
+							uint16_t& cmaId, const RpcCablingCondData* rpcCab) const
 { 
   std::vector<RpcDigit*>* rpcDigitVec = new std::vector<RpcDigit*>;
   
@@ -71,7 +45,7 @@ std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel* fC
 
   // Get the list of offline channels corresponding to the 
   // online identifier
-  std::list<Identifier> idList = m_cablingSvc->give_strip_id(side, slogic, padId, cmaId, ijk, channel);
+  std::list<Identifier> idList = rpcCab->give_strip_id(side, slogic, padId, cmaId, ijk, channel, &m_idHelperSvc->rpcIdHelper());
  
   std::list<Identifier>::const_iterator it_list;
   rpcDigitVec->reserve(idList.size());
@@ -92,7 +66,7 @@ std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel* fC
 
 std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChannel* fChan,
 							       uint16_t& sectorID, uint16_t& padId,
-							       uint16_t& cmaId, double& time, const RpcCablingCondData* /*rpcCab*/) const
+							       uint16_t& cmaId, double& time, const RpcCablingCondData* rpcCab) const
 { 
   std::vector<Identifier>* rpcIdVec = new std::vector<Identifier>;
   
@@ -114,7 +88,7 @@ std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChan
 
   // Get the list of offline channels corresponding to the 
   // online identifier
-  std::list<Identifier> idList = m_cablingSvc->give_strip_id(side, slogic, padId, cmaId, ijk, channel);
+  std::list<Identifier> idList = rpcCab->give_strip_id(side, slogic, padId, cmaId, ijk, channel, &m_idHelperSvc->rpcIdHelper());
  
   rpcIdVec->assign(idList.begin(), idList.end());
 

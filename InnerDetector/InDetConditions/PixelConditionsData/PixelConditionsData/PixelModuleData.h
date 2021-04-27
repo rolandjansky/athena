@@ -164,23 +164,6 @@ class PixelModuleData {
     void setCablingMapFileName(std::string cablingMapFileName);
     std::string getCablingMapFileName() const;
 
-    // Map for radiation damage simulation
-    void setFluenceLayer(std::vector<double> fluenceLayer);
-    double getFluenceLayer(int layer) const;
-
-    void setLorentzMap_e(std::vector<PixelHistoConverter> lorentzMap_e);
-    void setLorentzMap_h(std::vector<PixelHistoConverter> lorentzMap_h);
-    const PixelHistoConverter& getLorentzMap_e(int layer) const;
-    const PixelHistoConverter& getLorentzMap_h(int layer) const;
-
-    void setDistanceMap_e(std::vector<PixelHistoConverter> distanceMap_e);
-    void setDistanceMap_h(std::vector<PixelHistoConverter> distanceMap_h);
-    const PixelHistoConverter& getDistanceMap_e(int layer) const;
-    const PixelHistoConverter& getDistanceMap_h(int layer) const;
-
-    void setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap);
-    const PixelHistoConverter& getRamoPotentialMap(int layer) const;
-
     // Distortion parameters
     void setDistortionInputSource(int distortionInputSource);
     int getDistortionInputSource() const;
@@ -301,13 +284,6 @@ class PixelModuleData {
 
     bool        m_cablingMapToFile;
     std::string m_cablingMapFileName;
-
-    std::vector<double> m_fluenceLayer;
-    std::vector<PixelHistoConverter> m_lorentzMap_e;
-    std::vector<PixelHistoConverter> m_lorentzMap_h;
-    std::vector<PixelHistoConverter> m_distanceMap_e;
-    std::vector<PixelHistoConverter> m_distanceMap_h;
-    std::vector<PixelHistoConverter> m_ramoPotentialMap;
 
     int    m_distortionInputSource;
     int    m_distortionVersion;

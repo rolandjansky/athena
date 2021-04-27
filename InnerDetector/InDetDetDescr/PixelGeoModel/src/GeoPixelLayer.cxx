@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -37,12 +37,12 @@ GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
                              PixelGeometryManager* mgr)
   : GeoVPixelFactory (ddmgr, mgr)
 {
-  m_supportPhysA=0;
-  m_supportPhysC=0;
-  m_supportMidRing=0;
-  m_xformSupportA=0;
-  m_xformSupportC=0;
-  m_xformSupportMidRing=0;
+  m_supportPhysA=nullptr;
+  m_supportPhysC=nullptr;
+  m_supportMidRing=nullptr;
+  m_xformSupportA=nullptr;
+  m_xformSupportC=nullptr;
+  m_xformSupportMidRing=nullptr;
 }
 
 GeoVPhysVol* GeoPixelLayer::Build() {
@@ -70,7 +70,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
-  GeoPixelStaveSupport * staveSupport = 0;
+  GeoPixelStaveSupport * staveSupport = nullptr;
   if (staveLayout ==0 || staveLayout==1) {
     staveSupport = new GeoPixelTMT (m_DDmgr, m_gmt_mgr);
   }
@@ -91,7 +91,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   if(!staveSupport)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endmsg; 
-      return 0;
+      return nullptr;
     }
 
   m_gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<m_gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
@@ -160,36 +160,17 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //std::cout << "Layer Envelope (ladder only):          " 
   //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
 
-  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
-    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
-
-    // Check there is no overlap with support material
-    // Support cylinder is normally on outer side, but code also allows for the possibilty that it is on the inner side.
-    if (rminSupport < layerRadius + layerThicknessP &&
-	rmaxSupport >  layerRadius - layerThicknessN) {
-      m_gmt_mgr->msg(MSG::ERROR) 
-	<< "GeoPixelLayer: Support cylinder clashes with ladder. Support: " << rminSupport << " to " << rmaxSupport
-	<< " , Ladder extent: " << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP << endmsg;
-    }
-    layerThicknessN = std::max(layerThicknessN, layerRadius - rminSupport);
-    layerThicknessP = std::max(layerThicknessP, rmaxSupport - layerRadius);
-    //std::cout << "Support                          : " << rminSupport << " to " << rmaxSupport << std::endl; 
-  }
-  //std::cout << "Layer Envelope (ladder + support):     " 
-  //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
-
   //
-  // Make ladder services (non SLHC) and calculate envelope dimensions
+  // Make ladder services and calculate envelope dimensions
   //
   // Variables that are used later
   int maxLadType = 0;
   std::vector<GeoVPhysVol *> ladderServicesArray;
   GeoTrf::Transform3D ladderServicesTransform(GeoTrf::Transform3D::Identity());
-  GeoVPhysVol* pigtailPhysVol = 0;
+  GeoVPhysVol* pigtailPhysVol = nullptr;
   GeoTrf::Transform3D transPigtail(GeoTrf::Transform3D::Identity());
 				
-  // Only make services in non SLHC geometries 
+  // Only make services in non IBL geometries
   if (staveLayout == 0) {
     //
     // Make LadderServices 
@@ -210,7 +191,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     // NB. vector initializes its contents to zero.
     //std::vector<GeoVPhysVol *> ladderServicesArray(2*(maxLadType+1));
     ladderServicesArray.resize(2*(maxLadType+1));
-    GeoPixelLadderServices *firstLadderServices = 0;
+    GeoPixelLadderServices *firstLadderServices = nullptr;
     for(int iPhi = 0; iPhi < nSectors; iPhi++) {
       m_gmt_mgr->SetPhi(iPhi);
       int ladderType = m_gmt_mgr->PixelFluidOrient(m_gmt_mgr->GetLD(), iPhi);
@@ -344,7 +325,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //   GeoFullPhysVol* layerPhys = new GeoFullPhysVol(layerLog); // phys vol
 
 
-  GeoFullPhysVol* layerPhys = 0;
+  GeoFullPhysVol* layerPhys = nullptr;
  
   //
   // A few variables needed below
@@ -445,32 +426,11 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   }
   //  delete staveSupport;
   
-  if(layerPhys==0)
+  if(layerPhys==nullptr)
   {
       m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
       std::abort();
   } 
-
-  // SLHC only
-  // Add the "support layer" -- another way to add extra material
-  // but it has to be inside the logical layer volume
-  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
-    std::ostringstream slname;
-    slname << "PixelLayer" << m_gmt_mgr->GetLD() << "Support";
-    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
-    const GeoTube* supportCylEnv = new GeoTube(rminSupport, rmaxSupport, 0.5*length);
-    // Will generalize later. 
-    std::string matName = m_gmt_mgr->getMaterialName("LayerSupport", m_gmt_mgr->GetLD());
-    if (matName.empty()) {
-      m_gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endmsg;
-      matName = "std::Carbon";
-    }
-    const GeoMaterial *supportMat = m_mat_mgr->getMaterial(matName);
-    const GeoLogVol* supportCylLog = new GeoLogVol(slname.str(), supportCylEnv, supportMat);
-    GeoPhysVol * supportCyl = new GeoPhysVol(supportCylLog);
-    layerPhys->add(supportCyl);
-  }
 
   //
   // Extra Material. I don't think there is much room but we provide the hooks anyway   

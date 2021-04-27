@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -43,26 +43,31 @@ using namespace std;
 
 void MulticopyProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
 char *toRelease;
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
+XMLCh * alignable_tmp = XMLString::transcode("alignable");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 
     OUTPUT_STREAM;
-
-    bool alignable = element->hasAttribute(XMLString::transcode("alignable"));
+    
+    bool alignable = element->hasAttribute(alignable_tmp);
 //
 //    How many copies?
 //
     int nCopies;
-    toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("n")));
+    XMLCh * n_tmp = XMLString::transcode("n");
+    toRelease = XMLString::transcode(element->getAttribute(n_tmp));
     nCopies = gmxUtil.evaluate(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&n_tmp);
 //
 //    See if it is in the map; if so, xfList is already done. If not, fill xfList.
 //
-    toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    XMLCh * name_tmp = XMLString::transcode("name");
+    toRelease = XMLString::transcode(element->getAttribute(name_tmp));
     string name(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&name_tmp);
     map<string, GeoNodeList>::iterator entry;
     GeoNodeList *xfList;
     if ((entry = m_map.find(name)) == m_map.end()) { // Not in registry; make a new item
@@ -75,11 +80,13 @@ DOMDocument *doc = element->getOwnerDocument();
 //    Loopvar Variable name
 //
         string varname, firstElement;
-        bool hasVarname = (element->getAttributeNode(XMLString::transcode("loopvar")) != 0);
+	XMLCh * loopvar_tmp = XMLString::transcode("loopvar");
+        bool hasVarname = (element->getAttributeNode(loopvar_tmp) != 0);
         if (hasVarname) {
-            toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("loopvar")));
+            toRelease = XMLString::transcode(element->getAttribute(loopvar_tmp));
             varname = toRelease;
             XMLString::release(&toRelease);
+	    XMLString::release(&loopvar_tmp);
             // Check it is a vector
             firstElement = varname + "_0";
             if (!gmxUtil.eval.findVariable(firstElement.c_str())) {
@@ -177,27 +184,31 @@ DOMDocument *doc = element->getOwnerDocument();
         gmxUtil.tagHandler.assembly.zeroId(elem);
     }
     else if (nodeName == "transform") { // Object is either an assemlyref or logvolref, and there is only one of these
-        DOMNodeList *lvList = element->getElementsByTagName(XMLString::transcode("logvolref"));
-        if (lvList->getLength() > 0) {
-            const XMLCh *idref =  dynamic_cast<DOMElement *> (lvList->item(0))->getAttribute(XMLString::transcode("ref"));
-            DOMElement *lv = doc->getElementById(idref);
-            gmxUtil.tagHandler.logvol.zeroId(lv);
-        }
-        else {
-            DOMNodeList *asList = element->getElementsByTagName(XMLString::transcode("assemblyref"));
-            if (asList->getLength() > 0) {
-                const XMLCh *idref =  dynamic_cast<DOMElement *> (asList->item(0))->getAttribute(XMLString::transcode("ref"));
-                DOMDocument *doc = element->getOwnerDocument();
-                DOMElement *as = doc->getElementById(idref);
-                gmxUtil.tagHandler.assembly.zeroId(as);
-            }
-            else {
-                msglog << MSG::FATAL << 
-                    "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
+      XMLCh * logvolref_tmp = XMLString::transcode("logvolref");
+      DOMNodeList *lvList = element->getElementsByTagName(logvolref_tmp);
+      if (lvList->getLength() > 0) {
+	const XMLCh *idref =  dynamic_cast<DOMElement *> (lvList->item(0))->getAttribute(ref);
+	DOMElement *lv = doc->getElementById(idref);
+	gmxUtil.tagHandler.logvol.zeroId(lv);
+	XMLString::release(&logvolref_tmp);
+      }
+      else {
+	XMLCh * assemblyref_tmp = XMLString::transcode("assemblyref") ;
+	DOMNodeList *asList = element->getElementsByTagName(assemblyref_tmp);
+	if (asList->getLength() > 0) {
+	  const XMLCh *idref =  dynamic_cast<DOMElement *> (asList->item(0))->getAttribute(ref);
+	  DOMDocument *doc = element->getOwnerDocument();
+	  DOMElement *as = doc->getElementById(idref);
+	  gmxUtil.tagHandler.assembly.zeroId(as);
+	  XMLString::release(&assemblyref_tmp);
+	}
+	else {
+	  msglog << MSG::FATAL << 
+	    "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
                     << "Exiting Athena" << endmsg;
-                exit(999); // Should do better
-            }
-        }
+	  exit(999); // Should do better
+	}
+      }
     }
 //
 //    If alignable, add transformation to DetectorManager via GmxInterface.
@@ -213,7 +224,7 @@ DOMDocument *doc = element->getOwnerDocument();
 //
     int level;
     if (alignable) {
-        istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")))) >> level;
+        istringstream(XMLString::transcode(element->getAttribute(alignable_tmp))) >> level;
     }
 //
 //    Add transforms and physvols etc. to list to be added
@@ -239,4 +250,8 @@ DOMDocument *doc = element->getOwnerDocument();
             index.clear();
         }
     }
+
+    XMLString::release(&ref);
+    XMLString::release(&alignable_tmp);
+
 }

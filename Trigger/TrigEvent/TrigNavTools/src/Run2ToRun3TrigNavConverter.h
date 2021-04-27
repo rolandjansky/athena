@@ -10,7 +10,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigNavigation.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -47,6 +47,9 @@ private:
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigNavWriteKey { this, "TrigNavWriteKey", "HLTNav_all" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigSummaryWriteKey { this, "TrigSummaryWriteKey", "HLTNav_Summary" };
 
+    Gaudi::Property<bool> m_onlyFeaturePriting { this, "onlyFeaturePrinting", false, "When enabled do not do conversion but scan all chains in all events for features attached to related TEs"};
+
+
     std::set<CLID> m_setCLID;
     StatusCode addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, HLT::TriggerElement::FeatureAccessHelper helper, TrigCompositeUtils::Decision *decisionPtr, bool kRoI=false) const;
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorTEfeatures(const HLT::TriggerElement *te_ptr) const;
@@ -56,6 +59,9 @@ private:
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorROIfeatures(const HLT::TriggerElement *te_ptr) const;
     
     using TE_Decision_map = std::map<HLT::TriggerElement*, std::vector<TrigCompositeUtils::Decision*>>;
+    //!< iterates over all chains and for each prints features associated to it
+    StatusCode printFeatures(const HLT::StandaloneNavigation& ) const;
+
 };
 
 #endif // TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTER_H

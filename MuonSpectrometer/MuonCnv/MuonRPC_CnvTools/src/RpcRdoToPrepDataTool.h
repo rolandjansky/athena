@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
@@ -16,16 +16,23 @@
 
 namespace Muon {
 /// This class is only used in a single-thread mode
-class ATLAS_NOT_THREAD_SAFE RpcRdoToPrepDataTool : virtual public RpcRdoToPrepDataToolCore {
+class ATLAS_NOT_THREAD_SAFE RpcRdoToPrepDataTool
+  : public extends<RpcRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
+{
 public:
   RpcRdoToPrepDataTool( const std::string&, const std::string&, const IInterface* );
   virtual ~RpcRdoToPrepDataTool()=default;
   virtual StatusCode initialize() override;
-  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
-  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const override;
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) const override;
+
+  virtual void printPrepData() const override;
 
 protected:
-  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
+  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) const;
+
+private:
+  mutable State m_state;
 };
 
 }

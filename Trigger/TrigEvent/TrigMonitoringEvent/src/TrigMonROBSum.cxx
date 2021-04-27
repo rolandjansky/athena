@@ -1,29 +1,24 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <iostream>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonROBSum.h"
-#include "TrigMonMSG.h"
 
 namespace SumBits
 {
-  uint32_t maskHist  = 0x0000000f;
-  uint32_t maskNrob  = 0x00000ff0;
-  uint32_t maskSize  = 0xfffff000;
+  const uint32_t maskHist  = 0x0000000f;
+  const uint32_t maskNrob  = 0x00000ff0;
+  const uint32_t maskSize  = 0xfffff000;
 
-  uint32_t shiftNrob =  4;
-  uint32_t shiftSize = 12;
+  const uint32_t shiftNrob =  4;
+  const uint32_t shiftSize = 12;
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonROBSum");
-}
 
 //--------------------------------------------------------------------------------------  
 TrigMonROBSum::TrigMonROBSum()
@@ -48,7 +43,7 @@ bool TrigMonROBSum::setHistory(uint32_t hist)
     m_word |= hist;
     return true;
   }
-  MSGService::msg.Log("TrigMonROBSum::setHistory error! Bad int", MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonROBSum") << "setHistory: Bad int";
   return false;
 }
 
@@ -63,7 +58,7 @@ bool TrigMonROBSum::setNROB(uint32_t nrob)
     m_word |= (nrob << SumBits::shiftNrob);
     return true;
   }
-  MSGService::msg.Log("TrigMonROBSum::setNROB error! Bad int", MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonROBSum") << "setNROB: Bad int";
   return false;
 }
 
@@ -78,7 +73,7 @@ bool TrigMonROBSum::setSize(uint32_t size)
     m_word |= (size << SumBits::shiftSize);
     return true;
   }
-  MSGService::msg.Log("TrigMonROBSum::setSize error! Bad int", MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonROBSum") << "setSize: Bad int";
   return false;
 }
 

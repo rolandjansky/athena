@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4ShowerLibSvc/LArG4ShowerLibSvc.h"
@@ -43,8 +43,7 @@ LArG4ShowerLibSvc::~LArG4ShowerLibSvc()
 
 StatusCode LArG4ShowerLibSvc::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name()
-               << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing");
 
   std::vector<std::string>::const_iterator iter;
 

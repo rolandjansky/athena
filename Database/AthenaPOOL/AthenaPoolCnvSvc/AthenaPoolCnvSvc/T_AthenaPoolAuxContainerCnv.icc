@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.icc
@@ -9,6 +9,7 @@
  */
 
 
+#include "AthenaPoolCnvSvc/exceptions.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/getThinningCache.h"
 
@@ -46,8 +47,13 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXST
   try {
      const SG::ThinningInfo* info = SG::getThinningInfo (key2);
      return SG::copyThinned (*trans, info).release();
-  }catch( const std::exception &ex ) {
-     throw std::runtime_error( std::string("Exception from AuxContainer Thinning of type: ") + typeid(ex).name() + ", msg: " + ex.what());
+  }
+  catch( const std::exception &ex ) {
+    AthenaPoolCnvSvc::throwExcCaughtException (__PRETTY_FUNCTION__,
+                                               "thinning aux container",
+                                               ex,
+                                               typeid(AUXSTORE),
+                                               key);
   }
 }
 

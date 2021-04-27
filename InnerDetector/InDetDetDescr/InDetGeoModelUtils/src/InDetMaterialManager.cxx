@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -25,20 +25,20 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
   : m_managerName(managerName),
   m_msg(managerName),
   m_extraFunctionality(false),
-  m_athenaComps(0) {
+  m_athenaComps(nullptr) {
   m_materialManager = retrieveManager(detStore);
 }
 
 // Constructor
 InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
                                            StoreGateSvc* detStore,
-                                           IRDBRecordset_ptr weightTable,
+                                           const IRDBRecordset_ptr& weightTable,
                                            const std::string& space,
                                            bool extraFunctionality)
   : m_managerName(managerName),
   m_msg(managerName),
   m_extraFunctionality(extraFunctionality),
-  m_athenaComps(0) {
+  m_athenaComps(nullptr) {
   m_materialManager = retrieveManager(detStore);
 
   if (weightTable) addWeightTable(weightTable, space);
@@ -51,13 +51,13 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
 }
 
 InDetMaterialManager::InDetMaterialManager(const std::string& managerName, StoreGateSvc* detStore,
-                                           IRDBRecordset_ptr weightTable,
-                                           IRDBRecordset_ptr compositionTable,
+                                           const IRDBRecordset_ptr& weightTable,
+                                           const IRDBRecordset_ptr& compositionTable,
                                            const std::string& space)
   : m_managerName(managerName),
   m_msg(managerName),
   m_extraFunctionality(true),
-  m_athenaComps(0) {
+  m_athenaComps(nullptr) {
   m_materialManager = retrieveManager(detStore);
 
   if (weightTable) addWeightTable(weightTable, space);
@@ -105,7 +105,7 @@ InDetMaterialManager::getMaterial(const std::string& materialName) {
 
 bool
 InDetMaterialManager::hasMaterial(const std::string& materialName) const {
-  return m_store.find(materialName) != m_store.end();
+  return m_weightMap.find(materialName) != m_weightMap.end();
 }
 
 const GeoMaterial*
@@ -127,7 +127,7 @@ InDetMaterialManager::getAdditionalMaterial(const std::string& materialName) con
   if ((iter = m_store.find(materialName)) != m_store.end()) {
     return iter->second;
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -221,7 +221,7 @@ InDetMaterialManager::getMaterialInternal(const std::string& origMaterialName,
     newName2 = origMaterialName + "Modified";
   }
 
-  const GeoMaterial* newMaterial = 0;
+  const GeoMaterial* newMaterial = nullptr;
 
   // First see if we already have the modified material
   const GeoMaterial* material = getAdditionalMaterial(newName2);
@@ -265,7 +265,7 @@ InDetMaterialManager::getMaterialScaledInternal(const std::string& origMaterialN
   // Don't allow large scale factors
   if (scaleFactor > 1000 || scaleFactor < 0.001) {
     msg(MSG::ERROR) << "Scale factor must be between 0.001 and 1000." << endmsg;
-    return 0;
+    return nullptr;
   }
 
   const GeoMaterial* origMaterial = getMaterialInternal(origMaterialName);
@@ -274,7 +274,7 @@ InDetMaterialManager::getMaterialScaledInternal(const std::string& origMaterialN
   // then just return the orginal material
   if (newName.empty() && scaleFactor == 1.) return origMaterial;
 
-  const GeoMaterial* newMaterial = 0;
+  const GeoMaterial* newMaterial = nullptr;
 
   if (origMaterial) {
     double density = origMaterial->getDensity() * scaleFactor;
@@ -321,7 +321,7 @@ InDetMaterialManager::compareDensity(double d1, double d2) const {
 }
 
 void
-InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::string& space) {
+InDetMaterialManager::addWeightTable(const IRDBRecordset_ptr& weightTable, const std::string& space) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in weight table: " << weightTable->nodeName() << endmsg;
   // If not using geometryDBSvc revert to old version
   if (!db()) {
@@ -361,7 +361,7 @@ InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::s
 }
 
 void
-InDetMaterialManager::addWeightMaterial(std::string materialName, std::string materialBase, double weight,
+InDetMaterialManager::addWeightMaterial(const std::string& materialName, const std::string& materialBase, double weight,
                                         int linearWeightFlag) {
   // Weight in gr
   weight = weight * GeoModelKernelUnits::gram;
@@ -378,7 +378,7 @@ InDetMaterialManager::addWeightMaterial(std::string materialName, std::string ma
 }
 
 void
-InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string& space) {
+InDetMaterialManager::addWeightTableOld(const IRDBRecordset_ptr& weightTable, const std::string& space) {
   for (unsigned int i = 0; i < weightTable->size(); i++) {
     const IRDBRecord* record = (*weightTable)[i];
     std::string materialName = record->getString("MATERIAL");
@@ -406,7 +406,7 @@ InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std
 }
 
 void
-InDetMaterialManager::addCompositionTable(IRDBRecordset_ptr compositionTable, const std::string& space) {
+InDetMaterialManager::addCompositionTable(const IRDBRecordset_ptr& compositionTable, const std::string& space) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in composition table: " << compositionTable->nodeName() << endmsg;
 
   if (!db()) {
@@ -431,7 +431,7 @@ InDetMaterialManager::addCompositionTable(IRDBRecordset_ptr compositionTable, co
 }
 
 void
-InDetMaterialManager::addScalingTable(IRDBRecordset_ptr scalingTable) {
+InDetMaterialManager::addScalingTable(const IRDBRecordset_ptr& scalingTable) {
   if (!scalingTable) return;
 
   if (db()->getTableSize(scalingTable) == 0) return;
@@ -466,7 +466,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string& materialName, doub
   // Make sure we have a valid volume size.
   if (volume <= 0) {
     msg(MSG::ERROR) << "Invalid volume : " << volume << endmsg;
-    return 0;
+    return nullptr;
   }
 
   // Find if material is in the weight table.
@@ -543,7 +543,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& materialName
   // Make sure we have a valid volume size.
   if (volume <= 0 || length <= 0) {
     msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endmsg;
-    return 0;
+    return nullptr;
   }
 
   // First look in the predefinded collections
@@ -612,7 +612,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
   // Make sure we have a valid volume size.
   if (volume <= 0 || length <= 0) {
     msg(MSG::ERROR) << "Invalid volume or length : " << volume << ", " << length << endmsg;
-    return 0;
+    return nullptr;
   }
 
   if (!factors.empty() && factors.size() < materialComponents.size()) {
@@ -746,7 +746,7 @@ InDetMaterialManager::getMaterialInternal(const std::string& name,
                                           const std::vector<std::string>& materialComponents,
                                           const std::vector<double>& fracWeight,
                                           double density) {
-  const GeoMaterial* newMaterial = 0;
+  const GeoMaterial* newMaterial = nullptr;
 
   // First see if we already have the material
   const GeoMaterial* material = getAdditionalMaterial(name);
@@ -776,7 +776,7 @@ const IGeometryDBSvc*
 InDetMaterialManager::db() {
   if (m_athenaComps) return m_athenaComps->geomDB();
 
-  return 0;
+  return nullptr;
 }
 
 void
@@ -834,7 +834,7 @@ InDetMaterialManager::addTextFileMaterials() {
         // If not flag that there are undefined materials and go to next material
         bool compsDefined = true;
         for (unsigned int iComp = 0; iComp < tmpMat.numComponents(); ++iComp) {
-          std::string compName = tmpMat.compName(iComp);
+          const std::string& compName = tmpMat.compName(iComp);
           MatMap::iterator iter2 = materials.find(compName);
           if (iter2 != materials.end()) {
             if (!iter2->second.isCreated()) {

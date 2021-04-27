@@ -1,16 +1,20 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCSLSelectorOut_hh
-#define TGCSLSelectorOut_hh
+#ifndef TrigT1TGC_TGCSLSelectorOut_h
+#define TrigT1TGC_TGCSLSelectorOut_h
 
 namespace LVL1TGCTrigger {
 
-const int NCandidateInSLSelector = 2;
+class TGCSLSelectorOut
+{
+ public:
+  static constexpr int s_NCandidateInSLSelector = 2;
 
-class TGCSLSelectorOut {
-public:
+ public:
+  void reset();
+
   void setPtLevel(int order, int ptLevel);
   void setR(int order, int rIn) { m_r[order]=rIn;};
   void setPhi(int order, int phiIn) {m_phi[order]=phiIn;};
@@ -31,14 +35,14 @@ public:
   TGCSLSelectorOut();
   ~TGCSLSelectorOut(){};
 
-private:
+ private:
   int  m_nCandidate;
-  int  m_ptLevel[NCandidateInSLSelector];
-  int  m_r[NCandidateInSLSelector];
-  int  m_phi[NCandidateInSLSelector];
-  int  m_dr[NCandidateInSLSelector];
-  int  m_dphi[NCandidateInSLSelector];
-  bool m_iVeto[NCandidateInSLSelector];
+  int  m_ptLevel[s_NCandidateInSLSelector];
+  int  m_r[s_NCandidateInSLSelector];
+  int  m_phi[s_NCandidateInSLSelector];
+  int  m_dr[s_NCandidateInSLSelector];
+  int  m_dphi[s_NCandidateInSLSelector];
+  bool m_iVeto[s_NCandidateInSLSelector];
 };
 
 } //end of namespace bracket

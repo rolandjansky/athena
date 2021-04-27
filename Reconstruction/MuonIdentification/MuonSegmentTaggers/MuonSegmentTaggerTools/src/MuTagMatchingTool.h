@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuTagMatchingTool_H
@@ -24,6 +24,8 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkGeometry/TrackingGeometry.h"
 
 /**
    @class MuTagMatchingTool
@@ -163,7 +165,11 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool {
         "MuonDetectorManager",
         "Key of input MuonDetectorManager condition data",
     };
-
+    
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc { this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc" };
+    
+    SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey { this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry" };
+        
     bool m_assumeLocalErrors;
     bool m_extrapolatePerigee;
 
@@ -190,6 +196,21 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool {
 
     double m_chamberPullCut;
     double m_combinedPullCut;
+    
+    inline const Trk::TrackingVolume* getVolume(const std::string &vol_name) const {
+        /// Good old way of retrieving the volume via the geometry service
+        if (m_trackingGeometryReadKey.empty()) {
+                return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+        }
+        SG::ReadCondHandle < Trk::TrackingGeometry > handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+        if (!handle.isValid()) {
+            ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
+        }
+        return handle.cptr()->trackingVolume(vol_name);
+    }
+
+
 };
 
 

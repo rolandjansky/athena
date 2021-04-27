@@ -862,7 +862,7 @@ namespace Trk
                                      parameterVector[Trk::phi],
                                      parameterVector[Trk::theta],
                                      parameterVector[Trk::qOverP],
-                                     nullptr).release();
+                                     std::nullopt).release();
 
     for (std::vector<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
          r != measurements.rend();
@@ -1114,8 +1114,8 @@ namespace Trk
         if (!(**m).isPositionMeasurement()) continue;
         if (!endIndetMeasurement
             && (**m).hasIntersection(FittedTrajectory)
-            && ((**m).surface()->type() == Surface::SurfaceType::Plane
-                || (**m).surface()->type() == Surface::SurfaceType::Disc)) {
+            && ((**m).surface()->type() == Trk::SurfaceType::Plane
+                || (**m).surface()->type() == Trk::SurfaceType::Disc)) {
           const TrackSurfaceIntersection* intersection = &(**m).intersection(FittedTrajectory);
           Amg::Vector3D offset = intersection->direction() * tolerance;
           CurvilinearUVT uvt(intersection->direction());
@@ -2333,7 +2333,7 @@ namespace Trk
         parameterVector[Trk::phi],
         parameterVector[Trk::theta],
         parameterVector[Trk::qOverP],
-        nullptr);
+        std::nullopt);
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();

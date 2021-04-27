@@ -16,11 +16,24 @@
   <class name="LArAutoCorrP" />
   <!-- picked up by iterator pattern below. -->
   <!-- <class name="LArAutoCorrP1" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArAutoCorrP> >" />
   <class name="LArConditionsSubset<LArAutoCorrP>"  id="4E7E36E9-2121-4327-88C5-8A516D6D6D2A" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+  <class name="CondMultChanCollection<LArConditionsSubset<LArAutoCorrP1> >" />
+  <class name="LArConditionsSubset<LArAutoCorrP1>" >
     <field name="m_subsetMap" transient="true" />
   </class>
   <read sourceClass="LArConditionsSubset<LArAutoCorrP>" version="[1-]"
         targetClass="LArConditionsSubset<LArAutoCorrP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
+  <read sourceClass="LArConditionsSubset<LArAutoCorrP1>" version="[1-]"
+        targetClass="LArConditionsSubset<LArAutoCorrP1>" source=""
         target="" >
   <![CDATA[
      // Need to build the map before the object can be used.
@@ -40,6 +53,7 @@
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArCaliPulseParamsP" /> -->
 
+  <class name="CondMultChanCollection<LArConditionsSubset<LArCaliPulseParamsP> >" />
   <class name="LArConditionsSubset<LArCaliPulseParamsP>"  id="D1D15524-04F0-4A75-ABC7-948D90491504" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -64,6 +78,7 @@
   <class name="LArDAC2uAMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArDAC2uAP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArDAC2uAP> >" />
   <class name="LArConditionsSubset<LArDAC2uAP>"  id="00BB980F-D174-4AD7-A5C7-DC66BA71C4D2" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -88,6 +103,7 @@
   <class name="LArDetCellParamsComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArDetCellParamsP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArDetCellParamsP> >" />
   <class name="LArConditionsSubset<LArDetCellParamsP>"  id="11272A20-3A6B-4E1B-B96C-27117868ED09" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -112,6 +128,7 @@
   <class name="LArfSamplMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArfSamplP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArfSamplP> >" />
   <class name="LArConditionsSubset<LArfSamplP>"  id="6E808031-FCAD-4DB6-9246-E5D926790FED" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -135,6 +152,7 @@
   <class name="LArH6OscillationComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArH6OscillationP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArH6OscillationP> >" />
   <class name="LArConditionsSubset<LArH6OscillationP>"  id="425EBF82-9EC7-4A2E-A112-49439F26E45B" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -160,6 +178,7 @@
   <!-- LArSingleFloat subset -->
   <!-- picked up by iterator pattern below. -->
   <!-- <class name="LArSingleFloatP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArSingleFloatP> >" />
   <class name="LArConditionsSubset<LArSingleFloatP>" />
   <!-- ??? why isn't m_subsetMap declared transient here? --->
   <read sourceClass="LArConditionsSubset<LArSingleFloatP>" version="[1-]"
@@ -184,6 +203,7 @@
   <class name="LArMinBiasMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArMinBiasP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArMinBiasP> >" />
   <class name="LArConditionsSubset<LArMinBiasP>"  id="71652545-4809-45A5-9125-5ACA8FB5AC0C" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -208,6 +228,7 @@
   <class name="LArMinBiasAverageMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArMinBiasAverageP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArMinBiasAverageP> >" />
   <class name="LArConditionsSubset<LArMinBiasAverageP>"  id="3235F39A-7C1D-4FB9-9F56-6A6251AC3360" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -234,6 +255,7 @@
   <class name="LArMphysOverMcalP" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArMphysOverMcalP1" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArMphysOverMcalP> >" />
   <class name="LArConditionsSubset<LArMphysOverMcalP>"  id="9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -258,6 +280,7 @@
   <class name="LArNoiseMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArNoiseP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArNoiseP> >" />
   <class name="LArConditionsSubset<LArNoiseP>"  id="A96F4520-9C5E-49E6-89A3-5E26A781CE11" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -287,6 +310,7 @@
     <field name="m_cache" transient="true" />
   </class>
   <class name="LArOFCP" />
+  <class name="CondMultChanCollection<LArConditionsSubset<LArOFCP> >" />
   <class name="LArConditionsSubset<LArOFCP>"  id="3E5389EF-D163-4099-91D9-D3F0EE06C1CD" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -314,6 +338,7 @@
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArPedestalP1" /> -->
   <class name="LArPedestalComplete" />
+  <class name="CondMultChanCollection<LArConditionsSubset<LArPedestalP> >" />
   <class name="LArConditionsSubset<LArPedestalP>"  id="E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -339,6 +364,7 @@
   <class name="LArPhysCaliTdiffComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArPhysCaliTdiffP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArPhysCaliTdiffP> >" />
   <class name="LArConditionsSubset<LArPhysCaliTdiffP>"  id="A7FB91FF-4535-4EB7-87F8-A34BA477ECE0" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -365,6 +391,7 @@
   <class name="LArRampP" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArRampP1" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArRampP> >" />
   <class name="LArConditionsSubset<LArRampP>"  id="4019776D-D528-4401-9CBD-7956C4B00607" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -390,6 +417,7 @@
   <class name="LAruA2MeVMC" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LAruA2MeVP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LAruA2MeVP> >" />
   <class name="LArConditionsSubset<LAruA2MeVP>"  id="CBF815A2-F18C-4C18-9E93-A8EE67CEE59F" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -446,7 +474,7 @@
 
     <class pattern="*_Rb_tree_iterator*"/>
 
-    <class pattern="*<LArConditionsSubset*" />
+    <!--<class pattern="*<LArConditionsSubset*" />-->
 
     <class name="random_access_iterator_tag" />
 

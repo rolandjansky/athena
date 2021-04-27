@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 from AthenaCommon.Logging import logging
@@ -51,8 +51,8 @@ def writeDigitizationMetadata(ConfigFlags):
 
     ## Digitized detector flags: add each enabled detector to the DigitizedDetectors list - might be better to determine this from the OutputStream or CA-itself? Possibly redundant info though?
     digiDets = []
-    for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1']:
-        attrname = "Detector.Geometry"+det
+    for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1','ITkPixel','ITkStrip']:
+        attrname = "Detector.Enable"+det
         if ConfigFlags.hasFlag(attrname):
             testValue = ConfigFlags._get(attrname)
             if testValue:

@@ -23,8 +23,8 @@
 class InDetPerfPlot_TrackParameters: public InDetPlotBase {
 public:
   InDetPerfPlot_TrackParameters(InDetPlotBase* pParent, const std::string& dirName);
-  void fill(const xAOD::TrackParticle& particle);
-  void fill(const xAOD::TruthParticle& particle);
+  void fill(const xAOD::TrackParticle& particle, float weight);
+  void fill(const xAOD::TruthParticle& particle, float weight);
 private:
 
   TH1* m_reco_d0;

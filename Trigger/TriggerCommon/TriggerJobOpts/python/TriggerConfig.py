@@ -106,8 +106,10 @@ def collectFilters( steps ):
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
     decisionObjects.update([ str(d.Decisions) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
+    decisionObjects.update([ str(d.DecisionsProbe) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
+    decisionObjects.discard('') # Unpackers which do not use the PROBE container have an empty string for their WriteHandleKey
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
     return decisionObjects
 
@@ -466,24 +468,14 @@ def triggerPOOLOutputCfg(flags, edmSet):
 
     # Produce trigger metadata
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
-    menuwriter.IsHLTJSONConfig = True
-    menuwriter.IsL1JSONConfig = flags.Trigger.readLVL1FromJSON
-    menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-    menuwriter.WritexAODTriggerMenuJson = True
     menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
+    streamAlg.MetadataItemList += [ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]
 
     # Schedule the insertion of L1 prescales into the conditions store
     # Required for metadata production
     from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg
     acc.merge( L1PrescaleCondAlgCfg( flags ) )
-
-    # Add metadata to the output stream
-    if menuwriter.WritexAODTriggerMenu:
-      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
-
-    if menuwriter.WritexAODTriggerMenuJson:
-      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]
 
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [

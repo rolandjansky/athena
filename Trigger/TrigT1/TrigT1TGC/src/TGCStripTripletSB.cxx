@@ -3,12 +3,14 @@
 */
 
 #include "TrigT1TGC/TGCStripTripletSB.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
 #include <iostream>
 #include <cstdlib>
 
 namespace LVL1TGCTrigger {
 
-TGCStripTripletSB::TGCStripTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
+TGCStripTripletSB::TGCStripTripletSB()
+ : TGCSlaveBoard()
 {}
 
 void TGCStripTripletSB::createSlaveBoardOut()
@@ -21,18 +23,17 @@ void TGCStripTripletSB::createSlaveBoardOut()
   if(m_coincidenceOut!=0){
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
     m_slaveBoardOut->clear();
-    m_slaveBoardOut->setNumberOfData(NumberOfStripTripletSBData);
+    m_slaveBoardOut->setNumberOfData(s_NumberOfStripTripletSBData);
 
     // fill SlaveBoardOut.
     // select largest R hit in each sections.
-    int lengthOfSection = m_lengthOfCoincidenceOut/NumberOfStripTripletSBData;
+    int lengthOfSection = m_lengthOfCoincidenceOut/s_NumberOfStripTripletSBData;
     int i,j;
 #ifdef TGCDEBUG
     std::cout <<" lengthOfCoincidenceOut= "<< m_lengthOfCoincidenceOut<<std::endl
-         <<" NumberOfStripTripletSBData= "<<NumberOfStripTripletSBData<<std::endl
          <<" lengthOfSection= "<<lengthOfSection<<std::endl;
 #endif
-    for( i=0; i<NumberOfStripTripletSBData; i+=1){// i=3:d 2:c 1:b 0:a, 7:d 6:c 5:b 4:a
+    for( i=0; i<s_NumberOfStripTripletSBData; i+=1){// i=3:d 2:c 1:b 0:a, 7:d 6:c 5:b 4:a
       m_slaveBoardOut->setHit(i,false);
       for( j=0; j<lengthOfSection; j+=1) {
         if(m_coincidenceOut->getChannel(j+i*lengthOfSection)){
@@ -42,11 +43,7 @@ void TGCStripTripletSB::createSlaveBoardOut()
         }
       }
       if(m_slaveBoardOut->getHit(i)){
-          m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
-#ifdef TGCCOUT
-          m_slaveBoardOut->getbPos(i)->printb();
-	  std::cout << " " << i << std::endl;
-#endif
+        m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
       }
     }
   }

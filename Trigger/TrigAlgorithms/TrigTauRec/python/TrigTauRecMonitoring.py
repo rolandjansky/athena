@@ -56,7 +56,10 @@ def tauMonitoringCaloOnly():
 
    monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-       
+      
+   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120) 
 
    return monTool
 
@@ -109,6 +112,10 @@ def tauMonitoringCaloOnlyMVA():
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
    monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
 
    return monTool
 
@@ -182,6 +189,10 @@ def tauMonitoringPreselection():
    monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
+   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120) 
+
    return monTool
 
 
@@ -254,6 +265,10 @@ def tauMonitoringPrecision():
    monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
+   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
+
    return monTool
 
 
@@ -324,6 +339,10 @@ def tauMonitoringPrecisionMVA():
 
    monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
 
    return monTool
 

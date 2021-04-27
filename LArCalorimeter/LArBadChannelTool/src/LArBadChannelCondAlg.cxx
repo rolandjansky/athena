@@ -5,6 +5,7 @@
 #include "LArBadChannelTool/LArBadChannelCondAlg.h"
 #include "LArBadChannelTool/LArBadChanBlobUtils.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
 
 
@@ -74,9 +75,18 @@ StatusCode LArBadChannelCondAlg::execute() {
   }
    
   if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
-     
-     const LArOnlineID* onlineID;
-     ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
+ 
+     const LArOnlineID_Base* onlineID;
+     if (m_isSC) {//SuperCell case
+       const LArOnline_SuperCellID* scID;
+       ATH_CHECK(detStore()->retrieve(scID,"LArOnline_SuperCellID"));
+       onlineID=scID;
+     }
+     else {//regular readout
+        const LArOnlineID* onlID;
+	ATH_CHECK(detStore()->retrieve(onlID,"LArOnline_ID"));
+	onlineID=onlID;
+     }
      LArBadChannelDecoder decoder(&(*onlineID), msg());
      std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN);
      for (auto& idBC : bcVec) {

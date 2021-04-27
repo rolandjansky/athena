@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -85,8 +85,8 @@ InDetPriVxFinder::InDetPriVxFinder
 
     SG::WriteHandle<xAOD::VertexContainer> outputVertices (m_vxCandidatesOutputName, ctx);
 
-    xAOD::VertexContainer*    vertexContainer = 0;
-    xAOD::VertexAuxContainer* vertexAuxContainer = 0;
+    xAOD::VertexContainer*    vertexContainer = nullptr;
+    xAOD::VertexAuxContainer* vertexAuxContainer = nullptr;
     std::pair< xAOD::VertexContainer*, xAOD::VertexAuxContainer* > vertexContainerPair
 	= std::make_pair( vertexContainer, vertexAuxContainer );
 
@@ -114,8 +114,8 @@ InDetPriVxFinder::InDetPriVxFinder
     }
 
     // now  re-merge and resort the vertex container and store to SG
-    xAOD::VertexContainer* myVertexContainer = 0;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
+    xAOD::VertexContainer* myVertexContainer = nullptr;
+    xAOD::VertexAuxContainer* myVertexAuxContainer = nullptr;
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*  > myVertexContainerPair
       = std::make_pair( myVertexContainer, myVertexAuxContainer );
         
@@ -173,7 +173,7 @@ InDetPriVxFinder::InDetPriVxFinder
     return StatusCode::SUCCESS;
   }
 
-  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ) const {
+  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, const xAOD::Vertex& vertex ) const {
      if (prefix == "allVertex"){
          auto x        = Monitored::Scalar<double>( "allVertexX",       vertex.x()               ); 
          auto y        = Monitored::Scalar<double>( "allVertexY",       vertex.y()               ); 

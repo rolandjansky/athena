@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
 
 //#include "TrackToCalo/CaloCellCollector.h"
-//#include "CaloInterface/ICaloNoiseTool.h"
 #include "xAODBPhys/BPhysHelper.h"
 //#include "xAODPrimitives/IsolationType.h" //
 
@@ -71,9 +70,6 @@ namespace DerivationFramework {
       std::vector<unsigned int> m_cones;  //I cannot use xAOD::Iso::IsolationType as a type here, as it clashes with setProperty()
       std::vector<std::string> m_passFlags;
 
-
-    //  ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool;  //Removed to reduce requirements
-      //Rec::CaloCellCollector   m_cellCollector;		//Seems to be a plain class, so no need for handles
 
       /// Number of sigma for calo cell noise cut
       float m_sigmaCaloNoiseCut;

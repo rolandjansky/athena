@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # specifies Tower/TopoCluster -> TopoTower
 from AthenaCommon.JobProperties import jobproperties as jp
@@ -111,8 +111,6 @@ class CaloTopoTowerGetter ( Configured )  :
                 theCaloTopoTowerAlgorithm.MinimumClusterEnergy   = -1000000000.0
                 theCaloTopoTowerAlgorithm.CellEnergySignificance = -1.
 
-                # noise tool
-                theCaloTopoTowerAlgorithm.UseCaloNoiseTool       = False
 
                 ########################
 

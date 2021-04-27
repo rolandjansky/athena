@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -565,7 +565,7 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, vecTsos,nullptr);
   
   return newTrack;
 

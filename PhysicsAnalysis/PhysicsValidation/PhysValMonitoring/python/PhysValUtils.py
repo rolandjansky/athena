@@ -87,3 +87,83 @@ def addOriginCorrectedClusters(algseq,doLC,doEM):
         ctools += [jtm.JetConstitSeq_EMOrigin]
 
     return ctools
+
+################################################################################################
+
+def getHistogramDefinitions(fileName, usage, use_group):
+    import os.path
+    import json
+
+    # vars required in the input json
+    requiredKeys = ['title', 'xtitle', 'ytitle', 'path', 'xbins', 'xmin', 'xmax', 'type']
+    # define a order for the keys in the output list
+    position = {'name': 0, 'title': 1, 'path': 2, 'xbins': 3, 'xmin': 4, 'xmax': 5, 'type': 6, 'ymin': 7, 'ymax': 8}
+
+    # check if the path exists
+    if not os.path.isfile(fileName):
+        raise IOError("This path to the file does not exist:" + fileName)
+    
+    # read file
+    file_dict = {}
+    with open(fileName) as json_file:
+        file_dict = json.load(json_file)
+    
+    # check if the file has the right keys in the dict
+    for group in file_dict:
+        for var in file_dict[group]:
+            for required_key in requiredKeys:
+                if required_key not in file_dict[group][var]:
+                    raise IOError("The key " + required_key + " is missing in the dict for the variable " + var + ".")
+    
+    # read the right parts of the dict 
+    list = []
+    # loop over all groups
+    for group in file_dict:
+        # skip that group if it is not asked for
+        if not (use_group == 'ALL' or group == use_group) or group == 'template':
+            continue
+        # loop over all vars
+        for var in file_dict[group]:
+            # only fill the usage dict with this var if the usage exists in the 'path' dict
+            if usage in file_dict[group][var]['path']:
+                # if the dict has the key forEachTruthType -> expand the one dict into one for each type
+                if 'forEach' in file_dict[group][var]:
+                    for type in file_dict[group][var]['forEach']:
+                        var_list = ['', '', '', '', '', '', '', '', '']
+                        # adapt the new variable name
+                        new_var_name = var + '_' + type
+                        # fill the name
+                        var_list[position['name']] = str(new_var_name)
+                        # merge the tile keys
+                        var_list[position['title']] = str(file_dict[group][var]['title'] + ' ' + type + ';' + file_dict[group][var]['xtitle'] + ';' + file_dict[group][var]['ytitle'])
+                        # get the right path
+                        var_list[position['path']] = str(file_dict[group][var]['path'][usage])
+                        # just copy the rest
+                        for key in ['xbins', 'xmin', 'xmax', 'type']:
+                            var_list[position[key]] = str(file_dict[group][var][key])
+                        if(file_dict[group][var]['type'] == 'TProfile'):
+                            var_list[position['ymin']] = str(file_dict[group][var]['ymin'])
+                            var_list[position['ymax']] = str(file_dict[group][var]['ymax'])
+                        # append the current variable to the list
+                        list.append(var_list)
+                else:
+                    var_list = ['', '', '', '', '', '', '', '', '']
+                    # fill the name
+                    var_list[position['name']] = str(var)
+                    # merge the tile keys
+                    var_list[position['title']] = str(file_dict[group][var]['title'] + ';' + file_dict[group][var]['xtitle'] + ';' + file_dict[group][var]['ytitle'])
+                    # get the right path
+                    var_list[position['path']] = str(file_dict[group][var]['path'][usage])
+                    # just copy the rest
+                    for key in ['xbins', 'xmin', 'xmax', 'type']:
+                        var_list[position[key]] = str(file_dict[group][var][key])
+                    if(file_dict[group][var]['type'] == 'TProfile'):
+                        var_list[position['ymin']] = str(file_dict[group][var]['ymin'])
+                        var_list[position['ymax']] = str(file_dict[group][var]['ymax'])
+                    # append the current variable to the list
+                    list.append(var_list)
+    
+    return list
+
+
+

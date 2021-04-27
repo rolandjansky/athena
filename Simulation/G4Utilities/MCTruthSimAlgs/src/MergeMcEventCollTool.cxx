@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeMcEventCollTool.h"
@@ -120,7 +120,7 @@ MergeMcEventCollTool::MergeMcEventCollTool(const std::string& type,
 }
 
 StatusCode MergeMcEventCollTool::initialize() {
-  ATH_MSG_DEBUG( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_DEBUG( "Initializing" );
   if (m_doSlimming) {
     //set all m_saveTypes based on properties
     m_saveType[INTIME] = m_saveInTimePileup.value();

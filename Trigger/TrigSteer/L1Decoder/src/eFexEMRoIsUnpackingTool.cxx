@@ -20,7 +20,7 @@ StatusCode eFexEMRoIsUnpackingTool::initialize() {
 
 // =============================================================================
 StatusCode eFexEMRoIsUnpackingTool::start() {
-  ATH_CHECK(decodeMapping([](const std::string& name){return name.find("eEM")==0;}));
+  ATH_CHECK(decodeMapping([](const std::string& name){return name.find("eEM")==0 or name.find(getProbeThresholdName("eEM"))==0;}));
   return StatusCode::SUCCESS;
 }
 
@@ -56,7 +56,8 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
   // Create and record RoI descriptor and decision containers
   using namespace TrigCompositeUtils;
   SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
-  SG::WriteHandle<DecisionContainer> decisions = createAndStore(m_decisionsKey, ctx);
+  SG::WriteHandle<DecisionContainer> decisionsMain = createAndStore(m_decisionsKey, ctx);
+  SG::WriteHandle<DecisionContainer> decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx);
 
   size_t linkIndex{0};
   for (const xAOD::eFexEMRoI* roi : rois) {
@@ -67,23 +68,27 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
     ));
 
     // Create new decision and link the RoI objects
-    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions.ptr(), l1DecoderNodeName());
-    decision->setObjectLink(initialRoIString(),
+    Decision* decisionMain = TrigCompositeUtils::newDecisionIn(decisionsMain.ptr(), l1DecoderNodeName());
+    decisionMain->setObjectLink(initialRoIString(),
                             ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
-    decision->setObjectLink(initialRecRoIString(),
+    decisionMain->setObjectLink(initialRecRoIString(),
                             ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
+
+    Decision* decisionProbe = TrigCompositeUtils::newDecisionIn(decisionsProbe.ptr(), l1DecoderNodeName());
+    decisionProbe->setObjectLink(initialRoIString(),
+                            ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+    decisionProbe->setObjectLink(initialRecRoIString(),
+                            ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
+
     ++linkIndex;
 
     // Add positive decisions for chains to be activated by this RoI object
     for (const std::shared_ptr<TrigConf::L1Threshold>& thr : thresholds.value().get()) {
       if (not (roi->thrPattern() & (1 << thr->mapping()))) {continue;}
-      ATH_MSG_DEBUG("Threshold passed: " << thr->name());
-      addChainsToDecision(HLT::Identifier(thr->name()), decision, activeChains);
-      if (msgLvl(MSG::DEBUG)) {
-        DecisionIDContainer ids;
-        decisionIDs(decision, ids);
-        ATH_MSG_DEBUG("Activated chains: " << std::vector<DecisionID>(ids.begin(), ids.end()));
-      }
+      const std::string thresholdProbeName = getProbeThresholdName(thr->name());
+      ATH_MSG_DEBUG( "Passed Threshold names " << thr->name() << " and " << thresholdProbeName);
+      addChainsToDecision(HLT::Identifier(thr->name()), decisionMain, activeChains);
+      addChainsToDecision(HLT::Identifier(thresholdProbeName), decisionProbe, activeChains);
     }
   }
 

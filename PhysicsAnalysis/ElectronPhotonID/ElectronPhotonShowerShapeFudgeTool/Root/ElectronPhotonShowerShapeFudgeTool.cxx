@@ -40,10 +40,6 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(const std
 // Standard Destructor
 ElectronPhotonShowerShapeFudgeTool::~ElectronPhotonShowerShapeFudgeTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in ElectronPhotonShowerShapeFudgeTool finalize()");
-  }
-
   if ( m_ph_rootTool ) delete m_ph_rootTool;
   if ( m_el_rootTool ) delete m_el_rootTool;
 }
@@ -101,12 +97,6 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
 
   m_ph_rootTool->LoadFFs(m_preselection, m_ffFile);
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode ElectronPhotonShowerShapeFudgeTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -364,8 +354,7 @@ bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float&
   else {
     last = (input.find('#',first+1) );
     if (last == std::string::npos) {
-      static asg::AsgMessaging msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
-      msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
+      ATH_MSG_WARNING("Improper comment format , inline comment should be enclosed between two #");
       return false;
     }
     diff = last - first ;

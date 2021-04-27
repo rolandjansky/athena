@@ -55,6 +55,7 @@ namespace DerivationFramework {
     mutable std::atomic<unsigned int> m_nJetsPassCHF;
     bool m_debug;
     SG::ReadHandleKey<xAOD::JetContainer> m_jetSGKey { this, "JetContainerKey", "AntiKt4EMTopoJets", ""};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_jetBtagDecorKey { this, "BtagDecorKey", "AntiKt4EMTopoJets.btaggingLink", ""};
     float m_jetPtCut;
     float m_jetEtaCut;
     float m_TrackMinPt;
@@ -64,10 +65,12 @@ namespace DerivationFramework {
     float m_CHFCut;
     float m_nJetsReq;
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "Electrons", ""};
+    SG::ReadDecorHandleKey<xAOD::IParticleContainer> m_electronIsoDecorKey { this, "ElectronIsoDecorKey", "Electrons.topoetcone20", ""};
     std::string m_electronIDKey;
     float m_electronPtCut;
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
+    SG::ReadDecorHandleKey<xAOD::IParticleContainer> m_muonIsoDecorKey { this, "MuonIsoDecorKey", "Muons.topoetcone20", ""};
     std::string m_muonIDKey;
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this, "EventInfoKey", "EventInfo", ""}; 
     SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVerticesKey {this, "PrimaryVerticesKey", "PrimaryVertices", ""}; 

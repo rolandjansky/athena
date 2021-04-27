@@ -49,6 +49,14 @@ StatusCode AFP_ByteStream2RawCnv::initialize() {
     ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider << "...");
   }
 
+   if (m_wordReadout.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_wordReadout
+		    << "...");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_wordReadout << "...");
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -114,43 +122,43 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 
   const uint32_t size = robFrag->rod_ndata();
   for (unsigned i = 0; i < size; i++) {
-    m_wordReadout.setWord(vint[i]);
+    m_wordReadout->setWord(vint[i]);
 
-    if (m_wordReadout.isHeader()) {
+    if (m_wordReadout->isHeader()) {
       AFP_RawCollectionHead* collectionHead = nullptr;
-      if ( isLinkToF (m_wordReadout.link()) ) {
+      if ( isLinkToF (m_wordReadout->link()) ) {
 	// prepare collection for time-of-flight
-	collectionToF = getCollectionToF(//m_wordReadout.link(), robFrag->rob_source_id(), 
+	collectionToF = getCollectionToF(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                            rawContainer);
 	collectionHead = collectionToF;
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
+      else if ( isLinkSi (m_wordReadout->link()) ) {
 	// prepare collection for silicon detector
-	collectionSi = getCollectionSi(//m_wordReadout.link(), robFrag->rob_source_id(), 
+	collectionSi = getCollectionSi(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                          rawContainer);
 	collectionHead = collectionSi;
       }
       else {
-        ATH_MSG_WARNING("Unidentified value of link="<<m_wordReadout.link()<<" for header record.");
+        ATH_MSG_WARNING("Unidentified value of link="<<m_wordReadout->link()<<" for header record.");
         return StatusCode::SUCCESS;
       }
 
       if (!collectionHead) {
         ATH_MSG_WARNING("nullptr returned by getCollection(link = "
-			<< m_wordReadout.link() << ", robID = " << robFrag->rob_source_id() <<")");
+			<< m_wordReadout->link() << ", robID = " << robFrag->rob_source_id() <<")");
         return StatusCode::SUCCESS;
       }
 
       // set head collection informaiton
-      collectionHead->setLvl1Id(m_wordReadout.getBits(14, 10));
-      collectionHead->setLink(m_wordReadout.link());
-      collectionHead->setFrontendFlag(m_wordReadout.getBits(15, 15));
-      collectionHead->setBcId(m_wordReadout.getBits(9, 0));
+      collectionHead->setLvl1Id(m_wordReadout->getBits(14, 10));
+      collectionHead->setLink(m_wordReadout->link());
+      collectionHead->setFrontendFlag(m_wordReadout->getBits(15, 15));
+      collectionHead->setBcId(m_wordReadout->getBits(9, 0));
       collectionHead->setRobId(robFrag->rob_source_id());
     }
-    else if (m_wordReadout.isData()) {
+    else if (m_wordReadout->isData()) {
       // fill time-of-flight collection
-      if ( isLinkToF (m_wordReadout.link()) ) {
+      if ( isLinkToF (m_wordReadout->link()) ) {
 
 	// check if collection is available
 	if ( !collectionToF ) {
@@ -159,15 +167,15 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	}
 
 	AFP_ToFRawData& ToFData = collectionToF->newDataRecord();
-	ToFData.setHeader( m_wordReadout.getBits (23, 21) );
-	ToFData.setEdge( m_wordReadout.getBits (20, 20) );
-	ToFData.setChannel( m_wordReadout.getBits (19, 16) );
-	ToFData.setPulseLength( m_wordReadout.getBits (15, 10) );
-	ToFData.setTime( m_wordReadout.getBits (9, 0) );
+	ToFData.setHeader( m_wordReadout->getBits (23, 21) );
+	ToFData.setEdge( m_wordReadout->getBits (20, 20) );
+	ToFData.setChannel( m_wordReadout->getBits (19, 16) );
+	ToFData.setPulseLength( m_wordReadout->getBits (15, 10) );
+	ToFData.setTime( m_wordReadout->getBits (9, 0) );
 
 	setDataHeader (&ToFData);
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
+      else if ( isLinkSi (m_wordReadout->link()) ) {
 	// fill silicon detector collection
 
 	// check if collection is available
@@ -177,27 +185,27 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	}
 
 	// check first silicon hit information
-	if (m_wordReadout.getBits(7, 4) != s_siNoHitMarker) {
+	if (m_wordReadout->getBits(7, 4) != s_siNoHitMarker) {
 	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8));
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(7, 4));
+	  siData.setColumn (m_wordReadout->getBits(23, 17));
+	  siData.setRow (m_wordReadout->getBits(16, 8));
+	  siData.setTimeOverThreshold (m_wordReadout->getBits(7, 4));
 	  
 	  setDataHeader (&siData);
 	}
 
 	// check second silicon hit information
-	if (m_wordReadout.getBits(3, 0) != s_siNoHitMarker) {
+	if (m_wordReadout->getBits(3, 0) != s_siNoHitMarker) {
 	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8) + 1);
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(3, 0));
+	  siData.setColumn (m_wordReadout->getBits(23, 17));
+	  siData.setRow (m_wordReadout->getBits(16, 8) + 1);
+	  siData.setTimeOverThreshold (m_wordReadout->getBits(3, 0));
 
 	  setDataHeader (&siData);
 	}
       }
       else {
-	ATH_MSG_WARNING("Not recognised value of link="<<m_wordReadout.link()<<" for data record.");
+	ATH_MSG_WARNING("Not recognised value of link="<<m_wordReadout->link()<<" for data record.");
 	return StatusCode::SUCCESS;
       }
 
@@ -258,6 +266,6 @@ AFP_ByteStream2RawCnv::getCollectionToF(// const unsigned int link, const unsign
 
 void AFP_ByteStream2RawCnv::setDataHeader (AFP_RawDataCommonHead* dataHead) const
 {
-  dataHead->setLink (m_wordReadout.link());
-  dataHead->setHitDiscConfig (m_wordReadout.getBits(29, 28));
+  dataHead->setLink (m_wordReadout->link());
+  dataHead->setHitDiscConfig (m_wordReadout->getBits(29, 28));
 }

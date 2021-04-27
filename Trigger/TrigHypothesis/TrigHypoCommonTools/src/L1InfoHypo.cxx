@@ -6,8 +6,8 @@
 #include "AthLinks/ElementLink.h"
 #include "TrigT1Result/RoIBResult.h"
 
-#include "TrigHypoCommonTools/IL1InfoHypoTool.h"
-#include "TrigHypoCommonTools/L1InfoHypo.h"
+#include "IL1InfoHypoTool.h"
+#include "L1InfoHypo.h"
 
 
 L1InfoHypo::L1InfoHypo(const std::string& name, ISvcLocator* pSvcLocator)

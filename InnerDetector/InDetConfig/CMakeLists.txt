@@ -22,3 +22,7 @@ atlas_add_test( BackTrackingConfig_test
 atlas_add_test( TRTSegmentFindingConfig_test
     SCRIPT python -m InDetConfig.TRTSegmentFindingConfig  --norun
     POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TrackRecoConfig_test
+    SCRIPT python -m InDetConfig.TrackRecoConfig  --norun
+    POST_EXEC_SCRIPT nopost.sh)

@@ -52,8 +52,6 @@ def TrigTauMonitoringTool():
               'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-              'tau25_medium1_tracktwoMVA_L1TAU12IM',
-              'tau25_medium1_tracktwoMVABDT_L1TAU12IM',
               'tau35_idperf_tracktwoMVA_L1TAU12IM',
               'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
               'tau35_perf_tracktwoMVA_L1TAU12IM',
@@ -70,8 +68,6 @@ def TrigTauMonitoringTool():
               'tau160_perf_tracktwoMVABDT_L1TAU100',
               'tau160_mediumRNN_tracktwoMVA_L1TAU100',
               'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-              'tau160_medium1_tracktwoMVA_L1TAU100',
-              'tau160_medium1_tracktwoMVABDT_L1TAU100',
         ]
 
         RNN_chains = [
@@ -94,8 +90,8 @@ def TrigTauMonitoringTool():
         BDTRNN_chains = [
              'tau0_idperf_tracktwoMVA_L1eTAU12',
              'tau0_idperf_tracktwoMVA_L1eTAU5',
-             'tau0_perf_ptonly_L1TAU12',
-             'tau0_perf_ptonly_L1TAU60',
+             'tau0_ptonly_L1TAU8',
+             'tau0_ptonly_L1TAU60',
              'tau25_ptonly_L1TAU12IM',
              'tau25_idperf_track_L1TAU12IM',
              'tau25_idperf_tracktwo_L1TAU12IM',
@@ -147,22 +143,19 @@ def TrigTauMonitoringTool():
 #       ]
 
         ztt_RNN_tau = [
-                'tau25_mediumRNN_tracktwoMVA',
+                'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
         ]
         ztt_BDT_tau = [
-                'tau25_medium1_tracktwoEF',
+                'tau25_medium1_tracktwoEF_L1TAU12IM',
         ]
         # removed ztt_tau chains
         # 'tau25_idperf_tracktwo',
         # 'tau25_perf_tracktwo',
 
         highpt_tau = [
-                'tau80_medium1_tracktwo_L1TAU60',
-                'tau160_idperf_tracktwo',
-                'tau160_medium1_tracktwo',
-                'tau160_medium1HighptL_tracktwo',
-                'tau160_medium1HighptM_tracktwo',
-                'tau160_medium1HighptH_tracktwo'
+          'tau160_idperf_tracktwo_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
         ]
 
         # get the Level1 Emulation tool from the emulation python config

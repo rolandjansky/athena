@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the Cosmic_run3_v1 menu
 # art-type: grid
@@ -25,7 +25,7 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'mc_cosmics'
 ex.threads = 1
-ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'

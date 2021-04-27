@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -199,8 +199,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
   beamposition.setCovariancePosition(
     beamSpotHandle->beamVtx().covariancePosition());
 
-  typedef DataVector<xAOD::TrackParticle>::const_iterator
-    TrackParticleDataVecIter;
+  using TrackParticleDataVecIter = DataVector<xAOD::TrackParticle>::const_iterator;
 
   bool selectionPassed;
   for (TrackParticleDataVecIter itr = (*trackParticles).begin();
@@ -400,7 +399,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
     for (std::vector<const Trk::ITrackLink*>::const_iterator trkiter = trkbegin;
          trkiter != trkend;
          ++trkiter) {
-      if (std::fabs(estimateDeltaZ(*(*trkiter)->parameters(), actualVertex)) <
+      if (std::abs(estimateDeltaZ(*(*trkiter)->parameters(), actualVertex)) <
           m_TracksMaxZinterval) {
         const double thisTracksSignificance = ipSignificance(
           (*trkiter)->parameters(), &actualVertex); // calculate significance
@@ -432,10 +431,10 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
              seedtrkbegin;
            seedtrkiter != seedtrkend;
            ++seedtrkiter) {
-        if (std::fabs((*seedtrkiter)->parameters()->position()[Trk::z] -
+        if (std::abs((*seedtrkiter)->parameters()->position()[Trk::z] -
                       actualVertex.z()) < zdistance) {
           zdistance =
-            std::fabs((*seedtrkiter)->parameters()->position()[Trk::z] -
+            std::abs((*seedtrkiter)->parameters()->position()[Trk::z] -
                       actualVertex.z());
           nearestTrack = *seedtrkiter;
         }
@@ -471,7 +470,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
              trkiter != trkend;
              ++trkiter) {
 
-          if (std::fabs(estimateDeltaZ(*(*trkiter)->parameters(),
+          if (std::abs(estimateDeltaZ(*(*trkiter)->parameters(),
                                        actualVertex)) < m_TracksMaxZinterval) {
             const double thisTracksSignificance =
               ipSignificance((*trkiter)->parameters(),
@@ -659,10 +658,10 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
                seedtrkbegin;
              seedtrkiter != seedtrkend;
              ++seedtrkiter) {
-          if (std::fabs((*seedtrkiter)->parameters()->position()[Trk::z] -
+          if (std::abs((*seedtrkiter)->parameters()->position()[Trk::z] -
                         actualVertex.z()) < zdistance) {
             zdistance =
-              std::fabs((*seedtrkiter)->parameters()->position()[Trk::z] -
+              std::abs((*seedtrkiter)->parameters()->position()[Trk::z] -
                         actualVertex.z());
             nearestTrack = *seedtrkiter;
           }
@@ -743,7 +742,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
         double dependence = 0;
         if (!m_do3dSplitting) {
           if (sumZCovSq > 0.) {
-            dependence = std::fabs(deltaZPosition) / std::sqrt(sumZCovSq);
+            dependence = std::abs(deltaZPosition) / std::sqrt(sumZCovSq);
           } else {
             dependence = 0.;
           }
@@ -1028,7 +1027,7 @@ InDetAdaptiveMultiPriVxFinderTool::estimateSignalCompatibility(
           continue;
         }
         total_pt_squared +=
-          std::pow(std::fabs(1. / perigee->parameters()[Trk::qOverP]) *
+          std::pow(std::abs(1. / perigee->parameters()[Trk::qOverP]) *
                      sin(perigee->parameters()[Trk::theta]),
                    2);
         total_num_tracks += 1;
@@ -1163,7 +1162,7 @@ InDetAdaptiveMultiPriVxFinderTool::releaseCandidate(
     "VTAV");
 
   if (VTAV.isAvailable(*candidate)) {
-    for (auto tav : VTAV(*candidate)) {
+    for (auto *tav : VTAV(*candidate)) {
       if (tav == nullptr)
         continue;
       (static_cast<Trk::MVFVxTrackAtVertex*>(tav))->setLinkToVertices(nullptr);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,10 +32,10 @@ GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(InDetDD::PixelDetectorManager* 
                                                  PixelGeometryManager* mgr,
                                                  int /*section*/)
   : GeoVPixelFactory (ddmgr, mgr),
-  m_supportPhysA(0),
-  m_supportPhysC(0),
-  m_xformSupportA(0),
-  m_xformSupportC(0)
+  m_supportPhysA(nullptr),
+  m_supportPhysC(nullptr),
+  m_xformSupportA(nullptr),
+  m_xformSupportC(nullptr)
 {
 }
 
@@ -53,7 +53,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   double layerRadius = m_gmt_mgr->PixelLayerRadius();
 
   // check if sectors are properly defined
-  if(nSectors==0) return 0;
+  if(nSectors==0) return nullptr;
   double angle=360./(double)nSectors*Gaudi::Units::deg;
   
   // Defines the IBL_Fwd02 section in the IBL services area
@@ -151,10 +151,10 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   if(bFirstLin)nbSteps++;
 
   //  Loop over the wavy shape sections to build a cable and a cooling pipe
-  const GeoShape * gblShapeCableA = 0;
-  const GeoShape * gblShapeCoolingA = 0;
-  const GeoShape * gblShapeCableC = 0;
-  const GeoShape * gblShapeCoolingC = 0;
+  const GeoShape * gblShapeCableA = nullptr;
+  const GeoShape * gblShapeCoolingA = nullptr;
+  const GeoShape * gblShapeCableC = nullptr;
+  const GeoShape * gblShapeCoolingC = nullptr;
   
 //   deltaPhi = (2.*pi)/28.;
 //   deltaPhi = .2815;
@@ -310,7 +310,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   GeoTrf::Transform3D supportTrfC = GeoTrf::TranslateZ3D(middleC);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
-  return 0;
+  return nullptr;
 }
 
 

@@ -19,8 +19,7 @@ from ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfigNew import (
     FastCaloSimPileupSvcCfg, FastCaloSimPileupOTSvcCfg,
 )
 from ISF_FatrasServices.ISF_FatrasConfig import (
-    fatrasSimServiceIDCfg, fatrasNewExtrapolationSimServiceIDCfg,
-    fatrasPileupSimServiceIDCfg,
+    fatrasSimServiceIDCfg, fatrasPileupSimServiceIDCfg,
 )
 
 
@@ -166,9 +165,6 @@ def DefaultFatrasSelectorCfg(flags, name="ISF_DefaultFatrasSelector", **kwargs):
 
 def DefaultFatrasNewExtrapolationSelectorCfg(flags, name="ISF_DefaultFatrasNewExtrapolationSelector", **kwargs):
     acc = ComponentAccumulator()
-    if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
-        acc.merge(fatrasNewExtrapolationSimServiceIDCfg(flags))
-        kwargs.setdefault("Simulator", acc.getService("ISF_FatrasNewExtrapolationSimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Fatras)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
     return acc

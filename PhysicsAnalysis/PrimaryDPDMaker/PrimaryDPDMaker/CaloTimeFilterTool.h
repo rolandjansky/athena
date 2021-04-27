@@ -20,11 +20,11 @@ class CaloTimeFilterTool : public asg::AsgTool, virtual public ICaloTimeFilterTo
     virtual ~CaloTimeFilterTool() = default;
     
   
-  /** Overriding initialize and finalize */
+  virtual
   StatusCode getTimeDifference(TimingFilterInformation& time_info, const SG::ReadHandleKey<LArCollisionTime>& read_key,
                                          const EventContext& ctx) const override;
  
-  StatusCode getTimeDifference(TimingFilterInformation& time_info);
+  virtual StatusCode getTimeDifference(TimingFilterInformation& time_info) override;
  
  protected:
   

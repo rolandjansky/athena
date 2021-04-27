@@ -13,10 +13,10 @@
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDecisionSvc.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"

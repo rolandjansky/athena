@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,7 +29,15 @@ namespace Amg {
 inline double error(const Amg::MatrixX& mat, int index) {
     return sqrt(mat(index, index));
 }
-
+/// Returns true if all diagonal elements of the covariance matrix
+/// are greater or equal zero
+template <int N> bool valid_cov(const AmgSymMatrix(N)& mat){
+   const int dim = mat.cols();
+   for (int i = 0; i < dim ; ++i){
+        if (mat(i,i) < 0.) return false;
+   }
+   return true;
+}
 template<int N>
 inline double error(const AmgSymMatrix(N)& mat, int index ) {
     assert(index<N);

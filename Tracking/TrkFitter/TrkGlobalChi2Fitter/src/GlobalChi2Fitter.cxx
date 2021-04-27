@@ -94,7 +94,7 @@ namespace {
     while ((firstidpar == nullptr) && parit != track.trackParameters()->end()) {
       if (
         ((**parit).covariance() != nullptr) &&
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         firstidpar = *parit;
       }
@@ -107,7 +107,7 @@ namespace {
       parit--;
       if (
         ((**parit).covariance() != nullptr) && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         lastidpar = *parit;
       }
@@ -331,7 +331,7 @@ namespace Trk {
       const AmgVector(5) & newpars = parforcalo->parameters();
       
       parforcalo=parforcalo->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., std::nullopt
       );
     }
 
@@ -587,7 +587,7 @@ namespace Trk {
         if (thispar != nullptr) {
           const AmgVector(5) & parvec = thispar->parameters();
           tp_closestmuon=thispar->associatedSurface().createUniqueTrackParameters(
-            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], nullptr
+            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], std::nullopt
           );
         }
         break;
@@ -632,7 +632,7 @@ namespace Trk {
       const Surface & associatedSurface = tmppar->associatedSurface();
       std::unique_ptr<Surface> muonsurf = nullptr;
       
-      if (associatedSurface.type() == Trk::Surface::Cylinder) {
+      if (associatedSurface.type() == Trk::SurfaceType::Cylinder) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder) {
           const CylinderBounds *cylbounds = static_cast <const CylinderBounds * >(&associatedSurface.bounds());
           std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(associatedSurface.transform());
@@ -640,7 +640,7 @@ namespace Trk {
           double hlength = cylbounds->halflengthZ();
           muonsurf = std::make_unique<CylinderSurface>(trans.release(), radius + 1, hlength);
         }
-      } else if (associatedSurface.type() == Trk::Surface::Disc) {
+      } else if (associatedSurface.type() == Trk::SurfaceType::Disc) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Disc) {
           double newz = (
             associatedSurface.center().z() > 0 ? 
@@ -733,7 +733,7 @@ namespace Trk {
         }
         
         tp_closestmuon=tmppar->associatedSurface().createUniqueTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
         );
       }
       
@@ -808,7 +808,7 @@ namespace Trk {
         
         const AmgVector(5) & newpar = firstidpar->parameters();
         firstidpar=firstidpar->associatedSurface().createUniqueTrackParameters(
-          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, nullptr
+          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, std::nullopt
         );
       }
       
@@ -888,7 +888,7 @@ namespace Trk {
       }
       
       std::unique_ptr<const TrackParameters> tmppar1(muonscatpar->associatedSurface().createUniqueTrackParameters(
-        params1[0], params1[1], params1[2], params1[3], params1[4], nullptr
+        params1[0], params1[1], params1[2], params1[3], params1[4], std::nullopt
       ));
       
       PropDirection propdir = !firstismuon ? oppositeMomentum : alongMomentum;
@@ -928,7 +928,7 @@ namespace Trk {
 
       const AmgVector(5) & newpars = tmpelosspar->parameters();
       std::unique_ptr<const TrackParameters> elosspar2(tmpelosspar->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, std::nullopt
       ));
       
       if (i == 1) {
@@ -993,17 +993,17 @@ namespace Trk {
       double dloc2 = idscatpar->parameters()[Trk::loc2] - scat2->parameters()[Trk::loc2];
       const Trk::CylinderSurface * cylsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder) 
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder) 
         cylsurf = static_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
         
       const Trk::DiscSurface * discsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder)
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder)
         discsurf = static_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
 
       if (cylsurf != nullptr) {
         double length = 2 * M_PI * cylsurf->bounds().r();
-        if (fabs(fabs(dloc1) - length) < fabs(dloc1)) {
+        if (std::abs(std::abs(dloc1) - length) < std::abs(dloc1)) {
           if (dloc1 > 0) {
             dloc1 -= length;
           } else {
@@ -1013,7 +1013,7 @@ namespace Trk {
       }
       
       if (discsurf != nullptr) {
-        if (fabs(fabs(dloc2) - 2 * M_PI) < fabs(dloc2)) {
+        if (std::abs(std::abs(dloc2) - 2 * M_PI) < std::abs(dloc2)) {
           if (dloc2 > 0) {
             dloc2 -= 2 * M_PI;
           } else {
@@ -1062,7 +1062,7 @@ namespace Trk {
         }
 
         firstscatpar=scat2->associatedSurface().createUniqueTrackParameters(
-          params2[0], params2[1], params2[2], params2[3], params2[4], nullptr
+          params2[0], params2[1], params2[2], params2[3], params2[4], std::nullopt
         );
         idscatpar = firstscatpar.get();
 
@@ -1109,8 +1109,8 @@ namespace Trk {
     std::unique_ptr<GXFMaterialEffects> elossmeff = std::make_unique<GXFMaterialEffects>(&calomeots[1]);
     std::unique_ptr<GXFMaterialEffects> secondscatmeff = std::make_unique<GXFMaterialEffects>(&calomeots[2]);
 
-    double pull1 = fabs(firstscatphi / firstscatmeff->sigmaDeltaPhi());
-    double pull2 = fabs(secondscatphi / secondscatmeff->sigmaDeltaPhi());
+    double pull1 = std::abs(firstscatphi / firstscatmeff->sigmaDeltaPhi());
+    double pull2 = std::abs(secondscatphi / secondscatmeff->sigmaDeltaPhi());
 
     if (firstismuon) {
       for (auto & i : tmp_matvec) {
@@ -1147,7 +1147,7 @@ namespace Trk {
     
     if (
       (pull1 > 5 || pull2 > 5) &&
-      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::Surface::Line)
+      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::SurfaceType::Line)
     ) {
       return nullptr;
     }
@@ -1192,7 +1192,7 @@ namespace Trk {
 
       if (
         itStates2 == endState2 - 1 && 
-        tpar->associatedSurface().type() == Trk::Surface::Line && 
+        tpar->associatedSurface().type() == Trk::SurfaceType::Line && 
         tpar->position().perp() > 9000 && 
         std::abs(tpar->position().z()) < 13000
       ) {
@@ -1376,7 +1376,7 @@ namespace Trk {
       
       elosspar=
         tmppar->associatedSurface().createUniqueTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
+          pars[0], pars[1], pars[2], pars[3], newqoverp, std::nullopt
         );
 
       lastscatpar = m_propagator->propagateParameters(
@@ -1429,7 +1429,7 @@ namespace Trk {
 
       std::unique_ptr<const TrackParameters>tmppar(
         elosspar->associatedSurface().createUniqueTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
+          pars[0], pars[1], pars[2], pars[3], newqoverp, std::nullopt
         )
       );
       
@@ -1625,7 +1625,7 @@ namespace Trk {
 
       bool isStraightLine = 
         (*itStates2)->measurementOnTrack() != nullptr ? 
-        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::Surface::Line : 
+        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::SurfaceType::Line : 
         false;
 
       if (
@@ -2101,15 +2101,11 @@ namespace Trk {
           
           double p = 1. / std::abs(layerpars->parameters()[Trk::qOverP] - .0005 * meff->delta_p());
           
-          std::unique_ptr<const Amg::Vector2D> locpos(state->surface()->globalToLocal(layerpars->position()));
-          std::unique_ptr<const Amg::Vector3D> layerNormal(state->surface()->normal(*locpos));
+          std::optional<Amg::Vector2D> locpos(state->surface()->globalToLocal(layerpars->position()));
+          const Amg::Vector3D layerNormal(state->surface()->normal(*locpos));
           double costracksurf = 1.;
           
-          if (layerNormal != nullptr) {
-            costracksurf = fabs(layerNormal->dot(layerpars->momentum().unit()));
-          } else {
-            ATH_MSG_WARNING("No normal on surface found!");
-          }
+          costracksurf = std::abs(layerNormal.dot(layerpars->momentum().unit()));
           
           double oldde = meff->deltaE();
           
@@ -2150,7 +2146,7 @@ namespace Trk {
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       minpar=trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
       );
       
       trajectory.reset();
@@ -2250,12 +2246,12 @@ namespace Trk {
       const RIO_OnTrack *rot = nullptr;
       const PlaneSurface *plsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Plane)
+      if (prdsurf.type() == Trk::SurfaceType::Plane)
         plsurf = static_cast < const PlaneSurface *>(&prdsurf);
 
       const StraightLineSurface *slsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Line)
+      if (prdsurf.type() == Trk::SurfaceType::Line)
         slsurf = static_cast < const StraightLineSurface *>(&prdsurf);
 
       if ((slsurf == nullptr) && (plsurf == nullptr)) {
@@ -2281,7 +2277,7 @@ namespace Trk {
             param.parameters()[Trk::theta],
             param.parameters()[Trk::qOverP], 
             *plsurf,
-            new AmgSymMatrix(5)(*param.covariance())
+            AmgSymMatrix(5)(*param.covariance())
           );
           rot = m_ROTcreator->correct(*prd, atapl);
         } else {
@@ -2433,13 +2429,13 @@ namespace Trk {
           parameterVector[Trk::phi],
           parameterVector[Trk::theta],
           parameterVector[Trk::qOverP],
-          new AmgSymMatrix(5)(*hitparam->covariance())
+          AmgSymMatrix(5)(*hitparam->covariance())
         )
       );
       
       const RIO_OnTrack *rot = nullptr;
       
-      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::Surface::Line) {
+      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::SurfaceType::Line) {
         rot = m_broadROTcreator->correct(*prd, *hitparam);
       } else {
         rot = m_ROTcreator->correct(*prd, *trackparForCorrect);
@@ -2540,7 +2536,7 @@ namespace Trk {
         trajectory.setPrefit(3);
         const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
         startpar = trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
         );
 
         trajectory.reset();
@@ -2556,7 +2552,7 @@ namespace Trk {
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       startpar = trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], std::nullopt
       );
 
       trajectory.reset();
@@ -2943,12 +2939,12 @@ namespace Trk {
           }
           
           const CylinderLayer *cyllay = nullptr;
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
             cyllay = static_cast<const CylinderLayer *>((*layerIter));
             
           const DiscLayer *disclay = nullptr;
           
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Disc)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
             disclay = static_cast<const DiscLayer *>((*layerIter));
             
           if (disclay != nullptr) {
@@ -2981,12 +2977,12 @@ namespace Trk {
       
       const CylinderSurface *cylsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cylsurf = static_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
           
       const DiscSurface *discsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         discsurf = static_cast<const DiscSurface *>(&layer->surfaceRepresentation());
 
       if (discsurf != nullptr) {
@@ -3120,19 +3116,19 @@ namespace Trk {
       const Layer * two
     ) const {
       const CylinderSurface *cyl1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl1 = static_cast<const CylinderSurface *>(&one->surfaceRepresentation());
           
       const DiscSurface *disc1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc1 = static_cast<const DiscSurface *>(&one->surfaceRepresentation());
           
       const CylinderSurface *cyl2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl2 = static_cast<const CylinderSurface *>(&two->surfaceRepresentation());
           
       const DiscSurface *disc2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
 
       if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
@@ -3176,8 +3172,8 @@ namespace Trk {
     double z0 = parforextrap.position().z();
     double delta_s = (surf.center().z() - z0) / costheta;
     double delta_phi = delta_s * sintheta / r;
-    double x = xc + fabs(r) * cos(phi0 + delta_phi);
-    double y = yc + fabs(r) * sin(phi0 + delta_phi);
+    double x = xc + std::abs(r) * cos(phi0 + delta_phi);
+    double y = yc + std::abs(r) * sin(phi0 + delta_phi);
     Amg::Vector3D intersect = Amg::Vector3D(x, y, surf.center().z());
     double perp = intersect.perp();
     const DiscBounds *discbounds = (const DiscBounds *) (&surf.bounds());
@@ -3186,7 +3182,7 @@ namespace Trk {
       return {};
     }
     
-    double costracksurf = fabs(costheta);
+    double costracksurf = std::abs(costheta);
     
     return std::make_pair(intersect, costracksurf);
   }
@@ -3266,7 +3262,7 @@ namespace Trk {
 
     Amg::Vector3D intersect = Amg::Vector3D(x, y, z);
 
-    if (fabs(z - surf.center().z()) > surf.bounds().halflengthZ()) {
+    if (std::abs(z - surf.center().z()) > surf.bounds().halflengthZ()) {
       return {};
     }
     
@@ -3282,7 +3278,7 @@ namespace Trk {
     
     Amg::Vector3D trackdir(cos(phidir) * sintheta, sin(phidir) * sintheta, costheta);
     
-    double costracksurf = fabs(normal.unit().dot(trackdir));
+    double costracksurf = std::abs(normal.unit().dot(trackdir));
     
     return std::make_pair(intersect, costracksurf);
   }
@@ -3353,7 +3349,7 @@ namespace Trk {
            */
           if (oldstates[i]->trackParameters() != nullptr) {
             double rlayer = cylsurf->bounds().r();
-            if (fabs(rmeas - rlayer) < fabs(parforextrap->position().perp() - rlayer)) {
+            if (std::abs(rmeas - rlayer) < std::abs(parforextrap->position().perp() - rlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           }
@@ -3382,7 +3378,7 @@ namespace Trk {
           
           if (oldstates[i]->trackParameters() != nullptr) {
             double zlayer = discsurf->center().z();
-            if (fabs(zmeas - zlayer) < fabs(parforextrap->position().z() - zlayer)) {
+            if (std::abs(zmeas - zlayer) < std::abs(parforextrap->position().z() - zlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           }
@@ -3394,7 +3390,7 @@ namespace Trk {
             continue;
           }
           
-          if (fabs(discsurf->center().z()) > fabs(zmeas)) break;
+          if (std::abs(discsurf->center().z()) > std::abs(zmeas)) break;
         } else {
           throw std::logic_error("Unhandled surface.");
         }
@@ -3416,9 +3412,9 @@ namespace Trk {
         double X0 = matprop->thicknessInX0();
         double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
-        double de = -fabs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), matEffects));
+        double de = -std::abs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), matEffects));
         double sintheta = sin(parforextrap->parameters()[Trk::theta]);
-        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), 1. / costracksurf, matEffects));
+        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
         
         std::unique_ptr<GXFMaterialEffects> meff = std::make_unique<GXFMaterialEffects>();
         meff->setDeltaE(de);
@@ -3436,7 +3432,7 @@ namespace Trk {
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
           eloss.reset(m_elosstool->energyLoss(
             *matprop,
-            (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)),
+            (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
             1. / costracksurf, 
             alongMomentum,
             matEffects
@@ -3557,7 +3553,7 @@ namespace Trk {
          * If we've overshot the last hit in our track, we don't need to look
          * at any further layers. We're done!
          */
-        if (fabs((*it)->surfaceRepresentation().center().z()) > fabs(lastz)) {
+        if (std::abs((*it)->surfaceRepresentation().center().z()) > std::abs(lastz)) {
           break;
         }
         
@@ -3600,7 +3596,7 @@ namespace Trk {
          * the convention. Discs to right, cylinders go left.
          */
         if (
-          fabs((*it)->surfaceRepresentation().center().z()) < fabs(firstz) || 
+          std::abs((*it)->surfaceRepresentation().center().z()) < std::abs(firstz) || 
           (*it) == startlayer
         ) {
           upstreamlayers.emplace_back((Layer *) nullptr, (*it));
@@ -3611,7 +3607,7 @@ namespace Trk {
          */
         if (
           (*it) != startlayer &&
-          (fabs((*it)->surfaceRepresentation().center().z()) > fabs(firstz2) || 
+          (std::abs((*it)->surfaceRepresentation().center().z()) > std::abs(firstz2) || 
           (*it) == startlayer2)
         ) {
           layers.emplace_back((Layer *) nullptr, (*it));
@@ -3639,7 +3635,7 @@ namespace Trk {
        */
       double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
       
-      if (fabs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
+      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
         continue;
       }
       
@@ -3995,7 +3991,7 @@ namespace Trk {
     }
     
     refpar = refpar2->associatedSurface().createUniqueTrackParameters(
-      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
     );
 
     if (firstmatpar != nullptr) {
@@ -4016,7 +4012,7 @@ namespace Trk {
         startmatpar2 = startmatpar2->associatedSurface().createUniqueTrackParameters(
           newpars[0], newpars[1], newpars[2], newpars[3],
           sign / sqrt(oldp * oldp + 2 * 100 * MeV * sqrt(oldp * oldp + mass * mass) + 100 * MeV * 100 * MeV), 
-          nullptr
+          std::nullopt
         );
       }
     } else if (trajectory.m_straightline && m_p != 0) {
@@ -4024,14 +4020,14 @@ namespace Trk {
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar1 = startmatpar1->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
       );
       
       newpars = startmatpar2->parameters();
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar2 = startmatpar2->associatedSurface().createUniqueTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
       );
     }
 
@@ -4140,12 +4136,12 @@ namespace Trk {
           if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Cylinder)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Cylinder)
               cylcalosurf = static_cast<const CylinderSurface *>(&tmppar->associatedSurface());
             
             const DiscSurface *disccalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Disc)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Disc)
               disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             
             if (cylcalosurf != nullptr) {
@@ -4271,7 +4267,7 @@ namespace Trk {
             if (
               npseudomuon2 < 2 && 
               (firstmuonpar != nullptr) && 
-              fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              std::abs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
             } else {
@@ -4282,7 +4278,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             layerpar = layerpar->associatedSurface().createUniqueTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, nullptr
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, std::nullopt
             );
             meff->setdelta_p(1000 * (qoverpbrem - qoverp));
           }
@@ -4331,7 +4327,7 @@ namespace Trk {
             if (
               npseudomuon1 < 2 && 
               (lastmuonpar != nullptr) && 
-              fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              std::abs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverp = lastmuonpar->parameters()[Trk::qOverP];
             } else {
@@ -4343,7 +4339,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             prevtrackpars = layerpar->associatedSurface().createUniqueTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, nullptr
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, std::nullopt
             );
           }
 
@@ -4447,7 +4443,7 @@ namespace Trk {
             }
             
             muonpar1 = firstmuonpar->associatedSurface().createUniqueTrackParameters(
-              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
             );
           } else {
             std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
@@ -4655,7 +4651,7 @@ namespace Trk {
           addlayer = true;
         }
 
-        if (layerpar->associatedSurface().type() == Trk::Surface::Cylinder) {
+        if (layerpar->associatedSurface().type() == Trk::SurfaceType::Cylinder) {
           double cylinderradius = layerpar->associatedSurface().bounds().r();
           double trackimpact = std::abs(-refpar->position().x() * sinphi + refpar->position().y() * cosphi);
           
@@ -4721,13 +4717,13 @@ namespace Trk {
   ) const {
     const PerigeeSurface *persurf = nullptr;
     
-    if (param.associatedSurface().type() == Trk::Surface::Perigee)
+    if (param.associatedSurface().type() == Trk::SurfaceType::Perigee)
       persurf = static_cast<const PerigeeSurface *>(&param.associatedSurface());
 
     if ((persurf != nullptr) && (!cache.m_acceleration || persurf->center().perp() > 5)) {
       const AmgVector(5) & pars = param.parameters();
       return param.associatedSurface().createUniqueTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], pars[4], nullptr
+        pars[0], pars[1], pars[2], pars[3], pars[4], std::nullopt
       );
     }
     
@@ -4994,7 +4990,7 @@ namespace Trk {
         }
         
         nearestpar = tmppar->associatedSurface().createUniqueTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], std::nullopt
         );
       }
       
@@ -5022,7 +5018,7 @@ namespace Trk {
         params[Trk::qOverP] = sign / newp;
         
         per = per->associatedSurface().createUniqueTrackParameters(
-          params[0], params[1], params[2], params[3], params[4], nullptr
+          params[0], params[1], params[2], params[3], params[4], std::nullopt
         );
       }
       
@@ -5041,7 +5037,7 @@ namespace Trk {
         per->parameters()[Trk::phi],
         per->parameters()[Trk::theta],
         per->parameters()[Trk::qOverP], 
-        nullptr
+        std::nullopt
       );
     } else if (per == nullptr) {
       per = makePerigee(cache, param, matEffects);
@@ -5062,7 +5058,7 @@ namespace Trk {
       
       const AmgVector(5) & pars = per->parameters();
       per = per->associatedSurface().createUniqueTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], 0, nullptr
+        pars[0], pars[1], pars[2], pars[3], 0, std::nullopt
       );
     } else if (trajectory.numberOfPerigeeParameters() == -1) {
       trajectory.setNumberOfPerigeeParameters(5);
@@ -5238,23 +5234,23 @@ namespace Trk {
         }
       }
 
-      std::unique_ptr<AmgSymMatrix(5)> errmat = std::make_unique<AmgSymMatrix(5)>();
-      errmat->setZero();
+      AmgSymMatrix(5) errmat;
+      errmat.setZero();
       int nperparams = finaltrajectory->numberOfPerigeeParameters();
       for (int i = 0; i < nperparams; i++) {
         for (int j = 0; j < nperparams; j++) {
-          (*errmat) (j, i) = a_inv(j, i);
+          (errmat) (j, i) = a_inv(j, i);
         }
       }
       
       if (trajectory.m_straightline) {
-        (*errmat) (4, 4) = 1e-20;
+        (errmat) (4, 4) = 1e-20;
       }
 
       const AmgVector(5) & perpars = finaltrajectory->referenceParameters()->parameters();
       std::unique_ptr<const TrackParameters> measper(
         finaltrajectory->referenceParameters()->associatedSurface().createUniqueTrackParameters(
-          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], errmat.release()
+          perpars[0], perpars[1], perpars[2], perpars[3], perpars[4], std::move(errmat)
         )
       );
       
@@ -5565,7 +5561,7 @@ namespace Trk {
     if (
       trajectory.prefit() > 0 && (
         (newredchi2 < 2 && it != 0) || 
-        (newredchi2 < oldredchi2 + .1 && fabs(newredchi2 - oldredchi2) < 1 && it != 1)
+        (newredchi2 < oldredchi2 + .1 && std::abs(newredchi2 - oldredchi2) < 1 && it != 1)
       )
     ) {
       trajectory.setConverged(true);
@@ -5579,7 +5575,7 @@ namespace Trk {
       miniter = cache.m_miniter;
     }
     
-    if (it >= miniter && fabs(oldchi2 - chi2) < maxdiff) {
+    if (it >= miniter && std::abs(oldchi2 - chi2) < maxdiff) {
       trajectory.setConverged(true);
     }
 
@@ -5979,7 +5975,7 @@ namespace Trk {
       if (meff != nullptr) {
         const PlaneSurface *plsurf = nullptr;
         
-        if (thisstate->surface()->type() == Trk::Surface::Plane)
+        if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
           plsurf = static_cast < const PlaneSurface *>(thisstate->surface());
         if (meff->deltaE() == 0 || ((trajectory.prefit() == 0) && (plsurf != nullptr))) {
           weightchanged = true;
@@ -6083,7 +6079,7 @@ namespace Trk {
             
             const PlaneSurface *plsurf = nullptr;
             
-            if (thisstate->surface()->type() == Trk::Surface::Plane)
+            if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
               plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
               
             if (thisstate->materialEffects()->deltaE() == 0 || (plsurf != nullptr)) {
@@ -6168,7 +6164,7 @@ namespace Trk {
 
     std::unique_ptr<const TrackParameters> newper(
       trajectory.referenceParameters()->associatedSurface().createUniqueTrackParameters(
-        d0, z0, phi, theta, qoverp, nullptr
+        d0, z0, phi, theta, qoverp, std::nullopt
       )
     );
     
@@ -6221,7 +6217,7 @@ namespace Trk {
         if (hittype == TrackState::TRT) {
           if (
             runOutlier &&
-            fabs(state->trackParameters()->parameters()[Trk::driftRadius]) > 1.05 * state->surface()->bounds().r()
+            std::abs(state->trackParameters()->parameters()[Trk::driftRadius]) > 1.05 * state->surface()->bounds().r()
           ) {
             ATH_MSG_DEBUG("Removing TRT hit #" << hitno);
             
@@ -6484,7 +6480,7 @@ namespace Trk {
         TrackState::MeasurementType hittype_maxsipull = state_maxsipull->measurementType();
         const TrackParameters *trackpar_maxsipull = state_maxsipull->trackParameters();
         Amg::VectorX parameterVector = trackpar_maxsipull->parameters();
-        
+
         std::unique_ptr<const TrackParameters> trackparForCorrect(
           trackpar_maxsipull->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1],
@@ -6492,10 +6488,11 @@ namespace Trk {
             parameterVector[Trk::phi],
             parameterVector[Trk::theta],
             parameterVector[Trk::qOverP],
-            state_maxsipull->hasTrackCovariance() ? new AmgSymMatrix(5)(state_maxsipull->trackCovariance()) : nullptr
-          )
-        );
-        
+            state_maxsipull->hasTrackCovariance()
+              ? std::optional<AmgSymMatrix(5)>(
+                  state_maxsipull->trackCovariance())
+              : std::nullopt));
+
         double newerror[5];
         newerror[0] = newerror[1] = newerror[2] = newerror[3] = newerror[4] = -1;
         double newpull = -1;
@@ -6987,7 +6984,7 @@ namespace Trk {
         double distance = getDistance(distsol);
 
         if (distsol.numberOfSolutions() == 2) {
-          if (fabs(distance) < 0.01) {
+          if (std::abs(distance) < 0.01) {
             continue;
           }
           
@@ -7030,7 +7027,7 @@ namespace Trk {
         double startfactor = startlayer->layerMaterialProperties()->alongPostFactor();
         const Surface & discsurf = startlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           startfactor = startlayer->layerMaterialProperties()->oppositePostFactor();
         }
         if (startfactor > 0.5) {
@@ -7054,7 +7051,7 @@ namespace Trk {
         double endfactor = endlayer->layerMaterialProperties()->alongPreFactor();
         const Surface & discsurf = endlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           endfactor = endlayer->layerMaterialProperties()->oppositePreFactor();
         }
         
@@ -7903,10 +7900,18 @@ namespace Trk {
     }
 
     return surf.createUniqueTrackParameters(
-        old[0], old[1], newphi, newtheta, newqoverp, nullptr
+        old[0], old[1], newphi, newtheta, newqoverp, std::nullopt
     );
   }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
   void GlobalChi2Fitter::calculateJac(
     Eigen::Matrix<double, 5, 5> & jac,
     Eigen::Matrix<double, 5, 5> & out,
@@ -8202,12 +8207,12 @@ namespace Trk {
         const TrackParameters *tmptrackpar =
           state->trackParameters();
 
-        std::unique_ptr<AmgMatrix(5, 5)> trkerrmat;
+        std::optional<AmgMatrix(5, 5)> trkerrmat;
         
         if (state->hasTrackCovariance()) {
-          trkerrmat = std::make_unique<AmgSymMatrix(5)>(state->trackCovariance());
+          trkerrmat = (state->trackCovariance());
         } else {
-          trkerrmat = nullptr;
+          trkerrmat = std::nullopt;
         }
 
         const AmgVector(5) & tpars = tmptrackpar->parameters();
@@ -8217,7 +8222,7 @@ namespace Trk {
                                                                        tpars[2],
                                                                        tpars[3],
                                                                        tpars[4],
-                                                                       trkerrmat.release())
+                                                                       std::move(trkerrmat))
         );
         state->setTrackParameters(std::move(trackpar));
         std::unique_ptr<const FitQualityOnSurface> fitQual = nullptr;
@@ -8263,11 +8268,11 @@ namespace Trk {
 
     const AmgVector(5) & vec = tmpprevpar->parameters();
 
-    bool cylsurf = surf->type() == Trk::Surface::Cylinder;
-    bool discsurf = surf->type() == Trk::Surface::Disc;
+    bool cylsurf = surf->type() == Trk::SurfaceType::Cylinder;
+    bool discsurf = surf->type() == Trk::SurfaceType::Disc;
     const Surface & previousSurface = tmpprevpar->associatedSurface();
-    bool thiscylsurf = previousSurface.type() == Trk::Surface::Cylinder;
-    bool thisdiscsurf = previousSurface.type() == Trk::Surface::Disc;
+    bool thiscylsurf = previousSurface.type() == Trk::SurfaceType::Cylinder;
+    bool thisdiscsurf = previousSurface.type() == Trk::SurfaceType::Disc;
 
     for (int i = 0; i < 5; i++) {
       AmgVector(5) vecpluseps = vec, vecminuseps = vec;
@@ -8304,7 +8309,7 @@ namespace Trk {
           vecpluseps[2],
           vecpluseps[3],
           vecpluseps[4],
-          nullptr
+          std::nullopt
         )
       );
       std::unique_ptr<const TrackParameters> parminuseps(
@@ -8314,7 +8319,7 @@ namespace Trk {
           vecminuseps[2],
           vecminuseps[3],
           vecminuseps[4],
-          nullptr
+          std::nullopt
         )
       );
 
@@ -8377,7 +8382,7 @@ namespace Trk {
           newparminuseps->parameters()[paraccessor.pardef[j]];
         if (cylsurf && j == 0) {
           double length = 2 * M_PI * surf->bounds().r();
-          if (fabs(fabs(diff) - length) < fabs(diff)) {
+          if (std::abs(std::abs(diff) - length) < std::abs(diff)) {
             if (diff > 0) {
               diff -= length;
             } else {
@@ -8386,7 +8391,7 @@ namespace Trk {
           }
         }
         if (discsurf && j == 1) {
-          if (fabs(fabs(diff) - 2 * M_PI) < fabs(diff)) {
+          if (std::abs(std::abs(diff) - 2 * M_PI) < std::abs(diff)) {
             if (diff > 0) {
               diff -= 2 * M_PI;
             } else {

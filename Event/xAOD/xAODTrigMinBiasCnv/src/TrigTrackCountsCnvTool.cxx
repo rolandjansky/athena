@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigTrackCountsCnvTool.cxx 603232 2014-06-23 17:24:35Z azemla $
 
 // EDM include(s):
 #include "xAODTrigMinBias/TrigTrackCountsContainer.h"
@@ -23,15 +22,6 @@ namespace xAODMaker {
     
     // Declare the interface(s) provided by the tool:
     declareInterface< ITrigTrackCountsCnvTool >( this );
-  }
-  
-  StatusCode TrigTrackCountsCnvTool::initialize() {
-    
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
   }
   
   /**

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -36,6 +36,8 @@ class StoreGateSvc;
 class IAthenaOutputStreamTool;
 class IAthenaOutputTool;
 class IItemListSvc;
+class IDictLoaderSvc;
+class ITPCnvSvc;
 class MetaDataSvc;
 
 namespace SG {
@@ -67,6 +69,9 @@ protected:
 
    ServiceHandle<IItemListSvc>  m_itemSvc;
    ServiceHandle<MetaDataSvc>   m_metaDataSvc;
+
+   ServiceHandle<IDictLoaderSvc> m_dictLoader;
+   ServiceHandle<ITPCnvSvc>      m_tpCnvSvc;
 
    /// Name of the persistency service capable to write data from the store
    std::string              m_persName;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonTool.cxx
@@ -22,6 +22,8 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "AthenaKernel/Units.h"
 
 #include "TProfile2D.h"
@@ -38,8 +40,6 @@ using Athena::Units::GeV;
 ////////////////////////////////////////////
 LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,const IInterface* parent) 
   :CaloMonToolBase(type, name, parent),
-   m_useElectronicNoiseOnly(false),
-   m_noiseTool("CaloNoiseTool"),
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
    m_badChannelMask("BadLArRawChannelMask",this),
    m_LArOnlineIDHelper(nullptr),
@@ -50,10 +50,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("DoSaveTempHists",m_doSaveTempHists=false,"Store temporary, intermediate histograms in a /Temp/ directory (for debugging");
-
-  // tools 
-  declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false,"Consider only electronic noise and ignore pile-up contributiuon)");
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise Tool");
 
   // Trigger Awareness:
   declareProperty("useTrigger",m_useTrigger=true);
@@ -169,9 +165,7 @@ StatusCode LArCellMonTool::initialize() {
     ATH_CHECK(m_BCKey.initialize());
   }
 
-  //Calonoise tool
-  ATH_CHECK(m_noiseTool.retrieve());
-
+  ATH_CHECK(m_noiseKey.initialize());
 
   //JobO consistency check:
   if (m_useTrigger && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
@@ -191,12 +185,6 @@ StatusCode LArCellMonTool::initialize() {
   else {
     m_trigDec.disable();
   }
-
-  //Choose noise type
-  if (m_useElectronicNoiseOnly) 
-    m_noiseType = ICalorimeterNoiseTool::ELECTRONICNOISE;
-  else
-    m_noiseType=ICalorimeterNoiseTool::TOTALNOISE; 
 
   // Sets the threshold value arrays
   ATH_CHECK(initThreshHists());
@@ -653,19 +641,23 @@ StatusCode LArCellMonTool::fillHistograms(){
 
   ATH_MSG_DEBUG("LArCellMonTool::fillHistograms() starts");
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling");
      return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<CaloCellContainer> cellContHandle{m_cellContainerName};
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
+
+  SG::ReadHandle<CaloCellContainer> cellContHandle (m_cellContainerName, ctx);
   if (! cellContHandle.isValid()) { return StatusCode::FAILURE; }
   const CaloCellContainer* cellCont = cellContHandle.get();
 	    
   if (!m_oncePerJobHistosDone) {
-    ATH_CHECK(createPerJobHistograms(cellCont));
+    ATH_CHECK(createPerJobHistograms(ctx, cellCont));
     m_oncePerJobHistosDone=true;
   }
 
@@ -725,7 +717,7 @@ StatusCode LArCellMonTool::fillHistograms(){
 	ATH_MSG_WARNING("Got threshold 0 for type '" << thr.m_threshName  << "'for cell in layer " << m_layerNames[iLyr]);
       }
 
-      if (thr.m_inSigNoise) thresholdVal*=m_noiseTool->getNoise(cell,m_noiseType);
+      if (thr.m_inSigNoise) thresholdVal*=noise->getNoise(id, gain);
         
       if (thr.m_threshDirection==OVER && cellen <= thresholdVal) continue;
       if (thr.m_threshDirection==UNDER && cellen > thresholdVal) continue;
@@ -933,7 +925,8 @@ TH2F* LArCellMonTool::newEtaPhiHist(const std::string& hName, const std::string&
 
 
 
-StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellCont) {
+StatusCode LArCellMonTool::createPerJobHistograms(const EventContext& ctx,
+                                                  const CaloCellContainer* cellCont) {
 
   ATH_MSG_INFO("Creating the once-per-job histograms");
   //The following histograms can be considered constants for one job
@@ -942,7 +935,7 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
   //BadChannel word
   //Database noise
   
-  
+ 
   //1. Bad Channel word
   if (m_doKnownBadChannelsVsEtaPhi) {
     MonGroup knownBadChannelGroup(this,m_lArPath+"KnownBadChannels", run, ATTRIB_MANAGED,"","weightedAverage"); //Merging this info makes no sense at all! 
@@ -1010,12 +1003,14 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
   }//end loop over thresholds
   
 
-  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  SG::ReadCondHandle<LArBadChannelCont> readHandle (m_BCKey, ctx);
   const LArBadChannelCont *bcCont {*readHandle};
   if(m_doKnownBadChannelsVsEtaPhi && !bcCont) {
      ATH_MSG_WARNING( "Do not have Bad chan container !!!" );
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
   
   //filling:
   CaloCellContainer::const_iterator it = cellCont->begin(); 
@@ -1039,7 +1034,7 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
     } 
   
     if ( m_doDatabaseNoiseVsEtaPhi ) {
-      const float cellnoisedb = m_noiseTool->getNoise(cell,m_noiseType);
+      const float cellnoisedb = noise->getNoise(id, cell->gain());
       m_h_dbnoise_etaphi[iLyr]->Fill(celleta,cellphi,cellnoisedb);
     }      
     

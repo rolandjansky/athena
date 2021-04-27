@@ -13,7 +13,7 @@ log = logging.getLogger('TrigL2MuonSAConfig')
 theStationFitter     = MuonSA.TrigL2MuonSA__MuFastStationFitter(PtFromAlphaBeta = MuonSA.TrigL2MuonSA__PtFromAlphaBeta())
 
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
-trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
+trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
 
 theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator()
 theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( TrigT1RPCRecRoiTool = trigRpcRoiTool)

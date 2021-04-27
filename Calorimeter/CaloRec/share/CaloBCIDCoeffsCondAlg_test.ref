@@ -1,27 +1,29 @@
 CaloRec/CaloBCIDCoeffsCondAlg_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /gpfs/mnt/atlasgpfs01/usatlas/data/snyder/atlas-master-acas-c/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
-JobOptionsSvc        INFO # =======> /gpfs/mnt/atlasgpfs01/usatlas/data/snyder/atlas-master-acas-c/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (4,1): CaloBCIDLumiCondAlgMC.isMC = 1
 JobOptionsSvc        INFO # (5,1): CaloBCIDLumiCondAlgMC.OutputLumiKey = "CaloBCIDLumiMC"
 JobOptionsSvc        INFO # (6,1): CaloBCIDLumiCondAlgData.isMC = 0
 JobOptionsSvc        INFO # (7,1): CaloBCIDLumiCondAlgData.OutputLumiKey = "CaloBCIDLumiData"
-JobOptionsSvc        INFO Job options successfully read in from /gpfs/mnt/atlasgpfs01/usatlas/data/snyder/atlas-master-acas-c/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3h/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/CaloRec/CaloBCIDTests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
-                                          running on spar0103.usatlas.bnl.gov on Mon Mar 30 11:20:20 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r1)
+                                          running on lxplus775.cern.ch on Thu Apr  8 22:14:23 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 9577 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9717 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
+Warning : label hadronic not found
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+Warning : label hadronic not found
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 CaloBCIDCoeffsC...   INFO recorded new CaloBCIDCoeffs with range {[10,t:0,l:20] - [10,l:75]}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -54,21 +54,20 @@ OraclePixGeoManager::OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps)
     m_initialLayout(false), 
     m_dc1Geometry(false),
     m_alignable(true),
-    m_slhc(false),
     m_ibl(false),
     m_PlanarModuleNumber(0),
     m_3DModuleNumber(0),
     m_dbm(false),
-    m_legacyManager(0),
-    m_gangedIndexMap(0),
-    m_frameElementMap(0),
-    m_diskRingIndexMap(0),
-    m_zPositionMap(0),
+    m_legacyManager(nullptr),
+    m_gangedIndexMap(nullptr),
+    m_frameElementMap(nullptr),
+    m_diskRingIndexMap(nullptr),
+    m_zPositionMap(nullptr),
     m_dbVersion(0),
     m_defaultLengthUnit(Gaudi::Units::mm)
 {
-  m_commonItems = 0;
-  m_pDDmgr = 0;
+  m_commonItems = nullptr;
+  m_pDDmgr = nullptr;
 
   init();
 }
@@ -83,8 +82,8 @@ OraclePixGeoManager::init()
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey(geoDbTag,"Pixel");
-  std::string detectorKey  = versionKey.tag();
-  std::string detectorNode = versionKey.node();
+  const std::string& detectorKey  = versionKey.tag();
+  const std::string& detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
@@ -358,7 +357,6 @@ bool OraclePixGeoManager::isLDPresent() {
     A << "_" << m_currentLD;
     // More than 3 layers not yet supported in database so
     // if not present in text file assume using this layer
-    if (slhc() && !db()->testFieldTxt(m_PixelBarrelGeneral,"USELAYER"+A.str())) return true;
     return db()->getInt(m_PixelBarrelGeneral,"USELAYER"+A.str());
   }
   if(isEndcap() ) {
@@ -367,7 +365,6 @@ bool OraclePixGeoManager::isLDPresent() {
     A << "_" << m_currentLD;
     // More than 3 disks not yet supported in database so
     // if not present in text file assume using this disks
-    if (slhc() && !db()->testFieldTxt(m_PixelEndcapGeneral,"USEDISK"+A.str())) return true;
     return db()->getInt(m_PixelEndcapGeneral,"USEDISK"+A.str());
   }
   return false;
@@ -375,26 +372,14 @@ bool OraclePixGeoManager::isLDPresent() {
 
 
 bool OraclePixGeoManager::isBarrel() {
-  if(m_BarrelEndcap == 0) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 0;
 }
 bool OraclePixGeoManager::isEndcap() {
-  if(m_BarrelEndcap == 1) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 1;
   return false;
 }
 bool OraclePixGeoManager::isDBM() {
-  if(m_BarrelEndcap == 2) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 2;
 }
 
 bool OraclePixGeoManager::DoServices() {
@@ -423,7 +408,7 @@ bool OraclePixGeoManager::Alignable() const {
 
 
 PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
-  if(m_pDDmgr == NULL) {
+  if(m_pDDmgr == nullptr) {
     //
     // retrieve the pointer to the DD manager
     //
@@ -448,7 +433,7 @@ OraclePixGeoManager::distortedMatManager() const{
 // which thickness is given in % of r.l.
 //
 /////////////////////////////////////////////////////////
-double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
+double OraclePixGeoManager::CalculateThickness(double tck,const string& mat) {
   const GeoMaterial* material =  m_pMatMgr->getMaterial(mat);
   double rl = material->getRadLength();
   material->ref();
@@ -459,16 +444,9 @@ double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
 int OraclePixGeoManager::moduleType()
 {
   int type = 0;
-  if (slhc() || ibl()) {
+  if (ibl()) {
     if (isBarrel()) {
       type = db()->getInt(m_PixelLayer,"MODULETYPE",m_currentLD);
-    }
-    if (isEndcap() && slhc()) {
-      // Not in DB yet.
-      int ringType = getDiskRingType(m_currentLD,m_eta);
-      if (ringType>=0) {
-	type = db()->getInt(m_PixelRing,"MODULETYPE",ringType);
-      }
     }
   } else {
     if(isBarrel()) type = m_currentLD;
@@ -1157,12 +1135,6 @@ int OraclePixGeoManager::determineDbVersion() {
   // This determines a version depending on various changes in the database;
   int version = 0;
 
-  if (db()->testField(m_PixelSwitches,"VERSIONNAME") 
-      && db()->getString(m_PixelSwitches,"VERSIONNAME")== "SLHC"){
-    version = 4; // SLHC may have TMT table removed. 
-    return version;
-  }
-
   if (!(*m_PixelLayer)[0]->isFieldNull("PHIOFMODULEZERO")) version = 1;
   if (m_PixelReadout->size() != 0) version = 2;
   if (m_weightTable->size() != 0) version = 3;
@@ -1511,16 +1483,15 @@ double OraclePixGeoManager::PixelFrameElementZMax2(int sectionIndex, int element
 
 int OraclePixGeoManager::PixelStaveIndex(int layer)
 {
-  if (!slhc() && !ibl()) return 0;
+  if (!ibl()) return 0;
   if (!db()->testField(m_PixelLayer,"STAVEINDEX",layer)) return 0;
   return db()->getInt(m_PixelLayer,"STAVEINDEX",layer);
 }
 
 int OraclePixGeoManager::PixelStaveLayout()
 {
-  if (!slhc() && !ibl()) return 0;
+  if (!ibl()) return 0;
   int defaultLayout = 0;
-  if (slhc()) defaultLayout = 1;
   int index = PixelStaveIndex(m_currentLD);
 
   //  if(m_currentLD==0)
@@ -1557,35 +1528,6 @@ double OraclePixGeoManager::PixelLayerGlobalShift()
   return 0.;
 }
 
-
-bool OraclePixGeoManager::PixelLayerSupportCylPresent() 
-{
-  return ((slhc() || ibl())  && db()->testField(m_PixelLayer,"SUPPORTTHICK",m_currentLD) &&  PixelLayerSupportThick() > 0);
-}
-
-double OraclePixGeoManager::PixelLayerSupportRMin() 
-{
-  // If rmin provided and valid use it, otherwise calculate from offset from layer radius.
-  double rmin = -1;
-  if (db()->testField(m_PixelLayer,"SUPPORTRMIN",m_currentLD)) {
-    rmin = db()->getDouble(m_PixelLayer,"SUPPORTRMIN",m_currentLD);
-  }
-  if (rmin <= 0) {
-    rmin = PixelLayerRadius()+PixelLayerSupportROffset();
-  }
-  return rmin;
-}
-
-double OraclePixGeoManager::PixelLayerSupportROffset() 
-{
-  return db()->getDouble(m_PixelLayer,"SUPPORTROFFSET",m_currentLD);
-}
-
-double OraclePixGeoManager::PixelLayerSupportThick() 
-{
-  return db()->getDouble(m_PixelLayer,"SUPPORTTHICK",m_currentLD);
-}
-
 double OraclePixGeoManager::PixelLadderLength() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderLength(); 
@@ -1601,7 +1543,7 @@ double OraclePixGeoManager::PixelLadderWidthClearance()
 }
 
 // Only used if ladder thickness is automatically calculated it, ie ENVTHICK = 0
-// SLHC/IBL only
+// IBL only
 double OraclePixGeoManager::PixelLadderThicknessClearance() 
 {
   int index = PixelStaveIndex(m_currentLD);
@@ -1651,14 +1593,14 @@ double OraclePixGeoManager::PixelLadderCableOffsetY()
   return db()->getDouble(m_PixelStave,"CABLEOFFSETY",index) * Gaudi::Units::mm;
 }
 
-// SLHC/IBL only
+// IBL only
 double OraclePixGeoManager::PixelLadderSupportThickness() 
 {
   int index = PixelStaveIndex(m_currentLD);
   return db()->getDouble(m_PixelStave,"SUPPORTTHICK",index) * Gaudi::Units::mm;
 }
 
-// SLHC/IBL only
+// IBL only
 double OraclePixGeoManager::PixelLadderSupportWidth() 
 {
   int index = PixelStaveIndex(m_currentLD);
@@ -1669,7 +1611,7 @@ double OraclePixGeoManager::PixelLadderSupportWidth()
 
 
 
-// SLHC/IBL only
+// IBL only
 double OraclePixGeoManager::PixelLadderBentStaveAngle() 
 {
   if (!db()->testFieldTxt(m_PixelConicalStave,"BENTSTAVEANGLE")) return 0;
@@ -1677,7 +1619,7 @@ double OraclePixGeoManager::PixelLadderBentStaveAngle()
   return db()->getDouble(m_PixelConicalStave,"BENTSTAVEANGLE",index);
 }
 
-// SLHC/IBL only
+// IBL only
 int OraclePixGeoManager::PixelBentStaveNModule() 
 {
   if (!db()->testFieldTxt(m_PixelConicalStave,"BENTSTAVENMODULE")) return 0;
@@ -1691,7 +1633,7 @@ double OraclePixGeoManager::PixelLadderModuleDeltaZ()
   return db()->getDouble(m_PixelStave,"MODULEDZ",index);
 }
 
-// SLHC/IBL only
+// IBL only
 double OraclePixGeoManager::PixelLadderSupportLength() 
 {
   int index = PixelStaveIndex(m_currentLD);
@@ -2212,8 +2154,7 @@ bool OraclePixGeoManager::IBLFlexAndWingDefined()
 {
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
-  if (db()->testField(m_PixelIBLFlex,"FLEXMIDGAP",index)) return true;
-  return false;
+  return db()->testField(m_PixelIBLFlex,"FLEXMIDGAP",index);
 }
 
 
@@ -2504,7 +2445,7 @@ double OraclePixGeoManager::PixelModuleZPosition(int etaModule)
   // ZPOSTYPE != 0. Means tabulated z positions.
   int staveIndex = PixelStaveIndex(m_currentLD);
   int zPosType = 0;
-  if ((slhc() || ibl()) &&  db()->testField(m_PixelStave,"ZPOSTYPE",staveIndex)) {
+  if (ibl() && db()->testField(m_PixelStave,"ZPOSTYPE",staveIndex)) {
     zPosType = db()->getInt(m_PixelStave,"ZPOSTYPE",staveIndex);
   }
   if (zPosType) {
@@ -2544,14 +2485,14 @@ double OraclePixGeoManager::PixelModuleShiftFlag(int etaModule)
 double OraclePixGeoManager::PixelModuleStaggerDistance()
 {
   int staveIndex = PixelStaveIndex(m_currentLD);
-  if (!(slhc() || ibl()) || !db()->testField(m_PixelStave,"STAGGERDIST",staveIndex)) return 0; 
+  if (!ibl() || !db()->testField(m_PixelStave,"STAGGERDIST",staveIndex)) return 0; 
   return db()->getDouble(m_PixelStave,"STAGGERDIST",staveIndex) * Gaudi::Units::mm;
 }
 
 int OraclePixGeoManager::PixelModuleStaggerSign(int etaModule)
 {
   int staveIndex = PixelStaveIndex(m_currentLD);
-  if (!(slhc() || ibl()) || !db()->testField(m_PixelStave,"FIRSTSTAGGER",staveIndex)) return 0;  
+  if (!ibl() || !db()->testField(m_PixelStave,"FIRSTSTAGGER",staveIndex)) return 0;  
   // FIRSTSTAGGER refers to whether the first module (lowest etavalue) is staggered up (+1) or down(-1)
   int firstStagger =  db()->getInt(m_PixelStave,"FIRSTSTAGGER",staveIndex);
   int moduleIndex = PixelModuleIndexFromEta(etaModule);
@@ -2561,7 +2502,7 @@ int OraclePixGeoManager::PixelModuleStaggerSign(int etaModule)
 bool OraclePixGeoManager::allowSkipEtaZero()
 {
   bool allowSkip = true;
-  if (ibl() || slhc()){
+  if (ibl()){
     int staveIndex = PixelStaveIndex(m_currentLD);
     if (db()->testField(m_PixelStave,"NOSKIPZERO",staveIndex)) {
       if (db()->getInt(m_PixelStave,"NOSKIPZERO",staveIndex)) allowSkip = false;
@@ -2582,7 +2523,7 @@ int OraclePixGeoManager::PixelModuleEtaFromIndex(int index)
   int nModules = PixelNModule();
   int etaModule = index-nModules/2;
   // If even number of modules skip eta = 0.
-  // For IBL or SLHC this behaviour can be disabled.
+  // For IBL this behaviour can be disabled.
   if (allowSkipEtaZero() && (etaModule >= 0) && !(nModules%2)) etaModule++; 
   return etaModule;
 }
@@ -2592,7 +2533,7 @@ int OraclePixGeoManager::PixelModuleIndexFromEta(int etaModule)
   int nModules = PixelNModule();  
   int index = etaModule + nModules/2;
   // If even number of modules skip eta = 0.
-  // For IBL or SLHC this behaviour can be disabled.
+  // For IBL this behaviour can be disabled.
   if (allowSkipEtaZero() && (etaModule >= 0) && (nModules%2 == 0)) index--; 
   return index;
 }
@@ -2642,12 +2583,6 @@ double  OraclePixGeoManager::PixelDiskZPosition()
 {
   return db()->getDouble(m_PixelDisk,"ZDISK",m_currentLD)*mmcm();
 }
-
-// See new SLHC/LHC version below
-//double  OraclePixGeoManager::PixelDiskRMin()
-//{
-//  return db()->getDouble(m_PixelDisk,"RIDISK",m_currentLD)*mmcm();
-//}
 
 double OraclePixGeoManager::PixelECSiDz1() 
 {
@@ -3150,9 +3085,9 @@ int  OraclePixGeoManager::designType(bool isModule3D)
     if (m_PixelReadout->size() == 0) {
       msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endmsg;
       return 0;
-    } else if (m_PixelReadout->size() == 1 && !slhc() && !ibl()) {
+    } else if (m_PixelReadout->size() == 1 && !ibl()) {
       return 0;
-    } else { // Only in IBL and SLHC
+    } else { // Only in IBL
       return db()->getInt(m_PixelModule,"DESIGNTYPE",moduleType());
     }
   }
@@ -3169,9 +3104,9 @@ int  OraclePixGeoManager::designType3D()
     if (m_PixelReadout->size() == 0) {
       msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endmsg;
       return 0;
-    } else if (m_PixelReadout->size() == 1 && !slhc() && !ibl()) {
+    } else if (m_PixelReadout->size() == 1 && !ibl()) {
       return 0;
-    } else { // Only in IBL and SLHC
+    } else { // Only in IBL
       int type = db()->getInt(m_PixelModule,"DESIGNTYPE",moduleType3D());
       return type;
     }
@@ -3290,7 +3225,7 @@ int  OraclePixGeoManager::DesignNumEmptyRowsInGap(bool isModule3D)
 int OraclePixGeoManager::GangedType()
 {
   // type 0 means no ganged pixels
-  if (!slhc() && !ibl()) return 1;
+  if (!ibl()) return 1;
   if (ibl()) {
     return db()->getInt(m_PixelReadout,"GANGEDTYPE",designType());
   } else {
@@ -3306,7 +3241,7 @@ int OraclePixGeoManager::GangedType()
 int OraclePixGeoManager::GangedTableIndex(int index, int type)
 {
   // There is only one type for standard ATLAS so we just return the index.
-  if (!slhc() && !ibl()) return index; 
+  if (!ibl()) return index; 
 
   if (!m_gangedIndexMap) {
     // First time we create the map
@@ -3425,7 +3360,7 @@ double OraclePixGeoManager::DesignPitchZLong(bool isModule3D)
 double OraclePixGeoManager::DesignPitchZLongEnd(bool isModule3D)
 {
   // Defaults to DesignPitchZLongEnd if not specified or is zero.
-  if (!slhc() && !ibl()) { // This check is not really needed once the field is in the database.
+  if (!ibl()) { // This check is not really needed once the field is in the database.
     return DesignPitchZLong(isModule3D);
   } else {
     int type = designType((ibl()&&isModule3D));
@@ -3474,117 +3409,9 @@ int OraclePixGeoManager::DesignCircuitsEta(bool isModule3D)
 
 
 // Endcap 
-// SLHC only
-int OraclePixGeoManager::getDiskRingIndex(int disk, int eta)
-{ 
-  if (!slhc()) return 0;
-  if (!m_diskRingIndexMap) {
-    m_diskRingIndexMap = new InDetDD::PairIndexMap;
-    for (unsigned int indexTmp = 0; indexTmp < db()->getTableSize(m_PixelDiskRing); ++indexTmp) {
-      int diskTmp = db()->getInt(m_PixelDiskRing,"DISK",indexTmp);
-      int ringTmp = db()->getInt(m_PixelDiskRing,"RING",indexTmp);
-      m_diskRingIndexMap->add(diskTmp,ringTmp,indexTmp);
-    }
-  }
-  int index = m_diskRingIndexMap->find(disk, eta);
-  if (index < 0)  msg(MSG::ERROR) << "Index not found for disk,ring =  " << disk << ", " << eta << endmsg;
-  //std::cout << "Index found for disk,ring =  " << disk << ", " << eta << " : " << index << std::endl;
-  return index;
-}
-
-// SLHC Only
-int OraclePixGeoManager::getDiskRingType(int disk, int eta)
+double  OraclePixGeoManager::PixelDiskRMin()
 {
-  int index = getDiskRingIndex(disk, eta);
-  if (index < 0) return -1;
-  return  db()->getInt(m_PixelDiskRing,"RINGTYPE",index);
-}
-
-int OraclePixGeoManager::PixelDiskNRings() 
-{
-  if (slhc()) {
-    return db()->getInt(m_PixelDisk,"NRINGS",m_currentLD);
-  } else {
-    return 1;
-  }
-}
-
-
-int OraclePixGeoManager::PixelDiskRingNModules() {
-  if (slhc()) {
-    int ringType = getDiskRingType(m_currentLD,m_eta);
-    if (ringType>=0) return db()->getInt(m_PixelRing,"NMODULE",ringType);
-    return 0;
-  } else {
-    return 2*db()->getInt(m_PixelDisk,"NMODULE",m_currentLD);
-  }
-}
-
-// NB. SLHC/LHC different parameter name
-double  OraclePixGeoManager::PixelDiskRMin(bool includeSupports)
-{
-  if (!slhc()) {
-    return db()->getDouble(m_PixelDisk,"RIDISK",m_currentLD)*mmcm();
-  } else {
-    double result = db()->getDouble(m_PixelDisk,"RMIN",m_currentLD) * Gaudi::Units::mm;
-    if(includeSupports) {
-      result = std::min( result, PixelDiskSupportRMin(0) );
-    }
-    int etaInner = 0; // Inner ring
-    int ringType = getDiskRingType(m_currentLD,etaInner); 
-    if (ringType >= 0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-      double ringRmin = db()->getDouble(m_PixelRing,"RMIN",ringType) * Gaudi::Units::mm - 0.01*Gaudi::Units::mm;  // ring envelope has a 0.01mm safety
-      if (ringRmin < result) {
-	msg(MSG::WARNING) << "Ring rmin is less than disk rmin for disk : " << m_currentLD 
-			  << ". Ring rmin: " << ringRmin << ", Disk rmin: " << result <<endmsg;
-	result = ringRmin - 0.1*Gaudi::Units::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
-      }
-    }
-    return result;
-  }
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelDiskRMax(bool includeSupports)
-{
-  double result = db()->getDouble(m_PixelDisk,"RMAX",m_currentLD) * Gaudi::Units::mm;
-  if(includeSupports) {
-    result = std::max( result, PixelDiskSupportRMax(2) );
-  }
-  // save current state
-  int tmpEta = m_eta;
-  m_eta = PixelDiskNRings() - 1; // Outer ring
-  int ringType = getDiskRingType(m_currentLD,m_eta); 
-  if (ringType >=0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-    // This is not so nice as PixelRingRMax can potentially call PixelDiskRMax, however it
-    // only calls PixelDiskRMax if the above condition is not satisified. So hopefully OK.
-    // TODO: Code could do with some improvement to make it less fragile.
-    double ringRmax  = PixelRingRMax(0.01*Gaudi::Units::mm); // ring envelope has a 0.01mm safety
-    if (ringRmax > result) {
-      msg(MSG::WARNING) << "Ring rmax is greater than disk rmax for disk : " << m_currentLD 
-			<< ". Ring rmax: " << ringRmax << ", Disk rmax: " << result <<endmsg;
-      result = ringRmax + 0.1*Gaudi::Units::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
-    }
-  }
-  // restore state
-  m_eta = tmpEta;
-  return result;
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelDiskThickness(double safety) {
-  int nrings = PixelDiskNRings();
-  int tmpRing = m_eta;
-  m_eta = 0;
-  double teven = PixelRingZpos() + PixelRingThickness()/2 + safety;
-  double thick = 2*teven;
-  if (nrings > 1) {
-    m_eta = 1;
-    double todd  = PixelRingZpos() + PixelRingThickness()/2 + safety;
-    thick = 2*std::max(teven,todd);
-  }  
-  m_eta = tmpRing;
-  return thick;
+  return db()->getDouble(m_PixelDisk,"RIDISK",m_currentLD)*mmcm();
 }
 
 ///
@@ -3592,106 +3419,6 @@ double OraclePixGeoManager::PixelDiskThickness(double safety) {
 //
 // endcap rings
 //
-// SLHC only
-
-double OraclePixGeoManager::PixelRingRcenter() {
-  
-  // If ring rmin is present and non-zero use that.
-  int ringType = getDiskRingType(m_currentLD,m_eta); 
-  if (ringType >=0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * Gaudi::Units::mm + PixelModuleLength()/2;
-  } else { 
-    // Otherwise calculate from disk rmin/rmax
-    int nrings = PixelDiskNRings();
-    assert( m_eta>=0 && m_eta<nrings );
-    
-    double rcFirst = PixelDiskRMin()+PixelModuleLength()/2;
-    if(m_eta==0) return rcFirst;
-    
-    double rcLast = PixelDiskRMax()-PixelModuleLength()/2;
-    if(m_eta==nrings-1) return rcLast;
-    
-    double deltar = (rcLast - rcFirst) / (nrings-1);
-    return rcFirst + m_eta*deltar;
-  }
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingRMin(double safety) {
-  // default safety value is 0.01mm, but for exact calculations, safety=0 must be forced
-  // If ring rmin is present and non-zero use that.
-  int ringType = getDiskRingType(m_currentLD,m_eta); 
-  if (ringType >= 0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * Gaudi::Units::mm - std::abs(safety); 
-  } else {
-    // Otherwise calculated it from disk rmin
-    if(m_eta==0) return PixelDiskRMin() - std::abs(safety);
-    else return PixelRingRcenter() - PixelModuleLength()/2 - std::abs(safety); 
-  }
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingRMax(double safety) {
-  //
-  // ringRmax (OB) is the longest side of the triangle OAB, formed by
-  // rinRmin (OA) and the line AB joining the center of the inner edge
-  // of the module (A) to any of the two outer vertices of the module
-  // (B).  Point O is the center of the ring.
-  //
-  // Default safety value is 0.01mm, but for exact calculations, safety=0 must be forced
-  // modL,modW,modD are module length,width
-
-  //  I can't see what's wrong here...
-  double modL = PixelModuleLength();
-  double modW = PixelModuleWidth();
-  double distAB_sqr = modL*modL + modW*modW/4.;
-  double distAB = sqrt(distAB_sqr);
-  double distOA = PixelRingRMin(0);
-  double costheta = modL/distAB;
-  double distOB_sqr = distOA*distOA + distAB_sqr + 2*distOA*distAB*costheta;
-  double ringRmax = sqrt(distOB_sqr);
-  return ringRmax + std::abs(safety);
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingThickness(double safety) {
-  return PixelModuleThickness() + PixelRingStagger() + 2*safety;
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingZpos() {
-  // Returns always a positive value, although rings go on both sides of a support disk
-  return PixelRingZoffset();
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingZoffset() 
-{
-  int index = getDiskRingIndex(m_currentLD,m_eta);
-  return std::abs(db()->getDouble(m_PixelDiskRing,"ZOFFSET",index))*Gaudi::Units::mm;
-}
-
-// SLHC only
-int OraclePixGeoManager::PixelRingSide() 
-{
-  int index = getDiskRingIndex(m_currentLD,m_eta);
-  return db()->getInt(m_PixelDiskRing,"SIDE",index);
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelRingStagger() 
-{
-  int ringType = getDiskRingType(m_currentLD,m_eta);
-  return db()->getDouble(m_PixelRing,"STAGGER",ringType)*Gaudi::Units::mm;
-}
-
-
-// SLHC only
-//int OraclePixGeoManager::PixelRingNmodules() {
-//  return db()->getInt("PixelRing","NMODULES",ringIndex)*Gaudi::Units::mm();
-//}
-
-
 int OraclePixGeoManager::PixelDiskNumSupports() {
   // Hardwire for now
   return 3;
@@ -3710,7 +3437,7 @@ double OraclePixGeoManager::PixelDiskSupportRMax(int isup) {
 }
 
 
-// SLHC only
+// SLHC only (TODO: does not look like it)
 double OraclePixGeoManager::PixelDiskSupportThickness(int isup) {
 
   std::ostringstream prefix;
@@ -3743,7 +3470,7 @@ double OraclePixGeoManager::PixelDiskSupportThickness(int isup) {
   }
 }
 
-// SLHC only
+// SLHC only (TODO: does not look like it)
 int OraclePixGeoManager::PixelDiskSupportMaterialTypeNum(int isup) {
  
   if (dbVersion() < 3) return 0;
@@ -3769,66 +3496,6 @@ int OraclePixGeoManager::PixelDiskSupportMaterialTypeNum(int isup) {
   }
   return imat;
 }
-
-// SLHC only
-double OraclePixGeoManager::PixelModuleThicknessN() {
-  //
-  // The module envelope is no longer forced to symmetric about its
-  // center to allow for room between the module and TMT. ThicknessN
-  // is the max of ThicknessP and thickness from the module center to
-  // the outer surface of the hybrid plus some safety.
-  //
-  double safety = 0.01*Gaudi::Units::mm;
-  double thickn = 0.5 * PixelBoardThickness()
-    + PixelHybridThickness() + safety;
-  double thick = std::max(thickn, PixelModuleThicknessP());
-  return thick;
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelModuleThicknessP() {
-  //
-  // The module envelope is no longer forced to symmetric about its
-  // center to allow for room between the module and TMT. ThicknessP
-  // is thickness from the module center to the outer surface of the
-  // chips plus some safety.
-
-  double safety = 0.01*Gaudi::Units::mm;
-  double thick = 0.5 * PixelBoardThickness() +
-    PixelChipThickness() + PixelChipGap() + safety;
-
-  return thick;
-}
-
-
-// SLHC only
-double OraclePixGeoManager::PixelModuleThickness() {
-  // This is total thickness of the module envelope
-  // return PixelModuleThicknessP()+PixelModuleThicknessN();
-
-  // Return thickness of a box symmetric about sensor. This may be larger 
-  // than the actual module envelope as the envelop can be shifted off center
-  return 2*std::max(PixelModuleThicknessP(),PixelModuleThicknessN());
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelModuleWidth() {
-  double width = std::max( std::max( PixelBoardWidth(),
-				     PixelHybridWidth()),
-			   PixelChipWidth());
-  return width;
-}
-
-// SLHC only
-double OraclePixGeoManager::PixelModuleLength() {
-  // balcony is assumed zero
-  double length = std::max( std::max(PixelHybridLength(),
-				     PixelBoardLength()),
-			    PixelChipLength());
-  return length;
-}
-
-
 
 
 //

@@ -37,7 +37,7 @@ namespace xAODMaker {
    StatusCode EventInfoCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing " << name() );
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey.key() );
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SupportRailFactory.h"
@@ -28,8 +28,8 @@
 
 #include "CxxUtils/checker_macros.h"
 
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 
 SupportRailFactory::SupportRailFactory(InDetDD::AthenaComps * athenaComps, 

@@ -16,12 +16,11 @@ jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(True)
 
-#Disable reco of trigger, egamma, muons and taus
+#Disable reco of trigger, egamma, muons
 from RecExConfig.RecFlags import rec
 rec.doTrigger.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
-rec.doTau.set_Value_and_Lock(False)
 
 #Disable linking of PFO/FE to and from other objects - this won't work because e.g electrons already have links to PFO/FE and
 #we cannot overwrite those.
@@ -50,6 +49,12 @@ jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
 rec.doFileMetaData.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=100
-#Run pflow jet finding to avoid errors due to broken links from jets to constituents
+#Rerun jet finding because constituents (pflow,calocluster) were rebuilt
 UserAlgs = ["eflowRec/jetAlgs.py"]
+#Rerun taus because we rebuild MET - will get errors if do not rebuild taus
+from tauRec.tauRecFlags import tauFlags
+tauFlags.isStandalone.set_Value_and_Lock(True)
+UserAlgs += ["tauRec/tauRec_jobOptions.py"]
+#Rebuild MET from the rebuilt PFO etc
+UserAlgs+=["METReconstruction/METReconstruction_jobOptions.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")

@@ -20,7 +20,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   if config is None :
     raise ValueError('makeInDetAlgs() No config provided!')
   #Add suffix to the algorithms
-  signature =  '_{}'.format( config.name )
+  signature =  '_{}'.format( config.input_name )
 
   #Global keys/names for Trigger collections
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -45,7 +45,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
-    if doFTF and config.FT.signatureType == 'fullScanUTT' :
+    if doFTF and config.name == 'fullScanUTT' :
       ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
 
 
@@ -301,72 +301,94 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   #do not add if the config is LRT
   if doFTF:
-      #Load signature configuration (containing cut values, names of collections, etc)
-      #from .InDetTrigConfigSettings import getInDetTrigConfig
-      #configSetting = getInDetTrigConfig( whichSignature )
+
       if config is None:
             raise ValueError('makeInDetAlgs() No signature config specified')
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType,
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.input_name,
                                        conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = config.FT.trkTracksFTF()
-      theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
-      if config.FT.signatureType == 'fullScanUTT' :
-        theFTF.RecJetRoI      = "HLT_RecJETRoIs"
-        theFTF.HitDVSeed      = "HLT_HitDVSeed"
-        theFTF.HitDVTrk       = "HLT_HitDVTrk"
-        theFTF.HitDVSP        = "HLT_HitDVSP"
-        theFTF.dEdxTrk        = "HLT_dEdxTrk"
-        theFTF.dEdxHit        = "HLT_dEdxHit"
-
 
       viewAlgs.append(theFTF)
 
-
-      from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-      from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-
-
-
-      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                                TrackName = config.FT.trkTracksFTF(),
-                                                                ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-
-
-      #In general all FTF trackParticle collections are recordable except beamspot to save space
-      theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
-
-      viewAlgs.append(theTrackParticleCreatorAlg)
-
-      if secondStageConfig is not None:
-        #have been supplied with a second stage config, create another instance of FTF
-        theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.name, secondStageConfig.FT.signatureType,
-                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
-        theFTF2.RoIs           = rois
-        theFTF2.TracksName     = secondStageConfig.FT.trkTracksFTF()
-        theFTF2.inputTracksName = config.FT.trkTracksFTF()
-        theFTF2.doCloneRemoval = secondStageConfig.FT.setting.doCloneRemoval
-
-        viewAlgs.append(theFTF2)
-
+      if not config.doZFinderOnly: 
 
         from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
         from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
-
-
-        theTrackParticleCreatorAlg2 = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg_" + secondStageConfig.FT.signatureType,
-                                                                  TrackName = secondStageConfig.FT.trkTracksFTF(),
+        theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                                  TrackName = config.trkTracks_FTF(),
                                                                   ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
 
-
         #In general all FTF trackParticle collections are recordable except beamspot to save space
-        theTrackParticleCreatorAlg2.TrackParticlesName = secondStageConfig.FT.tracksFTF( doRecord = secondStageConfig.isRecordable )
+        theTrackParticleCreatorAlg.TrackParticlesName = config.tracks_FTF()
 
-        viewAlgs.append(theTrackParticleCreatorAlg2)
+        viewAlgs.append(theTrackParticleCreatorAlg)
+
+        if secondStageConfig is not None:
+          #have been supplied with a second stage config, create another instance of FTF
+          theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.input_name, secondStageConfig.input_name,
+                                            conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
+          theFTF2.RoIs           = rois
+          theFTF2.inputTracksName = config.trkTracks_FTF()
+        
+          
+          viewAlgs.append(theFTF2)
+
+          
+          from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+          from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+          
+          
+          
+          theTrackParticleCreatorAlg2 = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg_" + secondStageConfig.input_name,
+                                                                  TrackName = secondStageConfig.trkTracks_FTF(),
+                                                                     ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+          
+          
+          #In general all FTF trackParticle collections are recordable except beamspot to save space
+          theTrackParticleCreatorAlg2.TrackParticlesName = secondStageConfig.tracks_FTF()
+          
+          viewAlgs.append(theTrackParticleCreatorAlg2)
 
 
+      if (InDetTrigFlags.doTruth()):   
+
+        from InDetTruthAlgs.InDetTruthAlgsConf import InDet__PRD_MultiTruthMaker
+        InDetTrigPRD_MultiTruthMakerSi = InDet__PRD_MultiTruthMaker (name                    = 'InDetTrigPRD_MultiTruthMakerSi',
+                                                                 PixelClusterContainerName   = 'PixelTrigClusters',
+                                                                 SCTClusterContainerName     = 'SCT_TrigClusters',
+                                                                 TRTDriftCircleContainerName = '',
+                                                                 SimDataMapNamePixel         = 'PixelSDO_Map',
+                                                                 SimDataMapNameSCT           = 'SCT_SDO_Map',
+                                                                 SimDataMapNameTRT           = '',
+                                                                 TruthNamePixel              = 'PRD_MultiTruthPixel',
+                                                                 TruthNameSCT                = 'PRD_MultiTruthSCT',
+                                                                 TruthNameTRT                = '')
+        
+        viewAlgs.append(InDetTrigPRD_MultiTruthMakerSi)
+        MyTrackCollections = ["HLT_IDTrkTrack_FS_FTF"]
+        import AthenaCommon.SystemOfUnits as Units
+        from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidation
+        InDetTrigTrackClusterAssValidation = InDet__TrackClusterAssValidation(name              = "InDetTrigTrackClusterAssValidation",
+                                                                          TracksLocation         = MyTrackCollections             ,
+                                                                          SpacePointsPixelName   = "PixelTrigSpacePoints"    ,
+                                                                          SpacePointsSCTName     = "SCT_TrigSpacePoints"    ,
+                                                                          SpacePointsOverlapName = "OverlapSpacePoints",
+                                                                          PixelClustesContainer  = 'PixelTrigClusters',
+                                                                          SCT_ClustesContainer   = 'SCT_TrigClusters',
+                                                                          MomentumCut            = 1.5 * Units.GeV,
+                                                                          RapidityCut            = 2.7     ,
+                                                                          RadiusMin              = 0.0     ,
+                                                                          RadiusMax              = 20.0 * Units.mm    ,
+                                                                          MinNumberClusters      = 7       ,
+                                                                          MinNumberClustersTRT   = 0       ,
+                                                                          MinNumberSpacePoints   = 3       ,
+                                                                          usePixel               = True     ,
+                                                                          useSCT                 = True     ,
+                                                                          useTRT                 = False     )
+        viewAlgs.append(InDetTrigTrackClusterAssValidation)
+ 
   return viewAlgs, ViewDataVerifier

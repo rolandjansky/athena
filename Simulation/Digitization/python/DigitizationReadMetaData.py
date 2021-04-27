@@ -16,6 +16,30 @@ def checkLegacyEventInfo(inputlist):
 
     return present
 
+def checkTruthJetContainer(inputlist):
+    """ Check for  Truth Jet Container """
+    present = False
+    for entry in inputlist:
+        if entry[0] != 'xAOD::JetContainer':
+            continue
+
+        print(entry)
+        present = True
+
+    return present
+
+def checkTruthParticleContainer(inputlist):
+    """ Check for Pileup Truth Particle Container """
+    present = False
+    for entry in inputlist:
+        if entry[0] != 'xAOD::TruthParticleContainer':
+            continue
+
+        print(entry)
+        present = True
+
+    return present
+
 def hitColls2SimulatedDetectors(inputlist):
     """Build a dictionary from the list of containers in the metadata"""
     simulatedDetectors = []
@@ -211,6 +235,16 @@ def buildDict(inputtype, inputfile):
             metadatadict['LegacyEventInfo'] = checkLegacyEventInfo(f.infos['eventdata_items'])
         else:
             metadatadict['LegacyEventInfo'] = False
+        ## Check for xAOD::TruthParticleContainer
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['PileUpTruthParticles'] = checkTruthParticleContainer(f.infos['eventdata_items'])
+        else:
+            metadatadict['PileUpTruthParticles'] = False
+        ## Check for xAOD::TruthJetContainer
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['PileUpTruthJets'] = checkTruthJetContainer(f.infos['eventdata_items'])
+        else:
+            metadatadict['PileUpTruthJets'] = False
         ##End of Patch for older hit files
         logDigitizationReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logDigitizationReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
@@ -325,6 +359,11 @@ def signalMetaDataCheck(metadatadict):
             from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['LegacyEventInfo']
 
+    if not skipCheck('PileUpTruthJets'):
+        if metadatadict['PileUpTruthJets']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['PileUpTruthJets']
+
     ## Any other checks here
     logDigitizationReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")
 
@@ -400,6 +439,16 @@ def pileupMetaDataCheck(pileuptype, pileupfile, simdict):
                 raise AssertionError("Some simulated sub-detectors from signal sample are missing in the background samples.")
             else:
                 logDigitizationReadMetadata.debug("All sub-detectors simulated in the signal sample were also simulated in the %s background sample.", longpileuptype)
+
+    if not skipPileUpCheck('PileUpTruthJets', pileuptype):
+        if metadatadict['PileUpTruthJets']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['PileUpTruthJets']
+
+    if not skipPileUpCheck('PileUpTruthParticles', pileuptype):
+        if metadatadict['PileUpTruthParticles']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['PileUpTruthParticles']
 
     del metadatadict ## control where metadata can be used
     return result

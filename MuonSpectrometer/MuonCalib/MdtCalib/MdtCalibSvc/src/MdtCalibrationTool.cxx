@@ -792,14 +792,13 @@ double MdtCalibrationTool::Imp::applyCorrections(MagField::AtlasFieldCache& fiel
           if ( nominalSurf ){
             // Local position for calculation of position along the tube,
             // used for wire sag treatment
-            const Amg::Vector2D *tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
+            std::optional<Amg::Vector2D> tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
             if ( !tempLocOnWire ){
               *msgStr << MSG::WARNING << "globalToLocal failed! " << endmsg;
             } else {
               // sagged surface
               wireSurface = nominalSurf->correctedSurface(*tempLocOnWire);
               tempSaggedSurface = wireSurface;
-              delete tempLocOnWire;
             }
           } else {
             *msgStr << MSG::WARNING << "Nominal wire surface not a SaggedLineSurface,"

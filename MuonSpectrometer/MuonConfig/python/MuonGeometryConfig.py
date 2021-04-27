@@ -151,8 +151,15 @@ def MuonAlignmentCondAlgCfg(flags):
             acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             pass
-
     acc.addCondAlgo(MuonAlign)
+
+    # This does not work as expected - breaks tests. So comment out for the moment, but it should still be fixed
+    
+    # if flags.IOVDb.DatabaseInstance != 'COMP200' and \
+    #             'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
+    #     acc.merge(addFolders( flags, '/MUONALIGN/ERRS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+    #     acc.addCondAlgo(CompFactory.MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg"))
+    
     return acc
 
 def MuonDetectorCondAlgCfg(flags):
@@ -170,7 +177,7 @@ def MuonDetectorCondAlgCfg(flags):
     return acc
 
 
-def MuonGeoModelCfg(flags):
+def MuonGeoModelCfg(flags, forceDisableAlignment=False):
     acc=GeoModelCfg(flags)
     gms=acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))

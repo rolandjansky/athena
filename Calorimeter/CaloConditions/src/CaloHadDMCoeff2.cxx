@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadDMCoeff2.h"
@@ -8,7 +8,7 @@
 
 #include <cmath>
 #include <iomanip>
-#include <sstream>
+#include <iostream>
 
 /* ***************************************************************************
 c-tor

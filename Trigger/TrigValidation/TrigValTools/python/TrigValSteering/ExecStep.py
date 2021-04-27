@@ -34,6 +34,7 @@ class ExecStep(Step):
         self.imf = True
         self.perfmon = True
         self.costmon = False
+        self.malloc = False
         self.prmon = True
         self.config_only = False
         self.auto_report_result = True
@@ -169,6 +170,8 @@ class ExecStep(Step):
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
+            if self.malloc:
+                athenaopts += " --stdcmalloc "
             if self.costmon:
                 athenaopts += " -c 'forceCostMonitoring=True ' "
 

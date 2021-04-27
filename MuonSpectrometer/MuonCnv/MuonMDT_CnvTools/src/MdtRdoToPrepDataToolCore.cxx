@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRdoToPrepDataToolCore.h"
@@ -30,17 +30,14 @@ namespace {
 }
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
-  m_fullEventDone(false),
   m_BMEpresent(false),
   m_BMGpresent(false),
   m_BMEid(-1),
   m_BMGid(-1)
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
   //  template for property decalration
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
@@ -123,8 +120,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds )
-{    
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds ) const
+{
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
   if(!readCdo){
@@ -135,7 +132,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   return decode(chamberHashInRobs);
 }
 
-const MdtCsmContainer* Muon::MdtRdoToPrepDataToolCore::getRdoContainer() {
+const MdtCsmContainer* Muon::MdtRdoToPrepDataToolCore::getRdoContainer() const {
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey); 
   if(rdoContainerHandle.isValid()) {
     ATH_MSG_DEBUG("MdtgetRdoContainer success");
@@ -145,11 +142,12 @@ const MdtCsmContainer* Muon::MdtRdoToPrepDataToolCore::getRdoContainer() {
   return nullptr;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierHash>& chamberHashInRobs )
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierHash>& chamberHashInRobs ) const
 {
   // setup output container
-  SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
-  if( containerRecordStatus == FAILED ){
+  bool fullEventDone = false;
+  Muon::MdtPrepDataContainer* mdtPrepDataContainer = setupMdtPrepDataContainer(1, fullEventDone);
+  if( !mdtPrepDataContainer ){
     return StatusCode::FAILURE;
   }
   
@@ -160,12 +158,13 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierH
   
   //left unused, needed by other decode function and further down the code.
   std::vector<IdentifierHash> idWithDataVect;
-  processPRDHashes(chamberHashInRobs,idWithDataVect);
+  processPRDHashes(mdtPrepDataContainer,chamberHashInRobs,idWithDataVect);
 
   return StatusCode::SUCCESS;
 }//end decode
 
-void Muon::MdtRdoToPrepDataToolCore::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ){
+void Muon::MdtRdoToPrepDataToolCore::processPRDHashes( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                                       const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ) const {
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
   if(!rdoContainer || rdoContainer->size()==0) {
@@ -173,13 +172,14 @@ void Muon::MdtRdoToPrepDataToolCore::processPRDHashes( const std::vector<Identif
   }                 
 
   for( auto it = chamberHashInRobs.begin(); it != chamberHashInRobs.end(); ++it ){
-    if(!handlePRDHash(*it,*rdoContainer,idWithDataVect) ) {
+    if(!handlePRDHash(mdtPrepDataContainer,*it,*rdoContainer,idWithDataVect) ) {
       ATH_MSG_DEBUG("Failed to process hash " << *it );
     }
   }//ends loop over chamberhash  
 }
 
-void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<IdentifierHash>& idWithDataVect ){
+void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                                          std::vector<IdentifierHash>& idWithDataVect ) const {
   
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
@@ -190,19 +190,20 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
   // It is more practical to loop through all the hashes rather than all RDO elements
   // as we benefit from handling the 2 RDO to 1 PRD special case
   for(unsigned int iHash = 0; iHash < m_idHelperSvc->mdtIdHelper().module_hash_max(); iHash++){
-    handlePRDHash( IdentifierHash(iHash), *rdoContainer, idWithDataVect);
+    handlePRDHash( mdtPrepDataContainer, IdentifierHash(iHash), *rdoContainer, idWithDataVect);
   }
   //for (MdtCsmContainer::const_iterator rdoColl = rdoContainer->begin(); rdoColl!=rdoContainer->end(); ++rdoColl) {
 //
-  //  handlePRDHash( (*rdoColl)->identifyHash(), *rdoContainer, idWithDataVect);
+  //  handlePRDHash( mdtPrepDataContainer, (*rdoColl)->identifyHash(), *rdoContainer, idWithDataVect);
   //}
 
 }
 
-bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) {
+bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                                    IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) const {
   
   // Check PRD container for the hash, if it exists, we already decoded fully
-  if( m_mdtPrepDataContainer->tryAddFromCache(hash) ){
+  if( mdtPrepDataContainer->tryAddFromCache(hash) ){
     ATH_MSG_DEBUG("RDO hash " << hash << " already decoded and inside PRD container cache");
     return true;
   }
@@ -236,7 +237,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       auto rdoColl2 = rdoContainer.indexFindPtr(rdoHash2);
       if( rdoColl != nullptr && rdoColl2 != nullptr ) {
         // Handle both at once
-        if(processCsm(rdoColl, idWithDataVect, muDetMgr, rdoColl2).isFailure()){
+        if(processCsm(mdtPrepDataContainer, rdoColl, idWithDataVect, muDetMgr, rdoColl2).isFailure()){
           ATH_MSG_WARNING("processCsm failed for RDO id " 
             << (unsigned long long)(rdoColl->identify().get_compact()) << " and " 
             << (unsigned long long)(rdoColl2->identify().get_compact()));
@@ -246,7 +247,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       else if(rdoColl != nullptr){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash2 );
-        if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+        if ( processCsm(mdtPrepDataContainer, rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
@@ -254,7 +255,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       else if(rdoColl2 != nullptr){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
-        if ( processCsm(rdoColl2, idWithDataVect, muDetMgr).isFailure() ) {
+        if ( processCsm(mdtPrepDataContainer, rdoColl2, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
@@ -267,7 +268,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       // process CSM if data was found
       auto rdoColl = rdoContainer.indexFindPtr(rdoHash);
       if( rdoColl != nullptr ) {
-        if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+        if ( processCsm(mdtPrepDataContainer, rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
@@ -277,7 +278,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
     // process CSM if data was found
     auto rdoColl = rdoContainer.indexFindPtr(rdoHash);
     if( rdoColl != nullptr ) {
-      if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+      if ( processCsm(mdtPrepDataContainer, rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
         ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
         return false;
       }
@@ -288,15 +289,20 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
 }
 
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect )
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect ) const
 {
 
   // clear output vector of selected data collections containing data 
   idWithDataVect.clear();
 
+  unsigned int sizeVectorRequested = idVect.size();
+  ATH_MSG_DEBUG("decodeMdtRDO for "<<sizeVectorRequested<<" offline collections called");
+  
   // setup output container
-  SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
-  if( containerRecordStatus == FAILED ){
+  bool fullEventDone = false;
+  Muon::MdtPrepDataContainer* mdtPrepDataContainer =
+    setupMdtPrepDataContainer (sizeVectorRequested, fullEventDone);
+  if( !mdtPrepDataContainer ){
     return StatusCode::FAILURE;
   }
 
@@ -306,31 +312,24 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   }
   
   // check if event already decoded
-  if( m_fullEventDone ){
+  if( fullEventDone ){
     ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do");
     return StatusCode::SUCCESS;
   }
 
-  unsigned int sizeVectorRequested = idVect.size();
-  ATH_MSG_DEBUG("decodeMdtRDO for "<<sizeVectorRequested<<" offline collections called");
-  
-  // if requesting full event, set the full event done flag to true
-  if (sizeVectorRequested == 0) m_fullEventDone=true;
-
   // seeded or unseeded decoding
   if (sizeVectorRequested != 0) {
-    processPRDHashes(idVect,idWithDataVect);
+    processPRDHashes(mdtPrepDataContainer,idVect,idWithDataVect);
   }  else { 
-    processRDOContainer(idWithDataVect);
+    processRDOContainer(mdtPrepDataContainer,idWithDataVect);
   }
   
   return StatusCode::SUCCESS;
 }
 
 // dump the RDO in input
-void Muon::MdtRdoToPrepDataToolCore::printInputRdo()
+void Muon::MdtRdoToPrepDataToolCore::printInputRdo() const
 {
-
   ATH_MSG_DEBUG("******************************************************************************************");
   ATH_MSG_DEBUG("***************** Listing MdtCsmContainer collections content ********************************");
 
@@ -387,18 +386,18 @@ void Muon::MdtRdoToPrepDataToolCore::printInputRdo()
   return;
 }
 
-void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
+void Muon::MdtRdoToPrepDataToolCore::printPrepDataImpl( const Muon::MdtPrepDataContainer* mdtPrepDataContainer ) const
 {
   // Dump info about PRDs
   ATH_MSG_DEBUG("******************************************************************************************");
   ATH_MSG_DEBUG("***************** Listing MdtPrepData collections content ********************************");
   
-  if (m_mdtPrepDataContainer->size() <= 0) ATH_MSG_DEBUG("No MdtPrepRawData collections found");
+  if (mdtPrepDataContainer->size() <= 0) ATH_MSG_DEBUG("No MdtPrepRawData collections found");
   int ncoll = 0;
   int nhits = 0;
   ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
-  for (IdentifiableContainer<Muon::MdtPrepDataCollection>::const_iterator mdtColli = m_mdtPrepDataContainer->begin();
-       mdtColli!=m_mdtPrepDataContainer->end(); ++mdtColli)
+  for (IdentifiableContainer<Muon::MdtPrepDataCollection>::const_iterator mdtColli = mdtPrepDataContainer->begin();
+       mdtColli!=mdtPrepDataContainer->end(); ++mdtColli)
     {
       const Muon::MdtPrepDataCollection* mdtColl = *mdtColli;
       
@@ -425,7 +424,8 @@ void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
   
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2) {
+StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                                      const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2) const {
   
   // first handle the case of twin tubes
   if(m_useTwin){
@@ -435,7 +435,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
     MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(elementId);
     if( chIndex == MuonStationIndex::BOL &&
         ( m_useAllBOLTwin || (std::abs(m_idHelperSvc->mdtIdHelper().stationEta(elementId)) == 4 && m_idHelperSvc->mdtIdHelper().stationPhi(elementId) == 7) ) ) { 
-      return processCsmTwin(rdoColl, idWithDataVect, muDetMgr);
+      return processCsmTwin(mdtPrepDataContainer, rdoColl, idWithDataVect, muDetMgr);
     }
   }
   
@@ -498,7 +498,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
   std::unique_ptr<MdtPrepDataCollection> secondDriftCircleColl = nullptr;
 
   // Check the IDC cache (no write handles here)
-  if( m_mdtPrepDataContainer->tryAddFromCache(mdtHashId) ){
+  if( mdtPrepDataContainer->tryAddFromCache(mdtHashId) ){
     // The collection is in the container so we should not process anything (true for elevator chambers)
     ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC " << elementId << " " << mdtHashId);
     // But instead of returning, we will process in case this RDO has two possible PRD and we only decoded one
@@ -561,7 +561,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
     Identifier     channelId   = newDigit->identify();
     Identifier     parentId    = m_idHelperSvc->mdtIdHelper().parentID(channelId);
     if( m_idHelperSvc->mdtIdHelper().stationName(parentId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
+      std::map<Identifier, std::vector<Identifier> >::const_iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
@@ -611,7 +611,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
           ATH_MSG_VERBOSE("HashId = "<<(int) secondMdtHashId);
 
           // If we got to here we need to inspect the cache and create or nullptr
-          if( m_mdtPrepDataContainer->tryAddFromCache(secondMdtHashId) ){
+          if( mdtPrepDataContainer->tryAddFromCache(secondMdtHashId) ){
             ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC");
             // Proceed with the nullptr
           }
@@ -723,7 +723,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
   // Note we did not skip empty RDO in case of 2 RDO -> 1 PRD processing
   // Record PRD if it is not empty
   if(driftCircleColl && !driftCircleColl->empty() ){
-    MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( mdtHashId );
+    MdtPrepDataContainer::IDC_WriteHandle lock = mdtPrepDataContainer->getWriteHandle( mdtHashId );
     if( !lock.alreadyPresent() ){
       StatusCode status_lock = lock.addOrDelete(std::move( driftCircleColl ));
       if (status_lock.isFailure()) {
@@ -744,7 +744,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
     // If RDO was not empty, we need to record all PRD containers (even if one is empty)
     ATH_MSG_DEBUG("Input RDO was not empty but 1 RDO -> 2 PRD left one MdtCsmPrepdataCollection empty");
     ATH_MSG_DEBUG("Recording empty MdtCsmPrepdataCollection " << mdtHashId);
-    MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( mdtHashId );
+    MdtPrepDataContainer::IDC_WriteHandle lock = mdtPrepDataContainer->getWriteHandle( mdtHashId );
     if( !lock.alreadyPresent() ){
       StatusCode status_lock = lock.addOrDelete(std::move( driftCircleColl ));
       if (status_lock.isFailure()) {
@@ -758,7 +758,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
   }
   // Second PRD only exists if RDO was not empty and 1 RDO -> 2 PRD is activated
   if(secondDriftCircleColl && !secondDriftCircleColl->empty() ){
-    MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( secondMdtHashId );
+    MdtPrepDataContainer::IDC_WriteHandle lock = mdtPrepDataContainer->getWriteHandle( secondMdtHashId );
     if( !lock.alreadyPresent() ){
       StatusCode status_lock = lock.addOrDelete(std::move( secondDriftCircleColl ));
       if (status_lock.isFailure()) {
@@ -774,7 +774,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr)
+StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                                          const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr) const
 {
   ATH_MSG_DEBUG(" ***************** Start of processCsmTwin");
   
@@ -806,7 +807,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl,
   ATH_MSG_VERBOSE("HashId = "<<(int)mdtHashId);
 
   // Check the IDC cache (no write handles here)
-  MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( mdtHashId );
+  MdtPrepDataContainer::IDC_WriteHandle lock = mdtPrepDataContainer->getWriteHandle( mdtHashId );
   if( lock.alreadyPresent() ){
     ATH_MSG_DEBUG("MdtPrepDataCollection already contained in IDC " << elementId << " " << mdtHashId);
     return StatusCode::SUCCESS;
@@ -841,7 +842,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl,
     //IdentifierHash channelHash = newDigit->identifyHash();
 
     if( m_idHelperSvc->mdtIdHelper().stationName(channelId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
+      std::map<Identifier, std::vector<Identifier> >::const_iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
@@ -1298,7 +1299,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl,
 }
 
 
-MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr) {
+MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr) const {
 
   ATH_MSG_DEBUG("in getMdtDriftRadius()");
 
@@ -1344,7 +1345,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit*
 }
 
 
-MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit* digit, const MdtDigit* second_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& secondHitIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr) {
+MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit* digit, const MdtDigit* second_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& secondHitIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr) const {
 
   ATH_MSG_DEBUG("in getMdtTwinPosition()");
 

@@ -19,7 +19,9 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "PFO_FE_ComparisonPlots.h"
+
 class PhysValFE : public ManagedMonitorToolBase {
 
 public:
@@ -60,6 +62,8 @@ public:
   /** ReadHandleKey to retrieve TauJetContainer */
   SG::ReadHandleKey<xAOD::TauJetContainer> m_TauJetContainerHandleKey{this,"TauJetContainerName","TauJets","ReadHandleKey for the taujet container"};
 
+  /** ReadHandleKey for EventInfo */
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoReadHandleKey{this,"EventInfoName","EventInfo","ReadHandleKey for EventInfo"};
 
   /** Pointer to class that deals with histograms for charged FE */
   std::unique_ptr<PFOChargedValidationPlots> m_FEChargedValidationPlots;
@@ -77,6 +81,9 @@ public:
   /** Pointer to class that deals with PFO/FE comparison plots  */
   std::unique_ptr<PFO_FE_ComparisonPlots> m_charged_PFO_FE_comparison;
   std::unique_ptr<PFO_FE_ComparisonPlots> m_neutral_PFO_FE_comparison;
+
+  /** Toggle to enable plots directly comparing FE and PFO */
+  Gaudi::Property<bool> m_compareFEtoPFO{this,"compareFEtoPFO",false,"Toggle to enable plots directly comparing FE and PFO "};
 
 };
 #endif

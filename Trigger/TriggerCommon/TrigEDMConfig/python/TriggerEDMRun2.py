@@ -1108,8 +1108,8 @@ TriggerL2EvolutionList = [
 #('TrigTauCluster#HLT_TrigT2CaloTau',                                    ), # xAOD equivalent not found
 #('TrigTauClusterDetails#HLT_TrigT2CaloTauDetails',                      ), # xAOD equivalent not found
 #('TrigTauTracksInfo#HLT',                                               ), # xAOD equivalent not found
-#('CosmicMuonCollection#HLT_CosmicMuons',                                ), # xAOD equivalent not found
-#('MdtTrackSegmentCollection#HLT_MDTsegments',                           ), # xAOD equivalent not found
+#('CosmicMuonCollection#HLT_CosmicMuons',                                ), # xAOD equivalent not found, class removed from r22
+#('MdtTrackSegmentCollection#HLT_MDTsegments',                           ), # xAOD equivalent not found, class removed from r22
 ('TrigRNNOutput#HLT_TrigTRTHTCounts',                                    'xAOD::TrigRNNOutput#HLT_TrigTRTHTCounts'), # check converting tool
 #('TrigL2BphysContainer#HLT',                                            ), # xAOD equivalent not found
 ('TrigL2BphysContainer#HLT_L2BMuMuFex',                                  'xAOD::TrigBphysContainer#HLT_L2BMuMuFex'),
@@ -1307,9 +1307,9 @@ EDMDetails[ "TrigT2MbtsBits" ]            = {'persistent':"TrigT2MbtsBitsContain
 EDMDetails[ "TrigSpacePointCounts" ]      = {'persistent':"TrigSpacePointCountsCollection_p4",  'typealias':'AOD', 'collection':'TrigSpacePointCountsCollection'}
 #EDMDetails[ "TrigTrtHitCounts" ]          = {'persistent':"TrigTrtHitCountsCollection_tlp1",      'typealias':'', 'collection':'TrigTrtHitCountsCollection'}
 EDMDetails[ "TrigTrtHitCounts" ]          = {'persistent':"TrigTrtHitCountsCollection_p2",      'typealias':'AOD', 'collection':'TrigTrtHitCountsCollection'}
-EDMDetails[ "CosmicMuonCollection" ]      = {'persistent':"CosmicMuonCollection_tlp1",            'typealias':'', 'collection': 'CosmicMuonCollection'}
+#EDMDetails[ "CosmicMuonCollection" ]      = {'persistent':"CosmicMuonCollection_tlp1",            'typealias':'', 'collection': 'CosmicMuonCollection'}
 #EDMDetails[ "MdtTrackSegmentCollection" ] = {'persistent':"MdtTrackSegmentCollection_tlp1",       'typealias':'', 'collection': 'MdtTrackSegmentCollection'}
-EDMDetails[ "MdtTrackSegmentCollection" ] = {'persistent':"MdtTrackSegmentCollection_p2",         'typealias':'', 'collection': 'MdtTrackSegmentCollection'}
+#EDMDetails[ "MdtTrackSegmentCollection" ] = {'persistent':"MdtTrackSegmentCollection_p2",         'typealias':'', 'collection': 'MdtTrackSegmentCollection'}
 EDMDetails[ "TrigVertexCollection" ]      = {'persistent':"TrigVertexCollection_tlp1",            'typealias':'AOD'}
 EDMDetails[ "TrigL2BphysContainer" ]      = {'persistent':"TrigL2BphysContainer_tlp1",            'typealias':'L2Bphys', 'collection':'TrigL2BphysContainer'}
 EDMDetails[ "TrigEFBphysContainer" ]      = {'persistent':"TrigEFBphysContainer_tlp1",            'typealias':'AOD', 'collection':'TrigEFBphysContainer'}

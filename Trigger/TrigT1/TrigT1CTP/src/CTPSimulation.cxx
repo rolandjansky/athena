@@ -653,8 +653,8 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
          ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(1));
          ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(0));
          ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(1));
-         auto h0 = *get1DHist("/input/topo/Topo1El");
-         auto h1 = *get1DHist("/input/topo/Topo2El");
+         auto h0 = *get1DHist("/input/topo/Topo2El");
+         auto h1 = *get1DHist("/input/topo/Topo3El");
          for(unsigned int i=0; i<32; ++i) {
             uint32_t mask = 0x1; mask <<= i;
             if( (topoInput->cableWord1(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0
@@ -1226,7 +1226,7 @@ LVL1CTP::CTPSimulation::calculateMuonMultiplicity( const TrigConf::L1Threshold &
    auto ctpinMuon  = SG::makeHandle( m_iKeyMuctpi, context );
    if ( ctpinMuon.isValid() ) {
       auto & triggerline = l1menu->connector("MuCTPiOpt0").triggerLine(confThr.name());
-      multiplicity = CTPUtil::getMult( ctpinMuon->muCTPIWord(), triggerline.startbit(), triggerline.endbit() );
+      multiplicity = CTPUtil::getMuonMult( ctpinMuon->muCTPIWord(), triggerline.startbit() + (m_muonRun2Format ? 1 : 0), triggerline.endbit()+ (m_muonRun2Format ? 1 : 0) );
    }
    get2DHist( "/multi/muon/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
    ATH_MSG_DEBUG("MU MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity);
@@ -1242,7 +1242,7 @@ LVL1CTP::CTPSimulation::calculateMuonMultiplicity( const TrigConf::TriggerThresh
    unsigned int multiplicity = 0;
    auto ctpinMuon  = SG::makeHandle( m_iKeyMuctpi, context );
    if ( ctpinMuon.isValid() ) {
-      multiplicity = CTPUtil::getMult( ctpinMuon->muCTPIWord(), confThr->cableStart(), confThr->cableEnd() );
+      multiplicity = CTPUtil::getMuonMult( ctpinMuon->muCTPIWord(), confThr->cableStart(), confThr->cableEnd() );
    }
    get2DHist( "/multi/muon/muonMult" )->Fill(confThr->mapping(), multiplicity);
    ATH_MSG_DEBUG("MU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);

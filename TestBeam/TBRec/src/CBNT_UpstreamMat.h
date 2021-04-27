@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNT_UPSTREAMMAT_H
@@ -8,19 +8,17 @@
 #include "CBNT_TBRecBase.h"
 #include <string>
 
-class StoreGateSvc;
 
 class CBNT_UpstreamMat : public CBNT_TBRecBase {
 public:
 	CBNT_UpstreamMat(const std::string &name, ISvcLocator *pSvcLocator);
 	virtual ~CBNT_UpstreamMat();
-	virtual StatusCode CBNT_initialize();
-	virtual StatusCode CBNT_execute();
-	virtual StatusCode CBNT_finalize();
-	virtual StatusCode CBNT_clear();
+	virtual StatusCode CBNT_initialize() override;
+	virtual StatusCode CBNT_execute() override;
+	virtual StatusCode CBNT_finalize() override;
+	virtual StatusCode CBNT_clear() override;
 
 private:
-	StoreGateSvc * m_storeGate;
 	std::string m_key;
 	bool m_notFound;
    //Ntuple variables:

@@ -76,7 +76,8 @@ TestChainParts = {
     'threshold'      : '',
     'addInfo'        : [''],
     'sigFolder'     : 'Test',
-    'subSigs'       : ['Test']
+    'subSigs'       : ['Test'],
+    'chainPartIndex': list(range(0,10))
 }
 
 # ---- Test Dictionary of default Values ----
@@ -89,7 +90,8 @@ TestChainParts_Default = {
     'threshold'      : '',
     'addInfo'        : [],
     'sigFolder'     : 'Test',
-    'subSigs'       : ['Test']
+    'subSigs'       : ['Test'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -111,7 +113,7 @@ JetChainParts = {
     'addInfo'      : ['perf'],
     'sigFolder'     : 'Jet',
     'subSigs'       : ['Jet'],
-
+    'chainPartIndex': list(range(0,10)),
     # Information unique to the jet slice
     # Reco information
     'recoAlg'      : # Jet clustering algorithm
@@ -135,10 +137,10 @@ JetChainParts = {
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
-                      # 'agg' (forward-backward + dijet) scenario:
+                      # 'fbdj' (forward-backward + dijet) scenario:
                       #   default eta selection for dijet mass cut is 0eta490
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
-                      'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
+                      'fbdjnoshared10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       # 'dijet' scenario applies always a mass cut (deta and dphi cuts are optional)
                       #   0eta490 is the default eta selections for j1/j2
                       #   j12et sets the same et cuts for j1et and j2et
@@ -149,18 +151,20 @@ JetChainParts = {
                       #     djmass sel (mandatory)
                       #     djdphi sel (optional)
                       #     djdeta sel (optional)
-                      'dijetSEP80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
-                      'dijetSEP80j12etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
-                      'dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
-                      'dijetSEP50j12etSEP1000djmass',
-                      'dijetSEP50j12etSEP1000djmassSEP24djdphi',
-                      'dijetSEP50j12etSEP900djmass',
-                      'dijetSEP35j12etSEP1000djmass',
-                      # 'agg' category is for single variable computed by aggregation over single jets (default filtering: 30et and 0eta320)
-                      'aggSEP1000ht',
-                      'aggSEP500ht',
-                      'aggSEP100htSEP10et',
-                      'aggSEP50htSEP10etSEP0eta320' # HT selection with explicit jet et/eta cuts
+                      'dijet80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
+                      'dijet80j12etSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
+                      'dijet70j12etSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
+                      'dijet50j12etSEP1000djmass',
+                      'dijet50j12etSEP1000djmassSEPdjdphi240',
+                      'dijet50j12etSEP900djmass',
+                      'dijet35j12etSEP1000djmass',
+                      'dijet20j12etSEP110djmass',  # very loose cuts for testing
+                      'dijetAliasExample',         # example of an alias for a dijet scenario with very loose cuts for testing
+                      # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
+                      'ht1000',
+                      'ht500',
+                      'ht100SEP10et',
+                      'ht50SEP10etSEP0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
@@ -171,7 +175,11 @@ JetChainParts = {
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['cleanLB', 'prefilterSEP300ceta210SEP300nphi10'], 
+    ['cleanLB', 'maskSEP300ceta210SEP300nphi10',
+     # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
+     # jets by ordering by pt, and selecting those with indices in [X,Y]
+     'ptrangeSEP0r1',  
+     'ptrangeSEP2r3'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -185,7 +193,7 @@ JetChainParts = {
                       'bdl1r60','bdl1r70','bdl1r77','bdl1r85'],
     'bTracking'    : [],
     'bConfig'      : ['split',],
-    'bMatching'    : ['antimatchdr05mu'],
+    'bMatching'    : ['antimatchdr05mu']
 }
 
 # ---- Jet Dictionary of default Values ----
@@ -225,6 +233,7 @@ JetChainParts_Default = {
     'bTracking'     : '',
     'bConfig'       : [],
     'bMatching'     : [],
+    'chainPartIndex': 0
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
@@ -247,16 +256,18 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt','l2mt'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
+    'msonlyInfo'     : ['msonly'],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',
-    'subSigs'       : ['Muon']
+    'subSigs'       : ['Muon'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- MuonDictionary of default Values ----
 MuonChainParts_Default = {
@@ -273,10 +284,12 @@ MuonChainParts_Default = {
     'lrtInfo'        : [],
     'addInfo'        : [],
     'invMassInfo'    : '',
+    'msonlyInfo'     : [],
     'topo'           : [],
     'flavour'        : '',
     'sigFolder'     : 'Muon',
-    'subSigs'       : ['Muon']
+    'subSigs'       : ['Muon'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -315,7 +328,8 @@ TauChainParts = {
     'chainPartName' : '',
     'threshold'     : '',
     'preselection'  : ['track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoMVABDT' , 'tracktwoEFmvaTES', 'ptonly', ],
-    'selection'     : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf'],
+    'selection'     : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf',
+                       'kaonpi1', 'kaonpi2', 'dipion3', 'dikaonmass', 'singlepion'],
     'multiplicity'  : '',
     'trigType'      : ['tau'],
     'trkInfo'       : '',
@@ -325,7 +339,8 @@ TauChainParts = {
     'addInfo'       : ['IdTest'],
     'topo'          : AllowedTopos_tau,
     'sigFolder'     : 'Tau',
-    'subSigs'       : ['Tau']
+    'subSigs'       : ['Tau'],
+    'chainPartIndex': list(range(0,10))
 }
 TauChainParts_Default = {
     'signature'     : ['Tau'],
@@ -344,7 +359,8 @@ TauChainParts_Default = {
     'addInfo'       :  '',
     'topo'          : [],
     'sigFolder'     : 'Tau',
-    'subSigs'       : ['Tau']
+    'subSigs'       : ['Tau'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -372,7 +388,8 @@ METChainParts = {
     'addInfo'        : ['FStracks'],
     'sigFolder'      : 'MET',
     'subSigs'        : ['MET'],
-    'constitmod'     : ['cssk', 'vssk']
+    'constitmod'     : ['cssk', 'vssk'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- MetDictionary of default Values ----
 METChainParts_Default = {
@@ -392,7 +409,8 @@ METChainParts_Default = {
     'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
-    'subSigs'       : ['MET']
+    'subSigs'       : ['MET'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -424,7 +442,7 @@ TEChainParts_Default['trigType']  = ['te']
 #==========================================================
 # Electron Chains
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","BeeX"]
 # ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],
@@ -436,16 +454,18 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
+    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
+    'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
     'caloInfo'       : [],
     'lhInfo'         : ['nod0'],
     'L2IDAlg'        : ['noringer'],
-    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
+    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3", "fwd"],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'topo'          : AllowedTopos_e
+    'topo'          : AllowedTopos_e,
+    'chainPartIndex': list(range(0,10))
 }
 
 # ---- Egamma Dictionary of default Values ----
@@ -463,6 +483,7 @@ ElectronChainParts_Default = {
     'isoInfo'        : '',
     'reccalibInfo'   : '',
     'trkInfo'        : '',
+    'lrtInfo'        : '', 
     'caloInfo'       : '',
     'lhInfo'         : '',
     'L2IDAlg'        : '',
@@ -471,7 +492,8 @@ ElectronChainParts_Default = {
     'FSinfo'         : '',
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
+    'subSigs'       : ['Electron','Photon'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
@@ -499,7 +521,8 @@ PhotonChainParts = {
     'addInfo'        : ['etcut',],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'topo'          : AllowedTopos_g
+    'topo'          : AllowedTopos_g,
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Photon Dictionary of default Values ----
@@ -521,7 +544,8 @@ PhotonChainParts_Default = {
     'FSinfo'         : '',
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon']
+    'subSigs'       : ['Electron','Photon'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -550,10 +574,11 @@ MinBiasChainParts = {
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf'],
     'addInfo'        : ['peb'],
     'sigFolder'     : 'MinBias',
-    'subSigs'       : ['MinBias']
+    'subSigs'       : ['MinBias'],
+    'chainPartIndex': list(range(0,10))
     }
 # ---- MinBiasDictionary of default Values ----
 MinBiasChainParts_Default = {
@@ -575,7 +600,8 @@ MinBiasChainParts_Default = {
     'recoAlg'        : [],
     'addInfo'        : [],
     'sigFolder'     : 'MinBias',
-    'subSigs'       : ['MinBias']
+    'subSigs'       : ['MinBias'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -603,7 +629,8 @@ HeavyIonChainParts = {
     'addInfo'        : [],
     'gap'            : [],
     'sigFolder'     : 'HeavyIon',
-    'subSigs'       : ['HeavyIon']
+    'subSigs'       : ['HeavyIon'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- HeavyIonDictionary of default Values ----
@@ -628,7 +655,8 @@ HeavyIonChainParts_Default = {
     'addInfo'        : [],
     'gap'            : '',
     'sigFolder'     : 'HeavyIon',
-    'subSigs'       : ['HeavyIon']
+    'subSigs'       : ['HeavyIon'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -652,7 +680,8 @@ CosmicChainParts = {
     'trigType'       : 'cosmic',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Cosmic']
+    'subSigs'       : ['Cosmic'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Cosmic Chain Default Dictionary of all allowed Values ----
@@ -670,7 +699,8 @@ CosmicChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Cosmic']
+    'subSigs'       : ['Cosmic'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -695,7 +725,8 @@ StreamingChainParts = {
     'streamType'     : AllowedStreamingChainIdentifiers,
     'algo' : ['NoAlg'],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Streaming']
+    'subSigs'       : ['Streaming'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Cosmic Chain Default Dictionary of all allowed Values ----
@@ -712,7 +743,8 @@ StreamingChainParts_Default = {
     'streamType'     : '',
     'algo' : [],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Streaming']
+    'subSigs'       : ['Streaming'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -744,7 +776,8 @@ CalibChainParts = {
     'trigType'       : ['trk'],
     'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Calib']
+    'subSigs'       : ['Calib'],
+    'chainPartIndex': list(range(0,10))
     }
 
 
@@ -765,7 +798,8 @@ CalibChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Calib']
+    'subSigs'       : ['Calib'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -791,7 +825,8 @@ MonitorChainParts = {
     'trigType'       : 'mon',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Monitor']
+    'subSigs'       : ['Monitor'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Monitor Chain Default Dictionary of all allowed Values ----
@@ -807,7 +842,8 @@ MonitorChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Monitor']
+    'subSigs'       : ['Monitor'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -827,7 +863,8 @@ EnhancedBiasChainParts = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['EnhancedBias']
+    'subSigs'       : ['EnhancedBias'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- EnhancedBias Chain Default Dictionary of all allowed Values ----
@@ -842,7 +879,8 @@ EnhancedBiasChainParts_Default = {
     'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['EnhancedBias']
+    'subSigs'       : ['EnhancedBias'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -864,7 +902,8 @@ BeamspotChainParts = {
     'trigType'       : 'beamspot',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Beamspot']
+    'subSigs'       : ['Beamspot'],
+    'chainPartIndex': list(range(0,10))
     }
 
 # ---- Beamspot Chain Default Dictionary of all allowed Values ----
@@ -883,7 +922,8 @@ BeamspotChainParts_Default = {
     'trigType'       : 'beamspot',
     'extra'          : '',
     'sigFolder'     : 'CalibCosmicMon',
-    'subSigs'       : ['Beamspot']
+    'subSigs'       : ['Beamspot'],
+    'chainPartIndex': 0
     }
 
 #==========================================================
@@ -903,7 +943,8 @@ UnconventionalTrackingChainParts = {
     'extra'          : ["isohpttrack", "fslrt"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
-    'subSigs'       : ['UnconventionalTracking']
+    'subSigs'       : ['UnconventionalTracking'],
+    'chainPartIndex': list(range(0,10))
 }
 # ---- Unconventional Tracking Dictionary of default Values ----
 UnconventionalTrackingChainParts_Default = {
@@ -919,13 +960,14 @@ UnconventionalTrackingChainParts_Default = {
     'extra'          : '',
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
-    'subSigs'       : ['UnconventionalTracking']
+    'subSigs'       : ['UnconventionalTracking'],
+    'chainPartIndex': 0
 }
 
 #==========================================================
 # Combined Chains
 #==========================================================
-AllowedTopos_comb = ['03dRleg000leg001100','03dRleg000leg00130']
+AllowedTopos_comb = ['03dRAB','03dRAB30']
 
 # ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)

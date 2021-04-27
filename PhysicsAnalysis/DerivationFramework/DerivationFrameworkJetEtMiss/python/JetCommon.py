@@ -431,15 +431,25 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
     algname = "jetalg"+jetnamebase
     OutputJets.setdefault(outputGroup , [] ).append(jetname)
 
-    # return if the alg is already scheduled here :
-    from RecExConfig.AutoConfiguration import IsInInputFile
+    
     if algseq is None:
         dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
         return
-    elif IsInInputFile("xAOD::JetContainer",jetname) and not overwrite:
+    
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if IsInInputFile("xAOD::JetContainer",jetname) and not overwrite:
         dfjetlog.warning( "Collection  "+jetname+" is already in input AOD!" )
-        return        
-    elif algname in DFJetAlgs:
+        return
+    
+    from JetRec.JetRecStandard import jtm
+
+    # Check if we need to schedule the PV0 track selection alg
+    if inputtype == 'PV0Track':
+        if not hasattr(algseq,"pv0tracksel_trackjet"):
+            algseq += jtm.pv0tracksel_trackjet
+
+    # return if the alg is already scheduled here :
+    if algname in DFJetAlgs:
         if hasattr(algseq,algname):
             dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
         else:
@@ -447,7 +457,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             algseq += DFJetAlgs[algname]
         return DFJetAlgs[algname]
 
-    from JetRec.JetRecStandard import jtm
     if jetname not in jtm.tools:
         # no container exist. simply build a new one.
         # Set default for the arguments to be passd to addJetFinder
@@ -506,7 +515,7 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
                            ghostArea=0, algseq=None, outputGroup="CustomJets"):
     
     VRJetNameBase = "{0}VR{1}Rmax{2}Rmin0{3}{4}".format(jetalg,int(vrMassScale/1000),int(maxR*10),int(minR*100),inputtype)
-    VRJetOptions = dict(calibOpt = "none", ivtxin = 0)
+    VRJetOptions = dict(calibOpt = "none")
     VRJetOptions['variableRMinRadius'] = minR
     VRJetOptions['variableRMassScale'] = vrMassScale
     VRJetOptions['ptmin'] = ptmin
@@ -514,6 +523,12 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
 
     VRJetName = VRJetNameBase + "Jets"
     dfjetlog.info("VR jet name: " + VRJetName)
+
+    algname = "jetalg"+VRJetNameBase
+
+    if algseq is None:
+        dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
+        return    
 
     from JetRec.JetRecStandard import jtm
 
@@ -525,19 +540,15 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
     # Copy so that if we modify it we don't also change the array in jtm.
     pseudoJetGetters = jtm.gettersMap[getterMap[inputtype]].copy()
 
-    # We want to include ghost associated tracks in the pv0 tracks so that
-    # we can use the looser ghost association criteria for b-tagging.
+    # Check if we need to schedule the PV0 track selection alg
     if inputtype == 'PV0Track':
-        pseudoJetGetters += [jtm.gtrackget]
+        if not hasattr(algseq,"pv0tracksel_trackjet"):
+            algseq += jtm.pv0tracksel_trackjet
 
-    algname = "jetalg"+VRJetNameBase
     OutputJets.setdefault(outputGroup , [] ).append(VRJetName)
 
     # return if the alg is already scheduled here :
-    if algseq is None:
-        dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
-        return    
-    elif algname in DFJetAlgs:
+    if algname in DFJetAlgs:
         if hasattr(algseq,algname):
             dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
         else:

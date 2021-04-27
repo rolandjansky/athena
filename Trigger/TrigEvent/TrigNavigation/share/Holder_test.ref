@@ -119,7 +119,7 @@ Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
-ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
+ToolSvc.TrigSer...   INFO Initializing
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
  deleting TestB: 0

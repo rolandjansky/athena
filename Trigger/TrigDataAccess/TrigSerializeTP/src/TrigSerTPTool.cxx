@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,9 +12,11 @@
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 // Local include(s):
 #include "TrigSerializeTP/TrigSerTPTool.h"
+
 
 TrigSerTPTool::TrigSerTPTool( const std::string& type,
                               const std::string& name,
@@ -43,7 +45,7 @@ TrigSerTPTool::TrigSerTPTool( const std::string& type,
 StatusCode TrigSerTPTool::initialize(){
 
    // Greet the user:
-   ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+   ATH_MSG_INFO( "Initializing" );
 
    // Retrieve a custom message service:
    if( ! m_msgsvcTP.empty() ) {
@@ -62,8 +64,24 @@ StatusCode TrigSerTPTool::initialize(){
    ATH_CHECK( m_dictSvc.retrieve() );
    ATH_CHECK( m_tpcnvsvc.retrieve() );
 
-   // Return gracefully:
    return StatusCode::SUCCESS;
+}
+
+ITPCnvBase* TrigSerTPTool::getConverter( const std::string& persistent ) const
+{
+   std::lock_guard<std::mutex> lock(m_convertersCacheMutex);
+   ITPCnvBase* cnvtr = m_convertesCache[persistent];
+   if ( ATH_LIKELY( cnvtr ) )
+      return cnvtr;
+
+   // no converter, we need to find it, first the trigger specific one
+   cnvtr = m_tpcnvsvc->p2t_cnv( persistent, Athena::TPCnvType::Trigger );
+   if( ! cnvtr ) {
+      // If there is no such thing, try a generic one:
+      cnvtr = m_tpcnvsvc->p2t_cnv( persistent );
+   }
+   m_convertesCache[persistent] = cnvtr;
+   return cnvtr;
 }
 
 void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
@@ -84,21 +102,14 @@ void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
          << " is not in the T/P Converter map";
       return 0;
    }
+   persName = tpItr->second;
 
-   // First look for a trigger specific converter:
-   ITPCnvBase* cnvtr =
-      m_tpcnvsvc->p2t_cnv( tpItr->second, Athena::TPCnvType::Trigger );
+   ITPCnvBase* cnvtr = getConverter( persName );
    if( ! cnvtr ) {
-      // If there is no such thing, try a generic one:
-      cnvtr = m_tpcnvsvc->p2t_cnv( tpItr->second );
+      ATH_MSG_ERROR( "T/P Converter for transient class " << tpItr->first
+                     << " persistent class " << persName << " could not be retrieved");
    }
-   if( ! cnvtr ) {
-      REPORT_MESSAGE( MSG::ERROR )
-         << "T/P Converter for transient class "
-         << clname << " could not be retrieved";
-      return 0;
-   }
-
+ 
    // Create a persistent object:
    const std::string persname =
       System::typeinfoName( cnvtr->persistentTInfo() );

@@ -112,7 +112,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const xAOD::TrackPartic
   } else {
     const Trk::TrackParameters* extrapResult =
       m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
-    if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+    if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
       vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
     }
   }
@@ -138,7 +138,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticl
        const Trk::TrackParameters* extrapResult =
          m_extrapolator->extrapolateDirectly(*trackparPerigee, persf);
        if (extrapResult &&
-           extrapResult->surfaceType() == Trk::Surface::Perigee) {
+           extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
          vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
        }
      }
@@ -161,7 +161,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Trk::Track& track
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
     m_extrapolator->extrapolate(track, persf);
-  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+  if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
   if (!vertexPerigee) {
@@ -222,7 +222,7 @@ Reco::TrackToVertex::perigeeAtBeamline(
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
     m_extrapolator->extrapolate(ctx,track, persf);
-  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+  if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
   if (!vertexPerigee) {
@@ -238,7 +238,7 @@ Reco::TrackToVertex::perigeeAtBeamline(
         }
         extrapResult = m_extrapolator->extrapolate(ctx,*trk_params, persf);
         if (extrapResult &&
-            extrapResult->surfaceType() == Trk::Surface::Perigee) {
+            extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
           vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
         }
         break;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -134,7 +134,8 @@ ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundTrackParameters& startParameters,
                                         Acts::NavigationDirection navDir /*= Acts::forward*/,
-                                        double pathLimit /*= std::numeric_limits<double>::max()*/) const
+                                        double pathLimit /*= std::numeric_limits<double>::max()*/,
+                                        Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
@@ -161,8 +162,12 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.maxStepSize = m_maxStepSize * 1_m;
   options.maxSteps = m_maxStep;
   options.direction = navDir;
+  if(particleHypo != Trk::noHypothesis){
+    options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
+    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+  }
 
-  auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
+  auto &mInteractor = options.actionList.get<Acts::MaterialInteractor>();
   mInteractor.multipleScattering = m_interactionMultiScatering;
   mInteractor.energyLoss = m_interactionEloss;
   mInteractor.recordInteractions = m_interactionRecord;
@@ -208,7 +213,8 @@ std::unique_ptr<const Acts::CurvilinearTrackParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundTrackParameters& startParameters,
                                  Acts::NavigationDirection navDir /*= Acts::forward*/,
-                                 double pathLimit /*= std::numeric_limits<double>::max()*/) const
+                                 double pathLimit /*= std::numeric_limits<double>::max()*/,
+                                 Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
@@ -234,6 +240,10 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.maxStepSize = m_maxStepSize * 1_m;
   options.maxSteps = m_maxStep;
   options.direction = navDir;
+  if(particleHypo != Trk::noHypothesis){
+    options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
+    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+  }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
   mInteractor.multipleScattering = m_interactionMultiScatering;
@@ -258,7 +268,8 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundTrackParameters& startParameters,
                                         const Acts::Surface& target,
                                         Acts::NavigationDirection navDir /*= Acts::forward*/,
-                                        double pathLimit /*= std::numeric_limits<double>::max()*/) const
+                                        double pathLimit /*= std::numeric_limits<double>::max()*/,
+                                        Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
@@ -284,6 +295,10 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.maxStepSize = m_maxStepSize * 1_m;
   options.maxSteps = m_maxStep;
   options.direction = navDir;
+  if(particleHypo != Trk::noHypothesis){
+    options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
+    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+  }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
   mInteractor.multipleScattering = m_interactionMultiScatering;
@@ -324,7 +339,8 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundTrackParameters& startParameters,
                                  const Acts::Surface& target,
                                  Acts::NavigationDirection navDir /*= Acts::forward*/,
-                                 double pathLimit /*= std::numeric_limits<double>::max()*/) const
+                                 double pathLimit /*= std::numeric_limits<double>::max()*/,
+                                 Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
@@ -350,6 +366,10 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.maxStepSize = m_maxStepSize * 1_m;
   options.maxSteps = m_maxStep;
   options.direction = navDir;
+  if(particleHypo != Trk::noHypothesis){
+    options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
+    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+  }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
   mInteractor.multipleScattering = m_interactionMultiScatering;

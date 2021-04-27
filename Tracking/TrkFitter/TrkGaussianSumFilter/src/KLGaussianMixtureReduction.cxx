@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
@@ -8,7 +8,7 @@
 #include "CxxUtils/vectorize.h"
 #include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
 #include <limits>
 #include <stdexcept>
 #include <vector>

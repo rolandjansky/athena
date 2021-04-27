@@ -566,6 +566,18 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         self += emtoposplitter
         self += emtopomoments
 
+class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
+    __slots__ = []
+    def __init__(self, name="CaloCellSeedLessFS"):
+        super( HLTCaloCellSeedLessMaker, self ).__init__(name)
+        from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+        setMinimalCaloSetup()
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.CellsName="SeedLessFS"
+        self.RoIs=''
+        self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
 
 class HLTCaloCellMaker (_HLTCaloCellMaker):
     __slots__ = []
@@ -683,7 +695,7 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
     acc.merge(trigCaloDataAccessSvcCfg(flags))
 
     cellMaker = CompFactory.HLTCaloCellMaker(name,
-                                             CellsName='CaloCells',
+                                             CellsName='CaloCellsFS' if "FS" in name else "CaloCells",
                                              TrigDataAccessMT = acc.getService('TrigCaloDataAccessSvc'),
                                              monitorCells = True,
                                              ExtraInputs = CaloDataAccessSvcDependencies+

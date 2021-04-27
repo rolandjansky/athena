@@ -955,7 +955,7 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
 
     for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
-    if ( watermark ) DrawLabel(0.1, 0.02, "built on "+stime()+release, kBlack, 0.03 );
+    if ( watermark ) DrawLabel(0.1, 0.02, "built "+stime()+release, kBlack, 0.03 );
 
     gPad->SetLogy(m_logy);
     gPad->SetLogx(m_logx);

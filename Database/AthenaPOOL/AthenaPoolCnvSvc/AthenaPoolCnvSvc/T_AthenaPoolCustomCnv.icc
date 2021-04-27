@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCustomCnv.icc
@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/StorableConversions.h"
 
+#include "AthenaPoolCnvSvc/exceptions.h"
 #include "AthenaPoolCnvTPExtension.h"
 
 #include <sstream>
@@ -44,9 +45,13 @@ StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(IOpaqueAd
    }
    try {
      persObj = createPersistentWithKey(obj, pObj->name());
-   } catch (std::exception &e) {
-      ATH_MSG_ERROR("Failed to create persistent object: " << e.what());
-      return(StatusCode::FAILURE);
+   }
+   catch (const std::exception& ex) {
+    AthenaPoolCnvSvc::throwExcCaughtException (__PRETTY_FUNCTION__,
+                                               "creating persistent object",
+                                               ex,
+                                               typeid(TRANS),
+                                               pObj->name());
    }
    Token* token = nullptr;
    StatusCode status = this->objectToPool(persObj, token, pObj->name(), *pAddr->par());
@@ -92,13 +97,13 @@ T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
    }
    try {
       transObj = createTransientWithKey(key);
-   } catch(std::exception &e) {
-      ATH_MSG_ERROR("Failed to convert persistent object to transient: " << e.what());
-      // cleanup
-      if (extCnv != nullptr) {
-         extCnv->deletePersistentObjects();
-      }
-      return(StatusCode::FAILURE);
+   }
+   catch(const std::exception& ex) {
+    AthenaPoolCnvSvc::throwExcCaughtException (__PRETTY_FUNCTION__,
+                                               "creating transient object",
+                                               ex,
+                                               typeid(TRANS),
+                                               key);
    }
    if (extCnv != nullptr) {
       extCnv->deletePersistentObjects();
@@ -148,6 +153,7 @@ template <class TRANS, class PERS>
 inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::keepPoolObj(PERS* obj, const std::string& output) {
    std::ostringstream oss;
    oss << Gaudi::Hive::currentContext().slot();
+   std::lock_guard   lock(m_pListMutex);
    m_persObjLists[output + ":" + oss.str()].emplace_back(obj);
 }
 
@@ -156,6 +162,7 @@ template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::cleanUp(const std::string& output) {
    std::ostringstream oss;
    oss << Gaudi::Hive::currentContext().slot();
+   std::lock_guard   lock(m_pListMutex);
    m_persObjLists[output + ":" + oss.str()].clear();
    return(StatusCode::SUCCESS);
 }

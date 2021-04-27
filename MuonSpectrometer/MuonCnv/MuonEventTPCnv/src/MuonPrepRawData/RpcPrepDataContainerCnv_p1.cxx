@@ -182,7 +182,7 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                 
                 double tolerance = 3.0;
                 const Trk::PlaneSurface& surf = de->surface( chan->identify() );
-                const Amg::Vector2D* pos = surf.Trk::Surface::globalToLocal(globalposHIT,tolerance); 
+                std::optional<Amg::Vector2D> pos = surf.Trk::Surface::globalToLocal(globalposHIT,tolerance); 
                 if (!pos){
                   log << MSG::WARNING << "RpcPrepDataContainerCnv_p1::persToTrans - globalToLocal failed!"<<endmsg;
                   chan->m_localPos = Amg::Vector2D(0,0);

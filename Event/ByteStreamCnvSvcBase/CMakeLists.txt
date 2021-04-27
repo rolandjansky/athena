@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvcBase )
@@ -11,8 +11,8 @@ atlas_add_library( ByteStreamCnvSvcBaseLib
                    src/*.cxx
                    PUBLIC_HEADERS ByteStreamCnvSvcBase
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel StoreGateLib SGtests ByteStreamData_test
-                   PRIVATE_LINK_LIBRARIES SGTools )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel StoreGateLib
+                   PRIVATE_LINK_LIBRARIES SGTools TestTools )
 
 atlas_add_component( ByteStreamCnvSvcBase
                      src/components/*.cxx

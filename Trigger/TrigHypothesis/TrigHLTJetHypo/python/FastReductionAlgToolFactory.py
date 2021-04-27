@@ -4,15 +4,38 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+jetMoments = {
+    'emfrac'  : 'EMFrac',
+    'hecfrac' : 'HECFrac',
+}
+
 class FastReductionAlgToolFactory:
 
     def __init__(self):
         
         self.tool_factories = {
+            'hypo_tool': [CompFactory.TrigJetHypoToolMT, 0],
+            'helper_tool': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
+
+            'HelperToolConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
+
+            'ConditionFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_conditionfilter, 0],
+            
+            'PassThroughFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_passthroughfilter, 0],
+            
+            'RangeFilterConfigTool':
+            [CompFactory.TrigJetHypoToolConfig_rangefilter, 0],
+
+            'RepeatedConditionConfigTool':
+            [CompFactory.TrigJetConditionConfig_repeated, 0],
+                        
             'eta': [CompFactory.TrigJetConditionConfig_abs_eta, 0], 
-            'peta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
-            'ceta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
             'neta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'ceta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
+            'peta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
             'pphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'cphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'nphi': [CompFactory.TrigJetConditionConfig_phi, 0],
@@ -25,33 +48,28 @@ class FastReductionAlgToolFactory:
             'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
             'ht': [CompFactory.TrigJetConditionConfig_htfr, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
-            'repeated': [CompFactory.TrigJetConditionConfig_repeated, 0],
-            'fastreduction': [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
-            'helper': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
             }
-
-
-        jetMoments = {
-            'emfrac'  : 'EMFrac',
-            'hecfrac' : 'HECFrac',
-        }
 
         for var in jetMoments:
             self.tool_factories['mom'+var] = [
                 CompFactory.TrigJetConditionConfig_moment, 0]
 
 
-    def __call__(self, key, extra=''):
-
-        key = key.split(':')[-1]  # key = 'eta' for 'XXX:eta'
+    def __call__(self, key, name=''):
+        """using a keyword, select and return  Algtool Class, and
+        a name for the instance to be created. The name can be overridden
+        by the user. For example, the hypo tool takes the chain name as
+        its name."""
+        
         klass = self.tool_factories[key][0]
+        if name:
+            return klass, name
+        
         sn = self.tool_factories[key][1]
         
         name = '%s_%d' % (key, sn)
-        if extra: name += '_' + extra
-        tool = klass(name=name)            
         self.tool_factories[key][1] += 1
-        return tool
+        return klass, name
 
     
     def __str__(self):
@@ -64,4 +82,6 @@ class FastReductionAlgToolFactory:
 
         return rep
 
-    
+
+# make a common importable tool factory instance
+toolfactory = FastReductionAlgToolFactory()  

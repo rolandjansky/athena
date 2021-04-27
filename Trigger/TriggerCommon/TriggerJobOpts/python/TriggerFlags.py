@@ -74,27 +74,6 @@ class doHLT(JobProperty):
     
 _flags.append(doHLT)
 
-class EDMVersion(JobProperty):
-    """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
-    statusOn=False
-    allowedType=['int']
-    allowedValues=[1,2,3]
-    StoredValue=3
-
-    def _do_action(self):
-        self.statusOn = True
-
-    def __call__(self):
-        if not self.statusOn:
-            log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-            log.warning('TriggerFlags.EDMVersion is deprecated, please use ConfigFlags.Trigger.EDMVersion')
-            from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            self.StoredValue = ConfigFlags.Trigger.EDMVersion
-            self.statusOn = True
-        return JobProperty.__call__(self)
-
-_flags.append(EDMVersion)
-
 class enableMonitoring(JobProperty):
     """ enables certain monitoring type: Validation, Online, Time"""
     statusOn=True
@@ -789,6 +768,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_pp_run3_v1', # Physics_pp_run3 for AthenaMT
         'PhysicsP1_HI_run3_v1',  # PhysicsP1_HI_run3 for AthenaMT
         'Dev_HI_run3_v1', # Dev_HI_run3 for AthenaMT
+        'MC_pp_v7_TriggerValidation_mc_prescale', # MC trigger simulated in 21.0 but reconstructed in 22.0
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         'Cosmic_run3_v1',
         'LS2_v1_TriggerValidation_prescale',

@@ -15,6 +15,9 @@ addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTruthJetRange"               , "
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getMergeTruthJetsTool"          , "MergeTruthJetsTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getMergeTruthJetsFilterTool"    , "MergeTruthJetsFilterTool")
 
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTruthParticleRange"          , "TruthParticleRange")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getMergeTruthParticlesTool"  , "MergeTruthParticlesTool")
+
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTimingObjRange"              , "TimingObjRange")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeRecoTimingObjTool"         , "MergeRecoTimingObjTool")
 

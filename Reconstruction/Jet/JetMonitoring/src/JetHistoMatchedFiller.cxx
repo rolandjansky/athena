@@ -76,7 +76,6 @@ StatusCode JetHistoMatchedFiller::processJetContainer(const JetMonitoringAlg& pa
         parentAlg.fill(m_group, dPt, dEnergy, dMass, rPt, rEnergy, rMass, ptRef, etaRef);
     } 
   }
- 
   parentAlg.fill(m_group,matched);
   
   return StatusCode::SUCCESS;

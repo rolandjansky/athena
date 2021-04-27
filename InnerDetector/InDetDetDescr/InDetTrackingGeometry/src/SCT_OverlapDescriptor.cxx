@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ bool InDet::SCT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
     cSurfaces.reserve(newCapacity);  
 
     // first add the target surface and the backside surface (in the if statement)
-    cSurfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos,0.,true),&tsf));
+    cSurfaces.emplace_back(Trk::Intersection(pos,0.,true),&tsf);
 
     // make sure the return vector is cleared
     const InDetDD::SiDetectorElement* sElement = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
@@ -50,7 +50,7 @@ bool InDet::SCT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
       
       // 8-cell-connectivity depending on track/surface geometry
       // nPhi - can be jump + or -
-      const InDetDD::SiDetectorElement* nElement = 0;
+      const InDetDD::SiDetectorElement* nElement = nullptr;
       
       // robust mode --> return 9 (*2) surfaces
       if (m_robustMode) {

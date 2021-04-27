@@ -479,7 +479,7 @@ if hasattr(runArgs,"PileUpPremixing"):
 #--------------------------------------------------------------
 # Pileup configuration
 #--------------------------------------------------------------
-from SimuJobTransforms.SimTransformUtils import makeBkgInputCol
+from SimuJobTransforms.SimTransformUtils import makeBkgInputCol,getInputColOffset
 def HasInputFiles(runArgs, key):
     if hasattr(runArgs, key):
         cmd='runArgs.%s' % key
@@ -506,8 +506,12 @@ if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
     bkgArgName="inputHighPtMinbiasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
+    if(digitizationFlags.HighPtMinBiasInputColOffset.get_Value()<0):
+        #Calculate a pseudo random offset into the collection from the jobNumber
+        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(bkgArg, runArgs.jobNumber, fast_chain_log)
     digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log)
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log,
+                                                               digitizationFlags.HighPtMinBiasInputColOffset.get_Value())
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
     digitizationFlags.doHighPtMinBias = True
 else:

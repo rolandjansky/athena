@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -72,8 +72,7 @@ def AddHIJetFinder(R=0.4) :
     myMods=jtm.modifiersMap["HI_Unsubtr"]
     #myMods += AddPtAssociationTools(R)
     finder=jtm.addJetFinder(cname, "AntiKt", R, "HI",myMods,
-                            consumers=None, ivtxin=None,
-                            ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
+                            consumers=None, ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
     jtm.HIJetRecs+=[finder]
 
 def AddPtAssociationTools(R, doTracks=True) :
@@ -188,14 +187,9 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool = CaloNoiseToolDefault()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += theCaloNoiseTool
 
         HIClusterMoments = CaloClusterMomentsMaker ("HIClusterMoments")
         #HIClusterMoments.MaxAxisAngle = 20*deg
-        #HIClusterMoments.CaloNoiseTool = theCaloNoiseTool
         #HIClusterMoments.UsePileUpNoise = False
         HIClusterMoments.MinBadLArQuality = 4000
         HIClusterMoments.MomentsNames = ["CENTER_MAG",

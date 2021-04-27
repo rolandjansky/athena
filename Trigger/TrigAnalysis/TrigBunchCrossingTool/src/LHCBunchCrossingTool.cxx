@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,8 +56,7 @@ namespace Trig {
    StatusCode LHCBunchCrossingTool::initialize() {
 
       // Report about the initialization:
-      ATH_MSG_INFO( "Initializing LHCBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing LHCBunchCrossingTool" );
       ATH_MSG_INFO( "  Maximal bunch spacing: " << m_maxBunchSpacing << " ns" );
       ATH_MSG_INFO( "  Length of train front: " << m_frontLength << " ns" );
       ATH_MSG_INFO( "  Length of train tail : " << m_tailLength << " ns" );

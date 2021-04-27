@@ -82,6 +82,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed* inSeed, xAO
   if(isBadSeed == true) {
     ATH_MSG_DEBUG("This seed is not useable for detail arranging (other than validity flag)");
     tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_isPanTauCandidate, 0);
+    tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, xAOD::TauJetParameters::Mode_NotSet);
     return StatusCode::SUCCESS;
   }
     

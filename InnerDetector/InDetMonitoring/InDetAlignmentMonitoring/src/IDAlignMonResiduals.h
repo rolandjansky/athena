@@ -191,7 +191,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   bool m_extendedPlots{};
   bool m_changedlumiblock{};
   int  m_oldlumiblock{};
-  int m_FinerBinningFactor{};
+  float m_FinerBinningFactor{};
   float m_LBGranularity{};
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;

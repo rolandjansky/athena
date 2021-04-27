@@ -109,7 +109,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-  if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) {
+  if(trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) {
      tauContainerName="HLT_TrigTauRecMerged_MVA";
   }else if(trigItem.find("ptonly") != std::string::npos) tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
@@ -184,7 +184,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-  if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos){ 
+  if(trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos){ 
       tauContainerName="HLT_TrigTauRecMerged_MVA";
   }else if(trigger.find("ptonly") != std::string::npos) tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
@@ -302,6 +302,8 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
   auto tauPhi = Monitored::Scalar<float>(monGroupName+"_tauPhi",0.0);
   auto averageMu = Monitored::Scalar<float>(monGroupName+"_averageMu",0.0); 
   auto HLT_match = Monitored::Scalar<bool>(monGroupName+"_HLTpass",false);
+ 
+  bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
 
   for(auto offline_tau : offline_tau_vec){
 
@@ -309,7 +311,8 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
        tauEta = offline_tau->eta();
        tauPhi = offline_tau->phi();
        averageMu = lbAverageInteractionsPerCrossing(ctx);
-       HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2);
+       // HLT matching  : dR matching + HLT fires
+       HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2) && hlt_fires;
 
        fill(monGroup, tauPt, tauEta, tauPhi, averageMu, HLT_match);
   }

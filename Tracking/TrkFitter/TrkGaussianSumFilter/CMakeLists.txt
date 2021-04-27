@@ -9,9 +9,9 @@ atlas_add_component( TrkGaussianSumFilter
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GeoPrimitives GaudiKernel
                      TrkGeometry  TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface
-                     TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces CxxUtils PathResolver TrkDetElementBase
-                     TrkCaloCluster_OnTrack TrkMeasurementBase  TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack
-                     KalmanParameterUpdatorLib)
+                     TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces 
+                     CxxUtils PathResolver TrkDetElementBase TrkCaloCluster_OnTrack TrkMeasurementBase  TrkPrepRawData 
+                     TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack KalmanParameterUpdatorLib)
 
 # Install files from the package:
 atlas_install_runtime( Data/*.par )
@@ -19,14 +19,14 @@ atlas_install_runtime( Data/*.par )
 #Executables for tests
 atlas_add_executable( GSF_testFindMinimumIndex
 	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx
-  LINK_LIBRARIES CxxUtils )
+  LINK_LIBRARIES CxxUtils TrkMultiComponentStateOnSurface)
 
 atlas_add_executable( GSF_testAlignedDynArray
 	test/testAlignedDynArray.cxx)
 
 atlas_add_executable( GSF_testMergeComponents
 	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx
-  LINK_LIBRARIES CxxUtils )
+  LINK_LIBRARIES CxxUtils TrkMultiComponentStateOnSurface)
 
 atlas_add_executable( GSF_testFindMode
 	test/testFindMode.cxx src/MultiComponentStateModeCalculator.cxx

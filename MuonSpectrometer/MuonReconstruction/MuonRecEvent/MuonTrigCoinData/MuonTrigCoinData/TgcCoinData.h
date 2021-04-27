@@ -354,12 +354,13 @@ namespace Muon
   inline const Amg::Vector3D& TgcCoinData::globalposIn() const
     {
       if(not m_globalposIn) {
-	if(m_detElIn) {
-	  m_globalposIn.set(std::unique_ptr<const Amg::Vector3D>(m_detElIn->surface(m_channelIdIn).Trk::Surface::localToGlobal(*m_posIn)));
-	}
-	else {
-	  m_globalposIn.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
-	}
+        if (m_detElIn) {
+          m_globalposIn.set(std::make_unique<const Amg::Vector3D>(
+            m_detElIn->surface(m_channelIdIn)
+              .Trk::Surface::localToGlobal(*m_posIn)));
+        } else {
+          m_globalposIn.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
+        }
       }
       return *m_globalposIn;
     }
@@ -367,13 +368,14 @@ namespace Muon
   inline const Amg::Vector3D& TgcCoinData::globalposOut() const
     {
       if(not m_globalposOut) {
-	if(m_detElOut && m_posOut) {
-	  m_globalposOut.set(std::unique_ptr<const Amg::Vector3D>(m_detElOut->surface(m_channelIdOut).Trk::Surface::localToGlobal(*m_posOut)));
-	}
-	else {
-	  m_globalposOut.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
-	}
-      } 
+        if (m_detElOut && m_posOut) {
+          m_globalposOut.set(std::make_unique<const Amg::Vector3D>(
+            m_detElOut->surface(m_channelIdOut)
+              .Trk::Surface::localToGlobal(*m_posOut)));
+        } else {
+          m_globalposOut.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
+        }
+      }
       return *m_globalposOut;
     }
 }

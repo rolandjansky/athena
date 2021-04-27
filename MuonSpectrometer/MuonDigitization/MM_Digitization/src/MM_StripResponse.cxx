@@ -61,18 +61,18 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 
 
 void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
-
-
-	// Unfortunately get stuck in the loop if you edit the map in the loop
-	//     So make a copy!
-
-	std::map< int, std::map<int,float> > stripChargesCopy1;
-	stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
-
-	// clear strip charge map since charge on the main strip needs to be scaled
-	m_stripCharges.clear();
-
+	// if no cross talk is simulate just skip everything and keep m_stripCharges as it was
 	if (crossTalk1 > 0.){
+
+		// Unfortunately get stuck in the loop if you edit the map in the loop
+		//     So make a copy!
+
+		std::map< int, std::map<int,float> > stripChargesCopy1;
+		stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
+
+		// clear strip charge map since charge on the main strip needs to be scaled
+		m_stripCharges.clear();
+
 		for (auto & stripTimeSeries : stripChargesCopy1){
 			int timeBin = stripTimeSeries.first;
 			for (auto & stripCharge : stripTimeSeries.second ){

@@ -3,7 +3,6 @@
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
 from AthenaCommon.Logging import logging
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
     __slots__ = []
@@ -11,8 +10,8 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
         super( TrigDecisionMaker, self ).__init__( name )
         log = logging.getLogger( 'TrigDecisionMaker' )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s", ConfigFlags.Trigger.readLVL1FromJSON)
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doEDMVersionConversion)", ConfigFlags.Trigger.doEDMVersionConversion)
+        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doEDMVersionConversion
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if hasattr(svcMgr,'DSConfigSvc'):
             # this case is still needed for reading Run 2 configuration from the TriggerDB
@@ -39,11 +38,6 @@ class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
         acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
         appendCAtoAthena( acc )
         Configurable.configurableRun3Behavior -= 1
-        ###
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 configuration from the TriggerDB
-            self.Lvl1ResultAccessTool.LVL1ConfigSvc = "TrigConfigSvc"
 
 # Following not yet ported to the AthenaMT / Run 3 alg
 
@@ -156,6 +150,11 @@ class WritexAODTrigDecision ( object ) :
         alg = xAODMaker__TrigDecisionCnvAlg()
 
         # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, 'TrigDecisionTool'):
+            from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+            ToolSvc += Trig__TrigDecisionTool('TrigDecisionTool')
+
         ToolSvc.TrigDecisionTool.UseAODDecision = True
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
 

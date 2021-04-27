@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -330,7 +330,7 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
 
 double 
 SCT_ChargeTrappingTool::getPotentialValue(int& ix, int& iy) const {
-  return getPotentialValue(ix, iy);
+  return ::getPotentialValue(ix, iy);
 }
 
 const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {

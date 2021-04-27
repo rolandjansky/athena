@@ -9,6 +9,11 @@ log = logging.getLogger('TrigEgammaFastElectronHypoTool')
 def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Electron']
+
+    trigElectronLrtd0Cut = { 'lrtloose':2.0,
+                             'lrtmedium':3.0,
+                             'lrttight':5.0
+                           }
     
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
@@ -19,7 +24,7 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
 
     if cparts[0]['trkInfo']!='' and 'idperf' in cparts[0]['trkInfo']:
         tool.AcceptAll = True
-   
+     
     else:
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastElectron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
@@ -55,6 +60,15 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
                     tool.CaloTrackdPHI[ th ] =  999.
             else:
                     raise RuntimeError('No threshold: Default cut configured')
+
+        if cparts[0]['lrtInfo']!='':
+            tool.DoLRT = True
+            if 'lrtloose' in cparts[0]['lrtInfo']:
+                tool.d0Cut=[trigElectronLrtd0Cut['lrtloose']]*nt
+            elif 'lrtmedium' in cparts[0]['lrtInfo']:
+                tool.d0Cut=[trigElectronLrtd0Cut['lrtmedium']]*nt
+            elif 'lrttight' in cparts[0]['lrtInfo']:
+                tool.d0Cut=[trigElectronLrtd0Cut['lrttight']]*nt
     
     return tool
 

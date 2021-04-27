@@ -439,7 +439,6 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
                (const std::string& collectionType,
 		const std::string& connection,
 		const std::string& collectionName,
-		const pool::ICollection::OpenMode& openMode,
 		unsigned int contextId) const {
    ATH_MSG_DEBUG("createCollection() type="<< collectionType << ", connection=" << connection
                  << ", name=" << collectionName << ", contextID=" << contextId);
@@ -451,14 +450,9 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
 	 collection = "PFN:" + collectionName;
       }
    }
-   if (openMode == pool::ICollection::READ) {
-      if (contextId >= m_persistencySvcVec.size()) {
-         ATH_MSG_WARNING("createCollection: Using default input Stream instead of id = " << contextId);
-         contextId = IPoolSvc::kInputStream;
-      }
-   }
    if (contextId >= m_persistencySvcVec.size()) {
-      return(nullptr);
+      ATH_MSG_WARNING("createCollection: Using default input Stream instead of id = " << contextId);
+      contextId = IPoolSvc::kInputStream;
    }
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    // Check POOL FileCatalog entry.
@@ -511,10 +505,10 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
    if (collectionType == "RootCollection" &&
 	   m_persistencySvcVec[contextId]->session().defaultConnectionPolicy().writeModeForNonExisting() != pool::DatabaseConnectionPolicy::RAISE_ERROR) {
       ATH_MSG_INFO("Writing ExplicitROOT Collection - do not pass session pointer");
-      collPtr = collFac->create(collDes, openMode);
+      collPtr = collFac->create(collDes,  pool::ICollection::READ);
    } else {
       try {
-         collPtr = collFac->create(collDes, openMode, &m_persistencySvcVec[contextId]->session());
+         collPtr = collFac->create(collDes, pool::ICollection::READ, &m_persistencySvcVec[contextId]->session());
       } catch (std::exception &e) {
          if (insertFile) {
             std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
@@ -531,7 +525,7 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
       std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
       if (dbH == nullptr) {
          ATH_MSG_INFO("Failed to create FileCatalog entry.");
-      } else if (openMode == pool::ICollection::READ && dbH->fid().empty()) {
+      } else if (dbH->fid().empty()) {
          ATH_MSG_INFO("Cannot retrieve the FID of an existing POOL database: '"
                       << connection << "' - FileCatalog will NOT be updated.");
       } else {
@@ -541,16 +535,6 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
       }
    }
    return(collPtr);
-}
-//__________________________________________________________________________
-void PoolSvc::registerExistingCollection ATLAS_NOT_THREAD_SAFE
-  (pool::ICollection* coll, bool overwrite, bool sharedCat)
-{
-   std::lock_guard<CallMutex> lock(m_pool_mut);
-   m_catalog->commit();
-   pool::CollectionFactory* collFac = pool::CollectionFactory::get();
-   collFac->registerExisting(coll, overwrite, sharedCat ? m_catalog : nullptr);
-   m_catalog->start();
 }
 //__________________________________________________________________________
 Token* PoolSvc::getToken(const std::string& connection,

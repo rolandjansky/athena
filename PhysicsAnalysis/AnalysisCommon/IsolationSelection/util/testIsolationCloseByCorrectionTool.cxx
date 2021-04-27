@@ -31,7 +31,7 @@
 #include "IsolationSelection/TestMacroHelpers.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, const std::string &Key, Container* &C, xAOD::ShallowAuxContainer* &Aux) {
     if (Aux) delete Aux;
@@ -78,14 +78,14 @@ int main(int argc, char** argv) {
     // Creating the tools.
 
     //Define first the isolation selection tool with all WP
-    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool("CP::IsolationSelectionTool/IsoSelectionTool");
+    asg::StandaloneToolHandle<CP::IIsolationSelectionTool> m_isoSelTool("CP::IsolationSelectionTool/IsoSelectionTool");
     ANA_CHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
     ANA_CHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
     ANA_CHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
     ANA_CHECK(m_isoSelTool.retrieve());
 
     //Now let's come to the IsolaionCloseByCorrecitonTool
-    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool("CP::IsolationCloseByCorrectionTool/IsoCorrectionTool");
+    asg::StandaloneToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool("CP::IsolationCloseByCorrectionTool/IsoCorrectionTool");
 
     //pass the instance of the created isolation tool
     ANA_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));

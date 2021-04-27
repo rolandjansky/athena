@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC3.h"
@@ -91,7 +91,7 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     std::ostringstream o;
     o << ii;
     std::string logName = "TrtPanel"+o.str();
-    const GeoShape* serviceTube = 0;
+    const GeoShape* serviceTube = nullptr;
     if ( fabs(rmax) < minRofGap ){    
       serviceTube = new GeoTube(fabs(rmin),fabs(rmax),halflength);
     }else{
@@ -164,7 +164,7 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     // will eventually define all the materials.
     double fractionRL = (*inel)[ii]->getFloat("MATER");
     std::string trtMaterialName = (*inel)[ii]->getString("RADL");
-    const GeoMaterial* cylMat = 0;
+    const GeoMaterial* cylMat = nullptr;
 
     // 
     if( trtMaterialName != "std::Carbon"){ 
@@ -211,7 +211,7 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
   const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
-  const GeoShape* IDShape = 0;
+  const GeoShape* IDShape = nullptr;
   if(volType == Tube) {
     IDShape = new GeoTube(rmin1,rmax1,halflength);
   } 

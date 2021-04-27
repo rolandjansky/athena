@@ -19,13 +19,21 @@ from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
 from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
+from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
+from Digitization.PileUpUtils import pileupInputCollections
 
+from AthenaCommon.Logging import logging
+logDigiSteering = logging.getLogger('DigitizationSteering')
 
 def DigitizationMainServicesCfg(flags):
     """Configure main digitization services"""
     if flags.Digitization.PileUp:
+        if flags.Concurrency.NumThreads > 0:
+            logDigiSteering.error("DigitizationMainServicesCfg: Attempting to run pile-up digitization AthenaMT using %s threads!", str(flags.Concurrency.NumThreads))
+            logDigiSteering.error("DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration. The job will fail now.")
+            raise RuntimeError("DigitizationSteering.DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
         from Digitization.PileUpConfigNew import PileUpEventLoopMgrCfg
         acc = MainServicesCfg(flags, LoopMgr="PileUpEventLoopMgr")
         acc.merge(PileUpEventLoopMgrCfg(flags))
@@ -61,12 +69,17 @@ def DigitizationMainCfg(flags):
         from MCTruthSimAlgs.MCTruthSimAlgsConfigNew import (
             SignalOnlyMcEventCollCfg,
             MergeTruthJetsCfg,
+            MergeTruthParticlesCfg,
             MergeMuonEntryLayerCfg,
             MergeCalibHitsCfg,
         )
 
         acc.merge(SignalOnlyMcEventCollCfg(flags))
-        acc.merge(MergeTruthJetsCfg(flags))
+        puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
+        if "AntiKt4TruthJets" in puCollections:
+            acc.merge(MergeTruthJetsCfg(flags))
+        if "TruthPileupParticles" in puCollections:
+            acc.merge(MergeTruthParticlesCfg(flags))
         acc.merge(MergeMuonEntryLayerCfg(flags))
         acc.merge(MergeCalibHitsCfg(flags))
 
@@ -80,6 +93,8 @@ def DigitizationMainCfg(flags):
         acc.merge(PixelDigitizationCfg(flags))
     if flags.Detector.EnableSCT:
         acc.merge(SCT_DigitizationCfg(flags))
+    if flags.Detector.EnableITkStrip:
+        acc.merge(ITkStripDigitizationCfg(flags))
     if flags.Detector.EnableTRT:
         acc.merge(TRT_DigitizationCfg(flags))
 

@@ -13,16 +13,8 @@
 
 
 EgammaMonitoring::EgammaMonitoring(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_LooseLH("AsgElectronLikelihoodTool/LooseLH"),
-  m_MediumLH("AsgElectronLikelihoodTool/MediumLH"),
-  m_TightLH("AsgElectronLikelihoodTool/TightLH"),
-  m_IsoFixedCutTight("CP::IsolationSelectionTool/IsoFixedCutTight"),
-  m_IsoFixedCutTightTrackOnly("CP::IsolationSelectionTool/IsoFixedCutTightTrackOnly"),
-  m_IsoFixedCutTightCaloOnly("CP::IsolationSelectionTool/IsoFixedCutTightCaloOnly"),
-  m_IsoFixedCutLoose("CP::IsolationSelectionTool/IsoFixedCutLoose"),
-  m_mcTruthClassifier("MCTruthClassifier/MCTruthClassifier") {
-  declareProperty("sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle");
+  AthAlgorithm(name, pSvcLocator){
+    declareProperty("sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle");
 }
 
 // ******
@@ -201,6 +193,18 @@ StatusCode EgammaMonitoring::initialize() {
     truthPhotonUnconvRecoUnconv = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
         "truthUnconvRecoUnconv","truthUnconvRecoUnconv", "/MONITORING/truthUnconvRecoUnconv/", rootHistSvc));
 
+    recoPhotonUnconvLooseLH = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
+      "recoPhotonUnconvLooseLH","LLH Photons Reco Photon", "/MONITORING/recoPhotonUnconvLooseLH/", rootHistSvc));
+
+    recoPhotonUnconvTightLH = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
+      "recoPhotonUnconvTightLH","TLH Photons Reco Photon", "/MONITORING/recoPhotonUnconvTightLH/", rootHistSvc));
+
+    recoPhotonConvLooseLH = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
+      "recoPhotonConvLooseLH","LLH Photons Reco Photon", "/MONITORING/recoPhotonConvLooseLH/", rootHistSvc));
+
+    recoPhotonConvTightLH = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
+      "recoPhotonConvTightLH","LLH Photons Reco Photon", "/MONITORING/recoPhotonConvTightLH/", rootHistSvc));
+
     recoPhotonUnconvIsoFixedCutTight = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
     "recoPhotonUnconvIsoFixedCutTight","Isolation Fixed Cut Tight Photons Reco Photon", "/MONITORING/recoPhotonUnconvIsoFixedCutTight/", rootHistSvc));
 
@@ -302,6 +306,10 @@ StatusCode EgammaMonitoring::initialize() {
     ATH_CHECK(truthPhotonUnconvRecoConv2TRT->initializePlots());
     ATH_CHECK(truthPhotonUnconvRecoConv2SiTRT->initializePlots());
     ATH_CHECK(truthPhotonUnconvRecoUnconv->initializePlots());
+    ATH_CHECK(recoPhotonUnconvLooseLH->initializePlots());
+    ATH_CHECK(recoPhotonUnconvTightLH->initializePlots());
+    ATH_CHECK(recoPhotonConvLooseLH->initializePlots());
+    ATH_CHECK(recoPhotonConvTightLH->initializePlots());
     ATH_CHECK(recoPhotonUnconvIsoFixedCutTight->initializePlots());
     ATH_CHECK(recoPhotonUnconvIsoFixedCutTightCaloOnly->initializePlots());
     ATH_CHECK(recoPhotonUnconvIsoFixedCutLoose->initializePlots());
@@ -344,24 +352,21 @@ StatusCode EgammaMonitoring::initialize() {
   } // gamma Hists
 
   //*****************LLH Requirement********************
-  ATH_CHECK(m_LooseLH.setProperty("WorkingPoint", "LooseLHElectron"));
-  ATH_CHECK(m_LooseLH.initialize());
+  ATH_CHECK(m_LooseLH.retrieve());
   //*****************MLH Requirement********************
-  ATH_CHECK(m_MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
-  ATH_CHECK(m_MediumLH.initialize());
+  ATH_CHECK(m_MediumLH.retrieve());
   //*****************TLH Requirement********************
-  ATH_CHECK(m_TightLH.setProperty("WorkingPoint", "TightLHElectron"));
-  ATH_CHECK(m_TightLH.initialize());
+  ATH_CHECK(m_TightLH.retrieve());
+  //*****************LLH Requirement********************
+  ATH_CHECK(m_LooseLH_Photon.retrieve());
+  //*****************TLH Requirement********************
+  ATH_CHECK(m_TightLH_Photon.retrieve());
 
   //*****************Iso Requirements********************
-  ATH_CHECK(m_IsoFixedCutTight.setProperty("PhotonWP", "FixedCutTight"));
-  ATH_CHECK(m_IsoFixedCutTight.initialize());
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.setProperty("ElectronWP", "FixedCutTightTrackOnly"));
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.initialize());
-  ATH_CHECK(m_IsoFixedCutTightCaloOnly.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-  ATH_CHECK(m_IsoFixedCutTightCaloOnly.initialize());
-  ATH_CHECK(m_IsoFixedCutLoose.setProperty("PhotonWP", "FixedCutLoose"));
-  ATH_CHECK(m_IsoFixedCutLoose.initialize());
+  ATH_CHECK(m_IsoFixedCutTight.retrieve());
+  ATH_CHECK(m_IsoFixedCutTightTrackOnly.retrieve());
+  ATH_CHECK(m_IsoFixedCutTightCaloOnly.retrieve());
+  ATH_CHECK(m_IsoFixedCutLoose.retrieve());
   //*****************MC Truth Classifier Requirement********************
   ATH_CHECK(m_mcTruthClassifier.retrieve());
 
@@ -386,7 +391,7 @@ StatusCode EgammaMonitoring::execute() {
 
   // Retrieve things from the event store
   const xAOD::EventInfo *eventInfo = nullptr;
-  ANA_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
+  ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
   const float mu = eventInfo->averageInteractionsPerCrossing();
 
   // Retrieve egamma truth particles
@@ -755,6 +760,8 @@ StatusCode EgammaMonitoring::execute() {
           if (m_IsoFixedCutTight->accept(*photon)) recoPhotonConvIsoFixedCutTight->fill(*egtruth, mu);
           if (m_IsoFixedCutTightCaloOnly->accept(*photon)) recoPhotonConvIsoFixedCutTightCaloOnly->fill(*egtruth, mu);
           if (m_IsoFixedCutLoose->accept(*photon)) recoPhotonConvIsoFixedCutLoose->fill(*egtruth, mu);
+          if (m_LooseLH_Photon->accept(photon)) recoPhotonConvLooseLH->fill(*egtruth, mu);
+          if (m_TightLH_Photon->accept(photon)) recoPhotonConvTightLH->fill(*egtruth, mu);
         } // isRecoConv
         else {
           truthPhotonConvRecoUnconv->fill(*egtruth, mu);
@@ -791,6 +798,8 @@ StatusCode EgammaMonitoring::execute() {
         if (m_IsoFixedCutTight->accept(*photon)) recoPhotonUnconvIsoFixedCutTight->fill(*egtruth, mu);
         if (m_IsoFixedCutTightCaloOnly->accept(*photon)) recoPhotonUnconvIsoFixedCutTightCaloOnly->fill(*egtruth, mu);
         if (m_IsoFixedCutLoose->accept(*photon)) recoPhotonUnconvIsoFixedCutLoose->fill(*egtruth, mu);
+        if (m_LooseLH_Photon->accept(photon)) recoPhotonUnconvLooseLH->fill(*egtruth, mu);
+        if (m_TightLH_Photon->accept(photon)) recoPhotonUnconvTightLH->fill(*egtruth, mu);
       } // !isTrueLateConv
     } //egtruth Loop
 
@@ -919,6 +928,16 @@ StatusCode EgammaMonitoring::finalize() {
     egammaMonitoring::EfficiencyPlot recoPhotonConvIsoFixedCutLooseEfficiency("recoPhotonConvIsoFixedCutLooseEfficiency", "/MONITORING/recoPhotonConvIsoFixedCutLooseEfficiency/", rootHistSvc );
     ATH_CHECK(recoPhotonConvIsoFixedCutLooseEfficiency.divide( recoPhotonConvIsoFixedCutLoose.get(), truthPhotonConvRecoConv.get()));
   
+    egammaMonitoring::EfficiencyPlot recoPhotonConvLooseLHEfficiency("recoPhotonConvLooseLHEfficiency", "/MONITORING/recoPhotonConvLooseLHEfficiency/", rootHistSvc );
+    ATH_CHECK(recoPhotonConvLooseLHEfficiency.divide( recoPhotonConvLooseLH.get(), truthPhotonConvRecoConv.get()));
+    egammaMonitoring::EfficiencyPlot recoPhotonConvTightLHEfficiency("recoPhotonConvTightLHEfficiency", "/MONITORING/recoPhotonConvTightLHEfficiency/", rootHistSvc );
+    ATH_CHECK(recoPhotonConvTightLHEfficiency.divide( recoPhotonConvTightLH.get(), truthPhotonConvRecoConv.get()));
+    egammaMonitoring::EfficiencyPlot recoPhotonUnconvLooseLHEfficiency("recoPhotonUnconvLooseLHEfficiency", "/MONITORING/recoPhotonUnconvLooseLHEfficiency/", rootHistSvc );
+    ATH_CHECK(recoPhotonUnconvLooseLHEfficiency.divide( recoPhotonUnconvLooseLH.get(), truthPhotonUnconvRecoUnconv.get()));
+    egammaMonitoring::EfficiencyPlot recoPhotonUnconvTightLHEfficiency("recoPhotonUnconvTightLHEfficiency", "/MONITORING/recoPhotonUnconvTightLHEfficiency/", rootHistSvc );
+    ATH_CHECK(recoPhotonUnconvTightLHEfficiency.divide( recoPhotonUnconvTightLH.get(), truthPhotonUnconvRecoUnconv.get()));
+
+
     egammaMonitoring::WidthPlot truthPhotonRecoPhotonWidth("truthPhotonRecoPhotonWidth", "/MONITORING/truthPhotonRecoPhotonWidth/", rootHistSvc);
     ATH_CHECK(truthPhotonRecoPhotonWidth.fill(truthPhotonRecoPhoton.get()));
     egammaMonitoring::WidthPlot truthPhotonConvPhotonWidth("truthPhotonConvPhotonWidth", "/MONITORING/truthPhotonConvPhotonWidth/", rootHistSvc);

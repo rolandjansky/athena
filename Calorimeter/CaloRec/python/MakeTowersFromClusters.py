@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -24,6 +24,7 @@ def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
                            cellEnergyThreshold      = 0.,
                            applyLCW                 = False,
                            buildCombinedSignal      = False,
+                           removeSamplingData       = True,
                            clusterRange             = 5.):
     ''' Configuration dictionary for tower-to-cluster converter 
     '''
@@ -38,7 +39,8 @@ def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
                    'PrepareLCW'                  : applyLCW,                   ### (control) prepare (and apply) LCW
                    'DoCellIndexCheck'            : doCellIndexCheck,           ### (control) check cell hash indices
                    'BuildCombinedTopoSignal'     : buildCombinedSignal,        ### (control) build combined topo-cluster/topo-tower container
-                   'TopoClusterRange'            : clusterRange,               ### (control) range for topo-cluster in combined mode 
+                   'TopoClusterRange'            : clusterRange,               ### (control) range for topo-cluster in combined mode
+                   'RemoveSamplingData'          : removeSamplingData,         ### (control) remove all sampling data from tower
                    }
     return configDict
 
@@ -132,11 +134,6 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
     
     ''' External tools for moment calculation
     '''
-    ##from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    #from AthenaCommon.AppMgr import ToolSvc
-    #caloNoiseTool  = CaloNoiseToolDefault()
-    #ToolSvc       += caloNoiseTool
-        
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg ()
     CaloNoiseCondAlg(noisetype="totalNoise") # "electronicNoise","pileupNoise","totalNoise"
@@ -148,20 +145,18 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
     from CaloRec.CaloRecConf          import CaloClusterMomentsMaker
     clusterMoments                  = CaloClusterMomentsMaker (towerMakerName+'MomentMaker')
     clusterMoments.MaxAxisAngle     = 20*deg
-    #clusterMoments.CaloNoiseTool    = caloNoiseTool
-    #clusterMoments.UsePileUpNoise   = True
     clusterMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
     clusterMoments.MinBadLArQuality = 4000
     clusterMoments.MomentsNames     = [
-        "CENTER_LAMBDA", 
-        #"CENTER_MAG",
+        # "CENTER_LAMBDA", 
+        # "CENTER_MAG",
         "LONGITUDINAL",
-        #"FIRST_ENG_DENS",
-        #"ENG_FRAC_MAX",
+        # "FIRST_ENG_DENS",
+        # "ENG_FRAC_MAX",
         "ENG_FRAC_EM",
-        #"PTD",
+        # "PTD",
         "SIGNIFICANCE",
-        "ENG_POS"
+        # "ENG_POS",
     ]
 
     from IOVDbSvc.CondDB import conddb

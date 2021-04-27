@@ -58,7 +58,7 @@ caloTowerMerger.TopoClusterRange        = caloTowerDict['TopoClusterRange']     
 caloTowerMerger.TopoClusterContainerKey = caloTowerDict['CaloTopoClusterContainerKey']             #### caloTowerAlgo.CaloFwdTopoTowerBuilder.CaloTopoClusterContainerKey
 caloTowerMerger.TopoTowerContainerKey   = caloTowerAlgo.TowersOutputName
 caloTowerMerger.TopoSignalContainerKey  = 'CaloCalTopoSignals'
-caloTowerMerger.OutputLevel             = Lvl.DEBUG
+## caloTowerMerger.OutputLevel             = Lvl.DEBUG
 
 topSequence+=caloTowerAlgo
 topSequence+=caloTowerMerger

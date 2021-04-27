@@ -25,14 +25,14 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
 
     comboTools = []
     for topoInfo in theTopoInfo:
-        if "dR" in topoInfo:  # I think we don't need this anymore, 
-                              # because TrigComboHypoToolFromDict checks 
-                              # if the observable is present in the dict of the allowed ones
-            log.debug("[addTopoInfo] topoInfo being added is %s", topoInfo)
-            comboTools += [TrigComboHypoToolFromDict]
-        else:
-            log.error("[addTopoInfo] does not yet know what to do with topo %s",theTopoInfo)
-            raise Exception("[addTopoInfo] cannot proceed, exiting.")
+        # if "dR" in topoInfo :  # I think we don't need this anymore, 
+        #                        # because TrigComboHypoToolFromDict checks 
+        #                        # if the observable is present in the dict of the allowed ones
+        log.debug("[addTopoInfo] topoInfo being added is %s", topoInfo)
+        comboTools += [TrigComboHypoToolFromDict]
+        # else:
+        #     log.error("[addTopoInfo] does not yet know what to do with topo %s",theTopoInfo)
+        #     raise Exception("[addTopoInfo] cannot proceed, exiting.")
 
     for comboTool in comboTools:
         theChainConfig.steps[-1].addComboHypoTools(comboTool)
@@ -55,63 +55,94 @@ def TrigComboHypoToolFromDict(chainDict):
     #here we need to decompress the name to get: variable_name, min, max
     log.debug("[TrigComboHypoToolFromDict] new combo hypo name: %s, topoInfo = %s", name, topoInfo)
 
-    #get the min and max values
-    import re
-    legs   = re.findall("leg"+r"\d{3}", topoInfo)
-    if len(legs)!=2:
-        log.error("[TrigComboHypoToolFromDict] N_legs = %d", len(legs))
-        raise Exception("[TrigComboHypoToolFromDict] Number of legs is different from 2")
-    #now extract the legIDs
-    legA = int(re.findall(r"\d+", legs[0])[0])
-    legB = int(re.findall(r"\d+", legs[1])[0])
-        
-    #now remove the legs from the chain name
-    l_name = topoInfo
-    for l in legs:
-        l_name = l_name.replace(l, '')
-    #get the cut values
-    limits = re.findall(r"\d+", l_name)
-    if len(limits)!=2:
-        log.error("[TrigComboHypoToolFromDict] unable to get min and max values. N_limits = %d", len(limits))
-        raise Exception("[TrigComboHypoToolFromDict] cannot set limits")
-    cut_min = float(limits[0])/10.
-    cut_max = float(limits[1])/10.
-    
     allowed_obs = {
         'dR' : {
             'hist_nbins' : 50,
             'hist_min'   : 0.,
             'hist_max'   : 5.
         },
-        'mass' : {
+        'invm' : {
             'hist_nbins' : 100,
             'hist_min'   : 0.,
             'hist_max'   : 1000.
         }
     }
-    var_to_use = 'undef'
-    for v in allowed_obs:
-        if v in topoInfo:
-            if var_to_use == 'undef':
-                var_to_use = v
-            else:
-                log.error("[TrigComboHypoToolFromDict] attempt to use multiple observables: %s, %s", var_to_use, v)
-                raise Exception("[TrigComboHypoToolFromDict] attempt to use multiple observables.")
     
-    if var_to_use == 'undef':
-        log.error("[TrigComboHypoToolFromDict] didn't find any observable to use in chainName: %s", name)
-        raise Exception("[TrigComboHypoToolFromDict] missing observable tag in the chainName")
-    #we probably need a sequence of if to set up properly the histograms for the different cases?
+    import re
+    # get the variable
+    obs_to_use = []
+    for obs in allowed_obs.keys():
+        if obs in topoInfo:
+            obs_to_use.append(obs)
+    if len(obs_to_use)!=1:
+        log.error("[TrigComboHypoToolFromDict] N of vars found in he hypo name = %d in chain name %s", len(obs_to_use), name)
+        raise Exception("[TrigComboHypoToolFromDict] N of vars found in the hypo name is different from 1")
+
+    #get the limits
+    l_min = re.findall(r"\d+"+obs_to_use[0], topoInfo)
+    if len(l_min)==1:
+        l_min[0] = l_min[0].replace(obs_to_use[0],"")
+        cut_min  = float(l_min[0])/10.
+    if len(l_min)>1:
+        log.error("[TrigComboHypoToolFromDict] unable to get min value: N min = %d, l_min = %d", len(l_min), l_min)
+        raise Exception("[TrigComboHypoToolFromDict] cannot set min value")
+
+    if len(l_min)==1:#remove the min value from the string name
+        l_max = re.findall(r"\d+", topoInfo.replace(l_min[0],""))
+    else:#no min value was found
+        l_max = re.findall(r"\d+", topoInfo)
+    if len(l_max)>1:
+        log.error("[TrigComboHypoToolFromDict] unable to get max value: N max = %d, l_max = %d", len(l_max), l_max)
+        raise Exception("[TrigComboHypoToolFromDict] cannot set max value")
+    if len(l_max)==1:
+        cut_max = float(l_max[0])/10.
+    
+    #get the legs
+    l_names = topoInfo.replace(obs_to_use[0], "")
+    if len(l_min)>0: 
+        l_names = l_names.replace(l_min[0], "") 
+    if len(l_max)>0: 
+        l_names = l_names.replace(l_max[0], "") 
+
+    if len(l_names)!=2:
+        log.error("[TrigComboHypoToolFromDict] N_legs = %d, legs_name = %s", len(l_names), l_names)
+        raise Exception("[TrigComboHypoToolFromDict] Number of legs is different from 2")
+
+    legIndexes="ABCDEF"
+    legA = -1
+    legB = -1
+    for i in range(len(legIndexes)):
+        if legIndexes[i] == l_names[0]:
+            legA = i
+        elif legIndexes[i] == l_names[1]:
+            legB = i
+    if legA<0 or legB<0:
+        log.error("[TrigComboHypoToolFromDict] Didn't find leg indexes in %s", l_names)
+        raise Exception("[TrigComboHypoToolFromDict]  Didn't find leg indexes")
+
     monTool = GenericMonitoringTool("MonTool_"+name)
-    monTool.Histograms = [defineHistogram(var_to_use+'OfAccepted', type='TH1F', path='EXPERT', title=var_to_use+" in accepted combinations [MeV]", xbins=allowed_obs[var_to_use]['hist_nbins'], xmin=allowed_obs[var_to_use]['hist_min'], xmax=allowed_obs[var_to_use]['hist_max'])]
-    monTool.Histograms = [defineHistogram(var_to_use+'OfProcessed', type='TH1F', path='EXPERT', title=var_to_use+" in accepted combinations [MeV]", xbins=allowed_obs[var_to_use]['hist_nbins'], xmin=allowed_obs[var_to_use]['hist_min'], xmax=allowed_obs[var_to_use]['hist_max'])]
+    monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfAccepted', type='TH1F', path='EXPERT', title=obs_to_use[0]+" in accepted combinations [MeV]", xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], xmin=allowed_obs[obs_to_use[0]]['hist_min'], xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
+    monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfProcessed', type='TH1F', path='EXPERT', title=obs_to_use[0]+" in accepted combinations [MeV]", xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], xmin=allowed_obs[obs_to_use[0]]['hist_min'], xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
     tool= TrigComboHypoTool(name)
-    tool.Variable    = var_to_use
-    tool.LegA        = legA
-    tool.LegB        = legB
-    tool.LowerCut    = cut_min
-    tool.UpperCut    = cut_max
-    monTool.HistPath = 'ComboHypo/'+tool.getName() #FIXME! I'm not entrely sure how to set this path
+    tool.Variable    = obs_to_use[0]
+    tool.LegA        = "leg{:03d}".format(legA)
+    tool.LegB        = "leg{:03d}".format(legB)
+    if len(l_min)==1:
+        tool.UseMin    = True
+        tool.LowerCut  = cut_min
+    if len(l_max)==1:
+        tool.UseMax    = True
+        tool.UpperCut  = cut_max
+    monTool.HistPath = 'ComboHypo/'+tool.getName() 
     tool.MonTool     = monTool
+    #some debug info
     log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", name, topoInfo)
+    log.debug("[TrigComboHypoToolFromDict] var  = %s", obs_to_use[0])
+    log.debug("[TrigComboHypoToolFromDict] legA = %d", legA)
+    log.debug("[TrigComboHypoToolFromDict] legB = %d", legB)
+    if len(l_min)==1:
+        log.debug("[TrigComboHypoToolFromDict] min  = %10.3f", cut_min)
+    if len(l_max)==1:
+        log.debug("[TrigComboHypoToolFromDict] max  = %10.3f", cut_max)
+
     return tool

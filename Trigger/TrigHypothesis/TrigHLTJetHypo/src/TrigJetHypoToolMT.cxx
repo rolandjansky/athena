@@ -67,7 +67,7 @@ StatusCode TrigJetHypoToolMT::initialize(){
   }
   
   if (m_visitDebug){
-    DebugInfoCollector collector(name());
+    DebugInfoCollector collector(name() + "_init");
     CHECK(m_helper->getDescription(collector));
     auto s = collector.toString();
     
@@ -183,7 +183,7 @@ const std::vector<HLT::Identifier>& TrigJetHypoToolMT::getIDs() const{
 
 
 const HLT::Identifier& TrigJetHypoToolMT::getID(std::size_t i) const{
-  return m_decisionIDs[i];
+  return m_decisionIDs.at(i-m_startLabelIndex);
 }
     
 

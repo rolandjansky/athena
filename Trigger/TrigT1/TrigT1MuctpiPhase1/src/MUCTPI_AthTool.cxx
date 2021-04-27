@@ -6,6 +6,7 @@
 #include "TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
 #include "TrigT1MuctpiPhase1/SimController.h"
 #include "TrigT1MuctpiPhase1/TriggerProcessor.h"
+#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
 #include "TrigT1MuctpiPhase1/Configuration.h"
 #include "TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
 
@@ -43,10 +44,10 @@ namespace LVL1MUCTPIPHASE1 {
   const std::string MUCTPI_AthTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string MUCTPI_AthTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string MUCTPI_AthTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
-  const std::string MUCTPI_AthTool::m_DEFAULT_barrelRoIFile          = "TrigConfMuctpi/Data_ROI_Mapping_Barrel.txt";
-  const std::string MUCTPI_AthTool::m_DEFAULT_ecfRoIFile          = "TrigConfMuctpi/Data_RoI_Mapping_EF.txt";
-  const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile          = "TrigConfMuctpi/lookup_0.json";
-  const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile          = "TrigConfMuctpi/lookup_1.json";
+  const std::string MUCTPI_AthTool::m_DEFAULT_barrelRoIFile            = "TrigConfMuctpi/Data_ROI_Mapping_Barrel_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_ecfRoIFile               = "TrigConfMuctpi/Data_RoI_Mapping_EF_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile             = "TrigConfMuctpi/lookup_0_20201214.json";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile             = "TrigConfMuctpi/lookup_1_20201214.json";
 
   MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent)
@@ -134,14 +135,29 @@ namespace LVL1MUCTPIPHASE1 {
     }
 
     //initialize MSP ROI configuration
+
+
     const std::string barrelFileName = PathResolverFindCalibFile( m_barrelRoIFile );
     const std::string ecfFileName = PathResolverFindCalibFile( m_ecfRoIFile );
     const std::string side0LUTFileName = PathResolverFindCalibFile( m_side0LUTFile );
     const std::string side1LUTFileName = PathResolverFindCalibFile( m_side1LUTFile );
-    m_theMuctpi->configureTopo(barrelFileName,
-			       ecfFileName,
-			       side0LUTFileName,
-			       side1LUTFileName);
+    ATH_MSG_INFO("Initializing L1Topo decoding with the following inputs");
+    ATH_MSG_INFO("  Barrel file: " << barrelFileName);
+    ATH_MSG_INFO("  EC/Fwd file: " << ecfFileName);
+    ATH_MSG_INFO("  Side 0 LUT:  " << side0LUTFileName);
+    ATH_MSG_INFO("  Side 1 LUT:  " << side1LUTFileName);
+    std::vector<std::string> topo_errors = m_theMuctpi->configureTopo(barrelFileName,
+								      ecfFileName,
+								      side0LUTFileName,
+								      side1LUTFileName);
+    if (topo_errors.size())
+    {
+      std::stringstream err;
+      err << "Couldn't initialize L1Topo eta/phi encoding/decoding:\n";
+      for (unsigned i=0;i<topo_errors.size();i++) err << topo_errors[i] << "\n";
+      REPORT_ERROR( StatusCode::FAILURE ) << err.str();
+      return StatusCode::FAILURE;
+    }
 
     //                                                                                                                                                                                        
     // Set up the overlap handling of the simulation:                                                                                                                                         
@@ -159,7 +175,10 @@ namespace LVL1MUCTPIPHASE1 {
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
 
-      m_theMuctpi->configureOverlapRemoval(fullFileName);
+      for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+      {
+        m_theMuctpi->getMuonSectorProcessors()[i]->configureOverlapRemoval(fullFileName);
+      }
 
     } else {
 
@@ -188,10 +207,9 @@ namespace LVL1MUCTPIPHASE1 {
     m_MuCTPIL1TopoKey_p2 = m_MuCTPIL1TopoKey.key()+std::to_string(2);
     ATH_CHECK(m_MuCTPIL1TopoKey_p2.initialize());
 
-    CHECK( m_rpcTool.retrieve() );
-    CHECK( m_tgcTool.retrieve() );
-    CHECK( m_trigThresholdDecisionTool.retrieve() );
-    m_theMuctpi->getTriggerProcessor()->setTrigTool(*m_trigThresholdDecisionTool);
+    ATH_CHECK( m_rpcTool.retrieve() );
+    ATH_CHECK( m_tgcTool.retrieve() );
+    ATH_CHECK( m_trigThresholdDecisionTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -202,11 +220,21 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO( "Start for Phase1 MUCTPI_AthTool"  );
     ATH_MSG_INFO( "=======================================" );
 
-
     ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
     const TrigConf::L1Menu * l1menu = nullptr;
     ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+    m_theMuctpi->getTriggerProcessor()->setTrigTool(*m_trigThresholdDecisionTool);
     m_theMuctpi->getTriggerProcessor()->setMenu(l1menu);
+    for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+    {
+      m_theMuctpi->getMuonSectorProcessors()[i]->setMenu(l1menu);
+      if (!m_theMuctpi->getMuonSectorProcessors()[i]->configurePtEncoding())
+      {
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "Couldn't configure pt encoding in MuonSectorProcessor " << i;
+        return StatusCode::FAILURE;
+      }
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -280,11 +308,10 @@ namespace LVL1MUCTPIPHASE1 {
 
     //always process the central slice, which defaults to bcidOffset = 0
     // process the input in the MUCTPI simulation
-    bool success = m_theMuctpi->processData( &mergedInput );      
-    if (!success)
+    std::string ret = m_theMuctpi->processData( &mergedInput );
+    if (ret != "")
     {
-      REPORT_ERROR( StatusCode::FAILURE )
-	<< "Error while processing MUCTPI data";
+      REPORT_ERROR( StatusCode::FAILURE ) << "Error while processing MUCTPI data: " << ret;
       return StatusCode::FAILURE;
     }
     // Save the output of the simulation
@@ -293,20 +320,19 @@ namespace LVL1MUCTPIPHASE1 {
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
 
-
     if (mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idBarrelSystem()) ||
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
       
       for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
-	if (! mergedInput.isEmptyAll( (*it) ) ){
-	  // process the input in the MUCTPI simulation
-	  m_theMuctpi->processData( &mergedInput, (*it));      
-	  // Save the output of the simulation
-	  CHECK( saveOutput( (*it) ) );	    
-	}
+        if (! mergedInput.isEmptyAll( (*it) ) ){
+          // process the input in the MUCTPI simulation
+          m_theMuctpi->processData( &mergedInput, (*it));      
+          // Save the output of the simulation
+          CHECK( saveOutput( (*it) ) );	    
+        }
       }
-      }    
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -414,9 +440,9 @@ namespace LVL1MUCTPIPHASE1 {
       // check that the multiplicity was properly filled
       int multSize = ctpData.size();
       if( multSize < 1 ) {
-	REPORT_ERROR( StatusCode::FAILURE )
-	  << "TriggerProcessor didn't provide correct CTP data";
-	return StatusCode::FAILURE;
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "TriggerProcessor didn't provide correct CTP data";
+        return StatusCode::FAILURE;
       }
 
       // create MuCTPI RDO
@@ -429,11 +455,11 @@ namespace LVL1MUCTPIPHASE1 {
       for (DAQData data : daqData) {
         xAODRoIs->push_back(new xAOD::MuonRoI);
 
-	LVL1::TrigT1MuonRecRoiData roiData;
-	if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
-	else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
+        LVL1::TrigT1MuonRecRoiData roiData;
+        if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
+        else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
 
-	std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
+        std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
 
         xAODRoIs->back()->initialize(data.dataWord, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
       }

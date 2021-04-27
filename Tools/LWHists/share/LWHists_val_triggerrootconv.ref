@@ -2,7 +2,7 @@ Starting tests
 Testing types...
 NB: Stress-tests will use random seed = 117
 Performing basic validation of TH1F vs. TH1F_LW...
-LWHists INFO: Using light weight histograms version LWHists-00-00-00
+LWHists INFO: Using light weight histograms
  ---> Quick basic test completed
  ---> Basic scaling test completed
  ---> Systematic tests (663552) completed

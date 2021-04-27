@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelModule.h"
@@ -74,7 +74,7 @@ GeoPixelModule::GeoPixelModule(InDetDD::PixelDetectorManager* m_DDmgr,
       m_theModule->ref();
     }
     else {
-      const GeoShape * gblShape = 0;
+      const GeoShape * gblShape = nullptr;
       gblShape = addShape(gblShape, moduleShape, GeoTrf::Transform3D::Identity() );
 
       double svcWidth = width*.6;
@@ -128,10 +128,10 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   GeoNameTag *tag = new GeoNameTag(sensorName);         
   modulePhys->add(tag);
   // We give the barrel sensors an id of 100 and endcap sensors an id of 200 so that they can
-  // can be distinguished in the G4 sensitive detector. For SLHC endcap we set it to 300.
-  int idTag = 100; // barrel (same for slhc/non slhc)
+  // can be distinguished in the G4 sensitive detector.
+  int idTag = 100; // barrel
   if (m_gmt_mgr->isEndcap()) {
-    idTag = (m_gmt_mgr->slhc()) ? 300 : 200; // endcap (300: slhc, 200: non slhc)
+    idTag = 200; // endcap
   }
   modulePhys->add(new GeoIdentifierTag(idTag) );
   //Sensor is centered so we don't need the transform.

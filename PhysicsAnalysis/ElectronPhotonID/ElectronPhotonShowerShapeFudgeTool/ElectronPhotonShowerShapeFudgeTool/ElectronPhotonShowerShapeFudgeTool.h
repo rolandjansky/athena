@@ -36,20 +36,23 @@ public:
 
 public:
   /** Gaudi Service Interface method implementations */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  /** Gaudi Service Interface method implementations */
-  virtual StatusCode finalize();
 
 public:
+  virtual const CP::CorrectionCode applyCorrection(
+    xAOD::Photon& ph) const override final;
 
-   virtual const CP::CorrectionCode applyCorrection(xAOD::Photon& ph ) const;
+  virtual const CP::CorrectionCode applyCorrection(
+    xAOD::Electron& el) const override final;
 
-   virtual const CP::CorrectionCode applyCorrection(xAOD::Electron& el ) const;
+  virtual const CP::CorrectionCode correctedCopy(
+    const xAOD::Photon& ph,
+    xAOD::Photon*& output) const override final;
 
-   virtual const CP::CorrectionCode correctedCopy( const xAOD::Photon& ph, xAOD::Photon*& output ) const ;
-
-   virtual const CP::CorrectionCode correctedCopy( const xAOD::Electron& el, xAOD::Electron*& output) const;
+  virtual const CP::CorrectionCode correctedCopy(
+    const xAOD::Electron& el,
+    xAOD::Electron*& output) const override final;
 
 private:
 

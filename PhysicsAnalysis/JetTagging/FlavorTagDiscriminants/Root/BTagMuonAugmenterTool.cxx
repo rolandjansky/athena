@@ -34,5 +34,12 @@ namespace FlavorTagDiscriminants {
   std::set<std::string> BTagMuonAugmenterTool::getDecoratorKeys() const {
     return m_aug->getDecoratorKeys();
   }
+  std::set<std::string> BTagMuonAugmenterTool::getAuxInputKeys() const {
+    return m_aug->getAuxInputKeys();
+  }
+  std::set<std::string> BTagMuonAugmenterTool::getConstituentAuxInputKeys()
+    const {
+    return m_aug->getConstituentAuxInputKeys();
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONPRDSELECTIONTOOL_H
@@ -17,7 +17,6 @@
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 
 #include <vector>
@@ -89,8 +88,7 @@ namespace Muon {
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator{this,"MdtDriftCircleOnTrackCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
     ToolHandle<IMuonClusterOnTrackCreator> m_clusterCreator{this,"MuonClusterOnTrackCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
     ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{this,"MmClusterOnTrackCreator","Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"};
-    mutable ToolHandle<IMuonRecoValidationTool> m_recoValidationTool{this,"MuonRecoValidationTool",""};
-
+ 
     /** cuts */
     double m_distanceToTubeCut;
     double m_secondCoordinateCut;

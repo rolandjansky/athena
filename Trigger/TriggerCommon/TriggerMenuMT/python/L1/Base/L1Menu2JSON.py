@@ -23,6 +23,7 @@ class L1MenuJSONConverter(object):
         with open( self.outputFile, mode="wt" ) as fh:
             import json
             json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
+            fh.write("\n")
         log.info("Wrote %s", self.outputFile)
 
         if self.bgsOutputFile is not None:
@@ -30,6 +31,7 @@ class L1MenuJSONConverter(object):
             with open( self.bgsOutputFile, mode="wt" ) as fh:
                 import json
                 json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
+                fh.write("\n")
             log.info("Wrote %s", self.bgsOutputFile)
 
 
@@ -45,6 +47,8 @@ class L1MenuJSONConverter(object):
         confObj["filetype"] = "l1menu" 
 
         confObj["name"] = self.menu.menuName
+
+        confObj["run"] = 3 # will be useful for later (we also record this for Run 1 and 2)
 
         # items
         confObj["items"] = self.menu.items.json()

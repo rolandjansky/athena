@@ -1,22 +1,15 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-class SectionClass(object):
-  def __init__(self):
-    self.EM = 0
-    self.HAD = 1
 
-Section = SectionClass()
-
-class NormalisationClass(object):
+class DETIDClass(object):
   def __init__(self):
-    self.EVENT = 0
-    self.SECTION = 1
-    self.SET = 2
-    self.SEQUENTIAL = 3
-    self.NONE = 4
-    
-Normalisation = NormalisationClass()
+    self.LAR    = 23 
+    self.TTEM   = 24
+    self.TTHEC  = 25
+    self.TILE   = 26
+    self.FCALEM = 31
+    self.FCALHAD= 32
 
 class LayerClass(object):
   def __init__(self):
@@ -47,5 +40,5 @@ class LayerClass(object):
     self.Unknown = 24
 
 Layer = LayerClass()
+DETID = DETIDClass()
 
-#load relevant libraries

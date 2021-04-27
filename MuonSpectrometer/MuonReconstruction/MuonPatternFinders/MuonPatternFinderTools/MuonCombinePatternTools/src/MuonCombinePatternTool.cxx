@@ -330,22 +330,12 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
 		double halfLength = 0.5*mdtDetEl->getWireLength(layer,tube);
 		Amg::Vector2D lpLeft(0,-halfLength);
-		const Amg::Vector3D* gposLeft = surf.localToGlobal(lpLeft);
-		if( !gposLeft ){
-		  ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelperSvc->toString(id) );
-		  continue;
-		}
-		double phiLeft = gposLeft->phi();
-		delete gposLeft;
+		Amg::Vector3D gposLeft = surf.localToGlobal(lpLeft);
+		double phiLeft = gposLeft.phi();
 		
 		Amg::Vector2D lpRight(0,halfLength);
-		const Amg::Vector3D* gposRight = surf.localToGlobal(lpRight);
-		if( !gposRight ){
-		  ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelperSvc->toString(id) );
-		  continue;
-		}
-		double phiRight = gposRight->phi();
-		delete gposRight;
+		const Amg::Vector3D gposRight = surf.localToGlobal(lpRight);
+		double phiRight = gposRight.phi();
 		double phiMin = phiRight < phiLeft ? phiRight : phiLeft;
 		double phiMax = phiRight < phiLeft ? phiLeft : phiRight;
 	

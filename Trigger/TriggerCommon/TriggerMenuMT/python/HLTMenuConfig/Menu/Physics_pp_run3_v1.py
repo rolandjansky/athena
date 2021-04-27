@@ -104,10 +104,59 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SupportGroup+SingleElectronGroup+BCIDmonGroup),
-        ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=SupportGroup+MultiElectronGroup),
-        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SupportGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=SupportGroup+MultiPhotonGroup),
+        #--------- e etcut
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup+BCIDmonGroup),
+        ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+   
+        #--------- e lh
+        ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+        ChainProp(name='HLT_e80_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+
+        #---------- e lh iso
+        ChainProp(name='HLT_e24_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+
+        #---------- 2e 
+        ChainProp(name='HLT_2e17_etcut_L12EM15VH', groups=SupportLegGroup+MultiElectronGroup),
+        ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', groups=PrimaryLegGroup+MultiElectronGroup),
+        ChainProp(name='HLT_2e19_lhvloose_L12EM15VHI', groups=PrimaryLegGroup+MultiElectronGroup),
+        ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', groups=PrimaryLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e26_lhtight_e15_idperf_tight_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup),  
+
+        #---------- 3e
+        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH',l1SeedThresholds=['EM20','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
+
+        # PhotonChains----------
+        #----------- g etcut
+        ChainProp(name='HLT_g300_etcut_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
+
+        #----------- g isEM
+        ChainProp(name='HLT_g22_tight_L1EM15VH',groups=PrimaryLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g25_tight_L1EM20VH', groups=PrimaryLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g160_loose_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=PrimaryLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
+
+        #----------- 2g 
+        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g20_tight_icalotight_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g22_tight_L12EM15VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g22_tight_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g22_tight_icaloloose_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g50_loose_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g60_loose_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=SupportLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup), 
+        
+        #------------ 3g
+        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20','EM7'], groups=PrimaryLegGroup+MultiPhotonGroup), 
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -121,6 +170,40 @@ def setupMenu():
     ]
 
     TriggerFlags.JetSlice.signatures = [
+        # Central single small-R jet chains
+        ChainProp(name='HLT_j15_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j25_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j35_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j60_pf_ftf_preselj20_L1J20', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j85_pf_ftf_preselj20_L1J20', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j110_pf_ftf_preselj20_L1J30', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j175_pf_ftf_preselj20_L1J50', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j260_pf_ftf_preselj20_L1J75', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j360_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j380_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j400_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j420_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j440_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j450_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j460_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j480_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j500_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j520_pf_ftf_preselj20_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        # Central single large-R jet chains
+        ChainProp(name='HLT_j110_a10sd_cssk_pf_jes_ftf_L1J30', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_L1J50', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j260_a10sd_cssk_pf_jes_ftf_L1J75', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j360_a10sd_cssk_pf_jes_ftf_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j360_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j400_a10sd_cssk_pf_jes_ftf_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j400_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j420_a10sd_cssk_pf_jes_ftf_L1J100', groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j420_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j460_a10sd_cssk_pf_jes_ftf_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j460_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j480_a10sd_cssk_pf_jes_ftf_L1J100', groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j480_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryLegGroup),
         # ATR-20049
         ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup + BCIDmonGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49', groups=SingleJetGroup),
@@ -136,7 +219,7 @@ def setupMenu():
         ChainProp(name='HLT_2j60_L1J15', groups=['PS:Online']+MultiJetGroup),
         ChainProp(name='HLT_j80_j60_L1J15', l1SeedThresholds=2*['FSNOSEED'], groups=MultiJetGroup),
         # FP: workaround tmp for l1SeedThresholds
-        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijet80j12etSEP0j12eta240SEP700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = [

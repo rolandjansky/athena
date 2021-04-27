@@ -26,7 +26,7 @@ const Trk::NoBounds Trk::DiscSurface::s_boundless;
 // default constructor
 Trk::DiscSurface::DiscSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
 {}
 
@@ -47,7 +47,7 @@ Trk::DiscSurface::DiscSurface(const DiscSurface& dsf, const Amg::Transform3D& tr
 // construct a disc with full phi coverage
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::DiscBounds(rmin, rmax))
+  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax))
   , m_referencePoint(nullptr)
 {}
 
@@ -55,14 +55,14 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
                               double rmin, double rmax)
   : Trk::Surface(std::move(htrans))
-  , m_bounds(new Trk::DiscBounds(rmin, rmax))
+  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax))
   , m_referencePoint(nullptr)
 {}
 
 // construct a disc with given phi coverage
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::DiscBounds(rmin, rmax, hphisec))
+  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax, hphisec))
   , m_referencePoint(nullptr)
 {}
 
@@ -70,7 +70,7 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
                               double rmin, double rmax, double hphisec)
   : Trk::Surface(std::move(htrans))
-  , m_bounds(new Trk::DiscBounds(rmin, rmax, hphisec))
+  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax, hphisec))
   , m_referencePoint(nullptr)
 {}
 
@@ -82,7 +82,7 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans,
                               double avephi,
                               double stereo)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::DiscTrapezoidalBounds(minhalfx, maxhalfx, maxR, minR, avephi, stereo))
+  , m_bounds(std::make_shared<Trk::DiscTrapezoidalBounds>(minhalfx, maxhalfx, maxR, minR, avephi, stereo))
   , m_referencePoint(nullptr)
 {}
 
@@ -110,7 +110,7 @@ Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans)
 // construct form TrkDetElementBase
 Trk::DiscSurface::DiscSurface(const Trk::TrkDetElementBase& detelement)
   : Trk::Surface(detelement)
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
 {}
 
@@ -234,12 +234,16 @@ Trk::DiscSurface::globalToLocalCartesian(const Amg::Vector3D& glopos, double tol
 __attribute__ ((flatten))
 #endif
 bool
-Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo, 
+                              const Trk::BoundaryCheck& bchk, 
+                              double tol1, double tol2) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
-  if (fabs(loc3Dframe.z()) > (s_onSurfaceTolerance + tol1))
-    return false;
-  return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi()), tol1, tol2) : true);
+  if (fabs(loc3Dframe.z()) > (s_onSurfaceTolerance + tol1)) return false;
+  return (
+      bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi()),
+                             tol1, tol2)
+           : true);
 }
 
 /** distance to surface */

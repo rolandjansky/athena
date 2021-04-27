@@ -7,11 +7,7 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
-#include "RingerSelectorTools/IAsgRingerSelectorTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -36,27 +32,18 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
     virtual StatusCode decide( std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo>& input )  const override;
  
     virtual bool decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const override;
- 
 
 
- 
   private:
 
     bool decide_cutbased( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const;
     bool decide_ringer( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const;
     int findCutIndex( float eta ) const;
-   
 
     HLT::Identifier m_decisionId;
-    Ringer::RingerSelectorTool        m_selectorTool;
-    ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
 
-    
-    Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Ringer Run2 Constants Calib Path"};  
-    Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Ringer Run2 Thresholds Calib Path"};  
-    Gaudi::Property< bool >           m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };
-    Gaudi::Property< bool >           m_useRun3 { this, "UseRun3"  , false , "Use Ringer Onnx Selection (for Run3)" };
-
+    Gaudi::Property<std::string>          m_pidName{this,"PidName", "", "Pid name"};
+    Gaudi::Property< bool >               m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };
  
     //Calorimeter electron ID  cuts
     Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
@@ -73,11 +60,10 @@ class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFast
     Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
     Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
     Gaudi::Property< bool >               m_acceptAll { this, "AcceptAll", false , "Ignore selection" };
-    Gaudi::Property<float>                m_emEtCut{this,"EtCut", 0.0, "Et threshold"};  
- 
+    Gaudi::Property<float>                m_emEtCut{this,"EtCut", 0.0, "Et threshold"};
 
-    ToolHandle< GenericMonitoringTool >       m_monTool{ this, "MonTool", "", "Monitoring tool" };
-    ToolHandle<Ringer::IAsgRingerSelectorTool>m_ringerTool{ this, "RingerSelector", "", "Ringer tool" };
+
+    ToolHandle< GenericMonitoringTool >   m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
 
 }; 

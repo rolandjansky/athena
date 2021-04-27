@@ -251,15 +251,6 @@ class BFieldAutoConfig(_modifier):
         if hasattr(svcMgr,'HltEventLoopMgr'):
             svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
 
-class allowCOOLUpdates(_modifier):
-    """
-    Enable COOL folder updates during the run
-    """
-    def postSetup(self):
-        if hasattr(svcMgr,'HltEventLoopMgr'):
-            from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
-            enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)
-
 class useOracle(_modifier):
     """
     Disable the use of SQLite for COOL and geometry
@@ -450,7 +441,7 @@ class rerunLVL1(_modifier):
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1Phase1:
+        if ConfigFlags.Trigger.enableL1MuonPhase1:
             from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
         else:
             from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
@@ -465,13 +456,17 @@ class rerunLVL1(_modifier):
             topSequence += L1TopoSimulation()
             log.info( "adding L1TopoSimulation() to topSequence" )
 
-            if ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1MuonPhase1:
                 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as L1MuctpiTool
             else:
                 from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += L1MuctpiTool()
             topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+            from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+            topSequence.L1TopoSimulation.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+            topSequence.L1TopoSimulation.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+
 
             # enable the reduced (coarse) granularity topo simulation
             # currently only for MC
@@ -553,7 +548,7 @@ class rerunDMLVL1(_modifier):
          #rederive MuCTPI inputs to CTP from muon RDO
          #writes this to the usual MuCTPICTP storegate location
          from AthenaConfiguration.AllConfigFlags import ConfigFlags
-         if ConfigFlags.Trigger.enableL1Phase1:
+         if ConfigFlags.Trigger.enableL1MuonPhase1:
              from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
          else:
              from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
@@ -607,9 +602,9 @@ class rewriteLVL1(_modifier):
             # online
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.HltEventLoopMgr.RewriteLVL1 = True
-            if ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
                 svcMgr.HltEventLoopMgr.L1TriggerResultRHKey = 'L1TriggerResult'
-            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
                 svcMgr.HltEventLoopMgr.RoIBResultRHKey = 'RoIBResult'
         else:
             # offline
@@ -617,10 +612,10 @@ class rewriteLVL1(_modifier):
             from AthenaCommon.CFElements import findAlgorithm
             seq = AthSequencer('AthOutSeq')
             streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
-            if ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
                 streamBS.ExtraInputs += [ ('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult') ]
                 streamBS.ItemList += [ 'xAOD::TrigCompositeContainer#L1TriggerResult' ]
-            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
                 streamBS.ExtraInputs += [ ('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult') ]
                 streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
@@ -654,6 +649,9 @@ class doCosmics(_modifier):
     def preSetup(self):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
+       from AthenaConfiguration.AllConfigFlags import ConfigFlags
+       ConfigFlags.Beam.Type = 'cosmics'
+
 
 class enableALFAMon(_modifier):
     """

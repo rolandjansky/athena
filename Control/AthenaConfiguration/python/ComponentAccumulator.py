@@ -147,7 +147,8 @@ class ComponentAccumulator(object):
              traceback.print_stack()
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
-             log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
+             log.error("Deleting a ComponentAccumulator with dangling private tool(s): %s", 
+                        " ".join([t.name for t in self._privateTools]) if isinstance(self._privateTools, collections.abc.Sequence) else self._privateTools.name)
 
         #pass
 
@@ -1086,7 +1087,10 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         pubtoolclass, pubtoolname = newC.split('/')
                         if pubtoolname not in toolSet:
                             klass = __findConfigurableClass( pubtoolclass )
-                            alreadySetProperties[pname].append(klass( pubtoolname ))
+                            instance = klass(pubtoolname)
+                            from AthenaCommon.AppMgr import ToolSvc
+                            ToolSvc += instance
+                            alreadySetProperties[pname].append(instance)
                     else:
                         _log.warning('Not handling actual Configurable2s for public tool merging yet')
                         raise Exception()

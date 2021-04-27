@@ -22,9 +22,6 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 
 StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 {
-   // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing TgcDataPreparator - package version " << PACKAGE_VERSION );
-
    ATH_CHECK(m_idHelperSvc.retrieve());
 
    ATH_CHECK(m_tgcContainerKey.initialize());

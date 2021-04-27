@@ -48,9 +48,24 @@ class DiscSurface : public Surface
 {
 
 public:
-  static constexpr SurfaceType staticType = Surface::Disc;
+  static constexpr SurfaceType staticType = SurfaceType::Disc;
   /**Default Constructor*/
   DiscSurface();
+
+  /**Copy Constructor*/
+  DiscSurface(const DiscSurface& psf);
+
+  /**Assignement operator*/
+  DiscSurface& operator=(const DiscSurface& dsf);
+
+  /**Copy Constructor*/
+  DiscSurface(DiscSurface&& psf) noexcept = default;
+
+  /**Assignement operator*/
+  DiscSurface& operator=(DiscSurface&& dsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~DiscSurface() = default;
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
@@ -59,7 +74,8 @@ public:
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
   DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
-              double rmin, double rmax);
+              double rmin,
+              double rmax);
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
    * \phi_{hsec} \f$ */
@@ -100,17 +116,8 @@ public:
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);
 
-  /**Copy Constructor*/
-  DiscSurface(const DiscSurface& psf);
-
-  /**Copy Constructor with shift*/
+ /**Copy Constructor with shift*/
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~DiscSurface() = default;
-
-  /**Assignement operator*/
-  DiscSurface& operator=(const DiscSurface& dsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -118,8 +125,7 @@ public:
   /** Virtual constructor*/
   virtual DiscSurface* clone() const override;
 
-
-/** Use the Surface as a ParametersBase constructor, from local parameters -
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
@@ -127,7 +133,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -135,7 +141,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
@@ -145,7 +151,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
@@ -153,7 +159,7 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
@@ -163,7 +169,7 @@ public:
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -171,17 +177,17 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, DiscSurface> createParameters(double l1,
-                                                    double l2,
-                                                    double phi,
-                                                    double theta,
-                                                    double q,
-                                                    AmgSymMatrix(DIM) *
-                                                      cov = 0) const;
+  ParametersT<DIM, T, DiscSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double q,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
@@ -189,16 +195,15 @@ public:
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
-
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-   /** Returns a global reference point:
-     For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
-     Where  @f$ r,  \phi @f$ denote the r(), averagePhi() of the Bounds.
-   */
+  /** Returns a global reference point:
+    For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
+    Where  @f$ r,  \phi @f$ denote the r(), averagePhi() of the Bounds.
+  */
   virtual const Amg::Vector3D& globalReferencePoint() const override final;
 
   /**This method returns the bounds by reference*/
@@ -208,14 +213,15 @@ public:
   virtual bool insideBounds(const Amg::Vector2D& locpos,
                             double tol1 = 0.,
                             double tol2 = 0.) const override;
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override final;
+  virtual bool insideBoundsCheck(
+    const Amg::Vector2D& locpos,
+    const BoundaryCheck& bchk) const override final;
 
   /** This method returns true if the GlobalPosition is on the Surface for both,
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 

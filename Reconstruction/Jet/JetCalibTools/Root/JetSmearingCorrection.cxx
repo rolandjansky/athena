@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
@@ -424,7 +424,10 @@ StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) c
         return StatusCode::FAILURE;
 
     // Set the random seed deterministically using jet phi
-    m_rand.SetSeed(1.e+5*(1.+fabs(jet.phi())));
+    unsigned long seed = static_cast<unsigned long>(1.e5*fabs(jet.phi()));
+    // SetSeed(0) uses the clock, so avoid this
+    if(seed == 0) seed = 45583453; // arbitrary number which the seed couldn't otherwise be
+    m_rand.SetSeed(seed);
 
     // Get the Gaussian-distributed random number
     // Force this to be a positive value

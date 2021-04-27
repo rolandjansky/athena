@@ -21,19 +21,15 @@ using namespace Trk;
 /////////////////////////////////////////////////////////////////////////////
 
 Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& type, const std::string& name, const IInterface* parent ) :
-    AthAlgTool( type, name, parent ),
+    base_class( type, name, parent ),
     m_etaphi_coincidenceTime(0.),         //!< time for phi*eta coincidence 
     m_overlap_timeTolerance(0.),          //!< tolerance of the timing calibration 
     m_producePRDfromTriggerWords(false),  //!< if 1 store as prd the trigger hits 
     m_solvePhiAmbiguities(true),          //!< toggle on/off the removal of phi ambiguities
-    m_doingSecondLoopAmbigColls(false),   //!< true if running a second loop over ambiguous collections in RoI-based mode
     m_reduceCablingOverlap(true),         //!< toggle on/off the overlap removal
     m_timeShift(0.),                      //!< any global time shift ?!
-    m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_fullEventDone(false)
+    m_decodeData(true)                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
   // declare any properties here
   declareProperty("etaphi_coincidenceTime",    m_etaphi_coincidenceTime     = 20.);//!< 15 ns should be the max.diff. in prop.time in phi and eta strips
   declareProperty("overlap_timeTolerance",     m_overlap_timeTolerance      = 10.);//!<  3 ns is the resolution of the RPC readout electronics
@@ -49,28 +45,12 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
   declareProperty("OutputCollection",          	m_rdoContainerKey = std::string("RPCPAD"),"RpcPadContainer to retrieve");
   declareProperty("TriggerOutputCollection", 	m_rpcPrepDataContainerKey = std::string("RPC_Measurements"),"Muon::RpcPrepDataContainer to record");
   declareProperty("InputCollection", 		m_rpcCoinDataContainerKey = std::string("RPC_triggerHits"),"Muon::RpcCoinDataContainer to record");
-
-  m_rpcCoinDataContainer = nullptr;
-  m_rpcPrepDataContainer = nullptr;
-}
-
-//___________________________________________________________________________
-StatusCode Muon::RpcRdoToPrepDataToolCore::queryInterface( const InterfaceID& riid, void** ppvIf ) {
-  if ( riid == IMuonRdoToPrepDataTool::interfaceID() ) {
-    *ppvIf = (IMuonRdoToPrepDataTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }   
-    
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 //___________________________________________________________________________
 StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
 
   // perform necessary one-off initialization
-
-  ATH_MSG_INFO("package version = "<<PACKAGE_VERSION);
 
   ATH_MSG_INFO("properties are ");
   ATH_MSG_INFO("produceRpcCoinDatafromTriggerWords "<<m_producePRDfromTriggerWords);
@@ -98,9 +78,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
 }
 
 //___________________________________________________________________________
-StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect )
+StatusCode Muon::RpcRdoToPrepDataToolCore::decodeImpl( State& state,
+                                                       getPrepCollection_func& getPrepCollection,
+                                                       getCoinCollection_func& getCoinCollection,
+                                                       std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect,
+                                                       bool firstTimeInTheEvent ) const
 {
-
   int sizeVectorRequested = idVect.size();
   ATH_MSG_DEBUG("Decode method called for "<<sizeVectorRequested<<" offline collections");
   if (sizeVectorRequested == 0) ATH_MSG_DEBUG("Decoding the entire event");
@@ -114,28 +97,24 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   std::vector<IdentifierHash> idVectToBeDecoded;
   idVectToBeDecoded.reserve(0);
   
-  // record the output containers if necessary (if first time in the event)
-  bool firstTimeInTheEvent=false;
-  status=manageOutputContainers(firstTimeInTheEvent);
-  if (status.isFailure()) return status;
   if (firstTimeInTheEvent) {
     if (sizeVectorRequested == 0)
-      m_fullEventDone=true;
-    else m_fullEventDone=false;
+      state.m_fullEventDone=true;
+    else state.m_fullEventDone=false;
   }
   else {
-    if (m_fullEventDone) {
+    if (state.m_fullEventDone) {
       ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do.");
       return status;
     }
-    if (sizeVectorRequested == 0) m_fullEventDone = true;
+    if (sizeVectorRequested == 0) state.m_fullEventDone = true;
   }
 
   if (sizeVectorRequested != 0) {
     // the program goes in here only if RoI-based decoding has been called and the full event is not already decoded
     // this code ensures decoding of every offline hash id is called only once
     for (auto itHashId=idVect.begin(); itHashId!=idVect.end(); ++itHashId) {
-      if (m_decodedOfflineHashIds.insert(*itHashId).second)
+      if (state.m_decodedOfflineHashIds.insert(*itHashId).second)
         idVectToBeDecoded.push_back(*itHashId);
     }
     if (idVectToBeDecoded.size()==0) {
@@ -195,13 +174,13 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   bool processingetaview = true;
   bool processingphiview = false;
   if (!m_solvePhiAmbiguities) processingetaview=false;
-  m_doingSecondLoopAmbigColls = false;
+  bool doingSecondLoopAmbigColls = false;
   while (processingetaview || processingphiview || (!m_solvePhiAmbiguities)) {
     int ipad = 0;
     int nPrepRawData =0;
     int nPhiPrepRawData =0;
     int nEtaPrepRawData =0;
-    if (processingphiview) m_ambiguousCollections.clear();
+    if (processingphiview) state.m_ambiguousCollections.clear();
     if (msgLvl(MSG::DEBUG)) {
       if (processingetaview) ATH_MSG_DEBUG("*** Processing eta view ");
       else ATH_MSG_DEBUG("*** Processing phi view ");
@@ -217,13 +196,18 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
           ++ipad;
        
           ATH_MSG_DEBUG("A new pad here n. "<<ipad<<", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
-          StatusCode sc = processPad(rdoColl, 
+          StatusCode sc = processPad(state,
+              getPrepCollection,
+              getCoinCollection,
+              rdoColl, 
               processingetaview, 
               processingphiview, 
               nPrepRawData,   
               idVectToBeDecoded, 
               idWithDataVect, 
-              rpcContext);
+              rpcContext,
+              doingSecondLoopAmbigColls,
+              state.m_ambiguousCollections);
           if (sc != StatusCode::SUCCESS) return sc;
         }
         else {
@@ -239,13 +223,18 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
         if (rdoColl->empty()) continue;
         ++ipad;
         ATH_MSG_DEBUG("A new pad here n. "<<ipad<<", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
-        StatusCode sc = processPad(rdoColl, 
+        StatusCode sc = processPad(state,
+            getPrepCollection,
+            getCoinCollection,
+            rdoColl, 
             processingetaview, 
             processingphiview, 
             nPrepRawData, 
             idVectToBeDecoded, 
             idWithDataVect, 
-            rpcContext);
+            rpcContext,
+            doingSecondLoopAmbigColls,
+            state.m_ambiguousCollections);
         if (sc != StatusCode::SUCCESS) return sc;
       }// end loop over pads
     }
@@ -260,17 +249,17 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
       processingphiview=false;
       nPhiPrepRawData = nPrepRawData-nEtaPrepRawData;
       ATH_MSG_DEBUG("*** "<<nPhiPrepRawData<<" phi PrepRawData registered");
-      if (!m_ambiguousCollections.empty()) {
+      if (!state.m_ambiguousCollections.empty()) {
         //loop again for unrequested collections stored with ambiguous phi hits
-        m_doingSecondLoopAmbigColls=true;
+        doingSecondLoopAmbigColls=true;
         processingetaview=true;
-        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(m_ambiguousCollections.size() << " ambiguous collections were stored:");
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(state.m_ambiguousCollections.size() << " ambiguous collections were stored:");
         idVectToBeDecoded.clear();
         rdoHashVec.clear();
-        for (auto itAmbiColl = m_ambiguousCollections.begin(); itAmbiColl != m_ambiguousCollections.end(); ++itAmbiColl) {
+        for (auto itAmbiColl = state.m_ambiguousCollections.begin(); itAmbiColl != state.m_ambiguousCollections.end(); ++itAmbiColl) {
           if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG((int)*itAmbiColl << " ");
           idVectToBeDecoded.push_back(*itAmbiColl);
-          m_decodedOfflineHashIds.insert(*itAmbiColl);
+          state.m_decodedOfflineHashIds.insert(*itAmbiColl);
         }
         StatusCode sc = rpcCabling->giveRDO_fromPRD(idVectToBeDecoded, rdoHashVec);
         if (StatusCode::SUCCESS != sc) return sc;
@@ -289,23 +278,23 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {    
     ++nn;
     ATH_MSG_VERBOSE("hash = "<<(int)(*ii)<<" is the "<<nn<<"-th in this event ");
-    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(*ii);
+    auto rpcColl = state.m_rpcPrepDataContainer->indexFindPtr(*ii);
     if (rpcColl != nullptr) {
       if (!rpcColl->empty()) {
 	temIdWithDataVect.push_back(*ii);
 	ATH_MSG_VERBOSE("Accepting non empty coll. "
 			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
-			<<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
+			<<" hash = "<<(int)*ii<<" in PREPDATA container at "<<state.m_rpcPrepDataContainer);
       }
       else {	
 	ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
 		      <<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
-		      <<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
-	delete m_rpcPrepDataContainer->removeCollection(*ii); // from Scott Snyder #43275 // fix mem.leak
+		      <<" hash = "<<(int)*ii<<" in PREPDATA container at "<<state.m_rpcPrepDataContainer);
+	delete state.m_rpcPrepDataContainer->removeCollection(*ii); // from Scott Snyder #43275 // fix mem.leak
       }            
     }
     else
-      ATH_MSG_DEBUG("collection with id = "<<(int)(*ii)<<" not found in the PREPDATA container at "<<m_rpcPrepDataContainer);
+      ATH_MSG_DEBUG("collection with id = "<<(int)(*ii)<<" not found in the PREPDATA container at "<<state.m_rpcPrepDataContainer);
     }
     idWithDataVect.clear();
     idWithDataVect = temIdWithDataVect;
@@ -326,7 +315,11 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
 
 
 //___________________________________________________________________________
-StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds )
+StatusCode Muon::RpcRdoToPrepDataToolCore::decodeImpl( State& state,
+                                                       getPrepCollection_func& getPrepCollection,
+                                                       getCoinCollection_func& getCoinCollection,
+                                                       const std::vector<uint32_t>& robIds,
+                                                       bool firstTimeInTheEvent ) const
 {
   
   // ROB-based decoding is only applied in seeded mode. Full scan should use the hashId-based method with empty requested collections vector.
@@ -339,15 +332,11 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   std::vector<uint32_t> robIdsToBeDecoded;
   robIdsToBeDecoded.reserve(robIds.size());
   
-  // record the output containers if necessary (if first time in the event)
-  bool firstTimeInTheEvent=false;
-  status=manageOutputContainers(firstTimeInTheEvent);
-  if (status.isFailure()) return status;
   if (firstTimeInTheEvent) {
-    m_fullEventDone=false;
+    state.m_fullEventDone=false;
   }
   else {
-    if (m_fullEventDone) {
+    if (state.m_fullEventDone) {
       ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do.");
       return status;
     }
@@ -355,7 +344,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   
   //check which of the requested robs are not yet decoded
   for (uint32_t robid : robIds) {
-    if (m_decodedRobIds.insert(robid).second)
+    if (state.m_decodedRobIds.insert(robid).second)
       robIdsToBeDecoded.push_back(robid);
   }
   
@@ -374,7 +363,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   const RpcCablingCondData* rpcCabling{*cablingCondData};
   
   //if all robs will be decoded after the current execution of the method, set the flag m_fullEventDone
-  if (m_decodedRobIds.size() == rpcCabling->giveFullListOfRobIds().size()) m_fullEventDone=true;
+  if (state.m_decodedRobIds.size() == rpcCabling->giveFullListOfRobIds().size()) state.m_fullEventDone=true;
   
   // if RPC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -417,13 +406,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   bool processingetaview = true;
   bool processingphiview = false;
   if (!m_solvePhiAmbiguities) processingetaview=false;
-  m_doingSecondLoopAmbigColls = false;
   while (processingetaview || processingphiview || (!m_solvePhiAmbiguities)) {
     int ipad = 0;
     int nPrepRawData =0;
     int nPhiPrepRawData =0;
     int nEtaPrepRawData =0;
-    if (processingphiview) m_ambiguousCollections.clear();
+    if (processingphiview) state.m_ambiguousCollections.clear();
     
     if (processingetaview) ATH_MSG_DEBUG("*** Processing eta view ");
     else ATH_MSG_DEBUG("*** Processing phi view ");
@@ -440,13 +428,18 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
       ++ipad;
       ATH_MSG_DEBUG("A new pad here n." << ipad << ", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
       CHECK(
-        processPad(rdoColl, 
+        processPad(state,
+                   getPrepCollection,
+                   getCoinCollection,
+                   rdoColl, 
                    processingetaview, 
                    processingphiview, 
                    nPrepRawData,   
                    rdoHashVec, 
                    idWithDataVect, 
-                   rpcContext)
+                   rpcContext,
+                   false,
+                   state.m_ambiguousCollections)
       );
     }
     
@@ -475,25 +468,25 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   for (IdentifierHash hashId : idWithDataVect) {   
     ++nn;
     ATH_MSG_VERBOSE("collection n. " << nn << " has hashId = " << (unsigned int)hashId);
-    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(hashId);
+    auto rpcColl = state.m_rpcPrepDataContainer->indexFindPtr(hashId);
     if (rpcColl != nullptr) {
       if (!rpcColl->empty()) {
         temIdWithDataVect.push_back(hashId);
         ATH_MSG_VERBOSE("Accepting non empty coll. "
                      << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                      << " hashId = " << (unsigned int)hashId
-                     << " in PREPDATA container at " << m_rpcPrepDataContainer);
+                     << " in PREPDATA container at " << state.m_rpcPrepDataContainer);
       }
       else {
         ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
                    << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                    << " hashId = " << (unsigned int)hashId
-                   << " in PREPDATA container at " << m_rpcPrepDataContainer);
-        delete m_rpcPrepDataContainer->removeCollection(hashId);
+                   << " in PREPDATA container at " << state.m_rpcPrepDataContainer);
+        delete state.m_rpcPrepDataContainer->removeCollection(hashId);
       }
     }
     else
-      ATH_MSG_DEBUG("collection with hashId = " << (unsigned int)hashId << " not found in the PREPDATA container at " << m_rpcPrepDataContainer);
+      ATH_MSG_DEBUG("collection with hashId = " << (unsigned int)hashId << " not found in the PREPDATA container at " << state.m_rpcPrepDataContainer);
     }
     idWithDataVect.clear();
     idWithDataVect = temIdWithDataVect;
@@ -514,7 +507,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
 
 
 //___________________________________________________________________________
-void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
+void Muon::RpcRdoToPrepDataToolCore::printInputRdo() const
 {
   ATH_MSG_INFO( "********************************************************************************************************");
   ATH_MSG_INFO( "***************** Listing RpcPad Collections --- i.e. input RDO ****************************************");
@@ -622,12 +615,13 @@ void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
 }
 
-void Muon::RpcRdoToPrepDataToolCore::printPrepData()
+void Muon::RpcRdoToPrepDataToolCore::printPrepDataImpl(const Muon::RpcPrepDataContainer& rpcPrepDataContainer,
+                                                       const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const
 {
   ATH_MSG_INFO( "********************************************************************************************************");
   ATH_MSG_INFO( "***************** Listing RpcPrepData collections content **********************************************");
   
-  if (m_rpcPrepDataContainer->size() <= 0) ATH_MSG_INFO( "No RpcPrepRawData collections found");
+  if (rpcPrepDataContainer.size() <= 0) ATH_MSG_INFO( "No RpcPrepRawData collections found");
   
   int ncoll = 0;
   int ict = 0;
@@ -636,7 +630,7 @@ void Muon::RpcRdoToPrepDataToolCore::printPrepData()
   int icteta = 0;
   int icttrg = 0;
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
-  for (const Muon::RpcPrepDataCollection* rpcColl : *m_rpcPrepDataContainer) {
+  for (const Muon::RpcPrepDataCollection* rpcColl : rpcPrepDataContainer) {
 
     if ( rpcColl->size() > 0 ) {
       ATH_MSG_INFO("PrepData Collection ID "<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify()));
@@ -676,15 +670,15 @@ void Muon::RpcRdoToPrepDataToolCore::printPrepData()
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
   
   // and now coincidence data 
-  printCoinData();
+  printCoinDataImpl(rpcCoinDataContainer);
 }
 
-void Muon::RpcRdoToPrepDataToolCore::printCoinData()
+void Muon::RpcRdoToPrepDataToolCore::printCoinDataImpl(const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const
 {
   ATH_MSG_INFO("********************************************************************************************************");
   ATH_MSG_INFO("***************** Listing RpcCoinData collections content **********************************************");
   
-  if (m_rpcCoinDataContainer->size() <= 0) ATH_MSG_INFO("No RpcCoinData collections found");
+  if (rpcCoinDataContainer.size() <= 0) ATH_MSG_INFO("No RpcCoinData collections found");
   
   int ncoll = 0;
   int ict = 0;
@@ -695,8 +689,8 @@ void Muon::RpcRdoToPrepDataToolCore::printCoinData()
   int ictetalc = 0;
   int ictetahc = 0;
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
-  for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = m_rpcCoinDataContainer->begin();
-       rpcColli!=m_rpcCoinDataContainer->end(); ++rpcColli) {
+  for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = rpcCoinDataContainer.begin();
+       rpcColli!=rpcCoinDataContainer.end(); ++rpcColli) {
 
         const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
         
@@ -769,13 +763,18 @@ void Muon::RpcRdoToPrepDataToolCore::printCoinData()
 }
 
 
-StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl, 
+StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
+                                                  getPrepCollection_func& getPrepCollection,
+                                                  getCoinCollection_func& getCoinCollection,
+                                                  const RpcPad *rdoColl, 
                                                   bool& processingetaview, 
                                                   bool& processingphiview,
                                                   int& nPrepRawData,  
                                                   std::vector<IdentifierHash>& idVect, // if empty, turns off decoding of additional RDOs for ambiguity solving
                                                   std::vector<IdentifierHash>& idWithDataVect, // filled with IDs of created PrepRawData collections
-                                                  IdContext& rpcContext)
+                                                  IdContext& rpcContext,
+                                                  bool doingSecondLoopAmbigColls,
+                                                  std::set<IdentifierHash>& ambiguousCollections) const
 {
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
@@ -952,8 +951,8 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
-			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<m_rpcCoinDataContainer);
-	      collectionTrg = Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, m_rpcCoinDataContainer , m_idHelperSvc->rpcIdHelper(), msg());
+			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<state.m_rpcCoinDataContainer);
+              collectionTrg = getCoinCollection (parentId);
 	      if ( collectionTrg ==0 ) ATH_MSG_WARNING("Failed to get/create RpcCoinData collection");
 	      oldIdTrg = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_idHelperSvc->rpcIdHelper().show_to_string(oldIdTrg));
@@ -964,11 +963,8 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
-			    <<static_cast<unsigned int>(rpcHashId)<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
-	      collection =	Muon::IDC_Helper::getCollection<RpcPrepDataContainer, RpcIdHelper>(parentId,
-										   		   m_rpcPrepDataContainer,
-										   		   m_idHelperSvc->rpcIdHelper(),
-										   		   msg() );
+			    <<static_cast<unsigned int>(rpcHashId)<<" in PREPDATA container at "<<state.m_rpcPrepDataContainer);
+              collection = getPrepCollection (parentId);
 	      if (collection) {                            
            bool alreadyRecorded = false;
            for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {		  
@@ -1083,16 +1079,17 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
           } else {
             //if in RoI mode and the collection was not requested in this event, add it to ambiguousCollections
             ATH_MSG_DEBUG("unsolvedAmbiguity is true, adding collection with hash = "<<(int)rpcHashId<<" to ambiguous collections vector");
-            if (!m_decodedOfflineHashIds.empty() && m_decodedOfflineHashIds.find(rpcHashId)==m_decodedOfflineHashIds.end()) {
-              m_ambiguousCollections.insert(rpcHashId);
+            if (!state.m_decodedOfflineHashIds.empty() && state.m_decodedOfflineHashIds.find(rpcHashId)==state.m_decodedOfflineHashIds.end()) {
+              ambiguousCollections.insert(rpcHashId);
               ATH_MSG_DEBUG("collection not yet processed; added to ambiguous collection vector; going to the next offline channel ID");
               continue; //go to the next possible offline channel ID
             }
-            else if (!m_doingSecondLoopAmbigColls) {
-              m_ambiguousCollections.insert(rpcHashId);
+            else  if (!doingSecondLoopAmbigColls) {
+              ambiguousCollections.insert(rpcHashId);
               ATH_MSG_DEBUG("collection already processed and doingSecondLoopAmbigColls=false; added to ambiguous collection vector; going to the next offline channel ID");
               continue;
-            } else {
+            }
+            else {
               ATH_MSG_DEBUG("collection already processed and doingSecondLoopAmbigColls=true; trying to store data even if unsolvedAmbiguity");
             }
           }
@@ -1257,7 +1254,7 @@ void Muon::RpcRdoToPrepDataToolCore::processTriggerHitHypothesis(RpcCoinMatrix::
 							     bool& triggerHit,
 							     unsigned short& threshold,
 							     unsigned short& overlap,
-							     bool& toSkip)
+							     bool& toSkip) const
 {
   toSkip = false;
   const RpcFiredChannel * rpcChan = (*itD);
@@ -1324,9 +1321,4 @@ void Muon::RpcRdoToPrepDataToolCore::processTriggerHitHypothesis(RpcCoinMatrix::
     return;
   }
   ATH_MSG_VERBOSE("RPC trigger hit; ijk = "<<rpcChan->ijk()<<" threshold / overlap = "<<threshold<<"/"<<overlap);
-}
-
-StatusCode Muon::RpcRdoToPrepDataToolCore::manageOutputContainers(bool&) 
-{
-  return StatusCode::FAILURE; 
 }

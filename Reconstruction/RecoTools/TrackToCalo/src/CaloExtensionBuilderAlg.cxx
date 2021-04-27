@@ -17,13 +17,11 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "VxVertex/RecVertex.h"
+#include "VxVertex/VxCandidate.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/VxCandidate.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
@@ -32,24 +30,22 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 #include <cmath>
 #include <memory>
 
-StatusCode
-Trk::CaloExtensionBuilderAlg::initialize()
-{
-  ATH_CHECK(m_particleCaloExtensionTool.retrieve());
-  ATH_CHECK(m_ParticleCacheKey.initialize());
-  ATH_CHECK(m_TrkPartContainerKey.initialize());
-  return StatusCode::SUCCESS;
+StatusCode Trk::CaloExtensionBuilderAlg::initialize() {
+    ATH_CHECK(m_particleCaloExtensionTool.retrieve());
+    ATH_CHECK(m_ParticleCacheKey.initialize());
+    ATH_CHECK(m_TrkPartContainerKey.initialize());
+    return StatusCode::SUCCESS;
 }
 
 StatusCode
 Trk::CaloExtensionBuilderAlg::execute(const EventContext& ctx) const
 {
-
-  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrkPartContainerKey,
-                                                      ctx);
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(
+    m_TrkPartContainerKey, ctx);
   if (!tracks.isValid()) {
-    ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
-                  << m_TrkPartContainerKey.key());
+    ATH_MSG_FATAL(
+      "Failed to retrieve TrackParticle container: "
+      << m_TrkPartContainerKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -60,7 +56,7 @@ Trk::CaloExtensionBuilderAlg::execute(const EventContext& ctx) const
   const xAOD::TrackParticleContainer* ptrTracks = tracks.cptr();
   CaloExtensionCollection* ptrPart = lastCache.ptr();
   std::vector<bool> mask(ptrTracks->size(), false);
-  for (auto track : *tracks) {
+  for (const auto *track : *tracks) {
     if (track->pt() < 500) {
       continue;
     }

@@ -160,6 +160,7 @@ TrigConf::L1Threshold_MU::load()
 
    m_rpcExclROIList = getAttribute("rpcExclROIList", true, "");
    m_tgcFlags = getAttribute("tgcFlags");
+   m_rpcFlags = getAttribute_optional<std::string>("rpcFlags").value_or(""); 
    m_region = getAttribute("region");
 }
 
