@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcPrepDataReplicationTool3BCtoAllBC.h"
@@ -84,7 +84,7 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC() const
         bool duplicateInAllBCs = false;
         TgcPrepDataCollection::iterator tgcAllItr  = collection->begin();
         TgcPrepDataCollection::iterator tgcAllItrE = collection->end();
-        for(; tgcAllItr != tgcAllItrE; tgcAllItr++) {
+        for(; tgcAllItr != tgcAllItrE; ++tgcAllItr) {
           if(channelId == (*tgcAllItr)->identify()) {
             duplicateInAllBCs = true;
             break;
