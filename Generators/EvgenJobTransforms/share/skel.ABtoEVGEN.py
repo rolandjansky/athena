@@ -143,6 +143,7 @@ if not hasattr(postSeq, "CountHepMC"):
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
+postSeq.CountHepMC.CorrectRunNumber = False
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -161,6 +162,7 @@ if hasattr(runArgs, "rivetAnas"):
     from Rivet_i.Rivet_iConf import Rivet_i
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
+    anaSeq.Rivet_i.DoRootHistos = True
 
 
 ##==============================================================
@@ -385,6 +387,7 @@ if hasattr(runArgs, "inputEVNT_PreFile") :
   #  athenaCommonFlags.PoolEvgenInput.set_Value_and_Lock( runArgs.inputEVNT_PreFile )
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True
+  postSeq.CountHepMC.CorrectRunNumber = True
 
 StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
@@ -404,7 +407,7 @@ if not dsid.isdigit():
     dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 
-if postSeq.CountHepMC.CorrectRunNumber:
+if postSeq.CountHepMC.CorrectRunNumber == True:
     postSeq.CountHepMC.NewRunNumber = int(dsid)
     evgenLog.info("Set new run number in skel NewRunNumber = " + str(postSeq.CountHepMC.NewRunNumber))
 else:
