@@ -86,6 +86,12 @@ StatusCode TrigALFAROBMonitor::initialize(){
 
   ATH_CHECK( m_monTools.retrieve() );
 
+  char *val = getenv("TDAQ_PARTITION");
+  std::string part = val == NULL ? std::string("") : std::string(val);
+  m_inTDAQPart = part.find("TDAQ") != std::string::npos ? true : false;
+  if (m_inTDAQPart) 
+     ATH_MSG_INFO("Running in TDAQ partition - will skip the ROB CRC check");
+
   ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
 }
@@ -111,7 +117,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  bool event_with_checksum_failure(false);
   
   //ATH_MSG_INFO ("new event");
   // get EventID
@@ -153,11 +158,16 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   } 
 
 
+  bool event_with_checksum_failure(false);
+
   // loop over retrieved ROBs and do checks
   for (std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::iterator it = ALFARobFragmentVec.begin();
        it != ALFARobFragmentVec.end();++it) {
-    // verify checksum
-    if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ; 
+    // verify checksum - but skip if running with TDAQ partition (with preloaded data in ROSes)
+    if (!m_inTDAQPart) {
+        if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ;
+    } 
+
 
     // decode ALFA ROBs
     bool FiberHitsODNeg[8][3][30], FiberHitsODPos[8][3][30];

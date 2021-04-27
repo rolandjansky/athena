@@ -85,6 +85,8 @@ private:
 
   std::string m_pathHisto;
 
+  bool m_inTDAQPart;
+
   int m_elast15 {0}, m_elast18 {0},  m_syst17 {0}, m_syst18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
 
 // ALFA extensions
