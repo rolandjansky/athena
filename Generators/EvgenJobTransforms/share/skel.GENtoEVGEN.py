@@ -178,7 +178,6 @@ if hasattr(runArgs, "rivetAnas"):
     from Rivet_i.Rivet_iConf import Rivet_i
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
     if hasattr(runArgs, "outputYODAFile"):
         anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
