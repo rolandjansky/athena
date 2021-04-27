@@ -2,16 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// -*- C++ -*-
-
 /**************************************************************************
- ** 
  **   Original Author:       B.Safarzadeh   
-
  **************************************************************************/ 
 
-#include "TrigEgammaFastPhotonFexMT.h"
+#include "TrigEgammaFastPhotonReAlgo.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
@@ -20,13 +15,13 @@
 class ISvcLocator;
 
 
-TrigEgammaFastPhotonFexMT::TrigEgammaFastPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+TrigEgammaFastPhotonReAlgo::TrigEgammaFastPhotonReAlgo(const std::string & name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 
-StatusCode TrigEgammaFastPhotonFexMT::initialize()
+StatusCode TrigEgammaFastPhotonReAlgo::initialize()
 {
 
   ATH_CHECK( m_roiCollectionKey.initialize() );
@@ -36,16 +31,13 @@ StatusCode TrigEgammaFastPhotonFexMT::initialize()
 }
 
 
-StatusCode TrigEgammaFastPhotonFexMT::execute()
+StatusCode TrigEgammaFastPhotonReAlgo::execute( const EventContext& ctx ) const
+
 {
   using namespace xAOD;
-  auto ctx = getContext();
-
-  //  xAOD::TrigPhotonAuxContainer trigPhotonAuxContainer;
-
   auto trigPhotoColl =   SG::makeHandle (m_outputPhotonsKey, ctx);  
   ATH_CHECK( trigPhotoColl.record (std::make_unique<xAOD::TrigPhotonContainer>(),
-				   std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
+             std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputPhotonsKey );
 
@@ -57,9 +49,8 @@ StatusCode TrigEgammaFastPhotonFexMT::execute()
 
   const TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
 
-  ATH_MSG_DEBUG(" RoI ID = "   << (roiDescriptor)->roiId()
-		<< ": Eta = "      << (roiDescriptor)->eta()
-		<< ", Phi = "      << (roiDescriptor)->phi());
+  ATH_MSG_DEBUG(" RoI ID = "   << (roiDescriptor)->roiId() << ": Eta = "      << (roiDescriptor)->eta()
+                << ", Phi = "      << (roiDescriptor)->phi());
   
 
   double etaRef = roiDescriptor->eta();
@@ -69,7 +60,6 @@ StatusCode TrigEgammaFastPhotonFexMT::execute()
 
 
   // retrieve TrigEMCluster ElementLink from the TriggerElement
-
   auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey, ctx);
   
   
