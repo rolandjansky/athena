@@ -1796,6 +1796,8 @@ HLT_j420_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15:
     0: 20
   stepFeatures:
     0: 20
+HLT_j420_a10t_lcw_jes_35smcINF_L1J100:
+  eventCount: 0
 HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
 HLT_j420_pf_ftf_preselj20_L1J100:
@@ -2071,8 +2073,6 @@ HLT_j460_a10sd_cssk_pf_nojcalib_ftf_L1J100:
 HLT_j460_a10sd_lcw_nojcalib_L1J100:
   eventCount: 0
 HLT_j460_a10sd_pf_nojcalib_ftf_L1J100:
-  eventCount: 0
-HLT_j460_a10t_lcw_jes_30smcINF_L1J100:
   eventCount: 0
 HLT_j460_a10t_lcw_jes_L1J100:
   eventCount: 0
