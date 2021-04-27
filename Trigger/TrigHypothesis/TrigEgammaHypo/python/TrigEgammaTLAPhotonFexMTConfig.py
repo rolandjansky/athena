@@ -15,6 +15,7 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inpu
     TrigEgammaTLAPhotonFexMT.photonPtThreshold = photonPtThreshold
     TrigEgammaTLAPhotonFexMT.maxNPhotons = maxNPhotons
     TrigEgammaTLAPhotonFexMT.TLAInputPhotonContainer = inputPhotonsKey
+    print("MARCOLOG: inside getConfiguredTLAPhotonSelector")
 
     #makes sure that the name of the output collection is acceptable by Run3 stadards (i.e. is contained in TriggerHLTListRun3 defined in
     # TrigEDMConfig/python/TriggerEDMRun3.py

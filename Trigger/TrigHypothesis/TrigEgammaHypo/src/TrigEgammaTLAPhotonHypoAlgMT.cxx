@@ -18,6 +18,7 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_TLAPhotonsKey.initialize() );
+  ATH_MSG_DEBUG("Initializing TrigEgammaTLAPhotonHypoAlgMT");
   return StatusCode::SUCCESS;
 
 }

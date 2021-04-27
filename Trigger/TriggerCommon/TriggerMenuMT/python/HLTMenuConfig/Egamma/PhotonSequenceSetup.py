@@ -15,7 +15,7 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup
 
 def fastPhotonMenuSequence():
     """Creates secpond step photon sequence"""
-    print("---MARCO inside fastPhotonMenuSequence()")
+  
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
@@ -64,7 +64,6 @@ def fastPhotonMenuSequence():
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
     from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
-    print("---MARCO: calling MenuSequence")
     return MenuSequence( Maker=l2PhotonViewsMaker,
                          Sequence=photonAthSequence,
                          Hypo=thePhotonHypo,
