@@ -211,13 +211,14 @@ Reco::TrackToVertex::perigeeAtBeamline(
     tiltx =  beamspotptr->beamTilt(0);
     tilty =  beamspotptr->beamTilt(1);
   }
-  Amg::Transform3D * amgTransf = new Amg::Transform3D();
+  auto pAmgTransf = std::make_unique<Amg::Transform3D>();
+  auto & theTransform = *pAmgTransf;
   Amg::Translation3D amgtranslation(beamspot);
-  *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
-  *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
-  *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
+  theTransform = amgtranslation * Amg::RotationMatrix3D::Identity();
+  theTransform *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
+  theTransform *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
   // preparation
-  Trk::PerigeeSurface persf(amgTransf);
+  Trk::PerigeeSurface persf(std::move(pAmgTransf));
 
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =

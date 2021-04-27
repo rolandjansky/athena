@@ -52,6 +52,7 @@ typedef struct _triginfo
     float trigThrL1; // L1 Et threshold
     bool trigIsEmulation;
     bool isGSF; // GSF chain
+    bool isLRT; // LRT chain
 } TrigInfo;
 
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {

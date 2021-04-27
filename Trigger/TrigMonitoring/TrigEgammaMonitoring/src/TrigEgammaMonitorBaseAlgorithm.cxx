@@ -198,7 +198,9 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
               }else{
                   if(info.isGSF){
                     passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_GSF", condition);
-                    }else{
+                  }else if(info.isLRT){
+                    passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_LRT", condition);
+                  }else{
                         passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
                     }
               }
@@ -563,6 +565,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
       bool trigPerf; // Performance chain
       bool trigEtcut; // Et cut only chain
       bool isGSF; // GSF Chain
+      bool isLRT; // LRT Chain
       float trigThrHLT; // HLT Et threshold
       float trigThrL1; // L1 Et threshold
      *******************************************/
@@ -577,6 +580,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     bool etcut=false;
     bool trigIsEmulation=false;
     bool trigGSF=false;
+    bool trigLRT=false;
     parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
 
     std::string l1item = "";
@@ -589,7 +593,10 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     if (boost::contains(trigger,"gsf")){
         trigGSF=true;
     }
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF};
+    if (boost::contains(trigger,"lrt")){
+        trigLRT=true;
+    }
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF,trigLRT};
     m_trigInfo[trigger] = info;
 }
 
