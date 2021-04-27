@@ -13,7 +13,7 @@ from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from .PhotonMenuSequences import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
 
-#MARCO
+
 from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonMenuSequence
 
 
@@ -106,11 +106,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             chainSteps+=[chainstep]
 
 
- #       log.debug("MARCOLOG: Chain Name is: ", self.chainName) 
+ 
         if "PhotonDS" in self.chainName :
             log.debug('Adding photon trigger step getTLAPhoton')
-#            log.debug("MARCOLOG: Found PhotonDS in chain name: ", self.chainName)
-            #photonCollectionName = 'HLT_FastPhoton'
             TLAStep = self.getTLAPhoton()
             chainSteps+= [TLAStep]
 
@@ -126,19 +124,15 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getFastCalo(self):
         stepName = "PhotonFastCalo"
-        print("---MARCO: inside getFastCalo()")
         return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
 
     def getFastPhoton(self):
         stepName = "FastPhoton"
-        print( "---MARCO: inside getFastPhoton()" )
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
     def getTLAPhoton(self):
         stepName = "TLAPhoton"
-        log.debug("MARCOLOG: inside getTLAPhoton")
-        #return None
-        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg]) # does it make sense to have it at 5? should it be at 3?
+        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg])
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"

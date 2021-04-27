@@ -102,16 +102,12 @@ def precisionPhotonMenuSequence(name):
     """Creates precisionPhoton  sequence"""
     (sequence, precisionPhotonViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionPhotonSequence,ConfigFlags)
 
-<<<<<<< HEAD:Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Egamma/PhotonSequenceSetup.py
-    # Hypo
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlgMT
-=======
     # Hypo 
     from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import createTrigEgammaPrecisionPhotonHypoAlgMT
     thePrecisionPhotonHypo = createTrigEgammaPrecisionPhotonHypoAlgMT(name+"precisionPhotonHypo", sequenceOut)
     
->>>>>>> nightly/master/2021-04-24T2101:Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Egamma/PhotonMenuSequences.py
+
     from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import TrigEgammaPrecisionPhotonHypoToolFromDict
 
     return MenuSequence( Sequence    = sequence,

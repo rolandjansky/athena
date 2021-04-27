@@ -29,7 +29,7 @@ struct HasPtAboveThreshold {
   }
 
  };
- // class members
+ 
 
 TrigEgammaTLAPhotonFexMT::TrigEgammaTLAPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
  : AthAlgorithm (name, pSvcLocator)

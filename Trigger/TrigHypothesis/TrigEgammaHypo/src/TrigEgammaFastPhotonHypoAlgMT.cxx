@@ -16,7 +16,6 @@ TrigEgammaFastPhotonHypoAlgMT::TrigEgammaFastPhotonHypoAlgMT( const std::string&
 
 StatusCode TrigEgammaFastPhotonHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
-  std::cout << ">>>MARCO: TrigEgammaFastPhotonHypoAlgMT: Initialize" << std::endl;
   ATH_CHECK( m_photonsKey.initialize() );
   renounce( m_photonsKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
@@ -24,7 +23,7 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::initialize() {
 }
 
 StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context ) const {
-	std::cout << ">>>MARCO: TrigEgammaFastPhotonHypoAlgMT: Execute" << std::endl;
+
 	ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );

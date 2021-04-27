@@ -35,7 +35,7 @@ def TrigEgammaFastPhotonHypoToolFromDict( chainDict ):
     tool.HADET2thr = [ [999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0] ] *nt
     tool.HADETthr = [ [0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035] ] *nt
 
-    print("---MARCO: TrigEgammaFastPhotonHypoToolFromDict")
+
     return tool
 
 
