@@ -3396,11 +3396,6 @@ namespace Rec {
 
             if (std::abs(spectrometerEnergyLoss) > 1.5 * std::abs(caloEnergy->deltaE())) {
                 curvatureOK = false;
-
-                // if (correctedParameters == parameters) {
-                //    ATH_MSG_WARNING("deleting parameters pointer that could be used further down in execution, setting it to zero!");
-                //    parameters = nullptr;
-                //}
                 ATH_MSG_DEBUG("standaloneFit: excessive energy loss in spectrometer "
                               << std::abs(spectrometerEnergyLoss / Gaudi::Units::GeV) << " GeV"
                               << "  in calo " << std::abs(caloEnergy->deltaE() / Gaudi::Units::GeV) << " GeV");
@@ -3415,17 +3410,12 @@ namespace Rec {
 
             if (!perigee) {
                 ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
-                // delete correctedParameters;
-                // delete parameters;
                 return nullptr;
             }
 
             // large impact: set phi to be projective (note iteration)
             if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact || !fieldCache.toroidOn()) {
-                // if (correctedParameters == parameters) {
-                //    ATH_MSG_WARNING("deleting parameters pointer that could be used further down in execution, setting it to zero!");
-                //    // parameters = nullptr;
-                //}
+                ATH_MSG_DEBUG("Track d0 perigee: "<<std::abs(perigee->parameters()[Trk::d0])<<" which is smaller than "<<m_largeImpact);
             } else {
                 Amg::Vector3D position = correctedParameters->position();
 
@@ -3471,9 +3461,6 @@ namespace Rec {
                     } else if (parameterVector[Trk::phi0] < -M_PI) {
                         parameterVector[Trk::phi0] += 2. * M_PI;
                     }
-
-                    // delete correctedParameters;
-
                     correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                         parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
@@ -3486,8 +3473,6 @@ namespace Rec {
                     ATH_MSG_VERBOSE("standaloneFit:    restart with impact " << perigee->parameters()[Trk::d0] << "   phi0 "
                                                                              << perigee->parameters()[Trk::phi0]);
                 }
-
-                // delete correctedParameters;
                 parameterVector[Trk::qOverP] = parameters->charge() / trackEnergy;
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
@@ -3533,7 +3518,6 @@ namespace Rec {
             parameters = m_propagator->propagate(ctx, *perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
                                                  m_magFieldProperties, Trk::nonInteracting);
 
-            // parameters = std::move(correctedParameters);
             if (!parameters) {
                 ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
                 return nullptr;
