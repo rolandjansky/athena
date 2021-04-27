@@ -66,9 +66,14 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
     outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary.keys() if dataDictionary[dataType] ])
 
     # Check if this is an evgen job - if so, handle things a bit differently
-    if '-generate-' in athenaMPFileReport and 'EVNT' in dataDictionary:
-        athenaMPoutputsLinkAndUpdate(dataDictionary['EVNT'].value, dataDictionary['EVNT'])
-        return
+    if '-generate-' in athenaMPFileReport:
+        isEvgen = False
+        for outType in [ 'EVNT', 'TXT', 'YODA' ]:
+            if outType in dataDictionary:
+                athenaMPoutputsLinkAndUpdate(dataDictionary[outType].value, dataDictionary[outType])
+                isEvgen = True
+        if isEvgen:
+            return
 
     # if sharedWriter mode is active ignore athenaMPFileReport
     sharedWriter=False
