@@ -208,7 +208,7 @@ def setupMenu():
 
         # Primary photon chains
         #ChainProp(name='HLT_PhotonDS_g35_loose_3j25_pf_ftf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
-        ChainProp(name='HLT_PhotonDS_g35_loose_L1EM22VHI',groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_loose_PhotonDS_L1EM22VHI',groups=SinglePhotonGroup),
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM15VHI', groups=MultiPhotonGroup),
