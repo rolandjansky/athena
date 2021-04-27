@@ -962,7 +962,6 @@ int main(int argc, char** argv) {
           // check if we are using actual mu for mc16d or mc16e
           if (isFirst && topConfig->isMC()) {
             const int runNumber = topEvent.m_info->runNumber();
-            ATH_MSG_INFO("RunNumber: " << runNumber);
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) ||
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {

@@ -898,6 +898,10 @@ namespace top {
       if (its != strings_.end()) {
         its->second.m_data = value;
         its->second.m_set = true;
+      } else {
+        ATH_MSG_ERROR("\n\nConfig file includes non-existant option: " << key
+            << "\nThis option either does not exist anymore, or you have a typo.");
+        throw std::runtime_error("Unsupported config option.");
       }
 
       //// add dynamic keys
