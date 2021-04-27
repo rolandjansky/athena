@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
@@ -614,27 +614,6 @@ def getTileCondToolNoiseRawChn(source = 'FILE', name = 'TileCondToolNoiseRawChn'
 
     #=== set the arguments passed and return tool
     for n, v in kwargs.items():
-        setattr(tool, n, v)
-    return tool
-
-
-#
-#____________________________________________________________________________
-def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
-
-    if source not in validSources:
-        raise(Exception("Invalid source: %s"%source))
-
-    from TileConditions.TileConditionsConf import TileCellNoiseTool
-
-    #do some check for global flag here: if source='' and flag set, adopt flag
-
-    #=== create private noise source
-    noiseSource = getTileCondToolNoiseRawChn(source, "TileToolNoiseRawChnForNoiseTool")
-    tool = TileCellNoiseTool(name, NoiseSource = noiseSource)
-
-    #=== set the arguments passed and return tool
-    for n,v in kwargs.items():
         setattr(tool, n, v)
     return tool
 
