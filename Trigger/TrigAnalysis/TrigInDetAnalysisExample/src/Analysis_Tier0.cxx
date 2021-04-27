@@ -611,10 +611,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
       if ( roi() ) { 
 
-	double deta = 0.5*(roi()->etaPlus() - roi()->etaMinus()); 
+	//double deta = 0.5*(roi()->etaPlus() - roi()->etaMinus()); 
 	
-	double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
-	double dzed = referenceZ0 - roi()->zed();
+	//double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
+	//double dzed = referenceZ0 - roi()->zed();
 	
 	//	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
 
