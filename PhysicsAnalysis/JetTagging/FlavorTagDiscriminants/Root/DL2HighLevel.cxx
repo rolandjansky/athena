@@ -80,7 +80,7 @@ namespace FlavorTagDiscriminants {
       // current flavor tagging developments and AFT-438.
       {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
       {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
-      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
+      {"(rnnip|iprnn|dips)(flip)?_p(b|c|u|tau)"_r, floattype},
       {"(minimum|maximum|average)TrackRelativeEta(Flip)?"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
@@ -102,6 +102,7 @@ namespace FlavorTagDiscriminants {
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {".*TrackRelativeEta(Flip)?"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"dips_.*"_r, ""},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
       {"smt_.*"_r, "softMuon_isDefaults"},
