@@ -107,7 +107,7 @@ bool TrigMultiTrkComboHypoTool::checkPreviousDecisionIDs(const std::vector<const
 
   if (decisionId() == legDecisionId(0)) {  // trigger with symmetric legs like HLT_3mu6_bDimu_L13MU6
     for (size_t i = 0; i < m_nTrk; ++i) {
-      if (!TrigCompositeUtils::passed(decisionId().numeric(), *previousDecisionIDs[i])) {
+      if (!TrigCompositeUtils::passed(decisionId().numeric(), *previousDecisionIDs[i])) {	
         ATH_MSG_DEBUG( "Trigger with symmetric legs didn't pass previous decision" );
         return false;
       }

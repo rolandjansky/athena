@@ -66,6 +66,19 @@ HLT_2e5_lhmedium_j70_0eta320_j50_0eta490_j0_dijet50j12etSEP900djmass_L1MJJ-500-N
     1: 49
     2: 4
     3: 3
+HLT_2e5_lhvloose_bBeeM6000_L12EM3:
+  eventCount: 0
+  stepCounts:
+    0: 14
+    1: 9
+    2: 6
+    3: 6
+  stepFeatures:
+    0: 64
+    1: 122
+    2: 18
+    3: 15
+    4: 5
 HLT_2g10_loose_mu20_L1MU20:
   eventCount: 0
   stepCounts:

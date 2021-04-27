@@ -20,6 +20,8 @@ from .PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LR
 from .PrecisionTrackingMenuSequences import precisionTrackingMenuSequence
 from .PrecisionTrackingMenuSequences_LRT import precisionTrackingMenuSequence_LRT
 
+from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDiElecFastComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -195,8 +197,12 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(1, stepName, [fastCaloCfg])
 
     def getFastElectron(self):
-        stepName = "fast_electron"
-        return self.getStep(2,stepName,[ fastElectronSequenceCfg])
+        if "bBeeM6000" in self.chainName:
+            stepName = "fast_electron_bBee"
+            return self.getStep(5,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerDiElecFastComboHypoCfg)
+        else:
+            stepName = "fast_electron"
+            return self.getStep(2,stepName,[ fastElectronSequenceCfg])
 
     def getFastElectron_lrt(self):
         stepName = "fast_electron_lrt"
@@ -233,6 +239,9 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif "Jpsiee" in self.chainName:
             stepName = "precision_topoelectron"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict])
+        elif "bBeeM6000" in self.chainName:
+            stepName = "precision_electron_bBee"+isocut
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
         else:
             stepName = "precision_electron"+str(isocut)
             return self.getStep(5,stepName,[ precisionElectronSequenceCfg])
