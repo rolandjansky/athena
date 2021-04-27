@@ -73,7 +73,7 @@ StatusCode CountHepMC::execute() {
       newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
 
       McEventCollection::const_iterator evt = newmcEvtColl->begin();
-      HepMC::GenEvent* hepMC = new HepMC::GenEvent(*(*evt));
+      HepMC::GenEvent* hepMC = const_cast<HepMC::GenEvent*> (*evt);
 
       hepMC->set_event_number(newnum);
       newmcEvtColl->pop_back();
