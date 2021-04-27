@@ -21,7 +21,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   The LArElecCalib package contains of following classes:
 
   - ILArAdc2GeV
-  - ILArADC2MeVTool
   - ILArAutoCorr
   - ILArCableAttenuation
   - ILArCableLength
