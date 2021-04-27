@@ -123,8 +123,8 @@ void Analysis_Tier0::initialise() {
   h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
   h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
-  h_trketaroi  = new TH1F("reftrk_etaroi",  "Reference track Eta - Roi Eta",      100,   -2.5,     2.5) ;
-  h_trketazroi = new TH1F("reftrk_etazroi", "Reference track (Eta - Roi Eta)*Dz", 100,   -2.5,     2.5) ;
+  //  h_trketaroi  = new TH1F("reftrk_etaroi",  "Reference track Eta - Roi Eta",      100,   -2.5,     2.5) ;
+  // h_trketazroi = new TH1F("reftrk_etazroi", "Reference track (Eta - Roi Eta)*Dz", 100,   -2.5,     2.5) ;
 
 
   h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
@@ -138,8 +138,8 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trkd0);
   addHistogram(h_trkz0);
 
-  addHistogram(h_trketaroi);
-  addHistogram(h_trketazroi);
+  //  addHistogram(h_trketaroi);
+  //  addHistogram(h_trketazroi);
 
 
   addHistogram(h_trkdd0);
@@ -616,9 +616,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 	double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
 	double dzed = referenceZ0 - roi()->zed();
 	
-	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
+	//	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
 
-	h_trketazroi->Fill( (referenceEta - roi()->eta())*dzed/Dzed );
+	// h_trketazroi->Fill( (referenceEta - roi()->eta())*dzed/Dzed );
       
       }
 
