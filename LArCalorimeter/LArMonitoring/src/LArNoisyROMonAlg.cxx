@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMonAlg.h"
@@ -51,7 +51,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotBad",0);
               auto FT=Monitored::Scalar<unsigned>("FTBad",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
@@ -73,7 +73,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
               auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);

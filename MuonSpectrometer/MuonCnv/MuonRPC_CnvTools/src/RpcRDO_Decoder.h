@@ -15,8 +15,6 @@
 #include <vector>
 #include <string>
 
-class IRPCcablingSvc;
-
 // Decoder class for conversion from RPC RDOs to RPC digits
 namespace Muon {
 
@@ -38,7 +36,6 @@ class RpcRDO_Decoder : public extends<AthAlgTool, IRPC_RDO_Decoder> {
 					  uint16_t& sectorID, uint16_t& padId,
 					  uint16_t& cmaId, double& time, const RpcCablingCondData* rpcCab) const override;
 
-	
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
@@ -46,8 +43,4 @@ class RpcRDO_Decoder : public extends<AthAlgTool, IRPC_RDO_Decoder> {
 
 }
 
-
-
-#endif
-
-
+#endif // MUONBYTESTREAMRPCRDODECODER_H

@@ -42,6 +42,14 @@ def TrigTauMonitoringTool():
         
 
         MVA_chains = [
+              # Run 2 data reprocessing
+              'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+              'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+              'tau80_mediumRNN_tracktwoMVA_L1TAU60_tau35_mediumRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+              'tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+              'tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50',
+              'tau35_mediumRNN_tracktwoMVA_xe70_L1XE45',
+              #  Run 3
               'tau25_idperf_tracktwoMVA_L1TAU12IM',
               'tau25_idperf_tracktwoMVABDT_L1TAU12IM',
               'tau25_perf_tracktwoMVA_L1TAU12IM',
@@ -71,6 +79,14 @@ def TrigTauMonitoringTool():
         ]
 
         RNN_chains = [
+             # Run 2 data reprocessing
+             'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+             'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+             'tau80_mediumRNN_tracktwoMVA_L1TAU60_tau35_mediumRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+             'tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+             'tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50',
+             'tau35_mediumRNN_tracktwoMVA_xe70_L1XE45',
+             #  Run 3
              'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
              'tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
              'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
@@ -88,6 +104,11 @@ def TrigTauMonitoringTool():
         ]
 
         BDTRNN_chains = [
+             # Run 2 data reprocessing
+             'tau25_idperf_tracktwo',
+             'tau25_idperf_tracktwoEF',
+             'tau25_idperf_tracktwoMVA',
+             # Run 3
              'tau0_idperf_tracktwoMVA_L1eTAU12',
              'tau0_idperf_tracktwoMVA_L1eTAU5',
              'tau0_ptonly_L1TAU8',
@@ -126,6 +147,7 @@ def TrigTauMonitoringTool():
              'tau160_perf_tracktwoMVA_L1TAU100',
              'tau160_perf_tracktwoMVABDT_L1TAU100', 
         ]
+
 
         tau_topo_support_chains = [
 

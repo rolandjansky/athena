@@ -2,6 +2,7 @@ Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 ApplicationMgr       INFO Application Manager Configured successfully
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 PyComponentMgr       INFO Initializing PyComponentMgr...
 TestAlg              INFO Initializing TestAlg...
 EventSelector        INFO  Enter McEventSelector Initialization 

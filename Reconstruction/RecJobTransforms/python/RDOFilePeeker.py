@@ -84,7 +84,7 @@ def RDOFilePeeker(runArgs, skeletonLog):
         # by default everything is off
         DetFlags.all_setOff()
         skeletonLog.debug("Switching on DetFlags for subdetectors which were simulated")
-        for subdet in metadatadict['DigitizedDetectors']:
+        for subdet in eval(metadatadict['DigitizedDetectors']): # convert from str to list of str
             cmd='DetFlags.%s_setOn()' % subdet
             skeletonLog.debug(cmd)
             try:

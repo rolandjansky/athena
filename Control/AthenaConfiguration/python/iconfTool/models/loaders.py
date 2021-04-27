@@ -157,16 +157,22 @@ def loadConfigFile(fname, args) -> Dict:
                 conf[key] = value
 
     if args.ignoreIrrelevant:
+        def strip_defaults(val):
+            if val.startswith("StoreGateSvc+"):
+                return val.replace("StoreGateSvc+", "")
+            return val
+
         def remove_irrelevant(val_dict):
             return (
                 {
-                    key: val
+                    key: strip_defaults(val)
                     for key, val in val_dict.items()
                     if key not in args.ignore
                 }
                 if isinstance(val_dict, dict)
                 else val_dict
             )
+            
         dic = conf
         conf = {}
         for (key, value) in dic.items():

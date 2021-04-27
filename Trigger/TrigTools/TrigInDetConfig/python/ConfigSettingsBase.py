@@ -42,12 +42,13 @@ class _ConfigSettingsBase() :
       self._roi                 = None
       self._isLRT               = False
       self._doRecord            = True
-      self._adaptiveVertex      = False
       self._vertex              = None
-      self._adaptiveVertex_jet  = False
-      self._vertex_jet          = None
+      self._adaptiveVertex      = False
       self._addSingleTrackVertices = False
+      self._TracksMaxZinterval  = 1 #mm
       self._minNSiHits_vtx      = None
+      self._vertex_jet          = None
+      self._adaptiveVertex_jet  = False
       
    def tracks_FTF(self):
       if self._suffix is None:
@@ -234,6 +235,9 @@ class _ConfigSettingsBase() :
    def minNSiHits_vtx(self):
        return self._minNSiHits_vtx
 
+   @property
+   def TracksMaxZinterval(self):
+      return self._TracksMaxZinterval
 
    def printout(self):
       from AthenaCommon.Logging import logging

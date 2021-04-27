@@ -26,6 +26,42 @@ monitoring_tau = [
 ]
 
 monitoring_tau_pp = [
+    # Run 2 data reprocessing
+    'tau25_idperf_tracktwo',
+    'tau25_idperf_tracktwoEF',
+    'tau25_idperf_tracktwoMVA',
+    # 2015
+    'tau80_medium1_track',
+    'tau80_medium1_tracktwo',
+    'tau125_medium1_track',
+    'tau125_medium1_tracktwo',  
+    'tau160_medium1_tracktwo', # also 2016
+    'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
+    'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12',
+    'tau35_medium1_tracktwo_L1TAU20_xe70_L1XE45',
+    # 2016
+    'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
+    'tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12',
+    'tau125_medium1_tracktwo_tau50_medium1_tracktwo_L1TAU12', 
+    'tau35_medium1_tracktwo_xe70_L1XE45',
+    # 2017
+    'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25',
+    'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25',
+    'tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+    'tau35_medium1_tracktwo_tau25_medium1_tracktwo_xe50',
+    # 2018
+    'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25',
+    'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25',
+    'tau80_medium1_tracktwoEF_L1TAU60_tau35_medium1_tracktwoEF_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+    'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+    'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+    'tau80_mediumRNN_tracktwoMVA_L1TAU60_tau35_mediumRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+    'tau35_medium1_tracktwoEF_xe70_L1XE45',
+    'tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+    'tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50',
+    'tau35_mediumRNN_tracktwoMVA_xe70_L1XE45',
+
+     # Run 3 
     'tau0_ptonly_L1TAU100',
     'tau80_medium1_tracktwo_L1TAU60',
     'tau160_idperf_track_L1TAU100',
@@ -38,15 +74,15 @@ monitoring_tau_pp = [
     'tau160_perf_tracktwoEF_L1TAU100',
     'tau160_perf_tracktwoMVA_L1TAU100',
     'tau160_perf_tracktwoMVABDT_L1TAU100',
-    'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'tau160_mediumRNN_tracktwoMVA_L1TAU100', # valid also in 2018 for 2 data reprocessing
     'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
     'tau160_medium1_track_L1TAU100',
-    'tau160_medium1_tracktwo_L1TAU100',
-    'tau160_medium1_tracktwoEF_L1TAU100',
+    'tau160_medium1_tracktwo_L1TAU100', # valid also in 2017 for 2 data reprocessing
+    'tau160_medium1_tracktwoEF_L1TAU100', # valid also in 2018 for 2 data reprocessing
     'tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
     'tau200_medium1_track_L1TAU100',
-    'tau200_medium1_tracktwo_L1TAU100',
+    'tau200_medium1_tracktwo_L1TAU100', # valid also in 2017 for 2 data reprocessing
     'tau200_medium1_tracktwoEF_L1TAU100',
     # Will keep this commented out for now
     #'tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',

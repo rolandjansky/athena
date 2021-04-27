@@ -28,8 +28,9 @@ ApplicationMgr       INFO Application Manager Configured successfully
 ClassIDSvc           INFO  getRegistryEntries: read 5881 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00
 StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 

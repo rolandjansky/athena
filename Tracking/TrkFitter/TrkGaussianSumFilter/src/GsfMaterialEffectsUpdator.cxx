@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file GsfMaterialEffectsUpdator.cxx
@@ -9,9 +9,8 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
-
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
@@ -138,11 +137,12 @@ Trk::GsfMaterialEffectsUpdator::updateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  auto updatedState = compute(componentParameters,
-                              *materialProperties,
-                              pathLength,
-                              direction,
-                              particleHypothesis);
+  auto updatedState = compute(
+    componentParameters,
+    *materialProperties,
+    pathLength,
+    direction,
+    particleHypothesis);
 
   return updatedState;
 }
@@ -160,11 +160,12 @@ Trk::GsfMaterialEffectsUpdator::updateState(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-  auto updatedState = compute(componentParameters,
-                              materialProperties,
-                              pathLength,
-                              direction,
-                              particleHypothesis);
+  auto updatedState = compute(
+    componentParameters,
+    materialProperties,
+    pathLength,
+    direction,
+    particleHypothesis);
   return updatedState;
 }
 
@@ -180,9 +181,10 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Material effects update prior to propagation using layer "
-                "information and particle hypothesis: "
-                << particleHypothesis);
+  ATH_MSG_DEBUG(
+    "Material effects update prior to propagation using layer "
+    "information and particle hypothesis: "
+    << particleHypothesis);
 
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
@@ -241,8 +243,8 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   // Bail out if still no material properties can be found
   if (!materialProperties) {
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
-                                           componentParameters.second);
+    clonedMultiComponentState.emplace_back(
+      componentParameters.first->clone(), componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -260,11 +262,12 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  auto updatedState = compute(componentParameters,
-                              *materialProperties,
-                              pathLength,
-                              direction,
-                              particleHypothesis);
+  auto updatedState = compute(
+    componentParameters,
+    *materialProperties,
+    pathLength,
+    direction,
+    particleHypothesis);
 
   return updatedState;
 }
@@ -282,9 +285,10 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Material effects update after propagation using layer "
-                "information and particle hypothesis: "
-                << particleHypothesis);
+  ATH_MSG_DEBUG(
+    "Material effects update after propagation using layer "
+    "information and particle hypothesis: "
+    << particleHypothesis);
 
   Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
@@ -341,8 +345,8 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   // Bail out if still no material properties can be found
   if (!materialProperties) {
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
-                                           componentParameters.second);
+    clonedMultiComponentState.emplace_back(
+      componentParameters.first->clone(), componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -359,11 +363,12 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  return compute(componentParameters,
-                 *materialProperties,
-                 pathLength,
-                 direction,
-                 particleHypothesis);
+  return compute(
+    componentParameters,
+    *materialProperties,
+    pathLength,
+    direction,
+    particleHypothesis);
 }
 
 /* ============================================================================
@@ -385,8 +390,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
   if (momentum <= m_momentumCut) {
     ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
-                                           componentParameters.second);
+    clonedMultiComponentState.emplace_back(
+      componentParameters.first->clone(), componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -398,13 +403,14 @@ Trk::GsfMaterialEffectsUpdator::compute(
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
-  Trk::IMultiStateMaterialEffects::Cache cache;
-  m_materialEffects->compute(cache,
-                             componentParameters,
-                             materialProperties,
-                             pathLength,
-                             direction,
-                             particleHypothesis);
+  GsfMaterial::Combined cache;
+  m_materialEffects->compute(
+    cache,
+    componentParameters,
+    materialProperties,
+    pathLength,
+    direction,
+    particleHypothesis);
 
   // check all vectors have the same size
   if (cache.weights.size() != cache.deltaPs.size()) {
@@ -430,8 +436,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
 
     std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     if (measuredCov && cache.deltaCovariances.size() > componentIndex) {
-      updatedCovariance = AmgSymMatrix(5)(
-        cache.deltaCovariances[componentIndex] + *measuredCov);
+      updatedCovariance =
+        AmgSymMatrix(5)(cache.deltaCovariances[componentIndex] + *measuredCov);
     }
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
       trackParameters->associatedSurface().createUniqueTrackParameters(
@@ -443,8 +449,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
         std::move(updatedCovariance));
     double updatedWeight =
       componentParameters.second * cache.weights[componentIndex];
-    computedState.emplace_back(std::move(updatedTrackParameters),
-                               updatedWeight);
+    computedState.emplace_back(
+      std::move(updatedTrackParameters), updatedWeight);
   }
   return computedState;
 }

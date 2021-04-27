@@ -10,11 +10,12 @@ def LArCellBuilderCfg(configFlags):
     result=ComponentAccumulator()
     result.merge(LArOnOffIdMappingCfg(configFlags))
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
-
-    theLArCellBuilder.addDeadOTX = False #Create flag? Requires bad-feb DB access
+    theLArCellBuilder.LArCablingKey = "ConditionStore+LArOnOffIdMap"
+    theLArCellBuilder.MissingFebKey = "ConditionStore+LArBadFeb"
+    theLArCellBuilder.RawChannelsName = "LArRawChannels"
+    theLArCellBuilder.addDeadOTX = True #Create flag? Requires bad-feb DB access
     result.setPrivateTools(theLArCellBuilder)
     return result
-
 
 
 def LArCellCorrectorCfg(configFlags):
@@ -28,17 +29,18 @@ def LArCellCorrectorCfg(configFlags):
     
     if configFlags.LAr.doCellNoiseMasking or configFlags.LAr.doCellSporadicNoiseMasking:
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        theNoiseMasker=LArCellNoiseMaskingTool()
+        theNoiseMasker=LArCellNoiseMaskingTool(qualityCut = 4000)
         if configFlags.LAr.doCellNoiseMasking:
-            acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
+            acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="LArNoiseMasker")
             theNoiseMasker.MaskingTool=acc.popPrivateTools()
             result.merge(acc)
-
+            theNoiseMasker.maskNoise = True
             pass
         if configFlags.LAr.doCellSporadicNoiseMasking:
-            acc=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="SporadicNoiseMask")
+            acc=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="LArSporadicNoiseMasker")
             theNoiseMasker.MaskingSporadicTool=acc.popPrivateTools()
             result.merge(acc)
+            theNoiseMasker.maskSporadic=True
             pass
         correctionTools.append(theNoiseMasker)
 

@@ -28,8 +28,8 @@ AthDictLoaderSvc                                    INFO in initialize...
 AthDictLoaderSvc                                    INFO acquired Dso-registry
 ClassIDSvc                                          INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
 CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr
+MetaDataSvc                                         INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc                                    INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc                                             INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled

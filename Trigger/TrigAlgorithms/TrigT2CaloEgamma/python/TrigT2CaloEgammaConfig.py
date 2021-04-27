@@ -12,6 +12,7 @@ from TrigT2CaloCalibration.EgammaCalibrationConfig import (EgammaHitsCalibration
 
 
 
+
 class RingerReFexConfig( CompFactory.RingerReFex ):
 
   __slots__ = []
@@ -31,8 +32,11 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
     self.DeltaEta             = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.1]
     self.DeltaPhi             = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170,
                                  0.098174770424681, 0.098174770424681, 0.098174770424681]
-
     self.UseTile              = True
+
+    def same(value):
+        return [value]*len(self.NRings)
+
     self.Detectors = [ [det.TTEM], [det.TTEM], [det.TTEM], [det.TTEM], [det.TTHEC, det.TILE], [det.TTHEC, det.TTHEC, det.TILE], [det.TTHEC, det.TILE] ]
     self.Samplings = [ [0]       , [1]       , [2]       , [3]       , [0        , -1  ]    , [1        , 2        , -1  ]    , [3        , -1      ] ]
     self.Samples   = [ 
@@ -44,13 +48,32 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
                           [ Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1 ], # TTHEC: 1,2, TILE
                           [ Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2 ] # TTHEC: 3, TILE
                       ]
-    
+
+
+    self.DoQuarter         = same(False)
+    self.DoEtaAxesDivision = same(True)
+    self.DoPhiAxesDivision = same(True)
+
     
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram( "TIME_total", title="Total Time;time [us]",xbins=100, xmin=0, xmax=500,type='TH1F', path='EXPERT')
     monTool.defineHistogram( "TIME_load_cells", title="Load Cells Time;time [us]",xbins=50, xmin=0, xmax=100,type='TH1F', path='EXPERT')
     self.MonTool = monTool
+
+
+
+class AsymRingerReFexConfig( RingerReFexConfig ):
+
+  __slots__ = []
+
+  def __init__(self, name = "AsymRingerReMaker"):
+    super(AsymRingerReFexConfig, self).__init__(name)
+    def same(value):
+        return [value]*len(self.NRings)
+    self.DoQuarter         = same(True)
+    self.RingerKey         = "FastCaloAsymRings"
+
 
 
 
@@ -114,6 +137,12 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
             ringer.ClustersName = ClustersName
             self.IReAlgToolList+= [ringer]
 
+            from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import AsymRingerReFexConfig
+            asymringer = AsymRingerReFexConfig('ReFaAlgoAsymRingerFexConfig')
+            asymringer.RingerKey= "HLT_FastCaloAsymRinger"
+            asymringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+            asymringer.ClustersName = ClustersName
+            self.IReAlgToolList+= [asymringer]
 
         self.EtaWidth = 0.2
         self.PhiWidth = 0.2
