@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_MuonTOB
 #define L1TopoEvent_MuonTOB
@@ -14,11 +14,6 @@ namespace TCS {
    class MuonTOB : public BaseTOB {
    public:
       
-      static unsigned int nBitsEt() { return g_nBitsEt; }
-      static unsigned int nBitsIsolation() { return g_nBitsIsolation; }
-      static unsigned int nBitsEta() { return g_nBitsEta; }
-      static unsigned int nBitsPhi() { return g_nBitsPhi; }
-
       // default constructor
       MuonTOB(uint32_t roiWord = 0, std::string tobName = "MuonTOB");
       
@@ -32,10 +27,15 @@ namespace TCS {
       virtual ~MuonTOB();
 
       // accessors
-      unsigned int Et() const { return m_Et; }
+      unsigned int nBitsEt() const { return m_nBitsEt; }
+      unsigned int nBitsIsolation() const { return m_nBitsIsolation; }
+      unsigned int nBitsEta() const { return m_nBitsEta; }
+      unsigned int nBitsPhi() const { return m_nBitsPhi; }
+
+      unsigned int Et() const { return m_Et; }                  // Et threshold in units of 100 MeV (phase-1) or 1 GeV (legacy)
       unsigned int isolation() const { return m_isolation; }
-      int eta() const { return m_eta; }
-      int phi() const { return m_phi; }
+      int eta() const { return m_eta; }                         // Int eta for L1Topo, granularity = 0.025 (phase-1) or 0.1 (legacy)
+      int phi() const { return m_phi; }                         // Int phi for L1Topo, granularity = 0.05 (phase-1) or 0.1 (legacy)
 
       std::string sectorName() const { return m_sectorName; }
       bool bw2or3() const { return m_bw2or3; }
@@ -44,9 +44,9 @@ namespace TCS {
       int charge() const { return m_charge; }
       bool is2cand() const { return m_is2cand; }
 
-      double EtDouble() const { return m_EtDouble; }
-      double EtaDouble() const { return m_etaDouble; }
-      double PhiDouble() const { return m_phiDouble; }
+      double EtDouble() const { return m_EtDouble; }           // Et threshold in units of GeV
+      double EtaDouble() const { return m_etaDouble; }         // Real muon eta
+      double PhiDouble() const { return m_phiDouble; }         // Real muon phi
       
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
@@ -55,7 +55,7 @@ namespace TCS {
       void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
       void setSectorName(std::string sectorName) { m_sectorName = sectorName; }
-      void setBW2or2(bool bw2or3) { m_bw2or3 = bw2or3; }
+      void setBW2or3(bool bw2or3) { m_bw2or3 = bw2or3; }
       void setInnerCoin(bool innerCoin) { m_innerCoin = innerCoin; }
       void setGoodMF(bool goodMF) { m_goodMF = goodMF; }
       void setCharge(int charge) { m_charge = charge; }
@@ -64,6 +64,11 @@ namespace TCS {
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
+
+      void setBitsEt(unsigned int nBitsEt) { m_nBitsEt = nBitsEt; }
+      void setBitsIsolation(unsigned int nBitsIsolation) { m_nBitsIsolation = nBitsIsolation; }
+      void setBitsEta(unsigned int nBitsEta) { m_nBitsEta = nBitsEta; }
+      void setBitsPhi(unsigned int nBitsPhi) { m_nBitsPhi = nBitsPhi; }
 
       inputTOBType_t tobType() const { return MUON; }
       
@@ -75,11 +80,13 @@ namespace TCS {
       virtual void print(std::ostream &o) const;
 
    private:
-      static const unsigned int g_nBitsEt;
-      static const unsigned int g_nBitsIsolation;
-      static const unsigned int g_nBitsEta;
-      static const unsigned int g_nBitsPhi;
-      
+      // phase-1: 9 bits for eta, 7 bits for phi (default)
+      // legacy: 6 bits for eta, 6 bits for phi
+      unsigned int m_nBitsEt{8};
+      unsigned int m_nBitsIsolation{5};
+      unsigned int m_nBitsEta{9};
+      unsigned int m_nBitsPhi{7};
+
       unsigned int m_Et{0};
       unsigned int m_isolation{0};
       int m_eta{0};
