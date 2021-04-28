@@ -69,6 +69,8 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
 
 GeoModelSvc::~GeoModelSvc()
 {
+  delete m_sqliteDbManager;
+  delete m_sqliteReader;
 }
 
 StatusCode GeoModelSvc::initialize()
@@ -195,22 +197,30 @@ StatusCode GeoModelSvc::geoInit()
   GeoPhysVol* worldPhys{nullptr};
   ServiceHandle<IRDBAccessSvc> rdbAccess("RDBAccessSvc",name());
 
+  // Setup the GeoDbTagSvc
+  ATH_CHECK( m_geoDbTagSvc.retrieve() );
+
+  GeoDbTagSvc* dbTagSvc = dynamic_cast<GeoDbTagSvc*>(m_geoDbTagSvc.get());
+  if(dbTagSvc==nullptr) {
+    ATH_MSG_FATAL("Unable to dyn-cast the IGeoDbTagSvc pointer to GeoDbTagSvc");
+    return StatusCode::FAILURE;
+  }
+
   // Build geometry from the SQLiteDB file
   if(!m_sqliteDb.empty()) {
 
     // Read raw geometry description from the file
-    GMDBManager* db = new GMDBManager(m_sqliteDb);
-    if(db->checkIsDBOpen()) {
+    m_sqliteDbManager = new GMDBManager(m_sqliteDb);
+    if(m_sqliteDbManager->checkIsDBOpen()) {
       ATH_MSG_INFO("Successfully opened SQLite DB file " << m_sqliteDb << " for reading in persistent GeoModel tree");
     }
     else {
       ATH_MSG_FATAL("Failed to open SQLite database for reading in persistent GeoModel tree");
       return StatusCode::FAILURE;
     }
-    GeoModelIO::ReadGeoModel readInGeo = GeoModelIO::ReadGeoModel(db);
-    worldPhys = readInGeo.buildGeoModel();
+    m_sqliteReader = new GeoModelIO::ReadGeoModel(m_sqliteDbManager);
+    worldPhys = m_sqliteReader->buildGeoModel();
     ATH_MSG_INFO("Successfully read persistent GeoModel description from the file");
-    delete db;
 
     // Initialize SqliteReadSvc and open the file for reading plain SQLite tables with DetDescr parameters
     ServiceHandle<IRDBAccessSvc> sqliteReadSvc("SqliteReadSvc",name());
@@ -222,6 +232,8 @@ StatusCode GeoModelSvc::geoInit()
     else {
       ATH_MSG_INFO("Successfully opened SQLite DB file: " << m_sqliteDb << " for reading Det Descr parameters");
     }
+    dbTagSvc->setParamSvcName("SqliteReadSvc");
+    dbTagSvc->setSqliteReader(m_sqliteReader);
   }
   else {
     // Build geometry from the GeometryDB
@@ -254,7 +266,9 @@ StatusCode GeoModelSvc::geoInit()
       ATH_MSG_FATAL(" In latter case please update DB Release version");
       return StatusCode::FAILURE;
     }
-    
+
+    dbTagSvc->setParamSvcName("RDBAccessSvc");
+
     if(!m_ignoreTagSupport) {
       RDBTagDetails atlasTagDetails;
       rdbAccess->getTagDetails(atlasTagDetails, m_AtlasVersion);
@@ -286,15 +300,6 @@ StatusCode GeoModelSvc::geoInit()
     }
     ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
   
-    // Setup the GeoDbTagSvc
-    ATH_CHECK( m_geoDbTagSvc.retrieve() );
-  
-    GeoDbTagSvc* dbTagSvc = dynamic_cast<GeoDbTagSvc*>(m_geoDbTagSvc.operator->());
-    if(dbTagSvc==nullptr) {
-      ATH_MSG_FATAL("Unable to dyn-cast the IGeoDbTagSvc pointer to GeoDbTagSvc");
-      return StatusCode::FAILURE;
-    }
-
     dbTagSvc->setAtlasVersion(m_AtlasVersion);
     dbTagSvc->setInDetVersionOverride(m_InDetVersionOverride);
     dbTagSvc->setPixelVersionOverride(m_PixelVersionOverride);
@@ -660,19 +665,4 @@ StatusCode GeoModelSvc::clear()
   }
 
   return StatusCode::SUCCESS;
-}
-
-std::string GeoModelSvc::getParamSvcName() const
-{
-  if(m_sqliteDb.empty()) {
-    return std::string("RDBAccessSvc");
-  }
-  else {
-    return std::string("SqliteReadSvc");
-  }
-}
-
-bool GeoModelSvc::buildFromSQLite() const
-{
-  return (!m_sqliteDb.empty());
 }
