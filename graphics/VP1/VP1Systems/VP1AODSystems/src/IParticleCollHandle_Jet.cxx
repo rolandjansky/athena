@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -298,20 +298,22 @@ void IParticleCollHandle_Jet::setScale(const double& sca)
     messageVerbose("no jet handles defined! returning.");
     return;
   }
-
   if (m_d->scale == sca)
     return;
 
-  m_d->scale = std::max(1*SYSTEM_OF_UNITS::mm/(100*SYSTEM_OF_UNITS::GeV),
+  bool isEt = sca>0;
+  double tmpScale = std::max(1*SYSTEM_OF_UNITS::mm/(100*SYSTEM_OF_UNITS::GeV),
   std::min(99*SYSTEM_OF_UNITS::m/(1*SYSTEM_OF_UNITS::MeV),
   //						m_d->collSettingsButton->lengthOf100GeV() * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
-  sca * SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)));
+  std::fabs(sca) * SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)));
+
+  m_d->scale = isEt ? tmpScale : -tmpScale;
 
   if (!isLoaded())
     return;
 
   messageVerbose("Scale change: to "+str(m_d->scale/(SYSTEM_OF_UNITS::m/(100.0 * SYSTEM_OF_UNITS::GeV)))+" m/100GeV. Updating "+str(getHandlesList().count())+" jets");
-  std::cout << "Scale change: d->scale/(SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)))" <<  "m/100GeV. Updating " << getHandlesList().count() << " jets" << std::endl;
+  // std::cout << "Scale change: d->scale/(SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)))" <<  "m/100GeV. Updating " << getHandlesList().count() << " jets" << std::endl;
 
   largeChangesBegin();
   handleIterationBegin();
@@ -320,7 +322,7 @@ void IParticleCollHandle_Jet::setScale(const double& sca)
   {
     IParticleHandle_Jet* jet = dynamic_cast<IParticleHandle_Jet*>(handle);
     if (jet && jet->has3DObjects()) {
-      jet->setScale(m_d->scale);
+      jet->setScale(tmpScale, isEt);
       jet->updateHeight();
     } else {
       message("ERROR Handle of wrong type!");

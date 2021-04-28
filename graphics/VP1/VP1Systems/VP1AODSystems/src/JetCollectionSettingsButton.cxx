@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local
@@ -185,10 +185,13 @@ void JetCollectionSettingsButton::setMaterialText(const QString& t)
 }
 
 
+
 //____________________________________________________________________
 double JetCollectionSettingsButton::lengthOf100GeV()
 {
 	double val = m_d->ui_disp.doubleSpinBox_lengthOf100GeV->value();
+	bool isEt = m_d->ui_disp.comboBox_energytype->currentText()=="Et";
+	val = val * ( isEt ? 1:-1);
 	VP1Msg::messageVerbose("JetCollectionSettingsButton::lengthOf100GeV() - value: " + QString::number(val));
 	return val;
 }
@@ -295,6 +298,7 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int di
 
 	// -> scale
 	connect(m_d->ui_disp.doubleSpinBox_lengthOf100GeV,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_disp.comboBox_energytype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_scale()));
 
 	// -> cutAllowedP/Pt
 	connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
@@ -642,6 +646,7 @@ QByteArray JetCollectionSettingsButton::saveState() const{
 	// JET SETTINGS
 	serialise.save(m_d->ui_disp.checkBox_randomColours);
 	serialise.save(m_d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	serialise.save(m_d->ui_disp.comboBox_energytype);
 	serialise.save(m_d->ui_disp.checkBox_maxR);
 	serialise.save(m_d->ui_disp.doubleSpinBox_maxR);
 
@@ -691,6 +696,7 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 	// JET SETTINGS
 	state.restore(m_d->ui_disp.checkBox_randomColours);
 	state.restore(m_d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	state.restore(m_d->ui_disp.comboBox_energytype);
 	state.restore(m_d->ui_disp.checkBox_maxR);
 	state.restore(m_d->ui_disp.doubleSpinBox_maxR);
 
@@ -837,7 +843,6 @@ void JetCollectionSettingsButton::possibleChange_cutAllowedPhi()
 void JetCollectionSettingsButton::possibleChange_scale()
 {
 	messageVerbose("possibleChange_scale() ");
-
 	if (m_d->last_scale == lengthOf100GeV()) return;
 
 	messageVerbose("lengthOf100GeV changed");
