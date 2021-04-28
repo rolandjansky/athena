@@ -95,6 +95,12 @@ class doFlowElementValidation(JobProperty):
     allowedTypes= ['bool']
     StoredValue= False
 
+class useRun2_MC16_EOverP(JobProperty):
+    """ Flag to enable usage of Run2_MC16 E/p reference file """
+    statusOn=True
+    allowedTypes= ['bool']
+    StoredValue= False
+
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -105,7 +111,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFEGammaPFOAssoc,usePFlowFlowElementTauAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
+eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFEGammaPFOAssoc,usePFlowFlowElementTauAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation, useRun2_MC16_EOverP]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)
