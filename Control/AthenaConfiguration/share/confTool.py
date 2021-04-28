@@ -17,6 +17,8 @@ from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, basePar
 
 
 def parse_args():
+    print("Run with arguments:")
+    print( "confTool.py", " ".join(sys.argv[1:]))
     parser = baseParser
     parser.add_argument(
         "-p", "--printConf", action="store_true", help="Prints entire configuration"
