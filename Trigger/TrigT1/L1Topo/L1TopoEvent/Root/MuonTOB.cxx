@@ -1,13 +1,8 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/MuonTOB.h"
 
 thread_local TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
-
-const unsigned int TCS::MuonTOB::g_nBitsEt = 8;
-const unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
-const unsigned int TCS::MuonTOB::g_nBitsEta = 6;
-const unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
 
 TCS::MuonTOB::MuonTOB(uint32_t roiWord, std::string tobName) :
   BaseTOB( roiWord,tobName )
