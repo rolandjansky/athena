@@ -23,17 +23,20 @@ namespace MuonCombined {
         AthAlgTool(type, name, parent) {
         declareInterface<IMuonCombinedTool>(this);
     }
-
+   void MuonCombinedTool::fill_debugging ATLAS_THREAD_SAFE (const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const{
+       if (!m_runMuonCombinedDebugger) return;
+       m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
+   } 
     StatusCode MuonCombinedTool::initialize() {
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_muonCombinedTagTools.retrieve());
-
         // debug tree, only for running with 1 thread
+        if( Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads() != 1){
+            m_runMuonCombinedDebugger = false;
+        }
         if (m_runMuonCombinedDebugger) {
-            if (!Gaudi::Concurrency::ConcurrencyFlags::concurrent() || Gaudi::Concurrency::ConcurrencyFlags::numThreads() == 1) {
-                ATH_CHECK(m_muonCombDebugger.retrieve());
-                m_muonCombDebugger->bookBranches();
-            }
+            ATH_CHECK(m_muonCombDebugger.retrieve());
+            m_muonCombDebugger->bookBranches();            
         }
 
         return StatusCode::SUCCESS;
@@ -51,10 +54,7 @@ namespace MuonCombined {
         }
 
         // debug tree
-        if (m_runMuonCombinedDebugger && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-            m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
-        }
-
+        fill_debugging(muonCandidates, inDetCandidates);
         // loop over muon track particles
         for (const auto* muonCandidate : muonCandidates) {
             const Trk::Track& muonTrack =
