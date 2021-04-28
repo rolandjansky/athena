@@ -47,7 +47,6 @@ class StoreGateSvc;
 class ILArPedestal;
 class CaloDetDescrManager;
 class ILArBadChannelMasker;
-class ILArADC2MeVTool;
 class ILArShape;
 class ILArAutoCorr;
 class HWIdentifier;
