@@ -11,7 +11,7 @@ log = logging.getLogger('RunTrigCostAnalysis.py')
 
 
 # Configure Cost Analysis algorithm
-def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False, isMC=False, MCpayload={}):
+def trigCostAnalysisCfg(flags, args, isMC=False):
   from TrigCostAnalysis.ROSToROB import ROSToROBMap
   from Gaudi.Configuration import DEBUG
 
@@ -29,6 +29,7 @@ def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False, isMC=False, M
   enhancedBiasWeighter.UseBunchCrossingTool = False
   enhancedBiasWeighter.IsMC = isMC
   if isMC:
+    MCpayload = readMCpayload(args)
     enhancedBiasWeighter.MCCrossSection = MCpayload.get('MCCrossSection')
     enhancedBiasWeighter.MCFilterEfficiency = MCpayload.get('MCFilterEfficiency')
     enhancedBiasWeighter.MCKFactor = MCpayload.get('MCKFactor')
@@ -37,14 +38,15 @@ def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False, isMC=False, M
   trigCostAnalysis = CompFactory.TrigCostAnalysis()
   trigCostAnalysis.OutputLevel = DEBUG
   trigCostAnalysis.RootStreamName = "COSTSTREAM"
-  trigCostAnalysis.BaseEventWeight = baseWeight
+  trigCostAnalysis.BaseEventWeight = args.baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
   trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
-  trigCostAnalysis.UseEBWeights = useEBWeights
+  trigCostAnalysis.UseEBWeights = args.useEBWeights
   trigCostAnalysis.MaxFullEventDumps = 100
   trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
   trigCostAnalysis.UseSingleTimeRange = isMC
   trigCostAnalysis.ROSToROBMap = ROSToROBMap().get_mapping()
+  trigCostAnalysis.DoMonitorChainAlgorithm = args.monitorChainAlgorithm
 
   acc.addEventAlgo(trigCostAnalysis)
 
@@ -147,6 +149,7 @@ if __name__=='__main__':
   from argparse import ArgumentParser
   parser = ArgumentParser()
   parser.add_argument('--outputHist', type=str, default='TrigCostRoot_Results.root', help='Histogram output ROOT file')
+  parser.add_argument('--monitorChainAlgorithm', action='store_true', help='Turn on Chain Algorithm monitoring')
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
 
@@ -190,7 +193,7 @@ if __name__=='__main__':
   cfg.addService(histSvc)
 
   cfg.merge(hltConfigSvcCfg(ConfigFlags, args.smk, args.dbAlias))
-  cfg.merge(trigCostAnalysisCfg(ConfigFlags, args.baseWeight, args.useEBWeights, ConfigFlags.Input.isMC, readMCpayload(args)))
+  cfg.merge(trigCostAnalysisCfg(ConfigFlags, args, ConfigFlags.Input.isMC))
 
   # If you want to turn on more detailed messages ...
   # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
