@@ -16,10 +16,10 @@
  * @class TrigEgammaFastCaloHypoAlgMT
  * @brief Implements egamma calo selection for the new HLT framework
  **/
-class TrigEgammaForwardFastCaloHypoAlgMT : public ::HypoBase {
+class TrigEgammaForwardFastCaloHypoAlg : public ::HypoBase {
   public:
 
-    TrigEgammaForwardFastCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigEgammaForwardFastCaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
     virtual StatusCode  initialize() override;
     virtual StatusCode  execute( const EventContext& context ) const override;

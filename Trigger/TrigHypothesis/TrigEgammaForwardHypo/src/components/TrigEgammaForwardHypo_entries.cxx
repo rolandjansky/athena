@@ -1,7 +1,7 @@
-#include "../TrigEgammaForwardFastCaloHypoAlgMT.h"
+#include "../TrigEgammaForwardFastCaloHypoAlg.h"
 #include "../TrigEgammaForwardFastCaloHypoToolInc.h"
 
 
-DECLARE_COMPONENT( TrigEgammaForwardFastCaloHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaForwardFastCaloHypoAlg )
 DECLARE_COMPONENT( TrigEgammaForwardFastCaloHypoToolInc )
 
