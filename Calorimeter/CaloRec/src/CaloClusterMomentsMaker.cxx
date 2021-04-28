@@ -41,8 +41,11 @@
 #include <sstream>
 
 #include <map>
+#include <vector>
+#include <tuple>
 #include <string>
 #include <cstdio>
+#include <cmath>
 
 using CLHEP::deg;
 using CLHEP::cm;
@@ -88,7 +91,8 @@ namespace {
     { "SECOND_R",          xAOD::CaloCluster::SECOND_R },
     { "SECOND_TIME",       xAOD::CaloCluster::SECOND_TIME },
     { "SIGNIFICANCE",      xAOD::CaloCluster::SIGNIFICANCE },
-    { "EM_PROBABILITY",    xAOD::CaloCluster::EM_PROBABILITY }
+    { "EM_PROBABILITY",    xAOD::CaloCluster::EM_PROBABILITY },
+    { "NCELL_SAMPLING",    xAOD::CaloCluster::NCELL_SAMPLING }
   };
   // enum -> name translator
   std::map<xAOD::CaloCluster::MomentType,std::string> momentEnumToNameMap = { 
@@ -128,7 +132,8 @@ namespace {
     { xAOD::CaloCluster::SECOND_R,           "SECOND_R"         },
     { xAOD::CaloCluster::SECOND_TIME,        "SECOND_TIME"      },
     { xAOD::CaloCluster::SIGNIFICANCE,       "SIGNIFICANCE"     },
-    { xAOD::CaloCluster::EM_PROBABILITY,     "EM_PROBABILITY"   }
+    { xAOD::CaloCluster::EM_PROBABILITY,     "EM_PROBABILITY"   },
+    { xAOD::CaloCluster::NCELL_SAMPLING,     "NCELL_SAMPLING"   }
   };
 }
 
@@ -170,6 +175,8 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
   // Use weighting of neg. clusters option?
   declareProperty("WeightingOfNegClusters", m_absOpt);
+  // Set eta boundary for transition from outer to inner wheel in EME2
+  declareProperty("EMECAbsEtaWheelTransition",m_etaInnerWheel);
 }
 
 //###############################################################################
@@ -179,6 +186,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   // loop list of requested moments
   std::string::size_type nstr(0); int nmom(0); 
   for ( const auto& mom : m_momentsNames ) {
+    ATH_MSG_INFO( "Moment " << mom << " requested" );
     // check if moment is known (enumerator available)
     auto fmap(momentNameToEnumMap.find(mom)); 
     if ( fmap != momentNameToEnumMap.end() ) {
@@ -189,6 +197,13 @@ StatusCode CaloClusterMomentsMaker::initialize()
 	// calculated in this tool! Do not add to internal (!) valid moments list. 
 	// Its value is available from xAOD::CaloCluster::secondTime()!
 	m_secondTime = true;
+      } else if ( fmap->second == xAOD::CaloCluster::NCELL_SAMPLING ) {
+	// flag indicates if number of cells in a sampling should be counted. 
+	// This is a vector of integers counts that is filled in this tool but does 
+	// not need any post-processing (e.g. normalization). It is not 
+	// added to the valid moments list for this reason.
+	ATH_MSG_INFO( "moment " << fmap->first << " found");  
+	m_nCellsPerSampling = true; 
       } else if ( fmap->second == xAOD::CaloCluster::EM_PROBABILITY ) {
 	ATH_MSG_WARNING( mom << " not calculated in this tool - misconfiguration?" );
       } else {  
@@ -205,6 +220,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
 	  break;
 	case xAOD::CaloCluster::ENG_BAD_HV_CELLS:
 	  m_calculateLArHVFraction = true;
+	  break;
 	default:
 	  break;
 	} // set special processing flags
@@ -218,7 +234,13 @@ StatusCode CaloClusterMomentsMaker::initialize()
       for ( auto fmom : momentNameToEnumMap ) { 
 	sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)lstr,(int)lstr,fmom.first.c_str(),(int)fmom.second); 
 	ATH_MSG_INFO(buffer);
-      } 
+      }
+      auto fmom(momentNameToEnumMap.find("SECOND_TIME"));
+      sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)nstr,(int)nstr,fmom->first.c_str(),(int)fmom->second);
+      ATH_MSG_INFO( buffer );
+      fmom = momentNameToEnumMap.find("NCELL_SAMPLING");
+      sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)nstr,(int)nstr,fmom->first.c_str(),(int)fmom->second);
+      ATH_MSG_INFO( buffer );
       return StatusCode::FAILURE;
     } // found unknown moment name
   } // loop configured moment names
@@ -237,6 +259,11 @@ StatusCode CaloClusterMomentsMaker::initialize()
   if ( m_secondTime ) { 
     auto fmom(momentNameToEnumMap.find("SECOND_TIME"));
     sprintf(buffer,"moment name: %-*.*s - enumerator: %i (save only)",(int)nstr,(int)nstr,fmom->first.c_str(),(int)fmom->second);
+    ATH_MSG_INFO( buffer );
+  }
+  if ( m_nCellsPerSampling ) { 
+    auto fmom(momentNameToEnumMap.find("NCELL_SAMPLING"));
+    sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)nstr,(int)nstr,fmom->first.c_str(),(int)fmom->second);
     ATH_MSG_INFO( buffer );
   }
 
@@ -351,6 +378,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
   std::vector<double> maxSampE (CaloCell_ID::Unknown);
   std::vector<double> myMoments(m_validMoments.size(),0);
   std::vector<double> myNorms(m_validMoments.size(),0);
+  std::vector<std::tuple<int,int> > nCellsSamp; nCellsSamp.reserve(CaloCell_ID::Unknown);
   std::vector<IdentifierHash> theNeighbors;
   // loop over individual clusters
   xAOD::CaloClusterContainer::iterator clusIter = theClusColl->begin();
@@ -472,48 +500,59 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	  }
 	}
 
-	if ( myCDDE && ene > 0. && weight > 0) {
-	  // get all geometric information needed ...
-          CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[ncell];
-	  ci.x      = myCDDE->x();
-	  ci.y      = myCDDE->y();
-	  ci.z      = myCDDE->z();
-	  ci.eta    = myCDDE->eta();
-	  ci.phi    = myCDDE->phi();
-	  ci.energy = ene*weight;
-	  ci.volume = myCDDE->volume();
-	  ci.sample = myCDDE->getSampling();
-	  if ( ci.energy > maxSampE[(unsigned int)ci.sample] )
-	    maxSampE[(unsigned int)ci.sample] = ci.energy;
+	if ( myCDDE != nullptr ) { 
+	  if ( m_nCellsPerSampling ) { 
+	    CaloCell_ID::CaloSample sam = myCDDE->getSampling();
+	    size_t idx((size_t)sam);
+	    if ( idx >= nCellsSamp.size() ) { nCellsSamp.resize(idx+1, { 0, 0 } ); }
+	    std::get<0>(nCellsSamp[idx])++;
+	    // special count for inner wheel cells in EME2
+	    if ( sam == CaloCell_ID::EME2 && std::abs(myCDDE->eta()) > m_etaInnerWheel ) { std::get<1>(nCellsSamp[idx])++; }
+	  }
+	  if ( ene > 0. && weight > 0) {
+	    // get all geometric information needed ...
+	    CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[ncell];
+	    ci.x      = myCDDE->x();
+	    ci.y      = myCDDE->y();
+	    ci.z      = myCDDE->z();
+	    ci.eta    = myCDDE->eta();
+	    ci.phi    = myCDDE->phi();
+	    ci.energy = ene*weight;
+	    ci.volume = myCDDE->volume();
+	    ci.sample = myCDDE->getSampling();
+
+	    if ( ci.energy > maxSampE[(unsigned int)ci.sample] )
+	      maxSampE[(unsigned int)ci.sample] = ci.energy;
+	    
+	    if (iCellMax < 0 || ci.energy > cellinfo[iCellMax].energy ) {
+	      iCellScndMax = iCellMax;
+	      iCellMax = ncell;
+	    }
+	    else if (iCellScndMax < 0 ||
+		     ci.energy > cellinfo[iCellScndMax].energy )
+	      {
+		iCellScndMax = ncell;
+	      }
 	  
-	  if (iCellMax < 0 || ci.energy > cellinfo[iCellMax].energy ) {
-	    iCellScndMax = iCellMax;
-	    iCellMax = ncell;
-	  }
-	  else if (iCellScndMax < 0 ||
-                   ci.energy > cellinfo[iCellScndMax].energy )
-          {
-	    iCellScndMax = ncell;
-	  }
-	  
-	  xc += ci.energy*ci.x;
-	  yc += ci.energy*ci.y;
-	  zc += ci.energy*ci.z;
+	    xc += ci.energy*ci.x;
+	    yc += ci.energy*ci.y;
+	    zc += ci.energy*ci.z;
 
-	  double dir = ci.x*ci.x+ci.y*ci.y+ci.z*ci.z;
-
-          if ( dir > 0) {
-	    dir = sqrt(dir);
-	    dir = 1./dir;
-	  }
-	  mx += ci.energy*ci.x*dir;
-	  my += ci.energy*ci.y*dir;
-	  mz += ci.energy*ci.z*dir;
-
-	  w  += ci.energy;
-	 
-	  ncell++;
-	}
+	    double dir = ci.x*ci.x+ci.y*ci.y+ci.z*ci.z;
+	    
+	    if ( dir > 0) {
+	      dir = sqrt(dir);
+	      dir = 1./dir;
+	    }
+	    mx += ci.energy*ci.x*dir;
+	    my += ci.energy*ci.y*dir;
+	    mz += ci.energy*ci.z*dir;
+	    
+	    w  += ci.energy;
+	    
+	    ncell++;
+	  } // cell has E>0 and weight != 0
+	} // cell has valid DDE
       } //end of loop over all cells
       if (m_calculateLArHVFraction) {
 	const auto hvFrac=m_larHVFraction->getLArHVFrac(theCluster->getCellLinks(),ctx);
@@ -924,6 +963,16 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
     } // check on requested moments
     // check on second moment of time if requested
     if ( m_secondTime ) { theCluster->insertMoment(xAOD::CaloCluster::SECOND_TIME,theCluster->secondTime()); }
+    // check on number of cells per sampling moment if requested
+    if ( m_nCellsPerSampling ) {
+      for ( size_t isam(0); isam < nCellsSamp.size(); ++isam ) { 
+	theCluster->setNumberCellsInSampling((CaloCell_ID::CaloSample)isam,std::get<0>(nCellsSamp.at(isam)),false);
+	if ( isam == (size_t)CaloCell_ID::EME2 && std::get<1>(nCellsSamp.at(isam)) > 0 ) { 
+	  theCluster->setNumberCellsInSampling((CaloCell_ID::CaloSample)isam,std::get<1>(nCellsSamp.at(isam)),true); 
+	}
+      } // loop on samplings
+      nCellsSamp.clear();
+    }
   } // loop on clusters
 
   return StatusCode::SUCCESS;
