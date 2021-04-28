@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// ICscClusterBuilder.h
-
 #ifndef ICscClusterBuilder_H
 #define ICscClusterBuilder_H
 
@@ -19,32 +16,26 @@
 // name. It is intended that this list be used to tune the tool
 // and provide measures of data quality.
 
-#include <vector>
 #include <map>
+#include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
+#include "Identifier/IdentifierHash.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
-//#include "CscClusterization/ICscStripBuilder.h"
-
-namespace Muon {
-  class CscStripPrepData;
-}
-
-/** Must declare this, with name of interface*/
-static const InterfaceID IID_ICscClusterBuilder("ICscClusterBuilder", 1, 0);
+#include "MuonPrepRawData/CscPrepDataContainer.h"
 
 class ICscClusterBuilder : virtual public IAlgTool {
-  
 public:  // Static methods
-  
-  // Return the interface ID.
-  static const InterfaceID& interfaceID() { return IID_ICscClusterBuilder; }
-  
-public:  // Interface methods
-  
-  virtual StatusCode getClusters(std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object)=0;
+    // Return the interface ID.
+    static const InterfaceID& interfaceID() {
+        /** Must declare this, with name of interface*/
+        static const InterfaceID IID_ICscClusterBuilder("ICscClusterBuilder", 1, 0);
+        return IID_ICscClusterBuilder;
+    }
+
+    virtual StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect,
+                                   Muon::CscPrepDataContainer* object) = 0;
+
+    virtual ~ICscClusterBuilder() = default;
 };
 #endif
-
-
-
-
