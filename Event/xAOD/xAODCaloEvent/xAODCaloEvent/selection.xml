@@ -3,10 +3,10 @@
 
    <!-- xAOD::CaloCluster interface type(s). -->
    <class name="xAOD::CaloCluster_v1" >
-      <field name="m_signalState"  transient="true" />
-      <field name="m_cellLinks"    transient="true" />
-      <field name="m_recoStatus"   transient="true" />
-      <field name="m_secondTime"   transient="true" />
+      <field name="m_signalState"       transient="true" />
+      <field name="m_cellLinks"         transient="true" />
+      <field name="m_recoStatus"        transient="true" />
+      <field name="m_secondTime"        transient="true" />
    </class>
    <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
          targetClass="xAOD::CaloCluster_v1" source="" target="m_signalState" >
