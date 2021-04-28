@@ -160,7 +160,8 @@ class transformExecutor(object):
         self._eventCount = None
         self._athenaMP = None
         self._dbMonitor = None
-        
+        self._resimevents = None
+
         # Holder for execution information about any merges done by this executor in MP mode
         self._myMerger = []
 
@@ -398,6 +399,10 @@ class transformExecutor(object):
     @property
     def eventCount(self):
         return self._eventCount
+
+    @property
+    def reSimEvent(self):
+        return self._resimevents
 
     @property
     def athenaMP(self):
@@ -1056,7 +1061,7 @@ class athenaExecutor(scriptExecutor):
         # and use it to extract required info and do the summation during log scan.
         if self._logFileName=='log.ReSim' and self.name=='ReSim':
             msg.info('scanning {0} for reporting events passed the filter ISF_SimEventFilter'.format(self._logFileName))
-            reportEventsPassedSimFilter(self._logFileName)
+            self._resimevents = reportEventsPassedSimFilter(self._logFileName)
 
 
     def validate(self):
