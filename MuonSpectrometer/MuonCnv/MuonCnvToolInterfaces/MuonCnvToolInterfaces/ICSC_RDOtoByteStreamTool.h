@@ -30,7 +30,7 @@ public:
   /** for the old cosmic data before the ROB id=ROD id fix */
   virtual bool isOldCosmic () const =0;
 
-  virtual StatusCode convert(const CscRawDataContainer* cont, RawEventWrite* re, MsgStream& log) const = 0;
+  virtual StatusCode convert(const CscRawDataContainer* cont, MsgStream& log) const = 0;
 };
 }
 

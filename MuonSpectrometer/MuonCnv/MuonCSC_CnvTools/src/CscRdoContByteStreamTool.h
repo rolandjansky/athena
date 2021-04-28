@@ -45,7 +45,7 @@ namespace Muon {
     /** for the old cosmic data before the ROB id=ROD id fix */
     virtual bool isOldCosmic () const override { return m_isOldCosmic; }
     
-    virtual StatusCode convert(const CscRawDataContainer* cont, RawEventWrite* re, MsgStream& log) const override;
+    virtual StatusCode convert(const CscRawDataContainer* cont, MsgStream& log) const override;
     
   private: 
     CSC_Hid2RESrcID m_hid2re;
