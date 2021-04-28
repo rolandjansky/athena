@@ -1706,6 +1706,24 @@ HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI:
     2: 4
     3: 4
     4: 3
+HLT_e26_lhtight_ivarloose_2j20_pf_ftf_boffperf_L1EM22VHI:
+  eventCount: 3
+  stepCounts:
+    0: 5
+    1: 4
+    2: 4
+    3: 4
+    4: 3
+    5: 3
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 4
+    3: 4
+    4: 3
+    5: 3
+    6: 24
+    7: 24
 HLT_e26_lhtight_ivarloose_L1EM22VHI:
   eventCount: 3
   stepCounts:
@@ -1720,6 +1738,26 @@ HLT_e26_lhtight_ivarloose_L1EM22VHI:
     2: 4
     3: 4
     4: 3
+HLT_e26_lhtight_ivarloose_mu22noL1_2j20_pf_ftf_boffperf_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 4
+    2: 4
+    3: 4
+    4: 3
+    5: 3
+    6: 3
+    7: 3
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 4
+    3: 4
+    4: 3
+    5: 3
+    6: 24
+    7: 24
 HLT_e26_lhtight_ivarmedium_L1EM22VHI:
   eventCount: 3
   stepCounts:
@@ -4593,6 +4631,24 @@ HLT_mu26_L1MU20:
     1: 7
     2: 6
     3: 5
+HLT_mu26_ivarmedium_2j20_pf_ftf_boffperf_L1MU20:
+  eventCount: 3
+  stepCounts:
+    0: 8
+    1: 6
+    2: 5
+    3: 4
+    4: 3
+    5: 3
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 6
+    3: 5
+    4: 3
+    5: 3
+    6: 37
+    7: 37
 HLT_mu26_ivarmedium_L1MU20:
   eventCount: 3
   stepCounts:
