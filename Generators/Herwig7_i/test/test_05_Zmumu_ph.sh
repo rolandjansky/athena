@@ -10,7 +10,7 @@
 # art-output: dcube
 # art-html: dcube
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --jobConfig=600433 --outputTXTFile=test_05_Zmumu.TXT.tar.gz 
+Gen_tf.py --ecmEnergy=13000. --maxEvents=1000 --firstEvent=-1 --randomSeed=123456 --jobConfig=600433 --outputTXTFile=test_05_Zmumu.TXT.tar.gz 
 
 echo "art-result:$? Gen_tf"
 
