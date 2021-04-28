@@ -108,12 +108,16 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
         l1Phase1TopoSimDataSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
         l1LegacyTopoSimDataSeq.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
         l1LegacyTopoSimDataSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+        l1Phase1TopoSimDataSeq.MuonInputProvider.MuonROILocation = ""
+        l1LegacyTopoSimDataSeq.MuonInputProvider.MuonROILocation = ""
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
         ToolSvc += L1MuctpiTool("L1MuctpiTool")
         ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
         l1Phase1TopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
         l1LegacyTopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+        l1Phase1TopoSimDataSeq.MuonInputProvider.locationMuCTPItoL1Topo = ""
+        l1LegacyTopoSimDataSeq.MuonInputProvider.locationMuCTPItoL1Topo = ""             
 
     # TODO: check that this is still needed with the Phase1 MuCTPi
     # enable the reduced (coarse) granularity topo simulation
@@ -300,12 +304,16 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         l1Phase1TopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
         l1LegacyTopoSim.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
         l1LegacyTopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+        l1Phase1TopoSim.MuonInputProvider.MuonROILocation = ""
+        l1LegacyTopoSim.MuonInputProvider.MuonROILocation = ""
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
         ToolSvc += L1MuctpiTool("L1MuctpiTool")
         ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
         l1Phase1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
         l1LegacyTopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+        l1Phase1TopoSim.MuonInputProvider.locationMuCTPItoL1Topo = ""
+        l1LegacyTopoSim.MuonInputProvider.locationMuCTPItoL1Topo = ""
          
     # TODO: check that this is still needed with the Phase1 MuCTPi
     # enable the reduced (coarse) granularity topo simulation
