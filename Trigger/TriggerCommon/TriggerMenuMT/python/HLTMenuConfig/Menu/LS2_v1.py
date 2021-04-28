@@ -129,6 +129,13 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_lrtmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_lrttight_L1EM3', groups=SingleElectronGroup),
 
+        ChainProp(name='HLT_e26_lhloose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhmedium_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
+
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VHI',  groups=SingleElectronGroup),
