@@ -845,7 +845,11 @@ HLT_e26_lhtight_gsf_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI:
   eventCount: 0
+HLT_e26_lhtight_ivarloose_2j20_pf_ftf_boffperf_L1EM22VHI:
+  eventCount: 0
 HLT_e26_lhtight_ivarloose_L1EM22VHI:
+  eventCount: 0
+HLT_e26_lhtight_ivarloose_mu22noL1_2j20_pf_ftf_boffperf_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_ivarmedium_L1EM22VHI:
   eventCount: 0
@@ -2683,6 +2687,14 @@ HLT_mu24_mu8noL1_L1MU20:
     0: 1
     1: 1
 HLT_mu26_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_mu26_ivarmedium_2j20_pf_ftf_boffperf_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1

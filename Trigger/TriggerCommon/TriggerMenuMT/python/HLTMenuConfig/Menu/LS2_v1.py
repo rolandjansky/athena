@@ -17,6 +17,7 @@ import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, SingleMuonGroup, MultiMuonGroup, SingleElectronGroup,
                                                                 MultiElectronGroup, SinglePhotonGroup, MultiPhotonGroup, SingleMETGroup, 
                                                                 MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
+                                                                EgammaBjetGroup, MuonBjetGroup,
                                                                 SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
                                                                 MuonJetGroup, TauMETGroup, MuonMETGroup, EgammaJetGroup,
                                                                 JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup, PrimaryL1MuGroup,
@@ -491,6 +492,7 @@ def setupMenu():
         ChainProp(name="HLT_2j35_pf_ftf_bdl1r60_split_3j35_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
         ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_split_3j45_pf_ftf_0eta320_L15J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiBjetGroup),
 
+
         # dl1r WP does not exist -> use tightest available threshold (60% WP)
         # the commented chains are left to document the source of the
         # new chains
@@ -743,6 +745,12 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_3j25_pf_ftf_L1EM30VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
         ChainProp(name='HLT_g35_tight_3j25_pf_ftf_boffperf_L1EM30VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
         ChainProp(name='HLT_g35_tight_3j25_pf_subresjesgscIS_ftf_L1EM30VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
+
+        # Tests for b-jet trigger calibration chains
+        ChainProp(name='HLT_e26_lhtight_ivarloose_2j20_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaBjetGroup),
+        ChainProp(name='HLT_mu26_ivarmedium_2j20_pf_ftf_boffperf_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MuonBjetGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_2j20_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], groups=EgammaBjetGroup),
+
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
