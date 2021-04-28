@@ -237,15 +237,15 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
 
     if flags.Detector.GeometryMuon:
       # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
-      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = namePrefix+'MuonStationTypeBuilder'+nameSuffix)
+      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
       result.addPublicTool(muonStationTypeBuilder)
 
-      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilder
+      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilderCond
       muonStationBuilder= Muon__MuonStationBuilder(name = namePrefix+'MuonStationBuilder'+nameSuffix)
       muonStationBuilder.StationTypeBuilder = muonStationTypeBuilder
       result.addPublicTool(muonStationBuilder)
 
-      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilder
+      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilderCond
       muonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = namePrefix+'MuonInertMaterialBuilder'+nameSuffix)
       result.addPublicTool(muonInertMaterialBuilder)
 
