@@ -47,8 +47,8 @@ def fastElectronSequence_LRT(ConfigFlags):
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
     roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron_LRT")
-    roiTool.RoIEtaWidth = 0.05
-    roiTool.RoIPhiWidth = 0.10
+    roiTool.RoIEtaWidth = 0.1
+    roiTool.RoIPhiWidth = 0.40
     l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews_LRT"
@@ -62,15 +62,19 @@ def fastElectronSequence_LRT(ConfigFlags):
     electronAthSequence = seqAND("electronAthSequence_LRT", [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker)
    
-def fastElectronMenuSequence_LRT():
+def fastElectronMenuSequence_LRT(do_idperf):
     """ Creates 2nd step Electron  MENU sequence"""
     # retrieve the reco sequence+IM
     (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(fastElectronSequence_LRT, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
-    theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_LRT")
-    theElectronHypo.Electrons = "HLT_FastElectrons_LRT"
+    if do_idperf is True:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_idperf_LRT")
+        theElectronHypo.Electrons = "HLT_FastDummyElectrons"
+    else:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_LRT")
+        theElectronHypo.Electrons = "HLT_FastElectrons_LRT"
 
     theElectronHypo.RunInView=True
 
