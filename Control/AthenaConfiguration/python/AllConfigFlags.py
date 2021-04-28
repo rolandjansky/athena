@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -219,6 +219,11 @@ def _createCfgFlags():
         from METReconstruction.METConfigFlags import createMETConfigFlags
         return createMETConfigFlags()
     _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
+
+    def __tau():
+        from tauRec.TauConfigFlags import createTauConfigFlags
+        return createTauConfigFlags()
+    _addFlagsCategory(acf, "Tau",__tau, 'tauRec')
 
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags
