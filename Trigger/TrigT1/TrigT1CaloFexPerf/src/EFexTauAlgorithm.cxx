@@ -9,6 +9,7 @@
 
 #include "EFexTauAlgorithm.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <string>
 #include "TH2F.h"
 #include "TVector2.h"
@@ -198,7 +199,6 @@ LVL1::EFexTauAlgorithm::execute()
       currentEta = scell->eta();
       currentPhi = TVector2::Phi_0_2pi(scell->phi());
       currentCellEt = CaloCellET(scell, m_nominalDigitization, m_nominalNoise_thresh);
-
       // Store maps per layer
       if (currentSampling == 0 || currentSampling == 4)
       {
@@ -228,27 +228,42 @@ LVL1::EFexTauAlgorithm::execute()
    }
 
    // Need to also loop over Run-I towers to get central region hadronic energy
-   for (const xAOD::TriggerTower *tt : *TTs)
-   {
-
-      // Only use towers within 1.5, and in Tile
-      if (tt->sampling() != 1 || std::abs(tt->eta()) > 1.5)
-      {
-         continue;
-      }
-
-      // Conversion into ET
-      float cpET = tt->cpET() * 500.; // EM energy scale: 1 unit corresponds to 500 MeV
-      if (cpET < 0.)
-      {
-         cpET = 0;
-      }
-
-      // Fill hadronic maps
-      supercellMapHAD.Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
-      supercellMapTWR.Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
+   
+   if(m_use_tileCells){
+     for(auto cell : tileCellCont){
+       currentSampling = cell->caloDDE()->getSampling();
+       currentEta = cell->eta();
+       currentPhi = TVector2::Phi_0_2pi(cell->phi());
+       currentCellEt = CaloCellET(cell, m_nominalDigitization, m_nominalNoise_thresh);
+       bool isTile = cell->caloDDE()->is_tile();
+       if(isTile){
+	 supercellMapHAD.Fill(currentEta, currentPhi, currentCellEt);
+	 supercellMapTWR.Fill(currentEta, currentPhi, currentCellEt);
+       }
+       
+     }
    }
+   else{
+     for (const xAOD::TriggerTower *tt : *TTs)
+       {
+	 // Only use towers within 1.5, and in Tile
+	 if (tt->sampling() != 1 || std::abs(tt->eta()) > 1.5)
+	   {
+	     continue;
+	   }
 
+	 // Conversion into ET
+	 float cpET = tt->cpET() * 500.; // EM energy scale: 1 unit corresponds to 500 MeV
+	 if (cpET < 0.)
+	   {
+	     cpET = 0;
+	   }
+	 
+	 // Fill hadronic maps
+	 supercellMapHAD.Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
+	 supercellMapTWR.Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
+       }// loop over TT
+   }// use TT
    // Find local maxima
    std::vector<TLorentzVector> localMaxima;
    localMaxima.reserve(200);
