@@ -283,24 +283,21 @@ def TrigTauRecMergedMTOnlyMVACfg(flags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
     # prepare tools 
-    # TODO this needs to be refactored to separate methods that configure tools + needed dependencies - alike TrigTauAlgorithmsHolder
-    # tools are private and do not need to specially named
-    # Only include tools needed for calo pre-selection
     tools = []
     # Set seedcalo energy scale (Full RoI)
     tools.append(CompFactory.JetSeedBuilder())
 
     # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
     tools.append(CompFactory.TauAxisSetter(ClusterCone = 0.2,
-                                           VertexCorrection = False ))
+                                           VertexCorrection = False))
     # Decorate the clusters
     tools.append(CompFactory.TauClusterFinder(JetVertexCorrection = False)) # TODO use JetRec.doVertexCorrection once available
 
-    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = 'AntiKt4LCTopoJets', #TODO use tauFlags.tauRecSeedJetCollection once available
+    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Tau.SeedJetCollection,
                                             VertexCorrection = False))
 
     # Calibrate to TES
-    tools.append(CompFactory.TauCalibrateLC(calibrationFile = 'TES2016_LC_online_inc.root', # TODO use tauFlags.tauRecCalibrateLCConfig() once avaialble
+    tools.append(CompFactory.TauCalibrateLC(calibrationFile = flags.Tau.CalibrateLCConfig,
                                             Key_vertexInputContainer = ""))
     # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
     from AthenaCommon.SystemOfUnits import GeV
@@ -311,7 +308,7 @@ def TrigTauRecMergedMTOnlyMVACfg(flags):
     tools.append(CompFactory.MvaTESVariableDecorator(Key_vertexInputContainer='',
                                                      EventShapeKey='',
                                                      VertexCorrection = False))
-    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')) #TODO use tauFlags.tauRecMvaTESConfig() once available
+    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = flags.Tau.MvaTESConfig))
 
     for tool in tools:
         tool.inTrigger = True
