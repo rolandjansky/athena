@@ -3289,6 +3289,8 @@ HLT_j420_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15:
     0: 4
   stepFeatures:
     0: 4
+HLT_j420_a10t_lcw_jes_35smcINF_L1J100:
+  eventCount: 0
 HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
 HLT_j420_pf_ftf_preselj20_L1J100:
@@ -3601,8 +3603,6 @@ HLT_j460_a10sd_pf_nojcalib_ftf_L1J100:
     0: 3
   stepFeatures:
     0: 3
-HLT_j460_a10t_lcw_jes_30smcINF_L1J100:
-  eventCount: 0
 HLT_j460_a10t_lcw_jes_L1J100:
   eventCount: 0
 HLT_j460_a10t_lcw_jes_L1SC111-CJ15:
@@ -5845,12 +5845,6 @@ HLT_tau80_mediumRNN_tracktwo_tau60_mediumRNN_tracktwo_03dRAB_L1TAU60_2TAU40:
     2: 7
 HLT_timeburner_L1All:
   eventCount: 0
-HLT_unconvtrk0_fslrt_L1XE50:
-  eventCount: 9
-  stepCounts:
-    0: 9
-  stepFeatures:
-    0: 9
 HLT_unconvtrk50_isohpttrack_L1XE50:
   eventCount: 1
   stepCounts:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_ICALOTOPOTOWERBUILDERTOOLBASE_H
@@ -49,8 +49,6 @@ class ICaloTopoTowerBuilderToolBase : virtual public IAlgTool
   virtual StatusCode initializeTool() = 0;
 
   virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) = 0;
-  // virtual void setSelectrionCriteria( double minimumCellEnergy, double minimumClusterEnergy, bool   useCellWeights)=0;
-  //virtual void setNoiseCriteria(bool m_useNoiseTool, bool m_usePileUpNoise, float m_noiseSigma, float m_cellESignificanceThreshold)=0;
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
 

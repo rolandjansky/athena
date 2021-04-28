@@ -13,19 +13,19 @@ Track::isValid() const
 inline const FitQuality*
 Track::fitQuality() const
 {
-  return m_fitQuality;
+  return m_fitQuality.get();
 }
 
 inline const DataVector<const TrackStateOnSurface>*
 Track::trackStateOnSurfaces() const
 {
-  return m_trackStateVector;
+  return m_trackStateVector.get();
 }
 
 inline DataVector<const TrackStateOnSurface>*
 Track::trackStateOnSurfaces()
 {
-  return m_trackStateVector;
+  return m_trackStateVector.get();
 }
 
 inline const TrackInfo&

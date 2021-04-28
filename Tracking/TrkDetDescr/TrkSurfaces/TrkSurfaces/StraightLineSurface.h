@@ -65,11 +65,16 @@ public:
   /**Destructor*/
   virtual ~StraightLineSurface() = default;
 
-  /**Constructor from HepTransform (boundless surface)*/
+
+  /**Constructor from Amg Transform ref (boundless surface)*/
+  StraightLineSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor from Amg Transform by unique_ptr (boundless surface)*/
+  StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
+
+  /**Constructor from Amg Transform ptr prefer ref (boundless surface)*/
   StraightLineSurface(Amg::Transform3D* htrans);
 
-  /**Constructor from HepTransform by unique_ptr (boundless surface)*/
-  StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /**Constructor from HepTransform and bounds*/
   StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez);

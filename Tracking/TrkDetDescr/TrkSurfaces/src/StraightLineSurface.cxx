@@ -27,7 +27,7 @@ Trk::StraightLineSurface::StraightLineSurface()
 {}
 
 // constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
+Trk::StraightLineSurface::StraightLineSurface(const Amg::Transform3D& htrans)
   : Surface(htrans)
   , m_lineDirection{}
   , m_bounds(nullptr)
@@ -36,6 +36,14 @@ Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Surface(std::move(htrans))
+  , m_lineDirection{}
+  , m_bounds(nullptr)
+{}
+
+
+// constructors by arguments: boundless surface
+Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
+  : Surface(htrans)
   , m_lineDirection{}
   , m_bounds(nullptr)
 {}
