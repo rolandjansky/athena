@@ -55,25 +55,23 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CscClusterization/ICscClusterBuilder.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "CscClusterization/ICscClusterBuilder.h"
 
 namespace Muon {
-class CscPrepData;
-class CscStripPrepData;
+    class CscPrepData;
+    class CscStripPrepData;
 }  // namespace Muon
 typedef Muon::CscPrepData MyCscDigit;
 class CscDigit;
 
-
 class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public AthAlgTool {
-
-  public:  // methods
+public:  // methods
     // Constructor.
     CscPeakThresholdClusterBuilderTool(const std::string& type, const std::string& aname, const IInterface*);
 
@@ -84,34 +82,33 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
      */
     //  static const InterfaceID& interfaceID( ) ;
 
-
     // Initialization.
     StatusCode initialize();
 
     // Event processing.
-    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object);
+    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect,
+                           Muon::CscPrepDataContainer* object);
 
     // Finalization.
     StatusCode finalize();
 
-  private:  // Private methods.
+private:  // Private methods.
     // Cluster a cathode plane.
     //  int make_clusters(bool dump, int maxstrip, double pitch,
     //                    const std::vector<MyCscDigit*>& idstrip, const std::vector<double>& qstrip);
     //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
-    int        make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,
-                             Muon::CscPrepDataCollection*& collection);
-    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
-    StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
+    int make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips, Muon::CscPrepDataCollection*& collection);
+    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer* pclusters);
+    StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer* pclusters);
 
-  private:  // data
+private:  // data
     // Properties.
-    double m_qpeak_threshold_eta;  // Charge qpeak threshold to include strip in cluster
-    double m_qpeak_threshold_phi;  // Charge qpeak threshold to include strip in cluster
-    double m_q3sum_threshold_eta;  // Charge qleft+qpeak+qright threshold to include strip in cluster
-    double m_q3sum_threshold_phi;  // Charge qleft+qpeak+qright threshold to include strip in cluster
-    SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;       // SG key for input digits
-    SG::WriteHandle<Muon::CscPrepDataContainer>        m_cluster_handle;  // SG key for output clusters
+    double m_qpeak_threshold_eta;                                    // Charge qpeak threshold to include strip in cluster
+    double m_qpeak_threshold_phi;                                    // Charge qpeak threshold to include strip in cluster
+    double m_q3sum_threshold_eta;                                    // Charge qleft+qpeak+qright threshold to include strip in cluster
+    double m_q3sum_threshold_phi;                                    // Charge qleft+qpeak+qright threshold to include strip in cluster
+    SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;  // SG key for input digits
+    SG::WriteHandle<Muon::CscPrepDataContainer> m_cluster_handle;    // SG key for output clusters
 
     // Strip fitter.
     ToolHandle<ICscStripFitter> m_pstrip_fitter{

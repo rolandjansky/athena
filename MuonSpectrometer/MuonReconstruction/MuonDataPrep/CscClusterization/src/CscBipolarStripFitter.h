@@ -21,24 +21,22 @@
 class ICscCalibTool;
 class CscIdHelper;
 namespace Muon {
-class CscStripPrepData;
+    class CscStripPrepData;
 }
 
-
 class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool {
-
-  public:  // Ctors and dtor.
+public:  // Ctors and dtor.
     // Constructor.
-    CscBipolarStripFitter(const std::string&, const std::string&, const IInterface*);
+    CscBipolarStripFitter(const std::string &, const std::string &, const IInterface *);
 
     // Destructor.
-    ~CscBipolarStripFitter()=default;
+    ~CscBipolarStripFitter() = default;
 
-  public:  // AlgTool methods
+public:  // AlgTool methods
     // Initialization.
     StatusCode initialize();
 
-  public:  // Interface methods
+public:  // Interface methods
     // Tell compiler not to hide other fit methods.
     using ICscStripFitter::fit;
 
@@ -46,8 +44,8 @@ class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool 
     // If that fit fails, the peak channel is used.
     Result fit(const ChargeList &charges, double samplingTime, Identifier &stripId) const;
 
-  private:
-    const CscIdHelper *                m_phelper;
+private:
+    const CscIdHelper *m_phelper;
 
     // Calibration tool.
     ToolHandle<ICscCalibTool> m_cscCalibTool{
@@ -58,11 +56,11 @@ class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool 
 
     double FindInitValues(double *x, double *initValues, int *maxsample) const;
     double FindPow(double z) const;
-    void   InvertMatrix(double matrix[][3], const int dim, int *) const;
-    void   InvertSymmetric4x4(double W[][4]) const;
-    void   Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, int *meas) const;
-    int    TheFitter(double *x, const double ex, double *initValues, int imeas, int *meas, int ipar, int *par,
-                     double *chi2, double *result) const;
+    void InvertMatrix(double matrix[][3], const int dim, int *) const;
+    void InvertSymmetric4x4(double W[][4]) const;
+    void Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, int *meas) const;
+    int TheFitter(double *x, const double ex, double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
+                  double *result) const;
 
     // Job options.
     double m_qerr;       // Charge error for a successful fit.
