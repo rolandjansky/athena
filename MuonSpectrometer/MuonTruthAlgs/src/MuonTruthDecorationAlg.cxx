@@ -400,7 +400,7 @@ namespace Muon {
         epz=-99999.;
 
         std::unique_ptr<const Trk::TrackParameters> exPars { m_extrapolator->extrapolateToVolume(ctx,pars,*volume,Trk::alongMomentum,Trk::muon)};
-        if( exPars ){
+        if( exPars && exPars->covariance() && Amg::valid_cov(*exPars->covariance())){
           ex = exPars->position().x();
           ey = exPars->position().y();
           ez = exPars->position().z();
@@ -408,11 +408,9 @@ namespace Muon {
           epy = exPars->momentum().y();
           epz = exPars->momentum().z();
           double errorp = 1.;
-          if( exPars->covariance() ) {
-            Amg::compress(*exPars->covariance(),covMat);
-            double p = exPars->momentum().mag();
-            errorp = sqrt((*exPars->covariance())(Trk::qOverP,Trk::qOverP))*p*p;
-          }
+          Amg::compress(*exPars->covariance(),covMat);
+          double p = exPars->momentum().mag();
+          errorp = std::sqrt((*exPars->covariance())(Trk::qOverP,Trk::qOverP))*p*p;
           ATH_MSG_VERBOSE(" Extrapolated to " << name << std::endl
                           << " truth: r " << parameters[i+1].first.perp() << " z " << parameters[i+1].first.z() << " p " << parameters[i+1].second.mag() << std::endl
                           << " extrp: r " << exPars->position().perp() << " z " << exPars->position().z() << " p " << exPars->momentum().mag()
