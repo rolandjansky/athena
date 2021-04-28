@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArElecCalib/ILArOFC.h"
 
@@ -38,7 +38,6 @@ public:
 
 private:
   //Services & Tools 
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   const LArOnlineID* m_onlineHelper;
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
@@ -109,6 +108,9 @@ private:
   /// Property: OFC coefficients (conditions input).
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey
     {this, "OFCKey", "LArOFC", "SG Key of OFC conditions object" };
+
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
 };
 
 #endif

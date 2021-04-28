@@ -13,12 +13,12 @@
 //#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/Units.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <math.h>
 
@@ -28,7 +28,6 @@ using Athena::Units::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_onlineHelper(0),
   m_calo_id(0),
   m_calo_dd_man(0),
@@ -92,7 +91,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
  declareProperty("HVcorr",                    m_hvcorr=false);
- declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
 }
 
 
@@ -101,10 +99,10 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   ATH_CHECK( m_ofcKey.initialize() );
+  ATH_CHECK( m_adc2mevKey.initialize (m_useRamp) );
 
-  if (m_useRamp) {
-    ATH_CHECK( m_adc2mevTool.retrieve() );
-  } else {
+  if (!m_useRamp)
+  {
     // pointer to detector manager:
     ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
     m_calo_id   = m_calo_dd_man->getCaloCell_ID();
@@ -188,6 +186,8 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
 StatusCode TBECLArRawChannelBuilder::execute() 
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   //Counters for errors & warnings per event
   int noEnergy   = 0; // Number of completly failed channels in a given event
   int BadTiming  = 0; // Number of channels with bad timing in a given event
@@ -199,14 +199,14 @@ StatusCode TBECLArRawChannelBuilder::execute()
   
   const ILArHVScaleCorr *oflHVCorr=nullptr;
   if(m_hvcorr) {
-     SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey);
+     SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
      oflHVCorr = *oflHVCorrHdl;
      if(!oflHVCorr) {
         ATH_MSG_ERROR( "Could not get the HVScaleCorr from key " << m_offlineHVScaleCorrKey.key() );
         return StatusCode::FAILURE;
      }
   }
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
         ATH_MSG_ERROR( "Could not get the cabling mapping from key " << m_cablingKey.key() );
@@ -240,7 +240,13 @@ StatusCode TBECLArRawChannelBuilder::execute()
   }
 
   ATH_MSG_DEBUG ( "Retrieving LArOFC object" );
-  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey);
+  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey, ctx);
+
+  const LArADC2MeV* adc2mev = nullptr;
+  if (m_useRamp) {
+    SG::ReadCondHandle<LArADC2MeV> adc2mevH (m_adc2mevKey, ctx);
+    adc2mev = *adc2mevH;
+  }
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
@@ -471,7 +477,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
      
     if (m_useRamp) {
       //ADC2MeV (a.k.a. Ramp)   
-      const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
+      LArVectorProxy ramp = adc2mev->ADC2MEV(chid,gain);
       //Check ramp coefficents
       if (ramp.size()==0) {
 	noEnergy++;
@@ -481,7 +487,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	continue;
       } 
       
-      // temporalery fix for bad ramps... should be done in the DB
+      // temporary fix for bad ramps... should be done in the DB
       if(ramp[1]>m_ramp_max[gain] || ramp[1]<0) {
 	noEnergy++;
 	ATH_MSG_DEBUG ( "Bad ramp for channel " << chid << " (ramp[1] = " << ramp[1] << "): skip this channel" );

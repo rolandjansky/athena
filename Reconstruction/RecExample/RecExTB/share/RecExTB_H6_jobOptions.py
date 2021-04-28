@@ -453,13 +453,10 @@ if doLAr :
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg ('electronicNoise')
 
-    # get public tool LArADC2MeVTool
-    from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-    theADC2MeVTool = LArADC2MeVToolDefault()
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += theADC2MeVTool
+    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+    adc2mev = LArADC2MeVCondAlgDefault()
 
-    ToolSvc.LArADC2MeVToolDefault.UseHVScaleCorr = False
+    adc2mev.LArHVScaleCorrKey = ''
 
     if not doSim :
         # read ByteStream and run RawChannelBuilder
@@ -496,7 +493,6 @@ if doLAr :
             from TBRec.TBRecConf import TBECLArRawChannelBuilder
             LArRawChannelBuilder = TBECLArRawChannelBuilder("LArRawChannelBuilder")
             LArRawChannelBuilder.UseTDC = True
-            LArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
             LArRawChannelBuilder.NOFCTimeBins = 25
             LArRawChannelBuilder.OFCTimeBin    = 1.0*ns
             LArRawChannelBuilder.BinHalfOffset = False
@@ -658,10 +654,7 @@ if doLAr :
     topSequence +=  CaloCellMaker   
 
     if not doUseRampBuilder:
-       ToolSvc.LArADC2MeVToolDefault.UseMphysOverMcal = False
-
-    # Make sure no symmetrization:    
-    ToolSvc.LArADC2MeVToolDefault.MCSym = False
+       adc2mev.LArMphysOverMcalKey = ''
 
 
 if doDMSplit:
