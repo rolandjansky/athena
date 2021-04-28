@@ -1885,15 +1885,13 @@ HLT_j45_pf_ftf_L1J15:
     0: 7
     1: 7
 HLT_j45_pf_ftf_bdl1r70_split_L1J20:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 5
     1: 5
-    2: 1
   stepFeatures:
     0: 5
     1: 5
-    2: 1
 HLT_j45_pf_ftf_preselj20_L1J15:
   eventCount: 7
   stepCounts:
@@ -1991,15 +1989,13 @@ HLT_j45_subjesgscIS_ftf_L1J15:
     0: 7
     1: 7
 HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 5
     1: 5
-    2: 1
   stepFeatures:
     0: 5
     1: 5
-    2: 1
 HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20:
   eventCount: 1
   stepCounts:

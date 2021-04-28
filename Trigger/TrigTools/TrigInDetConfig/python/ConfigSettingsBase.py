@@ -33,12 +33,15 @@ class _ConfigSettingsBase() :
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
-      self._doTRT               = False #Apply TRT extension sequence after ambiguity solving
-      self._keepTrackParameters = False #Keep track parameters in conversion to TrackParticles
+      self._doTRT               = True 
+      self._keepTrackParameters = False # Keep track parameters in conversion to TrackParticles
       self._UsePixelSpacePoints = True
       self._TrackInitialD0Max   = 20.0
       self._TrackZ0Max          = 300.0
       self._isLRT               = False
+      self._UseTrigSeedML       = None 
+      self._RoadWidth           = 10
+      self._nClustersMin        = None
       self._roi                 = None
       self._isLRT               = False
       self._doRecord            = True
@@ -194,6 +197,18 @@ class _ConfigSettingsBase() :
       return self._roi
 
    @property
+   def UseTrigSeedML(self):
+      return self._UseTrigSeedML
+
+   @property
+   def RoadWidth(self):
+      return self._RoadWidth
+
+   @property
+   def nClustersMin(self):
+      return self._nClustersMin
+
+   @property
    def isRecordable(self):
       return self._doRecord
 
@@ -238,6 +253,7 @@ class _ConfigSettingsBase() :
    @property
    def TracksMaxZinterval(self):
       return self._TracksMaxZinterval
+
 
    def printout(self):
       from AthenaCommon.Logging import logging
