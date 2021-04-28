@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // contact: jmaurer@cern.ch
@@ -33,7 +33,7 @@ public:
 	bool operator<(const Lepton& rhs) const { return m_obj<rhs.m_obj; }
 protected:
 	const xAOD::IParticle* m_obj = nullptr;
-	mutable std::size_t m_tag = 0; // 0 = no tag
+	std::size_t m_tag = 0; // 0 = no tag
 };
 
 }
