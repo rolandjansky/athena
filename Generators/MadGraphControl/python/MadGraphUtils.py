@@ -1441,6 +1441,8 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
             shutil.copyfileobj(mod_output2, final_file)
             final_file.close()
             shutil.copy(os.getcwd()+'/events.lhe.copy',os.getcwd()+'/events.lhe')
+            # Clean up after ourselves
+            os.remove(os.getcwd()+'/events.lhe.copy')
         mod_output2.close()
 
     # Actually move over the dataset
