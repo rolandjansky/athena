@@ -8,6 +8,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/Identifier.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -77,6 +78,7 @@ StatusCode LArRawChannelBuilderDriver::initialize()
 StatusCode LArRawChannelBuilderDriver::execute()
 {
   ATH_MSG_DEBUG("In execute");
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   //Pointer to input data container
   const LArDigitContainer* digitContainer=0;
@@ -102,7 +104,7 @@ StatusCode LArRawChannelBuilderDriver::execute()
     return StatusCode::SUCCESS;
   }
   
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
@@ -162,7 +164,7 @@ StatusCode LArRawChannelBuilderDriver::execute()
       // retrieve pedestal and get the ADC2E factors.
       //  The ramps are stored in the data member m_ramps
       const float pedestal = this->pedestal();
-      this->ADC2energy();
+      this->ADC2energy (ctx);
       
       for (ToolHandle<ILArRawChannelBuilderToolBase>& tool : m_buildTools) {
         if (tool->buildRawChannel(digit, pedestal, m_ramps, &msg())) break;
@@ -216,12 +218,12 @@ float LArRawChannelBuilderDriver::pedestal()
   return m_oldPedestal;
 }
 
-void LArRawChannelBuilderDriver::ADC2energy()
+void LArRawChannelBuilderDriver::ADC2energy (const EventContext& ctx)
 {
   adc2eToolVector::iterator it    = m_adc2eTools.begin();
   adc2eToolVector::iterator itEnd = m_adc2eTools.end();
   
-  while( !(*it)->ADC2E(m_ramps, &msg()) && ++it != itEnd )
+  while( !(*it)->ADC2E(ctx, m_ramps, &msg()) && ++it != itEnd )
     ATH_MSG_DEBUG("One ADC2Energy Tool failed");
   
   return;

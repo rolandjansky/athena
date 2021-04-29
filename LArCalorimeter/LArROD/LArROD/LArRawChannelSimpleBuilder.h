@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -21,7 +21,7 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -29,6 +29,7 @@
 #include "StoreGate/WriteHandleKey.h"
 
 class LArRawChannelContainer;
+class LArOnlineID;
 
 
 class LArRawChannelSimpleBuilder : public AthReentrantAlgorithm
@@ -45,11 +46,12 @@ public:
 private:
   //Services & Tools 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;
   const LArHEC_ID*  m_hecId;
   const LArOnlineID* m_onlineHelper;
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
 
   ToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool;
   
