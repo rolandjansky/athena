@@ -107,7 +107,7 @@ namespace InDet {
     void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
 
     // helper method to setup the cut functions for TrackParticles and Trk::Tracks
-    template <int verbose, class Trk_Helper>
+    template <int VERBOSE, class Trk_Helper>
     StatusCode setupCuts(std::map< std::string, std::vector< std::function<bool(Trk_Helper helper, asg::AsgMessaging &msgHelper)> > > &trackCuts);
 
     template <class Trk_Helper>
