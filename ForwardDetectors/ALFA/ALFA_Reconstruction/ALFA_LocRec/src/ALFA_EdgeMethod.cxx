@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_LocRec/ALFA_EdgeMethod.h"
+#include <algorithm>
+
 using namespace std;
 
 ALFA_EdgeMethod::ALFA_EdgeMethod()
@@ -55,32 +57,18 @@ void ALFA_EdgeMethod::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSC
 	ATH_MSG_DEBUG("end ALFA_EdgeMethod::Initialize()");
 }
 
-//void SetOptions(TString options){
-//	if(options.CountChar('S') + options.CountChar('s') > 0 )
-//		m_bOpt_Sisters = kTRUE;
-//	else
-//		m_bOpt_Sisters = kFALSE;
 
-
-//	if(options.CountChar('G') + options.CountChar('g') > 0 )
-//		m_bOpt_UseGaps = kTRUE;
-//	else
-//		m_bOpt_UseGaps = kFALSE;
-//}
 
 Bool_t ALFA_EdgeMethod::functionSortEdges( Edge edg1, Edge edg2 ){
-//	std::cout << "begin ALFA_EdgeMethod::functionSortEdges()" << std::endl;
 	return ( edg1.first.first < edg2.first.first );
 }
 
 Bool_t ALFA_EdgeMethod::functionSortCorrsOne( Corridor corr1, Corridor corr2 ){
-//	std::cout << "begin ALFA_EdgeMethod::functionSortCorrsOne()" << std::endl;
 	if( corr1.second == corr2.second ) return ( corr1.first.second  > corr2.first.second );
 	else return  ( corr1.second > corr2.second );
 }
 
 Bool_t ALFA_EdgeMethod::functionSortTracks( Track track1, Track track2 ){
-//	std::cout << "begin ALFA_EdgeMethod::functionSortTracks()" << std::endl;
 	if( track1.first.second + track1.second.second == track2.first.second + track2.second.second )
 		return track1.first.first.second + track1.second.first.second > track2.first.first.second + track2.second.first.second;
 	else return  track1.first.second + track1.second.second > track2.first.second + track2.second.second;
@@ -161,7 +149,7 @@ void ALFA_EdgeMethod::findCorridors(std::vector< Edge > &edges, std::vector< Cor
 
 	if( !corridors.empty() ){
 		for(UInt_t i = 0; i < corridors.size()-1; i++){
-			if( TMath::Abs( corridors.at(i).first.first - corridors.at(i+1).first.first ) < 0.480){
+			if( std::abs( corridors.at(i).first.first - corridors.at(i+1).first.first ) < 0.480){
 				if( corridors.at(i).second > corridors.at(i+1).second ){
 					corridors.erase(corridors.begin()+i+1);
 					i--;
@@ -179,9 +167,6 @@ Bool_t ALFA_EdgeMethod::testTrack(/*Corridor corr_U, Corridor corr_V*/)
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::testTrack()");
 
-	// Place for other conditions, eg. track position
-//	if( 0.5*TMath::Sqrt2()*(-corr_U.first.first+corr_V.first.first)  < -136 ) return kFALSE;
-
 	return kTRUE;
 }
 
@@ -198,11 +183,6 @@ Bool_t ALFA_EdgeMethod::iterOne(UInt_t no_Detector, UInt_t no_Orient, std::vecto
 	findCorridors(edges, corridors);
 	if( corridors.empty() )
 		return kFALSE;
-
-//	sort( corridors.begin(), corridors.end(), functionSortCorrsOne );
-//	if( corridors.size() > 10 ){
-//		corridors.resize(10);
-//	}
 
 	if(m_bOpt_Sisters){
 		// Cut for sisters
@@ -265,7 +245,7 @@ Bool_t ALFA_EdgeMethod::iterNext(UInt_t no_Detector, UInt_t no_Orient, Float_t p
 	if( corridors.empty() ) return kFALSE;
 
 	sort( corridors.begin(), corridors.end(), CSortCorrsNext(pos));
-	if( TMath::Abs( pos - corridors.front().first.first ) > 0.480 || TMath::Abs( level - (Int_t)corridors.front().second ) > 1 ) return kFALSE;
+	if( std::abs( pos - corridors.front().first.first ) > 0.480 || std::abs( level - (Int_t)corridors.front().second ) > 1 ) return kFALSE;
 
 	corr = corridors.front();
 	return kTRUE;
@@ -304,7 +284,7 @@ Bool_t ALFA_EdgeMethod::EdgeMethod(UInt_t no_Detector, std::vector<Track> &track
 
 	for(UInt_t i = 0; i < tracks.size(); i++){
 		for(UInt_t j = i+1; j < tracks.size(); j++){
-			if( TMath::Abs( tracks.at(i).first.first.first - tracks.at(j).first.first.first) < 0.002 && TMath::Abs( tracks.at(i).second.first.first - tracks.at(j).second.first.first ) < 0.002 ){
+			if( std::abs( tracks.at(i).first.first.first - tracks.at(j).first.first.first) < 0.002 && std::abs( tracks.at(i).second.first.first - tracks.at(j).second.first.first ) < 0.002 ){
 				tracks.erase( tracks.begin() + j );
 				j--;
 			}
@@ -487,5 +467,5 @@ CSortCorrsNext::CSortCorrsNext(const Float_t fPosTr)
 
 bool CSortCorrsNext::operator()( ALFA_EdgeMethod::Corridor corr1, ALFA_EdgeMethod::Corridor corr2 ) const
 {
-	return (TMath::Abs( corr1.first.first - m_fPosTr ) < TMath::Abs( corr2.first.first - m_fPosTr ));
+	return (std::abs( corr1.first.first - m_fPosTr ) < std::abs( corr2.first.first - m_fPosTr ));
 }
