@@ -83,8 +83,9 @@ TileBchDecoder::init_BitPat_ofl01()
   m_bitToPrbChn[17] = TileBchPrbs::IgnoreCs;
   m_bitToPrbChn[18] = TileBchPrbs::UnstableCs;
   m_bitToPrbChn[19] = TileBchPrbs::WrongBCID;
-  m_bitToPrbChn[20] = TileBchPrbs::TimingDmuBcOffset;
-  m_bitToPrbChn[21] = TileBchPrbs::BurntIntegrator;
+  m_bitToPrbChn[20] = TileBchPrbs::TimingDmuBcOffsetPos;
+  m_bitToPrbChn[21] = TileBchPrbs::TimingDmuBcOffsetNeg;
+  m_bitToPrbChn[22] = TileBchPrbs::BurntIntegrator;
   
   //=== assign decoder to adc problems
   m_bitToPrbAdc.clear();
@@ -126,7 +127,8 @@ TileBchDecoder::init_BitPat_onl01()
   m_bitToPrbChn[ 6] = TileBchPrbs::TrigNoisy;
   m_bitToPrbChn[ 7] = TileBchPrbs::OnlineBadTiming;
   m_bitToPrbChn[ 8] = TileBchPrbs::OnlineWrongBCID;
-  m_bitToPrbChn[ 9] = TileBchPrbs::OnlineTimingDmuBcOffset;
+  m_bitToPrbChn[ 9] = TileBchPrbs::OnlineTimingDmuBcOffsetPos;
+  m_bitToPrbChn[10] = TileBchPrbs::OnlineTimingDmuBcOffsetNeg;
   
   //=== assign decoder to adc problems
   m_bitToPrbAdc.clear();
