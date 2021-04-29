@@ -11,8 +11,6 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-scheduleTauTruthTools()
 from DerivationFrameworkSM import STDMTriggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
