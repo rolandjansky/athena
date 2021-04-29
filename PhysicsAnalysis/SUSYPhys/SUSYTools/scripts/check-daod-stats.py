@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 import sys
 import os
 
@@ -9,22 +9,23 @@ _orig_argv = sys.argv[:]
 sys.argv = [_orig_argv[0]]
 
 import ROOT
-ROOT.gROOT.Macro("$ROOTCOREDIR/scripts/load_packages.C")
-ROOT.gROOT.ProcessLine("gErrorIgnoreLevel = 1001;")
 from ROOT import *
+
+if(not ROOT.xAOD.Init().isSuccess()): print "Failed xAOD.Init()"
 
 sys.argv = _orig_argv
 
 try:
 	import pyAMI.client
 	import pyAMI.atlas.api as atlas_api
-except:
+        import pyAMI.config
+except ImportError:
 	print "Please call"
-	print "  localSetupPyAMI"
+	print "  lsetup PyAMI"
 	print "  voms-proxy-init -voms atlas"
 	print "before using this script"
+        logging.error("Unable to find pyAMI client. Please try this command first: lsetup pyAMI")
 	sys.exit(1)
-
 
 class term:
     GREEN = '\033[92m'
@@ -48,6 +49,9 @@ def get_xaod_name(dataset):
 	for p in parts:
 		if "DAOD" in p: # remove derivation type
 			p = "AOD"
+
+		if "deriv" in p: # recon.AOD instead of deriv.DAOD
+			p = "recon"
 
 		if "_p" in p: # remove p-tag
 			if p.endswith("/"):
