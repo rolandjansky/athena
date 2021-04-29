@@ -7,14 +7,7 @@ atlas_subdir( TrigEgammaForwardHypo )
 atlas_add_component( TrigEgammaForwardHypo
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib RecoToolInterfaces StoreGateLib TrigCompositeUtilsLib TrigMultiVarHypoLib TrigSteeringEvent TrkCaloExtension xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger AthOnnxruntimeServiceLib RingerSelectorToolsLib)
-
+                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib GaudiKernel LumiBlockCompsLib RingerSelectorToolsEnumsLib TrigCompositeUtilsLib TrigSteeringEvent xAODTrigCalo xAODTrigRinger xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
-
-# Unit tests:
-#atlas_add_test( TrigEgammaFastCaloHypoToolConfig
-#   SCRIPT python -m TrigEgammaHypo.TrigEgammaFastCaloHypoTool
-#   POST_EXEC_SCRIPT nopost.sh )
-

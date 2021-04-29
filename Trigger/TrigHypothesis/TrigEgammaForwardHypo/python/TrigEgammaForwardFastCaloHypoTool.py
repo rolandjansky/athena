@@ -8,11 +8,11 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 #
 # For electrons only
 #
-def createTrigEgammaForwardFastCaloHypoAlgMT(name, sequenceOut):
+def createTrigEgammaForwardFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo alg
-  from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardFastCaloHypoAlgMT
-  theFastCaloHypo = TrigEgammaForwardFastCaloHypoAlgMT(name)
+  from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardFastCaloHypoAlg
+  theFastCaloHypo = TrigEgammaForwardFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
   return theFastCaloHypo
 

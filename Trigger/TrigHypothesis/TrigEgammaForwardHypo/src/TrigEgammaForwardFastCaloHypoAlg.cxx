@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigEgammaForwardFastCaloHypoAlgMT.h"
+#include "TrigEgammaForwardFastCaloHypoAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -11,12 +11,12 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaForwardFastCaloHypoAlgMT::TrigEgammaForwardFastCaloHypoAlgMT( const std::string& name, 
+TrigEgammaForwardFastCaloHypoAlg::TrigEgammaForwardFastCaloHypoAlg( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaForwardFastCaloHypoAlgMT::initialize() {
+StatusCode TrigEgammaForwardFastCaloHypoAlg::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   
@@ -33,7 +33,7 @@ StatusCode TrigEgammaForwardFastCaloHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigEgammaForwardFastCaloHypoAlgMT::execute( const EventContext& context ) const 
+StatusCode TrigEgammaForwardFastCaloHypoAlg::execute( const EventContext& context ) const 
 {
   
     
