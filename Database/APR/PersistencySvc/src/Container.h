@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_CONTAINER_H
@@ -26,7 +26,7 @@ namespace pool {
     class Container : virtual public IContainer,
                       virtual public ITechnologySpecificAttributes {
     public:
-      Container( const FileDescriptor& fileDescriptor,
+      Container( FileDescriptor& fileDescriptor,
                  IStorageExplorer& storageExplorer,
                  long technology,
                  const std::string& name );
@@ -64,7 +64,7 @@ namespace pool {
 
     private:
       /// Reference to file descriptor of the parent database
-      const FileDescriptor& m_fileDescriptor;
+      FileDescriptor& m_fileDescriptor;
       
       /// Reference to the storage explorer
       IStorageExplorer& m_storageExplorer;

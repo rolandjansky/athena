@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STORAGESVC_DATABASECONNECTION_H
@@ -30,7 +30,8 @@ namespace pool {
     /// Access technoliogy type
     virtual int type() const = 0;
     /// Access object identifier
-    virtual void* handle() const = 0;
+    virtual void* handle() = 0;
+    virtual const void* handle() const = 0;
   };
 }      // End namespace pool
 
