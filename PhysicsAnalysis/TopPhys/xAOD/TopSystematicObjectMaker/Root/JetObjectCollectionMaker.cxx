@@ -24,9 +24,9 @@ namespace top {
   JetObjectCollectionMaker::JetObjectCollectionMaker(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-    m_doJER(false),
     m_doFull_JER(false),
     m_doFull_JER_Pseudodata(false),
+    m_doOnly_JER_largeR(false),
     m_isMC(false),
     m_doMultipleJES(false),
 
@@ -103,21 +103,25 @@ namespace top {
       m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
-    ///-- JER uncertainties model --///
+    ///-- Small-R JER (Pseudo-)Data Smearing Config --///
     if (m_config->jetJERSmearingModel() == "Full" || m_config->jetJERSmearingModel() == "All") m_doFull_JER = true;
     if (m_config->jetJERSmearingModel() == "Simple") m_doFull_JER = false;
     if (m_config->jetJERSmearingModel() == "Full_PseudoData" ||
         m_config->jetJERSmearingModel() == "All_PseudoData") m_doFull_JER_Pseudodata = true;
     else m_doFull_JER_Pseudodata = false;
 
+    ///-- Large-R JER (Pseudo-)Data Smearing Config --///
+    if ((!m_config->isMC() || m_config->largeRSysts_TreatMCasPseudodata()) 
+        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") == std::string::npos) m_doOnly_JER_largeR = true;
+    else m_doOnly_JER_largeR = false;
+    bool skip_systs = false;
+    if (m_config->largeRSysts_TreatMCasPseudodata() 
+        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") != std::string::npos) skip_systs = true;
+    
 
     m_isMC = m_config->isMC();
     m_doMultipleJES = m_config->doMultipleJES();
 
-    ///-- Are we doing JER? Let's not repeat this logic over and over --///
-    if (m_isMC) m_doJER = true;
-    if (!m_isMC && m_doFull_JER) m_doJER = true;
-    /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
     if (m_isMC || m_doFull_JER) {
       if (!m_doMultipleJES) {
@@ -137,10 +141,6 @@ namespace top {
           "Failed to retrieve JetUncertaintiesToolReducedNPScenario4");
       }
     }
-
-
-
-
 
 
     top::check(m_jetUpdateJvtTool.retrieve(), "Failed to retrieve JetUpdateJvtTool");
@@ -181,7 +181,7 @@ namespace top {
 
     ///-- JES systematics --///
     if (m_isMC || m_doFull_JER) {
-      std::string allNP(m_config->jetUncertainties_NPModel() + "_"),
+      std::string allNP(""),
       np1("SR_Scenario1_"), np2("SR_Scenario2_"), np3("SR_Scenario3_"), np4("SR_Scenario4_");
 
       bool onlyJER = ((!m_isMC) && m_doFull_JER) || (m_isMC && m_doFull_JER_Pseudodata);
@@ -205,24 +205,15 @@ namespace top {
     }
 
 
-    ///-- Large-R JES systematics --///
-    std::string largeRModName = getLargeRModName(m_config->largeRJetUncertainties_NPModel());
-    std::string largeRModNameJMR = getLargeRModName(m_config->largeRJetUncertainties_JMR_NPModel());
+    ///-- Large-R JES/JER/JMS/JMR systematics --///
     CP::SystematicSet largeRsysts;
-    if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
-      if ((m_config->largeRJESJMSConfig() == "CombMass") || (m_config->largeRJESJMSConfig() == "TCCMass")) { //TA mass
-                                                                                                             // and
-                                                                                                             // combined
-                                                                                                             // mass not
-                                                                                                             // supported
-                                                                                                             // for
-                                                                                                             // JMS/JMR
-                                                                                                             // for now
+    if ((m_config->isMC() || m_doOnly_JER_largeR) && m_config->useLargeRJets()) {
+      if (m_config->largeRJESJMSConfig() == "CombMass") { // Only CombMass is supported for large-R JES/JER/JMS/JMR systematics at the moment
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
         largeRsysts.insert(m_FFJetSmearingTool->recommendedSystematics());
       } else {
         ATH_MSG_WARNING(
-          "TA Mass & Calo Mass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
+          "TA Mass & Calo Mass & TCCMass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
       }
     }
 
@@ -265,8 +256,10 @@ namespace top {
     
 
     // add the merged set of systematics for large-R jets including the tagging SF systs
-    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeRModName, true, false, largeRModNameJMR);
-
+    if ((m_config->isMC() || m_doOnly_JER_largeR) && (m_config->useLargeRJets()) && (!skip_systs)) {
+      std::string allNPlargeR("");     
+      addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, allNPlargeR, true, m_doOnly_JER_largeR);
+    }
     
     ///-- Large R jet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
@@ -384,7 +377,7 @@ namespace top {
       // tag calibrated (nominal) jets -- the tagging information will be available
       // for systematically-shifted shallow copies as well
       top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
-      if (m_config->isMC()) {
+      if (m_isMC || m_doOnly_JER_largeR) {
 	top::check(applyTaggingSFSystematic(),"Failed to apply large-R tagging SFs syst.");
         top::check(applySystematic(m_jetUncertaintiesToolLargeR, m_systMap_LargeR,
                                    true), "Failed to apply large-R syst.");
@@ -649,8 +642,8 @@ namespace top {
             ///-- Only large R jets with the following properties can be calibrated.--///
             bool calibratable_jet = (std::fabs(jet->eta()) <= 2.0
                                      && jet->pt() > 175e3  //lower than 200e3 to allow studying on migration
-                                     && jet->pt() < 3000e3
-                                     && jet->m() < 600e3);
+                                     && jet->pt() < 6500e3
+                                     && jet->m() < 700e3);
             std::string jetCalibrationNameLargeR = m_config->sgKeyLargeRJets();
             if (jetCalibrationNameLargeR.find("TrackCaloCluster") != std::string::npos) { //TCC jet
               calibratable_jet = (jet->m() / jet->pt() <= 1.
@@ -678,10 +671,8 @@ namespace top {
 	  
 
           ///-- Apply Corrrection --///
-          if (!(isLargeR && !m_config->isMC())) { //Large-R jet uncertainties don't apply to Data
-            if (!isJMR) top::check(tool->applyCorrection(*jet), "Failed to applyCorrection");
-            else top::check(m_FFJetSmearingTool->applyCorrection(*jet), "Failed to applyCorrection");            
-          }
+          if (!isJMR) top::check(tool->applyCorrection(*jet), "Failed to applyCorrection");
+          else top::check(m_FFJetSmearingTool->applyCorrection(*jet), "Failed to applyCorrection");                      
 
 
           ///-- Update JVT --///
@@ -806,7 +797,7 @@ namespace top {
   void JetObjectCollectionMaker::addSystematics(const std::set<std::string>& specifiedSystematics,
                                                 const CP::SystematicSet& recommendedSysts,
                                                 std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
-                                                const std::string& modName, bool isLargeR, bool onlyJER, std::string modNameJMR) {
+                                                const std::string& modName, bool isLargeR, bool onlyJER) {
 
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
@@ -814,13 +805,12 @@ namespace top {
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
-        std::string nameMod = modName; ///
-        if (ss->name().find("JMR") != std::string::npos) nameMod = modNameJMR;
-	if(!m_config->getTreeFilter()->filterTree(nameMod + ss->name())) continue; // Applying tree filter
+
+	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 
-        CP::SystematicSet modSet(nameMod + ss->name());
+        CP::SystematicSet modSet(modName + ss->name());
 
         m_recommendedSystematics.push_back(modSet);
         if (!m_config->isSystNominal(m_config->systematics())) {

@@ -1401,9 +1401,7 @@ namespace top {
     inline bool doMultipleJES() const {return m_doMultipleJES;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
-    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
-                                                                                            return m_jetUncertainties_QGHistPatterns;
-                                                                                                                                     }
+    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
     inline virtual void jetJERSmearingModel(const std::string& s) {
       if (!m_configFixed) {
@@ -1412,6 +1410,14 @@ namespace top {
     }
 
     inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
+
+    inline virtual void largeRSysts_TreatMCasPseudodata(const bool& b) {
+      if (!m_configFixed) {
+        m_largeRSysts_TreatMCasPseudodata = b;
+      }
+    }
+
+    inline virtual bool largeRSysts_TreatMCasPseudodata() const {return m_largeRSysts_TreatMCasPseudodata;}
 
     inline virtual void jetCalibSequence(const std::string& s) {
       if (!m_configFixed) {
@@ -2399,6 +2405,7 @@ namespace top {
                                                                 // more flexibility
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
+    bool m_largeRSysts_TreatMCasPseudodata; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False

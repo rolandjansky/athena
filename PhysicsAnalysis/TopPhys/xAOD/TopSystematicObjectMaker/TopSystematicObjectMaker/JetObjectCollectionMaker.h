@@ -94,7 +94,7 @@ namespace top {
                                 const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet,
                                                                                               CP::SystematicSet>& map,
                                 const std::string& modName, bool isLargeR = false,
-                                bool onlyJER = false, std::string modNameJMR = "SimpleJMR_");
+                                bool onlyJER = false);
 
     StatusCode execute(const bool isLargeR, bool executeNominal);
 
@@ -110,9 +110,9 @@ namespace top {
 
   private:
     std::shared_ptr<top::TopConfig> m_config;
-    bool m_doJER;
     bool m_doFull_JER;
     bool m_doFull_JER_Pseudodata;
+    bool m_doOnly_JER_largeR;
     bool m_isMC;
     bool m_doMultipleJES;
     bool m_do_fjvt = false;
