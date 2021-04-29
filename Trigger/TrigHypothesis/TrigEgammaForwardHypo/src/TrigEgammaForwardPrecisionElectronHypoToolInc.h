@@ -8,7 +8,6 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "ITrigEgammaForwardPrecisionElectronHypoTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "StoreGate/ReadDecorHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 
