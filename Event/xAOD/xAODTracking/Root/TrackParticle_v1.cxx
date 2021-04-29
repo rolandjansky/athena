@@ -474,18 +474,16 @@ namespace xAOD {
       return *(m_perigeeParameters.ptr());
     }
 
-    auto pAmgTransf = std::make_unique<Amg::Transform3D>();
-    auto & theTransform = *pAmgTransf;
     Amg::Translation3D amgtranslation(vx(),vy(),vz());
-    theTransform = amgtranslation * Amg::RotationMatrix3D::Identity();
-    theTransform *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
-    theTransform *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
+    Amg::Transform3D pAmgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
+    pAmgTransf *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
+    pAmgTransf *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
     Trk::Perigee tmpPerigeeParameters(acc1(*this),
                                       acc2(*this),
                                       acc3(*this),
                                       acc4(*this),
                                       acc5(*this),
-                                      Trk::PerigeeSurface(std::move(pAmgTransf)),
+                                      pAmgTransf,
                                       std::move(cov));
 
     m_perigeeParameters.set(tmpPerigeeParameters);
