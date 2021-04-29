@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMatchingTool.h"
@@ -257,10 +257,6 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
   if (! rois.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain xAOD::MuonRoI collection with name "<< m_MuonRoIContainerKey);
     return closest;
-  }
-  if(rois->getConstStore()==nullptr){
-    xAOD::MuonRoIContainer *ncptr = const_cast<xAOD::MuonRoIContainer*>(rois.get());
-    ncptr->setStore(DataLink<SG::IConstAuxStore>(m_MuonRoIContainerKey.key()+"Aux.", ctx));
   }
 
   for(const auto &roi : *rois){
