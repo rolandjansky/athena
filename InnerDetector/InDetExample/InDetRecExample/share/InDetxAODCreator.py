@@ -321,6 +321,9 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doLowPtRoI() and InDetFlag
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededLowPtRoITracks()
  xAODLowPtRoITrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededLowPtRoITracks()+'TruthCollection'
+ if InDetFlags.doSLHC():
+     xAODTrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededSLHCTracks()
+     xAODTrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededSLHCTracks()+'TruthCollection'
  xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODLowPtRoITrkCanTrackParticleCnvAlg.ConvertTracks = True
  xAODLowPtRoITrkCanTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
