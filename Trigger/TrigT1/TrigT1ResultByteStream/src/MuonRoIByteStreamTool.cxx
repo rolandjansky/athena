@@ -77,7 +77,7 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
     else roiData = m_tgcTool->roiData(*data);
 
     //get the threshold decisions to find the lowest pt threshold passed
-    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_thresholdTool->getThresholdDecisions(*data);
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_thresholdTool->getThresholdDecisions(*data, eventContext);
     std::pair<std::string, double> minThrInfo = m_thresholdTool->getMinThresholdNameAndValue(decisions, roiData.eta());
 
     //add an additional flag in the unused MSB to indicate if this is in RUN3 format

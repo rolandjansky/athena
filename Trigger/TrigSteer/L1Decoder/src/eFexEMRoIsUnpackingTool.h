@@ -7,6 +7,8 @@
 #include "RoIsUnpackingToolBase.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 class eFexEMRoIsUnpackingTool : public RoIsUnpackingToolBase {
 public:
@@ -34,6 +36,10 @@ private:
   Gaudi::Property<std::string> m_eFexEMRoILinkName {
     this, "eFexEMRoILinkName", "L1_eEMRoI",
     "Name of the link to read from L1TriggerResult for eFexEMRoI container"};
+
+  SG::ReadDecorHandleKey<xAOD::eFexEMRoIContainer> m_thresholdPatternsKey {
+    this, "eFexEMRoIThresholdPatternsKey", "L1_eEMRoI.thresholdPatterns",
+    "Name of the eFexEMRoI container decoration for the threshold patterns"};
 
   Gaudi::Property<float> m_roiWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/phi"};

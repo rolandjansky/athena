@@ -10,7 +10,7 @@ find_package( Boost )
 atlas_add_library( TrigT1MuctpiPhase1Lib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1MuctpiPhase1
-                   LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfData TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger )
+                   LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfData TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger L1DecoderLib )
 
 atlas_add_component( TrigT1MuctpiPhase1
                      src/components/*.cxx
