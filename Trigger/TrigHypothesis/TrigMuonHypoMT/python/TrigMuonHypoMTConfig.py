@@ -215,7 +215,8 @@ trigMuonEFTrkIsoThresholds = {
     'ivarloose'       : 0.16, #ivarloose
     'ivarmedium'      : 0.07, #ivarmedium
     'ivartight'       : 0.06, #ivartight
-    'ivarverytight'  : 0.04   #ivarverytight
+    'ivarverytight'   : 0.04,   #ivarverytight
+    'iloosems'        : 3000.0 #ms-only iso
     }
 
 trigMuonLrtd0Cut = {
@@ -740,12 +741,14 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
                 tool.PtCone03Cut = ptcone03
                 tool.AcceptAll = False
 
-                if 'MS' in isoCut:
+                if 'ms' in isoCut:
                     tool.RequireCombinedMuon = False
+                    tool.DoAbsCut = True
                 else:
                     tool.RequireCombinedMuon = True
+                    tool.DoAbsCut = False
 
-                tool.DoAbsCut = False
+
                 if 'var' in isoCut :
                     tool.useVarIso = True
                 else :

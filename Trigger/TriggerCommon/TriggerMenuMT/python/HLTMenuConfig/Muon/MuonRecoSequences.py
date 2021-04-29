@@ -966,19 +966,24 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
 
 
-def efmuisoRecoSequence( RoIs, Muons ):
+def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
 
   from AthenaCommon.CFElements import parOR
 
-  efmuisoRecoSequence = parOR("efmuIsoViewNode")
+  name = ""
+  if doMSiso:
+    name = "MS"
+
+  efmuisoRecoSequence = parOR("efmuIsoViewNode"+name)
+
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  IDTrigConfig = getInDetTrigConfig( 'muonIso' )
+  IDTrigConfig = getInDetTrigConfig( 'muonIso'+name )
 
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
-  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs' ),
-                             ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
+  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs'+name ),
+                             ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons'+name )]
 
   # Make sure required objects are still available at whole-event level
   if not globalflags.InputFormat.is_bytestream():
@@ -998,16 +1003,18 @@ def efmuisoRecoSequence( RoIs, Muons ):
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs )
 
-  PTSeq = parOR("precisionTrackingInMuonsIso", PTAlgs  )
+  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
   efmuisoRecoSequence += PTSeq
 
   # set up algs
   from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
-  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso")
+  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso"+name)
+  if doMSiso:
+    trigEFmuIso.requireCombinedMuon=False
   trigEFmuIso.MuonEFContainer = Muons
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
-  trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.MuonContName = muNames.EFIsoMuonName+name
   trigEFmuIso.ptcone02Name = "%s.ptcone02" % Muons
   trigEFmuIso.ptcone03Name = "%s.ptcone03" % Muons
 

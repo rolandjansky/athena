@@ -258,7 +258,7 @@ MuonChainParts = {
     'threshold'      : '',
     'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
+    'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
     'invMassInfo'    : ['10invm70'],
     'msonlyInfo'     : ['msonly'],

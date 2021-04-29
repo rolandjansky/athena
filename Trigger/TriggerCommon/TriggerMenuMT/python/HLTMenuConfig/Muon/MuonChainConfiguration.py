@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonChainConfiguration
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 
@@ -60,6 +60,9 @@ def FSmuEFCBSequenceCfg(flags):
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
 
+def muEFMSIsoSequenceCfg(flags):
+    return muEFMSIsoSequence()
+
 def muEFLateRoISequenceCfg(flags):
     return efLateMuRoISequence()
 
@@ -85,8 +88,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepDictionary = self.getStepDictionary()
 
         iso = ""
-        if 'ivar' in self.chainPart['isoInfo']:
-            iso = 'ivar'
+        if self.chainPart['isoInfo']:
+            iso = 'iso'
         key = self.chainPart['extra']+iso
 
 
@@ -118,7 +121,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "l2mt":[['getmuFastl2mt', 'getmuCombl2mt'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "noL1":[[],['getFSmuEFSA'] if doMSonly else ['getFSmuEFSA', 'getFSmuEFCB']],
-            "ivar":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
+            "iso":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA', 'getEFCBEmpty', 'getmuEFMSIso'] if doMSonly else ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "muoncalib":[['getmuFast']],
             "l2lrt":[['getmuFast', 'getmuComb']],
@@ -204,6 +207,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuEFIso(self):
         return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg])
 
+    #---------------------
+    def getmuEFMSIso(self):
+        return self.getStep(5,'muEFMSIso',[ muEFMSIsoSequenceCfg])
+
     #--------------------
     def getmuMSEmptyAll(self, stepID):
         return self.getEmptyStep(stepID,'muMS_empty')
@@ -218,7 +225,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     #--------------------
     def getEFCBEmpty(self):
-        return self.getEmptyStep(6,'EFCBEmpty')
+        return self.getEmptyStep(4,'muefCB_Empty')
     
     #--------------------
     def getLateMuRoI(self):

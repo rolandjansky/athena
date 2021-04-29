@@ -329,6 +329,7 @@ _ConfigSettings = {
 
     "muon"        : _ConfigSettings_muon(),
     "muonIso"     : _ConfigSettings_muonIso(),
+    "muonIsoMS"   : _ConfigSettings_muonIso(),
     "muonCore"    : _ConfigSettings_muon(),
     "muonFS"      : _ConfigSettings_muon(),
     "muonLate"    : _ConfigSettings_muon(),
