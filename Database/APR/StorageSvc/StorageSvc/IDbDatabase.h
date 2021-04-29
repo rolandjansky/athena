@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -85,7 +85,7 @@ namespace pool    {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus onOpen(const DbDatabase& dbH, 
+    virtual DbStatus onOpen(DbDatabase& dbH, 
                             DbAccessMode      mode) = 0;
 
     /// Re-open database with changing access permissions

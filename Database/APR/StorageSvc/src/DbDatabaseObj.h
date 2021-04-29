@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -97,7 +97,7 @@ namespace pool    {
     /// Collection of retired database containers
     Containers                    m_retiredConts;
     /// Internal string representation type
-    const DbTypeInfo*             m_string_t;
+    DbTypeInfo*             m_string_t;
     /// Physical Database login
     std::string                   m_logon;
     /// File age counter
@@ -114,7 +114,7 @@ namespace pool    {
     DbStatus cleanup();
   public:
     /// Standard constructor of a Database obejct
-    DbDatabaseObj( const DbDomain& dom, 
+    DbDatabaseObj( DbDomain&          dom,
                    const std::string& pfn,
                    const std::string& fid,
                    DbAccessMode mode = pool::READ);
@@ -125,9 +125,11 @@ namespace pool    {
     /// Access the size of the database: May be undefined for some technologies
     long long int size();
     /// Access to technology dependent implementation
-    IDbDatabase* info() const         {  return m_info;         }
+    IDbDatabase* info()               {  return m_info;         }
+    const IDbDatabase* info() const   {  return m_info;         }
     /// Access to domain handle (CONST)
     DbDomain& domain()                {  return m_dom;          }
+    const DbDomain& domain() const    {  return m_dom;          }
     /// Access age value
     int  age()  const                 {  return m_fileAge;      }
     /// Access the token of the database object
@@ -155,9 +157,9 @@ namespace pool    {
     /// Expand OID into a full Token, based on the Links table. For merged files provide links section#
     DbStatus getLink(const Token::OID_t& oid, int merge_section, Token* pTok);
     /// Retrieve container name from link container (using token oid, rather than contID)
-    std::string cntName(const Token& token);
+    std::string cntName(Token& token);
     /// Add association link to link container
-    DbStatus makeLink(const Token* pToken, Token::OID_t& refLink);
+    DbStatus makeLink(Token* pToken, Token::OID_t& refLink);
     /// Retrieve persistent type information by class handle
     const DbTypeInfo* objectShape(const TypeH& classH);
     /// Retrieve persistent type information by shape identifier
@@ -188,7 +190,7 @@ namespace pool    {
     /// Access options
     DbStatus getOption(DbOption& refOpt);
     /// Access to sections if availible
-    const ContainerSections& sections(const std::string& cnt) const;
+    const ContainerSections& sections(const std::string& cnt);
 
     /// Update database age
     void setAge(int value);

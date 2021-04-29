@@ -330,7 +330,7 @@ DbStatus RootKeyContainer::close()   {
   return DbContainerImp::close();
 }
 
-DbStatus RootKeyContainer::open(const DbDatabase&     dbH, 
+DbStatus RootKeyContainer::open(DbDatabase&           dbH, 
                                 const std::string&    dir_nam, 
                                 const DbTypeInfo*  /* info */, 
                                 DbAccessMode          mode)  
