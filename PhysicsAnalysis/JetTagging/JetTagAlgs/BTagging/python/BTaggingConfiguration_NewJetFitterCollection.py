@@ -5,6 +5,7 @@
 # Because there are some many different JetFitter tools floating around
 # now, this file was created to contain them all.
 from BTagging.BTaggingFlags import BTaggingFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
 metaJetFitterExtrapolator = {'OneInTotal'     : True,
                              'ToolCollection' : 'JetFitterCollection' }
@@ -71,6 +72,8 @@ def toolInDetImprovedJetFitterTrackSelectorTool(name, useBTagFlagsDefaults = Tru
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    if(commonGeoFlags.Run()=="RUN4"):
+        options['nHitSct'] = 0
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
     return InDet__InDetDetailedTrackSelectorTool(**options)
 
