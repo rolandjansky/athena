@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
@@ -252,7 +252,7 @@ private: // properties
    /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
    BooleanProperty m_parallelCompression{this,"ParallelCompression",true};
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"
-   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:1095"};
+   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:0"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
    IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",-1};
 };
