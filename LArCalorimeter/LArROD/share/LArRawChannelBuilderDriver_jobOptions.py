@@ -19,9 +19,8 @@ theLArOFPeakRecoTool.KeyShape="LArShape"
 theLArOFPeakRecoTool.UseShape=False
 ToolSvc += theLArOFPeakRecoTool
 
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theLArADC2MeVTool=LArADC2MeVToolDefault()
-ToolSvc+=theLArADC2MeVTool
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 from LArROD.LArRODConf import *
 
@@ -45,7 +44,6 @@ builderToolAve.NScan=0
 
 # adc2energy tools
 adc2eToolDB = LArRawChannelBuilderADC2EDataBase("adc2eToolDB")
-adc2cToolDB.ADC2MeVTool = theLArADC2MeVTool
 adc2eToolCo = LArRawChannelBuilderADC2EConstants("adc2eToolCo")
 
 # pedestal tools

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from LArROD.LArRODFlags import larRODFlags
 from AthenaCommon.GlobalFlags import globalflags
@@ -66,8 +66,3 @@ def LArRawChannelBuilderDefault(forceIter=False):
 
         topSequence += theLArRawChannelBuilder
 
-        #Useless here but for backward compatiblity
-        #from AthenaCommon.AppMgr import ToolSvc
-        #from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-        #theADC2MeVTool = LArADC2MeVToolDefault()
-        #ToolSvc += theADC2MeVTool
