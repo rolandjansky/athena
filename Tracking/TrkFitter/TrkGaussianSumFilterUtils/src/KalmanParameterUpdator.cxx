@@ -11,7 +11,88 @@
 
 namespace {
 constexpr double s_thetaGainDampingValue = 0.1;
+
+bool
+makeChi2_1D(
+  Trk::FitQualityOnSurface& updatedFitQoS,
+  const AmgVector(5) & trkPar,
+  const AmgSymMatrix(5) & trkCov,
+  double valRio,
+  double rioCov,
+  int paramKey,
+  int sign)
+{
+  int mk = 0;
+  if (paramKey != 1) {
+    for (int i = 0; i < 5; ++i) {
+      if (paramKey & (1 << i)) {
+        mk = i;
+        break;
+      }
+    }
+  }
+  // sign: -1 = updated, +1 = predicted parameters.
+  double r = valRio - trkPar(mk);
+  //  if (mk==3) catchPiPi;
+  double chiSquared = rioCov + sign * trkCov(mk, mk);
+  if (chiSquared == 0.0) {
+    return false;
+  }
+  chiSquared = r * r / chiSquared;
+  updatedFitQoS = Trk::FitQualityOnSurface(chiSquared, 1);
+  return true;
 }
+
+bool
+consistentParamDimensions(const Trk::LocalParameters& P, const int dimCov)
+{
+  return P.dimension() == dimCov;
+}
+
+bool
+correctThetaPhiRange_5D(
+  AmgVector(5) & V,
+  AmgSymMatrix(5) & M,
+  const Trk::KalmanParameterUpdator::RangeCheckDef rcd)
+{
+  static const AmgVector(2) thetaMin(0.0, -M_PI);
+
+  // correct theta coordinate
+  if (V(Trk::theta) < thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
+    // absolute theta: repair if between -pi and +2pi.
+    // differential theta: repair if between -pi and +pi
+    if (
+      (V(Trk::theta) < -M_PI) ||
+      (V(Trk::theta) > (rcd == Trk::KalmanParameterUpdator::differentialCheck
+                          ? M_PI
+                          : 2 * M_PI))) {
+      return false;
+    }
+    if (V(Trk::theta) > M_PI) {
+      V(Trk::theta) = 2 * M_PI - V(Trk::theta);
+      V(Trk::phi) += (V(Trk::phi) > 0.0) ? -M_PI : M_PI;
+    } else if (V(Trk::theta) < 0.0) {
+      V(Trk::theta) = -V(Trk::theta);
+      V(Trk::phi) += (V(Trk::phi) > 0.0) ? -M_PI : M_PI;
+    }
+    // correct also cov matrix:
+    M.fillSymmetric(0, 3, -M(0, 3)); // cov(polar,locX)
+    M.fillSymmetric(1, 3, -M(1, 3)); // cov(polar,locY)
+    M.fillSymmetric(2, 3, -M(2, 3)); // cov(polar,azimuthal)
+    M.fillSymmetric(3, 4, -M(3, 4)); // cov(polar,qOverP)
+  }
+
+  // correct phi coordinate if necessary
+  if ((V(Trk::phi) > M_PI)) {
+    V(Trk::phi) = fmod(V(Trk::phi) + M_PI, 2 * M_PI) - M_PI;
+  } else if ((V(Trk::phi) < -M_PI)) {
+    V(Trk::phi) = fmod(V(Trk::phi) - M_PI, 2 * M_PI) + M_PI;
+  }
+
+  return true;
+}
+
+} // end of anonymous namespace
 
 Trk::KalmanParameterUpdator::KalmanParameterUpdator()
   : m_unitMatrix(AmgMatrix(5, 5)::Identity())
@@ -252,84 +333,3 @@ Trk::KalmanParameterUpdator::calculateFilterStep_5D(
   return true;
 }
 
-bool
-Trk::KalmanParameterUpdator::makeChi2_1D(
-  FitQualityOnSurface& updatedFitQoS,
-  const AmgVector(5) & trkPar,
-  const AmgSymMatrix(5) & trkCov,
-  double valRio,
-  double rioCov,
-  int paramKey,
-  int sign) const
-{
-  int mk = 0;
-  if (paramKey != 1) {
-    for (int i = 0; i < 5; ++i) {
-      if (paramKey & (1 << i)) {
-        mk = i;
-        break;
-      }
-    }
-  }
-  // sign: -1 = updated, +1 = predicted parameters.
-  double r = valRio - trkPar(mk);
-  //  if (mk==3) catchPiPi;
-  double chiSquared = rioCov + sign * trkCov(mk, mk);
-  if (chiSquared == 0.0) {
-    return false;
-  }
-  chiSquared = r * r / chiSquared;
-  updatedFitQoS = FitQualityOnSurface(chiSquared, 1);
-  return true;
-}
-
-bool
-Trk::KalmanParameterUpdator::consistentParamDimensions(
-  const Trk::LocalParameters& P,
-  const int dimCov) const
-{
-  return P.dimension() == dimCov;
-}
-
-bool
-Trk::KalmanParameterUpdator::correctThetaPhiRange_5D(
-  AmgVector(5) & V,
-  AmgSymMatrix(5) & M,
-  const KalmanParameterUpdator::RangeCheckDef rcd) const
-{
-  static const AmgVector(2) thetaMin(0.0, -M_PI);
-
-  // correct theta coordinate
-  if (V(Trk::theta) < thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
-    // absolute theta: repair if between -pi and +2pi.
-    // differential theta: repair if between -pi and +pi
-    if (
-      (V(Trk::theta) < -M_PI) ||
-      (V(Trk::theta) > (rcd == Trk::KalmanParameterUpdator::differentialCheck
-                          ? M_PI
-                          : 2 * M_PI))) {
-      return false;
-    }
-    if (V(Trk::theta) > M_PI) {
-      V(Trk::theta) = 2 * M_PI - V(Trk::theta);
-      V(Trk::phi) += (V(Trk::phi) > 0.0) ? -M_PI : M_PI;
-    } else if (V(Trk::theta) < 0.0) {
-      V(Trk::theta) = -V(Trk::theta);
-      V(Trk::phi) += (V(Trk::phi) > 0.0) ? -M_PI : M_PI;
-    }
-    // correct also cov matrix:
-    M.fillSymmetric(0, 3, -M(0, 3)); // cov(polar,locX)
-    M.fillSymmetric(1, 3, -M(1, 3)); // cov(polar,locY)
-    M.fillSymmetric(2, 3, -M(2, 3)); // cov(polar,azimuthal)
-    M.fillSymmetric(3, 4, -M(3, 4)); // cov(polar,qOverP)
-  }
-
-  // correct phi coordinate if necessary
-  if ((V(Trk::phi) > M_PI)) {
-    V(Trk::phi) = fmod(V(Trk::phi) + M_PI, 2 * M_PI) - M_PI;
-  } else if ((V(Trk::phi) < -M_PI)) {
-    V(Trk::phi) = fmod(V(Trk::phi) - M_PI, 2 * M_PI) + M_PI;
-  }
-
-  return true;
-}
