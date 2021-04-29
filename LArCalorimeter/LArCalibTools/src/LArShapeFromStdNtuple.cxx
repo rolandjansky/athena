@@ -8,9 +8,8 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArShape32MC.h"
 #include "LArRawConditions/LArShapeComplete.h"
-
-#include "LArTools/LArMCSymTool.h"
-#include "LArElecCalib/ILArMCSymTool.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TFile.h"
 #include "TBranch.h"
@@ -23,7 +22,7 @@
 #include <string>
 
 
-LArShapeFromStdNtuple::LArShapeFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_larmcsym("LArMCSymTool")
+LArShapeFromStdNtuple::LArShapeFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("SkipPoints", m_skipPoints = 0);
   declareProperty("PrefixPoints", m_prefixPoints = 0);
@@ -41,7 +40,7 @@ LArShapeFromStdNtuple::~LArShapeFromStdNtuple()
 
 StatusCode LArShapeFromStdNtuple::initialize() 
 {
-  ATH_CHECK ( m_larmcsym.retrieve() ); 
+  ATH_CHECK ( m_mcSymKey.initialize() ); 
   return StatusCode::SUCCESS ;
 }
 
@@ -51,6 +50,9 @@ StatusCode LArShapeFromStdNtuple::stop()
   if(m_done) return StatusCode::SUCCESS;
 
   ATH_MSG_INFO ( "... in stop()" );
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<LArMCSym> mcsym (m_mcSymKey, ctx);
   
   // get LArOnlineID helper
   const LArOnlineID* onlineHelper = nullptr;
@@ -198,7 +200,7 @@ StatusCode LArShapeFromStdNtuple::stop()
     }
 
     if(!m_isComplete) {
-       if (id != m_larmcsym->symOnline(id) ) {
+       if (id != mcsym->ZPhiSymOnl(id) ) {
            ATH_MSG_INFO( "Symmetrized, not stored" );
        } else {
 
