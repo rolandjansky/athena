@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAForwardFastCaloHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGEGAMMAForwardFastCaloHYPOTOOLINC_H 1
+#ifndef TrigEgammaForwardFastCaloHypoToolInc_h
+#define TrigEgammaForwardFastCaloHypoToolInc_h
 
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
