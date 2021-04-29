@@ -210,7 +210,6 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    tf.doLVL1.set_Value_and_Lock(False)
    tf.doHLT.set_Value_and_Lock(False)
    tf.doL1Topo.set_Value_and_Lock(False)
-   tf.enableMonitoring.set_Value_and_Lock(False)
    tf.doID.set_Value_and_Lock(False)
    tf.doMuon.set_Value_and_Lock(False)
    tf.doBcm.set_Value_and_Lock(False)
