@@ -162,13 +162,11 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 }
 
 
-
-
 asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
     
     ATH_MSG_DEBUG("setAccept");
 
-    unsigned int condition=TrigDefs::Physics;
+    unsigned int condition=TrigDefs::includeFailedDecisions;
 
     asg::AcceptData acceptData (&m_accept);
    
@@ -180,43 +178,54 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedEF=false;
     
     if (dec) {
-      auto trigger = info.trigName; 
-      passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-      if(!info.trigL1){ // HLT item get full decision
-          ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
+        auto trigger = info.trigName; 
+        // Step 1
+        passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-          passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_FastCaloEMClusters", condition);  
-          passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+        if(!info.trigL1 && passedL1Calo ){ // HLT item get full decision
+            // Step 2
+            passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, match()->key("L2Calo"), condition);  
+          
+            if(passedL2Calo){
 
+                // Step 3
+                if(info.trigType == "electron"){
+                    passedL2 = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
+                }else if(info.trigType == "photon"){
+                    passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
+                }
 
-          if(info.trigType == "electron"){
-              ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-              passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                  if(info.isGSF){
-                    passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_GSF", condition);
-                  }else if(info.isLRT){
-                    passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_LRT", condition);
-                  }else{
-                        passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
-                    }
-              }
-              passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
-          }
-          else if(info.trigType == "photon"){
-              ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-              passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
-              }
-              passedEFTrk=true;// Assume true for photons
-          }
-      }
+                if(passedL2){
+                    // Step 4
+                    passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+
+                    if(passedEFCalo){
+
+                        // Step 5
+                        passedEFTrk=true;// Assume true for photons
+
+                        // Step 6
+                        if(info.trigType == "electron"){
+                            if( info.trigEtcut || info.trigPerf){// etcut or idperf
+                                passedEF = true; // since we dont run the preciseElectron step
+                            }else{
+                                passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, 
+                                                match()->key( (info.isGSF? "ElectronGSF": "Electron") ), condition);
+                            }
+   
+                        }else if(info.trigType == "photon"){
+                            if (info.trigEtcut){
+                                passedEF = true; // since we dont run the precisePhoton step
+                            }else{
+                                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
+                            }
+                        }
+                    } // EFCalo
+                }// L2
+            }// L2Calo
+        }// L2Calo
+
     }
 
     acceptData.setCutResult("L1Calo",passedL1Calo);
@@ -701,7 +710,7 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
         if(boost::contains(strs.at(0),"e")) type = "electron";
         else if(boost::contains(strs.at(0),"g")) type = "photon";
         else ATH_MSG_ERROR("Cannot set trigger type from name");
-        if(boost::contains(strs.at(1),"perf")){
+        if(boost::contains(strs.at(1),"idperf")){
             pidname = defaultPid;
             perf=true;
             ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
