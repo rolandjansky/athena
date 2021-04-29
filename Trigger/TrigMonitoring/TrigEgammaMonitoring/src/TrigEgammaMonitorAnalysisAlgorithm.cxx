@@ -70,9 +70,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
       }
     } // Offline photon
   
+
     // Good pair to be measure
     auto acceptData = setAccept( pairObj.second, info );
-    
+  
     pair_vec.push_back(pairObj);
     accept_vec.push_back(acceptData);
 
