@@ -276,6 +276,13 @@ def trtExtensionTool_builder( signature, config, prefix="InDetTrigMT" ):
     # TODO implement new configuration of circle cut
 
     from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+
+    cutValues = EFIDTrackingCuts
+
+    if(config.isLRT):
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
+        cutValues = EFIDTrackingCutLRT
+        
     from .InDetTrigCollectionKeys import TrigTRTKeys
 
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternUpdator 
@@ -293,10 +300,10 @@ def trtExtensionTool_builder( signature, config, prefix="InDetTrigMT" ):
                                                           # RIOonTrackToolNoDr  = # default for now
                                                           RoadTool            = trtRoadMaker,
                                                           DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                                          MinNumberDriftCircles = EFIDTrackingCuts.minTRTonTrk(),
+                                                          MinNumberDriftCircles = cutValues.minTRTonTrk(),
                                                           ScaleHitUncertainty   = 2.,
                                                           RoadWidth             = 20.,
-                                                          UseParameterization   = EFIDTrackingCuts.useParameterizedTRTCuts() )
+                                                          UseParameterization   = cutValues.useParameterizedTRTCuts() )
                
     ToolSvc += trtExtensionTool
 
@@ -333,6 +340,10 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
     from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 
     cutValues = EFIDTrackingCuts
+
+    if(config.isLRT):
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
+        cutValues = EFIDTrackingCutLRT
     
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
     
