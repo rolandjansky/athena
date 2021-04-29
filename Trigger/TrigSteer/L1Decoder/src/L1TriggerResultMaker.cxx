@@ -32,6 +32,7 @@ StatusCode L1TriggerResultMaker::initialize() {
   ATH_CHECK(m_l1TriggerResultWHKey.initialize());
   ATH_CHECK(m_muRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_eFexEMRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_thresholdPatternTools.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -68,6 +69,10 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
 
   ATH_CHECK(retrieveAndLink(m_muRoIKey));
   ATH_CHECK(retrieveAndLink(m_eFexEMRoIKey));
+
+  for (const auto& tool: m_thresholdPatternTools) {
+    ATH_CHECK(tool->decorateThresholds(eventContext));
+  }
 
   return StatusCode::SUCCESS;
 }
