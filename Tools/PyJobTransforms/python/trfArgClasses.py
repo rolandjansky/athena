@@ -2231,7 +2231,7 @@ class argSubstepSteering(argSubstep):
     # usecases of steering. 
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
-    # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
+    # "doOverlay" - run event overlay on presampled RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     # "doTRIGtoALL" - produce AODs directly from trigger RDOs

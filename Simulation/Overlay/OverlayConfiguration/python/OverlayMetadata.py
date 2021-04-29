@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -82,7 +82,7 @@ def signalMetadataCheck(flags, simDict, tagInfoDict):
 
 
 def simulationMetadataCheck(sigdict, pudict):
-    """Check the simulation metadata for pre-mixed pileup RDO file"""
+    """Check the simulation metadata for presampled pileup RDO file"""
     sigkeys = sigdict.keys()
     pukeys = pudict.keys()
 
@@ -93,8 +93,8 @@ def simulationMetadataCheck(sigdict, pudict):
         try:
             assert o in pukeys
         except AssertionError:
-            logger.error("%s key missing from Pre-mixed pile-up Simulation metadata!", o)
-            raise AssertionError("Pre-mixed pile-up Simulation metadata key not found")
+            logger.error("%s key missing from Presampled pile-up Simulation metadata!", o)
+            raise AssertionError("Presampled pile-up Simulation metadata key not found")
         try:
             assert o in sigkeys
         except AssertionError:
@@ -112,14 +112,14 @@ def simulationMetadataCheck(sigdict, pudict):
                     assert re.match(str(pudict[o]), str(sigdict[o]))
         except AssertionError:
             if o in warningKeys:
-                logger.warning("Simulation metadata mismatch! Pre-mixed pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
+                logger.warning("Simulation metadata mismatch! Presampled pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
             else:
-                logger.error("Simulation metadata mismatch! Pre-mixed pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
+                logger.error("Simulation metadata mismatch! Presampled pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
                 raise AssertionError("Simulation metadata mismatch")
 
 
 def tagInfoMetadataCheck(sigdict, pudict):
-    """Check the tag info metadata for pre-mixed pileup RDO File"""
+    """Check the tag info metadata for presampled pileup RDO File"""
     sigkeys = sigdict.keys()
     pukeys = pudict.keys()
 
@@ -136,7 +136,7 @@ def tagInfoMetadataCheck(sigdict, pudict):
         pass
     # TODO: extra
     keysToCompareSet = set(sigkeys).intersection(set(pukeys))
-    logger.debug("The following keys appear in Signal and Pre-mixed pile-up /TagInfo metadata:")
+    logger.debug("The following keys appear in Signal and Presampled pile-up /TagInfo metadata:")
     logger.debug(keysToCompareSet)
     
     # Loop over metadata keys which must have matching values
@@ -146,8 +146,8 @@ def tagInfoMetadataCheck(sigdict, pudict):
         try:
             assert o in pukeys
         except AssertionError:
-            logger.error("%s key missing from Pre-mixed pile-up Simulation metadata!", o)
-            raise AssertionError("Pre-mixed pile-up Simulation metadata key not found")
+            logger.error("%s key missing from Presampled pile-up Simulation metadata!", o)
+            raise AssertionError("Presampled pile-up Simulation metadata key not found")
         try:
             assert o in sigkeys
         except AssertionError:
@@ -165,9 +165,9 @@ def tagInfoMetadataCheck(sigdict, pudict):
                     assert re.match(str(pudict[o]), str(sigdict[o]))
         except AssertionError:
             if o in warningKeys:
-                logger.warning("Simulation metadata mismatch! Pre-mixed pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
+                logger.warning("Simulation metadata mismatch! Presampled pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
             else:
-                logger.error("Simulation metadata mismatch! Pre-mixed pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
+                logger.error("Simulation metadata mismatch! Presampled pile-up: [%s = %s] Signal: [%s = %s]", o, pudict[o], o, sigdict[o])
                 raise AssertionError("Simulation metadata mismatch")
 
 
@@ -193,10 +193,10 @@ def overlayMetadataCheck(flags):
         pileupSimulationMetadata = pileupMetaDataCheck["/Simulation/Parameters"]
         pileupTagInfoMetadata = pileupMetaDataCheck["/TagInfo"]
     
-        logger.info("Checking Pre-mixed pile-up metadata against Signal Simulation metadata...")
+        logger.info("Checking Presampled pile-up metadata against Signal Simulation metadata...")
         simulationMetadataCheck(signalSimulationMetadata, pileupSimulationMetadata)
         tagInfoMetadataCheck(signalTagInfoMetadata, pileupTagInfoMetadata)
-        logger.info("Completed all checks against Pre-mixed pile-up Simulation metadata.")
+        logger.info("Completed all checks against Presampled pile-up Simulation metadata.")
 
 
 def overlayMetadataWrite(flags):

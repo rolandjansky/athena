@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 import AthenaCommon.SystemOfUnits as Units
@@ -126,7 +126,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("SCT_ReadCalibChipDataTool", sct_ReadCalibChipDataToolSetup.getTool())
     # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
     from AthenaCommon.BeamFlags import jobproperties
-    if digitizationFlags.PileUpPremixing:
+    if digitizationFlags.PileUpPresampling:
         kwargs.setdefault("DataCompressionMode", 3)
     elif globalflags.isOverlay() and globalflags.DataSource == 'geant4':
         kwargs.setdefault("DataCompressionMode", 2)
@@ -201,7 +201,7 @@ def commonSCT_DigitizationConfig(name,**kwargs):
 
 def SCT_DigitizationTool(name="SCT_DigitizationTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "SCT_SDO_Map")

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
@@ -77,9 +77,9 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
         kwargs['TileRawChannelBuilderMF'] = rawChanBuilder
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPremixing)
+    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPresampling)
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault('MuonReceiverDigitsContainer', flags.Overlay.BkgPrefix + 'MuRcvDigitsCnt')
     else:
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
@@ -107,7 +107,7 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
     muRcvDigitsCnt = str(muRcvDigitsCnt).split('+').pop()
     outputItemList = ['TileDigitsContainer#' + muRcvDigitsCnt]
 
-    if not flags.Digitization.PileUpPremixing:
+    if not flags.Digitization.PileUpPresampling:
         if hasattr(tilePulseForMuRcv, 'MuonReceiverRawChannelContainer'):
             muRcvRawChCnt = tilePulseForMuRcv.MuonReceiverRawChannelContainer
         else:
