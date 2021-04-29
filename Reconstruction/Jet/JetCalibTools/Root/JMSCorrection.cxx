@@ -635,7 +635,6 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
     }
 
-    TLorentzVector caloCalibJet;
     caloCalibJet.SetPtEtaPhiM(pT_corr, jetStartP4.eta(), jetStartP4.phi(), mass_corr);
     
     if(!m_combination){
@@ -795,13 +794,14 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       xAOD::JetFourMom_t calibP4_calo = jet.jetP4();
       calibP4_calo.SetCoordinates( caloCalibJet.Pt(), jetStartP4.eta(), jetStartP4.phi(), caloCalibJet.M() );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",calibP4_calo);
-      
+
       //Transfer calibrated TA mass property to the Jet object
       xAOD::JetFourMom_t calibP4_ta = jet.jetP4();
       if(!m_pTfixed){
 	calibP4_ta.SetCoordinates( TACalibJet.Pt(), jetStartP4.eta(), jetStartP4.phi(), TACalibJet.M() );
       }else{
 	calibP4_ta.SetPxPyPzE( TACalibJet_pTfixed.Px(), TACalibJet_pTfixed.Py(), TACalibJet_pTfixed.Pz(), TACalibJet_pTfixed.E() );}
+
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",calibP4_ta);
     } //m_trackAssistedJetMassCorr  
   } //!m_onlyCombination
@@ -813,7 +813,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     double E_calo;
     double Et_calo;
   
-    if(m_onlyCombination){ 
+    if(m_onlyCombination){
       // Read input values (calo and TA insitu calibrated jets) for combination:
  
       xAOD::JetFourMom_t jetInsituP4_calo;
