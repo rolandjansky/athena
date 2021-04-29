@@ -5,6 +5,14 @@
 
 # Declare the package name:
 atlas_subdir( Superchic_i )
+
+# External dependencies:
+find_package( CLHEP )
+find_package( HepMC COMPONENTS HepMC HepMCfio )
+find_package( Apfel )
+find_package( Lhapdf )
+find_package( Superchic )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
