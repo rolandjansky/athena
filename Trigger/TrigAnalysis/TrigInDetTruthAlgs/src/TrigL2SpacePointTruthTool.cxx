@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,9 +127,8 @@ void TrigL2SpacePointTruthTool::getBarCodes(std::vector<TrigSiSpacePointBase>& v
     }
     return;
   }
-  for(std::vector<TrigSiSpacePointBase>::const_iterator it  = vsp.begin();it!=vsp.end();++it) {
+  for(TrigSiSpacePointBase& pSP : vsp) {
     int nBestBarCode=-1;
-    TrigSiSpacePointBase& pSP = const_cast<TrigSiSpacePointBase&>(*it);
     if(pSP.offlineSpacePoint()->clusterList().second==NULL) {
       std::vector<HepMcParticleLink> vPL;
       const Trk::PrepRawData* pPIXclus = pSP.offlineSpacePoint()->clusterList().first;
