@@ -33,20 +33,17 @@ class TrigEgammaFastElectron_ReFastAlgo(TrigEgammaFastElectronReAlgo):
         self.RCalBarrelFace = 1470.0*mm
         self.ZCalEndcapFace = 3800.0*mm
 
+        monTool = GenericMonitoringTool('MonTool')
+        monTool.defineHistogram('CaloTrackdEta', path='EXPERT', type='TH1F', title="FastElectron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+        monTool.defineHistogram('CaloTrackdPhi', path='EXPERT', type='TH1F', title="FastElectron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+        monTool.defineHistogram('CaloTrackEoverP', path='EXPERT', type='TH1F', title="FastElectron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12)
+        monTool.defineHistogram('PtTrack', path='EXPERT', type='TH1F', title="FastElectron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+        monTool.defineHistogram('PtCalo', path='EXPERT', type='TH1F', title="FastElectron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+        monTool.defineHistogram('CaloEta',path='EXPERT',  type='TH1F', title="FastElectron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
+        monTool.defineHistogram('CaloPhi', path='EXPERT', type='TH1F', title="FastElectron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
+        monTool.defineHistogram('CaloTrackdEtaNoExtrapMon', path='EXPERT',type='TH1F', title="FastElectron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
 
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-            monTool = GenericMonitoringTool('MonTool')
-            monTool.defineHistogram('CaloTrackdEta', path='EXPERT', type='TH1F', title="FastElectron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
-            monTool.defineHistogram('CaloTrackdPhi', path='EXPERT', type='TH1F', title="FastElectron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
-            monTool.defineHistogram('CaloTrackEoverP', path='EXPERT', type='TH1F', title="FastElectron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12)
-            monTool.defineHistogram('PtTrack', path='EXPERT', type='TH1F', title="FastElectron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
-            monTool.defineHistogram('PtCalo', path='EXPERT', type='TH1F', title="FastElectron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
-            monTool.defineHistogram('CaloEta',path='EXPERT',  type='TH1F', title="FastElectron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
-            monTool.defineHistogram('CaloPhi', path='EXPERT', type='TH1F', title="FastElectron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
-            monTool.defineHistogram('CaloTrackdEtaNoExtrapMon', path='EXPERT',type='TH1F', title="FastElectron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)  
-        
-            self.MonTool = monTool
+        self.MonTool = monTool
 
 
 #

@@ -759,10 +759,7 @@ class doValidation(_modifier):
 
     def preSetup(self):
         TriggerFlags.Online.doValidation = True
-        # Replace Online with Validation monitoring
-        TriggerFlags.enableMonitoring = filter(lambda x:x!='Online', TriggerFlags.enableMonitoring())+['Validation']
-        for m in self.modifiers:
-            m.preSetup()
+        TriggerFlags.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
     """

@@ -74,13 +74,13 @@ class doHLT(JobProperty):
     
 _flags.append(doHLT)
 
-class enableMonitoring(JobProperty):
-    """ enables certain monitoring type: Validation, Online, Time"""
+class doValidationMonitoring(JobProperty):
+    """Enables extra validation monitoring"""
     statusOn=True
-    allowedType=['list']
-    StoredValue=[]
+    allowedType=['bool']
+    StoredValue=False
 
-_flags.append(enableMonitoring)
+_flags.append(doValidationMonitoring)
 
 # trigger configuration source list
 class configurationSourceList(JobProperty):
