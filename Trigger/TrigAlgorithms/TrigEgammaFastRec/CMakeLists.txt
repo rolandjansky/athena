@@ -7,8 +7,7 @@ atlas_subdir( TrigEgammaFastRec )
 atlas_add_component( TrigEgammaFastRec
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib RecoToolInterfaces StoreGateLib TrigCompositeUtilsLib TrigMultiVarHypoLib TrigSteeringEvent TrkCaloExtension xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger AthOnnxruntimeServiceLib RingerSelectorToolsLib)
-
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel RecoToolInterfaces StoreGateLib TrigSteeringEvent TrkCaloExtension xAODTracking xAODTrigCalo xAODTrigEgamma )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
