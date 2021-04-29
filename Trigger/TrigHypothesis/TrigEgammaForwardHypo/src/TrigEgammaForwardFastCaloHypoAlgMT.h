@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFORWARDFASTCALOHYPOALGMT_H
-#define TRIGEGAMMAHYPO_TRIGEGAMMAFORWARDFASTCALOHYPOALGMT_H 1
+#ifndef TrigEgammaForwardFastCaloHypoAlgMT_h
+#define TrigEgammaForwardFastCaloHypoAlgMT_h
 
 #include <string>
 #include "DecisionHandling/HypoBase.h"
