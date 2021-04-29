@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv
+from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv, LVL1__MuonInputProviderLegacy
 
 class L1TopoSimulation ( LVL1__L1TopoSimulation ):
 
@@ -18,6 +18,11 @@ class RoiB2TopoInputDataCnv ( LVL1__RoiB2TopoInputDataCnv ):
 
     def __init__( self, name = "RoiB2TopoInputDataCnv" ):
         super( RoiB2TopoInputDataCnv, self ).__init__( name )
+
+class MuonInputProviderLegacy ( LVL1__MuonInputProviderLegacy ):
+
+    def __init__( self, name = "MuonInputProviderLegacy" ):
+        super( MuonInputProviderLegacy, self ).__init__( name )
 
 def L1LegacyTopoSimulationMCCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -37,11 +42,19 @@ def L1LegacyTopoSimulationMCCfg(flags):
         acc.merge(muctpiToolAcc)
 
     #Configure the MuonInputProvider
-    muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
-                                                    ROIBResultLocation = "", #disable input from RoIBResult
-                                                    MuctpiSimTool = muctpiTool,
-                                                    MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                    UseNewConfig = flags.Trigger.readLVL1FromJSON)
+    if flags.Trigger.enableL1MuonPhase1:
+        muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
+                                                        ROIBResultLocation = "", #disable input from RoIBResult
+                                                        MuctpiSimTool = muctpiTool,
+                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
+                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
+    else:
+        muProvider = CompFactory.LVL1.MuonInputProviderLegacy("MuonInputProviderLegacy", 
+                                                              ROIBResultLocation = "", #disable input from RoIBResult
+                                                              MuctpiSimTool = muctpiTool,
+                                                              MuonEncoding = 1 if flags.Input.isMC else 0, 
+                                                              UseNewConfig = flags.Trigger.readLVL1FromJSON)
+
 
     #Configure the MuonRoiTools for the MIP
     from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
@@ -76,12 +89,19 @@ def L1TopoSimulationMCCfg(flags):
         acc.merge(muctpiToolAcc)
 
     #Configure the MuonInputProvider
-    muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
-                                                    ROIBResultLocation = "", #disable input from RoIBResult
-                                                    MuctpiSimTool = muctpiTool,
-                                                    MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                    UseNewConfig = flags.Trigger.readLVL1FromJSON)
-
+    if flags.Trigger.enableL1MuonPhase1:
+        muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
+                                                        ROIBResultLocation = "", #disable input from RoIBResult
+                                                        MuctpiSimTool = muctpiTool,
+                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
+                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
+    else:
+        muProvider = CompFactory.LVL1.MuonInputProviderLegacy("MuonInputProviderLegacy", 
+                                                              ROIBResultLocation = "", #disable input from RoIBResult
+                                                              MuctpiSimTool = muctpiTool,
+                                                              MuonEncoding = 1 if flags.Input.isMC else 0, 
+                                                              UseNewConfig = flags.Trigger.readLVL1FromJSON)
+ 
     #Configure the MuonRoiTools for the MIP
     from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
     muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = flags.Trigger.enableL1MuonPhase1)

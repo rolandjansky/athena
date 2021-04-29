@@ -126,7 +126,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doV0VtxD3PD", False)
   icf.addFlag("InDet.removeTRTNoise", False)
   icf.addFlag("InDet.noTRTTiming", False)
-  icf.addFlag("InDet.InDet25nsec", False )
+  icf.addFlag("InDet.InDet25nsec", True ) # in most of the cases this is True
   icf.addFlag("InDet.selectSCTIntimeHits", True) # defines if the X1X mode is used for the offline or not 
   icf.addFlag("InDet.cutSCTOccupancy", True )
   icf.addFlag("InDet.useDCS", True)

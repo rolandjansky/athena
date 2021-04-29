@@ -104,10 +104,8 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaCommon.Constants import VERBOSE
     from AthenaCommon.Logging import logging
     log = logging.getLogger('ComponentAccumulator')
-    log.setLevel(VERBOSE)
 
     acc = ComponentAccumulator()
 

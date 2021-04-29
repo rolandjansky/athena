@@ -108,6 +108,9 @@ def TrigTauMonitoringTool():
              'tau25_idperf_tracktwo',
              'tau25_idperf_tracktwoEF',
              'tau25_idperf_tracktwoMVA',
+             'tau25_perf_tracktwo',
+             'tau25_perf_tracktwoEF',
+             'tau25_perf_tracktwoMVA', 
              # Run 3
              'tau0_idperf_tracktwoMVA_L1eTAU12',
              'tau0_idperf_tracktwoMVA_L1eTAU5',

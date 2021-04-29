@@ -4,6 +4,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
 def generateChains( flags, chainDict ):
+    flags = flags.cloneAndReplace('Tau', 'Trigger.Offline.Tau') # use from now on trigger variant of flags
+
     def __calo():
         recoAcc = InViewRecoCA('CaloTauReco')
         from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg

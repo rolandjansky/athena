@@ -202,12 +202,14 @@ def loadConfigFile(fname, args) -> Dict:
         compsToRename = flatten_list(args.renameComps)
         if args.renameCompsFile:
             with open( args.renameCompsFile, "r") as refile:
-                compsToRename.extend( [line.rstrip('\n') for line in refile.readlines() ] )
+                for line in refile:
+                    if not (line.startswith("#") or line.isspace() ):
+                        compsToRename.append( line.rstrip('\n') )
         global componentRenamingDict
         componentRenamingDict.update({
             old_name: new_name
             for old_name, new_name in [
-                element.split("=") for element in compsToRename
+                [e.strip() for e in element.split("=")] for element in compsToRename
             ]
         })
 
@@ -264,7 +266,9 @@ def loadConfigFile(fname, args) -> Dict:
         for (key, value) in dic.items():
             collect_types(value)
         for (key, value) in dic.items():
-            conf[key] = drop_defaults(key, value)
+            remaining = drop_defaults(key, value)
+            if len(remaining) != 0: # ignore components that have only default settings
+                conf[key] = remaining
 
     if args.shortenDefaultComponents:
         dic = conf

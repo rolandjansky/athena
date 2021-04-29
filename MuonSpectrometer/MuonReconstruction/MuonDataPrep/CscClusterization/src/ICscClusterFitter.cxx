@@ -7,13 +7,13 @@
 
 typedef ICscClusterFitter::DataNames DataNames;
 
-//const InterfaceID& ICscClusterFitter::interfaceID() {
+// const InterfaceID& ICscClusterFitter::interfaceID() {
 //  return IID_ICscClusterFitter;
 //}
 
 const DataNames& ICscClusterFitter::dataNames() const {
-  static DataNames dnames;
-  return dnames;
+    static DataNames dnames;
+    return dnames;
 }
 
 // This function is for old-release 12.0.X and old CscClusterValidation package.
@@ -36,4 +36,3 @@ fit(const StripList&, const StripFitList& sfits,
   return 0;
 }
 */
-

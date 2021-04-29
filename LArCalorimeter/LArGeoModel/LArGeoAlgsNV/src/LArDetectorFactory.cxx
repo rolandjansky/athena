@@ -158,24 +158,19 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	barrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
 	barrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 
-  EndcapCryostatConstruction endcapCryostatConstruction(
-    m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter, m_activateFT, m_enableMBTS
-  );
+	EndcapCryostatConstruction endcapCryostatConstruction(m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter, m_activateFT, m_enableMBTS);
 	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
 
-	//const GeoMaterial* matAir = materialManager->getMaterial("std::Air");
-
-	if(m_buildBarrel)
+	if(m_buildBarrel) {
 	  barrelEnvelope = barrelCryostatConstruction.GetEnvelope();
+	}
 
-	if(m_buildEndcap)
-	  {
-	    endcapEnvelopePos = endcapCryostatConstruction.createEnvelope(true);
-	    endcapEnvelopeNeg = endcapCryostatConstruction.createEnvelope(false);
-	  }
+	if(m_buildEndcap) {
+	  endcapEnvelopePos = endcapCryostatConstruction.createEnvelope(true);
+	  endcapEnvelopeNeg = endcapCryostatConstruction.createEnvelope(false);
+	}
 
 	// Offset of endcaps from nominal position.
-
 	a_container->add(new GeoNameTag("LAr"));
 
 	if(m_buildBarrel && m_buildEndcap)

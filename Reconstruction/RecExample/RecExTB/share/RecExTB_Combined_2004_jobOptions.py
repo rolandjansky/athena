@@ -955,8 +955,6 @@ svcMgr.AuditorSvc.Auditors = [ "ChronoAuditor" ]
 StoreGateSvc = Service( "StoreGateSvc" )
 StoreGateSvc.Dump = True
 
-if not doSim:
-   ToolSvc.LArADC2MeVToolDefault.UseHVScaleCorr = False
 ToolSvc.TileCellBuilder.maskBadChannels = False
 GeoModelSvc.DetectorTools[ "LArDetectorToolNV" ].ApplyAlignments = True
 #--------------------------------------------------------------

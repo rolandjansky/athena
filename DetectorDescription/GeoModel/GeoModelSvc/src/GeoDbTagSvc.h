@@ -40,6 +40,9 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
   void setCavernInfraVersionOverride(const std::string& tag)       { m_CavernInfraVersionOverride=tag; }
   void setForwardDetectorsVersionOverride(const std::string& tag)  { m_ForwardDetectorsVersionOverride=tag; }
 
+  void setParamSvcName(const std::string& name)                    { m_paramSvcName=name; }
+  void setSqliteReader(GeoModelIO::ReadGeoModel* reader)           { m_sqliteReader=reader; }
+
   StatusCode setupTags();
 
  private:
@@ -71,6 +74,9 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
 
   GeoModel::GeoConfig geoConfig() const { return m_geoConfig; }
 
+  virtual const std::string & getParamSvcName()       const override { return m_paramSvcName; }
+  virtual GeoModelIO::ReadGeoModel* getSqliteReader() override { return m_sqliteReader; }
+
   // _________________________ Private data Members _______________________________
   std::string m_AtlasVersion;
 
@@ -99,6 +105,9 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
   std::string m_ForwardDetectorsVersionOverride;
 
   GeoModel::GeoConfig m_geoConfig;
+
+  std::string m_paramSvcName;
+  GeoModelIO::ReadGeoModel* m_sqliteReader{nullptr};
 };
 
 #endif // GEOMODELSVC_GEODBTAGSVC_H

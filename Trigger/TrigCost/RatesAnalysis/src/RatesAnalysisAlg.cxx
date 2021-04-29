@@ -544,14 +544,16 @@ StatusCode RatesAnalysisAlg::execute() {
 
   // Get event characteristics
   const xAOD::EventInfo* eventInfo(nullptr);
+  uint32_t distance = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
+  ATH_CHECK( m_enhancedBiasRatesTool->getDistanceIntoTrain(eventInfo, distance) );
 
   // Get the weighting & scaling characteristics
   m_weightingValues.m_enhancedBiasWeight = m_enhancedBiasRatesTool->getEBWeight(eventInfo);
   m_weightingValues.m_eventMu = std::ceil(eventInfo->actualInteractionsPerCrossing()); // This always seems to be a half integer
   m_weightingValues.m_eventLumi = m_enhancedBiasRatesTool->getLBLumi(eventInfo);
   m_weightingValues.m_isUnbiased = m_enhancedBiasRatesTool->isUnbiasedEvent(eventInfo);
-  m_weightingValues.m_distanceInTrain = m_enhancedBiasRatesTool->getDistanceIntoTrain(eventInfo); 
+  m_weightingValues.m_distanceInTrain = distance;
   m_weightingValues.m_eventLiveTime = m_enhancedBiasRatesTool->getEBLiveTime(eventInfo); 
 
   if (m_useBunchCrossingTool && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;

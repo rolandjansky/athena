@@ -227,11 +227,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         ToolSvc += numberingTool
         self.LayerNumberTool = numberingTool
 
-        # GPU offloading config begins
+        # GPU offloading config begins - perhaps set from configure
 
         self.useGPU = False
-
-        #if type == "FS" : self.useGPU = True
 
         if self.useGPU :
             from TrigInDetAccelerationTool.TrigInDetAccelerationToolConf import TrigInDetAccelerationTool
@@ -243,25 +241,19 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.doResMon = config.doResMon
 
-
-
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(slice_name, self.doResMon)
 
-        # why is this TrigFastTrackFinderMonitoring() line added twice ???
-        # Run3 monitoring
-        #        self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
-
-        #Spacepoint conversion
+        # Spacepoint conversion
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
         spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool_' + remapped_type)
-        spTool.DoPhiFiltering = config.DoPhiFiltering
-        spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
-        spTool.UseBeamTilt = False
+        spTool.DoPhiFiltering        = config.DoPhiFiltering
+        spTool.UseNewLayerScheme     = self.useNewLayerNumberScheme
+        spTool.UseBeamTilt           = False
         spTool.PixelSP_ContainerName = TrigPixelKeys.SpacePoints
         spTool.SCT_SP_ContainerName  = TrigSCTKeys.SpacePoints
-        spTool.layerNumberTool = numberingTool
-        spTool.UsePixelSpacePoints = config.UsePixelSpacePoints
+        spTool.layerNumberTool       = numberingTool
+        spTool.UsePixelSpacePoints   = config.UsePixelSpacePoints
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
         from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
@@ -293,6 +285,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.pTmin           = config.pTmin
         self.DoubletDR_Max   = config.DoubletDR_Max
         self.SeedRadBinWidth = config.SeedRadBinWidth
+        
+        if config.UseTrigSeedML is not None: 
+            self.UseTrigSeedML = config.UseTrigSeedML
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
@@ -300,9 +295,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
         InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
-        if remapped_type=="fullScan":
-          InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 5.0
+
+        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = config.RoadWidth
 
         if remapped_type=="cosmics":
           from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
@@ -333,11 +327,16 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
+        if config.nClustersMin is not None:
+            nClustersMin = config.nClustersMin
+        else:
+            nClustersMin = TrackingCuts.minClusters()
+        
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+slice_name,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                               CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
                                               pTmin          = config.pTmin,
-                                              nClustersMin   = TrackingCuts.minClusters(),
+                                              nClustersMin   = nClustersMin,
                                               nHolesMax      = TrackingCuts.nHolesMax(),
                                               nHolesGapMax   = TrackingCuts.nHolesGapMax(),
                                               SeedsFilterLevel = 0, # Do not use built-in seeds filter
@@ -348,9 +347,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                               UseAssociationTool       = False)
 
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-        if remapped_type=="fullScan":
-          TrackMaker_FTF.nClustersMin = 8
-
         if slice_name=='eGamma' and InDetTrigFlags.doBremRecovery():
           TrackMaker_FTF.useBremModel = True
 
@@ -369,7 +365,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
         ToolSvc += theTrigInDetTrackFitter
         self.trigInDetTrackFitter = theTrigInDetTrackFitter
+
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
         if slice_name=='eGamma' and InDetTrigFlags.doBremRecovery():
           theTrigInDetTrackFitterBrem = TrigInDetTrackFitter(name='theTrigInDetTrackFitterBrem',
                                                              doBremmCorrection = True)
@@ -401,7 +399,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           TrackMaker_FTF.InputClusterContainerName = ""
           TrackMaker_FTF.InputHadClusterContainerName = ""
-
 
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool

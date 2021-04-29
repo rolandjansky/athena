@@ -66,6 +66,16 @@ namespace LVL1 {
          For more details, see ATR-16781.
       */
       unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
+      /* 
+         @brief calculate the eta and phi L1Topo indices
+
+         The exact eta and phi coordinates are rounded according to a particular L1Topo granularity
+         Using product instead of division avoids unexpected rounding errors due to precision
+         Also, LUTs for the firmware are built using Python 3.x numpy.round(), which is different from std::round()
+         Input: x = eta/phi float values, g = inverse of eta/phi granularity
+         Output: integer eta/phi L1Topo coordinates
+      */
+      int topoIndex(float x, int g) const;
 
 
       ServiceHandle<ITHistSvc> m_histSvc;
@@ -87,7 +97,13 @@ namespace LVL1 {
       Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
       mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEtaPhiTopo ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hBW2or3 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hInnerCoin ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hGoodMF ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hCharge ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hIs2cand ATLAS_THREAD_SAFE; 
    };
 }
 

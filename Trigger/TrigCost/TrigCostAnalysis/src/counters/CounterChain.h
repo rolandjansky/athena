@@ -8,8 +8,8 @@
 #include "../CounterBase.h"
 
 /**
- * @class CounterAlgorithm
- * @brief Concrete implimentation of Counter to monitor all properties of a given Algorithm instance.
+ * @class CounterChain
+ * @brief Concrete implimentation of Counter to monitor all properties of a given Chain instance.
  */
 class CounterChain : public CounterBase {
   public:
@@ -41,7 +41,7 @@ class CounterChain : public CounterBase {
     CounterChain(const CounterChain&) = delete;
 
     /**
-     * @brief Concrete implimentation. Monitores chain's algorithm at specified index. Expected to match this instances name().
+     * @brief Concrete implimentation. Monitores chain at specified index. Expected to match this instances name().
      * @param[in] data Access to event data
      * @param[in] index Index within appropriate event data container which is to be analysed by this Counter
      * @param[in] weight Global event weight

@@ -18,6 +18,7 @@
 #include "monitors/MonitorThreadOccupancy.h"
 #include "monitors/MonitorROS.h"
 #include "monitors/MonitorChain.h"
+#include "monitors/MonitorChainAlgorithm.h"
 
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
@@ -259,6 +260,9 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
     ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }if (m_doMonitorChainAlgorithm) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
+    ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;
@@ -389,6 +393,7 @@ void TrigCostAnalysis::writeMetadata() {
   }
 
   bool ChainMonitor = (const bool&) m_doMonitorChain;
+  bool ChainAlgorithmMonitor = (const bool&) m_doMonitorChainAlgorithm;
   bool AlgorithmMonitor = (const bool&) m_doMonitorAlgorithm;
   bool AlgorithmClassMonitor = (const bool&) m_doMonitorAlgorithmClass;
   bool ROSMonitor = (const bool&) m_doMonitorROS;
@@ -396,6 +401,7 @@ void TrigCostAnalysis::writeMetadata() {
   bool ThreadMonitor = (const bool&) m_doMonitorThreadOccupancy;
 
   m_metadataTree->Branch("ChainMonitor", &ChainMonitor);
+  m_metadataTree->Branch("ChainAlgorithmMonitor", &ChainAlgorithmMonitor);
   m_metadataTree->Branch("AlgorithmMonitor", &AlgorithmMonitor);
   m_metadataTree->Branch("AlgorithmClassMonitor", &AlgorithmClassMonitor);
   m_metadataTree->Branch("ROSMonitor", &ROSMonitor);

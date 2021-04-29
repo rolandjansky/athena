@@ -342,9 +342,14 @@ def createTriggerFlags():
         muonflags.MuonCombined.doMuGirl = False
         return muonflags
 
+
     flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
     flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
+
+    from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
+    flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
+    #TODO come back and use systematically the same 
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
