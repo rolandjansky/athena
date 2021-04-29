@@ -33,11 +33,11 @@ namespace MuonCombined {
         void associate(const MuonCandidate& muonCandidate, const InDetCandidateCollection& inDetCandidates,
                        std::vector<const InDetCandidate*>& associatedIdCandidates) const;
 
-        void  fill_debugging ATLAS_THREAD_SAFE(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const; 
+        void  ATLAS_THREAD_SAFE fill_debugging (const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const; 
         // helpers, managers, tools
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandleArray<MuonCombined::IMuonCombinedTagTool> m_muonCombinedTagTools{this, "MuonCombinedTagTools", {}};
-        ToolHandle<MuonCombinedDebuggerTool> ATLAS_THREAD_SAFE  m_muonCombDebugger{this, "MuonCombinedDebuggerTool",
+        ToolHandle<MuonCombinedDebuggerTool> ATLAS_THREAD_SAFE m_muonCombDebugger{this, "MuonCombinedDebuggerTool",
                                                                 "MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool"};
 
         Gaudi::Property<double> m_deltaEtaPreSelection{this, "DeltaEtaPreSelection", 0.5};

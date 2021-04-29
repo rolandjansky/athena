@@ -21,7 +21,7 @@ class TTree;
 
 namespace MuonCombined {
 
-    static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
+   
 
     class ATLAS_NOT_THREAD_SAFE MuonCombinedDebuggerTool
         : public AthAlgTool  // the MuonCombinedDebuggerTool can only be used when running with one thread
@@ -30,11 +30,14 @@ namespace MuonCombined {
         MuonCombinedDebuggerTool(const std::string& type, const std::string& name, const IInterface* parent);
         ~MuonCombinedDebuggerTool() = default;
 
-        static const InterfaceID& interfaceID() { return IID_MuonCombinedDebuggerTool; }
+        static const InterfaceID& interfaceID() { 
+            static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
+            return IID_MuonCombinedDebuggerTool; 
+        }
 
         StatusCode initialize();
 
-        void bookBranches();
+      
 
         void fillBranches(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const;
 
@@ -45,6 +48,8 @@ namespace MuonCombined {
         void fillMsBranches(const MuonCandidateCollection& muonCandidates) const;
 
     private:
+        void bookBranches();
+      
         ToolHandle<Rec::IMuonMatchQuality> m_matchQuality{this, "MuonMatchQuality", "Rec::MuonMatchQuality/MuonMatchQuality"};
         ToolHandle<Trk::ITruthToTrack> m_truthToTrack{this, "TruthToTrack", "Trk::TruthToTrack/TruthToTrack"};
 

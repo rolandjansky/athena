@@ -29,6 +29,7 @@ namespace MuonCombined {
         ATH_CHECK(m_matchQuality.retrieve());
         ATH_CHECK(m_truthToTrack.retrieve());
         ATH_CHECK(m_histSvc.retrieve());
+        bookBranches();
         return StatusCode::SUCCESS;
     }
 

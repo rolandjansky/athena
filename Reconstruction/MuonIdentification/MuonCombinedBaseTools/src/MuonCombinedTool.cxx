@@ -23,7 +23,7 @@ namespace MuonCombined {
         AthAlgTool(type, name, parent) {
         declareInterface<IMuonCombinedTool>(this);
     }
-   void MuonCombinedTool::fill_debugging ATLAS_THREAD_SAFE (const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const{
+   void ATLAS_THREAD_SAFE MuonCombinedTool::fill_debugging (const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const{
        if (!m_runMuonCombinedDebugger) return;
        m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
    } 
@@ -35,8 +35,7 @@ namespace MuonCombined {
             m_runMuonCombinedDebugger = false;
         }
         if (m_runMuonCombinedDebugger) {
-            ATH_CHECK(m_muonCombDebugger.retrieve());
-            m_muonCombDebugger->bookBranches();            
+            ATH_CHECK(m_muonCombDebugger.retrieve());              
         }
 
         return StatusCode::SUCCESS;
