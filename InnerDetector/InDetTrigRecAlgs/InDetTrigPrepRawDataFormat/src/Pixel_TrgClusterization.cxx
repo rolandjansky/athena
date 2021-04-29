@@ -70,7 +70,8 @@ namespace InDet{
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_doTimeOutChecks(true),
-    m_skipBSDecoding(false)
+    m_skipBSDecoding(false),
+    m_totDEs(0)
   {  
     // Get parameter values from jobOptions file
     declareProperty("DetectorManagerName",     m_managerName);
@@ -90,6 +91,7 @@ namespace InDet{
 
     declareMonitoredVariable("numPixClusters", m_numPixClusters    );
     declareMonitoredVariable("numPixIds", m_numPixIds    );
+    declareMonitoredVariable("fractDEs",  m_fractDEs);
     declareMonitoredStdContainer("PixHashId", m_ClusHashId);
     declareMonitoredStdContainer("PixBSErr", m_PixBSErr);
   
@@ -130,6 +132,12 @@ namespace InDet{
 		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
     if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
     ATH_MSG_INFO( "will be driven by RoI objects" );
+
+    std::vector<IdentifierHash> pixids;
+    m_regionSelector->DetHashIDList( PIXEL, pixids);
+    m_totDEs = pixids.size();
+    
+    ATH_MSG_INFO( "Total number of PIXEL detector elements " << m_totDEs);
 
     /*
       StatusCode sc = m_rawDataProvider->initContainer();
@@ -279,6 +287,7 @@ namespace InDet{
     //initialisation of monitored quantities
     m_numPixIds = 0;
     m_numPixClusters = 0;
+    m_fractDEs = -1.;
     m_clusterCollection = NULL;
     m_listOfPixIds.clear();
     m_ClusHashId.clear();
@@ -395,10 +404,13 @@ namespace InDet{
       if(doTiming()) m_timerRegSel->start();
       m_regionSelector->DetHashIDList( PIXEL, *roi, m_listOfPixIds);
       m_numPixIds = m_listOfPixIds.size();
+      m_fractDEs = float(m_numPixIds)/float(m_totDEs);
       ATH_MSG_DEBUG( "REGTEST: Pixel : Roi contains " 
 		     << m_numPixIds << " det. Elements" );
       
       if(doTiming()) m_timerRegSel->stop();
+    } else {
+      m_fractDEs = 1.;
     }
     
     if (!m_skipBSDecoding){
@@ -637,6 +649,9 @@ namespace InDet{
 
     return HLT::OK;
   }
+
+
+  
   //----------------------------------  
   //          endRun method:
   //----------------------------------------------------------------------------

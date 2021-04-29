@@ -101,6 +101,7 @@ namespace InDet {
     //monitoring
     int m_numSctClusters;
     int m_numSctIds;
+    float m_fractDEs;
     
     std::vector<IdentifierHash> m_listOfSctIds; 
     SCT_ClusterCollection* m_clusterCollection;
@@ -126,6 +127,7 @@ namespace InDet {
     std::string             m_sctRDOContainerName; 
     ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
+    int                      m_totDEs;            //number of detector elements
 
     //conditions
     ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
