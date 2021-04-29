@@ -2818,21 +2818,17 @@ namespace Trk {
         }
         
         if (rotated) {
+          const double traceCov = covmat(0, 0) + covmat(1, 1);
+          const double diagonalProduct = covmat(0, 0) * covmat(1, 1);
+          const double element01Sq = covmat(0, 1) * covmat(0, 1);
+          const double sqrtTerm = std::sqrt(
+              (traceCov) * (traceCov) - 4. * (diagonalProduct - element01Sq)
+            );
+           
           double v0 = 0.5 * (
-            covmat(0, 0) + covmat(1, 1) - std::sqrt(
-              1 * (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) - 
-              4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
-            )
+            traceCov - sqrtTerm
           );
-          
-          double v1 = 0.5 * (
-            covmat(0, 0) + covmat(1, 1) + std::sqrt(
-              1 * (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) -
-              4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
-            )
-          );
-                                                                      
-          sinstereo = std::sin(0.5 * std::asin(2 * covmat(0, 1) / (v0 - v1)));
+          sinstereo = std::sin(0.5 * std::asin(2 * covmat(0, 1) / (-sqrtTerm)));
           errors[0] = std::sqrt(v0);
         } else {
           errors[0] = std::sqrt(covmat(0, 0));
