@@ -91,14 +91,15 @@ if __name__ == '__main__':
 
   tool = cfg.popToolsAndMerge(ZDCGeoDetectorToolCfg(ConfigFlags))
   cfg.addPublicTool(tool)
-  
+
   tool = cfg.popToolsAndMerge(AFPGeoDetectorToolCfg(ConfigFlags))
   cfg.addPublicTool(tool)
 
   tool = cfg.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
   cfg.addPublicTool(tool)
 
-  cfg.addPublicTool(MaterialDescriptionToolCfg(ConfigFlags))
+  tool = cfg.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()

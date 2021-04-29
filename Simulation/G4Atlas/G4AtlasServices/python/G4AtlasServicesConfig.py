@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -307,6 +307,7 @@ def getGeometryConfigurationTools():
     # CfgGetter methods for these tools should be defined in the
     # package containing each tool, so G4AtlasTools in this case
     geoConfigToolList += ["MaterialDescriptionTool"]
+    geoConfigToolList += ["SmartlessnessTool"]
     return geoConfigToolList
 
 def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):

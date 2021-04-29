@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -13,7 +13,7 @@ from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 
-CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","G4AtlasDetectorConstructionTool",)
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,SmartlessnessTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","SmartlessnessTool","G4AtlasDetectorConstructionTool",)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
@@ -467,4 +467,13 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
 
 def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
-    return MaterialDescriptionTool(name, **kwargs)
+    result = ComponentAccumulator()
+    result.setPrivateTools(MaterialDescriptionTool(name, **kwargs))
+    return result
+
+
+def SmartlessnessToolCfg(ConfigFlags, name="SmartlessnessTool", **kwargs):
+    ## kwargs.setdefault("SomeProperty", aValue)
+    result = ComponentAccumulator()
+    result.setPrivateTools(SmartlessnessTool(name, **kwargs))
+    return result
