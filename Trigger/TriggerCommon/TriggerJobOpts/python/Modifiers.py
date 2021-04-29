@@ -758,7 +758,6 @@ class doValidation(_modifier):
     """
 
     def preSetup(self):
-        TriggerFlags.Online.doValidation = True
         TriggerFlags.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
