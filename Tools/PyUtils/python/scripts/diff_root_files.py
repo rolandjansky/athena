@@ -14,6 +14,7 @@ import re
 from PyUtils.Decorators import memoize
 from math import isnan
 from numbers import Real
+from os import environ
 
 ### globals -------------------------------------------------------------------
 g_ALLOWED_MODES = ('summary', 'semi-detailed', 'detailed')
@@ -109,6 +110,12 @@ def main(args):
     
     import PyUtils.RootUtils as ru
     root = ru.import_root()  # noqa: F841
+
+    # Force load some dictionaries to work around ATLASRECTS-6261/ROOT-10940
+    if 'AtlasProject' in environ and environ['AtlasProject'] == 'Athena':
+        root.xAOD.TrackParticleContainer()
+        root.xAOD.JetContainer()
+        root.xAOD.MuonContainer()
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
