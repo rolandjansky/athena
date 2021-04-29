@@ -1,48 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <cstdlib>
 
+#include <AsgMessaging/MessageCheck.h>
+
 int main()
 {
-  std::cout << "Unit test for SUSYTools on MC" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Result of 'ls'" << std::endl;
-  system("ls");
-  system("echo PWD=$PWD");
-  
-  std::cout << "Result of 'ls SUSYTools/data'" << std::endl;
-  system("ls $ROOTCOREBIN/../SUSYTools/data");
+  using namespace asg::msgUserCode;
 
-  std::cout << std::endl;
-  std::cout << "list of RootCore/lib" << std::endl;
-  system("ls $ROOTCOREDIR/lib");
+  ATH_MSG_INFO ("Unit test for SUSYTools on MC");
 
-  std::cout << std::endl;
-  std::cout << "Environment variables" << std::endl;
-  system("env");
+  // Stored updated references in SUSY ART area for now
+  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4441.PHYS.pool.root";
 
-  std::string cmd = "SUSYToolsTester $ASG_TEST_FILE_MC 100 isData=0 isAtlfast=0 Debug=0 NoSyst=0";
-  // pick PRW file based on what release series we have, 20.1 input for 2.3 and 20.7 input for 2.4
-  int releaseSeries = atoi(getenv("ROOTCORE_RELEASE_SERIES"));
-  if (releaseSeries > 23){
-    cmd.append(" PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root,/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
-    
-    cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root");
-    cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
-  }
-  else
-    cmd.append(" PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+  std::string cmd("SUSYToolsTester " + inputFile + " maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0");
+  cmd.append(" PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root");
+  cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root");
 
-  std::cout << "Will now run this command: " << cmd << std::endl;
+  ATH_MSG_INFO ("Will now run this command: " << cmd);
   int ret = system(cmd.c_str());
 
   if (ret != 0) {
-    std::cout << "Test failed (return code was " << ret << ")" << std::endl;
+    ATH_MSG_ERROR ("Test failed (return code was " << ret << ")");
     return 1;
   }
-  std::cout << "Finished (return code was " << ret << ")" << std::endl;
+  ATH_MSG_INFO ("Finished (return code was " << ret << ")");
   return 0;
 }

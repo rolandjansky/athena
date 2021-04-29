@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -8,13 +8,8 @@
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-//#include "xAODBase/IParticleHelpers.h"
-//#include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "xAODPrimitives/IsolationType.h"
-//#include "FourMomUtils/xAODP4Helpers.h"
-//#include "xAODTracking/TrackParticlexAODHelpers.h"
-//#include "AthContainers/ConstDataVector.h"
-//#include "PATInterfaces/SystematicsUtil.h"
+// For using the MCTruthClassifier definitions
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -43,7 +38,7 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
       if(origin != MCTruthPartClassifier::PhotonConv) return false;
       if(originbkg == MCTruthPartClassifier::FSRPhot || originbkg == MCTruthPartClassifier::BremPhot) return true;
       origin = originbkg;
-      // [[fallthrough]]
+      /* FALLTHRU */
     case MCTruthPartClassifier::IsoElectron:
       return (origin == MCTruthPartClassifier::top
 	      || origin == MCTruthPartClassifier::WBoson
@@ -83,13 +78,23 @@ StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) const {
   std::string key_T1 = "TruthParticles"; 
   std::string key_T3 = "TruthBSM";
  
+  ATH_MSG_DEBUG("Contains " << key_T1 << ": " << ((evtStore()->contains<xAOD::TruthParticleContainer>( key_T1 ))?1:0));
+  ATH_MSG_DEBUG("Contains " << key_T3 << ": " << ((evtStore()->contains<xAOD::TruthParticleContainer>( key_T3 ))?1:0));
  
   if(evtStore()->contains<xAOD::TruthParticleContainer>( key_T1 )){
     ATH_CHECK( evtStore()->retrieve(truthP, key_T1) );
+    ATH_MSG_DEBUG("Retrieved " << key_T1 << " : size = " << truthP->size());
+    if (truthP->size()==0) { ATH_MSG_WARNING(key_T1 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
   }
   else if(evtStore()->contains<xAOD::TruthParticleContainer>( key_T3 )){
     isTruth3=true;    
     ATH_CHECK( evtStore()->retrieve(truthP, key_T3) );
+    ATH_MSG_DEBUG("Retrieved " << key_T3 << " : size = " << truthP->size());
+    if (truthP->size()==0) { ATH_MSG_WARNING(key_T3 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
+  }
+  else {
+    ATH_MSG_WARNING("Neither " << key_T1 << " nor " << key_T3 << " are avaible. Skipping FindSusyHP.");
+    return StatusCode::SUCCESS;
   }
 
   return SUSYObjDef_xAOD::FindSusyHP(truthP, pdgid1, pdgid2, isTruth3);
@@ -140,7 +145,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!truthP || truthP->empty()) {
     return false;
   }
-  for (const auto& tp : *truthP) {
+  for (const xAOD::TruthParticle* tp : *truthP) {
 
     //check ifSUSY particle
     if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
@@ -180,7 +185,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!firstsp && !secondsp) return true; // should find none or two
 
   if (firstsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
         firstsp = tp;
         break;
@@ -189,7 +194,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   }
 
   if (secondsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
         secondsp = tp;
         break;

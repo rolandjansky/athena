@@ -1,61 +1,66 @@
 //////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation for ApplySUSYTools
 // Author: Frank Paige <paige@bnl.gov>
 ///////////////////////////////////////////////////////////////////
 
+// Class header file
 #include "ApplySUSYTools.h"
-#include "SUSYTools/SUSYObjDef_xAOD.h"
+
+// Tools and services used here
 #include "AthenaKernel/IThinningSvc.h"
 
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/MuonAuxContainer.h"
-#include "xAODPrimitives/IsolationType.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODJet/JetAuxContainer.h"
-#include "xAODJet/JetAttributes.h"
-#include "xAODJet/JetTypes.h"
-#include "xAODBTagging/BTagging.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
+// Various typedefs and enums used in the code
+#include "xAODJet/JetAttributes.h"
+#include "xAODJet/JetTypes.h"
+#include "xAODPrimitives/IsolationType.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
+
+// Shallow copies for jet passing
 #include "xAODCore/ShallowCopy.h"
+
+// Decorators
 #include "AthContainers/AuxElement.h"
-#include "AsgTools/AsgMetadataTool.h"
-#include "xAODBase/IParticleHelpers.h"
+
+// Cut book keeper objects
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 // Needed for systematics
 #include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicSet.h"
-//#include "PATInterfaces/SystematicList.h"
-#include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicVariation.h"
 
-// FrameWork includes
-#include "Gaudi/Property.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
+// For finding calibration files
 #include "PathResolver/PathResolver.h"
+
+// For environment setup
+#include "TEnv.h"
+
+// For the setOriginalObjectLink function
+#include "xAODBase/IParticleHelpers.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 namespace ST {
 
@@ -108,7 +113,7 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   m_PhotonsName("Photons"),
   m_configFile("SUSYTools/SUSYTools_Default.conf"),
   m_objTool("SUSYObjDef_xAOD/dummy"),
-  m_tauTruthTool("TauTruthMatchingTool/dummy"),
+  m_tauTruthTool(""),
   m_thinningSvc("ThinningSvc/ThinningSvc", name)
 {
 
@@ -137,10 +142,12 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
 
   declareProperty("IsData", m_isData);
   declareProperty("MaxCount", m_maxCount);
-  declareProperty("SUSYObjTool",  m_objTool);
-  declareProperty("TauTruthMatchingTool", m_tauTruthTool),
   declareProperty("ThinningSvc",m_thinningSvc);
   //declareProperty("", );
+
+  // asg Tool Handles must be dealt with differently
+  m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
+  m_objTool.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
 }
 
 /////////////
@@ -180,10 +187,11 @@ StatusCode ApplySUSYTools::initialize()
   // Use jobOptions for now. :-(
 
   // Need truth matching for tau CP tools
-
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
-    CHECK( m_tauTruthTool.retrieve() );
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
+    ATH_CHECK( m_tauTruthTool.setProperty("WriteTruthTaus", true) );
+    ATH_CHECK( m_tauTruthTool.retrieve() );
   }
 
   // Systematics
@@ -316,6 +324,8 @@ StatusCode ApplySUSYTools::execute()
   // Reset systematics
   CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
+  // Up front, apply pileup reweighting -- no need to weight
+  CHECK( m_objTool->ApplyPRWTool() );
 
   ////////////////////////////
   // Retrieve original objects
@@ -556,16 +566,15 @@ StatusCode ApplySUSYTools::execute()
 
   // Muons thinning
   //int muonsSize = p_Muons->size();
-  CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, 
-                               IThinningSvc::Operator::Or) );
-  CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask,
-                               IThinningSvc::Operator::Or) );
-  for(auto si : m_systInfoMUON){ const CP::SystematicSet& sys =
-    si->systset; std::string sysname = sys.name(); if( sysname == "" )
-    sysname = "Nominal"; const xAOD::MuonContainer* mus = 0; CHECK(
-    evtStore()->retrieve(mus, m_MuonsName+sysname) );
-    CHECK( m_thinningSvc->filter(*mus, *muCutMask,
-                                 IThinningSvc::Operator::Or) );
+  CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, IThinningSvc::Operator::Or) );
+  CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask, IThinningSvc::Operator::Or) );
+  for(auto si : m_systInfoMUON){ 
+    const CP::SystematicSet& sys = si->systset; 
+    std::string sysname = sys.name(); 
+    if( sysname == "" ) sysname = "Nominal"; 
+    const xAOD::MuonContainer* mus = 0; 
+    CHECK( evtStore()->retrieve(mus, m_MuonsName+sysname) );
+    CHECK( m_thinningSvc->filter(*mus, *muCutMask, IThinningSvc::Operator::Or) );
   }
 
   ////////////
@@ -754,7 +763,8 @@ StatusCode ApplySUSYTools::execute()
   if( !m_isData  && 
   !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") ){
     // If there are no taus, then we need to force the building of the container
-    if (0==p_TauJets->size()) m_tauTruthTool->buildTruthTausFromTruthParticles();
+    if (0==p_TauJets->size()) CHECK( m_tauTruthTool->retrieveTruthTaus() );
+
     for(const auto& tau : *p_TauJets){
       const xAOD::TruthParticle* trueTau = 0;
       trueTau = m_tauTruthTool->getTruth(*tau);
@@ -771,6 +781,7 @@ StatusCode ApplySUSYTools::execute()
       }
     } 
   }//end TruthTaus
+  
 
   for(auto si : m_systInfoTAU){
     const CP::SystematicSet& sys = si->systset;
@@ -996,11 +1007,7 @@ StatusCode ApplySUSYTools::execute()
 
   for(unsigned int j=0; j<p_TauJets->size(); ++j){
     if( !(*tauCutMask)[j] ) continue;
-#if ROOTCORE_RELEASE_SERIES==25
     const auto& tpLinks = (*p_TauJets)[j]->tauTrackLinks();
-#else
-    const auto& tpLinks = (*p_TauJets)[j]->trackLinks();
-#endif
     int nTrkTau = 0;
     for(const auto& tpLink : tpLinks){
       if( !tpLink.isValid() ) continue;
@@ -1077,8 +1084,9 @@ StatusCode ApplySUSYTools::execute()
   // Truth Jets
   /////////////
 
+  // SZ - TRUTH JETS MISSING IN R21 xAODs - commenting out for now
   // Only for Monte Carlo
-  if( m_TruthJetsName != "" && m_isData==0 ){
+  /*if( m_TruthJetsName != "" && m_isData==0 ){
     const xAOD::JetContainer* p_TruthJets = 0;
     CHECK( evtStore()->retrieve(p_TruthJets, m_TruthJetsName) );
     if( doPrint ) ATH_MSG_DEBUG("Got p_TruthJets size =  " <<p_TruthJets->size());
@@ -1095,7 +1103,7 @@ StatusCode ApplySUSYTools::execute()
     CHECK( m_thinningSvc->filter(*p_TruthJets, *truthJetCutMask, 
                                  IThinningSvc::Operator::Or) );
   }//end m_TruthJetsName
-
+  */
 
   //////////
   // Trigger
