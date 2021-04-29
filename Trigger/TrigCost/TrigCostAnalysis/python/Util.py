@@ -14,7 +14,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile):
+def saveMetadata(inputFile, userDetails):
     import json
 
     metatree = inputFile.Get("metadata")
@@ -40,6 +40,8 @@ def saveMetadata(inputFile):
     metadata.append({'BaseEventWeight' : metatree.BaseEventWeight})
 
     metadata.append({'HLTMenu' : json.loads(str(metatree.HLTMenu))})
+
+    metadata.append({'Details' : userDetails})
 
     with open('metadata.json', 'w') as outMetaFile:
         metafile = {}

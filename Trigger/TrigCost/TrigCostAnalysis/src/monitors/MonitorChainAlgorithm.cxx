@@ -17,6 +17,12 @@ StatusCode MonitorChainAlgorithm::newEvent(const CostData& data, const float wei
 
         for (const size_t algIndex : data.chainToAlgMap().at(seededChains[i].name)){
             const xAOD::TrigComposite* alg = data.costCollection().at(algIndex);
+
+            const uint32_t slot = alg->getDetail<uint32_t>("slot");
+            if (slot != data.onlineSlot()) {
+                continue; // When monitoring the master slot, this Monitor ignores algs running in different slots 
+            }
+            
             const uint32_t nameHash = alg->getDetail<TrigConf::HLTHash>("alg");
             const std::string algName = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
 

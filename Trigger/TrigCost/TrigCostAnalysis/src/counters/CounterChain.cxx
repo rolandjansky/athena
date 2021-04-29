@@ -45,9 +45,13 @@ StatusCode CounterChain::newEvent(const CostData& data, size_t index, const floa
   if (!data.chainToAlgMap().count(getName())) return StatusCode::SUCCESS;
 
   for (const size_t algIndex : data.chainToAlgMap().at(getName())){
-    ATH_CHECK( increment("AlgCalls_perEvent", weight) );
-
     const xAOD::TrigComposite* alg = data.costCollection().at(algIndex);
+    const uint32_t slot = alg->getDetail<uint32_t>("slot");
+    if (slot != data.onlineSlot()) {
+      continue; // When monitoring the master slot, this Monitor ignores algs running in different slots 
+    }
+
+    ATH_CHECK( increment("AlgCalls_perEvent", weight) );
 
     const uint64_t start = alg->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = alg->getDetail<uint64_t>("stop"); // in mus
