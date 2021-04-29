@@ -83,7 +83,8 @@ StatusCode LArDetectorToolNV::create()
   }
 
   // Initialize the HV System:
-  LArHVManager *hvManager{nullptr};
+  LArHVManager* hvManager = new LArHVManager();;
+  ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));
 
   // Get the detector configuration.
   ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
@@ -97,9 +98,6 @@ StatusCode LArDetectorToolNV::create()
   std::string detectorNode{""};
 
   if(!sqliteReader) {
-    hvManager = new LArHVManager();;
-    ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));
-
     // Geometry is constructed from the Geometry DB
     std::string AtlasVersion = geoDbTag->atlasVersion();
     std::string LArVersion   = geoDbTag->LAr_VersionOverride();
