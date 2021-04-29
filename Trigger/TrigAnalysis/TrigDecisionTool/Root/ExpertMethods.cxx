@@ -18,7 +18,7 @@
 #include <exception>
 #include "TrigDecisionTool/ExpertMethods.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_ANALYSIS // Full athena
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigNavigation/AccessProxy.h"
 #endif
@@ -36,7 +36,7 @@
 #include "xAODTrigger/TrigDecision.h"
 
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_STANDALONE // AthAnalysis or Full Athena
 
 Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
   : m_cacheGlobalMemory(cgm),
@@ -44,7 +44,7 @@ Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>*
 {
 }
 
-#else // Analysis or Standalone
+#else // AnalysisBase
 
 Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
   : m_cacheGlobalMemory(cgm),
@@ -91,13 +91,7 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
-
-const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
-{
-  if (!(checkExperimentalAndExpertMethods())) return 0;
-  return dynamic_cast<const HLT::NavigationCore*>(cgm()->navigation());
-}
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
@@ -108,7 +102,26 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   return m_cacheGlobalMemory->get(); 
 }
 
-#else // Analysis or Standalone
+#ifndef XAOD_ANALYSIS // Full Athena only sub-part 
+
+const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
+{
+  if (!(checkExperimentalAndExpertMethods())) return 0;
+  return dynamic_cast<const HLT::NavigationCore*>(cgm()->navigation());
+}
+
+#else // AthAnalysis only sub-part
+
+const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
+{
+  if (!(checkExperimentalAndExpertMethods())) return 0;
+  return dynamic_cast<const HLT::TrigNavStructure*>(cgm()->navigation());
+}
+
+
+#endif
+
+#else // AnalysisBase
 
 const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 {
@@ -128,8 +141,6 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 #endif
 
 
-
-
 bool Trig::ExpertMethods::isHLTTruncated() const {
 
   SG::ReadHandleKey<xAOD::TrigDecision>* trigDecRH = cgm()->xAODTrigDecisionKey();
@@ -142,14 +153,14 @@ bool Trig::ExpertMethods::isHLTTruncated() const {
     }
   }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_ANALYSIS // Full Athena only 
   SG::ReadHandle<HLT::HLTResult> hltResult("HLTResult_HLT");
   if(!hltResult.isValid()) {
     ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
     return false;
   }
   return hltResult->isHLTResultTruncated();   
-#else
+#else // AnalysisBase or AthAnalysis
   ATH_MSG_ERROR("isHLTTruncated only supported with a xAOD::TrigDecision ReadHandle (Runs 2,3) or in full Athena (Run 2)");
   return false;
 #endif

@@ -39,7 +39,7 @@
 
 #include "TrigDecisionTool/TypelessFeature.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 #endif
 
@@ -49,7 +49,7 @@
 //e.g. not in the boost::is_same call directly a la 
 // boost::is_same<T,struct Muon_ROI>::value
 //so that it does not end up to be a check on is_same<T,Trig::Muon_ROI> 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 class Muon_ROI;
 class EmTau_ROI;
 class Jet_ROI;
@@ -77,7 +77,7 @@ namespace Trig {
   
   
   template<typename T> struct is_storable_type{
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
     static const bool value = 
       !(
 	boost::is_same<T,Muon_ROI>::value  ||
@@ -88,7 +88,7 @@ namespace Trig {
 	boost::is_same<T,xAOD::JetRoI>::value  ||
 	boost::is_same<T,xAOD::IParticle>::value
 	);
-#else
+#else // AnalysisBase or AthAnalysis
     static const bool value = false;
 #endif
   };
@@ -96,7 +96,7 @@ namespace Trig {
   template<typename T,bool> struct link_or_not;
   
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
   template<typename T> struct link_or_not<T,true>{
     static const bool known =  IsKnownFeature<T>::value; //will cause compile error if not
     typedef typename Features2Container<T>::type container_type;

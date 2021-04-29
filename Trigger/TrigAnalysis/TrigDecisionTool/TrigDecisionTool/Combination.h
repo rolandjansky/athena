@@ -29,7 +29,7 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 #include "TrigDecisionTool/FeatureCollectAthena.h"
 #endif
 
@@ -173,7 +173,7 @@ const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& l
 {
   std::vector<Feature<T> > data;
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   for( const HLT::TriggerElement* te : m_tes )
     FeatureAccessImpl::collect<T>(te, data, label, condition, teName, navigation());
   for( Feature<T>& f : data ) {

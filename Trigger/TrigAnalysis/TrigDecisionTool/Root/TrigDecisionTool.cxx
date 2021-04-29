@@ -25,7 +25,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
 #include "AthenaKernel/getMessageSvc.h"
 #endif
 
@@ -35,19 +35,19 @@ static std::vector<std::string> s_instances;
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name)
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   ,AthMessaging( Athena::getMessageSvc(), name)
 #endif
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // full Athena only
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
 #endif
 {
-#ifdef XAOD_ANALYSIS
+
+#ifdef XAOD_ANALYSIS // AnalysisBase or AthAnalysis
   m_navigation = new HLT::StandaloneNavigation();
 #endif
 
-  //full Athena env
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // full Athena
    declareProperty( "Navigation", m_fullNavigation);
    // ugly hack to prevent genconf from causing the MessageSvc to bork
    const std::string cmd = System::cmdLineArgs()[0];
@@ -56,8 +56,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
    }
 #endif
    
-#ifndef XAOD_STANDALONE
-   //just for Athena/AthAnalysisBase
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
    auto props = getProperties();
    for( Gaudi::Details::PropertyBase* prop : props ) {
      if( prop->name() != "OutputLevel" ) {
@@ -71,7 +70,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 
 }
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
 void Trig::TrigDecisionTool::outputlevelupdateHandler(Gaudi::Details::PropertyBase& /*p*/) {
    //call the original update handler
    Logger::msg().setLevel(AthMessaging::msg().level());
@@ -79,7 +78,7 @@ void Trig::TrigDecisionTool::outputlevelupdateHandler(Gaudi::Details::PropertyBa
 #endif
 
 Trig::TrigDecisionTool::~TrigDecisionTool() {
-#ifdef XAOD_ANALYSIS
+#ifdef XAOD_ANALYSIS // AnalysisBase or AthAnalysis
   if(m_navigation){
     delete m_navigation;
   }
@@ -96,7 +95,7 @@ Trig::TrigDecisionTool::initialize() {
    }
 
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+#ifndef XAOD_ANALYSIS // Full Athena only
    ATH_CHECK(m_oldDecisionKey.initialize( m_useRun1DecisionFormat ) );
    ATH_CHECK(m_oldEventInfoKey.initialize( m_useOldEventInfoDecisionFormat ) );
 #endif
@@ -117,9 +116,12 @@ Trig::TrigDecisionTool::initialize() {
 
    ATH_MSG_INFO("Initializing Trig::TrigDecisionTool (standalone version even for athena)");
   
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
-   //This is the full Athena Environment
-   //we setup the full TrigConfigSvc
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
+   // We setup the TrigConfigSvc interface
+   // Be default this is the standalone xAOD ConfigSvc
+   // In Run 3 the standalone xAOD ConfigSvc is useable in both RAWtoALL jobs and from ESD, AOD.
+   // Only in full Athena is it possible to in python instead request the legacy Run2 TrigConfigSvc
+   // There shouldn't be any reason to do this as of Q2 2021
    
    if(m_configSvc.empty()) {
      ATH_MSG_DEBUG("No TrigConfigSvc provided. Using ConfigTool instead...");
@@ -136,19 +138,21 @@ Trig::TrigDecisionTool::initialize() {
        configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig() );
      }
    }
+#else // AnalysisBase
+   ATH_CHECK(m_configTool.retrieve());
+#endif
 
+#ifndef XAOD_ANALYSIS // Full athena only
    if (m_navigationFormat == "TriggerElement") {
      ATH_CHECK(m_fullNavigation.retrieve());
    }
-#else
-   ATH_CHECK(m_configTool.retrieve());
 #endif
 
    cgm()->navigation(&*m_navigation);
 
-   cgm()->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
+   cgm()->setStore(&*evtStore()); // Cache must be updated per-event too (when running with multiple slots)
    
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
      ATH_MSG_ERROR("Cannot retrieve IncidentSvc");
@@ -178,15 +182,15 @@ Trig::TrigDecisionTool::initialize() {
 }
 
 std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   return m_configKeysCache.get();
-#else // Analysis or Standalone
+#else // AnalysisBase
   return &m_configKeysCache;
 #endif 
 }
 
 void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   std::atomic<bool>* ab = m_forceConfigUpdate.get();
   (*ab) = b;
   if (forceForAllSlots) {
@@ -196,7 +200,7 @@ void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots)
       (*ab) = b;
     }
   }
-#else // Analysis or Standalone
+#else // AnalysisBase
   m_forceConfigUpdate = b;
   ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
 #endif 
@@ -204,10 +208,10 @@ void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots)
 
 
 bool Trig::TrigDecisionTool::getForceConfigUpdate() {
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   std::atomic<bool>* ab = m_forceConfigUpdate.get();
   return *ab;
-#else // Analysis or Standalone
+#else // AnalysisBase
   return m_forceConfigUpdate;
 #endif 
 }
@@ -222,11 +226,13 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
   cgmPtr->setRun3NavigationKeyPtr( &m_HLTSummaryKeyIn );
 
   size_t slot = 0;
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
+  cgmPtr->setStore(&*evtStore()); // Can change based on event slot
+  slot = Gaudi::Hive::currentContext().slot();
+#ifndef XAOD_ANALYSIS // Full Athena only
   cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
-  cgmPtr->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
-  slot = Gaudi::Hive::currentContext().slot();
+#endif
 #endif
 
   //invalidate handle so that we read a new decision object
@@ -238,7 +244,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
   }
 
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   if(m_configSvc.empty()) {
 #endif
     //for analysis releases we check whether we need to update the config
@@ -268,11 +274,11 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
     } else{
       ATH_MSG_DEBUG("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
     }
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   }
 #endif
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   if(m_configSvc.name() == "xAODConfigSvc" or m_configSvc.name() == "TrigConfigSvc") {
     // ... and where we are using the xAOD service (instead of the TrigConfSvc)
     ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via " << m_configSvc.name() << ")");
@@ -343,7 +349,7 @@ Trig::TrigDecisionTool::finalize() {
    return StatusCode::SUCCESS;
 }
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 void
 Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration

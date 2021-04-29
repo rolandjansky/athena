@@ -2,12 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//only in full Athena
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_ANALYSIS // Full Athena only
 
-
-
-#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
@@ -202,6 +198,5 @@ namespace Trig {
     this->unpacked_decision(false);
   }
 }
-#endif
 
 #endif // full Athena env

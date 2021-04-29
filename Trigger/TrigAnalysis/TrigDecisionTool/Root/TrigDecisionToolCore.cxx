@@ -20,7 +20,7 @@
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_STANDALONE // AtheAnalysis or full Athena
 
 Trig::TrigDecisionToolCore::TrigDecisionToolCore()
 {
@@ -36,7 +36,7 @@ Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   return p;
 }
 
-#else // Analysis or Standalone
+#else // AnalysisBase
 
 Trig::TrigDecisionToolCore::TrigDecisionToolCore()
 {

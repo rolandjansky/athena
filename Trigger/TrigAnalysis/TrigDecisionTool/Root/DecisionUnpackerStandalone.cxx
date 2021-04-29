@@ -15,7 +15,7 @@
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 #include "TrigNavigation/NavigationCore.h"
 #endif
 

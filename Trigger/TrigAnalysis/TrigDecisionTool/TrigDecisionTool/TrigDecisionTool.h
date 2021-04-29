@@ -26,19 +26,21 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h" 
 #ifndef XAOD_STANDALONE
+// Includes below are hidden from AnalysisBase
 #include "AthenaBaseComps/AthMessaging.h"
 #include "EventInfo/EventInfo.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h" 
+#include "GaudiKernel/ServiceHandle.h"
 
 #ifndef XAOD_ANALYSIS
-#include "TrigNavigation/Navigation.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h" 
+// Includes below are hidden from AnalysisBase and AthAnalysis
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/SlotSpecificObj.h"
+#include "TrigNavigation/Navigation.h"
 
-#endif
+#endif // XAOD_ANALYSIS
 
-#endif
+#endif // XAOD_STANDALONE
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -127,10 +129,25 @@ namespace Trig {
 
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool"};    //!< trigger configuration service handle
 
-    //full Athena
-    #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", ""};    //!< trigger configuration service handle
-    ToolHandle<HLT::Navigation> m_fullNavigation;
+    // XAOD_STANDALONE is AnalysisBase
+    // XAOD_ANALYSIS is AnalysisBase and AthAnalysis
+    #ifdef XAOD_STANDALONE // AnalysisBase
+
+    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
+    bool m_forceConfigUpdate; //!< Cache for registering new input files
+
+    #else //AthAnalysis or full Athena
+
+    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", "TrigConf::xAODConfigSvc"};    //!< trigger configuration service handle
+
+    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
+
+    #endif
+
+    ///
+
+    #ifndef XAOD_ANALYSIS // full Athena
 
     Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,
       "For use when reading old BS with trigger decision information available in the EventInfo"};
@@ -144,13 +161,7 @@ namespace Trig {
     Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
-    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
-    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
-
-    #else // Analysis or standalone 
-
-    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
-    bool m_forceConfigUpdate; //!< Cache for registering new input files
+    ToolHandle<HLT::Navigation> m_fullNavigation;
 
     #endif
 

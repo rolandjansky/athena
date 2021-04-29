@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 
 // -*- c++ -*-
 #ifndef TRIGGER_DECISION_TOOL_FeatureCollectAthena_H

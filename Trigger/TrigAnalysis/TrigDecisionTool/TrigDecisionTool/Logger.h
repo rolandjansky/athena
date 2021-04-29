@@ -18,10 +18,10 @@
  ***********************************************************************************/
 #include <string>
 
-#ifdef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE // AnalysisBase
 #include "AsgMessaging/AsgMessaging.h"
 #endif
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis and full Athena
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #endif
@@ -32,11 +32,11 @@ namespace Trig{
     MsgStream& msg() const;
     MsgStream& msg(const MSG::Level lvl) const {return msg() << lvl;}
     bool msgLvl(const MSG::Level lvl) const {return Logger::staticStream->msgLvl(lvl);}
-#ifdef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE // AnalysisBase
     void setMessaging(asg::AsgMessaging* messaging){staticStream = messaging;}
     static asg::AsgMessaging* staticStream;
 #endif
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_STANDALONE // AthAnalysis and full Athena
     void setMessaging(AthMessaging* messaging){staticStream = messaging;}
     static AthMessaging* staticStream;
 #endif
