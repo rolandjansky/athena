@@ -23,6 +23,7 @@
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 #include "JetSelectorTools/EventCleaningTool.h"
+#include "JetUncertainties/FFJetSmearingTool.h"
 
 
 // MET include(s):
@@ -280,6 +281,17 @@ namespace top {
     // JER string option configuration
     bool JERisMC = m_config->isMC();
     std::string JERSmearModel = m_config->jetJERSmearingModel();
+    std::string JMSOption = m_config->jetJMSOption();
+    if (JMSOption != "None") {
+      conference = "Spring2021"; // Updated files using the JMS option are in Spring2021
+      if (JMSOption == "JMS_frozen") JMSOption = "_JMS_frozen";
+      else if (JMSOption == "JMS_scaled") JMSOption = "_JMS_scaled";
+      else {
+	ATH_MSG_ERROR("Incorrect JMS option: None, JMS_frozen, JMS_scaled");
+	return StatusCode::FAILURE;
+      }
+    }
+    else JMSOption = ""; // Default JMSOption
     // Any PseudoData Option (Smear MC as data)
     if (JERSmearModel == "Full_PseudoData") {
       if (JERisMC) JERisMC = false;
@@ -310,6 +322,7 @@ namespace top {
                                                          "rel21/" + conference
                                                          + "/R4_" + m_config->jetUncertainties_NPModel()
                                                          + JERSmearModel
+							 + JMSOption
                                                          + ".config",
                                                          nullptr,
                                                          m_config->jetUncertainties_QGFracFile(),
@@ -325,7 +338,9 @@ namespace top {
                                     JERisMC,
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario1_SimpleJER.config",
+                                    + "/R4_SR_Scenario1_SimpleJER"
+				    + JMSOption
+				    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -336,7 +351,9 @@ namespace top {
                                     JERisMC,
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario2_SimpleJER.config",
+                                    + "/R4_SR_Scenario2_SimpleJER"
+				    + JMSOption
+				    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -347,7 +364,9 @@ namespace top {
                                     JERisMC,
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario3_SimpleJER.config",
+                                    + "/R4_SR_Scenario3_SimpleJER"
+				    + JMSOption
+				    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -358,7 +377,9 @@ namespace top {
                                     JERisMC,
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario4_SimpleJER.config",
+                                    + "/R4_SR_Scenario4_SimpleJER"
+				    + JMSOption
+				    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);

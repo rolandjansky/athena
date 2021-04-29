@@ -263,6 +263,7 @@ namespace top {
     m_jetUncertainties_QGHistPatterns(),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
+    m_jetJMSOption("None"),
     m_largeRSysts_TreatMCasPseudodata(false),
     m_jetCalibSequence("GSC"),
     m_allowSmallRJMSforAFII(false),
@@ -1362,6 +1363,7 @@ namespace top {
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
+    this->jetJMSOption(settings->value("JetJMSOption"));
     if (settings->value("LargeRSysts_TreatMCasPseudodata") == "False") {
       this->largeRSysts_TreatMCasPseudodata(false);
     } else if (settings->value("LargeRSysts_TreatMCasPseudodata") == "True") {
