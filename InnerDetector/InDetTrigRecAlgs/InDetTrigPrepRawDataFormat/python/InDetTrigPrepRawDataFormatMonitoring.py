@@ -34,7 +34,12 @@ class SctTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
                                          type='TH1F',
                                          title="Number Det Elements in ROI",
                                          xbins = 100, xmin=0., xmax=maxid)]
-        
+
+    self.Histograms += [ defineHistogram('fractDEs',
+                                         type='TH1F',
+                                         title="Fraction of Det Elements in ROI",
+                                         xbins = 101, xmin=0., xmax=1.01)]
+
     self.Histograms += [ defineHistogram('SctBSErr',
                                          type='TH1F',
                                          title="SCT BS decoding errors", 
@@ -80,6 +85,11 @@ class PixelTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
                                          type='TH1F',
                                          title="Number Det Elements in ROI",
                                          xbins = 100, xmin=0., xmax=maxid)]
+
+    self.Histograms += [ defineHistogram('fractDEs',
+                                         type='TH1F',
+                                         title="Fraction of Det Elements in ROI",
+                                         xbins = 101, xmin=0., xmax=1.01)]
         
     self.Histograms += [ defineHistogram('PixBSErr',
                                          type='TH1F',

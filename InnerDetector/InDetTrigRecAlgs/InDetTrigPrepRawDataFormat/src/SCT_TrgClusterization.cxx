@@ -69,6 +69,7 @@ namespace InDet{
     m_sctRDOContainerName("SCT_RDOs"),
     m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
+    m_totDEs(0),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
@@ -100,6 +101,7 @@ namespace InDet{
 
     declareMonitoredVariable("numSctClusters", m_numSctClusters    );
     declareMonitoredVariable("numSctIds", m_numSctIds    );
+    declareMonitoredVariable("fractDEs",  m_fractDEs);
     declareMonitoredStdContainer("SctHashId", m_ClusHashId);
     declareMonitoredStdContainer("SctBSErr",  m_SctBSErr);
     declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
@@ -126,6 +128,12 @@ namespace InDet{
 		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
     if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
     ATH_MSG_INFO( "will be driven by RoI objects" );
+
+    std::vector<IdentifierHash> sctids;
+    m_regionSelector->DetHashIDList( SCT, sctids);
+    m_totDEs = sctids.size();
+    
+    ATH_MSG_INFO( "Total number of SCT detector elements " << m_totDEs);
 
     /*
     StatusCode sc = m_rawDataProvider->initContainer();
@@ -415,11 +423,14 @@ namespace InDet{
       if(doTiming()) m_timerRegSel->stop();
       
       m_numSctIds = m_listOfSctIds.size();
-      
+      m_fractDEs = float(m_numSctIds)/float(m_totDEs);
+
       
 
       ATH_MSG_DEBUG( "REGTEST: SCT : Roi contains " 
 		     << m_numSctIds << " det. Elements" );
+    } else {
+      m_fractDEs = 1.;
     }
 
 

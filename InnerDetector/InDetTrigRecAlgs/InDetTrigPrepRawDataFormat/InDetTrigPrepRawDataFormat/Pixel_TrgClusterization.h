@@ -100,8 +100,9 @@ namespace InDet {
   private:
     
     //monitoring
-    int m_numPixClusters;
-    int m_numPixIds;
+    int   m_numPixClusters;
+    int   m_numPixIds;
+    float m_fractDEs;
     
     std::vector<IdentifierHash> m_listOfPixIds; 
     PixelClusterCollection* m_clusterCollection;
@@ -134,6 +135,7 @@ namespace InDet {
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     bool                     m_doTimeOutChecks;   //check global timer
     bool                     m_skipBSDecoding;    //option to skip BS decoding in MC
+    int                      m_totDEs;            //number of detector elements
     
     // Timing
     TrigTimer   *m_timerRegSel;
