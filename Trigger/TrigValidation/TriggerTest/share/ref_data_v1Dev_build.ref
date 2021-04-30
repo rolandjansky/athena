@@ -56,13 +56,13 @@ HLT_2e5_lhvloose_bBeeM6000_L12EM3:
   eventCount: 0
   stepCounts:
     0: 7
-    1: 2
+    1: 1
     2: 1
     3: 1
   stepFeatures:
     0: 21
     1: 14
-    2: 3
+    2: 2
     3: 2
 HLT_2g10_loose_mu20_L1MU20:
   eventCount: 0
