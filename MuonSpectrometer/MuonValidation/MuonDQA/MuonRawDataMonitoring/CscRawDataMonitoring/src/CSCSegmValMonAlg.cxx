@@ -192,9 +192,9 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
         float clus_kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
         int eta_clus_count[2][2] = {{0, 0},{0, 0}}, phi_clus_count[2][2] = {{0, 0},{0, 0}}; // no. of prec/trans hits per segment
-        float eta_clus_qsum[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}},  phi_clus_qsum[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}}; // qsum over each prec/trans. layer on segment
-        float eta_clus_time[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}},  phi_clus_time[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}}; // time over each prec/trans. layer on segment
-        int eta_clus_use[2][5] = {{0, 0},{0,0,0,0,0}}, phi_clus_use[2][5] = {{0,0}, {0,0,0,0,0}};
+        float eta_clus_qsum[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}},  phi_clus_qsum[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}}; // qsum over each prec/trans. layer on segment
+        float eta_clus_time[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}},  phi_clus_time[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}}; // time over each prec/trans. layer on segment
+        int eta_clus_use[2][5] = {{0, 0, 0, 0, 0 },{0, 0, 0, 0, 0}}, phi_clus_use[2][5] = {{0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
 
         layerindex = 0;
 
