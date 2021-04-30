@@ -321,20 +321,6 @@ namespace Muon {
             // reserve space for the new PRDs
             target.push_back(collptr);
         }
-
-        if (chIdHs.size() == 0) {
-            // Temp fix because Region selector is not implemented
-            sTgcPrepDataContainer::const_iterator colIt = stgcPrdContainer->begin();
-            sTgcPrepDataContainer::const_iterator colIt_end = stgcPrdContainer->end();
-            for (; colIt != colIt_end; ++colIt) {
-                if ((*colIt)->size() > 0) {
-                    ATH_MSG_DEBUG(" Adding ALL Prds for:   " << m_idHelperSvc->toStringChamber((*colIt)->front()->identify()) << "  size "
-                                                             << (*colIt)->size());
-                    // reserve space for the new PRDs
-                    target.push_back(*colIt);
-                }
-            }
-        }
     }
 
     // MM
@@ -365,19 +351,6 @@ namespace Muon {
                                             << collptr->size());
 
             target.push_back(collptr);
-        }
-
-        if (chIdHs.size() == 0) {
-            // Temp fix because Region selector is not implemented
-            MMPrepDataContainer::const_iterator colIt = mmPrdContainer->begin();
-            MMPrepDataContainer::const_iterator colIt_end = mmPrdContainer->end();
-            for (; colIt != colIt_end; ++colIt) {
-                if ((*colIt)->size() > 0) {
-                    ATH_MSG_DEBUG(" Adding ALL Prds for:   " << m_idHelperSvc->toStringChamber((*colIt)->front()->identify()) << "  size "
-                                                             << (*colIt)->size());
-                    target.push_back(*colIt);
-                }
-            }
         }
     }
 
