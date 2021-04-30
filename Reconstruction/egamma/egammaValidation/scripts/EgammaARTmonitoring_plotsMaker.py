@@ -323,7 +323,7 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
 
     for i, folder in enumerate(cluster_list_to_loop):
         for histo in get_key_names(f_nightly, folder['name']):
-            if '2D' not in histo:
+            if '2D' not in histo and not 'profile' in histo:
                 continue
             if 'mu' in histo:
                 h_base = f_base.Get(folder['name'] + '/' + histo)
@@ -337,16 +337,14 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
 
             else:
                 h_base = f_base.Get(folder['name'] + '/' + histo)
-                h_base_profile = h_base.ProfileX(histo+"_ProfileB")
                 h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-                h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
-                h_base_profile.SetDirectory(0)
-                h_nightly_profile.SetDirectory(0)
+                h_base.SetDirectory(0)
+                h_nightly.SetDirectory(0)
                 if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0:
                     continue
-                y_axis_label = "Mean %s" % (h_base_profile.GetTitle())
-                h_base_profile.SetTitle("")
-                make_ratio_plot(h_base_profile, h_nightly_profile,
+                y_axis_label = "Mean %s" % (h_base.GetTitle())
+                h_base.SetTitle("")
+                make_ratio_plot(h_base, h_nightly,
                                 folder['title'], result_file, y_axis_label)
 
 
@@ -557,11 +555,11 @@ def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
         h_base.GetYaxis().SetTitle(y_axis_label)
         h_base.GetYaxis().SetTitle(y_axis_label)
 
-    if '2D' not in variable_name or 'Profile' in variable_name:
+    if '2D' not in variable_name or 'profile' in variable_name:
         h_base.Draw()
 
     h_nightly.Draw(
-        "same p" if '2D' not in variable_name or 'Profile' in variable_name
+        "same p" if '2D' not in variable_name or 'profile' in variable_name
         else 'colz')
 
     c1.Update()

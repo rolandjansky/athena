@@ -16,6 +16,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
+#include "TProfile.h"
 
 namespace egammaMonitoring{
 
@@ -36,6 +37,7 @@ namespace egammaMonitoring{
     std::map<std::string, TH1D* > histoMap;
     std::map<std::string, TH2D* > histo2DMap;
     std::map<std::string, TH3D* > histo3DMap;
+    std::map<std::string, TProfile* > profileMap;
 
     StatusCode initializePlots();
     void fill(const xAOD::Egamma& egamma);
