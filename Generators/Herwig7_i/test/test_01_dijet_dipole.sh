@@ -14,6 +14,9 @@ Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=1234
 
 echo "art-result: $? Gen_tf"
 
+asetup 22.6.1,AthGeneration
+source setupRivet
+
 python /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/rootconvert.py MyOutput.yoda.gz
 
 echo "art-result: $? Plot"
