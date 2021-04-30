@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_RECORDREADOUT_H
@@ -21,32 +21,29 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  /// Sets word which is to be processed
-  void setWord (const uint32_t dataWord) override {m_word = dataWord;}
-
   /// @brief Returns true if the word is marked as header word
   ///
   /// The word is marked as header if four most significant bits are
   /// equal #s_wordHeader.
-  bool isHeader () const override {return s_wordHeader == getBits(31, 28);}
+  bool isHeader (uint32_t the_word) const override {return s_wordHeader == getBits(the_word, 31, 28);}
 
   /// @brief Returns true if the word is marked as data word
   ///
   /// The word is marked as data word if two most significant bits are
   /// equal #s_wordData.
-  bool isData() const override {return s_wordData == getBits(31, 30);}
+  bool isData(uint32_t the_word) const override {return s_wordData == getBits(the_word, 31, 30);}
 
   /// @brief Returns true if the word is marked as service word
   ///
   /// The word is marked as service word if four most significant bits are
   /// equal #s_wordService.
-  bool isService() const override {return s_wordService == getBits(31, 28);}
+  bool isService(uint32_t the_word) const override {return s_wordService == getBits(the_word, 31, 28);}
 
   /// @brief Value of 5-8 most significant bits
   ///
   /// In the following word: `xxxx LLLL xxxx xxxx xxxx xxxx xxxx xxxx`
   /// it means bits marked with `L`.
-  uint32_t link() const override {return m_linkNumTrans->translate(getBits (27, 24));}
+  uint32_t link(uint32_t the_word) const override {return m_linkNumTrans->translate(getBits (the_word, 27, 24));}
 
   /// @brief Returns integer value of the selcted bits
   ///
@@ -65,7 +62,7 @@ public:
   /// - `getBits (4, 4) = 1`
   /// - `getBits (2, 2) = 0`
   /// - `getBits (5, 3) = 7`
-  uint32_t getBits(const uint16_t start, const uint16_t stop) const override;
+  uint32_t getBits(uint32_t the_word, const uint16_t start, const uint16_t stop) const override;
 
   /// Header word is marked with four most significant bits set to 0011
   static constexpr uint16_t s_wordHeader = 3;
@@ -77,8 +74,6 @@ public:
   static constexpr uint16_t s_wordService = 0;
 
 private:
-  uint32_t m_word;
-
   ToolHandle<AFP_LinkNumTranslator> m_linkNumTrans {this, "AFP_LinkNumTranslator", "AFP_LinkNumTranslator", "Tool that translates link numbers"};
 };
 
