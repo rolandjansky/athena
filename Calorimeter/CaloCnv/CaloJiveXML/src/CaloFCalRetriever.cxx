@@ -32,14 +32,12 @@ namespace JiveXML {
   CaloFCalRetriever::CaloFCalRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("FCAL"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_sgKey = "AllCalo"; 
-
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey" , m_sgKey);
     declareProperty("FCallCellThreshold", m_cellThreshold = 50.);
@@ -156,7 +154,7 @@ namespace JiveXML {
       double energyGeV, xmm, ymm, dxmm, dymm, cellTime;
       double energyAllLArFcal = 0.;
 
-      for(;it1!=it2;it1++){
+      for(;it1!=it2;++it1){
 
       if((*it1)->badcell()) BadCell.push_back(1);
       else if((*it1)->energy()>= m_cellThreshold) BadCell.push_back(0);
