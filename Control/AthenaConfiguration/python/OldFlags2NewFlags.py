@@ -50,10 +50,10 @@ def getNewConfigFlags():
     ConfigFlags.Detector.GeometrysTGC = MuonGeometryFlags.hasSTGC()
     ConfigFlags.Detector.GeometryMM = MuonGeometryFlags.hasMM()
     ConfigFlags.Detector.GeometryCSC = MuonGeometryFlags.hasCSC()
-    
-    # Now setup Reco:
-    reco_flag_map = { 'BCM':'BCM', 'IBL':'pixel', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
+
+    # Now setup Enable flags:
+    reco_flag_map = { 'BCM':'BCM', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
     for flag in reco_flag_map:   
-        ConfigFlags._set('Detector.Reco'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
+        ConfigFlags._set('Detector.Enable'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
 
     return ConfigFlags

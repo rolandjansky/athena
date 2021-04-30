@@ -379,9 +379,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True  
-    ConfigFlags.Detector.RecoPixel = True 
-    ConfigFlags.Detector.RecoSCT   = True 
-    ConfigFlags.Detector.RecoTRT   = True 
     ConfigFlags.Output.ESDFileName=args.output
 
     if args.debug:

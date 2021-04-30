@@ -66,10 +66,6 @@ def _run(input):
     flags.Input.Files = []
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
-    flags.Detector.RecoIBL=True
-    flags.Detector.RecoPixel=True
-    flags.Detector.RecoSCT=True
-    flags.Detector.RecoTRT=True
 
     flags.Detector.GeometryBCM=True
     flags.Detector.GeometryDBM=True

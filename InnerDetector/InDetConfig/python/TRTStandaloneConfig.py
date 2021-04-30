@@ -206,8 +206,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.Detector.RecoTRT = True
-    ConfigFlags.Detector.RecoIBL = True
+    # TODO: TRT only?
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads

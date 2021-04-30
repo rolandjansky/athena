@@ -294,10 +294,6 @@ if __name__ == "__main__":
     ConfigFlags.InDet.doPixelClusterSplitting = True
     ConfigFlags.InDet.doSiSPSeededTrackFinder = True
 
-    ConfigFlags.Detector.RecoIBL = True
-    ConfigFlags.Detector.RecoPixel = True
-    ConfigFlags.Detector.RecoTRT = True
-    ConfigFlags.Detector.RecoSCT = True
     # TODO add these flags in future
 #    ConfigFlags.addFlag('InDet.doAmbiSolving', True)
 #    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)

@@ -179,8 +179,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
   from InDetConfig.TrackingCutsFlags import createTrackingFlags, createSLHCTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createSLHCConversionFindingTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createForwardSLHCTracksTrackingFlags, createVeryForwardSLHCTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
 
