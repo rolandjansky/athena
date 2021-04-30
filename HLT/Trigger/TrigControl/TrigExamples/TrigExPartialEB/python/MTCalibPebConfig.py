@@ -120,6 +120,10 @@ def set_flags(flags, options=default_options):
     flags.Trigger.enableL1CaloPhase1 = options.EnableL1CaloPhase1
     flags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
     flags.Trigger.L1Decoder.forceEnableAllChains = True
+    # Disable signature-specific detector configuration parts
+    flags.Trigger.doID = False
+    flags.Trigger.doCalo = False
+    flags.Trigger.doMuon = False
 
 
 def l1_seq_cfg(flags, options=default_options):
@@ -320,11 +324,7 @@ def hlt_seq_cfg(flags, num_chains, concurrent=False, hackCA2Global=False, hypo_a
         prevConfBehav = Configurable.configurableRun3Behavior
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
-        svcMgr.HltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(StreamTagMakerToolCfg())
-        svcMgr.HltEventLoopMgr.ResultMaker.MakerTools = [
-            conf2toConfigurable(TriggerBitsMakerToolCfg()),
-            conf2toConfigurable(TriggerEDMSerialiserToolCfg('Serialiser'))]
+        svcMgr.HltEventLoopMgr.ResultMaker = conf2toConfigurable(acc.getService('HltEventLoopMgr').ResultMaker)
         Configurable.configurableRun3Behavior=prevConfBehav
 
     return acc
