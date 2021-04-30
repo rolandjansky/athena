@@ -128,9 +128,7 @@ else:
          DQMonFlags.doInDetGlobalMon=False
          DQMonFlags.doInDetAlignMon=False
 
-         DQMonFlags.doGlobalMon=False
          DQMonFlags.doLVL1CaloMon=False
-         DQMonFlags.doHLTMon=False
          DQMonFlags.doEgammaMon=False
          DQMonFlags.doMuonRawMon=False
          DQMonFlags.doLucidMon=False
