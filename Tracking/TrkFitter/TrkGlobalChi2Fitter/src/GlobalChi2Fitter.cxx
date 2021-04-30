@@ -52,9 +52,6 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-#include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -5714,13 +5711,11 @@ namespace Trk {
           for (int j = bremmin; j < bremmax; j++) {
             double thisderiv = 0;
             int index = j + nperparams + 2 * nscat;
-            
             if (i == 0 && sinstereo != 0) {
               thisderiv = derivatives(0, index) * cosstereo + sinstereo * derivatives(1, index);
             } else {
               thisderiv = derivatives(i, index);
             }
-            
             weightderiv(measno, index) = thisderiv / error[measno];
           }
           
@@ -5746,46 +5741,29 @@ namespace Trk {
         qoverpbrem = 1000 * state->trackParameters()->parameters()[Trk::qOverP];
         qoverp = qoverpbrem - state->materialEffects()->delta_p();
         
-        double sign = (qoverp > 0) ? 1 : -1;
-        double sign2 = (qoverpbrem > 0) ? 1 : -1;
         double mass = .001 * trajectory.mass();
         
-        if (trajectory.numberOfPerigeeParameters() > 0) {
-          weightderiv(nmeas - nbrem + bremno, 4) = (
-            (
-              -sign / (qoverp * qoverp * std::sqrt(1 + mass * mass * qoverp * qoverp)) + 
-              sign2 / (qoverpbrem * qoverpbrem * std::sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-            ) / error[nmeas - nbrem + bremno]
-          );
-        }
+        const auto thisMeasurementIdx{nmeas - nbrem + bremno};
+        auto multiplier = [] (double mass, double qOverP){
+          return std::copysign(1./(qOverP * qOverP * std::sqrt(1. + mass * mass * qOverP * qOverP)), qOverP);
+        };
+        const auto qoverpTerm {multiplier(mass, qoverp) / error[thisMeasurementIdx]};
+        const auto qoverpBremTerm {multiplier(mass, qoverpbrem) / error[thisMeasurementIdx]};
         
+        if (trajectory.numberOfPerigeeParameters() > 0) {
+          weightderiv(thisMeasurementIdx, 4) = qoverpBremTerm - qoverpTerm;
+        }
+        //
+        const auto bremNoBase =  nperparams + 2 * nscat;
         if (bremno < nbremupstream) {
-          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
-            (sign / (qoverp * qoverp * std::sqrt(1 + mass * mass * qoverp * qoverp))) /
-            error[nmeas - nbrem + bremno]
-          );
-          
+          weightderiv(thisMeasurementIdx, bremNoBase + bremno) = qoverpTerm;
           for (int bremno2 = bremno + 1; bremno2 < nbremupstream; bremno2++) {
-            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
-              -(
-                -sign / (qoverp * qoverp * std::sqrt(1 + mass * mass * qoverp * qoverp)) +
-                sign2 / (qoverpbrem * qoverpbrem * std::sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-              ) / error[nmeas - nbrem + bremno]
-            );
+            weightderiv(thisMeasurementIdx, bremNoBase + bremno2) = qoverpTerm - qoverpBremTerm;
           }
         } else {
-          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
-            (sign2 / (qoverpbrem * qoverpbrem * std::sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))) / 
-            error[nmeas - nbrem + bremno]
-          );
-          
+          weightderiv(thisMeasurementIdx, bremNoBase + bremno) = qoverpBremTerm;
           for (int bremno2 = nbremupstream; bremno2 < bremno; bremno2++) {
-            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
-              (
-                -sign / (qoverp * qoverp * std::sqrt(1 + mass * mass * qoverp * qoverp)) +
-                sign2 / (qoverpbrem * qoverpbrem * std::sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-              ) / error[nmeas - nbrem + bremno]
-            );
+            weightderiv(thisMeasurementIdx, bremNoBase + bremno2) = qoverpBremTerm - qoverpTerm;
           }
         }
         bremno++;
