@@ -238,6 +238,8 @@ StatusCode TrigMultiTrkComboHypo::mergeFromDecisions(TrigMultiTrkStateCand<T>& s
 
   // all muons from views are already connected with previous decisions by TrigMuonEFHypoAlg
   for (const Decision* decision : *state.previousDecisions) {
+    if (!TrigCompositeUtils::isAnyIDPassing(decision, m_allowedIDs)) continue;
+
     ATH_CHECK( decision->hasObjectLink(TrigCompositeUtils::featureString(), ClassID_traits<T>::ID()) );
     auto leptonEL = decision->objectLink<T>(TrigCompositeUtils::featureString());
     const auto lepton = *leptonEL;
@@ -299,6 +301,8 @@ StatusCode TrigMultiTrkComboHypo::mergeTracksFromViews(TrigMultiTrkState& state)
 
   size_t viewCounter = 0;
   for (const Decision* decision : *state.previousDecisions) {
+    if (!TrigCompositeUtils::isAnyIDPassing(decision, m_allowedIDs)) continue;
+
     auto viewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(decision, TrigCompositeUtils::viewString(), true);
     ATH_CHECK( viewLinkInfo.isValid() );
     auto viewEL = viewLinkInfo.link;
@@ -345,6 +349,7 @@ StatusCode TrigMultiTrkComboHypo::mergeTracksFromDecisions(TrigMultiTrkState& st
 
   // all muons from views are already connected with previous decisions by TrigMuonEFHypoAlg
   for (const Decision* decision : *state.previousDecisions) {
+    if (!TrigCompositeUtils::isAnyIDPassing(decision, m_allowedIDs)) continue;
 
     ElementLink<xAOD::TrackParticleContainer> trackEL;
     if (m_trigLevel == "EF") {
@@ -579,6 +584,8 @@ StatusCode TrigMultiTrkComboHypo::copyDecisionObjects(TrigMultiTrkState& state) 
   if (state.isEventAccepted) {
     ATH_MSG_DEBUG( "Copying decisions from " << decisionsInput().at(0).key() << " to " << decisionsOutput().at(0).key() );
     for (const Decision* previousDecision : *state.previousDecisions) {
+      if (!TrigCompositeUtils::isAnyIDPassing(previousDecision, m_allowedIDs)) continue;
+
       DecisionIDContainer previousDecisionIDs;
       TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs);
       DecisionIDContainer decisionIDs;
@@ -609,11 +616,11 @@ StatusCode TrigMultiTrkComboHypo::createDecisionObjects(TrigMultiTrkState& state
 
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (const size_t& i : state.trigBphysIndices[idx]) {
-    
+
           // attach all previous decisions: if the same previous decision is called twice, that's fine - internally takes care of that
           // we already have an array of links to the previous decisions, so there is no need to use TrigCompositeUtils::linkToPrevious()
           decision->addObjectCollectionLinks(TrigCompositeUtils::seedString(), state.getDecisionLinks(i));
-          previousDecisionIDs.push_back(&state.getDecisionID(i));       
+          previousDecisionIDs.push_back(&state.getDecisionID(i));
     }
 
     // set mandatory feature ElementLink to xAOD::TrigBphys object
