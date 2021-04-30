@@ -32,7 +32,7 @@ if flavourScheme == 4:
     _nQuarksMerge = 5 if finalStateB else 4
 else:
     run_settings.update({
-        'pdgs_for_merging_cut': '1, 2, 3, 4, 5,21'
+        'pdgs_for_merging_cut': '1, 2, 3, 4, 5, 21',
         'asrwgtflavor': 5,
         'maxjetflavor': 5
     })
