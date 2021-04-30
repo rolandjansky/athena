@@ -24,7 +24,7 @@ namespace DerivationFramework {
     m_fourMuonTool("DerivationFramework::FourMuonTool"),
     m_pvRefitter("Analysis::PrimaryVertexRefitter")
     {
-        declareInterface<DerivationFramework::ISkimmingTool>(this);
+        declareInterface<DerivationFramework::IAugmentationTool>(this);
         
         // Declare tools
         declareProperty("V0Tools"   , m_v0Tools);
@@ -71,20 +71,20 @@ namespace DerivationFramework {
     
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     
-    bool Reco_4mu::eventPassesFilter() const
+    StatusCode Reco_4mu::addBranches() const
     {
         // Output containers and its auxilliary store
         xAOD::VertexContainer*    pairContainer = NULL;
         xAOD::VertexAuxContainer* pairAuxContainer = NULL;
         xAOD::VertexContainer*    quadContainer = NULL;
         xAOD::VertexAuxContainer* quadAuxContainer = NULL;
-        bool acceptEvent(false); 
+        bool acceptEvent = false; // this is a dummy
         //----------------------------------------------------
         // call  finder
         //----------------------------------------------------
         if( !m_fourMuonTool->performSearch(pairContainer, pairAuxContainer, quadContainer, quadAuxContainer, acceptEvent).isSuccess() ) {
             ATH_MSG_FATAL("4mu tool (" << m_fourMuonTool << ") failed.");
-            return(false);
+            return StatusCode::FAILURE;
         }
         
         //----------------------------------------------------
@@ -222,7 +222,7 @@ namespace DerivationFramework {
             CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
         }
         
-        return(acceptEvent);
+        return StatusCode::SUCCESS;
     }
     
     
