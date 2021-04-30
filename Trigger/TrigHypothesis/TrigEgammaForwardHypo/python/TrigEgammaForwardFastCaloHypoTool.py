@@ -1,9 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
 
 #
 # For electrons only
@@ -128,7 +125,3 @@ def TrigEgammaForwardFastCaloHypoToolFromName( name, conf ):
     decodedDict = dictFromChainName(conf)
     return TrigEgammaForwardFastCaloHypoToolFromDict( decodedDict )
 
-
-
-if __name__ == "__main__":
-    TriggerFlags.enableMonitoring=['Validation']
