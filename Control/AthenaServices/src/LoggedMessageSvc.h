@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Header: /tmp/svngaudi/tmp.jEpFh25751/Gaudi/GaudiSvc/src/AthMessageSvc/AthMessageSvc.h,v 1.15 2008/10/21 16:25:55 marcocle Exp $
 #ifndef ATHENASERVICES_LOGGEDMESSAGESVC_H
 #define ATHENASERVICES_LOGGEDMESSAGESVC_H 1
 
@@ -21,6 +20,7 @@
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ILoggedMessageSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <boost/array.hpp>
 
@@ -36,7 +36,9 @@ class ISvcLocator;
 //
 // Author:      Charles Leggett
 //
-class LoggedMessageSvc : public extends2<AthService, ILoggedMessageSvc, IInactiveMessageCounter> {
+class ATLAS_CHECK_THREAD_SAFETY LoggedMessageSvc :
+  public extends<AthService, ILoggedMessageSvc, IInactiveMessageCounter> {
+
 public:
   typedef std::pair< std::string, std::ostream* > NamedStream;
   typedef std::multimap< int, NamedStream > StreamMap;
@@ -97,8 +99,8 @@ public:
   // Implementation of IMessageSvc::eraseStream()
   virtual void eraseStream( std::ostream* stream );
 
-  // Implementation of IMessageSvc::desaultStream()
-  virtual std::ostream* defaultStream() const {
+  // Implementation of IMessageSvc::defaultStream()
+  virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE () const {
     return m_defaultStream;
   }
 
