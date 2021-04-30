@@ -368,6 +368,8 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    if(commonGeoFlags.Run()=="RUN4"):
+        options['useITkMaterialRejection'] = True
     from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
     return InDet__InDetImprovedJetFitterVxFinder(**options)
 

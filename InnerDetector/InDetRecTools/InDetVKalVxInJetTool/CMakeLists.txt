@@ -35,12 +35,16 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# Component(s) in the package:
+atlas_add_library( InDetVKalVxInJetToolLib
+		   src/*.cxx
+		   PUBLIC_HEADERS InDetVKalVxInJetTool
+		   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib BeamPipeGeoModelLib GeoModelKernel GeoPrimitives PixelReadoutGeometry InDetReadoutGeometry  AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+		   
 atlas_add_component( InDetVKalVxInJetTool
-                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib BeamPipeGeoModelLib GeoModelKernel GeoPrimitives PixelReadoutGeometry InDetReadoutGeometry  AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES InDetVKalVxInJetToolLib )
 
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )

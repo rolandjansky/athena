@@ -37,6 +37,8 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrackLink/ITrackLink.h"
 
+#include <TH2F.h>
+
 namespace Trk {
   class IVertexFitter;
   class TrackParticleBase;
@@ -63,6 +65,13 @@ namespace xAOD
 {
   class IParticle;  
 }
+
+class BeamPipeDetectorManager;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
+class PixelID;
 
 namespace InDet {
 
@@ -221,6 +230,12 @@ namespace InDet {
     double m_pTMinOffset;
     double m_pTMinSlope;
     double m_pTMax;
+
+    bool m_useITkMaterialRejection;
+    const BeamPipeDetectorManager*       m_beamPipeMgr;
+    const InDetDD::PixelDetectorManager* m_pixelManager;
+    const PixelID* m_pixelHelper;
+    std::unique_ptr<TH2F> m_ITkPixMaterialMap;
 
 
   };//end class declaration
