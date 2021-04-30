@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrackLink
                           PRIVATE
+                          InnerDetector/InDetRecTools/InDetVKalVxInJetTool
                           Event/EventPrimitives
                           Event/xAOD/xAODTracking
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -48,10 +49,10 @@ atlas_add_library( InDetSecVxFinderToolLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel InDetRecToolInterfaces TrkParameters TrkParticleBase TrkJetVxFitterLib TrkVertexFittersLib TrkVxEdmCnvLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives xAODTracking TrkSurfaces TrkEventPrimitives TrkLinks TrkNeutralParameters TrkTrack VxJetVertex VxSecVertex VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives xAODTracking TrkSurfaces TrkEventPrimitives TrkLinks TrkNeutralParameters TrkTrack VxJetVertex VxSecVertex VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetVKalVxInJetTool)
 
 atlas_add_component( InDetSecVxFinderTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel InDetRecToolInterfaces TrkParameters TrkParticleBase EventPrimitives xAODTracking TrkSurfaces TrkEventPrimitives TrkLinks TrkNeutralParameters TrkTrack VxJetVertex VxSecVertex VxVertex TrkExInterfaces TrkToolInterfaces TrkJetVxFitterLib TrkVertexFitterInterfaces TrkVertexFittersLib TrkVxEdmCnvLib InDetSecVxFinderToolLib )
+                     LINK_LIBRARIES InDetSecVxFinderToolLib )
 

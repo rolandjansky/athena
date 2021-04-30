@@ -50,6 +50,10 @@
 #include "VxJetVertex/SelectedTracksInJet.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkVertexFitterInterfaces/INeutralParticleParameterCalculator.h"
+#include "InDetVKalVxInJetTool/InDetMaterialVeto.h"
+#include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "InDetIdentifier/PixelID.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -165,7 +169,8 @@ namespace InDet
     m_usepTDepTrackSel(false),
     m_pTMinOffset(800),//MeV
     m_pTMinSlope(0.01),//MeV(track cut)/MeV(sum of track pT)
-    m_pTMax(600e3)//MeV--> stop at 600 GeV sum of track pT
+    m_pTMax(600e3),//MeV--> stop at 600 GeV sum of track pT
+    m_useITkMaterialRejection(false)
   { 
     //JetFitter tools
     declareProperty("JetFitterHelper",m_helper);
@@ -265,7 +270,7 @@ namespace InDet
     declareProperty("pTMinSlope",m_pTMinSlope);
     declareProperty("pTMax",m_pTMax);
     
-   
+    declareProperty("useITkMaterialRejection",  m_useITkMaterialRejection, "Reject vertices from hadronic interactions in detector material using ITk layout" );
     declareInterface< ISecVertexInJetFinder >(this) ;
 
   }
@@ -350,6 +355,18 @@ namespace InDet
       msg(MSG::ERROR) << "Unable to retrieve" << m_VertexEdmFactory <<endmsg;
       return StatusCode::FAILURE;
     } else msg(MSG::INFO) << " xAOD vertex converter retrieved " <<endmsg;
+
+    if(m_useITkMaterialRejection){
+
+      ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+      ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
+      ATH_CHECK(detStore()->retrieve(m_pixelHelper, "PixelID"));
+
+      InDetMaterialVeto matVeto(m_beamPipeMgr, m_pixelManager, m_pixelHelper);
+
+      m_ITkPixMaterialMap = matVeto.ITkPixMaterialMap();
+
+    }
 
     msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -564,13 +581,6 @@ namespace InDet
     //the fit reliability (JetFitter's linearization is strongly 
     //affected by the direction of the B-hardon flight axis)
     std::vector<Trk::PositionAndWeight> positionsOfSeedingVertices;
-
-    //store the number of found material interactions
-    int numberFirstBeamInteractions=0;
-    int numberSecondBeamInteractions=0;
-    int numberFirstLayerInteractions=0;
-    int numberSecondLayerInteractions=0;
-    
 
     //now you have the list of tracks...
     //that's already something!
@@ -1679,31 +1689,22 @@ namespace InDet
       }
       
       
-      double radius=fittedVertex->position().perp();
-      int interactiontype=-1;
+      double radius = fittedVertex->position().perp();
+      double z = fittedVertex->position().z();
+      bool matinteraction = false;
 
-      if (radius>m_firstBeam_min && radius<m_firstBeam_max)
-      {
-        interactiontype=0;
-        numberFirstBeamInteractions+=1;
-      }
-      else if (radius>m_secondBeam_min && radius<m_secondBeam_max)
-      {
-        interactiontype=1;
-        numberSecondBeamInteractions+=1;
-      }
-      else if (radius>m_firstLayer_min && radius<m_firstLayer_max)
-      {
-        interactiontype=2;
-        numberFirstLayerInteractions+=1;
-      }
-      else if (radius>m_secondLayer_min && radius<m_secondLayer_max)
-      {
-        interactiontype=3;
-        numberSecondLayerInteractions+=1;
+      if(m_useITkMaterialRejection){
+	int bin = m_ITkPixMaterialMap->FindBin(z,radius);
+	if(m_ITkPixMaterialMap->GetBinContent(bin)>0) matinteraction = true;
       }
 
-      if (interactiontype==2 || interactiontype==3)
+      else{
+	if ( (radius>m_firstLayer_min && radius<m_firstLayer_max)
+	     || (radius>m_secondLayer_min && radius<m_secondLayer_max) )
+	  matinteraction = true;
+      }
+
+      if (matinteraction)
       {
         bool signifCutTight=
             TMath::Prob(fabs(compatibilityTrack1),2)<m_cutCompatibilityToPrimarySingleTrackForMatInteractions&&
