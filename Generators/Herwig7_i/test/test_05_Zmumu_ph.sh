@@ -19,9 +19,9 @@ simple_lhe_plotter.py test_05_Zmumu.TXT.events
 echo "art-result: $? Plot"
 
 dcubeName="Herwig7"
-dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/config_file/test_03_config.xml"
-dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/reference/test_03_output.root"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/config_file/test_05_config.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/reference/test_05_output.root"
 
-bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName MyOutput.root $dcubeXml $dcubeRef
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName output_hists.root $dcubeXml $dcubeRef
 
 echo  "art-result: $? DCube"
