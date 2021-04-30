@@ -10,7 +10,6 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-using CLHEP::HepVector;
 
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
