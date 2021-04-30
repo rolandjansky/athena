@@ -1,43 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/MdtCsmContByteStreamCnv.h"
 #include "MuonMDT_CnvTools/IMDT_RDOtoByteStreamTool.h"
-
-#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
-#include "ByteStreamData/RawEvent.h" 
-
-//using namespace EventFormat::RawMemory ; 
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/IRegistry.h"
-
 #include "MuonRDO/MdtCsmContainer.h"
-//#include "MuonRDO/MdtCsmIdHash.h"
-
-#include "StoreGate/StoreGateSvc.h"
-//#include "StoreGate/tools/ClassID_traits.h"
-
-// Tool 
-#include "GaudiKernel/IToolSvc.h"
-
-#include <sstream>
-#include <map> 
+#include "AthenaBaseComps/AthCheckMacros.h"
+#include "AthenaKernel/StorableConversions.h"
 
 MdtCsmContByteStreamCnv::MdtCsmContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(storageType(), classID(),svcloc),
-    m_tool("Muon::MdtCsmContByteStreamTool"),
-    m_byteStreamEventAccess("ByteStreamCnvSvc", "MdtCsmContByteStreamCnv"),
-    m_storeGate("StoreGateSvc", "MdtCsmContByteStreamCnv")
+  AthConstConverter(storageType(), classID(),svcloc, "MdtCsmContByteStreamCnv"),
+    m_tool("Muon::MdtCsmContByteStreamTool")
 {
 }
 
 const CLID& MdtCsmContByteStreamCnv::classID(){
-return ClassID_traits<MdtCsmContainer>::ID() ;
+  return ClassID_traits<MdtCsmContainer>::ID() ;
 }
 
 long MdtCsmContByteStreamCnv::storageType(){
@@ -45,58 +24,24 @@ long MdtCsmContByteStreamCnv::storageType(){
 }
 
 StatusCode MdtCsmContByteStreamCnv::initialize() {
-   MsgStream log(msgSvc(), "MdtCsmContByteStreamCnv");
-   log << MSG::DEBUG<< " initialize " <<endmsg; 
-
-
-   // initialize base class
-     StatusCode sc = Converter::initialize(); 
-     if (StatusCode::SUCCESS != sc) 
-         return sc; 
-
-   // get ByteStreamEventAccess interface
-     if (m_byteStreamEventAccess.retrieve().isFailure())
-     {
-         log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endmsg;
-         return StatusCode::FAILURE;
-     }
-
-   // retrieve Tool
-     if(m_tool.retrieve().isFailure())
-     {
-         log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
-         return StatusCode::FAILURE;
-     }
-
-     if(m_storeGate.retrieve().isFailure())
-     {
-         log << MSG::ERROR << " Can't get StoreGateSvc" << endmsg;
-         return StatusCode::FAILURE;
-     }
-
-     return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( " initialize " );
+  ATH_CHECK( AthConstConverter::initialize() );
+  ATH_CHECK( m_tool.retrieve() );
+  return StatusCode::SUCCESS;
 }
 
 
- StatusCode 
-MdtCsmContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-   // convert Mdt Csm in the container into ByteStream
-   MsgStream log(msgSvc(), "MdtCsmContByteStreamCnv");
+StatusCode 
+MdtCsmContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
+{
+  MdtCsmContainer* cont = nullptr;
+  SG::fromStorable(pObj, cont ); 
+  if(!cont) {
+    ATH_MSG_ERROR( " Can not cast to MdtCsmContainer " );
+    return StatusCode::FAILURE;    
+  } 
 
-   RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
-
-   MdtCsmContainer* cont=NULL ; 
-   StoreGateSvc::fromStorable(pObj, cont ); 
-   if(!cont) {
-     log << MSG::ERROR << " Can not cast to MdtCsmContainer " << endmsg ; 
-     return StatusCode::FAILURE;    
-   } 
-
-   std::string nm = pObj->registry()->name(); 
-
-   ByteStreamAddress* addr = new ByteStreamAddress(classID(),nm,""); 
-
-   pAddr = addr; 
-
-   return m_tool->convert(cont, re, log); 
+  std::string nm = pObj->registry()->name(); 
+  pAddr = new ByteStreamAddress(classID(),nm,""); 
+  return m_tool->convert(cont, msg());
 }
