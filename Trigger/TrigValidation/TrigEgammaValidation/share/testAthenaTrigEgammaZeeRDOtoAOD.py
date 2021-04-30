@@ -30,12 +30,6 @@ rec.doCBNT=False
 include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
-# set up trigger monitoring                                                                                                                                                        
-if not ('RunningRTT' in dir()):
-    TriggerFlags.enableMonitoring = [ 'Validation', 'Time' , 'Log' ]
-else:
-    TriggerFlags.enableMonitoring = [ 'Validation', 'Time' ]
-
 #------------ This is for ATN/RTT tests only ---------
 #TriggerFlags.triggerMenuSetup = 'default'
 TriggerFlags.readHLTconfigFromXML=False

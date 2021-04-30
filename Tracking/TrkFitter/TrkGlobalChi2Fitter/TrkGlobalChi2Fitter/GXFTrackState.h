@@ -17,8 +17,8 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/Vector.h"
+#include <memory>
+#include <bitset>
 
 /**
  * These headers, as well as other headers in the TrkGlobalChi2Fitter package
@@ -29,7 +29,6 @@
 namespace Trk {
 
   class MeasurementBase;
-  class TrackStateOnSurface;
   class GXFMaterialEffects;
   class TransportJacobian;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -64,7 +64,7 @@ def getMM_RdoToDigitAlg(name="MM_RdoToDigitAlg", **kwargs):
 
 def getMdtDigitToMdtRDO(name="MdtDigitToMdtRDO", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "MDTCSM")
     else:
@@ -73,7 +73,7 @@ def getMdtDigitToMdtRDO(name="MdtDigitToMdtRDO", **kwargs):
 
 def getRpcDigitToRpcRDO(name="RpcDigitToRpcRDO", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "RPCPAD")
     else:
@@ -82,7 +82,7 @@ def getRpcDigitToRpcRDO(name="RpcDigitToRpcRDO", **kwargs):
 
 def getTgcDigitToTgcRDO(name="TgcDigitToTgcRDO", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "TGCRDO")
     else:
@@ -92,7 +92,7 @@ def getTgcDigitToTgcRDO(name="TgcDigitToTgcRDO", **kwargs):
 
 def getSTGC_DigitToRDO(name="STGC_DigitToRDO", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "sTGCRDO")
     else:
@@ -102,7 +102,7 @@ def getSTGC_DigitToRDO(name="STGC_DigitToRDO", **kwargs):
 
 def getMM_DigitToRDO(name="MM_DigitToRDO", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "MMRDO")
     else:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -139,7 +139,7 @@ def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
 
     kwargs.setdefault('InputKey', 'Input_EventInfo')
 
-    if ConfigFlags.Digitization.PileUpPremixing:
+    if ConfigFlags.Digitization.PileUpPresampling:
         kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
     else:
         kwargs.setdefault('OutputKey', 'EventInfo')

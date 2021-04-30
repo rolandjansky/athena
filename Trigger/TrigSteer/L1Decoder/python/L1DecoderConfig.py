@@ -110,8 +110,15 @@ def createMuonRoIUnpackers(flags):
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEMU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
 
-    muUnpacker.OutputRecRoIs = "" if flags.Trigger.enableL1MuonPhase1 else "HLT_RecMURoIs"
-    muUnpacker.MuRoILinkName = "LVL1MuonRoIs" if flags.Trigger.enableL1MuonPhase1 else ""
+    # Reset unneeded dependencies and leave others as C++ defaults
+    if flags.Trigger.enableL1MuonPhase1:
+        # disable legacy dependencies
+        muUnpacker.OutputRecRoIs = ""
+    else:
+        # disable phase1 dependencies
+        muUnpacker.MuRoILinkName = ""
+        muUnpacker.MuRoIThresholdPatternsKey = ""
+
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
     return [muUnpacker]
@@ -134,12 +141,15 @@ def getL1TriggerResultMaker(flags):
     # Muon RoIs
     if flags.Trigger.enableL1MuonPhase1:
        l1trMaker.MuRoIKey = "LVL1MuonRoIs"
+       from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import getTrigThresholdDecisionTool
+       l1trMaker.ThresholdPatternTools += [getTrigThresholdDecisionTool()]
     else:
        l1trMaker.MuRoIKey = ""
 
     # L1Calo RoIs
     if flags.Trigger.enableL1CaloPhase1:
        l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
+       l1trMaker.ThresholdPatternTools += [CompFactory.eFexEMRoIThresholdsTool()]
     else:
        l1trMaker.eFexEMRoIKey = ""
 

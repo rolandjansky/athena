@@ -11,6 +11,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
 
+flags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
 
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT = True
@@ -28,11 +29,6 @@ flags.Detector.GeometryMDT = True
 flags.Detector.GeometryTGC = True
 flags.Detector.GeometryCSC = True
 flags.Detector.GeometryRPC = True
-
-
-flags.Detector.RecoPixel = True
-flags.Detector.RecoSCT = True
-
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False

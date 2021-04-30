@@ -165,7 +165,7 @@ namespace pool  {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus onOpen(const DbDatabase& dbH, DbAccessMode      mode);
+    virtual DbStatus onOpen(DbDatabase& dbH, DbAccessMode      mode);
 
     /// Close database access
     /** @param mode     [IN]  Desired session access mode.

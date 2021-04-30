@@ -15,8 +15,6 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkSurfaces/Surface.h"
 
-// #include "GaudiKernel/MsgStream.h"
-// #include <string>
 
 namespace Trk {
   GXFTrackState::GXFTrackState(GXFTrackState & rhs):

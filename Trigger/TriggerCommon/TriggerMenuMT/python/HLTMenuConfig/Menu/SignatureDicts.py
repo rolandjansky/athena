@@ -151,6 +151,8 @@ JetChainParts = {
                       #     djmass sel (mandatory)
                       #     djdphi sel (optional)
                       #     djdeta sel (optional)
+                      #
+                      # et threshold cuts
                       'dijet80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
                       'dijet80j12etSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
                       'dijet70j12etSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
@@ -159,6 +161,16 @@ JetChainParts = {
                       'dijet50j12etSEP900djmass',
                       'dijet35j12etSEP1000djmass',
                       'dijet20j12etSEP110djmass',  # very loose cuts for testing
+                      # pt threshold cuts
+                      'dijet80j12ptSEP0j12eta240SEP700djmass', # Test dijet mass sel
+                      'dijet80j12ptSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
+                      'dijet70j12ptSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
+                      'dijet50j12ptSEP1000djmass',
+                      'dijet50j12ptSEP1000djmassSEPdjdphi240',
+                      'dijet50j12ptSEP900djmass',
+                      'dijet35j12ptSEP1000djmass',
+                      'dijet20j12ptSEP110djmass',  # very loose cuts for testing
+   
                       'dijetAliasExample',         # example of an alias for a dijet scenario with very loose cuts for testing
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'ht1000',
@@ -258,7 +270,7 @@ MuonChainParts = {
     'threshold'      : '',
     'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf',],
+    'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
     'invMassInfo'    : ['10invm70'],
     'msonlyInfo'     : ['msonly'],

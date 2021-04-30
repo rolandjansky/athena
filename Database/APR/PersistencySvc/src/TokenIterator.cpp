@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TokenIterator.h"
@@ -10,7 +10,7 @@
 #include "PersistencySvc/PersistencySvcException.h"
 
 
-pool::PersistencySvc::TokenIterator::TokenIterator( const FileDescriptor& fileDescriptor,
+pool::PersistencySvc::TokenIterator::TokenIterator( FileDescriptor& fileDescriptor,
                                                     const std::string& containerName,
                                                     IStorageExplorer& storageExplorer,
                                                     const std::string& selection ):

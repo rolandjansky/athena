@@ -63,7 +63,7 @@ class LArRawChannelBuilderDriver : public AthAlgorithm
   
   float pedestal();
   
-  void ADC2energy();
+  void ADC2energy (const EventContext& ctx);
   
   LArRawChannelBuilderParams m_params;
   

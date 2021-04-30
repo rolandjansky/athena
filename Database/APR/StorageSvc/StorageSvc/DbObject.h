@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -20,6 +20,7 @@
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbHandleBase.h"
+#include "CxxUtils/checker_macros.h"
 
 /*
  * POOL namespace declaration
@@ -99,11 +100,11 @@ namespace pool {
     }
   public:
     /// Set handle type
-    void _setType(const DbType& type) const    { Base::setType(type);       }
+    void _setType(const DbType& type)     { Base::setType(type);       }
     /// Set object value
-    template<class T> void _setObject(const T* p)  {
+    template<class T> void _setObject(T* p)  {
       if ( 0 == Base::ptr() && 0 == p ) return;
-      Base::m_ptr =  const_cast<T*>(p);
+      Base::m_ptr =  p;
     }
     void _setObject(const int /* null_obj */ )  { 
       if ( 0 == Base::ptr() ) return;
@@ -117,12 +118,13 @@ namespace pool {
     /// Constructor with storage type
     DbObjectHandle(const DbType& typ)         { _setType(typ);              }
     /// Constructor with object pointer
-    DbObjectHandle(const USER* p)             { _setObject(p);              }
+    DbObjectHandle(USER* p)                   { _setObject(p);              }
     /// Copy constructor
     DbObjectHandle(const DbObjectHandle<USER>& c) : DbHandleBase<USER>()
     { _set(c.ptr(),c.type());                                               }
     /// Generic assignment operator from base class
-    operator USER*() const                        { return Base::ptr();     }
+    operator const USER*() const                  { return Base::ptr();     }
+    operator USER*()                              { return Base::ptr();     }
     /// Generic assignment operator
       DbObjectHandle<USER>& operator=(const int /* nuller */)
     { _setObject(0); return *this;                                          }
@@ -138,9 +140,11 @@ namespace pool {
     /// Retrieve hosting container
     const DbContainer& containedIn() const;
     /// Access object oid
-    Token::OID_t& oid() const;
+    const Token::OID_t& oid() const;
+    /// Access object oid
+    Token::OID_t& oid();
     /// Add persistent association entry
-    DbStatus makeLink(const Token* pToken, Token::OID_t& linkH) const;
+    DbStatus makeLink ATLAS_NOT_THREAD_SAFE (const Token* pToken, Token::OID_t& linkH) const;
   };
 
 
@@ -154,7 +158,7 @@ namespace pool {
     /// Constructor with storage type
     DbHandle(const DbType& typ)                   { Handle::_setType(typ);  }
     /// Constructor with object assignment
-    DbHandle(const USER* obj)                     { Handle::_setObject(obj);}
+    DbHandle(USER* obj)                           { Handle::_setObject(obj);}
     /// Copy constructor
     template <typename T> DbHandle(const DbObjectHandle<T>& c)
       : DbObjectHandle<USER>()                    
@@ -163,18 +167,18 @@ namespace pool {
     DbHandle(const DbHandle<USER>& c) : DbObjectHandle<USER>()
     { Handle::_set(c.ptr(),c.type());                                       }
     /// Generic assignment operator
-    DbHandle<USER>& operator=(const DbHandle<USER>& c) {
+    DbHandle<USER>& operator=(DbHandle<USER>& c) {
       if ( this != &c ) Handle::_set(c.ptr(),c.type());
       return *this;
     }
     /// Generic assignment operator
-    DbHandle<USER>& operator=(const USER* obj) {
+    DbHandle<USER>& operator=(USER* obj) {
       if ( Handle::ptr() != obj ) Handle::_setObject(obj);
       return *this;
     }
     /// Generic assignment operator
     template <typename T> 
-    DbHandle<USER>& operator=(const DbObjectHandle<T>& c) {
+    DbHandle<USER>& operator=(DbObjectHandle<T>& c) {
       if ( Handle::ptr() != c.ptr() ) Handle::_set(c.ptr(), c.type());
       return *this;
     }
@@ -203,12 +207,17 @@ namespace pool {
 
   /// Access object oid
   template <class T> inline
-  Token::OID_t& DbObjectHandle<T>::oid() const  
+  Token::OID_t& DbObjectHandle<T>::oid()
+  { return DbObjectAccessor::objectOid(Base::ptr());                     }
+
+  /// Access object oid
+  template <class T> inline
+  const Token::OID_t& DbObjectHandle<T>::oid() const  
   { return DbObjectAccessor::objectOid(Base::ptr());                     }
 
   /// Add persistent association entry
   template <class T> inline
-  DbStatus DbObjectHandle<T>::makeLink(const Token* pToken, Token::OID_t& linkH) const 
+  DbStatus DbObjectHandle<T>::makeLink ATLAS_NOT_THREAD_SAFE (const Token* pToken, Token::OID_t& linkH) const 
   { return DbObjectAccessor::makeObjectLink(Base::ptr(), pToken, linkH); }
 
 #endif

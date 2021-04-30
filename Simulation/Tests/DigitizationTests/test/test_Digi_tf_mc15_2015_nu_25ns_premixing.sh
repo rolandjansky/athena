@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Run pile-up premixing with a MC15 nu sample with 2015 geometry and conditions, 25ns pile-up
+# art-description: Run pile-up presampling with a MC15 nu sample with 2015 geometry and conditions, 25ns pile-up
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
@@ -17,7 +17,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Digitiz
 
 
 Digi_tf.py \
---PileUpPremixing True \
+--PileUpPresampling True \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ParticleGenerator_nu_E50.HITS.05232174._000001.pool.root.1 \
 --conditionsTag default:OFLCOND-RUN12-SDR-25 \
 --digiSeedOffset1 170 \
@@ -35,6 +35,7 @@ Digi_tf.py \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --pileupFinalBunch 6 \
 --preExec    'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
+'all:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.experimentalDigi += ["LegacyOverlay"];' \
 --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' \
 --skipEvents 0
 

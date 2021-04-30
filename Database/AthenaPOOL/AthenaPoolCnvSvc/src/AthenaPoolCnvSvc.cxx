@@ -17,6 +17,7 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 
 #include "AthenaKernel/IAthenaSerializeSvc.h"
+#include "AthenaKernel/IAthenaSharedWriterSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
 #include "PersistentDataModel/Placement.h"
@@ -51,15 +52,18 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
-      if (m_makeStreamingToolClient.value() == -1) {
-         // Initialize AthenaRootSharedWriter
-         ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
-         ATH_CHECK(arswsvc.retrieve());
-      }
+      // Initialize AthenaRootSharedWriter
+      ServiceHandle<IAthenaSharedWriterSvc> arswsvc("AthenaRootSharedWriterSvc", this->name());
+      ATH_CHECK(arswsvc.retrieve());
       // Put PoolSvc into share mode to avoid duplicating catalog.
       m_poolSvc->setShareMode(true);
       // Disable PersistencySvc per output file mode
       m_persSvcPerOutput.setValue(false);
+      // In parallel compression mode reset the port value
+      if(m_parallelCompression) {
+        const std::string portSuffix = arswsvc->getStreamPortSuffix();
+        m_streamPortString.setValue(portSuffix);
+      }
    }
    if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
       // Retrieve AthenaSerializeSvc

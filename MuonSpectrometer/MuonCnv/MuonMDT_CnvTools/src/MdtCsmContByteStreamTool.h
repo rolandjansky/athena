@@ -46,7 +46,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual StatusCode convert(const MdtCsmContainer* cont, RawEventWrite* re, MsgStream& log ) const override;
+  virtual StatusCode convert(const MdtCsmContainer* cont, MsgStream& log ) const override;
 
 private: 
 

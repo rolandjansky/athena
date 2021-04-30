@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -163,7 +163,7 @@ namespace pool  {
       *  @param   intern    [IN] Flag to access also internal containers
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus containers(  const FileDescriptor&      refDB,
+    virtual DbStatus containers(  FileDescriptor&            refDB,
                                   std::vector<const Token*>& conts,
                                   bool                       intern=false) = 0;
 
@@ -173,7 +173,7 @@ namespace pool  {
       *  @param   assocs   [OUT] Vector with tokens to used containers.
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus associations(const FileDescriptor&      refDB,
+    virtual DbStatus associations(FileDescriptor&            refDB,
                                   std::vector<const Token*>& assocs) = 0;
 
     /// Access Shapes known to the database.
@@ -182,7 +182,7 @@ namespace pool  {
       *  @param   shapes   [OUT] Vector with shapes to used within the database.
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus shapes(      const FileDescriptor&      refDB,
+    virtual DbStatus shapes(      FileDescriptor&            refDB,
                                   std::vector<ShapeH>&       shapes) = 0;
 
     /// Add a persistent parameter to the database
@@ -194,7 +194,7 @@ namespace pool  {
       *  @param   val       [IN] Value of the user parameter to be added.
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus addDbParam(  const FileDescriptor&      refDB,
+    virtual DbStatus addDbParam(  FileDescriptor&            refDB,
                                   const std::string&         nam, 
                                   const std::string&         val) = 0;
 
@@ -206,7 +206,7 @@ namespace pool  {
       *  @param   val      [OUT] Value of the user parameter to be retrieved.
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus dbParam(     const FileDescriptor&      refDB,
+    virtual DbStatus dbParam(     FileDescriptor&            refDB,
                                   const std::string&         nam, 
                                   std::string&               val) = 0;
 
@@ -217,7 +217,7 @@ namespace pool  {
       *  @param   vals     [OUT] Vector containing all parameter nam/value pairs.
       *  @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus dbParams(    const FileDescriptor&      refDB,
+    virtual DbStatus dbParams(    FileDescriptor&            refDB,
                                   Parameters&                vals) = 0;
 
     /// Retrieve association link from token with redirection when file is merged.
@@ -227,7 +227,7 @@ namespace pool  {
       *  @param   redirections [OUT] Vector containing all parameter nam/value pairs.
       *  @return                     DbStatus code indicating success or failure.
       */
-    virtual DbStatus dbRedirections(const FileDescriptor& refDB,
+    virtual DbStatus dbRedirections(FileDescriptor& refDB,
                                     pool::DbDatabase::Redirections& redirections) = 0;
 
     /// Access options for a given database domain.
@@ -269,7 +269,7 @@ namespace pool  {
       *
       *  @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus getDatabaseOption(const FileDescriptor& refDB,
+    virtual DbStatus getDatabaseOption(FileDescriptor& refDB,
                                        DbOption& opt) = 0;
 
     /// Set options for a given database.
@@ -281,7 +281,7 @@ namespace pool  {
       *
       *  @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus setDatabaseOption(const FileDescriptor& refDB,
+    virtual DbStatus setDatabaseOption(FileDescriptor& refDB,
                                        const DbOption& opt) = 0;
 
     /// Access options for a given database container.
@@ -294,7 +294,7 @@ namespace pool  {
       *
       *  @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus getContainerOption(const FileDescriptor& refDB,
+    virtual DbStatus getContainerOption(FileDescriptor& refDB,
                                         const std::string& cntName,
                                         DbOption& opt) = 0;
 
@@ -308,7 +308,7 @@ namespace pool  {
       *
       *  @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus setContainerOption(const FileDescriptor& refDB,
+    virtual DbStatus setContainerOption(FileDescriptor& refDB,
                                         const std::string& cntName,
                                         const DbOption& opt) = 0;
 
@@ -322,7 +322,7 @@ namespace pool  {
       *  @param   sel     [IN/OUT] Selection criteria
       *  @return                   DbStatus code indicating success or failure.
       */
-    virtual DbStatus select(      const FileDescriptor& refDB,
+    virtual DbStatus select(      FileDescriptor&       refDB,
                                   const std::string&    cntName,
                                   DbSelect&             sel) = 0;
 

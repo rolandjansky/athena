@@ -10,6 +10,10 @@ DetDescrCnvSvc.DetectorManagers += [ "CaloMgr" ]
 # include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )
 include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H6_joboptions.py" )
 #
+
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 #---- ByteStream-Files input --------------------
 #
 

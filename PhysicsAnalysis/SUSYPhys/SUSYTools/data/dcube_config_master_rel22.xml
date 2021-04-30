@@ -1,0 +1,307 @@
+<?xml version="1.0" ?>
+<!--
+ DCube configuration XML file = dcube_config_af2.xml
+ auto-generated using DCube 4.6692016 ($Rev: 217525 $ $Date$) by Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
+ on Wed, 30 May 2018 16:15:36 CEST
+ from Root reference file: monitoring.atlfast.root
+ Statistics tests:
+ "['KS', 'meany']"
+ Legend:
+ * KS    - Kolmogorov-Smirnov test (default)
+ * chi2  - chi2 test
+ * bbb   - bin-by-bin comparision
+ * meany - avg eff mean y [TProfiles only!]
+ * all   - all above tests
+ Tweaks:
+ [1] remove or comment out (using HTML comments tags) histograms not relevant
+     to your analysis
+ [2] provide a new content to "ref_desc" and "mon_desc" tags to something
+     more meaningful
+ [3] and of course feel free to change attribute "tests" in each "hist" tag
+ [4] limits of p-value warning and failure can be set by changing attributes
+     in <plimit> tag
+ [5] if you want to make plots FOR EVERY histogram in your monitored file
+     change attribute "inclusive" in <mode> tag to "true"
+-->
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <!--
+  ###################################################
+  DCubeClient for:
+  [1] branch: *
+  [2] install: *
+  [3] cmtconfig: *
+  [4] project: *
+  [5] jobId: *
+  [6] reference root file: /afs/cern.ch/work/o/oabouzei/private/ART-Scratch/References/monitoring.atlfast.root
+  [7] p-values limits FAIL = 0.750000 WARN = 0.950000
+  ###################################################
+-->
+  <reference file="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/References/*.root"/>
+  <ref_desc>
+   Identical reference from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/References
+  </ref_desc>
+  <test_desc>
+   SUSYTools Tests
+  </test_desc>
+  <plimit fail="0.75" warn="0.95"/>
+  <TDirectory name="/">
+   <!-- update list
+for x in el mu tau jet bjet ph; do for z in bsl sig nom; do for y in pt eta phi e d0 z0 N isolCalo isolTrack truthType truthOrigin; do echo -e "   <hist1D name=\"${x}_${z}_${y}\" plotopts=\"\" tests=\"KS,bbb\" type=\"TH1D\"/>"; done; done; done
+   -->
+   <hist1D name="EventInfo/info_runNo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="EventInfo/info_evtNo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="EventInfo/info_lumiBlock" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Electron/el_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_bsl_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_sig_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Electron/el_nom_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Photon/ph_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_bsl_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_sig_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Photon/ph_nom_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Muon/mu_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_bsl_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_sig_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_d0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_z0" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_isolCalo" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_isolTrack" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_truthType" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Muon/mu_nom_truthOrigin" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Tau/tau_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Jet/jet_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Jet/jet_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="bJet/bjet_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="bJet/bjet_bsl_bweight" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_bweightpb" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_bweightpu" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_bsl_bweightpc" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_bweight" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_bweightpb" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_bweightpu" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_sig_bweightpc" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_bweight" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_bweightpb" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_bweightpu" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="bJet/bjet_nom_bweightpc" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="LargeRJet/fatjet_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_wtagged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_ztagged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_toptagged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="LargeRJet/fatjet_bsl_toptaggedscore" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Cutflow/el_n_flow_nominal" plotopts="logy;norm" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/ph_n_flow_nominal" plotopts="logy;norm" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/mu_n_flow_nominal" plotopts="logy;norm" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/tau_n_flow_nominal" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/jet_n_flow_nominal" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/bjet_n_flow_nominal" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/fatjet_n_flow_nominal" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Cutflow/trkjet_n_flow_nominal" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="MET/met_et" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_sumet" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_et_tst" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_et_el" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_et_ph" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_et_mu" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="MET/met_et_jet" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- <hist1D name="MET/met_et_tau" plotopts="" tests="KS,bbb" type="TH1D"/> --> 
+   <hist1D name="MET/met_significance" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Syst/weight_event" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_electrons" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_muons" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_photons" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_taus" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_jets" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Syst/weight_btags" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <!-- -->
+   <hist1D name="Trigger/el_pt_HLT_e24_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_eta_HLT_e24_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_phi_HLT_e24_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_pt_HLT_e60_lhmedium_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_eta_HLT_e60_lhmedium_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_phi_HLT_e60_lhmedium_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_pt_HLT_e26_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_eta_HLT_e26_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_phi_HLT_e26_lhtight_nod0_ivarloose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_pt_HLT_e140_lhloose_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_eta_HLT_e140_lhloose_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/el_phi_HLT_e140_lhloose_nod0" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_pt_HLT_mu24_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_eta_HLT_mu24_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_phi_HLT_mu24_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_pt_HLT_mu50" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_eta_HLT_mu50" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_phi_HLT_mu50" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_pt_HLT_mu26_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_eta_HLT_mu26_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/mu_phi_HLT_mu26_ivarmedium" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_pt_HLT_g120_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_eta_HLT_g120_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_phi_HLT_g120_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_pt_HLT_g140_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_eta_HLT_g140_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <hist1D name="Trigger/ph_phi_HLT_g140_loose" plotopts="" tests="KS,bbb" type="TEfficiency"/>
+   <!-- -->
+   <hist1D name="EventLoop_EventCount" plotopts="" tests="KS,bbb" type="TH1D"/>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>

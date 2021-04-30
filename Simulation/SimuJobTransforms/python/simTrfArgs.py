@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import logging
 msg = logging.getLogger(__name__)
@@ -65,9 +65,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
-    parser.add_argument('--PileUpPremixing',
+    parser.add_argument('--PileUpPresampling', '--PileUpPremixing',
                         type=argFactory(argBool),
-                        help='Run digitization with pile-up premixing configuration.', group='Digi')
+                        help='Run digitization with pile-up presampling configuration.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):

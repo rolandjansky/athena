@@ -38,10 +38,8 @@ TauTruthParticleSlimmer::TauTruthParticleSlimmer( const string& name, ISvcLocato
 
 
 StatusCode TauTruthParticleSlimmer::initialize() {
-    ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK(m_classifier.retrieve());
 
-    ATH_MSG_INFO("Initializing; package version: " << PACKAGE_VERSION );
     ATH_MSG_INFO("xAOD input TruthParticleContainer name = " << m_xaodTruthParticleContainerName );
     ATH_MSG_INFO("xAOD output TruthTauParticleContainer name = " << m_xaodTruthTauParticleContainerName );
     return StatusCode::SUCCESS;

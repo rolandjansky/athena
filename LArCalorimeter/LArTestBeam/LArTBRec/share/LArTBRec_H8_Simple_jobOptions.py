@@ -34,6 +34,9 @@ theApp.Dlls += ["LArRawUtils", "LArROD", "LArTools" , "LArEventTest" ]
 #----- Check LAr LVL1 and BCID consistency
 theApp.TopAlg += [ "CheckLArFebHeader" ]
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 theApp.TopAlg += [ "LArRawChannelSimpleBuilder" ]
 LArRawChannelSimpleBuilder = Algorithm("LArRawChannelSimpleBuilder");
 LArRawChannelSimpleBuilder.maxSamp     = 2
@@ -41,7 +44,6 @@ LArRawChannelSimpleBuilder.RecoMode    = "FIXED"
 #abc LArRawChannelSimpleBuilder.RecoMode    = "MAX"
 LArRawChannelSimpleBuilder.CubicAdcCut = 50.
 
-ToolSvc.LArADC2MeV.BeginRunPriority = 100
 ToolSvc.LArRodDecoder.FirstSample=2
 # Turn off printing for LArRoI_Map
 ToolSvc.LArRoI_Map.Print=FALSE; 

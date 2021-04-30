@@ -40,6 +40,7 @@ class FastReductionAlgToolFactory:
             'cphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'nphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'et': [CompFactory.TrigJetConditionConfig_et, 0],
+            'pt': [CompFactory.TrigJetConditionConfig_pt, 0],
             'djmass': [CompFactory.TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [CompFactory.TrigJetConditionConfig_dijet_deta, 0],

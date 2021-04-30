@@ -20,7 +20,6 @@ reconstruction
   - ICaloCellSelector    : interface for generic cell selection tool
   - ICaloHVGeometryTool  : obsolete (for old HV correction)
   - ICaloHVScaleTool     : obsolete (for old HV corrections)
-  - ICaloMBAverageTool.h : interface to get average energy per cell from pileup (in simulation)
   - ICaloTowerBuilderToolBase.h  : interface for tower builder tools
   - ICellWeightTool.h            : interface base class for cell weight tools
   - IClusterCellWeightTool.h     : interface for tools weighting cells in cluster objects

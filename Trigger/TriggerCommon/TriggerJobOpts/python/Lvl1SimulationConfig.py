@@ -67,6 +67,7 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
                                                     SCell=simflags.Calo.SCellType() )
         l1CaloSimDataSeq.eFEXDriver.eSuperCellTowerMapperTool.SCell=simflags.Calo.SCellType()
         l1CaloSimDataSeq.eFEXDriver.eFEXSysSimTool.SCell=simflags.Calo.SCellType()
+
     ##################################################
     # Muons rerun on data
     ##################################################
@@ -94,9 +95,14 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     l1LegacyTopoSimDataSeq.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
     # Muon inputs
+    from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
+    ToolSvc += MuonInputProviderLegacy('MuonInputProviderLegacy')    
+    ToolSvc.MuonInputProviderLegacy.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
     # TODO: the legacy simulation should not need to deal with muon inputs
     l1Phase1TopoSimDataSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     l1LegacyTopoSimDataSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    ToolSvc.MuonInputProviderLegacy.ROIBResultLocation = "" #disable input from RoIBResult
 
     if ConfigFlags.Trigger.enableL1MuonPhase1: 
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
@@ -110,25 +116,26 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
         l1LegacyTopoSimDataSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
         l1Phase1TopoSimDataSeq.MuonInputProvider.MuonROILocation = ""
         l1LegacyTopoSimDataSeq.MuonInputProvider.MuonROILocation = ""
+        l1Phase1TopoSimDataSeq.MuonInputProvider.MuonEncoding = 1
+        l1LegacyTopoSimDataSeq.MuonInputProvider.MuonEncoding = 1
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
         ToolSvc += L1MuctpiTool("L1MuctpiTool")
         ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-        l1Phase1TopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-        l1LegacyTopoSimDataSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-        l1Phase1TopoSimDataSeq.MuonInputProvider.locationMuCTPItoL1Topo = ""
-        l1LegacyTopoSimDataSeq.MuonInputProvider.locationMuCTPItoL1Topo = ""             
+        ToolSvc.MuonInputProviderLegacy.MuctpiSimTool = ToolSvc.L1MuctpiTool
+        ToolSvc.MuonInputProviderLegacy.locationMuCTPItoL1Topo = ""
+        # enable the reduced (coarse) granularity topo simulation
+        # currently only for MC
+        # apparently not needed for phase1
+        from AthenaCommon.GlobalFlags  import globalflags
+        if globalflags.DataSource()!='data':
+            ToolSvc.MuonInputProviderLegacy.MuonEncoding = 1
+        else:
+            ToolSvc.MuonInputProviderLegacy.MuonEncoding = 0
 
-    # TODO: check that this is still needed with the Phase1 MuCTPi
-    # enable the reduced (coarse) granularity topo simulation
-    # currently only for MC
-    from AthenaCommon.GlobalFlags  import globalflags
-    if globalflags.DataSource()!='data':
-        l1Phase1TopoSimDataSeq.MuonInputProvider.MuonEncoding = 1
-        l1LegacyTopoSimDataSeq.MuonInputProvider.MuonEncoding = 1
-    else:
-        l1Phase1TopoSimDataSeq.MuonInputProvider.MuonEncoding = 0
-        l1LegacyTopoSimDataSeq.MuonInputProvider.MuonEncoding = 0
+    if not ConfigFlags.Trigger.enableL1MuonPhase1:
+        l1Phase1TopoSimDataSeq.MuonInputProvider = ToolSvc.MuonInputProviderLegacy
+        l1LegacyTopoSimDataSeq.MuonInputProvider = ToolSvc.MuonInputProviderLegacy
 
     # Calo inputs
     if ConfigFlags.Trigger.enableL1CaloPhase1:
@@ -165,6 +172,8 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
         ctp.LegacyTopoInput = ""
     if not isL1TopoOutputProvided:
         ctp.TopoInput = ""
+    if not ConfigFlags.Trigger.enableL1MuonPhase1: # Run 2 simulation of MUCTPI sends a slightly different format to the CTP
+        ctp.MuonMultiplicityRun2Format = True
     ctp.jFexJetInput = ""
     ctp.jFexLJetInput = ""
     ctp.gFexJetInput = ""
@@ -312,28 +321,22 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         l1LegacyTopoSim.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
         l1Phase1TopoSim.MuonInputProvider.MuonROILocation = ""
         l1LegacyTopoSim.MuonInputProvider.MuonROILocation = ""
+        l1Phase1TopoSim.MuonInputProvider.MuonEncoding = 1
+        l1LegacyTopoSim.MuonInputProvider.MuonEncoding = 1
     else:
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
         ToolSvc += L1MuctpiTool("L1MuctpiTool")
         ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-        l1Phase1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-        l1LegacyTopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
         ToolSvc.MuonInputProviderLegacy.MuctpiSimTool = ToolSvc.L1MuctpiTool
-        l1Phase1TopoSim.MuonInputProvider.locationMuCTPItoL1Topo = ""
-        l1LegacyTopoSim.MuonInputProvider.locationMuCTPItoL1Topo = ""
-         
-    # TODO: check that this is still needed with the Phase1 MuCTPi
-    # enable the reduced (coarse) granularity topo simulation
-    # currently only for MC
-    from AthenaCommon.GlobalFlags  import globalflags
-    if globalflags.DataSource()!='data':
-        l1Phase1TopoSim.MuonInputProvider.MuonEncoding = 1
-        l1LegacyTopoSim.MuonInputProvider.MuonEncoding = 1
-        ToolSvc.MuonInputProviderLegacy.MuonEncoding = 1
-    else:
-        l1Phase1TopoSim.MuonInputProvider.MuonEncoding = 0
-        l1LegacyTopoSim.MuonInputProvider.MuonEncoding = 0
-        ToolSvc.MuonInputProviderLegacy.MuonEncoding = 0
+        ToolSvc.MuonInputProviderLegacy.locationMuCTPItoL1Topo = ""
+        # enable the reduced (coarse) granularity topo simulation
+        # currently only for MC
+        # apparently not needed for phase1
+        from AthenaCommon.GlobalFlags  import globalflags
+        if globalflags.DataSource()!='data':
+            ToolSvc.MuonInputProviderLegacy.MuonEncoding = 1
+        else:
+            ToolSvc.MuonInputProviderLegacy.MuonEncoding = 0         
 
     if not ConfigFlags.Trigger.enableL1MuonPhase1:
         l1Phase1TopoSim.MuonInputProvider = ToolSvc.MuonInputProviderLegacy

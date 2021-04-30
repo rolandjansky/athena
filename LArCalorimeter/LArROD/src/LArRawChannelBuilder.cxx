@@ -11,7 +11,6 @@
 //#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -19,6 +18,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <math.h>
 
@@ -29,7 +29,6 @@ using CLHEP::picosecond;
 
 LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_adc2mevTool("LArADC2MeVTool/LArADC2MeVToolDefault"),
   m_onlineHelper(NULL),
   //m_roiMap("LArRoI_Map"),
   m_useTDC(false),
@@ -80,7 +79,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
  declareProperty("ShapeMode",                 m_shapeMode=0); 
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
- declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
  declareProperty("firstSample",               m_firstSample,"  first sample used in shape");
  declareProperty("PedestalKey",		      m_pedestalKey);
  declareProperty("ShapesKey",		      m_shapesKey);
@@ -92,7 +90,7 @@ StatusCode LArRawChannelBuilder::initialize()
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   ATH_CHECK( m_ofcKey.initialize() );
-  ATH_CHECK( m_adc2mevTool.retrieve() );
+  ATH_CHECK( m_adc2mevKey.initialize() );
   
   // ***
   
@@ -188,6 +186,8 @@ StatusCode LArRawChannelBuilder::execute()
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
     return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
 
   //Pointer to input data container
   SG::ReadHandle<LArDigitContainer> digitContainer (m_dataLocation, ctx);
@@ -422,7 +422,7 @@ StatusCode LArRawChannelBuilder::execute()
     ATH_MSG_VERBOSE( "ADC Height calculated " << ADCPeak << " TimeBin=" << OFCTimeBin   );
      
     //ADC2MeV (a.k.a. Ramp)   
-    const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
+    LArVectorProxy ramp = adc2mev->ADC2MEV(chid,gain);
     //Check ramp coefficents
     if (ramp.size()==0) {
       noEnergy++;

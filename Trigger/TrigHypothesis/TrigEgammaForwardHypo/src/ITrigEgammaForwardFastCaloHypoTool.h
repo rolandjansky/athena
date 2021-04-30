@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_ITrigEgammaForwardFastCaloHypoTool_H
-#define TRIGEGAMMAHYPO_ITrigEgammaForwardFastCaloHypoTool_H 1
+#ifndef ITrigEgammaForwardFastCaloHypoTool_h
+#define ITrigEgammaForwardFastCaloHypoTool_h
 
 #include "GaudiKernel/IAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"

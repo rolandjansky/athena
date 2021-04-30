@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,9 @@
 #include "CxxUtils/no_sanitize_undefined.h"
 #include "CxxUtils/FloatCompressor.h"
 #include <vector>
+#include "CxxUtils/hexdump.h"
+#include <system_error>
+#include <iostream>
 
 
 namespace SG {
@@ -127,7 +130,25 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     // Copy over all elements, with thinning.
     for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {
       if (!dec || !dec->thinned(isrc)) {
-        r.copyForOutput (auxid, dst, idst, src, isrc);
+        try {
+          r.copyForOutput (auxid, dst, idst, src, isrc);
+        }
+        catch (const std::system_error& e) {
+          std::cerr << "FATAL caught system_error in copyAuxStoreThinned(): " << e.what() << "\n";
+          std::cerr << "  " << typeid(orig).name() << " " << r.getTypeName(auxid) << " " << r.getName(auxid)  << "\n";
+          std::cerr << "  " << src << " " << dst << " " << isrc << " " << idst << "\n";
+          CxxUtils::safeHexdump (std::cerr,
+                                 src,
+                                 size * r.getEltSize(auxid));
+          if (r.getTypeName(auxid).find("vector<ElementLink") != std::string::npos) {
+            std::cerr << "\n";
+            const char* const * p = (const char* const *) ((const char*)src + isrc*r.getEltSize(auxid));
+            size_t sz = p[1] - p[0];
+            if (sz > 16384) sz = 16384;
+            CxxUtils::safeHexdump (std::cerr, p[0], sz);
+          }
+          throw;
+        }
         // Apply lossy float compression here (in-place)
         // Maybe it would be better to do this via the registry during copy
         lossyFloatCompress(dst, idst, eltSize, typeName, nmantissa);

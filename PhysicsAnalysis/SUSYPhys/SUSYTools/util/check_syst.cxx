@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: check_syst.cxx tripiana $
@@ -26,6 +26,7 @@
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "AsgMessaging/StatusCode.h"
+#include "PATInterfaces/CorrectionCode.h"
 
 std::string getFW(std::string in, unsigned int width=30){
   for(unsigned int i=in.size() ; i < width; i++)
@@ -38,6 +39,7 @@ int main( int argc, char* argv[] ) {
   using namespace asg::msgUserCode;
   ANA_CHECK_SET_TYPE (int);
 
+  StatusCode::enableFailure();
   StatusCode::enableFailure();
   CP::CorrectionCode::enableFailure();
 

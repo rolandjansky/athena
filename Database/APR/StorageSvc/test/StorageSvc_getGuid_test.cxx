@@ -9,9 +9,7 @@ using namespace pool;
 using namespace std;
 
 
-DbPrint mylog("APR Guid TEST");
-
-bool testGuid( const string& guid, bool shouldwork )
+bool testGuid( const string& guid, bool shouldwork, DbPrint& mylog )
 {
    
    TypeH typ = DbReflex::forGuid( Guid(guid) );
@@ -28,10 +26,11 @@ bool testGuid( const string& guid, bool shouldwork )
 
 int main()
 {
+   DbPrint mylog("APR Guid TEST");
    mylog.setLevel( DbPrintLvl::Verbose );
    bool res = true;
-   res = testGuid( "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAF", false ) and res;
-   res = testGuid( "F41DF744-242D-11E6-B472-02163E010CEC", true ) and res;
+   res = testGuid( "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAF", false, mylog ) and res;
+   res = testGuid( "F41DF744-242D-11E6-B472-02163E010CEC", true, mylog ) and res;
    
    mylog << DbPrintLvl::Info << "Test " << (res?"SUCCESS":"FAILURE") << DbPrint::endmsg;
    return res? 0 : -1;

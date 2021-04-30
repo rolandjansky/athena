@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENASHAREDWRITERSVC_H
 #define ATHENAKERNEL_IATHENASHAREDWRITERSVC_H
+
+#include <string>
 
 #include "GaudiKernel/IService.h"
 
@@ -15,6 +17,13 @@ public:
 
    /// Gaudi boilerplate
    static const InterfaceID& interfaceID() { return IID_IAthenaSharedWriterSvc; }
+
+   /// Set/Get Stream Port Suffix
+   void setStreamPortSuffix( const std::string& val ) { m_streamPortSuffix = val; }
+   std::string getStreamPortSuffix() { return m_streamPortSuffix; }
+
+private:
+   std::string m_streamPortSuffix;
 };
 
 #endif

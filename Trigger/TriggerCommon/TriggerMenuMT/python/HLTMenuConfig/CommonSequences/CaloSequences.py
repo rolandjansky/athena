@@ -77,14 +77,14 @@ def fastCaloFWDMenuSequence(name, doRinger=True):
     (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloFWDSequence, flags=None)
     
     # hypo
-    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardFastCaloHypoAlgMT
+    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardFastCaloHypoAlg
     from TrigEgammaForwardHypo.TrigEgammaForwardFastCaloHypoTool import TrigEgammaForwardFastCaloHypoToolFromDict
-    theFastCaloHypo = TrigEgammaForwardFastCaloHypoAlgMT(name+"EgammaFastCaloFWDHypo")
+    theFastCaloHypo = TrigEgammaForwardFastCaloHypoAlg(name+"EgammaFastCaloFWDHypo")
     theFastCaloHypo.CaloClusters = sequenceOut
 
-    from TrigEgammaForwardHypo.TrigEgammaForwardFastCaloHypoTool import createTrigEgammaForwardFastCaloHypoAlgMT
+    from TrigEgammaForwardHypo.TrigEgammaForwardFastCaloHypoTool import createTrigEgammaForwardFastCaloHypoAlg
    
-    theFastCaloHypo = createTrigEgammaForwardFastCaloHypoAlgMT(name+"EgammaFastCaloFWDHypo", sequenceOut)
+    theFastCaloHypo = createTrigEgammaForwardFastCaloHypoAlg(name+"EgammaFastCaloFWDHypo", sequenceOut)
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

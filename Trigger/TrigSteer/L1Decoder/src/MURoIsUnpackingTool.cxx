@@ -7,6 +7,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -29,6 +30,7 @@ StatusCode MURoIsUnpackingTool::initialize() {
   CHECK( m_configSvc.retrieve() );
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize(SG::AllowEmpty) );
+  CHECK( m_thresholdPatternsKey.initialize(!m_thresholdPatternsKey.empty()) );
   CHECK( m_recRpcRoITool.retrieve() );
   CHECK( m_recTgcRoITool.retrieve() );
 
@@ -129,6 +131,9 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
   ATH_CHECK(roisLink.isValid());
   const xAOD::MuonRoIContainer& rois = roisLink.getStorableObjectRef();
 
+  // Create threshold patterns decoration accessor
+  auto thrPatternAcc = SG::makeHandle<uint64_t>(m_thresholdPatternsKey, ctx);
+
   // Create and record RoI descriptor and decision containers
   using namespace TrigCompositeUtils;
   SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
@@ -149,20 +154,23 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
                             ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
     decision->setObjectLink(initialRecRoIString(),
                             ElementLink<xAOD::MuonRoIContainer>(m_muRoILinkName, linkIndex, ctx));
-    ++linkIndex;
 
     // Add positive decisions for chains above the threshold
+    uint64_t thresholdPattern = thrPatternAcc(*roi);
+    ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
     for (const TrigConf::TriggerThreshold* thr : m_muonThresholds) {
-      if (thr->thresholdNumber() < roi->getThrNumber()) {
-        ATH_MSG_DEBUG("Threshold passed: " << thr->name());
-        addChainsToDecision(HLT::Identifier(thr->name()), decision, activeChains);
-        if (msgLvl(MSG::DEBUG)) {
-          DecisionIDContainer ids;
-          decisionIDs(decision, ids);
-          ATH_MSG_DEBUG("Activated chains: " << std::vector<DecisionID>(ids.begin(), ids.end()));
-        }
+      if (not (thresholdPattern & (1 << thr->mapping()))) {continue;}
+      ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->thresholdNumber()
+                    << " name " << thr->name());
+      addChainsToDecision(HLT::Identifier(thr->name()), decision, activeChains);
+      if (msgLvl(MSG::DEBUG)) {
+        DecisionIDContainer ids;
+        decisionIDs(decision, ids);
+        ATH_MSG_DEBUG("Activated chains: " << std::vector<DecisionID>(ids.begin(), ids.end()));
       }
     }
+
+    ++linkIndex;
   }
   return StatusCode::SUCCESS;
 }

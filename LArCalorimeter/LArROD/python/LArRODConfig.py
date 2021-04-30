@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr, CfgGetter
 
@@ -7,7 +7,7 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
     kwargs.setdefault('LArRawChannelKey', "LArRawChannels")
 
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault('LArDigitKey', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
     else:

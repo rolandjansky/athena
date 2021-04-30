@@ -1,7 +1,6 @@
 <lcgdict>
 <class name="ICaloCellSelector" />     
 <class name="ICaloCellMakerTool" />   
-<class name="ICaloMBAverageTool" />
 <class name="ICaloCellNormalizedQualityTool" />
 <class name="ICaloAffectedTool" />
 <class name="ICaloEstimatedGainTool" />

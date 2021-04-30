@@ -67,6 +67,9 @@ LArTBRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"
 # 
 LArTBRawChannelBuilder.GainMode = 1 ; 
 # The following should be the same as HighGainValue, MiddleGainValue, LowGainValue 
+
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 LArRawChannelBuilder = Algorithm( "LArRawChannelBuilder" )
 LArRawChannelBuilder.HighGain_DigitFactor = 100. 
 LArRawChannelBuilder.MiddleGain_DigitFactor = 10. 
@@ -77,7 +80,6 @@ LArTBRawChannelBuilder.NSampleEff = 5
 LArTBRawChannelBuilder.IsEMTB = TRUE
 LArTBRawChannelBuilder.WorkMode = 1 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArADC2MeV.BeginRunPriority = 100
 # Turn off printing for LArRoI_Map
 ToolSvc.LArRoI_Map.Print=FALSE; 
 theApp.Dlls += [ "RootHistCnv" ]

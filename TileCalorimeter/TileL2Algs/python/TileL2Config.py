@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to construct configured Tile L2 builder tool and algorithm"""
 
@@ -50,7 +50,7 @@ def TileRawChannelToL2Cfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileRawChannelToL2')
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault('TileL2Container', flags.Overlay.BkgPrefix + 'TileL2Cnt')
     else:
         kwargs.setdefault('TileL2Container', 'TileL2Cnt')

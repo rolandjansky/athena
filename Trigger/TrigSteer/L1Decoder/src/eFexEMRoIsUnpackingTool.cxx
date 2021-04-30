@@ -3,6 +3,7 @@
 */
 #include "eFexEMRoIsUnpackingTool.h"
 #include "xAODTrigger/eFexEMRoIContainer.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 // =============================================================================
 eFexEMRoIsUnpackingTool::eFexEMRoIsUnpackingTool(const std::string& type,
@@ -53,6 +54,9 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
   ATH_CHECK(roisLink.isValid());
   const xAOD::eFexEMRoIContainer& rois = roisLink.getStorableObjectRef();
 
+  // Create threshold patterns decoration accessor
+  auto thrPatternAcc = SG::makeHandle<uint64_t>(m_thresholdPatternsKey, ctx);
+
   // Create and record RoI descriptor and decision containers
   using namespace TrigCompositeUtils;
   SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
@@ -80,16 +84,19 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
     decisionProbe->setObjectLink(initialRecRoIString(),
                             ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
 
-    ++linkIndex;
-
     // Add positive decisions for chains to be activated by this RoI object
+    uint64_t thresholdPattern = thrPatternAcc(*roi);
+    ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
     for (const std::shared_ptr<TrigConf::L1Threshold>& thr : thresholds.value().get()) {
-      if (not (roi->thrPattern() & (1 << thr->mapping()))) {continue;}
+      if (not (thresholdPattern & (1 << thr->mapping()))) {continue;}
       const std::string thresholdProbeName = getProbeThresholdName(thr->name());
-      ATH_MSG_DEBUG( "Passed Threshold names " << thr->name() << " and " << thresholdProbeName);
+      ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()
+                    << " names " << thr->name() << " and " << thresholdProbeName);
       addChainsToDecision(HLT::Identifier(thr->name()), decisionMain, activeChains);
       addChainsToDecision(HLT::Identifier(thresholdProbeName), decisionProbe, activeChains);
     }
+
+    ++linkIndex;
   }
 
   return StatusCode::SUCCESS;

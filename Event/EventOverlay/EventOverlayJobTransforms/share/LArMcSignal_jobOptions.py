@@ -46,10 +46,12 @@ if DetFlags.overlay.LAr_on():
    job += theLArDigits
 
 
+   from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+   LArADC2MeVCondAlgDefault()
+
    from LArROD.LArRODConf import LArRawChannelBuilder
    newLArRawChannelBuilder =  LArRawChannelBuilder( "newLArRawChannelBuilder" )
    newLArRawChannelBuilder.DataLocation = job.LArRawChannelBuilder.DataLocation
-   newLArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
    if globalflags.DataSource()=='data' or larRODFlags.forceIter() :
       newLArRawChannelBuilder.PhaseInversion=True
       newLArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"

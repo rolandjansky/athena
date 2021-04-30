@@ -32,13 +32,12 @@ namespace JiveXML {
   CaloLArRetriever::CaloLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("LAr"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
-    
-    m_sgKey = "AllCalo"; 
 
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey" , m_sgKey);
@@ -155,7 +154,7 @@ namespace JiveXML {
       }
      
 
-      for(;it1!=it2;it1++){
+      for(;it1!=it2;++it1){
 	if ((*it1)->energy() < m_cellThreshold) continue; // skip to next cell if threshold not passed
 
 	if((*it1)->badcell()){ BadCell.push_back(1); }

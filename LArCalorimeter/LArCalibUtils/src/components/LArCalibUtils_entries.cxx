@@ -11,7 +11,6 @@
 #include "LArCalibUtils/LArDeltaRespPredictor.h"
 #include "LArCalibUtils/LArDeltaRespTool.h"
 #include "LArCalibUtils/LArDigitOscillationCorrTool.h"
-#include "LArCalibUtils/LArFill.h"
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
 #include "LArCalibUtils/LArOFCAlg.h"
 #include "LArCalibUtils/LArPedestalInPhysicsMaker.h"
@@ -71,7 +70,6 @@ DECLARE_COMPONENT( LArCaliWaveBuilderXtalk )
 DECLARE_COMPONENT( LArCaliWaveMerger )
 DECLARE_COMPONENT( LArCaliWaveSelector )
 DECLARE_COMPONENT( LArDeltaRespPredictor )
-DECLARE_COMPONENT( LArFill )
 DECLARE_COMPONENT( LArMasterWaveBuilder )
 DECLARE_COMPONENT( LArOFCAlg )
 DECLARE_COMPONENT( LArPedestalInPhysicsMaker )

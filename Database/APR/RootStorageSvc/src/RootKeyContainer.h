@@ -69,7 +69,7 @@ namespace pool  {
     /// Close the container and deallocate resources
     virtual DbStatus close();
     /// Open the container for object access
-    virtual DbStatus open(const DbDatabase& dbH, 
+    virtual DbStatus open(DbDatabase& dbH,
                           const std::string& nam, 
                           const DbTypeInfo* info,
                           DbAccessMode mod);
