@@ -82,7 +82,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            ToolSvc += CaloVolumeCreator
 
            from CaloTrackingGeometry.ConfiguredCaloTrackingGeometryBuilderCond import ConfiguredCaloTrackingGeometryBuilderCond as ConfiguredCaloGeo 
-           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder'+nameSuffix)
+           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder',nameSuffix=nameSuffix)
            CaloTrackingGeometryBuilder.TrackingVolumeCreator = CaloVolumeCreator
            CaloTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            CaloTrackingGeometryBuilder.OutputLevel           = TrkDetFlags.CaloBuildingOutputLevel()
