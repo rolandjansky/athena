@@ -56,14 +56,36 @@ namespace asg
     /// this code isn't even dual-use.
     ///
     /// \par Guarantee
-    ///   strong
+    ///   basic
     /// \par Failures
     ///   configuration errors\n
-    ///   algorithm creation/initialization errors
+    ///   tool creation/initialization errors
   public:
     template<typename T> ::StatusCode
     makeTool (ToolHandle<T>& toolHandle,
               std::shared_ptr<void>& cleanup) const;
+
+
+    /// \brief make a private tool with the given configuration
+    ///
+    /// This requires a parent pointer to be set on the ToolHandle to
+    /// work, and for the parent to derive from AsgComponent in
+    /// AnalysisBase.  That allows to attach the cleanup of the tool
+    /// to the parent component.
+    ///
+    /// For practical purposes, when using an AsgToolConfig to create
+    /// a private tool owned by a parent tool/algorithm inside the
+    /// initialize of the tool/algorithm, this is the preferred way of
+    /// doing so.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   configuration errors\n
+    ///   tool creation/initialization errors
+  public:
+    template<typename T> ::StatusCode
+    makePrivateTool (ToolHandle<T>& toolHandle) const;
 
 
 
@@ -100,6 +122,31 @@ namespace asg
     return StatusCode::SUCCESS;
   }
 
+  template<typename T> ::StatusCode AsgToolConfig ::
+  makePrivateTool (ToolHandle<T>& toolHandle) const
+  {
+    using namespace msgComponentConfig;
+
+    INamedInterface *parentNamed = toolHandle.parent();
+    if (parentNamed == nullptr)
+    {
+      ANA_MSG_ERROR ("need to pass private ToolHandle into makePrivateTool");
+      return StatusCode::FAILURE;
+    }
+    AsgComponent *parentComponent = dynamic_cast<AsgComponent*>(parentNamed);
+    if (parentComponent == nullptr)
+    {
+      ANA_MSG_ERROR ("parent \"" << parentNamed->name() << "\" for makePrivateTool() does not inherit from AsgComponent");
+      return StatusCode::FAILURE;
+    }
+
+    std::shared_ptr<void> cleanup;
+    if (makeTool (toolHandle, cleanup).isFailure())
+      return StatusCode::FAILURE;
+    parentComponent->addCleanup (cleanup);
+    return StatusCode::SUCCESS;
+  }
+
 #else
 
   template<typename T> ::StatusCode AsgToolConfig ::
@@ -116,6 +163,17 @@ namespace asg
 
     ANA_MSG_DEBUG ("Created component of type " << type());
     return StatusCode::SUCCESS;
+  }
+
+  template<typename T> ::StatusCode AsgToolConfig ::
+  makePrivateTool (ToolHandle<T>& toolHandle) const
+  {
+    using namespace msgComponentConfig;
+
+    // This is safe, because the `makeTool` function in athena does
+    // not use the cleanup argument.
+    std::shared_ptr<void> cleanup;
+    return makeTool (toolHandle, cleanup);
   }
 
 #endif

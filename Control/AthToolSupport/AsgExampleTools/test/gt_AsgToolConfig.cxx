@@ -156,6 +156,23 @@ namespace asg
     ASSERT_SUCCESS (config2.makeTool (tool2, cleanup2));
     EXPECT_EQ ("ToolSvc." + name1 + ".myPrivateTool", tool2->name());
   }
+
+
+
+  TEST (AsgToolConfigTest, makePrivateTool)
+  {
+    const std::string name1 = makeUniqueName();
+    AsgToolConfig config1 ("asg::UnitTestTool1A/" + name1);
+    std::shared_ptr<void> cleanup1;
+    ToolHandle<IUnitTestTool1> tool1;
+    ASSERT_SUCCESS (config1.makeTool (tool1, cleanup1));
+    EXPECT_EQ ("ToolSvc." + name1, tool1->name());
+
+    AsgToolConfig config2 ("asg::UnitTestTool1A/myPrivateTool");
+    ToolHandle<IUnitTestTool1> tool2 ("", &*tool1);
+    ASSERT_SUCCESS (config2.makePrivateTool (tool2));
+    EXPECT_EQ ("ToolSvc." + name1 + ".myPrivateTool", tool2->name());
+  }
 }
 
 ATLAS_GOOGLE_TEST_MAIN
