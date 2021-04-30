@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCPADCONTBYTESTREAMCNV_H
@@ -11,6 +11,7 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
 
 #include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
 
