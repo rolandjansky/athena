@@ -1,18 +1,14 @@
 Willing to acquire file bootstrap.pkl from
-/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/share/bootstrap.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/share/bootstrap.pkl
 copy bootstrap.pkl
-... Read defaultdict from bootstrap.pkl
-... Read 27 items from python pickle file:  bootstrap.pkl
-... Read defaultdict from bootstrap_test.pkl
-... Read 27 items from python pickle file:  bootstrap_test.pkl
+Run with arguments:
+confTool.py --diff bootstrap.pkl bootstrap_test.pkl
 Step 1: reference file #components: 27
 Step 2: file to check  #components: 27
 Willing to acquire file bootstrap_threaded.pkl from
-/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/share/bootstrap_threaded.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/share/bootstrap_threaded.pkl
 copy bootstrap_threaded.pkl
-... Read defaultdict from bootstrap_threaded.pkl
-... Read 34 items from python pickle file:  bootstrap_threaded.pkl
-... Read defaultdict from bootstrap_threaded_test.pkl
-... Read 34 items from python pickle file:  bootstrap_threaded_test.pkl
+Run with arguments:
+confTool.py --diff bootstrap_threaded.pkl bootstrap_threaded_test.pkl
 Step 1: reference file #components: 34
 Step 2: file to check  #components: 34
