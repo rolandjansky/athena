@@ -185,6 +185,11 @@ def setup(TOPQname, stream):
         # Xbb tagger extra variables
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
+    elif TOPQname == 'TOPQ2':
+        # for TOPQDERIV-62 and TOPQDERIV-98                                                                                                                                     
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ2
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ2
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ2
     elif TOPQname == 'TOPQ4':
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
