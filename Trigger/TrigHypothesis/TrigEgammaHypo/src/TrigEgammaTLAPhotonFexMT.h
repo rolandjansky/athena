@@ -19,6 +19,8 @@
 
 // trigger EDM
 #include "xAODTrigEgamma/TrigPhoton.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/PhotonContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 
 
@@ -36,14 +38,14 @@ class TrigEgammaTLAPhotonFexMT : public AthAlgorithm {
     // This initializer list syntax also informs the scheduler of the
     // data dependency, obviating the need for a separate declareProperty(...)
 
-    SG::ReadHandleKey < xAOD::TrigPhotonContainer > m_fastPhotonsKeys{
+    SG::ReadHandleKey < xAOD::PhotonContainer > m_fastPhotonsKeys{
       this,
       "TLAInputPhotonContainer",
       "Photons",
       "input Photon container name"
     };
 
-    SG::WriteHandleKey < xAOD::TrigPhotonContainer > m_TLAOutPhotonsKey{
+    SG::WriteHandleKey < xAOD::PhotonContainer > m_TLAOutPhotonsKey{
       this,
       "TLAOutputPhotonContainer",
       "TLAPhotons",

@@ -2,7 +2,7 @@ from GaudiKernel.Constants import WARNING
 
 
 # verify if this needs to be in the same directory of the FexMT.cxx, in TrigHypothesis/Egamma/python corrispondente
-def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inputPhotonsKey="HLT_FastPhotons", TLAPhotonsKey="HLT_Photons_TLA", outputLevel=WARNING):
+def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inputPhotonsKey="HLT_egamma_Photons", TLAPhotonsKey="HLT_egamma_Photons_TLA", outputLevel=WARNING):
 
     # we need to change names to  'TrigEgammaTLAPhotonFexMT', it doesn't make sense to keep it as it is
 

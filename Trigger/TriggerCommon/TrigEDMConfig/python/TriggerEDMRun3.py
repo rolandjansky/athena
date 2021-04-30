@@ -467,8 +467,8 @@ TriggerHLTListRun3 = [
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS JetDS ESD', 'Jet'),
 
     #TLA Photons
-    ('xAOD::TrigPhotonContainer#HLT_FastPhotons_TLA',                                    'BS PhotonDS ESD', 'Egamma'),
-    ('xAOD::TrigPhotonAuxContainer#HLT_FastPhotons_TLAAux',                              'BS PhotonDS ESD', 'Egamma'),
+    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhotonDS ESD', 'Egamma', 'inViews:precisionPhotonViews'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_TLAAux',                                      'BS PhotonDS ESD', 'Egamma'),
 
 
     # FS tracks

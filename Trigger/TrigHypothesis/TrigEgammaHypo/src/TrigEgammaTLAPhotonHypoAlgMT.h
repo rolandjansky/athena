@@ -27,7 +27,7 @@ class TrigEgammaTLAPhotonHypoAlgMT : public HypoBase {
       this, "HypoTools", {}, "Hypo Tools"
     };
 
-    // for the moment use TrigPhoton, but I need to understand if this should actually be just PhotonContainer
+    
     SG::ReadHandleKey< xAOD::PhotonContainer > m_TLAPhotonsKey {
       this, "Photons", "Photons", "TLA Photon container key"
     };

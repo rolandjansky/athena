@@ -6,14 +6,15 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
-#include "xAODTrigEgamma/TrigPhotonContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 
 
 class ISvcLocator;
  // helpers functions, if needed
 struct DescendingEt{
 
-  bool operator()(const xAOD::TrigPhoton* l, const xAOD::TrigPhoton* r)  const {
+  bool operator()(const xAOD::Photon* l, const xAOD::Photon* r)  const {
     return l->p4().Et() > r->p4().Et();
   }
 
@@ -24,7 +25,7 @@ struct HasPtAboveThreshold {
   HasPtAboveThreshold(double thresholdPt) : thresholdPt(thresholdPt) {}
   double thresholdPt;
 
-  bool operator()(const xAOD::TrigPhoton* myphoton)  const {
+  bool operator()(const xAOD::Photon* myphoton)  const {
     return myphoton->p4().Pt() > thresholdPt;
   }
 
@@ -68,23 +69,23 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute()
 
   auto ctx = getContext();
 
-  SG::ReadHandle<TrigPhotonContainer> h_fastPhotons = SG::makeHandle(m_fastPhotonsKeys, ctx);
-  SG::WriteHandle<TrigPhotonContainer> h_TLAPhotons = SG::makeHandle(m_TLAOutPhotonsKey, ctx);
+  SG::ReadHandle<PhotonContainer> h_fastPhotons = SG::makeHandle(m_fastPhotonsKeys, ctx);
+  SG::WriteHandle<PhotonContainer> h_TLAPhotons = SG::makeHandle(m_TLAOutPhotonsKey, ctx);
 
   // effectively make the TLA Photon Container
 
   ATH_MSG_DEBUG("Retrieving FastPhotons from " << h_fastPhotons.key() );
   ATH_MSG_DEBUG("Placing <selected> FastPhotons in " << h_TLAPhotons.key() );
 
-  ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::TrigPhotonContainer>(),
-              std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );   // in FastPhotonFex this was TrigEMClusterAuxContainer
+  ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::PhotonContainer>(),
+              std::make_unique<PhotonAuxContainer>()) );  
 
 
-  const xAOD::TrigPhotonContainer* inputPhotons = h_fastPhotons.get();
-  std::vector<const xAOD::TrigPhoton*> originalPhotons(inputPhotons->begin(), inputPhotons->end());
+  const xAOD::PhotonContainer* inputPhotons = h_fastPhotons.get();
+  std::vector<const xAOD::Photon*> originalPhotons(inputPhotons->begin(), inputPhotons->end());
 
   // define the maximum number of photons we care about: either equivalent to m_maxNPhotons if smaller than size of vector, or keep all photons (in case of negative value)
-  std::vector<const xAOD::TrigPhoton*>::iterator it_maxPhotonBound;
+  std::vector<const xAOD::Photon*>::iterator it_maxPhotonBound;
 
   int maxNPhotons = static_cast<int>(m_maxNPhotons);
   int sizeOfOriginalPhotonContainer = static_cast<int>(originalPhotons.size());
@@ -98,18 +99,18 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute()
   std::partial_sort (originalPhotons.begin(), it_maxPhotonBound, originalPhotons.end(), DescendingEt());
 
   // get an iterator to the last element above the pT threshold (because we ordered the photons, this is the last one we want)
-  std::vector<const xAOD::TrigPhoton*>::iterator it_ptThresholdBound;
+  std::vector<const xAOD::Photon*>::iterator it_ptThresholdBound;
   it_ptThresholdBound = std::partition(originalPhotons.begin(), it_maxPhotonBound, HasPtAboveThreshold(static_cast<float>(m_photonPtThreshold)));
 
   //make the output photon container
-  ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::TrigPhotonContainer>(),
-              std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );   // in FastPhotonFex this was TrigEMClusterAuxContainer
+  ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::PhotonContainer>(),
+              std::make_unique<PhotonAuxContainer>()) );   // in FastPhotonFex this was TrigEMClusterAuxContainer
 
 
   //loop on all the photons from the beginning to the last photon we want, and put them the output photon collection
   //also, set a link to their parent photon
   for( auto it_ph=originalPhotons.begin(); it_ph!=it_ptThresholdBound; ++it_ph ) {
-    xAOD::TrigPhoton* copiedPhoton = new xAOD::TrigPhoton(*(*it_ph));
+    xAOD::Photon* copiedPhoton = new xAOD::Photon(*(*it_ph));
 
     ATH_CHECK(setOriginalObjectLink(*(*it_ph),*copiedPhoton));
 
