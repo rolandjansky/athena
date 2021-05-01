@@ -228,6 +228,7 @@ def getFilterCut(recoAlg):
 def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
     config = getInDetTrigConfig( 'jet' )
 
@@ -259,7 +260,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = config.vertex_jet
+                pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
 
         elif jetRecoDict["constitType"] == "pf":
             gscDepth = "auto"
@@ -273,7 +274,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                   ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
                   ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-            pvname = config.vertex_jet
+            pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
             calibSeq += "_Insitu"
