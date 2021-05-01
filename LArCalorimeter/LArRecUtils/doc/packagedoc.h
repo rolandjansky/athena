@@ -17,9 +17,6 @@ This package provides tools for LAr reconstruction
 
 @section LArRecUtils_Tools for noise and OFC computation on the fly (interfaces in LArElecCalib)
 
-LArAutoCorrTotalTool:  compute total (electronics+pileup) noise autocorrelation. 
-  Returns a vector of N(N-1)/2 values with N=number of samples
-
 The python directory contains default python classes for the configuration of these tools depending
 on the job properties
 
