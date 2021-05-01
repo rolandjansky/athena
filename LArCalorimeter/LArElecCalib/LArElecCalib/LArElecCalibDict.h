@@ -36,7 +36,6 @@
 #include "LArElecCalib/ILArMphysOverMcal.h"
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArPhysCaliTdiff.h"
 #include "LArElecCalib/ILArRamp.h"
