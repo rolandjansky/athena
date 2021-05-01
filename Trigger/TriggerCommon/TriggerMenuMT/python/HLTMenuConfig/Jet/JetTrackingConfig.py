@@ -7,6 +7,8 @@ from AthenaCommon.CFElements import parOR
 from JetRecTools.JetRecToolsConfig import getTrackVertexAssocTool
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+
 
 # these keys are not used in this file, they are used elsewhere, so 
 # wouldn;t it be better to actually define them in the file where they 
@@ -17,6 +19,7 @@ trkcollskeys = ["Tracks", "Vertices", "TVA", "GhostTracks", "GhostTracksLabel", 
 
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
 
@@ -31,13 +34,18 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         jetTrkSeq += viewAlgs
 
         # add the collections for the eflowRec reconstriction in the trigger
+
         from eflowRec.PFHLTSequence import trackvtxcontainers
-        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet )
+        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.vertex_jet )
 
         # now run he actual vertex finders and TTVA tools
-        _                 = jetVertex( "amvf", jetTrkSeq, trkopt+"_amvf", IDTrigConfig, verticesname=IDTrigConfig.vertex,     adaptiveVertex=IDTrigConfig.adaptiveVertex, )
-        trackcollmap      = jetVertex( "jet",  jetTrkSeq, trkopt,         IDTrigConfig, verticesname=IDTrigConfig.vertex_jet, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
-        
+        if flags.Trigger.Jet.doAMVFPriorityTTVA:
+            trackcollmap = jetVertex( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex,     adaptiveVertex=IDTrigConfig.adaptiveVertex, )
+        else:
+            vtxAlgs = makeVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
+            jetTrkSeq += vtxAlgs[-1]
+            trackcollmap = jetVertex( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,     adaptiveVertex=IDTrigConfig.adaptiveVertex_jet, )
+            
 
     return jetTrkSeq, trackcollmap
 
@@ -50,13 +58,11 @@ def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVer
 
     if verticesname is None:
         verticesname = config.vertex
-    
     if adaptiveVertex is None:
         adaptiveVertex = config.adaptiveVertex
 
-    tracksname = config.tracks_FTF() 
+    tracksname = config.tracks_FTF()
 
-    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
     vtxAlgs = makeVertices( signature, tracksname, verticesname, config, adaptiveVertex )
     prmVtx  = vtxAlgs[-1]
     jetseq += prmVtx
@@ -64,7 +70,7 @@ def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVer
     outmap = None
 
     # track to vertex association ...
-        
+
     tvaname = "JetTrackVtxAssoc_"+trkopt
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
@@ -81,7 +87,6 @@ def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVer
         }
             
         trackcollectionmap[trkopt] = trkcolls
-            
     # why is some of this adding of parameters to the trackcollectionmap
     # done here, and some in getTrackSelTool ? Could these two functions 
     # not be combined or broken up into more transparent smaller functions ?
@@ -93,7 +98,13 @@ def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVer
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
     
     prepname         = "jetalg_TrackPrep"+trkopt
-    jettvassoc       = getTrackVertexAssocTool( trkopt, jetseq )
+    jettvassoc       = getTrackVertexAssocTool( trkopt, jetseq ,
+                                                ttva_opts = { "WorkingPoint" : "Custom",
+                                                              "d0_cut"       : 2.0, 
+                                                              "dzSinTheta_cut" : 2.0, 
+                                                              "doPVPriority": adaptiveVertex,
+                                                            }
+                                              )
 
     jettrkprepalg       = CompFactory.JetAlgorithm(prepname)
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
