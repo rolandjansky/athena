@@ -4,6 +4,8 @@
 # Author: Margherita Spalla (margherita.spalla@cern.ch)
 # Post-processing of histograms from LArMonitoring 
 #
+# Functions implemented by this config are defined here: LArCalorimeter/LArMonitoring/python/LArMonTransforms.py
+#
 
 # Separate blocks with ---
 
@@ -31,8 +33,8 @@ Parameters: { isFtSlotPlot : False }
 Description: LAr_Coverage_FillWithMax
 
 ---
-Input: [ 'LAr/Coverage/perPartition/CoverageHW(?P<sampling>[0123])(?P<part>\S+)_StatusCode_(?P<sc>\d+)' ]
-Output: [ 'LAr/Coverage/perPartition/CoverSampling{sampling}{part}' ]
+Input: [ 'LAr/Coverage/perPartition/CoverageHW_(?P<part>EMB|EMEC|HEC|FCal)(?P<side>A|C)_statusCode_(?P<sc>\d+)' ]
+Output: [ 'LAr/Coverage/perPartition/CoverageHW{part}{side}' ]
 Function: LArMonitoring.LArMonTransforms.fillWithMaxCoverage
 Parameters: { isFtSlotPlot : True }
 Description: LAr_Coverage_HW_FillWithMax
