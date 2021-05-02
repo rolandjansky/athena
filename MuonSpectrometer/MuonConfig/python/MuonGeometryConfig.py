@@ -153,12 +153,10 @@ def MuonAlignmentCondAlgCfg(flags):
             pass
     acc.addCondAlgo(MuonAlign)
 
-    # This does not work as expected - breaks tests. So comment out for the moment, but it should still be fixed
-    
-    # if flags.IOVDb.DatabaseInstance != 'COMP200' and \
-    #             'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
-    #     acc.merge(addFolders( flags, '/MUONALIGN/ERRS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
-    #     acc.addCondAlgo(CompFactory.MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg"))
+    if flags.IOVDb.DatabaseInstance != 'COMP200' and \
+                'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
+        acc.merge(addFolders( flags, '/MUONALIGN/ERRS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+        acc.addCondAlgo(CompFactory.MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg"))
     
     return acc
 
@@ -186,7 +184,7 @@ def MuonGeoModelCfg(flags, forceDisableAlignment=False):
 
     enableAlignment = flags.Common.Project != 'AthSimulation' \
         and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
-    if enableAlignment:
+    if enableAlignment and not forceDisableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))
 
     acc.merge(MuonIdHelperSvcCfg(flags)) # This line can be removed once the configuration methods for all 258 components which directly use this service are updated!!

@@ -691,11 +691,11 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     # configure tools for data reprocessing 
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
         # use alignment effects on track for all algorithms
-        useAlignErrs = False # FIXME - change this once the MuonAlignmentErrorDBAlg issues are sorted out.
+        useAlignErrs = True
+        if flags.IOVDb.DatabaseInstance == 'COMP200' or \
+                'HLT'  in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Muon.MuonTrigger:
+            useAlignErrs = False
 
-        # FIXME - handle this.
-        #    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
-        #         useAlignErrs = False
         from MuonConfig.MuonRecToolsConfig import MuonRefitToolCfg
         acc = MuonRefitToolCfg(flags, name="MuidRefitTool", AlignmentErrors = useAlignErrs, Fitter = ipatFitter)
         # refitTool = getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter"),
