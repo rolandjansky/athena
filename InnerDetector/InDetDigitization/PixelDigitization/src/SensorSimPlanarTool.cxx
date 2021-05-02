@@ -31,6 +31,10 @@ using namespace InDetDD;
 //===============================================
 SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::string& name, const IInterface* parent) :
   SensorSimTool(type, name, parent) {
+
+  // This is a waste in some cases, but we need at most 3x3 elements
+  // Reserving 9 removes the need to allocate new memory multipe time thus speeding up the code a bit
+  m_centrePixelNNEtaPhi.reserve(9);
 }
 
 SensorSimPlanarTool::~SensorSimPlanarTool() { }
@@ -262,8 +266,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double halfEtaPitch = 0.5*Module.etaPitch();
   const double halfPhiPitch = 0.5*Module.phiPitch();
 
-  for (unsigned int i = 0; i < trfHitRecord.size(); i++) {
-    std::pair<double, double> iHitRecord = trfHitRecord[i];
+  std::map<unsigned, SiCellId> diodeCellMap;
+  for (size_t i = 0; i < trfHitRecord.size(); i++) {
+    std::pair<double, double> const& iHitRecord = trfHitRecord[i];
 
     double eta_i = eta_0;
     double phi_i = phi_0;
@@ -323,21 +328,23 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const std::size_t tanLorentz_e_bin_x = lorentzMap_e.getBinX(dist_electrode);
       const std::size_t tanLorentz_h_bin_x = lorentzMap_h.getBinX(dist_electrode);
       
-      const std::size_t sizeEta = std::abs(nnLoop_pixelEtaMax - nnLoop_pixelEtaMin) + 1;
       const std::size_t sizePhi = std::abs(nnLoop_pixelPhiMax - nnLoop_pixelPhiMin) + 1;
 
-      std::vector<std::pair<double,double> > centrePixelNNEtaPhi(sizeEta*sizePhi);
+      const auto pixel_eta = pixel_i.etaIndex();
+      const auto pixel_phi = pixel_i.phiIndex();
+
       for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
         for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
-          const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
-                                                                                   pixel_i.phiIndex() - q);
+          const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_eta - p,
+                                                                                   pixel_phi - q);
           const std::size_t ieta = p - nnLoop_pixelEtaMin;
           const std::size_t iphi = q - nnLoop_pixelPhiMin;
           const std::size_t index = iphi + ieta*sizePhi;
-          centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
-          centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
+          m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
+          m_centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
         }
       }
+
 
       for (int j = 0; j < ncharges; j++) {
         // amount of energy to be converted into charges at current step
@@ -401,7 +408,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
           // scale factors accounting for different pixel sizes
           double scale_f = 1.;
-          double columnWidth = p_design.widthFromColumnRange(pixel_i.etaIndex() - p, pixel_i.etaIndex() - p);
+          double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
           if (std::abs(columnWidth - 0.6) < 1e-9) {
             scale_f = 4. / 6.;
           } else if (std::abs(columnWidth - 0.45) < 1e-9) {
@@ -419,7 +426,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             const std::size_t index = iphi + ieta*sizePhi;
             //What is the displacement of the nn pixel from the primary pixel.
             //This is to index the correct entry in the Ramo weighting potential map
-            const std::pair<double,double>& centrePixelNN = centrePixelNNEtaPhi[index];
+            const std::pair<double,double>& centrePixelNN = m_centrePixelNNEtaPhi[index];
             const double dPhi_nn_centre = centrePixelNN.second - centreOfPixel_i.xPhi(); //in mm
             const double dEta_nn_centre = centrePixelNN.first  - centreOfPixel_i.xEta(); //in mm
 
@@ -472,7 +479,12 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               chargePos,
               SiCharge(induced_charge, pHitTime, SiCharge::track, particleLink)
               );
-            const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
+
+	    unsigned key = (static_cast<unsigned>(pixel_eta-p) << 16) | static_cast<unsigned>(pixel_phi-q);
+	    auto diodeIterator = diodeCellMap.find(key);
+	    if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
+	    const SiCellId& diode = diodeIterator->second;
+
             if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
