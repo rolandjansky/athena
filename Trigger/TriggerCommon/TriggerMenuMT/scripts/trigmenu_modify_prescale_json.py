@@ -7,15 +7,19 @@ import json
 import argparse
 parser = argparse.ArgumentParser(description='Get the inputs for activating only the prescale of a given group')
 
-parser.add_argument('--group', dest='group', action='store', default='',
-                    help='Which group are we selecting')
-parser.add_argument('--prescale_json', dest='prescale_json', action='store', default='',
+parser.add_argument('-g', '--group',
+                    required=True,
+                    action='append',
+                    help='Which group we are selecting')
+parser.add_argument('-p', '--prescale_json',
+                    required=True,
                     help='Which prescale json we are modifying')
-parser.add_argument('--menu_json', dest='menu_json', action='store', default='',
+parser.add_argument('-m', '--menu_json',
+                    required=True,
                     help='Name of the menu file')
-                   
+
 args          = parser.parse_args()
-the_group = args.group
+the_groups = args.group
 
 prescale_json = args.prescale_json
 prescale_file = open(prescale_json)
@@ -29,14 +33,15 @@ menu_file.close()
 
 list_of_good_chains = []
 for chain in the_menu['chains']:
-    if the_group in the_menu['chains'][chain]['groups']:
-        list_of_good_chains.append(chain) 
+    for group in the_groups:
+        if group in the_menu['chains'][chain]['groups']:
+            list_of_good_chains.append(chain) 
 
 if len(list_of_good_chains)==0:
     raise Exception("There are no chains with the specified group in the Menu file.")
 
-print("[modify_prescale_json] resetting all the chains that do not contain the group:", the_group)
-print("[modify_prescale_json] number of chains found with the selected group:", len(list_of_good_chains))
+print("[modify_prescale_json] resetting all the chains that do not contain the groups:", the_groups)
+print("[modify_prescale_json] number of chains found with the selected groups:", len(list_of_good_chains))
 
 for chain in the_prescale['prescales']:
     if chain not in list_of_good_chains:
