@@ -21,6 +21,7 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inpu
     # TrigEDMConfig/python/TriggerEDMRun3.py
     # we should add lines to include "HLT_FastPhotons_TLA", otherwise we get an error
     outputPhotonsValidName = recordable(TLAPhotonsKey)
+    
     TrigEgammaTLAPhotonFexMT.TLAOutputPhotonContainer = outputPhotonsValidName
     TrigEgammaTLAPhotonFexMT.OutputLevel = outputLevel
 

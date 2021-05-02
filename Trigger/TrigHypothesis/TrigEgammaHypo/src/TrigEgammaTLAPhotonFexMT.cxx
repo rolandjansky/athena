@@ -77,8 +77,8 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute()
   ATH_MSG_DEBUG("Retrieving FastPhotons from " << h_fastPhotons.key() );
   ATH_MSG_DEBUG("Placing <selected> FastPhotons in " << h_TLAPhotons.key() );
 
-  ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::PhotonContainer>(),
-              std::make_unique<PhotonAuxContainer>()) );  
+  //ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::PhotonContainer>(),
+    //          std::make_unique<PhotonAuxContainer>()) );  
 
 
   const xAOD::PhotonContainer* inputPhotons = h_fastPhotons.get();
