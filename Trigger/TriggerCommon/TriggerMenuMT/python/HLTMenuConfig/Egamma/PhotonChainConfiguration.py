@@ -107,7 +107,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
 
  
-        if "PhotonDS" in self.chainName :
+        if self.dict["eventBuildType"] == "PhotonDS" :
             log.debug('Adding photon trigger step getTLAPhoton')
             TLAStep = self.getTLAPhoton()
             chainSteps+= [TLAStep]

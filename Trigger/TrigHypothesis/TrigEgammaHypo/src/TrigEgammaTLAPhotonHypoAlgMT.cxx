@@ -2,7 +2,9 @@
 #include "TrigEgammaTLAPhotonHypoAlgMT.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#include "AthViews/ViewHelper.h"
 //#include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using namespace TrigCompositeUtils;
@@ -18,6 +20,11 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_TLAPhotonsKey.initialize() );
+  
+  // ATTEMPT TO FOLLOW EXAMPLE OF https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaPrecisionCaloHypoAlgMT.cxx#0013
+  renounce(m_TLAPhotonsKey); // TLA Photons are made in views, so they are not in the EvtStore. Hide them (?)
+  /// ATTEMPT
+
   ATH_MSG_DEBUG("Initializing TrigEgammaTLAPhotonHypoAlgMT");
   return StatusCode::SUCCESS;
 
@@ -37,9 +44,24 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::execute( const EventContext& ctx) const
 
   // get a pointer to the TLA Photons
   ATH_MSG_DEBUG("Retrieving photons from the TLA container \"" <<m_TLAPhotonsKey << "\" ");
-  auto TLAPhotonsHandle = SG::makeHandle(m_TLAPhotonsKey, ctx);
-  ATH_CHECK(TLAPhotonsHandle.isValid());
-  const PhotonContainer* TLAPhotons = TLAPhotonsHandle.get();
+  
+  
+// OLD WAY
+
+ 
+//  auto TLAPhotonsHandle = SG::makeHandle(m_TLAPhotonsKey, ctx);
+  
+  const Decision* testDecision = *(prevDecisions->begin());
+  auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( testDecision, TrigCompositeUtils::roiString() );
+  ATH_CHECK( roiELInfo.isValid() );
+  // this should retrieve an element link to the view associated to the previous decision
+  const auto viewEL = testDecision->objectLink<ViewContainer>( TrigCompositeUtils::viewString() );
+  ATH_CHECK( viewEL.isValid() );
+  auto tlaPhotonsHandle = ViewHelper::makeHandle( *(viewEL), m_TLAPhotonsKey, ctx);
+  ATH_CHECK(tlaPhotonsHandle.isValid());
+  const PhotonContainer* TLAPhotons = tlaPhotonsHandle.get();
+  //ATH_CHECK(TLAPhotonsHandle.isValid());
+  //const PhotonContainer* TLAPhotons = TLAPhotonsHandle.get();
 
   // check if we have at least one decision associated to the TLA Photon Container (the decision should be from the getFastPhoton alg?)
   bool atLeastOneDecision = false;
@@ -86,6 +108,45 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::execute( const EventContext& ctx) const
     }// loops over decision in inputContainer
 
   }// TLAPhotons loop
+
+
+
+
+
+/// NEW WAY FOLLOWING PRECISION CALO
+/*
+size_t counter = 0;
+const Decision* previousDecision = nullptr;
+for (auto prevDec : *previousDecisionHandle)
+{
+   //get updated RoI  
+  auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( prevDec, TrigCompositeUtils::roiString() );
+  ATH_CHECK( roiELInfo.isValid() );
+  
+  // this should retrieve an element link to the view associated to the previous decision
+  const auto viewEL = previousDecision->objectLink<ViewContainer>( TrigCompositeUtils::viewString() );
+  ATH_CHECK( viewEL.isValid() );
+  auto tlaPhotonsHandle = ViewHelper::makeHandle( *(viewEL), m_TLAPhotonsKey, context);
+  ATH_CHECK( tlaPhotonsHandle.isValid() );
+  ATH_MSG_DEBUG ( "TLA Photons handle size: " << tlaPhotonsHandle->size() << "..." );
+  for (size_t ph=0; ph < tlaPhotonsHandle->size(); ph++)
+  {
+    auto el = ViewHelper::makeLink( *(viewEL), tlaPhotonsHandle, ph);
+    ATH_MSG_DEBUG ( "Checking el.isValid()...");
+    if( !el.isValid() ) {
+       ATH_MSG_DEBUG ( "Photon Handle in position " << ph << " -> invalid ElemntLink!. Skipping...");
+    }
+    ATH_CHECK(el.isValid());
+    ATH_MSG_DEBUG ( "Photon Handle in position " << ph << " processing...");
+    auto d = TrigCompositeUtils::newDecisionIn( decisions, TrigCompositeUtils::hypoAlgNodeName() );
+    d->setObjectLink( TrigCompositeUtils::featureString() , el);
+    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+  
+  }
+  }*/
+
+
+
 
   if (!atLeastOneDecision)
   {
