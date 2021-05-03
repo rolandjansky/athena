@@ -1068,30 +1068,31 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
       if (getTDT()->getNavigationFormat() == "TriggerElement") {
 
-        Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-        Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-        if(comb->size()!=2){
-          ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size()); 
-          //return StatusCode::FAILURE;
-        }
-        for(;comb!=combEnd;++comb){
-          const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-          std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator ditauCI = vec_HLTtau.begin(), ditauCI_e = vec_HLTtau.end();
-          if(ditauCI==ditauCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-          ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << ditauCI->label() << " containers");
-          for(; ditauCI != ditauCI_e; ++ditauCI){
-            if(ditauCI->cptr()){
-              if(ditauCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-              ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-              xAOD::TauJetContainer::const_iterator tauItr = ditauCI->cptr()->begin();
-              xAOD::TauJetContainer::const_iterator tauEnd = ditauCI->cptr()->end();
-              for(; tauItr != tauEnd; ++tauItr){        
-                v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi());
+        Trig::FeatureContainer tf = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
+        if( tf.getCombinations().size() > 0){
+          Trig::FeatureContainer::combination_const_iterator combo(tf.getCombinations().begin()), comboEnd(tf.getCombinations().end());
+          if(combo->size()!=2){
+            ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< combo->size()); 
+            //return StatusCode::FAILURE;
+          }
+          for(;combo!=comboEnd;++combo){
+            const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = combo->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
+            std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator ditauCI = vec_HLTtau.begin(), ditauCI_e = vec_HLTtau.end();
+            if(ditauCI==ditauCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
+            ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << ditauCI->label() << " containers");
+            for(; ditauCI != ditauCI_e; ++ditauCI){
+              if(ditauCI->cptr()){
+                if(ditauCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
+                ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
+                xAOD::TauJetContainer::const_iterator tauItr = ditauCI->cptr()->begin();
+                xAOD::TauJetContainer::const_iterator tauEnd = ditauCI->cptr()->end();
+                for(; tauItr != tauEnd; ++tauItr){        
+                  v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi());
+                }
               }
             }
           }
         }
-
       } else { // TrigComposite
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features
