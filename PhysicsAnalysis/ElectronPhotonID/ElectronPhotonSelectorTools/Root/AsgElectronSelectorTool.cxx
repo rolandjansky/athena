@@ -259,11 +259,31 @@ StatusCode AsgElectronSelectorTool::initialize()
 
     // Register the cuts and check that the registration worked:
     // NOTE: THE ORDER IS IMPORTANT!!! Cut0 corresponds to bit 0, Cut1 to bit 1,...
-    m_resultPosition_MVA = m_resultMVA.addResult( "mvaScore", "electron mvaScore" );
+    m_resultPosition_MVA = m_resultMVA.addResult( "mvaScore", "electron combined MVA Score" );
     if ( m_resultPosition_MVA < 0 ) sc = 0; // Exceeded the number of allowed results
 
-    // Set the result to a default value
-    m_resultMVA.setResult(m_resultPosition_MVA, -9999.0);
+    if (m_multiClass){
+      m_resultPosition_EL = m_resultMVA.addResult( "elScore", "electron node" );
+      if ( m_resultPosition_EL < 0 ) sc = 0; // Exceeded the number of allowed results
+
+      m_resultPosition_CF = m_resultMVA.addResult( "cfScore", "chargeFlip node" );
+      if ( m_resultPosition_CF < 0 ) sc = 0; // Exceeded the number of allowed results
+
+      m_resultPosition_PC = m_resultMVA.addResult( "pcScore", "photonConv node" );
+      if ( m_resultPosition_PC < 0 ) sc = 0; // Exceeded the number of allowed results
+
+      m_resultPosition_HF = m_resultMVA.addResult( "hfScore", "heavyFlavor node" );
+      if ( m_resultPosition_HF < 0 ) sc = 0; // Exceeded the number of allowed results
+
+      m_resultPosition_LE = m_resultMVA.addResult( "leScore", "lightFlavorEgamma node" );
+      if ( m_resultPosition_LE < 0 ) sc = 0; // Exceeded the number of allowed results
+
+      m_resultPosition_LH = m_resultMVA.addResult( "lhScore", "lightFlavorHadron node" );
+      if ( m_resultPosition_LH < 0 ) sc = 0; // Exceeded the number of allowed results
+    }
+
+    // Set all entries of the TResult to a default of -9999.
+    resetTResult();
 
     // Check that we got everything OK
     if (sc == 0){
@@ -455,8 +475,8 @@ const Root::TAccept& AsgElectronSelectorTool::accept( const xAOD::Electron* eg, 
 //=============================================================================
 const Root::TResult& AsgElectronSelectorTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
-  // Set the result to a default value
-  m_resultMVA.setResult(m_resultPosition_MVA, -9999.0);
+  // Set all entries of the TResult to a default of -9999.
+  resetTResult();
 
   if (!eg){
     throw std::runtime_error("AsgElectronSelectorTool: Failed, no electron object was passed" );
@@ -669,6 +689,12 @@ const Root::TResult& AsgElectronSelectorTool::calculate( const xAOD::Electron* e
   else{
     // combine the six output nodes into one discriminant to cut on, any necessary transformation is applied within combineOutputs()
     discriminant = combineOutputs(mvaScores, eta);
+    m_resultMVA.setResult(m_resultPosition_EL, mvaScores.at(0));
+    m_resultMVA.setResult(m_resultPosition_CF, mvaScores.at(1));
+    m_resultMVA.setResult(m_resultPosition_PC, mvaScores.at(2));
+    m_resultMVA.setResult(m_resultPosition_HF, mvaScores.at(3));
+    m_resultMVA.setResult(m_resultPosition_LE, mvaScores.at(4));
+    m_resultMVA.setResult(m_resultPosition_LH, mvaScores.at(5));
   }
   m_resultMVA.setResult(m_resultPosition_MVA, discriminant);
 
@@ -706,8 +732,8 @@ const Root::TResult& AsgElectronSelectorTool::calculate( const xAOD::IParticle* 
   }
   else {
     ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");
-    // Set the result to a default value
-    m_resultMVA.setResult(m_resultPosition_MVA, -9999.0);
+    // Set all entries of the TResult to a default of -9999.
+    resetTResult();
     return m_resultMVA;
   }
 }
@@ -733,8 +759,8 @@ const Root::TResult& AsgElectronSelectorTool::calculate( const xAOD::Egamma* eg,
     }
     else {
       ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");
-      // Set the result to a default value
-      m_resultMVA.setResult(m_resultPosition_MVA, -9999.0);
+      // Set all entries of the TResult to a default of -9999.
+      resetTResult();
       return m_resultMVA;
     }
 }
@@ -856,4 +882,19 @@ double AsgElectronSelectorTool::interpolateCuts( const std::vector<double>& cuts
   double gradient = ( discUp - discLow ) / ( etUp - etLow );
 
   return discLow + (et - etLow) * gradient;
+}
+
+// Set all results of the TResult to a default value of -9999
+void AsgElectronSelectorTool::resetTResult() const
+{
+  m_resultMVA.setResult(m_resultPosition_MVA, -9999.0);
+  if (m_multiClass){
+    m_resultMVA.setResult(m_resultPosition_EL, -9999.0);
+    m_resultMVA.setResult(m_resultPosition_CF, -9999.0);
+    m_resultMVA.setResult(m_resultPosition_PC, -9999.0);
+    m_resultMVA.setResult(m_resultPosition_HF, -9999.0);
+    m_resultMVA.setResult(m_resultPosition_LE, -9999.0);
+    m_resultMVA.setResult(m_resultPosition_LH, -9999.0);
+  }
+  return;
 }
