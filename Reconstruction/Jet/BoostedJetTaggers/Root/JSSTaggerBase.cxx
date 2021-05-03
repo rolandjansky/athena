@@ -95,6 +95,7 @@ StatusCode JSSTaggerBase::initialize() {
   m_decValidPtRangeHighKey = m_containerName + "." + m_decorationName + "_" + m_decValidPtRangeHighKey.key();
   m_decValidPtRangeLowKey = m_containerName + "." + m_decorationName + "_" + m_decValidPtRangeLowKey.key();
   m_decValidEtaRangeKey = m_containerName + "." + m_decorationName + "_" + m_decValidEtaRangeKey.key();
+  m_decValidKinRangeKey = m_containerName + "." + m_decorationName + "_" + m_decValidKinRangeKey.key();
   m_decValidJetContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidJetContentKey.key();
   m_decValidEventContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidEventContentKey.key();
 
@@ -166,6 +167,7 @@ StatusCode JSSTaggerBase::initialize() {
   ATH_CHECK( m_decValidPtRangeHighKey.initialize() );
   ATH_CHECK( m_decValidPtRangeLowKey.initialize() );
   ATH_CHECK( m_decValidEtaRangeKey.initialize() );
+  ATH_CHECK( m_decValidKinRangeKey.initialize() );
   ATH_CHECK( m_decValidJetContentKey.initialize() );
   ATH_CHECK( m_decValidEventContentKey.initialize() );
 
@@ -173,6 +175,7 @@ StatusCode JSSTaggerBase::initialize() {
   ATH_MSG_INFO( "  " << m_decValidPtRangeHighKey.key() << " : pass upper pt range" );
   ATH_MSG_INFO( "  " << m_decValidPtRangeLowKey.key() << " : pass lower pt range" );
   ATH_MSG_INFO( "  " << m_decValidEtaRangeKey.key() << " : pass eta range" );
+  ATH_MSG_INFO( "  " << m_decValidKinRangeKey.key() << " : pass kinematic range" );
   ATH_MSG_INFO( "  " << m_decValidJetContentKey.key() << " : has valid jet content" );
   ATH_MSG_INFO( "  " << m_decValidEventContentKey.key() << " : has valid event content" );
 
@@ -346,32 +349,39 @@ StatusCode JSSTaggerBase::checkKinRange( const xAOD::Jet &jet, asg::AcceptData &
   float scale = 1.0;
   if ( m_ptGeV ) scale = 1.e3;
 
+  bool passKinRange = true;
+
   /// Check each kinematic constraint
   /// Print warnings using counters
   if ( std::abs(jet.eta()) > m_jetEtaMax ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
     acceptData.setCutResult( "ValidEtaRange", false );
+    passKinRange = false;
   }
 
   if ( jet.pt() < m_jetPtMin * scale ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeLow", false );
+    passKinRange = false;
   }
 
   if ( jet.pt() > m_jetPtMax * scale ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeHigh", false );
+    passKinRange = false;
   }
 
   /// Create write decor handles
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidPtRangeHigh(m_decValidPtRangeHighKey);
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidPtRangeLow(m_decValidPtRangeLowKey);
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidEtaRange(m_decValidEtaRangeKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidKinRange(m_decValidKinRangeKey);
  
   /// Decorate kinematic pass information
   decValidPtRangeHigh(jet) = acceptData.getCutResult( "ValidPtRangeHigh" );
   decValidPtRangeLow(jet) = acceptData.getCutResult( "ValidPtRangeLow" );
   decValidEtaRange(jet) = acceptData.getCutResult( "ValidEtaRange" );
+  decValidKinRange(jet) = passKinRange;
 
   return StatusCode::SUCCESS;
 
