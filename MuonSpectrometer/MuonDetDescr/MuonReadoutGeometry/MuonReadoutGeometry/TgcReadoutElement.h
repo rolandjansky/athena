@@ -77,7 +77,7 @@ namespace MuonGM {
 
     /** strip position 
 	If the strip number is outside the range of valid strips, the function will return false */
-    virtual inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
     virtual inline int  layerHash(const Identifier& id)   const override; 

@@ -60,10 +60,23 @@ StatusCode TGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       m_TGC_dig_channel.push_back(channel);
       m_TGC_dig_isStrip.push_back(isStrip);
 
-	  if (!MuonDetMgr->getTgcReadoutElement(Id)) {
+      const MuonGM::TgcReadoutElement* rdoEl = MuonDetMgr->getTgcReadoutElement(Id);
+	  if (!rdoEl) {
 	    ATH_MSG_ERROR("TGCDigitVariables::fillVariables() - Failed to retrieve TgcReadoutElement for" << __FILE__ << __LINE__ << m_TgcIdHelper->print_to_string(Id).c_str());
 	    return StatusCode::FAILURE;
 	  }
+
+      Amg::Vector3D gpos(0.,0.,0.);
+      Amg::Vector2D lpos(0.,0.);
+
+      rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
+      
+      m_TGC_dig_localPosX.push_back( lpos.x() );
+      m_TGC_dig_localPosY.push_back( lpos.y() );
+      m_TGC_dig_globalPosX.push_back( gpos.x() );
+      m_TGC_dig_globalPosY.push_back( gpos.y() );
+      m_TGC_dig_globalPosZ.push_back( gpos.z() );
+      
       // digit counter for the ntuple
       m_TGC_nDigits++;
     }
@@ -87,7 +100,11 @@ StatusCode TGCDigitVariables::clearVariables()
   m_TGC_dig_gas_gap.clear();
   m_TGC_dig_channel.clear();
   m_TGC_dig_isStrip.clear();
-
+  m_TGC_dig_localPosX.clear();
+  m_TGC_dig_localPosY.clear();
+  m_TGC_dig_globalPosX.clear();
+  m_TGC_dig_globalPosY.clear();
+  m_TGC_dig_globalPosZ.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -106,6 +123,11 @@ StatusCode TGCDigitVariables::initializeVariables()
     m_tree->Branch("Digits_TGC_gas_gap",     &m_TGC_dig_gas_gap);
     m_tree->Branch("Digits_TGC_channel",     &m_TGC_dig_channel);
     m_tree->Branch("Digits_TGC_isStrip",     &m_TGC_dig_isStrip);
+    m_tree->Branch("Digits_TGC_localPosX",   &m_TGC_dig_localPosX);
+    m_tree->Branch("Digits_TGC_localPosY",   &m_TGC_dig_localPosY);
+    m_tree->Branch("Digits_TGC_globalPosX",  &m_TGC_dig_globalPosX);
+    m_tree->Branch("Digits_TGC_globalPosY",  &m_TGC_dig_globalPosY);
+    m_tree->Branch("Digits_TGC_globalPosZ",  &m_TGC_dig_globalPosZ);
   }
 
   return StatusCode::SUCCESS;
@@ -118,3 +140,4 @@ void TGCDigitVariables::deleteVariables()
 {
   return;
 }
+
