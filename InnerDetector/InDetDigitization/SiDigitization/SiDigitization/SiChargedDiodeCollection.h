@@ -190,13 +190,6 @@ class SiChargedDiodeCollection : Identifiable {
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  //NB m_allocator should always be declared before m_chargedDiodes in
-  //the intialization list.  If the allocator is declared after
-  //m_chargedDiodes, when the collection is destroyed, the allocator
-  //will be destroyed (and the memory it manages freed) before the
-  //SiChargedDiodeMap.  This will cause a crash unless the
-  //SiChargedDiodeMap is empty.
-  SiTotalCharge::alloc_t m_allocator; 
   SiChargedDiodeMap m_chargedDiodes; // list of SiChargedDiodes 
   SiChargedDiodeOrderedSet m_orderedChargedDiodes; // list of SiChargedDiodes 
   const InDetDD::SolidStateDetectorElementBase* m_sielement; // detector element
