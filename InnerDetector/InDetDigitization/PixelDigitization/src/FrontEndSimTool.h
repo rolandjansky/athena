@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
@@ -204,7 +204,7 @@ protected:
       return totalCharge.time();
     }
 
-    std::list<SiCharge>::const_iterator p_charge = totalCharge.chargeComposition().begin();
+    auto p_charge = totalCharge.chargeComposition().begin();
     int findfirst = 0;
     SiCharge first = *p_charge;
 
