@@ -1236,8 +1236,8 @@ TRT_ToT_dEdx::trackOccupancyCorrection(const EventContext& ctx,
   double corr=-999.;
   double trackOcc = m_localOccTool->LocalOccupancy(ctx,*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
-  const Amg::VectorX& parameterVector = perigee->parameters();
-  double theta  = parameterVector[Trk::theta];
+  const AmgVector(Trk::TrackParameters::dim)& parameterVector = perigee->parameters();
+  double theta = parameterVector[Trk::theta];
   double trackEta = -log(tan(theta/2.0));
 
   // the correction constants were determined in 100 bins of 0.04 in the eta range between -2 and 2
