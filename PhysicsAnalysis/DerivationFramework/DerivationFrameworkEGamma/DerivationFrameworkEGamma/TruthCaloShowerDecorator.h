@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHCALOSHOWERDECORATOR_H
@@ -8,7 +8,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+
+#include "xAODTruth/TruthParticleContainer.h"
 #include "CaloCalibHitRec/CalibHitToCaloCellTool.h"
+
 #include <vector>
 
 
@@ -24,15 +31,43 @@ namespace DerivationFramework {
 
     private:
 
-      /** @brief Name of the input electron container **/
-      std::string m_electronContainerName;
-      /** @brief Name of the truth particle container **/
-      std::string m_truthParticleContainerName;
+      /** @brief SG key of the truth particle container **/
+      SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerName{
+        this,
+        "TruthParticleContainerName",
+        "egammaTruthParticles",
+        "SG key of the truth particle container"
+      };
+
+      // Non-configurable read handle keys
+      SG::ReadHandleKey<xAOD::CaloClusterContainer> m_truthClusterContainerEtot{
+        "TruthLArClustersEtot",
+      };
+      SG::ReadHandleKey<xAOD::CaloClusterContainer> m_truthClusterContainerEvis{
+        "TruthLArClustersEvis"
+      };
+      SG::ReadHandleKey<xAOD::CaloClusterContainer> m_truthClusterContainerEem{
+        "TruthLArClustersEem"
+      };
+
+      // Write decoration handle keys
+      SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
+        m_linkDecoratorClusterEtot{
+          "egammaTruthParticles.truthLArClusterEtotLink"
+      };
+      SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
+        m_linkDecoratorClusterEvis{
+          "egammaTruthParticles.truthLArClusterEvisLink"
+      };
+      SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
+        m_linkDecoratorClusterEem{
+          "egammaTruthParticles.truthLArClusterEemLink"
+      };
+
       /** @brief barcode cut for egamma helpers **/
       int m_singleParticleBarcode;
 
       ToolHandle<CalibHitToCaloCellTool> m_calibhitToCaloCellTool; 
-      //std::vector<std::string> m_truthClusterContainerNames;
 
   }; 
 }
