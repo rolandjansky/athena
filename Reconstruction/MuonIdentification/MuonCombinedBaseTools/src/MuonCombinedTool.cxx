@@ -23,20 +23,20 @@ namespace MuonCombined {
         AthAlgTool(type, name, parent) {
         declareInterface<IMuonCombinedTool>(this);
     }
-   void ATLAS_THREAD_SAFE MuonCombinedTool::fill_debugging (const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates) const{
-       if (!m_runMuonCombinedDebugger) return;
-       m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
-   } 
+    void MuonCombinedTool::fill_debugging(const MuonCandidateCollection& muonCandidates,
+                                          const InDetCandidateCollection& inDetCandidates) const {
+        if (!m_runMuonCombinedDebugger) return;
+        MuonCombinedDebuggerTool* debugger_tool ATLAS_THREAD_SAFE = const_cast<MuonCombinedDebuggerTool*>(m_muonCombDebugger.get());
+        debugger_tool->fillBranches(muonCandidates, inDetCandidates);
+    }
     StatusCode MuonCombinedTool::initialize() {
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_muonCombinedTagTools.retrieve());
         // debug tree, only for running with 1 thread
-        if( Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads() != 1){
+        if (Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads() != 1) {
             m_runMuonCombinedDebugger = false;
         }
-        if (m_runMuonCombinedDebugger) {
-            ATH_CHECK(m_muonCombDebugger.retrieve());              
-        }
+        if (m_runMuonCombinedDebugger) { ATH_CHECK(m_muonCombDebugger.retrieve()); }
 
         return StatusCode::SUCCESS;
     }
