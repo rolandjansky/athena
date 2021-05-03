@@ -59,6 +59,7 @@ public:
         m_nActiveLWHists(0),
 	m_forkedProcess(false),
 	m_lastPID(0),
+    m_rootBackend(false),
 	m_doResourceMon(false)
  {}
   
@@ -105,6 +106,8 @@ public:
 
     bool m_forkedProcess;
     pid_t m_lastPID;
+
+    bool m_rootBackend;
 
     //NB: The LW hist leak checker is now also looking for
     //inappropriate usage of MonGroup copy constructors (temporary
@@ -236,6 +239,7 @@ AthenaMonManager( const std::string& name, ISvcLocator* pSvcLocator )
     declareProperty( "ManualRunLBSetup", m_d->m_manualRunLBProp );
     declareProperty( "Run", m_d->m_runProp );
     declareProperty( "LumiBlock", m_d->m_lumiBlockProp );
+    declareProperty( "ROOTBackend", m_d->m_rootBackend );
 
     if( Imp::s_svcLocator==0 )
         Imp::s_svcLocator = pSvcLocator;
@@ -484,12 +488,8 @@ initialize()
     joSvc->set( client + ".DataType", m_d->m_dataTypeProp );
     joSvc->set( client + ".Environment", m_d->m_environmentProp );
 
-    //Determine (globally for now), whether or not LW histograms use a
-    //ROOT backend (necessary for online monitoring, and perhaps for
-    //debugging):
-    bool root_backend_for_lwhists = (environment()==AthenaMonManager::online);
-    if( root_backend_for_lwhists != LWHistControls::hasROOTBackend() )
-        LWHistControls::setROOTBackend(root_backend_for_lwhists);
+    // LWHists not thread-safe. Use alg property to use ROOT backend in MT mode.
+    LWHistControls::setROOTBackend(m_d->m_rootBackend);
 
     if( m_monTools.size() > 0 ) {
       sc = m_monTools.retrieve();
