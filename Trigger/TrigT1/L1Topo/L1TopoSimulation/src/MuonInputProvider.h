@@ -76,7 +76,10 @@ namespace LVL1 {
          Output: integer eta/phi L1Topo coordinates
       */
       int topoIndex(float x, int g) const;
-
+      /* 
+         @brief use L1Topo convention for muon flags (1 = true/positive, -1 = false/negative, 0 = undefined)
+      */
+      int topoFlag(bool flag) const;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 

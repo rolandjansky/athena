@@ -57,7 +57,6 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    , m_Et(muon.Et())
    , m_eta(muon.eta())
    , m_phi(muon.phi())
-   , m_sectorName(muon.sectorName())
    , m_bw2or3(muon.bw2or3())
    , m_innerCoin(muon.innerCoin())
    , m_goodMF(muon.goodMF())
