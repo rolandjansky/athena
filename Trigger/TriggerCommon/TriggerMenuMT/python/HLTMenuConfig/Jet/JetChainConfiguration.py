@@ -85,7 +85,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if "JetDS" in self.chainName:
+        if self.dict["eventBuildType"]=="JetDS":
             # Select the TLA jets from the full jet container
             # rather than the filtered one seen by the hypo
             # (No diff in practice if the TLA cut is higher than the hypo filter)
