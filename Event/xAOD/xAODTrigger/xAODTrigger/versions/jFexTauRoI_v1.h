@@ -2,8 +2,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef XAODTRIGGER_VERSIONS_JFEXSRJETROI_V1_H
-#define XAODTRIGGER_VERSIONS_JFEXSRJETROI_V1_H
+#ifndef XAODTRIGGER_VERSIONS_JFEXTAUROI_V1_H
+#define XAODTRIGGER_VERSIONS_JFEXTAUROI_V1_H
 
 // System include(s):
 extern "C" {
@@ -19,11 +19,11 @@ namespace xAOD {
    /// Class describing properties of a LVL1 jFEX global Trigger Object (TOB)
    /// in the xAOD format.
 
-   class jFexSRJetRoI_v1 : public SG::AuxElement {
+   class jFexTauRoI_v1 : public SG::AuxElement {
 
    public:
       /// Default constructor
-      jFexSRJetRoI_v1();
+      jFexTauRoI_v1();
 
       /// In future initialze the xTOB as well, word1
       void initialize(uint8_t jFexNumber, uint32_t word0 );
@@ -32,6 +32,7 @@ namespace xAOD {
       uint32_t word0() const;
       uint8_t jFexNumber() const;
       uint16_t tobEt() const;
+      uint16_t tobIso() const;
       uint8_t iEta() const;
       uint8_t iPhi() const; 
       uint8_t satFlag() const;
@@ -44,7 +45,12 @@ namespace xAOD {
       /// TOB ET (decoded from TOB, stored for convenience)
       unsigned int unpackEtTOB() const;
       void setTobEt( uint16_t value); 
-      unsigned int et() const; 
+      unsigned int et() const;
+       
+      /// TOB Isolation (decoded from TOB, stored for convenience)
+      unsigned int unpackIsoTOB() const;
+      void setTobIso( uint16_t value); 
+      unsigned int iso() const; 
 
       ///Eta coordinates
       unsigned int unpackEtaIndex() const;
@@ -59,35 +65,36 @@ namespace xAOD {
       //Saturation flag
       unsigned int unpackSaturationIndex() const;
       void setSatFlag(uint8_t value);
- 
+      
+      //TOB word flag
+      unsigned int tob() const;
    private:
       //Constants used in converting to ATLAS units
       static const float s_tobEtScale;
+      static const float s_tobIsoScale;
       static const float s_towerEtaWidth;
       static const float s_towerPhiWidth;
       static const float s_minEta;
 
+      // Data locations within word
+      static const int s_etaBit = 27; 
+      static const int s_phiBit = 23; 
+      static const int s_etBit  = 12; 
+      static const int s_isoBit = 1;
+      static const int s_satBit = 0;
 
-      // Data locations within word 
-      static const int s_satBit =0;
-      //static const int s_ResBit =1;
-      static const int s_etBit  = 12;
-      static const int s_phiBit = 23;
-      static const int s_etaBit = 27;
-                       
       //Data masks
-      static const int s_etMask   = 0x7ff;
       static const int s_etaMask  = 0x1f;
-      static const int s_phiMask  = 0x7;
-      //static const int s_resMask  = 0x7ff; 
-      static const int s_satMask = 0x1; 
+      static const int s_phiMask  = 0xf;
+      static const int s_etMask   = 0x7ff;
+      static const int s_isoMask  = 0x7ff; 
+      static const int s_satMask  = 0x1; 
 
-   }; // class jFexSRJetRoI_v1
+   }; // class jFexTauRoI_v1
 
 } // namespace xAOD
-
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::jFexSRJetRoI_v1, SG::AuxElement );
+SG_BASE( xAOD::jFexTauRoI_v1, SG::AuxElement );
 
-#endif //XAODTRIGGER_VERSIONS_JFEXSRJETROI_V1_H
+#endif //XAODTRIGGER_VERSIONS_JFEXTAUROI_V1_H

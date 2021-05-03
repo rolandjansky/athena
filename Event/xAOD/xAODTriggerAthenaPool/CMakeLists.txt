@@ -23,7 +23,8 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAODTrigger/TrigPassBitsContainer.h xAODTrigger/TrigPassBitsAuxContainer.h
    xAODTrigger/eFexTauRoIContainer.h xAODTrigger/eFexTauRoIAuxContainer.h
    xAODTrigger/jFexSRJetRoIContainer.h xAODTrigger/jFexSRJetRoIAuxContainer.h
-
+   xAODTrigger/jFexLRJetRoIContainer.h xAODTrigger/jFexLRJetRoIAuxContainer.h
+   xAODTrigger/jFexTauRoIContainer.h xAODTrigger/jFexTauRoIAuxContainer.h
    TYPES_WITH_NAMESPACE xAOD::MuonRoIContainer xAOD::MuonRoIAuxContainer
    xAOD::JetRoIContainer xAOD::JetRoIAuxContainer
    xAOD::EmTauRoIContainer xAOD::EmTauRoIAuxContainer
@@ -41,6 +42,8 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer
    xAOD::eFexTauRoIContainer xAOD::eFexTauRoIAuxContainer
    xAOD::jFexSRJetRoIContainer xAOD::jFexSRJetRoIAuxContainer
+   xAOD::jFexLRJetRoIContainer xAOD::jFexLRJetRoIAuxContainer 
+   xAOD::jFexTauRoIContainer xAOD::jFexTauRoIAuxContainer
 
    CNV_PFX xAOD
    LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib

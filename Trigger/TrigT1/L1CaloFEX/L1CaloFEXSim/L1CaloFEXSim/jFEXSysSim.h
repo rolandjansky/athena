@@ -25,6 +25,12 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+
 namespace LVL1 {
   
   //Doxygen class description below:
@@ -59,9 +65,11 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
     /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
-    virtual StatusCode fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
-    /** Internal data */
-
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillTauEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) override ;  
+  
+  /** Internal data */
   private:
     std::vector<jFEXSim*>  m_jFEXCollection;
     
@@ -69,12 +77,15 @@ namespace LVL1 {
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerSGKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
-    SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer > m_jFexOutKey {this,"Key_jFexSRJetOutputContainer","L1_jFexSRJetRoI","Output jFexEM container"};
 
+    SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer> m_jFexSRJetOutKey {this,"Key_jFexSRJetOutputContainer","L1_jFexSRJetRoI","Output jFexEM container"};
+    SG::WriteHandleKey< xAOD::jFexLRJetRoIContainer> m_jFexLRJetOutKey {this,"Key_jFexLRJetOutputContainer","L1_jFexLRJetRoI","Output jFexEM container"};
+    SG::WriteHandleKey< xAOD::jFexTauRoIContainer> m_jFexTauOutKey {this,"Key_jFexTauOutputContainer","L1_jFexTauRoI","Output jFexEDM tau container"};
 
     std::map<int,jTower> m_jTowersColl;
-    std::map<int, std::vector<uint32_t> > m_allSmallRJetTobs; 
-    std::map<int, std::vector<uint32_t> > m_allLargeRJetTobs;
+    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allSmallRJetTobs; 
+    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allLargeRJetTobs;
+    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_alltauTobs;
   };
   
 } // end of namespace

@@ -67,7 +67,10 @@ namespace LVL1 {
 	m_jTowersIDs_Wide[i][j] = 0;
       }
     }
-    
+
+    m_smallRJet_tobWords.clear();
+    m_tau_tobWords.clear();
+    m_largeRJet_tobWords.clear(); 
   }
 
   void jFEXSim::init(int id)
@@ -81,7 +84,11 @@ namespace LVL1 {
   }
 
 
+
+
   StatusCode jFEXSim::ExecuteForwardASide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
+
+
   m_smallRJet_tobWords.clear();
   m_largeRJet_tobWords.clear();
 
@@ -157,6 +164,7 @@ namespace LVL1 {
   ATH_CHECK(m_jFEXFPGATool->execute());
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -207,7 +215,8 @@ namespace LVL1 {
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
   ATH_CHECK(m_jFEXFPGATool->execute());
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
-  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs()); 
+  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -260,6 +269,7 @@ namespace LVL1 {
   ATH_CHECK(m_jFEXFPGATool->execute());
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -311,6 +321,7 @@ namespace LVL1 {
   ATH_CHECK(m_jFEXFPGATool->execute());
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 3---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -394,6 +405,7 @@ namespace LVL1 {
     ATH_CHECK(m_jFEXFPGATool->execute());
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+    m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
     m_jFEXFPGATool->reset();
     //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -445,6 +457,7 @@ namespace LVL1 {
     ATH_CHECK(m_jFEXFPGATool->execute());
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+    m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
     m_jFEXFPGATool->reset();
     //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -496,6 +509,7 @@ namespace LVL1 {
     ATH_CHECK(m_jFEXFPGATool->execute());
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+    m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
     m_jFEXFPGATool->reset();
     //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -547,6 +561,7 @@ namespace LVL1 {
     ATH_CHECK(m_jFEXFPGATool->execute());
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+    m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
     m_jFEXFPGATool->reset();
     //FPGA 3---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -588,6 +603,9 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
   ATH_CHECK(m_jFEXFPGATool->execute());
+  m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
+  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   
@@ -602,6 +620,9 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
   ATH_CHECK(m_jFEXFPGATool->execute());
+  m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
+  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -617,6 +638,9 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
   ATH_CHECK(m_jFEXFPGATool->execute());
+  m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
+  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -636,6 +660,9 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
   ATH_CHECK(m_jFEXFPGATool->execute());
+  m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
+  m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
+  m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
   m_jFEXFPGATool->reset();
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -696,40 +723,19 @@ void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::j
   
 }
 
-std::vector<uint32_t> jFEXSim::getSmallRJetTOBs()
-{
-  std::vector<uint32_t> tobsSort;
-  tobsSort.clear();
-  bool first = true;
-  
-  for(auto &j : m_smallRJet_tobWords){
-    if (first) tobsSort = j;
-    else tobsSort.insert(tobsSort.end(),j.begin(), j.end());
-    first = false;
-  } 
-  ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in jFEX: " << m_id);
- //sort the tobs from the fpgas by their et
-  std::sort (tobsSort.begin(), tobsSort.end(), smallRJet_ET_Sort);
-  tobsSort.resize(7);
-  return tobsSort;
+std::vector<std::vector<uint32_t>> jFEXSim::getSmallRJetTOBs()
+{ 
+  return m_smallRJet_tobWords;
 }
 
-std::vector<uint32_t> jFEXSim::getLargeRJetTOBs()
+std::vector<std::vector<uint32_t>> jFEXSim::getLargeRJetTOBs()
 {
-  std::vector<uint32_t> tobsSort;
-  tobsSort.clear();
-  bool first = true;
+   return m_largeRJet_tobWords;
+}
 
-  for(auto &j : m_largeRJet_tobWords){
-    if (first) tobsSort = j;
-    else tobsSort.insert(tobsSort.end(),j.begin(), j.end());
-    first = false;
-  }
-  ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in jFEX: " << m_id);
-//sort the tobs from the fpgas by their et
-  std::sort (tobsSort.begin(), tobsSort.end(), largeRJet_ET_Sort);
-  tobsSort.resize(1);
-  return tobsSort;
+std::vector<std::vector<uint32_t>> jFEXSim::getTauTOBs()
+{
+  return m_tau_tobWords;
 }
 
 
