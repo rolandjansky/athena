@@ -195,8 +195,6 @@ JetChainParts = {
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
-    'TLA'          : [],        # Unused
-    'dataScouting' : ['JetDS'], # Triggers TLA jet selection + recording
     # B-tagging information
     'bTag'         : ['boffperf'  ,
                       'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' ,
@@ -221,6 +219,7 @@ JetChainParts_Default = {
     'addInfo'       : [],
     'sigFolder'     : 'Jet',
     'subSigs'       : ['Jet'],
+    'chainPartIndex': 0,
     #
     'recoAlg'       :'a4',
     'constitType'   :'tc',
@@ -238,14 +237,10 @@ JetChainParts_Default = {
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     #
-    'TLA'           : '',
-    'dataScouting'  : '',
-    #
     'bTag'          : '',
     'bTracking'     : '',
     'bConfig'       : [],
     'bMatching'     : [],
-    'chainPartIndex': 0
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
