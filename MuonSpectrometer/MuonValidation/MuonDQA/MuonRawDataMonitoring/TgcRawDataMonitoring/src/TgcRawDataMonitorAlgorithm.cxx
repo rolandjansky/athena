@@ -315,50 +315,178 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     return StatusCode::FAILURE;
   }
 
-  bool nonMuonTriggerFired = triggerNonMuonFired();
+  // check trigger information
+  bool nonMuonTriggerFired = false;
   std::set<TString> list_of_single_muon_triggers;
-  getListOfSingleMuonTriggers(list_of_single_muon_triggers);
+  if ( !getTrigDecisionTool().empty() ){
+    auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
+    if( chainGroup != nullptr ){
+      auto triggerList = chainGroup->getListOfTriggers();
+      if( !triggerList.empty() ){
+	for(auto &trig : triggerList) {
+	  TString thisTrig = trig;
+	  if( thisTrig.BeginsWith("HLT_mu") ){ // muon triggers
+	    // look for only single-muon triggers
+	    if ( thisTrig.Contains("-") ) continue; // skipping L1Topo item
+	    if ( thisTrig.Contains("msonly") ) continue; // only combined muon
+	    if ( thisTrig.Contains("2MU") ) continue; // no L12MU
+	    if ( thisTrig.Contains("3MU") ) continue; // no L13MU
+	    if ( thisTrig.Contains("4MU") ) continue; // no L14MU
+	    if ( thisTrig.Contains("mu") ) {
+	      TString tmp = thisTrig;
+	      tmp.ReplaceAll("mu","ZZZ");
+	      auto arr = tmp.Tokenize("ZZZ");
+	      auto n = arr->GetEntries();
+	      arr->Clear();
+	      arr->Delete();
+	      delete arr;
+	      if ( n != 2 ) continue; // exact one 'mu' letter
+	    }
+	    if ( thisTrig.Contains("MU") ) {
+	      TString tmp = thisTrig;
+	      tmp.ReplaceAll("MU","ZZZ");
+	      auto arr = tmp.Tokenize("ZZZ");
+	      auto n = arr->GetEntries();
+	      arr->Clear();
+	      arr->Delete();
+	      delete arr;
+	      if ( n > 2 ) continue; // only one 'MU' letter if exists
+	    }
+	    list_of_single_muon_triggers.insert( thisTrig );
+	  }else{
+	    if( m_useNonMuonTriggers.value() == false ) continue;
+	    // look for muon-orthogonal triggers and if they fired
+	    if(nonMuonTriggerFired)continue; // already checked, skipping
+	    if(thisTrig.Contains("mu")) continue;
+	    if(thisTrig.Contains("MU")) continue;
+	    if(getTrigDecisionTool()->isPassed(thisTrig.Data(),TrigDefs::Physics)) nonMuonTriggerFired = true;
+	  }
+	}
+      }
+    }
+  }
 
   std::vector < MyMuon > mymuons;
   for (const auto muon : *muons) {
+
+    // skip if muon is empty
+    if (muon == nullptr) continue;
+
+    // standard quality cuts for muons
     if (muon->muonType() != xAOD::Muon::Combined) continue;
     if (muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
     if (muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
 
+    // set 4-vectors of probe muons for the following checks
     TLorentzVector muonvec;
     muonvec.SetPtEtaPhiM(muon->pt(),muon->eta(),muon->phi(),m_muonMass.value());
+
+    // initialize for muon-isolation check
     bool isolated = true;
-    bool probeOK = false;
-    if( nonMuonTriggerFired ) probeOK = true;
-    if( !m_TagAndProbe.value() ) probeOK = true;
+
+    // initialize for tag-and-probe check
+    bool probeOK = true;
+    if( !nonMuonTriggerFired && m_TagAndProbe.value() ) probeOK = false; // t&p should be performed
+
+    // OK, let's start looking at the second muons
     for(const auto muon2 : *muons){
+
+      // skip if muon is empty
+      if (muon == nullptr) continue;
+
       // skip the same muon candidate
       if( muon == muon2 )continue;
-      // check muon isolation
-      TLorentzVector muonvec2;
-      muonvec2.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
-      float dr = muonvec2.DeltaR( muonvec );
-      if( dr < m_isolationWindow.value() ){
-	isolated = false;
-      }
-      // check tag-and-probe condition
-      if(probeOK)continue; // no need to check any longer
+
+      // set 4-vectors of the second muons for the following checks
+      TLorentzVector muon2vec;
+      muon2vec.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
+
+      // check muon-muon isolation using the loosest-quality muons
+      if ( muon2vec.DeltaR( muonvec ) < m_isolationWindow.value() ) isolated = false;
+
+      // no need to check further if probeOK is already True
+      // 0) if muon-orthogonal triggers are avaialble/fired
+      // 1) if we don't use tag-and-probe
+      // 2) if TrigDecTool is not available
+      // 3) if the second muon matches the trigger requirement
+      if(probeOK)continue;
+
+      //  standard quality cuts for muons
       if( muon2->muonType()!=xAOD::Muon::Combined )continue;
       if( muon2->author()!=xAOD::Muon::MuidCo && muon2->author()!=xAOD::Muon::STACO )continue;
       if( muon2->quality()!=xAOD::Muon::Tight && muon2->quality()!=xAOD::Muon::Medium )continue;
-      TVector3 muon2vec;
-      muon2vec.SetPtEtaPhi(muon2->pt(), muon2->eta(), muon2->phi());
-      if( !triggerMatching(muon2vec,list_of_single_muon_triggers) )continue;
-      if(!m_TagAndProbeZmumu.value()){
-	probeOK=true;
-      }else{
-	if( muon->charge() == muon2->charge() )continue;
-	double dimuon_mass = (muonvec + muonvec2).M();
-	if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
-	probeOK=true;
+
+      // loop over the single muon triggers if at least one of them matches this second muon
+      for (const auto &trigName : list_of_single_muon_triggers) {
+	// check if this particular tirgger has fired in this event
+	if (!getTrigDecisionTool()->isPassed(trigName.Data(),TrigDefs::Physics)) continue;
+	ATH_MSG_DEBUG("This muon trigger, " << trigName << ", is fired in this event!!");
+	// check if this second muon matches the HLT muon trigger
+	if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+	  ATH_MSG_DEBUG("Trying Run2-style feature access");
+	  auto fc = getTrigDecisionTool()->features(trigName.Data(),TrigDefs::Physics);
+	  for(auto comb : fc.getCombinations()){
+	    if(!comb.active())continue;
+	    auto MuFeatureContainers = fc.get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::Physics);
+	    for(auto mucont : MuFeatureContainers){
+	      if(mucont.empty())continue;
+	      if(mucont.te()==nullptr)continue;
+	      if(!mucont.te()->getActiveState())continue;
+	      for(auto hltmu : *mucont.cptr()){
+		if (hltmu == nullptr) continue; // skip if hltmu is empty
+		if (hltmu->pt() < 1000.)continue; // skip if pT is very small
+		TLorentzVector hltmuvec;
+		hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
+		if( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value() ){
+		  ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
+			       ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
+			       "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+		  probeOK = true;
+		}
+		if(probeOK) break; // no need to check further if probeOK is already True
+	      }// end loop of mucont.cptr()
+	      if(probeOK) break; // no need to check further if probeOK is already True
+	    }// end loop of MuonFeatureContainers
+	    if(probeOK) break; // no need to check further if probeOK is already True
+	  }//end loop of Combinations
+	}else{ // run 3 access
+	  ATH_MSG_DEBUG("Trying Run3-style feature access");
+	  auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (trigName.Data(), TrigDefs::Physics, "HLT_MuonsCB_RoI");
+	  for (auto aaa : features) {
+	    if (!aaa.isValid()) continue;
+	    auto hltmu_link = aaa.link;
+	    if (!hltmu_link.isValid()) continue;
+	    auto hltmu = *hltmu_link;
+	    if (hltmu == nullptr) continue; // skip if hltmu is empty
+	    if (hltmu->pt() < 1000.)continue; // skip if pT is very small
+	    TLorentzVector hltmuvec;
+	    hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
+	    if ( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value()){
+	      ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
+			   ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
+			   "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+	      probeOK = true;
+	    }
+	    if(probeOK) break; // no need to check further if probeOK is already True
+	  } // end loop of features
+	} // end IF Run2 or Run3 feature access
+	if(probeOK) break; // no need to check further if probeOK is already True
+      } // end loop of single muon triggers
+      // check if the second muon matches the single muon trigger
+      if(!probeOK) continue;
+      // check further if this muon pair satisfies Z->mumu criteria
+      if(m_TagAndProbeZmumu.value()){
+	if( muon->charge() == muon2->charge() ||
+	    std::abs( (muonvec + muon2vec).M() - m_zMass.value()) > m_zMassWindow.value() )
+	  probeOK=false;
+	ATH_MSG_DEBUG("Checking Zmumu cut: " << probeOK);
       }
-    }
+      ATH_MSG_DEBUG("Final condition of probleOK for this muon is: " << probeOK);
+      if(probeOK) break; // no need to check further if probeOK is already True
+    } // end loop of the second muons
+    // check if the isolation requirement is OK
     if(m_requireIsolated.value() && !isolated)continue;
+    // check if the tag-and-probe requirement is OK
     if(!probeOK)continue;
 
     MyMuon mymuon;
@@ -1088,104 +1216,6 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
 
   fill(m_packageName, variables);
 
-}
-///////////////////////////////////////////////////////////////
-bool TgcRawDataMonitorAlgorithm::getListOfSingleMuonTriggers(std::set<TString>& single_muon_triggers) const{
-  // look for only single-muon trigger chains
-  auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_mu.*");
-  if (chainGroup == nullptr) return false;
-  ATH_MSG_DEBUG("Creating a list of single muon triggers");
-  for(auto &trig : chainGroup->getListOfTriggers()) {
-    TString thisTrig = trig;
-    ATH_MSG_DEBUG("ChainGroup trigger: " << thisTrig);
-    if ( thisTrig.Contains("msonly") ) continue; // only combined muon
-    if ( thisTrig.Contains("2MU") ) continue; // no L12MU
-    if ( thisTrig.Contains("3MU") ) continue; // no L13MU
-    if ( thisTrig.Contains("4MU") ) continue; // no L14MU
-    TString tmp = thisTrig; tmp.ReplaceAll("mu","ZZZ");
-    if ( tmp.Tokenize("ZZZ")->GetEntries() != 2 ) continue; // exact one 'mu' letter
-    tmp = thisTrig; tmp.ReplaceAll("MU","ZZZ");
-    if ( tmp.Tokenize("ZZZ")->GetEntries() > 2 ) continue; // only one 'MU' letter if exists
-    single_muon_triggers.insert( thisTrig );
-    ATH_MSG_DEBUG("Adding " << thisTrig << " to list of single muon triggers");
-  }
-  ATH_MSG_DEBUG("Found number of single muon triggers = " << single_muon_triggers.size() );
-  return true;
-}
-///////////////////////////////////////////////////////////////
-bool TgcRawDataMonitorAlgorithm::triggerMatching(const TVector3& muonvec,
-						 const std::set<TString>& list_of_single_muon_triggers) const {
-  ATH_MSG_DEBUG("Checking if this muon track matches with a single muon trigger");
-  if (getTrigDecisionTool().empty()) return true;// no way, switching to a bootstrap method
-
-  for (const auto &trigName : list_of_single_muon_triggers) {
-    ATH_MSG_DEBUG("Examining single muon trigger: " << trigName);
-    if (!getTrigDecisionTool()->isPassed(trigName.Data(),TrigDefs::Physics)) {
-      ATH_MSG_DEBUG("Failed to pass eventTrig=" << trigName);
-      continue;
-    }
-    ATH_MSG_DEBUG("Success to pass eventTrig=" << trigName << ". Now looking at the HLT muon feature");
-    if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
-      ATH_MSG_DEBUG("Performing Run2-style feature access");
-      auto cg = getTrigDecisionTool()->getChainGroup(trigName.Data());
-      if(cg == nullptr) continue;
-      auto fc = cg->features();
-      auto MuFeatureContainers = fc.get<xAOD::MuonContainer>();
-      for(auto mucont : MuFeatureContainers){
-	for(auto mu : *mucont.cptr()){
-	  if (mu == nullptr) continue;
-	  TVector3 trigvec;
-	  trigvec.SetPtEtaPhi(mu->pt(), mu->eta(), mu->phi());
-	  float dr = trigvec.DeltaR(muonvec);
-	  ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
-			" while the matching window is " << m_trigMatchWindow.value());
-	  if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
-	    ATH_MSG_DEBUG("Matched with "<<trigName<<"!!");
-	    return true;
-	  }
-	}
-      }
-    }else{ // run 3 access
-      ATH_MSG_DEBUG("Performing Run3-style feature access");
-      auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (trigName.Data(), TrigDefs::Physics, "HLT_MuonsCB_RoI");
-      ATH_MSG_DEBUG("size of feature = " << features.size());
-      for (auto aaa : features) {
-	if (!aaa.isValid()) continue;
-	auto trigmuon_link = aaa.link;
-	auto trigmuon = *trigmuon_link;
-	if (trigmuon == nullptr) continue;
-	TVector3 trigvec;
-	trigvec.SetPtEtaPhi(trigmuon->pt(), trigmuon->eta(), trigmuon->phi());
-	float dr = trigvec.DeltaR(muonvec);
-	ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
-		      " while the matching window is " << m_trigMatchWindow.value());
-	if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
-	  ATH_MSG_DEBUG("Matched with "<<trigName<<"!!");
-	  return true;
-	}
-      }
-    }
-  }
-  ATH_MSG_DEBUG("Nothing was matched...");
-  return false;
-}
-///////////////////////////////////////////////////////////////
-bool TgcRawDataMonitorAlgorithm::triggerNonMuonFired() const {
-  ATH_MSG_DEBUG("Checking if this event has non-muon triggers fired");
-  if (m_useNonMuonTriggers.value()==false) return false;
-  if (getTrigDecisionTool().empty()) return true; // no way, switching to a bootstrap method
-  auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
-  if (chainGroup == nullptr) return true; // unexpected problem, switching to a bootstrap method
-  for(auto &trig : chainGroup->getListOfTriggers()) {
-    TString thisTrig = trig;
-    if(thisTrig.Contains("mu")) continue;
-    if(thisTrig.Contains("MU")) continue;
-    if(!getTrigDecisionTool()->isPassed(thisTrig.Data())) continue;
-    ATH_MSG_DEBUG("Found non-muon trigger fired: "<<thisTrig<<"!!");
-    return true;
-  }
-  ATH_MSG_DEBUG("Could not find non-muon trigger fired in this event");
-  return false;
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mymuon) const {
