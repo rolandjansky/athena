@@ -7,13 +7,14 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfigu
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
-from ..CommonSequences.CaloSequences import fastCaloFWDMenuSequence
+from ..CommonSequences.CaloSequences_FWD import fastCaloMenuSequence_FWD
 
 
-from .ElectronMenuSequences import fastElectronMenuSequence
-from .ElectronMenuSequences_LRT import fastElectronMenuSequence_LRT
+from .FastElectronMenuSequences import fastElectronMenuSequence
+from .FastElectronMenuSequences_LRT import fastElectronMenuSequence_LRT
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
 from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuSequence_LRT
+from .PrecisionCaloMenuSequences_FWD import precisionCaloMenuSequence_FWD
 from .PrecisionElectronMenuSequences import precisionElectronMenuSequence
 from .PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
 from .PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LRT
@@ -30,9 +31,6 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 
 def electronFastCaloCfg( flags ):
     return fastCaloMenuSequence("Electron")
-
-def electronFWDFastCaloCfg( flags ):
-    return fastCaloFWDMenuSequence("Electron")
 
 def fastElectronSequenceCfg( flags ):
     return fastElectronMenuSequence(do_idperf=False)
@@ -91,6 +89,15 @@ def diElectronJpsieeMassComboHypoToolFromDict(chainDict):
     monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
     tool.MonTool = monTool
     return tool
+
+
+def electronFastCaloCfg_fwd( flags ):
+    return fastCaloMenuSequence_FWD("Electron")
+
+def precisionCaloSequenceCfg_fwd( flags ):
+    return precisionCaloMenuSequence_FWD('Electron')
+
+
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
@@ -162,8 +169,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'mediumidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
                 'tightidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
                 
-                # forward sequences
-                'etcutfwd' : ['getFWDFastCalo']
+                # fwd sequences
+                'etcutfwd' : ['getFastCalo_fwd', 'getPrecisionCaloElectron_fwd']
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
@@ -201,11 +208,6 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         stepName       = "FastCalo_electron"
         fastCaloCfg    = electronFastCaloCfg
         return self.getStep(1,stepName,[ fastCaloCfg])
-
-    def getFWDFastCalo(self):
-        stepName       = "FastCalo_FWD_electron"
-        fastCaloCfg    = electronFWDFastCaloCfg
-        return self.getStep(1, stepName, [fastCaloCfg])
 
     def getFastElectron(self):
         if "bBeeM6000" in self.chainName:
@@ -283,3 +285,12 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         stepName = "precision_electron_lrt"+str(isocut)
         return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt])
+
+
+    def getFastCalo_fwd(self):
+        stepName       = "FastCalo_FWD_electron"
+        return self.getStep(1, stepName, [electronFastCaloCfg_fwd])
+
+    def getPrecisionCaloElectron_fwd(self):
+        stepName = "precisionCalo_FWD_electron"
+        return self.getStep(2,stepName,[ precisionCaloSequenceCfg_fwd])
