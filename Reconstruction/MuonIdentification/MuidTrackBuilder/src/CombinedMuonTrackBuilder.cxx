@@ -3415,7 +3415,8 @@ namespace Rec {
 
             // large impact: set phi to be projective (note iteration)
             if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact || !fieldCache.toroidOn()) {
-                ATH_MSG_DEBUG("Track d0 perigee: "<<std::abs(perigee->parameters()[Trk::d0])<<" which is smaller than "<<m_largeImpact);
+                ATH_MSG_DEBUG("Track d0 perigee: " << std::abs(perigee->parameters()[Trk::d0]) << " which is smaller than "
+                                                   << m_largeImpact);
             } else {
                 Amg::Vector3D position = correctedParameters->position();
 
