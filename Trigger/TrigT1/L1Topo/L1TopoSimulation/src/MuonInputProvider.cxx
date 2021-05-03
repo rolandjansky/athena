@@ -200,31 +200,30 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    muon.setPhiDouble( static_cast<double>(phiDouble) );
 
    // Muon flags
-   muon.setSectorName( roi.getSectorName() );
-   muon.setBW2or3( roi.getbw2or3() );
-   muon.setInnerCoin( roi.getinnerCoin() );
-   muon.setGoodMF( roi.getgoodMF() );
-   muon.setCharge( roi.getcharge() );
-   muon.setIs2cand( roi.getis2cand() );
+   if ( roi.getSectorName().at(0) != 'B' ) { // TGC ( endcap (E) + forward (F) )
+      muon.setBW2or3( topoFlag(roi.getbw2or3()) );
+      muon.setInnerCoin( topoFlag(roi.getinnerCoin()) );
+      muon.setGoodMF( topoFlag(roi.getgoodMF()) );
+      muon.setCharge( topoFlag(roi.getcharge()) );
+      muon.setIs2cand( 0 );
+   }
+   else { // RPC ( barrel (B) )
+      muon.setBW2or3( 0 );
+      muon.setInnerCoin( 0 );
+      muon.setGoodMF( 0 );
+      muon.setCharge( 0 );
+      muon.setIs2cand( topoFlag(roi.getis2cand()) );
+   }
 
    m_hPt->Fill(muon.EtDouble());
    m_hEtaPhiTopo->Fill(muon.eta(),muon.phi());
    m_hEtaPhi->Fill(muon.EtaDouble(),muon.PhiDouble());
 
-   if ( muon.sectorName() != "" && muon.sectorName().at(0) != 'B' ) {
-      m_hBW2or3->Fill( muon.bw2or3() );
-      m_hInnerCoin->Fill( muon.innerCoin() );
-      m_hGoodMF->Fill( muon.goodMF() );
-      m_hCharge->Fill( muon.charge() );
-      m_hIs2cand->Fill( -1 );
-   }
-   else {
-      m_hBW2or3->Fill( -1 );
-      m_hInnerCoin->Fill( -1 );
-      m_hGoodMF->Fill( -1 );
-      m_hCharge->Fill( -1 );
-      m_hIs2cand->Fill( muon.is2cand() );
-   }
+   m_hBW2or3->Fill( muon.bw2or3() );
+   m_hInnerCoin->Fill( muon.innerCoin() );
+   m_hGoodMF->Fill( muon.goodMF() );
+   m_hCharge->Fill( muon.charge() );
+   m_hIs2cand->Fill( muon.is2cand() );
 
    return muon;
 }
@@ -260,6 +259,12 @@ MuonInputProvider::topoIndex(float x, int g) const {
   }
   else { index = std::round(tmp); }
   return static_cast<int>(index);
+}
+
+int
+MuonInputProvider::topoFlag(bool flag) const {
+  if ( flag == true ) { return 1; }
+  else { return -1; }
 }
 
 StatusCode

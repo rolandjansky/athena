@@ -120,20 +120,12 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::initialize() {
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
        std::string hname_accept = "hInvariantMassDeltaPhiInclusive2Charge_accept_bit"+std::to_string(static_cast<int>(i));
        std::string hname_reject = "hInvariantMassDeltaPhiInclusive2Charge_reject_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_acceptCharge = "hInvariantMassDeltaPhiInclusive2Charge_acceptCharge_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_rejectCharge = "hInvariantMassDeltaPhiInclusive2Charge_rejectCharge_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_undefCharge  = "hInvariantMassDeltaPhiInclusive2Charge_undefCharge_bit"+std::to_string(static_cast<int>(i));
        // mass
        bookHist(m_histAcceptM, hname_accept, "INVM vs DPHI", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
        bookHist(m_histRejectM, hname_reject, "INVM vs DPHI", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
        // eta2 vs. eta1
        bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
        bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
-       // eta2 vs. eta1 (charge cut)
-       // accept = muons have opposite charge, reject = muons do not have opposite charge, undef = 1 or 2 muons have undefined charge
-       bookHist(m_histAcceptChargeEta1Eta2, hname_acceptCharge, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
-       bookHist(m_histRejectChargeEta1Eta2, hname_rejectCharge, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
-       bookHist(m_histUndefChargeEta1Eta2,  hname_undefCharge,  "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
    }
    return StatusCode::SUCCESS;
 }
@@ -164,18 +156,12 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
-                // If no muon sectorName information is available, sectorName = ""
-                std::string sector1 = (*tob1)->sectorName();
-                std::string sector2 = (*tob2)->sectorName();
+                // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                 int charge1 = (*tob1)->charge();
                 int charge2 = (*tob2)->charge();
-                std::string totalCharge = "undef";
-                if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
-                   if ( charge1 + charge2 == 1 ) { totalCharge = "accept"; }
-                   else { totalCharge = "reject"; }
-                }
+                int totalCharge = charge1 + charge2;
+                bool acceptCharge = true;
+                if ( std::abs(totalCharge) == 2 ) { acceptCharge = false; }
 		for(unsigned int i=0; i<numberOutputBits(); ++i) {
 		   bool accept = false;
                    if( static_cast<parType_t>((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
@@ -183,7 +169,7 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                    if(p_ApplyEtaCut &&
                       ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
                        (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) ))  continue;
-                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i] && deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i] && totalCharge != "reject";
+                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i] && deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i] && acceptCharge;
                    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
                    const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
@@ -197,13 +183,6 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::processBitCorrect( const std::vector
                    } else if(fillReject) {
 		       fillHist2D(m_histRejectM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
-                   }
-                   if(fillHistos() and totalCharge == "accept") {
-                       fillHist2D(m_histAcceptChargeEta1Eta2[i], eta1, eta2);
-                   } else if (fillHistos() and totalCharge == "reject") {
-                       fillHist2D(m_histRejectChargeEta1Eta2[i], eta1, eta2);
-                   } else if (fillHistos() and totalCharge == "undef") {
-                       fillHist2D(m_histUndefChargeEta1Eta2[i], eta1, eta2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
@@ -241,25 +220,19 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::process( const std::vector<TCS::TOBA
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
-                // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-                // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
-                // If no muon sectorName information is available, sectorName = ""
-                std::string sector1 = (*tob1)->sectorName();
-                std::string sector2 = (*tob2)->sectorName();
+                // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                 int charge1 = (*tob1)->charge();
                 int charge2 = (*tob2)->charge();
-                std::string totalCharge = "undef";
-                if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
-                   if ( charge1 + charge2 == 1 ) { totalCharge = "accept"; }
-                   else { totalCharge = "reject"; }
-                }
+                int totalCharge = charge1 + charge2;
+                bool acceptCharge = true;
+                if ( std::abs(totalCharge) == 2 ) { acceptCharge = true; }
                 for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    if( static_cast<parType_t>((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                    if( static_cast<parType_t>((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                    if(p_ApplyEtaCut &&
                       ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
                        (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) )) continue;
-                   bool accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i] && deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i] && totalCharge != "reject";
+                   bool accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i] && deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i] && acceptCharge;
                    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
                    const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
@@ -273,13 +246,6 @@ TCS::InvariantMassDeltaPhiInclusive2Charge::process( const std::vector<TCS::TOBA
                    } else if(fillReject) {
 		       fillHist2D(m_histRejectM[i],std::sqrt(static_cast<float>(invmass2)),static_cast<float>(deltaPhi));
 		       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
-                   }
-                   if(fillHistos() and totalCharge == "accept") {
-                       fillHist2D(m_histAcceptChargeEta1Eta2[i], eta1, eta2);
-                   } else if (fillHistos() and totalCharge == "reject") {
-                       fillHist2D(m_histRejectChargeEta1Eta2[i], eta1, eta2);
-                   } else if (fillHistos() and totalCharge == "undef") {
-                       fillHist2D(m_histUndefChargeEta1Eta2[i], eta1, eta2);
                    }
                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept ?"pass":"fail") << " invmass2 = " << invmass2);
                }
