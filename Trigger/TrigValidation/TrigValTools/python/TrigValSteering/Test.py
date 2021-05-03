@@ -144,7 +144,7 @@ class Test(object):
         '''Set default timeout values for steps which don't have it set'''
         for exec_step in self.exec_steps:
             if exec_step.timeout is None:
-                # 3h for grid tests, 1h for build tests
+                # 12h for grid tests, 1h for build tests
                 exec_step.timeout = 12*3600 if self.art_type == 'grid' else 3600
         for check_step in self.check_steps:
             if check_step.timeout is None:
@@ -163,11 +163,20 @@ class Test(object):
         for package_name, package_prefix in package_prefix_dict.items():
             if filename.startswith(prefix+package_prefix):
                 self.package_name = package_name
+                this_package_prefix = package_prefix
         if self.package_name is None:
             self.configuration_error(
                 'Test file name {} could not be matched '.format(filename) +
                 'to any of the required package prefixes: {}'.format(
                     package_prefix_dict.values()))
+        if not self.art_type or self.art_type not in ['build', 'grid']:
+            self.configuration_error(
+                'Incorrect test art_type = {:s}, only "build" and "grid" are supported'.format(self.art_type))
+        if not filename.endswith('_' + self.art_type + suffix) and \
+           self.package_name != "TrigInDetValidation":  # TIDV is exempt from this rule
+            self.configuration_error(
+                'Test file name does not match the art_type="{:s}". '.format(self.art_type) +
+                'Expected name {:s}'.format(prefix+this_package_prefix+'*_'+self.art_type+suffix))
         max_len = 50
         if len(filename) > max_len:
             self.configuration_error(
