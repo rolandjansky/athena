@@ -67,10 +67,27 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
       m_Csc_rdo_measuresPhi.push_back(measuresPhi);
       m_Csc_rdo_time.push_back(rdo->time());
 
-      if (!MuonDetMgr->getCscReadoutElement(Id)) {
+      const MuonGM::CscReadoutElement* rdoEl = MuonDetMgr->getCscReadoutElement(Id);
+	  if (!rdoEl) {
         ATH_MSG_ERROR("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(Id).c_str());
         return StatusCode::FAILURE;
       }
+
+      Amg::Vector2D localStripPos(0.,0.);
+      if ( rdoEl->stripPosition(Id,localStripPos) )  {
+        m_Csc_rdo_localPosX.push_back(localStripPos.x());
+        m_Csc_rdo_localPosY.push_back(localStripPos.y());
+        ATH_MSG_DEBUG("CSC RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
+      } else { 
+        ATH_MSG_WARNING("CSC RDO: local Strip position not defined"); 
+      }
+      
+      // asking the detector element to transform this local to the global position
+      Amg::Vector3D globalStripPos(0., 0., 0.);
+      rdoEl->surface(Id).localToGlobal(localStripPos,Amg::Vector3D(0.,0.,0.),globalStripPos);
+      m_Csc_rdo_globalPosX.push_back(globalStripPos.x());
+      m_Csc_rdo_globalPosY.push_back(globalStripPos.y());
+      m_Csc_rdo_globalPosZ.push_back(globalStripPos.z());
 
       // rdo counter for the ntuple
       m_Csc_nrdo++;
@@ -97,6 +114,11 @@ StatusCode CSCRDOVariables::clearVariables()
   m_Csc_rdo_strip.clear();
   m_Csc_rdo_measuresPhi.clear();
   m_Csc_rdo_time.clear();
+  m_Csc_rdo_localPosX.clear();
+  m_Csc_rdo_localPosY.clear();
+  m_Csc_rdo_globalPosX.clear();
+  m_Csc_rdo_globalPosY.clear();
+  m_Csc_rdo_globalPosZ.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -118,6 +140,11 @@ StatusCode CSCRDOVariables::initializeVariables()
     m_tree->Branch("RDO_CSC_strip",         &m_Csc_rdo_strip);
     m_tree->Branch("RDO_CSC_measuresPhi",   &m_Csc_rdo_measuresPhi);    
     m_tree->Branch("RDO_CSC_time",          &m_Csc_rdo_time);
+    m_tree->Branch("RDO_CSC_localPosX",     &m_Csc_rdo_localPosX);
+    m_tree->Branch("RDO_CSC_localPosY",     &m_Csc_rdo_localPosY);
+    m_tree->Branch("RDO_CSC_globalPosX",    &m_Csc_rdo_globalPosX);
+    m_tree->Branch("RDO_CSC_globalPosY",    &m_Csc_rdo_globalPosY);
+    m_tree->Branch("RDO_CSC_globalPosZ",    &m_Csc_rdo_globalPosZ);
 
   }
   return StatusCode::SUCCESS;
