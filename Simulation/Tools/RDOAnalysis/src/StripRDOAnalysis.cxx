@@ -30,6 +30,7 @@ StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_etaModule(nullptr)
   , m_side(nullptr)
   , m_strip(nullptr)
+  , m_row(nullptr)
   , m_groupSize(nullptr)
   , m_globalX0(nullptr)
   , m_globalY0(nullptr)
@@ -48,6 +49,7 @@ StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_etaModule_sdo(nullptr)
   , m_side_sdo(nullptr)
   , m_strip_sdo(nullptr)
+  , m_row_sdo(nullptr)
   , m_noise(nullptr)
   , m_belowThresh(nullptr)
   , m_disabled(nullptr)
@@ -66,6 +68,7 @@ StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_h_etaModule(nullptr)
   , m_h_side(nullptr)
   , m_h_strip(nullptr)
+  , m_h_row(nullptr)
   , m_h_groupSize(nullptr)
   , m_h_phi_v_eta(nullptr)
   , m_h_brlLayer(nullptr)
@@ -90,6 +93,7 @@ StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_h_etaModule_sdo(nullptr)
   , m_h_side_sdo(nullptr)
   , m_h_strip_sdo(nullptr)
+  , m_h_row_sdo(nullptr)
   , m_h_barcode(nullptr)
   , m_h_eventIndex(nullptr)
   , m_h_charge(nullptr)
@@ -144,6 +148,7 @@ StatusCode StripRDOAnalysis::initialize() {
     m_tree->Branch("etaModule", &m_etaModule);
     m_tree->Branch("side", &m_side);
     m_tree->Branch("strip", &m_strip);
+    m_tree->Branch("row", &m_row);
     m_tree->Branch("groupSize", &m_groupSize);
     // Global coordinates
     if(m_doPos){
@@ -166,6 +171,7 @@ StatusCode StripRDOAnalysis::initialize() {
     m_tree->Branch("etaModule_sdo", &m_etaModule_sdo);
     m_tree->Branch("side_sdo", &m_side_sdo);
     m_tree->Branch("strip_sdo", &m_strip_sdo);
+    m_tree->Branch("row_sdo", &m_row_sdo);
     m_tree->Branch("noise", &m_noise);
     m_tree->Branch("belowThresh", &m_belowThresh);
     m_tree->Branch("disabled", &m_disabled);
@@ -213,6 +219,10 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_strip = new TH1F("h_strip", "Strip", 100, 0, 800);
   m_h_strip->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strip->GetName(), m_h_strip));
+
+  m_h_row = new TH1F("h_row", "Row", 100, 0, 4.5);
+  m_h_row->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_row->GetName(), m_h_row));
 
   m_h_groupSize = new TH1F("h_groupSize", "Group size", 100, 0, 150);
   m_h_groupSize->StatOverflows();
@@ -310,6 +320,10 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_strip_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strip_sdo->GetName(), m_h_strip_sdo));
 
+  m_h_row_sdo = new TH1F("h_row_sdo", "Row (SDO)", 100, 0, 4.5);
+  m_h_row_sdo->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_row_sdo->GetName(), m_h_row_sdo));
+
   m_h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e5);
   m_h_barcode->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_barcode->GetName(), m_h_barcode));
@@ -384,6 +398,7 @@ StatusCode StripRDOAnalysis::execute() {
   m_etaModule->clear();
   m_side->clear();
   m_strip->clear();
+  m_row->clear();
   m_groupSize->clear();
   if(m_doPos){
     m_globalX0->clear();
@@ -404,6 +419,7 @@ StatusCode StripRDOAnalysis::execute() {
   m_etaModule_sdo->clear();
   m_side_sdo->clear();
   m_strip_sdo->clear();
+  m_row_sdo->clear();
   m_noise->clear();
   m_belowThresh->clear();
   m_disabled->clear();
@@ -471,6 +487,7 @@ StatusCode StripRDOAnalysis::execute() {
         const int sctEtaMod(m_sctID->eta_module(rdoID));
         const int sctSide(m_sctID->side(rdoID));
         const int sctStrip(m_sctID->strip(rdoID));
+	const int sctRow(m_sctID->row(rdoID));
         const int sctGroupSize((*rdo_itr)->getGroupSize());
 
         const unsigned long long rdoID_int = rdoID.get_compact();
@@ -525,6 +542,7 @@ StatusCode StripRDOAnalysis::execute() {
         m_phiModule->push_back(sctPhiMod);
         m_etaModule->push_back(sctEtaMod);
         m_side->push_back(sctSide);
+	m_row->push_back(sctRow);
         m_strip->push_back(sctStrip);
         m_groupSize->push_back(sctGroupSize);
 
@@ -536,6 +554,7 @@ StatusCode StripRDOAnalysis::execute() {
         m_h_etaModule->Fill(sctEtaMod);
         m_h_side->Fill(sctSide);
         m_h_strip->Fill(sctStrip);
+	m_h_row->Fill(sctRow);
         m_h_groupSize->Fill(sctGroupSize);
         m_h_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
 
@@ -585,6 +604,7 @@ StatusCode StripRDOAnalysis::execute() {
       const int sctEtaMod_sdo(m_sctID->eta_module(sdoID));
       const int sctSide_sdo(m_sctID->side(sdoID));
       const int sctStrip_sdo(m_sctID->strip(sdoID));
+      const int sctRow_sdo(m_sctID->row(sdoID));
       const bool noise(SCT_SimHelper::isNoise(sdo));
       const bool belowThresh(SCT_SimHelper::isBelowThreshold(sdo));
       const bool disabled(SCT_SimHelper::isDisabled(sdo));
@@ -597,6 +617,7 @@ StatusCode StripRDOAnalysis::execute() {
       m_etaModule_sdo->push_back(sctEtaMod_sdo);
       m_side_sdo->push_back(sctSide_sdo);
       m_strip_sdo->push_back(sctStrip_sdo);
+      m_row_sdo->push_back(sctRow_sdo);
       m_noise->push_back(noise);
       m_belowThresh->push_back(belowThresh);
       m_disabled->push_back(disabled);
@@ -623,6 +644,7 @@ StatusCode StripRDOAnalysis::execute() {
       m_h_etaModule_sdo->Fill(sctEtaMod_sdo);
       m_h_side_sdo->Fill(sctSide_sdo);
       m_h_strip_sdo->Fill(sctStrip_sdo);
+      m_h_row_sdo->Fill(sctRow_sdo);
       m_h_phi_v_eta_sdo->Fill(sctEtaMod_sdo, sctPhiMod_sdo);
 
       // loop over deposits

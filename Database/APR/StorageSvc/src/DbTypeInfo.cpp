@@ -403,7 +403,7 @@ DbTypeInfo* DbTypeInfo::createEx(const Guid& guid)  {
 
 
 // small helper method to add a new shape
-DbTypeInfo* DbTypeInfo::regShape(const Guid& guid, const TypeH type, Columns& cols)
+DbTypeInfo* DbTypeInfo::regShape(const Guid& guid, const TypeH& type, Columns& cols)
 {
    DbTypeInfo* typ_info = new DbTypeInfo(guid, type, cols); 
    DbTransform::regShape(typ_info);

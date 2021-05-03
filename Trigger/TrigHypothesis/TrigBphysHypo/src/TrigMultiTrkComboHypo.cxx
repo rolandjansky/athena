@@ -250,7 +250,7 @@ StatusCode TrigMultiTrkComboHypo::mergeFromDecisions(TrigMultiTrkStateCand<T>& s
        if (!lepton->trackParticle()) continue;
     }
     auto decisionEL = TrigCompositeUtils::decisionToElementLink(decision, *state.context);
-    auto itr = std::find_if(leptons.begin(), leptons.end(), [this, lepton = lepton](const auto& x){ return isIdenticalTracks(lepton, *x.link); });
+    auto itr = std::find_if(leptons.begin(), leptons.end(), [this, lepton = lepton](const auto& x){ return this->isIdenticalTracks(lepton, *x.link); });
     if (itr == leptons.end()) {
       leptons.push_back({leptonEL, ElementLinkVector<DecisionContainer>(1, decisionEL), DecisionIDContainer()});
     }

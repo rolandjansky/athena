@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Compares results of a slice chains when running in full menu and when running alone
+# art-description: Compares results of a slice chains when running in full menu and when running alone with other slices disabled by doXYZFlag=False
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -42,6 +42,7 @@ def generate_exec_steps(slice_name = None):
     cd.input = ''
     cd.args = '-f {:s} --yaml ChainDump.{:s}.yml'.format(hist_file_name, name)
     cd.auto_report_result = False
+    cd.prmon = False
 
     return [ex, cd]
 
@@ -52,6 +53,7 @@ def generate_chaincomp_step(slice_name):
     step.required = True
     step.input_file = 'ChainDump.{:s}.yml'.format(slice_name)
     step.reference = 'ChainDump.FullMenu.yml'
+    step.explicit_reference = True
     return step
 
 

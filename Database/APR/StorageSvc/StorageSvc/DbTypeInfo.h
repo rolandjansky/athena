@@ -73,7 +73,7 @@ namespace pool  {
     /// Load type information object from string representation
     DbStatus i_fromString(const std::string& string_rep);
     /// try to add a new shape
-    static DbTypeInfo* regShape(const Guid& guid, const TypeH type, Columns& cols);
+    static DbTypeInfo* regShape(const Guid& guid, const TypeH& type, Columns& cols);
    
   public:
     /// Destroy type information; to be used with extreme care

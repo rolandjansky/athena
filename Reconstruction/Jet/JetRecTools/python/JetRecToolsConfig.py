@@ -55,22 +55,21 @@ def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
 
     return jettrackselloose
 
-def getTrackVertexAssocTool(trkopt="", theSequence=None):
+def getTrackVertexAssocTool(trkopt="", theSequence=None, ttva_opts = { "WorkingPoint" : "Custom", "d0_cut" : 2.0, "dzSinTheta_cut" : 2.0 }):
     if trkopt: "_{}".format(trkopt)
     # Track-vertex association
     # This is to be deprecated
     # In fact can probably be switched already to match legacy master
     # but for a future MR
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+
     idtvassoc = getTTVAToolForReco(
         "idloosetvassoc",
-        WorkingPoint = "Custom",
-        d0_cut = 2.0,
-        dzSinTheta_cut = 2.0,
         TrackContName = trackcollectionmap[trkopt]["Tracks"],
         VertexContName = trackcollectionmap[trkopt]["Vertices"],
         returnCompFactory = True,
-        add2Seq=theSequence
+        add2Seq=theSequence,
+        **ttva_opts
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(

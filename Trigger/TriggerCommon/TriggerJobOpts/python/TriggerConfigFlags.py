@@ -366,6 +366,9 @@ def createTriggerFlags():
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
+    # Switch on AMVF vertice and priority TTVA for jet slice
+    flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
+
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # fakeLVL1, useCaloTTL

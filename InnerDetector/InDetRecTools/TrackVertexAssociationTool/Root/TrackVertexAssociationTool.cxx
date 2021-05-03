@@ -244,6 +244,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   m_d0sig_cut(-1),
   m_dzSinTheta_cut(-1),
   m_doUsedInFit(false),
+  m_doPVPriority(false),
   m_requirePriVtx(false),
   m_hardScatterDeco("hardScatterVertexLink"),
   m_trkContName("InDetTrackParticles")
@@ -254,6 +255,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   declareProperty("d0sig_cut",           m_d0sig_cut,       "Cut on d0Sig. Not applied if set to -1.");
   declareProperty("dzSinTheta_cut",      m_dzSinTheta_cut,  "Cut on |dz*sinTheta| (in mm). Not applied if set to -1.");
   declareProperty("doUsedInFit",         m_doUsedInFit,     "Control whether to allow for a MatchStatus of UsedInFit.");
+  declareProperty("doPVPriority",        m_doPVPriority,    "Control whether to give priority to matching to PV instead of closest vertex.");
   declareProperty("requirePriVtx",       m_requirePriVtx,   "Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it.");
   declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
   declareProperty("TrackContName",       m_trkContName,     "The name of the xAOD::TrackParticleContainer to access the AMVF vertices+weights for (not actually read).");
@@ -474,6 +476,7 @@ const xAOD::Vertex* TrackVertexAssociationTool::getUniqueMatchVertexInternal(con
         if (dzSinTheta < min_dz) {
           min_dz = dzSinTheta;
           bestMatchVertex = vertex;
+          if(m_doPVPriority) break; //This will stop the iteration on the vertices. This works since the PV should always be the first entry in the vertex collection
         }
       }
     }

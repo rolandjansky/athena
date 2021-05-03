@@ -43,7 +43,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   - ILArNoise
   - ILArOFC
   - ILArOFC_Shape
-  - ILArOFCTool
   - ILArPedestal
   - ILArPhaseTool
   - ILArPhysCaliTdiff
