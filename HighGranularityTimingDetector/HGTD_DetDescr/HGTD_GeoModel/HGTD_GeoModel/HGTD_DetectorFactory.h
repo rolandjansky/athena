@@ -28,7 +28,8 @@ namespace HGTDGeo {
   struct HgtdGeoParams {
     double rMid;
     double rOuter;
-    double diskRotation;
+    double disk1Rotation;
+    double disk2Rotation;
     double rowSpaceSide;
     double rowBacksideInnerShift;
     double rowBacksideOuterShift;
@@ -92,11 +93,11 @@ public:
 
     InDetDD::HGTD_ModuleDesign* createHgtdDesign( double thickness );
 
-    //  below 3 members prepare 3-ring vs 2-ring layout controlled implicitly by geomVersion 
+    //  below 3 members prepare 3-ring vs 2-ring layout controlled implicitly by geomVersion
     std::array< PositionsInQuadrant, 4 > prepareLayersFromQuadrants( unsigned int ) ;
     PositionsInQuadrant prepareQuadrantsFromRows( int layer, unsigned int maxRow );
     std::string formModuleName( int layer, int quadrant, unsigned int maxrows, int row, int mod,
-				ModulePosition module, double & myx, double & myy, double & myrot, 
+				ModulePosition module, double & myx, double & myy, double & myrot,
 				int & phi, int & eta ) ;
 
     // 3-ring layout
