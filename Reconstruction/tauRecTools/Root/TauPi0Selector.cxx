@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauPi0Selector.h"
@@ -34,7 +34,9 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
 
   // Apply selection to the pi0, and count the number
   int nRecoPi0s=0;
-  for (xAOD::PFO* neutralPFO : neutralPFOContainer) {
+  for(size_t i=0; i<pTau.nProtoNeutralPFOs(); i++) {
+    xAOD::PFO* neutralPFO = neutralPFOContainer.at( pTau.protoNeutralPFO(i)->index() );
+
     // Set number of pi0s to 0 for all neutral PFOs. Required when rerunning on xAOD level
     neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0Proto, 0);
 
