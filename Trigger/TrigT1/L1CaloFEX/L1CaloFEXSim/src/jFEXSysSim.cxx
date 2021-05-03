@@ -26,6 +26,14 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h" 
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
+#include "xAODTrigger/jFexLRJetRoI.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexTauRoI.h"
+#include "xAODTrigger/jFexTauRoIContainer.h" 
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+
 #include <ctime>
 
 namespace LVL1 {
@@ -54,8 +62,11 @@ namespace LVL1 {
     ATH_CHECK(m_jTowerContainerSGKey.initialize());
 
     ATH_CHECK(m_jFEXSimTool.retrieve() );
-    
-    ATH_CHECK(m_jFexOutKey.initialize());
+ 
+    ATH_CHECK(m_jFexSRJetOutKey.initialize());
+    ATH_CHECK(m_jFexLRJetOutKey.initialize());
+    ATH_CHECK(m_jFexTauOutKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -134,7 +145,7 @@ namespace LVL1 {
     int embEta = 13; int embPhi = 0; int embMod = 100000;
     int initialEMB = calcTowerID(embEta,embPhi,embMod); //100832
 
-    int thisJFEX = 0;
+    uint8_t thisJFEX = 0;
     // jFEX 0
     thisJFEX = 0;
 
@@ -258,8 +269,9 @@ namespace LVL1 {
 
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -344,8 +356,9 @@ namespace LVL1 {
 
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -452,8 +465,9 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_2));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -557,8 +571,9 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_3));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -637,8 +652,9 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_4));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -780,28 +796,69 @@ namespace LVL1 {
 
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteForwardCSide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
-    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_jFEXSimTool->reset();
 
     
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    auto jContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
-    std::unique_ptr< xAOD::jFexSRJetRoIAuxContainer > jAuxContainer = std::make_unique<xAOD::jFexSRJetRoIAuxContainer> ();
-    jContainer->setStore(jAuxContainer.get());
+    //-----------------------------------------------------FILLING EDMs--------------------------------------------------------------------------------
+    //---SRJet EDM
+    auto jSRJetContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSRJetRoIAuxContainer > jSRJetAuxContainer = std::make_unique<xAOD::jFexSRJetRoIAuxContainer> ();
+    jSRJetContainer->setStore(jSRJetAuxContainer.get());
 
     // iterate over all SRJEt Tobs and fill EDM with them   
-    for( auto const& [jfex, tobs] : m_allSmallRJetTobs ){
-    for(auto &tob : tobs){
-        ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);  
-        ATH_CHECK(fillEDM(jfex,tob, jContainer));
-      }  
+    for( auto const& [jfex, MODULE_tobs] : m_allSmallRJetTobs ) {
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob: FPGA_tob){		
+            	ATH_MSG_DEBUG("fillSRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+            	ATH_CHECK(fillSRJetEDM(jfex,tob, jSRJetContainer));
+	    }
+        }
     }
     
-    SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexHandle(m_jFexOutKey/*, ctx*/);
-    ATH_MSG_DEBUG("  write: " << outputjFexHandle.key() << " = " << "..." );
-    ATH_CHECK(outputjFexHandle.record(std::move(jContainer),std::move(jAuxContainer)));
+    SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexSRJetHandle(m_jFexSRJetOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexSRJetHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexSRJetHandle.record(std::move(jSRJetContainer),std::move(jSRJetAuxContainer)));
 
+    //---LRJet EDM
+    auto jLRJetContainer = std::make_unique<xAOD::jFexLRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexLRJetRoIAuxContainer > jLRJetAuxContainer = std::make_unique<xAOD::jFexLRJetRoIAuxContainer> ();
+    jLRJetContainer->setStore(jLRJetAuxContainer.get());
+
+    // iterate over all SRJEt Tobs and fill EDM with them
+    for(auto const& [jfex, MODULE_tobs] : m_allLargeRJetTobs ) {
+        for(auto &FPGA_tob : MODULE_tobs) {
+	    for(auto &tob: FPGA_tob){
+            	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+            	ATH_CHECK(fillLRJetEDM(jfex,tob, jLRJetContainer));
+            }
+	}
+    }
+
+    SG::WriteHandle<xAOD::jFexLRJetRoIContainer_v1> outputjFexLRJetHandle(m_jFexLRJetOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexLRJetHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexLRJetHandle.record(std::move(jLRJetContainer),std::move(jLRJetAuxContainer)));
+    
+    //---Tau EDM
+    auto jTauContainer = std::make_unique<xAOD::jFexTauRoIContainer> ();
+    std::unique_ptr< xAOD::jFexTauRoIAuxContainer > jTauAuxContainer = std::make_unique<xAOD::jFexTauRoIAuxContainer> ();
+    jTauContainer->setStore(jTauAuxContainer.get());
+    //iterate over all Tau Tobs and fill EDM with 
+    for( auto const& [jfex, MODULE_tobs] : m_alltauTobs ) {
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+
+                //ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillTauEDM(jfex,tob, jTauContainer));
+            }
+        }
+    }
+
+    SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexTauHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexTauHandle.record(std::move(jTauContainer),std::move(jTauAuxContainer)));
 
     // ToDo
     // To implement
@@ -817,23 +874,54 @@ namespace LVL1 {
 
   }
 
-  StatusCode jFEXSysSim::fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
 
-    uint8_t jFEXNumber = jFexNum;
+  StatusCode jFEXSysSim::fillSRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
+    uint8_t jFEXNumber = (uint8_t)jFexNum;
     uint32_t tobWord0 = tobWord;
 
-    xAOD::jFexSRJetRoI* myEDM = new xAOD::jFexSRJetRoI();
-    jContainer->push_back( myEDM );
+    xAOD::jFexSRJetRoI* my_EDM = new xAOD::jFexSRJetRoI();
+    jContainer->push_back( my_EDM );
 
-    myEDM->initialize(jFEXNumber, tobWord0);
-    ATH_MSG_DEBUG(" setting jFEX Number:  " << +myEDM->jFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
+    my_EDM->initialize(jFEXNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting SRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
+
+    return StatusCode::SUCCESS;
+
+  }
+  
+  
+  StatusCode jFEXSysSim::fillTauEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = (uint8_t) jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexTauRoI* my_EDM = new xAOD::jFexTauRoI();
+    jContainer->push_back( my_EDM );
+
+    my_EDM->initialize(jFEXNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting Tau jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
 
     return StatusCode::SUCCESS;
 
   }
 
 
+  StatusCode jFEXSysSim::fillLRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = (uint8_t) jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexLRJetRoI* my_EDM = new xAOD::jFexLRJetRoI();
+    jContainer->push_back( my_EDM );
+
+    my_EDM->initialize(jFEXNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
+
+    return StatusCode::SUCCESS;
+
+  }
 
   
 } // end of namespace bracket
+
 

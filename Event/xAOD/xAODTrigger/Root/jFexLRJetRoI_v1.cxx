@@ -10,21 +10,19 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
-#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexLRJetRoI.h"
 
 namespace xAOD {
 
-  const float jFexSRJetRoI_v1::s_tobEtScale = 200.;
-  const float jFexSRJetRoI_v1::s_towerEtaWidth = 0.1;
-  const float jFexSRJetRoI_v1::s_towerPhiWidth = 0.1; 
-  const float jFexSRJetRoI_v1::s_minEta = -4.9;   
-   
-  jFexSRJetRoI_v1::jFexSRJetRoI_v1()
-      : SG::AuxElement() {
+  const float jFexLRJetRoI_v1::s_tobEtScale = 200.;
+  const float jFexLRJetRoI_v1::s_towerEtaWidth = 0.1;
+  const float jFexLRJetRoI_v1::s_towerPhiWidth = 0.1;
+  const float jFexLRJetRoI_v1::s_minEta = -4.9;
 
-
+   jFexLRJetRoI_v1::jFexLRJetRoI_v1()
+     : SG::AuxElement() {
    }
-   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint32_t word0) {
+   void jFexLRJetRoI_v1::initialize( uint8_t jFexNumber, uint32_t word0) {
  
      setWord0( word0 );
      setjFexNumber( jFexNumber );
@@ -48,21 +46,20 @@ namespace xAOD {
    /// Raw data words
    //----------------
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint32_t, word0,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint32_t, word0,
                                          setWord0 )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, jFexNumber,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, jFexNumber,
                                          setjFexNumber )
    /// Only calculable externally
-
  
    /// Extracted from data words, stored for convenience
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint16_t, tobEt,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint16_t, tobEt,
                                          setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, iEta,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iEta,
                                          setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, iPhi,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iPhi,
                                          setPhi )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, satFlag,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, satFlag,
                                          setSatFlag)
    //-----------------
    /// Methods to decode data from the TOB/RoI and return to the user
@@ -71,7 +68,7 @@ namespace xAOD {
   //include in future when xTOB in jFEX has been implemented.
    
    /// TOB or xTOB?
-   //jFexSRJetRoI_v1::ObjectType jFexSRJetRoI_v1::type() const {
+   //jFexLRJetRoI_v1::ObjectType jFexLRJetRoI_v1::type() const {
    //if (Word1() == 0) return TOB;
    //else              return xTOB;
    //}
@@ -79,42 +76,42 @@ namespace xAOD {
    //Hardware coordinate elements  
 
    //Raw ET on TOB scale (200 MeV/count)
-
-    unsigned int jFexSRJetRoI_v1::unpackEtTOB() const{
+    unsigned int jFexLRJetRoI_v1::unpackEtTOB() const{
      //Data content = TOB
      return (word0() >> s_etBit) & s_etMask;
-   } 
 
+    } 
 
    //Return an eta index
-   unsigned int jFexSRJetRoI::unpackEtaIndex() const {
+   unsigned int jFexLRJetRoI::unpackEtaIndex() const {
      return (word0() >> s_etaBit) & s_etaMask;
    }
    //Return a phi index
-   unsigned int jFexSRJetRoI::unpackPhiIndex() const {
+   unsigned int jFexLRJetRoI::unpackPhiIndex() const {
      return (word0() >> s_phiBit) & s_phiMask;
    }
 
    //Return sat flag
-   unsigned int jFexSRJetRoI::unpackSaturationIndex() const{
+   unsigned int jFexLRJetRoI::unpackSaturationIndex() const{
      return (word0() >> s_satBit) & s_satMask;
    }
 
    /// Methods that require combining results or applying scales
 
    /// ET on TOB scale
-   unsigned int jFexSRJetRoI_v1::et() const {
-       // Returns the TOB Et in a 200 MeV scale
-       return tobEt(); 
+   unsigned int jFexLRJetRoI_v1::et() const {
+    //Return the TOB Et in a 200 MeV scale
+     return tobEt();
    }
 
-   /// Local coordinates within the FPGA core area
-   unsigned int jFexSRJetRoI_v1::eta() const{
-       return iEta();
+   /// Returns the local coordinated within the FPGA core area
+   unsigned int jFexLRJetRoI_v1::eta() const{
+      return iEta();
    }
 
-   unsigned int jFexSRJetRoI_v1::phi() const {
-       return iPhi();
+  unsigned int jFexLRJetRoI_v1::phi() const {
+     return iPhi();
    }
 } // namespace xAOD
+
 

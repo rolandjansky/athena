@@ -57,7 +57,6 @@ StatusCode LVL1::jFEXSmallRJetAlgo::safetyTest(){
 void LVL1::jFEXSmallRJetAlgo::setup(int inputTable[7][7], bool barrel_region) {
 
   std::copy(&inputTable[0][0], &inputTable[0][0] + 49, &m_jFEXalgoTowerID[0][0]);
-
   m_barrel_region = barrel_region;
 
 }
@@ -111,7 +110,6 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 
      }    
 
-
     m_seedSet = true;
 }
 
@@ -119,39 +117,39 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 //check if central TT is a local maxima
 bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
 {
-  if(m_seedSet == false){
-    //ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
-  }
-  if(m_seedSet == true){
+    if(m_seedSet == false) {
+        //ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
+    }
+    if(m_seedSet == true) {
 
-    //ATH_MSG_DEBUG("Local Maxima checking begins.");
-    //here put the 24 conditions to determine if the [3][3] TT seed is a local maxima.
+        //ATH_MSG_DEBUG("Local Maxima checking begins.");
+        //here put the 24 conditions to determine if the [2][2] TT seed is a local maxima.
 
-    int central_seed = m_jFEXalgoSearchWindowSeedET[3][3];
-    for (int ieta = 1; ieta < 6; ieta++){
-      for (int iphi = 1; iphi < 6; iphi++){
+        int central_seed = m_jFEXalgoSearchWindowSeedET[2][2];
+        for (int ieta = 0; ieta < 5; ieta++) {
+            for (int iphi = 0; iphi < 5; iphi++) {
+                //avoid comparing central seed to itself
+                if ((ieta == 2) && (iphi == 2)) { 
+                    continue;
+                }
+                //strictly less than central
+                if( (iphi >= ieta) && !(ieta == 3 && iphi == 3) && !(ieta == 4 && iphi == 4) ) {
+                    if(central_seed<m_jFEXalgoSearchWindowSeedET[ieta][iphi]) {
+                        return false;
+                    }
+                }
+                //less than or equal to central
+                if((ieta > iphi) || (ieta == 3 && iphi == 3) || (ieta == 4 && iphi == 4)) {
+                    if(central_seed<= m_jFEXalgoSearchWindowSeedET[ieta][iphi]) {
+                        return false;
+                     }
+              }
+            }
+        } 
+    }
+    
+    return true;
 
-        //avoid comparing central seed to itself  
- 	if ((ieta == 3) && (iphi == 3)){
-          continue;
-      	}
-        //strictly less than central
-	if( (iphi >= ieta) && !(ieta == 4 && iphi == 4) && !(ieta == 5 && iphi == 5) ){
-	  if(central_seed<m_jFEXalgoSearchWindowSeedET[ieta][iphi]){
-	    return false;
-	  }  
-	}	
-	//less than or equal to central 
-	if((ieta > iphi) || (ieta == 4 && iphi == 4) || (ieta == 5 && iphi == 5)){
-          if(central_seed<= m_jFEXalgoSearchWindowSeedET[ieta][iphi]){
-	    return false;
-	    }	
-	}
-       }
-     }
-  }  
-
-  return true;
 }
 
 //in this clustering func, the central TT in jet is the parameters

@@ -18,7 +18,10 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
-
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
 namespace LVL1 {
   
 /*
@@ -38,10 +41,14 @@ Interface definition for jFEXSysSim
     virtual void cleanup() = 0;
 
     virtual int calcTowerID(int eta, int phi, int mod) = 0 ;
+ 
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) =0 ;
+    virtual StatusCode fillTauEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) =0 ;  
 
-    //virtual StatusCode fillEDM(uint8_t jFEXNumber, uint32_t tobWord) = 0;  
-    virtual StatusCode fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
+    
   private:
+
 
   };
 
