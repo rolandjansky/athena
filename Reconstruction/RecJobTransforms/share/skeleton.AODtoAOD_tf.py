@@ -19,6 +19,7 @@ from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('AOD_to_AOD')
 recoLog.info( '****************** STARTING AOD Reprocessing *****************' )
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ## Input
 if hasattr(runArgs,"inputAODFile"):
@@ -26,6 +27,7 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
 else:
     raise RuntimeError("No AOD input file given")
 
