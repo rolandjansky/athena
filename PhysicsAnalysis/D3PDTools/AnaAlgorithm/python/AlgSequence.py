@@ -10,6 +10,7 @@ except ImportError:
     # Import(s):
     import unittest
     from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig, indentBy
+    from AnaAlgorithm.PythonConfig import PythonConfig
 
     class AlgSequence( object ):
         """Standalone algorithm sequence
@@ -135,9 +136,10 @@ except ImportError:
 
             # Check that the received object is of the right type:
             if not isinstance( algOrSeq, AnaAlgorithmConfig ) and \
+               not isinstance( algOrSeq, PythonConfig ) and \
                not isinstance( algOrSeq, AlgSequence ):
                 raise TypeError( 'The received object is not of type ' \
-                                 'AnaAlgorithmConfig or AlgSequence' )
+                                 'AnaAlgorithmConfig or PythonConfig or AlgSequence' )
                 pass
 
             # Now check if an equivalent algorithm/sequence is already in the

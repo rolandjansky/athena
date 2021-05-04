@@ -21,7 +21,7 @@ find_package( GTest )
 atlas_add_root_dictionary( EventLoop
    EventLoopDictSource
    ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AlgorithmWrapper.h
-   EventLoop/AsgServiceWrapper.h EventLoop/BatchDriver.h
+   EventLoop/AsgServiceWrapper.h EventLoop/AsgToolWrapper.h EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/CondorDriver.h EventLoop/DirectDriver.h
    EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h

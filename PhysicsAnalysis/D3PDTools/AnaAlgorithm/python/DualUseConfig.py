@@ -1,4 +1,45 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+def createComponent( typeName, instanceName, componentType ):
+    """Create a generic configurable
+
+    This function is used to create an component "configurable" in a
+    dual-use way, either returning an actual Athena configurable, or
+    an appropriately configured PythonConfig instance.
+
+    Keyword arguments:
+      typeName      -- The C++ type name of the component
+      instanceName  -- The instance name of the component to create
+      componentType -- The type of component in AnalysisBase
+
+    """
+
+    try:
+        # Try to get a configurable for this C++ class "from Athena".
+        # If this succeeds, we're obviously in an Athena environment.
+
+        # First off, construct a "python type name" for the class, replacing the
+        # '::' namespace delimeters with '__'.
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable of this component:
+        from AthenaCommon import CfgMgr
+        componentClass = getattr( CfgMgr, pythonTypeName )
+
+        # Return the object:
+        return componentClass( instanceName )
+
+    except ImportError:
+        # If that didn't work, then apparently we're in an EventLoop
+        # environment, so we need to use PythonConfig as the base class
+        # for the user's class.
+        from AnaAlgorithm.PythonConfig import PythonConfig
+        component = PythonConfig( '%s/%s' % ( typeName, instanceName ) )
+        component.setComponentType( componentType )
+        return component
+
+    pass
+
 
 def createAlgorithm( typeName, instanceName ):
     """Create an algorithm configurable
@@ -11,30 +52,21 @@ def createAlgorithm( typeName, instanceName ):
       typeName     -- The C++ type name of the algorithm
       instanceName -- The instance name of the algorithm to create
     """
+    return createComponent( typeName, instanceName, 'AnaAlgorithm' )
 
-    try:
-        # Try to get a configurable for this C++ class "from Athena".
-        # If this succeeds, we're obviously in an Athena environment.
 
-        # First off, construct a "python type name" for the class, replacing the
-        # '::' namespace delimeters with '__'.
-        pythonTypeName = typeName.replace( '::', '__' )
+def createReentrantAlgorithm( typeName, instanceName ):
+    """Create a reentrant algorithm configurable
 
-        # Now look up the Athena configurable of this algorithm:
-        from AthenaCommon import CfgMgr
-        algClass = getattr( CfgMgr, pythonTypeName )
+    This function is used to create an algorithm "configurable" in a dual-use
+    way, either returning an actual Athena configurable, or an appropriately
+    configured EL::AnaAlgorithmConfig instance.
 
-        # Return the object:
-        return algClass( instanceName )
-
-    except ImportError:
-        # If that didn't work, then apparently we're in an EventLoop
-        # environment, so we need to use AnaAlgorithmConfig as the base class
-        # for the user's class.
-        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-        return AnaAlgorithmConfig( '%s/%s' % ( typeName, instanceName ) )
-
-    pass
+    Keyword arguments:
+      typeName     -- The C++ type name of the algorithm
+      instanceName -- The instance name of the algorithm to create
+    """
+    return createComponent( typeName, instanceName, 'AnaReentrantAlgorithm' )
 
 
 def createPublicTool( typeName, toolName ):
@@ -75,10 +107,48 @@ def createPublicTool( typeName, toolName ):
     except ImportError:
         # If that didn't work, then apparently we're in an EventLoop
         # environment, so let's use the EventLoop specific formalism.
-        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-        tool = AnaAlgorithmConfig( '%s/%s' % ( typeName, toolName ) )
-        tool.setIsPublicTool( True )
-        return tool
+        return createComponent( typeName, toolName, 'AsgTool' )
+
+
+def createService( typeName, serviceName ):
+    """Helper function for setting up a service for a dual-use algorithm
+
+    This function is meant to be used in the analysis algorithm sequence
+    configurations for setting up services on the analysis algorithms.
+    Services that could then be configured with a syntax shared between
+    Athena and EventLoop.
+
+    Keyword arguments:
+      typeName -- The C++ type name of the service
+      serviceName -- The name with which the service handle was configured on
+                    the algorithm. Also the instance name of the service.
+    """
+
+    try:
+        # Try to set up a public tool of this type for Athena. If this succeeds,
+        # we're obviously in an Athena environment.
+
+        # First off, construct a "python type name" for the class, replacing the
+        # '::' namespace delimeters with '__'.
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable of this tool:
+        from AthenaCommon import CfgMgr
+        serviceClass = getattr( CfgMgr, pythonTypeName )
+
+        # Add an instance of the service to the ServiceMgr:
+        from AthenaCommon.AppMgr import ServiceMgr
+        if not hasattr( ServiceMgr, serviceName ):
+            ServiceMgr += serviceClass( serviceName )
+            pass
+
+        # Return the member on the ServiceMgr:
+        return getattr( ServiceMgr, serviceName )
+
+    except ImportError:
+        # If that didn't work, then apparently we're in an EventLoop
+        # environment, so let's use the EventLoop specific formalism.
+        return createComponent( typeName, serviceName, 'AsgService' )
 
 
 def addPrivateTool( alg, toolName, typeName ):

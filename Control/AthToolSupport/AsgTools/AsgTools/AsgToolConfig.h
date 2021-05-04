@@ -42,6 +42,15 @@ namespace asg
     explicit AsgToolConfig (const std::string& val_typeAndName);
 
 
+    /// \brief initializing constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    explicit AsgToolConfig (const AsgComponentConfig& val_config);
+
+
     /// \brief make a tool with the given configuration
     ///
     /// Note that the exact creational patterns are not determined yet

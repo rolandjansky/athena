@@ -48,6 +48,15 @@ namespace EL
 
 
 
+  AnaReentrantAlgorithmConfig ::
+  AnaReentrantAlgorithmConfig (const AsgComponentConfig& val_config)
+    : AsgComponentConfig (val_config)
+  {
+    RCU_NEW_INVARIANT (this);
+  }
+
+
+
   ::StatusCode AnaReentrantAlgorithmConfig ::
   makeAlgorithm (std::unique_ptr<AnaReentrantAlgorithm>& algorithm,
                  const AlgorithmWorkerData& workerData) const
