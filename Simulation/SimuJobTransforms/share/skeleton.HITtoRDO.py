@@ -415,7 +415,7 @@ topSeq.TimeOut = 43200 * Units.s
 
 try:
     timingOutput = "HITStoRDO_timings"
-    if 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         timingOutput = overlayFlags.bkgPrefix() + timingOutput
 
