@@ -23,9 +23,10 @@ class PhotonsDirectionTool
   , public IAugmentationTool
 {
 public:
-  PhotonsDirectionTool(const std::string& t,
-                       const std::string& n,
-                       const IInterface* p);
+  PhotonsDirectionTool(
+    const std::string& t,
+    const std::string& n,
+    const IInterface* p);
 
   virtual StatusCode initialize() override final;
   virtual StatusCode addBranches() const override final;
