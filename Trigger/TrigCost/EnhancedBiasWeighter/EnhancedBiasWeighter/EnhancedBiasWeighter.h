@@ -173,7 +173,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     int32_t getEventEBID(const xAOD::EventInfo* eventInfo) const; 
     int32_t getEventEBID(const EventContext& context) const; 
 
-    SG::ReadHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; //!< Tool to get distance into bunch train
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; //!< Tool to get distance into bunch train
 
     Gaudi::Property<uint32_t> m_runNumber{this, "RunNumber", 0, "Run we're processing (if data), needed at initialize to locate and read in extra configuration."};
     Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};
