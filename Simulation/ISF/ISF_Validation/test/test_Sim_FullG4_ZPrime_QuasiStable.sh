@@ -9,14 +9,13 @@
 # art-include: master/AthSimulation
 # art-type: grid
 # art-output: test.HITS.pool.root
-# art-output: truth.root
 
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
 --physicsList 'FTFP_BERT' \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4_LongLived' \
---postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
 --DataRunNumber '222525' \
 --geometryVersion 'default:ATLAS-R2-2015-03-01-00' \

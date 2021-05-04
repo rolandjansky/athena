@@ -32,6 +32,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
 
 #include "MCTruthClassifier/IMCTruthClassifier.h"
@@ -42,6 +43,7 @@
 #include "IHistograms.h"
 #include "ShowerShapesHistograms.h"
 #include "ClusterHistograms.h"
+#include "TrackHistograms.h"
 #include "EfficiencyPlot.h"
 #include "WidthPlot.h"
 
@@ -96,7 +98,11 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutLoose;
 
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonAll;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonAll;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonAllUnconv;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonAllConv;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonRecoPhoton        ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonRecoPhotonOrElectron;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonConvPhoton        ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonConvRecoConv      ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonConvRecoConv1Si   ;
@@ -107,13 +113,44 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonConvRecoUnconv    ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvPhoton        ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv      ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv1Si   ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv1TRT  ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv2Si   ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv2TRT  ;
+  std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv2SiTRT;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoUnconv    ;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvLooseLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvTightLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvLooseLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvTightLH;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTight;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTightCaloOnly;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutLoose;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutTight;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutTightCaloOnly;
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutLoose;
+
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracks;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksMatchElectron;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksNotElectron;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksMatchPion;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksNotMatched;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTMatchElectron;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTNotElectron;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTMatchPion;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTNotMatched;
+
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTrackshighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksMatchElectronhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksNotElectronhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksMatchPionhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksNotMatchedhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRThighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTMatchElectronhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTNotElectronhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTMatchPionhighpT;
+  std::unique_ptr<egammaMonitoring::IHistograms> InDetTracksTRTNotMatchedhighpT;
 
   // Histos
   // General Info
@@ -139,12 +176,18 @@ private:
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_LooseLH ; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_MediumLH; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_TightLH ; //!
+  asg::AnaToolHandle<IAsgPhotonIsEMSelector> m_LooseLH_Photon; //!
+  asg::AnaToolHandle<IAsgPhotonIsEMSelector> m_TightLH_Photon; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTight; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightTrackOnly; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly; //!
   asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutLoose; //!
 
   ToolHandle<IMCTruthClassifier>  m_mcTruthClassifier;
+
+  bool matchedToElectron(const xAOD::TrackParticle& tp);
+  bool matchedToPion(const xAOD::TrackParticle& tp);
+  bool notMatchedToTruth(const xAOD::TrackParticle& tp);
 
 };
 
