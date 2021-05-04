@@ -330,7 +330,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         # verify if all thresholds are mentioned in chain parts, if they are not then one of the indices will be -1
         assert all( [i > 0 for i in indices] ), "Some thresholds are not part of the chain name name {}, {}".format(chainName, L1thresholds)
         # verify that the order of threshold and order of threshold mentioned in the name (there they are prexixed by L1) is identical, else there may be mistake
-        assert sorted(indices), "The order of L1 threshlds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
+        assert sorted(indices), "The order of L1 thresholds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
 
     for chainindex, chainparts in enumerate(multichainparts):
         chainProperties = {} #will contain properties for one part of chain if multiple parts

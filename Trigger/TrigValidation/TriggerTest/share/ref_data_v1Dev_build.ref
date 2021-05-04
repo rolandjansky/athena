@@ -1,4 +1,10 @@
-HLT_10j40_pf_subresjesgscIS_ftf_L14J15:
+HLT_10j40_ftf_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_10j40_pf_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -6,12 +12,6 @@ HLT_10j40_pf_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_10j40_subjesIS_L14J15:
   eventCount: 0
-HLT_10j40_subresjesgscIS_ftf_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
 HLT_2e12_lhloose_mu10_L12EM8VH_MU10:
   eventCount: 0
   stepFeatures:
@@ -126,8 +126,18 @@ HLT_2g50_loose_L12EM20VH:
   eventCount: 0
 HLT_2g60_loose_L12EM20VH:
   eventCount: 0
-HLT_2j250_subresjesgscIS_ftf_0eta240_L1J100:
+HLT_2j250_ftf_0eta240_j120_ftf_0eta240_L1J100:
   eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_L1J100:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
 HLT_2j330_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100:
@@ -299,9 +309,9 @@ HLT_2mu6_muonqual_L12MU6:
   eventCount: 0
 HLT_3j200_L1J100:
   eventCount: 0
-HLT_3j200_pf_subresjesgscIS_ftf_L1J100:
+HLT_3j200_ftf_L1J100:
   eventCount: 0
-HLT_3j200_subresjesgscIS_ftf_L1J100:
+HLT_3j200_pf_ftf_L1J100:
   eventCount: 0
 HLT_3j20_pf_ftf_010jvt_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21:
   eventCount: 3
@@ -375,7 +385,13 @@ HLT_3mu6_msonly_L13MU6:
   eventCount: 0
 HLT_3mu8_msonly_L13MU6:
   eventCount: 0
-HLT_4j120_pf_subresjesgscIS_ftf_L13J50:
+HLT_4j115_ftf_L13J50:
+  eventCount: 0
+  stepCounts:
+    0: 2
+  stepFeatures:
+    0: 2
+HLT_4j115_pf_ftf_L13J50:
   eventCount: 0
   stepCounts:
     0: 2
@@ -383,12 +399,6 @@ HLT_4j120_pf_subresjesgscIS_ftf_L13J50:
     0: 2
 HLT_4j120_subjesIS_L13J50:
   eventCount: 0
-HLT_4j120_subresjesgscIS_ftf_L13J50:
-  eventCount: 0
-  stepCounts:
-    0: 2
-  stepFeatures:
-    0: 2
 HLT_4j20_pf_ftf_010jvt_boffperf_L1HT190-J15s5pETA21:
   eventCount: 2
   stepCounts:
@@ -479,19 +489,25 @@ HLT_5j45_pf_ftf_0eta240_010jvt_j25_pf_ftf_0eta240_010jvt_bdl1r60_split_L14J15:
     0: 7
 HLT_5j70_0eta240_L14J20:
   eventCount: 0
-HLT_5j70_pf_subresjesgscIS_ftf_0eta240_L14J15:
+HLT_5j70_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_5j70_subresjesgscIS_ftf_0eta240_L14J15:
+HLT_5j70_pf_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_5j85_pf_subresjesgscIS_ftf_L14J15:
+HLT_5j85_ftf_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_5j85_pf_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -499,12 +515,6 @@ HLT_5j85_pf_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_5j85_subjesIS_L14J15:
   eventCount: 0
-HLT_5j85_subresjesgscIS_ftf_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
 HLT_6j25_0eta240_L14J15:
   eventCount: 0
 HLT_6j25_ftf_0eta240_010jvt_L14J15:
@@ -655,7 +665,13 @@ HLT_6j45_pf_ftf_0eta240_L14J15:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j55_pf_subresjesgscIS_ftf_0eta240_L14J15:
+HLT_6j55_ftf_0eta240_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_6j55_pf_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -663,13 +679,13 @@ HLT_6j55_pf_subresjesgscIS_ftf_0eta240_L14J15:
     0: 7
 HLT_6j55_subjesIS_0eta240_L14J15:
   eventCount: 0
-HLT_6j55_subresjesgscIS_ftf_0eta240_L14J15:
+HLT_6j70_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j70_pf_subresjesgscIS_ftf_L14J15:
+HLT_6j70_pf_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -677,13 +693,13 @@ HLT_6j70_pf_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_6j70_subjesIS_L14J15:
   eventCount: 0
-HLT_6j70_subresjesgscIS_ftf_L14J15:
+HLT_7j45_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_7j45_pf_subresjesgscIS_ftf_L14J15:
+HLT_7j45_pf_ftf_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -691,12 +707,6 @@ HLT_7j45_pf_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_7j45_subjesIS_L14J15:
   eventCount: 0
-HLT_7j45_subresjesgscIS_ftf_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
 HLT_JetDS_j20_L1HT190-J15s5pETA21:
   eventCount: 17
   stepCounts:
@@ -1494,10 +1504,6 @@ HLT_g35_tight_3j25_pf_ftf_boffperf_L1EM22VHI:
   eventCount: 0
 HLT_g35_tight_3j25_pf_ftf_boffperf_L1EM30VHI:
   eventCount: 0
-HLT_g35_tight_3j25_pf_subresjesgscIS_ftf_L1EM22VHI:
-  eventCount: 0
-HLT_g35_tight_3j25_pf_subresjesgscIS_ftf_L1EM30VHI:
-  eventCount: 0
 HLT_g35_tight_L1EM15VHI:
   eventCount: 0
 HLT_g35_tight_icaloloose_L1EM15VHI:
@@ -1668,13 +1674,13 @@ HLT_j150_ftf_0eta320_2j55_ftf_bmv2c1070_split_L1J85_3J30:
     0: 20
   stepFeatures:
     0: 20
-HLT_j150_pf_ftf_0eta320_2j55_pf_ftf_bdl1r70_split_L1J85_3J30:
+HLT_j150_ftf_2j55_ftf_L1J85_3J30:
   eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j150_subresjesgscIS_ftf_2j55_subresjesgscIS_ftf_L1J85_3J30:
+HLT_j150_pf_ftf_0eta320_2j55_pf_ftf_bdl1r70_split_L1J85_3J30:
   eventCount: 0
   stepCounts:
     0: 20
@@ -1826,11 +1832,11 @@ HLT_j420_a10t_lcw_jes_35smcINF_L1J100:
   eventCount: 0
 HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
+HLT_j420_ftf_L1J100:
+  eventCount: 0
+HLT_j420_pf_ftf_L1J100:
+  eventCount: 0
 HLT_j420_pf_ftf_preselj20_L1J100:
-  eventCount: 0
-HLT_j420_pf_subresjesgscIS_ftf_L1J100:
-  eventCount: 0
-HLT_j420_subresjesgscIS_ftf_L1J100:
   eventCount: 0
 HLT_j440_pf_ftf_preselj20_L1J100:
   eventCount: 0
@@ -2050,14 +2056,6 @@ HLT_j45_subjesgsc_ftf_L1J15:
   stepFeatures:
     0: 7
     1: 7
-HLT_j45_subresjesgscIS_ftf_L1J15:
-  eventCount: 7
-  stepCounts:
-    0: 7
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 8
 HLT_j45_subresjesgsc_ftf_L1J15:
   eventCount: 7
   stepCounts:
