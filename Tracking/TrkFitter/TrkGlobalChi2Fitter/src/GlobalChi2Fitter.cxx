@@ -58,13 +58,13 @@
 #include "IdDictDetDescr/IdDictManager.h"
 
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
-#include <exception>
-#include <memory>
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "TrkVolumes/VolumeBounds.h"
 #include <cmath>
+#include <exception>
+#include <memory>
 
 using CLHEP::MeV;
 using CLHEP::mm;
@@ -83,6 +83,20 @@ namespace {
       return 0;
     }
   }
+  //This function used to avoid FPE divide by zero or overflow by limiting the q/p values to a 
+  //more limited range
+  double
+  limitInversePValue(double qOverP){
+    const double magnitude = std::abs(qOverP);
+    //limits found empirically to leave the 25-event q431 digest unchanged
+    constexpr double maxP{100.*10e6*MeV};
+    constexpr double minP{1.e-3*MeV};
+    constexpr double lo {1./maxP};
+    constexpr double hi {1./minP};
+    double limited = std::clamp(magnitude, lo, hi);
+    return std::copysign(limited, qOverP);
+  }
+
 
   std::pair<const Trk::TrackParameters *, const Trk::TrackParameters *> getFirstLastIdPar(const Trk::Track & track) {
     const Trk::TrackParameters *firstidpar = nullptr;
@@ -5736,14 +5750,14 @@ namespace Trk {
       }
 
       if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
-        double qoverp = 0;
-        double qoverpbrem = 0;
-        qoverpbrem = 1000 * state->trackParameters()->parameters()[Trk::qOverP];
-        qoverp = qoverpbrem - state->materialEffects()->delta_p();
+        //limit values to avoid FPE overflow or div by zero
+        double qoverpbrem = limitInversePValue(1000 * state->trackParameters()->parameters()[Trk::qOverP]);
+        double qoverp = limitInversePValue(qoverpbrem - state->materialEffects()->delta_p());
         
         double mass = .001 * trajectory.mass();
         
         const auto thisMeasurementIdx{nmeas - nbrem + bremno};
+        
         auto multiplier = [] (double mass, double qOverP){
           return std::copysign(1./(qOverP * qOverP * std::sqrt(1. + mass * mass * qOverP * qOverP)), qOverP);
         };
