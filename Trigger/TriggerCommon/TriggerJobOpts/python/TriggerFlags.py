@@ -126,13 +126,11 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonlineNoL1Thr'
+    StoredValue = 'HLTonline'
     
     allowedValues = [
         'HLTonline',
-        'HLToffline',
-        'HLTonlineNoL1Thr',
-        'HLTofflineNoL1Thr'
+        'HLToffline'
         ]
 
 _flags.append(configForStartup)
