@@ -266,6 +266,7 @@
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
++ Simulation/G4Extensions/Charginos
 + Simulation/G4Extensions/ExtraParticles
 + Simulation/G4Extensions/G4CosmicFilter
 + Simulation/G4Extensions/G4ExtraProcesses

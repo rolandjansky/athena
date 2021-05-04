@@ -13,6 +13,8 @@ StreamHITS.ItemList += ['EventInfo#*', # Just copied not renamed
                         'McEventCollection#TruthEventOLD',
                         'xAOD::JetContainer#*', # Just copied not renamed
                         'xAOD::JetAuxContainer#*', # Just copied not renamed
+                        'xAOD::TruthParticleContainer#TruthPileupParticles', # Just copied not renamed
+                        'xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.', # Just copied not renamed
                         'RecoTimingObj#EVNTtoHITS_timingsOLD']
 
 from AthenaCommon.DetFlags import DetFlags
