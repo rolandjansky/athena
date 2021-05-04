@@ -39,18 +39,23 @@ namespace Trk {
      SaggedLineSurface();
 
      /** Constructor for private surface */
-     SaggedLineSurface(Amg::Transform3D* htrans, 
+     SaggedLineSurface(const Amg::Transform3D& htrans, 
                        double radius,
                        double halez,
                        LineSaggingDescriptor* lsd);
 
-     SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
+     SaggedLineSurface(const Amg::Transform3D& htrans);
 
      /** Constructor for public surface */
      SaggedLineSurface(const TrkDetElementBase& detelement, const Identifier& id);
 
      /** Constructor for public surface */
-     SaggedLineSurface(const TrkDetElementBase& detelement, const Identifier& id, double wireLength, double wireTension, double linearDensity);
+     SaggedLineSurface(
+       const TrkDetElementBase& detelement,
+       const Identifier& id,
+       double wireLength,
+       double wireTension,
+       double linearDensity);
 
      /** Copy Constructor */
      SaggedLineSurface(const SaggedLineSurface& sls);

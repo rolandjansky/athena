@@ -113,7 +113,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit (trans2c);
 
   Trk::StraightLineSurface slsurf
-    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
+    (Amg::Transform3D(Amg::getRotateX3D (0.5)));
   Trk::AtaStraightLine trans3 (200, 100, 1.4, 0.7, 2e-3, slsurf, std::nullopt);
   testit (trans3);
 

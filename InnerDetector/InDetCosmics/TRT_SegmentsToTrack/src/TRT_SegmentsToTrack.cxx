@@ -804,9 +804,9 @@ void InDet::TRT_SegmentsToTrack::combineSegments(const EventContext& ctx) const
 		}
       
       
-		Amg::Transform3D* T    = new Amg::Transform3D();
-		*T = line->transform().rotation();
-		*T *= Amg::Translation3D(C.x(),C.y(),C.z());
+		Amg::Transform3D T;
+		T = line->transform().rotation();
+		T *= Amg::Translation3D(C.x(),C.y(),C.z());
 		Trk::StraightLineSurface* surface = new Trk::StraightLineSurface(T);
      
 		Trk::PseudoMeasurementOnTrack *pseudo=new Trk::PseudoMeasurementOnTrack( par,cov,*surface);

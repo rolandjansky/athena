@@ -730,7 +730,7 @@ void FastCaloSimCaloExtrapolation::findPCA(float cylR, float cylZ, Amg::Vector3D
 
   //CASE C: we are inside the Z bounds of the cylinder
   //construct Z axis as straight line surface
-  Trk::StraightLineSurface line(new Amg::Transform3D(Trk::s_idTransform), 0, cylZ);
+  Trk::StraightLineSurface line(Amg::Transform3D(Trk::s_idTransform), 0, cylZ);
   //compute point of closest approach to z axis
   //this is analogous to finding the PCA of two 3D lines
   Trk::Intersection PCACylBounds = line.straightLineIntersection(hitPos1, hitDir.unit(), false, true);

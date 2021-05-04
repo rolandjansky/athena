@@ -36,9 +36,9 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     surface= surface_nc; // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
-    auto transform = std::make_unique<Amg::Transform3D>();
-    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get() );
-    surface=new SURFACE(std::move(transform));
+    Amg::Transform3D transform;
+    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, transform );
+    surface=new SURFACE(transform);
     // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
     // for (auto v : persObj->m_transform)
     //     std::cout << v << ' ';

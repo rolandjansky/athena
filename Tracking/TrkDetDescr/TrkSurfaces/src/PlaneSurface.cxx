@@ -94,6 +94,14 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
 }
 
 // construct planar surface without bounds
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+{}
+
+
+
+// construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans)
   : Trk::Surface(htrans)
   , m_bounds(nullptr)

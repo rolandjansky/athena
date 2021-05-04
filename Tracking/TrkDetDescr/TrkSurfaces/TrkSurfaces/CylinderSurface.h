@@ -93,6 +93,10 @@ public:
 
   /**Constructor from EigenTransform from unique_ptr.
      - bounds is not set */
+  CylinderSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor from EigenTransform from unique_ptr.
+     - bounds is not set */
   CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /** Constructor from radius and halflength - speed optimized for concentric

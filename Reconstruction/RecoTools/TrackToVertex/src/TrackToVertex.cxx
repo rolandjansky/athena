@@ -63,9 +63,9 @@ const InDet::BeamSpotData* Reco::TrackToVertex::GetBeamSpotData(const EventConte
 // incident listener waiting for BeginEvent
 std::unique_ptr<Trk::StraightLineSurface> Reco::TrackToVertex::GetBeamLine(const InDet::BeamSpotData* beamSpotHandle) const {
     // get the transform
-    Amg::Transform3D* beamTransform = new Amg::Transform3D(Amg::AngleAxis3D(beamSpotHandle->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
-    (*beamTransform) *= Amg::AngleAxis3D(beamSpotHandle->beamTilt(1),Amg::Vector3D(1.,0.,0.));
-    beamTransform->pretranslate(beamSpotHandle->beamPos());
+    Amg::Transform3D beamTransform = Amg::Transform3D(Amg::AngleAxis3D(beamSpotHandle->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
+    beamTransform *= Amg::AngleAxis3D(beamSpotHandle->beamTilt(1),Amg::Vector3D(1.,0.,0.));
+    beamTransform.pretranslate(beamSpotHandle->beamPos());
     // create the new beam line
     return std::make_unique< Trk::StraightLineSurface >(beamTransform);
 }

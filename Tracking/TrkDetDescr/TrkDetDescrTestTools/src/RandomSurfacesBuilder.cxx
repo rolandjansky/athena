@@ -150,7 +150,7 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
          } break;
          // create a straight line surface
          case 5 : {
-             surface = new Trk::StraightLineSurface(transform.release(), 50., m_worldDimensions[2]);
+             surface = new Trk::StraightLineSurface(*transform, 50., m_worldDimensions[2]);
          } break;
          default : break;    
      }
