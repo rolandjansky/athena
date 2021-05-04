@@ -87,8 +87,6 @@ namespace JetTagDQA {
     std::string m_jetName1;
     std::string m_jetName2;
     std::string m_jetName3;
-    std::string m_jetName4;
-    std::string m_jetName5;
 
     std::string m_trackName;
     std::string m_vertexName;
@@ -110,11 +108,9 @@ namespace JetTagDQA {
     float m_JVTCutAntiKt4EMPFlowJets;
     float m_truthMatchProbabilityCut;
 
-    JetTagDQA::BTaggingValidationPlots m_antiKt2PV0TrackJetPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4PV0TrackJetPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4EMTopoPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKtVR30Rmax4Rmin02TrackJetsPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4EMPFlowJetsPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots;
 
     int m_nevents;
 

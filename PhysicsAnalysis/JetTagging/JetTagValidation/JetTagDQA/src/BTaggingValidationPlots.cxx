@@ -873,7 +873,11 @@ namespace JetTagDQA{
 
     // check if there is a muon and store the relative muon pT
     bool has_muon = false;
-    ElementLink<xAOD::MuonContainer> muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link");
+    ElementLink<xAOD::MuonContainer> muonLink; 
+    // muon link doesn't work on the VR track jets atm (it will be structured differently in r22 anyways. Properly update it later for all collections.)
+    if(m_sParticleType != "antiKtVR30Rmax4Rmin02PV0TrackJets"){
+      muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link");
+    }
     if ( muonLink.isValid() ) {
         const xAOD::Muon* muon=(*muonLink);
         if ( muon != 0 ) {
