@@ -19,7 +19,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, 
                                                                 MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
                                                                 EgammaBjetGroup, MuonBjetGroup,
                                                                 SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
-                                                                MuonJetGroup, TauMETGroup, MuonMETGroup, EgammaJetGroup,
+                                                                MuonJetGroup, MuonMETGroup, EgammaJetGroup,
                                                                 JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup, PrimaryL1MuGroup,
                                                                 BphysElectronGroup)
 
@@ -630,12 +630,9 @@ def setupMenu():
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100", groups=PrimaryLegGroup+SingleTauGroup),
-        ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100", groups=SingleTauGroup),
-
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -705,13 +702,8 @@ def setupMenu():
 
         # tau+X chains (ATR-21609) TODO: need T&P-like merging
         # need to add dRtt to chain below. How do we avoid overlap between taus and jets?
-        #ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_L1MJJ-500-NFF", l1SeedThresholds=['TAU8','TAU8','J20','J20'],   stream=[PhysicsStream], groups=['MultiTauGroup','MultiJetGroup']),
-
-
-        #ATR-22108: combined tau+X chains: TODO: add dRtt, need T&P-like merging
-        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1TAU40_2TAU12IM_XE40', l1SeedThresholds=['TAU40','TAU12IM','XE40'], stream=[PhysicsStream], groups=PrimaryLegGroup+TauMETGroup),  # ATR-22966
-        ChainProp(name='HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1EM15VHI_2TAU12IM_XE35', l1SeedThresholds=['EM15VHI','TAU12IM','XE35'], stream=[PhysicsStream], groups=PrimaryLegGroup+TauMETGroup),
-        ChainProp(name='HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1MU10_TAU12IM_XE35', l1SeedThresholds=['MU10','TAU12IM','XE35'], stream=[PhysicsStream], groups=PrimaryLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+TauJetGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+TauJetGroup),
 
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaJetGroup),
@@ -731,8 +723,6 @@ def setupMenu():
         ChainProp(name='HLT_e10_lhmedium_ivarloose_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['EM8VH','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaJetGroup),
         ChainProp(name='HLT_mu4_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP1000djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU4','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+MuonJetGroup),
         ChainProp(name='HLT_mu10_ivarmedium_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU10','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+MuonJetGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+TauJetGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['TAU12IM','TAU12IM','FSNOSEED','FSNOSEED','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+TauJetGroup),
         ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP1000djmassSEPdjdphi240_xe90_tcpufit_xe50_cell_L1MJJ-500-NFF',l1SeedThresholds=['FSNOSEED']*5,stream=[PhysicsStream], groups=PrimaryLegGroup+JetMETGroup),
 
         # meson + photon (ATR-22644) - note: each of these chains requires a photon+tau cut that will be included in a later update
