@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <ref_desc>Last master nightly</ref_desc>
+  <test_desc>Current master nightly</test_desc>
+  <plimit fail="0.75" warn="0.95"/>
+  <TDirectory name="/">
+   <TDirectory name="digitisation">
+    <hist1D name="truthPt" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+   </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>

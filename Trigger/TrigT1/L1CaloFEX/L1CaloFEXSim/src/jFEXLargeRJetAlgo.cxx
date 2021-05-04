@@ -82,7 +82,7 @@ std::unique_ptr<jFEXLargeRJetTOB> LVL1::jFEXLargeRJetAlgo::getLargeRJetTOBs(){
   tob->setET(et);
   tob->setPhi(m_jFEXSmallRJetAlgoTool->getRealPhi()/10.); 
   tob->setEta(m_jFEXSmallRJetAlgoTool->getRealEta()/10.); 
-  tob->setSub(0); 
+  tob->setRes(0); 
   tob->setSat(0); 
 
   return tob;

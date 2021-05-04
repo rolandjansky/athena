@@ -67,14 +67,14 @@ namespace xAOD {
       static const float s_towerPhiWidth;
       static const float s_minEta;
 
-      // Data locations within word
-      // tobWord = tobWord + jFEXSmallRJetTOBEt + (phi << 11) + (eta << 15) + (Res << 20) + (Sat << 31);
-      static const int s_etBit  = 0;  
-      static const int s_phiBit = 11; 
-      static const int s_etaBit = 15; 
-      //static const int s_ResBit = 20;
-      static const int s_satBit = 31;
 
+      // Data locations within word 
+      static const int s_satBit =0;
+      //static const int s_ResBit =1;
+      static const int s_etBit  = 12;
+      static const int s_phiBit = 23;
+      static const int s_etaBit = 27;
+                       
       //Data masks
       static const int s_etMask   = 0x7ff;
       static const int s_etaMask  = 0x1f;
@@ -85,6 +85,7 @@ namespace xAOD {
    }; // class jFexSRJetRoI_v1
 
 } // namespace xAOD
+
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::jFexSRJetRoI_v1, SG::AuxElement );

@@ -75,7 +75,7 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
       log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
     }
     // create a new charged diode
-    SiChargedDiode chargedDiode(m_allocator, diode,roCell);
+    SiChargedDiode chargedDiode(diode,roCell);
     // add the new charge to it
     chargedDiode.add(charge);
     if (charge.processType() == SiCharge::extraNoise) SiHelper::noise(chargedDiode,true);
@@ -113,7 +113,7 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
       log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
     }
     // create a new charged diode
-    SiChargedDiode chargedDiode(m_allocator, diode,roCell);
+    SiChargedDiode chargedDiode(diode,roCell);
     // add the new charge to it
     chargedDiode.add(totcharge);
     // add the new charged diode to the charged diode collection

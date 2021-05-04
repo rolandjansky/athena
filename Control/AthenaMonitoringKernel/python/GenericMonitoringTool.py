@@ -68,6 +68,9 @@ class GenericMonitoringTool(_GenericMonitoringTool):
             duration = kwargs.pop('duration', self.defaultDuration)
             if duration is not None:
                 kwargs['convention'] = self.convention + ':' + duration
+        # if an overall path for tool is specified, can leave path argument empty
+        if getattr(self, 'HistPath', '') != '':
+            kwargs.setdefault('path', '')
         self.Histograms.append(deffunc(*args, **kwargs))
 
     def defineHistogram(self, *args, **kwargs):

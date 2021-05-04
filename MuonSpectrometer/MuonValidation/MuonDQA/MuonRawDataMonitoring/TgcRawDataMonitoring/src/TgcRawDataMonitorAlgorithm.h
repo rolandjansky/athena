@@ -142,10 +142,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
   void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
   
-  bool triggerMatching(const TVector3&, const std::set<TString>& ) const; // trigger matching to single cb-muon triggers
-  bool triggerNonMuonFired() const;
-  bool getListOfSingleMuonTriggers(std::set<TString>&) const;
-
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };
   void extrapolate(const xAOD::Muon*, MyMuon&) const;

@@ -441,9 +441,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
                         if (chainProperties['signature'] in ['Egamma', 'Muon'] )& (prop in ['trkInfo','hypoInfo']):
                             chainProperties[prop] = part
                             part = part.replace(part,'')
-                        elif (chainProperties['signature'] in ['Jet'] )& (prop in ['gscThreshold']):
-                            chainProperties[prop] = part
-                            part = part.replace(part,'')
                         else:
                             chainProperties[prop] = aV
                             part = part.replace(aV,'')

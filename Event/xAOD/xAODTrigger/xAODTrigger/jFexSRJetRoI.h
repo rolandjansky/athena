@@ -7,6 +7,7 @@
 
 // Local include(s):
 #include "xAODTrigger/versions/jFexSRJetRoI_v1.h"
+
 // Namespace holding all the xAOD EDM classes
 namespace xAOD{
   /// Define the latest version of the jFexSRJetRoI class  

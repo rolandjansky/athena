@@ -16,6 +16,7 @@ StatusCode eFexEMRoIsUnpackingTool::initialize() {
   ATH_CHECK(RoIsUnpackingToolBase::initialize());
   ATH_CHECK(m_l1MenuKey.initialize());
   ATH_CHECK(m_trigRoIsKey.initialize());
+  ATH_CHECK(m_thresholdPatternsKey.initialize());
   return StatusCode::SUCCESS;
 }
 

@@ -163,18 +163,12 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl1Charge::processBitCorrect( const std::v
 	       // test DeltaR2Min, DeltaR2Max                                                                                                
 	       unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
 	       TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
-               // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-               // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
-               // If no muon sectorName information is available, sectorName = ""
-               std::string sector1 = (*tob1)->sectorName();
-               std::string sector2 = (*tob2)->sectorName();
+                // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                int charge1 = (*tob1)->charge();
                int charge2 = (*tob2)->charge();
                int totalCharge = charge1 + charge2;
                bool acceptCharge = true;
-               if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
-                  if ( totalCharge == 0 or totalCharge == 2 ) { acceptCharge = false; }
-               }
+               if ( std::abs(totalCharge) == 2 ) { acceptCharge = false; }
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                    if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
@@ -236,18 +230,12 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl1Charge::process( const std::vector<TCS:
 	       // test DeltaR2Min, DeltaR2Max                                                                                                  
 	       unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
 	       TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
-               // Charge cut ( for TGC muons: 0=negative, 1=positive, as described at ATR-22621 )
-               // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
-               // If no muon sectorName information is available, sectorName = ""
-               std::string sector1 = (*tob1)->sectorName();
-               std::string sector2 = (*tob2)->sectorName();
+               // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                int charge1 = (*tob1)->charge();
                int charge2 = (*tob2)->charge();
                int totalCharge = charge1 + charge2;
                bool acceptCharge = true;
-               if ( sector1 != "" && sector2 != "" && sector1.at(0) != 'B' && sector2.at(0) != 'B' ) {
-                  if ( totalCharge == 0 or totalCharge == 2 ) { acceptCharge = false; }
-               }	       
+               if ( std::abs(totalCharge) == 2 ) { acceptCharge = false; }	       
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                   if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut

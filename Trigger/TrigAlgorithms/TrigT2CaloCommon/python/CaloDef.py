@@ -57,7 +57,7 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
     setMinimalCaloSetup()
     if doForward:
         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastFWDAlgo
-        algo=T2CaloEgamma_ReFastFWDAlgo("FastCaloFWDL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
+        algo=T2CaloEgamma_ReFastFWDAlgo("FastCaloL2EgammaAlg_FWD", doRinger=doRinger, RingerKey=RingerKey)
     else:
         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
         algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
@@ -72,7 +72,8 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
 
 
 def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
-    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName="HLT_FastCaloEMClusters", RingerKey=RingerKey)
+    
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
 
     import AthenaCommon.CfgMgr as CfgMgr
     fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloVDV")
@@ -85,15 +86,15 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloE
 
 
 
-def fastCaloRecoFWDSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+def fastCaloRecoFWDSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters_FWD", RingerKey="HLT_FastCaloRinger_FWD"):
     # create alg
-    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName="HLT_FastCaloEMClusters", 
-                                RingerKey="HLT_FWDFastCaloRinger", doForward=True)
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey,
+                                doForward=True)
     import AthenaCommon.CfgMgr as CfgMgr
-    fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloFWDVDV")
+    fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloVDV_FWD")
     fastCaloVDV.DataObjects = [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMCaloRoIs' )]
-    fastCaloInViewSequence = seqAND('fastCaloFWDInViewSequence' , [fastCaloVDV, fastCaloAlg] )
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+FSJETMETCaloRoI' )]
+    fastCaloInViewSequence = seqAND('fastCaloInViewSequence_FWD' , [fastCaloVDV, fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
 
@@ -113,15 +114,18 @@ def fastCaloEVCreator():
 
 
 def fastCaloEVFWDCreator():
-    InViewRoIs="EMCaloRoIs"
-    fastCaloViewsMaker = CompFactory.EventViewCreatorAlgorithm( "IMfastCaloFWD" )
+    #InViewRoIs="EMCaloRoIs"
+    InViewRoIs = "FSJETMETCaloRoI"
+    fastCaloViewsMaker = CompFactory.EventViewCreatorAlgorithm( "IMfastCalo_FWD" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
     fastCaloViewsMaker.RoITool = CompFactory.ViewCreatorInitialROITool()
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
-    fastCaloViewsMaker.Views = "EMCaloFWDViews"
-    fastCaloViewsMaker.ViewNodeName = "fastCaloFWDInViewSequence"
+    fastCaloViewsMaker.Views = "EMCaloViews_FWD"
+    fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence_FWD"
+
     return (fastCaloViewsMaker, InViewRoIs)
+
 
 
 
@@ -142,9 +146,6 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_Fas
 
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, sequenceOut)
-
-
-
 
 
 
@@ -180,15 +181,15 @@ def HLTFSTopoRecoSequence(ConfigFlags,RoIs):
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 
-def HLTRoITopoRecoSequence(ConfigFlags, RoIs, lrtInfo=''):
+def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
     import AthenaCommon.CfgMgr as CfgMgr
-    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV%s"%lrtInfo)
-    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs%s'%lrtInfo ),
+    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV%s"%algSuffix)
+    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs%s'%algSuffix ),
                                              ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
-    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI%s"%lrtInfo)
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI%s"%lrtInfo)
-    RecoSequence = parOR("RoITopoClusterRecoSequence%s"%lrtInfo, [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI%s"%algSuffix)
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI%s"%algSuffix)
+    RecoSequence = parOR("RoITopoClusterRecoSequence%s"%algSuffix, [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkEGamma/TruthCaloShowerDecorator.h"
@@ -7,7 +7,6 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "CaloCalibHitRec/CalibHitToCaloCellTool.h"
 
 namespace DerivationFramework {
@@ -16,10 +15,8 @@ namespace DerivationFramework {
     AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("TruthParticleContainerName", m_truthParticleContainerName ="egammaTruthParticles", "Name of the truth particle container");
     declareProperty("SingleParticleBarcode", m_singleParticleBarcode=10001, "Barcode of single particle");
     declareProperty("CalibHitToCaloCellTool",m_calibhitToCaloCellTool);
-    //declareProperty("TruthClusterContainerNames", m_truthClusterContainerNames, "Name of input containers for truth clusters");
   }  
 
   StatusCode TruthCaloShowerDecorator::initialize()
@@ -31,6 +28,20 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved tool " << m_calibhitToCaloCellTool);
+
+    ATH_CHECK(m_truthParticleContainerName.initialize());
+    ATH_CHECK(m_truthClusterContainerEtot.initialize());
+    ATH_CHECK(m_truthClusterContainerEvis.initialize());
+    ATH_CHECK(m_truthClusterContainerEem.initialize());
+
+    const std::string baseName = m_truthParticleContainerName.key();
+    m_linkDecoratorClusterEtot = baseName + ".truthLArClusterEtotLink";
+    m_linkDecoratorClusterEvis = baseName + ".truthLArClusterEvisLink";
+    m_linkDecoratorClusterEem  = baseName + ".truthLArClusterEemLink";
+
+    ATH_CHECK(m_linkDecoratorClusterEtot.initialize());
+    ATH_CHECK(m_linkDecoratorClusterEvis.initialize());
+    ATH_CHECK(m_linkDecoratorClusterEem.initialize());
    
     return StatusCode::SUCCESS;
   }
@@ -42,8 +53,10 @@ namespace DerivationFramework {
 
   StatusCode TruthCaloShowerDecorator::addBranches() const
   {    
-    const xAOD::TruthParticleContainer* truthPartContainer(nullptr);
-    CHECK ( evtStore()->retrieve(truthPartContainer, m_truthParticleContainerName) );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthPartContainerReadHandle{ m_truthParticleContainerName, ctx };
+    const xAOD::TruthParticleContainer* truthPartContainer = truthPartContainerReadHandle.ptr();
 
     // create truth clusters
     ATH_MSG_DEBUG("Creating truth clusters");
@@ -54,21 +67,27 @@ namespace DerivationFramework {
     }
 
     ATH_MSG_DEBUG("Retrieving truth clusters");
-    const xAOD::CaloClusterContainer * truthClusterContainerEtot=nullptr;
-    const xAOD::CaloClusterContainer * truthClusterContainerEvis=nullptr;
-    const xAOD::CaloClusterContainer * truthClusterContainerEem=nullptr;
+    SG::ReadHandle<xAOD::CaloClusterContainer> truthClusterContainerEtotReadHandle{ m_truthClusterContainerEtot, ctx };
+    SG::ReadHandle<xAOD::CaloClusterContainer> truthClusterContainerEvisReadHandle{ m_truthClusterContainerEvis, ctx };
+    SG::ReadHandle<xAOD::CaloClusterContainer> truthClusterContainerEemReadHandle{ m_truthClusterContainerEem, ctx };
+    const xAOD::CaloClusterContainer* truthClusterContainerEtot = truthClusterContainerEtotReadHandle.ptr();
+    const xAOD::CaloClusterContainer* truthClusterContainerEvis = truthClusterContainerEvisReadHandle.ptr();
+    const xAOD::CaloClusterContainer* truthClusterContainerEem = truthClusterContainerEemReadHandle.ptr();
 
-    truthClusterContainerEtot = evtStore()->retrieve<const xAOD::CaloClusterContainer>("TruthLArClustersEtot");
-    truthClusterContainerEvis = evtStore()->retrieve<const xAOD::CaloClusterContainer>("TruthLArClustersEvis");
-    truthClusterContainerEem = evtStore()->retrieve<const xAOD::CaloClusterContainer>("TruthLArClustersEem");
     if (!truthClusterContainerEtot || !truthClusterContainerEvis || !truthClusterContainerEem) {
       ATH_MSG_ERROR("Failed to retrieve truth cluster container");
       return StatusCode::FAILURE;
     }
-    
-    SG::AuxElement::Decorator< ElementLink<xAOD::CaloClusterContainer> > linkDecoratorClusterEtot("truthLArClusterEtotLink");
-    SG::AuxElement::Decorator< ElementLink<xAOD::CaloClusterContainer> > linkDecoratorClusterEvis("truthLArClusterEvisLink");
-    SG::AuxElement::Decorator< ElementLink<xAOD::CaloClusterContainer> > linkDecoratorClusterEem("truthLArClusterEemLink");
+
+    SG::WriteDecorHandle<xAOD::TruthParticleContainer,
+                         ElementLink<xAOD::CaloClusterContainer>>
+      linkDecoratorClusterEtot(m_linkDecoratorClusterEtot, ctx);
+    SG::WriteDecorHandle<xAOD::TruthParticleContainer,
+                         ElementLink<xAOD::CaloClusterContainer>>
+      linkDecoratorClusterEvis(m_linkDecoratorClusterEvis, ctx);
+    SG::WriteDecorHandle<xAOD::TruthParticleContainer,
+                         ElementLink<xAOD::CaloClusterContainer>>
+      linkDecoratorClusterEem(m_linkDecoratorClusterEem, ctx);
 
     ElementLink<xAOD::CaloClusterContainer> truthClusterEtot(*truthClusterContainerEtot,0);
     ElementLink<xAOD::CaloClusterContainer> truthClusterEvis(*truthClusterContainerEvis,0);

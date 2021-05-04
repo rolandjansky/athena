@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,11 +28,10 @@ class SiTotalCharge {
   ///////////////////////////////////////////////////////////////////
 public:
 
-  typedef SG::ArenaSharedHeapSTLAllocator<SiCharge> alloc_t;
-  typedef std::list<SiCharge, alloc_t> list_t;
+  typedef std::vector<SiCharge> list_t;
 
   // Implicit constructor:
-  SiTotalCharge(const alloc_t& alloc);
+  SiTotalCharge();
 
   // Copy constructor:
   SiTotalCharge(const SiTotalCharge &totalCharge);

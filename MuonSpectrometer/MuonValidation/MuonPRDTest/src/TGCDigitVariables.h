@@ -27,7 +27,12 @@ ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_TGC_dig_stationPhi(0),
     m_TGC_dig_gas_gap(0),
     m_TGC_dig_channel(0),
-    m_TGC_dig_isStrip(0)
+    m_TGC_dig_isStrip(0),
+    m_TGC_dig_localPosX(0),
+    m_TGC_dig_localPosY(0),
+    m_TGC_dig_globalPosX(0),
+    m_TGC_dig_globalPosY(0),
+    m_TGC_dig_globalPosZ(0)
   {
     setHelper(idhelper);
   }
@@ -62,6 +67,11 @@ ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
   std::vector<int> m_TGC_dig_gas_gap;
   std::vector<int> m_TGC_dig_channel;
   std::vector<int> m_TGC_dig_isStrip;
+  std::vector<double> m_TGC_dig_localPosX;
+  std::vector<double> m_TGC_dig_localPosY;
+  std::vector<double> m_TGC_dig_globalPosX;
+  std::vector<double> m_TGC_dig_globalPosY;
+  std::vector<double> m_TGC_dig_globalPosZ;
 
 };
 

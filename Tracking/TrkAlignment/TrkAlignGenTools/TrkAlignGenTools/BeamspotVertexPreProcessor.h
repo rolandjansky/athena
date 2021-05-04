@@ -115,6 +115,7 @@ namespace Trk {
     bool m_runOutlierRemoval;                            //!< switch whether to run outlier logics or not
     bool m_selectVertices;                 	         //!< do vertex selection  
     int  m_particleNumber;             		         //!< type of material interaction in extrapolation
+    bool m_doTrkSelection;                               //!< to activate the preprocessor track selection
     bool m_doBSTrackSelection;                           //!< the selection mechanism which is based on cutting the perigee parameters, pt, etc.
     bool m_doAssociatedToPVSelection;        		 //!< the selection mechanism that only use the tracks associated to PV
 

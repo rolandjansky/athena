@@ -58,8 +58,9 @@ namespace LVL1 {
     virtual StatusCode ExecuteForwardASide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
     virtual StatusCode ExecuteForwardCSide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
     virtual StatusCode ExecuteBarrel(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
-    virtual std::vector<uint32_t> getSmallRJetTOBs() override;
-    virtual std::vector<uint32_t> getLargeRJetTOBs() override;
+    virtual std::vector<std::vector<uint32_t>> getSmallRJetTOBs() override;
+    virtual std::vector<std::vector<uint32_t>> getLargeRJetTOBs() override;
+    virtual std::vector<std::vector<uint32_t>> getTauTOBs() override;
 
     /** Internal data */
   private:
@@ -76,6 +77,7 @@ namespace LVL1 {
    
     std::vector<std::vector<uint32_t>> m_smallRJet_tobWords;
     std::vector<std::vector<uint32_t>> m_largeRJet_tobWords;
+    std::vector<std::vector<uint32_t>> m_tau_tobWords;
     ToolHandle<IjFEXFPGA> m_jFEXFPGATool {this, "jFEXFPGATool", "LVL1::jFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     

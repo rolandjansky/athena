@@ -10,7 +10,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef")
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
-from .PhotonMenuSequences import fastPhotonMenuSequence, precisionPhotonMenuSequence
+from .FastPhotonMenuSequences import fastPhotonMenuSequence
+from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram

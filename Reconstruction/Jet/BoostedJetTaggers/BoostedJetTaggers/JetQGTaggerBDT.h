@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETQGTAGGERBDT_H_
@@ -56,9 +56,6 @@ namespace CP {
         std::string m_tmvaConfigFileName;
         std::string m_tmvaConfigFilePath;
 
-        //string for cut function
-        std::string m_strScoreCut;
-
         // variables for TMVA
         mutable float m_pt;
         mutable float m_eta;
@@ -67,6 +64,9 @@ namespace CP {
         mutable float m_trackC1;
 
         int m_mode;
+
+        /// WriteDecorHandle keys
+        SG::WriteDecorHandleKey<xAOD::JetContainer> m_decScoreKey{this, "QGTaggerBDTScore", "QGTaggerBDTScore", "SG key for QGTaggerBDTScore"};
 
     };
 

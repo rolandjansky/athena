@@ -29,7 +29,12 @@ class TGCRDOVariables : public ValAlgVariables
     m_TGC_rdo_stationPhi(0),
     m_TGC_rdo_gas_gap(0),
     m_TGC_rdo_isStrip(0),
-    m_TGC_rdo_channel(0)
+    m_TGC_rdo_channel(0),
+    m_TGC_rdo_localPosX(0),
+    m_TGC_rdo_localPosY(0),
+    m_TGC_rdo_globalPosX(0),
+    m_TGC_rdo_globalPosY(0),
+    m_TGC_rdo_globalPosZ(0)
   {
     setHelper(idhelper);
   }
@@ -67,6 +72,12 @@ class TGCRDOVariables : public ValAlgVariables
   std::vector<int> m_TGC_rdo_gas_gap;
   std::vector<int> m_TGC_rdo_isStrip;
   std::vector<int> m_TGC_rdo_channel;
+  std::vector<double> m_TGC_rdo_localPosX;
+  std::vector<double> m_TGC_rdo_localPosY;
+  std::vector<double> m_TGC_rdo_globalPosX;
+  std::vector<double> m_TGC_rdo_globalPosY;
+  std::vector<double> m_TGC_rdo_globalPosZ;
+
 
 };
 

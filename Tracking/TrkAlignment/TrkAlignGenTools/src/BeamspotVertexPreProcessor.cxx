@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
@@ -58,6 +58,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_runOutlierRemoval(false)
   , m_selectVertices(true)
   , m_particleNumber(3)                          // 3=pion, 0=non-interacting
+  , m_doTrkSelection (true)
   , m_doBSTrackSelection(false)
   , m_doAssociatedToPVSelection(true)
   , m_constraintMode(0)
@@ -90,6 +91,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("AlignModuleTool",           m_alignModuleTool          );
   declareProperty("ParticleNumber",            m_particleNumber           );
   declareProperty("TrackSelector",             m_trkSelector              );
+  declareProperty("DoTrackSelection",          m_doTrkSelection           );
   declareProperty("BSConstraintTrackSelector", m_BSTrackSelector          );
   declareProperty("DoBSTrackSelection",        m_doBSTrackSelection       );
   declareProperty("DoAssociatedToPVSelection", m_doAssociatedToPVSelection);
@@ -735,6 +737,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
 
   IGlobalTrackFitter::AlignmentCache alignCache;
 
+  ATH_MSG_DEBUG( "doTrackRefit ** START ** ");
+
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
     if( !vot )  ATH_MSG_INFO( "VoT not found for this track! ");
@@ -859,6 +863,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   // garbage collection:
   if(vot)  delete vot;
 
+  ATH_MSG_DEBUG( "doTrackRefit ** COMPLETED ** "); 
   return alignTrack;
 }
 
@@ -889,6 +894,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
   TrackCollection::const_iterator itr     = tracks->begin();
   TrackCollection::const_iterator itr_end = tracks->end();
   
+  ATH_MSG_DEBUG( "Starting loop on input track collection: "<<index);
   for ( ; itr != itr_end; ++itr, ++index) {
     ATH_MSG_DEBUG("Processing track "<<index);
     const Track* track = *itr;
@@ -896,8 +902,13 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     if (not track) continue;
 
     // check whether the track passes the basic selection
-    if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
+    if (m_doTrkSelection) {
+      ATH_MSG_DEBUG( "Testing track selection on track: "<<index);
+      if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
+    } // appliying track selection
+
     if(m_refitTracks){
+      ATH_MSG_DEBUG( "Refitting track: "<<index );
       alignTrack = doTrackRefit(track);
 
       // 2nd track check after refit
@@ -906,11 +917,15 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 	alignTrack->setTrackSummary( std::make_unique<Trk::TrackSummary> (*track->trackSummary()) );
 	// do not check for FullVertex tracks:
         if( !(alignTrack->getVtx()) ) {
-	  if(!m_trkSelector->accept(*alignTrack))
+	  if( m_doTrkSelection && !m_trkSelector->accept(*alignTrack))
 	    continue;
 	}
       }
-    } else{
+      else {
+        ATH_MSG_DEBUG( "Refit of track " << index << " ended with no alignTrack" );
+      }
+    } else {
+      ATH_MSG_DEBUG( "No Track refit for track " << index << " --> building new aligntrack");
       alignTrack = new AlignTrack(*track);
       alignTrack->setOriginalTrack(track);
       alignTrack->setType(AlignTrack::Original);
@@ -919,6 +934,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     if (alignTrack)  newTrks->push_back(alignTrack);
   } // end of loop over tracks
 
+  ATH_MSG_INFO( "Processing of input track collection completed (size: " << tracks->size() << "). Size of the alignTrack collection: " << newTrks->size() ); 
   // delete the collection if it's empty
   if (newTrks->size()==0) {
     delete newTrks;

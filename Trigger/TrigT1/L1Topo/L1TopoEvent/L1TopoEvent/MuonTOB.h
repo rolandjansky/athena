@@ -37,12 +37,11 @@ namespace TCS {
       int eta() const { return m_eta; }                         // Int eta for L1Topo, granularity = 0.025 (phase-1) or 0.1 (legacy)
       int phi() const { return m_phi; }                         // Int phi for L1Topo, granularity = 0.05 (phase-1) or 0.1 (legacy)
 
-      std::string sectorName() const { return m_sectorName; }
-      bool bw2or3() const { return m_bw2or3; }
-      bool innerCoin() const { return m_innerCoin; }
-      bool goodMF() const { return m_goodMF; }
+      int bw2or3() const { return m_bw2or3; }
+      int innerCoin() const { return m_innerCoin; }
+      int goodMF() const { return m_goodMF; }
       int charge() const { return m_charge; }
-      bool is2cand() const { return m_is2cand; }
+      int is2cand() const { return m_is2cand; }
 
       double EtDouble() const { return m_EtDouble; }           // Et threshold in units of GeV
       double EtaDouble() const { return m_etaDouble; }         // Real muon eta
@@ -54,12 +53,11 @@ namespace TCS {
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
-      void setSectorName(std::string sectorName) { m_sectorName = sectorName; }
-      void setBW2or3(bool bw2or3) { m_bw2or3 = bw2or3; }
-      void setInnerCoin(bool innerCoin) { m_innerCoin = innerCoin; }
-      void setGoodMF(bool goodMF) { m_goodMF = goodMF; }
+      void setBW2or3(int bw2or3) { m_bw2or3 = bw2or3; }
+      void setInnerCoin(int innerCoin) { m_innerCoin = innerCoin; }
+      void setGoodMF(int goodMF) { m_goodMF = goodMF; }
       void setCharge(int charge) { m_charge = charge; }
-      void setIs2cand(bool is2cand) { m_is2cand = is2cand; }
+      void setIs2cand(int is2cand) { m_is2cand = is2cand; }
 
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
@@ -92,12 +90,11 @@ namespace TCS {
       int m_eta{0};
       int m_phi{0};
 
-      std::string m_sectorName{""};
-      bool m_bw2or3{0};
-      bool m_innerCoin{0};
-      bool m_goodMF{0};
+      int m_bw2or3{0};
+      int m_innerCoin{0};
+      int m_goodMF{0};
       int m_charge{0};
-      bool m_is2cand{0};
+      int m_is2cand{0};
 
       double m_EtDouble{0};
       double m_etaDouble{0};
