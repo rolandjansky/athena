@@ -133,6 +133,11 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag =
     (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
+
+  // pre-make HepMcParticleLink
+  auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+  const double pHitTime = hitTime(phit);
+
   if (m_doRadDamage) {
     //**************************************//
     //*** Now diffuse charges to surface *** //
@@ -300,9 +305,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
               const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-              const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
-                                                            phit), SiCharge::track, HepMcParticleLink(
-                                                            phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+              const SiSurfaceCharge scharge(chargePos,
+                                            SiCharge(induced_charge,
+                                                     pHitTime, SiCharge::track, particleLink));
               const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
               if (diode.isValid()) {
                 const SiCharge& charge = scharge.charge();
@@ -394,8 +399,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             double y_mod = y_neighbor + 0.5*pixel_size_y + pixel_size_y * nPixY - 0.5*module_size_y;
             const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-            const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                          phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+            const SiSurfaceCharge scharge(chargePos,
+                                          SiCharge(ed, pHitTime, SiCharge::track, particleLink));
             const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
             if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
