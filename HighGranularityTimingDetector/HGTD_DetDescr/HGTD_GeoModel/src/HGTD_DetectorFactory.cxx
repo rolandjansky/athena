@@ -56,7 +56,7 @@ using namespace std;
 namespace HGTDGeo {
 
 HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDetDD::SiCommonItems* commonItems ) :
-  InDetDD::DetectorFactoryBase( athComps ), 
+  InDetDD::DetectorFactoryBase( athComps ),
   m_athComps( athComps ),
   m_commonItems( commonItems ),
   m_materialMgr( nullptr ),
@@ -73,14 +73,14 @@ HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDe
     // set m_geomVersion based on HGTD tag in global geo tag
     if ( !hgtdTag.empty() ) {
         // for the *full-sim studies* in the TDR, only the two-ring layout was used
-        if ( hgtdTag.find( "HGTD-TDR-" ) != std::string::npos ) m_geomVersion = 0; 
+        if ( hgtdTag.find( "HGTD-TDR-" ) != std::string::npos ) m_geomVersion = 0;
         if ( hgtdTag.find( "HGTD-3-ring-" ) != std::string::npos ) m_geomVersion = 1; // to be created
     }
     else {
         // fail already here if no HGTD info exists in db
         ATH_MSG_ERROR( "No HGTD child tag in global geo tag. HGTD will not be built.");
     }
-    
+
     // temporarily hardcode the HGTD version to build until the geo db has been updated with tables for 3-ring layout
     // m_geomVersion = 0; // two-ring layout
     m_geomVersion = 1; // three-ring layout
@@ -113,7 +113,7 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     world->add(new GeoNameTag("HGTD_Pos"));
     world->add(new GeoIdentifierTag(9));
     ATH_MSG_INFO( "HGTD_Pos mother volume will be placed at z = " << zMother << " mm" );
-    world->add(new GeoTransform(HepGeom::TranslateZ3D( zMother ))); 
+    world->add(new GeoTransform(HepGeom::TranslateZ3D( zMother )));
     GeoVPhysVol* endcapPos = build( positiveEndcapLogicalVolume,  true);
     world->add( endcapPos );
     m_detectorManager->addTreeTop( endcapPos);
@@ -122,7 +122,7 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     world->add(new GeoNameTag("HGTD_Neg"));
     world->add(new GeoIdentifierTag(-9));
     ATH_MSG_INFO( "HGTD_Neg mother volume will be placed at z = " << -zMother << " mm" );
-    world->add(new GeoTransform(HepGeom::TranslateZ3D( -zMother ))); 
+    world->add(new GeoTransform(HepGeom::TranslateZ3D( -zMother )));
     world->add(new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
     GeoVPhysVol* endcapNeg = build( negativeEndcapLogicalVolume, false);
     world->add( endcapNeg );
@@ -194,7 +194,7 @@ void HGTD_DetectorFactory::readDbParameters() {
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("std::Aerogel"), 0.5);
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("muo::Honeycomb"), 0.5);
     m_materialMgr->addMaterial("hgtd", innerRCoverBulkMaterial);
-    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "hgtd::AerogelAndHoneycomb"}; 
+    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "hgtd::AerogelAndHoneycomb"};
     m_cylVolPars["HGTD::InnerRCover3"] = {"HGTD::InnerRCover3", 119., 120., 105./2, -10., "sct::CFRP"};
     m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 980., 1000., 82./2, -6.5, "pix::Peek"};
     m_cylVolPars["HGTD::PeripheralCoolingLines"] = {"HGTD::PeripheralCoolingLines", 920., 980., 3./2, 31., "std::SSteel"};
@@ -207,12 +207,13 @@ void HGTD_DetectorFactory::readDbParameters() {
     coolantMaterial->add(m_materialMgr->getMaterial("trt::CO2"), 0.5);
     m_materialMgr->addMaterial("hgtd", coolantMaterial);
     m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"}; // TODO: to add to db
-    
+
     // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
     // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
     m_hgtdPars = { 320., // rMid
         640., // rOuter - only used in one place, and there 20 mm is added to it...
-        15.,  // diskRotation (in degrees)
+        0.,   // disk1Rotation (in degrees)
+        -15., // disk2Rotation (in degrees)
         1.,   // rowSpaceSide
         4.,   // rowBacksideInnerShift
         17.,  // rowBacksideOuterShift
@@ -241,7 +242,7 @@ GeoLogVol* HGTD_DetectorFactory::buildEndcapLogicalVolume(bool isPositiveSide) {
 
 
 GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool bPos) {
-    
+
     ATH_MSG_INFO( "**************************************************");
     ATH_MSG_INFO( "       Building HGTD geometry , side =  " << bPos << "    ");
     ATH_MSG_INFO( "**************************************************" );
@@ -417,14 +418,14 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                 m_cylVolPars[v].zOffsetLocal = m_cylVolPars[vPrev].zOffsetLocal - m_cylVolPars[vPrev].zHalf - m_cylVolPars[v].zHalf;
             }
         }
-        
+
         // skip the tolerances - we don't actually want to create volumes for the space
         if (v.substr(0,15) == "HGTD::Tolerance") continue;
-        
+
         float safety = 0.;
         if (v.substr(0,17) == "HGTD::ModuleLayer")
           safety = 10.;
-  
+
         //  a disk volume to hold 4 quadrants
         GeoTube*    hgtdSubVolumeSolid    = new GeoTube(m_cylVolPars[v].rMin, m_cylVolPars[v].rMax+safety, m_cylVolPars[v].zHalf);
         GeoLogVol*  hgtdSubVolumeLogical  = new GeoLogVol(m_cylVolPars[v].name, hgtdSubVolumeSolid, m_materialMgr->getMaterial(m_cylVolPars[v].material));
@@ -478,13 +479,11 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
             // place flex within module packages, at different positions depending on front or back or cooling plate
             hgtdSubVolumePhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zFlex)));
             hgtdSubVolumePhysical->add(flexPackagePhysical[(Lside ? 0 : 1)]);
-            
-            // place module layer volumes
-            int rotationSign = (layer <= 1 ? 1 : -1);
-            float diskRotation = 20.;   //  m_hgtdPars.diskRotation
+
+            float diskRotation = layer <= 1 ? m_hgtdPars.disk1Rotation : m_hgtdPars.disk2Rotation;
 
             HGTDparent->add( new GeoTransform( HepGeom::TranslateZ3D(m_cylVolPars[v].zOffsetLocal)*
-                                              HepGeom::RotateZ3D( rotationSign*diskRotation*CLHEP::deg )
+                                              HepGeom::RotateZ3D(diskRotation*CLHEP::deg )
                                               )
                             );
             // one needs to check this rotation  against the "quadrot" will be used in the following
@@ -500,9 +499,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
         // print out info about each main volume
         ATH_MSG_INFO( std::setw(20) << m_cylVolPars[v].name << " ( " << std::setw(20) << m_cylVolPars[v].material
-		       << " ), local z = " << std::setw(6) << m_cylVolPars[v].zOffsetLocal 
-		       << " mm, Rmin = " <<  std::setw(4) << m_cylVolPars[v].rMin 
-		       << " mm, Rmax = " << std::setw(4) << m_cylVolPars[v].rMax 
+		       << " ), local z = " << std::setw(6) << m_cylVolPars[v].zOffsetLocal
+		       << " mm, Rmin = " <<  std::setw(4) << m_cylVolPars[v].rMin
+		       << " mm, Rmax = " << std::setw(4) << m_cylVolPars[v].rMax
 		       << " mm, DZ = " << std::setw(5) << m_cylVolPars[v].zHalf << " mm" );
 
     } // end loop over hgtdVolumes
@@ -628,9 +627,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
                               << ", row: " << myphi <<", module: "<< myeta );
                               ATH_MSG_DEBUG( " HGTD Module: " << m_boxVolPars[c].name+module_string << ", posX: " << myx << ", posY: " << myy << ", rot: " << quadrot + myrot );
                             }
-                            
+
                             InDetDD::HGTD_DetectorElement* detElement = new InDetDD::HGTD_DetectorElement(idwafer, moduleDesign, sensorCompPhysicalVol, m_commonItems);
-                            m_detectorManager->addDetectorElement( detElement );                            
+                            m_detectorManager->addDetectorElement( detElement );
 
                             HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*HepGeom::TranslateX3D(xOffsetLocal);
                             GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
@@ -708,7 +707,7 @@ std::array< PositionsInQuadrant, 4 > HGTD_DetectorFactory::prepareLayersFromQuad
     return positions;
 }
 
-//  careful m_geomVersion control layout implicitly 
+//  careful m_geomVersion control layout implicitly
 // backward compatibility to pre-TDR two-ring layouts
 // 3-ring layout differ from 2-ring here.
 std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsigned int maxrows, int row, int mod,
@@ -732,7 +731,7 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         eta = mod + 1;
         //module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta); //This was the previous string, but doesn't match expectations of HGTDSensorSD
         module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
-    } 
+    }
     // two-ring layout
     else {
         double rot = module.flipped ? 90. : 0.;
@@ -813,10 +812,10 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
 
   // instead of attempting to re-calculate the leading module per row, just pick up from dataBase,
   // numbers here taken from spreadsheet at https://cernbox.cern.ch/index.php/s/PPXEWSBnBjwI7UU
-  std::array< float, 22 > ModStarting = { 122., 122.7, 89.85, 123.5, 175.4, 257.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 287.5, 0.0, 299.7,  
+  std::array< float, 22 > ModStarting = { 122., 122.7, 89.85, 123.5, 175.4, 257.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 287.5, 0.0, 299.7,
                                           130., 114.7, 131.45, 164.45, 216.35, 205.45, 257.35 };
 
-  std::array< float, 22 > ModStartBack = { 130., 114.7, 97.85, 131.5, 164.5, 246.5, 298.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 0.0, 287.5, 
+  std::array< float, 22 > ModStartBack = { 130., 114.7, 97.85, 131.5, 164.5, 246.5, 298.4, 287.5, 298.4, 287.5, 304.5, 287.5, 304.5, 0.0, 287.5,
                                            122., 122.7, 123.45, 172.45, 205.45, 216.35, 246.45 };
   /*  row == 13 will be skipped from outside, and, since row == 15 XY flip take place. */
 
@@ -825,21 +824,21 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
   if ( (  ( row == 1 || row == 5 || row == 15 || row == 19 ) && ! back ) || // front side
        (  ( row == 0 || row == 8 || row == 16 || row == 18 || row == 21 ) && back ) // back side
      )  useCorner = 1;
-  if ( row == 17 ) useCorner = 2;  
-  // in some exceptional cases the spacing will be smaller even though the module crossed the ring boundary 
+  if ( row == 17 ) useCorner = 2;
+  // in some exceptional cases the spacing will be smaller even though the module crossed the ring boundary
   float backshift = 6.;
 
   // the new layout tune makes small adjustments (usually 2~3 mm) for the last modules of some rows.
   // even though most of element is zero for most of modules, we store these adjustments in a 2D array for now
-  float tailModCorrection[ 22 ][ 19 ];  
-  for ( int r = 0; r < 22; r ++ ) 
+  float tailModCorrection[ 22 ][ 19 ];
+  for ( int r = 0; r < 22; r ++ )
     for ( int m = 0; m < 19; m ++ ) tailModCorrection[r][m] = 0.;
   tailModCorrection[11][4] = tailModCorrection[12][2] = 10.;
 
   // TDR layout: spaceSmallR = 5.5 , spaceMediumR = 8.4 , spaceLargeR = 14.5
   float spaceSmallR = 3.7 , spaceMediumR = 6.6, spaceLargeR = 12.7; // updated spacings from post-TDR developments
 
-  float backsideSmallR = spaceSmallR; 
+  float backsideSmallR = spaceSmallR;
   float backsideMediumR = spaceMediumR;
   float backsideLargeR = spaceLargeR;
 
@@ -851,12 +850,12 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
   std::vector< ModulePosition > rowModulePositions;
 
   float effectiveRow = row;
-  // note the flipping of effectiveRow, it is the cause of XY flipping in later occurrance 
+  // note the flipping of effectiveRow, it is the cause of XY flipping in later occurrance
   if ( row == index_XYcoord_change ) effectiveRow = 13;
   if ( row > index_XYcoord_change ) effectiveRow -= ( index_XYcoord_change + 1 );
 
   // x coordinate for vertical rows
-  float rowCentPos = 0.5*extendedWidth*( 2*effectiveRow + 1 ); 
+  float rowCentPos = 0.5*extendedWidth*( 2*effectiveRow + 1 );
 
   if ( extrude )  maxRcut = maxOuterR;
   while ( posRadius < maxRcut ) {
@@ -868,17 +867,17 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
     if ( moduleCounter == 0 )  { // leading module per row
       modPos_row = ( back ?  ModStartBack[row] : ModStarting[row] );
       modPos_row += halfHeight;
-    } 
+    }
     // the rest of the modules follow sequential, radius-dependent placement rules
-    else { 
+    else {
       float prevX = rowModulePositions[ moduleCounter - 1 ].x;
       float prevY = rowModulePositions[ moduleCounter - 1 ].y;
       float spacing = back ? backsideSmallR : spaceSmallR;
 
       // increase the spacing by the ring it will fallin
-      float ringCrossRcorner =  std::sqrt( ( prevY + halfHeight)*( prevY + halfHeight) + 
+      float ringCrossRcorner =  std::sqrt( ( prevY + halfHeight)*( prevY + halfHeight) +
 					   ( prevX + halfWidth )*( prevX + halfWidth ) );
-      float ringCrossRcenter =  std::sqrt( prevY*prevY + prevX*prevX ); 
+      float ringCrossRcenter =  std::sqrt( prevY*prevY + prevX*prevX );
 
       bool tuned_center = ( row == 3 && (  moduleCounter == 3 && !back ) ) || // front, row 3
 	                  ( row == 20 && moduleCounter == 8 && !back ) || // front, row 20
@@ -887,21 +886,21 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
         if ( ( moduleCounter == 3 && ! back ) || ( ( moduleCounter ==  3 || moduleCounter == 4 ) && back ) ) {
           ringCrossRcenter -= backshift;
           if ( ringCrossRcenter > midR && ringCrossRcenter <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
-          if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
-        } 
+          if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR;
+        }
 	else {
           if ( ringCrossRcorner > midR && ringCrossRcorner <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
-          if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
+          if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR;
         }
       }
       else if ( useCorner == 1 ) {
         if ( ringCrossRcorner > midR && ringCrossRcorner <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
-        if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
-      } 
+        if ( ringCrossRcorner > midR2 ) spacing = back ? backsideLargeR : spaceLargeR;
+      }
       else {
         if ( tuned_center ) ringCrossRcenter -= backshift;
         if ( ringCrossRcenter > midR && ringCrossRcenter <= midR2 ) spacing = back ? backsideMediumR : spaceMediumR;
-        if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR; 
+        if ( ringCrossRcenter > midR2 ) spacing = back ? backsideLargeR : spaceLargeR;
       }
 
       modPos_row = posOfLastPlacedModule + 2.*halfHeight + spacing;
@@ -928,8 +927,8 @@ std::vector< ModulePosition > HGTD_DetectorFactory::prepareModulePositionsInRowT
     else rowModulePositions.push_back( moduFlipped );
 
     // the spreadsheet gave the center of bottom edge of a module, so an adjustment by halfHeight is needed
-    if ( m_outputIdfr ) ATH_MSG_DEBUG( " Row " << ( row <= index_XYcoord_change ? effectiveRow + 1 : 36 - row ) 
-      << " Module " << moduleCounter + 1 <<" at (x,y) : " 
+    if ( m_outputIdfr ) ATH_MSG_DEBUG( " Row " << ( row <= index_XYcoord_change ? effectiveRow + 1 : 36 - row )
+      << " Module " << moduleCounter + 1 <<" at (x,y) : "
       << ( row > index_XYcoord_change ? rowModulePositions.back().x - halfHeight : rowModulePositions.back().x ) << ", "
       << ( row > index_XYcoord_change ? rowModulePositions.back().y : rowModulePositions.back().y - halfHeight ) );
 
@@ -955,7 +954,7 @@ int HGTD_DetectorFactory::reorderRows( PositionsInQuadrant* quadrant ) {
     unsigned int numrow =  quadrant->size();
     for ( unsigned int r = 0; r < numrow; r ++ ) {
         unsigned int idx = r > 13 ?  13 + numrow - r : r;
-        ATH_MSG_DEBUG( " original row " << ( r <= 12 ? r : r + 1 ) <<" new row " << idx + 1 
+        ATH_MSG_DEBUG( " original row " << ( r <= 12 ? r : r + 1 ) <<" new row " << idx + 1
                         << " : "<< numrow  );
         tmpQuadrant[ idx ] = quadrant->at( r );
         if ( idx != r ) xchng++;
@@ -989,11 +988,11 @@ InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thick
                                                                           normalCell, diodeColumnsPerCircuit, 0);
     InDetDD::PixelDiodeMatrix* fullMatrix = new InDetDD::PixelDiodeMatrix(InDetDD::PixelDiodeMatrix::phiDir, 0,
                                                                           singleRow, 2*diodeRowsPerCircuit, 0); // note 30 = 2*15 rows adopted
-    
+
     DetectorDesign::Axis yDirection = InDetDD::DetectorDesign::xAxis;
     if (m_geomVersion == 0 )
       yDirection = InDetDD::DetectorDesign::yAxis;
-    
+
     InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign(thickness,
                                                                         circuitsPerColumn, circuitsPerRow,
                                                                         cellColumnsPerCircuit, cellRowsPerCircuit,
@@ -1136,4 +1135,3 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
 }
 
 } // end HGTDGeo namespace
-
