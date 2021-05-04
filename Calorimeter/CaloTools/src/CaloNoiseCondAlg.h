@@ -7,7 +7,7 @@
 #ifndef CALOTOOLS_CALRNOISECONDALG_H
 #define CALOTOOLS_CALRNOISECONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -19,18 +19,19 @@
 
 class CaloCell_ID;
 
-class CaloNoiseCondAlg: public AthAlgorithm {
+class CaloNoiseCondAlg: public AthReentrantAlgorithm {
  public:
-
-  CaloNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloNoiseCondAlg() {};
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  virtual ~CaloNoiseCondAlg() = default;
 
   StatusCode initialize() override final;
-  StatusCode execute() override final;
+  StatusCode execute(const EventContext& ctx) const override final;
   StatusCode finalize() override final {return StatusCode::SUCCESS;}
 
 
  private:
+
+  //SG Keys and other properties:
   SG::ReadCondHandleKey<CondAttrListCollection> m_larNoiseKey{this, "LArNoiseFolder","/LAR/NoiseOfl/CellNoise",
       "SG key of CondAttrListCollection holding the LAr noise"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_tileNoiseKey{this, "TileNoiseFolder","/TILE/OFL02/NOISE/CELL",
@@ -50,9 +51,12 @@ class CaloNoiseCondAlg: public AthAlgorithm {
   Gaudi::Property<bool> m_useHVCorr{this,"useHVCorr",false,"Use HV Corr on/off"};
   Gaudi::Property<float> m_lumi0{this,"Luminosity",-1.0,"Fixed Luminosity. -1 means read lumi from DB"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-  const CaloCell_ID* m_caloCellID;
+
+  //The following variables will be set during initialize:
+
+  const CaloCell_ID* m_caloCellID=nullptr;
 
   std::unique_ptr<CaloNoiseHashRanges> m_hashRange;
 
