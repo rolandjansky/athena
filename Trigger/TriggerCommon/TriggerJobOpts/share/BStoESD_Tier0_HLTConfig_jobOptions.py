@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##############################################################
 # BStoESD_Tier0_HLTConfig_jobOptions.py
 # For DATA reconstruction
@@ -94,7 +94,6 @@ if rec.doTrigger():
     elif tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2: # Run 1+2 setup, not needed for Run 3 reco
             tf.readLVL1configFromXML = True # has to use the .xml file used for reco
-            tf.readHLTconfigFromXML = True # has to use the .xml file used for reco
             # You have to set the 2 following files to the .xml files you want.
             # Here are the default files for reprocessing special case with trigger
             tf.inputHLTconfigFile = "HLTMenu.xml" # Has to be set correctly

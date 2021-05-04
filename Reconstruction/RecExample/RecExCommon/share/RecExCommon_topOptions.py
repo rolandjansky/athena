@@ -476,7 +476,6 @@ if globalflags.InputFormat.is_bytestream():
         from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
         tf.configurationSourceList = ['ds']
         tf.readLVL1configFromXML = True
-        tf.readHLTconfigFromXML = True
         svcMgr.ByteStreamCnvSvc.IsSimulation = True
 
 

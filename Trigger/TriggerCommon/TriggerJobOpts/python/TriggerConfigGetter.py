@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -224,7 +224,7 @@ class TriggerConfigGetter(Configured):
         self.makeTempCool   = self.readRDO and \
                               ( self.writeESDAOD or 'ds' in self.ConfigSrcList ) and \
                               ( self.readMC \
-                                or (self.isCommisioning and (TriggerFlags.readLVL1configFromXML() and TriggerFlags.readHLTconfigFromXML())) \
+                                or (self.isCommisioning and TriggerFlags.readLVL1configFromXML()) \
                                 or TriggerFlags.readMenuFromTriggerDb() )
 
         log.info("Need to create temporary cool file? : %r", self.makeTempCool)
@@ -264,8 +264,6 @@ class TriggerConfigGetter(Configured):
                     self.svc.l1topoXmlFile  = TriggerFlags.inputL1TopoConfigFile() # given XML
                 if TriggerFlags.readLVL1configFromXML():
                     self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
-                if TriggerFlags.readHLTconfigFromXML():
-                    self.svc.hltXmlFile  = TriggerFlags.inputHLTconfigFile()   # given XML
 
             try:
                 self.svc.SetStates( self.ConfigSrcList )
@@ -326,7 +324,7 @@ class TriggerConfigGetter(Configured):
         # if we have MC data (nothing in ORACLE/COOL) we need to write an SQlite file
         # and change the dbConnection
         if ( self.readMC \
-             or (self.isCommisioning and (TriggerFlags.readLVL1configFromXML and TriggerFlags.readHLTconfigFromXML)) \
+             or (self.isCommisioning and TriggerFlags.readLVL1configFromXML) \
              or TriggerFlags.readMenuFromTriggerDb ):
 
             log.info( 'TempCoolSetup: Setting up the writing of a temporary COOL DB')

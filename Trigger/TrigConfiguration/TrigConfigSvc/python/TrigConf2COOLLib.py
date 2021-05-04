@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file TrigCond2COOLLib.py
 ###############################################################
@@ -98,10 +98,8 @@ class ConfToCoolSQlite:
                 self.lvl1menu    = jp.Rec.Trigger.inputLVL1configFile()
             else:
                 self.lvl1menu    = jp.Rec.Trigger.outputLVL1configFile()
-            if jp.Rec.Trigger.readHLTconfigFromXML():
-                self.hltmenu         = jp.Rec.Trigger.inputHLTconfigFile()
-            else:
-                self.hltmenu         = jp.Rec.Trigger.outputHLTconfigFile()
+
+            self.hltmenu         = jp.Rec.Trigger.outputHLTconfigFile()
             self.menusource = 'xml'  # either db or xml
             self.trigdb = ''
             self.smk    = 0
