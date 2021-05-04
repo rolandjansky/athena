@@ -264,55 +264,54 @@ namespace top {
     }
   }
 
+  //,
+  //                                TLorentzVector& spectatorquark_method2_beforeFSR, TLorentzVector& spectatorquark_method2_afterFSR,
+  //                                int& spectatorquark_method2_pdgId, int& spectatorquark_method2_status
 
   bool CalcThqPartonHistory::spectatorquark(const xAOD::TruthParticleContainer* truthParticles,
-							  TLorentzVector& spectatorquark_beforeFSR, TLorentzVector& spectatorquark_afterFSR,
-							  int& spectatorquark_pdgId, int& spectatorquark_status) {
+                                  TLorentzVector& spectatorquark_beforeFSR, TLorentzVector& spectatorquark_afterFSR,
+                                  int& spectatorquark_pdgId, int& spectatorquark_status) {
     bool hasSpectatorquark = false;
 
     //identify quark which does not originate from a decaying top quark -> W -> qq
     //should come from hard scattering process
     float min_pt =0;
-    for (const xAOD::TruthParticle* particle : *truthParticles) {
+    for (const xAOD::TruthParticle* particle : *truthParticles) { //loop over all truth partons
       if (particle == nullptr) continue;
-      if (std::abs(particle->pdgId()) > 4) continue; //only light quarks
 
-      for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
-        if (particle->parent(iparent) == nullptr){
-          continue;
-        }
+      if (abs(particle->pdgId()) == 6){
+        for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) { // loop over parents
+          if (particle->parent(iparent) == nullptr){
+            continue;
+          }
+          if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue; 
+            for (size_t ichildren = 0; ichildren < particle->parent(iparent)->nChildren(); ++ichildren) { 
+              if (particle->parent(iparent)->child(ichildren) == nullptr) continue;
+              if (abs(particle->parent(iparent)->child(ichildren)->pdgId()) >4) continue;
 
-        // we dont want quarks that have same pdgID as parent, since its a W interaction it should change sign
-        if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue;
+              auto partoncandidate = particle->parent(iparent)->child(ichildren);
+              //Select highest PT light quark if more than 1 light quark
+              if( partoncandidate->p4().Pt() > min_pt ) {
+                min_pt= particle->parent(iparent)->child(ichildren)->p4().Pt();
 
-        // we dont want quarks that come from top
-        if (std::abs(particle->parent(iparent)->pdgId()) == 6) continue;
+                spectatorquark_beforeFSR =partoncandidate->p4();
+                spectatorquark_pdgId = partoncandidate->pdgId();
+                spectatorquark_status = partoncandidate->status();
+                hasSpectatorquark = true;
 
-        // we dont want quarks that come from W
-        if (std::abs(particle->parent(iparent)->pdgId()) == 24) continue;
-
-        // we dont want quarks that come from proton
-        if (std::abs(particle->parent(iparent)->pdgId()) == 2212) continue;
-
-        if( particle->p4().Pt() > min_pt ) {
-          min_pt= particle->p4().Pt();
-
-          spectatorquark_beforeFSR = particle->p4();
-          spectatorquark_pdgId = particle->pdgId();
-          spectatorquark_status = particle->status();
-          hasSpectatorquark = true;
-
-          // find after FSR
-          particle = PartonHistoryUtils::findAfterFSR(particle);
-          spectatorquark_afterFSR = particle->p4();
-        } //if
-      } // parent loop
-    } // particle loop
-
+                // find after FSR
+                auto particle2 = PartonHistoryUtils::findAfterFSR(partoncandidate);
+                spectatorquark_afterFSR = particle2->p4();
+              } //if
+          }//children of top parents loop
+        }//parents loop of top
+      }//top if statement
+    }// particle loop
     if (hasSpectatorquark) return true;
-
     return false;
   }
+  
+
 
   bool CalcThqPartonHistory::secondb(const xAOD::TruthParticleContainer* truthParticles, int start, 
 				     TLorentzVector& secondb_beforeFSR_p4, int& secondb_beforeFSR_pdgId,
