@@ -88,8 +88,8 @@ class Test(object):
         self.run_steps(self.exec_steps, commands['exec_steps'])
 
         # Make a summary result code for all exec steps if there are multiple
+        exec_summary = 0
         if len(self.exec_steps) > 1:
-            exec_summary = 0
             for step in self.exec_steps:
                 if step.result > exec_summary:
                     exec_summary = step.result
@@ -98,7 +98,7 @@ class Test(object):
             else:
                 self.log.info('All exec steps succeeded')
             art_result(exec_summary, 'ExecSummary')
-        else:
+        elif len(self.exec_steps) == 1:
             exec_summary = self.exec_steps[0].result
 
         # Run the check steps
