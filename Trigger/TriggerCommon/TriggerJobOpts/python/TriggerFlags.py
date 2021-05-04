@@ -706,20 +706,6 @@ class triggerMenuSetup(JobProperty):
 
 _flags.append(triggerMenuSetup)
 
-class L1PrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(L1PrescaleSet)
-
-class HLTPrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(HLTPrescaleSet)
-
 
 # the container of all trigger flags
 
