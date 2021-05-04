@@ -393,7 +393,7 @@ namespace Muon {
             if ((*tit)->trackParameters() == pp) {
                 if (m_keepOldPerigee) {
                     const Amg::VectorX &ppars = pp->parameters();
-                    Amg::Transform3D *ptrans = new Amg::Transform3D(pp->associatedSurface().transform());
+                    Amg::Transform3D ptrans = Amg::Transform3D(pp->associatedSurface().transform());
                     Trk::StraightLineSurface slSurf(ptrans);
                     Trk::AtaStraightLine *slPars = new Trk::AtaStraightLine(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi],
                                                                             ppars[Trk::theta], ppars[Trk::qOverP], slSurf);

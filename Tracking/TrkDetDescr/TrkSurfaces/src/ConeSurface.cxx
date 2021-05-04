@@ -67,6 +67,15 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds
 }
 
 // constructor from transform, bounds not set.
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+  , m_referencePoint(nullptr)
+  , m_rotSymmetryAxis(nullptr)
+{}
+
+
+// constructor from transform, bounds not set.
 Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Trk::Surface(std::move(htrans))
   , m_bounds(nullptr)

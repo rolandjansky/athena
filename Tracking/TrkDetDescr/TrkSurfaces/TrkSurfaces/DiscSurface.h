@@ -111,6 +111,10 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
    - bounds is not set */
+  DiscSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
+   - bounds is not set */
   DiscSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /**Constructor for DiscSegment from DetectorElement*/

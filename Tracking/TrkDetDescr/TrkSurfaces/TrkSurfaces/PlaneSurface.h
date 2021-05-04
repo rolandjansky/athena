@@ -96,10 +96,13 @@ public:
                const Identifier& id,
                Amg::Transform3D* transf = nullptr);
 
-  /** Constructor for planar Surface without Bounds */
+  /** Constructor for planar Surface without Bounds , reference */
+  PlaneSurface(const Amg::Transform3D& htrans);
+
+  /** Constructor for planar Surface without Bounds plain ptr to be replaced*/
   PlaneSurface(Amg::Transform3D* htrans);
 
-  /** Constructor for planar Surface from unique_ptr without Bounds */
+  /** Constructor for planar Surface from unique_ptr without Bounds unique_ptr to be replaced*/
   PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /** Constructor for Rectangular Planes*/

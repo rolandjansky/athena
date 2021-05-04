@@ -100,7 +100,7 @@ Trk::TrackParameters * SimHitHandle_ForwardHit::createTrackParameters() const
 
 	//  const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface(new HepGeom::Translate3D(0,0,0));
 	Amg::Transform3D transf = Amg::CLHEPTranslate3DToEigen( HepGeom::Translate3D(0,0,0) );
-    const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface( &transf );
+  const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface( transf );
 
 
   if (!surf) {

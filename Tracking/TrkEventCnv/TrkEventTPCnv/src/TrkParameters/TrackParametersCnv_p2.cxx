@@ -127,7 +127,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
     } else if (type==Trk::SurfaceType::Plane){
       surface = new Trk::PlaneSurface(std::move(transform));
     } else if (type==Trk::SurfaceType::Line){
-      surface = new Trk::StraightLineSurface(std::move(transform));
+      surface = new Trk::StraightLineSurface(*transform);
     } 
       
     if (!surface){

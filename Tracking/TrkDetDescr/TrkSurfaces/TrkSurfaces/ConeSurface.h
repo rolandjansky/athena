@@ -82,6 +82,10 @@ public:
     */
   ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
 
+  /**Constructor from Amg Transform by ref.
+     - bounds is not set. */
+  ConeSurface(const Amg::Transform3D& htrans);
+
   /**Constructor from HepTransform by unique_ptr.
      - bounds is not set. */
   ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);

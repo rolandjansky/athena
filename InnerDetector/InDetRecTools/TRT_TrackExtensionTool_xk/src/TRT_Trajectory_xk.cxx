@@ -619,7 +619,7 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
   //std::cout << "bec: " << bec << " pseudotheta: " << pseudotheta << std::endl;
   if (lastsurf->center().z()<0) pseudotheta=M_PI-pseudotheta;
 
-  Amg::Transform3D*  T = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D::Zero())*Amg::RotationMatrix3D::Identity());
+  Amg::Transform3D T = Amg::Transform3D(Amg::Translation3D(Amg::Vector3D::Zero())*Amg::RotationMatrix3D::Identity());
   Trk::StraightLineSurface surn(T,100.,1000.);
 
   Trk::PatternTrackParameters P;
@@ -635,15 +635,19 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
     cov(0,1) = 0.;
     cov(1,1) = .00001;
   }
-  Trk::LocalParameters par = (bec==0) ? Trk::LocalParameters(std::make_pair(0,Trk::locZ),std::make_pair(pseudotheta,Trk::theta)) : Trk::LocalParameters(std::make_pair(0,Trk::locZ));
+  Trk::LocalParameters par =
+    (bec == 0)
+      ? Trk::LocalParameters(
+          std::make_pair(0, Trk::locZ), std::make_pair(pseudotheta, Trk::theta))
+      : Trk::LocalParameters(std::make_pair(0, Trk::locZ));
 
-  pmon =  new Trk::PseudoMeasurementOnTrack(par,cov,surn);
+  pmon = new Trk::PseudoMeasurementOnTrack(par, cov, surn);
 
   if (bec==0) return std::make_pair(pmon,pmon2);
   cov = Amg::MatrixX(1,1);
   cov(0,0) = 100.;
   par = Trk::LocalParameters(std::make_pair(0,Trk::locZ));
-  T    = new Amg::Transform3D(Amg::Translation3D(pseudopoint)*pseudorot);
+  T    = Amg::Transform3D(Amg::Translation3D(pseudopoint)*pseudorot);
   Trk::StraightLineSurface surn2(T,100.,1000.);
 
   pmon2 =  new Trk::PseudoMeasurementOnTrack(par,cov,surn2);

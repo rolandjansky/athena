@@ -33,49 +33,41 @@ Trk::StraightLineSurface::StraightLineSurface(const Amg::Transform3D& htrans)
   , m_bounds(nullptr)
 {}
 
-// constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Surface(std::move(htrans))
-  , m_lineDirection{}
-  , m_bounds(nullptr)
-{}
-
-
-// constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
-  : Surface(htrans)
-  , m_lineDirection{}
-  , m_bounds(nullptr)
-{}
-
 // constructors by arguments
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Amg::Transform3D& htrans,
+  double radius,
+  double halez)
   : Surface(htrans)
   , m_lineDirection{}
   , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, halez))
 {}
 
 // dummy implementation
-Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::TrkDetElementBase& detelement,
+  const Identifier& id)
   : Surface(detelement, id)
   , m_lineDirection{}
   , m_bounds(nullptr)
 {}
 
 // copy constructor
-Trk::StraightLineSurface::StraightLineSurface(const Trk::StraightLineSurface& slsf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::StraightLineSurface& slsf)
   : Surface(slsf)
   , m_lineDirection{}
   , m_bounds(slsf.m_bounds)
 {}
 
 // copy constructor with shift
-Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, const Amg::Transform3D& transf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const StraightLineSurface& csf,
+  const Amg::Transform3D& transf)
   : Surface(csf, transf)
   , m_lineDirection{}
   , m_bounds(csf.m_bounds)
 {}
-
 
 // assignment operator
 Trk::StraightLineSurface&

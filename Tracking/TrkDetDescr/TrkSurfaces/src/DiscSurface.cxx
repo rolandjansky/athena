@@ -101,6 +101,14 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBoun
 {}
 
 // construct a disc from a transform, bounds is not set.
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+  , m_referencePoint(nullptr)
+{}
+
+
+// construct a disc from a transform, bounds is not set.
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Trk::Surface(std::move(htrans))
   , m_bounds(nullptr)
