@@ -162,8 +162,6 @@ elif (WhichInput == "BS"):
     TriggerFlags.configurationSourceList.lock()
     TriggerFlags.doLVL2 = True
     TriggerFlags.doEF = True
-    TriggerFlags.doFEX = True
-    TriggerFlags.doHypo = True
 
     #TriggerFlags.triggerMenuSetup = "MC_lumi1E31_no_prescale"
     TriggerFlags.triggerMenuSetup = 'default'
