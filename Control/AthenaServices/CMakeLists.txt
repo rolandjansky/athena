@@ -65,7 +65,7 @@ atlas_add_test( TestStopRun
 
 atlas_add_test( AthTPCnvSvc
    SCRIPT test/AthTPCnvSvc.sh
-   LOG_IGNORE_PATTERN "^ApplicationMgr +INFO"
+   LOG_IGNORE_PATTERN "^ApplicationMgr +INFO|ERROR Cannot set CLID.*AthenaServicesTestConverters"
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( AthDictLoaderSvc
