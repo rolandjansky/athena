@@ -145,7 +145,11 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC())
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], 
+                                                  PRD_TruthNames = ["RPC_TruthMap", "MDT_TruthMap", "TGC_TruthMap" ] + 
+                                                  (["CSC_TruthMap"] if MuonGeometryFlags.hasCSC() else []) + 
+                                                  (["STGC_TruthMap"] if MuonGeometryFlags.hasSTGC() else []) +  
+                                                  (["MM_TruthMap"] if MuonGeometryFlags.hasMM() else []))
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "Truth",
                                           OutputName             = col + "Truth") 

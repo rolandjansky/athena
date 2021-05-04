@@ -24,9 +24,8 @@ class MuonDetailedTrackTruthMaker : public AthAlgorithm {
 public:
     MuonDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator);
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
 
 private:
     bool m_hasCSC;

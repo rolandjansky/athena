@@ -106,7 +106,7 @@ StatusCode MuonPatternCombinationDetailedTrackTruthMaker::execute() {
     //    m_truthTool->buildDetailedTrackTruth(dttc, *tracks, prdCollectionVector);
 
     //(DetailedMuonPatternTruthCollection *output, const MuonPatternCombinationCollection& tracks, const std::vector<const
-    //PRD_MultiTruthCollection*>& prdTruth);
+    // PRD_MultiTruthCollection*>& prdTruth);
 
     DetailedMuonPatternTruthCollection *dmptc = new DetailedMuonPatternTruthCollection();
     m_truthTool->buildDetailedMuonPatternTruth(dmptc, *muPatternCombinations, prdCollectionVector);

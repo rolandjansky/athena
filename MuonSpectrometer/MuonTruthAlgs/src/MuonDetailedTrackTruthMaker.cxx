@@ -15,30 +15,16 @@
 
 //================================================================
 MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_hasCSC(true), m_truthTool("Trk::DetailedTrackTruthBuilder") {
+    AthAlgorithm(name, pSvcLocator), m_truthTool("Trk::DetailedTrackTruthBuilder") {
     declareProperty("TruthTool", m_truthTool);
 
     // Inputs
-    declareProperty("TrackCollectionNames", m_trackCollectionNames);
-    m_trackCollectionNames.reserve(9);
-    m_trackCollectionNames.push_back("MuonSpectrometerTracks");
-    m_trackCollectionNames.push_back("MooreTracks");
-    m_trackCollectionNames.push_back("ConvertedMBoyMuonSpectroOnlyTracks");
-    m_trackCollectionNames.push_back("ConvertedMBoyTracks");
-    m_trackCollectionNames.push_back("MuidExtrapolatedTracks");
-    m_trackCollectionNames.push_back("ExtrapolatedMuonSpectrometerTracks");
-    m_trackCollectionNames.push_back("Combined_Tracks");
-    m_trackCollectionNames.push_back("CombinedFitMuonTracks");
-    m_trackCollectionNames.push_back("ConvertedMuIdCBTracks");
-    m_trackCollectionNames.push_back("ConvertedMuIdExtrTracks");
-    m_trackCollectionNames.push_back("ConvertedStacoTracks");
-    m_trackCollectionNames.push_back("MuGirlRefittedTracks");
-
-    declareProperty("HasCSC", m_hasCSC);
+    declareProperty("TrackCollectionNames",
+                    m_trackCollectionNames = {"MuonSpectrometerTracks", "MooreTracks", "ConvertedMBoyMuonSpectroOnlyTracks",
+                                              "ConvertedMBoyTracks", "MuidExtrapolatedTracks", "ExtrapolatedMuonSpectrometerTracks",
+                                              "Combined_Tracks", "CombinedFitMuonTracks", "ConvertedMuIdCBTracks",
+                                              "ConvertedMuIdExtrTracks", "ConvertedStacoTracks", "MuGirlRefittedTracks"});
     declareProperty("PRD_TruthNames", m_PRD_TruthNames);
-
-    // Output
-    declareProperty("DetailedTrackTruthNames", m_detailedTrackTruthNames);
 }
 
 // Initialize method
@@ -46,22 +32,17 @@ MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name
 StatusCode MuonDetailedTrackTruthMaker::initialize() {
     ATH_MSG_DEBUG("MuonDetailedTrackTruthMaker::initialize()");
 
-    if (m_hasCSC) m_PRD_TruthNames.push_back("CSC_TruthMap");
-    m_PRD_TruthNames.push_back("RPC_TruthMap");
-    m_PRD_TruthNames.push_back("TGC_TruthMap");
-    m_PRD_TruthNames.push_back("MDT_TruthMap");
-
-    //----------------
-    if (m_truthTool.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_truthTool);
+    if (m_PRD_TruthNames.empty()) {
+        ATH_MSG_FATAL("No PRD names have been parsed");
         return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_truthTool);
     }
 
+    //----------------
+    ATH_CHECK(m_truthTool.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_truthTool);
+
     m_detailedTrackTruthNames.reserve(m_trackCollectionNames.size());
-    std::vector<std::string>::const_iterator it = m_trackCollectionNames.begin(), itEnd = m_trackCollectionNames.end();
-    for (; it != itEnd; ++it) m_detailedTrackTruthNames.push_back(*it + "Truth");
+    for (const std::string &it : m_trackCollectionNames) m_detailedTrackTruthNames.push_back(it + "Truth");
 
     msg(MSG::INFO) << " processing: ";
     std::vector<std::string>::const_iterator ikeyt = m_detailedTrackTruthNames.begin();
@@ -74,13 +55,6 @@ StatusCode MuonDetailedTrackTruthMaker::initialize() {
     //----------------
     return StatusCode::SUCCESS;
 }
-
-// -----------------------------------------------------------------------------------------------------
-StatusCode MuonDetailedTrackTruthMaker::finalize() {
-    ATH_MSG_DEBUG("MuonDetailedTrackTruthMaker::finalize()");
-    return StatusCode::SUCCESS;
-}
-
 // -----------------------------------------------------------------------------------------------------
 StatusCode MuonDetailedTrackTruthMaker::execute() {
     ATH_MSG_DEBUG("MuonDetailedTrackTruthMaker::execute()");
