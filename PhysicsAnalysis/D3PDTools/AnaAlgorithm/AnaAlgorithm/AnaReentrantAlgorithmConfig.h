@@ -54,6 +54,15 @@ namespace EL
     explicit AnaReentrantAlgorithmConfig (const std::string& val_typeAndName);
 
 
+    /// \brief initializing constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    explicit AnaReentrantAlgorithmConfig (const AsgComponentConfig& val_config);
+
+
     /// \brief Virtual destructor, to make PyROOT happy
     ///
     /// Without it ROOT 6.22+ does not allow Python classes to inherit from this

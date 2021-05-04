@@ -49,6 +49,15 @@ namespace EL
 
 
 
+  AnaAlgorithmConfig ::
+  AnaAlgorithmConfig (const AsgComponentConfig& val_config)
+    : AsgComponentConfig (val_config)
+  {
+    RCU_NEW_INVARIANT (this);
+  }
+
+
+
   bool AnaAlgorithmConfig ::
   useXAODs () const noexcept
   {

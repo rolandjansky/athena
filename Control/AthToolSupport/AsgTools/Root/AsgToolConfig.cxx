@@ -25,4 +25,11 @@ namespace asg
   AsgToolConfig (const std::string& val_typeAndName)
     : AsgComponentConfig (val_typeAndName)
   {}
+
+
+
+  AsgToolConfig ::
+  AsgToolConfig (const AsgComponentConfig& val_config)
+    : AsgComponentConfig (val_config)
+  {}
 }
