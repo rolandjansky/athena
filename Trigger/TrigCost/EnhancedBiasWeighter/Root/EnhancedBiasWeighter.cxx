@@ -784,7 +784,7 @@ StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eve
     if (!m_useBunchCrossingTool) return StatusCode::SUCCESS;
 
     const EventContext& context = Gaudi::Hive::currentContext();
-    SG::ReadHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
+    SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
     ATH_CHECK( bunchCrossingTool.isValid() );
     distance = bunchCrossingTool->distanceFromFront( eventInfo->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings );
 
