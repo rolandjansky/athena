@@ -393,6 +393,17 @@ namespace xAOD {
     this->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = -1000;
     this->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = -1000;
     this->auxdecor< float >("MC_spectatorquark_afterFSR_m") = -1;
+
+    this->auxdecor< int >("MC_spectatorquark_method2_pdgId") = 0;
+    this->auxdecor< int >("MC_spectatorquark_method2_status") = 0;
+    this->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_pt") = -1;
+    this->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_m") = -1;
+    this->auxdecor< float >("MC_spectatorquark_method2_afterFSR_pt") = -1;
+    this->auxdecor< float >("MC_spectatorquark_method2_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_method2_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_method2_afterFSR_m") = -1;
   }
 
   // Initialize variables for an additional final-state Z.
