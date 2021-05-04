@@ -176,6 +176,11 @@ namespace JetTagDQA {
         ATH_MSG_WARNING("It is checked if the sample is ttbar (has dsid 410000) or Zprime (has dsid 427080). None applies (read dsid is " << dsid << "). Applying default pT cut of 20000 MeV now.");
         m_jetPtCut = 20000;
       }
+
+      // do not do the track-truth association on this Sherpa Z' sample
+      if(dsid == 361405){
+        m_doTrackTruth = false;
+      }
     }
 
     // get the primary vertex
@@ -319,7 +324,7 @@ namespace JetTagDQA {
 
       // only try accessing the truth values if not on data
       int origin = 0;
-      if(!m_isData){
+      if(!m_isData && m_doTrackTruth){
         origin = m_trackTruthOriginTool->getTrackOrigin(track);
       }
 
@@ -350,7 +355,7 @@ namespace JetTagDQA {
         
         // only try accessing the truth values if not on data
         int origin = 0;
-        if(!m_isData){
+        if(!m_isData && m_doTrackTruth){
           origin = m_trackTruthOriginTool->getTrackOrigin(track);
         }
 

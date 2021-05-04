@@ -81,6 +81,7 @@ namespace JetTagDQA {
 
     // isData flag
     bool m_isData;
+    bool m_doTrackTruth = true;
 
     // Containers
     std::string m_jetName1;
