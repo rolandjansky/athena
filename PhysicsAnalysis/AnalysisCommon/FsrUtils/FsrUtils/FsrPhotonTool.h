@@ -8,8 +8,6 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
 
 // Local include(s):
 #include "FsrUtils/IFsrPhotonTool.h"
@@ -85,8 +83,6 @@ namespace FSR {
         double deltaPhi(float phi1, float phi2) const;
         static bool compareEt(FsrCandidate c1, FsrCandidate c2) { return (c1.Et > c2.Et); }
 
-        //const xAOD::PhotonContainer* m_photons;
-        //const xAOD::ElectronContainer* m_electrons;
 
         double m_high_et_min;
         double m_overlap_el_ph;
@@ -106,16 +102,11 @@ namespace FSR {
         std::vector<FsrCandidate> m_fsrPhotons;
         FsrCandidate::FsrType     m_fsr_type;
 
-        ToolHandle<CP::IIsolationSelectionTool>           m_isoSelTool;
         ToolHandle<CP::IIsolationCorrectionTool>          m_isoCorrTool;
         ToolHandle<CP::IIsolationCloseByCorrectionTool>   m_isoCloseByCorrTool;
         std::string                                       m_energyRescalerName;
         ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_energyRescaler;
 
-        xAOD::PhotonContainer*    m_photonContainer;
-        xAOD::PhotonAuxContainer* m_photonAuxContainer;
-        xAOD::Photon*             m_photon;
-        
     }; // class FsrPhotonTool
 
 } // namespace FSR
