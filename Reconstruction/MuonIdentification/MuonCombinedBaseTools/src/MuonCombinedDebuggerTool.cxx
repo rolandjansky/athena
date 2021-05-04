@@ -17,6 +17,7 @@
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 namespace MuonCombined {
 
@@ -26,9 +27,14 @@ namespace MuonCombined {
     }
 
     StatusCode MuonCombinedDebuggerTool::initialize() {
+        ATH_MSG_INFO("initialize "<<name()<<" for debugging purposes of the muon reconstruction" );
         ATH_CHECK(m_matchQuality.retrieve());
         ATH_CHECK(m_truthToTrack.retrieve());
         ATH_CHECK(m_histSvc.retrieve());
+        if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1){
+            ATH_MSG_FATAL("Detected more than one thread, namaely "<<Gaudi::Concurrency::ConcurrencyFlags::numThreads()<<", to run this tool. Which should never happen as the results will be a total desaster");
+            return StatusCode::FAILURE;
+        }
         bookBranches();
         return StatusCode::SUCCESS;
     }
