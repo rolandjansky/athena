@@ -482,14 +482,7 @@ class rerunLVL1(_modifier):
         log.debug( "topSequence: %s", topSequenceAlgNames )
 
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
-        ctpSimulation = CTPSimulationOnData("CTPSimulation")
-        ctpSimulation.DoBCM   = False # TriggerFlags.doBcm()
-        ctpSimulation.DoLUCID = False # TriggerFlags.doLucid()
-        ctpSimulation.DoZDC   = False # TriggerFlags.doZdc()
-        ctpSimulation.DoBPTX  = False
-        ctpSimulation.DoMBTS  = False
-
-        topSequence += ctpSimulation
+        topSequence += CTPSimulationOnData("CTPSimulation")
 
         from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
         topSequence += RoIBuilder("RoIBuilder")
