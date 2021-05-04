@@ -266,7 +266,7 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont, const 
             }
           }
         }
-        if (time_dmu_same) {
+        if (time_dmu_same && (n_dmu_aver != 0)) {
           time_dmu_aver /= n_dmu_aver;
           ATH_MSG_VERBOSE( "Average time "<< time_dmu_aver);
           
