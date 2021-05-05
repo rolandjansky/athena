@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
@@ -1019,7 +1019,7 @@ class RecoFragmentsPool(object):
     def retrieve( cls,  creator, flags, **kwargs ):
         """ create, or return created earlier reco fragment
 
-        Reco fragment is uniquelly identified by the function and set og **kwargs.
+        Reco fragment is uniquelly identified by the function and set of **kwargs.
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
@@ -1052,7 +1052,7 @@ class RecoFragmentsPool(object):
         sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
                       else allargs[key] for key in sortedkeys]
 
-        requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
+        requestHash = hash( ( creator.__module__, creator.__qualname__, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **allargs )
             cls.fragments[requestHash] = recoFragment
