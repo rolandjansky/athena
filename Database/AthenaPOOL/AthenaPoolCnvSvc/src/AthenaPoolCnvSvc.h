@@ -233,9 +233,13 @@ private: // properties
    std::map<std::string, long long> m_databaseMaxFileSize;
 
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
-   /// default = false.
+   /// default = true.
    BooleanProperty m_persSvcPerOutput{this,"PersSvcPerOutput",true};
    unsigned outputContextId(const std::string& outputConnection);
+
+   /// PersSvcPerInputType,boolean property to use multiple persistency services, one per input type.
+   /// default = false.
+   BooleanProperty m_persSvcPerInputType{this,"PersSvcPerInputType",false};
    std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first

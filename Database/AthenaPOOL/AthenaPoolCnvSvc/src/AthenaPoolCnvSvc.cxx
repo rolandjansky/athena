@@ -188,6 +188,14 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
    }
+   if (m_persSvcPerInputType) { // Use separate PersistencySvc for each input data type
+      TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
+      if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
+         char text[32];
+         ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString()));
+         tokAddr->getToken()->setAuxString(text);
+      }
+   }
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
    if (m_doChronoStat) {
@@ -827,7 +835,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_parallelCompression) {
             placement->setFileName(placement->fileName() + m_streamPortString.value());
          }
-         if (m_persSvcPerOutput) {
+         if (m_persSvcPerOutput) { // Use separate PersistencySvc for each output stream/file
             char text[32];
             ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getOutputContext(placement->fileName()));
             placement->setAuxString(text);
