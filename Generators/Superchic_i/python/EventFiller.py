@@ -49,6 +49,34 @@ class LheEVNTFiller(EvgenAlg):
                 if event and firstLine:
                     firstLine = False
                     evt.weights().push_back(float(line.split()[2]))
+
+                    #Add the initial state protons
+                    pos = HepMC.FourVector(0.0, 0.0, 0.0, 0.0)
+                    gv = HepMC.GenVertex(pos)
+                    ROOT.SetOwnership(gv, False)
+                    evt.add_vertex(gv)
+                    mom = HepMC.FourVector( 0. , 0. , 6499999.9323 , 6500000.00 )
+                    gp = HepMC.GenParticle()
+                    gp.set_status( 2 )
+                    gp.set_pdg_id( 2212 )
+                    gp.set_momentum(mom)
+                    gp.set_generated_mass(938.272046)
+                    ROOT.SetOwnership(gp, False)
+                    gv.add_particle_out(gp)
+
+                    pos = HepMC.FourVector(0.0, 0.0, 0.0, 0.0)
+                    gv = HepMC.GenVertex(pos)
+                    ROOT.SetOwnership(gv, False)
+                    evt.add_vertex(gv)
+                    mom = HepMC.FourVector( 0. , 0. , -6499999.9323 , 6500000.00 )
+                    gp = HepMC.GenParticle()
+                    gp.set_status( 2 )
+                    gp.set_pdg_id( 2212 )
+                    gp.set_momentum(mom)
+                    gp.set_generated_mass(938.272046)
+                    ROOT.SetOwnership(gp, False)
+                    gv.add_particle_out(gp)
+
                     continue
                 if event:
                     pos = HepMC.FourVector(0.0, 0.0, 0.0, 0.0)
@@ -60,7 +88,6 @@ class LheEVNTFiller(EvgenAlg):
                     gp.set_status(int(line.split()[1]) )
                     gp.set_pdg_id(int(line.split()[0]) )
                     gp.set_momentum(mom)
-                    print(float(line.split()[10]) * 1000.)
                     gp.set_generated_mass(float(line.split()[10]) * 1000.)
                     ROOT.SetOwnership(gp, False)
                     gv.add_particle_out(gp)
