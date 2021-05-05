@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for Athena-Rivet interface
@@ -12,7 +12,7 @@
 #include "HepMC/GenParticle.h"
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "GenInterfaces/IHepMCWeightSvc.h"
+#include "GenInterfaces/IxAODtoHepMCTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -43,6 +43,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_xAODtoHepMCTool("xAODtoHepMCTool"),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -63,6 +64,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
   declareProperty("AssumeSingleParticleGun", m_isSPG=false);
+  declareProperty("AddMissingBeamParticles",m_patchBeams=false);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
 }
@@ -76,6 +78,9 @@ string getenv_str(const string& key) {
 StatusCode Rivet_i::initialize() {
   ATH_MSG_DEBUG("Rivet_i initializing");
   ATH_MSG_INFO("Using Rivet version " << Rivet::version());
+  
+  // Get tool for xAOD::Truth to HepMC::GenEvent conversion
+  ATH_CHECK(m_xAODtoHepMCTool.retrieve());
 
   // Get histo service
   //if (m_doRootHistos && m_histSvc.retrieve().isFailure()) {
@@ -176,31 +181,51 @@ StatusCode Rivet_i::initialize() {
 StatusCode Rivet_i::execute() {
   ATH_MSG_DEBUG("Rivet_i execute");
 
+  m_needsConversion = !evtStore()->contains<McEventCollection>("GEN_EVENT");
+  ATH_MSG_DEBUG("Rivet_i needs xAOD::Truth to HepMC::GenEvent conversion? " << m_needsConversion);
+
   // Get the event collection
   /// @todo Replace with new GenBase functionality
-  const McEventCollection* eventCollection;
-  StatusCode sc = evtStore()->retrieve(eventCollection, m_genEventKey);
-  if (sc.isFailure() || eventCollection == 0) {
-    ATH_MSG_ERROR("Unable to retrieve event collection from StoreGate with key " << m_genEventKey);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved event collection from StoreGate with key " << m_genEventKey);
+  const HepMC::GenEvent* checkedEvent;
+  if (m_needsConversion) {
+    const DataHandle<EventInfo> eventInfo;
+    if (evtStore()->retrieve(eventInfo).isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve EventInfo, aborting.");
+      return StatusCode::FAILURE;
+    }
+    unsigned long long eventNumber = eventInfo.cptr()->event_ID()->event_number();
+
+    const xAOD::TruthEventContainer* truthCollection;
+    if (evtStore()->retrieve(truthCollection, "TruthEvents").isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve TruthEvents collection, aborting.");
+      return StatusCode::FAILURE;
+    }
+    
+    ATH_MSG_DEBUG("Attempt xAOD::Truth to HepMC::GenEvent conversion.");
+    const std::vector<HepMC::GenEvent>& hepmc_evts = m_xAODtoHepMCTool->getHepMCEvents(truthCollection, eventNumber);
+    if (hepmc_evts.empty()) {
+      ATH_MSG_ERROR("Conversion didn't yield HepMC::GenEvent, aborting.");
+      return StatusCode::FAILURE;
+    }
+    checkedEvent = checkEvent(hepmc_evts[0]);
+   } 
+   else {
+    const McEventCollection* eventCollection;
+    if (evtStore()->retrieve(eventCollection, m_genEventKey).isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve event collection from StoreGate with key " << m_genEventKey);
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Retrieved event collection from StoreGate with key " << m_genEventKey);
+    }
+    // Get the first event in the event collection (the signal event; additional members would be e.g. PU event)
+    /// @todo Replace with new GenBase const_event() functionality
+    if (eventCollection->front() == NULL) {
+      ATH_MSG_ERROR("Rivet_i received a null HepMC event");
+      return StatusCode::FAILURE;
+    }
+    checkedEvent = checkEvent(*eventCollection->front());
   }
-
-  // Get the first event in the event collection
-  /// @todo Actually use back(), for the most recent event, or throw an exception if more than one event found?
-  /// @todo Replace with new GenBase const_event() functionality
-  const HepMC::GenEvent* event = eventCollection->front();
-  if (event == NULL) {
-    ATH_MSG_ERROR("Rivet_i received a null HepMC event");
-    return StatusCode::FAILURE;
-  }
-
-  // Modify the event units etc. if necessary
-  const HepMC::GenEvent* checkedEvent = checkEvent(event);
-  // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
-  // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
-
+  
   if(!checkedEvent) {
     ATH_MSG_ERROR("Check on HepMC event failed!");
     return StatusCode::FAILURE;
@@ -299,20 +324,20 @@ inline std::vector<std::string> split(const std::string& input, const std::strin
     return {first, last};
 }
 
-const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
+const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent& event) {
   std::vector<HepMC::GenParticle*> beams;
-  HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
+  HepMC::GenEvent* modEvent = new HepMC::GenEvent(event);
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
   const DataHandle<EventInfo> eventInfo;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
+  if (!m_needsConversion && StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
     //int run=eventInfo->event_ID()->run_number();
-    int eventNumber = eventInfo->event_ID()->event_number();
+    const unsigned long long eventNumber = eventInfo->event_ID()->event_number();
     modEvent->set_event_number(eventNumber);
   }
 
   // weight-name cleaning
-  const HepMC::WeightContainer& old_wc = event->weights();
+  const HepMC::WeightContainer& old_wc = event.weights();
   vector<string> old_wnames = old_wc.weight_names();
   if (old_wnames.size()) {
     HepMC::WeightContainer& new_wc = modEvent->weights();
@@ -389,8 +414,6 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     }
     // end of weight-name cleaning
   }
-
-
   if (!modEvent->valid_beam_particles()) {
     if (m_isSPG) {
       // a single particle gun only has one particle without
@@ -407,13 +430,34 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       beams.push_back(old);
       beams.push_back(ghost);
     }
+
+    double etotal = 0;
+    //need to find CME of this collision...only needs to be done for AOD files as some events don't appear to have the initial beam particles
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
-        beams.push_back(*p);
+	beams.push_back(*p);
+      }
+      if( (*p)->status() == 1){
+	etotal += (*p)->momentum().e();
       }
     }
     if (beams.size() > 2) std::sort(beams.begin(), beams.end(), cmpGenParticleByEDesc);
     beams.resize(2);
+    if (m_patchBeams){
+      const double ebeam = 0.5*etotal;
+      bool passBeam = (beams[0] && std::abs(beams[0]->momentum().e() - ebeam) < 1e-5);
+      passBeam &= (beams[1] && std::abs(beams[1]->momentum().e() - ebeam) < 1e-5);
+      if(!passBeam){
+	HepMC::GenParticle* b1 = new HepMC::GenParticle(HepMC::FourVector(0,0,ebeam,ebeam),2212,4);
+	HepMC::GenParticle* b2 = new HepMC::GenParticle(HepMC::FourVector(0,0,-1*ebeam,ebeam),2212,4);
+	HepMC::GenVertex* dummy_v = new HepMC::GenVertex();
+	dummy_v->add_particle_in(b1);
+        dummy_v->add_particle_in(b2);
+	beams[0]=b1;
+	beams[1]=b2;
+	modEvent->add_vertex(dummy_v);
+      }
+    }
   } else {
     beams.resize(2);
     beams[0] = modEvent->beam_particles().first;
@@ -421,18 +465,15 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   }
 
   double scalefactor = 1.0;
-  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
-  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
+
   #ifdef HEPMC_HAS_UNITS
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
   #endif
   if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
-
   if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {
     return modEvent;
   } else {
     if (scalefactor != 1.0) {
-      // ATH_MSG_ALWAYS("RESCALING * " << scalefactor);
       for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
         const HepMC::FourVector pGeV((*p)->momentum().px() * scalefactor,
                                      (*p)->momentum().py() * scalefactor,

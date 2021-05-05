@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 //#include "GaudiKernel/ServiceHandle.h"
-
+#include "GaudiKernel/ToolHandle.h"
 #include "Rivet/AnalysisHandler.hh"
 
 #include <vector>
@@ -15,6 +15,7 @@
 
 class ISvcLocator;
 class StoreGateSvc;
+class IxAODtoHepMCTool;
 //class ITHistSvc;
 
 
@@ -45,10 +46,13 @@ public:
 private:
 
   // Check and potentially modify events for correct units, beam particles, ...
-  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event);
+  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent& event);
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
+
+  /// A tool to convert xAOD::Truth to HepMC::GenEvent
+  ToolHandle<IxAODtoHepMCTool> m_xAODtoHepMCTool;
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
@@ -70,6 +74,10 @@ private:
   /// events have beams of the sort that the analysis was written to expect.
   bool m_ignorebeams;
 
+  /// @brief Do we need to convert xAOD::Truth back to HepMC::GenEvemt?
+  ///
+  /// Default is false: assume user runs on EVNT files
+  bool m_needsConversion;
 
   /// @brief Will we convert Rivet's internal histo format into a ROOT histo for streaming with THistSvc?
   ///
@@ -111,7 +119,9 @@ private:
 
   /// Flag to assume MC sample correspond to single-particle gun
   bool m_isSPG;
+  
+  /// Flag to insert beam protons when they are unavailable in the event
+  bool m_patchBeams;
 
 };
-
 #endif
