@@ -96,6 +96,8 @@ namespace top {
     m_writeMETBuiltWithLooseObjects(false),
     // Apply overlap removal on loose lepton definitons - not the top recommendation, for studies only
     m_doOverlapRemovalOnLooseLeptonDef(false),
+    //test option for muons OR
+    m_noORForMuons(false),
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     m_doLargeJetOverlapRemoval(false),
@@ -1487,6 +1489,11 @@ namespace top {
     if (settings->value("OverlapRemovalLeptonDef") == "Loose") this->setOverlapRemovalOnLooseLeptonDef();
 
     m_overlap_removal_procedure = settings->value("OverlapRemovalProcedure");
+    
+    //test option for muon OR
+    bool noORForMuons = false;
+    settings->retrieve("NoOverlapRemovalForMuons", noORForMuons);
+    this->setNoORForMuons(noORForMuons);
 
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)

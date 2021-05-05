@@ -559,6 +559,7 @@ namespace top {
     std::vector<float>  m_mu_prodVtx_z;
     std::vector<float>  m_mu_prodVtx_perp;
     std::vector<float>  m_mu_prodVtx_phi;
+    std::vector<char> m_mu_passOR;
 
     //soft muons
     std::vector<float> m_softmu_pt;
