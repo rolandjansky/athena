@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -20,15 +20,6 @@ LArDigitMaker::LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("LArPileUpTool",m_LArPileUpTool,"Tool to perform the real work");
   return;
 }
-
-
-// ----------------------------------------------------------------------------------
-
-LArDigitMaker::~LArDigitMaker()
-{
-  return;
-}
-
 
 // ----------------------------------------------------------------------------------
 
@@ -59,15 +50,6 @@ StatusCode LArDigitMaker::execute()
        return StatusCode::FAILURE;
   }
 
-  return StatusCode::SUCCESS;
-
-}
-
-// ---------------------------------------------------------------------------------------
-
-StatusCode LArDigitMaker::finalize()
-{
-  ATH_MSG_DEBUG(" finalize LArDigitMaker");
   return StatusCode::SUCCESS;
 
 }
