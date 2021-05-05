@@ -147,7 +147,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
-        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo'] + self.chainPart['lrtInfo']
+        key = self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo'] + self.chainPart['lrtInfo']
         addInfo = 'etcut'
         L2IDAlg = 'noringer'
 
