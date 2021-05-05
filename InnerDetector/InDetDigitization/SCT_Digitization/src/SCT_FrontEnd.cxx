@@ -571,12 +571,8 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 // (this could be moved elsewhere later) apply threshold do clustering
 // ----------------------------------------------------------------------
 void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const {
-  // get SCT module side design and check it
-  const SCT_ModuleSideDesign *p_design = dynamic_cast<const SCT_ModuleSideDesign*>(&(collection.design()));
-
-  if (p_design==nullptr) {
-    return;
-  }
+  // get SCT module side design
+  const SCT_ModuleSideDesign *p_design = static_cast<const SCT_ModuleSideDesign*>(&(collection.design()));
 
   SCT_FrontEndData data;
 
@@ -892,7 +888,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection, SCT_
   int strip = 0;
   int clusterSize = 0;
 
-  const SCT_ModuleSideDesign& sctDesign = dynamic_cast<const SCT_ModuleSideDesign&>(collection.design());
+  const SCT_ModuleSideDesign& sctDesign = static_cast<const SCT_ModuleSideDesign&>(collection.design());
 
   SiCellId hitStrip;
 
