@@ -71,7 +71,7 @@ int PixelChargeCalibCondData::getAnalogThreshold(const int chanNum, const int FE
   if (type==PixelType::NORMAL) {
     auto itr = m_analogThreshold.find(chanNum);
     if (itr!=m_analogThreshold.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -80,7 +80,7 @@ int PixelChargeCalibCondData::getAnalogThreshold(const int chanNum, const int FE
   else if (type==PixelType::LONG) {
     auto itr = m_analogThresholdLong.find(chanNum);
     if (itr!=m_analogThresholdLong.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -89,7 +89,7 @@ int PixelChargeCalibCondData::getAnalogThreshold(const int chanNum, const int FE
   else if (type==PixelType::GANGED) {
     auto itr = m_analogThresholdGanged.find(chanNum);
     if (itr!=m_analogThresholdGanged.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -102,7 +102,7 @@ int PixelChargeCalibCondData::getAnalogThresholdSigma(const int chanNum, const i
   if (type==PixelType::NORMAL) {
     auto itr = m_analogThresholdSigma.find(chanNum);
     if (itr!=m_analogThresholdSigma.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -111,7 +111,7 @@ int PixelChargeCalibCondData::getAnalogThresholdSigma(const int chanNum, const i
   else if (type==PixelType::LONG) {
     auto itr = m_analogThresholdSigmaLong.find(chanNum);
     if (itr!=m_analogThresholdSigmaLong.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -120,7 +120,7 @@ int PixelChargeCalibCondData::getAnalogThresholdSigma(const int chanNum, const i
   else if (type==PixelType::GANGED) {
     auto itr = m_analogThresholdSigmaGanged.find(chanNum);
     if (itr!=m_analogThresholdSigmaGanged.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -133,7 +133,7 @@ int PixelChargeCalibCondData::getAnalogThresholdNoise(const int chanNum, const i
   if (type==PixelType::NORMAL) {
     auto itr = m_analogThresholdNoise.find(chanNum);
     if (itr!=m_analogThresholdNoise.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -142,7 +142,7 @@ int PixelChargeCalibCondData::getAnalogThresholdNoise(const int chanNum, const i
   else if (type==PixelType::LONG) {
     auto itr = m_analogThresholdNoiseLong.find(chanNum);
     if (itr!=m_analogThresholdNoiseLong.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -151,7 +151,7 @@ int PixelChargeCalibCondData::getAnalogThresholdNoise(const int chanNum, const i
   else if (type==PixelType::GANGED) {
     auto itr = m_analogThresholdNoiseGanged.find(chanNum);
     if (itr!=m_analogThresholdNoiseGanged.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -164,7 +164,7 @@ int PixelChargeCalibCondData::getInTimeThreshold(const int chanNum, const int FE
   if (type==PixelType::NORMAL) {
     auto itr = m_intimethreshold.find(chanNum);
     if (itr!=m_intimethreshold.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -173,7 +173,7 @@ int PixelChargeCalibCondData::getInTimeThreshold(const int chanNum, const int FE
   else if (type==PixelType::LONG) {
     auto itr = m_intimethresholdLong.find(chanNum);
     if (itr!=m_intimethresholdLong.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -182,7 +182,7 @@ int PixelChargeCalibCondData::getInTimeThreshold(const int chanNum, const int FE
   else if (type==PixelType::GANGED) {
     auto itr = m_intimethresholdGanged.find(chanNum);
     if (itr!=m_intimethresholdGanged.end()) {
-      const std::vector<int> chip = itr->second;
+      const std::vector<int>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -195,7 +195,7 @@ float PixelChargeCalibCondData::getQ2TotA(const int chanNum, const int FE, const
   if (type==PixelType::NORMAL || type==PixelType::LONG) {
     auto itr = m_totA.find(chanNum);
     if (itr!=m_totA.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -204,7 +204,7 @@ float PixelChargeCalibCondData::getQ2TotA(const int chanNum, const int FE, const
   else if (type==PixelType::GANGED) {
     auto itr = m_totALong.find(chanNum);
     if (itr!=m_totALong.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -217,7 +217,7 @@ float PixelChargeCalibCondData::getQ2TotE(const int chanNum, const int FE, const
   if (type==PixelType::NORMAL || type==PixelType::LONG) {
     auto itr = m_totE.find(chanNum);
     if (itr!=m_totE.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -226,7 +226,7 @@ float PixelChargeCalibCondData::getQ2TotE(const int chanNum, const int FE, const
   else if (type==PixelType::GANGED) {
     auto itr = m_totELong.find(chanNum);
     if (itr!=m_totELong.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -239,7 +239,7 @@ float PixelChargeCalibCondData::getQ2TotC(const int chanNum, const int FE, const
   if (type==PixelType::NORMAL || type==PixelType::LONG) {
     auto itr = m_totC.find(chanNum);
     if (itr!=m_totC.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -248,7 +248,7 @@ float PixelChargeCalibCondData::getQ2TotC(const int chanNum, const int FE, const
   else if (type==PixelType::GANGED) {
     auto itr = m_totCLong.find(chanNum);
     if (itr!=m_totCLong.end()) {
-      const std::vector<float> chip = itr->second;
+      const std::vector<float>& chip = itr->second;
       if (FE<(int)chip.size()) {
         return chip.at(FE);
       }
@@ -261,7 +261,7 @@ float PixelChargeCalibCondData::getTotRes(const int chanNum, const int FE, float
   float res1 = 0.0;
   auto itr1 = m_totRes1.find(chanNum);
   if (itr1!=m_totRes1.end()) {
-    const std::vector<float> chip = itr1->second;
+    const std::vector<float>& chip = itr1->second;
     if (FE<(int)chip.size()) {
       res1 = chip.at(FE);
     }
@@ -269,7 +269,7 @@ float PixelChargeCalibCondData::getTotRes(const int chanNum, const int FE, float
   float res2 = 0.0;
   auto itr2 = m_totRes2.find(chanNum);
   if (itr2!=m_totRes2.end()) {
-    const std::vector<float> chip = itr2->second;
+    const std::vector<float>& chip = itr2->second;
     if (FE<(int)chip.size()) {
       res2 = chip.at(FE);
     }
