@@ -16,8 +16,10 @@ class egammaKeysDict:
     )
 
     ShowerShapesSuppress = '.-e033.-e011.-e333.-e335.-e337.-e377'
-    PhotonisemSupress = '.-isEMLoose.-isEMTight'
+    PhotonisemSuppress = '.-isEMLoose.-isEMTight'
     ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
+    ElectronSuppress = ShowerShapesSuppress + ElectronisemSupress + '.-EgammaCovarianceMatrix'
+    PhotonSuppress = ShowerShapesSuppress + PhotonisemSuppress
     FwdElectronisemSupress = '.-isEMTight.-isEMMedium.-isEMLoose'
     # Strip off the leading dot
     isovar_suppress = "-" + ".-".join(iso_vars())
@@ -50,7 +52,7 @@ class egammaKeysDict:
             'xAOD::ElectronContainer',
             'Electrons',
             isovar_suppress,
-            ShowerShapesSuppress+ElectronisemSupress],
+            ElectronSuppress],
         EgammaRec=['egammaRecContainer',
                    'egammaRecCollection',
                    '',
@@ -70,7 +72,7 @@ class egammaKeysDict:
                     '-SisterCluster', ''],
         Photon=['xAOD::PhotonContainer',
                 'Photons', isovar_suppress,
-                ShowerShapesSuppress+PhotonisemSupress],
+                PhotonSuppress],
         TrackParticle=[
             'xAOD::TrackParticleContainer',
             'GSFTrackParticles',
