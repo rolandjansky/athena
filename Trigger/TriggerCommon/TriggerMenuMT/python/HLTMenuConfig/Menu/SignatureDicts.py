@@ -456,7 +456,7 @@ ElectronChainParts = {
     'alignmentGroup' : ['Electron','Egamma'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'extra'          : '',
+    'extra'          : 'ion',
     'multiplicity'   : '',
     'trigType'       : ['e'],
     'threshold'      : '',

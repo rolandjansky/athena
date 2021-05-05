@@ -224,7 +224,7 @@ class TrigEgammaFastCaloHypoToolConfig:
   #
   def compile(self):
 
-    if 'etcut' == self.pidname():
+    if 'etcut' == self.pidname() or 'ion' in self.pidname():
       self.etcut()
 
     elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
@@ -314,7 +314,7 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
         return cpart['threshold']
 
     def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'] + cpart['extra']
 
     def __cand(cpart):
         return cpart['trigType']
