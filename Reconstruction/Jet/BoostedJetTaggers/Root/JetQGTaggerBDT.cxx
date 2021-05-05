@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
@@ -110,6 +110,9 @@ namespace CP {
     // configure the bdt
     m_bdtTagger->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
 
+    /// Set up score decorator
+    m_dec_score = std::make_unique< SG::AuxElement::Decorator<float> >( "QGTaggerBDTScore" );
+
     /// Call base class initialize
     ATH_CHECK( JSSTaggerBase::initialize() );
 
@@ -133,12 +136,15 @@ namespace CP {
     float jet_score = getScore(jet);
     ATH_MSG_DEBUG(TString::Format("jet score %g",jet_score) );
 
-    //get cut from cut function
+    /// Decorate score to jet
+    (*m_dec_score)(jet) = jet_score;
+
+    /// Get cut from cut function
     float cut = m_funcScoreCut->Eval(jet.pt()/1000.);
 
     if(jet_score < cut) m_accept.setCutResult("QuarkJetTag", true);
 
-    // return the TAccept object that you created and filled
+    /// Return the TAccept object that you created and filled
     return m_accept;
   }
 
