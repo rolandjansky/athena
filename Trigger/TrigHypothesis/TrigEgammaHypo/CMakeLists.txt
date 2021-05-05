@@ -6,6 +6,7 @@ atlas_subdir( TrigEgammaHypo )
 # Component(s) in the package:
 atlas_add_component( TrigEgammaHypo
                      src/*.cxx
+                     src/combos/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib RecoToolInterfaces StoreGateLib TrigCompositeUtilsLib TrigMultiVarHypoLib TrigSteeringEvent TrkCaloExtension xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger AthOnnxruntimeServiceLib RingerSelectorToolsLib)
 

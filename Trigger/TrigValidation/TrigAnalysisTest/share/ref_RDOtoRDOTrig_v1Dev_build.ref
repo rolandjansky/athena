@@ -46,14 +46,14 @@ HLT_2e3_etcut_L12EM3:
   eventCount: 18
   stepCounts:
     0: 20
-    1: 18
-    2: 18
+    1: 20
+    2: 20
     3: 18
   stepFeatures:
     0: 180
-    1: 540
-    2: 386
-    3: 146
+    1: 545
+    2: 394
+    3: 148
 HLT_2e5_lhmedium_j70_0eta320_j50_0eta490_j0_dijet50j12ptSEP900djmass_L1MJJ-500-NFF:
   eventCount: 0
   stepCounts:
@@ -75,7 +75,7 @@ HLT_2e5_lhvloose_bBeeM6000_L12EM3:
     3: 4
   stepFeatures:
     0: 64
-    1: 122
+    1: 129
     2: 11
     3: 11
     4: 4

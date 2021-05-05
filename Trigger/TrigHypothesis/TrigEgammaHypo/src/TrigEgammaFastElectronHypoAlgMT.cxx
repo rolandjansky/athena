@@ -34,7 +34,8 @@ StatusCode TrigEgammaFastElectronHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context ) const 
+{
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
@@ -64,7 +65,7 @@ StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context
   ATH_MSG_DEBUG( "Cluster ptr to decision map has size " << clusterToIndexMap.size() );
 
   // prepare imput for tools
-  std::vector<TrigEgammaFastElectronHypoTool::ElectronInfo> hypoToolInput;
+  std::vector<TrigEgammaFastElectronHypoToolInc::ElectronInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
       // get View
@@ -97,7 +98,7 @@ StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context
       DecisionIDContainer clusterDecisionIDs;
       decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
       
-      hypoToolInput.emplace_back( TrigEgammaFastElectronHypoTool::ElectronInfo{ d, *electronIter,  origCluster->first, clusterDecisionIDs } );
+      hypoToolInput.emplace_back( TrigEgammaFastElectronHypoToolInc::ElectronInfo{ d, *electronIter,  origCluster->first, clusterDecisionIDs } );
     }
   }
 
