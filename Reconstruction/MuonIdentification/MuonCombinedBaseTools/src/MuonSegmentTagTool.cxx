@@ -105,7 +105,7 @@ namespace MuonCombined {
 
         std::vector<const Muon::MuonSegment*> FilteredSegmentCollection;
         if (m_doSegmentsFilter) {
-            for (const Muon::MuonSegment* itSeg :  segments) {
+            for (const Muon::MuonSegment* itSeg : segments) {
                 int quality = m_segmentSelector->quality(*itSeg);
                 ATH_MSG_DEBUG(" Segment quality " << quality);
                 if (quality < m_segmentQualityCut) continue;
@@ -316,12 +316,10 @@ namespace MuonCombined {
                     ATH_MSG_DEBUG("Surface " << surface_counter);
                     if (surface_counter == 3) continue;
                     if (!hasSeg[surface_counter]) continue;
-		    if(atSurface){
-		      if(atSurface->pT()<500){
-			ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
-			break;
-		      }
-		    }
+                    if (atSurface && atSurface->pT() < 500) {
+                        ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
+                        break;
+                    }
 
                     if (m_doTable) didExtrapolate[extrapolation_counter] = "X";
 
@@ -423,7 +421,7 @@ namespace MuonCombined {
 
                         case 10:  // EOC
                             if ((hasSurf[8] || hasSurf[9]) && (atSurface)) {
-			        nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
+                                nextSurface.reset(p_MuTagMatchingTool->ExtrapolateTrktoMSSurface(surface, atSurface.get(), direction));
                                 if (nextSurface) hasSurf[surface_counter] = true;
                                 atSurface.swap(nextSurface);
                             } else {

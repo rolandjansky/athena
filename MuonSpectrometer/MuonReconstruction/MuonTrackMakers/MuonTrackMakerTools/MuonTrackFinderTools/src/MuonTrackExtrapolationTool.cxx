@@ -250,13 +250,15 @@ namespace Muon {
     }
 
     Trk::Track *MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track) const {
+        return extrapolate(track, Gaudi::Hive::currentContext());
+    }
+    Trk::Track *MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track, const EventContext &ctx) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         // if straightline track and the field is on return nullptr
         bool isSL = m_edmHelperSvc->isSLTrack(track);
         if (isSL) {  // check isSL first to limit access overhead
             MagField::AtlasFieldCache fieldCache;
             // Get field cache object
-            EventContext ctx = Gaudi::Hive::currentContext();
             SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
             const AtlasFieldCacheCondObj *fieldCondObj{*readHandle};
 
@@ -617,12 +619,15 @@ namespace Muon {
     }
 
     TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks) const {
+        return extrapolate(tracks, Gaudi::Hive::currentContext());
+    }
+    TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks, const EventContext &ctx) const {
         TrackCollection *extrapolateTracks = new TrackCollection();
         extrapolateTracks->reserve(tracks.size());
 
         // loop over muon tracks and extrapolate them to the IP
         for (const Trk::Track *tit : tracks) {
-            Trk::Track *extrapolateTrack = extrapolate(*tit);
+            Trk::Track *extrapolateTrack = extrapolate(*tit, ctx);
             if (!extrapolateTrack) { continue; }
 
             extrapolateTracks->push_back(extrapolateTrack);

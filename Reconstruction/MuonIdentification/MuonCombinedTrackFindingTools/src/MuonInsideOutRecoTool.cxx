@@ -128,7 +128,7 @@ namespace MuonCombined {
         if (!bestCandidate.first.get()) { return; }
 
         // add candidate to indet candidate
-        addTag(indetCandidate, tagMap, *bestCandidate.first.get(), bestCandidate.second, combTracks, meTracks, segColl);
+        addTag(ctx, indetCandidate, tagMap, *bestCandidate.first.get(), bestCandidate.second, combTracks, meTracks, segColl);
     }
 
     std::pair<std::unique_ptr<const Muon::MuonCandidate>, Trk::Track*> MuonInsideOutRecoTool::findBestCandidate(
@@ -153,7 +153,7 @@ namespace MuonCombined {
         // first handle easy cases of zero or one track
         if (tracks.empty()) return std::pair<std::unique_ptr<const Muon::MuonCandidate>, Trk::Track*>(nullptr, nullptr);
 
-        Trk::Track* selectedTrack = 0;
+        Trk::Track* selectedTrack = nullptr;
         if (tracks.size() == 1) {
             selectedTrack = tracks.front();
         } else {
@@ -181,11 +181,10 @@ namespace MuonCombined {
         // generate a track summary for this candidate
         if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*selectedTrack, nullptr, false); }
 
-        return std::make_pair(std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),
-                              new Trk::Track(*selectedTrack));
+        return std::make_pair(std::make_unique<Muon::MuonCandidate>(*candidate), new Trk::Track(*selectedTrack));
     }
 
-    void MuonInsideOutRecoTool::addTag(const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
+    void MuonInsideOutRecoTool::addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
                                        const Muon::MuonCandidate& candidate, Trk::Track* selectedTrack, TrackCollection* combTracks,
                                        TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
         const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
@@ -195,7 +194,7 @@ namespace MuonCombined {
 
         const xAOD::Vertex* matchedVertex = nullptr;
         if (!m_vertexKey.empty()) {
-            SG::ReadHandle<xAOD::VertexContainer> vertices{m_vertexKey};
+            SG::ReadHandle<xAOD::VertexContainer> vertices{m_vertexKey, ctx};
             if (!vertices.isValid()) {
                 ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
             } else {
@@ -245,7 +244,7 @@ namespace MuonCombined {
         }
 
         // perform standalone refit
-        Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack, bs_x, bs_y, bs_z);
+        Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack, ctx, bs_x, bs_y, bs_z);
 
         combTracks->push_back(selectedTrack);
         ElementLink<TrackCollection> comblink(*combTracks, combTracks->size() - 1);

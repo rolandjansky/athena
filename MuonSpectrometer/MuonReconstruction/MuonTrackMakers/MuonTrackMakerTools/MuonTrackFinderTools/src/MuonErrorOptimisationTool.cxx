@@ -64,6 +64,9 @@ namespace Muon {
     }
 
     std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors(Trk::Track* track) const {
+        return optimiseErrors(track, Gaudi::Hive::currentContext());
+    }
+    std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors(Trk::Track* track, const EventContext& ctx) const {
         if (m_refitTool.empty()) return std::unique_ptr<Trk::Track>();
         const Trk::Perigee* pp = track->perigeeParameters();
         bool isLowPt = false;
@@ -79,7 +82,7 @@ namespace Muon {
         // first refit with precise errors
         IMuonRefitTool::Settings settings = m_refitSettings;
         settings.broad = false;
-        std::unique_ptr<Trk::Track> refittedTrack = m_refitTool->refit(track, &settings);
+        std::unique_ptr<Trk::Track> refittedTrack = m_refitTool->refit(track, ctx, &settings);
         if (refittedTrack) {
             // check whether it is ok
             if (!m_edmHelperSvc->goodTrack(*refittedTrack, m_chi2NdofCutRefit)) {
