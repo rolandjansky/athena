@@ -73,7 +73,7 @@ BoundSurfaceCnv_p1< SURFACE, TPCnvForSurfBnds >::
 persToTrans( const Trk::BoundSurface_p1 *persObj, SURFACE *transObj, MsgStream &log )
 {
    m_surfaceCnv.persToTrans( persObj, transObj, log );
-   Trk::SurfaceBounds* bounds = this->createTransFromPStore( (TPCnvForSurfBnds**)0, persObj->m_bounds, log );
+   Trk::SurfaceBounds* bounds = this->createTransFromPStore( (TPCnvForSurfBnds**)nullptr, persObj->m_bounds, log );
    transObj->m_bounds = Trk::SharedObject<const Trk::SurfaceBounds>(bounds);
 }
 

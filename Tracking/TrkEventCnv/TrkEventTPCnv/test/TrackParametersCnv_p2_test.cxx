@@ -71,7 +71,7 @@ void compare (const Trk::TrackParameters& p1,
               
 void testit (const Trk::TrackParameters& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackParametersCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
@@ -93,7 +93,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
     for (int j=0; j < 5; j++)
       cov(i,j) = 100*(i+1)*(j+1);
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
 
   Trk::PerigeeSurface psurf (Amg::Vector3D (50, 100, 150));
   Trk::Perigee trans1 (100, 200, 1.5, 0.5, 1e-3, psurf, std::nullopt);

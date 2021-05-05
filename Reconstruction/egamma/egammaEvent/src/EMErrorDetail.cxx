@@ -58,7 +58,7 @@ double EMErrorDetail::parameter(egammaParameters::ParamDef key) const {
     return (double) intParameter(key);
   }
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
@@ -76,7 +76,7 @@ double EMErrorDetail::parameter(egammaParameters::ParamDef key) const {
 // ===================================================================
 void EMErrorDetail::set_parameterInt(egammaParameters::ParamDef key, int value, bool overwrite) {
 
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
  
@@ -104,7 +104,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
     set_parameterInt(key,(int)value,overwrite);
   }
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
   std::vector<elParams>::iterator p = m_parameters.begin();
  
   for (;p !=m_parameters.end(); p++) {

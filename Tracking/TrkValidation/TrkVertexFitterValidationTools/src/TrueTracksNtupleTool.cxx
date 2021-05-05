@@ -134,7 +134,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
             if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endmsg;
          } else {  
              TrackTruth trk_truth=found->second;
-             auto particle = trk_truth.particleLink();
+             const auto& particle = trk_truth.particleLink();
              auto prod_vtx = particle->production_vertex();
              //fill prod vertex
              m_prod_x->push_back(prod_vtx->position().x());

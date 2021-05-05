@@ -32,7 +32,7 @@ namespace Trk {
     , m_qOverP{}
     , m_previousQOverP{}
     , m_nDoF{}
-    , m_chi2ForMeasType(0)
+    , m_chi2ForMeasType(nullptr)
   {
     declareInterface<IAlignResidualCalculator>(this);
 
@@ -82,14 +82,14 @@ namespace Trk {
   //________________________________________________________________________
   double AlignResidualCalculator::setResiduals(AlignTSOSCollection* atsosColl,const Track* track)
   {
-    bool useNewTrack = (track!=0);
+    bool useNewTrack = (track!=nullptr);
     return setResiduals(atsosColl->begin(), atsosColl->end(), track, useNewTrack);
   }
 
   //________________________________________________________________________
   double AlignResidualCalculator::setResiduals(AlignTrack* alignTrack,const Track* track)
   {
-    bool useNewTrack = (track!=0);
+    bool useNewTrack = (track!=nullptr);
     const Track* newTrack = (useNewTrack) ? track : alignTrack;
     return setResiduals(alignTrack->firstAtsos(), alignTrack->lastAtsos(), newTrack, useNewTrack);
   }
@@ -171,7 +171,7 @@ namespace Trk {
 
       const MaterialEffectsBase*         meb        = tsos->materialEffectsOnTrack();
       const Trk::MaterialEffectsOnTrack* meot       = dynamic_cast<const MaterialEffectsOnTrack*>(meb);
-      const ScatteringAngles*            scatterer  = (meot) ? meot->scatteringAngles() : 0;
+      const ScatteringAngles*            scatterer  = (meot) ? meot->scatteringAngles() : nullptr;
 
       int nscatparam=0;
       if (meb && meot)
@@ -244,12 +244,12 @@ namespace Trk {
         double residual(-999.);
 
         if ( atsos->measType()!=TrackState::unidentified &&
-            (atsos->rio()!=0 || atsos->crio()!=0) ) {
+            (atsos->rio()!=nullptr || atsos->crio()!=nullptr) ) {
 
           const MeasurementBase* mesb = tsos->measurementOnTrack();
 
           const TrackParameters * trackPars = tsos->trackParameters();
-          const ResidualPull * resPull = 0;
+          const ResidualPull * resPull = nullptr;
 
           if ( trackPars ) {
 
@@ -330,7 +330,7 @@ namespace Trk {
   const TrackStateOnSurface*
   AlignResidualCalculator::getMatchingTSOS(const AlignTSOS* atsos, const Track* track) const
   {
-    const TrackStateOnSurface* tsos(0);
+    const TrackStateOnSurface* tsos(nullptr);
 
     if (atsos->rio() || atsos->crio()) {
 
@@ -375,7 +375,7 @@ namespace Trk {
       }
       ATH_MSG_DEBUG("done with scatterer");
     }
-    if (!tsos) return 0;
+    if (!tsos) return nullptr;
     const Amg::Vector3D addPosition=tsos->trackParameters()->position();
     if (std::find(m_matchedTSOS.begin(),m_matchedTSOS.end(),tsos)==m_matchedTSOS.end()) {
       m_matchedTSOS.push_back(tsos);

@@ -3,6 +3,8 @@
 */
 #undef NDEBUG
 #include "../src/TargetBuffer_t.h"
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include <limits>
@@ -52,7 +54,7 @@ public:
 
   Test2(unsigned int input=4, std::vector<unsigned int> hidden_layer_sizes = {8,3,1})
     : mnInput(input),
-      mnHiddenLayerSize(hidden_layer_sizes)
+      mnHiddenLayerSize(std::move(hidden_layer_sizes))
   {
     maxExpValue = log(std::numeric_limits<double>::max());
 
@@ -182,7 +184,7 @@ public:
     const unsigned lastTargetLayer(mnHidden);
     unsigned nSource = mnInput, nTarget(0);
     const double * source = &(input[0]);
-    double * target(0);
+    double * target(nullptr);
     const double * weights(nullptr);
     const double * thresholds(nullptr);
     double nodeVal(0);

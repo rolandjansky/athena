@@ -156,7 +156,7 @@ void compare (const Trk::Surface& s1,
 template <class CNV>
 void testit (const Trk::Surface& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CNV cnv;
   cnv.setCnvToolName ("TestCnvTool");
   Trk::Surface_p2 pers;

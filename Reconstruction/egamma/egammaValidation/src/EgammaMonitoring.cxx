@@ -805,7 +805,7 @@ StatusCode EgammaMonitoring::execute() {
 
     //loop over InDetTrackParticles
 
-    const xAOD::TrackParticleContainer* InDetTPs = 0;
+    const xAOD::TrackParticleContainer* InDetTPs = nullptr;
     if(!evtStore()->retrieve(InDetTPs, "InDetTrackParticles").isSuccess()) {
       Error("execute()", "Failed to retrieve InDetTrackParticles. Exiting.");
       return StatusCode::FAILURE;

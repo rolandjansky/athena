@@ -26,8 +26,8 @@ namespace TrkDriftCircleMath {
     //check that both ML have segments
     if(ml1segs.size() == 0 || ml2segs.size() == 0) return;
     //Chamber information needed to calculate Delta b
-    const LocPos ml1LocPos = mdtGeo.tubePosition(0,mdtGeo.nlay(),0);
-    const LocPos ml2LocPos = mdtGeo.tubePosition(1,1,0);           
+    const LocPos& ml1LocPos = mdtGeo.tubePosition(0,mdtGeo.nlay(),0);
+    const LocPos& ml2LocPos = mdtGeo.tubePosition(1,1,0);           
     double chamberMidPtY = (ml1LocPos.y() + ml2LocPos.y())/2.0;
     //loop over the ML segments and find matches
     if(m_debugLevel >= 10) std::cout << "CurvedSegmentsFinder begining match with " << ml1segs.size() << " ML1 segments and " << ml2segs.size() << " ML2 segments" << std::endl;

@@ -98,8 +98,8 @@ namespace JiveXML {
 //    const Trk::perigee* perigee = dynamic_cast<const Trk::perigee*>( trackPerigee );
 //    double m_d0 = perigee->parameters()[Trk::d0];
 
-    const Rec::TrackParticleContainer* tracks = NULL ;
-    const TrackCollection* trktracks = NULL ;
+    const Rec::TrackParticleContainer* tracks = nullptr ;
+    const TrackCollection* trktracks = nullptr ;
  
     size_t found;    
     std::string searchStr = "TrackParticle";

@@ -131,9 +131,9 @@ namespace Trk {
       
 
     std::vector<std::string> defaultMatInput,defaultVecInput,defaultTFile;
-    defaultMatInput.push_back("matrix.bin");
-    defaultVecInput.push_back("vector.bin");
-    defaultTFile.push_back("AlignmentTFile.root");
+    defaultMatInput.emplace_back("matrix.bin");
+    defaultVecInput.emplace_back("vector.bin");
+    defaultTFile.emplace_back("AlignmentTFile.root");
 
     declareProperty("InputMatrixFiles",   m_inputMatrixFiles    = defaultMatInput);
     declareProperty("InputVectorFiles",   m_inputVectorFiles    = defaultVecInput);
@@ -162,7 +162,7 @@ namespace Trk {
     declareProperty("WriteHitmapTxt",     m_writeHitmapTxt    = false);
     declareProperty("ReadHitmaps",        m_readHitmaps       = false);
     std::vector<std::string> defaultHitmapInput;
-    defaultMatInput.push_back("hitmap.bin");
+    defaultMatInput.emplace_back("hitmap.bin");
     declareProperty("InputHitmapFiles",   m_inputHitmapFiles    = defaultHitmapInput);
   
     declareProperty("MaxReadErrors",    m_maxReadErrors     = 10);
@@ -230,7 +230,7 @@ namespace Trk {
   {
     ATH_MSG_INFO("allocating matrix and vector with nDoF = "<<nDoF);
 
-    if (0!=m_bigmatrix || 0!=m_bigvector)
+    if (nullptr!=m_bigmatrix || nullptr!=m_bigvector)
       ATH_MSG_ERROR("big matrix already allocated!");
 
     // Decide upon the big matrix representation:
@@ -676,7 +676,7 @@ namespace Trk {
 
         // print module summary even when solving is not done
         if(m_logStream)
-          printModuleSolution(*m_logStream,module,0);
+          printModuleSolution(*m_logStream,module,nullptr);
 
         continue;
       }
@@ -857,7 +857,7 @@ namespace Trk {
   }
 
   //_______________________________________________________________________
-  void MatrixTool::storeInTFile(TString filename)
+  void MatrixTool::storeInTFile(const TString& filename)
   {
     //Store reults in a single TFile....
     //Including Matrix Vector Hitmap.. Soluton EVs etc.
@@ -965,7 +965,7 @@ namespace Trk {
     AlSymMat * symBigMatrix=dynamic_cast<AlSymMat*>(m_bigmatrix);
     AlSpaMat * spaBigMatrix=dynamic_cast<AlSpaMat*>(m_bigmatrix);
     //TMatrixDSparse *accumMatrix(0);
-    AlSpaMat *accumMatrix = 0;
+    AlSpaMat *accumMatrix = nullptr;
     
     const AlignModuleList * moduleList = m_alignModuleTool->alignModules1D();
     int nModules = moduleList->size();
@@ -1620,7 +1620,7 @@ namespace Trk {
       int thisNDoF = alignPars->size();
 
       // fill local covariance matrix
-      CLHEP::HepSymMatrix * covsub = 0;
+      CLHEP::HepSymMatrix * covsub = nullptr;
       if(cov && module->nHits() >= m_minNumHits && module->nTracks() >= m_minNumTrks) {
         covsub = new CLHEP::HepSymMatrix(thisNDoF,0);
         for (int i=0;i<thisNDoF;++i) {
@@ -1656,7 +1656,7 @@ namespace Trk {
   //________________________________________________________________________
   void MatrixTool::printGlobalSolution(std::ostream & os, const TMatrixDSym * cov0)
   {
-    CLHEP::HepSymMatrix * cov = 0;
+    CLHEP::HepSymMatrix * cov = nullptr;
     if(cov0) {
       int nsize = cov0->GetNrows();
       cov = new CLHEP::HepSymMatrix(nsize,0);
@@ -1799,7 +1799,7 @@ namespace Trk {
     }
 
     // store the original matrix for checks
-    AlSymMat * d2Chi2 = 0;
+    AlSymMat * d2Chi2 = nullptr;
     if (m_calculateFullCovariance)
       d2Chi2 = new AlSymMat(*aBetterMat);
 
@@ -2117,9 +2117,9 @@ namespace Trk {
       delete Align_db;
       delete Align_error_db;
       delete AlignPull;
-      Align_db = 0;
-      Align_error_db = 0;
-      AlignPull = 0;
+      Align_db = nullptr;
+      Align_error_db = nullptr;
+      AlignPull = nullptr;
 
     } // end of if(m_modcut == -1)
 
@@ -2171,7 +2171,7 @@ namespace Trk {
     AlVec errSq(size);
 
     // full covariance matrix
-    CLHEP::HepSymMatrix * cov = 0;
+    CLHEP::HepSymMatrix * cov = nullptr;
     if(m_calculateFullCovariance)
       // Warning ! The matrix can be huge!
       // This can lead to memory problems
@@ -2289,7 +2289,7 @@ namespace Trk {
 
     DataVector<AlignPar> * alignParList = m_alignModuleTool->alignParList1D();
 
-    AlSpaMat * ABetterMat = 0;
+    AlSpaMat * ABetterMat = nullptr;
     bool isCopy = false;
     if ( dynamic_cast<AlSymMat*>(m_bigmatrix) ) {
       ATH_MSG_INFO("Converting Matrix Format for fast solving");
@@ -2347,7 +2347,7 @@ namespace Trk {
 
     if( isCopy )
       delete ABetterMat;
-    ABetterMat = 0;
+    ABetterMat = nullptr;
 
     // stop measuring time
     clock_t stoptime = clock();
@@ -2378,7 +2378,7 @@ namespace Trk {
     }
 
     if(m_logStream) {
-      CLHEP::HepSymMatrix * cov = 0;
+      CLHEP::HepSymMatrix * cov = nullptr;
       printGlobalSolution(*m_logStream, cov);
 
       // norm of first derivative

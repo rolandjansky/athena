@@ -23,7 +23,7 @@ void PseudoMeasurementOnTrackCnv_p2::persToTrans( const Trk :: PseudoMeasurement
   EigenHelpers::vectorToEigenMatrix(dummy.values, localCovariance, "PseudoMeasurementOnTrackCnv_p2");
 
   Trk::ConstSurfaceUniquePtr surf
-    (this->createTransFromPStore( (ITPConverterFor<Trk::Surface>**)0, persObj->m_associatedSurface, log ));
+    (this->createTransFromPStore( (ITPConverterFor<Trk::Surface>**)nullptr, persObj->m_associatedSurface, log ));
   if (!surf){
     log<<MSG::WARNING<<"PseudoMeasurementOnTrackCnv_p2: Could not recreate Surface (null pointer)"<<endmsg;
     log<<MSG::VERBOSE<<(*transObj)<<endmsg;    
@@ -48,7 +48,7 @@ void PseudoMeasurementOnTrackCnv_p2::transToPers( const Trk :: PseudoMeasurement
       //     << "] id= ["<<transObj->associatedSurface().baseSurface()->associatedDetectorElementIdentifier()
       //          <<"] which has isFree()="<<transObj->associatedSurface().baseSurface()->isFree()<<std::endl;
     // std::cout<<*transObj<<std::endl;
-    persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, transObj->associatedSurface().baseSurface(), log);
+    persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)nullptr, transObj->associatedSurface().baseSurface(), log);
   }
   else {
     log<<MSG::WARNING<<"TrackParameter doesn't have a surface! Dumping: "<<*transObj<<endmsg;

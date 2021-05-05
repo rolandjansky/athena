@@ -8,10 +8,10 @@
 namespace Trk {
   void
   RecoInfoPlots::init() {
-    trackfitchi2 = NULL;
-    trackfitndof = NULL;
-    trackcon = NULL;
-    trackchi2prob = NULL;
+    trackfitchi2 = nullptr;
+    trackfitndof = nullptr;
+    trackcon = nullptr;
+    trackchi2prob = nullptr;
   }
 
   void

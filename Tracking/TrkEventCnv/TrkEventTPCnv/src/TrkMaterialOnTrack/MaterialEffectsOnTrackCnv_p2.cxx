@@ -24,8 +24,8 @@ void MaterialEffectsOnTrackCnv_p2 :: persToTrans(
      transObj->m_scatteringAngles =
        new Trk::ScatteringAngles(persObj->m_deltaPhi,persObj->m_deltaTheta,
                                  persObj->m_sigmaDeltaPhi,persObj->m_sigmaDeltaTheta);
-   } else transObj->m_scatteringAngles = NULL;
-   transObj->m_energyLoss = createTransFromPStore( (ITPConverterFor<Trk::EnergyLoss>**)0, persObj->m_energyLoss, log );
+   } else transObj->m_scatteringAngles = nullptr;
+   transObj->m_energyLoss = createTransFromPStore( (ITPConverterFor<Trk::EnergyLoss>**)nullptr, persObj->m_energyLoss, log );
    // transObj->m_energyLoss = createTransFromPStore( &m_elossCnv, persObj->m_energyLoss, log );
 }
 
@@ -35,7 +35,7 @@ void MaterialEffectsOnTrackCnv_p2 :: transToPers(
    MsgStream& log) 
 {
   persObj->m_mefBase = baseToPersistent( &m_mefBaseCnv, transObj, log );
-  if (transObj->scatteringAngles()!=NULL) {
+  if (transObj->scatteringAngles()!=nullptr) {
     persObj->m_deltaPhi        = (float)transObj->scatteringAngles()->deltaPhi();
     persObj->m_deltaTheta      = (float)transObj->scatteringAngles()->deltaTheta();
     persObj->m_sigmaDeltaPhi   = (float)transObj->scatteringAngles()->sigmaDeltaPhi();
@@ -43,7 +43,7 @@ void MaterialEffectsOnTrackCnv_p2 :: transToPers(
   }
   //  persObj->m_energyLoss = toPersistent( &m_elossCnv, transObj->m_energyLoss, log );  
 //  if (transObj->m_energyLoss!=0) std::cout<<"Ending MaterialEffectsOnTrackCnv_p2::transToPers: "<<(typeid(*(transObj->m_energyLoss))).name()<<std::endl;
-  persObj->m_energyLoss = toPersistent( (ITPConverterFor<Trk::EnergyLoss>**)0, transObj->energyLoss(), log );
+  persObj->m_energyLoss = toPersistent( (ITPConverterFor<Trk::EnergyLoss>**)nullptr, transObj->energyLoss(), log );
 }
 
 

@@ -113,7 +113,7 @@ namespace Trk {
 
     
     /** Store Files in a tfile */
-    void storeInTFile(TString filename);
+    void storeInTFile(const TString& filename);
 
     /** Store Files in a tfile */
     bool accumulateFromTFiles();

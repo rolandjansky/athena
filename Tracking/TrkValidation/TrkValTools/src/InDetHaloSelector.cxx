@@ -33,7 +33,7 @@ Trk::InDetHaloSelector::InDetHaloSelector(const std::string& type, const std::st
 StatusCode Trk::InDetHaloSelector::initialize() {
 
   // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   StatusCode sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     ATH_MSG_FATAL (" Could not initialize Particle Properties Service");
@@ -53,7 +53,7 @@ StatusCode Trk::InDetHaloSelector::finalize() {
 std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetHaloSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
-  if (! SimTracks) return NULL;
+  if (! SimTracks) return nullptr;
 
   std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
     new std::vector<HepMC::ConstGenParticlePtr>;

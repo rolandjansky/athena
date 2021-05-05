@@ -213,7 +213,7 @@ void compare (const Trk::Track& p1,
 
 void testit (const Trk::Track& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackCnv_p4 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

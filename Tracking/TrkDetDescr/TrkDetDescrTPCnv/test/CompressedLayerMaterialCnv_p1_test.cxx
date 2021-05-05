@@ -96,7 +96,7 @@ void testit (const Trk::CompressedLayerMaterial& trans1)
   LayerMaterialMapCnv_tlp1 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
   Trk::CompressedLayerMaterial_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::CompressedLayerMaterial trans2;
   cnv.persToTrans (&pers, &trans2, log);

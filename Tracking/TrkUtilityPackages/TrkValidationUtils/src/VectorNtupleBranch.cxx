@@ -7,7 +7,7 @@
 #include <TString.h>
 
 namespace Trk {
-  bool VectorNtupleBranch::initForWrite(TTree& tree, std::string varname, int nrow, std::string prefix ) {
+  bool VectorNtupleBranch::initForWrite(TTree& tree, const std::string& varname, int nrow, const std::string& prefix ) {
     if( nrow >= ROWMAX ) return false;
     m_nrows = nrow;
     for( int i=0;i<nrow;++i ){
@@ -19,7 +19,7 @@ namespace Trk {
     return true;
   }
 
-  bool VectorNtupleBranch::initForRead(TTree& tree, std::string varname, int nrow, std::string prefix ) { 
+  bool VectorNtupleBranch::initForRead(TTree& tree, const std::string& varname, int nrow, const std::string& prefix ) { 
     if( nrow >= ROWMAX ) return false;
     m_nrows = nrow;
     for( int i=0;i<nrow;++i ){

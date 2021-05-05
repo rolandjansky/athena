@@ -35,19 +35,19 @@ Trk::HitPositionNtupleHelper::HitPositionNtupleHelper(
         :
   AthAlgTool(t,n,p),
 
-  m_hitX(0), // do careful initialisation so we can issue a safe delete
-  m_hitY(0),
-  m_hitZ(0),
-  m_hitRadius(0),
-  m_hitPhi(0),
-  m_hitLoc1(0),
-  m_hitLoc2(0),
-  m_hitSurfaceX(0),
-  m_hitSurfaceY(0),
-  m_hitSurfaceZ(0),
-  m_hitSurfaceRadius(0),
-  m_hitSurfacePhi(0),
-  m_hitSurfaceTheta(0)
+  m_hitX(nullptr), // do careful initialisation so we can issue a safe delete
+  m_hitY(nullptr),
+  m_hitZ(nullptr),
+  m_hitRadius(nullptr),
+  m_hitPhi(nullptr),
+  m_hitLoc1(nullptr),
+  m_hitLoc2(nullptr),
+  m_hitSurfaceX(nullptr),
+  m_hitSurfaceY(nullptr),
+  m_hitSurfaceZ(nullptr),
+  m_hitSurfaceRadius(nullptr),
+  m_hitSurfacePhi(nullptr),
+  m_hitSurfaceTheta(nullptr)
 
  {
     declareInterface<IValidationNtupleHelperTool>(this);

@@ -95,7 +95,7 @@ void testit (const Trk::CompoundLayerMaterial& trans1,
 {
   CompoundLayerMaterialCnv_p1 cnv;
   Trk::CompoundLayerMaterial_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::CompoundLayerMaterial trans2;
   cnv.persToTrans (&pers, &trans2, log);
