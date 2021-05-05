@@ -35,54 +35,48 @@ Init.genunw  = ".true."
 hasNev = hasattr(runArgs,"maxEvents")
 if hasNev:
     Init.nev = str(runArgs.maxEvents)
-Init.ymin  = "-2.4d0"              # Minimum object rapidity Y_X
-Init.ymax  = "2.4d0"               # Maximum object rapidity Y_X
-Init.mmin  = "6d0"                 # Minimum object mass M_X
-Init.mmax  = "500d0"               # Maximum object mass M_X
+Init.ymin  = "-5.0d0"              # Minimum object rapidity Y_X
+Init.ymax  = "5.0d0"               # Maximum object rapidity Y_X
+Init.mmin  = "20d0"                 # Minimum object mass M_X
+Init.mmax  = "2000d0"               # Maximum object mass M_X
 Init.gencuts  = ".true."           # Generate cuts below
 Init.ptxmax  = "100d0"         #cut on proton pt
-Init.ptamin  = "3.0d0"             # Minimum pT of outgoing object a 
-Init.ptbmin  = "3.0d0"             # Minimum pT of outgoing object b 
-Init.etaamin  = "-2.4d0"           # Minimum eta of outgoing object a
-Init.etaamax   = "2.4d0"           # Maximum eta of outgoing object a
-Init.etabmin  = "-2.4d0"           # Minimum eta of outgoing object b
-Init.etabmax   = "2.4d0"           # Maximum eta of outgoing object b
+Init.ptamin  = "10.0d0"             # Minimum pT of outgoing object a 
+Init.ptbmin  = "10.0d0"             # Minimum pT of outgoing object b 
+Init.etaamin  = "-2.5d0"           # Minimum eta of outgoing object a
+Init.etaamax   = "2.5d0"           # Maximum eta of outgoing object a
+Init.etabmin  = "-2.5d0"           # Minimum eta of outgoing object b
+Init.etabmax   = "2.5d0"           # Maximum eta of outgoing object b
 Init.acoabmax  = "100d0"
 
 
 SuperChicRun(Init)
 
 
+## Base config for Pythia8
+from Pythia8_i.Pythia8_iConf import Pythia8_i
+genSeq += Pythia8_i("Pythia8")
 evgenConfig.generators += ["Pythia8"]
 
-include("Pythia8_i/Pythia8_Base_Fragment.py")
+## Control storing LHE in the HepMC record
+if "StoreLHE" in genSeq.Pythia8.__slots__.keys():
+    print "Pythia8_Base_Fragment.py: DISABLING storage of LHE record in HepMC by default. Please re-enable storage if desired"
+    genSeq.Pythia8.StoreLHE = False
 
 genSeq.Pythia8.Commands += [
-  "PDF:pSet= LHAPDF6:NNPDF23_nnlo_as_0118_qed",
-    "SpaceShower:rapidityOrder = on",
-    "SigmaProcess:alphaSvalue = 0.140",
-    "SpaceShower:pT0Ref = 1.56",
-    "SpaceShower:pTmaxFudge = 0.91",
-    "SpaceShower:pTdampFudge = 1.05",
-    "SpaceShower:alphaSvalue = 0.127",
-    "TimeShower:alphaSvalue = 0.127",
-    "SpaceShower:pTdampMatch = 1",
-    "BeamRemnants:primordialKThard = 1.88",
     "PartonLevel:MPI = off",
-    "PartonLevel:FSR = on",
     "SpaceShower:dipoleRecoil = on",
     "SpaceShower:pTmaxMatch = 2",
-    "SpaceShower:QEDshowerByQ = off"
+    "BeamRemnants:primordialKT = off",
+    "SpaceShower:QEDshowerByQ = off",
+    "BeamRemnants:unresolvedHadron = 0",
+    "SpaceShower:pTdampMatch=1"
 ]
-
-evgenConfig.tune = "NNPDF23_QED"
-
-#EvtGen for b fragmentation as default.  No EvtGen is available in "nonStandard"
-include("Pythia8_i/Pythia8_EvtGen.py")
-
-include("Pythia8_i/Pythia8_ShowerWeights.py")
 
 assert hasattr(genSeq, "Pythia8")
 fileName = "evrecs/evrec"+Init.outtg[1:-1]+".dat"
 genSeq.Pythia8.LHEFile = fileName
 genSeq.Pythia8.CollisionEnergy = int(runArgs.ecmEnergy)
+
+testSeq.TestHepMC.MaxTransVtxDisp = 1000000
+testSeq.TestHepMC.MaxVtxDisp      = 1000000000
