@@ -63,7 +63,7 @@ class TileCondToolNoiseSample: public AthAlgTool
         "TileSampleNoise", "TileSampleNoise", "Input Tile sample noise constants"};
 
     SG::ReadCondHandleKey<TileCalibDataFlt> m_calibOnlineSampleNoiseKey{this,
-        "TileOnlineSampleNoise", "TileOnlineSampleNoise", "Input Tile online noise sample constants"};
+        "TileOnlineSampleNoise", "", "Input Tile online noise sample constants (e.g.: TileOnlineSampleNoise)"};
 
     SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this,
         "TileEMScale", "TileEMScale", "Input Tile EMS conditions"};
