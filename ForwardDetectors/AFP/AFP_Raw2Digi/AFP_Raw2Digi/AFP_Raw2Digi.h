@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef RAW2DIGI_RAW2DIGI_H
 #define RAW2DIGI_RAW2DIGI_H 1
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 
@@ -16,7 +16,7 @@
 #include <iostream>
 #include <string>
 
-class AFP_Raw2Digi : public ::AthAlgorithm {
+class AFP_Raw2Digi : public ::AthReentrantAlgorithm {
 public:
   AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator);
 
@@ -26,7 +26,7 @@ public:
   virtual StatusCode initialize();
 
   /// Executes commands in #m_digitool
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext &ctx) const;
   virtual StatusCode finalize();
 
 private:

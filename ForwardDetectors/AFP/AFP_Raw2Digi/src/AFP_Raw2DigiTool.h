@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_RAW2DIGITOOL_H
@@ -26,12 +26,12 @@ public:
   virtual StatusCode initialize() override;
 
   /// Creates xAOD for silicon detector
-  StatusCode recoSiHits() override;
+  StatusCode recoSiHits(const EventContext &ctx) const override;
 
   /// Creates xAOD for time-of-flight detector
-  StatusCode recoToFHits() override;
+  StatusCode recoToFHits(const EventContext &ctx) const override;
 
-  StatusCode recoAll() override;
+  StatusCode recoAll(const EventContext &ctx) const override;
 
   
   /// Does nothing
@@ -59,6 +59,8 @@ protected:
   /// @brief Function that transforms time-over-threshold to charge
   ///
   /// Transformation function can be set in steering cards
+  Gaudi::Property<std::string> m_totToChargeTransfExpr{this, "TotToChargeTransfExpr", "1909 + x*363 + x*x*141", "Function that transforms time-over-threshold to charge"};
+  Gaudi::Property<std::string> m_totToChargeTransfName{this, "TotToChargeTransfName", "TotToChargeTransfFunction", "Name of the function that transforms time-over-threshold to charge"};
   TF1 m_totToChargeTransformation;	
 
   /// Method that creates a new AFPToFHit and sets it valus according to #data
