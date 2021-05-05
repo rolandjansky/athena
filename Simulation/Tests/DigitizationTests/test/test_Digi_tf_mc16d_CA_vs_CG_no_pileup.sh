@@ -61,7 +61,7 @@ then
     --maxEvents ${Events} \
     --outputRDOFile ${DigiOutFileNameCA} \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
-    --preInclude 'HITtoRDO:Campaigns.MC20d' \
+    --preInclude 'HITtoRDO:Campaigns.MC16d' \
     --skipEvents 0
 
     rc2=$?
