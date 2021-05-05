@@ -82,6 +82,59 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
     return selectors
 
 
+#
+# Electron CB Selectors
+#
+def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
+    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
+
+    ElectronLooseHI = (0
+        | 1 << BitDefElectron.ClusterEtaRange_Electron
+        | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
+        | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
+        | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
+        | 1 << BitDefElectron.ClusterMiddleWidth_Electron
+        | 1 << BitDefElectron.ClusterStripsWtot_Electron
+    )
+
+    ElectronMediumHI = (ElectronLooseHI
+        | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
+        | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
+        | 1 << BitDefElectron.ClusterStripsEratio_Electron
+        | 1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron
+        | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
+        | 1 << BitDefElectron.ClusterStripsFracm_Electron
+        | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
+    )
+
+    if not ConfigFilePath:
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+
+    from collections import OrderedDict
+    SelectorNames = OrderedDict({
+        'medium': 'AsgElectronIsEMSelectorHIMedium',
+        'loose': 'AsgElectronIsEMSelectorHILoose',
+    })
+
+    ElectronToolConfigFile = {
+        'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
+        'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+    }
+
+    ElectronMaskBits = {
+        'medium': ElectronMediumHI,
+        'loose': ElectronLooseHI,
+    }
+
+    selectors = []
+    for sel, name in SelectorNames.items():
+        SelectorTool = CfgMgr.AsgElectronIsEMSelector(name)
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
+        SelectorTool.isEMMask = ElectronMaskBits[sel]
+        selectors.append(SelectorTool)
+
+    return selectors
+
 
 #
 # Photon IsEM selectors

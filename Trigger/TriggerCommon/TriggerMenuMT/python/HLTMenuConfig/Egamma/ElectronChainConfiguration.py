@@ -124,6 +124,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'mediumidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'tightidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'loose'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                'medium'    : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],

@@ -13,6 +13,7 @@ def same( val , tool):
 #
 def createTrigEgammaPrecisionElectronHypoAlgMT(name, sequenceOut):
     # make the Hypo
+    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
     #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
 
@@ -20,8 +21,10 @@ def createTrigEgammaPrecisionElectronHypoAlgMT(name, sequenceOut):
     thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
+    thePrecisionElectronHypo.ElectronCBSelectorTools = createTrigEgammaPrecisionElectronCBSelectors()
     thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
     #thePrecisionElectronHypo.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
+    thePrecisionElectronHypo.CBNames = ["medium", "loose"] # just like the pidnames
     thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose"] # just like the pidnames
     #thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose", "dnnvloose"] # just like the pidnames
 

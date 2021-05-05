@@ -22,6 +22,9 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize()
 
   ATH_CHECK( m_hypoTools.retrieve() );
 
+  ATH_MSG_DEBUG( "Retrieving egammaElectronCBTool..."  );
+  ATH_CHECK(m_egammaElectronCBTools.retrieve());
+
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
   ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
   ATH_CHECK(m_egammaElectronLHTools.retrieve());
@@ -107,6 +110,13 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
           float avg_mu = eventInfoDecor(0);
           ATH_MSG_DEBUG("Average mu " << avg_mu);
           info.valueDecorator["avgmu"] = avg_mu;
+        }
+
+        // Decorate the info with all CB decisions
+        for (std::size_t i = 0; i < m_cbNames.size(); ++i) {
+          auto const& pidname = m_cbNames[i];
+
+          info.pidDecorator[pidname] = (bool)m_egammaElectronCBTools[i]->accept(electronHandle->at(cl));
         }
 
         // Decorate the info with all LH decisions
