@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 muCombMT Fex Algorithm Configuration:
@@ -8,7 +8,6 @@
 
 from TrigmuComb.TrigmuCombConf import muCombMT
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
 from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
 
@@ -37,10 +36,6 @@ class TrigmuCombMTConfig (muCombMT):
       self.WinEtaSigma_g4 = 7.0
       self.WinPhiSigma_g4 = 7.0
       self.Chi2Weight_g4  = 2.0
-      if TriggerFlags.run2Config=='2016':
-        self.WinEtaSigma_g4 = 4.0
-        self.WinPhiSigma_g4 = 4.0
-        self.Chi2Weight_g4  = 1.0
 
       # pt resolution parameters for ID-SAmuon match from SAmuon developers (2016 data)
       if globalflags.DetDescrVersion().find('CSC')!=-1:
