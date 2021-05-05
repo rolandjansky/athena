@@ -74,7 +74,7 @@ def generate_chaincomp_step(slice_name):
 slice_names = ['Bjet', 'Bphysics', 'Egamma', 'Jet', 'MET', 'Muon', 'Tau']
 
 test = Test.Test()
-test.art_type = 'build'
+test.art_type = 'grid'
 test.exec_steps = generate_exec_steps()  # Full menu
 for name in slice_names:
     test.exec_steps.extend(generate_exec_steps(name))

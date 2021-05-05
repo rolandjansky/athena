@@ -172,7 +172,7 @@ def generate_chaincomp_step(slice_name):
 
 # Test configuration
 test = Test.Test()
-test.art_type = 'build'
+test.art_type = 'grid'
 test.exec_steps = generate_config_steps()
 test.exec_steps.extend(generate_exec_steps())  # Full menu
 for name in _slice_dict:
