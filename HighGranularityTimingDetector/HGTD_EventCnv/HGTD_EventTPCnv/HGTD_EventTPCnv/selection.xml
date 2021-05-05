@@ -1,0 +1,6 @@
+<lcgdict>
+    <!-- HGTD_PrepRawData -->
+    <class name="HGTD::HGTD_Cluster_p1" />
+    <class name="std::vector<HGTD::HGTD_Cluster_p1>" />
+    <class name="HGTD::HGTD_ClusterContainer_p1" id="7b3d57d6-f590-4266-974d-a0807122da5f" />
+</lcgdict>
