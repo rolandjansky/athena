@@ -964,6 +964,40 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
                                                       goodPhotons, goodElectrons, goodMuons, goodTaus,
                                                       goodJets, goodLargeRJets, looseLeptonOR);
 
+    //test option for muons to store them also if they are removed from OR, saving a flag with the OR result for them
+    if(m_config->noORForMuons())
+    {
+      std::string passTopCuts("");
+      if (!looseLeptonOR) {
+        passTopCuts = "passPreORSelection";
+      }
+      if (looseLeptonOR) {
+        passTopCuts = "passPreORSelectionLoose";
+      }
+      std::vector<unsigned int> goodMuonsTemp;
+      unsigned int iMu=0;
+      for (const xAOD::Muon* x: *xaod_mu) 
+      {
+        if(x->auxdataConst< char >(passTopCuts) == 1) 
+        {
+          goodMuonsTemp.push_back(iMu);
+        }
+        bool passOR=false;
+        for(unsigned int isGoodMu : goodMuons)
+        {
+          if(iMu == isGoodMu)
+          {
+            passOR=true;
+            break;
+          }
+        }
+        x->auxdecor<char>("passOverlapRemoval") = passOR;
+        iMu++;
+      }
+      goodMuons = goodMuonsTemp;
+      
+    }
+    
     // Additonal lepton information
     std::vector<unsigned int> overlapsEl, overlapsMu;
     if (m_overlapRemovalToolPostSelection->overlapsEl(overlapsEl)) {

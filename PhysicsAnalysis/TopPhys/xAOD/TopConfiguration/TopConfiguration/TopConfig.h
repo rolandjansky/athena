@@ -301,6 +301,13 @@ namespace top {
 
     inline float overlapRemovalSlidingInnerDRmu() const
     {return m_overlapRemovalSlidingInnerDRmu;}
+    
+    //test option for muon OR
+    inline void setNoORForMuons(bool in){ 
+      if (!m_configFixed) m_noORForMuons=in;
+    }
+    
+    inline bool noORForMuons() const{ return m_noORForMuons;}
 
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
@@ -2214,6 +2221,9 @@ namespace top {
 
     float m_overlapRemovalSlidingInnerDRel = 0.2;
     float m_overlapRemovalSlidingInnerDRmu = 0.2;
+    
+    //test option for muon OR
+    bool m_noORForMuons;
 
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)

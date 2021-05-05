@@ -881,6 +881,10 @@ namespace top {
           systematicTree->makeOutputVariable(m_mu_true_IFFclass, "mu_true_IFFclass");
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
         }
+        if(m_config->noORForMuons())
+        {
+          systematicTree->makeOutputVariable(m_mu_passOR, "mu_passOR");
+        }
 	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
 	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_b, "PLIV_mu_PromptLeptonRNN_non_prompt_b");
 	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_c, "PLIV_mu_PromptLeptonRNN_non_prompt_c");
@@ -2292,6 +2296,8 @@ namespace top {
       m_mu_topoetcone20.resize(n_muons);
       m_mu_ptvarcone30.resize(n_muons);
       m_mu_isTight.resize(n_muons);
+      m_mu_passOR.resize(n_muons);
+      
       for (const auto& trigger : m_mu_trigMatched)
         m_mu_trigMatched[trigger.first].resize(n_muons);
       m_mu_d0sig.resize(n_muons);
@@ -2342,6 +2348,12 @@ namespace top {
             m_mu_isTight[i] = muPtr->auxdataConst<char>("passPreORSelection");
           }
         }
+        
+        if(m_config->noORForMuons())
+        {
+          m_mu_passOR[i]=muPtr->auxdataConst<char>("passOverlapRemoval");
+        }
+        
         for (const auto& trigger : m_mu_trigMatched) {
           std::string trig = "TRIGMATCH_" + trigger.first;
           m_mu_trigMatched[trigger.first][i] = muPtr->auxdataConst<char>(trig);

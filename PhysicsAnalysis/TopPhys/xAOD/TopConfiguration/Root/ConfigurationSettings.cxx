@@ -665,6 +665,8 @@ namespace top {
                                                  " noPhotonMuOR, noPhotonMuOrJetOR",
                       "recommended"
                       );
+    
+    registerParameter("NoOverlapRemovalForMuons", "For tests: do not remove muons due to OR, instead store a flag with the OR result for them in the output. True or False (default: False).", "False");
 
     registerParameter("OverlapRemovalSlidingInnerDRel",
                       "Overlap removal inner radius to be used for electron SlidingDR ,", "0.2");
