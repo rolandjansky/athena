@@ -34,7 +34,7 @@ StatusCode SelectEventNumber::initialize()
   int run,event;
   if (input.is_open()) {
     while (input>>run>>event) {
-      m_goodEventList.push_back(std::make_pair(run,event));
+      m_goodEventList.emplace_back(run,event);
       ATH_MSG_DEBUG("adding run "<<run<<", event "<<event);
     }
   } 

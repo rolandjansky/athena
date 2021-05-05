@@ -30,12 +30,12 @@ namespace Trk {
     , m_passconstrainedRequirements(0)
     , m_unconstrainedTracks(0)
     , m_inputTrackCollection("Tracks")
-    , m_constraintInputFile_P(0)
-    , m_etaphiMap_P(0)
-    , m_constraintInputFile_d0(0)
-    , m_etaphiMap_d0(0)
-    , m_constraintInputFile_z0(0)
-    , m_etaphiMap_z0(0)
+    , m_constraintInputFile_P(nullptr)
+    , m_etaphiMap_P(nullptr)
+    , m_constraintInputFile_d0(nullptr)
+    , m_etaphiMap_d0(nullptr)
+    , m_constraintInputFile_z0(nullptr)
+    , m_etaphiMap_z0(nullptr)
    {
     declareInterface<ITrackCollectionProvider>(this);
     declareProperty("TrackFitter",              m_trackFitter                      );
@@ -183,7 +183,7 @@ namespace Trk {
   {
    
 
-    const TrackCollection* originalTracks = 0;
+    const TrackCollection* originalTracks = nullptr;
     
     if ( StatusCode::SUCCESS != evtStore()->retrieve(originalTracks, m_inputTrackCollection) ){
       ATH_MSG_WARNING(" Can't retrieve " << m_inputTrackCollection << " from the StoreGate ");

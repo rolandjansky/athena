@@ -51,7 +51,7 @@ namespace Trk {
     declareProperty("RemoveATSOSNotInAlignModule", m_removeATSOSNotInAlignModule=true);
     declareProperty("IncludeScatterers",           m_includeScatterers = true );
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -122,15 +122,15 @@ namespace Trk {
     int ntsos(0);
     double chi2(0.);
 
-    AlignModule * lastModule(0);
+    AlignModule * lastModule(nullptr);
     bool overlapTrack(false);
 
     ATH_MSG_DEBUG("nDoF: "<<at->fitQuality()->numberDoF()<<", tsos size: "<<at->trackStateOnSurfaces()->size());
 
     for (const TrackStateOnSurface* tsos : *at->trackStateOnSurfaces()) {
 
-      AlignTSOS * atsos(0);
-      AlignModule * module(0);
+      AlignTSOS * atsos(nullptr);
+      AlignModule * module(nullptr);
 
       if (tsos->type(TrackStateOnSurface::Outlier) ||
           tsos->type(TrackStateOnSurface::Perigee) ||
@@ -226,7 +226,7 @@ namespace Trk {
 
         int run=eventInfo->runNumber();
         int evt=eventInfo->eventNumber();
-        m_goodEventList.push_back(std::make_pair(run,evt));
+        m_goodEventList.emplace_back(run,evt);
       }
 
       // set residuals on ATSOS and get local chi2

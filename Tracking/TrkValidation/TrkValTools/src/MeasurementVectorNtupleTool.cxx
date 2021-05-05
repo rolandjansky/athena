@@ -156,7 +156,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
     m_updator = &(*m_updatorHandle);
   } else {
     ATH_MSG_DEBUG ("No Updator for unbiased track states given, use normal states!");
-    m_updator = 0;
+    m_updator = nullptr;
   }
 
   // need an Atlas id-helper to identify sub-detectors, take the one from detStore
@@ -464,7 +464,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // fill info about trackstates in ntuple
   const DataVector<const Trk::TrackStateOnSurface>* trackStates=track.trackStateOnSurfaces();
-  if (trackStates == 0) {
+  if (trackStates == nullptr) {
     msg(MSG::WARNING) << "current track does not have any TrackStateOnSurface vector, no data will be written for this track" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -495,7 +495,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       } // end if (!measurement)
       TrackState::MeasurementType detectorType = m_detTypeHelper->defineType(measurement);
       const Trk::TrackParameters* theParameters = (*it)->trackParameters();
-      const Trk::TrackParameters* unbiasedParameters = NULL;
+      const Trk::TrackParameters* unbiasedParameters = nullptr;
 
       // -----------------------------------------
       // use unbiased track states or normal ones?
@@ -577,7 +577,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       }
     } // end loop on holes
     delete holesOnTrack;
-    holesOnTrack = 0;
+    holesOnTrack = nullptr;
   }
 
   return StatusCode::SUCCESS;
@@ -742,7 +742,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
 
     ATH_MSG_VERBOSE ("in fillMeasurementData");
 
-    if (!isOutlier && trkParameters==NULL) {
+    if (!isOutlier && trkParameters==nullptr) {
       ATH_MSG_VERBOSE ("Given TrackParameters == NULL");
       if(!m_trkParametersWarning) {
         // warn once only!

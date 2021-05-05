@@ -19,7 +19,7 @@ namespace Trk {
   {
     declareInterface<ITrkAlignDBTool>(this);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
    //_______________________________________________________________________

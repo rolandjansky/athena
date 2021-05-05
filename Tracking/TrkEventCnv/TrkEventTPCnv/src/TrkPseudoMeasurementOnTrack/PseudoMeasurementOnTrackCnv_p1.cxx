@@ -23,7 +23,7 @@ void PseudoMeasurementOnTrackCnv_p1::persToTrans( const Trk :: PseudoMeasurement
   fillTransFromPStore( &m_localErrMatCnv, persObj->m_localErrMat, &dummy, log );
   EigenHelpers::vectorToEigenMatrix(dummy.values, localCovariance, "PseudoMeasurementOnTrackCnv_p1");
    
-  ITPConverterFor<Trk::Surface>* surfaceCnv=0;
+  ITPConverterFor<Trk::Surface>* surfaceCnv=nullptr;
   Trk::ConstSurfaceUniquePtr surf
     (this->createTransFromPStore( &surfaceCnv, persObj->m_associatedSurface, log ));
 
@@ -45,7 +45,7 @@ void PseudoMeasurementOnTrackCnv_p1::transToPers( const Trk :: PseudoMeasurement
   EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "PseudoMeasurementOnTrackCnv_p1");
   persObj->m_localErrMat = toPersistent( &m_localErrMatCnv, &pMat, log );
 
-  ITPConverterFor<Trk::Surface>* surfaceCnv=0;
+  ITPConverterFor<Trk::Surface>* surfaceCnv=nullptr;
   if (transObj->hasSurface())
   {
   // FIXME - this is to handle curvilinear parameters, by forcing them to build a surface. In fact they need a different

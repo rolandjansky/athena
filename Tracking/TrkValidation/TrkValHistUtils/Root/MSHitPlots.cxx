@@ -6,7 +6,7 @@
 #include "xAODTracking/TrackingPrimitives.h"
 
 namespace Trk {
-  MSHitPlots::MSHitPlots(PlotBase *pParent, std::string sDir) :
+  MSHitPlots::MSHitPlots(PlotBase *pParent, const std::string& sDir) :
     PlotBase(pParent, sDir),
     nprecLayers(this, "nprecLayers", "Precision Layers", 0, 10),
     nphiLayers(this, "nphiLayers", "Phi Layers", 0, 10),

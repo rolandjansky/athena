@@ -111,14 +111,14 @@ Trk::CuboidVolumeBounds* Trk::GeoShapeConverter::convert(const GeoBox* gbox) con
 
 Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::Transform3D* transf) const
 {
-  Trk::Volume* vol=0;
+  Trk::Volume* vol=nullptr;
   double tol = 0.1;
 
   DEBUG_TRACE( std::cout << " translateGeoShape " << sh->type() << std::endl; );
 
   if ( sh->type()=="Trap") {
     const GeoTrap* trap = dynamic_cast<const GeoTrap*> (sh);
-    Trk::TrapezoidVolumeBounds* volBounds = 0;
+    Trk::TrapezoidVolumeBounds* volBounds = nullptr;
     if (trap->getDxdyndzp()<trap->getDxdyndzn())
       volBounds=new Trk::TrapezoidVolumeBounds(trap->getDxdyndzp(),trap->getDxdyndzn(),trap->getDydzn(),trap->getZHalfLength() );
     else
@@ -131,7 +131,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 
   if ( sh->type()=="Pgon") {
     const GeoPgon* pgon = dynamic_cast<const GeoPgon*>(sh);
-    if (!pgon) return 0;
+    if (!pgon) return nullptr;
     double hlz = 0.5*fabs(pgon->getZPlane(1)-pgon->getZPlane(0));
     double phiH = pgon->getDPhi()/(2.*pgon->getNSides());
     double hly = 0.5*cos(phiH)*(pgon->getRMaxPlane(0)-pgon->getRMinPlane(0));
@@ -144,7 +144,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
       Trk::CylinderVolumeBounds* volBounds = new Trk::CylinderVolumeBounds(pgon->getRMaxPlane(0),hlz);
       Trk::CuboidVolumeBounds* subBounds = new Trk::CuboidVolumeBounds(hlxmax+tol,hlxmax+tol,hlz+tol);
       Trk::Volume* volume = new Trk::Volume(new Amg::Transform3D(*transf),volBounds);
-      Trk::Volume* bVol = new Trk::Volume(0,subBounds);
+      Trk::Volume* bVol = new Trk::Volume(nullptr,subBounds);
       const unsigned int nsides(pgon->getNSides());
       const double twicePhiH(2.0*phiH);
       const double xTranslationDistance=hlxmax + cos(phiH) * (pgon->getRMaxPlane(0));
@@ -159,7 +159,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
         //HepGeom::Transform3D trP(*transf*HepGeom::RotateZ3D(2*i*phiH)*HepGeom::TranslateX3D(hlxmax+cos(phiH)*pgon->getRMaxPlane(0)));
         Trk::Volume* volS = new Trk::Volume(*bVol,totalTransform);
         Trk::SubtractedVolumeBounds* combBounds = new Trk::SubtractedVolumeBounds(volume,volS);
-        volume = new Trk::Volume(0,combBounds);
+        volume = new Trk::Volume(nullptr,combBounds);
       }
       delete bVol;
       return volume;
@@ -381,8 +381,8 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 
   if ( sh->type() == "Pcon" ) {
     const GeoPcon* con = dynamic_cast<const GeoPcon*> (sh);
-    if (!con) return 0;
-    Trk::CylinderVolumeBounds* volBounds = 0;
+    if (!con) return nullptr;
+    Trk::CylinderVolumeBounds* volBounds = nullptr;
     double aPhi = con->getSPhi();
     double dPhi = con->getDPhi();
     double z1 = con->getZPlane(0);
@@ -452,11 +452,11 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     if (cyls.size()<2) return cyls[0];
     else {
       Trk::CombinedVolumeBounds* comb = new Trk::CombinedVolumeBounds(cyls[0],cyls[1],false);
-      Trk::Volume* combVol = new Trk::Volume(0,comb);
+      Trk::Volume* combVol = new Trk::Volume(nullptr,comb);
       unsigned int ic = 2;
       while ( ic<cyls.size() ){
         comb = new Trk::CombinedVolumeBounds(combVol,cyls[ic],false);
-        combVol = new Trk::Volume(0,comb);
+        combVol = new Trk::Volume(nullptr,comb);
         ic++;
       }
       return combVol;
@@ -465,7 +465,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 
   if ( sh->type()=="SimplePolygonBrep") {
     const GeoSimplePolygonBrep* spb = dynamic_cast<const GeoSimplePolygonBrep*> (sh);
-    if (!spb) return 0;
+    if (!spb) return nullptr;
     unsigned int nv = spb->getNVertices();
     std::vector<std::pair<double,double> > ivtx(nv);
     for (unsigned int iv = 0; iv < nv; iv++) {
@@ -477,7 +477,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 
   if ( sh->type()=="Subtraction") {
     const GeoShapeSubtraction* sub = dynamic_cast<const GeoShapeSubtraction*> (sh);
-    if (!sub) return 0;
+    if (!sub) return nullptr;
     const GeoShape* shA = sub->getOpA();
     const GeoShape* shB = sub->getOpB();
     Trk::Volume* volA = translateGeoShape(shA, transf);
@@ -485,13 +485,13 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     Trk::Volume* volB = translateGeoShape(shB, transf);
     if (!volB ) { delete volA; return vol; }
     Trk::SubtractedVolumeBounds* volBounds = new Trk::SubtractedVolumeBounds(volA, volB);
-    vol = new Trk::Volume(0, volBounds );
+    vol = new Trk::Volume(nullptr, volBounds );
     return vol;
   }
 
   if ( sh->type()=="Union") {
     const GeoShapeUnion* uni = dynamic_cast<const GeoShapeUnion*> (sh);
-    if (!uni) return 0;
+    if (!uni) return nullptr;
     const GeoShape* shA = uni->getOpA();
     const GeoShape* shB = uni->getOpB();
     Trk::Volume* volA = translateGeoShape(shA, transf);
@@ -499,13 +499,13 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     Trk::Volume* volB = translateGeoShape(shB, transf);
     if (!volB ) { delete volA; return vol; }
     Trk::CombinedVolumeBounds* volBounds = new Trk::CombinedVolumeBounds(volA,volB,false);
-    vol = new Trk::Volume(0, volBounds );
+    vol = new Trk::Volume(nullptr, volBounds );
     return vol;
   }
 
   if ( sh->type()=="Intersection") {
     const GeoShapeIntersection* intersect = dynamic_cast<const GeoShapeIntersection*> (sh);
-    if (!intersect) return 0;
+    if (!intersect) return nullptr;
     const GeoShape* shA = intersect->getOpA();
     const GeoShape* shB = intersect->getOpB();
     Trk::Volume* volA = translateGeoShape(shA, transf);
@@ -513,13 +513,13 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     Trk::Volume* volB = translateGeoShape(shB, transf);
     if (!volB ) { delete volA; return vol; }
     Trk::CombinedVolumeBounds* volBounds = new Trk::CombinedVolumeBounds(volA,volB,true);
-    vol = new Trk::Volume(0, volBounds );
+    vol = new Trk::Volume(nullptr, volBounds );
     return vol;
   }
 
   if ( sh->type()=="Shift") {
     const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sh);
-    if (!shift) return 0;
+    if (!shift) return nullptr;
     const GeoShape* shA = shift->getOp();
     //check this!
     const Amg::Transform3D tr = shift->getX();
@@ -602,7 +602,7 @@ void Trk::GeoShapeConverter::decodeShape(const GeoShape* sh) const
   if ( sh->type()=="Shift") {
     const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sh);
     const GeoShape* shA = shift->getOp();
-    const GeoTrf::Transform3D transf = shift->getX();
+    const GeoTrf::Transform3D& transf = shift->getX();
     std::cout << "shifted by:transl:" <<transf.translation() <<", rot:"
               << transf(0,0)<<"," << transf(1,1) <<"," << transf(2,2) << std::endl;
     decodeShape(shA);

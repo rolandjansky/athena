@@ -9,8 +9,8 @@ namespace Trk{
 
 void HitResidualPlots::init() {
 
-    residuals=NULL;
-    pulls=NULL;
+    residuals=nullptr;
+    pulls=nullptr;
 }
   
 void HitResidualPlots::initializePlots(){

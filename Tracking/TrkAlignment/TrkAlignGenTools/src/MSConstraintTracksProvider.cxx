@@ -347,7 +347,7 @@ namespace Trk {
        Muon::IMuonHitSummaryTool::CompactSummary summary;
        const Rec::TrackParticle* aTrackParticle = it->track();
     
-       const Trk::Track* aTrack = 0;
+       const Trk::Track* aTrack = nullptr;
        if (aTrackParticle) aTrack = aTrackParticle->originalTrack();
 
        if (aTrack && aTrack != it->inDetTrkTrack()) {
@@ -415,7 +415,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 
   originalTracks = nullptr;
 
-  const Analysis::MuonContainer* muonContainer = 0;
+  const Analysis::MuonContainer* muonContainer = nullptr;
   if ( StatusCode::SUCCESS != evtStore()->retrieve( muonContainer , m_inputMuonCollection) ){
     ATH_MSG_WARNING(" Can't retrieve " << m_inputMuonCollection << " from the StoreGate ");
     ATH_MSG_WARNING("One probability is that you are not running on ESD/DESD ");
@@ -486,7 +486,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           type.set(Trk::TrackStateOnSurface::Measurement);
 
           const Perigee* IDPerigeeParameters  = muon->inDetTrackParticle()->originalTrack()->perigeeParameters(); 
-          const Perigee* IDPerigeeParametersClone(0);
+          const Perigee* IDPerigeeParametersClone(nullptr);
           if (IDPerigeeParameters) IDPerigeeParametersClone  = IDPerigeeParameters->clone(); 
 
 
@@ -494,11 +494,11 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           // std::cout << "muon->inDetTrackParticle()->originalTrack()->perigeeParameters()->clone(): "<< IDPerigeeParametersClone << std::endl;
 
           if(IDPerigeeParameters && IDPerigeeParametersClone ){
-            trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(pmot, IDPerigeeParametersClone, 0, 0, type));
+            trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(pmot, IDPerigeeParametersClone, nullptr, nullptr, type));
 
             for ( ; sb != muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->end(); ++sb)  trackStateOnSurfaces->push_back((**sb).clone());
 
-            Trk::Track* tmpTrack = new Trk::Track(muon->inDetTrackParticle()->originalTrack()->info(), trackStateOnSurfaces, 0);
+            Trk::Track* tmpTrack = new Trk::Track(muon->inDetTrackParticle()->originalTrack()->info(), trackStateOnSurfaces, nullptr);
 
             Trk::Track* MSConstraintFittedTrack = m_trackFitter->fit(*tmpTrack, m_runOutlierRemoval, Trk::muon);
 

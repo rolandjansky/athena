@@ -52,8 +52,8 @@ using xclock = std::chrono::steady_clock;
 Trk::ExtrapolatorComparisonTest::ExtrapolatorComparisonTest(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthReentrantAlgorithm(name,pSvcLocator),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_sigmaD0(17.*Gaudi::Units::micrometer),                   
   m_sigmaZ0(50.*Gaudi::Units::millimeter),
   m_minPhi(-M_PI),                    
@@ -194,7 +194,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
     double eta = m_minEta + m_flatDist->shoot()*(m_maxEta-m_minEta);
     double pt = m_minPt + m_flatDist->shoot()*(m_maxPt-m_minPt);
     double charge = (m_flatDist->shoot() > 0.5 ) ? -1. : 1.;
-    parameters.push_back(perigeeParameters(d0, z0, phi, eta, pt, charge));
+    parameters.emplace_back(d0, z0, phi, eta, pt, charge);
   }
   
   int n_extraps = 0;  
@@ -289,7 +289,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
     // Perigee, no alignment -> default geo context
     ActsGeometryContext gctx = m_extrapolationTool->trackingGeometryTool()->getNominalGeometryContext();
     auto anygctx = gctx.context();
-    const Acts::BoundTrackParameters* startParameters = new const Acts::BoundTrackParameters(std::move(actsPerigeeSurface), std::move(pars), std::move(cov));
+    const Acts::BoundTrackParameters* startParameters = new const Acts::BoundTrackParameters(std::move(actsPerigeeSurface), pars, std::move(cov));
     
     for (unsigned int surface = 0; surface < m_actsReferenceSurfaceTriples.size(); surface++) {
       n_extraps++;

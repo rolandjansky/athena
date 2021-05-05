@@ -192,7 +192,7 @@ double EMConvert::parameter(egammaParameters::ParamDef key) const {
 
 bool EMConvert::boolParameter(egammaParameters::ParamDef key) const {
 
-  typedef std::pair<egammaParameters::ParamDef,bool> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, bool>;
 
   bool result = false;
   std::vector<elParams>::const_iterator p = m_parametersBool.begin();
@@ -209,7 +209,7 @@ bool EMConvert::boolParameter(egammaParameters::ParamDef key) const {
 int EMConvert::intParameter(egammaParameters::ParamDef key) const {
 
 
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();
@@ -238,7 +238,7 @@ void EMConvert::set_parameter(egammaParameters::ParamDef key, double value, bool
   }
 
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
   std::vector<elParams>::iterator p = m_parameters.begin();
  
   for (;p !=m_parameters.end(); p++) {
@@ -261,7 +261,7 @@ void EMConvert::set_parameter(egammaParameters::ParamDef key, double value, bool
 
 void EMConvert::set_parameterBool(egammaParameters::ParamDef key, bool value, bool overwrite) {
 
-  typedef std::pair<egammaParameters::ParamDef,bool> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, bool>;
 
   std::vector<elParams>::iterator p = m_parametersBool.begin();
  
@@ -285,7 +285,7 @@ void EMConvert::set_parameterBool(egammaParameters::ParamDef key, bool value, bo
 
 void EMConvert::set_parameterInt(egammaParameters::ParamDef key, int value, bool overwrite) {
 
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
  

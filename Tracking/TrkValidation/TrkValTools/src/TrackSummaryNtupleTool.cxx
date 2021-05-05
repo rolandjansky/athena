@@ -74,7 +74,7 @@ StatusCode Trk::TrackSummaryNtupleTool::initialize() {
 StatusCode Trk::TrackSummaryNtupleTool::finalize() {
 
    delete m_likelihoodsdedx;
-   m_likelihoodsdedx=0;
+   m_likelihoodsdedx=nullptr;
   ATH_MSG_DEBUG ("finalized " << name());
   return StatusCode::SUCCESS;
 }

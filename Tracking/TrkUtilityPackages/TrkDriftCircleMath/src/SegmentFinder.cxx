@@ -27,7 +27,7 @@ namespace TrkDriftCircleMath {
     m_useSegmentQuality(false),m_recoverMdtHits(true),
     m_removeSingleOutliers(true),m_fullScan(false), m_singleMultiLayerScan(true), m_seedCleaning(false), 
     m_doDrop(true), m_dropDepthMax(4), m_doAllHitSort(false),m_doCurvedSegmentFinder(false), 
-    m_useChamberPhi(true),m_useRoadPhi(true),m_mdtGeometry(0),m_dropDepthAcceptCounts(m_dropDepthMax+2,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
+    m_useChamberPhi(true),m_useRoadPhi(true),m_mdtGeometry(nullptr),m_dropDepthAcceptCounts(m_dropDepthMax+2,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
   {
     m_ownsFitter = true;
     m_fitter = new DCSLFitter();
@@ -44,7 +44,7 @@ namespace TrkDriftCircleMath {
     m_resCutT0(1.),m_deltaCutT0(5.),m_useSegmentQuality(false),m_recoverMdtHits(true),
     m_removeSingleOutliers(true),m_fullScan(fullScan), m_singleMultiLayerScan(true), m_seedCleaning(false), 
     m_doDrop(true), m_dropDepthMax(4), m_doAllHitSort(false), m_doCurvedSegmentFinder(false),
-    m_useChamberPhi(true), m_useRoadPhi(true), m_mdtGeometry(0),m_dropDepthAcceptCounts(m_dropDepthMax+1,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
+    m_useChamberPhi(true), m_useRoadPhi(true), m_mdtGeometry(nullptr),m_dropDepthAcceptCounts(m_dropDepthMax+1,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
   {
     m_ownsFitter = true;
     m_fitter = new DCSLFitter();
@@ -320,7 +320,7 @@ namespace TrkDriftCircleMath {
     handleHits(dcsIn, clsIn, segments);
    
     //Curved Segment finder
-    if(m_mdtGeometry != 0 && m_doCurvedSegmentFinder) {   
+    if(m_mdtGeometry != nullptr && m_doCurvedSegmentFinder) {   
       CurvedSegmentFinder CurvedSegFinder(m_debugLevel);
       CurvedSegFinder.curvedSegments(*m_mdtGeometry,segments.data());
     }
@@ -447,7 +447,7 @@ namespace TrkDriftCircleMath {
 	  // find all hits within cut-off
 	  matchWithLine.set( it->line(), m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	  bool usePrecise = segment.hasT0Shift();
-	  const DCOnTrackVec& hitsOnLine = matchWithLine.match( it->dcs(), 0, m_recoverMdtHits, usePrecise );
+	  const DCOnTrackVec& hitsOnLine = matchWithLine.match( it->dcs(), nullptr, m_recoverMdtHits, usePrecise );
 	  
 	  if( matchWithLine.matchDifference() > 0 ){
 

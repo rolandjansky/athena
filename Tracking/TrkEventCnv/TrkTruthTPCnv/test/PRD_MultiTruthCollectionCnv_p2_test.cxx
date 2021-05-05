@@ -51,7 +51,7 @@ void compare (const PRD_MultiTruthCollection& p1,
 
 void testit (const PRD_MultiTruthCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   PRD_MultiTruthCollectionCnv_p2 cnv;
   Trk::PRD_MultiTruthCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

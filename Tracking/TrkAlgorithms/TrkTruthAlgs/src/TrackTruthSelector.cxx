@@ -43,7 +43,7 @@ StatusCode TrackTruthSelector::execute() {
 
   //----------------------------------------------------------------
   // Retrieve the input
-  const DetailedTrackTruthCollection *detailed = 0;
+  const DetailedTrackTruthCollection *detailed = nullptr;
   SG::ReadHandle<DetailedTrackTruthCollection> rh_detailed(m_detailedTrackTruthName);
   SG::WriteHandle<TrackTruthCollection> wh_output(m_outputName);
   if(!rh_detailed.isValid()){

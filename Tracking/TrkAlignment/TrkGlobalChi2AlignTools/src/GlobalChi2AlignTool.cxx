@@ -87,7 +87,7 @@ namespace Trk {
 
     declareProperty("StoreLocalDerivOnly", m_storeLocalDerivOnly = false);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //_______________________________________________________________________
@@ -182,9 +182,9 @@ namespace Trk {
     // check if the track belongs to a vertex. If yes, retrieve the relevant objects:
     bool                                  fullVertex   = false;
     AlignVertex                         * ptrVertex    = alignTrack->getVtx();
-    Amg::Vector3D                       * ptrPosition  = 0;
-    AmgSymMatrix(3)                     * ptrCovariance = 0;
-    std::vector<AlignModuleVertexDerivatives>   * ptrX = 0;
+    Amg::Vector3D                       * ptrPosition  = nullptr;
+    AmgSymMatrix(3)                     * ptrCovariance = nullptr;
+    std::vector<AlignModuleVertexDerivatives>   * ptrX = nullptr;
     AlignVertex::AlignVertexType          vtxType      = AlignVertex::Unknown;
     if( ptrVertex )  {
       fullVertex       = true;

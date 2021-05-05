@@ -40,7 +40,7 @@ namespace Trk {
                                    << tool->name() << " . "
                                    << handle->objKey() << endmsg;
          }
-         for (auto elm : alg_tool->inputDataObjs()) {
+         for (const auto& elm : alg_tool->inputDataObjs()) {
             this->msg(MSG::DEBUG) << " input object "
                                   << tool->name() << " . "
                                   << elm.key()  << endmsg;

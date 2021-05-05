@@ -43,7 +43,7 @@ DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersist
 //================================================================
 DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv" );
-  DetailedTrackTruthCollection *trans(0);
+  DetailedTrackTruthCollection *trans(nullptr);
 
   if (compareClassGuid(s_p3_guid)) {
     trans = new DetailedTrackTruthCollection();
