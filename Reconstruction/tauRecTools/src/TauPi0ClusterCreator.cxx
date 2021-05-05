@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -455,10 +455,8 @@ StatusCode TauPi0ClusterCreator::configureNeutralPFO(const xAOD::CaloCluster& cl
   // -- Element link to the shots
   std::vector<ElementLink<xAOD::IParticleContainer>> shotlinks;
   for (unsigned index = 0; index < shotsInCluster.size(); ++index) {
-    ElementLink<xAOD::PFOContainer> shotPFOElementLink = tau.shotPFOLinks().at(shotsInCluster.at(index));
-    ElementLink<xAOD::IParticleContainer> shotElementLink;
-    shotPFOElementLink.toPersistent();
-    shotElementLink.resetWithKeyAndIndex(shotPFOElementLink.persKey(), shotPFOElementLink.persIndex()); 
+    auto& shotPFOElementLink = tau.shotPFOLinks().at(shotsInCluster.at(index));
+    ElementLink<xAOD::IParticleContainer> shotElementLink( shotPFOElementLink.dataID(), shotPFOElementLink.index() );
     if (!shotElementLink.isValid()) {
       ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
     }
