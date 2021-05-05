@@ -15,7 +15,7 @@ atlas_add_library( TrigNavigationLib
    AthenaBaseComps AthenaKernel SGTools GaudiKernel TrigNavStructure
    TrigStorageDefinitions StoreGateLib
    PRIVATE_LINK_LIBRARIES xAODCore TrigConfHLTData TrigSerializeCnvSvcLib
-   TrigSerializeResultLib )
+   TrigSerializeResultLib CxxUtils )
 
 atlas_add_component( TrigNavigation
    src/components/*.cxx
