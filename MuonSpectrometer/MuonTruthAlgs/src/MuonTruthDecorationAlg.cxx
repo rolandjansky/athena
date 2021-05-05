@@ -89,8 +89,6 @@ namespace Muon {
       if (truth->hasProdVtx()) truthParticle->setProdVtxLink(truth->prodVtxLink());
       ElementLink< xAOD::TruthParticleContainer > truthLink(*muonTruthContainer,muonTruthContainer->size()-1);
       truthLink.toPersistent();
-      MCTruthPartClassifier::ParticleType type = MCTruthPartClassifier::Unknown;
-      MCTruthPartClassifier::ParticleOrigin origin = MCTruthPartClassifier::NonDefined;
       ATH_MSG_DEBUG("Found stable muon: " << truth->pt() << " eta " << truth->eta() << " phi " << truth->phi() << " mass " << truth->m()
                     << " barcode " << truth->barcode() << " truthParticle->barcode " << truthParticle->barcode() << " (*truthLink)->barcode " << (*truthLink)->barcode() <<" " << truthLink );
       int iType = 0;
@@ -102,7 +100,7 @@ namespace Muon {
             auto truthClass = m_truthClassifier->particleTruthClassifier(truth);
             int iType = truthClass.first;
             int iOrigin = truthClass.second;
-            ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
+            ATH_MSG_VERBOSE("Got truth type  " << iType << "  origin " << iOrigin);
             dec_truthOrigin(*truthParticle) = iOrigin;
             dec_truthType(*truthParticle) = iType;
       }
