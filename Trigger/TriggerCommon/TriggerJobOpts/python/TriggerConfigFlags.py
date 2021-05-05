@@ -3,6 +3,8 @@
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
+from TrigEDMConfig.Utils import getEDMVersionFromBS
+
 log=logging.getLogger('TriggerConfigFlags')
 
 def createTriggerFlags():
@@ -66,81 +68,33 @@ def createTriggerFlags():
 
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
     def EDMVersion(flags):
-        '''
-        Determine Trigger EDM version based on the input file. For ByteStream, Run-3 EDM is indicated
-        by HLT ROD version > 1.0, for both Runs 1 and 2 the HLT ROD version was 0.0 and the run number
-        is used to disambiguate between them. For POOL inputs, the EDM version is determined based on
-        finding a characteristic HLT navigation collection in the file.
-        '''
+        """Determine Trigger EDM version based on the input file."""
         _log = logging.getLogger('TriggerConfigFlags.EDMVersion')
-        _log.debug("Attempting to determine EDMVersion")
-        default_version = -1  # intentionally invalid default value, ATR-22856
+
+        default_version = -1     # intentionally invalid default value, ATR-22856
+
         if flags.Input.Format=="BS":
             _log.debug("Input format is ByteStream")
-            inputFileName = flags.Input.Files[0]
-            if not inputFileName and flags.Common.isOnline():
+
+            if not flags.Input.Files and flags.Common.isOnline():
                 _log.info("Online reconstruction, no input file. Return default EDMVersion=%d", default_version)
                 return default_version
 
-            _log.debug("Checking ROD version")
-            import eformat
-            from libpyeformat_helper import SubDetector
-            bs = eformat.istream(inputFileName)
+            version = getEDMVersionFromBS(flags.Input.Files[0])
 
-            rodVersionM = -1
-            rodVersionL = -1
-            # Find the first HLT ROBFragment in the first event
-            for robf in bs[0]:
-                if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT:
-                    rodVersionM = robf.rod_minor_version() >> 8
-                    rodVersionL = robf.rod_minor_version() & 0xFF
-                    _log.debug("HLT ROD minor version from input file is %d.%d", rodVersionM, rodVersionL)
-                    break
+            return version if version is not None else default_version
 
-            # Case 1: failed to read ROD version
-            if rodVersionM < 0 or rodVersionL < 0:
-                _log.warning("Cannot determine HLT ROD version from input file, falling back to run-number-based decision")
-            # Case 2: ROD version indicating Run 3
-            elif rodVersionM >= 1:
-                _log.info("Determined EDMVersion to be 3, because running on BS file with HLT ROD version %d.%d",
-                          rodVersionM, rodVersionL)
-                return 3
-            # Case 3: ROD version indicating Run 1 or 2 - use run number to disambiguate
-            runNumber = flags.Input.RunNumber[0]
-            _log.debug("Read run number %s", runNumber)
-
-            boundary_run12 = 230000
-            boundary_run23 = 368000
-
-            if not runNumber or runNumber <= 0:
-                _log.warning("Cannot determine EDM version because run number %s is invalid. "
-                             "Return default EDMVersion=%d", runNumber, default_version)
-                return default_version
-            elif runNumber < boundary_run12:
-                # Run-1 data
-                _log.info("Determined EDMVersion to be 1 based on BS file run number (runNumber < %d)",
-                          boundary_run12)
-                return 1
-            elif runNumber < boundary_run23:
-                # Run-2 data
-                _log.info("Determined EDMVersion to be 2 based on BS file run number (%d < runNumber < %d)",
-                          boundary_run12, boundary_run23)
-                return 2
-            else:
-                # Run-3 data
-                _log.info("Determined EDMVersion to be 3 based on BS file run number (runNumber > %d)",
-                          boundary_run23)
-                return 3
         else:
             # POOL files: decide based on HLT output type present in the file
-            _log.debug("EDMVersion: Input format is POOL -- determine from input file collections")
-            if "HLTResult_EF" in flags.Input.Collections:
+            _log.debug("Input format is POOL -- determine from input file collections")
+            collections = flags.Input.Collections
+            if "HLTResult_EF" in collections:
                 _log.info("Determined EDMVersion to be 1, because HLTResult_EF found in POOL file")
                 return 1
-            elif "TrigNavigation" in flags.Input.Collections:
+            elif "TrigNavigation" in collections:
                 _log.info("Determined EDMVersion to be 2, because TrigNavigation found in POOL file")
                 return 2
-            elif any("HLTNav_Summary" in s for s in flags.Input.Collections):
+            elif any("HLTNav_Summary" in s for s in collections):
                 _log.info("Determined EDMVersion to be 3, because HLTNav_Summary.* found in POOL file")
                 return 3
 
