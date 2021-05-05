@@ -113,9 +113,7 @@ def main(args):
 
     # Force load some dictionaries to work around ATLASRECTS-6261/ROOT-10940
     if 'AtlasProject' in environ and environ['AtlasProject'] == 'Athena':
-        root.xAOD.TrackParticleContainer()
-        root.xAOD.JetContainer()
-        root.xAOD.MuonContainer()
+        root.xAOD.Init().ignore()
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
