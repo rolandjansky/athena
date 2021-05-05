@@ -20,6 +20,8 @@ TrackTruthSelector::TrackTruthSelector(const std::string &name,ISvcLocator *pSvc
   declareProperty("WeightRPC",    m_subDetWeights[SubDetHitStatistics::RPC]);
   declareProperty("WeightTGC",    m_subDetWeights[SubDetHitStatistics::TGC]);
   declareProperty("WeightCSC",    m_subDetWeights[SubDetHitStatistics::CSC]);
+  declareProperty("WeightsTGC",   m_subDetWeights[SubDetHitStatistics::STGC]=0.25);
+  declareProperty("WeightMM",     m_subDetWeights[SubDetHitStatistics::MM]=0.25);
 }
 
 // -----------------------------------------------------------------------------------------------------
