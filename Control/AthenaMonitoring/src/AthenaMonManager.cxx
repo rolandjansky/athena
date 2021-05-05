@@ -489,6 +489,7 @@ initialize()
     joSvc->set( client + ".Environment", m_d->m_environmentProp );
 
     // LWHists not thread-safe. Use alg property to use ROOT backend in MT mode.
+    ATH_MSG_DEBUG("Setting LWHist ROOT backend flag to " << m_d->m_rootBackend);
     LWHistControls::setROOTBackend(m_d->m_rootBackend);
 
     if( m_monTools.size() > 0 ) {
