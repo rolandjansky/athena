@@ -7,7 +7,7 @@
 
 class MockAlgorithm : public AthAlgorithm {
   public:
-    MockAlgorithm() : AthAlgorithm("MockAlgorithm", new MockSvcLocator(), "0.0.1") {}
+    MockAlgorithm() : AthAlgorithm("MockAlgorithm", new MockSvcLocator()) {}
     StatusCode execute() override { return StatusCode::SUCCESS; }
 };
 

@@ -429,7 +429,10 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
         else if( strs.at(1)== "etcut"){
             pidname = defaultPid;
             etcut=true;
-        }
+        } else{
+	     	pidname = getProbePid(strs.at(1));
+	    }
+	// }
 	// HI is not working in master any more. So commenting out untill fixed
         // else {
 	//     if (type == "electron" && boost::contains(trigger, "ion")){
@@ -958,22 +961,21 @@ GETTER(deltaPhiRescaled3)
 #undef GETTER    
 
 std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
-    static std::map<std::string,std::string> PidMap; //no longer class member but static
-    // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
-    if(PidMap.empty()){
-        PidMap["vloose"]="Loose";
-        PidMap["loose"]="Loose";
-        PidMap["medium"]="Medium";
-        PidMap["tight"]="Tight";
-        PidMap["loose1"]="Loose";
-        PidMap["medium1"]="Medium";
-        PidMap["tight1"]="Tight";
-        PidMap["lhvloose"]="LHLoose";
-        PidMap["lhloose"]="LHLoose";
-        PidMap["lhmedium"]="LHMedium";
-        PidMap["lhtight"]="LHTight";
-    }
-    return PidMap[pidtype];
+    static const std::map<std::string,std::string> PidMap = {
+      // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
+      {"vloose","Loose"},
+      {"loose","Loose"},
+      {"medium","Medium"},
+      {"tight","Tight"},
+      {"loose1","Loose"},
+      {"medium1","Medium"},
+      {"tight1","Tight"},
+      {"lhvloose","LHLoose"},
+      {"lhloose","LHLoose"},
+      {"lhmedium","LHMedium"},
+      {"lhtight","LHTight"}
+    };
+    return PidMap.at(pidtype);
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){

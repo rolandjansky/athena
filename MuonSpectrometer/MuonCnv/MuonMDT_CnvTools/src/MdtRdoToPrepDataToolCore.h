@@ -44,7 +44,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MdtRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class MdtRdoToPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
   {
   public:
     MdtRdoToPrepDataToolCore(const std::string&,const std::string&,const IInterface*);
@@ -56,13 +56,12 @@ namespace Muon
     virtual StatusCode initialize() override;
       
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
-    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const override;
     //new decode method for Rob based readout
-    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
+    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) const override;
 
     // dump methods for debugging
-    virtual void printInputRdo() override;
-     void printInputRdo1() const;
+    virtual void printInputRdo() const override;
       
   protected:
     void printPrepDataImpl (const Muon::MdtPrepDataContainer* mdtPrepDataContainer) const;
@@ -78,7 +77,7 @@ namespace Muon
     Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit* prompt_digit, const MdtDigit* twin_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& twinIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr) const;
 
     // decode method for Rob based readout
-    StatusCode decode( const std::vector<IdentifierHash>& chamberHashInRobs );
+    StatusCode decode( const std::vector<IdentifierHash>& chamberHashInRobs ) const;
 
     // Overridden by subclasses to handle legacy and MT cases
     virtual Muon::MdtPrepDataContainer*

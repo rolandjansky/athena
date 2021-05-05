@@ -1,26 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 10.05.2008, AUTHOR: OLIVER KORTNER
-// Modified: 01.03.2009 by O. Kortner, parabolic extrapolation added.
-//           15.03.2009 by O. Kortner, smoothing added.
-// 05.02.2010, JOERG v. LOEBEN
-//    major changes: - parabolic extrapolation to r(t_max) now done after the
-//                     after the method converged and - if turned on - after the
-//                     the residual smoothing.
-//                   - prevent extrapolation to r_max to become too large.
-//                   - changed convergence criterion of the residual smoothing
-//                     from 1 mum to 2 mum (tuned on cosmics)
-//                   - reduced the roadwidth of the curved segment refit for
-//                     smoothing from 7->5 times the average
-//                     (tuned on cosmics) tube resolution
-//                   - change in convergence criterion to prevent
-//                     iterating with only minor changes (tuned on cosmics)
-//                   - increase of spacial precision in method t_from_r to 1mum
-//                     (important to reduce oscillations in r(t) relationship)
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "MdtCalibRt/RtCalibrationCurved.h"
 
@@ -52,22 +32,9 @@
 using namespace MuonCalib;
 
 inline Double_t RtCalibrationCurved_polfun(Double_t *x, Double_t *par) { return par[0] * RtScalePolynomial(x[0]); }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: DEFAULT CONSTRUCTOR ::
-//:::::::::::::::::::::::::
-
 RtCalibrationCurved::RtCalibrationCurved(std::string name) : IMdtCalibration(name), m_rt_accuracy_previous(0.0) {
     init(0.5 * CLHEP::mm, 1, 15, true, false, 15, false, false, false);
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: CONSTRUCTOR ::
-//:::::::::::::::::
 
 RtCalibrationCurved::RtCalibrationCurved(std::string name, const double &rt_accuracy, const unsigned int &func_type,
                                          const unsigned int &ord, const bool &fix_min, const bool &fix_max, const int &max_it,
@@ -76,83 +43,22 @@ RtCalibrationCurved::RtCalibrationCurved(std::string name, const double &rt_accu
     init(rt_accuracy, func_type, ord, fix_min, fix_max, max_it, do_parabolic_extrapolation, do_smoothing, do_multilayer_rt_scale);
 }
 
-//*****************************************************************************
-
-//::::::::::::::::
-//:: DESTRUCTOR ::
-//::::::::::::::::
-
-RtCalibrationCurved::~RtCalibrationCurved(void) {
-    if (m_tracker != 0) { delete m_tracker; }
-
-    if (m_base_function != 0) { delete m_base_function; }
+RtCalibrationCurved::~RtCalibrationCurved() {
     if (m_tfile) { m_tfile->Write(); }
 }
+double RtCalibrationCurved::reliability() const { return m_status; }
 
-//*****************************************************************************
+double RtCalibrationCurved::estimatedRtAccuracy() const { return m_rt_accuracy; }
 
-//::::::::::::::::::::::::
-//:: METHOD reliability ::
-//::::::::::::::::::::::::
+int RtCalibrationCurved::numberOfSegments() const { return m_nb_segments; }
 
-double RtCalibrationCurved::reliability(void) const { return m_status; }
+int RtCalibrationCurved::numberOfSegmentsUsed() const { return m_nb_segments_used; }
 
-//*****************************************************************************
+int RtCalibrationCurved::iteration() const { return m_iteration; }
 
-//::::::::::::::::::::::::::::::::
-//:: METHOD estimatedRtAccuracy ::
-//::::::::::::::::::::::::::::::::
+bool RtCalibrationCurved::smoothing() const { return m_do_smoothing; }
 
-double RtCalibrationCurved::estimatedRtAccuracy(void) const { return m_rt_accuracy; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::
-//:: METHOD numberOfSegments ::
-//:::::::::::::::::::::::::::::
-
-int RtCalibrationCurved::numberOfSegments(void) const { return m_nb_segments; }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::::::
-//:: METHOD numberOfSegmentsUsed ::
-//:::::::::::::::::::::::::::::::::
-
-int RtCalibrationCurved::numberOfSegmentsUsed(void) const { return m_nb_segments_used; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD iteration ::
-//::::::::::::::::::::::
-
-int RtCalibrationCurved::iteration(void) const { return m_iteration; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD smoothing ::
-//::::::::::::::::::::::
-
-bool RtCalibrationCurved::smoothing(void) const { return m_do_smoothing; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::
-//:: METHOD setEstimateRtAccuracy ::
-//::::::::::::::::::::::::::::::::::
-
-void RtCalibrationCurved::setEstimateRtAccuracy(const double &acc) {
-    m_rt_accuracy = std::abs(acc);
-    return;
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::::::::::::::
-//:: METHOD switch_on_control_histograms ::
-//:::::::::::::::::::::::::::::::::::::::::
+void RtCalibrationCurved::setEstimateRtAccuracy(const double &acc) { m_rt_accuracy = std::abs(acc); }
 
 void RtCalibrationCurved::switch_on_control_histograms(const std::string &file_name) {
     /////////////////////////////////////////////
@@ -178,81 +84,22 @@ void RtCalibrationCurved::switch_on_control_histograms(const std::string &file_n
         std::make_unique<TH2F>("m_adc_resi_initial", "FINAL ADC VS RESIDUAL OF THE REFITTED SEGMENTS", 1350, 0, 1350, 300, -15, 15);
 
     m_multilayer_rt_difference = std::make_unique<MultilayerRtDifference>(10000, m_tfile.get());
-    return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD switch_off_control_histograms ::
-//::::::::::::::::::::::::::::::::::::::::::
-void RtCalibrationCurved::switch_off_control_histograms(void) {
+void RtCalibrationCurved::switch_off_control_histograms() {
     m_control_histograms = false;
     if (m_tfile) {
         m_tfile->Write();
         m_multilayer_rt_difference = std::make_unique<MultilayerRtDifference>(10000);
     }
-
-    return;
 }
 
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD forceMonotony ::
-//::::::::::::::::::::::::::
-void RtCalibrationCurved::forceMonotony(void) {
-    m_force_monotony = true;
-    return;
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::::
-//:: METHOD doNotForceMonotony ::
-//:::::::::::::::::::::::::::::::
-void RtCalibrationCurved::doNotForceMonotony(void) {
-    m_force_monotony = false;
-    return;
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::::::::::::::
-//:: METHOD doParabolicExtrapolation ::
-//:::::::::::::::::::::::::::::::::::::
-void RtCalibrationCurved::doParabolicExtrapolation(void) {
-    m_do_parabolic_extrapolation = true;
-    return;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD doSmoothing ::
-//::::::::::::::::::::::::::
-void RtCalibrationCurved::doSmoothing(void) {
-    m_do_smoothing = true;
-    return;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD noSmoothing ::
-//::::::::::::::::::::::::::
-void RtCalibrationCurved::noSmoothing(void) {
-    m_do_smoothing = false;
-    return;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::
-//:: METHOD analyseSegments ::
-//::::::::::::::::::::::::::::
+void RtCalibrationCurved::forceMonotony() { m_force_monotony = true; }
+void RtCalibrationCurved::doNotForceMonotony() { m_force_monotony = false; }
+void RtCalibrationCurved::doParabolicExtrapolation() { m_do_parabolic_extrapolation = true; }
+void RtCalibrationCurved::doSmoothing() { m_do_smoothing = true; }
+void RtCalibrationCurved::noSmoothing() { m_do_smoothing = false; }
 const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
-    const IRtRelation *tmp_rt(0);
+    std::shared_ptr<const IRtRelation> tmp_rt;
 
     /////////////////////
     // Initial RESIDUALS //
@@ -277,10 +124,10 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
             for (unsigned int i = 0; i < seg.size(); i++) {
                 log << MSG::WARNING << i << " " << seg[i]->direction() << " " << seg[i]->position() << endmsg;
             }
-            return NULL;
+            return nullptr;
         }
 
-        const RtCalibrationOutput *rtOut = m_output;
+        const RtCalibrationOutput *rtOut = m_output.get();
 
         if (!converged()) { setInput(rtOut); }
         tmp_rt = rtOut->rt();
@@ -288,11 +135,10 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
 
     // parabolic extrapolations for small radii //
     if (m_do_parabolic_extrapolation) {
-        RtRelationLookUp *tmprt = performParabolicExtrapolation(true, true, *tmp_rt);
-        delete m_output;
-        m_output =
-            new RtCalibrationOutput(tmprt, new RtFullInfo("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
-        delete tmp_rt;
+        std::shared_ptr<RtRelationLookUp> tmprt = performParabolicExtrapolation(true, true, *tmp_rt);
+        m_output = std::make_unique<RtCalibrationOutput>(
+            tmprt, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
+
         tmp_rt = tmprt;
     }
 
@@ -388,15 +234,14 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
         it++;
 
         // delete tmp_rt and update it //
-        delete tmp_rt;
-        tmp_rt = new RtRelationLookUp(smooth_rt);
+        tmp_rt = std::make_shared<RtRelationLookUp>(smooth_rt);
 
         //---------------------------------------------------------------------------//
     }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
-    delete m_output;
-    m_output = new RtCalibrationOutput(tmp_rt, new RtFullInfo("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
+    m_output = std::make_unique<RtCalibrationOutput>(
+        tmp_rt, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     /////////////////////
     // FINAL RESIDUALS //
@@ -525,40 +370,41 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment &seg) {
     if (nb_hits_in_ml < 4) { return true; }
 
     // refit the segments //
-    if (!m_tracker->fit(seg, hit_selection)) { return true; }
+    CurvedLine track;
 
-    CurvedLine track(m_tracker->curvedTrack());
-    if (std::isnan(m_tracker->chi2())) { return true; }
+    if (!m_tracker->fit(seg, hit_selection, track)) { return true; }
+
+    if (std::isnan(track.chi2())) { return true; }
 
     // check the quality of the fit //
-    if (m_tracker->chi2PerDegreesOfFreedom() > 5 * chi2_scale_factor) { return true; }
+    if (track.chi2PerDegreesOfFreedom() > 5 * chi2_scale_factor) { return true; }
 
     // check whether there are at least three track hits //
-    if (m_control_histograms) { m_nb_segment_hits->Fill(static_cast<double>(m_tracker->numberOfTrackHits()), 1.0); }
-    if (m_tracker->numberOfTrackHits() < 4) { return true; }
+    if (m_control_histograms) { m_nb_segment_hits->Fill(track.numberOfTrackHits()); }
+    if (track.numberOfTrackHits() < 4) { return true; }
 
     // 	display_segment(&seg, display&(m_tracker->curvedTrack()));
 
     // reject tracks with silly parameters
-    if (std::abs(m_tracker->curvedTrack().getTangent(seg.mdtHOT()[0]->localPosition().z()).a_x2()) > 8.0e8) { return true; }
+    if (std::abs(track.getTangent(seg.mdtHOT()[0]->localPosition().z()).a_x2()) > 8.0e8) { return true; }
 
     // bookkeeping for convergence decision and reliability estimation //
-    m_chi2 = m_chi2 + m_tracker->chi2PerDegreesOfFreedom();
+    m_chi2 += track.chi2PerDegreesOfFreedom();
     m_nb_segments_used = m_nb_segments_used + 1;
 
     // fill the autocalibration objects //
 
     // track coeffient matrix and its inverse //
-    F = std::vector<CLHEP::HepVector>(m_tracker->numberOfTrackHits());
-    for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
-        const MdtCalibHitBase &hb = *(m_tracker->trackHits()[h]);
+    F = std::vector<CLHEP::HepVector>(track.numberOfTrackHits());
+    for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
+        const MdtCalibHitBase &hb = *(track.trackHits()[h]);
         m_multilayer_rt_difference->Fill(hb, *m_rt);
 
         F[h] = CLHEP::HepVector(m_M_track.num_row());
         for (int p = 0; p < F[h].num_row(); p++) {
-            double x = std::sqrt(1.0 + std::pow(track.getTangent((m_tracker->trackHits()[h]->localPosition()).z()).a_x2(), 2));
+            double x = std::sqrt(1.0 + std::pow(track.getTangent((track.trackHits()[h]->localPosition()).z()).a_x2(), 2));
             if (x) {
-                (F[h])[p] = m_Legendre->value(p, (m_tracker->trackHits()[h]->localPosition()).z()) / x;
+                (F[h])[p] = m_Legendre->value(p, (track.trackHits()[h]->localPosition()).z()) / x;
             } else {
                 (F[h])[p] = 0.;
             }
@@ -567,8 +413,8 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment &seg) {
     for (int p = 0; p < m_M_track.num_row(); p++) {
         for (int q = p; q < m_M_track.num_row(); q++) {
             m_M_track[p][q] = 0.0;
-            for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
-                m_M_track[p][q] = m_M_track[p][q] + (F[h])[p] * (F[h])[q] / (m_tracker->trackHits()[h])->sigma2DriftRadius();
+            for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
+                m_M_track[p][q] = m_M_track[p][q] + (F[h])[p] * (F[h])[q] / (track.trackHits()[h])->sigma2DriftRadius();
             }
             m_M_track[q][p] = m_M_track[p][q];
         }
@@ -583,53 +429,50 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment &seg) {
 
     // Jacobian matrix for the residuals //
     // track distances, residuals, corrections //
-    d_track = std::vector<double>(m_tracker->numberOfTrackHits());
-    w = std::vector<MTStraightLine>(m_tracker->numberOfTrackHits());
-    residual_value = CLHEP::HepVector(m_tracker->numberOfTrackHits());
-    weighted_residual = CLHEP::HepVector(m_tracker->numberOfTrackHits());
+    d_track = std::vector<double>(track.numberOfTrackHits());
+    w = std::vector<MTStraightLine>(track.numberOfTrackHits());
+    residual_value = CLHEP::HepVector(track.numberOfTrackHits());
+    weighted_residual = CLHEP::HepVector(track.numberOfTrackHits());
     for (unsigned int l = 0; l < m_order; l++) {
-        m_U[l] = CLHEP::HepVector(m_tracker->numberOfTrackHits());
-        m_U_weighted[l] = CLHEP::HepVector(m_tracker->numberOfTrackHits());
+        m_U[l] = CLHEP::HepVector(track.numberOfTrackHits());
+        m_U_weighted[l] = CLHEP::HepVector(track.numberOfTrackHits());
     }
-    for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
-        w[h] = MTStraightLine(
-            Amg::Vector3D(0.0, (m_tracker->trackHits()[h]->localPosition()).y(), (m_tracker->trackHits()[h]->localPosition()).z()), xhat,
-            null, null);
-        d_track[h] = track.getTangent((m_tracker->trackHits()[h]->localPosition()).z()).signDistFrom(w[h]);
-        residual_value[h] = (m_tracker->trackHits()[h])->driftRadius() - std::abs(d_track[h]);
+    for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
+        w[h] = MTStraightLine(Amg::Vector3D(0.0, (track.trackHits()[h]->localPosition()).y(), (track.trackHits()[h]->localPosition()).z()),
+                              xhat, null, null);
+        d_track[h] = track.getTangent((track.trackHits()[h]->localPosition()).z()).signDistFrom(w[h]);
+        residual_value[h] = (track.trackHits()[h])->driftRadius() - std::abs(d_track[h]);
         if (m_control_histograms) {
             if (m_iteration == 0) { m_residuals_initial->Fill(std::abs(d_track[h]), residual_value[h], 1.0); }
         }
         for (unsigned int l = 0; l < m_order; l++) {
-            x = (m_tracker->trackHits()[h]->driftRadius() - 0.5 * m_r_max) / (0.5 * m_r_max);
+            x = (track.trackHits()[h]->driftRadius() - 0.5 * m_r_max) / (0.5 * m_r_max);
             (m_U[l])[h] = m_base_function->value(l, x);
         }
     }
 
     // Jacobian //
-    D = CLHEP::HepMatrix(m_tracker->numberOfTrackHits(), m_tracker->numberOfTrackHits());
-    for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
-        for (unsigned int hp = 0; hp < m_tracker->numberOfTrackHits(); hp++) {
+    D = CLHEP::HepMatrix(track.numberOfTrackHits(), track.numberOfTrackHits());
+    for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
+        for (unsigned int hp = 0; hp < track.numberOfTrackHits(); hp++) {
             D[h][hp] = (h == hp) - (2 * (d_track[h] >= 0) - 1) * (2 * (d_track[hp] >= 0) - 1) * dot(F[h], m_M_track_inverse * F[hp]) /
-                                       (m_tracker->trackHits()[hp])->sigma2DriftRadius();
+                                       (track.trackHits()[hp])->sigma2DriftRadius();
         }
     }
 
     // autocalibration objects //
     // errors of the residuals //
-    std::vector<double> sigma_residual(m_tracker->numberOfTrackHits(), 0.0);
-    for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
-        for (unsigned int hp = 0; hp < m_tracker->numberOfTrackHits(); hp++) {
-            sigma_residual[h] = sigma_residual[h] + std::pow(D[h][hp] * (m_tracker->trackHits()[hp])->sigmaDriftRadius(), 2);
+    std::vector<double> sigma_residual(track.numberOfTrackHits(), 0.0);
+    for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
+        for (unsigned int hp = 0; hp < track.numberOfTrackHits(); hp++) {
+            sigma_residual[h] = sigma_residual[h] + std::pow(D[h][hp] * (track.trackHits()[hp])->sigmaDriftRadius(), 2);
         }
         sigma_residual[h] = std::sqrt(sigma_residual[h]);
-        if (sigma_residual[h] < av_res / static_cast<double>(m_tracker->numberOfTrackHits())) {
-            sigma_residual[h] = av_res / std::sqrt(m_tracker->numberOfTrackHits());
-        }
+        if (sigma_residual[h] < av_res / track.numberOfTrackHits()) { sigma_residual[h] = av_res / std::sqrt(track.numberOfTrackHits()); }
     }
 
     // weight residuals and correction functions //
-    for (unsigned int h = 0; h < m_tracker->numberOfTrackHits(); h++) {
+    for (unsigned int h = 0; h < track.numberOfTrackHits(); h++) {
         weighted_residual[h] = residual_value[h] / sigma_residual[h];
         if (m_control_histograms) {
             if (m_iteration == 0) { m_pull_initial->Fill(weighted_residual[h], 1.0); }
@@ -695,21 +538,21 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput *rt_input) {
     m_alpha = CLHEP::HepVector(m_order, 0);
 
     // drift-time interval //
-    const RtChebyshev *rt_Chebyshev(dynamic_cast<const RtChebyshev *>(m_rt));
-    const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
+    std::shared_ptr<const RtChebyshev> rt_Chebyshev = std::dynamic_pointer_cast<const RtChebyshev>(m_rt);
+    std::shared_ptr<const RtRelationLookUp> rt_LookUp = std::dynamic_pointer_cast<const RtRelationLookUp>(m_rt);
 
-    if (rt_Chebyshev == 0 && rt_LookUp == 0) {
+    if (!rt_Chebyshev && !rt_LookUp) {
         throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::setInput - r-t class not supported.", __FILE__, __LINE__));
     }
 
     // RtChebyshev //
-    if (rt_Chebyshev != 0) {
+    if (rt_Chebyshev) {
         m_t_length = rt_Chebyshev->tUpper() - rt_Chebyshev->tLower();
         m_t_mean = 0.5 * (rt_Chebyshev->tLower() + rt_Chebyshev->tUpper());
     }
 
     // RtRelationLookUp, dangerous implementation, but the only way right now //
-    if (rt_LookUp != 0) {
+    if (rt_LookUp) {
         m_t_length = rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) - rt_LookUp->par(0);
         m_t_mean = 0.5 * (rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) + rt_LookUp->par(0));
     }
@@ -729,8 +572,8 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
     int ifail;                   // flag indicating a failure of the matrix inversion
     unsigned int nb_points(30);  // number of points used to set the new r-t relationship
     double step;                 // r step size
-    const RtChebyshev *rt_Chebyshev(dynamic_cast<const RtChebyshev *>(m_rt));
-    const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
+    std::shared_ptr<const RtChebyshev> rt_Chebyshev = std::dynamic_pointer_cast<const RtChebyshev>(m_rt);
+    std::shared_ptr<const RtRelationLookUp> rt_LookUp = std::dynamic_pointer_cast<const RtRelationLookUp>(m_rt);
     double r_corr;                               // radial correction
     std::vector<double> rt_param(m_rt->nPar());  // parameters for the new r-t
     double x;                                    // reduced time
@@ -752,7 +595,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
     ////////////////////////////////////////
 
     // input r-t is of type RtChebyshev //
-    if (rt_Chebyshev != 0) {
+    if (rt_Chebyshev) {
         // set the number of points //
         if (rt_Chebyshev->numberOfRtParameters() > 30) { nb_points = rt_Chebyshev->numberOfRtParameters(); }
 
@@ -799,13 +642,12 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
         rt_param[1] = rt_Chebyshev->tUpper();
         for (unsigned int k = 0; k < rt_Chebyshev->numberOfRtParameters(); k++) { rt_param[k + 2] = fitter.coefficients()[k]; }
 
-        if (m_rt_new == 0) { delete m_rt_new; }
-        m_rt_new = new RtChebyshev(rt_param);
+        m_rt_new = std::make_shared<RtChebyshev>(rt_param);
         m_rt_new->SetTmaxDiff(m_rt->GetTmaxDiff());
     }
 
     // input-rt is of type RtRelationLookUp //
-    if (rt_LookUp != 0) {
+    if (rt_LookUp) {
         rt_param = rt_LookUp->parameters();
         unsigned int min_k(2), max_k(rt_param.size());
         if (m_fix_min) { min_k = 3; }
@@ -820,8 +662,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
             }
         }
 
-        if (m_rt_new == 0) { delete m_rt_new; }
-        m_rt_new = new RtRelationLookUp(rt_param);
+        m_rt_new = std::make_shared<RtRelationLookUp>(rt_param);
         m_rt_new->SetTmaxDiff(m_rt->GetTmaxDiff());
     }
 
@@ -863,7 +704,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
     // Set new multilayer rt-difference //
     //////////////////////////////////////
     if (m_iteration > 0 && m_do_multilayer_rt_scale) {
-        m_multilayer_rt_difference->DoFit(m_rt_new, &seg);
+        m_multilayer_rt_difference->DoFit(m_rt_new.get(), &seg);
     } else {
         m_multilayer_rt_difference->DoFit();
     }
@@ -874,26 +715,13 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
 
     m_iteration = m_iteration + 1;
 
-    if (m_output != 0) { delete m_output; }
-    m_output =
-        new RtCalibrationOutput(m_rt_new, new RtFullInfo("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
+    m_output = std::make_unique<RtCalibrationOutput>(
+        m_rt_new, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     return true;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::
-//:: METHOD converged ::
-//::::::::::::::::::::::
-bool RtCalibrationCurved::converged(void) const { return (m_status > 0); }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD getResults ::
-//:::::::::::::::::::::::
-const IMdtCalibrationOutput *RtCalibrationCurved::getResults(void) const { return static_cast<const IMdtCalibrationOutput *>(m_output); }
+bool RtCalibrationCurved::converged() const { return (m_status > 0); }
+const IMdtCalibrationOutput *RtCalibrationCurved::getResults() const { return static_cast<const IMdtCalibrationOutput *>(m_output.get()); }
 
 //*****************************************************************************
 
@@ -925,7 +753,7 @@ void RtCalibrationCurved::init(const double &rt_accuracy, const unsigned int &fu
     m_do_multilayer_rt_scale = do_multilayer_rt_scale;
     m_multilayer_rt_difference = std::make_unique<MultilayerRtDifference>(10000);
 
-    m_tracker = new CurvedPatRec;
+    m_tracker = std::make_unique<CurvedPatRec>();
 
     if (m_order == 0) {
         throw std::runtime_error(
@@ -948,13 +776,12 @@ void RtCalibrationCurved::init(const double &rt_accuracy, const unsigned int &fu
 
     // correction function
     if (func_type < 1 || func_type > 3) {
-        m_base_function = 0;
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationCurved::init - Illegal correction function type!", __FILE__, __LINE__));
     }
     switch (func_type) {
-        case 1: m_base_function = new LegendrePolynomial; break;
-        case 2: m_base_function = new ChebyshevPolynomial; break;
+        case 1: m_base_function = std::make_unique<LegendrePolynomial>(); break;
+        case 2: m_base_function = std::make_unique<ChebyshevPolynomial>(); break;
         case 3:
             if (m_order < 2) {
                 throw std::runtime_error(
@@ -964,7 +791,7 @@ void RtCalibrationCurved::init(const double &rt_accuracy, const unsigned int &fu
             std::vector<double> x(m_order);
             double bin_width = 2.0 / static_cast<double>(m_order - 1);
             for (unsigned int k = 0; k < m_order; k++) { x[k] = -1 + k * bin_width; }
-            m_base_function = new PolygonBase(x);
+            m_base_function = std::make_unique<PolygonBase>(x);
             break;
     }
 
@@ -984,12 +811,6 @@ void RtCalibrationCurved::init(const double &rt_accuracy, const unsigned int &fu
 
     return;
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD t_from_r ::
-//:::::::::::::::::::::
 double RtCalibrationCurved::t_from_r(const double &r) {
     ///////////////
     // VARIABLES //
@@ -1011,12 +832,6 @@ double RtCalibrationCurved::t_from_r(const double &r) {
 
     return 0.5 * (t_min + t_max);
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::
-//:: METHOD display_segment ::
-//::::::::::::::::::::::::::::
 void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstream &outfile, const CurvedLine *curved_segment) {
     ///////////////
     // VARIABLES //
@@ -1047,10 +862,10 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
 
     // write out the coordinate system //
     if (y_max - y_min > z_max - z_min) {
-        outfile << "NULL " << y_min - 30.0 << " " << y_max + 30.0 << " " << 0.5 * (z_min + z_max) - 0.5 * (y_max - y_min) - 30.0 << " "
+        outfile << "nullptr " << y_min - 30.0 << " " << y_max + 30.0 << " " << 0.5 * (z_min + z_max) - 0.5 * (y_max - y_min) - 30.0 << " "
                 << 0.5 * (z_min + z_max) + 0.5 * (y_max - y_min) + 30.0 << "\n";
     } else {
-        outfile << "NULL " << 0.5 * (y_min + y_max) - 0.5 * (z_max - z_min) - 30.0 << " "
+        outfile << "nullptr " << 0.5 * (y_min + y_max) - 0.5 * (z_max - z_min) - 30.0 << " "
                 << 0.5 * (y_min + y_max) + 0.5 * (z_max - z_min) + 30.0 << " " << z_min - 30.0 << " " << z_max + 30.0 << "\n";
     }
 
@@ -1103,19 +918,14 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
 
     return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD performParabolicExtrapolation ::
-//::::::::::::::::::::::::::::::::::::::::::
-RtRelationLookUp *RtCalibrationCurved::performParabolicExtrapolation(const bool &min, const bool &max, const IRtRelation &in_rt) {
+std::shared_ptr<RtRelationLookUp> RtCalibrationCurved::performParabolicExtrapolation(const bool &min, const bool &max,
+                                                                                     const IRtRelation &in_rt) {
     ///////////////
     // VARIABLES //
     ///////////////
-    RtParabolicExtrapolation rt_extrapolator;  // r-t extrapolator
-    RtRelationLookUp *rt_low(0), *rt_high(0);  // pointers to the r-t relationships after extrapolation
-    std::vector<SamplePoint> add_fit_point;    // additional r-t points used if r(0) or r(t_max) is fixed.
+    RtParabolicExtrapolation rt_extrapolator;           // r-t extrapolator
+    std::shared_ptr<RtRelationLookUp> rt_low, rt_high;  // pointers to the r-t relationships after extrapolation
+    std::vector<SamplePoint> add_fit_point;             // additional r-t points used if r(0) or r(t_max) is fixed.
 
     ////////////////////////////////
     // EXTRAPOLATE TO LARGE RADII //
@@ -1124,11 +934,12 @@ RtRelationLookUp *RtCalibrationCurved::performParabolicExtrapolation(const bool 
         add_fit_point.clear();
         if (m_fix_max) { add_fit_point.push_back(SamplePoint(in_rt.tUpper(), in_rt.radius(in_rt.tUpper()), 1.0)); }
         if (in_rt.radius(in_rt.tUpper()) < 16.0) {
-            rt_high = new RtRelationLookUp(rt_extrapolator.getRtWithParabolicExtrapolation(in_rt, in_rt.radius(in_rt.tUpper()) - 3.0,
-                                                                                           in_rt.radius(in_rt.tUpper()) - 1.0,
-                                                                                           in_rt.radius(in_rt.tUpper()), add_fit_point));
+            rt_high = std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(
+                in_rt, in_rt.radius(in_rt.tUpper()) - 3.0, in_rt.radius(in_rt.tUpper()) - 1.0, in_rt.radius(in_rt.tUpper()),
+                add_fit_point));
         } else {
-            rt_high = new RtRelationLookUp(rt_extrapolator.getRtWithParabolicExtrapolation(in_rt, 13., 15., 16., add_fit_point));
+            rt_high =
+                std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(in_rt, 13., 15., 16., add_fit_point));
         }
     }
 
@@ -1139,9 +950,11 @@ RtRelationLookUp *RtCalibrationCurved::performParabolicExtrapolation(const bool 
         add_fit_point.clear();
         if (m_fix_min) { add_fit_point.push_back(SamplePoint(m_rt_new->tLower(), 0.0, 1.0)); }
         if (m_fix_max && rt_high != 0) {
-            rt_low = new RtRelationLookUp(rt_extrapolator.getRtWithParabolicExtrapolation(*rt_high, 1.0, 3.0, 0.0, add_fit_point));
+            rt_low =
+                std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(*rt_high, 1.0, 3.0, 0.0, add_fit_point));
         } else {
-            rt_low = new RtRelationLookUp(rt_extrapolator.getRtWithParabolicExtrapolation(in_rt, 1.0, 3.0, 0.0, add_fit_point));
+            rt_low =
+                std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(in_rt, 1.0, 3.0, 0.0, add_fit_point));
         }
     }
 
@@ -1149,16 +962,13 @@ RtRelationLookUp *RtCalibrationCurved::performParabolicExtrapolation(const bool 
     // RETURN RESULTS //
     ////////////////////
     if (min && max) {
-        if (rt_high) delete rt_high;
         if (in_rt.HasTmaxDiff()) { rt_low->SetTmaxDiff(in_rt.GetTmaxDiff()); }
         return rt_low;
     }
     if (min) {
-        if (rt_high) delete rt_high;
         if (in_rt.HasTmaxDiff()) { rt_low->SetTmaxDiff(in_rt.GetTmaxDiff()); }
         return rt_low;
     }
-    if (rt_low) delete rt_low;
     if (in_rt.HasTmaxDiff() && rt_high) { rt_high->SetTmaxDiff(in_rt.GetTmaxDiff()); }
     return rt_high;
 }

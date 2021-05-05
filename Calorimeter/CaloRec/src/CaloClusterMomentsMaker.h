@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
@@ -139,8 +140,16 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
    bool m_absOpt;
 
    /**
-    * @brief Retreive second moment of cell times */
+    * @brief Retrieve second moment of cell times and store as moment */
    bool m_secondTime = { false };
+
+   /**
+    * @brief store number of cells per sampling layer as moment */
+   bool m_nCellsPerSampling = { false };
+
+   /**
+    * @brief Transition from outer to inner wheel in EME2 */
+   double m_etaInnerWheel = { 2.52 };
 };
 
 #endif // CALOCLUSTERMOMENTSMAKER_H

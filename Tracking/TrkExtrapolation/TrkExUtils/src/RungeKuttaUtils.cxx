@@ -621,20 +621,20 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
   par[4]  = P[6];
 
 
-  const unsigned int ty = su->type();
+  const Trk::SurfaceType ty = su->type();
   const Amg::Transform3D&  T = su->transform();
   switch (ty) {
-    case Trk::Surface::Plane: {
+    case Trk::SurfaceType::Plane: {
       transformGlobalToPlane(T, useJac, P, par, Jac);
       break;
     }
     // Perigee call the same as line
-    case Trk::Surface::Line:
-    case Trk::Surface::Perigee: {
+    case Trk::SurfaceType::Line:
+    case Trk::SurfaceType::Perigee: {
       transformGlobalToLine(T, useJac, P, par, Jac);
       break;
     }
-    case Trk::Surface::Cylinder: {
+    case Trk::SurfaceType::Cylinder: {
       transformGlobalToCylinder(
         T,
         static_cast<const Trk::CylinderSurface*>(su)->bounds().r(),
@@ -644,11 +644,11 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
         Jac);
       break;
     }
-    case Trk::Surface::Disc: {
+    case Trk::SurfaceType::Disc: {
       transformGlobalToDisc(T, useJac, P, par, Jac);
       break;
     }
-    case Trk::Surface::Cone: {
+    case Trk::SurfaceType::Cone: {
       transformGlobalToCone(
         T,
         static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha(),
@@ -656,6 +656,9 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
         P,
         par,
         Jac);
+      break;
+    }
+    default: {
       break;
     }
   }
@@ -1069,19 +1072,19 @@ Trk::RungeKuttaUtils::transformLocalToGlobal(bool useJac,
     P[42]  =  0.; P[43] = 0.; P[44] =   0.;                              // d(Ax,Ay,Az)/ds
   }
 
-  const unsigned int ty = Su->type();
+  const Trk::SurfaceType ty = Su->type();
   const Amg::Transform3D& T = Su->transform();
   switch (ty) {
-    case Trk::Surface::Plane: {
+    case Trk::SurfaceType::Plane: {
       transformPlaneToGlobal(useJac, T, p, P);
       return true;
     }
-    case Trk::Surface::Line:
-    case Trk::Surface::Perigee: {
+    case Trk::SurfaceType::Line:
+    case Trk::SurfaceType::Perigee: {
       transformLineToGlobal(useJac, T, p, P);
       return true;
     }
-    case Trk::Surface::Cylinder: {
+    case Trk::SurfaceType::Cylinder: {
       transformCylinderToGlobal(
         useJac,
         T,
@@ -1090,7 +1093,7 @@ Trk::RungeKuttaUtils::transformLocalToGlobal(bool useJac,
         P);
       return true;
     }
-    case Trk::Surface::Disc: {
+    case Trk::SurfaceType::Disc: {
       transformDiscToGlobal(useJac, T, p, P);
       return true;
     }
@@ -1252,16 +1255,16 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
   P[16] = T(0,1); P[17] = T(1,1); P[18] = T(2,1);   // Ay
   P[19] = T(0,2); P[20] = T(1,2); P[21] = T(2,2);   // Az
 
-  const unsigned int ty = su->type();
+  const Trk::SurfaceType ty = su->type();
 
-  if(ty == Trk::Surface::Plane   )  {jacobianTransformCurvilinearToPlane       (P,Jac); return;}
-  if(ty == Trk::Surface::Line    )  {jacobianTransformCurvilinearToStraightLine(P,Jac); return;}
-  if(ty == Trk::Surface::Cylinder)  {
+  if(ty == Trk::SurfaceType::Plane   )  {jacobianTransformCurvilinearToPlane       (P,Jac); return;}
+  if(ty == Trk::SurfaceType::Line    )  {jacobianTransformCurvilinearToStraightLine(P,Jac); return;}
+  if(ty == Trk::SurfaceType::Cylinder)  {
     P[22] = static_cast<const Trk::CylinderSurface*>(su)->bounds().r();
                                      jacobianTransformCurvilinearToCylinder    (P,Jac); return;
   }
-  if(ty == Trk::Surface::Perigee )  {jacobianTransformCurvilinearToStraightLine(P,Jac); return;}
-  if(ty == Trk::Surface::Disc    )  {jacobianTransformCurvilinearToDisc        (P,Jac); return;}
+  if(ty == Trk::SurfaceType::Perigee )  {jacobianTransformCurvilinearToStraightLine(P,Jac); return;}
+  if(ty == Trk::SurfaceType::Disc    )  {jacobianTransformCurvilinearToDisc        (P,Jac); return;}
   Jac[0] = Jac[3] = 1.;
   Jac[1] = Jac[2] = 0.;
 }

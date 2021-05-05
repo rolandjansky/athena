@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#ifndef StraightPatRecH
-#define StraightPatRecH
-
-//::::::::::::::::::::::::::
-//:: CLASS StraightPatRec ::
-//::::::::::::::::::::::::::
+#ifndef MDTCALIBFITTERS_StraightPatRecH
+#define MDTCALIBFITTERS_StraightPatRecH
 
 /// \class StraightPatRec
 /// This class searches for the best hit pattern to be fitted with the
@@ -16,8 +11,6 @@
 /// by default.
 ///
 /// \author Oliver.Kortner@CERN.CH
-///
-/// \date 27.10.2007, 13.12.2007
 
 #include <vector>
 
@@ -33,7 +26,7 @@ namespace MuonCalib {
     class ATLAS_NOT_THREAD_SAFE StraightPatRec : public IMdtPatRecFitter {
     public:
         // Constructors //
-        StraightPatRec(void) { init(); }
+        StraightPatRec() { init(); }
         ///< Default constructor: road width for pattern recognition = 0.5 mm.
 
         StraightPatRec(const double &r_road_width) { init(r_road_width); }
@@ -41,28 +34,7 @@ namespace MuonCalib {
 
         // Methods //
         // get-methods //
-        double roadWidth(void) const;
-        ///< get the road width used in the
-        ///< pattern recognition
-        unsigned int numberOfTrackHits(void) const;
-        ///< get the number of track hits in the
-        ///< final track,
-        ///< the method returns 0, if no track
-        ///< has been reconstructed
-        const std::vector<const MdtCalibHitBase *> &trackHits(void) const;
-        ///< get a vector with a pointer to the
-        ///< hits used in the track
-        ///< reconstruction
-        double chi2(void) const;
-        ///< get the chi^2 of the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        double chi2PerDegreesOfFreedom(void) const;
-        ///< get the chi^2 per degrees of
-        ///< freedom for the final track,
-        ///< the method returns -1, if no track
-        ///< has been reconstructed
-        MTStraightLine track(void) const;
+        double roadWidth() const;
         ///< get the final track in the local
         ///< co-ordinate frame, i.e.
         ///<                      z
@@ -93,7 +65,6 @@ namespace MuonCalib {
         ///< chi^2 per degrees of freedom;
         ///< warning: the errors of the track
         ///< radii are only approximate
-        bool fit(MuonCalibSegment &r_segment, HitSelection r_selection) const;
         ///< reconstruction of the track using
         ///< only those hits in r_segment for
         ///< which the r_selection[.] is 0,
@@ -107,10 +78,14 @@ namespace MuonCalib {
         ///< track reconstruction;
         ///< warning : the errors of the track
         ///< CLHEP::radii are only approximate
+        bool fit(MuonCalibSegment &r_segment, HitSelection r_selection) const;
+        /// the CurvedPatRec class relies on the first place on information cached in the MSStraightLine
+        bool fit(MuonCalibSegment &r_segment, HitSelection r_selection, MTStraightLine &line_track) const;
 
+        void printLevel(int) {}
+
+        bool fitCallByReference(MuonCalibSegment &r_segment, HitSelection &r_selection, MTStraightLine &line_track) const;
         bool fitCallByReference(MuonCalibSegment &r_segment, HitSelection &r_selection) const;
-
-        void printLevel(int /*level*/){};
 
     private:
         // internal co-ordinate definition //
@@ -121,19 +96,6 @@ namespace MuonCalib {
         //	   o o o o o o     x1
         //
 
-        // final track parameters //
-        mutable std::vector<const MdtCalibHitBase *> m_track_hits;
-        // pointer to hits used by the final
-        // track
-        mutable int m_nb_track_hits;     // number of track hits in the final
-                                         // track
-        mutable double m_chi2;           // chi^2 of the final track
-        double m_a_x1, m_b_x1;           // slope and intercept in the x1-x3 plane
-        double m_a_x2, m_b_x2;           // slope and intercept in the x2-x3 plane
-        double m_a_x1_err, m_b_x1_err;   // errors on a_x1 and b_x1
-        double m_a_x2_err, m_b_x2_err;   // errors on a_x2 and b_x2
-        mutable MTStraightLine m_track;  // final track
-
         bool m_fix_selection;
 
         // parameters for the adjustment of the track reconstruction //
@@ -141,12 +103,8 @@ namespace MuonCalib {
         double m_road_width;  // road width for pattern recognition
         double m_time_out;    // time-out for track finding
 
-        // chi^2 refitter //
-        //	DCSLFitter m_nfitter; // NIKHEF straight line reconstruction
-        //	FourCasesFitter m_nfitter;
-
         // initialization methods //
-        void init(void);
+        void init();
         // default initialization:  road width = 0.5 CLHEP::mm
         void init(const double &r_road_width);
         // initialization with user-defined road width
@@ -164,7 +122,7 @@ namespace MuonCalib {
         // r_case = 1, 2, 3, 4: select one of the four cases of a tangent
         MTStraightLine fitCandidate(MuonCalibSegment &r_segment, const std::vector<unsigned int> &r_selection,
                                     const MTStraightLine &cand_line) const;
-        //				const std::vector<unsigned int> & index) const;
+
         // refit the candidate "cand_line" using the hits specified by
         // the r_selection and index vectors
     };

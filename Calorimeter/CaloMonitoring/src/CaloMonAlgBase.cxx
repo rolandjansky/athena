@@ -51,9 +51,8 @@ StatusCode CaloMonAlgBase::initialize() {
    m_BadLBTool.disable();
  } 
 
- if(m_useCollisionFilterTool) ATH_CHECK( m_LArCollisionTimeKey.initialize() );
-
- if(m_useBeamBackgroundRemoval) ATH_CHECK( m_beamBackgroundKey.initialize() );
+ ATH_CHECK( m_LArCollisionTimeKey.initialize(m_useCollisionFilterTool) );
+ ATH_CHECK( m_beamBackgroundKey.initialize(m_useBeamBackgroundRemoval) );
 
  return AthMonitorAlgorithm::initialize();
 }

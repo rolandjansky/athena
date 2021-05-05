@@ -538,16 +538,16 @@ class MenuSequence(object):
 
 
 class MenuSequenceCA(MenuSequence):
-    ''' MenuSequence with Compoment Accumulator '''
+    ''' MenuSequence with Component Accumulator '''
 
     def __init__(self, ca, HypoToolGen ):
         self.ca = ca
         allAlgs = ca.getEventAlgos()
         inputMaker = [ a for a in allAlgs if isInputMakerBase(a)]
-        assert len(inputMaker) == 1, "Wrong number of input makers in the compnent accumulator {}".format(len(inputMaker))
+        assert len(inputMaker) == 1, "Wrong number of input makers in the component accumulator {}".format(len(inputMaker))
         inputMaker = inputMaker[0]
         hypoAlg = [ a for a in allAlgs if isHypoAlg(a)]
-        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the compnent accumulator {}".format(len(hypoAlg))
+        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the component accumulator {}".format(len(hypoAlg))
         hypoAlg = hypoAlg[0]
         MenuSequence.__init__(self, ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
 
@@ -937,13 +937,16 @@ class InEventRecoCA( ComponentAccumulator ):
         self.addSequence( self.mainSeq )
 
         self.inputMakerAlg = inputMaker
+        if not self.inputMakerAlg:
+            self.inputMakerAlg = CompFactory.InputMakerForRoI("IM"+name, 
+                                                               RoITool = CompFactory.ViewCreatorInitialROITool())
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
     pass
 
     def mergeReco( self, ca ):
-        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        """ Merged CA moving reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.name )
 
     def addRecoAlgo( self, algo ):
@@ -981,7 +984,7 @@ class InViewRecoCA(ComponentAccumulator):
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
     def mergeReco( self, ca ):
-        """ Merge CA movnig reconstruction algorithms into the right sequence """
+        """ Merge CA moving reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.name )
 
     def addRecoAlgo( self, algo ):
@@ -1002,9 +1005,11 @@ class SelectionCA(ComponentAccumulator):
         self.merge(other, sequenceName=self.stepRecoSequence.name)
 
     def mergeHypo(self, other):
+        """To be used when the hypo alg configuration comes with auxiliary tools/services"""
         self.merge(other, sequenceName=self.stepViewSequence.name)
 
     def addHypoAlgo(self, algo):
+        """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
 class RecoFragmentsPool(object):

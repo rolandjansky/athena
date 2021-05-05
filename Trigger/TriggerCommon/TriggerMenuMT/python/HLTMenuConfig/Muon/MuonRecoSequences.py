@@ -52,10 +52,15 @@ class muonNames(object):
     if "RoI" in name:
       self.EFSAName = recordable("HLT_Muons_RoI")
       self.EFCBName = recordable("HLT_MuonsCB_RoI")
+    if "LRT" in name:
+      self.L2CBName = recordable("HLT_MuonL2CBInfoLRT")
+      self.EFSAName = recordable("HLT_Muons_RoI")
+      self.EFCBName = recordable("HLT_MuonsCB_LRT")
     return self
 
 muNames = muonNames().getNames('RoI')
 muNamesFS = muonNames().getNames('FS')
+muNamesLRT = muonNames().getNames('LRT')
 
 def isCosmic():
   #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now, ATR-22758
@@ -475,6 +480,10 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
   else:
     MuFastDataPreparator.MMDataPreparator   = ""
+
+  MuFastDataPreparator.RpcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+  MuFastDataPreparator.TgcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+  MuFastDataPreparator.ClusterRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
@@ -588,7 +597,11 @@ def muCombRecoSequence( RoIs, name, l2mtmode=False ):
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
   muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
-  muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+  if ('LRT' in name):
+    muCombAlg.L2CombinedMuonContainerName   = muNamesLRT.L2CBName
+  else:
+    muCombAlg.L2CombinedMuonContainerName   = muNames.L2CBName+postFix
+    
   if l2mtmode:
     muCombAlg.TrackParticlesContainerName   = getIDTracks()
   else:
@@ -718,7 +731,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  signatureName = 'muon{}'.format( 'FS' if 'FS' in name else '' ) 
+  signatureName = 'muon{}'.format( 'FS' if 'FS' in name else 'LRT' if 'LRT' in name else '' ) 
   IDTrigConfig = getInDetTrigConfig( signatureName )
 
   if "FS" in name:
@@ -728,6 +741,17 @@ def muEFCBRecoSequence( RoIs, name ):
 
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
+
+  elif "LRT" in name:
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierLRT")
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks(name) ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) )]
+
+    if globalflags.InputFormat.is_bytestream():
+      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    muEFCBRecoSequence += ViewVerifyTrk
 
   else:
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
@@ -755,6 +779,11 @@ def muEFCBRecoSequence( RoIs, name ):
     PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
+  elif 'LRT' in name:
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTSeq = parOR("precisionTrackingInMuonsLRT", PTAlgs  )
+    muEFCBRecoSequence += PTSeq
+    trackParticles = PTTrackParticles[-1]
   #In case of cosmic Precision Tracking has been already called before hence no need to call here just retrieve the correct collection of tracks
   elif isCosmic():
     trackParticles = getIDTracks() 
@@ -764,10 +793,10 @@ def muEFCBRecoSequence( RoIs, name ):
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
 
-
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
                                                        InDetCandidateLocation="InDetCandidates_"+name, TrackSelector="")
+
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
@@ -787,12 +816,14 @@ def muEFCBRecoSequence( RoIs, name ):
   candidatesName = "MuonCandidates"
   if 'FS' in name:
     candidatesName = "MuonCandidates_FS"
-  theMuonCombinedAlg = MuonCombinedAlg("TrigMuonCombinedAlg_"+name, MuonCandidateLocation=candidatesName, InDetCandidateLocation="InDetCandidates_"+name)
 
+  theMuonCombinedAlg = MuonCombinedAlg("TrigMuonCombinedAlg_"+name, MuonCandidateLocation=candidatesName, InDetCandidateLocation="InDetCandidates_"+name)
 
   cbMuonName = muNames.EFCBOutInName
   if 'FS' in name:
     cbMuonName = muNamesFS.EFCBName
+  elif 'LRT' in name:
+    cbMuonName = muNamesLRT.EFCBName
 
   themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=candidatesName, TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
                                        MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
@@ -935,19 +966,24 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
 
 
-def efmuisoRecoSequence( RoIs, Muons ):
+def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
 
   from AthenaCommon.CFElements import parOR
 
-  efmuisoRecoSequence = parOR("efmuIsoViewNode")
+  name = ""
+  if doMSiso:
+    name = "MS"
+
+  efmuisoRecoSequence = parOR("efmuIsoViewNode"+name)
+
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  IDTrigConfig = getInDetTrigConfig( 'muonIso' )
+  IDTrigConfig = getInDetTrigConfig( 'muonIso'+name )
 
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
-  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs' ),
-                             ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
+  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs'+name ),
+                             ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons'+name )]
 
   # Make sure required objects are still available at whole-event level
   if not globalflags.InputFormat.is_bytestream():
@@ -967,16 +1003,18 @@ def efmuisoRecoSequence( RoIs, Muons ):
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs )
 
-  PTSeq = parOR("precisionTrackingInMuonsIso", PTAlgs  )
+  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
   efmuisoRecoSequence += PTSeq
 
   # set up algs
   from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
-  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso")
+  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso"+name)
+  if doMSiso:
+    trigEFmuIso.requireCombinedMuon=False
   trigEFmuIso.MuonEFContainer = Muons
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
-  trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.MuonContName = muNames.EFIsoMuonName+name
   trigEFmuIso.ptcone02Name = "%s.ptcone02" % Muons
   trigEFmuIso.ptcone03Name = "%s.ptcone03" % Muons
 

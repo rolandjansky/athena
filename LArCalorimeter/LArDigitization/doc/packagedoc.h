@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,10 +23,6 @@ share/LArDigitization_G4_jobOptions.py
 The list of the properties of the algorithm with their explanation can be found
 in the LArDigitMaker::LArDigitMaker.
 
-This algorithm uses LArADC2MeVTool (ADC to MeV conversion per channel and per gain)
-and  LArAutoCorrNoiseTool (precomputed factors to generate electronic noise with
-the proper autocorrelation function) as well as several conditions data accessed
-with the interfaces in LArElecCalib.
 
 
 @section LArDigitization_LArHitEMap LArHitEMap and LArHitList

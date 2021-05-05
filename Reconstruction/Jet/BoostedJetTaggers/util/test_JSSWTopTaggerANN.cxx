@@ -27,6 +27,7 @@
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
 #include "AsgMessaging/MessageCheck.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 // messaging
 ANA_MSG_HEADER(Test)
@@ -183,9 +184,8 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing JSSWTopTaggerANN Tagger"<<std::endl;
-  asg::AnaToolHandle<JSSWTopTaggerANN> m_Tagger; //!
-  ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerANN);
-  m_Tagger.setName("MyTagger");
+  asg::StandaloneToolHandle<JSSWTopTaggerANN> m_Tagger; //!
+  m_Tagger.setTypeAndName("JSSWTopTaggerANN/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
   ANA_CHECK( m_Tagger.setProperty( "CalibArea",    "/eos/user/g/gang/public/BoostedJetTaggers/JSSWTopTaggerANN/") );
   ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "JSSANNTagger_test.dat") );

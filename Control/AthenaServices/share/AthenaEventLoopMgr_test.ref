@@ -19,7 +19,7 @@ ApplicationMgr    SUCCESS
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-AthenaEventLoop...   INFO Initializing AthenaEventLoopMgr1 - package version AthenaServices-00-00-00
+AthenaEventLoop...   INFO Initializing AthenaEventLoopMgr1
 TestAlgorithm::initialize
 ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 2161 CLIDRegistry entries for module ALL
@@ -27,7 +27,7 @@ ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComp
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoop...   INFO Setup EventSelector service TestEvtSelector
 ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
-AthenaEventLoop...   INFO Initializing AthenaEventLoopMgr2 - package version AthenaServices-00-00-00
+AthenaEventLoop...   INFO Initializing AthenaEventLoopMgr2
 TestAlgorithm::initialize
 AthenaEventLoop...   INFO Setup EventSelector service TestEvtSelector2
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 

@@ -6,7 +6,6 @@
 #define MUONCNVTOOLINTERFACES_IRPC_RDOTOBYTESTREAMTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "ByteStreamData/RawEvent.h"
 
 class RpcPadContainer; 
 class MsgStream ; 
@@ -33,9 +32,8 @@ public:
 
   /** Conversion method, which takes the RDO container and converts it into raw data, filled into RawEventWrite.
   @param cont RDO container which will be used to fill the raw event
-  @param re Raw event to be filled by this method.
   */
-  virtual StatusCode convert(RpcPadContainer* cont, RawEventWrite* re ) const =0; 
+  virtual StatusCode convert(RpcPadContainer* cont) const =0; 
   
 };
 }

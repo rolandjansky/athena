@@ -20,10 +20,6 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
 
-  for (const auto& pf_maker : m_prefilterMakers){
-    m_prefilters.push_back(pf_maker->getHypoJetVectorFilter());
-  }
-
   for (const auto& config : m_configs) {
     m_matchers.push_back(config->getMatcher());
   }
@@ -55,7 +51,15 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
 
   std::pair<HypoJetCIter, HypoJetCIter> iters =
     std::make_pair(jetsIn.begin(), jetsIn.end());
-  for (const auto& pf : m_prefilters) {
+  
+  // prefilters are now local variables
+  std::vector<FilterPtr> prefilters{}; 
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
+  }
+
+  for (const auto& pf : prefilters) {
     iters = pf->filter(iters.first, iters.second, collector);
   }
   
@@ -87,8 +91,17 @@ std::string TrigJetHypoToolHelperNoGrouper::toString() const {
   std::stringstream ss;
   ss << name();
 
-  ss << "prefilters: [" << m_prefilters.size() << "]:\n";
-  for (const auto& pf : m_prefilters){
+
+
+  std::vector<FilterPtr> prefilters{};
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
+  }
+
+
+  ss << "prefilters: [" << prefilters.size() << "]:\n";
+  for (const auto& pf : prefilters){
     ss << '\n'<<  *pf;
   }
   

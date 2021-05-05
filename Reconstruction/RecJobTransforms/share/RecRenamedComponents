@@ -1,0 +1,12 @@
+# this file contains pairs of names of components renamed between rec ex cond and Run3 conf
+#calo
+CaloTopoCluster = CaloTopoClustersMaker
+CaloTopoCluster.TopoSplitter = CaloTopoClustersMaker.TopoSplitter
+CaloTopoCluster.TopoMaker = CaloTopoClustersMaker.TopoMaker
+CaloTopoCluster.TopoMoments = CaloTopoClustersMaker.TopoMoments
+CaloTopoCluster.CaloClusterBadChannelList = CaloTopoClustersMaker.CaloClusterBadChannelList
+CaloTopoCluster.CaloClusterBadChannelList.CaloBadChanTool = CaloTopoClustersMaker.CaloClusterBadChannelList.CaloBadChanTool
+CaloTopoCluster.CaloClusterBadChannelList.CaloBadChanTool.TileBadChanTool = CaloTopoClustersMaker.CaloClusterBadChannelList.CaloBadChanTool.TileBadChanTool
+# ID
+InDetSCTRawDataProvider = SCTRawDataProvider
+InDetPixelRawDataProvider = PixelRawDataProvider

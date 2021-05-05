@@ -180,7 +180,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
   if (!perigee) return PIDvalues;
 
   // Get parameters at perigee and check that they are reasonable:
-  const Amg::VectorX& parameterVector = perigee->parameters();
+  const AmgVector(Trk::TrackParameters::dim)& parameterVector = perigee->parameters();
   double qOverP = parameterVector[Trk::qOverP];
   double theta  = parameterVector[Trk::theta];
   double phi    = parameterVector[Trk::phi];

@@ -9,6 +9,7 @@
 
 class Identifier;
 class CscRawData;
+class CscIdHelper;
 
 namespace Muon {
 
@@ -22,10 +23,10 @@ class ICSC_RDO_Decoder : virtual public IAlgTool {
 public:
   DeclareInterfaceID(ICSC_RDO_Decoder, 1, 0);
 
-  virtual void getDigit(const CscRawData * rawData, Identifier& moduleId,
+  virtual void getDigit(const CscRawData * rawData, const CscIdHelper* cscIdHelper, Identifier& moduleId,
                 Identifier& channelId, double& adc, double& time) const=0;
-  virtual Identifier stationIdentifier(const CscRawData* rawData) const=0;
-  virtual Identifier channelIdentifier(const CscRawData * rawData, int j) const=0;
+  virtual Identifier stationIdentifier(const CscRawData* rawData, const CscIdHelper* cscIdHelper) const=0;
+  virtual Identifier channelIdentifier(const CscRawData * rawData, const CscIdHelper* cscIdHelper, int j) const=0;
 };
 
 }

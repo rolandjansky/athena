@@ -136,9 +136,11 @@ TileBchStatus::initClassifierDefinitions()
 
   PrbSet refTimingDmuBcOffset;
   //=== define which problems trigger an affected timing
-  refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffset);
+  refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffsetPos);
+  refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffsetNeg);
   //=== online
-  refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffset);
+  refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffsetPos);
+  refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffsetNeg);
   s_refTimingDmuBcOffset.set (std::move (refTimingDmuBcOffset));
 
   PrbSet refWrongBCID;

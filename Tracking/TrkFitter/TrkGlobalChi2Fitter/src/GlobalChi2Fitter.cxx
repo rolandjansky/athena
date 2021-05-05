@@ -52,21 +52,20 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-#include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
-#include <exception>
-#include <memory>
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "TrkVolumes/VolumeBounds.h"
+#include <cmath>
+#include <exception>
+#include <memory>
+
 using CLHEP::MeV;
 using CLHEP::mm;
 
@@ -84,6 +83,20 @@ namespace {
       return 0;
     }
   }
+  //This function used to avoid FPE divide by zero or overflow by limiting the q/p values to a 
+  //more limited range
+  double
+  limitInversePValue(double qOverP){
+    const double magnitude = std::abs(qOverP);
+    //limits found empirically to leave the 25-event q431 digest unchanged
+    constexpr double maxP{100.*10e6*MeV};
+    constexpr double minP{1.e-3*MeV};
+    constexpr double lo {1./maxP};
+    constexpr double hi {1./minP};
+    double limited = std::clamp(magnitude, lo, hi);
+    return std::copysign(limited, qOverP);
+  }
+
 
   std::pair<const Trk::TrackParameters *, const Trk::TrackParameters *> getFirstLastIdPar(const Trk::Track & track) {
     const Trk::TrackParameters *firstidpar = nullptr;
@@ -94,7 +107,7 @@ namespace {
     while ((firstidpar == nullptr) && parit != track.trackParameters()->end()) {
       if (
         ((**parit).covariance() != nullptr) &&
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         firstidpar = *parit;
       }
@@ -107,7 +120,7 @@ namespace {
       parit--;
       if (
         ((**parit).covariance() != nullptr) && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+        (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
       {
         lastidpar = *parit;
       }
@@ -151,6 +164,20 @@ namespace {
       std::abs(a.parameters()[2] - b.parameters()[2]) < e
     );
   }
+    
+  //coerce the phi coordinate to the range -pi -> pi
+  void
+  coercePhiCoordinateRange(double & phi){
+    const auto absPhi{std::abs(phi)};
+    constexpr double twoPi{2.*M_PI};
+    if (std::abs(phi - twoPi) < absPhi) {
+      phi -= twoPi;
+    }
+    if (std::abs(phi + twoPi) < absPhi) {
+      phi += twoPi;
+    }
+  }
+
 }
 
 namespace Trk {
@@ -385,9 +412,9 @@ namespace Trk {
       !m_calotoolparam.empty() && 
       !m_useCaloTG
     ) {
-      double piderror = sqrt((*errmatid) (4, 4)) / (qoverpid * qoverpid);
-      double pmuonerror = sqrt((*errmatmuon) (4, 4)) / (qoverpmuon * qoverpmuon);
-      double energyerror = sqrt(
+      double piderror = std::sqrt((*errmatid) (4, 4)) / (qoverpid * qoverpid);
+      double pmuonerror = std::sqrt((*errmatmuon) (4, 4)) / (qoverpmuon * qoverpmuon);
+      double energyerror = std::sqrt(
         calomeots[1].energyLoss()->sigmaDeltaE() *
         calomeots[1].energyLoss()->sigmaDeltaE() + piderror * piderror +
         pmuonerror * pmuonerror
@@ -632,7 +659,7 @@ namespace Trk {
       const Surface & associatedSurface = tmppar->associatedSurface();
       std::unique_ptr<Surface> muonsurf = nullptr;
       
-      if (associatedSurface.type() == Trk::Surface::Cylinder) {
+      if (associatedSurface.type() == Trk::SurfaceType::Cylinder) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder) {
           const CylinderBounds *cylbounds = static_cast <const CylinderBounds * >(&associatedSurface.bounds());
           std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(associatedSurface.transform());
@@ -640,7 +667,7 @@ namespace Trk {
           double hlength = cylbounds->halflengthZ();
           muonsurf = std::make_unique<CylinderSurface>(trans.release(), radius + 1, hlength);
         }
-      } else if (associatedSurface.type() == Trk::Surface::Disc) {
+      } else if (associatedSurface.type() == Trk::SurfaceType::Disc) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Disc) {
           double newz = (
             associatedSurface.center().z() > 0 ? 
@@ -725,10 +752,10 @@ namespace Trk {
           double sign = (newpars[Trk::qOverP] > 0) ? 1 : -1;
           double de = std::abs(meff->energyLoss()->deltaE());
           double oldp = std::abs(1 / newpars[Trk::qOverP]);
-          double newp2 = oldp * oldp + (!firstismuon ? 2 : -2) * de * sqrt(mass * mass + oldp * oldp) + de * de;
+          double newp2 = oldp * oldp + (!firstismuon ? 2 : -2) * de * std::sqrt(mass * mass + oldp * oldp) + de * de;
           
           if (newp2 > 0) {
-            newpars[Trk::qOverP] = sign / sqrt(newp2);
+            newpars[Trk::qOverP] = sign / std::sqrt(newp2);
           }
         }
         
@@ -993,12 +1020,12 @@ namespace Trk {
       double dloc2 = idscatpar->parameters()[Trk::loc2] - scat2->parameters()[Trk::loc2];
       const Trk::CylinderSurface * cylsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder) 
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder) 
         cylsurf = static_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
         
       const Trk::DiscSurface * discsurf = nullptr;
       
-      if (scat2->associatedSurface().type() == Trk::Surface::Cylinder)
+      if (scat2->associatedSurface().type() == Trk::SurfaceType::Cylinder)
         discsurf = static_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
 
       if (cylsurf != nullptr) {
@@ -1147,7 +1174,7 @@ namespace Trk {
     
     if (
       (pull1 > 5 || pull2 > 5) &&
-      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::Surface::Line)
+      (pull1 > 25 || pull2 > 25 || closestmuonmeas->associatedSurface().type() == Trk::SurfaceType::Line)
     ) {
       return nullptr;
     }
@@ -1192,7 +1219,7 @@ namespace Trk {
 
       if (
         itStates2 == endState2 - 1 && 
-        tpar->associatedSurface().type() == Trk::Surface::Line && 
+        tpar->associatedSurface().type() == Trk::SurfaceType::Line && 
         tpar->position().perp() > 9000 && 
         std::abs(tpar->position().z()) < 13000
       ) {
@@ -1364,13 +1391,13 @@ namespace Trk {
       double oldp = std::abs(1 / tmppar->parameters()[Trk::qOverP]);
       double de = std::abs(calomeots[1].energyLoss()->deltaE());
 
-      double newp2 = oldp * oldp - 2 * de * sqrt(mass * mass + oldp * oldp) + de * de;
+      double newp2 = oldp * oldp - 2 * de * std::sqrt(mass * mass + oldp * oldp) + de * de;
       
       if (newp2 < 4.e6) {
         newp2 = 4.e6;
       }
       
-      double newqoverp = sign / sqrt(newp2);
+      double newqoverp = sign / std::sqrt(newp2);
 
       const AmgVector(5) & pars = tmppar->parameters();
       
@@ -1625,7 +1652,7 @@ namespace Trk {
 
       bool isStraightLine = 
         (*itStates2)->measurementOnTrack() != nullptr ? 
-        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::Surface::Line : 
+        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::SurfaceType::Line : 
         false;
 
       if (
@@ -1700,7 +1727,7 @@ namespace Trk {
           std::unique_ptr<Amg::Transform3D> transf = std::make_unique<Amg::Transform3D>(mdtsurf1->transform());
           
           transf->translation() << triggerpos1;
-          StraightLineSurface slsurf(transf.release());
+          StraightLineSurface slsurf(*transf);
           Amg::MatrixX covMatrix(1, 1);
           covMatrix(0, 0) = 100;
 
@@ -1728,7 +1755,7 @@ namespace Trk {
         ) {
           std::unique_ptr<Amg::Transform3D> transf = std::make_unique<Amg::Transform3D>(mdtsurf2->transform());
           transf->translation() << triggerpos2;
-          StraightLineSurface slsurf(transf.release());
+          StraightLineSurface slsurf(*transf);
           Amg::MatrixX covMatrix(1, 1);
           covMatrix(0, 0) = 100;
 
@@ -2101,7 +2128,7 @@ namespace Trk {
           
           double p = 1. / std::abs(layerpars->parameters()[Trk::qOverP] - .0005 * meff->delta_p());
           
-          std::unique_ptr<const Amg::Vector2D> locpos(state->surface()->globalToLocal(layerpars->position()));
+          std::optional<Amg::Vector2D> locpos(state->surface()->globalToLocal(layerpars->position()));
           const Amg::Vector3D layerNormal(state->surface()->normal(*locpos));
           double costracksurf = 1.;
           
@@ -2114,18 +2141,18 @@ namespace Trk {
           
           if (matprop != nullptr) {
             eloss.reset(m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects));
-            sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, p, 1. / costracksurf, matEffects));
+            sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, p, 1. / costracksurf, matEffects));
             
             if (eloss != nullptr) {
               meff->setDeltaE(eloss->deltaE());
             }
           } else {
             MaterialProperties tmpprop(1., meff->x0(), 0., 0., 0., 0.);
-            sigmascat = sqrt(m_scattool->sigmaSquare(tmpprop, p, 1. / costracksurf, matEffects));
+            sigmascat = std::sqrt(m_scattool->sigmaSquare(tmpprop, p, 1. / costracksurf, matEffects));
           }
           
           meff->setScatteringSigmas(
-            sigmascat / sin(layerpars->parameters()[Trk::theta]),
+            sigmascat / std::sin(layerpars->parameters()[Trk::theta]),
             sigmascat
           );
 
@@ -2246,12 +2273,12 @@ namespace Trk {
       const RIO_OnTrack *rot = nullptr;
       const PlaneSurface *plsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Plane)
+      if (prdsurf.type() == Trk::SurfaceType::Plane)
         plsurf = static_cast < const PlaneSurface *>(&prdsurf);
 
       const StraightLineSurface *slsurf = nullptr;
       
-      if (prdsurf.type() == Trk::Surface::Line)
+      if (prdsurf.type() == Trk::SurfaceType::Line)
         slsurf = static_cast < const StraightLineSurface *>(&prdsurf);
 
       if ((slsurf == nullptr) && (plsurf == nullptr)) {
@@ -2435,7 +2462,7 @@ namespace Trk {
       
       const RIO_OnTrack *rot = nullptr;
       
-      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::Surface::Line) {
+      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::SurfaceType::Line) {
         rot = m_broadROTcreator->correct(*prd, *hitparam);
       } else {
         rot = m_ROTcreator->correct(*prd, *trackparForCorrect);
@@ -2647,7 +2674,7 @@ namespace Trk {
       } else {
         Trk::MaterialProperties matprop(meff->thicknessInX0(), 1., 0., 0., 0., 0.);
         
-        double sigmascat = sqrt(m_scattool->sigmaSquare(
+        double sigmascat = std::sqrt(m_scattool->sigmaSquare(
           matprop, 
           std::abs(1. / tsos->trackParameters()->parameters()[Trk::qOverP]), 
           1., 
@@ -2657,7 +2684,7 @@ namespace Trk {
         std::unique_ptr<Trk::ScatteringAngles> newsa = std::make_unique<Trk::ScatteringAngles>(
           0, 
           0,
-          sigmascat / sin(tsos->trackParameters()->parameters()[Trk::theta]), 
+          sigmascat / std::sin(tsos->trackParameters()->parameters()[Trk::theta]), 
           sigmascat
         );
         
@@ -2771,8 +2798,7 @@ namespace Trk {
           if (m_DetID->is_pixel(hitid)) {
             hittype = TrackState::Pixel;
           } else if (m_DetID->is_sct(hitid)) {
-            if (covmat.cols() == 1 || covmat(1, 0) == 0) {
-            } else {
+            if (not (covmat.cols() == 1 || covmat(1, 0) == 0)) {
               rotated = true;
             }
             hittype = TrackState::SCT;
@@ -2789,8 +2815,7 @@ namespace Trk {
           } else if (m_DetID->is_mdt(hitid)) {
             hittype = TrackState::MDT;
           } else if (m_DetID->is_tgc(hitid)) {
-            if (measbase2->associatedSurface().bounds().type() != Trk::SurfaceBounds::Trapezoid) {
-            } else {
+            if (measbase2->associatedSurface().bounds().type() == Trk::SurfaceBounds::Trapezoid) {
               rotated = true;
             }
             hittype = TrackState::TGC;
@@ -2804,26 +2829,22 @@ namespace Trk {
         }
         
         if (rotated) {
+          const double traceCov = covmat(0, 0) + covmat(1, 1);
+          const double diagonalProduct = covmat(0, 0) * covmat(1, 1);
+          const double element01Sq = covmat(0, 1) * covmat(0, 1);
+          const double sqrtTerm = std::sqrt(
+              (traceCov) * (traceCov) - 4. * (diagonalProduct - element01Sq)
+            );
+           
           double v0 = 0.5 * (
-            covmat(0, 0) + covmat(1, 1) - sqrt(
-              1 * (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) - 
-              4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
-            )
+            traceCov - sqrtTerm
           );
-          
-          double v1 = 0.5 * (
-            covmat(0, 0) + covmat(1, 1) + sqrt(
-              1 * (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) -
-              4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
-            )
-          );
-                                                                      
-          sinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
-          errors[0] = sqrt(v0);
+          sinstereo = std::sin(0.5 * std::asin(2 * covmat(0, 1) / (-sqrtTerm)));
+          errors[0] = std::sqrt(v0);
         } else {
-          errors[0] = sqrt(covmat(0, 0));
+          errors[0] = std::sqrt(covmat(0, 0));
           if (hittype == TrackState::Pixel) {
-            errors[1] = sqrt(covmat(1, 1));
+            errors[1] = std::sqrt(covmat(1, 1));
           }
         }
         if (
@@ -2848,27 +2869,27 @@ namespace Trk {
         int param_index = 0;
         
         if (psmpar.contains(Trk::locRPhi)) {
-          errors[0] = sqrt(covmat(0, 0));
+          errors[0] = std::sqrt(covmat(0, 0));
           param_index++;
         }
 
         if (psmpar.contains(Trk::locZ)) {
-          errors[1] = sqrt(covmat(param_index, param_index));
+          errors[1] = std::sqrt(covmat(param_index, param_index));
           param_index++;
         }
         
         if (psmpar.contains(Trk::phi)) {
-          errors[2] = sqrt(covmat(param_index, param_index));
+          errors[2] = std::sqrt(covmat(param_index, param_index));
           param_index++;
         }
         
         if (psmpar.contains(Trk::theta)) {
-          errors[3] = sqrt(covmat(param_index, param_index));
+          errors[3] = std::sqrt(covmat(param_index, param_index));
           param_index++;
         }
         
         if (psmpar.contains(Trk::qOverP)) {
-          errors[4] = sqrt(covmat(param_index, param_index));
+          errors[4] = std::sqrt(covmat(param_index, param_index));
           param_index++;
         }
         
@@ -2939,12 +2960,12 @@ namespace Trk {
           }
           
           const CylinderLayer *cyllay = nullptr;
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
             cyllay = static_cast<const CylinderLayer *>((*layerIter));
             
           const DiscLayer *disclay = nullptr;
           
-          if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Disc)
+          if ((*layerIter)->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
             disclay = static_cast<const DiscLayer *>((*layerIter));
             
           if (disclay != nullptr) {
@@ -2977,12 +2998,12 @@ namespace Trk {
       
       const CylinderSurface *cylsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cylsurf = static_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
           
       const DiscSurface *discsurf = nullptr;
       
-      if (layer->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (layer->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         discsurf = static_cast<const DiscSurface *>(&layer->surfaceRepresentation());
 
       if (discsurf != nullptr) {
@@ -3116,19 +3137,19 @@ namespace Trk {
       const Layer * two
     ) const {
       const CylinderSurface *cyl1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl1 = static_cast<const CylinderSurface *>(&one->surfaceRepresentation());
           
       const DiscSurface *disc1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc1 = static_cast<const DiscSurface *>(&one->surfaceRepresentation());
           
       const CylinderSurface *cyl2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Cylinder)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
         cyl2 = static_cast<const CylinderSurface *>(&two->surfaceRepresentation());
           
       const DiscSurface *disc2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::Surface::Disc)
+      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
         disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
 
       if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
@@ -3161,19 +3182,19 @@ namespace Trk {
     pos[1] = parforextrap.position().y();
     pos[2] = parforextrap.position().z();
     cache.m_field_cache.getFieldZR(pos, field);
-    double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
-    double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
-    double sintheta = sin(parforextrap.parameters()[Trk::theta]);
-    double costheta = cos(parforextrap.parameters()[Trk::theta]);
+    double sinphi = std::sin(parforextrap.parameters()[Trk::phi0]);
+    double cosphi = std::cos(parforextrap.parameters()[Trk::phi0]);
+    double sintheta = std::sin(parforextrap.parameters()[Trk::theta]);
+    double costheta = std::cos(parforextrap.parameters()[Trk::theta]);
     double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
     double xc = parforextrap.position().x() - r * sinphi;
     double yc = parforextrap.position().y() + r * cosphi;
-    double phi0 = atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
+    double phi0 = std::atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
     double z0 = parforextrap.position().z();
     double delta_s = (surf.center().z() - z0) / costheta;
     double delta_phi = delta_s * sintheta / r;
-    double x = xc + std::abs(r) * cos(phi0 + delta_phi);
-    double y = yc + std::abs(r) * sin(phi0 + delta_phi);
+    double x = xc + std::abs(r) * std::cos(phi0 + delta_phi);
+    double y = yc + std::abs(r) * std::sin(phi0 + delta_phi);
     Amg::Vector3D intersect = Amg::Vector3D(x, y, surf.center().z());
     double perp = intersect.perp();
     const DiscBounds *discbounds = (const DiscBounds *) (&surf.bounds());
@@ -3207,15 +3228,15 @@ namespace Trk {
     pos[1] = parforextrap.position().y();
     pos[2] = parforextrap.position().z();
     cache.m_field_cache.getFieldZR(pos, field);
-    double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
-    double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
-    double sintheta = sin(parforextrap.parameters()[Trk::theta]);
-    double costheta = cos(parforextrap.parameters()[Trk::theta]);
-    double tantheta = tan(parforextrap.parameters()[Trk::theta]);
+    double sinphi = std::sin(parforextrap.parameters()[Trk::phi0]);
+    double cosphi = std::cos(parforextrap.parameters()[Trk::phi0]);
+    double sintheta = std::sin(parforextrap.parameters()[Trk::theta]);
+    double costheta = std::cos(parforextrap.parameters()[Trk::theta]);
+    double tantheta = std::tan(parforextrap.parameters()[Trk::theta]);
     double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
     double xc = parforextrap.position().x() - r * sinphi;
     double yc = parforextrap.position().y() + r * cosphi;
-    double phi0 = atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
+    double phi0 = std::atan2(parforextrap.position().y() - yc, parforextrap.position().x() - xc);
     double z0 = parforextrap.position().z();
     double d = xc * xc + yc * yc;
     double rcyl = surf.bounds().r();
@@ -3225,7 +3246,7 @@ namespace Trk {
       return {};
     }
     
-    mysqrt = sqrt(mysqrt);
+    mysqrt = std::sqrt(mysqrt);
     double firstterm = xc / 2 + (xc * (rcyl * rcyl - r * r)) / (2 * d);
     double secondterm = (mysqrt * yc) / (2 * d);
     double x1 = firstterm + secondterm;
@@ -3247,15 +3268,10 @@ namespace Trk {
       y = y2;
     }
     
-    double phi1 = atan2(y - yc, x - xc);
+    double phi1 = std::atan2(y - yc, x - xc);
     double deltaphi = phi1 - phi0;
     
-    if (std::abs(deltaphi - 2 * M_PI) < std::abs(deltaphi)) {
-      deltaphi -= 2 * M_PI;
-    }
-    if (std::abs(deltaphi + 2 * M_PI) < std::abs(deltaphi)) {
-      deltaphi += 2 * M_PI;
-    }
+    coercePhiCoordinateRange(deltaphi);
     
     double delta_z = r * deltaphi / tantheta;
     double z = z0 + delta_z;
@@ -3268,15 +3284,9 @@ namespace Trk {
     
     Amg::Vector3D normal(x, y, 0);
     double phidir = parforextrap.parameters()[Trk::phi] + deltaphi;
+    coercePhiCoordinateRange(phidir);
     
-    if (std::abs(phidir - 2 * M_PI) < std::abs(phidir)) {
-      phidir -= 2 * M_PI;
-    }
-    if (std::abs(phidir + 2 * M_PI) < std::abs(phidir)) {
-      phidir += 2 * M_PI;
-    }
-    
-    Amg::Vector3D trackdir(cos(phidir) * sintheta, sin(phidir) * sintheta, costheta);
+    Amg::Vector3D trackdir(cos(phidir) * sintheta, std::sin(phidir) * sintheta, costheta);
     
     double costracksurf = std::abs(normal.unit().dot(trackdir));
     
@@ -3413,8 +3423,8 @@ namespace Trk {
         double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
         double de = -std::abs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), matEffects));
-        double sintheta = sin(parforextrap->parameters()[Trk::theta]);
-        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
+        double sintheta = std::sin(parforextrap->parameters()[Trk::theta]);
+        double sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
         
         std::unique_ptr<GXFMaterialEffects> meff = std::make_unique<GXFMaterialEffects>();
         meff->setDeltaE(de);
@@ -3522,7 +3532,7 @@ namespace Trk {
     const Layer *startlayer2 = hasmat ? lastsistate.surface()->associatedLayer() : nullptr;
     const Layer *endlayer = laststate->surface()->associatedLayer();
     
-    double tantheta = tan(refpar->parameters()[Trk::theta]);
+    double tantheta = std::tan(refpar->parameters()[Trk::theta]);
     double slope = (tantheta != 0) ? 1 / tantheta : 0;  // (lastz-firstz)/(lastr-firstr);
     
     /*
@@ -4011,7 +4021,7 @@ namespace Trk {
         
         startmatpar2 = startmatpar2->associatedSurface().createUniqueTrackParameters(
           newpars[0], newpars[1], newpars[2], newpars[3],
-          sign / sqrt(oldp * oldp + 2 * 100 * MeV * sqrt(oldp * oldp + mass * mass) + 100 * MeV * 100 * MeV), 
+          sign / std::sqrt(oldp * oldp + 2 * 100 * MeV * std::sqrt(oldp * oldp + mass * mass) + 100 * MeV * 100 * MeV), 
           std::nullopt
         );
       }
@@ -4136,12 +4146,12 @@ namespace Trk {
           if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Cylinder)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Cylinder)
               cylcalosurf = static_cast<const CylinderSurface *>(&tmppar->associatedSurface());
             
             const DiscSurface *disccalosurf = nullptr;
             
-            if (tmppar->associatedSurface().type() == Trk::Surface::Disc)
+            if (tmppar->associatedSurface().type() == Trk::SurfaceType::Disc)
               disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             
             if (cylcalosurf != nullptr) {
@@ -4630,8 +4640,8 @@ namespace Trk {
       trajectory.addBasicState(std::move(oldstates[0]));
     }
     
-    double cosphi = cos(refpar->parameters()[Trk::phi0]);
-    double sinphi = sin(refpar->parameters()[Trk::phi0]);
+    double cosphi = std::cos(refpar->parameters()[Trk::phi0]);
+    double sinphi = std::sin(refpar->parameters()[Trk::phi0]);
     
     for (int i = cache.m_acceleration ? 1 : 0; i < (int) oldstates.size(); i++) {
       bool addlayer = true;
@@ -4651,7 +4661,7 @@ namespace Trk {
           addlayer = true;
         }
 
-        if (layerpar->associatedSurface().type() == Trk::Surface::Cylinder) {
+        if (layerpar->associatedSurface().type() == Trk::SurfaceType::Cylinder) {
           double cylinderradius = layerpar->associatedSurface().bounds().r();
           double trackimpact = std::abs(-refpar->position().x() * sinphi + refpar->position().y() * cosphi);
           
@@ -4717,7 +4727,7 @@ namespace Trk {
   ) const {
     const PerigeeSurface *persurf = nullptr;
     
-    if (param.associatedSurface().type() == Trk::Surface::Perigee)
+    if (param.associatedSurface().type() == Trk::SurfaceType::Perigee)
       persurf = static_cast<const PerigeeSurface *>(&param.associatedSurface());
 
     if ((persurf != nullptr) && (!cache.m_acceleration || persurf->center().perp() > 5)) {
@@ -4983,9 +4993,9 @@ namespace Trk {
           double sign = (newpars[Trk::qOverP] > 0) ? 1 : -1;
           double de = std::abs(mymatvec[i]->materialEffects()->deltaE());
           double oldp = std::abs(1 / newpars[Trk::qOverP]);
-          double newp2 = oldp * oldp - 2 * de * sqrt(mass * mass + oldp * oldp) + de * de;
+          double newp2 = oldp * oldp - 2 * de * std::sqrt(mass * mass + oldp * oldp) + de * de;
           if (newp2 > 0) {
-            newpars[Trk::qOverP] = sign / sqrt(newp2);
+            newpars[Trk::qOverP] = sign / std::sqrt(newp2);
           }
         }
         
@@ -5013,7 +5023,7 @@ namespace Trk {
         double sign = (per->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
         double oldp = 1. / std::abs(per->parameters()[Trk::qOverP]);
         double toteloss = std::abs(trajectory.totalEnergyLoss());
-        double newp = sqrt(oldp * oldp + 2 * toteloss * sqrt(oldp * oldp + mass * mass) + toteloss * toteloss);
+        double newp = std::sqrt(oldp * oldp + 2 * toteloss * std::sqrt(oldp * oldp + mass * mass) + toteloss * toteloss);
         AmgVector(5) params = per->parameters();
         params[Trk::qOverP] = sign / newp;
         
@@ -5514,7 +5524,7 @@ namespace Trk {
           
           if (calomeots.size() == 3) {
             averagenergyloss = std::abs(calomeots[1].energyLoss()->deltaE());
-            double newres = .001 * averagenergyloss - sqrt(p * p + mass * mass) + sqrt(pbrem * pbrem + mass * mass);
+            double newres = .001 * averagenergyloss - std::sqrt(p * p + mass * mass) + std::sqrt(pbrem * pbrem + mass * mass);
             double newerr = .001 * calomeots[1].energyLoss()->sigmaDeltaE();
             
             if (std::abs(newres / newerr) < std::abs(res[nmeas - nbrem + bremno] / error[nmeas - nbrem + bremno])) {
@@ -5665,7 +5675,7 @@ namespace Trk {
           sinstereo = state->sinStereo();
         }
         
-        double cosstereo = (sinstereo == 0) ? 1. : sqrt(1 - sinstereo * sinstereo);
+        double cosstereo = (sinstereo == 0) ? 1. : std::sqrt(1 - sinstereo * sinstereo);
         
         for (int i = 0; i < 5; i++) {
           if (
@@ -5715,13 +5725,11 @@ namespace Trk {
           for (int j = bremmin; j < bremmax; j++) {
             double thisderiv = 0;
             int index = j + nperparams + 2 * nscat;
-            
             if (i == 0 && sinstereo != 0) {
               thisderiv = derivatives(0, index) * cosstereo + sinstereo * derivatives(1, index);
             } else {
               thisderiv = derivatives(i, index);
             }
-            
             weightderiv(measno, index) = thisderiv / error[measno];
           }
           
@@ -5742,51 +5750,34 @@ namespace Trk {
       }
 
       if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
-        double qoverp = 0;
-        double qoverpbrem = 0;
-        qoverpbrem = 1000 * state->trackParameters()->parameters()[Trk::qOverP];
-        qoverp = qoverpbrem - state->materialEffects()->delta_p();
+        //limit values to avoid FPE overflow or div by zero
+        double qoverpbrem = limitInversePValue(1000 * state->trackParameters()->parameters()[Trk::qOverP]);
+        double qoverp = limitInversePValue(qoverpbrem - state->materialEffects()->delta_p());
         
-        double sign = (qoverp > 0) ? 1 : -1;
-        double sign2 = (qoverpbrem > 0) ? 1 : -1;
         double mass = .001 * trajectory.mass();
         
-        if (trajectory.numberOfPerigeeParameters() > 0) {
-          weightderiv(nmeas - nbrem + bremno, 4) = (
-            (
-              -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) + 
-              sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-            ) / error[nmeas - nbrem + bremno]
-          );
-        }
+        const auto thisMeasurementIdx{nmeas - nbrem + bremno};
         
+        auto multiplier = [] (double mass, double qOverP){
+          return std::copysign(1./(qOverP * qOverP * std::sqrt(1. + mass * mass * qOverP * qOverP)), qOverP);
+        };
+        const auto qoverpTerm {multiplier(mass, qoverp) / error[thisMeasurementIdx]};
+        const auto qoverpBremTerm {multiplier(mass, qoverpbrem) / error[thisMeasurementIdx]};
+        
+        if (trajectory.numberOfPerigeeParameters() > 0) {
+          weightderiv(thisMeasurementIdx, 4) = qoverpBremTerm - qoverpTerm;
+        }
+        //
+        const auto bremNoBase =  nperparams + 2 * nscat;
         if (bremno < nbremupstream) {
-          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
-            (sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp))) /
-            error[nmeas - nbrem + bremno]
-          );
-          
+          weightderiv(thisMeasurementIdx, bremNoBase + bremno) = qoverpTerm;
           for (int bremno2 = bremno + 1; bremno2 < nbremupstream; bremno2++) {
-            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
-              -(
-                -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
-                sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-              ) / error[nmeas - nbrem + bremno]
-            );
+            weightderiv(thisMeasurementIdx, bremNoBase + bremno2) = qoverpTerm - qoverpBremTerm;
           }
         } else {
-          weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno) = (
-            (sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))) / 
-            error[nmeas - nbrem + bremno]
-          );
-          
+          weightderiv(thisMeasurementIdx, bremNoBase + bremno) = qoverpBremTerm;
           for (int bremno2 = nbremupstream; bremno2 < bremno; bremno2++) {
-            weightderiv(nmeas - nbrem + bremno, nperparams + 2 * nscat + bremno2) = (
-              (
-                -sign / (qoverp * qoverp * sqrt(1 + mass * mass * qoverp * qoverp)) +
-                sign2 / (qoverpbrem * qoverpbrem * sqrt(1 + mass * mass * qoverpbrem * qoverpbrem))
-              ) / error[nmeas - nbrem + bremno]
-            );
+            weightderiv(thisMeasurementIdx, bremNoBase + bremno2) = qoverpBremTerm - qoverpTerm;
           }
         }
         bremno++;
@@ -5975,7 +5966,7 @@ namespace Trk {
       if (meff != nullptr) {
         const PlaneSurface *plsurf = nullptr;
         
-        if (thisstate->surface()->type() == Trk::Surface::Plane)
+        if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
           plsurf = static_cast < const PlaneSurface *>(thisstate->surface());
         if (meff->deltaE() == 0 || ((trajectory.prefit() == 0) && (plsurf != nullptr))) {
           weightchanged = true;
@@ -6079,7 +6070,7 @@ namespace Trk {
             
             const PlaneSurface *plsurf = nullptr;
             
-            if (thisstate->surface()->type() == Trk::Surface::Plane)
+            if (thisstate->surface()->type() == Trk::SurfaceType::Plane)
               plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
               
             if (thisstate->materialEffects()->deltaE() == 0 || (plsurf != nullptr)) {
@@ -6259,7 +6250,7 @@ namespace Trk {
             
             if (oldrot->prepRawData() != nullptr) {
               double dcradius = oldrot->prepRawData()->localPosition()[Trk::driftRadius];
-              double dcerror = sqrt(oldrot->prepRawData()->localCovariance()(Trk::driftRadius, Trk::driftRadius));
+              double dcerror = std::sqrt(oldrot->prepRawData()->localCovariance()(Trk::driftRadius, Trk::driftRadius));
               double trackradius = state->trackParameters()->parameters()[Trk::driftRadius];
 
               std::unique_ptr<const Trk::RIO_OnTrack> newrot = nullptr;
@@ -6275,7 +6266,7 @@ namespace Trk {
                 ATH_MSG_DEBUG("Recalibrating TRT hit #" << hitno);
                 hitrecalibrated = true;
                 double newradius = newrot->localParameters()[Trk::driftRadius];
-                double newerror = sqrt(newrot->localCovariance()(Trk::driftRadius, Trk::driftRadius));
+                double newerror = std::sqrt(newrot->localCovariance()(Trk::driftRadius, Trk::driftRadius));
                 
                 if ((measno < 0) or (measno >= (int) res.size())) {
                   throw std::runtime_error(
@@ -6408,7 +6399,7 @@ namespace Trk {
             AmgSymMatrix(5) & trackcov = state->trackCovariance();
             const Amg::MatrixX & hitcov = state->measurement()->localCovariance();
             double sinstereo = state->sinStereo();
-            double cosstereo = (sinstereo == 0) ? 1 : sqrt(1 - sinstereo * sinstereo);
+            double cosstereo = (sinstereo == 0) ? 1 : std::sqrt(1 - sinstereo * sinstereo);
             double weight1 = -1;
             
             if (hitcov(0, 0) > trackcov(0, 0)) {
@@ -6428,10 +6419,10 @@ namespace Trk {
               -1
             );
 
-            double sipull1 = weight1 > 0 ? std::abs(res[measno] / sqrt(weight1)) : -1;
+            double sipull1 = weight1 > 0 ? std::abs(res[measno] / std::sqrt(weight1)) : -1;
             double sipull2 = (
               hittype == TrackState::Pixel && weight2 > 0 ? 
-              std::abs(res[measno + 1] / sqrt(weight2)) : 
+              std::abs(res[measno + 1] / std::sqrt(weight2)) : 
               -1
             );
             sipull1 = std::max(sipull1, sipull2);
@@ -6514,12 +6505,12 @@ namespace Trk {
         
         if (broadrot) {
           const Amg::MatrixX & covmat = broadrot->localCovariance();
-          newerror[0] = sqrt(covmat(0, 0));
+          newerror[0] = std::sqrt(covmat(0, 0));
           
           if (state_maxsipull->sinStereo() != 0) {
             double v0 = 0.5 * (
               covmat(0, 0) + covmat(1, 1) -
-              sqrt(
+              std::sqrt(
                 (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) - 
                 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
               )
@@ -6527,17 +6518,17 @@ namespace Trk {
             
             double v1 = 0.5 * (
               covmat(0, 0) + covmat(1, 1) + 
-              sqrt(
+              std::sqrt(
                 (covmat(0, 0) + covmat(1, 1)) * (covmat(0, 0) + covmat(1, 1)) -
                 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))
               )
             );
             
-            newsinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
-            newerror[0] = sqrt(v0);
+            newsinstereo = std::sin(0.5 * std::asin(2 * covmat(0, 1) / (v0 - v1)));
+            newerror[0] = std::sqrt(v0);
           }
           
-          double cosstereo = (newsinstereo == 0) ? 1. : sqrt(1 - newsinstereo * newsinstereo);
+          double cosstereo = (newsinstereo == 0) ? 1. : std::sqrt(1 - newsinstereo * newsinstereo);
           
           if (cosstereo != 1.) {
             newres1 = (
@@ -6551,7 +6542,7 @@ namespace Trk {
           newpull1 = std::abs(newres1 / newerror[0]);
           
           if (hittype_maxsipull == TrackState::Pixel) {
-            newerror[1] = sqrt(covmat(1, 1));
+            newerror[1] = std::sqrt(covmat(1, 1));
             newres2 = broadrot->localParameters()[Trk::locY] - trackpar_maxsipull->parameters()[Trk::locY];
             newpull2 = std::abs(newres2 / newerror[1]);
           }
@@ -7027,7 +7018,7 @@ namespace Trk {
         double startfactor = startlayer->layerMaterialProperties()->alongPostFactor();
         const Surface & discsurf = startlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           startfactor = startlayer->layerMaterialProperties()->oppositePostFactor();
         }
         if (startfactor > 0.5) {
@@ -7051,7 +7042,7 @@ namespace Trk {
         double endfactor = endlayer->layerMaterialProperties()->alongPreFactor();
         const Surface & discsurf = endlayer->surfaceRepresentation();
         
-        if (discsurf.type() == Trk::Surface::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
+        if (discsurf.type() == Trk::SurfaceType::Disc && discsurf.center().z() * discsurf.normal().z() < 0) {
           endfactor = endlayer->layerMaterialProperties()->oppositePreFactor();
         }
         
@@ -7746,8 +7737,8 @@ namespace Trk {
           double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
           double de = std::abs(states[hitno]->materialEffects()->deltaE());
           double mass = trajectory.mass();
-          double newp = sqrt(p * p + 2 * de * sqrt(mass * mass + p * p) + de * de);
-          (*rv.m_jacobian) (4, 4) = ((p + p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
+          double newp = std::sqrt(p * p + 2 * de * std::sqrt(mass * mass + p * p) + de * de);
+          (*rv.m_jacobian) (4, 4) = ((p + p * de / std::sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
         }
 
         states[hitno]->setJacobian(*rv.m_jacobian);
@@ -7826,13 +7817,13 @@ namespace Trk {
           double p = 1 / std::abs(rv.m_parameters->parameters()[Trk::qOverP]);
           double de = std::abs(states[hitno]->materialEffects()->deltaE());
           double mass = trajectory.mass();
-          double newp = p * p - 2 * de * sqrt(mass * mass + p * p) + de * de;
+          double newp = p * p - 2 * de * std::sqrt(mass * mass + p * p) + de * de;
           
           if (newp > 0) {
-            newp = sqrt(newp);
+            newp = std::sqrt(newp);
           }
           
-          (*rv.m_jacobian) (4, 4) = ((p - p * de / sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
+          (*rv.m_jacobian) (4, 4) = ((p - p * de / std::sqrt(p * p + mass * mass)) / newp) * p * p / (newp * newp);
         }
         
         states[hitno]->setJacobian(*rv.m_jacobian);
@@ -7886,14 +7877,14 @@ namespace Trk {
         newqoverp = 0.;
       } else {
         double oldp = std::abs(1 / old[Trk::qOverP]);
-        double newp2 = oldp * oldp - sign * 2 * std::abs(meff.deltaE()) * sqrt(mass * mass + oldp * oldp) + meff.deltaE() * meff.deltaE();
+        double newp2 = oldp * oldp - sign * 2 * std::abs(meff.deltaE()) * std::sqrt(mass * mass + oldp * oldp) + meff.deltaE() * meff.deltaE();
 
         if (newp2 < 0) {
           ATH_MSG_DEBUG("Track killed by energy loss update");
           return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
         }
 
-        newqoverp = std::copysign(1 / sqrt(newp2), old[Trk::qOverP]);
+        newqoverp = std::copysign(1 / std::sqrt(newp2), old[Trk::qOverP]);
       }
     } else {
       newqoverp = old[Trk::qOverP] + sign * .001 * meff.delta_p();
@@ -8177,7 +8168,7 @@ __attribute__ ((flatten))
             if (state->getStateType(TrackStateOnSurface::Measurement)
                 && trackerrmat(i, i) > meascov(j, j)) {
               errorok = false;
-              double scale = sqrt(meascov(j, j) / trackerrmat(i, i));
+              double scale = std::sqrt(meascov(j, j) / trackerrmat(i, i));
               trackerrmat(i, i) = meascov(j, j);
               for (int k = 0; k < 5; k++) {
                 if (k != i) {
@@ -8268,11 +8259,11 @@ __attribute__ ((flatten))
 
     const AmgVector(5) & vec = tmpprevpar->parameters();
 
-    bool cylsurf = surf->type() == Trk::Surface::Cylinder;
-    bool discsurf = surf->type() == Trk::Surface::Disc;
+    bool cylsurf = surf->type() == Trk::SurfaceType::Cylinder;
+    bool discsurf = surf->type() == Trk::SurfaceType::Disc;
     const Surface & previousSurface = tmpprevpar->associatedSurface();
-    bool thiscylsurf = previousSurface.type() == Trk::Surface::Cylinder;
-    bool thisdiscsurf = previousSurface.type() == Trk::Surface::Disc;
+    bool thiscylsurf = previousSurface.type() == Trk::SurfaceType::Cylinder;
+    bool thisdiscsurf = previousSurface.type() == Trk::SurfaceType::Disc;
 
     for (int i = 0; i < 5; i++) {
       AmgVector(5) vecpluseps = vec, vecminuseps = vec;

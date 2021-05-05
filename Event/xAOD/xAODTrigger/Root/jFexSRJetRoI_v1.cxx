@@ -16,17 +16,17 @@ namespace xAOD {
 
   const float jFexSRJetRoI_v1::s_tobEtScale = 200.;
   const float jFexSRJetRoI_v1::s_towerEtaWidth = 0.1;
-  const float jFexSRJetRoI_v1::s_towerPhiWidth = 0.1;
-  const float jFexSRJetRoI_v1::s_minEta = -4.9;
+  const float jFexSRJetRoI_v1::s_towerPhiWidth = 0.1; 
+  const float jFexSRJetRoI_v1::s_minEta = -4.9;   
+   
+  jFexSRJetRoI_v1::jFexSRJetRoI_v1()
+      : SG::AuxElement() {
 
-   jFexSRJetRoI_v1::jFexSRJetRoI_v1()
-     : SG::AuxElement() {
+
    }
    void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint32_t word0) {
  
      setWord0( word0 );
-      //setWord1( word1);
-   
      setjFexNumber( jFexNumber );
         
      setTobEt(unpackEtTOB());
@@ -53,6 +53,7 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, jFexNumber,
                                          setjFexNumber )
    /// Only calculable externally
+
  
    /// Extracted from data words, stored for convenience
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint16_t, tobEt,
@@ -78,11 +79,12 @@ namespace xAOD {
    //Hardware coordinate elements  
 
    //Raw ET on TOB scale (200 MeV/count)
+
     unsigned int jFexSRJetRoI_v1::unpackEtTOB() const{
      //Data content = TOB
      return (word0() >> s_etBit) & s_etMask;
+   } 
 
-    } 
 
    //Return an eta index
    unsigned int jFexSRJetRoI::unpackEtaIndex() const {
@@ -102,21 +104,17 @@ namespace xAOD {
 
    /// ET on TOB scale
    unsigned int jFexSRJetRoI_v1::et() const {
-     return tobEt()*s_tobEtScale;
+       // Returns the TOB Et in a 200 MeV scale
+       return tobEt(); 
    }
 
-   /// Floating point coordinates
+   /// Local coordinates within the FPGA core area
    unsigned int jFexSRJetRoI_v1::eta() const{
-       float eta_value = iEta() * s_towerEtaWidth;
-       if(eta_value > 2.5 || eta_value < -2.5 ) return  0;
-       // in future, change this to include the different eta phi width depending on eta value. eta_value = iEta * s_towerEtaForwardWidth; 
-       return eta_value;
+       return iEta();
    }
 
-  unsigned int jFexSRJetRoI_v1::phi() const {
-     float value = iPhi() * M_PI/32. + M_PI/64.;
-     if (value > M_PI) value = value - 2.*M_PI;
-     return value;
+   unsigned int jFexSRJetRoI_v1::phi() const {
+       return iPhi();
    }
 } // namespace xAOD
 

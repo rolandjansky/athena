@@ -16,8 +16,11 @@ from AthenaConfiguration.iconfTool.models.element import (
 )
 from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("confTool")
+logger.setLevel(level=logging.INFO)
+logger.addHandler(logging.FileHandler("confTool-last-run.log", mode='w'))
 
+componentRenamingDict={}
 
 baseParser = argparse.ArgumentParser()
 baseParser.add_argument(
@@ -49,6 +52,7 @@ baseParser.add_argument(
         "DetStore",
         "EvtStore",
         "NeededResources",
+        "GeoModelSvc"
     ],
     help="Ignore properties",
 )
@@ -59,8 +63,25 @@ baseParser.add_argument(
     action="append",
 )
 baseParser.add_argument(
+    "--renameCompsFile",
+    help="Pass the file containing remaps",
+)
+
+baseParser.add_argument(
+    "--ignoreDefaults",
+    help="Ignore values that are identical to the c++ defaults. Use it only when when the same release is setup as the one used to generate the config.",
+    action="store_true"
+)
+
+baseParser.add_argument(
     "--shortenDefaultComponents",
     help="Automatically shorten componet names that have a default name i.e. ToolX/ToolX to ToolX. It helps comparing Run2 & Run3 configurations where these are handled differently",
+    action="store_true",
+)
+
+baseParser.add_argument(
+    "--debug",
+    help="Enable tool debugging messages",
     action="store_true",
 )
 
@@ -68,12 +89,15 @@ def loadConfigFile(fname, args) -> Dict:
     """loads config file into a dictionary, supports several modifications of the input switched on via additional arguments
     Supports reading: Pickled file with the CA or properties & JSON
     """
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
     conf = {}
     if fname.endswith(".pkl"):
         with open(fname, "rb") as input_file:
             # determine if there is a old or new configuration pickled
             cfg = pickle.load(input_file)
-            print("... Read", cfg.__class__.__name__, "from", fname)
+            logger.info("... Read %s from %s", cfg.__class__.__name__, fname)
             from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
             if isinstance(cfg, ComponentAccumulator):  # new configuration
                 props = cfg.gatherProps()
@@ -96,7 +120,7 @@ def loadConfigFile(fname, args) -> Dict:
             elif isinstance(cfg, (collections.Sequence)):
                 for c in cfg:
                     conf.update(c)
-        print("... Read", len(conf), "items from python pickle file: ", fname)
+        logger.info("... Read %d items from python pickle file: %s", len(conf), fname)
 
     elif fname.endswith(".json"):
 
@@ -117,7 +141,7 @@ def loadConfigFile(fname, args) -> Dict:
             for c in cfg:
                 conf.update(cfg)
 
-            print("... Read", len(conf), "items from JSON file: ", fname)
+        logger.info("... Read %d items from python pickle file: %s", len(conf), fname)
 
     else:
         sys.exit("File format not supported.")
@@ -148,43 +172,104 @@ def loadConfigFile(fname, args) -> Dict:
         for (key, value) in dic.items():
             if eligible(key):
                 conf[key] = value
+            else:
+                logger.debug("Ignored component %s", key)
+
 
     if args.ignoreIrrelevant:
+        def strip_defaults(val):
+            if val.startswith("StoreGateSvc+"):
+                return val.replace("StoreGateSvc+", "")
+            return val
+
         def remove_irrelevant(val_dict):
             return (
                 {
-                    key: val
+                    key: strip_defaults(val)
                     for key, val in val_dict.items()
                     if key not in args.ignore
                 }
                 if isinstance(val_dict, dict)
                 else val_dict
             )
+            
         dic = conf
         conf = {}
         for (key, value) in dic.items():
             conf[key] = remove_irrelevant(value)
 
-    if args.renameComps:
+    if args.renameComps or args.renameCompsFile:
         compsToRename = flatten_list(args.renameComps)
-        splittedCompsNames = {
+        if args.renameCompsFile:
+            with open( args.renameCompsFile, "r") as refile:
+                for line in refile:
+                    if not (line.startswith("#") or line.isspace() ):
+                        compsToRename.append( line.rstrip('\n') )
+        global componentRenamingDict
+        componentRenamingDict.update({
             old_name: new_name
             for old_name, new_name in [
-                element.split("=") for element in compsToRename
+                [e.strip() for e in element.split("=")] for element in compsToRename
             ]
-        }
+        })
 
         def rename_comps(comp_name):
-            return (
-                splittedCompsNames[comp_name]
-                if comp_name in splittedCompsNames
-                else comp_name
-            )
+            return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
 
         dic = conf
         conf = {}
         for (key, value) in dic.items():
             conf[rename_comps(key)] = value
+
+    if args.ignoreDefaults:
+        name_to_type=dict()
+        dic = conf
+        conf = {}
+
+        def drop_defaults(component_name, val_dict):
+            # try picking the name from the dict, if missing use last part of the name, if that fails use the componet_name (heuristic)
+            component_name_last_part = component_name.split(".")[-1]
+            component_type = name_to_type.get(component_name, name_to_type.get(component_name_last_part, component_name_last_part))
+            comp_cls = None
+            try:
+                from AthenaConfiguration.ComponentFactory import CompFactory
+                comp_cls = CompFactory.getComp(component_type)
+            except Exception:
+                logger.debug("Could not find the configuration class %s no defaults for are eliminated", component_name)
+                return val_dict
+            c = {}
+            for k,v in val_dict.items():
+                if str(comp_cls._descriptors[k].default) != v:
+                    c[k] = v
+                else:
+                    logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
+            return c
+
+        # collect types for all componets (we look for A/B or lost of A/B strings)
+        def collect_types(value):
+            parseable = False
+            try:
+                s = ast.literal_eval(str(value))
+                parseable = True
+                if isinstance(s, list):
+                    for el in s:
+                        collect_types(el)
+            except Exception:
+                pass 
+            if isinstance(value,str) and "/" in value and not parseable:
+                comp = value.split("/")
+                if len(comp) == 2: 
+                    name_to_type[comp[1]] = comp[0]
+            if isinstance(value, dict):
+                [ collect_types(v) for v in value.values() ]
+
+        for (key, value) in dic.items():
+            collect_types(value)
+        for (key, value) in dic.items():
+            remaining = drop_defaults(key, value)
+            if len(remaining) != 0: # ignore components that have only default settings
+                conf[key] = remaining
+
     if args.shortenDefaultComponents:
         dic = conf
         conf = {}
@@ -199,6 +284,7 @@ def loadConfigFile(fname, args) -> Dict:
             if isinstance(value, str):
                 svalue = value.split("/")
                 if len(svalue) == 2 and svalue[0] == svalue[1]:
+                    logger.debug("Shortened %s", svalue)
                     return svalue[0]
             if isinstance(value, list):
                 return [shorten(el) for el in value]

@@ -89,7 +89,7 @@ EGInvariantMassTool::addBranches() const
   // create the vector which will hold the values invariant masses
   auto masses = std::make_unique<std::vector<float>>();
   // compute the invariant mass values
-  ATH_CHECK(getInvariantMasses(ctx,*masses));
+  ATH_CHECK(getInvariantMasses(ctx, *masses));
 
   ATH_CHECK(writeHandle.record(std::move(masses)));
 
@@ -264,4 +264,4 @@ EGInvariantMassTool::getInvariantMasses(const EventContext& ctx,
   }
   return StatusCode::SUCCESS;
 }
-} //end namespace DerivationFramework
+} // end namespace DerivationFramework

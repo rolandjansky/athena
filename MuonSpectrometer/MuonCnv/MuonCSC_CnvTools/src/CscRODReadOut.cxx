@@ -1,17 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRODReadOut.h"
 
 // constructor
-CscRODReadOut::CscRODReadOut() : m_cscIdHelper(nullptr), m_sourceID(0),
-   m_moduleType(0), m_rodId(0), m_subDetectorId(0), m_amp1(0), m_amp2(0),
-   m_address(0), m_chamberBitValue(0) {  
+CscRODReadOut::CscRODReadOut() : m_cscIdHelper(nullptr), 
+   m_chamberBitValue(0) {  
 
   m_TIME_OFFSET     = 46.825;  // ns
   m_SIGNAL_WIDTH    = 16.08;   // ns
-  m_SAMPLING_TIME   = 50.0;    // ns
   m_NUMBER_OF_INTEGRATION = 12;
   m_Z0 = (m_NUMBER_OF_INTEGRATION+1) 
        -sqrt(m_NUMBER_OF_INTEGRATION+1);// time bin at the maximum 
@@ -40,20 +38,14 @@ CscRODReadOut::CscRODReadOut() : m_cscIdHelper(nullptr), m_sourceID(0),
 
   m_CHARGE_TO_ADC_COUNT = (0.32e-15) / (1.602e-19); 
   m_norm = signal(m_Z0);
-
-  // trigger info : TDC, time, etc
-  for (int i=0; i<3; i++) m_TRIGGER_INFO[i] = 0;
-
 }
 
-CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
+CscRODReadOut::CscRODReadOut(double startTime, 
                              double signalWidth, uint16_t numIntegration)
- : m_cscIdHelper(nullptr), m_sourceID(0), m_moduleType(0), m_rodId(0),
-   m_subDetectorId(0), m_amp1(0), m_amp2(0), m_address(0), m_chamberBitValue(0) {
+ : m_cscIdHelper(nullptr),  m_chamberBitValue(0) {
 
   m_TIME_OFFSET     = startTime;            // ns
   m_SIGNAL_WIDTH    = signalWidth;          // ns
-  m_SAMPLING_TIME   = samplingTime;         // ns
   m_NUMBER_OF_INTEGRATION = numIntegration;
   m_Z0 = (m_NUMBER_OF_INTEGRATION+1) 
        -sqrt(m_NUMBER_OF_INTEGRATION+1);    // time bin at the maximum 
@@ -64,10 +56,6 @@ CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
 
   m_CHARGE_TO_ADC_COUNT = (0.32e-15) / (1.602e-19); 
   m_norm = signal(m_Z0);
-
-  // trigger info : TDC, time, etc
-  for (int i=0; i<3; i++) m_TRIGGER_INFO[i] = 0;
-
 }
 
 void CscRODReadOut::encodeFragments(const std::vector<uint16_t>&  amplitude,  
@@ -91,7 +79,9 @@ void CscRODReadOut::encodeFragments(const std::vector<uint16_t>&  amplitude,
   }
 }
 
-int CscRODReadOut::findCharge(const std::vector<uint16_t>& amplitude, double& time) {
+int CscRODReadOut::findCharge(double samplingTime,
+                              const std::vector<uint16_t>& amplitude, double& time) const
+{
 
   // very crude - to be done better
 
@@ -128,7 +118,7 @@ int CscRODReadOut::findCharge(const std::vector<uint16_t>& amplitude, double& ti
     /// need to use the correct calibration
     double offset = (a == 0) ? 0 : -b/(2*a); 
     charge = static_cast<int> ( a*offset*offset + b*offset + c - amplitude[0] ); /// assuming amplitude[0] gives the pedestal
-    time = (maxIndex+offset)*m_SAMPLING_TIME;
+    time = (maxIndex+offset)*samplingTime;
     return charge;
   }
 }

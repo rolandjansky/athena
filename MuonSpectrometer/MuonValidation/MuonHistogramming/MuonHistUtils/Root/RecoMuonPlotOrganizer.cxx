@@ -77,23 +77,23 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
   m_allPlots.clear();
 }
   
-  void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu) {
-  if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle));
-  if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu);
-  if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu);
-  if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu);
-  if (m_oMomentumPullPlots) m_oMomentumPullPlots->fill(mu);
-  if (m_oMuonHitSummaryPlots) m_oMuonHitSummaryPlots->fill(mu);
-  if (m_oMuonIsolationPlots) m_oMuonIsolationPlots->fill(mu);
+  void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu, float weight) {
+    if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle), weight);
+  if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu,weight);
+  if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu,weight);
+  if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu,weight);
+  if (m_oMomentumPullPlots) m_oMomentumPullPlots->fill(mu,weight);
+  if (m_oMuonHitSummaryPlots) m_oMuonHitSummaryPlots->fill(mu,weight);
+  if (m_oMuonIsolationPlots) m_oMuonIsolationPlots->fill(mu,weight);
   if (m_oChargeParamPlotsLowPt && m_oChargeParamPlotsHighPt) {
-    if (mu.pt()<8000) m_oChargeParamPlotsLowPt->fill(mu);
-    else m_oChargeParamPlotsHighPt->fill(mu);
+    if (mu.pt()<8000) m_oChargeParamPlotsLowPt->fill(mu,weight);
+    else m_oChargeParamPlotsHighPt->fill(mu,weight);
   }
    
   // tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   if (!primaryTrk) return;
-  if (m_oImpactPlots) m_oImpactPlots->fill(*primaryTrk);
+  if (m_oImpactPlots) m_oImpactPlots->fill(*primaryTrk,weight);
 }
 
 }

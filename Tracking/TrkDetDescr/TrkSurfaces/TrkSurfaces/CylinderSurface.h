@@ -52,10 +52,26 @@ class CylinderSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cylinder;
+  static constexpr SurfaceType staticType = SurfaceType::Cylinder;
 
   /**Default Constructor*/
   CylinderSurface();
+
+  /**Copy constructor */
+  CylinderSurface(const CylinderSurface& csf);
+
+  /**Assignment operator*/
+  CylinderSurface& operator=(const CylinderSurface& csf);
+
+  /**Move constructor */
+  CylinderSurface(CylinderSurface&& csf) noexcept = default;
+
+  /**Move Assignment operator*/
+  CylinderSurface& operator=(CylinderSurface&& csf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~CylinderSurface() = default;
+
 
   /**Constructor from EigenTransform, radius and halflength*/
   CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
@@ -77,6 +93,10 @@ public:
 
   /**Constructor from EigenTransform from unique_ptr.
      - bounds is not set */
+  CylinderSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor from EigenTransform from unique_ptr.
+     - bounds is not set */
   CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /** Constructor from radius and halflength - speed optimized for concentric
@@ -92,17 +112,8 @@ public:
       - speed optimized fron concentric volumes */
   CylinderSurface(CylinderBounds* cbounds);
 
-  /**Copy constructor */
-  CylinderSurface(const CylinderSurface& csf);
-
-  /**Copy constructor with shift */
+   /**Copy constructor with shift */
   CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~CylinderSurface();
-
-  /**Assignment operator*/
-  CylinderSurface& operator=(const CylinderSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -243,7 +254,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 

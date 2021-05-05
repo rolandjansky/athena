@@ -499,8 +499,8 @@ bool Trk::PatternTrackParameters::initiate
 
 void Trk::PatternTrackParameters::changeDirection()
 {
-  const double pi = M_PI;
-  const double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
+  constexpr double pi = M_PI;
+  constexpr double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
 
   m_parameters[ 2] =  m_parameters[2]-pi;
   m_parameters[ 3] =  pi-m_parameters[3];
@@ -513,8 +513,9 @@ void Trk::PatternTrackParameters::changeDirection()
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
 
-    if(m_covariance == std::nullopt) { return;
-}
+    if(m_covariance == std::nullopt) { 
+      return;
+    }
 
     m_covariance->fillSymmetric(0, 3, -(*m_covariance)(0, 3));
     m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
@@ -529,8 +530,9 @@ void Trk::PatternTrackParameters::changeDirection()
   m_parameters[ 0] = -m_parameters[ 0];
 
 
-  if(m_covariance == std::nullopt) { return;
-}
+  if(m_covariance == std::nullopt) { 
+    return;
+  }
 
   m_covariance->fillSymmetric(0, 1, -(*m_covariance)(0, 1));
   m_covariance->fillSymmetric(0, 2, -(*m_covariance)(0, 2));
@@ -587,7 +589,7 @@ Trk::ParametersType Trk::PatternTrackParameters::type() const {
   return Trk::Pattern;
 }
 
-int Trk::PatternTrackParameters::surfaceType() const {
+Trk::SurfaceType Trk::PatternTrackParameters::surfaceType() const {
   return m_surface->type();
 }
 

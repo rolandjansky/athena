@@ -6,7 +6,6 @@
 #define MUONCNVTOOLINTERFACES_IMDT_RDOTOBYTESTREAMTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "ByteStreamData/RawEvent.h"
 
 class MdtCsmContainer; 
 class MsgStream ; 
@@ -31,11 +30,10 @@ public:
 
   /** Conversion method, which takes the RDO container and converts it into raw data, filled into RawEventWrite.
   @param cont RDO container which will be used to fill the raw event
-  @param re Raw event to be filled by this method.
   @param log MsgStream to be filled by method.
   @todo Do we really need to pass in a logfile? This is a AlgTool and so can provide its own log objects.
   */
-  virtual StatusCode convert (const MdtCsmContainer* cont, RawEventWrite* re, MsgStream& log ) const = 0; 
+  virtual StatusCode convert (const MdtCsmContainer* cont, MsgStream& log ) const = 0; 
   
 };
 

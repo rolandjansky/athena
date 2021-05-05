@@ -20,7 +20,7 @@ JSSTaggerBase::JSSTaggerBase(const std::string &name) :
 {
 
   /// Tagger configuration properties
-  declareProperty( "ContainerName", m_containerName = "",     "Name of jet container" );
+  declareProperty( "ContainerName", m_containerName = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",     "Name of jet container" );
   declareProperty( "ConfigFile",    m_configFile = "",        "Name of config file" );
   declareProperty( "CalibArea",     m_calibArea = "",         "Path to config file" );
   declareProperty( "CalcSF",        m_calcSF = false,         "Flag to calculate the efficiency SF"  );
@@ -95,6 +95,7 @@ StatusCode JSSTaggerBase::initialize() {
   m_decValidPtRangeHighKey = m_containerName + "." + m_decorationName + "_" + m_decValidPtRangeHighKey.key();
   m_decValidPtRangeLowKey = m_containerName + "." + m_decorationName + "_" + m_decValidPtRangeLowKey.key();
   m_decValidEtaRangeKey = m_containerName + "." + m_decorationName + "_" + m_decValidEtaRangeKey.key();
+  m_decValidKinRangeKey = m_containerName + "." + m_decorationName + "_" + m_decValidKinRangeKey.key();
   m_decValidJetContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidJetContentKey.key();
   m_decValidEventContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidEventContentKey.key();
 
@@ -166,6 +167,7 @@ StatusCode JSSTaggerBase::initialize() {
   ATH_CHECK( m_decValidPtRangeHighKey.initialize() );
   ATH_CHECK( m_decValidPtRangeLowKey.initialize() );
   ATH_CHECK( m_decValidEtaRangeKey.initialize() );
+  ATH_CHECK( m_decValidKinRangeKey.initialize() );
   ATH_CHECK( m_decValidJetContentKey.initialize() );
   ATH_CHECK( m_decValidEventContentKey.initialize() );
 
@@ -173,6 +175,7 @@ StatusCode JSSTaggerBase::initialize() {
   ATH_MSG_INFO( "  " << m_decValidPtRangeHighKey.key() << " : pass upper pt range" );
   ATH_MSG_INFO( "  " << m_decValidPtRangeLowKey.key() << " : pass lower pt range" );
   ATH_MSG_INFO( "  " << m_decValidEtaRangeKey.key() << " : pass eta range" );
+  ATH_MSG_INFO( "  " << m_decValidKinRangeKey.key() << " : pass kinematic range" );
   ATH_MSG_INFO( "  " << m_decValidJetContentKey.key() << " : has valid jet content" );
   ATH_MSG_INFO( "  " << m_decValidEventContentKey.key() << " : has valid event content" );
 
@@ -213,10 +216,12 @@ StatusCode JSSTaggerBase::initialize() {
     m_decWeightKey = m_containerName + "." + m_decorationName + "_" + m_weightDecorationName;
     m_decEfficiencyKey = m_containerName + "." + m_decorationName + "_" + m_decEfficiencyKey.key();
     m_decEffSFKey = m_containerName + "." +m_decorationName + "_" + m_decEffSFKey.key();
+    m_decSigeffSFKey = m_containerName + "." +m_decorationName + "_" + m_decSigeffSFKey.key();
     
     ATH_CHECK( m_decWeightKey.initialize() );
     ATH_CHECK( m_decEfficiencyKey.initialize() );
     ATH_CHECK( m_decEffSFKey.initialize() );
+    ATH_CHECK( m_decSigeffSFKey.initialize() );
     
     ATH_MSG_INFO( "  " << m_decWeightKey.key() << " : tagging SF" );
    
@@ -344,32 +349,39 @@ StatusCode JSSTaggerBase::checkKinRange( const xAOD::Jet &jet, asg::AcceptData &
   float scale = 1.0;
   if ( m_ptGeV ) scale = 1.e3;
 
+  bool passKinRange = true;
+
   /// Check each kinematic constraint
   /// Print warnings using counters
   if ( std::abs(jet.eta()) > m_jetEtaMax ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
     acceptData.setCutResult( "ValidEtaRange", false );
+    passKinRange = false;
   }
 
   if ( jet.pt() < m_jetPtMin * scale ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeLow", false );
+    passKinRange = false;
   }
 
   if ( jet.pt() > m_jetPtMax * scale ) {
     ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeHigh", false );
+    passKinRange = false;
   }
 
   /// Create write decor handles
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidPtRangeHigh(m_decValidPtRangeHighKey);
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidPtRangeLow(m_decValidPtRangeLowKey);
   SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidEtaRange(m_decValidEtaRangeKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, bool> decValidKinRange(m_decValidKinRangeKey);
  
   /// Decorate kinematic pass information
   decValidPtRangeHigh(jet) = acceptData.getCutResult( "ValidPtRangeHigh" );
   decValidPtRangeLow(jet) = acceptData.getCutResult( "ValidPtRangeLow" );
   decValidEtaRange(jet) = acceptData.getCutResult( "ValidEtaRange" );
+  decValidKinRange(jet) = passKinRange;
 
   return StatusCode::SUCCESS;
 
@@ -494,16 +506,28 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
 
 /// Get SF weight
 StatusCode JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel, asg::AcceptData &acceptData ) const {
-
   if ( !m_calcSF ) return StatusCode::SUCCESS;
 
   float weight = 1.0;
   float effSF = 1.0;
+  float sigeffSF = 1.0;
   float efficiency = 1.0;
 
   if ( m_isMC ) {
 
-    std::tie(effSF, efficiency) = getSF( jet, acceptData );
+    std::string truthLabelStr = getTruthLabelStr( jet, acceptData );
+    std::tie(effSF, efficiency) = getSF( jet, truthLabelStr );
+
+    // calculate signal efficiency SF                                           
+    if ( m_weightHistograms.count("t_qqb") ) {
+      sigeffSF = getSF(jet, "t_qqb").first;
+    } else if ( m_weightHistograms.count("V_qq") ) {
+      sigeffSF = getSF(jet, "V_qq").first;
+    } else if ( m_weightHistograms.count("t") ){
+      sigeffSF = getSF(jet, "t").first;
+    } else {
+      sigeffSF = 1.0;
+    }
 
     /// Inefficiency SF is directly used
     if ( m_weightFlavors.find("fail") != std::string::npos ) {
@@ -533,7 +557,7 @@ StatusCode JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel, asg::Ac
     }
 
   }
-
+  
   else {
     weight = 1.0;
   }
@@ -542,21 +566,78 @@ StatusCode JSSTaggerBase::getWeight( const xAOD::Jet& jet, bool passSel, asg::Ac
   SG::WriteDecorHandle<xAOD::JetContainer, float> decWeight(m_decWeightKey);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decEfficiency(m_decEfficiencyKey);
   SG::WriteDecorHandle<xAOD::JetContainer, float> decEffSF(m_decEffSFKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> decSigeffSF(m_decSigeffSFKey);
 
   /// Decorate values  
   decWeight(jet) = weight;
   decEfficiency(jet) = efficiency;
   decEffSF(jet) = effSF;
+  decSigeffSF(jet) = sigeffSF;
 
   return StatusCode::SUCCESS;
 
 }
 
 /// Get scale factor and efficiency
-std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const {
+std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, std::string truthLabelStr ) const {
 
   if ( !passKinRange(jet) ) return std::make_pair( 1.0, 1.0 );
 
+
+  double logmOverPt = std::log(jet.m()/jet.pt());
+  if ( m_decorationName.find("SmoothZ") != std::string::npos ||
+       m_decorationName.find("SmoothInclusiveZ") != std::string::npos ) {
+    /// To apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10.803 GeV
+    const double WtoZmassShift = 10803;
+    logmOverPt = std::log((jet.m()-WtoZmassShift)/jet.pt());
+  }
+
+  if ( logmOverPt > 0 ) logmOverPt = 0;
+
+  double SF = 1.0;
+  double eff = 1.0;
+
+  if ( m_weightHistograms.count(truthLabelStr.c_str()) ) {
+
+    int pt_mPt_bin = (m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
+    SF = (m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+
+    if ( !m_efficiencyHistogramName.empty() ) {
+      eff = (m_efficiencyHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+    }
+
+  }
+  else {
+    // set the efficiency for "Other" category to be the signal efficiency
+    std::string signal_truthLabel="";
+    if ( m_weightHistograms.count("t_qqb") ) {
+      signal_truthLabel="t_qqb";
+    }else if ( m_weightHistograms.count("V_qq") ){
+      signal_truthLabel="V_qq";
+    }else if ( m_weightHistograms.count("t") ){
+      signal_truthLabel="t";
+    }
+    if ( signal_truthLabel != "" && !m_efficiencyHistogramName.empty() ){
+      int pt_mPt_bin = (m_weightHistograms.find(signal_truthLabel.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
+      eff = (m_efficiencyHistograms.find(signal_truthLabel.c_str())->second)->GetBinContent(pt_mPt_bin);
+    }
+
+    return std::make_pair( 1.0, eff );
+  }
+
+  if ( SF < 1e-3 ) {
+    ATH_MSG_DEBUG( "(pt, m/pt) (" << jet.pt()/1.e3 << ", " << jet.m()/jet.pt() << ") is out of range for SF calculation. Returning 1.0" );
+    return std::make_pair( 1.0, 1.0 );
+  }
+  else {
+    return std::make_pair( SF, eff );
+  }
+
+}
+
+
+
+std::string JSSTaggerBase::getTruthLabelStr( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const {
   /// Truth label string
   std::string truthLabelStr;
 
@@ -612,8 +693,8 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, asg::Accep
 
   }
 
-  /// W/Z or inclusive top tagger
-  else {
+  /// W/Z tagger
+  else if ( m_weightHistograms.count("V_qq") ) {
 
     /// Top
     if ( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t ) {
@@ -627,47 +708,24 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet, asg::Accep
     else if ( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
       truthLabelStr = "q";
     }
-
   }
 
-  double logmOverPt = std::log(jet.m()/jet.pt());
-  if ( m_decorationName.find("SmoothZ") != std::string::npos ) {
-    /// To apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10.803 GeV
-    const double WtoZmassShift = 10803;
-    logmOverPt = std::log((jet.m()-WtoZmassShift)/jet.pt());
-  }
-
-  if ( logmOverPt > 0 ) logmOverPt = 0;
-
-  double SF = 1.0;
-  double eff = 1.0;
-
-  if ( m_weightHistograms.count(truthLabelStr.c_str()) ) {
-
-    int pt_mPt_bin = (m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
-    SF = (m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
-
-    if ( !m_efficiencyHistogramName.empty() ) {
-      eff = (m_efficiencyHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+  // inclusive top tagger
+  else {
+    /// Top
+    if ( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t || jetContainment==LargeRJetTruthLabel::Wqq_From_t ) {
+      truthLabelStr = "t";
+    }
+    /// QCD
+    else if ( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
+      truthLabelStr = "q";
     }
 
   }
-  else {
-    ATH_MSG_DEBUG( "SF for truth label for " << truthLabelStr << " is not available. Returning 1.0" );
-    return std::make_pair( 1.0, 1.0 );
-  }
 
-  if ( SF < 1e-3 ) {
-    ATH_MSG_DEBUG( "(pt, m/pt) (" << jet.pt()/1.e3 << ", " << jet.m()/jet.pt() << ") is out of range for SF calculation. Returning 1.0" );
-    return std::make_pair( 1.0, 1.0 );
-  }
-  else {
-    return std::make_pair( SF, eff );
-  }
-
+  return truthLabelStr;
 }
 
-/// Print configured cuts
 void JSSTaggerBase::printCuts() const {
   ATH_MSG_INFO( "After tagging, you will have access to the following cuts as an asg::AcceptData : (<NCut>) <cut> : <description>)" );
   int nCuts = m_acceptInfo.getNCuts();

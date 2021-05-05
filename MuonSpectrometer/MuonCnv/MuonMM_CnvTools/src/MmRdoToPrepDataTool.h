@@ -11,7 +11,7 @@
 
 namespace Muon 
 {
-  class ATLAS_NOT_THREAD_SAFE MmRdoToPrepDataTool : virtual public MmRdoToPrepDataToolCore
+  class ATLAS_NOT_THREAD_SAFE MmRdoToPrepDataTool : public extends<MmRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
   public:
     MmRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);

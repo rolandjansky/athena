@@ -30,7 +30,6 @@ public:
                                   SiChargedDiodeCollection& chargedDiodes,
                                   const InDetDD::SiDetectorElement& Module,
                                   const InDetDD::PixelModuleDesign& p_design,
-                                  const PixelModuleData *moduleData, 
                                   std::vector< std::pair<double, double> >& trfHitRecord,
                                   std::vector<double>& initialConditions,
                                   CLHEP::HepRandomEngine* rndmEngine,
@@ -48,6 +47,7 @@ private:
   std::vector<PixelHistoConverter> m_distanceMap_h;
   std::vector<PixelHistoConverter> m_lorentzMap_e;
   std::vector<PixelHistoConverter> m_lorentzMap_h;
+  std::vector<std::pair<double,double> > m_centrePixelNNEtaPhi;
 
   Gaudi::Property<int> m_numberOfSteps
   {

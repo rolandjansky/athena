@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile digits maker algorithm"""
 
@@ -97,7 +97,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
     else:
         kwargs['TileBadChanTool'] = None
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
     else:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
@@ -112,7 +112,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs.setdefault('TileDigitsContainer_DigiHSTruth', '')
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPremixing)
+    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPresampling)
 
     TileDigitsMaker=CompFactory.TileDigitsMaker
     digitsMaker = TileDigitsMaker(**kwargs)
@@ -137,7 +137,7 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
     acc = TileDigitsMakerCfg(flags, **kwargs)
     tileDigitsMaker = acc.getPrimary()
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         if hasattr(tileDigitsMaker, 'TileDigitsContainer'):
             tileDigitsContainer = tileDigitsMaker.TileDigitsContainer
         else:

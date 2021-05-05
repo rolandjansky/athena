@@ -41,7 +41,6 @@
 
 
 class IegammaTrkRefitterTool;
-class IBeamCondSvc;
 
 namespace Trig{
   class TrigDecisionTool;
@@ -187,7 +186,10 @@ class IDPerfMonZmumu : public AthAlgorithm
 
   double m_positive_px{};
   double m_positive_py{};
+  double m_positive_pt{};
   double m_positive_pz{};
+  double m_positive_phi{};
+  double m_positive_eta{};
   double m_positive_z0{};
   double m_positive_d0{};
   double m_positive_z0_err{};
@@ -215,7 +217,10 @@ class IDPerfMonZmumu : public AthAlgorithm
 
   double m_negative_px{};
   double m_negative_py{};
+  double m_negative_pt{};
   double m_negative_pz{};
+  double m_negative_phi{};
+  double m_negative_eta{};
   double m_negative_z0{};
   double m_negative_d0{};
   double m_negative_z0_err{};

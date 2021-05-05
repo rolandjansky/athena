@@ -149,7 +149,8 @@ namespace LVL1MUCTPIPHASE1 {
             daq_word |= 0x1 << 31;
 
             //find the trigger decisions
-            std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_trigThresholdDecisionTool->getThresholdDecisions(daq_word);
+            std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_trigThresholdDecisionTool->getThresholdDecisions(
+              daq_word, m_l1menu->thresholds("MU"), m_l1menu->thrExtraInfo().MU());
             m_daq_data.push_back(DAQData(daq_word, decisions));
 
             //

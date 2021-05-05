@@ -46,7 +46,7 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     return CfgMgr.EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
@@ -562,7 +562,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("RDOCollName", overlayFlags.bkgPrefix() + "PixelRDOs")
         kwargs.setdefault("SDOCollName", overlayFlags.bkgPrefix() + "PixelSDO_Map")

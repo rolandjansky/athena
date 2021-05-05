@@ -121,8 +121,18 @@ def TrigComboHypoToolFromDict(chainDict):
         raise Exception("[TrigComboHypoToolFromDict]  Didn't find leg indexes")
 
     monTool = GenericMonitoringTool("MonTool_"+name)
-    monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfAccepted', type='TH1F', path='EXPERT', title=obs_to_use[0]+" in accepted combinations [MeV]", xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], xmin=allowed_obs[obs_to_use[0]]['hist_min'], xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
-    monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfProcessed', type='TH1F', path='EXPERT', title=obs_to_use[0]+" in accepted combinations [MeV]", xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], xmin=allowed_obs[obs_to_use[0]]['hist_min'], xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
+    monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfAccepted', type='TH1F', path='EXPERT', 
+                                          title=obs_to_use[0]+" in accepted combinations; {}".format(obs_to_use[0]), 
+                                          xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], 
+                                          xmin=allowed_obs[obs_to_use[0]]['hist_min'], 
+                                          xmax=allowed_obs[obs_to_use[0]]['hist_max']), 
+                          defineHistogram(obs_to_use[0]+'OfProcessed', type='TH1F', path='EXPERT', 
+                                          title=obs_to_use[0]+" in processed combinations; {}".format(obs_to_use[0]), 
+                                          xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], 
+                                          xmin=allowed_obs[obs_to_use[0]]['hist_min'], 
+                                          xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
+    log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", name, topoInfo)
+
     tool= TrigComboHypoTool(name)
     tool.Variable    = obs_to_use[0]
     tool.LegA        = "leg{:03d}".format(legA)

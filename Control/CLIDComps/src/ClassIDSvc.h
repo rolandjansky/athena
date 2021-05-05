@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLIDCOMPS_CLASSIDSVC_H
@@ -19,11 +19,9 @@
 #include <utility> // for std::pair
 
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/Service.h"
-
 #include "GaudiKernel/DirSearchPath.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
 
 #include "AthenaKernel/CLIDRegistry.h"
 
@@ -46,7 +44,6 @@ private:
   typedef std::pair<std::string, std::string> TypeName; //typename+typeinfoname
   typedef std::unordered_map<CLID, TypeName> CLIDMap; 
   typedef std::unordered_map<std::string, CLID> NameMap; 
-  typedef std::unordered_map<CLID, Athena::PackageInfo> PackageMap; 
 
 public:
   // Locking convention: public methods (except for gaudi state-change methods)
@@ -72,11 +69,14 @@ public:
   /// get id associated with type-info name (if any)
   virtual StatusCode getIDOfTypeInfoName(const std::string& typeInfoName, CLID& id) const override;
   /// get type name associated with clID (if any)
-  virtual StatusCode getPackageInfoForID(const CLID& id, Athena::PackageInfo& info) const override;
+  virtual StatusCode getPackageInfoForID(const CLID&, Athena::PackageInfo&) const override {
+    throw std::runtime_error("getPackageInfoForID is no longer supported");
+    return StatusCode::FAILURE;
+  }
   /// associate type name, package info and type-info name with clID
   virtual StatusCode setTypePackageForID(const CLID& id, 
 					 const std::string& typeName, 
-					 const Athena::PackageInfo& info,
+					 const Athena::PackageInfo&,
 					 const std::string& typeInfoName) override;
 
   //========================================================================
@@ -112,8 +112,6 @@ private:
   // Return all registered IDs in sorted order.
   std::vector<CLID> sortedIDs() const;
 
-  StatusCode
-  getPackageInfoForIDInternal(const CLID& id, Athena::PackageInfo& info) const;
   /// get id associated with type name (if any)
   StatusCode getIDOfTypeNameInternal(const std::string& typeName,
                                      CLID& id) const;
@@ -131,9 +129,8 @@ private:
   /// associate type name with clID w/o checking CLID range
   StatusCode 
   uncheckedSetTypePackageForID(const CLID& id, 
-			       const std::string& typeName,
-			       const Athena::PackageInfo& info,
-			       const std::string& typeInfoName);
+                               const std::string& typeName,
+                               const std::string& typeInfoName);
 
   /// Test to see if anything new has been added to the registry.
   void maybeRescan() const;
@@ -149,7 +146,6 @@ private:
   CLIDMap m_clidMap;
   NameMap m_nameMap;
   NameMap m_tiNameMap;
-  PackageMap m_packageMap;
 
   /// The path is which clid db files are to be searched (DATAPATH)
   DirSearchPath m_clidDBPath;

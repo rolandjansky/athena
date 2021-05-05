@@ -47,10 +47,25 @@ class ConeSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cone;
+  static constexpr SurfaceType staticType = SurfaceType::Cone;
 
   /**Default Constructor*/
   ConeSurface();
+
+  /**Assignment operator*/
+  ConeSurface& operator=(const ConeSurface& csf);
+
+  /**Copy constructor */
+  ConeSurface(const ConeSurface& csf);
+
+  /** Move constructor */
+  ConeSurface(ConeSurface&& annbo) = default;
+  /** Move assignment */
+  ConeSurface& operator=(ConeSurface&& sbo) = default;
+
+  /**Destructor*/
+  virtual ~ConeSurface() = default ;
+
 
   /**Constructor form HepTransform and an opening angle */
   ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
@@ -67,21 +82,16 @@ public:
     */
   ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
 
+  /**Constructor from Amg Transform by ref.
+     - bounds is not set. */
+  ConeSurface(const Amg::Transform3D& htrans);
+
   /**Constructor from HepTransform by unique_ptr.
      - bounds is not set. */
   ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
-  /**Copy constructor */
-  ConeSurface(const ConeSurface& csf);
-
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~ConeSurface();
-
-  /**Assignment operator*/
-  ConeSurface& operator=(const ConeSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

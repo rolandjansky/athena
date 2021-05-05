@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -37,12 +37,9 @@ namespace xAODMaker {
         IsoMuonFeatureCnvTool( const std::string& type, const std::string& name,
                            const IInterface* parent );
         
-        /// Function initialising the tool
-        virtual StatusCode initialize();
-        
         /// Function that fills an existing xAOD::L2IsoMuon
         virtual StatusCode convert( const IsoMuonFeature * aod,
-                                   xAOD::L2IsoMuon* xaod );
+                                   xAOD::L2IsoMuon* xaod ) override;
         
     }; // class TrigElectronCnvTool
     

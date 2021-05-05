@@ -37,6 +37,7 @@ class IAthenaOutputStreamTool;
 class IAthenaOutputTool;
 class IItemListSvc;
 class IDictLoaderSvc;
+class ITPCnvSvc;
 class MetaDataSvc;
 
 namespace SG {
@@ -69,8 +70,8 @@ protected:
    ServiceHandle<IItemListSvc>  m_itemSvc;
    ServiceHandle<MetaDataSvc>   m_metaDataSvc;
 
-  /// Dictionary loader service.
    ServiceHandle<IDictLoaderSvc> m_dictLoader;
+   ServiceHandle<ITPCnvSvc>      m_tpCnvSvc;
 
    /// Name of the persistency service capable to write data from the store
    std::string              m_persName;

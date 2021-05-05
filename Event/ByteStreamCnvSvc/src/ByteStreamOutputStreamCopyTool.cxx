@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ByteStreamOutputStreamCopyTool.cxx
@@ -12,7 +12,6 @@
 // Gaudi
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
 
 /// Constructor
 ByteStreamOutputStreamCopyTool::ByteStreamOutputStreamCopyTool(
@@ -28,108 +27,68 @@ ByteStreamOutputStreamCopyTool::ByteStreamOutputStreamCopyTool(
    declareProperty("ByteStreamOutputSvc", m_outputSvc);
    declareProperty("ByteStreamInputSvc",  m_inputSvc);
 }
-//__________________________________________________________________________
-ByteStreamOutputStreamCopyTool::~ByteStreamOutputStreamCopyTool() {
-}
+
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
 
-   StatusCode status = ::AlgTool::initialize();
-   if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to initialize AlgTool base class." << endmsg;
-      return(status);
-   }
+   ATH_MSG_INFO("Initializing");
 
-   // retrieve services 
-   status = m_inputSvc.retrieve();
-   if (status.isFailure()) {
-      log << MSG::ERROR << "Unable to locate ByteStreamInputSvc " << endmsg;
-      return(status);
-   } else {
-      log << MSG::DEBUG << "Found ByteStreamInputSvc." << endmsg;
-   }
+   // retrieve services
+   ATH_CHECK( m_inputSvc.retrieve() );
+   ATH_CHECK( m_outputSvc.retrieve() );
 
-   status = m_outputSvc.retrieve();
-   if (status.isFailure()) {
-      log << MSG::ERROR << "Unable to locate ByteStreamOutputSvc " << endmsg;
-      return(status);
-   } else {
-      log << MSG::DEBUG << "Found ByteStreamOutputSvc." << endmsg;
-   }
-
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
-//__________________________________________________________________________
-StatusCode ByteStreamOutputStreamCopyTool::finalize() {
-   StatusCode status = m_outputSvc.release();
-   if (status.isFailure()) {
-      MsgStream log(msgSvc(), name());
-      log << MSG::WARNING << "Cannot release the ByteStreamOutputSvc" << endmsg;
-   }
-   return(::AlgTool::finalize());
-}
+
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::connectServices(const std::string& /*dataStore*/,
 	const std::string& /*cnvSvc*/,
 	bool /*extendProvenenceRecord*/) {
    /// Do nothing for connectServices
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::connectOutput(const std::string& /*outputName*/) {
    /// Do nothing for connectOutput
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::commitOutput(bool/* doCommit*/) {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "In commitOutput" << endmsg;
+
+   ATH_MSG_DEBUG("In commitOutput");
    const RawEvent* re = m_inputSvc->currentEvent() ; 
    if(!re){
-     log << MSG::ERROR << " failed to get the current event from ByteStreamInputSvc  " << endmsg; 
+     ATH_MSG_ERROR(" failed to get the current event from ByteStreamInputSvc");
      return StatusCode::FAILURE ; 
    }
    if( ! m_outputSvc->putEvent(re) ) {
-
-     log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc  " << endmsg; 
+     ATH_MSG_ERROR(" failed to write event to ByteStreamOutputSvc");
      return StatusCode::FAILURE ; 
    }
-   log << MSG::DEBUG << " done in commitOutput  " << endmsg;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_DEBUG(" done in commitOutput");
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::finalizeOutput() {
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys, const std::string&
  /*outputName*/) {
    if (typeKeys.size() != 0){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;
+     ATH_MSG_WARNING("Streaming objects is not supported. The whole input event is written out");
    }
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects, const std::string&
  /*outputName*/) {
    if (dataObjects.size() != 0){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;
+      ATH_MSG_WARNING("Streaming objects is not supported. The whole input event is written out");
    }
-   return(StatusCode::SUCCESS);
-}
-//__________________________________________________________________________
-StatusCode ByteStreamOutputStreamCopyTool::fillObjectRefs(const DataObjectVec& dataObjects) {
-   if (dataObjects.size() != 0){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " fillObjectRefs is not supported.  The whole input event is written out" << endmsg;
-   }
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::getInputItemList(SG::IFolder* /*m_p2BWrittenFromTool*/) {
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }

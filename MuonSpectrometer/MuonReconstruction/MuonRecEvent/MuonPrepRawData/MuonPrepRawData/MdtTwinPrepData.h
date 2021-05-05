@@ -117,13 +117,19 @@ namespace Muon
 
     // return globalPosition:
     inline const Amg::Vector3D& MdtTwinPrepData::globalPosition() const
-      {
-	if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
-
-	if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
-    
-	return *m_globalPosition;
+    {
+      if (not m_globalPosition){
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(
+          detectorElement()
+            ->surface(identify())
+            .Trk::Surface::localToGlobal(localPosition())));
       }
+
+      if (not m_globalPosition)
+        throw Trk::PrepRawDataUndefinedVariable();
+
+      return *m_globalPosition;
+    }
 
     inline void MdtTwinPrepData::copy( const MdtTwinPrepData& RIO){
       m_tdcTwin = RIO.tdcTwin();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -17,7 +17,7 @@ PileUpToolsAlg::PileUpToolsAlg(const std::string& name, ISvcLocator* pSvcLocator
 
 StatusCode PileUpToolsAlg::initialize()
 {
-  ATH_MSG_DEBUG ("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG ("Initializing " << name());
   //locate the pu tools and initialize them
   ATH_CHECK(m_puTools.retrieve());
   // initialise read handle keys

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -228,8 +228,7 @@ setModifiers = ['noLArCalibFolders',
 if ConfigFlags.Input.isMC:  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
-    setModifiers += ['allowCOOLUpdates',
-                     'BFieldAutoConfig',
+    setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
@@ -612,7 +611,8 @@ if opt.reverseViews or opt.filterViews:
     viewMakers = collectViewMakers( topSequence )
     theFilter = []
     if opt.filterViews:
-        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS" ]
+        # no idea why the FS vertex would be needed here, but I'll add the FSJet vertex also for good measure
+        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS", "HLT_IDVertex_FSJet" ]
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter

@@ -2,19 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 02.02.2007, AUTHOR: OLIVER KORTNER
-// 12.11.2008, JOERG v. LOEBEN:
-//               line 100: add missing if statement for close hits
-//               line 140-240: change bining and adjust start/end points
-//               line 252: change to r-t chebychev. this method does interpolating
-//                         the samplepoints better. the autocalibration methods are
-//                         working more accurate.
-//               line 256: implement parabolic extrapolation for large driftradii.
-// 11.02.2010,   include r(t_max)=r_max as addtional fit-point in extrapolation
-//
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #include "MdtCalibRt/RtCalibrationIntegration.h"
 
 #include <algorithm>
@@ -40,7 +27,8 @@ inline Double_t slope_function_C(Double_t *x, Double_t *par) {
 inline void update_parameter_on_mttmax(TH1 *h, TF1 *f, const float &b, const float &T, const T0MTSettingsTMax &tmax_settings) {
     Double_t rmin, rmax;
     f->GetRange(rmin, rmax);
-    TF1 *slope_function = new TF1("slope_function", slope_function_C, rmin, rmin + tmax_settings.WidthAB(), 4);
+    std::unique_ptr<TF1> slope_function =
+        std::make_unique<TF1>("slope_function", slope_function_C, rmin, rmin + tmax_settings.WidthAB(), 4);
     slope_function->SetParameter(0, f->GetParameter(T0MTHistos::TMAX_PAR_NR_A));
     slope_function->FixParameter(1, b);
     slope_function->FixParameter(2, f->GetParameter(T0MTHistos::TMAX_PAR_NR_T0));
@@ -50,13 +38,6 @@ inline void update_parameter_on_mttmax(TH1 *h, TF1 *f, const float &b, const flo
     f->FixParameter(T0MTHistos::TMAX_PAR_NR_B, b);
     f->FixParameter(T0MTHistos::TMAX_PAR_NR_T, T);
 }
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD init ::
-//:::::::::::::::::
-
 void RtCalibrationIntegration::init(bool close_hits, double r_max, double lower_extrapolation_radius, double upper_extrapolation_radius,
                                     bool add_tmax_difference) {
     m_close_hits = close_hits;
@@ -70,20 +51,7 @@ void RtCalibrationIntegration::init(bool close_hits, double r_max, double lower_
     m_add_tmax_difference = add_tmax_difference;
     return;
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::::::
-//:: METHOD number_of_hits_used ::
-//::::::::::::::::::::::::::::::::
-
 unsigned int RtCalibrationIntegration::number_of_hits_used(void) const { return m_nb_hits_used; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::::
-//:: METHOD analyseSegments ::
-//::::::::::::::::::::::::::::
 
 const IMdtCalibrationOutput *RtCalibrationIntegration::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
     for (unsigned int k = 0; k < seg.size(); k++) { handleSegment(*seg[k]); }
@@ -92,13 +60,6 @@ const IMdtCalibrationOutput *RtCalibrationIntegration::analyseSegments(const std
 
     return getResults();
 }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD handleSegment ::
-//::::::::::::::::::::::::::
-
 bool RtCalibrationIntegration::handleSegment(MuonCalibSegment &seg) {
     ///////////////////////////////////////////////////////
     // LOOP OVER THE HITS OF THE SEGMENTS AND STORE THEM //
@@ -120,20 +81,7 @@ bool RtCalibrationIntegration::handleSegment(MuonCalibSegment &seg) {
     return true;
 }
 
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD setInput ::
-//:::::::::::::::::::::
-
 void RtCalibrationIntegration::setInput(const IMdtCalibrationOutput * /*rt_input*/) { return; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::
-//:: METHOD analyse ::
-//::::::::::::::::::::
-
 bool RtCalibrationIntegration::analyse(void) {
     ///////////////
     // VARIABLES //
@@ -240,7 +188,7 @@ bool RtCalibrationIntegration::analyse(void) {
     point[nb_bins].set_error(1.);
 
     // get the r-t relationship //
-    m_rt = new RtChebyshev(rt_from_points.getRtChebyshev(point, 15));
+    m_rt = std::make_shared<RtChebyshev>(rt_from_points.getRtChebyshev(point, 15));
 
     ///////////////////////////////////////////////////
     // PARABOLIC EXTRAPOLATION FOR LARGE DRIFT RADII //
@@ -250,8 +198,7 @@ bool RtCalibrationIntegration::analyse(void) {
     RtParabolicExtrapolation rt_extrapolated;
     RtRelationLookUp tmp_rt(rt_extrapolated.getRtWithParabolicExtrapolation(*m_rt, m_lower_extrapolation_radius,
                                                                             m_upper_extrapolation_radius, m_r_max, add_fit_point));
-    IRtRelation *rt_new(0);
-    rt_new = new RtRelationLookUp(tmp_rt);
+    std::shared_ptr<IRtRelation> rt_new = std::make_shared<RtRelationLookUp>(tmp_rt);
 
     //////////////////////////////////////////////////
     // Get length difference between multilayers    //
@@ -296,8 +243,8 @@ bool RtCalibrationIntegration::analyse(void) {
     // STORE THE RESULTS IN THE RtCalibrationOutput //
     //////////////////////////////////////////////////
 
-    if (m_output != 0) { delete m_output; }
-    m_output = new RtCalibrationOutput(rt_new, new RtFullInfo("RtCalibrationIntegration", 1, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
+    m_output = std::make_unique<RtCalibrationOutput>(
+        rt_new, std::make_shared<RtFullInfo>("RtCalibrationIntegration", 1, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     return true;
 }
@@ -308,7 +255,7 @@ bool RtCalibrationIntegration::analyse(void) {
 //:: METHOD converged ::
 //::::::::::::::::::::::
 
-bool RtCalibrationIntegration::converged(void) const { return (m_output != 0); }
+bool RtCalibrationIntegration::converged(void) const { return (m_output != nullptr); }
 
 //*****************************************************************************
 
@@ -317,5 +264,5 @@ bool RtCalibrationIntegration::converged(void) const { return (m_output != 0); }
 //:::::::::::::::::::::::
 
 const IMdtCalibrationOutput *RtCalibrationIntegration::getResults(void) const {
-    return static_cast<const IMdtCalibrationOutput *>(m_output);
+    return static_cast<const IMdtCalibrationOutput *>(m_output.get());
 }

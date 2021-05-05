@@ -15,7 +15,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Digitiz
 
 
 Digi_tf.py \
---PileUpPremixing True \
+--PileUpPresampling True \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/Neutrinos_R3S_v01.pool.root \
 --conditionsTag default:OFLCOND-MC16-SDR-14 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
@@ -33,6 +33,7 @@ Digi_tf.py \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --pileupFinalBunch 6 \
 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
+'all:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.experimentalDigi += ["LegacyOverlay"];' \
 --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configEvtNbr_sequential.py,RunDependentSimData/configLumi_run284500_mc16a.py' \
 --skipEvents 0
 

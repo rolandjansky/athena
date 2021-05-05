@@ -1,18 +1,9 @@
-// emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//
-//   @file    IRoiReader.h        
-//
-//                   
-//  
-//
-//   $Id: IRoiReader.h, v0.0   Sun 24 Jan 2016 16:40:31 CET sutt $
 
-
-#ifndef  IROIREADER_H
-#define  IROIREADER_H
+#ifndef TRIGROICONVERSION_IROIREADER_H
+#define TRIGROICONVERSION_IROIREADER_H
 
 #include <string>
 #include <vector>
@@ -36,4 +27,4 @@ inline std::ostream& operator<<( std::ostream& s, const IRoiReader& ) {
 }
 
 
-#endif  // IROIREADER_H 
+#endif

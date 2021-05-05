@@ -47,10 +47,10 @@ void PRDHandle_RPC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
   // from the strip plane
   double tolerance = 3.;
 //  const Amg::Vector2D * localposHIT = m_rpc->detectorElement()->surface( id ).globalToLocal(globalposHIT,tolerance);
-  const Amg::Vector2D * localposHIT = m_rpc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance); // TODO: this is a workaround because of missing function in Trak::PlaneSurface.h
+  std::optional<Amg::Vector2D> localposHIT = m_rpc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance); 
   if( !localposHIT )
   {
-    localposHIT = new Amg::Vector2D;
+    localposHIT = Amg::Vector2D{};
     VP1Msg::message("Warning: Local wire position is NULL");
   }
   SoTranslation * localtrans0 = new SoTranslation;
@@ -89,8 +89,7 @@ void PRDHandle_RPC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       if (*it == id )
         continue;
       const Amg::Vector3D& globalposRDO = m_rpc->detectorElement()->stripPos( *it );
-//      const Amg::Vector2D * localposRDO = m_rpc->detectorElement()->surface( *it ).globalToLocal(globalposRDO,tolerance);
-      const Amg::Vector2D * localposRDO = m_rpc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance); // TODO: this is a workaround because of missing function in Trak::PlaneSurface.h
+      std::optional<Amg::Vector2D> localposRDO = m_rpc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance); 
       if (!localposRDO)
       {
         VP1Msg::message("Warning: Local wire position is NULL");
@@ -106,11 +105,9 @@ void PRDHandle_RPC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
 							       project ? 2*(6.85+0.1) : 0.8));
 
       localposOLD = *localposRDO;
-      delete localposRDO;
     }
     errDetailed->addChild(rdos);
   }
-  delete localposHIT;
   shape_detailed = errDetailed;
 }
 

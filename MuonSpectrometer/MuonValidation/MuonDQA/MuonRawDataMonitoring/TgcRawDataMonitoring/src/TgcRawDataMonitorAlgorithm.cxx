@@ -31,6 +31,9 @@ namespace {
   //constexpr int nchan_tgc_wire_station4_fi = 32;//FI
   //constexpr int nchan_tgc_wire_station4_ei = 24;//EI
   //constexpr int nchan_tgc_wire_station4_eis = 16;//EI(S)
+
+  // offset for better drawing
+  constexpr float tgc_coin_phi_small_offset = 0.0001;
 }
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm(const std::string &name, ISvcLocator *pSvcLocator) :
   AthMonitorAlgorithm(name, pSvcLocator) {
@@ -57,23 +60,6 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   m_extZposition.push_back(-m_M3_Z.value());
   m_extZposition.push_back(-m_EI_Z.value());
   m_extZposition.push_back(-m_FI_Z.value());
-
-  TObjArray *tagList = TString(m_trigTagList.value()).Tokenize(",");
-  std::set < TString > alllist;
-  for (int i = 0; i < tagList->GetEntries(); i++) {
-    TString tagTrig = tagList->At(i)->GetName();
-    if (alllist.find(tagTrig) != alllist.end()) continue;
-    alllist.insert(tagTrig);
-    ATH_MSG_DEBUG("adding tag trigger to all-list: " << tagTrig);
-    TObjArray *arr = tagTrig.Tokenize(";");
-    if (arr->GetEntries() == 0) continue;
-    TagDef def;
-    def.eventTrig = TString(arr->At(0)->GetName());
-    def.tagTrig = def.eventTrig;
-    if (arr->GetEntries() == 2) def.tagTrig = TString(arr->At(1)->GetName());
-    m_trigTagDefs.push_back(def);
-    ATH_MSG_DEBUG("adding [eventTag:tagTrig]=[" << def.eventTrig << "," << def.tagTrig << "]");
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -329,42 +315,179 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     return StatusCode::FAILURE;
   }
 
+  // check trigger information
+  bool nonMuonTriggerFired = false;
+  std::set<TString> list_of_single_muon_triggers;
+  if ( !getTrigDecisionTool().empty() ){
+    auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
+    if( chainGroup != nullptr ){
+      auto triggerList = chainGroup->getListOfTriggers();
+      if( !triggerList.empty() ){
+	for(auto &trig : triggerList) {
+	  TString thisTrig = trig;
+	  if( thisTrig.BeginsWith("HLT_mu") ){ // muon triggers
+	    // look for only single-muon triggers
+	    if ( thisTrig.Contains("-") ) continue; // skipping L1Topo item
+	    if ( thisTrig.Contains("msonly") ) continue; // only combined muon
+	    if ( thisTrig.Contains("2MU") ) continue; // no L12MU
+	    if ( thisTrig.Contains("3MU") ) continue; // no L13MU
+	    if ( thisTrig.Contains("4MU") ) continue; // no L14MU
+	    if ( thisTrig.Contains("mu") ) {
+	      TString tmp = thisTrig;
+	      tmp.ReplaceAll("mu","ZZZ");
+	      auto arr = tmp.Tokenize("ZZZ");
+	      auto n = arr->GetEntries();
+	      arr->Clear();
+	      arr->Delete();
+	      delete arr;
+	      if ( n != 2 ) continue; // exact one 'mu' letter
+	    }
+	    if ( thisTrig.Contains("MU") ) {
+	      TString tmp = thisTrig;
+	      tmp.ReplaceAll("MU","ZZZ");
+	      auto arr = tmp.Tokenize("ZZZ");
+	      auto n = arr->GetEntries();
+	      arr->Clear();
+	      arr->Delete();
+	      delete arr;
+	      if ( n > 2 ) continue; // only one 'MU' letter if exists
+	    }
+	    list_of_single_muon_triggers.insert( thisTrig );
+	  }else{
+	    if( m_useNonMuonTriggers.value() == false ) continue;
+	    // look for muon-orthogonal triggers and if they fired
+	    if(nonMuonTriggerFired)continue; // already checked, skipping
+	    if(thisTrig.Contains("mu")) continue;
+	    if(thisTrig.Contains("MU")) continue;
+	    if(getTrigDecisionTool()->isPassed(thisTrig.Data(),TrigDefs::Physics)) nonMuonTriggerFired = true;
+	  }
+	}
+      }
+    }
+  }
+
   std::vector < MyMuon > mymuons;
   for (const auto muon : *muons) {
+
+    // skip if muon is empty
+    if (muon == nullptr) continue;
+
+    // standard quality cuts for muons
     if (muon->muonType() != xAOD::Muon::Combined) continue;
     if (muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
     if (muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
 
+    // set 4-vectors of probe muons for the following checks
     TLorentzVector muonvec;
     muonvec.SetPtEtaPhiM(muon->pt(),muon->eta(),muon->phi(),m_muonMass.value());
+
+    // initialize for muon-isolation check
     bool isolated = true;
-    bool probeOK = false;
+
+    // initialize for tag-and-probe check
+    bool probeOK = true;
+    if( !nonMuonTriggerFired && m_TagAndProbe.value() ) probeOK = false; // t&p should be performed
+
+    // OK, let's start looking at the second muons
     for(const auto muon2 : *muons){
+
+      // skip if muon is empty
+      if (muon == nullptr) continue;
+
       // skip the same muon candidate
       if( muon == muon2 )continue;
-      // check muon isolation
-      TLorentzVector muonvec2;
-      muonvec2.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
-      float dr = muonvec2.DeltaR( muonvec );
-      if( dr < m_isolationWindow.value() ){
-	isolated = false;
-      }
-      // check tag-and-probe condition
+
+      // set 4-vectors of the second muons for the following checks
+      TLorentzVector muon2vec;
+      muon2vec.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
+
+      // check muon-muon isolation using the loosest-quality muons
+      if ( muon2vec.DeltaR( muonvec ) < m_isolationWindow.value() ) isolated = false;
+
+      // no need to check further if probeOK is already True
+      // 0) if muon-orthogonal triggers are avaialble/fired
+      // 1) if we don't use tag-and-probe
+      // 2) if TrigDecTool is not available
+      // 3) if the second muon matches the trigger requirement
+      if(probeOK)continue;
+
+      //  standard quality cuts for muons
       if( muon2->muonType()!=xAOD::Muon::Combined )continue;
       if( muon2->author()!=xAOD::Muon::MuidCo && muon2->author()!=xAOD::Muon::STACO )continue;
       if( muon2->quality()!=xAOD::Muon::Tight && muon2->quality()!=xAOD::Muon::Medium )continue;
-      if( !triggerMatching(muon2,m_trigTagDefs) )continue;
-      if(!m_TagAndProbeZmumu.value()){
-	probeOK=true;
-      }else{
-	if( muon->charge() == muon2->charge() )continue;
-	double dimuon_mass = (muonvec + muonvec2).M();
-	if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
-	probeOK=true;
+
+      // loop over the single muon triggers if at least one of them matches this second muon
+      for (const auto &trigName : list_of_single_muon_triggers) {
+	// check if this particular tirgger has fired in this event
+	if (!getTrigDecisionTool()->isPassed(trigName.Data(),TrigDefs::Physics)) continue;
+	ATH_MSG_DEBUG("This muon trigger, " << trigName << ", is fired in this event!!");
+	// check if this second muon matches the HLT muon trigger
+	if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+	  ATH_MSG_DEBUG("Trying Run2-style feature access");
+	  auto fc = getTrigDecisionTool()->features(trigName.Data(),TrigDefs::Physics);
+	  for(auto comb : fc.getCombinations()){
+	    if(!comb.active())continue;
+	    auto MuFeatureContainers = fc.get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::Physics);
+	    for(auto mucont : MuFeatureContainers){
+	      if(mucont.empty())continue;
+	      if(mucont.te()==nullptr)continue;
+	      if(!mucont.te()->getActiveState())continue;
+	      for(auto hltmu : *mucont.cptr()){
+		if (hltmu == nullptr) continue; // skip if hltmu is empty
+		if (hltmu->pt() < 1000.)continue; // skip if pT is very small
+		TLorentzVector hltmuvec;
+		hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
+		if( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value() ){
+		  ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
+			       ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
+			       "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+		  probeOK = true;
+		}
+		if(probeOK) break; // no need to check further if probeOK is already True
+	      }// end loop of mucont.cptr()
+	      if(probeOK) break; // no need to check further if probeOK is already True
+	    }// end loop of MuonFeatureContainers
+	    if(probeOK) break; // no need to check further if probeOK is already True
+	  }//end loop of Combinations
+	}else{ // run 3 access
+	  ATH_MSG_DEBUG("Trying Run3-style feature access");
+	  auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (trigName.Data(), TrigDefs::Physics, "HLT_MuonsCB_RoI");
+	  for (auto aaa : features) {
+	    if (!aaa.isValid()) continue;
+	    auto hltmu_link = aaa.link;
+	    if (!hltmu_link.isValid()) continue;
+	    auto hltmu = *hltmu_link;
+	    if (hltmu == nullptr) continue; // skip if hltmu is empty
+	    if (hltmu->pt() < 1000.)continue; // skip if pT is very small
+	    TLorentzVector hltmuvec;
+	    hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
+	    if ( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value()){
+	      ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
+			   ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
+			   "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+	      probeOK = true;
+	    }
+	    if(probeOK) break; // no need to check further if probeOK is already True
+	  } // end loop of features
+	} // end IF Run2 or Run3 feature access
+	if(probeOK) break; // no need to check further if probeOK is already True
+      } // end loop of single muon triggers
+      // check if the second muon matches the single muon trigger
+      if(!probeOK) continue;
+      // check further if this muon pair satisfies Z->mumu criteria
+      if(m_TagAndProbeZmumu.value()){
+	if( muon->charge() == muon2->charge() ||
+	    std::abs( (muonvec + muon2vec).M() - m_zMass.value()) > m_zMassWindow.value() )
+	  probeOK=false;
+	ATH_MSG_DEBUG("Checking Zmumu cut: " << probeOK);
       }
-    }
+      ATH_MSG_DEBUG("Final condition of probleOK for this muon is: " << probeOK);
+      if(probeOK) break; // no need to check further if probeOK is already True
+    } // end loop of the second muons
+    // check if the isolation requirement is OK
     if(m_requireIsolated.value() && !isolated)continue;
-    if(m_TagAndProbe.value() && !probeOK)continue;
+    // check if the tag-and-probe requirement is OK
+    if(!probeOK)continue;
 
     MyMuon mymuon;
     /* fill basic info */
@@ -561,6 +684,15 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   std::map<TString, std::vector<int>> tgcHitEtaMap;
   std::map<TString, std::vector<int>> tgcHitPhiMapGlobal;
   std::map<TString, std::vector<int>> tgcHitTiming;
+  std::vector <int> vec_bw24sectors; // 1..12 BW-A, -1..-12 BW-C
+  std::vector <int> vec_bw24sectors_wire;
+  std::vector <int> vec_bw24sectors_strip;
+  std::vector <int> vec_bwfulleta; // 0(Forward), 1..4(M1), 1..5(M2,M3)
+  std::vector <int> vec_bwfulleta_wire;
+  std::vector <int> vec_bwfulleta_strip;
+  std::vector <int> vec_bwtiming;
+  std::vector <int> vec_bwtiming_wire;
+  std::vector <int> vec_bwtiming_strip;
   for (auto tgccnt : *tgcPrd) {
     for (auto data : *tgccnt) {
       TgcHit tgcHit;
@@ -704,7 +836,20 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       tgcHitEtaMap[station_name].push_back(etamap_index);
       tgcHitPhiMapGlobal[station_name].push_back(phimap_global_index);
       tgcHitTiming[station_name].push_back(bunch);
-
+      if(tgcHit.M!=4){
+	vec_bw24sectors.push_back((tgcHit.iside>0)?(tgcHit.sector):(-tgcHit.sector));
+	vec_bwfulleta.push_back(tgcHit.E);
+	vec_bwtiming.push_back(tgcHit.bunch);
+	if(tgcHit.isStrip>0){
+	  vec_bw24sectors_strip.push_back((tgcHit.iside>0)?(tgcHit.sector):(-tgcHit.sector));
+	  vec_bwfulleta_strip.push_back(tgcHit.E);
+	  vec_bwtiming_strip.push_back(tgcHit.bunch);
+	}else{
+	  vec_bw24sectors_wire.push_back((tgcHit.iside>0)?(tgcHit.sector):(-tgcHit.sector));
+	  vec_bwfulleta_wire.push_back(tgcHit.E);
+	  vec_bwtiming_wire.push_back(tgcHit.bunch);
+	}
+      }
     }
   }
 
@@ -722,6 +867,46 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       return m.z < 0;
     });
   variables.push_back(hit_sideC);
+  auto lb_for_hit = Monitored::Scalar<int>("lb_for_hit", GetEventInfo(ctx)->lumiBlock());
+  variables.push_back(lb_for_hit);
+  auto bw24sectors = Monitored::Collection("hit_bw24sectors", vec_bw24sectors, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bw24sectors);
+  auto bw24sectors_strip = Monitored::Collection("hit_bw24sectors_strip", vec_bw24sectors_strip, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bw24sectors_strip);
+  auto bw24sectors_wire = Monitored::Collection("hit_bw24sectors_wire", vec_bw24sectors_wire, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bw24sectors_wire);
+  auto bwfulleta = Monitored::Collection("hit_bwfulleta", vec_bwfulleta, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwfulleta);
+  auto bwfulleta_strip = Monitored::Collection("hit_bwfulleta_strip", vec_bwfulleta_strip, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwfulleta_strip);
+  auto bwfulleta_wire = Monitored::Collection("hit_bwfulleta_wire", vec_bwfulleta_wire, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwfulleta_wire);
+  auto bwtiming = Monitored::Collection("hit_bwtiming", vec_bwtiming, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwtiming);
+  auto bwtiming_strip = Monitored::Collection("hit_bwtiming_strip", vec_bwtiming_strip, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwtiming_strip);
+  auto bwtiming_wire = Monitored::Collection("hit_bwtiming_wire", vec_bwtiming_wire, [](const int &m) {
+      return m;
+    });
+  variables.push_back(bwtiming_wire);
+
+
 
   for (const auto &chamber_name : chamber_list) {
     auto hits_on_a_chamber = Monitored::Collection(Form("hits_on_%s", chamber_name.Data()), tgcHitsMap[chamber_name], [](const TgcHit &m) {
@@ -932,7 +1117,7 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
     });
   variables.push_back(coin_eta);
   auto coin_phi = Monitored::Collection(type+"_coin_phi", tgcTrigs, [](const TgcTrig &m) {
-      return m.phi;
+      return m.phi + tgc_coin_phi_small_offset;
     });
   variables.push_back(coin_phi);
   auto coin_bunch = Monitored::Collection(type+"_coin_bunch", tgcTrigs, [](const TgcTrig &m) {
@@ -1031,64 +1216,6 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
 
   fill(m_packageName, variables);
 
-}
-///////////////////////////////////////////////////////////////
-bool TgcRawDataMonitorAlgorithm::triggerMatching(const xAOD::Muon *offline_muon, const std::vector<TagDef> &list_of_triggers) const {
-  if (!m_TagAndProbe.value()) return true;
-  if (getTrigDecisionTool().empty()){
-    ATH_MSG_DEBUG("getTrigDecisionTool() is empty");
-    return true;
-  }
-  TVector3 muonvec;
-  muonvec.SetPtEtaPhi(offline_muon->pt(), offline_muon->eta(), offline_muon->phi());
-  for (const auto &tagTrig : list_of_triggers) {
-    ATH_MSG_DEBUG("Examining [eventTag:tagTrig]=[" << tagTrig.eventTrig << "," << tagTrig.tagTrig << "]");
-    if (!getTrigDecisionTool()->isPassed(tagTrig.eventTrig.Data())){
-      ATH_MSG_DEBUG("Failed to pass eventTrig=" << tagTrig.eventTrig);
-      continue;
-    }
-    ATH_MSG_DEBUG("Success to pass eventTrig=" << tagTrig.eventTrig);
-    ATH_MSG_DEBUG("Looking at HLT muon feature for tagTrig=" << tagTrig.tagTrig);
-    if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
-      ATH_MSG_DEBUG("Performing Run2-style feature access");
-      auto cg = getTrigDecisionTool()->getChainGroup(tagTrig.tagTrig.Data());
-      auto fc = cg->features();
-      auto MuFeatureContainers = fc.get<xAOD::MuonContainer>();
-      for(auto mucont : MuFeatureContainers){
-	for(auto mu : *mucont.cptr()){
-	  TVector3 trigvec;
-	  trigvec.SetPtEtaPhi(mu->pt(), mu->eta(), mu->phi());
-	  float dr = trigvec.DeltaR(muonvec);
-	  ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
-			" while the matching window is " << m_trigMatchWindow.value());
-	  if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
-	    ATH_MSG_DEBUG("Matched!!");
-	    return true;
-	  }
-	}
-      }
-    }else{ // run 3 access
-      ATH_MSG_DEBUG("Performing Run3-style feature access");
-      auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (tagTrig.tagTrig.Data(), TrigDefs::Physics);
-      ATH_MSG_DEBUG("size of feature = " << features.size());
-      for (auto aaa : features) {
-	if (!aaa.isValid()) continue;
-	auto trigmuon_link = aaa.link;
-	auto trigmuon = *trigmuon_link;
-	TVector3 trigvec;
-	trigvec.SetPtEtaPhi(trigmuon->pt(), trigmuon->eta(), trigmuon->phi());
-	float dr = trigvec.DeltaR(muonvec);
-	ATH_MSG_DEBUG("dR(off_muon,onl_muon) is " << dr <<
-		      " while the matching window is " << m_trigMatchWindow.value());
-	if (trigvec.DeltaR(muonvec) < m_trigMatchWindow.value()){
-	  ATH_MSG_DEBUG("Matched!!");
-	  return true;
-	}
-      }
-    }
-  }
-  ATH_MSG_DEBUG("Nothing was matched...");
-  return false;
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mymuon) const {
@@ -1198,7 +1325,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
         return nullptr;
     }
     // We want disc
-    if (param->surfaceType() != Trk::Surface::Disc) {
+    if (param->surfaceType() != Trk::SurfaceType::Disc) {
         return nullptr;
     }
     return param;
@@ -1227,7 +1354,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
         return nullptr;
     }
     //It has to be cylinder
-    if (param->surfaceType() != Trk::Surface::Cylinder) {
+    if (param->surfaceType() != Trk::SurfaceType::Cylinder) {
         return nullptr;
     }
     return param;

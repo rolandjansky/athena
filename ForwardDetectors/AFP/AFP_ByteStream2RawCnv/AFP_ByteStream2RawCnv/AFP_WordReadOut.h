@@ -1,41 +1,49 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_RECORDREADOUT_H
 #define AFP_RECORDREADOUT_H
 
+#include "AFP_ByteStream2RawCnv/IAFP_WordReadOut.h"
+#include "AFP_ByteStream2RawCnv/AFP_LinkNumTranslator.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <stdint.h>
 
 /// Class capable spliting word into parts, used to fill raw containers.
-class AFP_WordReadOut {
+class AFP_WordReadOut : public extends<AthAlgTool, IAFP_WordReadOut> {
 public:
-  /// Sets word which is to be processed
-  void setWord (const uint32_t dataWord) {m_word = dataWord;}
+  AFP_WordReadOut(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~AFP_WordReadOut() override;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /// @brief Returns true if the word is marked as header word
   ///
   /// The word is marked as header if four most significant bits are
   /// equal #s_wordHeader.
-  bool isHeader () const {return s_wordHeader == getBits(31, 28);}
+  bool isHeader (uint32_t the_word) const override {return s_wordHeader == getBits(the_word, 31, 28);}
 
   /// @brief Returns true if the word is marked as data word
   ///
   /// The word is marked as data word if two most significant bits are
   /// equal #s_wordData.
-  bool isData() const {return s_wordData == getBits(31, 30);}
+  bool isData(uint32_t the_word) const override {return s_wordData == getBits(the_word, 31, 30);}
 
   /// @brief Returns true if the word is marked as service word
   ///
   /// The word is marked as service word if four most significant bits are
   /// equal #s_wordService.
-  bool isService() const {return s_wordService == getBits(31, 28);}
+  bool isService(uint32_t the_word) const override {return s_wordService == getBits(the_word, 31, 28);}
 
   /// @brief Value of 5-8 most significant bits
   ///
   /// In the following word: `xxxx LLLL xxxx xxxx xxxx xxxx xxxx xxxx`
   /// it means bits marked with `L`.
-  uint32_t link() const {return getBits (27, 24);}
+  uint32_t link(uint32_t the_word) const override {return m_linkNumTrans->translate(getBits (the_word, 27, 24));}
 
   /// @brief Returns integer value of the selcted bits
   ///
@@ -54,7 +62,7 @@ public:
   /// - `getBits (4, 4) = 1`
   /// - `getBits (2, 2) = 0`
   /// - `getBits (5, 3) = 7`
-  uint32_t getBits(const uint16_t start, const uint16_t stop) const;
+  uint32_t getBits(uint32_t the_word, const uint16_t start, const uint16_t stop) const override;
 
   /// Header word is marked with four most significant bits set to 0011
   static constexpr uint16_t s_wordHeader = 3;
@@ -66,7 +74,7 @@ public:
   static constexpr uint16_t s_wordService = 0;
 
 private:
-  uint32_t m_word;
+  ToolHandle<AFP_LinkNumTranslator> m_linkNumTrans {this, "AFP_LinkNumTranslator", "AFP_LinkNumTranslator", "Tool that translates link numbers"};
 };
 
 #endif

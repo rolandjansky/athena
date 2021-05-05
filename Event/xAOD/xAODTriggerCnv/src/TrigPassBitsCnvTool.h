@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 #ifndef XAODTRIGGERCNV_TRIGPASSBITSCNVTOOL_H
 #define XAODTRIGGERCNV_TRIGPASSBITSCNVTOOL_H
 
@@ -23,9 +22,6 @@ namespace xAODMaker {
     *         defined in ITrigPassBitsCnvTool.
     *
     * @author Oleg Kuprash <oleg.kuprash@cern.ch>
-    *
-    * $Revision$
-    * $Date$
     */
    class TrigPassBitsCnvTool : public AthAlgTool,
                            public virtual ITrigPassBitsCnvTool {
@@ -34,9 +30,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigPassBitsCnvTool( const std::string& type, const std::string& name,
                        const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigPassBits
       virtual StatusCode convert( const TrigPassBitsCollection* aod,

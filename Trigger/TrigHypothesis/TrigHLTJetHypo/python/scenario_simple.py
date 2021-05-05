@@ -49,7 +49,7 @@ def get_condition_args_from_chainpart(cp):
     
     for k, v in cp_elemental_args.items():
         if k == 'threshold':
-            key = 'et'
+            key = 'pt'
             vals = defaults(key, lo=v)
             condargs.append((key, deepcopy(vals)))
                 

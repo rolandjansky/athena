@@ -109,6 +109,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
+                       scripts/trigmenu_modify_prescale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
                        scripts/generateUnprescaledLists.py

@@ -343,7 +343,7 @@ def precTrackSequence( RoIs , name):
                            inputTrackCollection = IDTrigConfig.tracks_IDTrig(), 
                            outputVtxCollection  = IDTrigConfig.vertex, 
                            config               = IDTrigConfig, 
-                           adaptiveVertexing    = True )
+                           adaptiveVertex       = IDTrigConfig.adaptiveVertex ) 
 
     trackSequence = parOR(name, [ViewVerifyTrk] + PTAlgs + vtxAlg )
 

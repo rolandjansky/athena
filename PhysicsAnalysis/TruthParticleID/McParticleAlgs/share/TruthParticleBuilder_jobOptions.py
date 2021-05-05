@@ -71,7 +71,11 @@ for cont in inputTPContainer:
 
 
 if ( (objKeyStore.isInInput( "McEventCollection", "GEN_AOD" ) or
-      objKeyStore.isInInput( "McEventCollection", "TruthEvent" )) and
-     not objKeyStore.isInInput( "xAOD::TruthEventContainer", "TruthEvents" ) ):
-    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+      objKeyStore.isInInput( "McEventCollection", "TruthEvent" ))):
+    if not objKeyStore.isInInput( "xAOD::TruthEventContainer", "TruthEvents" ):
+        from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+        job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+    else:
+        from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__TruthMetaDataTool
+        ToolSvc += xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]

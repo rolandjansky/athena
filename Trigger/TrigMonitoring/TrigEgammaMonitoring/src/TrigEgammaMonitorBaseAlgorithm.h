@@ -7,6 +7,8 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingToolMT.h"
+#include "TrigEgammaEmulationToolMT/TrigEgammaEmulationToolMT.h"
+
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -50,6 +52,7 @@ typedef struct _triginfo
     float trigThrL1; // L1 Et threshold
     bool trigIsEmulation;
     bool isGSF; // GSF chain
+    bool isLRT; // LRT chain
 } TrigInfo;
 
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
@@ -83,11 +86,12 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
     /* Trigger e/g matching tool */
     ToolHandle<TrigEgammaMatchingToolMT> m_matchTool;
+    /* Trigger e/g emulation tool */
+    ToolHandleArray<Trig::TrigEgammaEmulationToolMT> m_emulatorTool{this,"EmulatorTool",{}};
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool{this,"ElectronLikelihoodTool",{}};
-    
     /*! Offline isEM Photon Selectors */ 
     ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
     

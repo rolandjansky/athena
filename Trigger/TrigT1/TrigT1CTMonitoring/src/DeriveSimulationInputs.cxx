@@ -19,7 +19,6 @@
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_RIO.h"
-#include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_RIO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -101,6 +100,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::initialize() {
 
    ATH_CHECK( detStore()->regFcn( &TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool, this,
                                   m_ctpCoreMapping, "/TRIGGER/LVL1/CTPCoreInputMapping" ) );
+
+   ATH_CHECK( m_CTP_RDOKey.initialize() );
    return StatusCode::SUCCESS;
 }
 	
@@ -139,8 +140,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 
 
    // get CTP RDO from storegate
-   const CTP_RDO* theCTP_RDO = nullptr;
-   CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
+   const CTP_RDO* theCTP_RDO = SG::get(m_CTP_RDOKey);
+   CHECK( theCTP_RDO != nullptr );
 
    
    // we should not use the ctpVersion from the menu to guaranty consistency

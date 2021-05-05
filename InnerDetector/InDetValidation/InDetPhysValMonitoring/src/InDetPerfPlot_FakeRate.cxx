@@ -32,7 +32,7 @@ InDetPerfPlot_FakeRate::initializePlots() {
 }
 
 void
-InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake) {
+InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake, float weight) {
 
   double eta = track.eta();
   double pt = track.pt() / Gaudi::Units::GeV; // convert MeV to GeV
@@ -40,11 +40,11 @@ InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake
   double d0 = track.d0();
   double z0 = track.z0();
 
-  fillHisto(m_fakerate_vs_eta, eta, isFake);
-  fillHisto(m_fakerate_vs_pt, pt, isFake);
-  fillHisto(m_fakerate_vs_phi, phi, isFake); 
-  fillHisto(m_fakerate_vs_d0, d0, isFake);
-  fillHisto(m_fakerate_vs_z0, z0, isFake);
+  fillHisto(m_fakerate_vs_eta, eta, isFake, weight);
+  fillHisto(m_fakerate_vs_pt, pt, isFake, weight);
+  fillHisto(m_fakerate_vs_phi, phi, isFake, weight); 
+  fillHisto(m_fakerate_vs_d0, d0, isFake, weight);
+  fillHisto(m_fakerate_vs_z0, z0, isFake, weight);
 
 }
 

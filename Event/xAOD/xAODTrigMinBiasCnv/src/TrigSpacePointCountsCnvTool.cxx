@@ -22,15 +22,7 @@ namespace xAODMaker {
     declareInterface< ITrigSpacePointCountsCnvTool >( this );
   }
   
-  StatusCode TrigSpacePointCountsCnvTool::initialize() {
-    
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
+
   /**
    * This is the important function of the tool. It takes the muon RoI objects
    * from a LVL1_ROI container, and fills an xAOD::TrigSpacePointCountsContainer with them.

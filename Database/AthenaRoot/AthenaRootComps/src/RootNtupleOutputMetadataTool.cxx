@@ -14,13 +14,13 @@
 #include "RootBranchAddress.h"
 
 // Gaudi
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/DataObject.h"
 
 // Athena
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaRootKernel/IIoSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -69,7 +69,7 @@ RootNtupleOutputMetadataTool::~RootNtupleOutputMetadataTool()
 StatusCode 
 RootNtupleOutputMetadataTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name());
 
   if (!::AthAlgTool::initialize().isSuccess()) {
     ATH_MSG_FATAL("Cannot initialize AlgTool base class.");

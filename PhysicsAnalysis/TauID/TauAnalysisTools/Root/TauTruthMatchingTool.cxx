@@ -72,17 +72,18 @@ TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau,
   static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
 
   //derivations may drop IsTruthMatched, recalculate from truthParticleLink on the fly (this assumes truth links to leptons are preserved, i.e. TruthTaus, TruthElectron, TruthMuon)
-  if ( !xTau.isAvailable<char>("IsTruthMatched") && xTau.isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink")){
-    ATH_MSG_DEBUG("TauJet has truthParticleLink is available while IsTruthMatched not available. Recevaluate IsTruthMatched");
+  if ( !(*m_bIsTruthMatchedAvailable.ptr()) && (*m_bIsTruthParticleLinkAvailable.ptr())){
+    ATH_MSG_DEBUG("TauJetContainer has truthParticleLink available while IsTruthMatched not available. Re-evaluate IsTruthMatched");
     static SG::AuxElement::Decorator<char> decIsTruthMatched("IsTruthMatched");
-    if (accTruthTau(xTau))
+    if (accTruthTau(xTau)){
       decIsTruthMatched(xTau) = (char)true;
-    else
+    }else{
       decIsTruthMatched(xTau) = (char)false;
+    }
   }
   
   if ((bool)accIsTruthMatched(xTau))
-  {
+    {
     if (m_bWriteTruthTaus or m_bTruthTauAvailable)
     {
       if (accTruthTau(xTau).isValid())
@@ -345,12 +346,18 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau,
 {
   // check if decorations were already added to the first passed tau
   if (!m_bIsTruthMatchedAvailable.isValid()) {
-    bool avail = xTau.isAvailable<char>("IsTruthMatched") || xTau.isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink");
+    bool avail = xTau.isAvailable<char>("IsTruthMatched") ;
     m_bIsTruthMatchedAvailable.set (avail);
-    
   }
-  if (*m_bIsTruthMatchedAvailable.ptr())
+  // check if decorations were already added to the first passed tau
+  if (!m_bIsTruthParticleLinkAvailable.isValid()) {
+    bool avail =   xTau.isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink");
+    m_bIsTruthParticleLinkAvailable.set (avail);
+  }
+
+  if (*m_bIsTruthMatchedAvailable.ptr() || *m_bIsTruthParticleLinkAvailable.ptr()){
     return StatusCode::SUCCESS;
+  }
 
   // only search for truth taus once
 

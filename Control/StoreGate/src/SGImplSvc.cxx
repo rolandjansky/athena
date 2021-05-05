@@ -16,12 +16,12 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -140,8 +140,7 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
-  verbose() <<  "Initializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() << endmsg;
 
   CHECK( Service::initialize() );
 
@@ -310,8 +309,7 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 //////////////////////////////////////////////////////////////
 /// Service finalization
 StatusCode SGImplSvc::finalize()    {
-  verbose() << "Finalizing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Finalizing " << name() << endmsg ;
   
   // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
@@ -338,8 +336,7 @@ StatusCode SGImplSvc::finalize()    {
 //////////////////////////////////////////////////////////////
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
-  verbose() << "Reinitializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Reinitializing " << name() << endmsg ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
   //not in v20r2p2! return Service::reinitialize();

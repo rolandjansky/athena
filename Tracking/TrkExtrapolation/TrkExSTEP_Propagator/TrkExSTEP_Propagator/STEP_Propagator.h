@@ -25,6 +25,8 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
+//
 #include "TrkParameters/TrackParameters.h" //TrackParameters typedef
 #include "TrkGeometry/BinnedMaterial.h" //Identified material typedef
 #include "TrkExUtils/MaterialInteraction.h"
@@ -320,7 +322,6 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
   private:
 
-    enum SurfaceType { LINE, PLANE, CYLINDER, CONE};
 
     struct Cache {
       bool                   m_detailedElossFlag{true};
@@ -368,7 +369,6 @@ namespace Trk {
       // cache for differential covariance matrix contribution ( partial material dump )
       AmgSymMatrix(5)                m_covariance;
       Trk::EnergyLoss                m_combinedEloss;
-      Trk::MaterialInteraction       m_matInt;
       std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
       MagField::AtlasFieldCache    m_fieldCache;
 
@@ -416,7 +416,7 @@ namespace Trk {
     bool
       propagateWithJacobian (Cache&      cache,
                              bool        errorPropagation,
-                             Surface::SurfaceType surfaceType,
+                             Trk::SurfaceType surfaceType,
                              double*     targetSurface,
                              double*     P,
                              double&     path) const;
@@ -464,7 +464,7 @@ namespace Trk {
     // Distance to surface
     /////////////////////////////////////////////////////////////////////////////////
     double
-      distance (Surface::SurfaceType surfaceType,
+      distance (Trk::SurfaceType surfaceType,
                 double*     targetSurface,
                 const double*     P,
                 bool&       distanceSuccessful) const;

@@ -69,5 +69,25 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFComm
                                                                         )
 
 from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderLoose1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Loose")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNominal1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nominal")
 if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-    DerivationFrameworkJob += GetUpdatedIsoTrackCones()
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Tight")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderPrompt_D0Sig1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Prompt_D0Sig")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_Hard_D0Sig1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_Hard_D0Sig")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_Medium_D0Sig1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_Medium_D0Sig")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_All_D0Sig1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_All_D0Sig")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderPrompt_MaxWeight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Prompt_MaxWeight")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_Hard_MaxWeight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_Hard_MaxWeight")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_Medium_MaxWeight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_Medium_MaxWeight")
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderNonprompt_All_MaxWeight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones(WP="Nonprompt_All_MaxWeight")

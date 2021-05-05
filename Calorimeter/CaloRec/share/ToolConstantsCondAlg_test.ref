@@ -9,7 +9,7 @@ ApplicationMgr    SUCCESS
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc                                           INFO  getRegistryEntries: read 23710 CLIDRegistry entries for module ALL
 CondInputLoader                                      INFO Initializing CondInputLoader...
 IOVDbSvc                                             INFO Only 5 POOL conditions files will be open at once
@@ -18,7 +18,7 @@ IOVDbSvc                                             INFO Global tag: OFLCOND-MC
 IOVDbSvc                                             INFO Initialised with 2 connections and 1 folders
 IOVDbSvc                                             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc                                             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
-MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc                                          INFO Initializing MetaDataSvc
 PoolSvc                                              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
@@ -34,7 +34,6 @@ PoolSvc                                              INFO POOL WriteCatalog is x
 DbSession                                            INFO     Open     DbSession    
 Domain[ROOT_All]                                     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc                                          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool'])
-OutputStreamSequencerSvc                             INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 MetaDataSvc                                          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
 CondProxyProvider                                    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-00-00
 CondProxyProvider                                    INFO Inputs: FID:BC292F26-AE73-9041-BF5C-BCE6C5C651EC

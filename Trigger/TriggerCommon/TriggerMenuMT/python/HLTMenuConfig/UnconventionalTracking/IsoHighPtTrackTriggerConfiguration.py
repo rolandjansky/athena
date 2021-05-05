@@ -16,14 +16,16 @@ def FTFTrackSequence(ConfigFlags):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=caloFSRoI)
+    TrkInputNoViewAlg = makeInDetAlgsNoView( config=IDTrigConfig, rois=caloFSRoI )
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    
+    VTX_NAME     = IDTrigConfig.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.vertex_jet
+    ADAPTIVE_VTX = IDTrigConfig.adaptiveVertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.adaptiveVertex_jet
 
-    verticesname = recordable("HLT_IDVertex_FS")
-    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF() , verticesname, IDTrigConfig )
+    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), VTX_NAME, IDTrigConfig, adaptiveVertex=ADAPTIVE_VTX)
     prmVtx = vtxAlgs[-1]
 
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]

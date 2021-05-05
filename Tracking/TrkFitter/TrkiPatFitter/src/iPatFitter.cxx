@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <iomanip>
-#include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
@@ -700,7 +700,11 @@ namespace Trk
         Amg::Vector3D position = s.trackParameters()->position();
         measurement1 = std::make_unique<FitMeasurement>(s.alignmentEffectsOnTrack(), direction, position);
       }
-      if (s.measurementOnTrack()) {
+    const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
+    if (measurementBase) {
+        if (!Amg::valid_cov(measurementBase->localCovariance())){
+            continue;
+        }
         // option to skip vertex measurement (i.e. when not at front of list)
         if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&s.surface())) {
           measurement1.reset();
@@ -708,7 +712,7 @@ namespace Trk
         }
         haveMeasurement = true;
         surface = &s.measurementOnTrack()->associatedSurface();
-        measurement2 = std::make_unique<FitMeasurement>(hit, nullptr, s.measurementOnTrack());
+        measurement2 = std::make_unique<FitMeasurement>(hit, nullptr, measurementBase);
         if (s.type(TrackStateOnSurface::Outlier)) { measurement2->setOutlier(); }
         // redundant surely??
         // if (measurement2->isCluster() || measurement2->isDrift()) haveMeasurement = true;
@@ -723,15 +727,14 @@ namespace Trk
 //	    Peter
 //	    measurement2->alignmentParameter(0);
         if (misAlignmentNumber) {
-          const Trk::MeasurementBase* meas = s.measurementOnTrack();
           Identifier id = Identifier();
-          if (meas) {
-            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+          if (measurementBase) {
+            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(measurementBase);
             if (rot) {
               id = rot->identify();
             } else {
               const Muon::CompetingMuonClustersOnTrack* crot =
-                dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+                dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(measurementBase);
               if (crot && !crot->containedROTs().empty() && crot->containedROTs().front()) {
                 id = crot->containedROTs().front()->identify();
               }

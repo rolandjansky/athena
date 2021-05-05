@@ -11,6 +11,6 @@ atlas_add_library( LArGeoEndcap
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoEndcap
                    INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} LArGeoFcal LArGeoHec StoreGateLib SGtests CaloDetDescrLib
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} LArGeoFcal LArGeoHec StoreGateLib CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES CaloIdentifier GeoModelUtilities GeoSpecialShapes GaudiKernel LArGeoCode LArGeoMiniFcal RDBAccessSvcLib )
 

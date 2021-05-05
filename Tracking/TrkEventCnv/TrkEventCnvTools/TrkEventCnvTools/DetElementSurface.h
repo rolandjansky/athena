@@ -47,7 +47,7 @@ class DetElementSurface : public Surface
     std::ostream &              dump (std::ostream &sl) const { return sl;};
     const Identifier            associatedDetectorElementIdentifier() const {return m_id;}
     bool                        isFree() {return true;}// To avoid memory leaks
-    Surface::SurfaceType        type() const {return Surface::Other;}
+    SurfaceType        type() const {return SurfaceType::Other;}
     void                        localToGlobal(const Amg::Vector2D&, const Amg::Vector3D&, Amg::Vector3D&) const {}
     bool                        globalToLocal(const Amg::Vector3D&, const Amg::Vector3D&, Amg::Vector2D&) const {return false;}
     std::string                 name() const { return "Trk::DetElementSurface";}
@@ -99,7 +99,7 @@ class DetElementSurface : public Surface
     virtual Trk::DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D&,
                                            const Amg::Vector3D&, bool) const {return 0;}
 
-    virtual bool isOnSurface(const Amg::Vector3D&, Trk::BoundaryCheck, double, double) const {return false;}
+    virtual bool isOnSurface(const Amg::Vector3D&, const Trk::BoundaryCheck&, double, double) const {return false;}
 
 private:
     Identifier  m_id;

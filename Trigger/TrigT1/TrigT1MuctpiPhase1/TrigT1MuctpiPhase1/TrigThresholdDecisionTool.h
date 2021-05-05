@@ -18,8 +18,9 @@
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/ITrigThresholdDecisionTool.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/DataHandle.h"
+#include "L1Decoder/IRoIThresholdsTool.h"
+#include "xAODTrigger/MuonRoI.h"
+#include "xAODTrigger/MuonRoIContainer.h"
 
 #include <map>
 #include <vector>
@@ -29,7 +30,13 @@
 
 namespace LVL1 {
 
-  class TrigThresholdDecisionTool : public extends<AthAlgTool, ITrigThresholdDecisionTool>
+  namespace MURoIThresholdsToolParams {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using BaseClass = RoIThresholdsTool<xAOD::MuonRoI, xAOD::MuonRoIContainer, ContainerName, ThresholdType>;
+  }
+
+  class TrigThresholdDecisionTool : public extends<MURoIThresholdsToolParams::BaseClass, ITrigThresholdDecisionTool>
   {
   public:
 
@@ -37,13 +44,27 @@ namespace LVL1 {
 			      const std::string& name, 
 			      const IInterface* parent);
     
-    virtual ~TrigThresholdDecisionTool();
-    
     virtual StatusCode initialize() override;
     virtual StatusCode start() override;
 
+    virtual uint64_t getPattern(const xAOD::MuonRoI& roi,
+                                const ThrVec& menuThresholds,
+                                const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const override;
+
+    virtual uint64_t getPattern(uint32_t dataWord,
+                                const ThrVec& menuThresholds,
+                                const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const;
+
     virtual
-    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > getThresholdDecisions(const unsigned& dataWord) const override;
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+    getThresholdDecisions(uint32_t dataWord,
+                          const EventContext& eventContext) const override;
+    virtual
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+    getThresholdDecisions(uint32_t dataWord,
+                          const ThrVec& menuThresholds,
+                          const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const override;
+
     virtual
     std::pair<std::string, double> getMinThresholdNameAndValue(const std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >& decisions,
 							       const double& eta = 0) const override;
@@ -62,17 +83,18 @@ namespace LVL1 {
       bool pass;
     };
 
-    bool isExcludedRPCROI(const std::string& rpcExclROIList, const unsigned& roi, const unsigned& sectorID, const bool& isSideC) const;
-    bool getTGCDecision(const std::string& tgcFlags, const bool& F, const bool& C, const bool& H) const;
-    void makeTGCDecision(const std::string& tgcFlags, const bool& F, const bool& C, const bool& H);
+    bool isExcludedRPCROI(const TrigConf::L1ThrExtraInfo_MU& menuExtraInfo,
+                          const std::string& rpcExclROIList,
+                          unsigned roi,
+                          unsigned sectorID,
+                          bool isSideC) const;
+    bool getTGCDecision(const std::string& tgcFlags, bool F, bool C, bool H) const;
+    void makeTGCDecision(const std::string& tgcFlags, bool F, bool C, bool H);
     void parseTGCFlags(const std::string& tgcFlags);
     std::vector<std::string> parseString(std::string str, std::string sep) const;
 
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool{this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool", "Tool to get the eta/phi coordinates in the RPC"};
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcTool{this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/LVL1__TrigT1TGCRecRoiTool", "Tool to get the eta/phi coordinates in the TGC"};
-    ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
-
-    const TrigConf::L1Menu* m_l1menu;
 
     //buffered parsed TGC flags
     std::map<std::string, std::vector<std::vector<std::string> > > m_parsed_tgcFlags;

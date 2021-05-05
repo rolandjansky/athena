@@ -60,13 +60,25 @@ class PlaneSurface : public Surface
 {
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Plane;
+  static constexpr SurfaceType staticType = SurfaceType::Plane;
 
   /** Default Constructor - needed for persistency*/
   PlaneSurface();
 
   /** Copy Constructor*/
   PlaneSurface(const PlaneSurface& psf) = default;
+
+  /**Assignment operator*/
+  PlaneSurface& operator=(const PlaneSurface& psf) = default;
+
+  /** Move Constructor*/
+  PlaneSurface(PlaneSurface&& psf) noexcept = default;
+
+  /**Move assignment operator*/
+  PlaneSurface& operator=(PlaneSurface&& psf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PlaneSurface() = default;
 
   /** Copy Constructor with shift*/
   PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf);
@@ -84,10 +96,13 @@ public:
                const Identifier& id,
                Amg::Transform3D* transf = nullptr);
 
-  /** Constructor for planar Surface without Bounds */
+  /** Constructor for planar Surface without Bounds , reference */
+  PlaneSurface(const Amg::Transform3D& htrans);
+
+  /** Constructor for planar Surface without Bounds plain ptr to be replaced*/
   PlaneSurface(Amg::Transform3D* htrans);
 
-  /** Constructor for planar Surface from unique_ptr without Bounds */
+  /** Constructor for planar Surface from unique_ptr without Bounds unique_ptr to be replaced*/
   PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /** Constructor for Rectangular Planes*/
@@ -130,12 +145,6 @@ public:
   /** Constructor for Planes with shared object*/
   PlaneSurface(Amg::Transform3D* htrans,
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
-
-  /**Destructor*/
-  virtual ~PlaneSurface() = default;
-
-  /**Assignment operator*/
-  PlaneSurface& operator=(const PlaneSurface& psf) = default;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -235,7 +244,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

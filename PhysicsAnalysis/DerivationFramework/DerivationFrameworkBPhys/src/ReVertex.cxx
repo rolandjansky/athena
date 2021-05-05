@@ -89,6 +89,10 @@ StatusCode ReVertex::initialize() {
         ATH_MSG_FATAL("No Indices provided");
         return StatusCode::FAILURE;
     }
+    ATH_CHECK(m_iVertexFitter.retrieve());
+    ATH_CHECK(m_v0Tools.retrieve());
+    ATH_CHECK(m_pvRefitter.retrieve());
+    ATH_CHECK(m_vertexEstimator.retrieve());
     m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVertexFitter));
     if(m_VKVFitter==nullptr) return StatusCode::FAILURE;
     ATH_CHECK(m_OutputContainerName.initialize());
@@ -217,11 +221,11 @@ void ReVertex::fitAndStore(xAOD::VertexContainer* vtxContainer,
    thePreceding.push_back(v);
    if(m_vertexFittingWithPV){
       //
-      const xAOD::Vertex* closestRefPV = Analysis::JpsiUpsilonCommon::ClosestRefPV(bHelper, pvContainer, &(*m_pvRefitter));
-      if (!closestRefPV) return;
-      std::unique_ptr<xAOD::Vertex> ptrPV(fit(inputTracks, importedTrackCollection, closestRefPV));
+      Analysis::CleanUpVertex closestRefPV = Analysis::JpsiUpsilonCommon::ClosestRefPV(bHelper, pvContainer, &(*m_pvRefitter));
+      if (!closestRefPV.get()) return;
+      std::unique_ptr<xAOD::Vertex> ptrPV(fit(inputTracks, importedTrackCollection, closestRefPV.get()));
       if(!ptrPV) return;
-      //
+
       double chi2DOFPV = ptrPV->chiSquared()/ptrPV->numberDoF();
       ATH_MSG_DEBUG("CandidatePV chi2/DOF is " << chi2DOFPV);
       bool chi2CutPassed = (m_chi2cut <= 0.0 || chi2DOFPV < m_chi2cut);

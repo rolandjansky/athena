@@ -11,8 +11,11 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODTrigger/MuonRoIContainer.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
@@ -52,6 +55,10 @@ private:
   Gaudi::Property<std::string> m_muRoILinkName {
     this, "MuRoILinkName", "LVL1MuonRoIs",
     "Name of the link to read from L1TriggerResult for muon RoI container"};
+
+  SG::ReadDecorHandleKey<xAOD::MuonRoIContainer> m_thresholdPatternsKey {
+    this, "MuRoIThresholdPatternsKey", "LVL1MuonRoIs.thresholdPatterns",
+    "Name of the muon RoI container decoration for the threshold patterns"};
 
   Gaudi::Property<float> m_roIWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};

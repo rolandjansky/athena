@@ -59,7 +59,8 @@ def checkTileCalibrationHitFormat(inputlist):
 
 def listOptionalContainers(inputlist):
     """Generate a list of optional containers"""
-    supported = ['TrackRecordCollection', 'CaloCalibrationHitContainer', 'HijingEventParams']
+    supported = ['TrackRecordCollection', 'CaloCalibrationHitContainer', 'HijingEventParams',
+                 "xAOD::TruthParticleContainer", "xAOD::JetContainer"]
 
     containers = {}
     for entry in inputlist:
@@ -193,7 +194,7 @@ def buildDict(inputtype, inputfile):
         if '/Digitization/Parameters' in f.infos['metadata'].keys():
             ## We have the RDO file here:
             if len(f.run_numbers)>0 :
-                logOverlayReadMetadata.info("Setting digitizationFlags.dataRunNumber to %i, to match the pre-mixed RDO File", f.run_numbers[0])
+                logOverlayReadMetadata.info("Setting digitizationFlags.dataRunNumber to %i, to match the presampled RDO File", f.run_numbers[0])
                 from Digitization.DigitizationFlags import digitizationFlags
                 digitizationFlags.dataRunNumber = f.run_numbers[0]
             ##Do useful things with Digi MetaData
@@ -363,7 +364,7 @@ def signalMetaDataCheck(metadatadict):
     # Check for optional containers presence
     if not skipCheck('OptionalContainers'):
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        overlayFlags.optionalContainerMap.set_Value_and_Lock(metadatadict['OptionalContainers'])
+        overlayFlags.optionalContainerMap = metadatadict['OptionalContainers']
 
     # Check for legacy EventInfo presence
     if not skipCheck('LegacyEventInfo'):
@@ -374,13 +375,13 @@ def signalMetaDataCheck(metadatadict):
     logOverlayReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")
 
 def pileupMetaDataCheck(sigsimdict,pileupsimdict):
-    """Check the metadata for pre-mixed pileup RDO File"""
+    """Check the metadata for presampled pileup RDO File"""
     result = True
     import re
     pileupkeys = pileupsimdict.keys()
     sigkeys = sigsimdict.keys()
-    pileuptype = "PreMixed"
-    longpileuptype = "Pre-Mixed Pile-up RDO File"
+    pileuptype = "Presampled"
+    longpileuptype = "Presampled Pile-up RDO File"
     ##Loop over MetaData keys which must have matching values
     SigkeysToCheck = [ 'PhysicsList', 'SimLayout', 'MagneticField','hitFileMagicNumber' ]#, 'WorldZRange' ]
     for o in SigkeysToCheck:
@@ -442,12 +443,26 @@ def pileupMetaDataCheck(sigsimdict,pileupsimdict):
         else:
             logOverlayReadMetadata.debug("All sub-detectors simulated in the signal sample were also simulated in the %s background sample.", longpileuptype)
 
+    # Check for optional containers presence
+    if not skipCheck('OptionalContainers'):
+        # Combine the two dictionaries
+        optionalContainers = sigsimdict['OptionalContainers']
+        for key, value in pileupsimdict['OptionalContainers'].items():
+            if  key not in ['TrackRecordCollection']:
+                if key in optionalContainers:
+                    optionalContainers[key] |= value #Here the expectation is that the values are sets
+                else:
+                    optionalContainers[key] = value
+
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        overlayFlags.optionalContainerMap.set_Value_and_Lock(optionalContainers)
+
     return result
 
 
 def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
     result = True
-    """Check the metadata for pre-mixed pileup RDO File"""
+    """Check the metadata for presampled pileup RDO File"""
     pileupkeys = pileuptaginfodict.keys()
     logOverlayReadMetadata.debug("Signal /TagInfo ", sigtaginfodict)
     logOverlayReadMetadata.debug("Pileup /TagInfo ", pileuptaginfodict)
@@ -463,7 +478,7 @@ def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     overlayFlags.extraTagInfoPairs = sigOnlyDict
     keysToCompareSet = set(sigkeys).intersection(set(pileupkeys))
-    logOverlayReadMetadata.debug("The following keys appear in Signal and PreMixed /TagInfo MetaData:")
+    logOverlayReadMetadata.debug("The following keys appear in Signal and Presampled /TagInfo MetaData:")
     logOverlayReadMetadata.debug(keysToCompareSet)
     return result
 
@@ -494,16 +509,16 @@ def readInputFileMetadata():
         else:
             ## Check Pileup Simulation Parameters match those used for signal files
             result = True
-            longpileuptype= "pre-mixed pile-up"
+            longpileuptype= "presampled pile-up"
             logOverlayReadMetadata.info("Checking %s MetaData against Signal Simulation MetaData...", longpileuptype)
             pileupsimdict,pileuptaginfodict,pileupdigidict,result = buildDict(longpileuptype, athenaCommonFlags.PoolRDOInput.get_Value()[0])
             if not result:
                 logOverlayReadMetadata.warning("Failed to Create %s Simulation MetaData Dictionary from file %s.", longpileuptype, athenaCommonFlags.PoolHitsInput.get_Value()[0])
             else:
                 if pileupMetaDataCheck(sigsimdict,pileupsimdict):
-                    logOverlayReadMetadata.info("Pre-mixed RDO File Simulation MetaData matches Signal Simulation MetaData.")
+                    logOverlayReadMetadata.info("Presampled RDO File Simulation MetaData matches Signal Simulation MetaData.")
                 if tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
-                    logOverlayReadMetadata.info("Pre-mixed RDO File TagInfo MetaData matches Signal TagInfo MetaData.")
+                    logOverlayReadMetadata.info("Presampled RDO File TagInfo MetaData matches Signal TagInfo MetaData.")
             ## All checks completed here
             logOverlayReadMetadata.info("Completed all checks against Signal Simulation MetaData.")
 

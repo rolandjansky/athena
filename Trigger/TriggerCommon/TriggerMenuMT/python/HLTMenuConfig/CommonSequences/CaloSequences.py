@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
@@ -13,19 +13,21 @@ class CaloMenuDefs(object):
       L2CaloClusters= recordable("HLT_FastCaloEMClusters")
 
 
-def fastCaloSequence(flags):
-    """ Creates Fast Calo sequence"""
-    # EV creator
+#
+# central or forward fast calo sequence 
+#
+def fastCaloSequence(flags, name="fastCaloSequence"):
+    """ Creates Fast Calo reco sequence"""
+    
     from TrigT2CaloCommon.CaloDef import fastCaloEVCreator
-    (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
-
-    # reco sequence always build the rings
     from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
+    (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
+    # reco sequence always build the rings
     (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=True)
-
      # connect EVC and reco
-    fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
+    fastCaloSequence = seqAND(name, [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
+
 
 
 def fastCaloMenuSequence(name, doRinger=True):
@@ -41,7 +43,6 @@ def fastCaloMenuSequence(name, doRinger=True):
     else:
       from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT_noringer as createTrigEgammaFastCaloHypoAlgMT
 
-
     theFastCaloHypo = createTrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo", sequenceOut)
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
@@ -50,6 +51,8 @@ def fastCaloMenuSequence(name, doRinger=True):
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
+
+
 
 
 

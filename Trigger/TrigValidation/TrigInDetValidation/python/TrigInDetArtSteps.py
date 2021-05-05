@@ -77,6 +77,7 @@ class TrigInDetReco(ExecStep):
         for i in self.slices:
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                chains += "'HLT_mu6_LRT_idperf_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
@@ -90,6 +91,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
+                chains +=  "'HLT_e26_lhtight_gsf_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
@@ -108,8 +110,8 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
             if (i=='cosmic') :
-                chains += "'HLT_mu4_cosmic_L1MU4_EMPTY'"
-                flags  += "doMuonSlice=True;setMenu='Cosmic_run3_v1';"
+                chains += "'HLT_mu4_cosmic_L1MU4'"
+                flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
@@ -178,7 +180,7 @@ class TrigCostStep(Step):
         self.required = True
         self.depends_on_previous = True
         self.input = 'tmp.RDO_TRIG'
-        self.args = ' --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
+        self.args = '  --monitorChainAlgorithm --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
         self.executable = 'RunTrigCostAnalysis.py'
 
 
@@ -213,6 +215,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
@@ -233,7 +236,7 @@ def json_chains( slice ) :
         
     with open(json_fullpath) as f:
         data = json.load(f)
-       
+
     chainmap = data[slice]
 
     return chainmap['chains']

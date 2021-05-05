@@ -13,7 +13,7 @@ atlas_add_component( MuonJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps MuonRPC_CnvToolsLib MuonReadoutGeometry JiveXMLLib GaudiKernel RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO MuonPrepRawData AnalysisTriggerEvent RPC_CondCablingLib)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps MuonRPC_CnvToolsLib MuonReadoutGeometry JiveXMLLib GaudiKernel MuonIdHelpersLib MuonRDO MuonPrepRawData AnalysisTriggerEvent RPC_CondCablingLib)
 
 # Install files from the package:
 atlas_install_headers( MuonJiveXML )

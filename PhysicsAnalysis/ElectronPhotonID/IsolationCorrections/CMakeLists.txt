@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IsolationCorrections )
@@ -19,7 +19,7 @@ atlas_add_library( IsolationCorrectionsLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgDataHandlesLib AsgTools 
    xAODEgamma xAODEventInfo xAODEventShape
    xAODPrimitives xAODTracking PATInterfaces PATCoreAcceptLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver ${extra_libs} )
+   PRIVATE_LINK_LIBRARIES PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationCorrections

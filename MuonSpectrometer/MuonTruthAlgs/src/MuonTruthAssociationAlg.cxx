@@ -16,6 +16,10 @@ namespace {
         if (val == dummy_unsigned) val = 1;
         else ++val;
     }
+    static const SG::AuxElement::Accessor<int> acc_origin("truthOrigin");
+    static const SG::AuxElement::Accessor<int> acc_type("truthType");
+    static const SG::AuxElement::Accessor<ElementLink< xAOD::TruthParticleContainer > > acc_link("truthParticleLink");
+    
 }
 // Constructor with parameters:
 MuonTruthAssociationAlg::MuonTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -70,80 +74,86 @@ StatusCode MuonTruthAssociationAlg::execute(const EventContext& ctx) const {
   // add link to reco muons and viceversa
   
   // loop over muons 
-  int muonInd=0;
-  for( const auto muon : *muonTruthParticleLink ){
+  for( const xAOD::Muon* muon : *muonTruthParticleLink ){
     // use primary track particle to get the truth link (except for the case of STACO, where we must use the ID track particle, as the combined is not truth-matched)
-    ATH_MSG_DEBUG("muon with pT "<<muon->pt()<<" and author "<<muon->author());
+    ATH_MSG_DEBUG("muon with pT "<<muon->pt()<<" MeV, eta: "<<muon->eta()<< ", phi "<<muon->phi()<<" and author "<<muon->author());
     const xAOD::TrackParticle* tp= nullptr;
     if (m_associateWithInDetTP || muon->author()==xAOD::Muon::STACO || muon->author()==xAOD::Muon::MuGirl) {
       tp = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     } else{
-      tp=muon->primaryTrackParticle();
+      tp = muon->primaryTrackParticle();
     }
     
-    bool foundTruth=false;
-    
+    bool foundTruth{false}, setOrigin{false};
     if (tp){
         // Associate reco with truth muon. Loop over reconstructed muons, get track particle for each one. 
         //Each track particle should carry a link to the corresponding truth particle. Then compare this truth particle link with the given truth muon particle
-        try {
-              ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
-              if (truthLink.isValid() ){
-                ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
-                // loop over truth particles
-                
-                for( const auto truthParticle : *muonTruthParticleRecoLink ){
-                    if( truthParticle->status() != 1 ) continue;
-                    ATH_MSG_DEBUG("Got truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
-                    ElementLink< xAOD::MuonContainer > muonLink;
-                    if( ((*truthLink)->barcode())%m_barcodeOffset != truthParticle->barcode() ) {
-                        continue;
-                    }
-                    ATH_MSG_VERBOSE("Truth muon barcode matches -> creating link with truth particle " << (*truthLink)->barcode() );
-                    foundTruth=true;
-                    muonLink = ElementLink< xAOD::MuonContainer >(muon,*muonTruthParticleLink);
-                    // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
-                    ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(truthParticle, *muonTruthParticleRecoLink);
-                    muonTruthLink.toPersistent();
-                    muonTruthParticleLink(*muon)=muonTruthLink;
-                    muonTruthParticleOrigin(muonInd)=tp->auxdata<int>("truthOrigin");
-                    muonTruthParticleType(muonInd)=tp->auxdata<int>("truthType");
-                   
-                    /// Zero supression do not want to store meaningless zeros
-                    std::vector<unsigned int> nprecHitsPerChamberLayer(Muon::MuonStationIndex::ChIndexMax, dummy_unsigned);
-                    std::vector<unsigned int> nphiHitsPerChamberLayer(Muon::MuonStationIndex::PhiIndexMax, dummy_unsigned);
-                    std::vector<unsigned int> ntrigEtaHitsPerChamberLayer(Muon::MuonStationIndex::PhiIndexMax, dummy_unsigned);
-                    
-                    count_chamber_layers( (muon->author()==xAOD::Muon::MuidCo || muon->author()==xAOD::Muon::MuidSA || muon->author()==xAOD::Muon::MuGirl)? truthParticle: nullptr,  
-                              tp->track(),
-                              nprecHitsPerChamberLayer,
-                              nphiHitsPerChamberLayer,
-                              ntrigEtaHitsPerChamberLayer );              
-                    /// Decorate the results
-                    muonTruthParticleNPrecMatched(muonInd)=nprecHitsPerChamberLayer;
-                    muonTruthParticleNPhiMatched(muonInd)=nphiHitsPerChamberLayer;
-                    muonTruthParticleNTrigEtaMatched(muonInd)=ntrigEtaHitsPerChamberLayer;	      
-                
-                    muonLink.toPersistent();
-                    muonTruthParticleRecoLink(*truthParticle)=muonLink;
-                    break;
-                }
-            }    
-         } catch ( const SG::ExcBadAuxVar& ) {
-          ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
+        if (acc_origin.isAvailable(*tp) && acc_origin(*tp) !=0) {
+            muonTruthParticleOrigin(*muon) = acc_origin(*tp);
+            muonTruthParticleType(*muon) = acc_type(*tp);
+            setOrigin = true;
         }
+        ElementLink< xAOD::TruthParticleContainer > truthLink = acc_link(*tp);
+        if (truthLink.isValid() ){
+           ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
+            // loop over truth particles            
+            for( const xAOD::TruthParticle* truthParticle : *muonTruthParticleRecoLink ){
+                if( truthParticle->status() != 1 ) continue;
+                ATH_MSG_DEBUG("Got truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
+                if( ((*truthLink)->barcode() %m_barcodeOffset) != truthParticle->barcode() ) {
+                    ATH_MSG_VERBOSE("Barcode truth link: "<<(*truthLink)->barcode()<<" offset:  "<<m_barcodeOffset<<" --> "<<((*truthLink)->barcode() %m_barcodeOffset)<<" != "<<truthParticle->barcode());
+                    continue;
+                }
+                ATH_MSG_VERBOSE("Truth muon barcode matches -> creating link with truth particle " << (*truthLink)->barcode() );
+                foundTruth=true;
+                ElementLink< xAOD::MuonContainer > muonLink = ElementLink< xAOD::MuonContainer >(muon,*muonTruthParticleLink,ctx);
+                // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
+                ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(*muonTruthParticleRecoLink, truthParticle->index(),ctx);
+                muonTruthLink.toPersistent();
+                muonTruthParticleLink(*muon)=muonTruthLink;
+                if (!setOrigin){
+                    muonTruthParticleOrigin(*muon) = acc_origin(*tp);
+                    muonTruthParticleType(*muon) = acc_type(*tp);   
+                    setOrigin = true;                    
+                }
+               
+                /// Zero supression do not want to store meaningless zeros
+                std::vector<unsigned int> nprecHitsPerChamberLayer(Muon::MuonStationIndex::ChIndexMax, dummy_unsigned);
+                std::vector<unsigned int> nphiHitsPerChamberLayer(Muon::MuonStationIndex::PhiIndexMax, dummy_unsigned);
+                std::vector<unsigned int> ntrigEtaHitsPerChamberLayer(Muon::MuonStationIndex::PhiIndexMax, dummy_unsigned);
+                
+                count_chamber_layers( (muon->author()==xAOD::Muon::MuidCo || muon->author()==xAOD::Muon::MuidSA || muon->author()==xAOD::Muon::MuGirl)? truthParticle: nullptr,  
+                          tp->track(),
+                          nprecHitsPerChamberLayer,
+                          nphiHitsPerChamberLayer,
+                          ntrigEtaHitsPerChamberLayer );              
+                /// Decorate the results
+                muonTruthParticleNPrecMatched(*muon)=nprecHitsPerChamberLayer;
+                muonTruthParticleNPhiMatched(*muon)=nphiHitsPerChamberLayer;
+                muonTruthParticleNTrigEtaMatched(*muon)=ntrigEtaHitsPerChamberLayer;	      
+            
+                muonLink.toPersistent();
+                muonTruthParticleRecoLink(*truthParticle)=muonLink;
+                break;
+            }
+        } else {
+            ATH_MSG_DEBUG("Invalid truth link");
+        }
+    } else {
+         ATH_MSG_WARNING("Could not find the appropiate track particle for muon with pT: "<<muon->pt() * 1.e-3<<" GeV,  eta: "<<muon->eta()<<", phi: "<< muon->phi()<<" author: "<<muon->author());
     }
     
+    if (!setOrigin){
+       muonTruthParticleOrigin(*muon)=0;
+       muonTruthParticleType(*muon)=0;
+    }
     if(!foundTruth) {
       muonTruthParticleLink(*muon)=ElementLink<xAOD::TruthParticleContainer>();
-      muonTruthParticleOrigin(muonInd)=-99999;
-      muonTruthParticleType(muonInd)=-99999;
       //add these empty vectors
-      muonTruthParticleNPrecMatched(muonInd)=std::vector<unsigned int>{};
-      muonTruthParticleNPhiMatched(muonInd)=std::vector<unsigned int>{};
-      muonTruthParticleNTrigEtaMatched(muonInd)=std::vector<unsigned int>{};
-    }	
-    muonInd++;
+      muonTruthParticleNPrecMatched(*muon)=std::vector<unsigned int>{};
+      muonTruthParticleNPhiMatched(*muon)=std::vector<unsigned int>{};
+      muonTruthParticleNTrigEtaMatched(*muon)=std::vector<unsigned int>{};
+    }
   }
   ///one more thing: need to have muonlink set for all truth particles to avoid ELReset errors
   for( const auto truthParticle : *muonTruthParticleRecoLink ){

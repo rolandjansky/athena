@@ -48,9 +48,24 @@ class DiscSurface : public Surface
 {
 
 public:
-  static constexpr SurfaceType staticType = Surface::Disc;
+  static constexpr SurfaceType staticType = SurfaceType::Disc;
   /**Default Constructor*/
   DiscSurface();
+
+  /**Copy Constructor*/
+  DiscSurface(const DiscSurface& psf);
+
+  /**Assignement operator*/
+  DiscSurface& operator=(const DiscSurface& dsf);
+
+  /**Copy Constructor*/
+  DiscSurface(DiscSurface&& psf) noexcept = default;
+
+  /**Assignement operator*/
+  DiscSurface& operator=(DiscSurface&& dsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~DiscSurface() = default;
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
@@ -96,22 +111,17 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
    - bounds is not set */
+  DiscSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
+   - bounds is not set */
   DiscSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);
 
-  /**Copy Constructor*/
-  DiscSurface(const DiscSurface& psf);
-
-  /**Copy Constructor with shift*/
+ /**Copy Constructor with shift*/
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~DiscSurface() = default;
-
-  /**Assignement operator*/
-  DiscSurface& operator=(const DiscSurface& dsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -215,7 +225,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 

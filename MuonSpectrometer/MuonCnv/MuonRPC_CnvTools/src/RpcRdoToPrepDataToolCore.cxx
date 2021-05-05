@@ -21,7 +21,7 @@ using namespace Trk;
 /////////////////////////////////////////////////////////////////////////////
 
 Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& type, const std::string& name, const IInterface* parent ) :
-    AthAlgTool( type, name, parent ),
+    base_class( type, name, parent ),
     m_etaphi_coincidenceTime(0.),         //!< time for phi*eta coincidence 
     m_overlap_timeTolerance(0.),          //!< tolerance of the timing calibration 
     m_producePRDfromTriggerWords(false),  //!< if 1 store as prd the trigger hits 
@@ -30,8 +30,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
     m_timeShift(0.),                      //!< any global time shift ?!
     m_decodeData(true)                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
   // declare any properties here
   declareProperty("etaphi_coincidenceTime",    m_etaphi_coincidenceTime     = 20.);//!< 15 ns should be the max.diff. in prop.time in phi and eta strips
   declareProperty("overlap_timeTolerance",     m_overlap_timeTolerance      = 10.);//!<  3 ns is the resolution of the RPC readout electronics
@@ -47,17 +45,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
   declareProperty("OutputCollection",          	m_rdoContainerKey = std::string("RPCPAD"),"RpcPadContainer to retrieve");
   declareProperty("TriggerOutputCollection", 	m_rpcPrepDataContainerKey = std::string("RPC_Measurements"),"Muon::RpcPrepDataContainer to record");
   declareProperty("InputCollection", 		m_rpcCoinDataContainerKey = std::string("RPC_triggerHits"),"Muon::RpcCoinDataContainer to record");
-}
-
-//___________________________________________________________________________
-StatusCode Muon::RpcRdoToPrepDataToolCore::queryInterface( const InterfaceID& riid, void** ppvIf ) {
-  if ( riid == IMuonRdoToPrepDataTool::interfaceID() ) {
-    *ppvIf = (IMuonRdoToPrepDataTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }   
-    
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 //___________________________________________________________________________
@@ -520,7 +507,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decodeImpl( State& state,
 
 
 //___________________________________________________________________________
-void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
+void Muon::RpcRdoToPrepDataToolCore::printInputRdo() const
 {
   ATH_MSG_INFO( "********************************************************************************************************");
   ATH_MSG_INFO( "***************** Listing RpcPad Collections --- i.e. input RDO ****************************************");

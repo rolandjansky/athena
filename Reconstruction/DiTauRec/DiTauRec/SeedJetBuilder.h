@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_SEEDJETBUILDER_H
@@ -11,30 +11,30 @@
 
 
 class SeedJetBuilder : public DiTauToolBase {
-public:
+ public:
 
- //-------------------------------------------------------------
- //! Constructor
- //-------------------------------------------------------------
- SeedJetBuilder(const std::string& type,
-         const std::string& name,
-         const IInterface * parent);
+  //-------------------------------------------------------------
+  //! Constructor
+  //-------------------------------------------------------------
+  SeedJetBuilder(const std::string& type,
+		 const std::string& name,
+		 const IInterface * parent);
 
- //-------------------------------------------------------------
- //! Destructor
- //-------------------------------------------------------------
- virtual ~SeedJetBuilder();
+  //-------------------------------------------------------------
+  //! Destructor
+  //-------------------------------------------------------------
+  virtual ~SeedJetBuilder();
 
- virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data,
-                            const EventContext& ctx) const override;
+  virtual StatusCode execute(DiTauCandidateData * data,
+			     const EventContext& ctx) const override;
 
- virtual void cleanup(DiTauCandidateData *) override { }
+  virtual void cleanup(DiTauCandidateData *) override { }
 
-private:
- SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName
- { this, "JetCollection", "AntiKt10LCTopoJets", "" };
+ private:
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName
+    { this, "JetCollection", "AntiKt10LCTopoJets", "" };
 };
 
-#endif  /* SEEDJETBUILDER_H */
+#endif  // DITAUREC_SEEDJETBUILDER_H

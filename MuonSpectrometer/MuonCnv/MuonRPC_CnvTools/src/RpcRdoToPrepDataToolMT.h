@@ -11,16 +11,18 @@
 
 namespace Muon {
 
-class RpcRdoToPrepDataToolMT : virtual public RpcRdoToPrepDataToolCore {
+class RpcRdoToPrepDataToolMT
+  : public extends<RpcRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
+{
 public:
   RpcRdoToPrepDataToolMT( const std::string&, const std::string&, const IInterface* );
   virtual ~RpcRdoToPrepDataToolMT();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
-  virtual StatusCode decode ( const std::vector<uint32_t>& robIds ) override;
+  virtual StatusCode decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const override;
+  virtual StatusCode decode ( const std::vector<uint32_t>& robIds ) const override;
   
-  virtual void printPrepData() override;
+  virtual void printPrepData() const override;
 
 protected:
   StatusCode transferAndRecordPrepData (Muon::RpcPrepDataContainer& localContainer) const;

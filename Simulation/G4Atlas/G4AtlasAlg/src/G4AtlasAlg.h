@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasAlg_H
@@ -139,6 +139,8 @@ private:
   /// Fast Simulation Master Tool
   PublicToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimMasterTool", "FastSimulationMasterTool", ""};
   /// @}
+
+  Gaudi::Property<std::map<std::string,double>> m_volumeSmartlessLevel{this, "VolumeSmartlessLevel", {}, "Allow setting of indivial volumes' smartless level"};
 
 };
 

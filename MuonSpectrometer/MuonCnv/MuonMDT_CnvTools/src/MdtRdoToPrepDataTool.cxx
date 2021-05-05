@@ -8,8 +8,7 @@
 
 Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface*  p)
   :
-  AthAlgTool(t,n,p),
-  MdtRdoToPrepDataToolCore(t,n,p)
+  base_class(t,n,p)
 {
 }
 
@@ -21,7 +20,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-void Muon::MdtRdoToPrepDataTool::printPrepData(  )
+void Muon::MdtRdoToPrepDataTool::printPrepData(  ) const
 {
   printPrepDataImpl( m_mdtPrepDataContainer );
 }

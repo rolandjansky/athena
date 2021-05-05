@@ -18,11 +18,13 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+//
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkMultiComponentStateOnSurface/GsfConstants.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+//
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
+
 #include <memory>
 
 namespace Trk {
@@ -36,42 +38,6 @@ class IMultiStateMaterialEffects : virtual public IAlgTool
 {
 
 public:
-  struct Cache
-  {
-    std::array<double, GSFConstants::maxNumberofBHComponents> weights = {};
-    std::array<double, GSFConstants::maxNumberofBHComponents> deltaPs = {};
-    alignas(GSFConstants::alignment)
-      std::array<AmgVector(5),
-                 GSFConstants::maxNumberofBHComponents> deltaParameters = {};
-    alignas(GSFConstants::alignment)
-      std::array<AmgSymMatrix(5),
-                 GSFConstants::maxNumberofBHComponents> deltaCovariances = {};
-
-    size_t numWeights = 0;
-    size_t numDeltaPs = 0;
-    size_t numDeltaParameters = 0;
-    size_t numDeltaCovariance = 0;
-    void reset()
-    {
-      numWeights = 0;
-      numDeltaPs = 0;
-      numDeltaParameters = 0;
-      numDeltaCovariance = 0;
-    }
-
-    void resetAndAddDummyValues()
-    {
-      weights[0]=1;
-      deltaPs[0]=0;
-      deltaParameters[0]=AmgVector(5)::Zero();
-      deltaCovariances[0]=AmgSymMatrix(5)::Zero();
-      numWeights = 1;
-      numDeltaPs = 1;
-      numDeltaParameters = 1;
-      numDeltaCovariance = 1;
-    }
-  };
-
   /** Alg tool and IAlgTool interface method */
   static const InterfaceID& interfaceID()
   {
@@ -82,7 +48,7 @@ public:
   virtual ~IMultiStateMaterialEffects() = default;
 
   virtual void compute(
-    IMultiStateMaterialEffects::Cache&,
+    GsfMaterial::Combined&,
     const ComponentParameters&,
     const MaterialProperties&,
     double pathLength,

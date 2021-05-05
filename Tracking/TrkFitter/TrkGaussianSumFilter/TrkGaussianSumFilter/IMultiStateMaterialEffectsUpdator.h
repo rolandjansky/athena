@@ -12,11 +12,11 @@
 #ifndef TrkIMultiStateMaterialEffectsUpdator_H
 #define TrkIMultiStateMaterialEffectsUpdator_H
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+//
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-
+//
 #include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {

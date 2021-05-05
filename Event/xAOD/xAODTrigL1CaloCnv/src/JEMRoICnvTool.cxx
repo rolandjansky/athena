@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMRoICnvTool.cxx 576052 2013-12-18 09:13:50Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JEMRoICollection.h"
@@ -23,14 +22,6 @@ namespace xAODMaker {
       declareInterface< IJEMRoICnvTool >( this );
    }
 
-   StatusCode JEMRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
 
    /**
     * This is the important function of the tool. It takes the JEMRoI object

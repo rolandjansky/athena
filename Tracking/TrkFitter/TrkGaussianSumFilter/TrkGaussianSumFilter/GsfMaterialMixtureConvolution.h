@@ -13,8 +13,10 @@
 #define TrkGsfMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
+//
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
+//
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -39,9 +41,10 @@ public:
   };
 
   //!< Constructor with AlgTool parameters
-  GsfMaterialMixtureConvolution(const std::string&,
-                                const std::string&,
-                                const IInterface*);
+  GsfMaterialMixtureConvolution(
+    const std::string&,
+    const std::string&,
+    const IInterface*);
 
   //!< Destructor
   virtual ~GsfMaterialMixtureConvolution();
@@ -49,10 +52,9 @@ public:
   //!< AlgTool initialise method
   virtual StatusCode initialize() override final;
 
-
   //!< Convolution with full material properties
   virtual MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -61,7 +63,7 @@ public:
 
   //!< Convolution with pre-measurement-update material properties
   virtual MultiComponentState preUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -70,7 +72,7 @@ public:
 
   //!< Convolution with post-measurement-update material properties
   virtual MultiComponentState postUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -112,7 +114,7 @@ private:
                                          "" };
 
   Trk::MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const Trk::MultiComponentState& inputState,
     const Trk::Layer& layer,
     Trk::PropDirection direction,

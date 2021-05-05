@@ -37,7 +37,12 @@ public:
   virtual StatusCode addBranches() const override final;
 
 private:
-  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
+  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool{
+    this,
+    "EGammaFudgeMCTool",
+    "",
+    "Handle to the Fudging Tool"
+  };
   SG::ReadHandleKey<xAOD::PhotonContainer> m_containerName{ this,
                                                             "ContainerName",
                                                             "",

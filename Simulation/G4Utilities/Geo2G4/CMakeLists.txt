@@ -23,7 +23,7 @@ atlas_add_library( Geo2G4Lib
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${GEOMODEL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasInterfaces G4AtlasToolsLib GeoModelUtilities GeoPrimitives
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoSpecialShapes SimHelpers GeoMaterial2G4 AthenaKernel GeoModelInterfaces StoreGateLib SGtests )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoSpecialShapes SimHelpers GeoMaterial2G4 AthenaKernel GeoModelInterfaces StoreGateLib )
 
 atlas_add_component( Geo2G4
                      src/components/*.cxx

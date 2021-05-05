@@ -39,19 +39,6 @@ if useTCMOFC:
 
 include("LArConditionsCommon/LArConditionsCommon_H8_jobOptions.py")
 
-# Default CaloNoiseTool, to be used by all:
-#from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-#theCaloNoiseTool = CaloNoiseToolDefault('tool')
-#theCaloNoiseTool.NMinBias                = 0
-#theCaloNoiseTool.UseTile                 = False
-#theCaloNoiseTool.IsMC                    = False
-#theCaloNoiseTool.UseSymmetry             = False
-#theCaloNoiseTool.WorkMode                = 1
-#theCaloNoiseTool.WithOF                  = True
-
-#ToolSvc += theCaloNoiseTool
-include( "CaloTools/CaloNoiseTool_TB_jobOptions.py" )
-
 #theApp.TopAlg += [ "LArRawChannelBuilder" ]
 #LArRawChannelBuilder = Algorithm("LArRawChannelBuilder");
 from LArROD.LArRODFlags import larRODFlags
@@ -66,7 +53,6 @@ topSequence.LArRawChannelBuilder.DataLocation        = "FREE"
 topSequence.LArRawChannelBuilder.UseTDC              = True
 topSequence.LArRawChannelBuilder.BinHalfOffset       = False
 topSequence.LArRawChannelBuilder.AllowTimeSampleJump = True
-topSequence.LArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVTool
 
 # skip events with al leat one saturating channel
 topSequence.LArRawChannelBuilder.SkipSaturCellsMode  = 2
@@ -90,17 +76,8 @@ if useTCMOFC:
 
 #topSequence += LArRawChannelBuilder
 
-# Switch this to VERBOSE to get a dmp of Ramp coefficients in log file
-#ToolSvc.LArADC2MeVTool.OutputLevel = VERBOSE
-
-#ToolSvc.LArADC2MeVToolDefault.BeginRunPriority = 100
 from LArByteStream.LArByteStreamConf import LArRodDecoder
 svcMgr.ToolSvc += LArRodDecoder()
 ToolSvc.LArRodDecoder.FirstSample = 2
 #ToolSvc.LArRoI_Map.Print = False
 
-if not 'useLArStripsXtalkRampCorr' in dir():
-	useLArStripsXtalkRampCorr = True
-
-if (useLArStripsXtalkRampCorr):
-	ToolSvc.LArADC2MeVTool.UseMphysOverMcal = True

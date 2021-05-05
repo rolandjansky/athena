@@ -190,7 +190,7 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
         // Perform some checks
         bool good = true;
         for (uint16_t j = 0; j < width; ++j) {
-          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
+          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), &m_idHelperSvc->cscIdHelper(), j);
           if (!m_idHelperSvc->cscIdHelper().valid(channelId)) {
             ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
             good = false;
@@ -397,7 +397,7 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
             insertedstrips.insert(strip);//for checks
             Identifier mechan= m_idHelperSvc->cscIdHelper().channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
             ATH_MSG_VERBOSE("mechan="<<mechan);
-            const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(datum, j);
+            const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(datum, &m_idHelperSvc->cscIdHelper(), j);
             if(!(m_idHelperSvc->cscIdHelper().valid(channelId))) {
               ATH_MSG_WARNING("Invalid CSC Identifier in merge! - skipping " << channelId );
               good=false;

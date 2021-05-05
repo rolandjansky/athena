@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -70,9 +70,6 @@ namespace Trk {
     extern int vtcfitc( VKVertex * );
     extern void FullMTXfill( VKVertex* , double *);
     extern int FullMCNSTfill(VKVertex*, double*, double *);
-
- 
-
 
 
 #define ader_ref(a_1,a_2) vk->ader[(a_2)*(vkalNTrkM*3+3) + (a_1) - (vkalNTrkM*3+4)]
@@ -429,33 +426,31 @@ namespace Trk {
 
 //std::cout<<" newwa="<<wa[0]<<", "<<wa[1]<<", "<<wa[2]<<", "<<wa[3]<<", "<<wa[4]<<", "<<wa[5]<<'\n';
 
-/*   solution of the linear system */
+ /*   solution of the linear system */
     if ( !vk->passNearVertex ) {           /* No correction for these constraints */
-	                               /* because solution is calculated with full error matrix*/
+                                    /* because solution is calculated with full error matrix*/
+      if( vk->ConstraintList.empty()){
+         double EigThreshold = 1.e-9;
+         vkGetEigVal(wa, eigv, 3);
+         if (eigv[0] < eigv[2] * EigThreshold) {
+           wa[0] += (eigv[2] * EigThreshold - eigv[0]);
+           wa[2] += (eigv[2] * EigThreshold - eigv[0]);
+           wa[5] += (eigv[2] * EigThreshold - eigv[0]);
+         }
+       }else{
+         vkGetEigVal(vk->wa, eigv, 3);
+         wa[0] += eigv[2] * 1.e-12;  //Permanent addition works better than addition
+         wa[2] += eigv[2] * 1.e-12;  // for small eigenvalues only.
+         wa[5] += eigv[2] * 1.e-12;
+         vk->wa[0] += eigv[2] * 1.e-12;  //Permanent addition works better than addition
+         vk->wa[2] += eigv[2] * 1.e-12;  // for small eigenvalues only.
+         vk->wa[5] += eigv[2] * 1.e-12;
+       }
+     }
 
-     if( vk->ConstraintList.empty()){
-        double EigThreshold = 1.e-9;         /* Def. for fit without constraints 5.e-8*/
-        vkGetEigVal(wa, eigv, 3);
-        if (eigv[0] < 0.) { wa[0] -= 1.*eigv[0];  wa[2] -= 1.*eigv[0]; wa[5] -= 1.*eigv[0]; }
-        if (eigv[0] < eigv[2] * EigThreshold) {
-	  wa[0] += (eigv[2] * EigThreshold - eigv[0]);
-	  wa[2] += (eigv[2] * EigThreshold - eigv[0]);
- 	  wa[5] += (eigv[2] * EigThreshold - eigv[0]);
-        }
-      }else{
-        vkGetEigVal(vk->wa, eigv, 3);
-	double EigAddon=0.;
-        wa[0] += eigv[2] * 1.e-12 -EigAddon;  //Permanent addition works better than addition
-        wa[2] += eigv[2] * 1.e-12 -EigAddon;  // for small eigenvalues only.
-        wa[5] += eigv[2] * 1.e-12 -EigAddon;
-        vk->wa[0] += eigv[2] * 1.e-12 -EigAddon;  //Permanent addition works better than addition
-        vk->wa[2] += eigv[2] * 1.e-12 -EigAddon;  // for small eigenvalues only.
-        vk->wa[5] += eigv[2] * 1.e-12 -EigAddon;
-      }
-    }
 /*   covariance matrix on vertex coordinates */
     IERR=cfdinv(wa, &(vk->fitVcov[0]), -3);
-    if (IERR) {IERR=cfdinv(wa,&(vk->fitVcov[0]) , 3);}  // last safety if mechanism above doesn't work
+    if (IERR) {IERR=cfdinv(wa, &(vk->fitVcov[0]), 3);}  // last safety 
     if ( !vk->passNearVertex ) {  if (IERR) return IERR; } // If nothing helps - detect failure (not for passNearVertex!!!)
     else {vk->fitVcov[0]=1.;vk->fitVcov[1]=0;vk->fitVcov[2]=1.;vk->fitVcov[3]=0;vk->fitVcov[4]=0;vk->fitVcov[5]=1;}
 
@@ -478,29 +473,29 @@ namespace Trk {
 /*   corrections to track parameters and covariance matrices */
 
     for (kt = 0; kt < NTRK; ++kt) {                    /*   variation on PAR is  WCI * TT - (WBCI)t * DXYZ */
-        for( int tpn=0; tpn<9; tpn++){
-          if(tpn<6)twci[tpn]  = vk->tmpArr[kt]->wci[tpn];
-          twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
-        }
-        double tt1=vk->tmpArr[kt]->tt[0];
-        double tt2=vk->tmpArr[kt]->tt[1];
-        double tt3=vk->tmpArr[kt]->tt[2];
+	for( int tpn=0; tpn<9; tpn++){
+	  if(tpn<6)twci[tpn]  = vk->tmpArr[kt]->wci[tpn];
+	  twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
+	}
+	double tt1=vk->tmpArr[kt]->tt[0];
+	double tt2=vk->tmpArr[kt]->tt[1];
+	double tt3=vk->tmpArr[kt]->tt[2];
 	vk->tmpArr[kt]->parf0[0] = twci[0]*tt1 + twci[1]*tt2 + twci[3]*tt3 - twbci[0]*dxyz[0] - twbci[1]*dxyz[1] - twbci[2]*dxyz[2];
 	vk->tmpArr[kt]->parf0[1] = twci[1]*tt1 + twci[2]*tt2 + twci[4]*tt3 - twbci[3]*dxyz[0] - twbci[4]*dxyz[1] - twbci[5]*dxyz[2];
 	vk->tmpArr[kt]->parf0[2] = twci[3]*tt1 + twci[4]*tt2 + twci[5]*tt3 - twbci[6]*dxyz[0] - twbci[7]*dxyz[1] - twbci[8]*dxyz[2];
-        if( (vk->TrackList[kt]->iniP[2] + vk->tmpArr[kt]->parf0[2]) * vk->TrackList[kt]->iniP[2] < 0 ){
+	if( (vk->TrackList[kt]->iniP[2] + vk->tmpArr[kt]->parf0[2]) * vk->TrackList[kt]->iniP[2] < 0 ){
 	       vk->tmpArr[kt]->parf0[2]= - vk->TrackList[kt]->iniP[2]/4.; } // VK 15.12.2009 - Protection against change of sign
 	vk->TrackList[kt]->fitP[0] = vk->TrackList[kt]->iniP[0] + vk->tmpArr[kt]->parf0[0];
 	vk->TrackList[kt]->fitP[1] = vk->TrackList[kt]->iniP[1] + vk->tmpArr[kt]->parf0[1];
 	vk->TrackList[kt]->fitP[2] = vk->TrackList[kt]->iniP[2] + vk->tmpArr[kt]->parf0[2];
-        //std::cout<<__func__<<":NTrack  shift="<<vk->tmpArr[kt]->parf0[0]<<", "<<vk->tmpArr[kt]->parf0[1]<<", "
-	//                                                            <<vk->tmpArr[kt]->parf0[2]<<'\n';
+	//std::cout<<__func__<<":NTrack  shift="<<vk->tmpArr[kt]->parf0[0]<<", "<<vk->tmpArr[kt]->parf0[1]<<", "
+	//                                      <<vk->tmpArr[kt]->parf0[2]<<'\n';
     }
 /* ------------------------------------------------------------ */
 /*  The same solution but through full matrix */
 /* ------------------------------------------------------------ */
     if ( vk->passNearVertex ) {
-        //std::cout <<" Std="<<vk->dxyz0[0]<<", "<<vk->dxyz0[1]<<", "<<vk->dxyz0[2]<<'\n';
+	//std::cout <<" Std="<<vk->dxyz0[0]<<", "<<vk->dxyz0[1]<<", "<<vk->dxyz0[2]<<'\n';
 	stv[0] = stv[0] - drdvy[0][0] * vk->FVC.rv0[0] - drdvy[1][0] * vk->FVC.rv0[1];
 	stv[1] = stv[1] - drdvy[0][1] * vk->FVC.rv0[0] - drdvy[1][1] * vk->FVC.rv0[1];
 	stv[2] = stv[2] - drdvy[0][2] * vk->FVC.rv0[0] - drdvy[1][2] * vk->FVC.rv0[1];
@@ -540,23 +535,19 @@ namespace Trk {
 	  }
 	}
 //VK 27-Sep-2006     Add eigenvalue limitation for 7,8,9,10,13,14 constraints
-        double ArrTmp[9]; int ktmp=0;
-	//for (k=1; k<=3; ++k) {     for (l=1; l<=3; ++l)  { ArrTmp[(k-1)*3+l-1] = ader_ref(k,l); }}
-        //digx(ArrTmp, eigv, work, 3, 0);
+	double ArrTmp[9]; int ktmp=0;
 	for (k=1; k<=3; ++k) {     for (l=1; l<=k; ++l)  { ArrTmp[ktmp++] = ader_ref(k,l); }}
-        vkGetEigVal(ArrTmp, eigv, 3);
+	vkGetEigVal(ArrTmp, eigv, 3);
 	double EigAddon=0.;
-	if( eigv[0]<0 ){EigAddon=eigv[0];std::cout<<" EIGENVALUE after negative="<<eigv[0]<<'\n';}
+	if( eigv[0]<0 ){EigAddon=eigv[0];}
 	  for (k = 1; k <=3; ++k) {   
 	     ader_ref(k,k) = ader_ref(k,k) - EigAddon + eigv[2] * 1.e-18 ;    
 	  }
 //----------------------------------------------------------------------------------
 	long int NParam = NTRK*3 + 3;
 	dsinv(NParam, vk->ader, vkalNTrkM*3+3, &IERR);
-	if ( IERR != 0) {
-        std::cout << " Bad problem in CFIT inversion ierr="<<IERR<<", "<<eigv[2]<<'\n'; return IERR;
-	} 
-            double *fortst = new double[vkalNTrkM*3+3];
+	if ( IERR) return IERR;
+	    double *fortst = new double[vkalNTrkM*3+3];
 	    for (j = 0; j < 3; ++j) {
 		fortst[j] = stv[j];
 		for (ii=0; ii<NTRK; ++ii) { fortst[ii*3 +3 +j] = vk->tmpArr[ii]->tt[j];}

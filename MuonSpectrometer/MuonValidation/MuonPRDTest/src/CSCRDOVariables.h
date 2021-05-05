@@ -31,7 +31,12 @@ class CSCRDOVariables : public ValAlgVariables
     m_Csc_rdo_wireLayer(0),
     m_Csc_rdo_strip(0),
     m_Csc_rdo_measuresPhi(0),
-    m_Csc_rdo_time(0)
+    m_Csc_rdo_time(0),
+    m_Csc_rdo_localPosX(0),
+    m_Csc_rdo_localPosY(0),
+    m_Csc_rdo_globalPosX(0),
+    m_Csc_rdo_globalPosY(0),
+    m_Csc_rdo_globalPosZ(0)
   {
     setHelper(idhelper);
   }
@@ -69,6 +74,11 @@ class CSCRDOVariables : public ValAlgVariables
   std::vector<int> m_Csc_rdo_strip;
   std::vector<bool> m_Csc_rdo_measuresPhi;
   std::vector<int> m_Csc_rdo_time;
+  std::vector<double> m_Csc_rdo_localPosX;
+  std::vector<double> m_Csc_rdo_localPosY;
+  std::vector<double> m_Csc_rdo_globalPosX;
+  std::vector<double> m_Csc_rdo_globalPosY;
+  std::vector<double> m_Csc_rdo_globalPosZ;
 
 };
 

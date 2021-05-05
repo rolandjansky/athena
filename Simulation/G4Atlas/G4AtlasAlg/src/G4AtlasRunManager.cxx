@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasAlg/G4AtlasRunManager.h"
@@ -28,6 +28,7 @@ G4AtlasRunManager::G4AtlasRunManager()
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
+  , m_volumeSmartlessLevel({})
 {  }
 
 
@@ -78,6 +79,14 @@ void G4AtlasRunManager::InitializeGeometry()
       ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
       ilvEmbSTAC = true;
     }
+    //Now for any volumes set via job property std::pair<volume name, value>...
+    for (auto& volToSet:m_volumeSmartlessLevel){
+      if(ilv->GetName().contains(volToSet.first)){
+	ilv->SetSmartless(volToSet.second);
+	ATH_MSG_INFO("Set smartlessness for "<<ilv->GetName()<<" to "<<volToSet.second);
+      }
+    }
+    
   }
   if (ilvMuonSys == false) {
       ATH_MSG_INFO( "Muon::MuonSys not in G4 logical volume store. Smartlessness not set." );

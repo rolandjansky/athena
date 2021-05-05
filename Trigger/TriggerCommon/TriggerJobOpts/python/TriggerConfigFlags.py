@@ -74,7 +74,7 @@ def createTriggerFlags():
         '''
         _log = logging.getLogger('TriggerConfigFlags.EDMVersion')
         _log.debug("Attempting to determine EDMVersion")
-        default_version = 3
+        default_version = -1  # intentionally invalid default value, ATR-22856
         if flags.Input.Format=="BS":
             _log.debug("Input format is ByteStream")
             inputFileName = flags.Input.Files[0]
@@ -342,9 +342,14 @@ def createTriggerFlags():
         muonflags.MuonCombined.doMuGirl = False
         return muonflags
 
+
     flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
     flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
+
+    from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
+    flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
+    #TODO come back and use systematically the same 
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
@@ -360,6 +365,9 @@ def createTriggerFlags():
 
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
+
+    # Switch on AMVF vertice and priority TTVA for jet slice
+    flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:

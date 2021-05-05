@@ -13,10 +13,12 @@ import pprint
 import re
 import sys
 
-from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser
+from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict
 
 
 def parse_args():
+    print("Run with arguments:")
+    print( "confTool.py", " ".join(sys.argv[1:]))
     parser = baseParser
     parser.add_argument(
         "-p", "--printConf", action="store_true", help="Prints entire configuration"
@@ -33,7 +35,7 @@ def parse_args():
     parser.add_argument("file", nargs="+", help="Files to work with")
     parser.add_argument(
         "--ignoreMissing",
-        help="Don't report components existing in only of the two configuartions",
+        help="Don't report components existing in only of the two configurations",
         action="store_true",
     )
     parser.add_argument(
@@ -51,7 +53,6 @@ def parse_args():
         help="Print all parameters in component with difference even, if there are no differences.",
         action="store_true",
     )
-
 
     args = parser.parse_args()
     main(args)
@@ -116,13 +117,16 @@ def _compareConfig(configRef, configChk, args):
     print("Step 1: reference file #components:", len(configRef))
     print("Step 2: file to check  #components:", len(configChk))
 
-    for component in allComps:
+    componentReverseRenamig = {v: k for k, v in componentRenamingDict.items()} # need mapping from new name to old when renaming
+    def _componentDescription(comp_name):
+        return (comp_name+ " renamed from " + componentReverseRenamig[comp_name]) if comp_name in componentReverseRenamig else comp_name
 
+    for component in allComps:
         if component not in configRef:
             if not args.ignoreMissing:
                 print(
                     "\n\033[91m Component ",
-                    component,
+                    _componentDescription(component),
                     " \033[94m exists only in 2nd file \033[0m \033[0m \n",
                 )
             continue
@@ -131,7 +135,7 @@ def _compareConfig(configRef, configChk, args):
             if not args.ignoreMissing:
                 print(
                     "\n\033[91m Component",
-                    component,
+                    _componentDescription(component),
                     " \033[92m exists only in 1st file \033[0m  \033[0m \n",
                 )
             continue
@@ -141,9 +145,9 @@ def _compareConfig(configRef, configChk, args):
 
         if chkValue == refValue:
             if args.printIdenticalComponents:
-                print("Component", component, "identical")
+                print("Component", _componentDescription(component), "identical")
         else:
-            print("\033[91m Component", component, "differ \033[0m")
+            print("\033[91m Component", _componentDescription(component), "differ \033[0m")
             if not args.allComponentPrint:
                 _compareComponent(refValue, chkValue, "\t", args, component)
             else:

@@ -27,7 +27,8 @@ def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", ParticleCollecti
                        'coneSizeFitPar3': -1.56387e-05}
 
     # setup the associator
-    options['JetCollectionName'] = jetcol + 'Jets'
+    #options['JetCollectionName'] = jetcol + 'Jets'
+    options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets' #AD
     options['TrackParticleCollectionName'] = partcol
     options['TrackToJetAssociatorName'] = jetcol + 'Jets.' + AssociationName
     options['TrackToJetAssociator'] = acc.popToolsAndMerge(BTagTrackToJetAssociatorCfg(ConfigFlags, AssociationName, options = optionAssoc))

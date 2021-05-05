@@ -155,7 +155,6 @@ tf.readBS.set_Value_and_Lock(True)
 tf.doLVL1.set_Value_and_Lock(False)
 tf.doHLT.set_Value_and_Lock(False)
 tf.doL1Topo.set_Value_and_Lock(False)
-tf.enableMonitoring.set_Value_and_Lock(False)
 tf.doID.set_Value_and_Lock(False)
 tf.doMuon.set_Value_and_Lock(False)
 tf.doBcm.set_Value_and_Lock(False)
@@ -176,11 +175,6 @@ ToolSvc += EventCnvSuperTool
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 theBCTool = BunchCrossingTool()
 ToolSvc += theBCTool
-
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
 
 # variable for testing on ESD
 try:

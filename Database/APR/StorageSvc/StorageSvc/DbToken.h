@@ -54,7 +54,7 @@ namespace pool    {
     /// Optional other user keys
     std::vector< Guid >         m_ukeys;
     /// Database type information cache
-    mutable const DbTypeInfo*   m_info;
+    const DbTypeInfo*           m_info;
     /// Flag to indicate if toekn is local or foreign
     bool                        m_local;
   public:
@@ -73,7 +73,7 @@ namespace pool    {
     /// Set a user key
     void setUserKey(int i, const Guid& guid);
     /// Update type information
-    void setTypeInfo(const DbTypeInfo* t) const { m_info = t;     }
+    void setTypeInfo(const DbTypeInfo* t) { m_info = t;     }
     /// Access type information
     const DbTypeInfo* typeInfo() const    { return m_info;        }
     /// Set local flag

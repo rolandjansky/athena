@@ -50,7 +50,6 @@ class IConversionSvc;
 class IDataManagerSvc;
 class IDataProviderSvc;
 class IIncidentSvc;
-class ITimeKeeper;
 class StoreGateSvc;
 class ISvcLocator;
 
@@ -105,20 +104,12 @@ protected:
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;
 
-  /// the TimeKeeper service
-  ITimeKeeper*      m_pITK;
-
   typedef EventID::number_type number_type;
   /// current run number
   number_type m_currentRun;
   bool m_firstRun;
 
-  /// @property Name of TimeKeeper to use. NONE or empty string (default) means no time limit control on event loop
-  StringProperty    m_timeKeeperName;
-  /// @property update handler:sets up the time keeper
-  void setupTimeKeeper(Gaudi::Details::PropertyBase&);
-
-  /// @property Failure mode 
+  /// @property Failure mode
   IntegerProperty m_failureMode;
 
   /// @property Print event heartbeat printouts every m_eventPrintoutInterval events

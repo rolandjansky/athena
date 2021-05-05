@@ -103,6 +103,31 @@ fi
 #####################################################################
 
 #####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeDigitHistograms.py --doRPC --doMDT
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeDigitHist"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# download last nightly's ART results to compare against
+echo "download latest result"
+art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
+ls -l lastResults
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_digitisation_symRun3.xml -x dcubeDigitisation -p NSWPRDValAlg.dcube.root
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeDigits"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
 # now use the produced RDO file and run reconstruction
 # the postInclude adds a validation algorithm which writes out an ntuple for digit/RDO/PRD validation
 # (without the postInclude, a standard reconstruction job would run)

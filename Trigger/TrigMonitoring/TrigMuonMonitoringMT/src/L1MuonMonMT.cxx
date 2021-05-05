@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1MuonMonMT.h"
@@ -25,10 +25,6 @@ StatusCode L1MuonMonMT :: fillVariables(const EventContext &ctx) const {
   if (! rois.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain xAOD::MuonRoI collection with name "<< m_MuonRoIContainerKey);
     return StatusCode::FAILURE;
-  }
-  if(rois->getConstStore()==nullptr){
-    xAOD::MuonRoIContainer *ncptr = const_cast<xAOD::MuonRoIContainer*>(rois.get());
-    ncptr->setStore(DataLink<SG::IConstAuxStore>(m_MuonRoIContainerKey.key()+"Aux.", ctx));
   }
 
   // variables

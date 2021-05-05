@@ -16,6 +16,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ROOTCORE
+#include "AsgTools/StandaloneToolHandle.h"
 
 // EDM include(s):
 #include "xAODCore/ShallowAuxContainer.h"
@@ -142,9 +143,8 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing QG Tagger"<<std::endl;
-  asg::AnaToolHandle<CP::JetQGTagger> m_Tagger; //!
-  ASG_SET_ANA_TOOL_TYPE( m_Tagger, CP::JetQGTagger);
-  m_Tagger.setName("MyTagger");
+  asg::StandaloneToolHandle<CP::JetQGTagger> m_Tagger; //!
+  m_Tagger.setTypeAndName("CP::JetQGTagger/MyTagger");
   if(verbose) ANA_CHECK( m_Tagger.setProperty("OutputLevel", MSG::DEBUG) );
   ANA_CHECK( m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat") );
   ANA_CHECK( m_Tagger.retrieve() );

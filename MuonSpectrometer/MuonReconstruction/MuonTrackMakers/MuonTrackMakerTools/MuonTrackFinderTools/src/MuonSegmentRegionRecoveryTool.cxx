@@ -477,8 +477,8 @@ namespace Muon {
                 int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                 double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
                 double distEdge = fabs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
-                double pullEdge = tubePars->covariance() ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
-                const Amg::Vector2D* locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
+                double pullEdge = tubePars->covariance() && Amg::valid_cov(*tubePars->covariance()) ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
+                std::optional<Amg::Vector2D> locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
                 bool inBounds = false;
                 if (locPos) {
                     // perform bound check do not count holes with 100. mm of bound edge
@@ -486,7 +486,6 @@ namespace Muon {
                     if (inBounds) {
                         if (fabs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius()) inBounds = false;
                     }
-                    delete locPos;
                 }
                 if (!inBounds) {
                     ATH_MSG_VERBOSE(" discarding hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]

@@ -673,13 +673,9 @@ namespace xAOD {
    BranchStats* ReadStats::container( const std::string& name ) {
 
       // If it doesn't exist yet, create it now:
-      if( m_containers.find( name ) == m_containers.end() ) {
-         // Give it a starting value:
-         m_containers[ name ] = BranchStats( name.c_str(), "CONTAINER" );
-      }
-
+      auto ret = m_containers.try_emplace (name, name.c_str(), "CONTAINER");
       // Return a pointer to the object:
-      return &( m_containers[ name ] );
+      return &ret.first->second;
    }
 
    const BranchStats* ReadStats::container( const std::string& name ) const {

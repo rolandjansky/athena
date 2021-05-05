@@ -6,31 +6,32 @@
             MultiComponentStateOnSurface.h  -  description
             -----------------------------------------------
 begin                : Monday 20th December 2004
-author               : atkinson, amorley,anastopoulos
-email                : Anthony.Morley@cern.ch (adapted from Edward Moyse)
-description          : This class is a multi component adaption of the class
-                      TrackStateOnSurface.
-                      In that class the track state was
-                      represented by a single 5 component track paramter
+author               : atkinson, amorley,anastopoulos (adapted from EdwardMoyse)
+description          : This class is a multi component adaptation of the
+                      class TrackStateOnSurface.
+                      In that class the track state was represented
+                      by a single 5 component track paramter
                       vector (a0, z0, phi0, theta0, q/p) and the associated
                       covariance matrix.
-                      In its multi-component form the track state on surface
-                      is represented by many track parameters each with a covariance matrix
-                      and additionally a weighting is attached to each component
-                      which reflects the importance of that particular component
-                      in the overall mixture of components which is used to describe
+                      In its multi-component form the track
+                      state on surface is represented by many track parameters
+                      each with a covariance matrix and additionally a
+                      weighting is attached to each component which reflects
+                      the importance of that particular component in the
+                      overall mixture of components which is used to describe
                       the track state at that surface.
-                      Instances  of this class are EDM objects. So objects passed
-                      to this class as inputs via the ctors are owned by this class instances.
+                      Instances  of this
+                      class are EDM objects. So objects passed to this class
+                      as inputs via the ctors are owned by this class instances.
 *******************************************************************************/
 
 #ifndef TrkMultiComponentStateOnSurface_H
 #define TrkMultiComponentStateOnSurface_H
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h" //typedef
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 
 class MsgStream;
@@ -94,18 +95,19 @@ public:
     double modeQoverP = 0.);
 
   /** Constructor without a FitQualityOnSurface. */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const MultiComponentState*);
+  MultiComponentStateOnSurface(
+    const MeasurementBase*,
+    const MultiComponentState*);
 
-  /** Copy constructor */
+  /** Copy constructor and assignment*/
   MultiComponentStateOnSurface(const MultiComponentStateOnSurface& other);
+  MultiComponentStateOnSurface& operator=(
+    const MultiComponentStateOnSurface& other);
 
-  /** Deleted move ctor and copy/move assignment */
+  /** Move constructor and assignment*/
+  MultiComponentStateOnSurface(MultiComponentStateOnSurface&& other) noexcept;
   MultiComponentStateOnSurface& operator=(
-    const MultiComponentStateOnSurface& other) = delete;
-  MultiComponentStateOnSurface(MultiComponentStateOnSurface&& other) = delete;
-  MultiComponentStateOnSurface& operator=(
-    MultiComponentStateOnSurface&& other) = delete;
+    MultiComponentStateOnSurface&& other) noexcept;
 
   /** Virtual destructor */
   virtual ~MultiComponentStateOnSurface();
@@ -124,7 +126,7 @@ public:
   double mixtureModeQoverP() const;
 
 private:
-  const MultiComponentState* m_multiComponentState;
+  std::unique_ptr<const MultiComponentState> m_multiComponentState;
   double m_mixtureModeQoverP;
 };
 
@@ -142,8 +144,9 @@ operator<<(std::ostream&, const MultiComponentStateOnSurface&);
 /// Let the type system know this class inherits so we can have
 /// DataVector<const Trk::MultiComponentStateOnSurface>
 #include "AthContainers/DataVector.h"
-DATAVECTOR_BASE(const Trk::MultiComponentStateOnSurface,
-                const Trk::TrackStateOnSurface);
+DATAVECTOR_BASE(
+  const Trk::MultiComponentStateOnSurface,
+  const Trk::TrackStateOnSurface);
 typedef DataVector<const Trk::MultiComponentStateOnSurface>
   TrkMultiComponentStateOnSurfaceDV;
 

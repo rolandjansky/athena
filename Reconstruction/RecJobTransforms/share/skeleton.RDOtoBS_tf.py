@@ -12,6 +12,8 @@ rec.doESD.set_Value_and_Lock(False)
 rec.doTrigger=True
 recAlgs.doTrigger.set_Value_and_Lock(True)
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('rdo_to_bs')
 recoLog.info( '****************** STARTING RDO->BS MAKING *****************' )
@@ -22,6 +24,7 @@ if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
 
 ##Outputs
 if hasattr(runArgs,"outputBSFile"):

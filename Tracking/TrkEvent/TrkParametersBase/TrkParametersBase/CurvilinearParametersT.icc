@@ -263,7 +263,7 @@ CurvilinearParametersT<DIM, T, S>::type() const
 
 /** Return the Surface Type (check SurfaceType enums)*/
 template<int DIM, class T, class S>
-int
+SurfaceType
 CurvilinearParametersT<DIM, T, S>::surfaceType() const
 {
   return S::staticType;

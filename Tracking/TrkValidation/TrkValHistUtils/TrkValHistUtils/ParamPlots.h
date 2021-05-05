@@ -13,7 +13,7 @@ namespace Trk{
 class ParamPlots:public PlotBase {
   public:      
     ParamPlots(PlotBase *pParent, std::string sDir, std::string sParticleType);
-    void fill(const xAOD::IParticle& prt);
+    void fill(const xAOD::IParticle& prt, float weight=1.0);
 
     TH1* eta;
     TH1* phi;

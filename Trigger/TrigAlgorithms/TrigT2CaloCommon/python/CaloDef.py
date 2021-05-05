@@ -43,24 +43,36 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", algSuffix="") :
    algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    return algo
 
-def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+
+
+#
+# fast calo algorithm (central or forward regions)
+#
+def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger", doForward=False):
+    
     if not inputEDM:
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        # using jet seeds for testing. we should use EM as soon as we have EM seeds into the L1
         inputEDM = mapThresholdToL1RoICollection("EM")
     setMinimalCaloSetup()
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
+    if doForward:
+        from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastFWDAlgo
+        algo=T2CaloEgamma_ReFastFWDAlgo("FastCaloL2EgammaAlg_FWD", doRinger=doRinger, RingerKey=RingerKey)
+    else:
+        from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+        algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
     algo.RoIs=inputEDM
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    algo.ClustersName=recordable("HLT_FastCaloEMClusters")
+    algo.ClustersName=recordable(ClustersName)
     return algo
-
 
 ####################################
 ##### SEQUENCES
 ####################################
 
+
 def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
+    
     fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
 
     import AthenaCommon.CfgMgr as CfgMgr
@@ -71,6 +83,21 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloE
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloVDV, fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
+
+
+
+def fastCaloRecoFWDSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloEMClusters_FWD", RingerKey="HLT_FastCaloRinger_FWD"):
+    # create alg
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey,
+                                doForward=True)
+    import AthenaCommon.CfgMgr as CfgMgr
+    fastCaloVDV = CfgMgr.AthViews__ViewDataVerifier("fastCaloVDV_FWD")
+    fastCaloVDV.DataObjects = [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+FSJETMETCaloRoI' )]
+    fastCaloInViewSequence = seqAND('fastCaloInViewSequence_FWD' , [fastCaloVDV, fastCaloAlg] )
+    sequenceOut = fastCaloAlg.ClustersName
+    return (fastCaloInViewSequence, sequenceOut)
+
 
 
 def fastCaloEVCreator():
@@ -85,6 +112,28 @@ def fastCaloEVCreator():
     return (fastCaloViewsMaker, InViewRoIs)
 
 
+
+def fastCaloEVFWDCreator():
+    #InViewRoIs="EMCaloRoIs"
+    InViewRoIs = "FSJETMETCaloRoI"
+    fastCaloViewsMaker = CompFactory.EventViewCreatorAlgorithm( "IMfastCalo_FWD" )
+    fastCaloViewsMaker.ViewFallThrough = True
+    fastCaloViewsMaker.RoIsLink = "initialRoI"
+    fastCaloViewsMaker.RoITool = CompFactory.ViewCreatorInitialROITool()
+    fastCaloViewsMaker.InViewRoIs = InViewRoIs
+    fastCaloViewsMaker.Views = "EMCaloViews_FWD"
+    fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence_FWD"
+
+    return (fastCaloViewsMaker, InViewRoIs)
+
+
+
+
+
+##################################
+# standalone testing
+###################################
+
 def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger"):
     """Used for standalone testing"""
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
@@ -97,6 +146,8 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_Fas
 
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, sequenceOut)
+
+
 
 ##################################
 # cluster maker functions
@@ -116,6 +167,7 @@ def HLTCellMaker(ConfigFlags,RoIs=caloFSRoI, outputName="CaloCells", algSuffix="
     cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker"+algSuffix, inputEDM=RoIs, outputEDM=outputName, RoIMode=True)
     return cellMakerAlgo
 
+
 def HLTFSCellMakerRecoSequence(ConfigFlags,RoIs=caloFSRoI):
     cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsFS", algSuffix="FS")
     RecoSequence = parOR("ClusterRecoSequenceFS", [cellMaker])
@@ -128,15 +180,16 @@ def HLTFSTopoRecoSequence(ConfigFlags,RoIs):
     RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
-def HLTRoITopoRecoSequence(ConfigFlags, RoIs):
+
+def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
     import AthenaCommon.CfgMgr as CfgMgr
-    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
-    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
+    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV%s"%algSuffix)
+    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs%s'%algSuffix ),
                                              ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
-    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI")
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
-    RecoSequence = parOR("RoITopoClusterRecoSequence", [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI%s"%algSuffix)
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI%s"%algSuffix)
+    RecoSequence = parOR("RoITopoClusterRecoSequence%s"%algSuffix, [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 

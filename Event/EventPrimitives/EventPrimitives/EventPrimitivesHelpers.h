@@ -32,7 +32,8 @@ inline double error(const Amg::MatrixX& mat, int index) {
 /// Returns true if all diagonal elements of the covariance matrix
 /// are greater or equal zero
 template <int N> bool valid_cov(const AmgSymMatrix(N)& mat){
-   for (int i = 0; i < N ; ++i){
+   const int dim = mat.cols();
+   for (int i = 0; i < dim ; ++i){
         if (mat(i,i) < 0.) return false;
    }
    return true;

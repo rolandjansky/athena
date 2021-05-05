@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATDSFMTGENSVC_H
@@ -10,7 +10,6 @@
  *  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/
  *  author (of wrapper) Michael Duehrssen
  *  
- *  $Id: AtDSFMTGenSvc.h 729159 2016-03-11 12:58:15Z krasznaa $
  */
 
 #include <map>
@@ -49,16 +48,14 @@ class IIncident;
  *   FileToRead = path_to_ascii_file
  *  @endcode
  */
-class AtDSFMTGenSvc : virtual public IAtRndmGenSvc,
-		     virtual public IIncidentListener,
-		     public AthService
+class AtDSFMTGenSvc : public extends<AthService, IAtRndmGenSvc, IIncidentListener>
 {
 public:
     /// @name Interface to the CLHEP engine
     //@{
-    CLHEP::HepRandomEngine*	GetEngine	( const std::string& streamName );
-    void		CreateStream	( uint32_t seed1, uint32_t seed2, const std::string& streamName );
-    bool  CreateStream (const std::vector<uint32_t>& seeds, const std::string& streamName);
+    virtual CLHEP::HepRandomEngine*	GetEngine ( const std::string& streamName ) override;
+    virtual void CreateStream ( uint32_t seed1, uint32_t seed2, const std::string& streamName ) override;
+    bool CreateStream (const std::vector<uint32_t>& seeds, const std::string& streamName);
     //@}
 
     /// CLHEP engines typedefs:
@@ -72,25 +69,24 @@ public:
     engineConstIter	begin			(void)	const;
     engineConstIter	end			(void)	const;
     unsigned int	number_of_streams	(void)	const;    
-    void		print		( const std::string& streamName );
-    void		print		( void );
+    virtual void	print		( const std::string& streamName ) override;
+    virtual void	print		( void ) override;
     //@}
 
-    virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t theSeed,const std::string& streamName);
-    virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber, const std::string& streamName);
+    virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t theSeed,const std::string& streamName) override;
+    virtual CLHEP::HepRandomEngine* setOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber, const std::string& streamName) override;
     ///seed all streams we manage, combining theSeed and the stream names
-    virtual bool setAllOnDefinedSeeds (uint32_t theSeed); 
+    virtual bool setAllOnDefinedSeeds (uint32_t theSeed) override;
     ///seed all streams, combining eventNumber, runNumber and the stream names
-    virtual bool setAllOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber);  
+    virtual bool setAllOnDefinedSeeds (uint32_t eventNumber, uint32_t runNumber) override;
     /// @name Gaudi Service Implementation
     //@{
-    StatusCode initialize();
-    StatusCode finalize();
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     //@}
 
     /// IIncidentListener implementation. Handles EndEvent incident
-    void handle(const Incident&);
+    virtual void handle(const Incident&) override;
 
 private:
     /// @name Properties

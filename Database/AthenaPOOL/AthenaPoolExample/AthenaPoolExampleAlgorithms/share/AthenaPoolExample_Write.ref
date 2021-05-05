@@ -2,6 +2,8 @@ Athena               INFO executing ROOT6Setup
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
+MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc             DEBUG OutputLevel is 2
 AthenaPoolCnvSvc    DEBUG Registering all Tools in ToolHandleArray OutputStreamingTool
 WriteData            INFO in initialize()
@@ -16,6 +18,7 @@ Stream1             DEBUG End initialize
 Stream1             DEBUG In initialize
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool
 Stream1.FileMet...  DEBUG Creating new xAOD::FileMetaData object to fill
 Stream1              INFO Data output: SimplePoolFile1.root
 Stream1              INFO ../O reinitialization...
@@ -36,6 +39,7 @@ Stream2             DEBUG End initialize
 Stream2             DEBUG In initialize
 Stream2             DEBUG Found StoreGateSvc store.
 Stream2             DEBUG Found MetaDataStore store.
+Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool
 Stream2.FileMet...  DEBUG Creating new xAOD::FileMetaData object to fill
 Stream2              INFO Data output: SimplePoolFile2.root
 Stream2              INFO ../O reinitialization...
@@ -50,6 +54,7 @@ Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2Tool (At
   + OUTPUT  ( 'SG::CompressionInfo' , 'StoreGateSvc+CompressionInfo_Stream2' ) 
   + OUTPUT  ( 'SG::SelectionVetoes' , 'StoreGateSvc+SelectionVetoes_Stream2' ) 
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
+Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool
 Stream3              INFO Data output: EmptyPoolFile.root
 Stream3              INFO ../O reinitialization...
 EventSelector        INFO  Enter McEventSelector Initialization 
@@ -1068,6 +1073,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events 
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream2             DEBUG AthenaOutputStream Stream2 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
+ToolSvc.Bookkee...   INFO Successfully copied CutBookkeepers to the output MetaDataStore
 Stream1             DEBUG addItemObjects(73252552,"FileMetaDataAux.") called
 Stream1             DEBUG            Key:FileMetaDataAux.
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.

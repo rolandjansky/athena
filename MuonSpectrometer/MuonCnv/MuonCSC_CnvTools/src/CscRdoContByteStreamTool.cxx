@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRdoContByteStreamTool.h"
@@ -13,10 +13,8 @@
 
 // contructor
 Muon::CscRdoContByteStreamTool::CscRdoContByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type,name,parent) 
+  base_class(type,name,parent) 
 {
-  declareInterface<Muon::ICSC_RDOtoByteStreamTool>(this);
-  declareProperty("EventType", m_eventType=0x0);
   declareProperty("RODVersion", m_rodVersion=0x0200);
   declareProperty("IsCosmicData", m_isCosmic=false);
   declareProperty("IsOldCosmicData", m_isOldCosmic=false);
@@ -32,7 +30,9 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
   ATH_CHECK(serviceLocator()->service("CSCcablingSvc", m_cabling));
   ATH_CHECK(m_idHelperSvc.retrieve());
   
-  // create CSC RDO ID to source ID mapper
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+
+// create CSC RDO ID to source ID mapper
   m_hid2re.set(m_cabling, &m_idHelperSvc->cscIdHelper());
   if ( m_isCosmic ) { 
     m_hid2re.set_isCosmic();
@@ -42,13 +42,17 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
 }
 
 // convert CSC RDO to ByteStream
-StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEventWrite* re, 
-					     MsgStream& log)
+StatusCode Muon::CscRdoContByteStreamTool::convert(const CscRawDataContainer* cont, 
+					     MsgStream& log) const
 {
-  m_fea.clear();
-  m_fea.idMap().set(m_cabling, &m_idHelperSvc->cscIdHelper());
-  if(m_cabling->nROD()==16) m_fea.setRodMinorVersion(0x400);
-  else m_fea.setRodMinorVersion(m_rodVersion);
+  // Get the event assembler
+  FullEventAssembler<CSC_Hid2RESrcID>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "CscRdoContByteStream") );
+
+  fea->idMap().set(m_cabling, &m_idHelperSvc->cscIdHelper());
+  if(m_cabling->nROD()==16) fea->setRodMinorVersion(0x400);
+  else fea->setRodMinorVersion(m_rodVersion);
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -68,8 +72,8 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
       /** set the detector event type word */
       if ( first && (*it_col)->size() > 0 ) {
          first = false;
-         m_eventType = (*it_col)->eventType();
-         m_fea.setDetEvtType(m_eventType);
+         uint32_t eventType = (*it_col)->eventType();
+         fea->setDetEvtType(eventType);
       }
 
       // get ROD ID
@@ -86,21 +90,12 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
   for (; it_map != it_map_end; ++it_map)
     { 
       // get ROD data address
-      theROD = m_fea.getRodData((*it_map).first); 
+      theROD = fea->getRodData((*it_map).first); 
 
       // fill ROD data
       sc = ((*it_map).second).fillROD( *theROD, log );
       if ( sc.isFailure() ) return StatusCode::RECOVERABLE; 
     } 
 
-  // Finnally, fill full event
-  m_fea.fill(re,log); 
-
   return sc; 
 }
-
-
-
-
-
-

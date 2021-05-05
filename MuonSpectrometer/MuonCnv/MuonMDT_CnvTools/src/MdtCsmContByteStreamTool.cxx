@@ -34,7 +34,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::finalize() {
 }
 
 
-StatusCode Muon::MdtCsmContByteStreamTool::convert(const MdtCsmContainer* cont, RawEventWrite* re, 
+StatusCode Muon::MdtCsmContByteStreamTool::convert(const MdtCsmContainer* cont,
 						   MsgStream& /*log*/ ) const {
   
   // Get the event assembler
@@ -72,9 +72,6 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(const MdtCsmContainer* cont, 
     theROD  = fea->getRodData( p.first ); 
     p.second.fillROD( *theROD ) ; 
   } 
-  
-  ATH_MSG_DEBUG(" RawEvent size in 32 bit word " << re->size_word());
-  //    log <<MSG::DEBUG<<" RawEvent header  " << re->header() << endmsg;
   
   return StatusCode::SUCCESS; 
   

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MM_Digitization job properties
@@ -25,7 +25,7 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MM_SDO")
     else:
@@ -35,9 +35,6 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
-
-    # Temporary until migrated away from TRandom
-    kwargs.setdefault("RandomSeed", jobproperties.Digitization.rndmSeedOffset1.get_Value())
 
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
 

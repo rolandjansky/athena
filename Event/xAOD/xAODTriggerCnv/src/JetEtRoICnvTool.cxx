@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetEtRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
 
 // EDM include(s):
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
@@ -21,15 +20,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< IJetEtRoICnvTool >( this );
-   }
-
-   StatusCode JetEtRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    /**

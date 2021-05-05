@@ -13,7 +13,7 @@ log = logging.getLogger("InDetPrecisionTracking")
 # FIXME: eventually the rois should go into the slice setings
 def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
     
-    log.info( "makeInDetPRecisionTracking:: {} {} {} ".format(  config.input_name, config.name, config.doTRT ) )
+    log.info( "makeInDetPRecisionTracking:: {} {} doTR: {} ".format(  config.input_name, config.name, config.doTRT ) )
     
     ptAlgs = [] # List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
     
@@ -23,8 +23,6 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
         
     doTRT = config.doTRT
 
-    doTRT = True
-        
     # Add suffix to the algorithms
     signature =  "_{}".format( config.input_name )
     
@@ -66,7 +64,8 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     trackParticleCnvAlg = trackParticleCnv_builder( name                 = prefix+'xAODParticleCreatorAlg'+config.input_name+'_IDTrig',
                                                     config               = config,
                                                     inTrackCollectionKey = outTrkTracks,
-                                                    outTrackParticlesKey = outTrackParticles )
+                                                    outTrackParticlesKey = outTrackParticles,
+                                                    trackSummaryTool     = summaryTool )
     
     log.debug(trackParticleCnvAlg)
     ptAlgs.append(trackParticleCnvAlg)
@@ -277,6 +276,13 @@ def trtExtensionTool_builder( signature, config, prefix="InDetTrigMT" ):
     # TODO implement new configuration of circle cut
 
     from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+
+    cutValues = EFIDTrackingCuts
+
+    if(config.isLRT):
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
+        cutValues = EFIDTrackingCutLRT
+        
     from .InDetTrigCollectionKeys import TrigTRTKeys
 
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternUpdator 
@@ -294,10 +300,10 @@ def trtExtensionTool_builder( signature, config, prefix="InDetTrigMT" ):
                                                           # RIOonTrackToolNoDr  = # default for now
                                                           RoadTool            = trtRoadMaker,
                                                           DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                                          MinNumberDriftCircles = EFIDTrackingCuts.minTRTonTrk(),
+                                                          MinNumberDriftCircles = cutValues.minTRTonTrk(),
                                                           ScaleHitUncertainty   = 2.,
                                                           RoadWidth             = 20.,
-                                                          UseParameterization   = EFIDTrackingCuts.useParameterizedTRTCuts() )
+                                                          UseParameterization   = cutValues.useParameterizedTRTCuts() )
                
     ToolSvc += trtExtensionTool
 
@@ -334,6 +340,10 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
     from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 
     cutValues = EFIDTrackingCuts
+
+    if(config.isLRT):
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
+        cutValues = EFIDTrackingCutLRT
     
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
     

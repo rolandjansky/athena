@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IDbContainer.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -83,7 +83,7 @@ namespace pool    {
     /// Close the container
     virtual DbStatus close() = 0;
     /// Open the container
-    virtual DbStatus open(  const DbDatabase& dbH, 
+    virtual DbStatus open(  DbDatabase&        dbH, 
                             const std::string& nam, 
                             const DbTypeInfo* info, 
                             DbAccessMode mode) = 0;
@@ -124,7 +124,7 @@ namespace pool    {
                             Token::OID_t& linkH) = 0;
 
     /// Add object to the container
-    virtual DbStatus save(  const DbObjectHandle<DbObject>& objH) = 0;
+    virtual DbStatus save(  DbObjectHandle<DbObject>& objH) = 0;
     /// Update existing object in the container
     /** @param cntH      [IN]     Valid handle to container 
       * @param  object   [IN]     Pointer to feed data.

@@ -20,7 +20,7 @@ atlas_add_component( LArG4HEC
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps LArG4Code LArReadoutGeometry CaloG4SimLib GeoModelInterfaces StoreGateLib SGtests
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps LArG4Code LArReadoutGeometry CaloG4SimLib GeoModelInterfaces StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GaudiKernel LArG4RunControl LArHV RDBAccessSvcLib )
 
 atlas_install_python_modules( python/*.py )

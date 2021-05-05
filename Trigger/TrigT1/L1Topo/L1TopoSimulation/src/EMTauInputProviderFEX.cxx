@@ -104,8 +104,9 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
   
   SG::ReadHandle<xAOD::eFexEMRoIContainer> myRoIContainer(m_eEDMKey);
   if(!myRoIContainer.isValid()){
-    ATH_MSG_FATAL("Could not retrieve EDM Container " << m_eEDMKey.key());
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEDMKey.key() << ". No eFEX input for L1Topo");
+    
+    return StatusCode::SUCCESS;
   }
 
   for(const auto it : * myRoIContainer){

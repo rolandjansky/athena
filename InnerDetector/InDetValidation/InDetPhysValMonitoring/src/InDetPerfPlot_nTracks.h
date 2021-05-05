@@ -22,8 +22,8 @@ public:
   enum CounterCategory {
     ALLRECO, SELECTEDRECO, ALLTRUTH, SELECTEDTRUTH, ALLASSOCIATEDTRUTH, MATCHEDRECO, N_COUNTERS
   };
-  void fill(const unsigned int freq, const CounterCategory counter);
-  void fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices);
+  void fill(const unsigned int freq, const CounterCategory counter, float weight=1.0);
+  void fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices, float weight=1.0);
 
 private:
   TH1* m_counters[N_COUNTERS];

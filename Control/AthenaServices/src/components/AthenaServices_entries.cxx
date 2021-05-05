@@ -4,7 +4,6 @@
 #include "../AthenaOutputStreamTool.h"
 #include "../AthenaConditionStream.h"
 #include "../MultipleEventLoopMgr.h"
-#include "../SimplePOSIXTimeKeeperSvc.h"
 #include "../MixingEventSelector.h"
 #include "../ThinningCacheTool.h"
 //#include "../EventDumperSvc.h"
@@ -43,7 +42,6 @@ DECLARE_COMPONENT( AthenaEventLoopMgr )
 DECLARE_COMPONENT( AthenaHiveEventLoopMgr )
 DECLARE_COMPONENT( AthenaMtesEventLoopMgr )
 DECLARE_COMPONENT( PyAthenaEventLoopMgr )
-DECLARE_COMPONENT( SimplePOSIXTimeKeeperSvc )
 DECLARE_COMPONENT( MixingEventSelector )
 DECLARE_COMPONENT( MemoryRescueSvc )
 DECLARE_COMPONENT( FPEControlSvc )

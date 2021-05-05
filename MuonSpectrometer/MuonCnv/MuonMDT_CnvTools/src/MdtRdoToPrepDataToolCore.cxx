@@ -30,7 +30,7 @@ namespace {
 }
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
   m_BMEpresent(false),
@@ -38,8 +38,6 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
   m_BMEid(-1),
   m_BMGid(-1)
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
   //  template for property decalration
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
@@ -122,7 +120,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds )
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds ) const
 {
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
@@ -144,7 +142,7 @@ const MdtCsmContainer* Muon::MdtRdoToPrepDataToolCore::getRdoContainer() const {
   return nullptr;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierHash>& chamberHashInRobs )
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierHash>& chamberHashInRobs ) const
 {
   // setup output container
   bool fullEventDone = false;
@@ -258,7 +256,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( Muon::MdtPrepDataContainer* 
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
         if ( processCsm(mdtPrepDataContainer, rdoColl2, idWithDataVect, muDetMgr).isFailure() ) {
-          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
+          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl2->identify().get_compact()));
           return false;
         }
       }
@@ -291,7 +289,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( Muon::MdtPrepDataContainer* 
 }
 
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect )
+StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect ) const
 {
 
   // clear output vector of selected data collections containing data 
@@ -330,13 +328,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
 }
 
 // dump the RDO in input
-void Muon::MdtRdoToPrepDataToolCore::printInputRdo()
+void Muon::MdtRdoToPrepDataToolCore::printInputRdo() const
 {
-  printInputRdo1();
-}
-void Muon::MdtRdoToPrepDataToolCore::printInputRdo1() const
-{
-
   ATH_MSG_DEBUG("******************************************************************************************");
   ATH_MSG_DEBUG("***************** Listing MdtCsmContainer collections content ********************************");
 
@@ -657,6 +650,16 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer
       continue;
     }
       
+    // Rescale ADC/TDC of chambers using HPTDC digitization chip
+    // Must create a new digit from the old one, because MdtDigit has no methods to set ADC/TDC
+    if( m_idHelperSvc->hasHPTDC(channelId) ) {
+      int adc  = newDigit->adc()/4;
+      int tdc  = newDigit->tdc()/4;
+      int mask = newDigit->is_masked();
+      delete newDigit;
+      newDigit = new MdtDigit(channelId, tdc, adc, mask);
+      ATH_MSG_DEBUG("Change HPTDC ADC/TDC "<<m_idHelperSvc->toString(channelId)<<" Old ADC/TDC="<<adc*4<<" "<<tdc*4<<" New="<<adc<<" "<<tdc );
+    }
 
     if (newDigit->is_masked()) {
       digitStatus = Muon::MdtStatusMasked;

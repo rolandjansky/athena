@@ -49,12 +49,11 @@ void PRDHandle_CSC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
   // get local position on wire plane, here we have to use a tolarance as the wire plane is located 2.5 CLHEP::mm
   // from the strip plane
   double tolerance = 3.;
-//  const Amg::Vector2D * localposHIT = m_csc->detectorElement()->surface( id ).globalToLocal(globalposHIT,tolerance);
-  const Amg::Vector2D * localposHIT = m_csc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance); // TODO: this is a workaround because of missing function in Trak::PlaneSurface.h
+  std::optional<Amg::Vector2D> localposHIT = m_csc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance); 
 
   if( !localposHIT )
   {
-    localposHIT = new Amg::Vector2D;
+    localposHIT = Amg::Vector2D{};
     VP1Msg::message("Warning: Local wire position is NULL");
   }
   SoTranslation * localtrans0 = new SoTranslation;
@@ -107,7 +106,7 @@ void PRDHandle_CSC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       const Amg::Vector3D& globalposRDO = m_csc->detectorElement()->stripPos( *it );
 
       //      const Amg::Vector2D * localposRDO = m_csc->detectorElement()->surface( *it ).globalToLocal(globalposRDO,tolerance);
-      const Amg::Vector2D * localposRDO = m_csc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance);// TODO: this is a workaround because of missing function in Trak::PlaneSurface.h
+      std::optional<Amg::Vector2D>  localposRDO = m_csc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance);
 
       if (!localposRDO)
       {
@@ -125,11 +124,9 @@ void PRDHandle_CSC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
                      idhelper->measuresPhi( *it )), stripHeightRDOs));
 
       localposOLD = *localposRDO;
-      delete localposRDO;
     }
     errDetailed->addChild(rdos);
   }
-  delete localposHIT;
   
   SoMaterial * mat = new SoMaterial;
   mat->diffuseColor.setValue(1.0,0,0);

@@ -173,8 +173,8 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
     kwargs.setdefault("BoundaryCheckTool", boundary_check_tool)
     kwargs.setdefault("RIOonTrackTool", rot_creator_digital)
-    kwargs.setdefault("usePixel", flags.Detector.RecoPixel)
-    kwargs.setdefault("useSCT", flags.Detector.RecoSCT if not is_dbm else False)
+    kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT if not is_dbm else False)
     kwargs.setdefault("PixelClusterContainer", 'PixelClusters') # InDetKeys.PixelClusters()
     kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
 
@@ -185,7 +185,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
         kwargs.setdefault("MagneticFieldMode", "NoField")
         kwargs.setdefault("TrackQualityCut", 9.3)
 
-    if flags.Detector.RecoSCT:
+    if flags.Detector.EnableSCT:
         InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name = 'InDetSCT_ConditionsSummaryTool')
         acc.addPublicTool(InDetSCT_ConditionsSummaryTool)
         kwargs.setdefault("SctSummaryTool", InDetSCT_ConditionsSummaryTool)
@@ -202,7 +202,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
     acc.addPublicTool(InDetSiDetElementsRoadMaker)
 
-    if flags.Detector.RecoPixel:
+    if flags.InDet.Tracking.usePixel:
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                                                 ReadKey  = "PixelDetectorElementCollection",
                                                                                 WriteKey = "PixelDetElementBoundaryLinks_xk") )

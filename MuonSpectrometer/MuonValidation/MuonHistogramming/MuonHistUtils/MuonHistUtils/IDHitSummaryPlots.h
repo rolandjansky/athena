@@ -14,7 +14,7 @@ namespace Muon{
 class HitFracTypePlots:public PlotBase {
  public:
   HitFracTypePlots(PlotBase* pParent, std::string sHitType, std::string sHitLabel);
-  void fill(float hitval, float trketa);
+  void fill(float hitval, float trketa, float weight=1.0);
 
   TH1* fracHits;
   TH1* fracHitsVsEta;
@@ -27,7 +27,7 @@ class HitFracTypePlots:public PlotBase {
 class IDHitSummaryPlots:public PlotBase {
  public:
   IDHitSummaryPlots(PlotBase* pParent, std::string sDir);
-  void fill(const xAOD::TrackParticle& trk);
+  void fill(const xAOD::TrackParticle& trk,float weight=1.0);
 
   Trk::HitTypePlots nBLayerHitsIfExpected;
   Trk::HitTypePlots nPixelHitsPlusDead;

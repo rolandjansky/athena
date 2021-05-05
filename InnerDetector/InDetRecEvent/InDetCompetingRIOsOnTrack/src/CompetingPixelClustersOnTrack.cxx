@@ -122,7 +122,7 @@ bool InDet::CompetingPixelClustersOnTrack::ROTsHaveCommonSurface(const bool) con
 
 const Amg::Vector3D& InDet::CompetingPixelClustersOnTrack::globalPosition() const {
     if (not m_globalPosition) {
-        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
     return *m_globalPosition;
 }

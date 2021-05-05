@@ -11,15 +11,17 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgTool.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IItemListSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/ITPCnvSvc.h"
+#include "AthenaKernel/ITPCnvBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandle.h"
@@ -161,6 +163,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_itemSvc("ItemListSvc", name),
 	m_metaDataSvc("MetaDataSvc", name),
 	m_dictLoader("AthDictLoaderSvc", name),
+        m_tpCnvSvc("AthTPCnvSvc", name),
 	m_outputAttributes(),
         m_pCLIDSvc("ClassIDSvc", name),
         m_outSeqSvc("OutputStreamSequencerSvc", name),
@@ -228,6 +231,7 @@ StatusCode AthenaOutputStream::initialize() {
    ATH_CHECK( m_pCLIDSvc.retrieve() );
 
    ATH_CHECK( m_dictLoader.retrieve() );
+   ATH_CHECK( m_tpCnvSvc.retrieve() );
 
    // set up the ItemListSvc service:
    assert(static_cast<bool>(m_pCLIDSvc));
@@ -275,6 +279,12 @@ StatusCode AthenaOutputStream::initialize() {
        // with dictionary loading if it happens while multiple
        // threads are running.  See ATEAM-697.
        m_dictLoader->load_type (item.id()); // Load ROOT dictionaries now.
+       // Also load the persistent class dictionary, if applicable.
+       std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (item.id());
+       if (tpcnv) {
+         m_dictLoader->load_type (tpcnv->persistentTInfo());
+       }
+       
        const std::string& k = item.key();
        if (k.find('*') != std::string::npos) continue;
        if (k.find('.') != std::string::npos) continue;

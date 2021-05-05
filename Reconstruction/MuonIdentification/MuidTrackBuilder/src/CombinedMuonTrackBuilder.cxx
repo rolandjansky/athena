@@ -630,6 +630,10 @@ namespace Rec {
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit", refittedTrack.get(), combinedTrack.get())) {
                 combinedTrack.swap(refittedTrack);
             }
+	    else if(!checkTrack("addIDMS failed",combinedTrack.get(),combinedTrack.get())){
+	        ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
+	        return nullptr;
+	    }
         }
 
         // hole recovery, error optimization, attach TrackSummary
@@ -3734,7 +3738,7 @@ namespace Rec {
             countAEOTs(track.get(), " before optimize ") == 0) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
             std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get());
-            if (optimizedTrack && checkTrack("finalTrackBuild2", track.get(), track.get())) {
+            if (optimizedTrack && checkTrack("finalTrackBuild2", optimizedTrack.get(), track.get())) {
                 track.swap(optimizedTrack);
                 countAEOTs(track.get(), " finalTrackBuilt alignment errors Track ");
             }

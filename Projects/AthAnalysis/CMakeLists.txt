@@ -7,6 +7,12 @@ string( STRIP ${_version} _version )
 project( AthAnalysis VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
+# Configure flake8:
+set( ATLAS_FLAKE8 true   # <- this is the shell builtin `true`
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ""
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 

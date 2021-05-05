@@ -13,7 +13,7 @@
 
 // ASG
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include <AsgTools/AsgMetadataTool.h>
 
 ANA_MSG_HEADER(CutFlow)
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
   event.getEntries();
 
   // Retrieve the tool
-  asg::AnaToolHandle<asg::AsgMetadataTool> tool("BookkeeperDumperTool/BookkeeperDumperTool");
+  asg::StandaloneToolHandle<asg::AsgMetadataTool> tool("BookkeeperDumperTool/BookkeeperDumperTool");
   ANA_CHECK(tool.setProperty("StandaloneMode", true));
   ANA_CHECK(tool.setProperty("AllVariations", true));
   ANA_CHECK(tool.retrieve());

@@ -304,8 +304,13 @@ class transform(object):
             # Process anything we found
             for k,v in extraParameters.items():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
-                if k not in self.parser._argClass:
+                if k not in self.parser._argClass and k not in self.parser._argAlias:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Argument "{0}" not known (try "--help")'.format(k))
+                # Check if it is an alias
+                if k in self.parser._argAlias:
+                    msg.debug('Resolving alias from {0} to {1}'.format(k, self.parser._argAlias[k]))
+                    k = self.parser._argAlias[k]
+                # Check if argument has already been set
                 if k in self._argdict:
                     msg.debug('Ignored {0}={1} as extra parameter because this argument was given on the command line.'.format(k, v))
                     continue

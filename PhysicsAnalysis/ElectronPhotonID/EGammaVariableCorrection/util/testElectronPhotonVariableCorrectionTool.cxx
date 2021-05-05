@@ -19,7 +19,7 @@
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h"
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
 #include "AsgMessaging/AsgMessaging.h"
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     ANA_MSG_INFO("Running over " << entries << " events.");
 
     // initialize the tool
-    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTestTool");
+    asg::StandaloneToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTestTool");
     std::string configFile = "EGammaVariableCorrection/EGammaVariableCorrectionTool_ExampleConf.conf";
     ANA_CHECK(myTool.setProperty("ConfigFile", configFile));
     ANA_CHECK(myTool.initialize());

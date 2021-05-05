@@ -5,6 +5,8 @@
 // Local includes:
 #include "RingerSelectorTools/tools/onnx/RingerSelector.h"
 #include "PathResolver/PathResolver.h"
+#include <boost/algorithm/string.hpp>
+
 #include <algorithm>
 #include "TEnv.h"
 
@@ -55,8 +57,9 @@ namespace Ringer{
         
         // Retreive all ONNX model file paths
         auto model_paths = GetPaths( "Model__path", env );
-        std::string basepath = configFile.substr( 0, configFile.find_last_of("/"));
-        
+        std::vector<std::string> strs;
+        boost::split(strs,path,boost::is_any_of("/"));
+        std::string basepath = strs[0]+"/"+strs[1];
         // Loop over all models
         for ( unsigned idx = 0; idx < size; ++idx ){
           std::string modelPath = PathResolverFindCalibFile( basepath+"/"+model_paths[idx] );

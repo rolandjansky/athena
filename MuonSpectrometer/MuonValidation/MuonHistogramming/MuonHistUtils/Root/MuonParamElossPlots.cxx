@@ -68,36 +68,36 @@ void MuonParamElossPlots::initializePlots()
   ELossTypeAllPt = Book1D("ELossTypeAllPt","All ELossTypes Pt;Pt [GeV];Entries",50,0,500);
 }
 
-  void MuonParamElossPlots::fill(const xAOD::TruthParticle& truthmu, const xAOD::Muon& mu)
+  void MuonParamElossPlots::fill(const xAOD::TruthParticle& truthmu, const xAOD::Muon& mu, float weight)
 {
-  FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2);
-  FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2);
+  FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2,weight);
+  FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2, weight);
 #ifndef XAOD_ANALYSIS
-  FillPlot(ELoss,ELossDiffTruth,ELossDiffTruthEta0_1p35,ELossDiffTruthEta1p35_1p55,ELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::EnergyLoss,0.001);
-  FillPlot(measELoss,measELossDiffTruth,measELossDiffTruthEta0_1p35,measELossDiffTruthEta1p35_1p55,measELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::MeasEnergyLoss,0.001);  
-  FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001);
-  FillPlot(paramELoss,paramELossDiffTruth,paramELossDiffTruthEta0_1p35,paramELossDiffTruthEta1p35_1p55,paramELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::ParamEnergyLoss,0.001);
-  FillPlotELossType(ELossType,mu,0.001);
-  FillPlotELossType(ELossTypeNotIsoPt,mu,xAOD::Muon::NotIsolated,0.001);
-  FillPlotELossType(ELossTypeParametrPt,mu,xAOD::Muon::Parametrized,0.001);
-  FillPlotELossType(ELossTypeTailPt,mu,xAOD::Muon::Tail,0.001);
+  FillPlot(ELoss,ELossDiffTruth,ELossDiffTruthEta0_1p35,ELossDiffTruthEta1p35_1p55,ELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::EnergyLoss,0.001,weight);
+  FillPlot(measELoss,measELossDiffTruth,measELossDiffTruthEta0_1p35,measELossDiffTruthEta1p35_1p55,measELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::MeasEnergyLoss,0.001,weight);  
+  FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001,weight);
+  FillPlot(paramELoss,paramELossDiffTruth,paramELossDiffTruthEta0_1p35,paramELossDiffTruthEta1p35_1p55,paramELossDiffTruthEta1p55_end,truthmu,mu,xAOD::Muon::ParamEnergyLoss,0.001,weight);
+  FillPlotELossType(ELossType,mu,0.001,weight);
+  FillPlotELossType(ELossTypeNotIsoPt,mu,xAOD::Muon::NotIsolated,0.001,weight);
+  FillPlotELossType(ELossTypeParametrPt,mu,xAOD::Muon::Parametrized,0.001,weight);
+  FillPlotELossType(ELossTypeTailPt,mu,xAOD::Muon::Tail,0.001,weight);
 #endif // not XAOD_ANALYSIS
 }
-   void MuonParamElossPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale) {
+  void MuonParamElossPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale, float weight) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   float fpar = 0;
   if (mu.isAvailable<float>("EnergyLoss")) {
      if (mu.parameter(fpar, paramDef)) 
-       hist->Fill(scale*fpar); //scale to GeV, if needed
+       hist->Fill(scale*fpar,weight); //scale to GeV, if needed
   }
   return;
 } 
-  void MuonParamElossPlots::FillPlot(TH1* hist, TH1* hist_DiffTruth, TH1* hist_DiffTruthEta0_1p35,  TH1* hist_DiffTruthEta1p35_1p55, TH1* hist_DiffTruthEta1p55_end, const xAOD::TruthParticle& truthprt, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale) {
+  void MuonParamElossPlots::FillPlot(TH1* hist, TH1* hist_DiffTruth, TH1* hist_DiffTruthEta0_1p35,  TH1* hist_DiffTruthEta1p35_1p55, TH1* hist_DiffTruthEta1p55_end, const xAOD::TruthParticle& truthprt, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale, float weight) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   float fpar = 0;
   if (mu.isAvailable<float>("EnergyLoss")) {
      if (mu.parameter(fpar, paramDef)) 
-       hist->Fill(scale*fpar); //scale to GeV, if needed
+       hist->Fill(scale*fpar,weight); //scale to GeV, if needed
  
      //get true energy loss
      if (/*!truthprt.isAvailable<float>("CaloEntryLayer_px") ||
@@ -123,40 +123,40 @@ void MuonParamElossPlots::initializePlots()
 			truthprt.auxdata<float>("MuonEntryLayer_py"),
 			truthprt.auxdata<float>("MuonEntryLayer_pz"));
      float dpTruth=vecCaloEntry.Mag()-vecMuonExit.Mag();
-     hist_DiffTruth->Fill(scale*(fpar-dpTruth)); //scale to GeV, if needed
+     hist_DiffTruth->Fill(scale*(fpar-dpTruth),weight); //scale to GeV, if needed
      //again in eta ranges
-     if (fabs(mu.eta())<1.35) hist_DiffTruthEta0_1p35->Fill(scale*(fpar-dpTruth)); 
+     if (fabs(mu.eta())<1.35) hist_DiffTruthEta0_1p35->Fill(scale*(fpar-dpTruth),weight); 
      else  {
-       if (fabs(mu.eta())<1.55) hist_DiffTruthEta1p35_1p55->Fill(scale*(fpar-dpTruth)); 
-       else hist_DiffTruthEta1p55_end->Fill(scale*(fpar-dpTruth)); 
+       if (fabs(mu.eta())<1.55) hist_DiffTruthEta1p35_1p55->Fill(scale*(fpar-dpTruth),weight); 
+       else hist_DiffTruthEta1p55_end->Fill(scale*(fpar-dpTruth),weight); 
      }
   }
   return;
 }
-  void MuonParamElossPlots::FillPlotELossType(TH1* hist, const xAOD::Muon& mu, float scale) {
+  void MuonParamElossPlots::FillPlotELossType(TH1* hist, const xAOD::Muon& mu, float scale, float weight) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   if (mu.isAvailable<float>("EnergyLoss")) {
-    hist->Fill(mu.energyLossType()); 
-    ELossTypeAllPt->Fill(mu.pt()*scale);
+    hist->Fill(mu.energyLossType(), weight); 
+    ELossTypeAllPt->Fill(mu.pt()*scale, weight);
     float used=0;
     float meas=-100000;
     float param=-100000;
     if (mu.parameter(used, xAOD::Muon::EnergyLoss) &&  mu.parameter(param, xAOD::Muon::ParamEnergyLoss) && mu.parameter(meas, xAOD::Muon::MeasEnergyLoss ) ){
       //fill diff plots
       if (mu.energyLossType()==xAOD::Muon::Parametrized){
-	paramELossDiff->Fill((param-used)*scale);
+	paramELossDiff->Fill((param-used)*scale, weight);
       }
       if (mu.energyLossType()==xAOD::Muon::Tail){
-	measELossDiff->Fill((meas-used)*scale);
+	measELossDiff->Fill((meas-used)*scale, weight);
       }
     }
   }
   return;
 }
-void MuonParamElossPlots::FillPlotELossType(TH1* hist, const xAOD::Muon& mu, const xAOD::Muon::EnergyLossType type,  float scale) {
+  void MuonParamElossPlots::FillPlotELossType(TH1* hist, const xAOD::Muon& mu, const xAOD::Muon::EnergyLossType type,  float scale, float weight) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   if (mu.isAvailable<float>("EnergyLoss")) {
-    if (mu.energyLossType()==type) hist->Fill(mu.pt()*scale); //scale to GeV, if needed
+    if (mu.energyLossType()==type) hist->Fill(mu.pt()*scale,weight); //scale to GeV, if needed
   }
   return;
 }

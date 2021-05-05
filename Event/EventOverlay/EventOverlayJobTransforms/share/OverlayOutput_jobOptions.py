@@ -30,10 +30,14 @@ if DetFlags.overlay.Truth_on():
             outStream.ItemList += ['TrackRecordCollection#' + collection]
 
     if not overlayFlags.isDataOverlay():
-        outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt4TruthJets']
-        outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
-        outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
-        outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+        if 'xAOD::JetContainer' in overlayFlags.optionalContainerMap():
+            outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt4TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+        if 'xAOD::TruthParticleContainer' in overlayFlags.optionalContainerMap():
+            outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles"]
+            outStream.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
     if DetFlags.overlay.BCM_on():
         outStream.ItemList += [ 'InDetSimDataCollection#BCM_SDO_Map' ]

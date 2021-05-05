@@ -8,7 +8,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 #include <string>
 
@@ -37,9 +36,7 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
       materialEffectsOnTrack,
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
         1 << (int)TrackStateOnSurface::Measurement))
-  ,
-
-  m_multiComponentState(multiComponentState)
+  , m_multiComponentState(multiComponentState)
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
@@ -70,11 +67,12 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
   double modeQoverP)
-  : TrackStateOnSurface(measurementBase,
-                        multiComponentState->front().first->clone(),
-                        fitQualityOnSurface,
-                        materialEffectsOnTrack,
-                        types)
+  : TrackStateOnSurface(
+      measurementBase,
+      multiComponentState->front().first->clone(),
+      fitQualityOnSurface,
+      materialEffectsOnTrack,
+      types)
   , m_multiComponentState(multiComponentState)
   , m_mixtureModeQoverP(modeQoverP)
 {}
@@ -87,11 +85,12 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
   double modeQoverP)
-  : TrackStateOnSurface(measurementBase,
-                        trackParameters,
-                        fitQualityOnSurface,
-                        materialEffectsOnTrack,
-                        types)
+  : TrackStateOnSurface(
+      measurementBase,
+      trackParameters,
+      fitQualityOnSurface,
+      materialEffectsOnTrack,
+      types)
   ,
 
   m_multiComponentState(multiComponentState)
@@ -118,15 +117,33 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   , m_multiComponentState(
       other.components()
         ? Trk::MultiComponentStateHelpers::clone(*(other.components()))
-            .release()
         : nullptr)
   , m_mixtureModeQoverP(other.mixtureModeQoverP())
 {}
 
-Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface()
+Trk::MultiComponentStateOnSurface&
+Trk::MultiComponentStateOnSurface::operator=(
+  const MultiComponentStateOnSurface& other)
 {
-  delete m_multiComponentState;
+  if (this != &other) {
+    TrackStateOnSurface::operator=(other);
+    m_mixtureModeQoverP = other.m_mixtureModeQoverP;
+    m_multiComponentState =
+      (other.components()
+         ? Trk::MultiComponentStateHelpers::clone(*(other.components()))
+         : nullptr);
+  }
+  return *this;
 }
+
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  MultiComponentStateOnSurface&& other) noexcept = default;
+
+Trk::MultiComponentStateOnSurface&
+Trk::MultiComponentStateOnSurface::operator=(
+  MultiComponentStateOnSurface&& other) noexcept = default;
+
+Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface() = default;
 
 Trk::TrackStateOnSurface*
 Trk::MultiComponentStateOnSurface::clone() const
@@ -149,13 +166,14 @@ Trk::MultiComponentStateOnSurface::clone() const
                                    : nullptr;
   double modeQoverP = this->mixtureModeQoverP();
 
-  return new Trk::MultiComponentStateOnSurface(measurementBase,
-                                               trackParameters,
-                                               multiComponentState,
-                                               fitQualityOnSurface,
-                                               materialEffectsOnTrack,
-                                               this->types(),
-                                               modeQoverP);
+  return new Trk::MultiComponentStateOnSurface(
+    measurementBase,
+    trackParameters,
+    multiComponentState,
+    fitQualityOnSurface,
+    materialEffectsOnTrack,
+    this->types(),
+    modeQoverP);
 }
 
 MsgStream&

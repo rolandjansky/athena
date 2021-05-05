@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISEXAMPLES_PYANALYSISEXAMPLESDICT_H
@@ -14,13 +14,12 @@ namespace  PyAnalysisExamplesDict
 {
   void tmp ()
   {
-    MyObj *obj = new MyObj("cccc");
+    auto obj = std::make_unique<AthPyEx::MyObj>("cccc");
     obj->setA<float>(0);    
     obj->setA<double>(0);    
     obj->setA<int>(0);
     obj->setA<long>(0);
     obj->setA<bool>(false);    
-    delete obj;
   }
 }
 

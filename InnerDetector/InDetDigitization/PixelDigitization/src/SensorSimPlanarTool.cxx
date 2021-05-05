@@ -31,6 +31,10 @@ using namespace InDetDD;
 //===============================================
 SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::string& name, const IInterface* parent) :
   SensorSimTool(type, name, parent) {
+
+  // This is a waste in some cases, but we need at most 3x3 elements
+  // Reserving 9 removes the need to allocate new memory multipe time thus speeding up the code a bit
+  m_centrePixelNNEtaPhi.reserve(9);
 }
 
 SensorSimPlanarTool::~SensorSimPlanarTool() { }
@@ -188,7 +192,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                              SiChargedDiodeCollection& chargedDiodes,
                                              const InDetDD::SiDetectorElement& Module,
                                              const InDetDD::PixelModuleDesign& p_design,
-                                             const PixelModuleData *moduleData,
                                              std::vector< std::pair<double, double> >& trfHitRecord,
                                              std::vector<double>& initialConditions,
                                              CLHEP::HepRandomEngine* rndmEngine,
@@ -203,12 +206,14 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const PixelID* p_pixelId = static_cast<const PixelID*>(Module.getIdHelper());
   int layer = p_pixelId->layer_disk(Module.identify());
 
+  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
+
   std::pair<double, double> trappingTimes;
   if (m_doRadDamage && Module.isBarrel()) {
     if (m_doInterpolateEfield) {
       trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluenceLayer[layer]);
     } else {
-      trappingTimes = m_radDamageUtil->getTrappingTimes(moduleData->getFluenceLayer(layer));
+      trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
     }
   }
 
@@ -256,9 +261,14 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   //**************************************//
   // pre-make HepMcParticleLink
   auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+  const double pHitTime = hitTime(phit);
 
-  for (unsigned int i = 0; i < trfHitRecord.size(); i++) {
-    std::pair<double, double> iHitRecord = trfHitRecord[i];
+  const double halfEtaPitch = 0.5*Module.etaPitch();
+  const double halfPhiPitch = 0.5*Module.phiPitch();
+
+  std::map<unsigned, SiCellId> diodeCellMap;
+  for (size_t i = 0; i < trfHitRecord.size(); i++) {
+    std::pair<double, double> const& iHitRecord = trfHitRecord[i];
 
     double eta_i = eta_0;
     double phi_i = phi_0;
@@ -307,34 +317,38 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
 
-      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : moduleData->getDistanceMap_e(layer);
-      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : moduleData->getDistanceMap_h(layer);
-      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : moduleData->getLorentzMap_e(layer);
-      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : moduleData->getLorentzMap_h(layer);
-      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : moduleData->getRamoPotentialMap(layer);
+      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
+      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
+      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : fluenceData->getLorentzMap_e(layer);
+      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : fluenceData->getLorentzMap_h(layer);
+      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : fluenceData->getRamoPotentialMap(layer);
 
       const std::size_t distance_f_e_bin_x = distanceMap_e.getBinX(dist_electrode);
       const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
       const std::size_t tanLorentz_e_bin_x = lorentzMap_e.getBinX(dist_electrode);
       const std::size_t tanLorentz_h_bin_x = lorentzMap_h.getBinX(dist_electrode);
       
-      const std::size_t sizeEta = std::abs(nnLoop_pixelEtaMax - nnLoop_pixelEtaMin) + 1;
       const std::size_t sizePhi = std::abs(nnLoop_pixelPhiMax - nnLoop_pixelPhiMin) + 1;
 
-      std::vector<std::pair<double,double> > centrePixelNNEtaPhi(sizeEta*sizePhi);
+      const auto pixel_eta = pixel_i.etaIndex();
+      const auto pixel_phi = pixel_i.phiIndex();
+
       for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
         for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
-          const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_i.etaIndex() - p,
-                                                                                   pixel_i.phiIndex() - q);
+          const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_eta - p,
+                                                                                   pixel_phi - q);
           const std::size_t ieta = p - nnLoop_pixelEtaMin;
           const std::size_t iphi = q - nnLoop_pixelPhiMin;
           const std::size_t index = iphi + ieta*sizePhi;
-          centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
-          centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
+          m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
+          m_centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
         }
       }
 
+
       for (int j = 0; j < ncharges; j++) {
+        // amount of energy to be converted into charges at current step
+        double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
         double u = CLHEP::RandFlat::shoot(0., 1.);
         const double drifttime_e = (-1.) * (trappingTimes.first) * std::log(u); //ns
         u = CLHEP::RandFlat::shoot(0., 1.);
@@ -358,20 +372,18 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
         //Apply diffusion. rdif is teh max. diffusion
-        const double rdif_e = this->m_diffusionConstant * std::sqrt(std::abs(dist_electrode - depth_f_e) * coLorentz_e / 0.3);
+        const double rdif_e = this->m_diffusionConstant * std::sqrt(dz_e * coLorentz_e / 0.3);
         const double phi_f_e = phi_i + dz_e * tanLorentz_e + rdif_e * phiRand;
         double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_e = eta_i + rdif_e * etaRand;
 
         phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         const double coLorentz_h = std::sqrt(1.0 + (tanLorentz_h*tanLorentz_h));
-        const double rdif_h = this->m_diffusionConstant * std::sqrt(std::abs(dist_electrode - depth_f_h) * coLorentz_h / 0.3);
+        const double rdif_h = this->m_diffusionConstant * std::sqrt(dz_h * coLorentz_h / 0.3);
         const double phi_f_h = phi_i + dz_h * tanLorentz_h + rdif_h * phiRand;
         etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_h = eta_i + rdif_h * etaRand;
         
-        // amount of energy to be converted into charges at current step
-        double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
 
         // Slim Edge for IBL planar sensors:
         if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
@@ -385,12 +397,18 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         const bool isFirstZ_e = ramoPotentialMap.isFirstZ(1e3*depth_f_e);
         const bool isOverflowZ_h = ramoPotentialMap.isOverflowZ(1e3*depth_f_h);
 
+        const double pixelEta_f_e = eta_f_e - centreOfPixel_i.xEta();
+        const double pixelPhi_f_e = phi_f_e - centreOfPixel_i.xPhi();
+
+        const double pixelEta_f_h = eta_f_h - centreOfPixel_i.xEta();
+        const double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi();
+
         //Loop over nearest neighbours in x and y
         //We assume that the lateral diffusion is minimal
         for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
           // scale factors accounting for different pixel sizes
           double scale_f = 1.;
-          double columnWidth = p_design.widthFromColumnRange(pixel_i.etaIndex() - p, pixel_i.etaIndex() - p);
+          double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
           if (std::abs(columnWidth - 0.6) < 1e-9) {
             scale_f = 4. / 6.;
           } else if (std::abs(columnWidth - 0.45) < 1e-9) {
@@ -408,7 +426,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             const std::size_t index = iphi + ieta*sizePhi;
             //What is the displacement of the nn pixel from the primary pixel.
             //This is to index the correct entry in the Ramo weighting potential map
-            const std::pair<double,double>& centrePixelNN = centrePixelNNEtaPhi[index];
+            const std::pair<double,double>& centrePixelNN = m_centrePixelNNEtaPhi[index];
             const double dPhi_nn_centre = centrePixelNN.second - centreOfPixel_i.xPhi(); //in mm
             const double dEta_nn_centre = centrePixelNN.first  - centreOfPixel_i.xEta(); //in mm
 
@@ -418,11 +436,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             //carrier across the boundaries.
             //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
 
-            const double pixelEta_f_e = eta_f_e - centreOfPixel_i.xEta();
-            const double pixelPhi_f_e = phi_f_e - centreOfPixel_i.xPhi();
-
-            const double pixelEta_f_h = eta_f_h - centreOfPixel_i.xEta();
-            const double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi();
 
             //Final position of charge carriers wrt nn centre
             const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*scale_f;
@@ -435,9 +448,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             double ramo_f_h = 0.0;
 
             if (isFirstZ_e) {
-              if (dEta_f_e >= 0.5*Module.etaPitch() || dPhi_f_e >= 0.5*Module.phiPitch()) {
+              if (dEta_f_e >= halfEtaPitch || dPhi_f_e >= halfPhiPitch) {
                 ramo_f_e = 0.0;
-              } else if (dEta_f_e < 0.5*Module.etaPitch() && dPhi_f_e < 0.5*Module.phiPitch()) {
+              } else {
                 ramo_f_e = 1.0;
               }
             } else {
@@ -464,9 +477,14 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             //The following lines are adapted from SiDigitization's Inserter class
             const SiSurfaceCharge scharge(
               chargePos,
-              SiCharge(induced_charge, hitTime(phit), SiCharge::track, particleLink)
+              SiCharge(induced_charge, pHitTime, SiCharge::track, particleLink)
               );
-            const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
+
+	    unsigned key = (static_cast<unsigned>(pixel_eta-p) << 16) | static_cast<unsigned>(pixel_phi-q);
+	    auto diodeIterator = diodeCellMap.find(key);
+	    if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
+	    const SiCellId& diode = diodeIterator->second;
+
             if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
@@ -477,6 +495,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       }
     } else { //If no radDamage, run original
       for (int j = 0; j < ncharges; j++) {
+        // amount of energy to be converted into charges at current step
+        double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
         // diffusion sigma
         double rdif = this->m_diffusionConstant * std::sqrt(dist_electrode * coLorentz / 0.3);
 
@@ -485,9 +505,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         double phi_drifted = phi_i + dist_electrode * tanLorentz + rdif * phiRand;
         double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_drifted = eta_i + rdif * etaRand;
-
-        // amount of energy to be converted into charges at current step
-        double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
 
         // Slim Edge for IBL planar sensors:
         if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
@@ -506,7 +523,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         }
 
         //The following lines are adapted from SiDigitization's Inserter class
-        const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, particleLink));
+        const SiSurfaceCharge scharge(chargePos, SiCharge(ed, pHitTime, SiCharge::track, particleLink));
 
         const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
 

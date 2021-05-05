@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENASUMSVC_H
@@ -11,91 +11,67 @@
  *  AthenaSummarySvc
  *
  *  Author: Charles Leggett
- *  $Id: $
  *
  *  Provides summary at end of athena job
  *
  *****************************************************************************/
 
 #include "AthenaBaseComps/AthService.h"
-#ifndef KERNEL_STATUSCODES_H
- #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
- #include "GaudiKernel/ClassID.h"
-#endif
-#ifndef GAUDIKERNEL_MSGSTREAM_H
- #include "GaudiKernel/MsgStream.h"
-#endif
-#ifndef SGTOOLS_DATAPROXY_H
- #include "SGTools/DataProxy.h"
-#endif
+#include "AthenaKernel/IAthenaSummarySvc.h"
+#include "AthenaKernel/ILoggedMessageSvc.h"
+#include "CxxUtils/checker_macros.h"
 
-#ifndef  ATHENAKERNEL_IATHENASUMMARYSVC_H
- #include "AthenaKernel/IAthenaSummarySvc.h"
-#endif
-
+#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/ILoggedMessageSvc.h"
 
 #include <list>
 #include <map>
 #include <string>
 #include <fstream>
 
-// Forward declarations
 
-
-
-class AthenaSummarySvc: virtual public AthService, 
-		 virtual public IIncidentListener,
-		 virtual public IAthenaSummarySvc {
+class ATLAS_CHECK_THREAD_SAFETY AthenaSummarySvc :
+  public extends<AthService, IIncidentListener, IAthenaSummarySvc> {
 
 public:
 
   AthenaSummarySvc( const std::string& name, ISvcLocator* svc );
-  
-  // Destructor.
-  virtual ~AthenaSummarySvc();
 
-  virtual StatusCode initialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode reinitialize() override;
+  virtual StatusCode finalize() override;
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-				     void** ppvInterface );
-
-  StatusCode createSummary();
-  void setStatus(int s) {m_status = s;}
-  void addListener(const std::string& incident_name);
-  void addSummary(const std::string& dict_key, const std::string& data);
-
-  const std::string& getOutputFile() const { return m_summaryFile; }
+  virtual StatusCode createSummary() override;
+  virtual void setStatus(int s) override {m_status = s;}
+  virtual void addListener(const std::string& incident_name) override;
+  virtual void addSummary(const std::string& dict_key, const std::string& data) override;
+  virtual const std::string& getOutputFile() const override { return m_summaryFile; }
 
 private:
 
   void createDict(std::ofstream& );
   void createASCII(std::ofstream& );
-
-  // methods
-  void handle(const Incident &inc);
+  virtual void handle(const Incident &inc) override;
   static void newHandler();
 
   // properties
-  StringProperty m_summaryFile, m_summaryFormat;
-  StringArrayProperty m_extraInc, m_keywords;
+  StringProperty m_summaryFile{this, "SummaryFile", "AthSummary.txt",
+                               "Output File"};
+  StringProperty m_summaryFormat{this, "SummaryFileFormat", "both",
+                                 "output format: one of 'ascii', 'python', 'both'"};
+  StringArrayProperty m_extraInc{this, "ExtraIncidents", {},
+                                 "user incidets to monitor"};
+  StringArrayProperty m_keywords{this, "keywords", {},
+                                 "kewords to scan for in MessageSvc. WARNING: THIS IS VERY SLOW!!!"};
 
   // member data
-  mutable MsgStream m_log;
   ServiceHandle<IIncidentSvc> p_incSvc;
-  ILoggedMessageSvc* p_logMsg;
-  std::new_handler m_new;
-  static char* s_block;
-  static bool s_badalloc;
-  int m_status;
+  ILoggedMessageSvc* p_logMsg{nullptr};
 
+  static char* s_block ATLAS_THREAD_SAFE;    // used during initialize
+  static bool s_badalloc ATLAS_THREAD_SAFE;  // flag set after bad-alloc
 
   std::list<std::string> m_inputFilesRead;
   std::list<std::string> m_outputFiles;
@@ -104,11 +80,12 @@ private:
   std::map< std::string, std::map<std::string, int> > m_extraIncidents;
   std::vector< std::pair<std::string, std::string> > m_extraInfo;
 
-  unsigned int m_eventsRead, m_eventsWritten, m_eventsSkipped, m_runs;
-  
-  
-
-
+  std::new_handler m_new{nullptr};
+  int m_status{0};
+  unsigned int m_eventsRead{0};
+  unsigned int m_eventsWritten{0};
+  unsigned int m_eventsSkipped{0};
+  unsigned int m_runs{0};
 };
 
 #endif

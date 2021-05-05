@@ -275,11 +275,26 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
         int layerIndex = cmIter->second.associatedLayer() ? cmIter->second.associatedLayer()->layerIndex().value() : 0;
         ATH_MSG_DEBUG("[>>>] Accumulate pathLength/X0 on layer with index " << layerIndex << " - t/X0 (total so far) =  " << cmIter->second.steplengthInX0() << " (" << m_accTinX0 << ")");
         if (layerIndex){
-            std::string surfaceType = cmIter->second.associatedLayer()->surfaceRepresentation().type() == Trk::Surface::Cylinder ? "Cylinder at radius = " : "Disc at z-position = ";
-            std::string layerType   = cmIter->second.associatedLayer()->surfaceArray() ? "Active " : "Passive ";
-            double rz = cmIter->second.associatedLayer()->surfaceRepresentation().type() == Trk::Surface::Cylinder ? cmIter->second.associatedLayer()->surfaceRepresentation().bounds().r() :
-                        cmIter->second.associatedLayer()->surfaceRepresentation().center().z();
-            ATH_MSG_DEBUG("      " << layerType << surfaceType << rz);
+          std::string surfaceType =
+            cmIter->second.associatedLayer()->surfaceRepresentation().type() ==
+                Trk::SurfaceType::Cylinder
+              ? "Cylinder at radius = "
+              : "Disc at z-position = ";
+          std::string layerType =
+            cmIter->second.associatedLayer()->surfaceArray() ? "Active "
+                                                             : "Passive ";
+          double rz =
+            cmIter->second.associatedLayer()->surfaceRepresentation().type() ==
+                Trk::SurfaceType::Cylinder
+              ? cmIter->second.associatedLayer()
+                  ->surfaceRepresentation()
+                  .bounds()
+                  .r()
+              : cmIter->second.associatedLayer()
+                  ->surfaceRepresentation()
+                  .center()
+                  .z();
+          ATH_MSG_DEBUG("      " << layerType << surfaceType << rz);
         }
         ATH_MSG_DEBUG("      Distance to origin is " << cmIter->second.materialPosition().mag() );
     }

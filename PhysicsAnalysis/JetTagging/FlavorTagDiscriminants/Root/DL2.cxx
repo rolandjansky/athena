@@ -31,7 +31,7 @@ namespace FlavorTagDiscriminants {
            std::map<std::string, std::string> out_remap,
            OutputType output_type):
     m_input_node_name(""),
-    m_graph(new lwt::LightweightGraph(graph_config)),
+    m_graph(new lwt::LightweightGraph(graph_config,graph_config.outputs.begin()->first)),
     m_variable_cleaner(nullptr)
   {
     using namespace internal;

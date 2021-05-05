@@ -55,13 +55,7 @@ ToolSvc += MuonTGExtrapolator
 print MuonTGExtrapolator                          
  
 #
-from MuonTGMeasAssocAlg.MuonTGMeasAssocAlgConf import Muon__MuonTGMeasAssocAlg
-MuonTGMeasAssocAlg = Muon__MuonTGMeasAssocAlg(  name = 'MuonTGMeasAssocAlg',
-                                                Extrapolator = MuonTGExtrapolator, 
-                                                TrackingGeometry = 'MuonStandaloneTrackingGeometry',
-                                                ProcessSegments = True )
-topSequence += MuonTGMeasAssocAlg
-print MuonTGMeasAssocAlg
+
 
 from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonTGMeasurementTool
 MuonTGMeasurementTool = Muon__MuonTGMeasurementTool(  name = 'MuonTGMeasurementTool', 

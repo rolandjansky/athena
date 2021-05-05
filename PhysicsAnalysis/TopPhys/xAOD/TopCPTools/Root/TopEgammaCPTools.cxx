@@ -342,6 +342,7 @@ namespace top {
 	electronIsolation == "PLVLoose") {
       m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
     }
+    else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIso = nullptr;
     else {
       m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
 						      electronIsolation, "", dataType, "TOTAL", "", "");
@@ -350,6 +351,7 @@ namespace top {
 	electronIsolationLoose == "PLVLoose") {
       m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
     }
+    else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLoose = nullptr;
     else {
       m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
 							   electronIDLoose, electronIsolationLoose, "", dataType, "TOTAL", "",
@@ -417,6 +419,7 @@ namespace top {
 							  m_config->electronEfficiencySystematicModelEtaBinning(),
 							  m_config->electronEfficiencySystematicModelEtBinning());
       }
+      else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIsoCorrModel = nullptr;
       else {
 	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
 								 electronID, electronIsolation, "", dataType,
@@ -432,6 +435,7 @@ namespace top {
 							       m_config->electronEfficiencySystematicModelEtBinning());
 
       }
+      else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLooseCorrModel = nullptr;
       else {
 	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
 								      m_electronEffSFIsoLooseFile, "", electronIDLoose,

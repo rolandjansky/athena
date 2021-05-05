@@ -23,7 +23,6 @@ HepMCTruthReader::HepMCTruthReader(const string& name, ISvcLocator* svcLoc)
 
 
 StatusCode HepMCTruthReader::initialize() {
-  ATH_MSG_INFO("Initializing; package version = " << PACKAGE_VERSION );
   ATH_MSG_INFO("HepMC container name = " << m_hepMCContainerName );
   return StatusCode::SUCCESS;
 }

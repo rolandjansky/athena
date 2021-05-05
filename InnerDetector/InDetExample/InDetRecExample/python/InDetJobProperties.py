@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
@@ -844,12 +844,6 @@ class doV0VtxD3PD(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
         
-class doTriggerD3PD(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
 class removeTRTNoise(InDetFlagsJobProperty):
     """  """
     statusOn     = True
@@ -1454,6 +1448,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
        self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
+       self.checkTHenSet(self.useActsPriVertexing    , False)
        self.checkThenSet(self.doV0Finder             , False)
        self.checkThenSet(self.doSimpleV0Finder       , False)      
        self.checkThenSet(self.doConversions          , False )        
@@ -1493,6 +1488,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline")
        self.checkThenSet(self.secondaryVertexCutSetup, "PileUp")
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
+       self.checkThenSet(self.useActsPriVertexing    , False)
        self.checkThenSet(self.doV0Finder             , False)
        self.checkThenSet(self.doSimpleV0Finder       , False)     
        self.checkThenSet(self.doConversions          , False )       
@@ -2029,7 +2025,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doD3PDCreation(self):
     return (self.doTrkD3PD() or self.doPixelTrkD3PD() or self.doSctTrkD3PD() or
             self.doTrtTrkD3PD() or self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or
-            self.doV0VtxD3PD() or self.doTriggerD3PD())
+            self.doV0VtxD3PD())
   
   def doMonitoring(self):
     return (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or
@@ -2505,9 +2501,6 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or self.doV0VtxD3PD():
           print(ntupleString)
 
-       if self.doTriggerD3PD():
-          print('* D3PD trigger tree activated')
-
     # -----------------------------------------
     if (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or self.doMonitoringTRT() or self.doMonitoringAlignment()):
        print('*')
@@ -2754,7 +2747,6 @@ _list_InDetJobProperties = [Enabled,
                             doVtxMonitoringD3PD,
                             doConvVtxD3PD,
                             doV0VtxD3PD,
-                            doTriggerD3PD,
                             removeTRTNoise,
                             noTRTTiming,
                             InDet25nsec,

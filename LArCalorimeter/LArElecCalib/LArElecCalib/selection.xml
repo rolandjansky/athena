@@ -2,8 +2,6 @@
   <class name="LArVectorProxy" />
   <class name="ILArADC2MeVTool" />
   <class name="ILArAutoCorr" />
-  <class name="ILArAutoCorrNoiseTool" />
-  <class name="ILArAutoCorrTotalTool" />
   <class name="ILArCableAttenuation" />
   <class name="ILArCableLength" />
   <class name="ILArCaliPulseParams" />
@@ -21,7 +19,6 @@
   <class name="ILArMphysOverMcal" />
   <class name="ILArNoise" />
   <class name="ILArOFC" />
-  <class name="ILArOFCTool" />
   <class name="ILArPedestal" />
   <class name="ILArPhysCaliTdiff" />
   <class name="ILArRamp" />

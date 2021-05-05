@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 02.02.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_RtCalibrationIntegrationH
 #define MuonCalib_RtCalibrationIntegrationH
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// STL //
+#include <memory>
 #include <string>
 #include <vector>
 
-// MuonCalib //
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibInterfaces/IMdtCalibration.h"
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
@@ -46,7 +37,7 @@ namespace MuonCalib {
     class RtCalibrationIntegration : public IMdtCalibration {
     public:
         // Constructors //
-        RtCalibrationIntegration(std::string name) : IMdtCalibration(name) { init(false, 14.6, 13.0, 14.0, false); }
+        RtCalibrationIntegration(const std::string& name) : IMdtCalibration(name) { init(false, 14.6, 13.0, 14.0, false); }
         ///< Default constructor. Only hits on the segment are used by the
         ///< algorithm by default. The maximum drift radius is set to  14.6 mm.
 
@@ -95,11 +86,11 @@ namespace MuonCalib {
 
         std::vector<std::pair<double, bool> > m_t_drift;  // measured drift times
                                                           // r(t) //
-        IRtRelation* m_rt;                                // pointer to the final r-t relationship
+        std::shared_ptr<IRtRelation> m_rt;                // pointer to the final r-t relationship
         unsigned int m_nb_hits_used;                      // number of hits used in the algorithm
         unsigned int m_nb_segments_used;                  // number of segments used
         double m_r_max;                                   // maximum drift radius
-        RtCalibrationOutput* m_output;                    // class holding the results of the
+        std::unique_ptr<RtCalibrationOutput> m_output;    // class holding the results of the
                                                           // autocalibration
 
         // private methods //

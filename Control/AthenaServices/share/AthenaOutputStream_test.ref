@@ -73,10 +73,10 @@ AthenaOutputStream  DEBUG Found StoreGateSvc store.
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ItemListSvc         DEBUG ItemListSvc initialize
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+OutputStreamSeq...  DEBUG Initializing OutputStreamSequencerSvc
 OutputStreamSeq...  DEBUG Service base class initialized successfully
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
-AthenaOutputStr...   INFO Initializing AthenaOutputStream.AthenaOutputStreamTool - package version AthenaServices-00-00-00
+AthenaOutputStr...   INFO Initializing AthenaOutputStream.AthenaOutputStreamTool
 DataModelCompatSvc  DEBUG Service base class initialized successfully
 DataModelCompatSvc  DEBUG FILE:LINE (StatusCode DataModelCompatSvc::initialize()): running
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'DataModelCompatSvc' with priority 0
@@ -225,7 +225,7 @@ AthenaOutputStream  DEBUG            Key:*
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
 AthenaOutputStream  DEBUG      Comp Attr 0 with 10 mantissa bits.
 AthenaOutputStream  DEBUG      Comp Attr 0 with 16 mantissa bits.
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 MetaDataSvc         DEBUG Service base class initialized successfully
 InputMetaDataStore  DEBUG Service base class initialized successfully
 InputMetaDataStore  DEBUG trying to create store SGImplSvc/InputMetaDataStore_Impl

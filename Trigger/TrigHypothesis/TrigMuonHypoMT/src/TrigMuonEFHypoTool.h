@@ -63,6 +63,9 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
     this, "RequireThreeStations", false, "Apply cut on N GoodPrecisionLayers in endcaps"};
   Gaudi::Property<bool> m_doSA{
     this, "RequireSAMuons", false, "Apply cut on SA muons (otherwise require combined muons)"};
+   Gaudi::Property< float > m_d0min {
+        this, "MinimumD0", 0., "lower d0 cut (mm)"};
+
   // Other members:   
   std::vector<size_t> m_bins={0};
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

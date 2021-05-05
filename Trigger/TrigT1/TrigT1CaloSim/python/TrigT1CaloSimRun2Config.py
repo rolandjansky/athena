@@ -6,25 +6,7 @@ class Run2TriggerTowerMakerBase (LVL1__Run2TriggerTowerMaker):
     __slots__ = []
     def __init__(self, name):
         super( Run2TriggerTowerMakerBase, self ).__init__( name )
-        from AthenaCommon.DetFlags import DetFlags
-        from AthenaCommon.Constants import WARNING
-        if DetFlags.digitize.LVL1_on():
-            from Digitization.DigitizationFlags import jobproperties
-            self.RndmSvc=jobproperties.Digitization.rndmSvc.get_Value()
-            self.DigiEngine =  "%s_Digitization"%name
-            jobproperties.Digitization.rndmSeedList.addSeed( str(self.DigiEngine), 8631309, 4492432) 
-        else:
-            self.RndmSvc = 'AtRanluxGenSvc'
-            self.DigiEngine = "%s_Digitization" % name
-          
-            from AthenaCommon.AppMgr import ServiceMgr
-            if not hasattr( ServiceMgr, 'AtRanluxGenSvc'):
-                from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-                ServiceMgr += AtRanluxGenSvc()
-               
-            # init random number seeds
-            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.DigiEngine) + " 8631309 4492432" ]
-            ServiceMgr.AtRanluxGenSvc.OutputLevel = WARNING # suppress 1 per event INFO messages.
+        self.DigiEngine =  "%s_Digitization"%name
     
 class Run2TriggerTowerMaker(Run2TriggerTowerMakerBase):
     """ Baseline Run2 TriggerTower configuration:
@@ -71,7 +53,6 @@ def Run2TriggerTowerMakerCfg(flags, name):
     #    acc.merge(InputRenameCfg('xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers'))
 
     alg = CompFactory.LVL1.Run2TriggerTowerMaker(name,
-                                                 RndmSvc = 'AtRanluxGenSvc',
                                                  DigiEngine = "{}_Digitization".format(name),
                                                  # TODO make these settings flags dependent
                                                  CellType = 3,
@@ -81,8 +62,6 @@ def Run2TriggerTowerMakerCfg(flags, name):
                                                  #ExtraInputs = ['LArTTL1Container#LArTTL1EM', 'LArTTL1Container#LArTTL1HAD', 'TileTTL1Container#TileTTL1Cnt']
                                                  )
     acc.addPublicTool(CompFactory.LumiBlockMuTool('LumiBlockMuTool'))
-    from RngComps.RandomServices import Ranlux64
-    acc.merge(Ranlux64( str(alg.DigiEngine) + ' 8631309 4492432') )
     acc.addEventAlgo(alg)
 
     return acc

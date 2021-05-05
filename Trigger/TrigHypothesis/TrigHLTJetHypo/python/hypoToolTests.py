@@ -71,7 +71,7 @@ class HypoToolStructure(unittest.TestCase):
         },
 
         {
-            'prop': ChainProp(name='HLT_j0_aggSEP1000ht_L1J20',
+            'prop': ChainProp(name='HLT_j0_ht1000_L1J20',
                               groups=SingleJetGroup),
             
             'connections': dict(((0, [1]),
@@ -86,7 +86,7 @@ class HypoToolStructure(unittest.TestCase):
 
         {
             'prop':  ChainProp(
-                name='HLT_j70_0eta320_1j50_0eta490_j0_dijetSEP70j12etSEP1000djmassSEPdjdphi200SEP400djdeta__L1MJJ-500-NFF',
+                name='HLT_j70_0eta320_1j50_0eta490_j0_dijet70j12etSEP1000djmassSEPdjdphi200SEP400djdeta__L1MJJ-500-NFF',
                 l1SeedThresholds=['FSNOSEED']*3,
                 groups=MultiJetGroup),
             
@@ -137,7 +137,7 @@ class HypoToolStructure(unittest.TestCase):
             },
             
             {
-                'prop': ChainProp(name='HLT_j40_0eta320_j0_aggSEP50htSEP10etSEP0eta320_L1J20',
+                'prop': ChainProp(name='HLT_j40_0eta320_j0_ht50SEP10etSEP0eta320_L1J20',
                                   l1SeedThresholds=['FSNOSEED']*2,
                                   groups=MultiJetGroup),
         
@@ -155,7 +155,7 @@ class HypoToolStructure(unittest.TestCase):
             },
             
             {
-                'prop': ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',
+                'prop': ChainProp(name='HLT_j0_fbdjnoshared10etSEP20etSEP34massSEP50fbet_L1J20',
                                   groups=SingleJetGroup),
                 
                 'connections': dict(((0, [1]),
@@ -200,7 +200,7 @@ class HypoToolStructure(unittest.TestCase):
 
     
             {
-                'prop': ChainProp(name='HLT_j0_dijetSEP80j12etSEP0j12eta240SEP700djmass_L1J20',
+                'prop': ChainProp(name='HLT_j0_dijet80j12etSEP0j12eta240SEP700djmass_L1J20',
                                   groups=SingleJetGroup),
 
         

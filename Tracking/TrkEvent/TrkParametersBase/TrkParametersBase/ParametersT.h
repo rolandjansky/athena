@@ -12,8 +12,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkSurfaces/Surface.h"
 namespace Trk {
 class MaterialEffectsEngine;
 
@@ -46,9 +46,11 @@ class ParametersT final : public ParametersBase<DIM, T>
 {
 public:
   static_assert(
-    (S::staticType == Surface::Cone || S::staticType == Surface::Cylinder ||
-     S::staticType == Surface::Disc || S::staticType == Surface::Perigee ||
-     S::staticType == Surface::Plane || S::staticType == Surface::Line),
+    (S::staticType == SurfaceType::Cone ||
+     S::staticType == SurfaceType::Cylinder ||
+     S::staticType == SurfaceType::Disc ||
+     S::staticType == SurfaceType::Perigee ||
+     S::staticType == SurfaceType::Plane || S::staticType == SurfaceType::Line),
     "The surface type must be one of Cone, Cylinder, Disc, Perigee, Plane, "
     "Line");
 
@@ -92,13 +94,13 @@ public:
   ParametersT(const ParametersT<DIM, T, S>& rhs);
 
   /** Move constructor */
-  ParametersT(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   /** Assignment operator */
   ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
   /** Move assignment operator */
-  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   //** Destructor */
   virtual ~ParametersT() = default;
@@ -132,7 +134,7 @@ public:
   virtual ParametersType type() const override final;
 
   /** Return the Surface Type enum */
-  virtual int surfaceType() const override final;
+  virtual SurfaceType surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;

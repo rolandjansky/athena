@@ -72,8 +72,10 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::T
   : Trk::Surface(detelement)
   , m_bounds(nullptr)
 {
-  if(transf){
-    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
+  //consider updating to passing by unique_ptr or value
+  auto tmptransf=std::unique_ptr<Amg::Transform3D>(transf);
+  if(tmptransf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*tmptransf);
   }
 }
 
@@ -84,11 +86,20 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
   : Trk::Surface(detelement, id)
   , m_bounds(nullptr)
 {
-  if(transf){
-    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
+  //consider updating to passing by value or unique_ptr
+  auto tmptransf=std::unique_ptr<Amg::Transform3D>(transf);
+  if(tmptransf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*tmptransf);
   }
-
 }
+
+// construct planar surface without bounds
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+{}
+
+
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans)
@@ -157,10 +168,10 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::EllipseBounds* tb
 {}
 
 // construct module with shared boundaries - change to reference
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
-  : Trk::Surface(htrans)
-  , m_bounds(tbounds)
-{}
+Trk::PlaneSurface::PlaneSurface(
+    Amg::Transform3D* htrans,
+    Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
+    : Trk::Surface(htrans), m_bounds(tbounds) {}
 
 bool
 Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
@@ -219,11 +230,14 @@ Trk::PlaneSurface::globalToLocalDirection(const Amg::Vector3D& glodir, Trk::Loca
 }
 
 bool
-Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo,  
+                               const Trk::BoundaryCheck& bchk, 
+                               double tol1, double tol2) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
-  if (fabs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1))
+  if (fabs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1)){
     return false;
+  }
   return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe(0), loc3Dframe(1)), tol1, tol2) : true);
 }
 

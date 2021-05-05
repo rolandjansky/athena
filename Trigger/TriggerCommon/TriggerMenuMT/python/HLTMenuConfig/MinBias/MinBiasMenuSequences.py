@@ -92,6 +92,36 @@ def MinBiasSPSequence():
                         Hypo        = spCountHypo,
                         HypoToolGen = SPCountHypoToolGen )
 
+def MinBiasZVertexFinderSequence():
+    #TODO here a vertex z finder algorithm needs to be added once there is one
+    #TODO                                          \/
+    #TODO sequence should be changed to parOR once not empty
+    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [  ])
+    
+    #idTrigConfig = getInDetTrigConfig('InDetSetup')
+    
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
+    ZVertFindInputMakerAlg = InputMakerForRoI("IM_ZVertFind", 
+                                        RoIsLink="initialRoI", 
+                                        RoITool = ViewCreatorInitialROITool(),
+                                        RoIs='ZVertFindRoI',
+                                        )
+    
+    ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
+    
+    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+    from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
+    ZVertFindHypoAlg = TrigStreamerHypoAlgMT("ZVertFinderHypoAlg")
+    ZVertFindHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
+    
+    ZVertFindHypoToolGen = StreamerHypoToolMTgenerator
+
+    return MenuSequence(Sequence    = ZVertFindSequence,
+                        Maker       = ZVertFindInputMakerAlg,
+                        Hypo        = ZVertFindHypoAlg,
+                        HypoToolGen = ZVertFindHypoToolGen)
+
+
 
 def MinBiasTrkSequence():
         from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlg

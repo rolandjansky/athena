@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArMCSym.h"
@@ -8,7 +8,7 @@
 
 
 /**
- * @brief Contructor.
+ * @brief Constructor.
  * @brief onlId Online ID helper.
  * @brief caloId Offline ID helper.
  * @brief oflHashtoSymOnl Symmetric HWID corresponding to each offline hash.

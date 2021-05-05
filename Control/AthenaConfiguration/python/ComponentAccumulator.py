@@ -1087,7 +1087,10 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         pubtoolclass, pubtoolname = newC.split('/')
                         if pubtoolname not in toolSet:
                             klass = __findConfigurableClass( pubtoolclass )
-                            alreadySetProperties[pname].append(klass( pubtoolname ))
+                            instance = klass(pubtoolname)
+                            from AthenaCommon.AppMgr import ToolSvc
+                            ToolSvc += instance
+                            alreadySetProperties[pname].append(instance)
                     else:
                         _log.warning('Not handling actual Configurable2s for public tool merging yet')
                         raise Exception()

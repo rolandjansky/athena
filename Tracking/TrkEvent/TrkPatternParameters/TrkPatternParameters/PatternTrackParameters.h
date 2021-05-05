@@ -33,7 +33,7 @@ namespace Trk {
   class PerigeeSurface     ;
   class ConeSurface        ;
 
-  class PatternTrackParameters : public ParametersBase<5, Trk::Charged>
+  class PatternTrackParameters final : public ParametersBase<5, Trk::Charged>
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
@@ -43,9 +43,10 @@ namespace Trk {
       
       PatternTrackParameters();
       PatternTrackParameters(const PatternTrackParameters&);
-      ~PatternTrackParameters();
       PatternTrackParameters& operator  = (const PatternTrackParameters&);
-
+      PatternTrackParameters(PatternTrackParameters&&) noexcept = default;
+      PatternTrackParameters& operator  = (PatternTrackParameters&&) noexcept = default;
+      virtual ~PatternTrackParameters() = default;
       ///////////////////////////////////////////////////////////////////
       // Main methods
       ///////////////////////////////////////////////////////////////////
@@ -67,7 +68,7 @@ namespace Trk {
       virtual Amg::RotationMatrix3D measurementFrame() const override final;
       virtual PatternTrackParameters * clone() const override final;
       virtual ParametersType type() const override final;
-      virtual int surfaceType() const override final;
+      virtual SurfaceType surfaceType() const override final;
       virtual void updateParametersHelper(const AmgVector(5) &) override final;
 
       ///////////////////////////////////////////////////////////////////
@@ -197,7 +198,6 @@ namespace Trk {
       return (*this);
     }
 
-  inline PatternTrackParameters::~PatternTrackParameters() {}
 
   ///////////////////////////////////////////////////////////////////
   // Set parameters

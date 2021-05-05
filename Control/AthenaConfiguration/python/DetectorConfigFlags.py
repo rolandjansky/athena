@@ -46,7 +46,7 @@ allDetectors = [
 allGroups = {
     'ID': ['BCM', 'DBM', 'Pixel', 'SCT', 'TRT'],
     'ITk': ['BCMPrime', 'ITkPixel', 'ITkStrip'],
-    'Calo': ['LAr', 'Tile'],
+    'Calo': ['LAr', 'Tile', 'MBTS'],
     'Muon': ['CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM'],
     'Forward': ['Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion'],
 }
@@ -81,6 +81,7 @@ def createDetectorConfigFlags():
     # Calorimeters
     dcf.addFlag('Detector.GeometryLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.GeometryTile',  False)
+    dcf.addFlag('Detector.GeometryMBTS',  True)  # for backwards compatibility for now
     dcf.addFlag('Detector.GeometryCalo', lambda prevFlags : (prevFlags.Detector.GeometryLAr or prevFlags.Detector.GeometryTile))
 
     # Muon Spectrometer
@@ -133,6 +134,7 @@ def createDetectorConfigFlags():
     # Calorimeters
     dcf.addFlag('Detector.EnableLAr',    lambda prevFlags : 'LAr' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))  # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.EnableTile',   lambda prevFlags : 'Tile' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : (prevFlags.Detector.EnableLAr and 'MBTS' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion)))
     dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
     dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
@@ -156,24 +158,6 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableForward',   lambda prevFlags : (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC or
                                                                 prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP or
                                                                 prevFlags.Detector.EnableFwdRegion))
-
-
-    # Reconstruction flags (ID and ITk only. Disabled by default)
-    dcf.addFlag('Detector.RecoBCM',   False)
-    dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
-    dcf.addFlag('Detector.RecoPixel', False)
-    dcf.addFlag('Detector.RecoSCT',   False)
-    dcf.addFlag('Detector.RecoTRT',   False)
-    dcf.addFlag('Detector.RecoID',    lambda prevFlags : (prevFlags.Detector.RecoBCM or prevFlags.Detector.RecoIBL or
-                                                          prevFlags.Detector.RecoPixel or prevFlags.Detector.RecoSCT or
-                                                          prevFlags.Detector.RecoTRT))
-    
-#    dcf.addFlag('Detector.Reco',      lambda prevFlags : (prevFlags.Detector.RecoID or prevFlags.Detector.RecoCalo or
-#                                                          prevFlags.Detector.RecoMuon))
-    dcf.addFlag('Detector.RecoITkPixel', False)
-    dcf.addFlag('Detector.RecoITkStrip',   False)
-    dcf.addFlag('Detector.RecoBCMPrime',   False)
-    dcf.addFlag('Detector.RecoITk',    lambda prevFlags : (prevFlags.Detector.RecoITkPixel or prevFlags.Detector.RecoITkStrip or prevFlags.Detector.RecoBCMPrime))
 
     return dcf
 

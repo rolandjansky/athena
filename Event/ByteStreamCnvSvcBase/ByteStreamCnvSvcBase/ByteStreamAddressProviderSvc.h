@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVCBASE_BYTESTREAMADDRESSPROVIDERSVC_H
@@ -27,20 +27,18 @@ class ByteStreamAddressProviderSvc : public ::AthService, public virtual IAddres
 
 public:
    ByteStreamAddressProviderSvc(const std::string& name, ISvcLocator* pSvcLocator);
-   virtual ~ByteStreamAddressProviderSvc();
 
    // Service initialize
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
 
    // IAddressProvider interface.
    // preload the address
-   virtual StatusCode preLoadAddresses(StoreID::type id, tadList& tlist);
+   virtual StatusCode preLoadAddresses(StoreID::type id, tadList& tlist) override;
 
    /// update an existing transient Address
    virtual StatusCode updateAddress(StoreID::type id,
                                     SG::TransientAddress* tad,
-                                    const EventContext& ctx);
+                                    const EventContext& ctx) override;
 
 private:
    // type and name of the objects to create the address for.

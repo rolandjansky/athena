@@ -14,6 +14,10 @@ def getStreamHITS_ItemList(ConfigFlags):
     ItemList += ["xAOD::JetContainer#*",
                  "xAOD::JetAuxContainer#*"]
 
+    # pile-up truth particles
+    ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
     if ConfigFlags.Detector.EnablePixel or  ConfigFlags.Detector.EnableSCT or \
        ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip:
         ItemList += ["SiHitCollection#*"]

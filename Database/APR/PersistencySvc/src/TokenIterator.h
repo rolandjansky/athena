@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENCYSVC_TOKENITERATOR_H
@@ -33,7 +33,7 @@ namespace pool {
 	/** Constructor taking as argument a DbSelection object,
 	 *  the file descriptor, the container name and the selection string
 	 */
-	TokenIterator( const FileDescriptor& fileDescriptor,
+	TokenIterator( FileDescriptor& fileDescriptor,
 		       const std::string& containerName,
 		       IStorageExplorer& storageExplorer,
 		       const std::string& selection );

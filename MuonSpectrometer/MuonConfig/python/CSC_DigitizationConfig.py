@@ -1,6 +1,6 @@
 """Define methods to construct configured CSC Digitization tools and algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -63,7 +63,7 @@ def CSC_DigitizationToolCfg(flags, name="CscDigitizationTool", **kwargs):
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.BkgPrefix + "CSC_SDO")
     else:
         kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")

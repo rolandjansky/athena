@@ -26,14 +26,15 @@
 # art-output: *.dat 
 
 import os
-os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")' > dopps.py")
-os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
+# os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")' > dopps.py")
+# os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
+os.system("echo 'from TrigInDetConfig.ConfigSettings import getInDetTrigConfig ; getInDetTrigConfig(\"jet\")._TripletDoPPS=True' >> dopps.py ; cat dopps.py ")
 
 Slices  = ['fsjet']
 Events  = 2000 
 Threads = 8 
 Slots   = 8
-postinclude_file = 'RDOtoRDOTrigger:dopps.py'
+preinclude_file = 'RDOtoRDOTrigger:dopps.py'
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 

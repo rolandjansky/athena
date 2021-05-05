@@ -11,7 +11,6 @@
 #include <iomanip>
 
 #include "PersistentDataModel/AthenaAttributeList.h"
-#include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
@@ -65,7 +64,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
     m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
-    m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
     m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
@@ -77,10 +75,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 		  "Histogram persistency technology to use: ROOT, HBOOK, NONE. "
 		  "By default (empty string) get property value from "
 		  "ApplicationMgr");
-  declareProperty("TimeKeeper", m_timeKeeperName, 
-		  "Name of TimeKeeper to use. NONE or empty string (default) "
-		  "means no time limit control on event loop");
-  m_timeKeeperName.declareUpdateHandler(&AthenaHiveEventLoopMgr::setupTimeKeeper, this);
   declareProperty("HistWriteInterval",    m_writeInterval=0 ,
 		  "histogram write/update interval");
   declareProperty("FailureMode",          m_failureMode=1 , 
@@ -139,8 +133,7 @@ AthenaHiveEventLoopMgr::~AthenaHiveEventLoopMgr()
 StatusCode AthenaHiveEventLoopMgr::initialize()    
 {
 
-  info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg ;
+  info() << "Initializing " << name() << endmsg ;
  
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
@@ -309,11 +302,6 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
       return StatusCode::FAILURE;
     }
   }  
-//-------------------------------------------------------------------------
-// Setup TimeKeeper service
-//-------------------------------------------------------------------------
-  // the time keeper may one day be specified as a property of ApplicationMgr
-  //  setProperty(prpMgr->getProperty("TimeKeeper"));
 
 //-------------------------------------------------------------------------
 // Setup 'Clear-Store' policy
@@ -358,20 +346,7 @@ AthenaHiveEventLoopMgr::eventStore() const {
 //=========================================================================
 // property handlers
 //=========================================================================
-void 
-AthenaHiveEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
-  const std::string& tkName(m_timeKeeperName.value());
-  // We do not expect a TimeKeeper necessarily being declared  
-  if( tkName != "NONE" && tkName.length() != 0) {
-    if (!(serviceLocator()->service( tkName, m_pITK, true)).isSuccess()) 
-      error() << "TimeKeeper not found." << endmsg;
-    else info() << "No TimeKeeper selected. "
-	        << "No time limit control on event loop." 
-	        << endmsg;
-  }
-}
-
-void 
+void
 AthenaHiveEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   const std::string& policyName = m_clearStorePolicy.value();
 

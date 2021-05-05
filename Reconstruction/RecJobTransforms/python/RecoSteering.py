@@ -66,13 +66,19 @@ def _run(input):
     flags.Input.Files = []
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
-    flags.Detector.RecoIBL=True
-    flags.Detector.RecoPixel=True
-    flags.Detector.RecoSCT=True
-    flags.Detector.RecoTRT=True
+
+    flags.Detector.GeometryBCM=True
+    flags.Detector.GeometryDBM=True
+    flags.Detector.GeometryPixel=True
+    flags.Detector.GeometrySCT=True
+    flags.Detector.GeometryTRT=True
+
+    flags.Detector.GeometryTile=True
+    flags.Detector.GeometryLAr=True
+
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
-    flags.Output.ESDFileName="ESD.pool.root"
-    flags.Output.AODFileName="AOD.pool.root"
+    flags.Output.ESDFileName="outputESD.pool.root"
+    flags.Output.AODFileName="outputAOD.pool.root"
     parser = flags.getArgumentParser()
     args = flags.fillFromArgs(parser=parser)
 
@@ -90,9 +96,9 @@ def _run(input):
     acc.merge(RecoSteering(flags), sequenceName="AthAlgSeq")
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
-    acc.getService("StoreGateSvc").Dump=True
-    acc.getEventAlgo("TrackParticleCnvAlg").OutputLevel=1
+    flags.dump()
     acc.printConfig(withDetails=True)
+
     if args.configOnly:
         with open(args.configOnly, "wb") as confFile:
             acc.store(confFile)
@@ -103,13 +109,22 @@ def _run(input):
     statusCode = acc.run()
     endStamp = datetime.datetime.now()
     log.info("total time spent in %d seconds (running %s seconds) ", (endStamp-startStamp).seconds, (endStamp-confStamp).seconds )
+    return statusCode
 
-    sys.exit(not statusCode.isSuccess())
 
 if __name__ == "__main__":
+    statusCode = None
     if "--RAW" in sys.argv:
         del sys.argv[sys.argv.index("--RAW")]
-        _run(input="RAW")
+        statusCode = _run(input="RAW")
+
     if "--ESD" in sys.argv:    
         del sys.argv[sys.argv.index("--ESD")]
-        _run(input="ESD")
+        statusCode = _run(input="ESD")
+
+#TODO enable digest production once able to read the AOD
+#        if statusCode.isSuccess():
+#            import subprocess
+#            subprocess.run("xAODDigest.py outputAOD.pool.root digetst.txt")
+
+    sys.exit(not statusCode.isSuccess())

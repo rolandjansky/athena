@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -9,8 +9,7 @@
 
 #include "SGTools/TransientAddress.h"
 #include "GaudiKernel/ListItem.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "eformat/SourceIdentifier.h"
 
@@ -22,36 +21,18 @@ ByteStreamAddressProviderSvc::ByteStreamAddressProviderSvc(const std::string& na
   declareProperty("StoreID", m_storeID);
 }
 //________________________________________________________________________________
-ByteStreamAddressProviderSvc::~ByteStreamAddressProviderSvc() {
-}
-//________________________________________________________________________________
 StatusCode ByteStreamAddressProviderSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing");
 
    // Retrieve ClassIDSvc
-   if (!m_clidSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ClassIDSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_clidSvc.retrieve() );
+
    if (m_storeID < 0 || m_storeID > StoreID::UNKNOWN) {
       ATH_MSG_FATAL("Invalid StoreID " << m_storeID);
       return(StatusCode::FAILURE);
    }
-   ATH_MSG_INFO("initialized ");
    ATH_MSG_INFO("-- Will fill Store with id =  " << m_storeID);
    return(StatusCode::SUCCESS);
-}
-//________________________________________________________________________________
-StatusCode ByteStreamAddressProviderSvc::finalize() {
-   // Release ClassIDSvc
-   if (!m_clidSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ClassIDSvc.");
-   }
-   return(::AthService::finalize());
 }
 //________________________________________________________________________________
 StatusCode ByteStreamAddressProviderSvc::preLoadAddresses(StoreID::type id, tadList& tlist) {

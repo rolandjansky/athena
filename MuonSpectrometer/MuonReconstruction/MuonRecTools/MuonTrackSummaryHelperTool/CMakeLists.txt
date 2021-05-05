@@ -9,4 +9,4 @@ atlas_subdir( MuonTrackSummaryHelperTool )
 atlas_add_component( MuonTrackSummaryHelperTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonPrepRawData TrkGeometry TrkEventPrimitives TrkTrackSummary TrkToolInterfaces StoreGateLib SGtests Identifier MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkExInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonPrepRawData TrkGeometry TrkEventPrimitives TrkTrackSummary TrkToolInterfaces StoreGateLib Identifier MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkExInterfaces )

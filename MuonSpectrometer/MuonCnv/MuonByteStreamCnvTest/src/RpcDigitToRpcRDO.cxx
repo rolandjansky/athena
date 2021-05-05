@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/ShowData.h"
@@ -45,8 +45,6 @@ StatusCode RpcDigitToRpcRDO::initialize()
 
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_MuonMgr));
-
-  ATH_CHECK(m_cabling.retrieve()) ;
 
   ATH_CHECK(m_readKey.initialize());
 
@@ -105,7 +103,7 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_detailed_algo)? m_cma_debug : m_fast_debug;                //
                                                                         //
-  CMAdata patterns(&data,&*m_cabling,debug);                                //
+  CMAdata patterns(&data,readCdo,debug);                                //
                                                                         //
   ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl    //
                  << ShowData<CMAdata>(patterns,"",m_data_detail)  );    //

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -10,13 +10,11 @@
 
 namespace ChainBits 
 {
-  uint32_t maskLow16 = 0x0000ffff;
-  uint32_t maskDecis = 0x01ff0000;
+  const uint32_t maskLow16 = 0x0000ffff;
+  //const uint32_t maskDecis = 0x01ff0000;
 }
 
-using namespace std;
-
-//--------------------------------------------------------------------------------------      
+//--------------------------------------------------------------------------------------
 TrigMonChain::TrigMonChain(unsigned int encoded)
   :m_encoded(encoded)
 {

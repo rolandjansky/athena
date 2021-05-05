@@ -20,7 +20,7 @@ class MuonSegmentSlimPlots:public PlotBase {
       MuonSegmentSlimPlots(PlotBase* pParent, std::string sDir);
       ~MuonSegmentSlimPlots();
 
-      void fill(const xAOD::MuonSegment& muonSeg);
+      void fill(const xAOD::MuonSegment& muonSeg, float weight=1.0);
 
       TH1* segmentfitChi2;
       TH1* segmentfitNdof;

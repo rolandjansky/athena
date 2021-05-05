@@ -42,34 +42,43 @@ class PerigeeSurface final : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Perigee;
+  static constexpr SurfaceType staticType = SurfaceType::Perigee;
 
   /**Default Constructor - needed for persistency*/
   PerigeeSurface();
 
+  /**Copy constructor*/
+  PerigeeSurface(const PerigeeSurface& pesf);
+
+  /**Assignment operator*/
+  PerigeeSurface& operator=(const PerigeeSurface& slsf);
+
+  /**Copy constructor*/
+  PerigeeSurface(PerigeeSurface&& pesf) noexcept = default;
+
+  /**Assignment operator*/
+  PerigeeSurface& operator=(PerigeeSurface&& slsf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PerigeeSurface() = default;
+ 
   /**Constructor from GlobalPosition*/
   PerigeeSurface(const Amg::Vector3D& gp);
 
-  /**Constructor with a Transform - needed for tilt */
-  PerigeeSurface(Amg::Transform3D* tTransform);
+  /**Constructor with a Transform by ref - needed for tilt */
+  PerigeeSurface(const Amg::Transform3D& tTransform);
 
   /**Constructor with a Transform by unique_ptr - needed for tilt */
   PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
 
-  /**Copy constructor*/
-  PerigeeSurface(const PerigeeSurface& pesf);
+  /**Constructor with a Transform - needed for tilt */
+  PerigeeSurface(Amg::Transform3D* tTransform);
 
   /**Copy constructor with shift*/
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
 
-  /**Destructor*/
-  virtual ~PerigeeSurface() = default;
-
-  /**Virtual constructor*/
+ /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override final;
-
-  /**Assignment operator*/
-  PerigeeSurface& operator=(const PerigeeSurface& slsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -245,7 +254,7 @@ public:
 
   /**This method checks if a globalPosition in on the Surface or not*/
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

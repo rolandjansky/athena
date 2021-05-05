@@ -22,32 +22,25 @@ namespace Trk {
  @author sarka.todorova@cern.ch
 */
 
-struct MaterialInteraction
-{
-
+struct MaterialInteraction {
   /** dE/dl ionization energy loss per path unit */
-  double dEdl_ionization(double p,
-                         const Material* mat,
-                         ParticleHypothesis particle,
-                         double& sigma,
-                         double& kazL) const;
+  static double dEdl_ionization(double p, const Material* mat,
+                                ParticleHypothesis particle, double& sigma,
+                                double& kazL);
   /** ionization energy loss from PDG */
-  double PDG_energyLoss_ionization(double p,
-                                   const Trk::Material* mat,
-                                   Trk::ParticleHypothesis particle,
-                                   double& sigma,
-                                   double& kazL,
-                                   double path) const;
+  static double PDG_energyLoss_ionization(double p, const Trk::Material* mat,
+                                          Trk::ParticleHypothesis particle,
+                                          double& sigma, double& kazL,
+                                          double path);
 
   /** dE/dl radiation energy loss per path unit */
-  double dEdl_radiation(double p,
-                        const Material* mat,
-                        ParticleHypothesis particle,
-                        double& sigma) const;
+  static double dEdl_radiation(double p, const Material* mat,
+                               ParticleHypothesis particle,
+                               double& sigma);
 
   /** multiple scattering as function of dInX0 */
-  double sigmaMS(double dInX0, double p, double beta) const;
+  static double sigmaMS(double dInX0, double p, double beta);
 };
-}
+}  // namespace Trk
 
 #endif

@@ -101,6 +101,14 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBoun
 {}
 
 // construct a disc from a transform, bounds is not set.
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+  , m_referencePoint(nullptr)
+{}
+
+
+// construct a disc from a transform, bounds is not set.
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Trk::Surface(std::move(htrans))
   , m_bounds(nullptr)
@@ -234,12 +242,16 @@ Trk::DiscSurface::globalToLocalCartesian(const Amg::Vector3D& glopos, double tol
 __attribute__ ((flatten))
 #endif
 bool
-Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo, 
+                              const Trk::BoundaryCheck& bchk, 
+                              double tol1, double tol2) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
-  if (fabs(loc3Dframe.z()) > (s_onSurfaceTolerance + tol1))
-    return false;
-  return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi()), tol1, tol2) : true);
+  if (fabs(loc3Dframe.z()) > (s_onSurfaceTolerance + tol1)) return false;
+  return (
+      bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi()),
+                             tol1, tol2)
+           : true);
 }
 
 /** distance to surface */

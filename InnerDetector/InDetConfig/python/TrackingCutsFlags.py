@@ -202,7 +202,7 @@ def createTrackingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     icf = AthConfigFlags()
 
-    icf.addFlag("extension", "Offline" ) ### for extension
+    icf.addFlag("extension", "" ) ### for extension
 
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
@@ -215,8 +215,8 @@ def createTrackingFlags():
 
     # --- cluster cuts
     icf.addFlag("minClusters", lambda pcf:
-                    3 if (pcf.Detector.RecoPixel and not pcf.Detector.RecoSCT) else
-                    6  if (pcf.Detector.RecoSCT and not pcf.Detector.RecoPixel) else
+                    3 if (pcf.Detector.EnablePixel and not pcf.Detector.EnableSCT) else
+                    6  if (pcf.Detector.EnableSCT and not pcf.Detector.EnablePixel) else
                     6 if pcf.InDet.doInnerDetectorCommissioning else
                     7 if pcf.InDet.doRobustReco else
                     minClusters_ranges( pcf ) ) # Igor 6, was 7
@@ -338,9 +338,9 @@ def createTrackingFlags():
     icf.addFlag("RoISeededBackTracking"     , RoISeededBackTracking_ranges and ( lambda pcf : pcf.Detector.GeometryCalo ) )
     icf.addFlag("minRoIClusterEt"           , minRoIClusterEt_ranges)
 
-    icf.addFlag("usePixel"       		  , lambda pcf : pcf.Detector.RecoPixel )
-    icf.addFlag("useTRT"        		  , lambda pcf : pcf.Detector.RecoTRT )
-    icf.addFlag("useSCT"        		  , lambda pcf : pcf.Detector.RecoSCT )
+    icf.addFlag("usePixel"       		  , lambda pcf : pcf.Detector.EnablePixel )
+    icf.addFlag("useTRT"        		  , lambda pcf : pcf.Detector.EnableTRT )
+    icf.addFlag("useSCT"        		  , lambda pcf : pcf.Detector.EnableSCT )
     icf.addFlag("useSCTSeeding"        	  	  , True )
 
     # --------------------------------------

@@ -661,9 +661,9 @@ Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
   double path = 0.;
 
   const Amg::Transform3D&  T = targetSurface.transform();
-  Trk::Surface::SurfaceType ty = targetSurface.type();
+  Trk::SurfaceType ty = targetSurface.type();
 
-  if  (ty == Trk::Surface::Plane || ty == Trk::Surface::Disc ) {
+  if  (ty == Trk::SurfaceType::Plane || ty == Trk::SurfaceType::Disc ) {
     double s[4];
     double d  = T(0,3)*T(0,2)+T(1,3)*T(1,2)+T(2,3)*T(2,2);
 
@@ -672,27 +672,27 @@ Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
     if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
-  else if (ty == Trk::Surface::Line     ) {
+  else if (ty == Trk::SurfaceType::Line     ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return nullptr;
   }
 
-  else if (ty == Trk::Surface::Cylinder ) {
+  else if (ty == Trk::SurfaceType::Cylinder ) {
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface);
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),Trk::alongMomentum,0.};
     if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
-  else if (ty == Trk::Surface::Cone     ) {
+  else if (ty == Trk::SurfaceType::Cone     ) {
 
     double k     = static_cast<const Trk::ConeSurface*>(&targetSurface)->bounds().tanAlpha(); k = k*k+1.;
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,Trk::alongMomentum,0.};
     if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
-  else if (ty == Trk::Surface::Perigee  ) {
+  else if (ty == Trk::SurfaceType::Perigee  ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
     if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return nullptr;
@@ -938,9 +938,9 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   double path = 0.;
 
   const Amg::Transform3D&  T = targetSurface.transform();
-  Trk::Surface::SurfaceType ty = targetSurface.type();
+  Trk::SurfaceType ty = targetSurface.type();
 
-  if  (ty == Trk::Surface::Plane || ty == Trk::Surface::Disc ) {
+  if  (ty == Trk::SurfaceType::Plane || ty == Trk::SurfaceType::Disc ) {
     double s[4];
     double d  = T(0,3)*T(0,2)+T(1,3)*T(1,2)+T(2,3)*T(2,2);
 
@@ -951,7 +951,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     }
   }
 
-  else if (ty == Trk::Surface::Line     ) {
+  else if (ty == Trk::SurfaceType::Line     ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if (!propagateWithJacobian( cache,errorPropagation, ty, s, cache.m_P, path)) {
@@ -959,7 +959,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     }
   }
 
-  else if (ty == Trk::Surface::Cylinder ) {
+  else if (ty == Trk::SurfaceType::Cylinder ) {
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface);
     double s[9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),(double)propagationDirection,0.};
@@ -968,7 +968,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     }
   }
 
-  else if (ty == Trk::Surface::Cone     ) {
+  else if (ty == Trk::SurfaceType::Cone     ) {
 
     double k     = static_cast<const Trk::ConeSurface*>(&targetSurface)->bounds().tanAlpha(); k = k*k+1.;
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,(double)propagationDirection,0.};
@@ -977,7 +977,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     }
   }
 
-  else if (ty == Trk::Surface::Perigee  ) {
+  else if (ty == Trk::SurfaceType::Perigee  ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
     if (!propagateWithJacobian(cache, errorPropagation, ty, s, cache.m_P, path)) {
@@ -1003,7 +1003,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
 
   double localp[5];
   // output in curvilinear parameters
-  if (returnCurv || ty==Trk::Surface::Cone)  {
+  if (returnCurv || ty==Trk::SurfaceType::Cone)  {
 
     Trk::RungeKuttaUtils::transformGlobalToLocal(cache.m_P,localp);
     Amg::Vector3D gp(cache.m_P[0],cache.m_P[1],cache.m_P[2]);
@@ -1199,7 +1199,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
         if (!solution) {
           Trk::RungeKuttaUtils::transformGlobalToLocal(cache.m_P, localp);
-          if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
+          if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::SurfaceType::Cone) {
             Trk::RungeKuttaUtils::transformGlobalToCurvilinear(errorPropagation,cache.m_P,localp,Jacobian);
           } else Trk::RungeKuttaUtils::transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,cache.m_P,localp,Jacobian);
           solution = true;
@@ -1222,11 +1222,15 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
     smear(cache,localp[2],localp[3],trackParameters.get(),radDist);
   }
 
-  std::unique_ptr<Trk::TrackParameters> onTargetSurf = (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone) ?
-    nullptr : targetSurfaces[solutions[0]].first->createUniqueTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],std::nullopt);
+  std::unique_ptr<Trk::TrackParameters> onTargetSurf =
+    (returnCurv ||
+     targetSurfaces[solutions[0]].first->type() == Trk::SurfaceType::Cone)
+      ? nullptr
+      : targetSurfaces[solutions[0]].first->createUniqueTrackParameters(
+          localp[0], localp[1], localp[2], localp[3], localp[4], std::nullopt);
 
   if (!errorPropagation) {
-    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
+    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::SurfaceType::Cone)  {
       Amg::Vector3D gp(cache.m_P[0],cache.m_P[1],cache.m_P[2]);
       return std::make_unique< Trk::CurvilinearParameters>(gp, localp[2], localp[3], localp[4]);
     }
@@ -1239,14 +1243,14 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
 
   //Calculate multiple scattering and straggling covariance contribution.
   if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(totalPath)>0.) {
-    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
+    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::SurfaceType::Cone)  {
       covarianceContribution( cache,trackParameters.get(), totalPath, std::abs( 1./cache.m_P[6]), &measurementCovariance);
     } else {
       covarianceContribution( cache,trackParameters.get(), totalPath, onTargetSurf.get(), &measurementCovariance);
     }
   }
 
-  if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
+  if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::SurfaceType::Cone)  {
     Amg::Vector3D gp(cache.m_P[0],cache.m_P[1],cache.m_P[2]);
     return std::make_unique<Trk::CurvilinearParameters>(
       gp, localp[2], localp[3], localp[4], std::move(measurementCovariance));
@@ -1270,7 +1274,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
 bool
 Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
                                              bool        errorPropagation,
-                                             Trk::Surface::SurfaceType surfaceType,
+                                             Trk::SurfaceType surfaceType,
                                              double*     targetSurface,
                                              double*     P,
                                              double&     path) const
@@ -1336,7 +1340,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
       targetPassed++;
     }
     //don't step beyond surface
-    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > std::abs( distanceToTarget)) h = distanceToTarget;
 
     //Abort if maxPath is reached or solution is diverging
     if ((targetPassed > 3 && std::abs( distanceToTarget) >= previousDistance) || (absolutePath > maxPath)) return false;
@@ -1488,7 +1492,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       cache.m_currentLayerBin = cache.m_binMat->layerBin(position);
       binIDMat        = cache.m_binMat->material(position);
       std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction0);
-      if (dist2next.first < lbu->bins() && std::abs(dist2next.second)>1. && fabs(dist2next.second)< fabs(h) ){
+      if (dist2next.first < lbu->bins() && std::abs(dist2next.second)>1. && std::abs(dist2next.second)< fabs(h) ){
         h = dist2next.second*propDir;
       }
       if (binIDMat) cache.m_material = binIDMat->first;
@@ -1558,7 +1562,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     mom = std::abs(1./P[6]); beta = mom/std::sqrt(mom*mom+cache.m_particleMass*cache.m_particleMass);
     cache.m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
 
-    if(std::abs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(fabs(distanceStepped));
+    if(std::abs(distanceStepped)>0.001) cache.m_sigmaIoni = cache.m_sigmaIoni - cache.m_kazL*log(std::abs(distanceStepped));
     // update straggling covariance
     if (errorPropagation && m_straggling) {
       // 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
@@ -1583,7 +1587,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     bool restart = false;
     // in case of problems, make shorter steps
     if ( propDir*path < -tol || absPath-std::abs(path)>10.) {
-      helpSoft = std::abs(path)/absPath > 0.5 ? fabs(path)/absPath : 0.5;
+      helpSoft = std::abs(path)/absPath > 0.5 ? std::abs(path)/absPath : 0.5;
     }
 
     Amg::Vector3D position(P[0],P[1],P[2]);
@@ -1733,7 +1737,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         helpSoft = 1.;
       }
       if ( (*vsIter).first != -1 && ( ic==nextSf || (*vsIter).first==1 || nextSf<0 ||
-                                      std::abs((*vsIter).second.first) < 500. ||  fabs(path)>0.5*fabs((*vsIter).second.second) )  ) {
+                                      std::abs((*vsIter).second.first) < 500. ||  std::abs(path)>0.5*fabs((*vsIter).second.second) )  ) {
         previousDistance = (*vsIter).second.first;
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
@@ -1750,7 +1754,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if(ic==startSf&&distanceEst<0&&distSol.first()>0) distanceEst = distSol.first();
         }
         // eliminate close surface if path too small
-        if (ic==nextSf && std::abs(distanceEst)<tol && fabs(path)<tol) {
+        if (ic==nextSf && std::abs(distanceEst)<tol && std::abs(path)<tol) {
           (*vsIter).first=-1; vsIter=vsBeg; restart=true; distanceToTarget=maxPath; nextSf=-1;
           continue;
         }
@@ -1760,7 +1764,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         // if (  h * propDir * distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
         if (  (*vsIter).second.first *propDir* distanceEst < 0. &&  std::abs(distanceEst)>distanceTolerance ) {
           // verify change of sign in signedDistance ( after eliminating situations where this is meaningless )
-          if ( !distSol.signedDistance() || std::abs(distSol.currentDistance(true))<tol || fabs((*vsIter).second.second)<tol
+          if ( !distSol.signedDistance() || std::abs(distSol.currentDistance(true))<tol || std::abs((*vsIter).second.second)<tol
                || (*vsIter).second.second*distSol.currentDistance(true)<0) {   // true intersection
             if (ic==nextSf) {
               ((*vsIter).first)++;
@@ -1771,12 +1775,12 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
               }
               // take care of eliminating when number of flips even - otherwise it may end up at the start !
               if ((*vsIter).first>50 && h*propDir>0 ) {
-                // std::abs(distanceEst) >= fabs(previousDistance) )  {
+                // std::abs(distanceEst) >= std::abs(previousDistance) )  {
                 (*vsIter).first = -1; vsIter = vsBeg; restart = true;
                 continue;
               }
               if ((*vsIter).first!=-1) flipDirection = true;
-            } else if ( std::abs((*vsIter).second.second)>tol && fabs(distSol.currentDistance(true))>tol ) {
+            } else if ( std::abs((*vsIter).second.second)>tol && std::abs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
               if ( ic>nextSf ) {   // easy case, already calculated
                 if (propDir*distanceEst<(*(vsBeg+nextSf)).second.first-tol)  {
@@ -1815,7 +1819,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             nextSfCand = ic;
           }
         }
-      } else if ( std::abs(path) > fabs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
+      } else if ( std::abs(path) > std::abs((*vsIter).second.second) || dev<0.985 || nextSf<0 ) {  // keep an eye on surfaces with negative distance; tracks are curved !
         Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,propDir*direction);
         double distanceEst=-propDir*maxPath;
         if (distSol.numberOfSolutions()>0 ) {
@@ -1860,10 +1864,10 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     }
 
     //don't step beyond surfaces - adjust step
-    if (std::abs( h) > fabs( distanceToTarget)) h = distanceToTarget;
+    if (std::abs( h) > std::abs( distanceToTarget)) h = distanceToTarget;
 
     //don't step beyond bin boundary - adjust step
-    if (cache.m_binMat && std::abs( h) > std::fabs(distanceToNextBin)+0.001 ) {
+    if (cache.m_binMat && std::abs( h) > std::abs(distanceToNextBin)+0.001 ) {
       if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData
         //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
         h = distanceToNextBin*propDir;
@@ -2313,23 +2317,23 @@ Trk::STEP_Propagator::getMagneticField( Cache& cache,
 /////////////////////////////////////////////////////////////////////////////////
 
 double
-Trk::STEP_Propagator::distance (Surface::SurfaceType surfaceType,
+Trk::STEP_Propagator::distance (Trk::SurfaceType surfaceType,
                                 double*     targetSurface,
                                 const double*     P,
                                 bool&       distanceEstimationSuccessful) const
 {
-  if (surfaceType == Trk::Surface::Plane || surfaceType == Trk::Surface::Disc)
+  if (surfaceType == Trk::SurfaceType::Plane || surfaceType == Trk::SurfaceType::Disc)
     return Trk::RungeKuttaUtils::stepEstimatorToPlane(targetSurface, P,
                                                 distanceEstimationSuccessful);
-  if (surfaceType == Trk::Surface::Cylinder)
+  if (surfaceType == Trk::SurfaceType::Cylinder)
     return Trk::RungeKuttaUtils::stepEstimatorToCylinder(
         targetSurface, P, distanceEstimationSuccessful);
 
-  if (surfaceType == Trk::Surface::Line || surfaceType == Trk::Surface::Perigee)
+  if (surfaceType == Trk::SurfaceType::Line || surfaceType == Trk::SurfaceType::Perigee)
     return Trk::RungeKuttaUtils::stepEstimatorToStraightLine(
         targetSurface, P, distanceEstimationSuccessful);
 
-  if (surfaceType == Trk::Surface::Cone)
+  if (surfaceType == Trk::SurfaceType::Cone)
     return Trk::RungeKuttaUtils::stepEstimatorToCone(targetSurface, P,
                                                distanceEstimationSuccessful);
 
@@ -2645,10 +2649,10 @@ double Trk::STEP_Propagator::dEds( Cache& cache, double p) const
   if (cache.m_particle == Trk::geantino || cache.m_particle == Trk::nonInteractingMuon) return 0.;
   if (cache.m_material->x0()==0 || cache.m_material->averageZ()==0) return 0.;
 
-  cache.m_delIoni = cache.m_matInt.dEdl_ionization(p, cache.m_material, cache.m_particle,
+  cache.m_delIoni = Trk::MaterialInteraction::dEdl_ionization(p, cache.m_material, cache.m_particle,
                                              cache.m_sigmaIoni, cache.m_kazL);
 
-  cache.m_delRad  = cache.m_matInt.dEdl_radiation(p, cache.m_material, cache.m_particle, cache.m_sigmaRad);
+  cache.m_delRad  = Trk::MaterialInteraction::dEdl_radiation(p, cache.m_material, cache.m_particle, cache.m_sigmaRad);
 
   double eLoss = m_MPV ? 0.9*cache.m_delIoni + 0.15*cache.m_delRad : cache.m_delIoni + cache.m_delRad;
 
@@ -2763,7 +2767,9 @@ Trk::STEP_Propagator::propagateNeutral(const Trk::TrackParameters&   parm,
       solutions.push_back((*oIter).first);
       const Trk::Surface* sf = targetSurfaces[(*oIter).first].first;
 
-      if( returnCurv || sf->type()==Trk::Surface::Cone) return std::make_unique< Trk::CurvilinearParameters>(xsct,parm.momentum(),parm.charge());
+      if( returnCurv || sf->type()==Trk::SurfaceType::Cone) {
+        return std::make_unique< Trk::CurvilinearParameters>(xsct,parm.momentum(),parm.charge());
+      }
       return sf->createUniqueTrackParameters(xsct,parm.momentum(),parm.charge(),std::nullopt);
     }
   }

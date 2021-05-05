@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/GenericTOB.h"
 
@@ -57,15 +57,14 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    , m_Et(muon.Et())
    , m_eta(muon.eta())
    , m_phi(muon.phi())
-   , m_sectorName(muon.sectorName())
    , m_bw2or3(muon.bw2or3())
    , m_innerCoin(muon.innerCoin())
    , m_goodMF(muon.goodMF())
    , m_charge(muon.charge())
    , m_is2cand(muon.is2cand())
-   , m_EtDouble((double)muon.Et())
-   , m_etaDouble(((double)muon.eta())/10.)
-   , m_phiDouble(((double)muon.phi())/10.)
+   , m_EtDouble(muon.EtDouble())
+   , m_etaDouble(muon.EtaDouble())
+   , m_phiDouble(muon.PhiDouble())
    , m_tobType(MUON)
 {}
 

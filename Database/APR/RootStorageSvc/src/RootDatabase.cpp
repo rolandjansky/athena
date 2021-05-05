@@ -70,7 +70,7 @@ long long int RootDatabase::size()  const   {
 }
 
 /// Callback after successful open of a database object
-DbStatus RootDatabase::onOpen(const DbDatabase& dbH, DbAccessMode mode)  {
+DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
   std::string par_val;
   DbPrint log("RootDatabase.onOpen");
   if ( !dbH.param("FORMAT_VSN", par_val).isSuccess() )  {

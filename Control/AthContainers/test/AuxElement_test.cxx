@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/test/AuxElement_test.cxx
@@ -654,6 +654,102 @@ void test_private_store()
 }
 
 
+//*************************************************************************
+
+
+void test_const1()
+{
+  std::cout << "test_const1\n";
+
+  SG::ConstAuxElement::ConstAccessor<int> ityp1_c ("anInt");
+
+  SG::ConstAuxElement b;
+  assert (b.index() == 0);
+  assert (b.container() == 0);
+  assert (b.getAuxIDs().empty());
+
+  assert (!ityp1_c.isAvailable(b));
+
+  SG::AuxVectorBase v;
+  SG::AuxStoreInternal store;
+  v.setStore (&store);
+
+  SG::ConstAuxElement b2 (&v, 5);
+  assert (b2.index() == 5);
+  assert (b2.container() == &v);
+  assert (!ityp1_c.isAvailable(b2));
+
+  int* anInt = reinterpret_cast<int*> (store.getData (ityp1_c.auxid(), 10, 10));
+  anInt[5] = 123;
+  assert (ityp1_c.isAvailable(b2));
+  assert (ityp1_c(b2) == 123);
+
+  assert (ityp1_c(b2) == 123);
+  assert (b2.auxdata<int>("anInt") == 123);
+  assert (b2.auxdataConst<int>("anInt") == 123);
+
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t ityp1_id = r.getAuxID<int> ("anInt");
+  SG::auxid_set_t auxids;
+  auxids.insert (ityp1_id);
+  assert (b2.getAuxIDs() == auxids);
+  assert (ityp1_c.auxid() == ityp1_id);
+
+  assert (ityp1_c(v, 5) == 123);
+  assert (ityp1_c.getDataArray(v)[5] == 123);
+
+  SG::ConstAuxElement b3 = b2;
+  assert (b3.index() == 0);
+  assert (b3.container() == 0);
+
+  SG::ConstAuxElement::TypelessConstAccessor ityp1a ("anInt");
+  assert (ityp1a.isAvailable (b2));
+  assert (*reinterpret_cast<const int*>(ityp1a (b2)) == 123);
+  assert (ityp1a.auxid() == ityp1_id);
+
+  EXPECT_EXCEPTION (SG::ExcUnknownAuxItem,
+                    SG::ConstAuxElement::TypelessConstAccessor ("adsasdxyz"));
+  SG::ConstAuxElement::TypelessConstAccessor x1 (typeid(int), "adsasd");
+  EXPECT_EXCEPTION (SG::ExcUnknownAuxItem,
+                    SG::ConstAuxElement::TypelessConstAccessor (typeid(SG::AuxVectorBase),
+                                                                "x2"));
+}
+
+
+void test_const_decoration()
+{
+  std::cout << "test_const_decoration\n";
+
+  SG::AuxVectorBase v;
+  SG::AuxStoreInternal store;
+  v.setStore (&store);
+  SG::ConstAuxElement b (&v, 5);;
+
+  SG::ConstAuxElement::Decorator<int> ityp2 ("anInt2");
+
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t ityp2_id = r.getAuxID<int> ("anInt2");
+  assert (ityp2.auxid() == ityp2_id);
+
+  ityp2(b) = 11;
+  assert (11 == ityp2(b));
+
+  v.lock();
+  const SG::ConstAuxElement& cb = b;
+
+  SG::ConstAuxElement::Decorator<int> ityp3 ("anInt3");
+  ityp3(cb) = 12;
+  assert (ityp3.getDecorationArray (v)+5 == &ityp3(cb));
+
+  assert (12 == ityp3(cb));
+
+  cb.auxdecor<int> ("anInt3") = 19;
+  assert (19 == ityp3(cb));
+
+  EXPECT_EXCEPTION (SG::ExcStoreLocked, ityp2(cb) = 14);
+}
+
+
 int main()
 {
   test1();
@@ -663,6 +759,9 @@ int main()
   test_standalone();
   test_decoration();
   test_private_store();
+
+  test_const1();
+  test_const_decoration();
   return 0;
 }
 

@@ -13,7 +13,7 @@
 // Framework includes
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/DataObject.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ClassID_traits.h"

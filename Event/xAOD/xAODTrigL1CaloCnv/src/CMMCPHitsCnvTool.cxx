@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMCPHitsCnvTool.cxx 575874 2013-12-17 12:39:55Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CMMCPHitsCollection.h"
@@ -21,15 +20,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ICMMCPHitsCnvTool >( this );
-   }
-
-   StatusCode CMMCPHitsCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    /**

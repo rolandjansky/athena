@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.cxx 785752 2016-11-22 15:06:34Z ssnyder $
 
 // EDM include(s):
 #include "CaloEvent/CaloCluster.h"
@@ -52,15 +51,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) that the tool implements:
       declareInterface< ICaloClusterCnvTool >( this );
-   }
-
-   StatusCode CaloClusterCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
    StatusCode CaloClusterCnvTool::

@@ -20,7 +20,11 @@
 #include "TMonitor.h"
 #include "TServerSocket.h"
 #include "TSocket.h"
+#include "TString.h"
 #include "TTree.h"
+
+#include <set>
+#include <map>
 
 /// Definiton of a branch descriptor from RootTreeContainer
 struct BranchDesc {
@@ -158,13 +162,13 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
       ATH_MSG_ERROR("Unable to cast conversion service to IProperty");
       return StatusCode::FAILURE;
    } else {
-      std::string propertyName = "StreamMetaDataOnly";
-      bool streamMetaDataOnly(false);
-      BooleanProperty streamMetaDataOnlyProp(propertyName, streamMetaDataOnly);
-      if (propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
-         ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
-      } else if (streamMetaDataOnlyProp.value()) {
-         int streamPort = 1095;
+      std::string propertyName = "ParallelCompression";
+      bool parallelCompression(false);
+      BooleanProperty parallelCompressionProp(propertyName, parallelCompression);
+      if (propertyServer->getProperty(&parallelCompressionProp).isFailure()) {
+         ATH_MSG_INFO("Conversion service does not have ParallelCompression property");
+      } else if (parallelCompressionProp.value()) {
+         int streamPort = 0;
          propertyName = "StreamPortString";
          std::string streamPortString("");
          StringProperty streamPortStringProp(propertyName, streamPortString);
@@ -173,11 +177,14 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
          } else {
             streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(":") + 1).c_str());
          }
-         m_rootServerSocket = new TServerSocket(streamPort, true, 100);
+         m_rootServerSocket = new TServerSocket(streamPort, (streamPort == 0 ? false : true), 100);
          if (m_rootServerSocket == nullptr || !m_rootServerSocket->IsValid()) {
             ATH_MSG_FATAL("Could not create ROOT TServerSocket: " << streamPort);
             return StatusCode::FAILURE;
          }
+         streamPort = m_rootServerSocket->GetLocalPort();
+         const std::string newStreamPortString{streamPortStringProp.value().substr(0,streamPortStringProp.value().find(":")+1) + std::to_string(streamPort)};
+         IAthenaSharedWriterSvc::setStreamPortSuffix(newStreamPortString);
          m_rootMonitor = new TMonitor;
          m_rootMonitor->Add(m_rootServerSocket);
          ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections, " << streamPort);
@@ -190,7 +197,10 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
 StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
    ATH_MSG_VERBOSE("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
-   while (m_rootClientCount > 0 || (m_rootClientIndex < numClients && (sc.isSuccess() || sc.isRecoverable()))) {
+   int workerCounter = 0;
+   std::set<int> rootClientSet;
+   std::map<TString, int> workerCount;
+   while (m_rootClientCount > 0 || (workerCounter < numClients && (sc.isSuccess() || sc.isRecoverable()))) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {
@@ -228,6 +238,11 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
+                  if (rootClientSet.find(clientId) == rootClientSet.end()) {
+                     rootClientSet.insert(clientId);
+                     workerCount[filename]++;
+                     if (workerCount[filename] > workerCounter) workerCounter = workerCount[filename];
+                  }
                   ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
                   std::unique_ptr<TMemFile> transient(new TMemFile(filename, message->Buffer() + message->Length(), length, "UPDATE"));
                   message->SetBufferOffset(message->Length() + length);

@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: heavy ion reconstruction test from Sebastian Tapia
+# art-athena-mt: 4
 # art-type: grid
 # art-include: master/Athena
 

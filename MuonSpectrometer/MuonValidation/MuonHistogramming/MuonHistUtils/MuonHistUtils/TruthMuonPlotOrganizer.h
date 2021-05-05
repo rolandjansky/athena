@@ -26,7 +26,7 @@ namespace Muon
     std::vector<PlotBase*> m_allPlots;
     std::vector<int> m_selPlots;  
     
-    void fill(const xAOD::TruthParticle& truthMu);
+    void fill(const xAOD::TruthParticle& truthMu, float weight=1.0);
     
     // Truth plots
     Trk::ParamPlots                 *m_oTruthPlots;

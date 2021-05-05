@@ -25,8 +25,18 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK(m_trackParticleKeys.initialize());
   ATH_CHECK(m_jetKeys.initialize());
   ATH_CHECK(m_caloClustersKeys.initialize());
+  ATH_CHECK(m_caloCellKey.initialize());
   ATH_CHECK(m_muonKeys.initialize());
   ATH_CHECK(m_trackCollectionKeys.initialize());
+
+  ATH_CHECK(m_cscPrepRawDataKey.initialize());
+  ATH_CHECK(m_mdtPrepRawDataKey.initialize());
+  ATH_CHECK(m_rpcPrepRawDataKey.initialize());
+  ATH_CHECK(m_tgcPrepRawDataKey.initialize());
+  ATH_CHECK(m_pixelPrepRawDataKey.initialize());
+  ATH_CHECK(m_sctPrepRawDataKey.initialize());
+  ATH_CHECK(m_trtPrepRawDataKey.initialize());
+
 
   if (m_extrapolateTrackParticless)
   {
@@ -64,7 +74,17 @@ StatusCode DumpEventDataToJsonAlg::execute()
   ATH_CHECK(getAndFillArrayOfContainers(j, m_trackParticleKeys, "Tracks"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_muonKeys, "Muons"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_caloClustersKeys, "CaloClusters"));
+  ATH_CHECK(getAndFillArrayOfContainers(j, m_caloCellKey, "CaloCells"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_trackCollectionKeys, "Tracks"));
+
+  // hits
+  ATH_CHECK(getAndFillContainer(j, m_cscPrepRawDataKey, "Hits"));
+  ATH_CHECK(getAndFillContainer(j, m_mdtPrepRawDataKey, "Hits"));
+  ATH_CHECK(getAndFillContainer(j, m_rpcPrepRawDataKey, "Hits"));
+  ATH_CHECK(getAndFillContainer(j, m_tgcPrepRawDataKey, "Hits"));
+  ATH_CHECK(getAndFillContainer(j, m_pixelPrepRawDataKey, "Hits"));
+  ATH_CHECK(getAndFillContainer(j, m_sctPrepRawDataKey, "Hits"));
+  // ATH_CHECK(getAndFillContainer(j, m_trtPrepRawDataKey, "Hits")); // Need specialisation. TODO.
 
   // For the moment the label is just the event/run number again, but can be manually overwritten in the output file
   std::string label = std::to_string(eventInfo->eventNumber()) + "/" + std::to_string(eventInfo->runNumber());
@@ -75,6 +95,7 @@ StatusCode DumpEventDataToJsonAlg::execute()
 
 void DumpEventDataToJsonAlg::prependTestEvent()
 {
+  ATH_MSG_VERBOSE("Prepending a test event.");
   nlohmann::json j;
 
   // FIXME - this
@@ -93,7 +114,7 @@ void DumpEventDataToJsonAlg::prependTestEvent()
     for (unsigned int nEta = 0; nEta < maxSteps; ++nEta)
     {
       eta = static_cast<float>(nEta) / static_cast<float>(maxSteps) * 3.0; // Want to range from 0 to 3.0
-      
+
       // Create a calo cluster at each value
       nlohmann::json cluster;
       cluster["phi"] = phi;
@@ -115,7 +136,7 @@ void DumpEventDataToJsonAlg::prependTestEvent()
       track["chi2"] = 0.0;
       track["dof"] = 0.0;
 
-      double theta = 2 * std::atan(std::exp(eta));
+      double theta = 2 * std::atan(std::exp(-eta));
       // d0, z0, phi, theta, qOverP
       track["dparams"] = {0.0, 0.0, phi, theta, 0.0};
       // Add three positions (less than this might not count as a)
@@ -170,6 +191,19 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const xAOD::CaloCluster &clust)
   data["phi"] = clust.phi();
   data["eta"] = clust.eta();
   data["energy"] = clust.e();
+  //data["etaSize"] = clust.getClusterEtaSize(); // empty
+  //data["phiSize"] = clust.getClusterPhiSize(); // empty
+  return data;
+}
+
+// Specialisation for CaloCells
+template <>
+nlohmann::json DumpEventDataToJsonAlg::getData(const CaloCell &cell)
+{
+  nlohmann::json data;
+  data["phi"] = cell.phi();
+  data["eta"] = cell.eta();
+  data["energy"] = cell.e();
   //data["etaSize"] = clust.getClusterEtaSize(); // empty
   //data["phiSize"] = clust.getClusterPhiSize(); // empty
   return data;
@@ -257,27 +291,26 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const Trk::Track &track)
     data["pos"] = {{}};
   }
 
-  const DataVector<const Trk::MeasurementBase> *measurements = track.measurementsOnTrack();
-  // prefer positions from measurements
-  if (measurements)
+  const DataVector<const Trk::TrackParameters> *parameters = track.trackParameters();
+  if (parameters)
   {
-    for (const Trk::MeasurementBase *meas : *measurements)
+    for (const Trk::TrackParameters *param : *parameters)
     {
-      data["pos"].push_back({meas->globalPosition().x(), meas->globalPosition().y(), meas->globalPosition().z()});
+      data["pos"].push_back({param->position().x(), param->position().y(), param->position().z()});
     }
   }
   else
   {
-    // .. but trackparameters are okay too!
-    const DataVector<const Trk::TrackParameters> *parameters = track.trackParameters();
-    if (parameters)
+    const DataVector<const Trk::MeasurementBase> *measurements = track.measurementsOnTrack();
+    if (measurements)
     {
-      for (const Trk::TrackParameters *param : *parameters)
+      for (const Trk::MeasurementBase *meas : *measurements)
       {
-        data["pos"].push_back({param->position().x(), param->position().y(), param->position().z()});
+        data["pos"].push_back({meas->globalPosition().x(), meas->globalPosition().y(), meas->globalPosition().z()});
       }
     }
   }
+
   return data;
 }
 
@@ -323,3 +356,40 @@ StatusCode DumpEventDataToJsonAlg::finalize()
   outputFile << m_eventData;
   return StatusCode::SUCCESS;
 }
+
+template <class TYPE>
+StatusCode DumpEventDataToJsonAlg::getAndFillContainer(nlohmann::json &event,
+                                                       const SG::ReadHandleKey<TYPE> &key,
+                                                       const std::string jsonType)
+{
+SG::ReadHandle<TYPE> handle(key);
+
+ATH_MSG_VERBOSE("Trying to load " << handle.key());
+ATH_CHECK(handle.isValid());
+ATH_MSG_VERBOSE("Got back " << handle->size());
+
+nlohmann::json tmp = getData(*handle);
+event[jsonType][handle.key()]=tmp;
+
+return StatusCode::SUCCESS;
+}
+
+// Generic PRD
+template <class TYPE>
+nlohmann::json DumpEventDataToJsonAlg::getData(const TYPE &container)
+{
+
+  nlohmann::json colldata;
+  for (const auto& coll : container ) {
+    for (const auto& prd : *coll ) {
+      nlohmann::json data;
+      data["pos"] = {prd->globalPosition().x(), prd->globalPosition().y(), prd->globalPosition().z()};
+      Identifier id = prd->identify();
+      data["id"] = id.get_compact();
+      colldata.push_back(data);
+    }
+  }
+
+  return colldata;
+}
+

@@ -11,7 +11,7 @@ atlas_add_library( TrigCostMonitorMTLib
                    TrigCostMonitorMT/*.h
                    src/lib/*.cxx
                    PUBLIC_HEADERS TrigCostMonitorMT
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigConfData TrigConfHLTUtilsLib TrigDataAccessMonitoringLib xAODTrigger
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigDecisionToolLib TrigConfData TrigConfHLTUtilsLib TrigDataAccessMonitoringLib xAODTrigger
                    PRIVATE_LINK_LIBRARIES AthViews AthenaKernel )
 
 atlas_add_component( TrigCostMonitorMT
@@ -22,6 +22,8 @@ atlas_add_component( TrigCostMonitorMT
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+atlas_install_scripts( share/RunEBWeightsComputation.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Test(s) in the packageL
 atlas_add_test( AlgorithmIdentifier_test

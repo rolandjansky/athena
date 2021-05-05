@@ -1945,7 +1945,7 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         const Trk::Surface& surf = etapold->associatedSurface();
         
         // transform the global position of the phi hit into the reference frame of the eta hit
-        const Amg::Vector2D* lpos = surf.globalToLocal(phipold->globalPosition());
+        std::optional<Amg::Vector2D> lpos = surf.globalToLocal(phipold->globalPosition());
         
         // calculate the 2D space point
         if(!lpos) {
@@ -1973,32 +1973,27 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         Amg::Vector2D lposnew(etapold->localParameters()[Trk::locX], (*lpos)[Trk::locY]);
         
         // calculate the corresponding global position
-        const Amg::Vector3D* gposnew = surf.localToGlobal(lposnew);
+        const Amg::Vector3D gposnew = surf.localToGlobal(lposnew);
         const Amg::Vector3D& gdirnew = rsg.globalDirection();
         
         // create the new rots using the ROT creator
         const Trk::RIO_OnTrack* etaRot
-          = m_rotCreator->createRIO_OnTrack(*etapold->prepRawData(), *gposnew, gdirnew); 
+          = m_rotCreator->createRIO_OnTrack(*etapold->prepRawData(), gposnew, gdirnew); 
         rios->push_back(etaRot);
 
         const Trk::RIO_OnTrack* phiRot
-          = m_rotCreator->createRIO_OnTrack(*phipold->prepRawData(), *gposnew);
+          = m_rotCreator->createRIO_OnTrack(*phipold->prepRawData(), gposnew);
         rios->push_back(phiRot);
         
         // debug output, to be removed
         const Trk::Surface& surfPhi = phipold->associatedSurface();
-        const Amg::Vector2D* lposEta = surf.globalToLocal( etaRot->globalPosition() );
-        const Amg::Vector2D* lposPhi = surfPhi.globalToLocal( phiRot->globalPosition() );
+        std::optional<Amg::Vector2D> lposEta = surf.globalToLocal( etaRot->globalPosition() );
+        std::optional<Amg::Vector2D> lposPhi = surfPhi.globalToLocal( phiRot->globalPosition() );
         ATH_MSG_VERBOSE ( " eta gp " << etapold->globalPosition()
                           << " new " << etaRot->globalPosition() << " loc " << *lposEta );
         ATH_MSG_VERBOSE ( " phi gp " << phipold->globalPosition()
                           << " new " << phiRot->globalPosition() << " loc " << *lposPhi );
-        delete lposEta;
-        delete lposPhi;
         
-        // clean up pointers
-        delete lpos;
-        delete gposnew;
       } // end loop over phi
     } // end loop over eta
 

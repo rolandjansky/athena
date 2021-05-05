@@ -155,6 +155,9 @@ StatusCode TileMuonReceiverDecision::execute() {
   // Used for validation only not including in container at the moment   
   float energy_HLX[maxCell]={0.,0.,0.,0.,0.};
   float time_HLX[maxCell]={0.,0.,0.,0.,0.};
+  
+  int  suppression_counter = 20;
+  bool suppress_printout   = false; 
 
   for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
@@ -184,9 +187,6 @@ StatusCode TileMuonReceiverDecision::execute() {
       memset(time_HLX,0,sizeof(time_HLX));
       ATH_MSG_VERBOSE( "(E.0.0) Frag_id: 0x"<< MSG::hex << frag_id << MSG::dec <<" ros: "<< ros <<" drawer: "<< drawer  );
     }
-
-    int  suppression_counter = 20;
-    bool suppress_printout   = false; 
 
     for (const TileRawChannel* rawChannel : *rawChannelCollection) {
        

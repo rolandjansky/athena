@@ -122,8 +122,8 @@ class CounterBase {
       const VariableType type = VariableType::kPerCall, 
       const LogType xaxis = kLog,
       const float min = 0.1, 
-      const float max = 100000.,
-      const size_t bins = 60);
+      const float max = 1000000.,
+      const size_t bins = 70);
 
     /**
      * @brief Appends Counter name (to histogram path) and forwards histogram book request to parent Monitor.

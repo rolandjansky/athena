@@ -1,20 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.06.2007, AUTHOR: OLIVER KORTNER
-// Modified: 23.11.2007 by O. Kortner, fix for problems with CLHEP vectors on
-//                                     some platforms.
-//           18.07.2008 by O. Kortner, switch from the quasianalytic fitter
-//                                     to StraightPatRec for better performance.
-//           18.08.2008 by O. Kortner, curved segment fitting enabled; time-out
-//                                     option added.
-//           04.11.2008 by O. Kortner, road width adjustable by the user.
-//				 19.11.2008 by I. Potrap,  non-limited number of steps,
-//                                     only 3 last points are used for t0-fit.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #ifndef MuonCalib_T0RefinementH
 #define MuonCalib_T0RefinementH
 
@@ -36,21 +22,21 @@
 //::::::::::::::::::
 
 // MuonCalib //
+#include <memory>
+
 #include "MdtCalibData/IRtRelation.h"
-#include "MuonCalibEventBase/MuonCalibSegment.h"
-//#include "MdtCalibFitters/QuasianalyticLineReconstruction.h"
 #include "MdtCalibFitters/CurvedPatRec.h"
 #include "MdtCalibFitters/StraightPatRec.h"
-
+#include "MuonCalibEventBase/MuonCalibSegment.h"
 namespace MuonCalib {
 
     class T0Refinement {
     public:
         // Constructors //
-        T0Refinement(void);
+        T0Refinement();
         ///< Default constructor.
 
-        ~T0Refinement(void) {}
+        ~T0Refinement() = default;
         ///< Destructor.
 
         // Methods //
@@ -81,8 +67,8 @@ namespace MuonCalib {
 
     private:
         //	QuasianalyticLineReconstruction *m_qfitter; // straight-line fitter
-        StraightPatRec *m_qfitter;  // straight-line fitter
-        CurvedPatRec *m_cfitter;    // curved-segment fitter
+        std::unique_ptr<StraightPatRec> m_qfitter;  // straight-line fitter
+        std::unique_ptr<CurvedPatRec> m_cfitter;    // curved-segment fitter
         double m_delta_t0;
         double m_time_out;  // time-out for pattern finding
     };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,6 +71,12 @@ public:
   /**Assignment operator*/
   ConeBounds& operator=(const ConeBounds& cylbo) = default;
 
+  /** Move constructor */
+  ConeBounds(ConeBounds&& annbo) = default;
+  /** Move assignment */
+  ConeBounds& operator=(ConeBounds&& sbo) = default;
+
+ 
   /**Destructor */
   virtual ~ConeBounds() = default;
 

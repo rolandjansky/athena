@@ -14,6 +14,7 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 //system
 #include <memory>
 #include <type_traits>
@@ -167,7 +168,7 @@ public:
 
   /** Returns the Surface Type enum for the surface used
    * to define the derived class*/
-  virtual int surfaceType() const = 0;
+  virtual SurfaceType surfaceType() const = 0;
 
   /** Dumps relevant information about the track parameters into the ostream */
   virtual MsgStream& dump(MsgStream& out) const;
@@ -195,8 +196,8 @@ protected:
    * Default Move ctor/assignment, private can be used
    * only by derived classes.
    */
-  ParametersBase(ParametersBase&&) = default;
-  ParametersBase& operator=(ParametersBase&&) = default;
+  ParametersBase(ParametersBase&&) noexcept = default;
+  ParametersBase& operator=(ParametersBase&&) noexcept  = default;
   /*
    * Default copy ctor/assignment
    * Deleted due unique_ptr.

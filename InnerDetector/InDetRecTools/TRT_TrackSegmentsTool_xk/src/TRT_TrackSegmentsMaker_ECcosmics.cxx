@@ -1489,7 +1489,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       }else{
         C[2]+=1.;
       }
-      Amg::Transform3D*            T    = new Amg::Transform3D(line->transform().rotation()*Amg::Translation3D(C));
+      Amg::Transform3D            T    = Amg::Transform3D(line->transform().rotation()*Amg::Translation3D(C));
       Trk::StraightLineSurface* surface = new Trk::StraightLineSurface(T);
 
 

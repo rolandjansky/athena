@@ -252,6 +252,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::unordered_map<std::string, std::string> m_lowerTrigger; //!< Map of triggers lower chain, to tell if a HLT trigger ran or not. 
 
   std::vector<std::vector<std::string>> m_hltChainIDGroup;
+  std::vector<std::vector<std::string>> m_l1ItemID;
 
   const std::string m_l1GroupName = "L1";
   const std::string m_l2GroupName = "Main";

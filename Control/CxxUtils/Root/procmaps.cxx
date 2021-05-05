@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -53,22 +53,24 @@ procmaps::loadMaps(bool dump) {
 
 const procmaps::Entry*
 procmaps::getEntry(const void * address, bool refreshMaps) {
-  const procmaps::Entry* ret(0);
-  //FIXME slow linear search. We'll make it faster...
-  const_iterator i(this->begin()), e(this->end());
-  bool found(false), done(false);
-  unsigned long toMatch((unsigned long)address);
-  while (!done && !found && i!=e) {
-    //    printf(" begAddress %x toMatch %x endAddress %x\n", i->begAddress, toMatch, i->endAddress);
-    found = i->begAddress <= toMatch && toMatch <= i->endAddress; 
-    done = !found && toMatch < i->begAddress; //entries sorted by begAddress
-    if (!found && !done) ++i;
+  unsigned long toMatch = reinterpret_cast<unsigned long>(address);
+  auto i = std::upper_bound (this->begin(), this->end(),
+                             toMatch,
+                             [] (unsigned long addr, const Entry& ent)
+                             { return addr < ent.begAddress; });
+
+  if (i > this->begin()) {
+    --i;
+    if (toMatch >= i->begAddress && toMatch < i->endAddress) {
+      return &*i;
+    }
   }
-  if (found) ret=&*i;
-  else  if (refreshMaps) {
+
+  if (refreshMaps) {
     //if ! found recurse once by calling getEntry with refreshMaps false
     loadMaps();
-    ret = getEntry(address,false);
+    return getEntry(address,false);
   }
-  return ret;
+
+  return nullptr;
 }

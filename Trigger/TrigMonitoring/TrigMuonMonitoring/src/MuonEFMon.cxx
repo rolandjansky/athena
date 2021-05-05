@@ -544,7 +544,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 	    for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
 	      const TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
-	      TrigMuonEFTrack* muonTrack = muonInfoTr->SpectrometerTrack();
+	      const TrigMuonEFTrack* muonTrack = muonInfoTr->SpectrometerTrack();
 	      if (!muonTrack) {
 		ATH_MSG_DEBUG( "No MuonEF Spectrometer track found" );
 	      } else {
@@ -629,7 +629,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
-	      TrigMuonEFCbTrack* muonCbTrack = muonInfoTr->CombinedTrack();
+	      const TrigMuonEFCbTrack* muonCbTrack = muonInfoTr->CombinedTrack();
 	      if (!muonCbTrack){
 		ATH_MSG_DEBUG( "No MuonEF Combined track found" );
 	      }else{

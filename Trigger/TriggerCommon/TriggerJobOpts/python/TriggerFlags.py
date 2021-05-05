@@ -74,34 +74,13 @@ class doHLT(JobProperty):
     
 _flags.append(doHLT)
 
-class EDMVersion(JobProperty):
-    """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
-    statusOn=False
-    allowedType=['int']
-    allowedValues=[1,2,3]
-    StoredValue=3
-
-    def _do_action(self):
-        self.statusOn = True
-
-    def __call__(self):
-        if not self.statusOn:
-            log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-            log.warning('TriggerFlags.EDMVersion is deprecated, please use ConfigFlags.Trigger.EDMVersion')
-            from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            self.StoredValue = ConfigFlags.Trigger.EDMVersion
-            self.statusOn = True
-        return JobProperty.__call__(self)
-
-_flags.append(EDMVersion)
-
-class enableMonitoring(JobProperty):
-    """ enables certain monitoring type: Validation, Online, Time"""
+class doValidationMonitoring(JobProperty):
+    """Enables extra validation monitoring"""
     statusOn=True
-    allowedType=['list']
-    StoredValue=[]
+    allowedType=['bool']
+    StoredValue=False
 
-_flags.append(enableMonitoring)
+_flags.append(doValidationMonitoring)
 
 # trigger configuration source list
 class configurationSourceList(JobProperty):

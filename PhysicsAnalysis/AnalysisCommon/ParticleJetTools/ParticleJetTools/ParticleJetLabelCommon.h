@@ -16,16 +16,17 @@ namespace ParticleJetTools {
   struct LabelNames {
     std::string singleint;
     std::string doubleint;
+    std::string pt;
   };
 
-  struct PartonCounts {
-    size_t b;
-    size_t c;
-    size_t tau;
+  struct Particles {
+    std::vector<const xAOD::TruthParticle*> b;
+    std::vector<const xAOD::TruthParticle*> c;
+    std::vector<const xAOD::TruthParticle*> tau;
   };
 
   void setJetLabels(xAOD::Jet& jet,
-                    const PartonCounts& counts,
+                    const Particles& particles,
                     const LabelNames& names);
 
   void childrenRemoved

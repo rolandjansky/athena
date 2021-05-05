@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
@@ -13,6 +13,7 @@
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -21,7 +22,6 @@
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "PoolSvc/IPoolSvc.h"
 
 #include <vector>
@@ -246,13 +246,13 @@ private: // properties
 
    /// For SharedWriter:
    /// To use MetadataSvc to merge data placed in a certain container
-   StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer",""};
+   StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer","MetaData"};
    /// Make this instance a Streaming Client during first connect/write automatically
    IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
    /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
-   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
+   BooleanProperty m_parallelCompression{this,"ParallelCompression",true};
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"
-   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:1095"};
+   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:0"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
    IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",-1};
 };

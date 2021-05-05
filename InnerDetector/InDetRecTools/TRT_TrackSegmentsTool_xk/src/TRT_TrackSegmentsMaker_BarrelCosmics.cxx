@@ -693,7 +693,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
 			 (hits[iPivot]->detectorElement())->surface(hits[iPivot]->identify()).center().z() );
   
 
-  Amg::Transform3D* htrans = new Amg::Transform3D(Amg::Translation3D(hepVec)*Amg::RotationMatrix3D::Identity());
+  Amg::Transform3D htrans = Amg::Transform3D(Amg::Translation3D(hepVec)*Amg::RotationMatrix3D::Identity());
   
   
 
@@ -748,7 +748,7 @@ if (1) { // limit the scope of all these variables
   Amg::RotationMatrix3D linerot=surf.transform().rotation();
   Amg::Vector3D         firstcenter=surf.center();
   Amg::Vector3D         faketransl(firstcenter.x(),firstcenter.y()-5.,firstcenter.z());
-  Amg::Transform3D *    faketransf=new Amg::Transform3D(linerot* Amg::Translation3D(faketransl));
+  Amg::Transform3D     faketransf = Amg::Transform3D(linerot* Amg::Translation3D(faketransl));
   Trk::StraightLineSurface *pseudoSurface = new Trk::StraightLineSurface( faketransf, 99999., 99999. );  
 
   Trk::PseudoMeasurementOnTrack *pseudo = new Trk::PseudoMeasurementOnTrack( pseudoPar, pseudocov, *pseudoSurface );

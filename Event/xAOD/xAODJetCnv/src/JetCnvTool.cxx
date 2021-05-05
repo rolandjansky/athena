@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetEvent/JetCollection.h"
@@ -22,15 +22,6 @@ namespace xAODMaker {
     declareInterface< IJetCnvTool >( this );
   }
 
-  StatusCode JetCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
   /**
    * This is the important function of the tool. It takes the muon RoI objects
    * from a LVL1_ROI container, and fills an xAOD::MuonRoIContainer with them.

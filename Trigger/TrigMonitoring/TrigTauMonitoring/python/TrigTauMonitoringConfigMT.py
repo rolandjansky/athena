@@ -56,17 +56,6 @@ class TrigTauMonAlgBuilder:
         self.activate_tau=True
     else:
         self.activate_tau=True
-    """    self.activate_jpsiee=True 
-        self.activate_electron=True
-        self.activate_photon=True
-    elif self.HI_mode is True or self.pPb_mode is True or self.cosmic_mode is True:
-      self.activate_electron=True
-      self.activate_photon=True
-    else:
-      self.activate_zee=True
-      self.activate_jpsiee=True
-      self.activate_electron=True
-      self.activate_photon=True"""
 
     
   def configure(self):
@@ -87,6 +76,28 @@ class TrigTauMonAlgBuilder:
 
       def isL1Item(self):
         return True if self.chain().startswith('L1') else False
+
+      def isComboChain(self):
+        isComboChain = False
+        splits = self.chain().split("_")
+        Npart = 0
+        for split in splits:
+            if split.startswith('tau'):
+                Npart+=1
+        if Npart > 1:
+            isComboChain = True
+        return isComboChain        
+
+      # CAUTION: Works only for no combined chains
+      def L1thresh(self):
+        thresh = []
+        splits = self.chain().split("_")
+        for split in splits:
+            if split.startswith('L1'):
+                for word in split:
+                   if word.isdigit():
+                      thresh.append(int(word))
+        return thresh
 
       def L1seed(self):
         l1seed = ''
@@ -259,10 +270,6 @@ class TrigTauMonAlgBuilder:
   
       l1seeds.append(info.L1seed())
 
-      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
-      self.bookRNNTrack( monAlg, trigger, online=False )
-      self.bookRNNCluster( monAlg, trigger, online=False )
       self.bookbasicVars( monAlg, trigger, online=False )
       self.bookbasicVars( monAlg, trigger, online=True )
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
@@ -271,8 +278,12 @@ class TrigTauMonAlgBuilder:
       if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
+        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
         self.bookRNNTrack( monAlg, trigger, online=True )
         self.bookRNNCluster( monAlg, trigger, online=True )
+        self.bookRNNTrack( monAlg, trigger, online=False )
+        self.bookRNNCluster( monAlg, trigger, online=False )
       elif info.isBDT() is True:
         self.bookBDTOut( monAlg, trigger, nProng='1P')
         self.bookBDTOut( monAlg, trigger, nProng='MP')
@@ -433,8 +444,24 @@ class TrigTauMonAlgBuilder:
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
+
+    info = self.getTrigInfo(trigger) 
+    l1th = []    
+    if(not info.isComboChain()):
+      l1th = info.L1thresh()
+
+    thresh=''
+    for i in range(1,len(l1th)):
+       thresh=thresh+str(l1th[i])
+
+    etmin=0.
+    etmax=250.
     
-    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=250)
+    if len(l1th) !=  0:
+       etmin=int(thresh)
+       etmax=5*int(thresh)
+
+    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=etmin,xmax=etmax)
     monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
@@ -465,8 +492,6 @@ class TrigTauMonAlgBuilder:
     monGroupPath = 'BDT/Out_'+nProng+'/'+trigger
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
-
-    print('MonGroup name is python: ', monGroupName)
 
     monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
     monGroup.defineHistogram('BDTJetScoreSigTrans', title='Flattened BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)

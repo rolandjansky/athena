@@ -396,7 +396,7 @@ AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
 ClassIDSvc                         INFO  getRegistryEntries: read 3200 CLIDRegistry entries for module ALL
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr
 TopAlgorithm                      DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm.TSTT                 DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm                       INFO Retrieved TheTool = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')

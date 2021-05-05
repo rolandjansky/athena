@@ -7,7 +7,7 @@
 #include "./ConditionFilter.h"
 
 
-ConditionFilter::ConditionFilter(ConditionPtrs& conditions):
+ConditionFilter::ConditionFilter(ConditionPtrs&& conditions):
   m_conditions(std::move(conditions)) {
 }
 

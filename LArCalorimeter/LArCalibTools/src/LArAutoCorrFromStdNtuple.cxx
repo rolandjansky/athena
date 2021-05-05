@@ -10,9 +10,8 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
-
-#include "LArTools/LArMCSymTool.h"
-#include "LArElecCalib/ILArMCSymTool.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TFile.h"
 #include "TBranch.h"
@@ -59,7 +58,7 @@ const float sFcalcovr[31][3]={
    {   0.000133223, -5.59111e-06, 6.85495e-06}
        };
 
-LArAutoCorrFromStdNtuple::LArAutoCorrFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_larmcsym("LArMCSymTool")
+LArAutoCorrFromStdNtuple::LArAutoCorrFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("Nsamples",    m_nsamples=7);
   declareProperty("FileNames", m_root_file_names);
@@ -76,7 +75,7 @@ LArAutoCorrFromStdNtuple::~LArAutoCorrFromStdNtuple()
 
 StatusCode LArAutoCorrFromStdNtuple::initialize() 
 {
-  ATH_CHECK ( m_larmcsym.retrieve() ); 
+  ATH_CHECK ( m_mcSymKey.initialize() ); 
   ATH_CHECK ( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS ;
@@ -88,6 +87,9 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
 
   ATH_MSG_INFO ( "... in stop()" );
   
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<LArMCSym> mcsym (m_mcSymKey, ctx);
+
   // get LArOnlineID helper
   const LArOnlineID* onlineHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
@@ -96,7 +98,7 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
   const LArFCAL_ID* fcal_id = idHelper->fcal_idHelper();
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR( "DO not have mapping from cabling key " << m_cablingKey.key() );
@@ -165,7 +167,7 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
     }
 
     if(!m_isComplete) {
-       if (id != m_larmcsym->symOnline(id) ) {
+       if (id != mcsym->ZPhiSymOnl(id) ) {
            ATH_MSG_DEBUG( "Symmetrized, not stored" );
            continue;
        }
@@ -223,7 +225,7 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
       for(; itOnId!=itOnIdEnd;++itOnId){
           const HWIdentifier chid = *itOnId;
           if(!m_isComplete) {
-             if (chid != m_larmcsym->symOnline(chid) ) {
+             if (chid != mcsym->ZPhiSymOnl(chid) ) {
                  ATH_MSG_DEBUG( "Symmetrized, not stored" );
                  continue;
              }

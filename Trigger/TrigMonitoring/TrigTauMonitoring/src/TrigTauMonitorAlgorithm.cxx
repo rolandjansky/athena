@@ -120,7 +120,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
     // consider only offline taus which pass RNN medium WP
     if( !Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium)) continue;
 
-    auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::includeFailedDecisions , tauContainerName );
+    auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::Physics , tauContainerName );
     for( auto &featLinkInfo : vec ){                                             
       if(! featLinkInfo.isValid() ) continue;
       const auto *feat = *(featLinkInfo.link);                   
@@ -170,16 +170,20 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   }
   // Offline
   if( offline_for_hlt_tau_vec_1p.size() != 0){
+    if(info.isRNN){
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
       fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
-      fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, false);
+    }
+    fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, false);
   }
 
   if( offline_for_hlt_tau_vec_mp.size() != 0){ 
+    if(info.isRNN){
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_mp,"MP", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_mp, false );
       fillRNNCluster( trigger, offline_for_hlt_tau_vec_mp, false );
+    }
       fillbasicVars( trigger, offline_for_hlt_tau_vec_mp, false);
   }
 
@@ -190,7 +194,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
 
   ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 
-  auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions , tauContainerName );
+  auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::Physics , tauContainerName );
   for( auto &featLinkInfo : vec ){
     const auto *feat = *(featLinkInfo.link);
     if(!feat) continue;
@@ -302,6 +306,8 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
   auto tauPhi = Monitored::Scalar<float>(monGroupName+"_tauPhi",0.0);
   auto averageMu = Monitored::Scalar<float>(monGroupName+"_averageMu",0.0); 
   auto HLT_match = Monitored::Scalar<bool>(monGroupName+"_HLTpass",false);
+ 
+  bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
 
   for(auto offline_tau : offline_tau_vec){
 
@@ -309,7 +315,8 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
        tauEta = offline_tau->eta();
        tauPhi = offline_tau->phi();
        averageMu = lbAverageInteractionsPerCrossing(ctx);
-       HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2);
+       // HLT matching  : dR matching + HLT fires
+       HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2) && hlt_fires;
 
        fill(monGroup, tauPt, tauEta, tauPhi, averageMu, HLT_match);
   }
@@ -709,7 +716,9 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
       EFWidenTrack = tau->nTracksIsolation();
       return EFWidenTrack; }); 
 
-  if(!online){
+  const TrigInfo info = getTrigInfo(trigger);
+
+  if(!online || info.isRNN){
     auto hRNNScore = Monitored::Collection("hRNNScore", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScore);});
     auto hRNNScoreSigTrans = Monitored::Collection("hRNNScoreSigTrans", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);});
 

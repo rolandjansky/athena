@@ -70,9 +70,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
       }
     } // Offline photon
   
+
     // Good pair to be measure
     auto acceptData = setAccept( pairObj.second, info );
-    
+  
     pair_vec.push_back(pairObj);
     accept_vec.push_back(acceptData);
 
@@ -312,7 +313,21 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 }
                 fillShowerShapes( trigger, eg_vec, true );
                 fillTracking( trigger, el_vec, true );
-                }else{
+            }else if(info.isLRT){
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("ElectronLRT") );      
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                }
+                
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+            }else{
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;
                 auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("Electron") );      
@@ -326,7 +341,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 fillShowerShapes( trigger, eg_vec, true );
                 fillTracking( trigger, el_vec, true );
             }
-
         }else{
           ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
         }
@@ -392,8 +406,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 }
                 fillL2Electron( trigger, el_vec );
             }
- 
-
             // HLT Electron
             if (info.isGSF){
                 std::vector<const xAOD::Electron*> el_vec;
@@ -408,7 +420,22 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 }
                 fillShowerShapes( trigger, eg_vec, true );
                 fillTracking( trigger, el_vec, true );
-
+            }else if(info.isLRT){
+                
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("ElectronLRT") );      
+                for( auto &featLinkInfo : vec ){
+                    if(! featLinkInfo.isValid() ) continue;
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                    
+                }
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+    
             }else{
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -47,7 +47,7 @@ def getCscDigitizationToolBase(name, **kwargs):
 def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.bkgPrefix() + "CSC_SDO")
     else:
