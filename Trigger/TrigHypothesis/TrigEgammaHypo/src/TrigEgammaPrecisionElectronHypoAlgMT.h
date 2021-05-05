@@ -13,6 +13,7 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "StoreGate/ReadDecorHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -38,9 +39,11 @@ class TrigEgammaPrecisionElectronHypoAlgMT : public ::HypoBase {
     SG::ReadHandleKey< xAOD::ElectronContainer > m_electronsKey { this, "Electrons", "Electrons", "Electrons in roi" };  
 
     ToolHandleArray< ITrigEgammaPrecisionElectronHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+    ToolHandleArray<IAsgElectronIsEMSelector> m_egammaElectronCBTools{ this, "ElectronCBSelectorTools", {},"Cut-based tools" };
     ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronLHTools{ this, "ElectronLHSelectorTools", {},"Likelihood tools" };
     //ToolHandleArray<?> m_egammaElectronLHTool{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
 
+    Gaudi::Property<std::vector<std::string>> m_cbNames {this, "CBNames", {}, "CB pid names."};
     Gaudi::Property<std::vector<std::string>> m_lhNames {this, "LHNames", {}, "LH pid names."};
     //Gaudi::Property<std::vector<std::string>> m_dnnNames {this, "DNNNames", {}, "DNN pid names."};
 
