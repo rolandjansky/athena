@@ -53,7 +53,7 @@ private:
 
   void createDict(std::ofstream& );
   void createASCII(std::ofstream& );
-  void handle(const Incident &inc);
+  virtual void handle(const Incident &inc) override;
   static void newHandler();
 
   // properties
