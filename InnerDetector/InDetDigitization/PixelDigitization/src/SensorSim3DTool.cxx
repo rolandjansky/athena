@@ -23,6 +23,7 @@
 
 #include "TFile.h"
 
+#include <cmath>
 #include <memory>
 
 using namespace InDetDD;
@@ -519,10 +520,11 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   double u = CLHEP::RandFlat::shoot(0., 1.); //
   double driftTime = 0;
 
+  // need to update to std::logf when we update gcc - this is a known bug in gcc libc
   if (isHoleBit) {
-    driftTime = (-1.) * m_trappingTimeHoles * std::log(u); // ns
+    driftTime = (-1.) * m_trappingTimeHoles * logf(u); // ns
   } else {
-    driftTime = (-1.) * m_trappingTimeElectrons * std::log(u); // ns
+    driftTime = (-1.) * m_trappingTimeElectrons * logf(u); // ns
   }
   return driftTime;
 }
