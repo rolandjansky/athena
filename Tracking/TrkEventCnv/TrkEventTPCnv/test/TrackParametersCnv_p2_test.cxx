@@ -122,7 +122,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit (trans3c);
 
   Trk::ConeSurface csurf
-    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)).release(), 0.45);
+    (Amg::Transform3D(Amg::getRotateX3D (0.5)), 0.45);
   Trk::AtaCone trans4 (200, 100, 1.4, 0.7, 2e-3, csurf, std::nullopt);
   testit (trans4);
 

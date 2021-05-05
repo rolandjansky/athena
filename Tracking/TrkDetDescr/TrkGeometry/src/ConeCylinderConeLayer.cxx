@@ -26,19 +26,16 @@ Trk::ConeCylinderConeLayer::ConeCylinderConeLayer(
   // now create the real surfaces
   double rTanAlpha = radius / tan(alpha);
   // left cone
-  Amg::Transform3D* leftConeTransform = new Amg::Transform3D;
-  (*leftConeTransform) =
-      (*htrans) * Amg::Translation3D(0, 0, -zStitch - rTanAlpha);
+  Amg::Transform3D leftConeTransform =
+    (*htrans) * Amg::Translation3D(0, 0, -zStitch - rTanAlpha);
   m_surfaces.push_back(new ConeSurface(
-      leftConeTransform, alpha, rTanAlpha - (halfLength - zStitch), rTanAlpha));
+    leftConeTransform, alpha, rTanAlpha - (halfLength - zStitch), rTanAlpha));
   // center cylinder
   m_surfaces.push_back(
-      new CylinderSurface(new Amg::Transform3D(*htrans), radius, zStitch));
+    new CylinderSurface(new Amg::Transform3D(*htrans), radius, zStitch));
   // right cone
-  Amg::Transform3D* rightConeTransform = new Amg::Transform3D;
-  (*rightConeTransform) =
-      (*htrans) * Amg::Translation3D(0, 0, zStitch + rTanAlpha);
-  m_surfaces.push_back(new ConeSurface(rightConeTransform, alpha,
-                                       rTanAlpha - (halfLength - zStitch),
-                                       rTanAlpha));
+  Amg::Transform3D rightConeTransform =
+    (*htrans) * Amg::Translation3D(0, 0, zStitch + rTanAlpha);
+  m_surfaces.push_back(new ConeSurface(
+    rightConeTransform, alpha, rTanAlpha - (halfLength - zStitch), rTanAlpha));
 }
