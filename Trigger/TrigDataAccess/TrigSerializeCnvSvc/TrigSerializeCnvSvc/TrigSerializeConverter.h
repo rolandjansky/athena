@@ -177,7 +177,16 @@ public:
          if( addr ) {
             if( m_sgsvc->contains< DATA >( addr->sgkey() ) ) {
 	      //std::cout << "NOT OVERWRITING! ptr " << nObj << " key: " << addr->sgkey() << std::endl;
-	      sc = m_sgsvc->overwrite( nObj, addr->sgkey(), false );
+              if (clname == "TrigRoiDescriptorCollection") {
+                // FIXME: we shouldn't be doing overwrite() in a MT job!
+                sc = m_sgsvc->overwrite( nObj, addr->sgkey(), false );
+              }
+              else {
+                *m_log << MSG::ERROR << "TrigSerializeConverter::createObj object "
+                       << clname << " / " << addr->sgkey()
+                       << " is already in the store; not overwriting"
+                       <<  endmsg;
+              }
             } else {
                sc = m_sgsvc->record( nObj, addr->sgkey() );
             }
