@@ -43,7 +43,7 @@ namespace JiveXML {
     
     ATH_MSG_DEBUG( "in retrieveAll()"  );
     
-    const DataHandle<CaloClusterContainer> iterator, end;
+    SG::ConstIterator<CaloClusterContainer> iterator, end;
     const CaloClusterContainer* ccc;
 
     //obtain the default collection first
@@ -75,7 +75,7 @@ namespace JiveXML {
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
 	  if (iterator.key()!=m_sgKeyFavourite) {
              ATH_MSG_DEBUG( "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")"  );
-             DataMap data = getData(iterator);
+             DataMap data = getData(&*iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_ESD", &data).isFailure()){
 	       ATH_MSG_WARNING( "Collection " << iterator.key() << " not found in SG "  );
 	    }else{
