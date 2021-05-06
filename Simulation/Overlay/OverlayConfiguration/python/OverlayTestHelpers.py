@@ -23,6 +23,8 @@ def CommonTestArgumentParser(prog):
                         help="The number of events to run. 0 skips execution")
     parser.add_argument("-t", "--threads", default=1, type=int,
                         help="The number of concurrent threads to run. 0 uses serial Athena.")
+    parser.add_argument("-c", "--concurrent", default=0, type=int,
+                        help="The number of concurrent events to run. 0 uses the same as number of threads.")
     parser.add_argument("-V", "--verboseAccumulators", default=False, action="store_true",
                         help="Print full details of the AlgSequence for each accumulator")
     parser.add_argument("-S", "--verboseStoreGate", default=False, action="store_true",
@@ -76,7 +78,7 @@ def defaultTestFlags(configFlags, args):
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
 
-    if 'detectors' in args:
+    if 'detectors' in args and args.detectors:
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(configFlags, args.detectors)
 
@@ -90,7 +92,7 @@ def postprocessAndLockFlags(configFlags, args):
         configFlags.Scheduler.ShowDataDeps = True
         configFlags.Scheduler.ShowDataFlow = True
         configFlags.Scheduler.ShowControlFlow = True
-        configFlags.Concurrency.NumConcurrentEvents = args.threads
+        configFlags.Concurrency.NumConcurrentEvents = args.concurrent if args.concurrent > 0 else args.threads
 
     configFlags.lock()
 
