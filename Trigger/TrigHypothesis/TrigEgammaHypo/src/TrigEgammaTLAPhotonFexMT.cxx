@@ -43,11 +43,11 @@ StatusCode TrigEgammaTLAPhotonFexMT::initialize()
 
   // here we simply check that the class properties have been correctly initialized at the config stage
   ATH_MSG_DEBUG( "Initializing " << name() << " ...") ;
-  ATH_MSG_DEBUG( "pT threshold for saving fast Photons to TLA Collection: " << m_photonPtThreshold) ;
+  ATH_MSG_DEBUG( "pT threshold for saving Photons to TLA Collection: " << m_photonPtThreshold) ;
   ATH_MSG_DEBUG( "Maximum number of Photons to be saved: " << m_maxNPhotons );
 
   // check if the data handles have been initialized
-  ATH_CHECK(m_fastPhotonsKeys.initialize());
+  ATH_CHECK(m_inputPhotonsKeys.initialize());
   ATH_CHECK(m_TLAOutPhotonsKey.initialize());
 
 
@@ -69,19 +69,19 @@ StatusCode TrigEgammaTLAPhotonFexMT::execute()
 
   auto ctx = getContext();
 
-  SG::ReadHandle<PhotonContainer> h_fastPhotons = SG::makeHandle(m_fastPhotonsKeys, ctx);
+  SG::ReadHandle<PhotonContainer> h_inputPhotons = SG::makeHandle(m_inputPhotonsKeys, ctx);
   SG::WriteHandle<PhotonContainer> h_TLAPhotons = SG::makeHandle(m_TLAOutPhotonsKey, ctx);
 
   // effectively make the TLA Photon Container
 
-  ATH_MSG_DEBUG("Retrieving FastPhotons from " << h_fastPhotons.key() );
-  ATH_MSG_DEBUG("Placing <selected> FastPhotons in " << h_TLAPhotons.key() );
+  ATH_MSG_DEBUG("Retrieving Photons from " << h_inputPhotons.key() );
+  ATH_MSG_DEBUG("Placing <selected> Photons in " << h_TLAPhotons.key() );
 
   //ATH_CHECK(h_TLAPhotons.record (std::make_unique<xAOD::PhotonContainer>(),
     //          std::make_unique<PhotonAuxContainer>()) );  
 
 
-  const xAOD::PhotonContainer* inputPhotons = h_fastPhotons.get();
+  const xAOD::PhotonContainer* inputPhotons = h_inputPhotons.get();
   std::vector<const xAOD::Photon*> originalPhotons(inputPhotons->begin(), inputPhotons->end());
 
   // define the maximum number of photons we care about: either equivalent to m_maxNPhotons if smaller than size of vector, or keep all photons (in case of negative value)

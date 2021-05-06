@@ -203,7 +203,7 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
 
         #PhotonDS Chains
-        ChainProp(name='HLT_g5_etcut_PhotonDS_L1EM3', stream=['PhotonDS'], groups=SinglePhotonGroup),
+        #ChainProp(name='HLT_g5_etcut_PhotonDS_L1EM3', stream=['PhotonDS'], groups=SinglePhotonGroup),
         ChainProp(name='HLT_g35_loose_PhotonDS_L1EM22VHI',stream=['PhotonDS'], groups=SinglePhotonGroup),
         
         # Primary photon chains

@@ -38,7 +38,7 @@ class TrigEgammaTLAPhotonFexMT : public AthAlgorithm {
     // This initializer list syntax also informs the scheduler of the
     // data dependency, obviating the need for a separate declareProperty(...)
 
-    SG::ReadHandleKey < xAOD::PhotonContainer > m_fastPhotonsKeys{
+    SG::ReadHandleKey < xAOD::PhotonContainer > m_inputPhotonsKeys{
       this,
       "TLAInputPhotonContainer",
       "Photons",
