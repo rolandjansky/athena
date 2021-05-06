@@ -91,12 +91,12 @@ void TauPi0ClusterScaler::correctNeutralPFOs(const xAOD::TauJet& tau, xAOD::PFOC
     }
     
     ATH_MSG_DEBUG("Original Neutral PFO" 
-                  << ", e: " << cluster->pt() 
+                  << ", e: " << cluster->e() 
                   << ", eta: " << cluster->eta() 
                   << ", pt: " << cluster->pt());
 
     ATH_MSG_DEBUG("Corrected Neutral PFO" 
-                  << ", e: " << pfo->pt()
+                  << ", e: " << pfo->e()
                   << ", eta: " << pfo->eta()
                   << ", pt: " << pfo->pt());
   }
@@ -180,10 +180,8 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(const xAOD::TauJet& tau
     xAOD::PFO* chargedPFOMatch = nullptr;
     float dRmin = 0.4;
     
-    // FIXME: This loops over the existing charged PFO container, and could contain PFO not associated to this tau.
-    // It could make the association depending on the order of the tau candidate, but the point is that 
-    // hadronic PFO in one tau candidate is unlikely to be associated to charged PFO in another tau candidate
-    for (xAOD::PFO* chargedPFO : chargedPFOContainer) {
+    for(size_t i=0; i<tau.nProtoChargedPFOs(); i++) {
+      xAOD::PFO* chargedPFO = chargedPFOContainer.at( tau.protoChargedPFO(i)->index() );
       
       float etaCalo = getExtrapolatedPosition(*chargedPFO, xAOD::TauJetParameters::CaloSamplingEtaHad);
       float phiCalo = getExtrapolatedPosition(*chargedPFO, xAOD::TauJetParameters::CaloSamplingPhiHad);
@@ -201,9 +199,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(const xAOD::TauJet& tau
     }
 
     // create link to had PFO (add to chargedPFO later)
-    ElementLink< xAOD::IParticleContainer > newHadLink;
-    newHadLink.toPersistent();
-    newHadLink.resetWithKeyAndIndex( hadPFOLink.persKey(), hadPFOLink.persIndex() );
+    ElementLink< xAOD::IParticleContainer > newHadLink( hadPFOLink.dataID(), hadPFOLink.index() );
     if (not newHadLink.isValid()){
         ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
         continue;
@@ -258,9 +254,7 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(const xAOD::TauJet& tau,
     }
 
     // create link to charged PFO 
-    ElementLink<xAOD::IParticleContainer> newChargedLink;
-    newChargedLink.toPersistent();
-    newChargedLink.resetWithKeyAndIndex(chargedPFOLink.persKey(), chargedPFOLink.persIndex());
+    ElementLink<xAOD::IParticleContainer> newChargedLink( chargedPFOLink.dataID(), chargedPFOLink.index() );
     if (not newChargedLink.isValid()){
       ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
       continue;
