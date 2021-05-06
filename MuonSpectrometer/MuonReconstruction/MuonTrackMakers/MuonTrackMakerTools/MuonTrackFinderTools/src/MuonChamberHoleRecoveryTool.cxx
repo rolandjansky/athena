@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonChamberHoleRecoveryTool.h"
@@ -1173,11 +1173,12 @@ namespace Muon {
     const RpcPrepDataCollection* MuonChamberHoleRecoveryTool::findRpcPrdCollection(const Identifier& detElId,
                                                                                    const EventContext& ctx) const {
         SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc, ctx);
-        const Muon::RpcPrepDataContainer* rpcPrdContainer;
+        const Muon::RpcPrepDataContainer* rpcPrdContainer = nullptr;
         if (h_rpcPrdCont.isValid()) {
             rpcPrdContainer = h_rpcPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key());
+            return nullptr;
         }
         if (rpcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
@@ -1192,11 +1193,12 @@ namespace Muon {
     const sTgcPrepDataCollection* MuonChamberHoleRecoveryTool::findStgcPrdCollection(const Identifier& detElId,
                                                                                      const EventContext& ctx) const {
         SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc, ctx);
-        const Muon::sTgcPrepDataContainer* stgcPrdContainer;
+        const Muon::sTgcPrepDataContainer* stgcPrdContainer = nullptr;
         if (h_stgcPrdCont.isValid()) {
             stgcPrdContainer = h_stgcPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_stgc.key());
+            return nullptr;
         }
         if (stgcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
