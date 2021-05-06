@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -180,31 +180,27 @@ StatusCode LArPedestalInPhysicsMaker::execute()
   if(m_event==-1) {
     m_event=(eventnumber+m_pevent)/2;
   }
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   const LArDigitContainer* larDigitContainer;
   //std::cout << "Reading LArCalibDigitContainer from StoreGate! key=" << *key_it << endl;
-  for (;key_it!=key_it_e;key_it++) {
-    sc= evtStore()->retrieve(larDigitContainer,*key_it);
+  for (const std::string& key : m_keylist) {
+    sc= evtStore()->retrieve(larDigitContainer,key);
     if (sc.isFailure() || !larDigitContainer) {
-      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
+      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << key );
       continue;
     }
     if(larDigitContainer->size()==0) {
-      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << *key_it << ")." );
+      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << key << ")." );
       continue;
     }
-    LArDigitContainer::const_iterator it=larDigitContainer->begin();
-    LArDigitContainer::const_iterator it_end=larDigitContainer->end();
-    for (;it!=it_end;it++) {  //Loop over all cells
-      HWIdentifier chid=(*it)->hardwareID();
-      CaloGain::CaloGain gain=(*it)->gain();
+    for (const LArDigit* digit : *larDigitContainer) {
+      HWIdentifier chid=digit->hardwareID();
+      CaloGain::CaloGain gain=digit->gain();
       //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endmsg;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
-      const std::vector<short> & samples = (*it)->samples();
+      const std::vector<short> & samples = digit->samples();
       if(samples[0]!=0) m_pedestal[gain][chid].add(samples);
       if (m_pedestal[gain][chid].get_nentries()==m_nref && m_nref>0) {
 	write=1;
@@ -215,24 +211,20 @@ StatusCode LArPedestalInPhysicsMaker::execute()
   if(write) {
     sc=fillDB();
     if(sc.isFailure()) return StatusCode::FAILURE;
-    std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-    std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
     const LArDigitContainer* larDigitContainer;
-    for (;key_it!=key_it_e;key_it++) {
-      sc= evtStore()->retrieve(larDigitContainer,*key_it);
+    for (const std::string& key : m_keylist) {
+      sc= evtStore()->retrieve(larDigitContainer,key);
       if (sc.isFailure() || !larDigitContainer) {
-	ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
+	ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << key );
 	continue;
       }
       if(larDigitContainer->size()==0) {
-	ATH_MSG_DEBUG( "Got empty LArDigitContainer (key=" << *key_it << ")." );
+	ATH_MSG_DEBUG( "Got empty LArDigitContainer (key=" << key << ")." );
 	continue;
       }
-      LArDigitContainer::const_iterator it=larDigitContainer->begin();
-      LArDigitContainer::const_iterator it_end=larDigitContainer->end();
-      for (;it!=it_end;it++) {  //Loop over all cells
-	HWIdentifier chid=(*it)->hardwareID();
-	CaloGain::CaloGain gain=(*it)->gain();
+      for (const LArDigit* digit : *larDigitContainer) {
+	HWIdentifier chid=digit->hardwareID();
+	CaloGain::CaloGain gain=digit->gain();
 	if (gain<0 || gain>CaloGain::LARNGAIN) {
 	  ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	  return StatusCode::FAILURE;
@@ -291,24 +283,22 @@ StatusCode LArPedestalInPhysicsMaker::fillDB()
     ATH_MSG_INFO ( "Gain " << gain << ", m_pedestal size for this gain = " 
                    <<  m_pedestal[gain].size() );
    if(m_pedestal[gain].size()<=1) continue;    //No data for this gain
-   LARPEDMAP::const_iterator cell_it=m_pedestal[gain].begin();
-   LARPEDMAP::const_iterator cell_it_e=m_pedestal[gain].end();
    
    //Inner loop goes over the cells.
-   for (;cell_it!=cell_it_e;cell_it++) {
+   for (const std::pair<const HWIdentifier, LArPedestal>& p : m_pedestal[gain]) {
      // Check number of entries
-     if(cell_it->second.get_nentries()==0) continue;
+     if(p.second.get_nentries()==0) continue;
      // Get the mean and rms
-     if (m_which_sample==-1 || m_which_sample>=(int)cell_it->second.get_nsamples()) {
-       m_mean[0] = cell_it->second.get_mean();
-       m_rms[0]  = cell_it->second.get_rms();
+     if (m_which_sample==-1 || m_which_sample>=(int)p.second.get_nsamples()) {
+       m_mean[0] = p.second.get_mean();
+       m_rms[0]  = p.second.get_rms();
      }
      else {
-       m_mean[0] = cell_it->second.get_mean(m_which_sample);
-       m_rms[0]  = cell_it->second.get_rms(m_which_sample);
+       m_mean[0] = p.second.get_mean(m_which_sample);
+       m_rms[0]  = p.second.get_rms(m_which_sample);
      }
 
-     HWIdentifier ch_id = cell_it->first;
+     HWIdentifier ch_id = p.first;
      // Fill the data class with pedestal and rms values
      if (ch_id!=0)
        larPedestalComplete->set(ch_id,gain,m_mean[0],m_rms[0]);

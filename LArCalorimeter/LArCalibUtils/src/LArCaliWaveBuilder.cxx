@@ -304,10 +304,8 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 
      // transform samples vector from uint32_t to double
      std::vector<double> samples;
-     std::vector<short>::const_iterator sample_it=(*it)->samples().begin();
-     std::vector<short>::const_iterator sample_it_e=(*it)->samples().end();
-     for (;sample_it!=sample_it_e;sample_it++) 
-       samples.push_back((double)(*sample_it));
+     for (short sample : (*it)->samples())
+       samples.push_back((double)(sample));
 
      WaveMap& waveMap = m_waves.get(chid,gain);
      WaveMap::iterator itm = waveMap.find((*it)->DAC());
