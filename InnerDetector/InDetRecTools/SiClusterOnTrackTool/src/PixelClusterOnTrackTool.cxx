@@ -144,9 +144,13 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
      m_IBLParameterSvc->setBoolParameters(m_IBLAbsent,"IBLAbsent");
    } 
    
-   //get the offline calibration service
-   ATH_CHECK( m_calibSvc.retrieve());
-   if(m_itkAnalogueClustering) ATH_CHECK(m_clusterITkErrorKey.initialize());
+   if(m_itkAnalogueClustering) {
+     ATH_CHECK(m_clusterITkErrorKey.initialize());
+   }
+   else {
+     //get the offline calibration service
+     ATH_CHECK( m_calibSvc.retrieve());
+   }
    
    // get the error scaling tool
   if ( m_errorScalingTool.retrieve().isFailure() ) {
