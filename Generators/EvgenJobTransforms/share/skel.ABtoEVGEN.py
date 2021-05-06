@@ -94,6 +94,8 @@ if not hasattr(runArgs, "randomSeed"):
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
 
+if hasattr(runArgs, "inputEVNT_PreFile"):
+   evgenLog.info("inputEVNT_PreFile = " + ','.join(runArgs.inputEVNT_PreFile))
 
 ##==============================================================
 ## Configure standard Athena and evgen services
