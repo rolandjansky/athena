@@ -44,6 +44,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
   # Pixel
   if flags.Detector.GeometryPixel:
+    # for Pixel DetectorElement conditions data :
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( flags ))
+
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder'+nameSuffix)
     PixelLayerBuilder.PixelCase            = True
@@ -70,6 +74,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 3 ]
 
   if flags.Detector.GeometrySCT:
+    # for SCT DetectorElement conditions data :
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    result.merge(SCT_GeometryCfg( flags ))
+
     # SCT building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder'+nameSuffix)
@@ -93,7 +101,11 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-  if flags.Detector.GeometryTRT:                                                      
+  if flags.Detector.GeometryTRT:
+    # for TRT DetectorElement conditions data :
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result.merge(TRT_GeometryCfg( flags ))
+
     InDet__TRT_LayerBuilder=CompFactory.InDet.TRT_LayerBuilderCond
     TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder'+nameSuffix)
     # TRT barrel specifications - assume defaults
