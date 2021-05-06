@@ -108,7 +108,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_badJetCut(""),
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
-    m_TCCJetUncConfig(""),
     m_WTagUncConfig(""),
     m_ZTagUncConfig(""),
     m_TopTagUncConfig(""),
@@ -293,7 +292,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
     m_metJetSelection(""),
     m_fatJets(""),
-    m_TCCJets(""),
     //
     m_currentSyst(),
     m_EG_corrModel(""),
@@ -306,7 +304,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetUncertaintiesTool(""),
     m_jetUncertaintiesPDSmearTool(""),
     m_fatjetUncertaintiesTool(""),
-    m_TCCjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
     m_jetJvtUpdateTool(""),
     m_jetFwdJvtTool(""),
@@ -493,8 +490,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
-  declareProperty( "JetTCCcollection",  m_TCCJets );
-
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
@@ -608,7 +603,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
-  declareProperty( "JetTCCuncConfig",  m_TCCJetUncConfig );
   declareProperty( "JetWtaggerConfig",  m_WtagConfig );
   declareProperty( "JetZtaggerConfig",  m_ZtagConfig );
   declareProperty( "JetWZTaggerCalibArea",  m_WZTaggerCalibArea );
@@ -634,7 +628,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
   m_jetUncertaintiesPDSmearTool.declarePropertyFor( this, "JetPDSmearUncertaintiesTool", "The JetPDSmearUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
-  m_TCCjetUncertaintiesTool.declarePropertyFor( this, "TCCJetUncertaintiesTool", "The JetUncertaintiesTool for TCC jets" );
   m_WTagjetUncertaintiesTool.declarePropertyFor( this, "WJetUncertaintiesTool", "The JetUncertaintiesTool for large-R W-tagged jets" );
   m_ZTagjetUncertaintiesTool.declarePropertyFor( this, "ZJetUncertaintiesTool", "The JetUncertaintiesTool for large-R Z-tagged jets" );
   m_TopTagjetUncertaintiesTool.declarePropertyFor( this, "TopJetUncertaintiesTool", "The JetUncertaintiesTool for large-R Top-tagged jets" );
@@ -1408,8 +1401,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Spring2019/R10_GlobalReduction.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
-  configFromFile(m_TCCJets, "Jet.TCCcollection", rEnv, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off TCC jets 
-  configFromFile(m_TCCJetUncConfig, "Jet.TCCuncConfig", rEnv, "rel21/Summer2019/R10_Scale_TCC_all.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
   configFromFile(m_WZTaggerCalibArea, "Jet.WZTaggerCalibArea", rEnv, "SmoothedWZTaggers/Rel21/");
@@ -2024,14 +2015,6 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_TCCjetUncertaintiesTool.empty()) {
-    CP::SystematicCode ret = m_TCCjetUncertaintiesTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_VERBOSE("Cannot configure (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
-    } else {
-      ATH_MSG_VERBOSE("Configured (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
-    }
-  }
 
   if (!m_jetJvtEfficiencyTool.empty()) {
     CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
@@ -2428,12 +2411,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
 
    if (!m_fatjetUncertaintiesTool.empty()) {
     if ( m_fatjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
-      sysInfo.affectsKinematics = true;
-      sysInfo.affectsType = SystObjType::Jet;
-    }
-  }
-  if (!m_TCCjetUncertaintiesTool.empty()) {
-    if ( m_TCCjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
       sysInfo.affectsKinematics = true;
       sysInfo.affectsType = SystObjType::Jet;
     }

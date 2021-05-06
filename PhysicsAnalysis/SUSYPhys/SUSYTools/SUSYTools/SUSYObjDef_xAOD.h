@@ -143,7 +143,7 @@ namespace ST {
     void setDataSource(int source);
 
     // Apply the correction on a modifyable object
-    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false, bool isTCC = false) override final;
+    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false, bool doLargeRdecorations = false) override final;
     StatusCode FillTrackJet(xAOD::Jet& input) override final;
     StatusCode FillTau(xAOD::TauJet& input) override final;
     StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
@@ -485,7 +485,6 @@ namespace ST {
 
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
-    std::string m_TCCJetUncConfig;
     std::string m_WTagUncConfig;
     std::string m_ZTagUncConfig;
     std::string m_TopTagUncConfig;
@@ -718,7 +717,6 @@ namespace ST {
     std::string m_defaultJets;
     std::string m_defaultTrackJets;
     std::string m_fatJets;
-    std::string m_TCCJets;
     std::string m_defaultTruthJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
@@ -738,7 +736,6 @@ namespace ST {
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesPDSmearTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
-    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TCCjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
