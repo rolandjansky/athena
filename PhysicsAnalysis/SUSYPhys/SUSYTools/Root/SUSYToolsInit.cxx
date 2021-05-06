@@ -415,24 +415,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_TopTagjetUncertaintiesTool.retrieve() );
   } else if (m_TopTagjetUncertaintiesTool.isUserConfigured()) ATH_CHECK(m_TopTagjetUncertaintiesTool.retrieve());
   
-  // Initialise jet uncertainty tool for TCC jets
-  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
-  if (!m_TCCjetUncertaintiesTool.isUserConfigured() && !m_TCCJets.empty() && !m_TCCJetUncConfig.empty()) {
-    toolName = "JetUncertaintiesTool_" + m_TCCJets;
-    m_TCCjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
-
-    std::string TCCjetcoll(m_TCCJets);
-    if (TCCjetcoll.size()>3) TCCjetcoll = TCCjetcoll.substr(0,TCCjetcoll.size()-4); //remove "Jets" suffix
-
-    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("JetDefinition", TCCjetcoll) );
-    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("MCType", "MC16") );
-    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("IsData", isData()) );
-    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("ConfigFile", m_TCCJetUncConfig) );
-    if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
-    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_TCCjetUncertaintiesTool.retrieve() );
-  } else if (m_TCCjetUncertaintiesTool.isUserConfigured()) ATH_CHECK( m_TCCjetUncertaintiesTool.retrieve() );
- 
 
   // tagger SF and uncertainties
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendationFullRun2
