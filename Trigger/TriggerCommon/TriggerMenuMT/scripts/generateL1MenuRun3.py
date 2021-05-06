@@ -20,7 +20,10 @@ def generateL1Menu(menu, cmdline):
     from AthenaCommon.Logging import logging
     log = logging.getLogger(sys.argv[0].split('/')[-1])
     log.setLevel(logging.INFO)
-    logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
+    logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.INFO)
+    if cmdline.verbose:
+        log.setLevel(logging.DEBUG)
+        logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.DEBUG)
 
     # setup
 
