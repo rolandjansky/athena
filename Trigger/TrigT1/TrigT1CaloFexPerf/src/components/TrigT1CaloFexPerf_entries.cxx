@@ -22,6 +22,7 @@
 #include "../EFexEMClusterTool.h"
 
 #include "../SCEmulation.h"
+#include "../FwdCellReader.h"
 
 DECLARE_ALGORITHM_FACTORY(LVL1::SCEmulation)
 
@@ -36,6 +37,8 @@ DECLARE_ALGORITHM_FACTORY(LVL1::GBlockBuilder)
 DECLARE_ALGORITHM_FACTORY(LVL1::METJWoJPerfFex)
 DECLARE_TOOL_FACTORY(LVL1::JTowerMappingMaker)
 DECLARE_TOOL_FACTORY(LVL1::GTowerMappingMaker)
+// ffex
+DECLARE_ALGORITHM_FACTORY(LVL1::FwdCellReader )
 // eFEX
 DECLARE_ALGORITHM_FACTORY(LVL1::EFexEMAlgorithm)
 DECLARE_ALGORITHM_FACTORY(LVL1::EFexTauAlgorithm)
@@ -55,6 +58,8 @@ DECLARE_FACTORY_ENTRIES(TrigT1CaloFexPerf)
   DECLARE_ALGORITHM(LVL1::METJWoJPerfFex)
   DECLARE_TOOL(LVL1::JTowerMappingMaker)
   DECLARE_TOOL(LVL1::GTowerMappingMaker)
+  // ffex
+  DECLARE_ALGORITHM(LVL1::FwdCellReader )
   // eFEX
   DECLARE_ALGORITHM(LVL1::EFexEMAlgorithm);
   DECLARE_ALGORITHM(LVL1::EFexTauAlgorithm);
