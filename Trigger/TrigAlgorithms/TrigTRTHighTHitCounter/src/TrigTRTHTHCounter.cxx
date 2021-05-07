@@ -2,39 +2,39 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTRTHTHCounterMT.h"
+#include "TrigTRTHTHCounter.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 //Function to calculate distance for road algorithm
-float dist2COR_MT(float R, float phi1, float phi2){
+float dist2COR(float R, float phi1, float phi2){
   float PHI= std::abs(phi1-phi2);
   return std::abs(R*sin(PHI));
 }
 
 //TRT hit struct used for convenience
-struct TRT_hit_MT {
+struct TRT_hit {
   float phi;
   float R;
   bool isHT;
 };
 
 //Constructor of above struct
-TRT_hit_MT make_hit_MT(float phi, float R, bool isHT){
-  TRT_hit_MT my_hit_MT={phi,R,isHT};
-  return my_hit_MT;
+TRT_hit make_hit(float phi, float R, bool isHT){
+  TRT_hit my_hit={phi,R,isHT};
+  return my_hit;
 }
 
 
 //---------------------------------------------------------------------------------
 
 
-TrigTRTHTHCounterMT::TrigTRTHTHCounterMT(const std::string & name, ISvcLocator* pSvcLocator)
+TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string & name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_trtHelper(0),
       m_maxCaloEta(1.7)
 {}
 
-StatusCode TrigTRTHTHCounterMT::initialize()
+StatusCode TrigTRTHTHCounter::initialize()
 {
   ATH_MSG_DEBUG ( "Initialising this TrigTRTHTHCounter: " << name());
 
@@ -61,7 +61,7 @@ StatusCode TrigTRTHTHCounterMT::initialize()
 }
 
 
-StatusCode TrigTRTHTHCounterMT::execute() {
+StatusCode TrigTRTHTHCounter::execute() {
  using namespace xAOD;   
 
  ATH_MSG_DEBUG( "Executing " <<name());
@@ -105,7 +105,7 @@ StatusCode TrigTRTHTHCounterMT::execute() {
  std::vector<int> count_tottrt(3*m_nBinFine);
 
  //Vector to hold TRT hits that are within RoI
- std::vector<TRT_hit_MT> hit;
+ std::vector<TRT_hit> hit;
 
  //Sanity check of the ROI size
  double deltaEta= std::abs(roiDescriptor->etaPlus()-roiDescriptor->etaMinus());
@@ -155,7 +155,7 @@ StatusCode TrigTRTHTHCounterMT::execute() {
       if ((*trtItr)->highLevel()) hth = true;
 
       //hit needs to be stored
-      hit.push_back(make_hit_MT(hphi,R,hth));
+      hit.push_back(make_hit(hphi,R,hth));
 
       //First, define coarse wedges in phi, and count the TRT hits in these wedges
       int countbin=0;	
@@ -236,7 +236,7 @@ StatusCode TrigTRTHTHCounterMT::execute() {
   //Count the number of total and HT TRT hits for the road algorithm
   int trthit=0, trthit_ht=0;
   for(size_t v=0;v<hit.size();v++){
-    if (dist2COR_MT(hit[v].R,hit[v].phi,center_pos_phi)<=m_roadWidth){
+    if (dist2COR(hit[v].R,hit[v].phi,center_pos_phi)<=m_roadWidth){
       if(hit[v].isHT) trthit_ht+=1; 
       trthit+=1;						
     }

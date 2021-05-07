@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTRTHTHCOUNTER_MT_H
-#define TRIGTRTHTHCOUNTER_MT_H
+#ifndef TRIGTRTHTHCOUNTER_H
+#define TRIGTRTHTHCOUNTER_H
 
 /** @class TrigTRTHTHCounter
     @author Jiri Masik <Jiri.Masik@hep.manchester.ac.uk>
@@ -38,10 +38,10 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
-class TrigTRTHTHCounterMT: public AthAlgorithm {
+class TrigTRTHTHCounter: public AthAlgorithm {
  public:
   
-  TrigTRTHTHCounterMT(const std::string& name, ISvcLocator* pSvcLocator); 
+  TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcLocator); 
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

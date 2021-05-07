@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTRTHTHhypoMT.h"
+#include "TrigTRTHTHhypoAlg.h"
 
 #include "AthViews/ViewHelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -10,11 +10,11 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigTRTHTHhypoMT::TrigTRTHTHhypoMT( const std::string& name, 
+TrigTRTHTHhypoAlg::TrigTRTHTHhypoAlg( const std::string& name,
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-StatusCode TrigTRTHTHhypoMT::initialize() {
+StatusCode TrigTRTHTHhypoAlg::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   
@@ -26,7 +26,7 @@ StatusCode TrigTRTHTHhypoMT::initialize() {
 }
 
 
-StatusCode TrigTRTHTHhypoMT::execute( const EventContext& context ) const {  
+StatusCode TrigTRTHTHhypoAlg::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
