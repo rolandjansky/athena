@@ -20,7 +20,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -38,25 +38,19 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
-class TrigTRTHTHCounter: public AthAlgorithm {
+class TrigTRTHTHCounter: public AthReentrantAlgorithm {
  public:
   
   TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcLocator); 
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
-  const TRT_ID *m_trtHelper;                     //!<  TRT ID helper
+  const TRT_ID *m_trtHelper{nullptr};     //!<  TRT ID helper
 
-  std::vector<IdentifierHash> m_listOfTrtIds;    //!<  IDs of DE from regionSelector
-
-  std::vector<int> m_trtDataErrors;
-
-  float m_maxCaloEta;
-
-  std::vector<float> m_trththits;
+  float m_maxCaloEta{1.7};
 
   //Gaudi::Property<std::string> m_trtDCContainerName {this,  "TRT_DC_ContainerName", "TRT_TrigDriftCircles" , " "};
   Gaudi::Property<float> m_etaHalfWidth {this,  "EtaHalfWidth", 0.1 , "subsection of RoI to retrieve fewer TRT hits"};
