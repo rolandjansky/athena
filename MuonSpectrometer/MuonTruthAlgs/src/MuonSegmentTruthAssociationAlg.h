@@ -12,34 +12,31 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 
 namespace Muon {
 
-class MuonSegmentTruthAssociationAlg : public AthAlgorithm  {
+    class MuonSegmentTruthAssociationAlg : public AthAlgorithm {
+    public:
+        // Constructor with parameters:
+        MuonSegmentTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator);
 
-public:
-  // Constructor with parameters:
-  MuonSegmentTruthAssociationAlg(const std::string &name,ISvcLocator *pSvcLocator);
+        // Basic algorithm methods:
+        virtual StatusCode initialize();
+        virtual StatusCode execute();
+        virtual StatusCode finalize();
 
-  // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+    private:
+        ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+        ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
+        ToolHandle<Muon::IMuonTrackTruthTool> m_muonTrackTruthTool;
+        std::string m_muonTruthSegmentContainerName;
+        std::string m_muonSegmentCollectionName;
+        int m_barcodeOffset;
+    };
 
-private:
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
-  ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
-  ToolHandle<Muon::IMuonTrackTruthTool> m_muonTrackTruthTool;
-  std::string m_muonTruthSegmentContainerName;
-  std::string m_muonSegmentCollectionName;
-  int m_barcodeOffset;
-};
+}  // namespace Muon
 
-} // namespace Muon
-
-
-#endif //TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
+#endif  // TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
