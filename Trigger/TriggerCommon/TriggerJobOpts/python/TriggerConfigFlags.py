@@ -153,6 +153,16 @@ def createTriggerFlags():
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
+    # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
+    # in either the run-2 or run-3 formats.
+    def TrigConfMeta(flags):
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        md = GetFileMD(flags.Input.Files) if len(flags.Input.Files) > 0 else {}
+        return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
+
+    # Flag to sense if trigger confioguration POOL metadata is available on the job's input
+    flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: TrigConfMeta(prevFlags))
+
     # only enable services for analysis and BS -> ESD processing (we need better name)
     flags.addFlag('Trigger.doTriggerConfigOnly', False)
 
