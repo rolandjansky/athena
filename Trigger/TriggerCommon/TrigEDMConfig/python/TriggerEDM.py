@@ -1017,7 +1017,9 @@ TriggerLvl1List=[
     ('xAOD::EmTauRoIAuxContainer#eTausPerfAux.',             'ESD AODFULL', 'L1'),
     # CTP
     ('CTP_RDO#CTP_RDO_L1Run3' ,                                'ESD', 'Steer'),
-
+# Run 4 performance studies
+    ('xAOD::EmTauRoIContainer#fEleCluster',                    'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#fEleClusterAux.',                    'ESD AODFULL', 'L1'),
 
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
