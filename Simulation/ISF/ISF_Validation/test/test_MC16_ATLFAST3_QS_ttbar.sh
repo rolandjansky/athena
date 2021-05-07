@@ -2,9 +2,6 @@
 #
 # art-description: MC16-style simulation using ATLFAST3 with Quasi-stable particles
 # art-include: 21.0/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
-# art-include: master/Athena
 # art-type: grid
 # art-output: test.HITS.pool.root
 # art-output: truth.root
