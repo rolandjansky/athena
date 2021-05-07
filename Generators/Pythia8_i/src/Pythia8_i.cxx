@@ -34,13 +34,17 @@ std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
   #undef PYTHIA8_NWEIGHTS
   #undef PYTHIA8_WEIGHT
   #undef PYTHIA8_WLABEL
-  #define PYTHIA8_NWEIGHTS nVariationGroups
+  #if PYTHIA_VERSION_INTEGER > 8303
+    #define PYTHIA8_NWEIGHTS nWeightGroups
+  #else
+    #define PYTHIA8_NWEIGHTS nVariationGroups
+  #endif
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
   #if PYTHIA_VERSION_INTEGER < 8244
     #undef PYTHIA8_CONVERSION
     #define PYTHIA8_CONVERSION 1.0e9
-  #endif 
+  #endif
   #endif
 #endif
 
@@ -120,7 +124,7 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
 
   if(m_procPtr != 0)     delete m_procPtr;
-  
+
   #ifndef PYTHIA8_3SERIES
 //  if(m_userHookPtr != 0) delete m_userHookPtr;
 
@@ -155,6 +159,9 @@ StatusCode Pythia8_i::genInitialize() {
 
   // switch off verbose event print out
   m_pythia->readString("Next:numberShowEvent = 0");
+
+  // Add flag to switch off from JO the Pythia8ToHepMC::print_inconsistency internal variable
+  m_pythia->settings.addFlag("AthenaPythia8ToHepMC:print_inconsistency",true);
 
   // Add UserHooks first because these potentially add new settings that must exist prior to parsing commands
 
@@ -337,6 +344,9 @@ StatusCode Pythia8_i::genInitialize() {
 
   StatusCode returnCode = StatusCode::SUCCESS;
 
+  m_pythia->particleData.listXML(m_outputParticleDataFile.substr(0,m_outputParticleDataFile.find("xml"))+"orig.xml");
+  m_pythia->settings.writeFile("Settings_before.log",true);
+
   if(canInit){
     canInit = m_pythia->init();
   }
@@ -347,11 +357,15 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   m_pythia->particleData.listXML(m_outputParticleDataFile);
+  m_pythia->settings.writeFile("Settings_after.log",true);
 
   //counter for event failures;
   m_failureCount = 0;
 
   m_internal_event_number = 0;
+
+  // Set set_print_inconsistency to Athena corresponding flag (allowing to change it from JO)
+  m_pythiaToHepMC.set_print_inconsistency(  m_pythia->settings.flag("AthenaPythia8ToHepMC:print_inconsistency")  );
 
   m_pythiaToHepMC.set_store_pdf(true);
 
@@ -464,7 +478,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     ATH_MSG_DEBUG("PDFinfo scalePDF:" << evt->pdf_info()->scalePDF());
     ATH_MSG_DEBUG("PDFinfo pdf1:" << evt->pdf_info()->pdf1());
     ATH_MSG_DEBUG("PDFinfo pdf2:" << evt->pdf_info()->pdf2());
-#endif 
+#endif
   }
   else
     ATH_MSG_DEBUG("No PDF information available in HepMC::GenEvent!");
@@ -474,12 +488,14 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   double phaseSpaceWeight = m_pythia->info.weight();
   double mergingWeight    = m_pythia->info.mergingWeight();
+#ifndef PYTHIA8_304SERIES
   // include Enhance userhook weight
   for(const auto &hook: m_userHooksPtrs) {
     if (hook->canEnhanceEmission()) {
       mergingWeight *= hook->getEnhancedEventWeight();
     }
   }
+#endif // not PYTHIA8_304SERIES
   double eventWeight = phaseSpaceWeight*mergingWeight;
 
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
@@ -523,7 +539,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   for(int iw = firstWeight; iw < m_pythia->info.PYTHIA8_NWEIGHTS(); ++iw){
 
-    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia->info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" + 
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia->info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" +
 std::to_string(iw);
 
     if(m_pythia->info.PYTHIA8_NWEIGHTS() != 1){
@@ -543,10 +559,10 @@ std::to_string(iw);
     for (auto w: fWeights)   names.push_back(w.first);
     evt->run_info()->set_weight_names(names);
   }
-  for (auto w: fWeights) {evt->weight(w.first)=w.second;}  
+  for (auto w: fWeights) {evt->weight(w.first)=w.second;}
 #else
   evt->weights().clear();
-  for (auto w: fWeights) {evt->weights()[w.first]=w.second;}  
+  for (auto w: fWeights) {evt->weights()[w.first]=w.second;}
 #endif
 
 
