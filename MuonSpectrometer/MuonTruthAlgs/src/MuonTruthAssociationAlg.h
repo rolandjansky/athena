@@ -11,35 +11,33 @@
 #define TRUTHPARTICLEALGS_MUONTRUTHASSOCIATIONALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
-class MuonTruthAssociationAlg : public AthAlgorithm  {
-
+class MuonTruthAssociationAlg : public AthAlgorithm {
 public:
-  // Constructor with parameters:
-  MuonTruthAssociationAlg(const std::string &name,ISvcLocator *pSvcLocator);
+    // Constructor with parameters:
+    MuonTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+    // Basic algorithm methods:
+    virtual StatusCode initialize();
+    virtual StatusCode execute();
+    virtual StatusCode finalize();
 
 private:
-  void addMuon( const xAOD::TruthParticleContainer& truthParticles, const xAOD::MuonContainer& muons );
+    void addMuon(const xAOD::TruthParticleContainer& truthParticles, const xAOD::MuonContainer& muons);
 
-  void setDummyTruthInfo(const xAOD::Muon& muon);
+    void setDummyTruthInfo(const xAOD::Muon& muon);
 
-  std::string m_muonTruthParticleContainerName;
-  std::string m_muonName;
+    std::string m_muonTruthParticleContainerName;
+    std::string m_muonName;
 
-  bool m_associateWithInDetTP;
-  int m_barcodeOffset;
+    bool m_associateWithInDetTP;
+    int m_barcodeOffset;
 
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
 };
 
-
-#endif //TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
+#endif  // TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
