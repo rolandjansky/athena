@@ -519,8 +519,17 @@ bool InDet::SiTrajectory_xk::initialize
   rquality          = true;     
   m_ntos            =    0;
   int    ndfwrong   =    0;
-  double Xi2cut     = 2.*m_tools->xi2max(); 
+  double Xi2cut     = 2.*m_tools->xi2max();
+ 
+  // radius of the dead cylinder
+  double Rdead      = 125.;
+  // boolean to decide if initialisation is needed or not
+  // initDeadMaterial is False (which means dead material needs be initialised)
+  // for ITk fast tracking configuration
+  bool initDeadMaterial = not(m_tools->isITkGeometry() and m_tools->useFastTracking());
 
+  if(!m_surfacedead) m_surfacedead = new Trk::CylinderSurface(Rdead,5000.);
+ 
   std::vector<const InDet::SiCluster*>::iterator c;
   if(lSiCluster.size() < 2) return false;
 
@@ -538,6 +547,23 @@ bool InDet::SiTrajectory_xk::initialize
 
     if(de->isPixel()) {
 
+      // Set dead material
+      //
+      // if already initialised, not doing it again
+      if(not initDeadMaterial) {
+        const Trk::PlaneSurface* pla = static_cast<const Trk::PlaneSurface*>(&de->surface());
+        double R = pla->center().perp();
+        if(R > Rdead) {
+          initDeadMaterial = true; 
+          if(!m_elements[m_nElements].setDead(m_surfacedead)) return false; 
+          m_elementsMap[m_nElements] = m_nElements; 
+          if(m_nclusters && lSiCluster.size()) {
+            if(!m_elements[m_nElements].ForwardPropagationWithoutSearch(m_elements[up])) return false;      
+            up = m_nElements;
+          }
+          if(++m_nElements==300) break;
+        }
+      }
       InDet::SiClusterContainer::const_iterator w = (*PIXc).indexFind(id);
 
       if(w!=(*PIXc).end() && (*w)->begin()!=(*w)->end()) {
@@ -881,7 +907,9 @@ bool InDet::SiTrajectory_xk::backwardSmoother(bool TWO)
       for(int i=m+1; i!=m_nElements;  ++i) m_elementsMap[i-1] = m_elementsMap[i];
       --m_lastElement; --m_nElements; --firstElement; continue;
     }
-
+    if(!Em.detElement()) {
+      continue;
+    }
     if((Em.cluster() && Em.clusterOld()) && (Em.cluster()!=Em.clusterOld())) ++m_difference;
 
     if     (Em.cluster()) {
@@ -918,6 +946,7 @@ bool InDet::SiTrajectory_xk::backwardSmoother(bool TWO)
   // Test number trajector elemenst with clusters
   //
   if(m_naElements < m_tools->clustersmin() && m_nholes+m_nholese) return false;
+
   if(n!=m) {
     for(; m!=m_nElements; ++m) m_elementsMap[n++] =  m_elementsMap[m]; 
     m_nElements = n;
@@ -1673,7 +1702,7 @@ bool InDet::SiTrajectory_xk::filterWithPreciseClustersError()
   for(++L; L<=m_lastElement; ++L) {
 
     int K = m_elementsMap[L];
-    if(m_elements[K].cluster() || m_elements[K].clusterNoAdd() || m_elements[K].inside()) m_elementsMap[++I] = K;
+    if(m_elements[K].cluster() || m_elements[K].clusterNoAdd() || m_elements[K].inside() < 0 ) m_elementsMap[++I] = K;
   }
   m_firstElement = 0  ;
   m_lastElement  = I  ;

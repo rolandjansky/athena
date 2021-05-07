@@ -581,14 +581,14 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
     return m_tracks;
   }
 
+  m_trajectory.sortStep();
+
   if(m_doFastTracking) {
     if(!m_trajectory.filterWithPreciseClustersError()) {
       m_statistic[ 3] = 1;
       return m_tracks;
     }
   } 
-  
-  m_trajectory.sortStep();
 
   // Test ordering of the detector elements
   /*

@@ -116,6 +116,7 @@ namespace InDet{
       const double& xi2totalF () const {return m_xi2totalF ;}
       const double& xi2totalB () const {return m_xi2totalB ;}
       const double& radlength () const {return m_radlength ;}
+      const double& radlengthN() const {return m_radlengthN;}
       const double& energylose() const {return m_energylose;}
 
       const Trk::PatternTrackParameters& parametersPF() const {return m_parametersPF;} 
@@ -138,6 +139,8 @@ namespace InDet{
                const InDet::SiClusterCollection::const_iterator&,
                const InDet::SiCluster*);
 
+      bool setDead(const Trk::Surface*);
+      void setDeadRadLength(Trk::PatternTrackParameters&);
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
       void bremNoiseModel();
@@ -265,6 +268,10 @@ namespace InDet{
       bool propagate(Trk::PatternTrackParameters  &,
                      Trk::PatternTrackParameters  &,
                      double                       &);
+
+      bool propagateUsingTool(Trk::PatternTrackParameters  &,
+			      Trk::PatternTrackParameters  &,
+			      double                       &);
 
       ///////////////////////////////////////////////////////////////////
       // Propagate parameters without covariance
