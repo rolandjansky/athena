@@ -77,6 +77,7 @@ class TileHitToTTL1: public AthAlgorithm {
     virtual StatusCode initialize() override; //!< initialize method      
     virtual StatusCode execute() override;    //!< execute method   
     virtual StatusCode finalize() override;   //!< finalize method   
+    virtual bool isClonable() const override final { return true; }
 
   private:
 

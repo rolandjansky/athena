@@ -72,6 +72,9 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs['InputTileDigitContainer'] = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
         kwargs['TileDQstatus'] = 'TileDQstatus'
 
+        if flags.Concurrency.NumThreads > 0:
+            kwargs['Cardinality'] = flags.Concurrency.NumThreads
+
     if tileNoise or tileCoherNoise or kwargs['RndmEvtOverlay']:
         if 'RndmSvc' not in kwargs:
             from RngComps.RandomServices import RNG
