@@ -68,7 +68,6 @@ genSeq.Pythia8.Commands += [
     "SpaceShower:dipoleRecoil = on",
     "SpaceShower:pTmaxMatch = 2",
     "BeamRemnants:primordialKT = off",
-    "SpaceShower:QEDshowerByQ = off",
     "BeamRemnants:unresolvedHadron = 0",
     "SpaceShower:pTdampMatch=1"
 ]
