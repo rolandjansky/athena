@@ -122,7 +122,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
         == Generates the L1Topo menu
         """
-        if not TriggerFlags.readL1TopoConfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
+        if not TriggerFlags.readMenuFromTriggerDb():
             log.info('Generating L1 topo configuration for %s', TriggerFlags.triggerMenuSetup())
             from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
             self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )

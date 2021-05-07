@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
@@ -7,6 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 import json
 
+log = logging.getLogger('TrigConfigSvcCfg')
 
 @memoize
 def getTrigConfFromCool(runNumber, lumiBlock):
@@ -27,7 +28,7 @@ def getTrigConfFromCool(runNumber, lumiBlock):
         if firstlb<=lumiBlock and lumiBlock<=lastlb:
             d['BGSK'] = bgsk
             break
-    log = logging.getLogger('TrigConfigSvcCfg')
+
     if 'L1PSK' not in d:
         msg = f"Did not find an L1 PSK for run {runNumber} and lumi block {lumiBlock} in COOL"
         log.error(msg)
@@ -47,7 +48,6 @@ def getTrigConfFromCool(runNumber, lumiBlock):
 # https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag#triggerConfig_in_Run_3
 def getTrigConfigFromFlag( flags ):
     tcflag = flags.Trigger.triggerConfig
-    log = logging.getLogger('TrigConfigSvcCfg')
     log.info("Parsing trigger flag 'triggerConfig': %s", tcflag)
     if tcflag is None: # the default is to configure from file
         tcflag = "FILE"
@@ -135,7 +135,6 @@ def getHLTJobOptionsFileName( ):
 # Creates an L1 Prescale file from the menu
 # this is a temporary solution, in the final version the L1PrescalesSet file should come from the menu
 def createL1PrescalesFileFromMenu( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
     menuFN = getL1MenuFileName(flags)
     with open(menuFN,'r') as fh:
         data = json.load(fh)
@@ -169,7 +168,6 @@ def generateL1Menu( flags ):
 
 @memoize
 def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
-    log = logging.getLogger('TrigConfigSvcCfg')
     log.info("Generating L1 menu %s", triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
     l1cfg = L1MenuConfig( menuName = triggerMenuSetup)
@@ -184,32 +182,7 @@ def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
 
 # configuration of L1ConfigSvc
 @memoize
-def getL1TopoConfigSvc( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    # configure config svc
-    TrigConf__L1TopoConfigSvc = CompFactory.getComp("TrigConf::L1TopoConfigSvc")
-    l1topoConfigSvc = TrigConf__L1TopoConfigSvc("L1TopoConfigSvc")
-
-    l1topoConfigSvc.ConfigSource = "XML"
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    l1topoXMLFile = TriggerFlags.inputL1TopoConfigFile() if flags is None else flags.Trigger.LVL1TopoConfigFile
-    # check if file exists in this directory otherwise add the package to aid path resolution
-    # also a '/' in the file name indicates that no package needs to be added
-    import os.path
-    if not ( "/" in l1topoXMLFile or os.path.isfile(l1topoXMLFile) ):
-        l1topoXMLFile = "TriggerMenuMT/" + l1topoXMLFile
-    l1topoConfigSvc.XMLMenuFile = l1topoXMLFile
-    log.info( "Configured L1TopoConfigSvc with input file : %s", l1topoXMLFile )
-
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::L1TopoConfigSvc/L1TopoConfigSvc" ]
-    return l1topoConfigSvc
-
-
-# configuration of L1ConfigSvc
-@memoize
 def getL1ConfigSvc( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
     # generate menu file (this only happens if we read from FILE)
     generatedFile, generatedBgsFile = generateL1Menu( flags )
 
@@ -254,7 +227,6 @@ def getL1ConfigSvc( flags ):
 # configuration of HLTConfigSvc
 @memoize
 def getHLTConfigSvc( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure HLTConfigSvc" )
 
@@ -306,7 +278,6 @@ def TrigConfigSvcCfg( flags ):
     return acc
 
 def L1PrescaleCondAlgCfg( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
     log.info("Setting up L1PrescaleCondAlg")
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -333,7 +304,6 @@ def L1PrescaleCondAlgCfg( flags ):
     return acc
 
 def HLTPrescaleCondAlgCfg( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
     log.info("Setting up HLTPrescaleCondAlg")
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()

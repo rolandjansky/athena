@@ -425,11 +425,6 @@ class rerunLVL1(_modifier):
         topSequence = AlgSequence()
 
         #configure LVL1 config svc with xml file
-        from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
-        L1TopoConfigSvc = L1TopoConfigSvc()
-        L1TopoConfigSvc.XMLMenuFile = TriggerFlags.inputL1TopoConfigFile()
-
-        #configure LVL1 config svc with xml file
         from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
         LVL1ConfigSvc = LVL1ConfigSvc("LVL1ConfigSvc")
         LVL1ConfigSvc.XMLMenuFile = TriggerFlags.inputLVL1configFile()
