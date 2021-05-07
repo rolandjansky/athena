@@ -51,6 +51,7 @@ namespace LArGeo {
     virtual const LArDetectorManager* getDetectorManager() const override {return m_detectorManager;}
 
     void setBarrelSagging(bool flag) {m_barrelSagging  = flag;}
+    void setTestBeam(int flag)       {m_testBeam  = flag;}
 
   private:
 
@@ -58,8 +59,10 @@ namespace LArGeo {
     StoreGateSvc*             m_detStore;
     IRDBAccessSvc*            m_paramSvc;
     GeoModelIO::ReadGeoModel* m_sqliteReader;
+    const LArHVManager*       m_hvManager;
 
     bool m_barrelSagging;
+    int  m_testBeam;
   };
 
 } // namespace LArGeo

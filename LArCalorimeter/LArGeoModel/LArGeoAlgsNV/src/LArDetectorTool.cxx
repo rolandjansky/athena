@@ -161,9 +161,10 @@ StatusCode LArDetectorToolNV::create()
   }
   else {
     // Geometry is constructed from the Geometry DB
-    LArGeo::LArDetectorFactory theLArFactory(testbeam
-					     , m_geometryConfig=="FULL"
-					     , hvManager);
+    LArGeo::LArDetectorFactory theLArFactory(detStore().operator->()
+					     , hvManager
+					     , testbeam
+					     , m_geometryConfig=="FULL");
 
     theLArFactory.setBarrelSagging       (m_barrelSaggingOn);
     theLArFactory.setBarrelCellVisLimit  (m_barrelVisLimit);
