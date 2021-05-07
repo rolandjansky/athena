@@ -516,24 +516,6 @@ class triggerCoolDbConnection(JobProperty):
 
 _flags.append(triggerCoolDbConnection)
 
-class outputL1TopoConfigFile(JobProperty):
-    """ File name for output L1Topo configuration XML file produced by the python menu generation """
-    statusOn=True
-    allowedType=['str']
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            # triggerMenuSetup contains the prescale mode in many
-            # cases, e.g. MC_pp_v5_tight_mc_prescale. Prescaling is
-            # not available for L1Topo, therefore that part is being
-            # removed.
-            return "L1Topoconfig_" + _getMenuBaseName(TriggerFlags.triggerMenuSetup()) + "_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(outputL1TopoConfigFile)
-
 class outputLVL1configFile(JobProperty):
     """ File name for output LVL1 configuration XML file """
     statusOn=True

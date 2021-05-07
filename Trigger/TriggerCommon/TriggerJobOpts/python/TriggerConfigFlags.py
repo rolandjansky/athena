@@ -266,17 +266,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.L1MenuFile',
                   lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
     
-    # L1 topo XML file name
-    def _deriveTopoConfigName(prevFlags):
-        import re
-        menuSetup = prevFlags.Trigger.triggerMenuSetup
-        m = re.match(r'(.*v\d).*', menuSetup)
-        if m:
-            menuSetup = m.groups()[0]
-        return "L1Topoconfig_" + menuSetup + "_" + prevFlags.Trigger.menuVersion + ".xml"
-    flags.addFlag('Trigger.LVL1TopoConfigFile', _deriveTopoConfigName)
 
-    
     # trigger reconstruction 
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)

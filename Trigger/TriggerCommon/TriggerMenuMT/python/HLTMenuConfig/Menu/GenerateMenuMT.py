@@ -118,25 +118,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return (self.HLTPrescales)
 
 
-    def generateL1Topo(self):
-        """
-        == Generates the L1Topo menu
-        """
-        if not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 topo configuration for %s', TriggerFlags.triggerMenuSetup())
-            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
-            self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )
-            # build the menu structure
-            self.trigConfL1Topo.generateMenu()
-            log.debug('Topo Menu has %i trigger lines', len(self.trigConfL1Topo.menu))
-            # write xml file
-            self.trigConfL1Topo.writeXML()
-        elif TriggerFlags.readLVL1configFromXML():
-            log.info("ReadingL1TopocofnigFromXML currently not implemented")
-        else:
-            log.info("Doing nothing with L1Topo menu configuration...")
-
-
     def generateLVL1(self):
         """
         == Generates the LVL1 menu
@@ -543,7 +524,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # - from the code, from DB and from xmls (if we want to maintain this)
         # currently implementing the generation from configuration code
         # --------------------------------------------------------------------
-        #generateL1Topo()
         #generateLVL1()
 
 
