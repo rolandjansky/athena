@@ -648,30 +648,35 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
 
     if not isNLO:
         ### LO RUN ###
-        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',os.R_OK):
-            mglog.error('/bin/run.sh not found at '+MADGRAPH_GRIDPACK_LOCATION)
-            raise RuntimeError('Could not find run.sh executable')
+        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun',os.R_OK):
+            mglog.error('/bin/gridrun not found at '+MADGRAPH_GRIDPACK_LOCATION)
+            raise RuntimeError('Could not find gridrun executable')
         else:
-            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh, starting generation.')
-
+            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun, starting generation.')
         generate_prep(MADGRAPH_GRIDPACK_LOCATION)
-        generate = stack_subprocess([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        granularity=1
+        mglog.info("Now generating {} events with random seed {} and granularity {}".format(int(nevents),int(random_seed),granularity))
+        # not sure whether this is needed but it is done in the old "run.sh" script
+        new_ld_path=":".join([os.environ['LD_LIBRARY_PATH'],os.getcwd()+'/'+MADGRAPH_GRIDPACK_LOCATION+'/madevent/lib',os.getcwd()+'/'+MADGRAPH_GRIDPACK_LOCATION+'/HELAS/lib'])
+        os.environ['LD_LIBRARY_PATH']=new_ld_path
+        MADGRAPH_COMMAND_STACK+=["export LD_LIBRARY_PATH="+":".join(['${LD_LIBRARY_PATH}',new_ld_path])]
+        generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/gridrun',str(int(nevents)),str(int(random_seed)),str(granularity)],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)        
         (out,err) = generate.communicate()
         error_check(err)
+        gp_events=MADGRAPH_GRIDPACK_LOCATION+"/Events/GridRun_{}/unweighted_events.lhe.gz".format(int(random_seed))
+        if not os.path.exists(gp_events):
+            mglog.error('Error in gp generation, did not find events at '+gp_events)
+
         # add reweighting, which is not run automatically from LO GPs
         reweight_card=get_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
         if reweight_card is not None:
-            #move events back into run dir first
-            events='{}/Events/GridRun_{}/{}'.format(MADGRAPH_GRIDPACK_LOCATION,int(random_seed),'unweighted_events.lhe.gz')
-            shutil.move('events.lhe.gz',events)
             pythonpath_backup=os.environ['PYTHONPATH']
             # workaround as madevent crashes when path to mg in PYTHONPATH
             os.environ['PYTHONPATH']=':'.join([p for p in pythonpath_backup.split(':') if 'madgraph5amc' not in p])
             add_reweighting('GridRun_{}'.format(int(random_seed)))
             os.environ['PYTHONPATH']=pythonpath_backup
-            shutil.move(events,'events.lhe.gz')
 
-
+        shutil.move(gp_events,'events.lhe.gz')
 
     else:
         ### NLO RUN ###
