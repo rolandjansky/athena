@@ -31,11 +31,18 @@ namespace Pythia8 {
       cout << "*       Enhancing shower emissions with UserHook!        *" << endl;
       cout << "*                                                        *" << endl;
       cout << "**********************************************************" << endl;
+
+      #ifdef PYTHIA8_304SERIES
+      settingsPtr->readString("Enhancements:doEnhance = true");
+      settingsPtr->readString("Enhancements:doEnhanceTrial = false");
+      #endif
     }
 
     // Enhance real-emission rate. Thus no trial-emission enhancement.
+    #ifndef PYTHIA8_304SERIES
     bool canEnhanceEmission() { return true;}
     bool canEnhanceTrial()    { return false;}
+    #endif
 
     // Function to return the weight enhance factor.
     double enhanceFactor(string name) {
