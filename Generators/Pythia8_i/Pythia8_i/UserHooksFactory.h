@@ -17,6 +17,10 @@
 #ifdef PYTHIA_VERSION_INTEGER
   #if PYTHIA_VERSION_INTEGER > 8299
     #define PYTHIA8_3SERIES
+    #if PYTHIA_VERSION_INTEGER > 8303
+      #define PYTHIA8_304SERIES
+    #endif
+    #define PYTHIA8_3SERIES
     typedef std::shared_ptr<Pythia8::UserHooks> UserHooksPtrType;
     #undef PYTHIA8_PTRWRAP
     #define PYTHIA8_PTRWRAP(A) std::shared_ptr<Pythia8::UserHooks>(A)

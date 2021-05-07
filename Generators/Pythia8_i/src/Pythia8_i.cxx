@@ -33,12 +33,17 @@ using boost::assign::operator+=;
 #define PYTHIA8_WLABEL weightLabel
 #define PYTHIA8_CONVERSION 1.0
 
+
 #ifdef PYTHIA_VERSION_INTEGER
   #if PYTHIA_VERSION_INTEGER > 8230
   #undef PYTHIA8_NWEIGHTS
   #undef PYTHIA8_WEIGHT
   #undef PYTHIA8_WLABEL
+  #if PYTHIA_VERSION_INTEGER > 8303
+  #define PYTHIA8_NWEIGHTS nWeightGroups
+  #else
   #define PYTHIA8_NWEIGHTS nVariationGroups
+  #endif
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
   #if PYTHIA_VERSION_INTEGER < 8244
@@ -329,7 +334,11 @@ StatusCode Pythia8_i::genInitialize() {
       HighFive::File file(m_hdf5File, HighFive::File::ReadOnly);
       int numEvents = m_pythia.settings.mode("Main:numberOfEvents");
       size_t eventOffset = 0;
+      #ifdef PYTHIA8_3SERIES
+      std::shared_ptr<LHAupH5> LHAup( new LHAupH5( &file , eventOffset, 1000000, 1000000,  true, true));
+      #else
       LHAupH5* LHAup = new LHAupH5( &file , eventOffset, 1000000, 1000000,  true, true);
+      #endif
       m_pythia.setLHAupPtr(LHAup);
       m_pythia.settings.mode("Beams:frameType", 5);
   }
@@ -478,13 +487,14 @@ StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
   m_enhanceWeight    = 1.0;  // better to keep the enhancement from UserHooks in a separate variable, to keep the code clear
   evt->weights().clear();
 
+  #ifndef PYTHIA8_304SERIES
   // include Enhance userhook weight
   for(const auto &hook: m_userHooksPtrs) {
     if (hook->canEnhanceEmission()) {
       m_enhanceWeight *= hook->getEnhancedEventWeight();
     }
   }
-
+  #endif
   // DO NOT try to distinguish between phase space and merging contributions: only their product contains both, so always multiply them in order to be robust
   double eventWeight = m_pythia.info.weight() * m_mergingWeight * m_enhanceWeight; 
 

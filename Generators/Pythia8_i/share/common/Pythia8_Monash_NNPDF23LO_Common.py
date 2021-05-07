@@ -1,6 +1,5 @@
 ## Config for Py8 Monash tune 
 ## This is not the default recommended tune, but forms the base for A14
-## In principle it could be set with Tune:pp=14, but there are some problems with PDFs
 
 include("Pythia8_i/Pythia8_Base_Fragment.py")
 
