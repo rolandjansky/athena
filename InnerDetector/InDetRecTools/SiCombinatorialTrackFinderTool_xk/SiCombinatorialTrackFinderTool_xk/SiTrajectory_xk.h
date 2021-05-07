@@ -145,6 +145,7 @@ namespace InDet{
       int                               m_itos[100]       ; //
       SiTrajectoryElement_xk            m_elements   [300]; // mC
       const InDet::SiTools_xk*          m_tools           ; //
+      const Trk::Surface*               m_surfacedead     ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -175,6 +176,7 @@ namespace InDet{
       m_ndfcut         = 0 ;
       m_ndf            = 0 ;
       m_ntos           = 0 ;
+      m_surfacedead    = 0 ;
     }
 
   inline SiTrajectory_xk::SiTrajectory_xk(const SiTrajectory_xk& T)
@@ -199,7 +201,7 @@ namespace InDet{
       m_naElements       = T.m_naElements     ;
       m_nElements        = T.m_nElements      ;
       m_tools            = T.m_tools          ;
-
+      m_surfacedead      = T.m_surfacedead    ;
       for(int i=0; i!=m_nElements; ++i) {
         int            e =  T.m_elementsMap[i];
         m_elementsMap[i] = e                  ;
@@ -212,7 +214,11 @@ namespace InDet{
       return(*this);
     }
 
-  inline SiTrajectory_xk::~SiTrajectory_xk() {}
+  inline SiTrajectory_xk::~SiTrajectory_xk() {
+
+    if(m_surfacedead) delete m_surfacedead;
+
+  }
 
   inline bool SiTrajectory_xk::isLastPixel()
     {

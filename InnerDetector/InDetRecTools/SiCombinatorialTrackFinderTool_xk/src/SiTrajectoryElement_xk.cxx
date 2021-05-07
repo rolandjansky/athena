@@ -80,8 +80,9 @@ bool InDet::SiTrajectoryElement_xk::set
   
   if (m_tools->isITkGeometry()) {
     m_radlength = .04;
-    if(not m_tools->useFastTracking() and m_ndf == 2 and std::abs(T(2,2)) > .1) m_radlength = .07;
-    else if (m_tools->useFastTracking() and m_ndf == 2 ) m_radlength = .12;
+    if(m_ndf == 2 and std::abs(T(2,2)) > .1) m_radlength = .07;
+    if(m_tools->useFastTracking())
+      m_radlengthN=m_radlength;
   }
   
   m_Tr[ 0] = T(0,0); m_Tr[ 1]=T(1,0); m_Tr[ 2]=T(2,0);
@@ -90,10 +91,62 @@ bool InDet::SiTrajectoryElement_xk::set
   m_Tr[ 9] = T(0,3); m_Tr[10]=T(1,3); m_Tr[11]=T(2,3);
   m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
   m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
-
   return true;
 }
 
+///////////////////////////////////////////////////////////////////
+// Set work dead trajectory element
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::setDead(const Trk::Surface* SU)
+{
+  m_surface = SU;
+  m_fieldMode    = false; if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
+  m_status       = 0                       ;
+  m_detstatus    = 0                       ;
+  m_ndist        = 0                       ;
+  m_nlinksF      = 0                       ;
+  m_nlinksB      = 0                       ;
+  m_nholesF      = 0                       ;
+  m_nholesB      = 0                       ;
+  m_dholesF      = 0                       ;
+  m_dholesB      = 0                       ;
+  m_nclustersF   = 0                       ;
+  m_nclustersB   = 0                       ;
+  m_npixelsB     = 0                       ;
+  m_ndfF         = 0                       ;
+  m_ndfB         = 0                       ;
+  m_ntsos        = 0                       ;
+  m_detelement   = 0                       ;
+  m_detlink      = 0                       ;
+  m_surface      = SU                      ;
+  m_cluster      = 0                       ;
+  m_clusterOld   = 0                       ;
+  m_clusterNoAdd = 0                       ;
+  noiseInitiate()                          ;
+  m_radlength    = -1.                     ; 
+  m_inside       = -1                      ;
+  m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Set passive material contribution in radiation lengths
+// Contribution increases as a function of z to mimic the 
+// routing of additional services along z
+///////////////////////////////////////////////////////////////////
+void InDet::SiTrajectoryElement_xk::setDeadRadLength(Trk::PatternTrackParameters& Tp)
+{
+  if(m_radlength >= 0.) return;
+  double z = fabs(Tp.par()[1]);
+  if     (z <  250.) m_radlength = .004;
+  else if(z <  500.) m_radlength = .018+(z- 250.)*.000048;
+  else if(z < 1000.) m_radlength = .030+(z- 500.)*.000040;
+  else if(z < 1500.) m_radlength = .050+(z-1000.)*.000020;
+  else if(z < 3000.) m_radlength = .060+(z-1500.)*.0000067;
+  else               m_radlength = .07;
+}
+ 
 ///////////////////////////////////////////////////////////////////
 // Set work information to trajectory
 ///////////////////////////////////////////////////////////////////
@@ -239,6 +292,8 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElementWithCorrection()
   if(!initiateStateWithCorrection(m_parametersPB,m_parametersPF,m_parametersUF)) return false;
   m_invMoment = std::abs(m_parametersUB.par()[4]);
 
+  if (m_tools->useFastTracking())
+    m_radlength = .04;     
   noiseProduction(1,m_parametersUF);
 
   m_dist         = -10. ;
@@ -348,19 +403,22 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 
   // Track update
   //
-  if( m_cluster) {
-    if(!addCluster(m_parametersPF,m_parametersUF,m_xi2F)) return false;
-    m_inside  = -1; ++m_nclustersF; m_xi2totalF+=m_xi2F; m_ndfF+=m_ndf;
-  }
-  else           {
-
-    m_inside = m_detlink->intersect(m_parametersPF,m_dist);
-
-    if( m_detstatus >=0) {
-      if(m_inside <  0 ) {++m_nholesF; ++m_dholesF;}
-      if(m_dist   < -2.) ++m_ndist;
+  if(m_detelement) {
+    if( m_cluster) {
+      if(!addCluster(m_parametersPF,m_parametersUF,m_xi2F)) return false;
+      m_inside  = -1; ++m_nclustersF; m_xi2totalF+=m_xi2F; m_ndfF+=m_ndf;
     }
-  }
+    else           {
+
+      m_inside = m_detlink->intersect(m_parametersPF,m_dist);
+
+      if( m_detstatus >=0) {
+        if(m_inside <  0 ) {++m_nholesF; ++m_dholesF;}
+        if(m_dist   < -2.) ++m_ndist;
+      }
+    }
+  } else setDeadRadLength(m_parametersPF);
+
 
   // Noise production
   //
@@ -386,7 +444,6 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearchPreciseWithCorrection
 (InDet::SiTrajectoryElement_xk& TE)
 {
-
   Trk::PatternTrackParameters P;
 
   if(TE.m_cluster) {
@@ -412,22 +469,18 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearchPreciseWithCo
 
   // Track update
   //
-  if( m_cluster) {
-
-    if(m_parametersPB.cov()[0] < m_parametersPF.cov()[0]) {
-      if(!addClusterPreciseWithCorrection(m_parametersPB,m_parametersPF,m_parametersUF,m_xi2F)) return false;    
+  if(m_detelement) {
+    if( m_cluster) {
+      if(!addClusterPreciseWithCorrection(m_parametersPF,m_parametersPF,m_parametersUF,m_xi2F)) return false;
+      ++m_nclustersF; m_xi2totalF+=m_xi2F; m_ndfF+=m_ndf;
     }
-    else  {
-      if(!addClusterPreciseWithCorrection(m_parametersPF,m_parametersPF,m_parametersUF,m_xi2F)) return false;    
-    }
-
-    ++m_nclustersF; m_xi2totalF+=m_xi2F; m_ndfF+=m_ndf;
-  }
-  else           {
-    if( m_detstatus >=0) {
-     ++m_nholesF; ++m_dholesF; ++m_ndist;
+    else           {
+      if( m_detstatus >=0) {
+        ++m_nholesF; ++m_dholesF; ++m_ndist;
+      }
     }
   }
+  else setDeadRadLength(m_parametersPF);
 
   // Noise production
   //
@@ -469,7 +522,6 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_cluster      =         0                           ;
   m_clusterNoAdd =         0                           ;  
   m_xi2F         =    10000.                           ;
-  m_inside       = m_detlink->intersect(m_parametersPF,m_dist);
   m_nholesF      = TE.m_nholesF                        ;
   m_ndist        = TE.m_ndist                          ;
   m_nclustersF   = TE.m_nclustersF                     ; 
@@ -477,6 +529,14 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_xi2totalF    = TE.m_xi2totalF                      ;
   m_step        += TE.m_step                           ;
   
+
+  if(!m_detelement) {
+    setDeadRadLength(m_parametersPF);
+    noiseProduction(1,m_parametersPF);
+    return true;
+  }
+  m_inside       = m_detlink->intersect(m_parametersPF,m_dist);
+
   if(m_inside > 0) {noiseInitiate(); return true;}
   
   if((m_nlinksF=searchClusters(m_parametersPF,m_linkF))) {
@@ -499,7 +559,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   else {
     noiseProduction(1,m_parametersPF);
   }
-  
+
   if(m_detstatus >=0 && !m_cluster) {
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesF; ++m_dholesF;} 
     if(m_dist < -2. ) ++m_ndist;
@@ -517,6 +577,10 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
  const InDet::SiClusterCollection::const_iterator& sb, 
  const InDet::SiClusterCollection::const_iterator& se)
 {
+  if(!m_detelement) {
+    return false;
+  }
+  
   m_detstatus    = 1                       ;
   m_sibegin      = sb                      ;
   m_siend        = se                      ; 
@@ -625,7 +689,6 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_cluster      =         0;
   m_clusterNoAdd =         0;
   m_xi2B         =    10000.;
-  m_inside       = m_detlink->intersect(m_parametersPB,m_dist);
   m_nholesB      = TE.m_nholesB                        ;
   m_ndist        = TE.m_ndist                          ;
   m_nclustersB   = TE.m_nclustersB                     ; 
@@ -634,6 +697,12 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_xi2totalB    = TE.m_xi2totalB                      ;
   m_step        += TE.m_step                           ;
 
+  if(!m_detelement) {
+    setDeadRadLength(m_parametersPB);
+    noiseProduction(-1,m_parametersPB); return true;
+  }
+  m_inside       = m_detlink->intersect(m_parametersPB,m_dist);
+ 
   if(m_inside >0 ) {noiseInitiate(); return true;}
   
   if((m_nlinksB = searchClusters(m_parametersPB,m_linkB))) {
@@ -687,9 +756,19 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   }
   
   m_parametersPB.addNoise(m_noise,Trk::oppositeMomentum);
+  m_nholesB      = TE.m_nholesB            ;
+  m_ndist        = TE.m_ndist              ;
+  m_nclustersB   = TE.m_nclustersB         ; 
+  m_npixelsB     = TE.m_npixelsB           ;
+  m_ndfB         = TE.m_ndfB               ; 
+  m_xi2totalB    = TE.m_xi2totalB          ;
 
   // Forward-backward predict parameters
   //
+  if(!m_detelement) {
+    m_status = 2;
+    return true;
+  }
   if(!combineStates(m_parametersPB,m_parametersPF,m_parametersSM)) return false;
 
   m_cluster ? m_status = 3 : m_status = 2;
@@ -1383,6 +1462,10 @@ Trk::TrackStateOnSurface*
 InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface 
 (bool change,bool cov,int Q)
 {
+  if(!m_detelement) {
+    return 0;
+  }
+
   const Trk::TrackParameters* tp = 0;
 
   if(Q) {
@@ -1508,22 +1591,29 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
   m_radlengthN = s*rad_length; 
-  // 134. : factor used evaluate multiple scattering angle [rad] for
+  // 134. : factor used to evaluate multiple scattering angle [rad] for
   // particle with momentum [MeV] passing through a certain amount of material [X0].
   // m_radlengthN represents the real thickness of the detector element 
-  // for particle with a certain incident angle
+  // for particle with a certain incident angle.
   double covariancePola = (134.*m_radlengthN)*(q*q);
-  double covarianceAzim = covariancePola/d;
-  double covarianceIMom,correctionIMom;
-
-  if(Model==1) {
-    double        dp = m_energylose*q*s;
-    covarianceIMom = (.2*dp*dp)*(q*q);
-    correctionIMom = 1.-dp;
+  // Refining this calculation for fast tracking purpose.
+  if(m_tools->useFastTracking()) {
+    double qc             = (1.+.038*log(m_radlengthN))*q;
+    covariancePola = (185.*m_radlengthN)*qc*qc;
   }
-  else {
-    correctionIMom = .70;
-    covarianceIMom = (correctionIMom-1.)*(correctionIMom-1.)*(q*q);
+  double covarianceAzim = covariancePola/d;
+  double covarianceIMom = 0.;
+  double correctionIMom = 1.;
+
+  if (not m_tools->useFastTracking()) {
+    if(Model==1) {
+      double        dp = m_energylose*q*s;
+      covarianceIMom = (.2*dp*dp)*(q*q);
+      correctionIMom = 1.-dp;
+    } else {
+      correctionIMom = .70;
+      covarianceIMom = (correctionIMom-1.)*(correctionIMom-1.)*(q*q);
+    }
   }
   if(Dir>0) correctionIMom = 1./correctionIMom;
   m_noise.set(covarianceAzim,covariancePola,covarianceIMom,correctionIMom);
@@ -1545,7 +1635,8 @@ void  InDet::SiTrajectoryElement_xk::noiseProductionWithMomentum
   if(Model < 1 || Model > 2) return; 
   
   double q = m_invMoment;
-  double s = std::abs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
+  double s = (m_detelement) ? std::abs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]) :
+                              sqrt(m_A[0]*m_A[0]+m_A[1]*m_A[1]);
   if (m_tools->isITkGeometry()) {
     s  < .2 ? s = 5. : s = 1./s;
   } else {
@@ -1555,6 +1646,11 @@ void  InDet::SiTrajectoryElement_xk::noiseProductionWithMomentum
 
   m_radlengthN = s*m_radlength;
   double covariancePola = (134.*m_radlengthN)*(q*q);
+  // Refining this calculation for fast tracking purpose.
+  if(m_tools->useFastTracking()) {
+    double qc             = (1.+.038*log(m_radlengthN))*q;
+    covariancePola = (185.*m_radlengthN)*qc*qc;
+  }
   double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
 
@@ -1744,14 +1840,39 @@ bool InDet::SiTrajectoryElement_xk::propagate
  Trk::PatternTrackParameters  & Tb,
  double                       & S ) 
 {
-  bool useJac = true; if(!Ta.iscovariance()) useJac = false;
+  if(m_surface->type()==Trk::Surface::Plane && Ta.associatedSurface()->type() == Trk::Surface::Plane) {
+ 
+    bool useJac = true; if(!Ta.iscovariance()) useJac = false;
+    
+    double P[64]; if(!transformPlaneToGlobal(useJac,Ta,P)) return false;
+    
+    if( m_fieldMode) {if(!rungeKuttaToPlane      (useJac,P)) return false;}
+    else             {if(!straightLineStepToPlane(useJac,P)) return false;} 
+    
+    S = P[45]; return transformGlobalToPlane(useJac,P,Ta,Tb);
+  }
+  else return propagateUsingTool(Ta,Tb,S);
+}
 
-  double P[64]; if(!transformPlaneToGlobal(useJac,Ta,P)) return false;
+/////////////////////////////////////////////////////////////////////////////////
+// Main function for pattern track parameters and covariance matrix propagation
+// to PlaneSurface Ta->pSu = Tb with step to surface calculation using m_proptool
+/////////////////////////////////////////////////////////////////////////////////
 
-  if( m_fieldMode) {if(!rungeKuttaToPlane      (useJac,P)) return false;}
-  else             {if(!straightLineStepToPlane(useJac,P)) return false;} 
+bool InDet::SiTrajectoryElement_xk::propagateUsingTool
+(Trk::PatternTrackParameters  & Ta,
+ Trk::PatternTrackParameters  & Tb,
+ double                       & S ) 
+{ 
+  if(!m_proptool->propagate(Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),S,Trk::pion)) return false;
 
-  S = P[45]; return transformGlobalToPlane(useJac,P,Ta,Tb);
+  double Sf,Cf,Ce,Se; 
+  sincos(Tb.par()[2],&Sf,&Cf); 
+  sincos(Tb.par()[3],&Se,&Ce);
+  m_A[0] = Cf*Se; 
+  m_A[1] = Sf*Se;
+  m_A[2] =    Ce;     
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -2215,5 +2336,3 @@ bool InDet::SiTrajectoryElement_xk::addClusterPreciseWithCorrection(Trk::Pattern
 }
    
 
-  
-  
