@@ -10,7 +10,6 @@
 
 #include "PeriodicScaler.h"
 #include "TrigConfBase/MsgStream.h"
-#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"

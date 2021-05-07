@@ -59,11 +59,6 @@ namespace TrigConf {
       // @brief initialize the service
       virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
-      // @brief L1 topo configuration menu
-      virtual const TXC::L1TopoMenu* menu() const override {
-         return m_topoMenu.get();
-      }
-      
       // LVL1 menu and prescales only (no bunchgroups, prescale clocks, etc.)
       virtual const CTPConfig* ctpConfig() const override {
          return & m_ctpConfig;
