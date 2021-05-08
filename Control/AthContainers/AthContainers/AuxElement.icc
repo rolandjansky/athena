@@ -358,6 +358,17 @@ ConstAuxElement::TypelessConstAccessor::operator() (const ConstAuxElement& e) co
 }
 
 
+#ifdef ATHCONTAINERS_R21_COMPAT
+inline
+const void*
+ConstAuxElement::TypelessConstAccessor::operator() (const AuxElement& e) const
+{
+  assert (e.container() != 0);
+  return (*this) (*e.container(), e.index());
+}
+#endif
+
+
 /**
  * @brief Fetch the variable for one element, as a const pointer.
  * @param container The container from which to fetch the variable.
@@ -399,6 +410,16 @@ ConstAuxElement::TypelessConstAccessor::isAvailable (const ConstAuxElement& e) c
 {
   return e.container() && e.container()->isAvailable (m_auxid);
 }
+
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+inline
+bool
+ConstAuxElement::TypelessConstAccessor::isAvailable (const AuxElement& e) const
+{
+  return e.container() && e.container()->isAvailable (m_auxid);
+}
+#endif
 
 
 /**
@@ -477,6 +498,18 @@ ConstAuxElement::ConstAccessor<T>::operator() (const ConstAuxElement& e) const
 }
 
 
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+typename ConstAuxElement::ConstAccessor<T>::const_reference_type
+ConstAuxElement::ConstAccessor<T>::operator() (const AuxElement& e) const
+{
+  assert (e.container() != 0);
+  return e.container()->template getData<T> (m_auxid, e.index());
+}
+#endif
+
+
 /**
  * @brief Fetch the variable for one element, as a const reference.
  * @param container The container from which to fetch the variable.
@@ -488,7 +521,7 @@ ConstAuxElement::ConstAccessor<T>::operator() (const ConstAuxElement& e) const
  */
 template <class T>
 inline
-typename AuxElement::ConstAccessor<T>::const_reference_type
+typename ConstAuxElement::ConstAccessor<T>::const_reference_type
 ConstAuxElement::ConstAccessor<T>::operator() (const AuxVectorData& container,
                                                size_t index) const
 {
@@ -503,7 +536,7 @@ ConstAuxElement::ConstAccessor<T>::operator() (const AuxVectorData& container,
  */
 template <class T>
 inline
-typename AuxElement::ConstAccessor<T>::const_container_pointer_type
+typename ConstAuxElement::ConstAccessor<T>::const_container_pointer_type
 ConstAuxElement::ConstAccessor<T>::getDataArray (const AuxVectorData& container) const
 {
   return reinterpret_cast<const_container_pointer_type>
@@ -522,6 +555,17 @@ ConstAuxElement::ConstAccessor<T>::isAvailable (const ConstAuxElement& e) const
 {
   return e.container() && e.container()->isAvailable (m_auxid);
 }
+
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+bool
+ConstAuxElement::ConstAccessor<T>::isAvailable (const AuxElement& e) const
+{
+  return e.container() && e.container()->isAvailable (m_auxid);
+}
+#endif
 
 
 /**
@@ -597,12 +641,23 @@ ConstAuxElement::Decorator<T>::Decorator (const std::string& name,
  */
 template <class T>
 inline
-typename AuxElement::Decorator<T>::reference_type
+typename ConstAuxElement::Decorator<T>::reference_type
 ConstAuxElement::Decorator<T>::operator() (const ConstAuxElement& e) const
 {
   assert (e.container() != 0);
   return e.container()->template getDecoration<T> (m_auxid, e.index());
 }
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+typename ConstAuxElement::Decorator<T>::reference_type
+ConstAuxElement::Decorator<T>::operator() (const AuxElement& e) const
+{
+  assert (e.container() != 0);
+  return e.container()->template getDecoration<T> (m_auxid, e.index());
+}
+#endif
 
 
 /**
@@ -620,7 +675,7 @@ ConstAuxElement::Decorator<T>::operator() (const ConstAuxElement& e) const
  */
 template <class T>
 inline
-typename AuxElement::Decorator<T>::reference_type
+typename ConstAuxElement::Decorator<T>::reference_type
 ConstAuxElement::Decorator<T>::operator() (const AuxVectorData& container,
                                            size_t index) const
 {
@@ -640,6 +695,17 @@ void ConstAuxElement::Decorator<T>::set (const ConstAuxElement& e,
 {
   (*this)(e) = x;
 }
+
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+void ConstAuxElement::Decorator<T>::set (const AuxElement& e,
+                                         const element_type& x) const
+{
+  (*this)(e) = x;
+}
+#endif
 
 
 /**
@@ -686,6 +752,16 @@ ConstAuxElement::Decorator<T>::isAvailable (const ConstAuxElement& e) const
   return e.container() && e.container()->isAvailable (m_auxid);
 }
 
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+bool
+ConstAuxElement::Decorator<T>::isAvailable (const AuxElement& e) const
+{
+  return e.container() && e.container()->isAvailable (m_auxid);
+}
+#endif
+
 
 /**
  * @brief Test to see if this variable exists in the store and is writable.
@@ -698,6 +774,16 @@ ConstAuxElement::Decorator<T>::isAvailableWritable (const ConstAuxElement& e) co
 {
   return e.container() && e.container()->isAvailableWritableAsDecoration (m_auxid);
 }
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+template <class T>
+inline
+bool
+ConstAuxElement::Decorator<T>::isAvailableWritable (const AuxElement& e) const
+{
+  return e.container() && e.container()->isAvailableWritableAsDecoration (m_auxid);
+}
+#endif
 
 
 /**
@@ -719,7 +805,10 @@ ConstAuxElement::Decorator<T>::auxid() const
  * @brief Default constructor.
  */
 inline
-AuxElement::AuxElement() 
+AuxElement::AuxElement()
+#ifdef ATHCONTAINERS_R21_COMPAT
+  : m_container(0)
+#endif
 {
 }
 
@@ -734,7 +823,12 @@ AuxElement::AuxElement()
 inline
 AuxElement::AuxElement (SG::AuxVectorData* container,
                         size_t index)
+#ifdef ATHCONTAINERS_R21_COMPAT
+  : IAuxElement(index),
+    m_container (container)
+#else
   : ConstAuxElement(container, index)
+#endif
 {
 }
 
@@ -750,8 +844,13 @@ AuxElement::AuxElement (SG::AuxVectorData* container,
  * @c makePrivateStore will take care of copying the aux data.
  */
 inline
-AuxElement::AuxElement (const AuxElement& other)
+AuxElement::AuxElement ([[maybe_unused]] const AuxElement& other)
+#ifdef ATHCONTAINERS_R21_COMPAT
+  : IAuxElement(),
+    m_container(0)
+#else
   : ConstAuxElement (other)
+#endif
 {
 }
 
@@ -794,6 +893,24 @@ AuxElement& AuxElement::operator= (const AuxElement& other)
 inline
 AuxElement::~AuxElement()
 {
+#ifdef ATHCONTAINERS_R21_COMPAT
+  if (ATHCONTAINERS_UNLIKELY (!noPrivateData()))
+    releasePrivateStoreForDtor();
+#endif
+}
+
+
+/**
+ * @brief Return the container holding this element.
+ */
+inline
+const SG::AuxVectorData* AuxElement::container() const
+{
+#ifdef ATHCONTAINERS_R21_COMPAT
+  return m_container;
+#else
+  return ConstAuxElement::container();
+#endif
 }
 
 
@@ -803,9 +920,12 @@ AuxElement::~AuxElement()
 inline
 SG::AuxVectorData* AuxElement::container()
 {
-  
+#ifdef ATHCONTAINERS_R21_COMPAT
+  return m_container;
+#else
   SG::AuxVectorData* cont ATLAS_THREAD_SAFE = const_cast<SG::AuxVectorData*> (ConstAuxElement::container());
   return cont;
+#endif
 }
 
 
@@ -956,6 +1076,96 @@ AuxElement::auxdata (const std::string& name,
 
 
 /**
+ * @brief Fetch an aux data variable, as a const reference.
+ * @param name Name of the aux variable.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * or @c ConstAccessor classes above.
+ */
+template <class T>
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdata (const std::string& name) const
+{
+  return Accessor<T>(name, "")(*this);
+}
+
+
+/**
+ * @brief Fetch an aux data variable, as a const reference.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * or @c ConstAccessor classes above.
+ */
+template <class T>
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdata (const std::string& name,
+                     const std::string& clsname) const
+{
+  return Accessor<T>(name, clsname)(*this);
+}
+
+
+/**
+ * @brief Fetch an aux data variable, as a const reference.
+ * @param name Name of the aux variable.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c ConstAccessor
+ * class above.
+ */
+template <class T>
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdataConst (const std::string& name) const
+{
+  return Accessor<T>(name, "")(*this);
+}
+
+
+/**
+ * @brief Fetch an aux data variable, as a const reference.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c ConstAccessor
+ * class above.
+ */
+template <class T>
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdataConst (const std::string& name,
+                          const std::string& clsname) const
+{
+  return Accessor<T>(name, clsname)(*this);
+}
+
+
+/**
+ * @brief Check if an aux variable is available for reading
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * class above.
+ */
+template <class T>
+bool AuxElement::isAvailable (const std::string& name,
+                              const std::string& clsname /*= ""*/) const
+{
+  return Accessor<T>(name, clsname).isAvailable(*this);
+}
+
+
+/**
  * @brief Check if an aux variable is available for writing
  * @param name Name of the aux variable.
  * @param clsname The name of the associated class.  May be blank.
@@ -970,6 +1180,69 @@ bool AuxElement::isAvailableWritable (const std::string& name,
                                       const std::string& clsname /*= ""*/)
 {
   return Accessor<T>(name, clsname).isAvailableWritable(*this);
+}
+
+
+/**
+ * @brief Check if an aux variable is available for writing as a decoration.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * class above.
+ */
+template <class T>
+bool AuxElement::isAvailableWritableAsDecoration (const std::string& name,
+                                                  const std::string& clsname /*= ""*/) const
+{
+  return Decorator<T>(name, clsname).isAvailableWritable(*this);
+}
+
+
+/**
+ * @brief Fetch an aux decoration, as a non-const reference.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * class above.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdecor (const std::string& name) const
+{
+  return Decorator<T>(name, "")(*this);
+}
+
+
+/**
+ * @brief Fetch an aux decoration, as a non-const reference.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * class above.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdecor (const std::string& name,
+                      const std::string& clsname) const
+{
+  return Decorator<T>(name, clsname)(*this);
 }
 
 
@@ -1064,7 +1337,18 @@ bool AuxElement::trackIndices() const
 inline
 void AuxElement::setIndex (size_t index, SG::AuxVectorData* container)
 {
+#ifdef ATHCONTAINERS_R21_COMPAT
+  if (ATHCONTAINERS_UNLIKELY (!noPrivateData())) {
+    // out-of-line piece, dealing with private store.
+    setIndexPrivate (index, container);
+    return;
+  }
+
+  IAuxElement::setIndex (index);
+  m_container = container;
+#else
   ConstAuxElement::setIndex (index, container);
+#endif
 }
 
 
