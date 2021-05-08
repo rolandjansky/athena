@@ -21,7 +21,10 @@ def LArRawChannelBuilderDefault(forceIter=False):
             from LArConditionsCommon.LArRunFormat import getLArFormatForRun
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
-            lri=getLArFormatForRun(runNum)
+            if runNum is not None:
+               lri=getLArFormatForRun(runNum)
+            else:
+               lri=None
             if lri is not None and lri.runType() is not None and lri.runType()==0:
                 forceIter=True
                 
