@@ -108,7 +108,7 @@ namespace Rec {
         // caching needs some development...
         // setCache(track1,track2);
         double outerMatchChi2 = 999999.;
-        if (!m_tagTool.empty()) { outerMatchChi2 = m_tagTool->chi2(track1, track2); }
+        if (!m_tagTool.empty()) { outerMatchChi2 = m_tagTool->chi2(track1, track2, Gaudi::Hive::currentContext()); }
 
         return outerMatchChi2;
     }
@@ -123,7 +123,7 @@ namespace Rec {
 
         double outerMatchProbability = 0.;
         if (!m_tagTool.empty()) {
-            double outerMatchChi2 = m_tagTool->chi2(track1, track2);
+            double outerMatchChi2 = m_tagTool->chi2(track1, track2, Gaudi::Hive::currentContext());
 
             // probability of MS chi2
             if (outerMatchChi2 > 0. && outerMatchChi2 < 1000.) {

@@ -49,8 +49,8 @@ namespace MuonCombined {
         return StatusCode::SUCCESS;
     }
 
-    double MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack) const {
-        const Trk::TrackingVolume *msEntrance = getVolume("MuonSpectrometerEntrance");
+    double MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack, const EventContext &ctx) const {
+        const Trk::TrackingVolume *msEntrance = getVolume("MuonSpectrometerEntrance", ctx);
         if (!msEntrance) {
             ATH_MSG_ERROR("No MS entrance available");
             return dummy_chi2;
@@ -141,7 +141,7 @@ namespace MuonCombined {
         }
 
         std::unique_ptr<const Trk::TrackParameters> idextrapolatedpar = std::unique_ptr<const Trk::TrackParameters>(
-            m_extrapolator->extrapolateToVolume(*lastmeasidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
+            m_extrapolator->extrapolateToVolume(ctx, *lastmeasidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
 
         if (!idextrapolatedpar && lastmeasidpar->parameters()[Trk::qOverP] != 0 &&
             std::abs(1. / lastmeasidpar->parameters()[Trk::qOverP]) < 5. * CLHEP::GeV) {
@@ -154,7 +154,7 @@ namespace MuonCombined {
                 params[0], params[1], params[2], params[3], params[4], AmgSymMatrix(5)(*lastmeasidpar->covariance()));
             if (newlastidpar) {
                 idextrapolatedpar = std::unique_ptr<const Trk::TrackParameters>(
-                    m_extrapolator->extrapolateToVolume(*newlastidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
+                    m_extrapolator->extrapolateToVolume(ctx, *newlastidpar, *msEntrance, Trk::alongMomentum, Trk::muon));
             }
         }
 
@@ -192,7 +192,7 @@ namespace MuonCombined {
         if (distance > 0 && distsol.numberOfSolutions() > 0) propdir = Trk::alongMomentum;
 
         std::unique_ptr<const Trk::TrackParameters> msextrapolatedpar = std::unique_ptr<const Trk::TrackParameters>(
-            m_extrapolator->extrapolate(*msparforextrapolator, idextrapolatedpar->associatedSurface(), propdir, false, Trk::muon));
+            m_extrapolator->extrapolate(ctx, *msparforextrapolator, idextrapolatedpar->associatedSurface(), propdir, false, Trk::muon));
 
         if (muonisstraight) { ATH_MSG_DEBUG("Muon track is straight line"); }
 
@@ -204,7 +204,7 @@ namespace MuonCombined {
         if (msextrapolatedpar) mychi2 = chi2(*idextrapolatedpar, *msextrapolatedpar);
         if (muonisstraight) {
             std::unique_ptr<const Trk::TrackParameters> idpar_firsthit = std::unique_ptr<const Trk::TrackParameters>(
-                m_extrapolator->extrapolate(*idextrapolatedpar, mspar->associatedSurface(), Trk::alongMomentum, false, Trk::muon));
+                m_extrapolator->extrapolate(ctx, *idextrapolatedpar, mspar->associatedSurface(), Trk::alongMomentum, false, Trk::muon));
             if (idpar_firsthit) {
                 double chi2_2 = chi2(*idpar_firsthit, *mspar);
                 if (chi2_2 < mychi2) mychi2 = chi2_2;
