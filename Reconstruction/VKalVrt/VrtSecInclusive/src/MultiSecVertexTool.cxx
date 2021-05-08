@@ -42,6 +42,7 @@ MultiSecVertexTool::MultiSecVertexTool(const std::string& type,
     m_cutSctHits(4),
     m_cutPixelHits(2),
     m_cutSiHits(8),
+    m_cutTRTHits(10),
     m_cutBLayHits(0),
     m_cutSharedHits(1),
     m_cutPt(500.),
@@ -79,6 +80,7 @@ MultiSecVertexTool::MultiSecVertexTool(const std::string& type,
     declareProperty("CutSctHits",    m_cutSctHits ,  "Remove track is it has less SCT hits");
     declareProperty("CutPixelHits",  m_cutPixelHits, "Remove track is it has less Pixel hits");
     declareProperty("CutSiHits",     m_cutSiHits,    "Remove track is it has less Pixel+SCT hits");
+    declareProperty("CutTRTHits",    m_cutTRTHits,   "Remove track is it has less TRT hits");
     declareProperty("CutBLayHits",   m_cutBLayHits,  "Remove track is it has less B-layer hits");
     declareProperty("CutSharedHits", m_cutSharedHits,"Reject final 2tr vertices if tracks have shared hits");
 
@@ -1074,10 +1076,11 @@ MultiSecVertexTool::MultiSecVertexTool(const std::string& type,
           const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
           double CovTrkMtx00 = (*(mPer.covariance()))(0,0);
  
-          uint8_t PixelHits,SctHits,BLayHits;
+          uint8_t PixelHits,SctHits,BLayHits,TRTHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is 
           if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely  
           if( SctHits<3 )                                                       continue; // bad
+          if( !((*i_ntrk)->summaryValue(  TRTHits,xAOD::numberOfTRTHits))   )              TRTHits=0;
           if( !((*i_ntrk)->summaryValue(BLayHits,xAOD::numberOfInnermostPixelLayerHits)))  BLayHits=0;
           if(m_fillHist){ m_hb_trkSelect->Fill( 2., m_w_1);}
 
@@ -1109,6 +1112,7 @@ MultiSecVertexTool::MultiSecVertexTool(const std::string& type,
           if(SctHits	    < m_cutSctHits) 		continue;
           if((PixelHits+SctHits) < m_cutSiHits) 	continue;
           if(BLayHits	    < m_cutBLayHits) 		continue;
+          if(std::abs((*i_ntrk)->eta())<1.9 && TRTHits < m_cutTRTHits) continue; //TRT hits must be present inside TRT
           if(m_fillHist){ m_hb_trkSelect->Fill( 5., m_w_1);}
           orderedTrk.emplace(signifBeam,*i_ntrk);
           selectedTracks.push_back(*i_ntrk);

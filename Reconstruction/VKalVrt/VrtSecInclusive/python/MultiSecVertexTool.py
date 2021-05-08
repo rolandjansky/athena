@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # Author: Vadim Kostyukhin vadim.kostyukhin@cern.ch
 from GaudiKernel.GaudiHandles import *
 from GaudiKernel.Proxy.Configurable import *
@@ -69,15 +69,16 @@ class InclusiveBFinderTool( Rec__MultiSecVertexTool ):
         Rec__MultiSecVertexTool.__init__( self, name = name,
                                              VertexFitterTool   = SVertexFitterTool,
 					     CutBLayHits  = 0,
-					     CutPixelHits = 2,
+					     CutPixelHits = 1,
 					     CutSiHits    = 8,
+					     CutTRTHits   = 10,
 					     useVertexCleaning  = True,
 					     MultiWithOneTrkVrt = True,
 					     removeTrkMatSignif = -1.,    # No additional material rejection
 					     AntiPileupSigRCut = 2.0,
 					     TrkSigCut         = 2.0,
 					     SelVrtSigCut      = 3.0,
-					     v2tIniBDTCut      =-0.5,
+					     v2tIniBDTCut      =-0.7,
 					     v2tFinBDTCut      = 0.0,
 					     CutPt             = 500
                                              )
@@ -183,7 +184,29 @@ class DVFinderTool( Rec__MultiSecVertexTool ):
 					     SelVrtSigCut      = 8.0,
 					     v2tIniBDTCut      =-0.5,
 					     v2tFinBDTCut      = 0.0,
-					     VrtMassLimit      = 50000.,
-					     Vrt2TrMassLimit   = 50000.,
+					     VrtMassLimit      = 1000000.,
+					     Vrt2TrMassLimit   = 100000.,
 					     CutPt             = 1000.
                                              )
+
+##########################################################################################################
+# define the Test algorithms
+
+from VrtSecInclusiveConf import Rec__AllBVertexAlg
+class AllBVertexFinderAlg( Rec__AllBVertexAlg ):
+
+    def __init__(self, name = 'AllBVertexFinderAlg'  ):
+
+        from AthenaCommon.AppMgr import ToolSvc
+        mlog = logging.getLogger( 'AllBVertexFinderAlg::__init__ ' )
+        mlog.info("entering")
+        
+        BFinderTool = InclusiveBFinderTool()
+        ToolSvc += BFinderTool
+        #----------------------
+        # All B-hadron vertex finder itself
+        #
+        Rec__AllBVertexAlg.__init__( self, name = name,
+                                     BVertexTool = BFinderTool
+                                   )
+ 
