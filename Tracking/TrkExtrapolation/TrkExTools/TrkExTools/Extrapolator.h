@@ -362,8 +362,6 @@ private:
     ParametersNextVolume m_parametersAtBoundary;
     //!< Caches per MaterialUpdator
     std::vector<std::unique_ptr<Trk::IMaterialEffectsUpdator::ICache>> m_MaterialUpCache;
-    //!< garbage collection during extrapolation
-    std::map<const Trk::TrackParameters*, bool> m_garbageBin;
     //!<  internal switch for resolved configuration
     bool m_dense = false;
     //!< Flag the recall solution
@@ -816,13 +814,6 @@ private:
 
   /** Private method for resetting the recallInformation */
   void resetRecallInformation(Cache& cache) const;
-
-  /** Private method for throwing into the GarbageBin */
-  void throwIntoGarbageBin(Cache& cache, const Trk::TrackParameters* garbage) const;
-
-  /** Private method for emptying the GarbageBin */
-  void emptyGarbageBin(Cache& cache) const;
-  void emptyGarbageBin(Cache& cache, const Trk::TrackParameters*) const;
 
   /** Private method to return from extrapolate() main method,
       cleans up, calls model action or validation action, empties garbage bin and leaves */
