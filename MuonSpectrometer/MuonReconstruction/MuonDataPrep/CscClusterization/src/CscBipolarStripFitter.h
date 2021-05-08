@@ -34,7 +34,7 @@ public:  // Ctors and dtor.
 
 public:  // AlgTool methods
     // Initialization.
-    StatusCode initialize();
+    StatusCode initialize() override;
 
 public:  // Interface methods
     // Tell compiler not to hide other fit methods.
@@ -73,9 +73,6 @@ private:
     double m_zmax;
     double m_bipolarNormalization;
     double m_tsampling;
-
-    mutable double m_powcachez;
-    mutable double m_powcachezn;
 };
 
 #endif
