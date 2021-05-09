@@ -145,9 +145,9 @@ void test_disc (Trk::IIntersector& tool)
 
   Amg::Vector3D pos1 { 0, 0, 75 };
   Amg::Vector3D norm1 { 0, 0, 1 };
-  Trk::DiscSurface disc1 (transf (pos1, norm1));
+  Trk::DiscSurface disc1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 200 };
-  Trk::DiscSurface disc2 (transf (pos2, norm1));
+  Trk::DiscSurface disc2 (*transf (pos2, norm1));
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);

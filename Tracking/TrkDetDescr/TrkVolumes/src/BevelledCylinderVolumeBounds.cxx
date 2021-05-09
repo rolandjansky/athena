@@ -126,7 +126,7 @@ const std::vector<const Trk::Surface*>*
     if (m_subtractedVolume) {
       Trk::Volume* subtrVol = new Trk::Volume(*m_subtractedVolume);
       Trk::DiscSurface bottomDisc(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform * Amg::AngleAxis3D(M_PI, Amg::Vector3D(1., 0., 0.)) *
           Amg::Translation3D(Amg::Vector3D(0., 0., halflengthZ()))),
         discBounds());
@@ -134,7 +134,7 @@ const std::vector<const Trk::Surface*>*
         bottomDisc, new Trk::VolumeExcluder(subtrVol), false));
     } else
       retsf->push_back(new Trk::DiscSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform * Amg::AngleAxis3D(M_PI, Amg::Vector3D(1., 0., 0.)) *
           Amg::Translation3D(Amg::Vector3D(0., 0., halflengthZ()))),
         discBounds()));
@@ -153,14 +153,14 @@ const std::vector<const Trk::Surface*>*
     if (m_subtractedVolume) {
       Trk::Volume* subtrVol = new Trk::Volume(*m_subtractedVolume);
       Trk::DiscSurface topDisc(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform * Amg::Translation3D(Amg::Vector3D(0., 0., halflengthZ()))),
         discBounds());
       retsf->push_back(new Trk::SubtractedDiscSurface(
         topDisc, new Trk::VolumeExcluder(subtrVol), false));
     } else
       retsf->push_back(new Trk::DiscSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform * Amg::Translation3D(Amg::Vector3D(0., 0., halflengthZ()))),
         discBounds()));
   }

@@ -138,7 +138,7 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
          } break;
          // create a disc surface
          case 2 : {   
-             surface = new Trk::DiscSurface(transform.release(), 0., m_worldDimensions[1]);
+             surface = new Trk::DiscSurface(*transform, 0., m_worldDimensions[1]);
          } break;
          // create a perigee surface
          case 3 : {   

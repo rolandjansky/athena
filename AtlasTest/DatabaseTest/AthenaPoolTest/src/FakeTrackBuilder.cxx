@@ -66,14 +66,15 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
   // test state #2 - arbitrary TP AtaDisc
   Amg::Translation3D amgtranslation(1.,2.,3.);
-  Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation);
+  Amg::Transform3D amgTransf = Amg::Transform3D(amgtranslation);
   DiscSurface discSf(amgTransf, 1.0, 2.0);
   trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;
 
   // test state #3 - arbitrary AtaPlane + Estimated Brem
-  PlaneSurface planeSf(amgTransf, 1.0, 2.0);
+  auto amgTransfUniq = std::make_unique<Amg::Transform3D>(amgtranslation);
+  PlaneSurface planeSf(amgTransfUniq.release(), 1.0, 2.0);
   trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   const MaterialEffectsBase *ebr
     = new EstimatedBremOnTrack((0.7), -0.3,

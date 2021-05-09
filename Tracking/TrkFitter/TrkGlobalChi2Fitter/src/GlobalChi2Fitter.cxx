@@ -680,13 +680,13 @@ namespace Trk {
             associatedSurface.center().y(), 
             newz
           );
-          std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(associatedSurface.transform());
-          trans->translation() << newpos;
+          Amg::Transform3D trans = associatedSurface.transform();
+          trans.translation() << newpos;
           
           const DiscBounds *discbounds = static_cast<const DiscBounds *>(&associatedSurface.bounds());
           double rmin = discbounds->rMin();
           double rmax = discbounds->rMax();
-          muonsurf = std::make_unique<DiscSurface>(trans.release(), rmin, rmax);
+          muonsurf = std::make_unique<DiscSurface>(trans, rmin, rmax);
         }
       }
       
@@ -4173,13 +4173,13 @@ namespace Trk {
                 newz
               );
               
-              std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(disccalosurf->transform());
-              trans->translation() << newpos;
+              Amg::Transform3D trans = (disccalosurf->transform());
+              trans.translation() << newpos;
               
               const DiscBounds *discbounds = static_cast<const DiscBounds *>(&disccalosurf->bounds());
               double rmin = discbounds->rMin();
               double rmax = discbounds->rMax();
-              calosurf = std::make_unique<DiscSurface>(trans.release(), rmin, rmax);
+              calosurf = std::make_unique<DiscSurface>(trans, rmin, rmax);
             }
             destsurf = calosurf.release();
           }
