@@ -318,6 +318,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
 
+      std::array<double, 3> sensorScales;
+
       const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
       const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
       const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : fluenceData->getLorentzMap_e(layer);
@@ -335,10 +337,22 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const auto pixel_phi = pixel_i.phiIndex();
 
       for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
+        const std::size_t ieta = p - nnLoop_pixelEtaMin;
+        // scale factors accounting for different pixel sizes
+        double scale_f = 1.;
+        double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
+        if (std::abs(columnWidth - 0.6) < 1e-9) {
+          scale_f = 4. / 6.;
+        } else if (std::abs(columnWidth - 0.45) < 1e-9) {
+          scale_f = 25. / 45.;
+        } else if (std::abs(columnWidth - 0.5) < 1e-9) {
+          scale_f = 25. / 50.;
+        }
+        sensorScales[ieta] = scale_f;
+
         for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
           const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_eta - p,
                                                                                    pixel_phi - q);
-          const std::size_t ieta = p - nnLoop_pixelEtaMin;
           const std::size_t iphi = q - nnLoop_pixelPhiMin;
           const std::size_t index = iphi + ieta*sizePhi;
           m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
@@ -408,16 +422,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         //Loop over nearest neighbours in x and y
         //We assume that the lateral diffusion is minimal
         for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
-          // scale factors accounting for different pixel sizes
-          double scale_f = 1.;
-          double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
-          if (std::abs(columnWidth - 0.6) < 1e-9) {
-            scale_f = 4. / 6.;
-          } else if (std::abs(columnWidth - 0.45) < 1e-9) {
-            scale_f = 25. / 45.;
-          } else if (std::abs(columnWidth - 0.5) < 1e-9) {
-            scale_f = 25. / 50.;
-          }
           const std::size_t ieta = p - nnLoop_pixelEtaMin;
 
           for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
@@ -434,15 +438,13 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
             //This all has to be done relative to the (0,0) position since the
             //Ramo weighting potential is only mapped out for 1/8th of a pixel. Much of this logic is reflecting the
-            // charge
-            //carrier across the boundaries.
+            // charge carrier across the boundaries.
             //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
 
-
             //Final position of charge carriers wrt nn centre
-            const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*scale_f;
+            const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*sensorScales[ieta];
             const double dPhi_f_e = std::abs(pixelPhi_f_e - dPhi_nn_centre);
-            const double dEta_f_h = 1e3*std::abs(pixelEta_f_h - dEta_nn_centre)*scale_f;
+            const double dEta_f_h = 1e3*std::abs(pixelEta_f_h - dEta_nn_centre)*sensorScales[ieta];
             const double dPhi_f_h = 1e3*std::abs(pixelPhi_f_h - dPhi_nn_centre);
 
             //Boundary check on maps
