@@ -96,7 +96,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonCluste
 
 addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 
-
+addTool( "Muon::MuonTruthSummaryTool","MuonTruthSummaryTool")
 addTool( "Muon::MuonClusterizationTool","MuonClusterizationTool" )
 
 # Set some Muon Properties in the global ResidualPullCalculator
