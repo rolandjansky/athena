@@ -12,8 +12,18 @@ from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
 #Muon trigger threshold tool
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import getTrigThresholdDecisionTool
 
-def RoIBResultByteStreamToolCfg(name, writeBS=False):
+def RoIBResultByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.RoIBResultByteStreamTool(name)
+  if flags.Trigger.enableL1MuonPhase1:
+    # disable legacy MUCTPI ByteStream decoding/encoding as part of RoIBResult
+    tool.MUCTPIModuleId = 0xFF
+  if not flags.Trigger.enableL1CaloLegacy:
+    # disable legacy L1Calo ByteStream decoding/encoding as part of RoIBResult
+    tool.JetModuleIds = []
+    tool.EMModuleIds = []
+
+  # TODO: add switches for CTP and L1Topo parts once they can be dropped in some configs
+
   if writeBS:
     # write BS == read RDO
     tool.RoIBResultReadKey="RoIBResult"
@@ -72,7 +82,7 @@ def L1TriggerByteStreamDecoderCfg(flags):
   decoderTools = []
   if not flags.Trigger.doLVL1: #if we rerun L1, don't decode the original RoIBResult
     if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
-      roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
+      roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", flags=flags, writeBS=False)
       decoderTools += [roibResultTool]
 
   if flags.Trigger.enableL1MuonPhase1:
@@ -92,7 +102,7 @@ def L1TriggerByteStreamEncoderCfg(flags):
   acc = ComponentAccumulator()
 
   if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
-    roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", writeBS=True)
+    roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", flags=flags, writeBS=True)
     acc.addPublicTool(roibResultTool)
 
   if flags.Trigger.enableL1MuonPhase1:
