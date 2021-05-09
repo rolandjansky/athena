@@ -9,7 +9,7 @@ atlas_add_component( AnalysisTriggerAlgs
    LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib
    EventInfo xAODTrigL1Calo xAODTrigger GaudiKernel AnalysisTriggerEvent
    TrigConfData TrigConfL1Data TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Interfaces
-   TrigT1Result TrigConfInterfaces )
+   TrigT1Result TrigConfInterfaces TrigT1CaloUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
