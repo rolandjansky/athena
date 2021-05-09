@@ -110,7 +110,6 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
   }
 
   double deltaE = 0.;
-  double sigmaDeltaE = 0.;
    // preparation
   double sign = (dir == Trk::oppositeMomentum) ? -1. : 1.;
 
@@ -134,16 +133,16 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
   sigIoni = sigIoni - kazL * log(pathLength);
 
   deltaE = meanIoni + meanRad;
-  sigmaDeltaE = sqrt(sigIoni * sigIoni + sigRad * sigRad);
+
+  
+  if (m_useTrkUtils) {
+  double sigmaDeltaE = sqrt(sigIoni * sigIoni + sigRad * sigRad);
   ATH_MSG_DEBUG(
     " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad << " sign " << sign << " pathLength " <<
   pathLength);
-
-  std::unique_ptr<Trk::EnergyLoss> eloss = !m_detailedEloss ? 
-    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE) :
-    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,meanRad, sigRad, pathLength);
-  
-  if (m_useTrkUtils) {
+    std::unique_ptr<Trk::EnergyLoss> eloss = !m_detailedEloss ?
+      std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE) :
+      std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,meanRad, sigRad, pathLength);
     return eloss.release();
   }
 
@@ -249,7 +248,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
 
   deltaE = deltaE_ioni + deltaE_rad;
 
-  sigmaDeltaE = sqrt(sigmaDeltaE_rad * sigmaDeltaE_rad + sigmaDeltaE_ioni * sigmaDeltaE_ioni);
+  double sigmaDeltaE = sqrt(sigmaDeltaE_rad * sigmaDeltaE_rad + sigmaDeltaE_ioni * sigmaDeltaE_ioni);
 
   return(m_detailedEloss ? new EnergyLoss(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE,
                                           (mpvSwitch ? deltaE_ioni : 0.9 * deltaE_ioni), sigmaDeltaE_ioni,
