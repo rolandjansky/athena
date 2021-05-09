@@ -151,10 +151,9 @@ AthTruthSelectionTool::initialize() {
     //m_cutList.add(Accept_t(acceptExtrapolatedTPToSurface, "SelectDisc"));
     if (not m_disc1 || not m_disc2) { //m_disc2 == 0 implied
       ATH_MSG_VERBOSE("Creating and caching disc surface");
-      Amg::Transform3D *trnsf_shiftZ = new Amg::Transform3D();
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,m_zDisc);
+      Amg::Transform3D trnsf_shiftZ = Amg::Transform3D(Amg::Translation3D(0.,0.,m_zDisc));
       m_disc1 = std::make_unique<Trk::DiscSurface>( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,-m_zDisc);
+      trnsf_shiftZ = Amg::Translation3D(0.,0.,-m_zDisc);
       m_disc2 = std::make_unique<Trk::DiscSurface>( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
     }
     m_cutList.add(Accept_t([this](const P_t& p) -> bool {

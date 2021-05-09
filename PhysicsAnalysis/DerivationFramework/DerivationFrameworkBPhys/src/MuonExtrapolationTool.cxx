@@ -155,10 +155,10 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
 
   Amg::Vector3D endcapCentre(0., 0., m_endcapPivotPlaneZ);
   // much better!
-  matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
+  Amg::Transform3D matrixVal = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
   
   Trk::DiscSurface* disc = 
-    new Trk::DiscSurface(matrix,
+    new Trk::DiscSurface(matrixVal,
 			 m_endcapPivotPlaneMinimumRadius,
 			 m_endcapPivotPlaneMaximumRadius);
   if (!disc) {

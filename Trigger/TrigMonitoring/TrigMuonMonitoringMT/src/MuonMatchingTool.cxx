@@ -366,9 +366,9 @@ const Trk::TrackParameters* MuonMatchingTool :: extTrackToTGC( const xAOD::Track
   ATH_MSG_DEBUG("extTrackToTGC");
   if(!trk) return nullptr;
   double TGC_Z = ( trk->eta()>0 )? 15153.0:-15153.0;
-  std::unique_ptr<Amg::Transform3D> matrix(new Amg::Transform3D( Amg::Vector3D( 0.,0.,TGC_Z ) ));
+  Amg::Transform3D matrix = Amg::Transform3D( Amg::Vector3D( 0.,0.,TGC_Z ) );
   //object pointed by matrix will be deleted in destructer of DiscSurface, therefore release it
-  std::unique_ptr<Trk::DiscSurface> disc(new Trk::DiscSurface( matrix.release(), 0., 15000.));
+  std::unique_ptr<Trk::DiscSurface> disc(new Trk::DiscSurface( matrix, 0., 15000.));
   const bool boundaryCheck = true;
 
   const Trk::TrackParameters* param = m_extrapolator->extrapolate(*trk,

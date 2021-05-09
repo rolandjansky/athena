@@ -219,9 +219,9 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
     for (size_t lay=0; lay<m_cylinders+1; ++lay) {
     	m_theCylinders->push_back(new Trk::CylinderSurface(new Amg::Transform3D, m_cylinderR[lay], m_cylinderZ[lay]));
 		  ATH_MSG_INFO( "initialize() Cylinder " << lay << ": " << *m_theCylinders->at(lay) );
-      m_theDiscs1->push_back(new Trk::DiscSurface(createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      m_theDiscs1->push_back(new Trk::DiscSurface(*createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
       ATH_MSG_INFO( "initialize() Disc1 " << lay << ": " << *m_theDiscs1->at(lay) );
-      m_theDiscs2->push_back(new Trk::DiscSurface(createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      m_theDiscs2->push_back(new Trk::DiscSurface(*createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
       ATH_MSG_INFO( "initialize() Disc2 " << lay << ": " << *m_theDiscs2->at(lay) );
     }
 
@@ -537,7 +537,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 }
 
 //============================================================================================
-Amg::Transform3D* Trk::EnergyLossExtrapolationValidation::createTransform(
+std::unique_ptr<Amg::Transform3D> Trk::EnergyLossExtrapolationValidation::createTransform(
         double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
@@ -556,17 +556,18 @@ Amg::Transform3D* Trk::EnergyLossExtrapolationValidation::createTransform(
         Amg::Vector3D surfaceXdirection(surfaceYdirection.cross(surfaceZdirection));
         // the rotation
         Amg::RotationMatrix3D surfaceRotation;
-	surfaceRotation.col(0) = surfaceXdirection;
-	surfaceRotation.col(1) = surfaceYdirection;
-	surfaceRotation.col(2) = surfaceZdirection;
+        surfaceRotation.col(0) = surfaceXdirection;
+        surfaceRotation.col(1) = surfaceYdirection;
+        surfaceRotation.col(2) = surfaceZdirection;
         // return it
-        if (alphaZ==0.)
-            return new Amg::Transform3D(surfaceRotation, surfacePosition);
+        if (alphaZ==0.){
+            return std::make_unique<Amg::Transform3D>(surfaceRotation, surfacePosition);
+        }
         Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);
-        return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+        return std::make_unique<Amg::Transform3D>(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
 
     }
 
-    return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+    return std::make_unique<Amg::Transform3D>(Amg::Translation3D(x,y,z));
 }
 

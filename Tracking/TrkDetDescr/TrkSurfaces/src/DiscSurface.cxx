@@ -38,43 +38,33 @@ Trk::DiscSurface::DiscSurface(const DiscSurface& dsf)
 {}
 
 // copy constructor with shift
-Trk::DiscSurface::DiscSurface(const DiscSurface& dsf, const Amg::Transform3D& transf)
+Trk::DiscSurface::DiscSurface(const DiscSurface& dsf,
+                              const Amg::Transform3D& transf)
   : Trk::Surface(dsf, transf)
   , m_bounds(dsf.m_bounds)
   , m_referencePoint(nullptr)
 {}
 
 // construct a disc with full phi coverage
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax)
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
+                              double rmin,
+                              double rmax)
   : Trk::Surface(htrans)
   , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax))
   , m_referencePoint(nullptr)
 {}
 
-// construct a disc with full phi coverage
-Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
-                              double rmin, double rmax)
-  : Trk::Surface(std::move(htrans))
-  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax))
-  , m_referencePoint(nullptr)
-{}
-
 // construct a disc with given phi coverage
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec)
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
+                              double rmin,
+                              double rmax,
+                              double hphisec)
   : Trk::Surface(htrans)
   , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax, hphisec))
   , m_referencePoint(nullptr)
 {}
 
-// construct a disc with given phi coverage
-Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
-                              double rmin, double rmax, double hphisec)
-  : Trk::Surface(std::move(htrans))
-  , m_bounds(std::make_shared<Trk::DiscBounds>(rmin, rmax, hphisec))
-  , m_referencePoint(nullptr)
-{}
-
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans,
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
                               double minhalfx,
                               double maxhalfx,
                               double maxR,
@@ -82,19 +72,26 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans,
                               double avephi,
                               double stereo)
   : Trk::Surface(htrans)
-  , m_bounds(std::make_shared<Trk::DiscTrapezoidalBounds>(minhalfx, maxhalfx, maxR, minR, avephi, stereo))
+  , m_bounds(std::make_shared<Trk::DiscTrapezoidalBounds>(minhalfx,
+                                                          maxhalfx,
+                                                          maxR,
+                                                          minR,
+                                                          avephi,
+                                                          stereo))
   , m_referencePoint(nullptr)
 {}
 
 // construct a disc with given bounds
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscBounds* dbounds)
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
+                              Trk::DiscBounds* dbounds)
   : Trk::Surface(htrans)
   , m_bounds(dbounds)
   , m_referencePoint(nullptr)
 {}
 
 // construct a disc with given bounds
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBounds* dbounds)
+Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
+                              Trk::DiscTrapezoidalBounds* dbounds)
   : Trk::Surface(htrans)
   , m_bounds(dbounds)
   , m_referencePoint(nullptr)
@@ -103,14 +100,6 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBoun
 // construct a disc from a transform, bounds is not set.
 Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans)
   : Trk::Surface(htrans)
-  , m_bounds(nullptr)
-  , m_referencePoint(nullptr)
-{}
-
-
-// construct a disc from a transform, bounds is not set.
-Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Trk::Surface(std::move(htrans))
   , m_bounds(nullptr)
   , m_referencePoint(nullptr)
 {}

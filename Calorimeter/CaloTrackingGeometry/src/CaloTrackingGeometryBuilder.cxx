@@ -518,8 +518,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
        //float d = mbtsBounds->halflengthZ();
        Trk::DiscBounds* dibo = new Trk::DiscBounds(rmin,rmax);
        // MBTS positions
-       Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
-       Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       Amg::Transform3D mbtsNegZpos = Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D mbtsPosZpos = Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
        // create the two Layers ( TODO: add trd surface subarray )
        Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(mbtsNegZpos,dibo,
                                                          //mbtsNegLayerSurfArray,

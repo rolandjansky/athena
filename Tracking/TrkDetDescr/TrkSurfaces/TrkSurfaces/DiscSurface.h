@@ -69,31 +69,18 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
-  DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
-
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
-   */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
-              double rmin,
-              double rmax);
+  DiscSurface(const Amg::Transform3D& htrans, double rmin, double rmax);
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
    * \phi_{hsec} \f$ */
-  DiscSurface(Amg::Transform3D* htrans,
-              double rmin,
-              double rmax,
-              double hphisec);
-
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
-   * \phi_{hsec} \f$ */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+  DiscSurface(const Amg::Transform3D& htrans,
               double rmin,
               double rmax,
               double hphisec);
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
      hx_{min}, hx_{max} \f$ In this case you have DiscTrapezoidalBounds*/
-  DiscSurface(Amg::Transform3D* htrans,
+  DiscSurface(const Amg::Transform3D& htrans,
               double minhalfx,
               double maxhalfx,
               double maxR,
@@ -103,19 +90,15 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D and DiscBounds
      - ownership of bounds is passed */
-  DiscSurface(Amg::Transform3D* htrans, DiscBounds* dbounds);
+  DiscSurface(const Amg::Transform3D& htrans, DiscBounds* dbounds);
 
   /**Constructor for Discs from HepGeom::Transform3D and DiscTrapezoidalBounds
      - ownership of bounds is passed */
-  DiscSurface(Amg::Transform3D* htrans, DiscTrapezoidalBounds* dtbounds);
+  DiscSurface(const Amg::Transform3D& htrans, DiscTrapezoidalBounds* dtbounds);
 
   /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
    - bounds is not set */
   DiscSurface(const Amg::Transform3D& htrans);
-
-  /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
-   - bounds is not set */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);

@@ -127,9 +127,9 @@ StatusCode Trk::ExtrapolatorComparisonTest::initialize()
        
        // create the Surface triplet
        std::vector< const Trk::Surface*> trkSurfaceTriplet;
-       trkSurfaceTriplet.push_back(new Trk::DiscSurface    (new Amg::Transform3D(Amg::Translation3D(0.,0., halfZ)),    0.,radius));
+       trkSurfaceTriplet.push_back(new Trk::DiscSurface    (Amg::Transform3D(Amg::Translation3D(0.,0., halfZ)),    0.,radius));
        trkSurfaceTriplet.push_back(new Trk::CylinderSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,    0.)),radius, halfZ));
-       trkSurfaceTriplet.push_back(new Trk::DiscSurface    (new Amg::Transform3D(Amg::Translation3D(0.,0.,-halfZ)),    0.,radius));
+       trkSurfaceTriplet.push_back(new Trk::DiscSurface    (Amg::Transform3D(Amg::Translation3D(0.,0.,-halfZ)),    0.,radius));
        ATH_MSG_INFO("Creating Trk::Surface at: R " << radius << " Z " << halfZ);
        m_atlasReferenceSurfaceTriples.push_back(trkSurfaceTriplet);
        

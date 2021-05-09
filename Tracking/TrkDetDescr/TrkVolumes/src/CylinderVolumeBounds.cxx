@@ -115,13 +115,13 @@ const std::vector<const Trk::Surface*>*
   bottomDiscRot.col(1) = discRot.col(0);
   bottomDiscRot.col(2) = -discRot.col(2);
   retsf->push_back(new Trk::DiscSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform * Amg::AngleAxis3D(M_PI, Amg::Vector3D(1., 0., 0.)) *
       Amg::Translation3D(Amg::Vector3D(0., 0., halflengthZ()))),
     bottomDiscBounds()));
   // top Disc (positive z)
   retsf->push_back(new Trk::DiscSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       discRot * Amg::Translation3D(cylCenter + halflengthZ() * discRot.col(2))),
     topDiscBounds()));
   // outer Cylinder

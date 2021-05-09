@@ -1316,7 +1316,7 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     auto matrix = std::make_unique<Amg::Transform3D>();
     matrix->setIdentity();
     matrix->translation().z() = targetZ;
-    auto disc = std::make_unique < Trk::DiscSurface > (matrix.release(), m_endcapPivotPlaneMinimumRadius.value(), m_endcapPivotPlaneMaximumRadius.value());
+    auto disc = std::make_unique < Trk::DiscSurface > (*matrix, m_endcapPivotPlaneMinimumRadius.value(), m_endcapPivotPlaneMaximumRadius.value());
     distance[0] = trackZ;
     distance[1] = std::abs(trackZ - targetZ);
     const bool boundaryCheck = true;

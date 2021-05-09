@@ -246,9 +246,8 @@ std::unique_ptr<const Trk::TrackParameters> MuonTPExtrapolationTool::extrapolate
 
     Amg::Vector3D endcapCentre(0., 0., m_endcapPivotPlaneZ);
     // much better!
-    matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
-
-    std::unique_ptr<Trk::DiscSurface> disc = std::make_unique< Trk::DiscSurface>(matrix, m_endcapPivotPlaneMinimumRadius, m_endcapPivotPlaneMaximumRadius);
+    Amg::Transform3D matrixVal = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
+    std::unique_ptr<Trk::DiscSurface> disc = std::make_unique< Trk::DiscSurface>(matrixVal, m_endcapPivotPlaneMinimumRadius, m_endcapPivotPlaneMaximumRadius);
    
 
     boundaryCheck = false;

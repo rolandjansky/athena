@@ -873,9 +873,8 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         const Trk::LayerMaterialProperties* layerMaterial = endcapLayerMaterial(rMin,rMax);
 
         // position & bounds of the active Layer
-        Amg::Transform3D*  activeLayerTransform = new Amg::Transform3D;
-        bool weOwnActiveLayerTransform=true;
-        (*activeLayerTransform) = Amg::Translation3D(0.,0.,discZpos[discCounter]);
+        Amg::Transform3D  activeLayerTransform;
+        activeLayerTransform = Amg::Translation3D(0.,0.,discZpos[discCounter]);
        
         Trk::DiscBounds* activeLayerBounds    = new Trk::DiscBounds(rMin,rMax);
         // prepare the right overlap descriptor       
@@ -904,7 +903,6 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
                                                          *layerMaterial,
                                                          thickness,
                                                          olDescriptor);
-        weOwnActiveLayerTransform=false;
         // cleanup
         delete layerMaterial;
         // register the layer to the surfaces --- if necessary to the other sie as well
@@ -929,10 +927,6 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
        if (weOwnSingleBinUtils){
          delete singleBinUtils;
          singleBinUtils=nullptr;
-       }
-       if (weOwnActiveLayerTransform){
-        delete activeLayerTransform;
-        activeLayerTransform=nullptr;
        }
   }  
 
@@ -985,20 +979,25 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
               // the passive layer
               Trk::DiscLayer* passiveLayer = nullptr;
               // passive layer creation
-              Amg::Transform3D* passiveDiscTransf = new Amg::Transform3D;
-              (*passiveDiscTransf) = Amg::Translation3D(0.,0.,*addLayerIter);
-              if (*addLayerTypeIter){
-                  ATH_MSG_DEBUG("Building an additional DiscLayer w/o sensitive modules at");
-                  // create the material and the passive layer
-                  const Trk::LayerMaterialProperties* passiveLayerMaterial = endcapLayerMaterial(rMin,rMax);
-                  passiveLayer = new Trk::DiscLayer(passiveDiscTransf,
-                                                    new Trk::DiscBounds(rMin,rMax),
-                                                    *passiveLayerMaterial,
-                                                    1.*Gaudi::Units::mm);
-                  // cleanup of the layer material --------------------------------------------------------------
-                  delete passiveLayerMaterial;
+              Amg::Transform3D passiveDiscTransf =
+                Amg::Transform3D(Amg::Translation3D(0., 0., *addLayerIter));
+              if (*addLayerTypeIter) {
+                ATH_MSG_DEBUG(
+                  "Building an additional DiscLayer w/o sensitive modules at");
+                // create the material and the passive layer
+                const Trk::LayerMaterialProperties* passiveLayerMaterial =
+                  endcapLayerMaterial(rMin, rMax);
+                passiveLayer =
+                  new Trk::DiscLayer(passiveDiscTransf,
+                                     new Trk::DiscBounds(rMin, rMax),
+                                     *passiveLayerMaterial,
+                                     1. * Gaudi::Units::mm);
+                // cleanup of the layer material
+                // --------------------------------------------------------------
+                delete passiveLayerMaterial;
               } else
-                  passiveLayer = new Trk::DiscLayer(passiveDiscTransf, new Trk::DiscBounds(rMin,rMax), nullptr);
+                passiveLayer = new Trk::DiscLayer(
+                  passiveDiscTransf, new Trk::DiscBounds(rMin, rMax), nullptr);
               ATH_MSG_DEBUG( "  -> At Z - Position       :  " << *addLayerIter );
               ATH_MSG_DEBUG( "  -> With Rmin/Rmax (corr) :  " << rMin << " / " << rMax );
               

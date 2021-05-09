@@ -293,7 +293,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             double minR = 0.;
             double maxR = 0.;
         
-            Amg::Transform3D* navLayerTransform = nullptr;
+            Amg::Transform3D navLayerTransform;
             Trk::DiscSurface* navLayerSurface   = nullptr;
             double navigationZ                  = 0.;
             // loop over layers
@@ -303,8 +303,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 double currentZ = layerSurface.center().z();
                 // create the navigation Z from current Z    
                 navigationZ = currentZ - 0.5*(zStep);
-                navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform) = Amg::Translation3D(0.,0.,navigationZ);
+                navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navigationZ));
                 navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
                 // push that layer back
                 ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ );
@@ -327,8 +326,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             }
             // special treatment for last bin
             ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ + zStep );
-            navLayerTransform = new Amg::Transform3D;
-            (*navLayerTransform) = Amg::Translation3D(0.,0.,navigationZ+zStep);
+            navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navigationZ+zStep));
             navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
             layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
@@ -381,8 +379,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 double navLayerPositionZ = 0.5*((layerPositionZ-0.5*layerThickness)+boundaries[boundaries.size()-1]);
                 // now fill the layer post slot after navigation layer has been determined
                 // the transform for this
-                Amg::Transform3D* navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform) = Amg::Translation3D(0.,0.,navLayerPositionZ);
+                Amg::Transform3D navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navLayerPositionZ));
                 Trk::DiscSurface* navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
                                             
                 // the material layer
@@ -405,9 +402,10 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             } 
             // final material layer
             double navLayerPositionZFinal = 0.5*(zmax+boundaries[boundaries.size()-1]);
-            Amg::Transform3D* navLayerTransformFinal = new Amg::Transform3D;
-            (*navLayerTransformFinal) = Amg::Translation3D(0.,0.,navLayerPositionZFinal);
-            Trk::DiscSurface* navLayerSurfaceFinal = new Trk::DiscSurface(navLayerTransformFinal, minR, maxR);
+            Amg::Transform3D navLayerTransformFinal = Amg::Transform3D(
+              Amg::Translation3D(0., 0., navLayerPositionZFinal));
+            Trk::DiscSurface* navLayerSurfaceFinal =
+              new Trk::DiscSurface(navLayerTransformFinal, minR, maxR);
             ATH_MSG_VERBOSE( "arbitrary : creating disc-like NavigationLayer at z-Position : " << navLayerPositionZFinal );
             layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurfaceFinal)), 
