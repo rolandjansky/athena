@@ -22,6 +22,7 @@
 
 #include "TFile.h"
 
+#include <cmath>
 #include <memory>
 
 using namespace InDetDD;
@@ -350,9 +351,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
         double u = CLHEP::RandFlat::shoot(0., 1.);
-        const double drifttime_e = (-1.) * (trappingTimes.first) * std::log(u); //ns
+        // need to update to std::logf when we update gcc - this is a known bug in gcc libc
+        const double drifttime_e = (-1.) * (trappingTimes.first) * logf(u); //ns
         u = CLHEP::RandFlat::shoot(0., 1.);
-        const double drifttime_h = (-1.) * (trappingTimes.second) * std::log(u); //ns
+        const double drifttime_h = (-1.) * (trappingTimes.second) * logf(u); //ns
 
         //Now, need the z-position at the trap.
         //TODO: the holes map does not currently extend for a drift time long enough that, any hole will reach
