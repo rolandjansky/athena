@@ -18,27 +18,8 @@ namespace LVL1 {
 
 /** Constructor */
 
-L1CPMTools::L1CPMTools(const std::string& t,
-			  const std::string& n,
-			  const IInterface*  p )
-  :
-  AthAlgTool(t,n,p),
-  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
-  m_RoI(0)
-{
-  declareInterface<IL1CPMTools>(this);
-
-  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-
-}
-
-/** Destructor */
-
-L1CPMTools::~L1CPMTools()
-{       
-  if (m_RoI != 0) delete m_RoI;  
-}
-
+L1CPMTools::L1CPMTools(const std::string& t, const std::string& n, const IInterface* p)
+: base_class(t,n,p) {}
 
 /** Initialisation */
 
@@ -372,115 +353,27 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTow
 /** Return RoI for given coordinates */
 
 CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
-
   // Performs all processing for this location
-  CPMTobAlgorithm roi(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
-     
-  // All done
-  return roi;
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
 }
 
 /** Form clusters for given coordinates */
 
-void L1CPMTools::formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) {
-
-  // Leak prevention
-  if (m_RoI != 0) delete m_RoI;
-
+CPMTobAlgorithm L1CPMTools::formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Performs all processing for this location
-  m_RoI = new CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
-     
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
 }
 
 /** Form sums for given RoI */
 
-void L1CPMTools::formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice) {
-
-  // Leak prevention
-  if (m_RoI != 0) delete m_RoI;
-
-// Find RoI coordinate
+CPMTobAlgorithm L1CPMTools::formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice) const {
+  // Find RoI coordinate
   CoordinateRange coord = m_conv.coordinate(roiWord);
   float RoIphi = coord.phi();
   float RoIeta = coord.eta();
 
   // Performs all processing for this location
-  m_RoI = new CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
-     
-}
-
-/** Accessors for the current RoI location (if extant) */
-
-int L1CPMTools::Core() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->CoreET();
-  return result;
-}
-
-int L1CPMTools::EMCore() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->EMCoreET();
-  return result;
-}
-
-int L1CPMTools::HadCore() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->HadCoreET();
-  return result;
-}
-
-int L1CPMTools::EMClus() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->EMClusET();
-  return result;
-}
-
-int L1CPMTools::TauClus() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->TauClusET();
-  return result;
-}
-
-int L1CPMTools::EMIsol() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->EMIsolET();
-  return result;
-}
-
-int L1CPMTools::HadIsol() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->HadIsolET();
-  return result;
-}
-
-bool L1CPMTools::isEtMax() const {
-  bool result = false;
-  if (m_RoI != 0) result = m_RoI->isEtMax();
-  return result;
-}
-
-bool L1CPMTools::isEMRoI() const {
-  bool result = false;
-  if (m_RoI != 0) result = m_RoI->isEMRoI();
-  return result;
-}
-
-bool L1CPMTools::isTauRoI() const {
-  bool result = false;
-  if (m_RoI != 0) result = m_RoI->isTauRoI();
-  return result;
-}
-
-unsigned int L1CPMTools::EMIsolWord() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->EMIsolWord();
-  return result;
-}
-
-unsigned int L1CPMTools::TauIsolWord() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->TauIsolWord();
-  return result;
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
 }
 
 } // end of namespace

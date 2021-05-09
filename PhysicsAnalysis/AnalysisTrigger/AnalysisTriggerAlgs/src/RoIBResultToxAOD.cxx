@@ -20,6 +20,8 @@
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1CaloEvent/JetInput.h"
+#include "TrigT1CaloUtils/CPMTobAlgorithm.h"
+#include "TrigT1CaloUtils/JEMJetAlgorithm.h"
 
 // Trigger configuration interface includes:
 #include "TrigConfL1Data/CTPConfig.h"
@@ -45,7 +47,7 @@ namespace {
 
 RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name,
                                     ISvcLocator* svcLoc )
-   : AthAlgorithm( name, svcLoc )
+   : AthReentrantAlgorithm( name, svcLoc )
 {}
 
 StatusCode RoIBResultToxAOD::initialize() {
@@ -95,13 +97,13 @@ StatusCode RoIBResultToxAOD::initialize() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode RoIBResultToxAOD::execute() {
+StatusCode RoIBResultToxAOD::execute(const EventContext& ctx) const {
 
    // Tell the user what's happening.
    ATH_MSG_DEBUG( "in execute()" );
 
    // Access the input object.
-   auto roibResult = SG::makeHandle( m_roibResultKey, getContext() );
+   auto roibResult = SG::makeHandle( m_roibResultKey, ctx );
    if (!roibResult.isValid()) {
       ATH_MSG_ERROR("Failed to retrieve " << m_roibResultKey.key());
       return StatusCode::FAILURE;
@@ -109,13 +111,13 @@ StatusCode RoIBResultToxAOD::execute() {
 
    // Create the muon RoIs:
    if( m_doMuon ) {
-      ATH_CHECK( createMuonRoI( *roibResult, getContext() ) );
+      ATH_CHECK( createMuonRoI( *roibResult, ctx ) );
    }
 
    // Create the calo RoIs:
    if( m_doCalo ) {
-      ATH_CHECK( createEmTauRoI( *roibResult, getContext() ) );
-      ATH_CHECK( createJetEnergyRoI( *roibResult, getContext() ) );
+      ATH_CHECK( createEmTauRoI( *roibResult, ctx ) );
+      ATH_CHECK( createJetEnergyRoI( *roibResult, ctx ) );
    }
 
    // Return gracefully.
@@ -123,7 +125,7 @@ StatusCode RoIBResultToxAOD::execute() {
 }
 
 StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
-                                             const EventContext& ctx ) {
+                                             const EventContext& ctx ) const {
 
    // Tell the user what's happening.
    ATH_MSG_DEBUG( "building EmTauRoI" );
@@ -231,13 +233,13 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
          // Cluster ET values, reconstructed from TriggerTowers
          if( m_emTauTool.isEnabled() ) {
-            m_emTauTool->formSums( roIWord, &cpmtowers );
-            roi->setCore( m_emTauTool->Core() * caloTrigScale );
-            roi->setEmClus( m_emTauTool->EMClus() * caloTrigScale );
-            roi->setTauClus( m_emTauTool->TauClus() * caloTrigScale );
-            roi->setEmIsol( m_emTauTool->EMIsol() * caloTrigScale );
-            roi->setHadIsol( m_emTauTool->HadIsol() * caloTrigScale );
-            roi->setHadCore( m_emTauTool->HadCore() * caloTrigScale );
+            LVL1::CPMTobAlgorithm roiSums = m_emTauTool->formSums( roIWord, &cpmtowers );
+            roi->setCore( roiSums.CoreET() * caloTrigScale );
+            roi->setEmClus( roiSums.EMClusET() * caloTrigScale );
+            roi->setTauClus( roiSums.TauClusET() * caloTrigScale );
+            roi->setEmIsol( roiSums.EMIsolET() * caloTrigScale );
+            roi->setHadIsol( roiSums.HadIsolET() * caloTrigScale );
+            roi->setHadCore( roiSums.HadCoreET() * caloTrigScale );
          }
       }
    }
@@ -253,7 +255,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
 StatusCode
 RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
-                                      const EventContext& ctx ) {
+                                      const EventContext& ctx ) const {
 
    ATH_MSG_DEBUG( "building JetEnergyRoI" );
    
@@ -432,10 +434,10 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
 
             // Jet Cluster ET sums
             if( m_jetTool.isEnabled() ) {
-               m_jetTool->formSums( roIWord, &jetInputs );
-               roi->setEt4x4( m_jetTool->ET4x4() * caloTrigScale );
-               roi->setEt6x6( m_jetTool->ET6x6() * caloTrigScale );
-               roi->setEt8x8( m_jetTool->ET8x8() * caloTrigScale );
+               LVL1::JEMJetAlgorithm roiSums = m_jetTool->formSums( roIWord, &jetInputs );
+               roi->setEt4x4( roiSums.ET4x4() * caloTrigScale );
+               roi->setEt6x6( roiSums.ET6x6() * caloTrigScale );
+               roi->setEt8x8( roiSums.ET8x8() * caloTrigScale );
             }
 
          }

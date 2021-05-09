@@ -48,34 +48,10 @@ class CPMTobRoI;
       
       virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) const = 0;
       
-      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) = 0;
+      virtual CPMTobAlgorithm formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) const = 0;
       
-      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) = 0;
+      virtual CPMTobAlgorithm formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) const = 0;
       
-      virtual int Core() const = 0;
-      
-      virtual int EMCore() const = 0;
-      
-      virtual int HadCore() const = 0;
-      
-      virtual int EMClus() const = 0;
-      
-      virtual int TauClus() const = 0;
-      
-      virtual int EMIsol() const = 0;
-      
-      virtual int HadIsol() const = 0;
-      
-      virtual bool isEtMax() const = 0;
-      
-      virtual bool isEMRoI() const = 0;
-      
-      virtual bool isTauRoI() const = 0;
-      
-      virtual unsigned int EMIsolWord() const = 0;
-      
-      virtual unsigned int TauIsolWord() const = 0;
-            
     };
 
     inline const InterfaceID& LVL1::IL1CPMTools::interfaceID()
