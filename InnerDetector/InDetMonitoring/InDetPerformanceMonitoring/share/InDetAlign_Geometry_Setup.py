@@ -128,7 +128,7 @@ for var in trtAlignment_Options:
 pixelAlignment_Options = {
     "pixelAlignmentLevelBarrel" : -1
     ,"pixelAlignmentLevelEndcaps": -1
-    ,"pixelAlignmentLevel" : 1
+    ,"pixelAlignmentLevel" : 11
 #   ,"pixelAlignDBM" :  False            #  whether to align DBM instead of actual Pixel detector
         ,"pixelAlignBarrel" : True
     ,"pixelAlignEndcaps" : True
