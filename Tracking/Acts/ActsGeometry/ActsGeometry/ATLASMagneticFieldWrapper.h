@@ -10,10 +10,9 @@
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Definitions/Units.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
+#include "Acts/MagneticField/MagneticFieldProvider.hpp"
 
-class ATLASMagneticFieldWrapper
-{
-
+class ATLASMagneticFieldWrapper final : public Acts::MagneticFieldProvider {
 
 public:
 
@@ -30,9 +29,30 @@ public:
 
   ATLASMagneticFieldWrapper() = default;
 
+
+  MagneticFieldProvider::Cache 
+  makeCache(const Acts::MagneticFieldContext& mctx) const override {
+    return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
+  }
+
+  // Implemented to overide the MagneticFieldProvider pure virtual function 
+  // but not defined with the ATLAS Magnetic Field
+  // return an exception instead 
+  Acts::Vector3 getField(const Acts::Vector3& /*position*/) const override {
+    throw std::domain_error("ATLAS field cannot be access without cache");
+  }
+
+  // Implemented to overide the MagneticFieldProvider pure virtual function 
+  // but not defined with the ATLAS Magnetic Field
+  // return an exception instead 
+  Acts::Vector3 getFieldGradient(const Acts::Vector3& /*position*/,
+                           Acts::ActsMatrix<3, 3>& /*derivative*/) const override {
+    throw std::domain_error("ATLAS field cannot be access without cache");
+  }
+
   Acts::Vector3
-  getField(const Acts::Vector3& position, Cache& cache) const
-  {
+  getField(const Acts::Vector3& position, Acts::MagneticFieldProvider::Cache& gcache) const override {
+    Cache& cache = gcache.get<Cache>();
     double posXYZ[3];
     posXYZ[0] = position.x();
     posXYZ[1] = position.y();
@@ -52,8 +72,9 @@ public:
   Acts::Vector3
   getFieldGradient(const Acts::Vector3& position,
                    Acts::ActsMatrix<3, 3>& gradient,
-                   Cache& cache) const
+                   Acts::MagneticFieldProvider::Cache& gcache) const override
   {
+    Cache& cache = gcache.get<Cache>();
     double posXYZ[3];
     posXYZ[0] = position.x();
     posXYZ[1] = position.y();

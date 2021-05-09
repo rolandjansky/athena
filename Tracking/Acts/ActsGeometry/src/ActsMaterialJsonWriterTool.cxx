@@ -26,8 +26,8 @@ ActsMaterialJsonWriterTool::initialize()
 {
   ATH_MSG_INFO("Starting Material writer");
 
-  m_cfg.name = "JsonGeometryConverter";
-  m_cfg.logger = makeActsAthenaLogger(this, "JsonGeometryConverter");
+  m_cfg.name = "MaterialMapJsonConverter";
+  m_cfg.logger = makeActsAthenaLogger(this, "MaterialMapJsonConverter");
   m_cfg.processSensitives = m_processSensitives;
   m_cfg.processApproaches = m_processApproaches;
   m_cfg.processRepresenting = m_processRepresenting;
@@ -40,10 +40,10 @@ ActsMaterialJsonWriterTool::initialize()
 }
 
 void
-ActsMaterialJsonWriterTool::write(const Acts::JsonGeometryConverter::DetectorMaterialMaps& detMaterial) const
+ActsMaterialJsonWriterTool::write(const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const
 {
   // Evoke the converter
-  Acts::JsonGeometryConverter jmConverter(m_cfg);
+  Acts::MaterialMapJsonConverter jmConverter(m_cfg);
   auto jout = jmConverter.materialMapsToJson(detMaterial);
   // And write the file
   std::ofstream ofj(m_filePath);
@@ -54,7 +54,7 @@ void
 ActsMaterialJsonWriterTool::write(const Acts::TrackingGeometry& tGeometry) const
 {
   // Evoke the converter
-  Acts::JsonGeometryConverter jmConverter(m_cfg);
+  Acts::MaterialMapJsonConverter jmConverter(m_cfg);
   auto jout = jmConverter.trackingGeometryToJson(tGeometry);
   // And write the file
   std::ofstream ofj(m_filePath);
