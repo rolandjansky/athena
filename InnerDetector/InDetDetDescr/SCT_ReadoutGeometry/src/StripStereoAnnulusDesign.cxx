@@ -147,37 +147,36 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
         return SiCellId(); // return an invalid id
     }
 
-    std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
-    int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
-    // Following should never happen, check is done on r above
-    if (row < 0 || row >= m_nRows) {
-        std::cout << "ERROR! cellIdOfPosition: bad row = " << row << " for r = " << r << std::endl;
+      std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
+      int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
+      // Following should never happen, check is done on r above
+      if (row < 0 || row >= m_nRows) {
         return SiCellId(); // return an invalid id
-    }
-//
-//    Find the strip
-//
+      }
+    //
+    //    Find the strip
+    //
     double x = pos.xEta();
     double y = pos.xPhi();
-//
-//    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
-//
+    //
+    //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+    //
     double xSF = m_cosNegStereo * (x - m_R) - m_sinNegStereo * y + m_R;
     double ySF = m_sinNegStereo * (x - m_R) + m_cosNegStereo * y;
     double phiPrime = std::atan2(ySF, xSF); 
     int strip = std::floor(phiPrime / m_pitch[row]) + m_nStrips[row] *0.5;
     if (strip < 0) { // Outside
-        return SiCellId(); // return an invalid id
+      return SiCellId(); // return an invalid id
     }
     if (strip >= m_nStrips[row]) { // Outside
-        return SiCellId(); // return an invalid id
+      return SiCellId(); // return an invalid id
     }
-
+    
     int strip1D = strip1Dim(strip, row);
     return SiCellId(strip1D, 0);
 }
-
-SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
+  
+  SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
     int strip, row;
     getStripRow(cellId, &strip, &row);
     double r = (m_stripEndRadius[row] + m_stripStartRadius[row])*0.5;

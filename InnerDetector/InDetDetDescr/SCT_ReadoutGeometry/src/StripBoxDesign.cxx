@@ -89,14 +89,16 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 
         return SiCellId(); // return an invalid id
     }
-
-    int row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
-    if (row < 0 || row >= m_nRows) {
-
+    int row=0;
+    if(m_nRows>1){
+      row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
+      if (row < 0 || row >= m_nRows) {
+	
         return SiCellId(); // return an invalid id
+      }
     }
     int strip1D = strip1Dim(strip, row);
-
+    
     return SiCellId(strip1D, 0);
 }
 

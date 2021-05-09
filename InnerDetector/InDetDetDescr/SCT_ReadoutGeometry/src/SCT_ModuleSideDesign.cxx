@@ -112,4 +112,10 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
 
   }
 
+void SCT_ModuleSideDesign::getStripRow(SiCellId /*id*/, int * /*strip */, int *row) const {
+   //For SCT sensors, return 0 as there should only be one row; derived versions for ITk strip implement specializations
+   *row = 0;
+ }
+
+
 } // namespace InDetDD
