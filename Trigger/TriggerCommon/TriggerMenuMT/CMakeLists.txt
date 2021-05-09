@@ -171,6 +171,10 @@ atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
               )
 
+atlas_add_test( RecoFragmentsPool
+                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.RecoFragmentsPoolTest
+                POST_EXEC_SCRIPT nopost.sh )
+
 #----------------------------------
 # List of menus to be created:
 atlas_build_lvl1_trigger_menu( Physics_pp_run3_v1 )
