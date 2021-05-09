@@ -54,7 +54,7 @@ class _ConfigSettingsBase() :
       self._adaptiveVertex_jet  = False
       
    def tracks_FTF(self):
-      if self._suffix is None:
+      if not self._suffix:
          raise Exception( "ID Trigger configuration:  called with non existent slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable('HLT_IDTrack_{}_FTF'.format( self._suffix ))
@@ -218,7 +218,7 @@ class _ConfigSettingsBase() :
 
    @property
    def vertex(self):
-      if self._vertex is None:
+      if not self._vertex:
          raise Exception( "ID Trigger configuration: vertex not defined for slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable(self._vertex)
@@ -227,7 +227,7 @@ class _ConfigSettingsBase() :
 
    @property
    def vertex_jet(self):
-      if self._vertex_jet is None:
+      if not self._vertex_jet:
          raise Exception( "ID Trigger configuration: vertex_jet not defined for slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable(self._vertex_jet)
