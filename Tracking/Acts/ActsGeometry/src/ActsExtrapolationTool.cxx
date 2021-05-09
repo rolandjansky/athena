@@ -41,13 +41,11 @@ namespace ActsExtrapolationDetail {
 
   
   using VariantPropagatorBase = boost::variant<
-      Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper, 
-                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+      Acts::Propagator<Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,  
                                                                      Acts::DenseEnvironmentExtension>, 
                                           Acts::detail::HighestValidAuctioneer>,
                        Acts::Navigator>,
-      Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField,
-                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+      Acts::Propagator<Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,  
                                                                      Acts::DenseEnvironmentExtension>, 
                                           Acts::detail::HighestValidAuctioneer>,        
                        Acts::Navigator> > ;
@@ -93,14 +91,12 @@ ActsExtrapolationTool::initialize()
 
   if (m_fieldMode == "ATLAS"s) {    
     ATH_MSG_INFO("Using ATLAS magnetic field service");
-    using BField_t = ATLASMagneticFieldWrapper;
-    using Stepper = Acts::EigenStepper<BField_t,
-                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+    using Stepper = Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,
                                                                   Acts::DenseEnvironmentExtension>,
                                        Acts::detail::HighestValidAuctioneer>;
                                        
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-    BField_t bField;
+    auto bField = std::make_shared<ATLASMagneticFieldWrapper>();
 
     auto stepper = Stepper(std::move(bField));
     auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
@@ -113,12 +109,11 @@ ActsExtrapolationTool::initialize()
     double By = constantFieldVector.at(1);
     double Bz = constantFieldVector.at(2);
     ATH_MSG_INFO("Using constant magnetic field: (Bx, By, Bz) = (" << Bx << ", " << By << ", " << Bz << ")");
-    using BField_t = Acts::ConstantBField;
-    using Stepper = Acts::EigenStepper<BField_t,
-                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+    using Stepper = Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,
                                                                   Acts::DenseEnvironmentExtension>,
                                        Acts::detail::HighestValidAuctioneer>;
-    BField_t bField(Bx, By, Bz);
+
+    auto bField = std::make_shared<Acts::ConstantBField>(Bx, By, Bz);
     auto stepper = Stepper(std::move(bField));
     auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
                                                                  std::move(navigator));
