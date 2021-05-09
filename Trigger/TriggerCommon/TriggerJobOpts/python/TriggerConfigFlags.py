@@ -293,6 +293,7 @@ def createTriggerFlags():
 
     # Switch on AMVF vertice and priority TTVA for jet slice
     flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
+    flags.addFlag("Trigger.Jet.doMC16_EOverP", False)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
