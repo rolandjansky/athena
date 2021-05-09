@@ -26,6 +26,9 @@
 #include "AsgTools/ToolHandle.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
+#include "AsgDataHandles/ReadHandleKey.h"
+
+
 class CorrectPFOTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(CorrectPFOTool, IJetConstituentModifier)
 

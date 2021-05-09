@@ -1,7 +1,7 @@
 //-*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -12,9 +12,8 @@
 
 
 #include "AsgTools/AsgTool.h"
-#include <AsgMessaging/MessageCheck.h>
-#include <AsgMessaging/MsgStream.h>
-#include <AsgMessaging/MsgStreamMacros.h>
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include "JetInterface/IJetExecuteTool.h"
 
@@ -61,8 +60,8 @@ public:
      @brief :
      Select TopoClusters away of the electrons 
      may select :
-     - Match radisu
-     - Min EM frac of cluster to be removad
+     - Match radius
+     - Min EM frac of cluster to be removed
      
      Create vector of cluster
      

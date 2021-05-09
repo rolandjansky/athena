@@ -1,6 +1,6 @@
 // this is a -*- C++ -*- file
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,20 +18,22 @@
 #ifndef JetViewAlg_H
 #define JetViewAlg_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "AthContainers/ConstDataVector.h"
+#include "AsgTools/PropertyWrapper.h"
+
 #include "StoreGate/ShallowCopyDecorDeps.h"
 
-class JetViewAlg : public AthReentrantAlgorithm { 
+class JetViewAlg : public EL::AnaReentrantAlgorithm { 
 
 public: 
 
-  //Delegate to base-class constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  JetViewAlg(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   /// Athena algorithm's Hooks
   StatusCode initialize() override;

@@ -29,12 +29,6 @@ namespace EL
     // public interface
     //
 
-    /// \brief test the invariant of this object
-    /// \par Guarantee
-    ///   no-fail
-  public:
-    void testInvariant () const;
-
 
     /// \brief standard constructor
     /// \par Guarantee

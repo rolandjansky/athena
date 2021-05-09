@@ -1,14 +1,16 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetMerger.h 
 
-/// PseudoJetMerger collects a set of PseudoJets into a group that can be
-/// put together into a jet collection, combining the consituent collection
-/// with a set of ghost collections.
+/// PseudoJetMerger collects a list of PseudoJetContainers into a single PseudoJetContainers.
+/// In terms of fastjet::PseudoJet content, the output PseudoJetContainer is simply the concatenation of the inputs.
+/// The ouput PseudoJetContainer also contains all the technical information necessary to tell if 
+/// a given PseudoJet extracted as a constituent of a final jet is a genuine constituent or a ghost
+/// and from which category it comes from.
 ///
 /// Alg Properties:
 ///  - InputPJContainers: Array of input collections to merge.
@@ -23,18 +25,21 @@
 #include "JetRec/PseudoJetContainer.h"
 #include "fastjet/PseudoJet.hh"
 #include "JetEDM/PseudoJetVector.h"
+#include "AsgDataHandles/ReadHandleKeyArray.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
 
 class PseudoJetMerger
-  : public AthReentrantAlgorithm  {
+  : public EL::AnaReentrantAlgorithm  {
 
 public:
 
   typedef jet::PseudoJetVector PseudoJetVector;
 
-  // No need for a specialised constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  PseudoJetMerger(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   /// Initialization.
   /// Can be skipped.

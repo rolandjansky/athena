@@ -1,6 +1,6 @@
 // this is a -*- C++ -*- file
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////
@@ -16,9 +16,9 @@
 #ifndef JetRecAlg_H
 #define JetRecAlg_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/WriteHandleKey.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include "JetInterface/IJetProvider.h"
 #include "JetInterface/IJetModifier.h"
@@ -29,11 +29,12 @@
 
 class IJetExecuteTool;
 
-class JetRecAlg : public AthReentrantAlgorithm {
+class JetRecAlg : public EL::AnaReentrantAlgorithm { 
 
 public:
 
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  JetRecAlg(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
+  using EL::AnaReentrantAlgorithm::AnaReentrantAlgorithm;
 
   /// Athena algorithm's Hooks
   StatusCode  initialize() override;

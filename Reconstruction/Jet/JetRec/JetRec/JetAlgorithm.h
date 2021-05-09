@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetAlgorithm.h 
@@ -9,18 +9,16 @@
 #ifndef JetAlgorithm_H
 #define JetAlgorithm_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/ToolHandle.h"
+#include <AnaAlgorithm/AnaReentrantAlgorithm.h>
 
-class IJetExecuteTool;
+#include "JetInterface/IJetExecuteTool.h"
 
-class JetAlgorithm : public AthReentrantAlgorithm { 
+class JetAlgorithm : public EL::AnaReentrantAlgorithm { 
 
 public: 
   
-  //Delegate to base-class constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
-
+  JetAlgorithm(const std::string& name, ISvcLocator* pSvcLocator) : EL::AnaReentrantAlgorithm(name, pSvcLocator) {}
   /// Destructor: 
   ~JetAlgorithm(); 
 

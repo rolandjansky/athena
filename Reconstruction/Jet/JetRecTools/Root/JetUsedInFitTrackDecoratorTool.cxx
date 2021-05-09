@@ -2,6 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 // Includes from this package:
 #include "JetRecTools/JetUsedInFitTrackDecoratorTool.h"
 
@@ -23,3 +24,5 @@ int JetUsedInFitTrackDecoratorTool::execute() const {
   m_decoTool->decorate();
   return 0;
 }
+
+#endif

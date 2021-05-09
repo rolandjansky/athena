@@ -1,6 +1,5 @@
 #include "JetRecTools/JetTrackSelectionTool.h"
 #include "JetRecTools/JetTrackSelectionTool2.h"
-#include "JetRecTools/JetUsedInFitTrackDecoratorTool.h"
 #include "JetRecTools/SimpleJetTrackSelectionTool.h"
 #include "JetRecTools/TrackVertexAssociationTool.h"
 #include "JetRecTools/JetConstituentModSequence.h"
@@ -15,10 +14,13 @@
 #include "JetRecTools/CorrectPFOTool.h"
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "JetRecTools/PuppiWeightTool.h"
+#if !defined(XAOD_ANALYSIS)
+#include "JetRecTools/JetUsedInFitTrackDecoratorTool.h"
+#endif
+
 
 DECLARE_COMPONENT( JetTrackSelectionTool )
 DECLARE_COMPONENT( JetTrackSelectionTool2 )
-DECLARE_COMPONENT( JetUsedInFitTrackDecoratorTool )
 DECLARE_COMPONENT( SimpleJetTrackSelectionTool )
 DECLARE_COMPONENT( TrackVertexAssociationTool )
 DECLARE_COMPONENT( JetConstituentModSequence )
@@ -33,3 +35,7 @@ DECLARE_COMPONENT( JetInputElRemovalTool )
 DECLARE_COMPONENT( CorrectPFOTool )
 DECLARE_COMPONENT( ChargedHadronSubtractionTool )
 DECLARE_COMPONENT( PuppiWeightTool )
+
+#if !defined(XAOD_ANALYSIS)
+DECLARE_COMPONENT( JetUsedInFitTrackDecoratorTool )
+#endif

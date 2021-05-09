@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_JETSOFDROPTOOLS_H
@@ -23,6 +23,9 @@
 #include "JetInterface/IJetProvider.h"
 #include "JetRec/JetGroomer.h"
 #include "JetRec/PseudoJetContainer.h"
+
+#include "AsgTools/PropertyWrapper.h"
+
 
 namespace JetGrooming {
 
@@ -68,7 +71,7 @@ namespace JetGrooming {
     virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const override final ;
 
   private:
-    Gaudi::Property<int> m_N {this, "N", 0.1 , "Number of layers (-1 <> infinite)"};     
+    Gaudi::Property<int> m_N {this, "N", 1 , "Number of layers (-1 <> infinite)"};     
   };
 
 

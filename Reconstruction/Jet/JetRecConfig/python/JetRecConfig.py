@@ -7,6 +7,7 @@ Author: TJ Khoo, P-A Delsart
 """
 
 ########################################################################
+import os
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRecConfig')
@@ -31,7 +32,7 @@ __all__ = ["JetRecCfg", "JetInputCfg"]
 ########################################################################
 
 
-def JetRecCfg(jetdef, configFlags):
+def JetRecCfg(jetdef, configFlags, returnFinalJetDef=False):
     """Top-level function for running jet finding or grooming.
     
     This returns a ComponentAccumulator that can be merged with others
@@ -41,6 +42,7 @@ def JetRecCfg(jetdef, configFlags):
     peeking such that we don't attempt to reproduce stuff that's already
     in the input file.
 
+    returnFinalJetDef : is for debugging. It will also returns the cloned JetDefinition which contains the calculated dependencies.
     """
     # we clone the jetdef, so we're sure we're not using a 'locked' one 
     jetdef_i = jetdef.clone()
@@ -61,6 +63,7 @@ def JetRecCfg(jetdef, configFlags):
         from JetRecConfig.JetGroomConfig import addGroomToComponent
         addGroomToComponent(components, jetdef_i,  configFlags)
 
+    if returnFinalJetDef: return components, jetdef_i
     return components
 
 def addJetClusteringToComponent(components, jetdef_i, configFlags, sequenceName=None):
@@ -313,7 +316,10 @@ def getJetRecAlg( jetdef, monTool = None):
         Provider = jclust,
         Modifiers = mods,
         OutputContainer = jetname,
-        MonTool = monTool)
+        )
+    if monTool:
+        # this option can't be set in AnalysisBase -> set only if explicitly asked :
+        jra.MonTool = monTool
 
     autoconfigureModifiers(jra.Modifiers, jetname)
 
@@ -516,6 +522,19 @@ def isComponentPassingConditions(component, configflags, prereqDic):
     return ok, reason
     
     
+
+
+
+
+
+def isAthenaRelease():
+    return 'Ath' in os.environ.get("AtlasProject", "")
+
+def isAnalysisRelease():
+    return 'Analysis' in os.environ.get("AtlasProject", "")
+
+
+
 
 
 
