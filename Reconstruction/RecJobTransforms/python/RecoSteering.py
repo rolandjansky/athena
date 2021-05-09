@@ -44,6 +44,11 @@ def RecoSteering(flags):
     # pflow
 
     #setup output
+    if any((flags.Output.doWriteESD, flags.Output.doWriteAOD, flags.Output.doWriteRDO)):
+        from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
+        acc.merge(PoolWriteCfg(flags))
+        log.info("setup POOL format writing")
+        
     if flags.Output.doWriteESD:
         log.info("ESD ItemList: %s", acc.getEventAlgo("OutputStreamESD").ItemList)
         log.info("---------- Configured ESD writing")
@@ -77,8 +82,8 @@ def _run(input):
     flags.Detector.GeometryLAr=True
 
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
-    flags.Output.ESDFileName="outputESD.pool.root"
-    flags.Output.AODFileName="outputAOD.pool.root"
+    flags.Output.ESDFileName="myESD.pool.root"
+#    flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
     args = flags.fillFromArgs(parser=parser)
 
