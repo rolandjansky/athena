@@ -8,10 +8,7 @@ from AthenaConfiguration.AutoConfigFlags import GetFileMD
 def pileupInputCollections(inputFiles):
     if not len(inputFiles):
         return [] #Should never hit this but just in case
-    inputFile = inputFiles[0]
-    if not inputFile:
-        return []
-    rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
+    rawCollections = [type_key[1] for type_key in GetFileMD(inputFiles).get("itemList",[])]
     collections = [col for col in rawCollections if not col.endswith('Aux.') ]
     return collections
 
