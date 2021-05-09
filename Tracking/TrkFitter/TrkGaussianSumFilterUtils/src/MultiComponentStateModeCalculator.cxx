@@ -48,35 +48,29 @@ pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
   return pdf;
 }
 
-/** @brief method to determine the first order derivative of the pdf at a given
- * value*/
-double
-d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+struct pdfAndDeriv
 {
-
-  double result(0.);
+  double value = 0.;
+  double deriv1 = 0.;
+  double deriv2 = .0;
+};
+/** @brief method to determine the pdf of the cashed mixture and its first 2
+ * derivatives at a given value*/
+pdfAndDeriv
+fullPdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+  pdfAndDeriv pdf{};
   auto component = mixture[i].begin();
   for (; component != mixture[i].end(); ++component) {
-    double z = (x - component->mean) / component->sigma;
-    result += -1. * component->weight * z *
-              gaus(x, component->mean, component->sigma) / component->sigma;
+    double componentgaus = gaus(x, component->mean, component->sigma);
+    pdf.value += component->weight * componentgaus;
+    const double z = (x - component->mean) / component->sigma;
+    pdf.deriv1 +=
+      -1. * component->weight * z * componentgaus / component->sigma;
+    pdf.deriv2 += component->weight / (component->sigma * component->sigma) *
+                  (z * z - 1.) * componentgaus;
   }
-  return result;
-}
-/** @brief method to determine the second order derivative of the pdf at a given
- * value*/
-double
-d2pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double result(0.);
-  auto component = mixture[i].begin();
-  for (; component != mixture[i].end(); ++component) {
-    double z = (x - component->mean) / component->sigma;
-    result += component->weight / (component->sigma * component->sigma) *
-              (z * z - 1.) * gaus(x, component->mean, component->sigma);
-  }
-  return result;
+  return pdf;
 }
 
 /** bried method to determine the width of the a gaussian distribution at a
@@ -148,41 +142,47 @@ findMode(
   const std::array<std::vector<Component>, 5>& mixture)
 {
 
-  int iteration(0);
-
+  bool converged = false;
   double tolerance(1.);
+  // start position for mode
+  double currentMode(xStart);
+  double nextMode(currentMode);
+  // pdf at current mode and next mode
+  pdfAndDeriv currentPdf = fullPdf(currentMode, i, mixture);
 
-  double mode(xStart);
-
-  while (iteration < 20 && tolerance > 1.e-8) {
-
-    double previousMode(mode);
-    double d2pdfVal = d2pdf(previousMode, i, mixture);
-
-    if (d2pdfVal != 0.0) {
-      mode = previousMode - d1pdf(previousMode, i, mixture) / d2pdfVal;
+  // Allow up to 20 iterations for convergence
+  for (int iteration = 0; iteration < 20; ++iteration) {
+    // calculate next mode point
+    if (currentPdf.deriv2 != 0.0) {
+      nextMode = currentMode - currentPdf.deriv1 / currentPdf.deriv2;
     } else {
       return xStart;
     }
 
-    double pdfMode = pdf(mode, i, mixture);
-    double pdfPreviousMode = pdf(previousMode, i, mixture);
-
-    if ((pdfMode + pdfPreviousMode) != 0.0) {
-      tolerance =
-        std::abs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
+    // Calculate the mixture pdf at next mode point
+    pdfAndDeriv nextPdf = fullPdf(nextMode, i, mixture);
+    // check if we have converged
+    if ((nextPdf.value + currentPdf.value) != 0.0) {
+      tolerance = std::abs(nextPdf.value - currentPdf.value) /
+                  (nextPdf.value + currentPdf.value);
     } else {
       return xStart;
     }
-
-    ++iteration;
+    if (tolerance < 1.e-8) {
+      converged = true;
+      break;
+    }
+    // if we have not yet converged
+    // next becomes current and we retry
+    currentPdf = nextPdf;
+    currentMode = nextMode;
   }
 
-  if (iteration >= 20) {
+  if (!converged) {
     return xStart;
   }
 
-  return mode;
+  return currentMode;
 }
 
 double
@@ -195,10 +195,7 @@ findRoot(
   const std::array<std::vector<Component>, 5>& mixture)
 {
   // Do the root finding using the Brent-Decker method. Returns a boolean
-  // status and loads 'result' with our best guess at the root if true. Prints
-  // a warning if the initial interval does not bracket a single root or if
-  // the root is not found after a fixed number of iterations.
-
+  // status and loads 'result' with our best guess at the root if true.
   double a(xlo);
   double b(xhi);
   double fa = pdf(a, i, mixture) - value;
@@ -207,7 +204,6 @@ findRoot(
   if (fb * fa > 0) {
     return false;
   }
-
   bool ac_equal(false);
   double fc = fb;
   double c(0);
