@@ -12,16 +12,18 @@ from AthenaCommon import Logging
 jrtlog = Logging.logging.getLogger('ParticleJetToolsConfig')
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.JetRecConfig import isAnalysisRelease
 
 # Putting MCTruthClassifier here as we needn't stick jet configs in really foreign packages
-def getMCTruthClassifier():
+def getMCTruthClassifier():    
     # Assume mc15 value
     firstSimCreatedBarcode = 200000
     truthclassif = CompFactory.MCTruthClassifier(
         "JetMCTruthClassifier",
         barcodeG4Shift=firstSimCreatedBarcode,
-        xAODTruthLinkVector=""
         )
+    if not isAnalysisRelease() :
+        truthclassif.xAODTruthLinkVector= ""
     # Config neessary only for Athena releases
     import os
     if "AtlasProject" in os.environ.keys():

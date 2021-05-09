@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// \class EventDensityAthAlg 
@@ -15,20 +15,21 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include <AnaAlgorithm/AnaReentrantAlgorithm.h>
 
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "AsgTools/ToolHandle.h"
 
 
-class EventDensityAthAlg : public AthReentrantAlgorithm { 
+class EventDensityAthAlg : public EL::AnaReentrantAlgorithm { 
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-  /// Using base-class constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  EventDensityAthAlg(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize() override;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetAlgorithm.h 
@@ -26,14 +26,17 @@
 #include "fastjet/PseudoJet.hh"
 #include "JetRec/PseudoJetContainer.h"
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
 
-class PseudoJetAlgorithm : public AthReentrantAlgorithm { 
+class PseudoJetAlgorithm : public EL::AnaReentrantAlgorithm { 
 
 public: 
 
-  // No need for a specialised constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  PseudoJetAlgorithm(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   /// Athena algorithm's Hooks
   virtual StatusCode  initialize() override final;

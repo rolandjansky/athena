@@ -218,6 +218,7 @@
 #+ Tracking/TrkExtrapolation/TrkExUtils
 #+ Tracking/TrkTools/TrkToolInterfaces
 + PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 # Ignore everything else
 - .*
 

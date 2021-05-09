@@ -19,6 +19,7 @@
 #include "fastjet/tools/Filter.hh"
 
 #include "xAODJet/JetContainer.h"
+#include "AsgTools/PropertyWrapper.h"
 
 #include "JetInterface/IJetProvider.h"
 #include "JetRec/JetGroomer.h"

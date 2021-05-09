@@ -7,6 +7,9 @@
 //
 #include "JetRecTools/ConstituentSubtractorTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+
+
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/ConstituentSubtractor.hh"
 #include "fastjet/tools/JetMedianBackgroundEstimator.hh"
@@ -16,16 +19,24 @@
 #include "xAODPFlow/TrackCaloCluster.h"
 #include "xAODPFlow/FlowElement.h"
 
+namespace {
+    void seedsFromEventInfo(const xAOD::EventInfo* ei, std::vector<int> &seeds){
+      auto ievt = ei->eventNumber();
+      auto irun = ei->runNumber();
+
+      if ( ei->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+        // For MC, use the channel and MC event number
+        ievt = ei->mcEventNumber();
+        irun = ei->mcChannelNumber();
+      }
+      seeds.push_back(ievt);
+      seeds.push_back(irun);
+  }
+
+}
+
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
-
-  declareProperty("MaxDeltaR", m_maxDeltaR=0.25);
-  declareProperty("Alpha", m_alpha=0.);
-  declareProperty("GhostArea", m_ghostArea=0.01);
-  declareProperty("MaxEta", m_maxEta=2.5);
-
-  // Option to disregard cPFOs in the weight calculation
-  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
 }
 
 
@@ -42,6 +53,8 @@ StatusCode ConstituentSubtractorTool::initialize() {
       return StatusCode::FAILURE;
     }
   }
+  ATH_CHECK( m_eventinfokey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -102,11 +115,14 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   // the area definiton is used only for the jet backgroud estimator. It is not important for the ConstituentSubtractor when subtracting the whole event - this is not true when subtracting the individual jets
   AreaDefinition area_def(active_area_explicit_ghosts,GhostedAreaSpec(m_maxEta,fastjet::active_area_explicit_ghosts));
 
+  auto evtInfoHandle = SG::makeHandle(m_eventinfokey);  
   std::vector<int> seed (2);
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  std::hash<std::string> h;
-  seed[0] = ctx.eventID().run_number() + ctx.eventID().event_number();
-  seed[1] = h(name());
+  seedsFromEventInfo(evtInfoHandle.cptr(), seed);
+  
+  // const EventContext& ctx = Gaudi::Hive::currentContext();
+  // std::hash<std::string> h;
+  // seed[0] = ctx.eventID().run_number() + ctx.eventID().event_number();
+  // seed[1] = h(name());
   area_def.ghost_spec().set_random_status (seed);
 
 

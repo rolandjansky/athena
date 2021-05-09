@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonSegmentPseudoJetAlgorithm.h 
@@ -17,16 +17,20 @@
 #include <memory>
 #include "fastjet/PseudoJet.hh"
 #include "JetRec/PseudoJetContainer.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 
-class MuonSegmentPseudoJetAlgorithm : public AthReentrantAlgorithm { 
+class MuonSegmentPseudoJetAlgorithm : public EL::AnaReentrantAlgorithm { 
 
 public: 
 
-  // No need for a specialised constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  MuonSegmentPseudoJetAlgorithm(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   /// Athena algorithm's Hooks
   virtual StatusCode  initialize() override final;
