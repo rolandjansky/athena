@@ -26,18 +26,11 @@ def bool_flag_with_default(name, val):
 default_true_flags = [
     "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
     "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "useCaloTTL", # False for DC1. Can use True for Rome files with Digits or post-Rome data """
     "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
     "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
-    "doFEX",  # if False disable Feature extraction algorithms """
-    "doHypo",  # if False disable all Hypothesis algorithms (HYPO)"""
     "doID",  # if False, disable ID algos at LVL2 and EF """
     "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
     "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
-    "doBcm",  # if False, disable BCM algorithms at LVL2 & EF """
-    "doTrt",  # if False, disable TRT algorithms at LVL2 & EF """
-    "doZdc",  # if False, disable ZDC algorithms at LVL2 & EF """"
-    "doLucid", # if False, disable Lucid algorithms at LVL2 & EF
     "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
     "doNavigationSlimming",  # Enable the trigger navigation slimming"""
 ]
@@ -375,7 +368,6 @@ class triggerConfig(JobProperty):
                     tf.triggerMenuSetup = configs[-1]
 
                 tf.readLVL1configFromXML=True
-                tf.readHLTconfigFromXML=True
                 log.info("triggerConfig: MCRECO menu from xml (%s)", tf.triggerMenuSetup())
 
             # This part was there in the original (old) csc_reco_trigger.py snippet
@@ -456,53 +448,6 @@ class readLVL1configFromXML(JobProperty):
             TriggerFlags.Lvl1.items.set_Off()
 
 _flags.append(readLVL1configFromXML)
-
-class readHLTconfigFromXML(JobProperty):
-    """ If set to True the HLT config file is read from earlier generated XMl file """
-    statusOn=True
-    allowedType=['bool']
-    # note: if you change the following default value, you must also change the default value in class inputHLTconfigFile
-    # StoredValue=False
-    StoredValue = False
-
-    def _do_action(self):
-        """ Disable all subcontainers defining slices ON/OFF flags """
-
-        import os
-        log = logging.getLogger( 'TriggerFlags.readHLTconfigFromXML' )
-
-        ## loop over all properties in the container
-        for prop in TriggerFlags.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                for slice_prop_name in prop.__dict__:
-                    slice_prop = prop.__dict__.get(slice_prop_name)
-                    if issubclass(slice_prop.__class__, JobProperty):
-                        if self.get_Value() is True: ## now depending on the value set flags are on/off
-                            slice_prop.set_Off()
-                        else:
-                            slice_prop.set_On()
-        ## in addition set inputHLTconfigFile to be the same as outputHLTconfigFile
-        if self.get_Value() is False:
-            TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
-        else:
-            if TriggerFlags.inputHLTconfigFile != 'NONE':
-                
-                TriggerFlags.inputHLTconfigFile = "TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                nightlyPaths=os.environ['XMLPATH'].split(':')
-
-                for p in nightlyPaths:
-                    full_path_name = p+"/"+TriggerFlags.inputHLTconfigFile()
-                    if os.path.exists(full_path_name) is True:
-                        log.info("The HLT xml file is: "+full_path_name)
-                        success = True
-                        break
-                    else:
-                        success = False
-
-                if success is False:
-                    log.error("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
-                
-_flags.append(readHLTconfigFromXML)
 
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""
@@ -785,8 +730,6 @@ class triggerMenuSetup(JobProperty):
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
             TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
-        if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
-            TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 
 _flags.append(triggerMenuSetup)
 

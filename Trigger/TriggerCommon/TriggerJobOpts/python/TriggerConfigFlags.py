@@ -163,10 +163,6 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
     flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
 
-
-    # enable Bcm inputs simulation
-    flags.addFlag('Trigger.L1.doBcm', True)
-
     # enable muon inputs simulation
     flags.addFlag('Trigger.L1.doMuons', True)
 
@@ -346,12 +342,9 @@ def createTriggerFlags():
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
-    # fakeLVL1, useCaloTTL
+    # fakeLVL1
     # doMergedHLTResult - not needed now
     # doAlwaysUnpackDSResult - never set
-    # doTrt - fast TRT or trigger - never used
-    # doLucid - not sure if ever set to False, identical rec flag exists
-    # doZdc - never set to anything different than default
     # configForStartup
     # the flags related to trigger DB are redundant of triggerConfig - need to decide if they are needed in this form
     # also not defined the Prescale sets yet

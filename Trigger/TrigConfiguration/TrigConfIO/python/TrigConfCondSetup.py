@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -31,13 +31,7 @@ def setupMenuProvider():
 
 
     # HLT menu setup
-    if TriggerFlags.readHLTconfigFromXML():
-        xmlFile = TriggerFlags.inputHLTconfigFile()
-    else:
-        xmlFile = TriggerFlags.outputHLTconfigFile()
-
-    hltJsonFile = xmlFile.replace(".xml",".json")
-
+    hltJsonFile = TriggerFlags.outputHLTmenuJsonFile()
     hltInputType = "file"
     from TrigConfIO.TrigConfIOConf import TrigConf__HLTMenuCondAlg
     condSequence += TrigConf__HLTMenuCondAlg( InputType = hltInputType,

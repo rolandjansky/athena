@@ -157,8 +157,6 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
 
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     ctp             = CTPSimulationInReco("CTPSimulation")
-    ctp.DoLUCID     = False
-    ctp.DoBCM       = False
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
@@ -362,8 +360,6 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         ctp.LegacyTopoInput = ""
     if not isL1TopoOutputProvided:
         ctp.TopoInput = ""
-    ctp.DoLUCID     = False
-    ctp.DoBCM       = False
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
