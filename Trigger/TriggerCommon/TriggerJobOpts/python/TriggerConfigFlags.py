@@ -361,7 +361,7 @@ def createTriggerFlags():
     #   "None": Do no PFO-muon removal
     #   "Calo": Use the calo-tagging tools from the muon slice
     #   "Iso" : Use the mainly isolation-based selections based on the MET associator package
-    flags.addFlag("Trigger.FSHad.PFOMuonRemoval", "None")
+    flags.addFlag("Trigger.FSHad.PFOMuonRemoval", "Calo")
 
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
