@@ -203,9 +203,6 @@ def createTriggerFlags():
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
 
-    # configuration tune for various years of Run2 (why string?)
-    flags.addFlag('Trigger.run2Config', '2018')
-
     # comissionig options
     # one of:  'HltOnly',
     #    'Lvl1Only',
@@ -282,36 +279,14 @@ def createTriggerFlags():
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
-    # helper to switch between versions
-    def __tunes(default, ver2016, ver2017):
-        from collections import defaultdict
-        return lambda year:  defaultdict( lambda: default,
-                                           (('2016', ver2016),
-                                            ('2017', ver2017)))[year]
-
-                                           
     # Particle ID tune
-    flags.addFlag('Trigger.egamma.pidVersion',
-                lambda prevFlags:
-                __tunes(default='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
-                        ver2016='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
-                        ver2017='ElectronPhotonSelectorTools/trigger/rel21_20170214/')( prevFlags.Trigger.run2Config )
-    )
+    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20170214/')
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
-    flags.addFlag('Trigger.egamma.clusterCorrectionVersion',
-                lambda prevFlags:
-                __tunes(default=None,
-                        ver2016=None,
-                        ver2017='v12phiflip_noecorrnogap')( prevFlags.Trigger.run2Config )
-    )
+    flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
+
     # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersion',
-                  lambda prevFlags:
-                  __tunes(default='egammaMVACalib/online/v3',
-                          ver2016='egammaMVACalib/online/v3',
-                          ver2017='egammaMVACalib/online/v6')( prevFlags.Trigger.run2Config )
-    )
+    flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
 
     # muons
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
@@ -388,14 +363,6 @@ def createTriggerFlags():
 
     
 import unittest
-class __YearDependentFlagTest(unittest.TestCase):    
-    def runTest(self):
-        """... Check if year dependent flags propagate the info correctly"""
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-        flags.Trigger.run2Config='2017'
-        self.assertEqual(flags.Trigger.egamma.clusterCorrectionVersion, "v12phiflip_noecorrnogap", " dependent flag setting does not work")
-        flags.dump()
-
 class __UseOfOfflineRecoFlagsTest(unittest.TestCase):
     def runTest(self):
         """... Check if offline reco flags can be added to trigger"""
@@ -413,7 +380,6 @@ class __UseOfOfflineRecoFlagsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(__YearDependentFlagTest())
     suite.addTest(__UseOfOfflineRecoFlagsTest())
     runner = unittest.TextTestRunner(failfast=False)
     runner.run(suite)

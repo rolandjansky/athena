@@ -144,20 +144,6 @@ class configForStartup(JobProperty):
 
 _flags.append(configForStartup)
 
-class run2Config(JobProperty):
-    """ A flag to specify 2016 or 2017 (tunes, etc) running conditions """
-    statusOn=True
-    allowedType=['string']
-    StoredValue = '2017'
-    allowedValues = [
-        '2016',
-        '2017',
-        ]
-    def _do_action(self):
-        log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-        log.warning('The run2Config flag is deprecated. Please remove references to it.')
-
-_flags.append(run2Config)
 
 class dataTakingConditions(JobProperty):
     """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
