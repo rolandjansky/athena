@@ -43,7 +43,8 @@ class DynamicallyLoadMetadata:
         return result
 
 def GetFileMD(filenames):
-
+    if isinstance(filenames, str):
+        filenames = [filenames]
     filename=filenames[0]
     if filename == '_ATHENA_GENERIC_INPUTFILE_NAME_':
         raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
