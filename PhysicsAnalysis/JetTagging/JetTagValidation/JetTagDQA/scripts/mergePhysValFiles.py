@@ -73,11 +73,9 @@ sub_categories_TProfiles = ['IP3D',
                  ]
 
 # define the jet containers
-jetcontainers = ['AntiKt2PV0TrackJets',
-                 'AntiKt4PV0TrackJets',
-                 'AntiKt4EMTopoJets',
+jetcontainers = ['AntiKt4EMTopoJets',
                  'AntiKt4EMPFlowJets',
-                 'AntiKtVR30Rmax4Rmin02TrackJets'
+                 'AntiKtVR30Rmax4Rmin02PV0TrackJets'
                  ]
 
 # parser arguments
