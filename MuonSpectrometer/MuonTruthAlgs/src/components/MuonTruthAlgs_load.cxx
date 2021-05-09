@@ -1,4 +1,3 @@
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES( MuonTruthAlgs )
-
+LOAD_FACTORY_ENTRIES(MuonTruthAlgs)
