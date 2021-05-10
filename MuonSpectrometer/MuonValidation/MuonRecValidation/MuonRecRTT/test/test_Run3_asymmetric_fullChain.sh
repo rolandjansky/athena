@@ -11,6 +11,7 @@
 # art-output: dcube*
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
+# art-output: NSWPRDValAlg.digi.dcube.root
 # art-output: NSWDigiCheck.txt
 # art-output: OUT_ESD.root
 # art-output: OUT_ESD_1thread.root
@@ -118,7 +119,7 @@ fi
 echo "download latest result"
 art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
 ls -l lastResults
-$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_digitisation_asymRun3.xml -x dcubeDigitisation -p NSWPRDValAlg.dcube.root
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.digi.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_digitisation_asymRun3.xml -x dcubeDigitisation -p NSWPRDValAlg.digi.dcube.root
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeDigits"
 if [ ${exit_code} -ne 0 ]
