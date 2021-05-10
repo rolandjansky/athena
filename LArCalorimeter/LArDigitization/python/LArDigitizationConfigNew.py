@@ -257,6 +257,9 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
     kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1EM")
     kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1HAD")
 
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
     return acc

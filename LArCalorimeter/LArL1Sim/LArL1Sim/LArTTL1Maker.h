@@ -76,6 +76,7 @@ class LArTTL1Maker : public AthAlgorithm,
   virtual StatusCode finalize();
   virtual void handle(const Incident&);
 
+  virtual bool isClonable() const override final { return true; }
 
  private:
 
