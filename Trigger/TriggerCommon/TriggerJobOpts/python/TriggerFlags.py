@@ -37,7 +37,6 @@ default_true_flags = [
 
 default_false_flags = [
     "fakeLVL1", # create fake RoI from KINE info  """
-    "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
     "doTruth",
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
@@ -126,13 +125,11 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonlineNoL1Thr'
+    StoredValue = 'HLTonline'
     
     allowedValues = [
         'HLTonline',
-        'HLToffline',
-        'HLTonlineNoL1Thr',
-        'HLTofflineNoL1Thr'
+        'HLToffline'
         ]
 
 _flags.append(configForStartup)
@@ -185,9 +182,7 @@ class triggerConfig(JobProperty):
     For MC reconstruction use MCRECO prefix:
     MCRECO:DEFAULT                                       -default L1 and HLT menu
     MCRECO:MenuName                                      -takes the L1 and HLT xml respresentations of the menu
-    MCRECO:L1CaloCalib=True/False:MenuName               -takes the L1 and HLT xml respresentations of the menu, sets L1 calo calib
     MCRECO:DB:connectionstring:SMKey,L1PSK,HLTPSK[,BGK]  -takes these db keys
-    MCRECO:DB:L1CaloCalib=True/False:connectionstring:SMKey,L1PSK,HLTPSK  -takes these db keys, sets L1 calo calib
     MCRECO:DB:connectionstring:MenuName,Rel              -takes this menu from the db (looks up the SMK)
                                                          -NB for the above: move to alias tables?
                                                    
@@ -316,20 +311,7 @@ class triggerConfig(JobProperty):
                 ### We read the menu from the TriggerDB
                 tf.readMenuFromTriggerDb=True
                 tf.triggerUseFrontier = (configs[1]=='DBF')
-                
-                #see if L1 calib arg supplied
-                if "L1CaloCalib" in configs[2]:
-                    if configs[2].split("=")[-1] == "True" or configs[2].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
-                        tf.useL1CaloCalibration=True
-                    elif configs[2].split("=")[-1] == "False" or configs[2].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
-                        tf.useL1CaloCalibration=False
-                    else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[2].split("=")[-1])
-                    tf.triggerDbConnection = ':'.join(configs[3:-1])  # the dbconnection goes from third to last ':', it can contain ':'
-                else:
-                    tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
+                tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
                 DBkeys = configs[-1].split(",")
                 if (len(DBkeys) == 4):                            # we got 4 keys (SM, L1PS, HLTPS,BGK)
                     tf.triggerDbKeys=[int(x) for x in DBkeys]
@@ -353,15 +335,6 @@ class triggerConfig(JobProperty):
                 log.info("triggerConfig: Setting tf.triggerMenuSetup to " + tf.triggerMenuSetup())
             else:
                 ### We read the menu from xml
-                if "L1CaloCalib" in configs[1]:
-                    if configs[1].split("=")[-1] == "True" or configs[1].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
-                        tf.useL1CaloCalibration=True
-                    elif configs[1].split("=")[-1] == "False" or configs[1].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
-                        tf.useL1CaloCalibration=False
-                    else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[1].split("=")[-1])
                 if (configs[-1] == 'DEFAULT' or configs[-1] == 'default'):
                     tf.triggerMenuSetup = 'default'
                 else:
@@ -666,20 +639,6 @@ class triggerMenuSetup(JobProperty):
             TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
 
 _flags.append(triggerMenuSetup)
-
-class L1PrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(L1PrescaleSet)
-
-class HLTPrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(HLTPrescaleSet)
 
 
 # the container of all trigger flags

@@ -17,9 +17,6 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doL1Topo', True )
 
     # need proper documentation
-    flags.addFlag('Trigger.useL1CaloCalibration', False)
-
-    # need proper documentation
     flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
 
     # enable HLT part of the trigger

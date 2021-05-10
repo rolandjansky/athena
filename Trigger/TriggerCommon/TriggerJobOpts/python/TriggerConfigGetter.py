@@ -362,10 +362,7 @@ class TriggerConfigGetter(Configured):
             addNewFolders = TriggerFlags.configForStartup()=="HLTonline" and self.readRDO
         else: # for sqlite COOL: temp (usually /tmp/hltMenu.xxx.db) or predefined (e.g. trigconf.db)
             log.info("COOL DBConnection: " + TrigCoolDbConnection )
-            addNewFolders = ( ( TriggerFlags.configForStartup()=="HLToffline"
-                                or TriggerFlags.configForStartup()=="HLTonline"
-                                or globalflags.DataSource()!='data')
-                              and self.readRDO )  # bytestream or MC RDO
+            addNewFolders = globalflags.DataSource()!='data' and self.readRDO # bytestream or MC RDO
 
         # add folders for reading
         from IOVDbSvc.CondDB import conddb
