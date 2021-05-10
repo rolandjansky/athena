@@ -21,8 +21,34 @@ class egammaKeysDict:
     ElectronSuppress = ShowerShapesSuppress + ElectronisemSupress + '.-EgammaCovarianceMatrix'
     PhotonSuppress = ShowerShapesSuppress + PhotonisemSuppress
     FwdElectronisemSupress = '.-isEMTight.-isEMMedium.-isEMLoose'
-    # Strip off the leading dot
-    isovar_suppress = "-" + ".-".join(iso_vars())
+    # old isolation variables, except for the ones monitored in ART
+    isovars_old = [
+        # "etcone20",
+        # "etcone30",
+        "etcone20ptCorrection",
+        "etcone30ptCorrection",
+        # "etcone40",
+        "etcone40ptCorrection",
+        "etconeCorrBitset",
+        # "ptcone20",
+        # "ptcone30",
+        # "ptcone40",
+        "ptconeCorrBitset",
+        "ptconecoreTrackPtrCorrection",
+        # "ptvarcone20",
+        # "ptvarcone30",
+        # "ptvarcone40",
+        # "topoetcone20",
+        "topoetcone20ptCorrection",
+        # "topoetcone30",
+        "topoetcone30ptCorrection",
+        # "topoetcone40",
+        "topoetcone40ptCorrection",
+        "topoetconeCorrBitset",
+        "topoetconecoreConeEnergyCorrection",
+        "topoetconecoreConeSCEnergyCorrection"
+    ]
+    isovar_suppress = ".".join(["-%s" % v for v in iso_vars() + isovars_old])
 
     outputs = dict(
         Conversion=[
