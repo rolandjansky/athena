@@ -59,6 +59,7 @@
 
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
+#include "LayerSort.h"
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "TrkVolumes/VolumeBounds.h"
@@ -2867,7 +2868,6 @@ namespace Trk {
         // @TODO coverity complains about index shadowing the method argument index
         // this is solved by renaming index in this block by param_index
         int param_index = 0;
-        
         if (psmpar.contains(Trk::locRPhi)) {
           errors[0] = std::sqrt(covmat(0, 0));
           param_index++;
@@ -3051,120 +3051,12 @@ namespace Trk {
     return true;
   }
 
-  class GXFlayersort {
-  public:
-    /** Default Constructor */
-    GXFlayersort() {} 
-    
-    bool operator() (
-      const std::pair<const Layer *, const Layer *> & one,
-      const std::pair<const Layer *, const Layer *> & two
-    ) const {
-      const CylinderSurface *cyl1 = nullptr;
-
-      if (one.first != nullptr) {
-        cyl1 = (const CylinderSurface *) &one.first->surfaceRepresentation();
-      }
-      const DiscSurface *disc1 = nullptr;
-      if (one.second != nullptr) {
-        disc1 = (const DiscSurface *) &one.second->surfaceRepresentation();
-      }
-      const CylinderSurface *cyl2 = nullptr;
-      if (two.first != nullptr) {
-        cyl2 = (const CylinderSurface *) &two.first->surfaceRepresentation();
-      }
-      const DiscSurface *disc2 = nullptr;
-      if (two.second != nullptr) {
-        disc2 = (const DiscSurface *) &two.second->surfaceRepresentation();
-      }
-
-      if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
-        if (std::abs(cyl1->center().z() - cyl2->center().z()) > 1.) {
-          return (std::abs(cyl1->center().z()) < std::abs(cyl2->center().z()));
-        }
-        return (cyl1->bounds().r() < cyl2->bounds().r());
-      }
-      
-      if ((disc1 != nullptr) && (disc2 != nullptr)) {
-        const DiscBounds *discbounds1 = (const DiscBounds *) &disc1->bounds();
-        const DiscBounds *discbounds2 = (const DiscBounds *) &disc2->bounds();
-        if (discbounds1->rMax() < discbounds2->rMin() + 1) {
-          return true;
-        }
-        if (discbounds1->rMin() > discbounds2->rMax() - 1) {
-          return false;
-        }
-        return (std::abs(disc1->center().z()) < std::abs(disc2->center().z()));
-      }
-      
-      if ((cyl1 != nullptr) && (disc2 != nullptr)) {
-        const DiscBounds *discbounds = (const DiscBounds *) &disc2->bounds();
-        if (cyl1->bounds().r() > discbounds->rMax() - 1) {
-          return false;
-        }
-        if (cyl1->bounds().r() < discbounds->rMin() + 1) {
-          return true;
-        }
-
-        return (std::abs(cyl1->center().z()) < std::abs(disc2->center().z()));
-      }
-      
-      if ((disc1 == nullptr) || (cyl2 == nullptr)) {
-        throw std::logic_error("Unhandled surface combination.");
-      }
-      
-      const DiscBounds *discbounds = (const DiscBounds *) &disc1->bounds();
-      
-      if (cyl2->bounds().r() > discbounds->rMax() - 1) {
-        return true;
-      }
-      
-      if (cyl2->bounds().r() < discbounds->rMin() + 1) {
-        return false;
-      }
-
-      return (std::abs(cyl2->center().z()) > std::abs(disc1->center().z()));
-    }
-  };
-
-  class GXFlayersort2 {
-  public:
-    /** Default Constructor */
-    GXFlayersort2() {} 
-    
-    bool operator() (
-      const Layer * one, 
-      const Layer * two
-    ) const {
-      const CylinderSurface *cyl1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
-        cyl1 = static_cast<const CylinderSurface *>(&one->surfaceRepresentation());
-          
-      const DiscSurface *disc1 = nullptr;
-      if (one->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
-        disc1 = static_cast<const DiscSurface *>(&one->surfaceRepresentation());
-          
-      const CylinderSurface *cyl2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Cylinder)
-        cyl2 = static_cast<const CylinderSurface *>(&two->surfaceRepresentation());
-          
-      const DiscSurface *disc2 = nullptr;
-      if (two->surfaceRepresentation().type() == Trk::SurfaceType::Disc)
-        disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
-
-      if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
-        return (cyl1->bounds().r() < cyl2->bounds().r());
-      }
-      
-      if ((disc1 != nullptr) && (disc2 != nullptr)) {
-        return (std::abs(disc1->center().z()) < std::abs(disc2->center().z()));
-      }
-      
-      return false;
-    }
-  };
   
-  std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionDisc(
+
+ 
+  
+  std::optional<std::pair<Amg::Vector3D, double>> 
+  GlobalChi2Fitter::addMaterialFindIntersectionDisc(
     Cache & cache,
     const DiscSurface &surf,
     const TrackParameters &parforextrap,
@@ -3176,16 +3068,16 @@ namespace Trk {
      * a line and a disc.
      */
     double field[3];
-    double pos[3];
+    double * pos = parforextrap.position().data();
     double currentqoverp = (matEffects != Trk::electron) ? parforextrap.parameters()[Trk::qOverP] : refpar2.parameters()[Trk::qOverP];
-    pos[0] = parforextrap.position().x();
-    pos[1] = parforextrap.position().y();
-    pos[2] = parforextrap.position().z();
     cache.m_field_cache.getFieldZR(pos, field);
     double sinphi = std::sin(parforextrap.parameters()[Trk::phi0]);
     double cosphi = std::cos(parforextrap.parameters()[Trk::phi0]);
     double sintheta = std::sin(parforextrap.parameters()[Trk::theta]);
     double costheta = std::cos(parforextrap.parameters()[Trk::theta]);
+    //magnetic field deviation from straight line
+    //https://cds.cern.ch/record/1281363/files/ATLAS-CONF-2010-072.pdf, equation 1
+    //converted to MeV and kT
     double r = (std::abs(currentqoverp) > 1e-10) ? -sintheta / (currentqoverp * 300. * field[2]) : 1e6;
     double xc = parforextrap.position().x() - r * sinphi;
     double yc = parforextrap.position().y() + r * cosphi;
@@ -3208,7 +3100,8 @@ namespace Trk {
     return std::make_pair(intersect, costracksurf);
   }
   
-  std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionCyl(
+  std::optional<std::pair<Amg::Vector3D, double>> 
+  GlobalChi2Fitter::addMaterialFindIntersectionCyl(
     Cache & cache,
     const CylinderSurface &surf,
     const TrackParameters &parforextrap,
@@ -3222,11 +3115,8 @@ namespace Trk {
      * intersections with cylinders.
      */
     double field[3];
-    double pos[3];
+    double * pos = parforextrap.position().data();
     double currentqoverp = (matEffects != Trk::electron) ? parforextrap.parameters()[Trk::qOverP] : refpar2.parameters()[Trk::qOverP];
-    pos[0] = parforextrap.position().x();
-    pos[1] = parforextrap.position().y();
-    pos[2] = parforextrap.position().z();
     cache.m_field_cache.getFieldZR(pos, field);
     double sinphi = std::sin(parforextrap.parameters()[Trk::phi0]);
     double cosphi = std::cos(parforextrap.parameters()[Trk::phi0]);
@@ -3676,8 +3566,8 @@ namespace Trk {
      * Sort the layers such that they are in the right order, from close to far
      * in respect to the experiment center.
      */
-    std::sort(layers.begin(), layers.end(), GXFlayersort());
-    std::sort(upstreamlayers.begin(), upstreamlayers.end(), GXFlayersort());
+    std::sort(layers.begin(), layers.end(), GXF::LayerSort());
+    std::sort(upstreamlayers.begin(), upstreamlayers.end(), GXF::LayerSort());
   }
 
   void GlobalChi2Fitter::addIDMaterialFast(
@@ -3736,12 +3626,12 @@ namespace Trk {
       /*
        * Sort the discs and barrel layers such that they are in the right
        * order. What the right order is in this case is defined a bit above
-       * this code, in the GXFlayersort2 class. Should be in increasing order
+       * this code, in the GXF::LayerSort2 class. Should be in increasing order
        * of distance from the detector center.
        */
-      std::stable_sort(cache.m_negdiscs.begin(), cache.m_negdiscs.end(), GXFlayersort2());
-      std::stable_sort(cache.m_posdiscs.begin(), cache.m_posdiscs.end(), GXFlayersort2());
-      std::stable_sort(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), GXFlayersort2());
+      std::stable_sort(cache.m_negdiscs.begin(), cache.m_negdiscs.end(), GXF::LayerSort2());
+      std::stable_sort(cache.m_posdiscs.begin(), cache.m_posdiscs.end(), GXF::LayerSort2());
+      std::stable_sort(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), GXF::LayerSort2());
     }
     
     const TrackParameters *refpar = refpar2;
