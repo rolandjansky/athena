@@ -91,7 +91,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 
-                           ISF_FastCaloSimEvent/TFCSTruthState.h 
+                           ISF_FastCaloSimEvent/TFCSTruthState.h
+                           ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h 
                            ISF_FastCaloSimEvent/LinkDef.h 
 			   EXTERNAL_PACKAGES HepPDT)
 

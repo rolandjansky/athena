@@ -3,11 +3,11 @@
 namespace Muon {
 
 NSW_PadTriggerDataContainer::NSW_PadTriggerDataContainer()
-    : IdentifiableContainer<NSW_PadTriggerData>(0) { }
+    : IdentifiableContainer<NSW_PadTriggerData>(HASH_MAX) { }
 
 NSW_PadTriggerDataContainer::NSW_PadTriggerDataContainer(unsigned int hashMax) 
     : IdentifiableContainer<NSW_PadTriggerData>(hashMax) { }
-    
+
 const CLID& NSW_PadTriggerDataContainer::classID() {
     return ClassID_traits<NSW_PadTriggerDataContainer>::ID();
 }

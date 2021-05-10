@@ -19,7 +19,7 @@ template <typename Txvec, typename Ty,typename Trandom=float> class TFCS1DFuncti
     typedef Txvec xvec_type;
     typedef Ty y_value_type;
 
-    TFCS1DFunctionTemplateHistogram(TH1* hist=nullptr) {if(hist) Initialize(hist);};
+    TFCS1DFunctionTemplateHistogram(TH1* hist=nullptr, bool doprint=true) {if(hist) Initialize(hist, doprint);};
     ~TFCS1DFunctionTemplateHistogram() {};
 
     std::size_t MemorySizeArray() const {return m_HistoBorders.MemorySizeArray()+m_HistoContents.MemorySizeArray();};
@@ -32,7 +32,7 @@ template <typename Txvec, typename Ty,typename Trandom=float> class TFCS1DFuncti
     inline size_t get_nbins() const {return m_HistoContents.get_nbins();};
     
     ///Initialize from root histogram. Depending on the precision of the x- and y-axis, bins are merged if numerical identical
-    virtual void Initialize(const TH1* hist) {
+    virtual void Initialize(const TH1* hist, bool doprint=true) {
       Int_t nbins = hist->GetNbinsX();
       
       std::vector<double> temp_HistoContents;
@@ -48,18 +48,18 @@ template <typename Txvec, typename Ty,typename Trandom=float> class TFCS1DFuncti
         for(Int_t ibin=first;ibin<=last;++ibin) {
           m_HistoBorders.SetBinLowEdge(ihist,hist->GetXaxis()->GetBinLowEdge(ibin+1));
           if(ihist>0) if(m_HistoBorders.GetBinLowEdge(ihist-1)==m_HistoBorders.GetBinLowEdge(ihist)) {
-            std::cout<<"Skip bin="<<ibin+1<<" x="<<hist->GetXaxis()->GetBinLowEdge(ibin+1)<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<std::endl;
+            if(doprint) std::cout<<"Skip bin="<<ibin+1<<" x="<<hist->GetXaxis()->GetBinLowEdge(ibin+1)<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<std::endl;
             --ihist;
-            std::cout<<"     bin="<<ibin  <<" x="<<hist->GetXaxis()->GetBinLowEdge(ibin  )<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<std::endl;
+            if(doprint) std::cout<<"     bin="<<ibin  <<" x="<<hist->GetXaxis()->GetBinLowEdge(ibin  )<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<std::endl;
           }
           m_HistoContents.set_fraction(ihist,temp_HistoContents[ibin]/integral);
           if(ihist>0) if(m_HistoContents.get_fraction(ihist-1)==m_HistoContents.get_fraction(ihist)) {
-            std::cout<<"Skip fbin="<<ihist<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
+            if(doprint) std::cout<<"Skip fbin="<<ihist<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
             --ihist;
-            std::cout<<"     fbin="<<ihist<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
+            if(doprint) std::cout<<"     fbin="<<ihist<<" fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
           }
 
-          std::cout<<"bin="<<ibin+1<<" fbin="<<ihist<<"/"<<m_HistoBorders.get_nbins()<<" x=["<<hist->GetXaxis()->GetBinLowEdge(ibin+1)<<","<<hist->GetXaxis()->GetBinUpEdge(ibin+1)<<"] fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" int="<<temp_HistoContents[ibin]/integral<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
+          if(doprint) std::cout<<"bin="<<ibin+1<<" fbin="<<ihist<<"/"<<m_HistoBorders.get_nbins()<<" x=["<<hist->GetXaxis()->GetBinLowEdge(ibin+1)<<","<<hist->GetXaxis()->GetBinUpEdge(ibin+1)<<"] fx="<<m_HistoBorders.GetBinLowEdge(ihist)<<" int="<<temp_HistoContents[ibin]/integral<<" frac="<<m_HistoContents.get_fraction(ihist)<<std::endl;
           
           ++ihist;
         }  
@@ -137,5 +137,14 @@ class TFCS1DFunctionInt16Int32Histogram: public TFCS1DFunctionTemplateHistogram<
 
   ClassDef(TFCS1DFunctionInt16Int32Histogram,1)  //TFCS1DFunctionInt16Int32Histogram
 };
+
+class TFCS1DFunctionInt32Int32Histogram: public TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>
+{
+  public:
+    TFCS1DFunctionInt32Int32Histogram(TH1* h=nullptr):TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS1DFunctionInt32Int32Histogram,1)  //TFCS1DFunctionInt32Int32Histogram
+};
+
 
 #endif

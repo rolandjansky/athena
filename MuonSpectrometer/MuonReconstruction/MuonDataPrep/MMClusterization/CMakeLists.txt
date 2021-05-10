@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
+			  MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools	
                           TestPolicy )
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Matrix Minuit Minuit2)

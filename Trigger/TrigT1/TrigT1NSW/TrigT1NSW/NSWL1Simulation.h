@@ -26,6 +26,7 @@
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
+#include "TrigT1NSWSimTools/PadTriggerRDOConverter.h"
 
 // Forward includes
 class StoreGateSvc;
@@ -105,7 +106,7 @@ namespace NSWL1 {
     
     protected:
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-    
+    SG::WriteHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerRdoKey;
 
   };  // end of NSWL1Simulation class
 

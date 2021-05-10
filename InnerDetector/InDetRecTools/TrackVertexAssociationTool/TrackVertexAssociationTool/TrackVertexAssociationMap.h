@@ -19,10 +19,9 @@ namespace xAOD
   typedef std::map< const xAOD::Vertex* , xAOD::TrackVertexAssociationList > TrackVertexAssociationMap;
 }
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
+
 CLASS_DEF( xAOD::TrackVertexAssociationList, 1111000001,1 )
 CLASS_DEF( xAOD::TrackVertexAssociationMap, 1111000002,1 )
-#endif
 
 #endif

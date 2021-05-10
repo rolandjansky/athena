@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __IZDCANALYSISTOOL_H__
@@ -14,16 +14,14 @@ namespace ZDC
 class IZdcAnalysisTool : virtual public asg::IAsgTool
 {
   ASG_TOOL_INTERFACE( ZDC::IZdcAnalysisTool )
-  
+
  public:
 
-  /// Initialize the tool.
-  virtual StatusCode initializeTool() = 0;
   virtual StatusCode recoZdcModule(const xAOD::ZdcModule& module) = 0;
   virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) = 0;
   virtual StatusCode reprocessZdc() = 0;
 };
 
 }
-  
+
 #endif

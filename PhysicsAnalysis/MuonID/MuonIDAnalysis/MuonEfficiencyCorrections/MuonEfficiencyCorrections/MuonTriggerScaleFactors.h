@@ -34,6 +34,7 @@
 #include "TRandom.h"
 #include "TDirectory.h"
 #include "TH2.h"
+#include "TKey.h"
 class TLorentzVector;
 class TH2;
 class TFile;
@@ -47,34 +48,6 @@ namespace CP {
             ASG_TOOL_CLASS( MuonTriggerScaleFactors, CP::IMuonTriggerScaleFactors )
 
             public:
-
-            struct Storage {
-                const std::vector<std::string> *type;
-                const std::vector<std::string> *region;
-                const std::vector<std::string> *quality;
-                const std::vector<std::string> *isolation;
-                const std::vector<std::string> *bins;
-                const std::vector<std::string> *trigger;
-                const std::vector<std::string> *period;
-                const std::vector<std::string> *systematic;
-
-                Storage(const std::vector<std::string> *type_=0,
-                                const std::vector<std::string> *region_=0,
-                                const std::vector<std::string> *quality_=0,
-                                const std::vector<std::string> *isolation_=0,
-                                const std::vector<std::string> *bins_=0,
-                                const std::vector<std::string> *trigger_=0,
-                                const std::vector<std::string> *period_=0,
-                                const std::vector<std::string> *systematic_=0) :
-                type(type_),
-                region(region_),
-                quality(quality_),
-                isolation(isolation_),
-                bins(bins_),
-                trigger(trigger_),
-                period(period_),
-                systematic(systematic_) {}
-            };
 
             MuonTriggerScaleFactors(const std::string& name);
 
@@ -102,10 +75,6 @@ namespace CP {
 
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
-            virtual bool maskFeetRegions(const xAOD::Muon& mu, double dR);
-
-            virtual bool inFeetRegion(unsigned int SectorAddress, unsigned int RoI);
-
             virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2);
 
             //
@@ -128,19 +97,11 @@ namespace CP {
                             const xAOD::MuonContainer& mucont,
                             const std::string& trigger);
 
-            virtual CorrectionCode getSingleOrDimuonEfficiency(Double_t& eff,
-                            const TrigMuonEff::Configuration& config,
-                            const xAOD::MuonContainer& mucont,
-                            const std::string& chain,
-                            const std::string& systematic);
-
             virtual CorrectionCode getDimuonEfficiency(Double_t& eff,
                             const TrigMuonEff::Configuration& configuration,
                             const xAOD::MuonContainer& mucont,
                             const std::string& chain,
                             const std::string& systematic);
-
-            virtual CorrectionCode setMaxPeriod(const TrigMuonEff::DataPeriod x);
 
             const CP::SystematicSet& appliedSystematics() const {
                 return *m_appliedSystematics;
@@ -153,7 +114,7 @@ namespace CP {
             CP::SystematicSet* m_appliedSystematics;
 
             std::string m_fileName;
-            Int_t m_runNumber;
+            std::string m_dataPeriod;
             const char* m_classname;
 
             typedef std::map<std::string, TH2*> EfficiencyMap;
@@ -163,67 +124,13 @@ namespace CP {
 
             std::map<std::string, std::vector<TH2*> > m_efficiencyMapReplicaArray;
 
-            Double_t getThresholds(const std::string& trigger);
+            CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger);
 
-            bool setConfiguration(TrigMuonEff::Configuration& config,
-                            TrigMuonEff::DataPeriod period = TrigMuonEff::period_undefined) const;
+            static std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger);
 
-            struct DileptonThresholds {
-                    double mu6;
-                    double mu10;
-                    double mu14;
-                    double mu18;
-                    double mu20;
-                    double mu22;
-                    double mu24;
-                    double mu26;
-                    double mu8noL1;
-                    DileptonThresholds(const double mu6_ = 7,
-                                    const double mu10_ = 11,
-                                    const double mu14_ = 15,
-                                    const double mu18_ = 19,
-                                    const double mu20_ = 21,
-                                    const double mu22_ = 23,
-                                    const double mu24_ = 25,
-                                    const double mu26_ = 27,
-                                    const double mu8noL1_ = 10) :
-                                    mu6(mu6_),
-                                    mu10(mu10_),
-                                    mu14(mu14_),
-                                    mu18(mu18_),
-                                    mu20(mu20_),
-                                    mu22(mu22_),
-                                    mu24(mu24_),
-                                    mu26(mu26_),
-                                    mu8noL1(mu8noL1_) {
-                    }
-            };
-
-            static void getDileptonThresholds(DileptonThresholds& thresholds);
-
-            struct DileptonTrigger {
-                    std::string leg1;
-                    std::string leg2;
-                    std::string bothLegs;
-                    DileptonTrigger(const std::string& leg1_ = std::string(),
-                                    const std::string& leg2_ = std::string(),
-                                    const std::string& bothLegs_ = std::string()) :
-                                    leg1(leg1_),
-                                    leg2(leg2_),
-                                    bothLegs(bothLegs_) {
-                    }
-            };
-
-            static void getDileptonLegs(const std::string& chain,
-                            DileptonTrigger& legs);
-
-            static TrigMuonEff::DataPeriod getDataPeriod(int runNumber);
-
-            void setStorage(Storage& storage) const;
+            static std::string getDataPeriod(int runNumber, const std::string& year);
 
             TDirectory* getTemporaryDirectory(void) const;
-
-            TrigMuonEff::DataPeriod m_max_period;
 
             std::string m_muonquality;
 

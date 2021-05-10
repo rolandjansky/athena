@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMClusterOnTrackCreator_H
@@ -19,6 +19,8 @@
 
 namespace Muon {
 
+  class IMMClusterBuilderTool;
+  class INSWCalibTool;
 
   /** @class MMClusterOnTrackCreator
       @brief Interface for the reconstruction to calibration and alignment corrections. It should be used by 
@@ -72,10 +74,22 @@ namespace Muon {
 	The ownership of the new Muon::MuonClusterOnTrack is passed to the client calling the tool
     */
     virtual const MuonClusterOnTrack* correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const override; 
+
+
+    /** @brief Create new Muon::MuonClusterOnTrack from a Trk::PrepRawData and a predicted Trk::TrackParameter. 
+	@param RIO Trk::PrepRawData object to be calibrated
+	@param GP  Predicted intersect position of the muon with the measurement plane 
+	@return a pointer to a new Muon::MuonClusterOnTrack object, zero if calibration failed.
+	The ownership of the new Muon::MuonClusterOnTrack is passed to the client calling the tool
+    */       
+    virtual const MuonClusterOnTrack* calibratedCluster(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP) const override;
+
   
   private:
 
     ToolHandle<MuonIdHelperTool> m_muonIdHelperTool;
+    ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
+    ToolHandle<INSWCalibTool> m_calibTool;
 
  }; // end of class def
 }  //  namespace Muon

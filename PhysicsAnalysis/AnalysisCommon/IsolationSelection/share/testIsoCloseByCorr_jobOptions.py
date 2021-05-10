@@ -1,30 +1,71 @@
 # Input file
-inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zmumu/147807/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s1964_r5787_v114._000187.1";
-#inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
-#inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zee/147806/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
-#inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_ggH125_gamgam/160009/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
 
 # n events ( use -1 to process all events )
-nEvents = 20
-
+from GaudiSvc.GaudiSvcConf import THistSvc
+from AthenaCommon.JobProperties import jobproperties
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections= [ os.environ["ASG_TEST_FILE_MC"] ]
-algseq = CfgMgr.AthSequencer("AthAlgSeq")
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+from AthenaCommon.AppMgr import ServiceMgr
+from PathResolver import PathResolver
+import AthenaPoolCnvSvc.ReadAthenaPool
+
+ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 5000)
+ServiceMgr += THistSvc()
+OutFileName = "IsoCorrectionTester.root" if not "outFile" in globals() else outFile
+ServiceMgr.THistSvc.Output += ["ISOCORRECTION DATAFILE='{}' OPT='RECREATE'".format(OutFileName)]
+ROOTFiles = []
+
+#Cmd to execute the tester:
+# athena.py -c "inputFile='/ptmp/mpp/junggjo9/Datasets/mc16_13TeV.364253.Sherpa_222_NNPDF30NNLO_lllv.deriv.DAOD_SUSY2.e5916_s3126_r9364_r9315_p3354/DAOD_SUSY2.12500474._000035.pool.root.1'" IsolationSelection/testIsoCloseByCorr_jobOptions.py
+#
+## Test algorithm
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+
+ServiceMgr.MessageSvc.debugLimit = 2000000
+ServiceMgr.MessageSvc.verboseLimit = 2000000
 
 
+if "inputFile" in globals():
+    print "Use the following %s as input" % (inputFile)
+    ROOTFiles = []
+    ResolvedInFile = PathResolver.FindCalibFile(inputFile)
+    ReolvedInDir = PathResolver.FindCalibDirectory(inputFile)
+                                         
+    if os.path.isdir(ReolvedInDir):
+      for DirEnt in os.listdir(ReolvedInDir):
+          if DirEnt.endswith(".root"):
+              ROOTFiles.append(DirEnt)
+    else: ROOTFiles.append(ResolvedInFile)
+    if len(ROOTFiles)==0: raise RuntimeError("No ROOT files could be loaded as input")
+    ServiceMgr.EventSelector.InputCollections = ROOTFiles
+    acf.FilesInput = ROOTFiles
+
+
+if "nevents" in globals():
+    print "Only run on %i events"%( int(nevents))
+    theApp.EvtMax = int (nevents)
 ## Configure an isolation selection tool with your desired working points
-ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "Loose", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
+ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutPflowTight", ElectronWP = "FCLoose", PhotonWP = "FixedCutTightCaloOnly")
 
 
 ## Configure CorrectionTool, feeding it our selection tool
 ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrectionTool",
-                                                     IsolationSelectionTool=ToolSvc.MySelectionTool)
+                                                     IsolationSelectionTool=ToolSvc.MySelectionTool,
+                                                     SelectionDecorator = "isCloseByObject",
+#                                                      PassOverlapDecorator = "passOR",
+                                                      IsolationSelectionDecorator = "correctedIsol" ,
+                                                      CorrectIsolationOf = "considerInCorrection" ,
+                                                      BackupPrefix = "default",
+                                                      )
 
 
-## Test algorithm
 from IsolationSelection.IsolationSelectionConf import CP__TestIsolationCloseByCorrAthenaAlg 
-algseq += CfgMgr.CP__TestIsolationCloseByCorrAthenaAlg("TestAlg",IsoSelectorTool = ToolSvc.MySelectionTool, 
-                                                       IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool)
+job += CfgMgr.CP__TestIsolationCloseByCorrAthenaAlg("TestAlg",IsoSelectorTool = ToolSvc.MySelectionTool, 
+                                                    IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool,
+                                                    considerPhotons = False,
+                                               
+                                                       )
 
 
-theApp.EvtMax = nEvents

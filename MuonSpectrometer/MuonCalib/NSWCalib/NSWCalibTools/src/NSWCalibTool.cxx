@@ -134,7 +134,7 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
     double time = prepData->stripTimes().at(i);
     double charge = prepData->stripCharges().at(i);
     NSWCalib::CalibratedStrip calibStrip;
-    calibrateStrip(time, charge, lorentzAngle, calibStrip);
+    ATH_CHECK(calibrateStrip(time, charge, lorentzAngle, calibStrip));
     calibClus.push_back(calibStrip);
   }
   return StatusCode::SUCCESS;

@@ -1,8 +1,9 @@
+
 def get_and_fix_PDGTABLE(replace):
     import os, shutil, re
 
     # Download generic PDGTABLE (overwrite existing one if it exists)
-    os.system('get_files -remove -data PDGTABLE.MeV')
+    import ExtraParticles.PDGHelpers
     shutil.move('PDGTABLE.MeV', 'PDGTABLE.MeV.org')
 
     # an example line to illustrate the fixed format, see PDGTABLE.MeV for more details

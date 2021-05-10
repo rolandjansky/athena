@@ -65,6 +65,9 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   xAOD::PFOContainer* m_neutralPFOContainer;
   xAOD::PFOContainer* m_neutralPFOContainer_nonModified;
 
+  std::string m_caloClusterName;
+  const xAOD::CaloClusterContainer *m_caloClusterContainer;
+
   bool m_eOverPMode;
 
   /* String flag to configure for running in golden e/p match mode */
@@ -78,6 +81,15 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
 
   /* Bool to determine whether to calculate and attach DigiTruth moments */
   bool m_doDigiTruth;
+
+  /* Bool to determine whether we are in HeavyIon running or p-p running. The latter is the default */
+  bool m_heavyIonMode;
+
+  /* ToolHandle to tracking CP loose vertex selection tool */
+  ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
+
+  /* String to specify name of VertexContainer to retrieve */
+  std::string m_vertexContainerName;
 
   /* Bool to toggle AOD reduction task force cluster moment list */
   bool m_useAODReductionMomentList;

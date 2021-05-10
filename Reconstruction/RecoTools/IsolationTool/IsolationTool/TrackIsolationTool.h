@@ -129,6 +129,8 @@ namespace xAOD {
     bool m_useTTVAtool; // flag to use dedicated trackVertexAssociationTool instead of trackSelectionTool
     
     float m_overlapCone2; /// overlap cone size squared
+
+    float m_coreTrackEtaRange; /// max eta range for core tracks
 #ifndef XAOD_ANALYSIS
     ToolHandle<ITrackParticlesInConeTool> m_tracksInConeTool; /// tracks in cone tool
 #endif // XAOD_STANDALONE
