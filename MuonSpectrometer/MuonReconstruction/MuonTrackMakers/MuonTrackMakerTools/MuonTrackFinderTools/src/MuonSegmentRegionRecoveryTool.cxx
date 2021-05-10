@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentRegionRecoveryTool.h"
@@ -717,7 +717,7 @@ namespace Muon {
         if (addMdt) {
             ATH_MSG_DEBUG("Adding Missing MDT chambers: regions " << data.mdtPerStation.size());
             std::vector<const MdtPrepDataCollection*> newmcols;
-            for (const auto chit : data.mdtPerStation) {
+            for (const auto& chit : data.mdtPerStation) {
                 ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit.first) << " size  " << chit.second.size());
                 std::vector<const MdtPrepDataCollection*> cols;
                 m_seededSegmentFinder->extractMdtPrdCols(chit.second, cols);
