@@ -62,14 +62,6 @@ def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
 # Jet helpers for ungroomed jets (removed in xAOD reduction)
 ##################################################################              
 
-from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
-BTaggingFlags.Jets=[]
-from BTagging.BTaggingConfiguration import getConfiguration
-
-ConfInst=getConfiguration()
-ConfInst.doNotCheckForTaggerObstacles()
-
 from JetRec.JetRecStandard import jtm
 
 def addAntiKt10LCTopoJets(sequence, outputlist):
