@@ -285,9 +285,7 @@ namespace Rec {
 
         Trk::MagneticFieldProperties m_magFieldProperties;
 
-        // other configuration and tolerances
-        mutable std::atomic_bool m_perigeeAtSpectrometerEntranceLocal{false};
-
+       
         bool m_allowCleanerVeto;
         bool m_cleanCombined;
         bool m_cleanStandalone;
@@ -325,13 +323,13 @@ namespace Rec {
         std::unique_ptr<Trk::RecVertex> m_vertex;
 
         // counters
-        mutable std::atomic_uint m_countAcceptedStandaloneFit;
-        mutable std::atomic_uint m_countBeamAxis;
-        mutable std::atomic_uint m_countCombinedCleanerVeto;
-        mutable std::atomic_uint m_countDegradedStandaloneFit;
-        mutable std::atomic_uint m_countExtensionCleanerVeto;
-        mutable std::atomic_uint m_countStandaloneCleanerVeto;
-        mutable std::atomic_uint m_countVertexRegion;
+        mutable std::atomic_uint m_countAcceptedStandaloneFit{0};
+        mutable std::atomic_uint m_countBeamAxis{0};
+        mutable std::atomic_uint m_countCombinedCleanerVeto{0};
+        mutable std::atomic_uint m_countDegradedStandaloneFit{0};
+        mutable std::atomic_uint m_countExtensionCleanerVeto{0};
+        mutable std::atomic_uint m_countStandaloneCleanerVeto{0};
+        mutable std::atomic_uint m_countVertexRegion{0};
 
         // count warnings
         std::unique_ptr<MessageHelper> m_messageHelper;

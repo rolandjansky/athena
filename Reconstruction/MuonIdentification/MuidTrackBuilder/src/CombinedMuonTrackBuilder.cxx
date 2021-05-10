@@ -82,13 +82,6 @@ namespace Rec {
         m_perigeeSurface(nullptr),
         m_sigmaPhiSector(0),
         m_vertex(nullptr),
-        m_countAcceptedStandaloneFit(0),
-        m_countBeamAxis(0),
-        m_countCombinedCleanerVeto(0),
-        m_countDegradedStandaloneFit(0),
-        m_countExtensionCleanerVeto(0),
-        m_countStandaloneCleanerVeto(0),
-        m_countVertexRegion(0),
         m_messageHelper(nullptr),
         m_updateWithCaloTG(false),
         m_useCaloTG(false),
@@ -146,9 +139,6 @@ namespace Rec {
         if (m_cleanCombined) ATH_MSG_DEBUG(" CleanCombined");
         if (m_cleanStandalone) ATH_MSG_DEBUG(" CleanStandalone");
         if (m_perigeeAtSpectrometerEntrance) ATH_MSG_DEBUG(" PerigeeAtSpectrometerEntrance");
-
-        m_perigeeAtSpectrometerEntranceLocal = m_perigeeAtSpectrometerEntrance;
-
         if (m_reallocateMaterial) ATH_MSG_DEBUG(" ReallocateMaterial");
         if (!m_cscRotCreator.empty()) ATH_MSG_DEBUG(" RedoCscRots");
         if (!m_mdtRotCreator.empty()) ATH_MSG_DEBUG(" RedoMdtRots");
@@ -1841,7 +1831,7 @@ namespace Rec {
         trackStateOnSurfaces->push_back(std::move(outerTSOS));
 
         // MS entrance perigee
-        if (m_perigeeAtSpectrometerEntranceLocal) {
+        if (m_perigeeAtSpectrometerEntrance) {
             const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters(), ctx);
             if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
         }
@@ -2842,7 +2832,7 @@ namespace Rec {
         }
 
         // MS entrance perigee
-        if (m_perigeeAtSpectrometerEntranceLocal) {
+        if (m_perigeeAtSpectrometerEntrance) {
             ATH_MSG_DEBUG("adding perigee at spectrometer entrance");
             const Trk::TrackParameters* mstrackParameters = trackStateOnSurfaces->back()->trackParameters();
 
@@ -3053,7 +3043,7 @@ namespace Rec {
         // MS entrance perigee
 
         bool hasAlreadyPerigee = false;
-        if (m_perigeeAtSpectrometerEntranceLocal) {
+        if (m_perigeeAtSpectrometerEntrance) {
             // copy calorimeter TSOS
             while ((**s).trackParameters() && m_calorimeterVolume->inside((**s).trackParameters()->position())) {
                 if (!(**s).type(Trk::TrackStateOnSurface::Perigee)) {
