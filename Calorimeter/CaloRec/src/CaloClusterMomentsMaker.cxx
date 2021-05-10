@@ -384,7 +384,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
   xAOD::CaloClusterContainer::iterator clusIter = theClusColl->begin();
   xAOD::CaloClusterContainer::iterator clusIterEnd = theClusColl->end();
   int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for( ;clusIter!=clusIterEnd;++clusIter,++iClus) {
     xAOD::CaloCluster * theCluster = *clusIter;
 
     double w(0),xc(0),yc(0),zc(0),mx(0),my(0),mz(0),mass(0);

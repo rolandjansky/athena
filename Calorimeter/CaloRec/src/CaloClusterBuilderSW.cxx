@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -304,7 +304,7 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
 
     SlidingWindowFinder::data_iterator ifirst = swin.cell_begin();
     SlidingWindowFinder::data_iterator ilast  = swin.cell_end();
-    for( ;ifirst!=ilast;ifirst++)  {
+    for( ;ifirst!=ilast;++ifirst)  {
       const CaloCellContainer* aContainer = swin.getCellContainer(ifirst); 
       if (aContainer!=cellCont.cptr()) {
 	msg(MSG::ERROR) << "Attept to build a cluster from different CaloCellContainers" << endmsg;
