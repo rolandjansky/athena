@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ namespace Trk {
     (const double* c)
     {
       if (m_covariance == std::nullopt) {
-        m_covariance = AmgSymMatrix(5)();
+        m_covariance.emplace();
       }
 
       m_covariance->fillSymmetric(0, 0, c[ 0]);
