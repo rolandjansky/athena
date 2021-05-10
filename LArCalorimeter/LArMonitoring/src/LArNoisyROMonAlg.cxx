@@ -43,10 +43,15 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   { // extra namespace for mutex
      std::lock_guard<std::mutex> lock(m_lock);
      if(!m_knownFilled) { // first time fill known Bad and MNB FEBs
+        // get the EventInfo, to know if we are in simulation
+        const xAOD::EventInfo* ei = nullptr;
+        if (evtStore()->retrieve(ei).isFailure()) {
+           ATH_MSG_WARNING ( " Cannot access to event info, assume we are working on data " );
+        }
         SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
         const LArBadFebCont *badCont{*badHdl};
         if(badCont) {
-           if(badCont->begin() == badCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && badCont->begin() == badCont->end()) ) {
                 ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotBad",0);
@@ -68,7 +73,7 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
         SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
         const LArBadFebCont* mnbCont{*mnbHdl};
         if(mnbCont) {
-           if(mnbCont->begin() == mnbCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && mnbCont->begin() == mnbCont->end()) ) {
                 ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
