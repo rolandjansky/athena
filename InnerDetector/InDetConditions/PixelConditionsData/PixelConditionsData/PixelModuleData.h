@@ -157,6 +157,19 @@ class PixelModuleData {
     void setDefaultTemperature(float temperature);
     float getDefaultTemperature() const;
 
+    // Radiation damage fluence maps
+    void setFluenceLayer(std::vector<double> fluenceLayer);
+    std::vector<double> getFluenceLayer() const;
+
+    void setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList);
+    std::vector<std::string> getRadSimFluenceMapList() const;
+
+    void setFluenceLayer3D(std::vector<double> fluenceLayer);
+    std::vector<double> getFluenceLayer3D() const;
+
+    void setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D);
+    std::vector<std::string> getRadSimFluenceMapList3D() const;
+
     // Cabling parameters
     void setCablingMapToFile(bool cablingMapToFile);
     bool getCablingMapToFile() const;
@@ -281,6 +294,12 @@ class PixelModuleData {
     std::vector<float> m_BarrelBiasVoltage;
     std::vector<float> m_EndcapBiasVoltage;
     std::vector<float> m_DBMBiasVoltage;
+
+    std::vector<double> m_fluenceLayer;
+    std::vector<std::string> m_RadSimFluenceMapList;
+
+    std::vector<double> m_fluenceLayer3D;
+    std::vector<std::string> m_RadSimFluenceMapList3D;
 
     bool        m_cablingMapToFile;
     std::string m_cablingMapFileName;

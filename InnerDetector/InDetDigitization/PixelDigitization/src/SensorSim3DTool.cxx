@@ -87,24 +87,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     return StatusCode::FAILURE;
   }
 
-  //Calculate trapping times based on fluence (already includes check for fluence=0)
-  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
-  if (m_doRadDamage) {
-    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
-    m_trappingTimeElectrons = trappingTimes.first;
-    m_trappingTimeHoles = trappingTimes.second;
-  }
-  const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
-  const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
-  const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
-  const PixelHistoConverter& xPositionMap_h   = fluenceData->getXPositionMap3D_h(0);
-  const PixelHistoConverter& yPositionMap_e   = fluenceData->getYPositionMap3D_e(0);
-  const PixelHistoConverter& yPositionMap_h   = fluenceData->getYPositionMap3D_h(0);
-  const PixelHistoConverter& timeMap_e        = fluenceData->getTimeMap3D_e(0);
-  const PixelHistoConverter& timeMap_h        = fluenceData->getTimeMap3D_h(0);
-  const PixelHistoConverter& avgChargeMap_e   = fluenceData->getAvgChargeMap3D_e();
-  const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
-
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];
   double depth_0 = initialConditions[2];
@@ -143,6 +125,24 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     //**************************************//
     //*** Now diffuse charges to surface *** //
     //**************************************//
+    //Calculate trapping times based on fluence (already includes check for fluence=0)
+    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
+    if (m_doRadDamage) {
+      std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
+      m_trappingTimeElectrons = trappingTimes.first;
+      m_trappingTimeHoles = trappingTimes.second;
+    }
+    const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
+    const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
+    const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
+    const PixelHistoConverter& xPositionMap_h   = fluenceData->getXPositionMap3D_h(0);
+    const PixelHistoConverter& yPositionMap_e   = fluenceData->getYPositionMap3D_e(0);
+    const PixelHistoConverter& yPositionMap_h   = fluenceData->getYPositionMap3D_h(0);
+    const PixelHistoConverter& timeMap_e        = fluenceData->getTimeMap3D_e(0);
+    const PixelHistoConverter& timeMap_h        = fluenceData->getTimeMap3D_h(0);
+    const PixelHistoConverter& avgChargeMap_e   = fluenceData->getAvgChargeMap3D_e();
+    const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
+
     for (unsigned int istep = 0; istep < trfHitRecord.size(); istep++) {
       std::pair < double, double > iHitRecord = trfHitRecord[istep];
 

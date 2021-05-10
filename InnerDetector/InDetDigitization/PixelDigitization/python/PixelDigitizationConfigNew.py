@@ -10,7 +10,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
     PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg,
-    PixelDeadMapCondAlgCfg
+    PixelDeadMapCondAlgCfg, PixelRadSimFluenceMapAlgCfg
 # NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
 )
 
@@ -152,6 +152,8 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc = PixelGeometryCfg(flags)
     # module parameters
     acc.merge(PixelConfigCondAlgCfg(flags))
+    if flags.Digitization.DoRadiationDamage:
+        acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
     # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
