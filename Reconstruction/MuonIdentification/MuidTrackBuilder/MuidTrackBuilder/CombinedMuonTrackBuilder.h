@@ -149,10 +149,10 @@ namespace Rec {
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
-        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track) const;
+        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
 
         std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
-            const Trk::Track& spectrometerTrack) const;
+            const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
 
         const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters, const EventContext& ctx) const;
 

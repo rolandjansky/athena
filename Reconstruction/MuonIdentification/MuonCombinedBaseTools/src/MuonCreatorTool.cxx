@@ -890,7 +890,7 @@ namespace MuonCombined {
                                            const ElementLink<TrackCollection>& meLink) const {
         // only set once
         if (muon.muonSpectrometerTrackParticleLink().isValid()) { return; }
-
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // if(m_makeMSPreExtrapLink) {
         //   // copy over element link to the MS track before extrapolation
         //   muon.auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink")
@@ -921,7 +921,7 @@ namespace MuonCombined {
                         ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi "
                                                                               << (*link)->phi());
                         muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link);
-                        float fieldInt = m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
+                        float fieldInt = m_trackQuery->fieldIntegral(**meLink, ctx).betweenSpectrometerMeasurements();
                         muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         int nunspoiled = (*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
                         muon.auxdata<int>("nUnspoiledCscHits") = nunspoiled;
@@ -963,7 +963,7 @@ namespace MuonCombined {
                         ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi "
                                                                               << (*link)->phi());
                         muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link);
-                        float fieldInt = m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
+                        float fieldInt = m_trackQuery->fieldIntegral(**meLink, ctx).betweenSpectrometerMeasurements();
                         muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         int nunspoiled = (*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
                         muon.auxdata<int>("nUnspoiledCscHits") = nunspoiled;
@@ -984,7 +984,7 @@ namespace MuonCombined {
                             // link.toPersistent();
                             muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link);
                             float fieldInt =
-                                m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
+                                m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink(), ctx).betweenSpectrometerMeasurements();
                             muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         }
                     } else {
@@ -998,7 +998,7 @@ namespace MuonCombined {
                             // link.toPersistent();
                             muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link);
                             float fieldInt =
-                                m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
+                                m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink(), ctx).betweenSpectrometerMeasurements();
                             muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         }
                     }
@@ -1013,7 +1013,8 @@ namespace MuonCombined {
                     ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi());
                     // link.toPersistent();
                     muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link);
-                    float fieldInt = m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
+                    float fieldInt =
+                        m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink(), ctx).betweenSpectrometerMeasurements();
                     muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                     int nunspoiled = extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
                     muon.auxdata<int>("nUnspoiledCscHits") = nunspoiled;
