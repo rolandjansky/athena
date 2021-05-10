@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.cxx
@@ -283,12 +283,40 @@ StatusCode HLTTauMonTool::book()
     }
   }
 
-  for(unsigned int i=0;i<m_trigItems.size(); ++i) addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+m_trigItems[i],run));
-    
+  
+  for(unsigned int i=0;i<m_trigItems.size(); ++i){
+   addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+m_trigItems[i],run));
+  }
+
+  for(unsigned int i=0;i<m_trigItems.size(); ++i){
+     std::string trig_item_EF = "HLT_"+m_trigItems[i];
+     std::string trig_item_L1=LowerChain(trig_item_EF);
+     m_HLTtoL1Map[m_trigItems[i]]=trig_item_L1;
+     bool fill_l1 = true;
+     if(trig_item_L1.empty()){ // L1 item not found
+       fill_l1 = false;
+     }
+     else if (std::find(m_trigL1Items.begin(), m_trigL1Items.end(), trig_item_L1) == m_trigL1Items.end())
+     {
+       // check if L1 seed has been already filled -> L1 seed must be filled only once for triggers with same L1 seed
+       fill_l1 = true;
+       m_trigL1Items.push_back(trig_item_L1);
+     } else {
+       fill_l1 = false;
+     }
+     
+     if(fill_l1) addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/L1/"+trig_item_L1,run));    
+  }
+
   ATH_MSG_DEBUG("initialize being called");
     
   if (newRunFlag()){ 
-    for(unsigned int i=0;i<m_trigItems.size(); ++i) bookHistogramsForItem(m_trigItems[i]);
+    for(unsigned int i=0;i<m_trigItems.size(); ++i){
+       bookHistogramsForItem(m_trigItems[i]); 
+    }
+    for(unsigned int i=0;i<m_trigL1Items.size(); ++i){
+       bookHistogramsForL1Item(m_trigL1Items[i]);
+    }
     bookHistogramsAllItem();
   } else if ( newEventsBlockFlag() || newLumiBlockFlag() ) {
     return StatusCode::SUCCESS;
@@ -302,6 +330,7 @@ StatusCode HLTTauMonTool::fill() {
   ATH_MSG_DEBUG(" ====== Begin fillHists() ====== ");
   StatusCode sc = StatusCode::SUCCESS;
 
+  m_L1Items.clear();
 
   // skip HLTResult truncated events
   //    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
@@ -581,6 +610,17 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
   bool isAODFULL = evtStore()->contains<xAOD::TauTrackContainer>("HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks") 
     && evtStore()->contains<xAOD::CaloClusterContainer>("HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
 
+  std::string L1item=m_HLTtoL1Map[trigItem];
+  bool  fillL1=false;
+  if (std::find(m_L1Items.begin(), m_L1Items.end(), L1item) == m_L1Items.end())
+  {
+     // check if L1 seed has been already filled -> L1 seed must be filled only once for triggers with same L1 seed     
+     m_L1Items.push_back(L1item);
+     fillL1=true;
+  } else {
+     fillL1=false;
+  }
+
   if(trigItem=="Dump"){
 
     const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
@@ -596,10 +636,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
     xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
 
     for(; itEMTau!=itEMTau_e; ++itEMTau){
-      if(!Selection(*itEMTau)) continue;   
-      setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
+      if(!Selection(*itEMTau) || !fillL1) continue;   
+      setCurrentMonGroup("HLT/TauMon/Expert/L1/"+L1item+"/L1RoI");
       sc = fillL1Tau(*itEMTau);	
-      setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
+      setCurrentMonGroup("HLT/TauMon/Expert/L1/"+L1item+"/L1VsOffline");
       sc = fillL1TauVsOffline(*itEMTau, goodTauRefType);
 
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to retrieve L1 tau. Exiting!"); return sc;}
@@ -659,7 +699,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       }
       else ATH_MSG_DEBUG("The chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations");
 
-
+      if(fillL1){
       std::vector< uint32_t > tau_roIWord;
       std::vector< float > tau_roi_eta;
       std::vector< float > tau_roi_phi;
@@ -697,10 +737,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 		tau_roi_eta.push_back((*itEMTau)->eta());
 		tau_roi_phi.push_back((*itEMTau)->phi());
 		ATH_MSG_DEBUG("Found RoI in (" << (*itEMTau)->eta() << "," << (*itEMTau)->phi() <<")");
-		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
+		setCurrentMonGroup("HLT/TauMon/Expert/L1/"+L1item+"/L1RoI");
 		sc = fillL1Tau(*itEMTau);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return sc;}
-		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
+		setCurrentMonGroup("HLT/TauMon/Expert/L1/"+L1item+"/L1VsOffline");
 		sc = fillL1TauVsOffline(*itEMTau, goodTauRefType);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return sc;}
 		break;
@@ -709,7 +749,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 	  }
 
       }// end comb loop
-
       //	if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo"){
       //
       //       		const xAOD::JetRoIContainer *l1jets = 0;
@@ -789,7 +828,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 	  else  profile("TProfRecoL1_J25PtEfficiency")->Fill(maxPt/GeV,0);
 	}
       } 
-
+      }
       // end L1 histos
        
       // HLT histsos ...
@@ -872,7 +911,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Truth+Reco eff curves");} //return StatusCode::FAILURE;}
     }
 
-    sc = TauEfficiency(trigItem,m_turnOnCurvesDenom, goodTauRefType);
+    sc = TauEfficiency(trigItem,m_turnOnCurvesDenom, goodTauRefType, fillL1);
     if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Reco eff curves"); } //return StatusCode::FAILURE;}
     //      if(m_truth) sc = TauEfficiencyCombo(trigItem);
     //      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
@@ -2348,6 +2387,8 @@ bool HLTTauMonTool::Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std:
     
 }
 
+
+
 bool HLTTauMonTool::Match_Offline_L1(const TLorentzVector & aOfflineTau, const std::string & trigItem){
 
   bool matchedL1=false;
@@ -2523,7 +2564,7 @@ void HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthParticle) c
 }
 
 
-StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType){
+StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType, bool fillL1){
   ATH_MSG_DEBUG("Efficiency wrt "<< TauDenom << " for trigItem" << trigItem);
   if(trigItem == "Dump") {ATH_MSG_DEBUG("Not computing efficiencies for Dump"); return StatusCode::SUCCESS;};
 
@@ -2640,7 +2681,6 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     }
   }
 
-
   // loop over taus in denominator and match with L1 and HLT taus:
   for(unsigned int i=0;i<tlv_TauDenom.size();i++){
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/TurnOnCurves/RecoEfficiency");
@@ -2716,6 +2756,8 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		}
 	  
     int L1matched(0);
+    if(!fillL1) continue;
+    setCurrentMonGroup("HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[trigItem]+"/TurnOnCurves/RecoEfficiency");  
     if(Match_Offline_L1(tlv_TauDenom.at(i), trigItem)) L1matched=1;
     //                        hist("hRecoL1PtNum")->Fill(pt/GeV);
     //                        if(ntracks == 1) {hist("hRecoL1Pt1PNum")->Fill(pt/GeV);profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/GeV,1);}

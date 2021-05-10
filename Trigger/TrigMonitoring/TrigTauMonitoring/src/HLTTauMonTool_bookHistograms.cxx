@@ -49,37 +49,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   //    double bins_dr[nbin_dr] = {0.,0.5,1.,1.5,1.8,2.,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.4};
     
   // define here all histograms
-  //L1 Roi
-  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/L1RoI",run));
-  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
-  addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
-  addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
-    
-  addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
-  addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));
-  addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",130,0.,130.));
-  addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",130,0.,130.));
-  //addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
-  addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
-  addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
-  addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
-  addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",140.,10.,80.,42,-1.,20.));
-  addHistogram(new TH2F("hL1EtVsPhi","L1 RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
-  addHistogram(new TH2F("hL1EtVsEta","L1 RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-2.6,2.6));   
 
-  if (m_doL1JetPlots)
-    {	
-      addHistogram(new TH2F("hL1RoITauVsJet","L1 RoI Tau Et vs Jet Et ; Tau E_{T} [GeV]; Jet E_{T} [GeV]",200,0.,100.,200,0.,100));
-      addHistogram(new TH2F("hL1RoITauVsJetMismatch","L1 RoI Tau-Jet deta-dphi if Jet Et< Tau Et ; d#eta; d#phi",50,-0.3,0.3,50,-0.3,0.3));
-      addHistogram(new TH2F("hL1RoITauVsJetDEt","L1 RoI Tau-Jet dEt if Jet Et< Tau Et ; Tau E_{t}; dE_{T}",200,0.,100.,50,0.,25.));
-
-      addHistogram(new TH1F("hL1JetRoIEta","L1 Jet RoI Eta ; #eta; N RoI",100,-3.2,3.2));
-      addHistogram(new TH1F("hL1JetRoIPhi","L1 Jet RoI Phi ; #phi; N RoI",100,-3.2,3.2));
-      addHistogram(new TH2F("hL1JetEtaVsPhi","L1 Jet RoI Eta vs Phi; #eta; #phi",100,-3.2,3.2,100,-3.2,3.2));
-      addHistogram(new TH1F("hL1JetRoIeT","L1 Jet RoI Energy; E_{T}[GeV]; N RoI",200,0.,100.));
-      addHistogram(new TH2F("hL1JetEtVsPhi","L1 Jet RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
-      addHistogram(new TH2F("hL1JetEtVsEta","L1 Jet RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-3.2,3.2));		
-    }
   //--------------------
   //Pre-selection Tau
   //--------------------
@@ -298,14 +268,6 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 
     }
 
-
-  //--------------------
-  // L1 vs Offline
-  //--------------------
-    
-  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/L1VsOffline",run));
-  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
-  addHistogram(new TH1F("hL1EtRatio","L1 Et Relative difference; Et relative diff; Et relative diff",50,-0.8,0.8));
     
   //--------------------
   //Pre selection vs Offline
@@ -769,7 +731,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTMuEfficiency","HLT vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
         addHistogram(new TH2F("hRecoHLTEtaVsPhiEfficiency","HLT vs Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
       */
-      addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      /*addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
       addProfile(new TProfile("TProfRecoL1Pt1PEfficiency", "L1 Vs Reco Efficiency (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
       addProfile(new TProfile("TProfRecoL1Pt3PEfficiency", "L1 Vs Reco Efficiency (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
       addProfile(new TProfile("TProfRecoL1EtaEfficiency", "L1 Vs Reco Efficiency; Reco #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -787,18 +749,18 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addProfile(new TProfile("TProfRecoL1NTrackEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of tracks; Efficiency",10,0,10));
       addProfile(new TProfile("TProfRecoL1NVtxEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
       addProfile(new TProfile("TProfRecoL1MuEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
-      addProfile(new TProfile("TProfRecoL1LBEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));
+      addProfile(new TProfile("TProfRecoL1LBEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));*/
         
 
 
       double hbins_pt[nbin_pt] = {20.,30.,50.,70.,100.,150.,200., 250., 300., 350.,  400., 500., 600.};
-      addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+        /*addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
       addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency", "L1 Vs Reco Efficiency (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
       addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency", "L1 Vs Reco Efficiency (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
 			// Unbiased (ie both RNN and BDT requirements are passed)
       addProfile(new TProfile("TProfRecoL1HighPtEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
       addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
-      addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));*/
 
       addProfile(new TProfile("TProfRecoHLTPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
       addProfile(new TProfile("TProfRecoHLTHighPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
@@ -825,7 +787,6 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addProfile(new TProfile("TProfRecoHLTNVtxEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
       addProfile(new TProfile("TProfRecoHLTMuEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
       addProfile(new TProfile("TProfRecoHLTLBEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));
-        
         
     }
 
@@ -865,6 +826,96 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     
 }
 
+void HLTTauMonTool::bookHistogramsForL1Item(const std::string & trigL1Item){
+
+  //L1 Roi
+  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/L1/"+trigL1Item+"/L1RoI",run));
+  setCurrentMonGroup("HLT/TauMon/Expert/L1/"+trigL1Item+"/L1RoI");
+  addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
+  addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
+    
+  addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
+  addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));
+  addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",130,0.,130.));
+  addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",130,0.,130.));
+  //addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
+  addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
+  addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
+  addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
+  addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",140.,10.,80.,42,-1.,20.));
+  addHistogram(new TH2F("hL1EtVsPhi","L1 RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
+  addHistogram(new TH2F("hL1EtVsEta","L1 RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-2.6,2.6));   
+
+  if (m_doL1JetPlots)
+    {	
+      addHistogram(new TH2F("hL1RoITauVsJet","L1 RoI Tau Et vs Jet Et ; Tau E_{T} [GeV]; Jet E_{T} [GeV]",200,0.,100.,200,0.,100));
+      addHistogram(new TH2F("hL1RoITauVsJetMismatch","L1 RoI Tau-Jet deta-dphi if Jet Et< Tau Et ; d#eta; d#phi",50,-0.3,0.3,50,-0.3,0.3));
+      addHistogram(new TH2F("hL1RoITauVsJetDEt","L1 RoI Tau-Jet dEt if Jet Et< Tau Et ; Tau E_{t}; dE_{T}",200,0.,100.,50,0.,25.));
+
+      addHistogram(new TH1F("hL1JetRoIEta","L1 Jet RoI Eta ; #eta; N RoI",100,-3.2,3.2));
+      addHistogram(new TH1F("hL1JetRoIPhi","L1 Jet RoI Phi ; #phi; N RoI",100,-3.2,3.2));
+      addHistogram(new TH2F("hL1JetEtaVsPhi","L1 Jet RoI Eta vs Phi; #eta; #phi",100,-3.2,3.2,100,-3.2,3.2));
+      addHistogram(new TH1F("hL1JetRoIeT","L1 Jet RoI Energy; E_{T}[GeV]; N RoI",200,0.,100.));
+      addHistogram(new TH2F("hL1JetEtVsPhi","L1 Jet RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
+      addHistogram(new TH2F("hL1JetEtVsEta","L1 Jet RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-3.2,3.2));		
+    }
+
+
+  //--------------------
+  // L1 vs Offline
+  //--------------------
+    
+  addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/L1/"+trigL1Item+"/L1VsOffline",run));
+  setCurrentMonGroup("HLT/TauMon/Expert/L1/"+trigL1Item+"/L1VsOffline");
+  addHistogram(new TH1F("hL1EtRatio","L1 Et Relative difference; Et relative diff; Et relative diff",50,-0.8,0.8));
+
+  const int nbin_pt = 13;
+  double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,55.,60.,70.,100.,150.,200.};
+  const int nbin_eta = 9;
+  double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
+  const int nbin_nvtx = 11;
+  double bins_nvtx[nbin_nvtx];
+  for(int i=0;i<nbin_nvtx;i++) bins_nvtx[i] = i*5.;
+  const int nbin_mu = 41;
+  float bins_mu[nbin_mu]; 
+  for(int i=0;i<nbin_mu;i++) bins_mu[i] = i*2.;
+
+  addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/L1/"+trigL1Item+"/TurnOnCurves/RecoEfficiency",run) );
+      setCurrentMonGroup("HLT/TauMon/Expert/L1/"+trigL1Item+"/TurnOnCurves/RecoEfficiency");
+
+      addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt1PEfficiency", "L1 Vs Reco Efficiency (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt3PEfficiency", "L1 Vs Reco Efficiency (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1EtaEfficiency", "L1 Vs Reco Efficiency; Reco #eta; Efficiency",nbin_eta-1,bins_eta));
+      addProfile(new TProfile("TProfRecoL1PhiEfficiency", "L1 Vs Reco Efficiency; Reco #phi; Efficiency",16,-3.2,3.2));
+      addProfile(new TProfile("TProfRecoL1NTrackEfficiency", "L1 Vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
+      addProfile(new TProfile("TProfRecoL1NVtxEfficiency", "L1 Vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
+      addProfile(new TProfile("TProfRecoL1MuEfficiency", "L1 Vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoL1LBEfficiency", "L1 Vs Reco Efficiency; Lumi Block; Efficiency",75,0.,1500.));
+			// Unbiased (ie both RNN and BDT requirements are passed)
+      addProfile(new TProfile("TProfRecoL1PtEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt1PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1EtaEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco #eta; Efficiency",nbin_eta-1,bins_eta));
+      addProfile(new TProfile("TProfRecoL1PhiEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco #phi; Efficiency",16,-3.2,3.2));
+      addProfile(new TProfile("TProfRecoL1NTrackEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of tracks; Efficiency",10,0,10));
+      addProfile(new TProfile("TProfRecoL1NVtxEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
+      addProfile(new TProfile("TProfRecoL1MuEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoL1LBEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));
+        
+
+
+      double hbins_pt[nbin_pt] = {20.,30.,50.,70.,100.,150.,200., 250., 300., 350.,  400., 500., 600.};
+      addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency", "L1 Vs Reco Efficiency (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency", "L1 Vs Reco Efficiency (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+			// Unbiased (ie both RNN and BDT requirements are passed)
+      addProfile(new TProfile("TProfRecoL1HighPtEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (1Prong); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased) (3Prong); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+
+}
+
 void HLTTauMonTool::bookHistogramsAllItem(){
     
   if(m_RealZtautauEff)
@@ -902,7 +953,7 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     hist("hHLTCounts")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
     hist("hHLTCountsDebug")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
   }
-    
+
   /*
     if(m_doTestTracking){
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/FTF_track_comparison",run));
