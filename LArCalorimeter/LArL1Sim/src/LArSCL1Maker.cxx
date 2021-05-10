@@ -245,6 +245,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   // ....... fill the LArHitEMap
   //
   SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey,context);
+  const LArHitEMap* hitmapPtr = hitmap.cptr();
 
   //
   // .....get the trigger time if requested
@@ -305,7 +306,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   std::vector< std::vector < float> > scFloatContainerTmp;
 
   int it = 0;
-  int it_end = hitmap->GetNbCells();
+  int it_end = hitmapPtr->GetNbCells();
   scContainer->reserve( nbSC ); //container ordered by hash
   const std::vector<float> base_vec(0);
   scFloatContainerTmp.assign( nbSC, base_vec ); //container ordered by hash
@@ -331,7 +332,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   CaloGain::CaloGain scGain = CaloGain::LARHIGHGAIN;
 
   for( ; it!=it_end;++it) {
-    const LArHitList& hitlist = hitmap->GetCell(it);
+    const LArHitList& hitlist = hitmapPtr->GetCell(it);
     const std::vector<std::pair<float,float> >& timeE = hitlist.getData();
     if (timeE.size() > 0 ) {
       Identifier cellId = m_OflHelper->cell_id(IdentifierHash(it));

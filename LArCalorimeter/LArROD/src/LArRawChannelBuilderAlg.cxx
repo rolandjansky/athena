@@ -316,7 +316,6 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
   }
   if ( m_isSC ) {
   SG::WriteHandle<CaloCellContainer>outputContainer(m_cellKey,ctx);
-  outputContainerCellPtr->reserve( m_onlineId->channelHashMax() );
   ATH_CHECK(outputContainer.record(std::move(outputContainerCellPtr) ) );
   } else {
   SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);
