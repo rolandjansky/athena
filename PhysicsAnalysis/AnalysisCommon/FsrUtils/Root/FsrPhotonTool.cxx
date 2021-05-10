@@ -87,14 +87,14 @@ namespace FSR {
             m_energyRescaler = ToolHandle<CP::IEgammaCalibrationAndSmearingTool>(m_energyRescalerName);
             if (m_energyRescaler.empty()) {
                 ATH_MSG_ERROR("initialize - unable to get IEgammaCalibrationAndSmearingTool with name: " << m_energyRescalerName);
-                return false;
+                return StatusCode::FAILURE;
             }
 
             ATH_MSG_INFO("initialize - found  IEgammaCalibrationAndSmearingTool with name: " << m_energyRescalerName);
         }
         else {
             ATH_MSG_ERROR("initialize - CANNOT retrive IEgammaCalibrationAndSmearingTool. Please set the property 'egCalibToolName' to be able to recalibrate fsr photon found as an electron ");
-            return false;
+            return StatusCode::FAILURE;
         }
         
 
