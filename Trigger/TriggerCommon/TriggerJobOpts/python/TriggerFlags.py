@@ -394,32 +394,6 @@ _flags.append(triggerConfig)
 
 
 
-class readL1TopoConfigFromXML(JobProperty):
-    """Use to specify external l1topo xml configuration file
-    (e.g. from the release or a local directory)
-    
-    If set to True:
-    the L1Topo config will be taken from TriggerFlags.inputL1TopoConfigFile()
-    
-    If set to False:    
-    the L1Topo config xml file is read from the python generated XML
-    file, which is specified in TriggerFlags.outputL1TopoconfigFile()
-    """
-    statusOn=True
-    allowedType=['bool']
-    # note: if you change the following default value, you must also change the default value in class inputLVL1configFile
-    # StoredValue=False
-    StoredValue = False # once the python generation is implemented the default should be False
-
-    def _do_action(self):
-        """ setup some consistency """
-        if self.get_Value():
-            TriggerFlags.inputL1TopoConfigFile = "TriggerMenuXML/L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            TriggerFlags.inputL1TopoConfigFile = TriggerFlags.outputL1TopoConfigFile()
-
-_flags.append(readL1TopoConfigFromXML)
-
 class readLVL1configFromXML(JobProperty):
     """ If set to True the LVL1 config file is read from earlier generated XML file """
     statusOn=True
@@ -473,24 +447,6 @@ class triggerCoolDbConnection(JobProperty):
 
 _flags.append(triggerCoolDbConnection)
 
-class outputL1TopoConfigFile(JobProperty):
-    """ File name for output L1Topo configuration XML file produced by the python menu generation """
-    statusOn=True
-    allowedType=['str']
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            # triggerMenuSetup contains the prescale mode in many
-            # cases, e.g. MC_pp_v5_tight_mc_prescale. Prescaling is
-            # not available for L1Topo, therefore that part is being
-            # removed.
-            return "L1Topoconfig_" + _getMenuBaseName(TriggerFlags.triggerMenuSetup()) + "_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(outputL1TopoConfigFile)
-
 class outputLVL1configFile(JobProperty):
     """ File name for output LVL1 configuration XML file """
     statusOn=True
@@ -530,28 +486,6 @@ class outputHLTmenuJsonFile(JobProperty):
             return self.get_Value()
 
 _flags.append(outputHLTmenuJsonFile)
-
-class inputL1TopoConfigFile(JobProperty):
-    """Used to define an external L1Topo configuration file. To be
-    used together with trigger flag readL1TopoConfigFromXML.
-
-    If TriggerFlags.readL1TopoConfigFromXML()==True, then this file is
-    used for L1TopoConfiguration.
-    
-    Defaults to L1Topoconfig_<triggerMenuSetup>_<menuVersion>.xml
-    """
-    statusOn=True
-    allowedType=['str']
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(inputL1TopoConfigFile)
-
 
 
 class inputLVL1configFile(JobProperty):

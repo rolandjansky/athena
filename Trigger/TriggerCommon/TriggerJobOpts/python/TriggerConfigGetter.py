@@ -85,8 +85,6 @@ class TriggerConfigGetter(Configured):
 
     def setConfigSvcConnParams(self,connectionParameters):
         sl = []
-        if hasattr(svcMgr,'L1TopoConfigSvc'):
-            sl += [svcMgr.L1TopoConfigSvc]
         if hasattr(svcMgr,'LVL1ConfigSvc'):
             sl += [svcMgr.LVL1ConfigSvc]
         if hasattr(svcMgr,'HLTConfigSvc'):
@@ -114,9 +112,6 @@ class TriggerConfigGetter(Configured):
                     svc.DBUser    = connectionParameters["user"  ]
                     svc.DBPass    = connectionParameters["passwd"]
 
-        if hasattr(svcMgr,'L1TopoConfigSvc'):
-            svcMgr.L1TopoConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
-            svcMgr.L1TopoConfigSvc.UseFrontier = TriggerFlags.triggerUseFrontier()
         if hasattr(svcMgr,'LVL1ConfigSvc'):
             svcMgr.LVL1ConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
             svcMgr.LVL1ConfigSvc.DBLVL1PSKey = TriggerFlags.triggerDbKeys()[1]
@@ -257,11 +252,8 @@ class TriggerConfigGetter(Configured):
 
             if 'xml' in self.ConfigSrcList or self.makeTempCool:
                 # sets them if plain XML reading is to be used
-                self.svc.l1topoXmlFile = TriggerFlags.outputL1TopoConfigFile()  # generated in python
                 self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
                 self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
-                if TriggerFlags.readL1TopoConfigFromXML():
-                    self.svc.l1topoXmlFile  = TriggerFlags.inputL1TopoConfigFile() # given XML
                 if TriggerFlags.readLVL1configFromXML():
                     self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
 

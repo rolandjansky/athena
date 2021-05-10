@@ -103,7 +103,6 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
-                       scripts/generateL1TopoMenuMT.py
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
                        scripts/verify_menu_config.py

@@ -47,9 +47,6 @@ namespace TrigConf {
 
       static const InterfaceID& interfaceID() { return ITrigConfigSvc::interfaceID(); }
 
-      // L1Topo menu
-      virtual const TXC::L1TopoMenu* menu() const override;
-
       // Lvl1 Accessors
       virtual const Muctpi*          muctpiConfig() const override;
       virtual const CTPConfig*       ctpConfig() const override;
@@ -104,14 +101,12 @@ namespace TrigConf {
    private:
 
       // jobProperties
-      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoSvc; //!< read from xml/db
       ServiceHandle<TrigConf::ILVL1ConfigSvc>   m_lvl1Svc; //!< read from xml/db
       ServiceHandle<TrigConf::IHLTConfigSvc>    m_hltSvc;  //!< read from xml/db
       ServiceHandle<TrigConf::ITrigConfigSvc >  m_dsSvc;  //!< read from detectorStore (header)
       std::vector<std::string> m_priorityList;
       Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, only initialize LVL1ConfigSvc and HLTConfigSvc" };
 
-      TrigConf::IL1TopoConfigSvc* m_l1toposervice {nullptr};    //!< the available l1 service that will be used
       TrigConf::ILVL1ConfigSvc*   m_l1service  {nullptr};    //!< the available l1 service that will be used
       TrigConf::IHLTConfigSvc*    m_hltservice {nullptr};   //!< the available hlt service that will be used
 

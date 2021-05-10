@@ -402,13 +402,12 @@ def Lvl1SimulationSequence( ConfigFlags ):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getL1TopoConfigSvc
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
 
-    # this configuration of the LVL1ConfigSvc and L1TopoConfigSvc is only temporary
+    # this configuration of the LVL1ConfigSvc is only temporary
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
     svcMgr += conf2toConfigurable(getL1ConfigSvc(ConfigFlags))
-    svcMgr += conf2toConfigurable(getL1TopoConfigSvc(ConfigFlags))
 
     log.info("UseNewConfig = %s", ConfigFlags.Trigger.readLVL1FromJSON)
     if ConfigFlags.Input.isMC and not ConfigFlags.Common.isOnline:
