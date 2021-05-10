@@ -24,6 +24,7 @@ class TrigEgammaKeys(object):
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel21_20180312'
+      dnnVersion = 'mc16_20210430'
 
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
@@ -41,9 +42,33 @@ class TrigEgammaKeys_GSF(object):
 #
 # Electron DNN Selectors
 #
-#def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
+def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
 # We should include the DNN here
+    if not ConfigFilePath:
+      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+  
+    import collections
+    SelectorNames = collections.OrderedDict({
+          'dnntight':'AsgElectronDNNTightSelector',
+          'dnnmedium':'AsgElectronDNNMediumSelector',
+          'dnnloose':'AsgElectronDNNLooseSelector',
+          })
 
+    ElectronToolConfigFile = collections.OrderedDict({
+          'dnntight':'ElectronDNNMulticlassTight.conf',
+          'dnnmedium':'ElectronDNNMulticlassMedium.conf',
+          'dnnloose':'ElectronDNNMulticlassLoose.conf',
+          })
+
+    selectors = []
+    mlog.debug('Configuring electron DNN' )
+    for dnnname, name in SelectorNames.items():
+      SelectorTool = CfgMgr.AsgElectronSelectorTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
+      SelectorTool.skipDeltaPoverP = True
+      selectors.append(SelectorTool)
+
+    return selectors
 
 #
 # Electron LH Selectors

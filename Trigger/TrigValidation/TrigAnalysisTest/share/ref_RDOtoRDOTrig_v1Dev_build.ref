@@ -1928,6 +1928,48 @@ HLT_e3_etcut_L1EM3:
     1: 545
     2: 394
     3: 148
+HLT_e5_dnnloose_L1EM3:
+  eventCount: 5
+  stepCounts:
+    0: 12
+    1: 11
+    2: 11
+    3: 11
+    4: 5
+  stepFeatures:
+    0: 22
+    1: 49
+    2: 20
+    3: 18
+    4: 5
+HLT_e5_dnnmedium_L1EM3:
+  eventCount: 4
+  stepCounts:
+    0: 12
+    1: 11
+    2: 11
+    3: 11
+    4: 4
+  stepFeatures:
+    0: 22
+    1: 49
+    2: 20
+    3: 18
+    4: 4
+HLT_e5_dnntight_L1EM3:
+  eventCount: 4
+  stepCounts:
+    0: 12
+    1: 11
+    2: 11
+    3: 11
+    4: 4
+  stepFeatures:
+    0: 22
+    1: 49
+    2: 20
+    3: 18
+    4: 4
 HLT_e5_etcut_L1EM3:
   eventCount: 20
   stepCounts:
