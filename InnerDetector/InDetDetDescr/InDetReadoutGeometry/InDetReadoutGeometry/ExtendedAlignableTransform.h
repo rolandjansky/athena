@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoVFullPhysVol.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 namespace InDetDD {
 
@@ -37,15 +38,15 @@ namespace InDetDD {
         : m_alignableTransform(alignableTransform),
           m_child(child),
           m_frame(frame)
-      {};
-    
+      {}
+
       GeoAlignableTransform * alignableTransform() {return m_alignableTransform;}
       const GeoVFullPhysVol * child()  {return m_child;}
       const GeoVFullPhysVol * frame()  {return m_frame;}
     
     private:
       
-      GeoAlignableTransform * m_alignableTransform;
+      GeoNodePtr<GeoAlignableTransform> m_alignableTransform;
       const GeoVFullPhysVol * m_child;
       const GeoVFullPhysVol * m_frame;
     
