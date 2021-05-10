@@ -15,7 +15,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBase/IParticle.h"
 
-#include "TrigT2HistoPrmVtxBaseMT.h"
+#include "TrigT2HistoPrmVtxBase.h"
 #include "HistoVertexHelper.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -25,7 +25,7 @@
 #include "CxxUtils/phihelper.h"
 
 
-TrigT2HistoPrmVtxBaseMT::TrigT2HistoPrmVtxBaseMT( const std::string& name, ISvcLocator* pSvcLocator ) :
+TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthAlgorithm( name,pSvcLocator ),
   m_zPrmVtx(3),
   m_zPrmVtxSigmaAll(3),
@@ -40,7 +40,7 @@ TrigT2HistoPrmVtxBaseMT::TrigT2HistoPrmVtxBaseMT( const std::string& name, ISvcL
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-StatusCode TrigT2HistoPrmVtxBaseMT::initialize() {
+StatusCode TrigT2HistoPrmVtxBase::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"  );
   ATH_MSG_DEBUG( " AlgoId = "              << m_algo  );
@@ -62,7 +62,7 @@ StatusCode TrigT2HistoPrmVtxBaseMT::initialize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-bool TrigT2HistoPrmVtxBaseMT::trackSel(const xAOD::TrackParticle* track, unsigned int i, float eta, float phi) {
+bool TrigT2HistoPrmVtxBase::trackSel(const xAOD::TrackParticle* track, unsigned int i, float eta, float phi) {
 
   if(m_useEtaPhiTrackSel) {
 
@@ -162,7 +162,7 @@ bool TrigT2HistoPrmVtxBaseMT::trackSel(const xAOD::TrackParticle* track, unsigne
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-void TrigT2HistoPrmVtxBaseMT::findPrmVtx( std::unique_ptr< HistoVertexHelper >& hisVtx ) {
+void TrigT2HistoPrmVtxBase::findPrmVtx( std::unique_ptr< HistoVertexHelper >& hisVtx ) {
 
   // Finding primary vertex
   std::vector< int > maxVal(3), pos(3);
