@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 790212 2016-12-16 17:43:15Z ssnyder $
 
 # The name of the package:
 atlas_subdir( AtlasPyFwdBwdPorts )
@@ -102,7 +101,7 @@ _setup_python_package( datadiff
 
 # Install distribute:
 _setup_python_package( distribute
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/distribute-0.6.25.tar.gz 
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/distribute-0.6.25.tar.gz
    a690874b9964d958a3200485eb827b1d )
 
 # Install extensions:
@@ -161,6 +160,7 @@ _setup_python_package( pyflakes
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
    3df622aac9bad27c04f34164609bbed8
+   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-pytest.patch
    DEPENDS pyflakes
    SINGLE_VERSION )
 
@@ -183,10 +183,11 @@ _setup_python_package( mccabe
    ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
    723df2f7b1737b8887475bac4c763e1e
    DEPENDS distribute
+   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-pytest.patch
    SINGLE_VERSION )
 
 # Install :
-_setup_python_package( pycodestyle 
+_setup_python_package( pycodestyle
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.3.1.tar.gz
    240e342756af30cae0983b16303a2055
    DEPENDS distribute
@@ -221,4 +222,3 @@ _setup_python_package( scandir
 
 # Clean up:
 unset( _setup_python_package )
-
