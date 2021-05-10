@@ -50,6 +50,9 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
 
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
     TileHitToTTL1=CompFactory.TileHitToTTL1
     acc.addEventAlgo(TileHitToTTL1(**kwargs), primary = True)
 

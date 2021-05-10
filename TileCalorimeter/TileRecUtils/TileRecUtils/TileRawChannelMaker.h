@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELMAKER_H
@@ -50,6 +50,7 @@ class TileRawChannelMaker: public AthAlgorithm {
     virtual StatusCode initialize();
     virtual StatusCode execute();
     virtual StatusCode finalize();
+    virtual bool isClonable() const override final { return true; }
 
   private:
 
