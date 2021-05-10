@@ -137,7 +137,7 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     # Schedule towermaker
     from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf import (
         LVL1__JGTowerBuilder, LVL1__JTowerMappingMaker, LVL1__GTowerMappingMaker, LVL1__JGTowerNoiseAlg, LVL1__GBlockBuilder,
-        LVL1__JTowerRhoSubtractionAlg, LVL1__GTowersFromGCaloTowers, LVL1__GTowerRhoSubtractionAlg, LVL1__METNoiseCutPerfFex, LVL1__METJWoJPerfFex)
+        LVL1__JTowerRhoSubtractionAlg, LVL1__GTowersFromGCaloTowers, LVL1__GTowerRhoSubtractionAlg, LVL1__METNoiseCutPerfFex, LVL1__METJWoJPerfFex, LVL1__FwdCellReader)
     from AthenaCommon.AppMgr import ToolSvc
     global ToolSvc
     ToolSvc += LVL1__JTowerMappingMaker(
@@ -159,6 +159,10 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         MinTowerET = simflags.Calo.minTowerET(),
         MappingMaker = ToolSvc.JTowerMappingMaker,
         OutputTowers = "JTowersPerf",
+    )
+
+    l1simAlgSeq += LVL1__FwdCellReader(
+	cellEtCut=100
     )
 
     l1simAlgSeq += LVL1__JGTowerNoiseAlg(
