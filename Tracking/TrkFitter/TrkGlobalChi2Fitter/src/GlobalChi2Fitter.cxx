@@ -96,7 +96,7 @@ namespace {
     double limited = std::clamp(magnitude, lo, hi);
     return std::copysign(limited, qOverP);
   }
-
+ 
 
   std::pair<const Trk::TrackParameters *, const Trk::TrackParameters *> getFirstLastIdPar(const Trk::Track & track) {
     const Trk::TrackParameters *firstidpar = nullptr;
@@ -5403,7 +5403,6 @@ namespace Trk {
               res[measno] -= 2 * M_PI;
             }
           }
-          
           measno++;
         }
       } else if (state->getStateType(TrackStateOnSurface::Outlier)) {
@@ -5443,20 +5442,15 @@ namespace Trk {
 
       if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
         double averagenergyloss = std::abs(state->materialEffects()->deltaE());
-        double qoverpbrem = 1000 * states[hitno]->trackParameters()->parameters()[Trk::qOverP];
-        double qoverp = qoverpbrem - state->materialEffects()->delta_p();
-        double pbrem = 999999999999;
-        if (qoverpbrem==0) ATH_MSG_WARNING("fillResiduals() - qoverpbrem is 0 for averagenergyloss="<<averagenergyloss<<" and qoverp="<<qoverp<<", returning pbrem=999999999999");
-        else pbrem = 1 / std::abs(qoverpbrem);
-        double p = 999999999999;
-        if (qoverp==0) ATH_MSG_WARNING("fillResiduals() - qoverp is 0 for averagenergyloss="<<averagenergyloss<<" and qoverpbrem="<<qoverpbrem<<", returning p=999999999999");
-        else p = 1 / std::abs(qoverp);
-        double mass = .001 * trajectory.mass();
+        const double qoverpbrem = limitInversePValue(1000 * states[hitno]->trackParameters()->parameters()[Trk::qOverP]);
+        const double qoverp = limitInversePValue(qoverpbrem - state->materialEffects()->delta_p());
+        const double pbrem = 1. / std::abs(qoverpbrem);
+        const double p = 1. / std::abs(qoverp);
+        const double mass = .001 * trajectory.mass();
+        const double energy = std::sqrt(p * p + mass * mass);
+        const double bremEnergy = std::sqrt(pbrem * pbrem + mass * mass);
 
-        res[nmeas - nbrem + bremno] = (
-          .001 * averagenergyloss - std::sqrt(p * p + mass * mass) +
-          std::sqrt(pbrem * pbrem + mass * mass)
-        );
+        res[nmeas - nbrem + bremno] = .001 * averagenergyloss - energy + bremEnergy;
 
         double sigde = state->materialEffects()->sigmaDeltaE();
         double sigdepos = state->materialEffects()->sigmaDeltaEPos();
@@ -5524,7 +5518,7 @@ namespace Trk {
           
           if (calomeots.size() == 3) {
             averagenergyloss = std::abs(calomeots[1].energyLoss()->deltaE());
-            double newres = .001 * averagenergyloss - std::sqrt(p * p + mass * mass) + std::sqrt(pbrem * pbrem + mass * mass);
+            double newres = .001 * averagenergyloss - energy + bremEnergy;
             double newerr = .001 * calomeots[1].energyLoss()->sigmaDeltaE();
             
             if (std::abs(newres / newerr) < std::abs(res[nmeas - nbrem + bremno] / error[nmeas - nbrem + bremno])) {
@@ -5661,12 +5655,8 @@ namespace Trk {
       
       TrackState::MeasurementType hittype = state->measurementType();
       const MeasurementBase *measbase = state->measurement();
-
-      int scatmin = (scatno < nscatupstream) ? scatno : nscatupstream;
-      int scatmax = (scatno < nscatupstream) ? nscatupstream : scatno;
-      int bremmin = (bremno < nbremupstream) ? bremno : nbremupstream;
-      int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
-
+      const auto [scatmin, scatmax] = std::minmax(scatno, nscatupstream);
+      const auto [bremmin, bremmax] = std::minmax(bremno, nbremupstream);
       if (state->getStateType(TrackStateOnSurface::Measurement)) {
         Amg::MatrixX & derivatives = state->derivatives();
         double sinstereo = 0;
@@ -5698,8 +5688,10 @@ namespace Trk {
           for (int j = scatmin; j < scatmax; j++) {
             int index = nperparams + ((trajectory.prefit() != 1) ? 2 * j : j);
             double thisderiv = 0;
+            // this look suspicious: 
             double sign = (j < nscatupstream) ? -1 : 1;
             sign = 1;
+            //
             
             if (i == 0 && sinstereo != 0) {
               thisderiv = sign * (derivatives(0, index) * cosstereo + sinstereo * derivatives(1, index));
@@ -5757,7 +5749,9 @@ namespace Trk {
         double mass = .001 * trajectory.mass();
         
         const auto thisMeasurementIdx{nmeas - nbrem + bremno};
-        
+        //references (courtesy of Christos Anastopoulos):
+        //https://inspirehep.net/files/a810ad0047a22af32fbff587c6c98ce5 
+        //https://its.cern.ch/jira/browse/ATLASRECTS-6213
         auto multiplier = [] (double mass, double qOverP){
           return std::copysign(1./(qOverP * qOverP * std::sqrt(1. + mass * mass * qOverP * qOverP)), qOverP);
         };
