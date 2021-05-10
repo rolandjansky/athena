@@ -46,13 +46,14 @@ baseParser.add_argument(
     default= [
         "StoreGateSvc",
         "OutputLevel",
-        "MuonEDMHelperSvc",
         "ExtraInputs",
         "ExtraOutputs",
         "DetStore",
         "EvtStore",
+        "EventStore",
         "NeededResources",
-        "GeoModelSvc"
+        "GeoModelSvc",
+        "MetaDataStore"
     ],
     help="Ignore properties",
 )
@@ -85,11 +86,155 @@ baseParser.add_argument(
     action="store_true",
 )
 
+def __flatten_list(l):
+    return [item for elem in l for item in elem] if l else []
+
+
+def excludeIncludeComps(dic, args) -> Dict:
+    compsToReport = __flatten_list(args.includeComps)
+    compsToExclude = __flatten_list(args.excludeComps)
+    def eligible(component):
+        include = any(re.match(s, component) for s in compsToReport)
+        exclude = any(re.match(s, component) for s in compsToExclude)
+        if args.includeComps and args.excludeComps:
+            return include and not exclude
+        elif args.includeComps:
+            return include
+        elif args.excludeComps:
+            return not exclude
+    conf = {}
+    for (key, value) in dic.items():
+        if eligible(key):
+            conf[key] = value
+        else:
+            logger.debug("Ignored component %s", key)
+    return conf
+
+def ignoreIrrelevant(dic, args) -> Dict:
+    def remove_irrelevant(val_dict):
+        return (
+            { key: val for key, val in val_dict.items() if key not in args.ignore }
+            if isinstance(val_dict, dict)
+            else val_dict
+        )
+    conf = {}
+    for (key, value) in dic.items():
+        conf[key] = remove_irrelevant(value)
+    return conf
+
+def renameComps(dic, args) -> Dict:
+    compsToRename = __flatten_list(args.renameComps)
+    if args.renameCompsFile:
+        with open( args.renameCompsFile, "r") as refile:
+            for line in refile:
+                if not (line.startswith("#") or line.isspace() ):
+                    compsToRename.append( line.rstrip('\n') )
+    global componentRenamingDict
+    componentRenamingDict.update({
+        old_name: new_name
+        for old_name, new_name in [
+            [e.strip() for e in element.split("=")] for element in compsToRename
+        ]
+    })
+
+    def rename_comps(comp_name):
+        return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
+
+    conf = {}
+    for (key, value) in dic.items():
+        conf[rename_comps(key)] = value
+    return conf
+
+def ignoreDefaults(dic, args) -> Dict:
+    name_to_type=dict()
+    conf = {}
+
+    def drop_defaults(component_name, val_dict):
+        # try picking the name from the dict, if missing use last part of the name, if that fails use the componet_name (heuristic)
+        component_name_last_part = component_name.split(".")[-1]
+        component_type = name_to_type.get(component_name, name_to_type.get(component_name_last_part, component_name_last_part))
+        comp_cls = None
+        try:
+            from AthenaConfiguration.ComponentFactory import CompFactory
+            comp_cls = CompFactory.getComp(component_type)
+        except Exception:
+            logger.debug("Could not find the configuration class %s no defaults for are eliminated", component_name)
+            return val_dict
+        c = {}
+
+        for k,v in val_dict.items():
+            default = str(comp_cls._descriptors[k].default)
+            sv = str(v)
+            if default == sv or default.replace("StoreGateSvc+", "") == sv.replace("StoreGateSvc+", ""):
+                logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
+            else:
+                c[k] = v
+                logger.debug("Keep value %s of property %s in %s because it is different from default %s", str(v), str(k), component_name, str(comp_cls._descriptors[k].default))
+        return c
+
+     # collect types for all componets (we look for A/B or lost of A/B strings)
+    def collect_types(value):
+        parseable = False
+        try:
+            s = ast.literal_eval(str(value))
+            parseable = True
+            if isinstance(s, list):
+                for el in s:
+                    collect_types(el)
+        except Exception:
+            pass
+        if isinstance(value,str) and "/" in value and not parseable:
+            comp = value.split("/")
+            if len(comp) == 2:
+                name_to_type[comp[1]] = comp[0]
+        if isinstance(value, dict):
+            [ collect_types(v) for v in value.values() ]
+
+    for (key, value) in dic.items():
+        collect_types(value)
+    for (key, value) in dic.items():
+        remaining = drop_defaults(key, value)
+        if len(remaining) != 0: # ignore components that have only default settings
+            conf[key] = remaining
+    return conf
+
+def shortenDefaultComponents(dic, args) -> Dict:
+    conf = {}
+    def shorten(val):
+        value = val
+        # the value can possibly be a serialized object (like a list)
+        try:
+            value = ast.literal_eval(str(value))
+        except Exception:
+            pass
+
+        if isinstance(value, str):
+            svalue = value.split("/")
+            if len(svalue) == 2 and svalue[0] == svalue[1]:
+                logger.debug("Shortened %s", svalue)
+                return svalue[0]
+        if isinstance(value, list):
+            return [shorten(el) for el in value]
+        if isinstance(value, dict):
+            return shorten_defaults(value)
+
+        return value
+
+    def shorten_defaults(val_dict):
+        if isinstance(val_dict, dict):
+            return { key: shorten(val) for key,val in val_dict.items() }
+
+    for (key, value) in dic.items():
+        conf[key] = shorten_defaults(value)
+    return conf
+
+
 def loadConfigFile(fname, args) -> Dict:
     """loads config file into a dictionary, supports several modifications of the input switched on via additional arguments
     Supports reading: Pickled file with the CA or properties & JSON
     """
     if args.debug:
+        print("Debugging info in ", logger.handlers[0].baseFilename)
         logger.setLevel(logging.DEBUG)
 
     conf = {}
@@ -149,156 +294,21 @@ def loadConfigFile(fname, args) -> Dict:
     if conf is None:
         sys.exit("Unable to load %s file" % fname)
 
-    def flatten_list(l):
-        return [item for elem in l for item in elem] if l else []
 
     if args.includeComps or args.excludeComps:
-
-        compsToReport = flatten_list(args.includeComps)
-        compsToExclude = flatten_list(args.excludeComps)
-
-        def eligible(component):
-            include = any(re.match(s, component) for s in compsToReport)
-            exclude = any(re.match(s, component) for s in compsToExclude)
-            if args.includeComps and args.excludeComps:
-                return include and not exclude
-            elif args.includeComps:
-                return include
-            elif args.excludeComps:
-                return not exclude
-
-        dic = conf
-        conf = {}
-        for (key, value) in dic.items():
-            if eligible(key):
-                conf[key] = value
-            else:
-                logger.debug("Ignored component %s", key)
-
+        conf = excludeIncludeComps(conf, args)
 
     if args.ignoreIrrelevant:
-        def strip_defaults(val):
-            if val.startswith("StoreGateSvc+"):
-                return val.replace("StoreGateSvc+", "")
-            return val
-
-        def remove_irrelevant(val_dict):
-            return (
-                {
-                    key: strip_defaults(val)
-                    for key, val in val_dict.items()
-                    if key not in args.ignore
-                }
-                if isinstance(val_dict, dict)
-                else val_dict
-            )
-            
-        dic = conf
-        conf = {}
-        for (key, value) in dic.items():
-            conf[key] = remove_irrelevant(value)
+        conf = ignoreIrrelevant(conf, args)
 
     if args.renameComps or args.renameCompsFile:
-        compsToRename = flatten_list(args.renameComps)
-        if args.renameCompsFile:
-            with open( args.renameCompsFile, "r") as refile:
-                for line in refile:
-                    if not (line.startswith("#") or line.isspace() ):
-                        compsToRename.append( line.rstrip('\n') )
-        global componentRenamingDict
-        componentRenamingDict.update({
-            old_name: new_name
-            for old_name, new_name in [
-                [e.strip() for e in element.split("=")] for element in compsToRename
-            ]
-        })
-
-        def rename_comps(comp_name):
-            return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
-
-        dic = conf
-        conf = {}
-        for (key, value) in dic.items():
-            conf[rename_comps(key)] = value
+        conf = renameComps(conf, args)
 
     if args.ignoreDefaults:
-        name_to_type=dict()
-        dic = conf
-        conf = {}
-
-        def drop_defaults(component_name, val_dict):
-            # try picking the name from the dict, if missing use last part of the name, if that fails use the componet_name (heuristic)
-            component_name_last_part = component_name.split(".")[-1]
-            component_type = name_to_type.get(component_name, name_to_type.get(component_name_last_part, component_name_last_part))
-            comp_cls = None
-            try:
-                from AthenaConfiguration.ComponentFactory import CompFactory
-                comp_cls = CompFactory.getComp(component_type)
-            except Exception:
-                logger.debug("Could not find the configuration class %s no defaults for are eliminated", component_name)
-                return val_dict
-            c = {}
-            for k,v in val_dict.items():
-                if str(comp_cls._descriptors[k].default) != v:
-                    c[k] = v
-                else:
-                    logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
-            return c
-
-        # collect types for all componets (we look for A/B or lost of A/B strings)
-        def collect_types(value):
-            parseable = False
-            try:
-                s = ast.literal_eval(str(value))
-                parseable = True
-                if isinstance(s, list):
-                    for el in s:
-                        collect_types(el)
-            except Exception:
-                pass 
-            if isinstance(value,str) and "/" in value and not parseable:
-                comp = value.split("/")
-                if len(comp) == 2: 
-                    name_to_type[comp[1]] = comp[0]
-            if isinstance(value, dict):
-                [ collect_types(v) for v in value.values() ]
-
-        for (key, value) in dic.items():
-            collect_types(value)
-        for (key, value) in dic.items():
-            remaining = drop_defaults(key, value)
-            if len(remaining) != 0: # ignore components that have only default settings
-                conf[key] = remaining
+        conf = ignoreDefaults(conf, args)
 
     if args.shortenDefaultComponents:
-        dic = conf
-        conf = {}
-        def shorten(val):
-            value = val
-            # the value can possibly be a serialized object (like a list)
-            try:
-                value = ast.literal_eval(str(value))
-            except Exception:
-                pass 
-
-            if isinstance(value, str):
-                svalue = value.split("/")
-                if len(svalue) == 2 and svalue[0] == svalue[1]:
-                    logger.debug("Shortened %s", svalue)
-                    return svalue[0]
-            if isinstance(value, list):
-                return [shorten(el) for el in value]
-            if isinstance(value, dict):
-                return shorten_defaults(value)
-
-            return value
-
-        def shorten_defaults(val_dict):
-            if isinstance(val_dict, dict):
-                return { key: shorten(val) for key,val in val_dict.items() }
-
-        for (key, value) in dic.items():
-            conf[key] = shorten_defaults(value)
+        conf = shortenDefaultComponents(conf, args)
     return conf
 
 class ComponentsFileLoader:

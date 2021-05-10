@@ -14,6 +14,14 @@ import re
 import sys
 
 from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict
+class color:
+    reset="\033[0m"
+    difference="\033[91m"
+    first="\033[92m"
+    property="\033[94m"
+    second="\033[35m"
+    component="\33[92m"
+    value="\33[91m"
 
 
 def parse_args():
@@ -101,8 +109,13 @@ def main(args):
         _compareConfig(configRef, configChk, args)
 
 def _print(conf):
-    pprint.pprint(conf)
-
+    for k, settings in conf.items():
+        print(f"{color.component}{k}{color.reset}")
+        if isinstance(settings, dict):
+            for prop,val in settings.items():
+                print(f"   {color.property}{prop} = {color.value}{val}")
+        else:
+            print(settings)
 
 def _printComps(conf):
     for k, item in conf.items():
@@ -116,6 +129,8 @@ def _compareConfig(configRef, configChk, args):
 
     print("Step 1: reference file #components:", len(configRef))
     print("Step 2: file to check  #components:", len(configChk))
+    print("Legend:")
+    print(f"{color.difference}Differences in components {color.first}Settings in 1st file {color.second}Settings in 2nd file{color.reset}")
 
     componentReverseRenamig = {v: k for k, v in componentRenamingDict.items()} # need mapping from new name to old when renaming
     def _componentDescription(comp_name):
@@ -125,18 +140,18 @@ def _compareConfig(configRef, configChk, args):
         if component not in configRef:
             if not args.ignoreMissing:
                 print(
-                    "\n\033[91m Component ",
+                    f"\n{color.second} Component ",
                     _componentDescription(component),
-                    " \033[94m exists only in 2nd file \033[0m \033[0m \n",
+                    f"{color.reset} only in 2nd file {color.reset} \n",
                 )
             continue
 
         if component not in configChk:
             if not args.ignoreMissing:
                 print(
-                    "\n\033[91m Component",
+                    f"\n{color.first} Component",
                     _componentDescription(component),
-                    " \033[92m exists only in 1st file \033[0m  \033[0m \n",
+                    f"{color.reset}only in 1st file {color.reset} \n",
                 )
             continue
 
@@ -147,16 +162,16 @@ def _compareConfig(configRef, configChk, args):
             if args.printIdenticalComponents:
                 print("Component", _componentDescription(component), "identical")
         else:
-            print("\033[91m Component", _componentDescription(component), "differ \033[0m")
+            print(f"{color.difference} Component", _componentDescription(component), f"differ {color.reset}")
             if not args.allComponentPrint:
                 _compareComponent(refValue, chkValue, "\t", args, component)
             else:
                 print(
-                    "\t\033[92mRef\033[0m\t",
+                    f"\t{color.first}Ref{color.reset}\t",
                     sorted(configRef[component].items(), key=lambda kv: kv[0]),
                 )
                 print(
-                    "\t\033[94mChk\033[0m\t",
+                    f"\t{color.second}Chk{color.reset}\t",
                     sorted(configChk[component].items(), key=lambda kv: kv[0]),
                 )
 
@@ -180,17 +195,11 @@ def _compareComponent(compRef, compChk, prefix, args, component):
 
         for prop in allProps:
             if prop not in compRef.keys():
-                print(
-                    "%s%s = %s: \033[94m exists only in 2nd file \033[0m \033[91m<< !!!\033[0m"
-                    % (prefix, prop, compChk[prop])
-                )
+                print(f"{prefix}{color.property}{prop} = {color.second}{compChk[prop]} {color.reset} only in 2nd file {color.reset}")
                 continue
 
             if prop not in compChk.keys():
-                print(
-                    "%s%s = %s: \033[92m exists only in 1st file \033[0m \033[91m<< !!!\033[0m"
-                    % (prefix, prop, compRef[prop])
-                )
+                print(f"{prefix}{color.property}{prop} = {color.first}{compRef[prop]} {color.reset} only in 1st file {color.reset}")
                 continue
 
             refVal = compRef[prop]
@@ -211,13 +220,10 @@ def _compareComponent(compRef, compChk, prefix, args, component):
                     continue
                 diffmarker = ""
             else:
-                diffmarker = " \033[91m<< !!!\033[0m"
+                diffmarker = f" {color.difference}<<{color.reset}"
 
             if not (component == "IOVDbSvc" and prop == "Folders"):
-                print(
-                    "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s"
-                    % (prefix, prop, str(refVal), str(chkVal), diffmarker)
-                )
+                print(f"{prefix}{color.property}{prop} = {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {diffmarker}")
 
             if refVal and (
                 isinstance(refVal, list) or isinstance(refVal, dict)
@@ -241,28 +247,19 @@ def _compareComponent(compRef, compChk, prefix, args, component):
         diffChk = list(set(compChk) - set(compRef))
 
         if diffRef:
-            print(
-                "%s exists only in 1st file : \033[92m %s \033[0m \033[91m<< !!!\033[0m"
-                % (prefix, str(diffRef))
-            )
+            print(f"{prefix} {color.reset}only in 1st file : {color.first} {diffRef} {color.reset}")
         if diffChk:
-            print(
-                "%s exists only in 2nd file : \033[94m %s \033[0m \033[91m<< !!!\033[0m"
-                % (prefix, str(diffChk))
-            )
+            print(f"{prefix} {color.reset}only in 2nd file :  {color.second} {diffChk} {color.reset}")
 
         if len(compRef) == len(compChk):
             if sorted(compRef) == sorted(compChk):
                 print(
-                    "%s : \033[91m ^^ Different order ^^ !!!\033[0m" % (prefix)
+                    f"{prefix} : {color.difference} ^^ Different order ^^ {color.reset}"
                 )
             else:
                 for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
                     if refVal != chkVal:
-                        print(
-                            "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< at index %s !!!\033[0m"
-                            % (prefix, str(refVal), str(chkVal), str(i))
-                        )
+                        print(f"{prefix} : {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {color.difference}<< at index {i} {color.reset}")
                         _compareComponent(
                             refVal, chkVal, "\t" + prefix + ">> ", args, ""
                         )
