@@ -69,6 +69,8 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
   declareProperty("CutSCT", m_cutSCT, "Apply a cut on SCT hits");
   // use smooth interpolation between discriminant bins
   declareProperty("doSmoothBinInterpolation", m_doSmoothBinInterpolation, "use smooth interpolation between discriminant bins");
+  // especially for  trigger electron
+  declareProperty("skipDeltaPoverP",m_skipDeltaPoverP = false,"If true, it will skip the check of deltaPoverP");
 }
 
 
@@ -540,7 +542,7 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
 
     dPOverP = 1 - trackqoverp / (refittedTrack_LMqoverp);
   }
-  else {
+  else if (!m_skipDeltaPoverP) {
     allFound = false;
     notFoundList += "deltaPoverP ";
   }

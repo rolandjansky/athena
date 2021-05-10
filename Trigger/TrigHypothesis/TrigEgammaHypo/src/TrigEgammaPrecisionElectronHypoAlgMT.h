@@ -16,7 +16,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "StoreGate/ReadDecorHandle.h"
 #include "xAODEventInfo/EventInfo.h"
-
+#include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 
 /**
  * @class TrigEgammaPrecisionElectronHypoAlgMT
@@ -41,11 +41,11 @@ class TrigEgammaPrecisionElectronHypoAlgMT : public ::HypoBase {
     ToolHandleArray< ITrigEgammaPrecisionElectronHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
     ToolHandleArray<IAsgElectronIsEMSelector> m_egammaElectronCBTools{ this, "ElectronCBSelectorTools", {},"Cut-based tools" };
     ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronLHTools{ this, "ElectronLHSelectorTools", {},"Likelihood tools" };
-    //ToolHandleArray<?> m_egammaElectronLHTool{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
+    ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronDNNTools{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
 
     Gaudi::Property<std::vector<std::string>> m_cbNames {this, "CBNames", {}, "CB pid names."};
     Gaudi::Property<std::vector<std::string>> m_lhNames {this, "LHNames", {}, "LH pid names."};
-    //Gaudi::Property<std::vector<std::string>> m_dnnNames {this, "DNNNames", {}, "DNN pid names."};
+    Gaudi::Property<std::vector<std::string>> m_dnnNames {this, "DNNNames", {}, "DNN pid names."};
 
     /*Luminosity info*/
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };

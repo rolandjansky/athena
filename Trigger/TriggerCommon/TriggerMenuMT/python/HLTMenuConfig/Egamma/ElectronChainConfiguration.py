@@ -166,7 +166,13 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightlrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
                 'lhmediumlrtmedium'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
                 'lhtightlrttight'   : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
+          
+                # dnn chains
+                'dnnloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                'dnnmedium'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                'dnntight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
 
+                # lrt-idperf chains
                 'looseidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
                 'mediumidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
                 'tightidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
@@ -287,7 +293,6 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         stepName = "precision_electron_lrt"+str(isocut)
         return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt])
-
 
     def getFastCalo_fwd(self):
         stepName       = "FastCalo_FWD_electron"

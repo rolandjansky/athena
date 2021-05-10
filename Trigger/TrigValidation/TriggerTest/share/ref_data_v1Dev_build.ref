@@ -905,6 +905,42 @@ HLT_e3_etcut_L1EM3:
     1: 62
     2: 77
     3: 31
+HLT_e5_dnnloose_L1EM3:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 7
+    2: 6
+    3: 6
+  stepFeatures:
+    0: 8
+    1: 17
+    2: 9
+    3: 6
+HLT_e5_dnnmedium_L1EM3:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 7
+    2: 6
+    3: 6
+  stepFeatures:
+    0: 8
+    1: 17
+    2: 9
+    3: 6
+HLT_e5_dnntight_L1EM3:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 7
+    2: 6
+    3: 6
+  stepFeatures:
+    0: 8
+    1: 17
+    2: 9
+    3: 6
 HLT_e5_etcut_L1EM3:
   eventCount: 12
   stepCounts:
