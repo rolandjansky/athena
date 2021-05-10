@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     muCombMT.cxx
+// NAME:     muComb.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigmuComb
 // VERSION:  V3 (MT Version)
 //
@@ -14,7 +14,7 @@
 #include <sstream>
 #include <math.h>
 
-#include "muCombMT.h"
+#include "muComb.h"
 #include "muCombUtil.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
@@ -27,12 +27,12 @@
 
 class ISvcLocator;
 
-muCombMT::muCombMT(const std::string& name, ISvcLocator* pSvcLocator):
+muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    AthAlgorithm(name, pSvcLocator)
 {
 }
 
-StatusCode muCombMT::initialize()
+StatusCode muComb::initialize()
 {
    ATH_MSG_DEBUG("Initialization:");
 
@@ -62,16 +62,16 @@ StatusCode muCombMT::initialize()
 
 // muon-trk match based on angular distance
 // return 0 --> match,  1 --> no match
-int muCombMT::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
+int muComb::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
                       double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
 {
    double pt     = feature->pt() * Gaudi::Units::GeV;
    double phi    = feature->phiMS();
    double eta    = feature->etaMS();
-   return muCombMT::drptMatch(pt, eta, phi, id_pt, id_eta, id_phi, algo, combPtInv, combPtRes, deta, dphi, dr);
+   return muComb::drptMatch(pt, eta, phi, id_pt, id_eta, id_phi, algo, combPtInv, combPtRes, deta, dphi, dr);
 }
 
-int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double id_eta, double id_phi, int algo,
+int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id_eta, double id_phi, int algo,
                       double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
 {
 
@@ -128,7 +128,7 @@ int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double 
 
 // muon-trk match based on Geant4 backextrapolated SA Muon matched with ID track
 // return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
-int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
+int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge, double id_eeta, double id_ephi, double id_eipt,
                     double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
 {
@@ -324,7 +324,7 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
 
 // muon-trk match based on LUT backextrapolated SA Muon matched with ID track
 // return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
-int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
+int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge,
                     double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
 {
@@ -446,11 +446,11 @@ int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
 }
 
 
-/** @fn bool muCombMT::execute()
+/** @fn bool muComb::execute()
  * @brief Execute() method.
  * @return bool
  */
-StatusCode muCombMT::execute()
+StatusCode muComb::execute()
 {
    using namespace xAOD;
 

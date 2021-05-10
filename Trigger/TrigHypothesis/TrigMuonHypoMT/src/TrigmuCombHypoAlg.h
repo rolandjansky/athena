@@ -26,7 +26,7 @@ class TrigmuCombHypoAlg
     ToolHandleArray<TrigmuCombHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_muCombKey {
-	this, "MuonL2CBInfoFromMuCombAlg", "MuonL2CBInfo", "Name of the input data produced by muCombMT"};
+	this, "MuonL2CBInfoFromMuCombAlg", "MuonL2CBInfo", "Name of the input data produced by muComb"};
     Gaudi::Property<std::string>m_roiLinkName{this, "RoILinkName", "l2cbroi", "Name for RoI Link"};
 };
 

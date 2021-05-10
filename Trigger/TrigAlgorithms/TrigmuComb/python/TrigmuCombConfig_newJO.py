@@ -31,21 +31,21 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
         idScanEndcap3Res = [0.036, 0.0000004]
         idScanEndcap4Res = [0.046, 0.0000002]
     from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
-    muCombMT = CompFactory.muCombMT
-    muCombAlg = muCombMT(name                  = "MuComb"+postFix,
-                         MuCombStrategy        = 0,
-                         UseBackExtrapolatorG4 = useBackExtrp,
-                         MinPtTRK              = 0.,
-                         WinEtaSigma_g4        = winEtaSigma,
-                         WinPhiSigma_g4        = winPhiSigma,
-                         Chi2Weight_g4         = chi2Weight, 
-                         IDSCANBarrelRes       = idScanBarrelRes,
-                         IDSCANEndcap1Res      = idScanEndcap1Res,
-                         IDSCANEndcap2Res      = idScanEndcap2Res,
-                         IDSCANEndcap3Res      = idScanEndcap3Res,
-                         IDSCANEndcap4Res      = idScanEndcap4Res,
-                         IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
-                         MonTool = TrigMuCombMonitoring())
+    muComb = CompFactory.muComb
+    muCombAlg = muComb(name                  = "MuComb"+postFix,
+                       MuCombStrategy        = 0,
+                       UseBackExtrapolatorG4 = useBackExtrp,
+                       MinPtTRK              = 0.,
+                       WinEtaSigma_g4        = winEtaSigma,
+                       WinPhiSigma_g4        = winPhiSigma,
+                       Chi2Weight_g4         = chi2Weight,
+                       IDSCANBarrelRes       = idScanBarrelRes,
+                       IDSCANEndcap1Res      = idScanEndcap1Res,
+                       IDSCANEndcap2Res      = idScanEndcap2Res,
+                       IDSCANEndcap3Res      = idScanEndcap3Res,
+                       IDSCANEndcap4Res      = idScanEndcap4Res,
+                       IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
+                       MonTool = TrigMuCombMonitoring())
 
     return acc, muCombAlg
 

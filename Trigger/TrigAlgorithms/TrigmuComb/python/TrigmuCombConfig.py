@@ -1,27 +1,27 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################
-# L2 muCombMT Fex Algorithm Configuration:
+# L2 muComb Fex Algorithm Configuration:
 # Stefano Giagu <stefano.giagu@cern.ch>
 ##############################
 
 
-from TrigmuComb.TrigmuCombConf import muCombMT
+from TrigmuComb.TrigmuCombConf import muComb
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.GlobalFlags import globalflags
 from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
 
-class TrigmuCombMTConfig (muCombMT):
+class TrigmuCombConfig (muComb):
     __slots__ = []
     def __new__( cls, *args, **kwargs ):
       newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1]) ] + list(args)
       if len(args) == 3:
         if args[2] == 'OLDextr':
           newargs = ['%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2]) ] + list(args)
-      return super( TrigmuCombMTConfig, cls ).__new__( cls, *newargs, **kwargs )
+      return super( TrigmuCombConfig, cls ).__new__( cls, *newargs, **kwargs )
 
     def __init__( self, name, *args, **kwargs ):
-      super( TrigmuCombMTConfig, self ).__init__( name )
+      super( TrigmuCombConfig, self ).__init__( name )
 
       self.MuCombStrategy = 0
 

@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     muCombMT.h
+// NAME:     muComb.h
 // PACKAGE:  Trigger/TrigAlgorithms/TrigmuComb
 //
 // AUTHORS:   S. Giagu <stefano.giagu@cern.ch>
@@ -12,8 +12,8 @@
 // PURPOSE:  LVL2 Combined Muon FEX Algorithm (MT version)
 // ********************************************************************
 
-#ifndef TRIGMUCOMB_MUCOMBMT_H
-#define TRIGMUCOMB_MUCOMBMT_H
+#ifndef TRIGMUCOMB_MUCOMB_H
+#define TRIGMUCOMB_MUCOMB_H
 
 // standard stuff
 #include <vector>
@@ -37,11 +37,11 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
-class muCombMT : public AthAlgorithm
+class muComb : public AthAlgorithm
 {
  public:
   /** Constructor */
-  muCombMT(const std::string&, ISvcLocator*);
+  muComb(const std::string&, ISvcLocator*);
 
   /** initialize. Called by the Steering. */
   virtual StatusCode initialize() override;

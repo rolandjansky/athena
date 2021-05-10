@@ -592,10 +592,10 @@ def muCombRecoSequence( RoIs, name, l2mtmode=False ):
 
   muCombRecoSequence+=ViewVerify
 
-  ### please read out TrigmuCombMTConfig file ###
-  ### and set up to run muCombMT algorithm    ###
-  from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
+  ### please read out TrigmuCombConfig file ###
+  ### and set up to run muComb algorithm    ###
+  from TrigmuComb.TrigmuCombConfig import TrigmuCombConfig
+  muCombAlg = TrigmuCombConfig("Muon"+postFix,name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
   if ('LRT' in name):
     muCombAlg.L2CombinedMuonContainerName   = muNamesLRT.L2CBName
