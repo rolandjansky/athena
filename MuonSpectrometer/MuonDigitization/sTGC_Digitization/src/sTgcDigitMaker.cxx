@@ -87,7 +87,10 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   m_engine = rndmEngine;
 
   // Read share/sTGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold.
-  readFileOfEnergyThreshold();
+  // Currently no point in wasting memory to read an empty file for energy threshold.
+  // We have no gap-by-gap energy threshold currently for the sTGC
+  // Alexandre Laurier - April 13 2021
+  //readFileOfEnergyThreshold();
 
   //// Read share/sTGC_Digitization_crossTalk.dat file and store values in m_crossTalk.
   //readFileOfCrossTalk();
@@ -174,7 +177,9 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
   //***************************** check effeciency ******************************** 
   // use energyDeposit to implement detector effeciency 
-  if(!efficiencyCheck(stationName, stationEta, stationPhi, multiPlet, gasGap, 1, energyDeposit)) return 0; 
+  // Currently, we do not have a gap-by-gap minimum energy deposit threshold
+  // If and when this is implemented, the value must be read from a database
+  //if(!efficiencyCheck(stationName, stationEta, stationPhi, multiPlet, gasGap, 1, energyDeposit)) return 0; 
   
   IdentifierHash coll_hash;
   // contain (name, eta, phi, multiPlet)
@@ -331,18 +336,23 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         float charge = charge_spread->Integral(xmin, xmax);
         charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-          addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-          //************************************** introduce cross talk ************************************************
-          for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-            if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-              if(isValid) addDigit(digits.get(), newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-            }
-            if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-            }
-          }// end of introduce cross talk
+        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
+        // For now, we remove the cross talk since we have no measurements to use
+        // Currently, adding a few % cross talk only muddies our current set of studies
+        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
+        // i.e to make sure my replacement knows where to find cross talk
+        // Alexandre Laurier - April 13 2021
+        //************************************** introduce cross talk ************************************************
+        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
+        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
+        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
+        //    if(isValid) addDigit(digits.get(), newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+        //  }
+        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
+        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
+        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+        //  }
+        //}// end of introduce cross talk
       } // end isValid
     }// end of when stripnum = stripNumber+neighbor
  
@@ -360,19 +370,23 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         float charge = charge_spread->Integral(xmin, xmax);
         charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-          addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-
-          //************************************** introduce cross talk ************************************************
-          for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-            if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-             newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-             if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-            }
-            if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-            }
-          }// end of introduce cross talk
+        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
+        // For now, we remove the cross talk since we have no measurements to use
+        // Currently, adding a few % cross talk only muddies our current set of studies
+        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
+        // i.e to make sure my replacement knows where to find cross talk
+        // Alexandre Laurier - April 13 2021
+        //************************************** introduce cross talk ************************************************
+        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
+        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
+        //   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
+        //   if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+        //  }
+        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
+        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
+        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+        //  }
+        //}// end of introduce cross talk
       } // end isValid
     }// end of when stripnum = stripNumber-neighbor
   }//end for spread the charge to 5 strips 
