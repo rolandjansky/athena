@@ -2,56 +2,48 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTRTHTHCounterMT.h"
+#include "TrigTRTHTHCounter.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 //Function to calculate distance for road algorithm
-float dist2COR_MT(float R, float phi1, float phi2){
+float dist2COR(float R, float phi1, float phi2){
   float PHI= std::abs(phi1-phi2);
   return std::abs(R*sin(PHI));
 }
 
 //TRT hit struct used for convenience
-struct TRT_hit_MT {
+struct TRT_hit {
   float phi;
   float R;
   bool isHT;
 };
 
 //Constructor of above struct
-TRT_hit_MT make_hit_MT(float phi, float R, bool isHT){
-  TRT_hit_MT my_hit_MT={phi,R,isHT};
-  return my_hit_MT;
+TRT_hit make_hit(float phi, float R, bool isHT){
+  TRT_hit my_hit={phi,R,isHT};
+  return my_hit;
 }
 
 
 //---------------------------------------------------------------------------------
 
 
-TrigTRTHTHCounterMT::TrigTRTHTHCounterMT(const std::string & name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
-      m_trtHelper(0),
-      m_maxCaloEta(1.7)
+TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string & name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
-StatusCode TrigTRTHTHCounterMT::initialize()
+StatusCode TrigTRTHTHCounter::initialize()
 {
   ATH_MSG_DEBUG ( "Initialising this TrigTRTHTHCounter: " << name());
 
   // Get a TRT identifier helper
-  if( detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
-    ATH_MSG_ERROR ( "Failed to retrieve " << m_trtHelper); // fatal?
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
+  ATH_CHECK( detStore()->retrieve(m_trtHelper, "TRT_ID") );
 
   if (!m_doFullScan){
     ATH_MSG_INFO ( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth);
   } else {
     ATH_MSG_INFO ( "FullScan mode");
   }
-
-  ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully");
 
   ATH_CHECK( m_roiCollectionKey.initialize() );
   ATH_CHECK( m_trtDCContainerKey.initialize() );
@@ -61,12 +53,11 @@ StatusCode TrigTRTHTHCounterMT::initialize()
 }
 
 
-StatusCode TrigTRTHTHCounterMT::execute() {
- using namespace xAOD;   
+StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
+ using namespace xAOD;
 
  ATH_MSG_DEBUG( "Executing " <<name());
- auto ctx = getContext();
- 
+
  auto trigRNNOutputColl = SG::makeHandle (m_trigRNNOutputKey, ctx);  
  ATH_CHECK(trigRNNOutputColl.record (std::make_unique<xAOD::TrigRNNOutputContainer>(),
                                       std::make_unique<xAOD::TrigRNNOutputAuxContainer>()));
@@ -87,14 +78,8 @@ StatusCode TrigTRTHTHCounterMT::execute() {
 		<< ": Eta = "      << (roiDescriptor)->eta()
 		<< ", Phi = "      << (roiDescriptor)->phi());
 
-    
- m_listOfTrtIds.clear();
 
- float hitInit[6]={0,-999,0,-999,-999,-999};
- m_trththits.clear();
- for (int i=0; i<6; i++) {
-    m_trththits.push_back(hitInit[i]);
- }
+ std::vector<float> trththits{0,-999,0,-999,-999,-999};
 
  //Vectors to hold the count of total and HT TRT hits in the coarse bins 
  std::vector<int> count_httrt_c(m_nBinCoarse);
@@ -105,7 +90,7 @@ StatusCode TrigTRTHTHCounterMT::execute() {
  std::vector<int> count_tottrt(3*m_nBinFine);
 
  //Vector to hold TRT hits that are within RoI
- std::vector<TRT_hit_MT> hit;
+ std::vector<TRT_hit> hit;
 
  //Sanity check of the ROI size
  double deltaEta= std::abs(roiDescriptor->etaPlus()-roiDescriptor->etaMinus());
@@ -155,7 +140,7 @@ StatusCode TrigTRTHTHCounterMT::execute() {
       if ((*trtItr)->highLevel()) hth = true;
 
       //hit needs to be stored
-      hit.push_back(make_hit_MT(hphi,R,hth));
+      hit.push_back(make_hit(hphi,R,hth));
 
       //First, define coarse wedges in phi, and count the TRT hits in these wedges
       int countbin=0;	
@@ -236,15 +221,15 @@ StatusCode TrigTRTHTHCounterMT::execute() {
   //Count the number of total and HT TRT hits for the road algorithm
   int trthit=0, trthit_ht=0;
   for(size_t v=0;v<hit.size();v++){
-    if (dist2COR_MT(hit[v].R,hit[v].phi,center_pos_phi)<=m_roadWidth){
+    if (dist2COR(hit[v].R,hit[v].phi,center_pos_phi)<=m_roadWidth){
       if(hit[v].isHT) trthit_ht+=1; 
       trthit+=1;						
     }
   }
 
   if (trthit!=0&&(std::abs(roiDescriptor->eta())<=m_roadMaxEta)){
-    m_trththits[0] = trthit_ht;
-    m_trththits[1] = (float)trthit_ht/trthit;
+    trththits[0] = trthit_ht;
+    trththits[1] = (float)trthit_ht/trthit;
   }
 
   //Count the number of total and HT TRT hits for the wedge algorithm
@@ -262,22 +247,22 @@ StatusCode TrigTRTHTHCounterMT::execute() {
   }
 
   if (trthit!=0&&(std::abs(roiDescriptor->eta())>=m_wedgeMinEta)){
-    m_trththits[2] = trthit_ht;
-    m_trththits[3] = (float)trthit_ht/trthit;
+    trththits[2] = trthit_ht;
+    trththits[3] = (float)trthit_ht/trthit;
   }
 
-  m_trththits[4]=roiDescriptor->eta();
-  m_trththits[5]=roiDescriptor->phi();
+  trththits[4]=roiDescriptor->eta();
+  trththits[5]=roiDescriptor->phi();
 
-  ATH_MSG_VERBOSE ( "trthits with road algorithm : " << m_trththits[0]);
-  ATH_MSG_VERBOSE ( "fHT with road algorithm : " << m_trththits[1]);
-  ATH_MSG_VERBOSE ( "trthits with wedge algorithm : " << m_trththits[2]);
-  ATH_MSG_VERBOSE ( "fHT with wedge algorithm : " << m_trththits[3]);
-  ATH_MSG_VERBOSE ( "ROI eta : " << m_trththits[4]);
+  ATH_MSG_VERBOSE ( "trthits with road algorithm : " << trththits[0]);
+  ATH_MSG_VERBOSE ( "fHT with road algorithm : " << trththits[1]);
+  ATH_MSG_VERBOSE ( "trthits with wedge algorithm : " << trththits[2]);
+  ATH_MSG_VERBOSE ( "fHT with wedge algorithm : " << trththits[3]);
+  ATH_MSG_VERBOSE ( "ROI eta : " << trththits[4]);
   
   //Writing to xAOD
   xAOD::TrigRNNOutput* rnnOutput = new xAOD::TrigRNNOutput();
-  rnnOutput->setRnnDecision(m_trththits);
+  rnnOutput->setRnnDecision(trththits);
   trigRNNOutputColl->push_back(rnnOutput);
   
   ATH_MSG_DEBUG("REGTEST:  returning an xAOD::TrigRNNOutputContainer with size "<< trigRNNOutputColl->size() << ".");

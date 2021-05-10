@@ -1,7 +1,7 @@
-#include "../TrigTRTHTHCounterMT.h"
-#include "../TrigTRTHTHhypoMT.h"
+#include "../TrigTRTHTHCounter.h"
+#include "../TrigTRTHTHhypoAlg.h"
 #include "../TrigTRTHTHhypoTool.h"
 
-DECLARE_COMPONENT( TrigTRTHTHCounterMT )
-DECLARE_COMPONENT( TrigTRTHTHhypoMT )
+DECLARE_COMPONENT( TrigTRTHTHCounter )
+DECLARE_COMPONENT( TrigTRTHTHhypoAlg )
 DECLARE_COMPONENT( TrigTRTHTHhypoTool )
