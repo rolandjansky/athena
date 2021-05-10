@@ -32,6 +32,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 // STDLIB
 #include <string>
@@ -46,6 +47,7 @@ class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
 class ITRT_StrawStatusSummaryTool;
+class ITRT_ByteStream_ConditionsSvc;
 
 class TRTMonitoringRun3RAW_Alg : public AthMonitorAlgorithm {
 public:
@@ -72,6 +74,7 @@ private:
     bool m_doStraws;
     bool m_doExpert;
     bool m_doChips;
+    bool m_doTracksMon;
     bool m_doRDOsMon;
     bool m_doShift;
     bool m_doMaskStraws;
@@ -118,6 +121,7 @@ private:
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
