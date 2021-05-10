@@ -55,8 +55,6 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_LCMode(false),
     m_doDigiTruth(false),
     m_heavyIonMode(false),
-    m_trackVertexAssociationTool(""),
-    m_vertexContainerName("PrimaryVertices"),
     m_useAODReductionMomentList(false)
 {
   declareInterface<eflowObjectCreatorTool>(this);

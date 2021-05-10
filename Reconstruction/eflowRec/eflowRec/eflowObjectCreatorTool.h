@@ -85,12 +85,6 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* Bool to determine whether we are in HeavyIon running or p-p running. The latter is the default */
   bool m_heavyIonMode;
 
-  /* ToolHandle to tracking CP loose vertex selection tool */
-  ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
-
-  /* String to specify name of VertexContainer to retrieve */
-  std::string m_vertexContainerName;
-
   /* Bool to toggle AOD reduction task force cluster moment list */
   bool m_useAODReductionMomentList;
   
