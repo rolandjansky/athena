@@ -458,7 +458,7 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
   int pos;
 
   std::ifstream calibfile;
-  std::string filename = PathResolver::find_file (m_calib_filename.c_str(), "DATAPATH");
+  std::string filename = PathResolver::find_file (m_calib_filename, "DATAPATH");
   calibfile.open(filename.c_str());
   if(!calibfile.good()){
     ATH_MSG_WARNING (" Problem with file named "<< m_calib_filename << " in $DATAPATH");
