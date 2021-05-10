@@ -33,12 +33,11 @@ namespace MuonCombined {
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_muonCombinedTagTools.retrieve());
         // debug tree, only for running with 1 thread
-        if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
-            m_runMuonCombinedDebugger = false;
-        }
-        if (m_runMuonCombinedDebugger) { 
+        if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) { m_runMuonCombinedDebugger = false; }
+        if (m_runMuonCombinedDebugger) {
             ATH_CHECK(m_muonCombDebugger.retrieve());
-        } else m_muonCombDebugger.disable();
+        } else
+            m_muonCombDebugger.disable();
 
         return StatusCode::SUCCESS;
     }

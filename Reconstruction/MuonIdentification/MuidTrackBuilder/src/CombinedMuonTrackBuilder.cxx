@@ -350,7 +350,7 @@ namespace Rec {
 
         // take inner calorimeter scattering surface from extrapolated track
         const Trk::Surface* surface = nullptr;
-        if (m_trackQuery->isCaloAssociated(extrapolatedTrack)) {
+        if (m_trackQuery->isCaloAssociated(extrapolatedTrack, ctx)) {
             for (const Trk::TrackStateOnSurface* it : *extrapolatedTrack.trackStateOnSurfaces()) {
                 if (!it->materialEffectsOnTrack()) continue;
 
@@ -866,7 +866,7 @@ namespace Rec {
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << endmsg << "==== Start of standaloneFit:: " << std::setiosflags(std::ios::fixed);
 
-            if (m_trackQuery->isExtrapolated(inputSpectrometerTrack)) {
+            if (m_trackQuery->isExtrapolated(inputSpectrometerTrack, ctx)) {
                 if (m_trackQuery->isLineFit(inputSpectrometerTrack)) {
                     msg(MSG::VERBOSE) << "extrapolated has lineFit";
                 } else {
@@ -948,22 +948,21 @@ namespace Rec {
         }
 
         // check the track is roughly projective in phi
-        if (!m_trackQuery->isExtrapolated(inputSpectrometerTrack) && !m_trackQuery->isProjective(inputSpectrometerTrack)) {
+        const bool is_extrapolated = m_trackQuery->isExtrapolated(inputSpectrometerTrack, ctx);
+        if (!is_extrapolated && !m_trackQuery->isProjective(inputSpectrometerTrack)) {
             ATH_MSG_VERBOSE(" SA::failed (3)");
             return nullptr;
         }
 
         // possibly refit the spectrometer track with material reallocation
-        bool haveSpectrometerRefit = false;
         double spectrometerFitChi2 = normalizedChi2(inputSpectrometerTrack);
-        const Trk::Track* spectrometerFit = &inputSpectrometerTrack;
-        if (!vertex && (m_reallocateMaterial || m_trackQuery->isExtrapolated(inputSpectrometerTrack))) {
-            spectrometerFit = reallocateMaterial(inputSpectrometerTrack, ctx).release();
+        std::unique_ptr<const Trk::Track> spectrometerFit = std::make_unique<Trk::Track>(inputSpectrometerTrack);
+        if (!vertex && (m_reallocateMaterial || is_extrapolated)) {
+            spectrometerFit = reallocateMaterial(inputSpectrometerTrack, ctx);
             if (!spectrometerFit) {
                 ATH_MSG_VERBOSE(" SA::failed (4)");
                 return nullptr;
             }
-            haveSpectrometerRefit = true;
         }
 
         const Trk::Track& spectrometerTrack = *spectrometerFit;
@@ -974,8 +973,6 @@ namespace Rec {
         if (!measuredPerigee || !measuredPerigee->covariance()) {
             // missing MeasuredPerigee for spectrometer track
             m_messageHelper->printWarning(7);
-
-            if (haveSpectrometerRefit) delete spectrometerFit;
 
             ATH_MSG_VERBOSE(" SA::failed (5)");
             return nullptr;
@@ -990,7 +987,6 @@ namespace Rec {
             ATH_MSG_WARNING("standaloneFit: measuredPerigee has non-positive-definite covariance ");
             ATH_MSG_VERBOSE(" SA::failed (5.5)");
             /// Delete manually until we switch to unique_ptrs
-            if (haveSpectrometerRefit) delete spectrometerFit;
             return nullptr;
         }
 
@@ -1040,17 +1036,15 @@ namespace Rec {
         }
 
         if (!parameters) {
-            if (haveSpectrometerRefit) delete spectrometerFit;
             ATH_MSG_VERBOSE(" SA::failed (7)");
             return nullptr;
         }
 
         // create the spectrometer TSOS's for the extrapolated fit
         std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> spectrometerTSOS =
-            createSpectrometerTSOS(spectrometerTrack);
+            createSpectrometerTSOS(spectrometerTrack, ctx);
 
         if (!spectrometerTSOS) {
-            if (haveSpectrometerRefit) delete spectrometerFit;
             ATH_MSG_VERBOSE(" SA::failed (8)");
             return nullptr;
         }
@@ -1163,7 +1157,6 @@ namespace Rec {
             spectrometerTSOS->clear();
 
             if (!prefit) {
-                if (haveSpectrometerRefit) delete spectrometerFit;
                 ATH_MSG_VERBOSE(" SA::failed (9)");
                 return nullptr;
             }
@@ -1282,7 +1275,6 @@ namespace Rec {
                     bool hasFQ = extrapolated ? (extrapolated->fitQuality() != nullptr) : false;
                     ATH_MSG_DEBUG("fail track as back extrapolation fit failed " << extrapolated.get() << " hasFQ " << hasFQ);
 
-                    if (haveSpectrometerRefit) delete spectrometerFit;
                     ATH_MSG_VERBOSE(" SA::failed (10)");
                     return nullptr;
                 }
@@ -1353,10 +1345,9 @@ namespace Rec {
         }
         if (extrapolated) { track.swap(extrapolated); }
 
-        if (!m_trackQuery->isCaloAssociated(*track)) {  // still want to perform this check probably though
+        if (!m_trackQuery->isCaloAssociated(*track, ctx)) {  // still want to perform this check probably though
             // fail as calo incorrectly described
             m_messageHelper->printWarning(12);
-            if (haveSpectrometerRefit) { delete spectrometerFit; }
             ATH_MSG_VERBOSE(" SA::failed (12)");
             return nullptr;
         }
@@ -1419,13 +1410,11 @@ namespace Rec {
                 ++m_countDegradedStandaloneFit;
                 if (improvementsFailed >= 2) {
                     ATH_MSG_DEBUG("reject track, quality degraded and improvements failed");
-                    if (haveSpectrometerRefit) { delete spectrometerFit; }
                     return nullptr;
                 }
             }
         }
 
-        if (haveSpectrometerRefit) { delete spectrometerFit; }
         ATH_MSG_VERBOSE(" SA::ok ");
 
         return track.release();
@@ -1483,7 +1472,7 @@ namespace Rec {
 
         bool addPhiPseudo = false;
         // release 21
-        unsigned spectrometerPhiQuality = m_trackQuery->spectrometerPhiQuality(combinedTrack);
+        unsigned spectrometerPhiQuality = m_trackQuery->spectrometerPhiQuality(combinedTrack, ctx);
         if (spectrometerPhiQuality > 1) { addPhiPseudo = true; }
 
         ATH_MSG_VERBOSE("standaloneRefit: using vertex region constraint with "
@@ -1876,7 +1865,7 @@ namespace Rec {
 
         // insert phi pseudo measurement if necessary
         if (addPhiPseudo) {
-            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(combinedTrack);
+            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(combinedTrack, ctx);
             if (tsos) trackStateOnSurfaces->push_back(tsos);
         }
 
@@ -1887,7 +1876,7 @@ namespace Rec {
         std::unique_ptr<Trk::Track> standaloneTrack =
             std::make_unique<Trk::Track>(combinedTrack.info(), trackStateOnSurfaces.release(), nullptr);
         standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
-        if (m_trackQuery->isCombined(*standaloneTrack)) { ATH_MSG_WARNING(" This should not happen standalone Track has ID hits "); }
+        if (m_trackQuery->isCombined(*standaloneTrack, ctx)) { ATH_MSG_WARNING(" This should not happen standalone Track has ID hits "); }
 
         if (msgLevel(MSG::DEBUG)) countAEOTs(standaloneTrack.get(), " in standalone Refit standaloneTrack track before fit ");
 
@@ -1900,7 +1889,7 @@ namespace Rec {
         if (refittedTrack) {
             if (!refittedTrack->fitQuality()) { return nullptr; }
 
-            if (!m_trackQuery->isCaloAssociated(*refittedTrack)) {
+            if (!m_trackQuery->isCaloAssociated(*refittedTrack, ctx)) {
                 // fail as calo incorrectly described
                 m_messageHelper->printWarning(28);
                 return nullptr;
@@ -1944,7 +1933,7 @@ namespace Rec {
         }
 
         // check if combined or subsystem track
-        bool isCombined = m_trackQuery->isCombined(track);
+        bool isCombined = m_trackQuery->isCombined(track, ctx);
         // select straightLine fitter when magnets downstream of leading measurement are off
         const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
@@ -1963,7 +1952,7 @@ namespace Rec {
         // perform fit after ensuring calo is associated for combined tracks
         // calo association for combined tracks (WARN if missing from input)
         std::unique_ptr<Trk::Track> fittedTrack;
-        if (isCombined && particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(track)) {
+        if (isCombined && particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(track, ctx)) {
             // about to add the TSOS's describing calorimeter association to a combined muon;
             m_messageHelper->printWarning(30);
 
@@ -2012,8 +2001,7 @@ namespace Rec {
 
             if (msgLevel(MSG::DEBUG)) countAEOTs(combinedTrack.get(), " combinedTrack track before fit ");
 
-            caloAssociated = m_trackQuery->isCaloAssociated(*combinedTrack);
-            caloAssociated = true;
+            caloAssociated = m_trackQuery->isCaloAssociated(*combinedTrack, ctx);
 
             // Updates the calo TSOS with the ones from TG+corrections
             if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
@@ -2239,7 +2227,7 @@ namespace Rec {
         // redo ROTs:  ID, CROT and MDT specific treatments
 
         // calo association (for now just WARN if missing)
-        if (particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(extrapolatedTrack)) {
+        if (particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(extrapolatedTrack, ctx)) {
             // combined muon track is missing the TSOS's describing calorimeter association
             m_messageHelper->printWarning(33);
         }
@@ -3116,8 +3104,9 @@ namespace Rec {
         return newMuonTrack;
     }
 
-    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track) const {
-        auto parameters = m_trackQuery->spectrometerParameters(track);
+    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track,
+                                                                                         const EventContext& ctx) const {
+        auto parameters = m_trackQuery->spectrometerParameters(track, ctx);
         Amg::MatrixX covarianceMatrix(1, 1);
         covarianceMatrix.setZero();
         covarianceMatrix(0, 0) = m_sigmaPhiSector * m_sigmaPhiSector * parameters->position().perp2();
@@ -3134,7 +3123,7 @@ namespace Rec {
     }
 
     std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> CombinedMuonTrackBuilder::createSpectrometerTSOS(
-        const Trk::Track& spectrometerTrack) const {
+        const Trk::Track& spectrometerTrack, const EventContext& ctx) const {
         const Trk::Perigee* measuredPerigee = spectrometerTrack.perigeeParameters();
 
         if (!measuredPerigee || !measuredPerigee->covariance() || !Amg::valid_cov(*measuredPerigee->covariance())) {
@@ -3158,7 +3147,7 @@ namespace Rec {
         if (numberPseudo > 1 && !m_trackQuery->isSectorOverlap(spectrometerTrack)) {
             ATH_MSG_VERBOSE("standaloneFit: add pseudo to constrain phi sector");
 
-            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(spectrometerTrack);
+            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(spectrometerTrack, ctx);
             if (tsos) { spectrometerTSOS->emplace_back(tsos); }
         }
 
@@ -3322,7 +3311,7 @@ namespace Rec {
         }
 
         // set starting parameters and measured momentum error
-        auto parameters = m_trackQuery->spectrometerParameters(spectrometerTrack);
+        auto parameters = m_trackQuery->spectrometerParameters(spectrometerTrack, ctx);
         if (!parameters || !parameters->covariance()) {
             // missing spectrometer parameters on spectrometer track
             m_messageHelper->printWarning(43);
@@ -3499,7 +3488,7 @@ namespace Rec {
             badlyDeterminedCurvature = true;
             Amg::Vector3D momentum = parameters->position() * Gaudi::Units::TeV / parameters->position().mag();
 
-            std::unique_ptr<const Trk::TrackParameters> trigParameters{m_trackQuery->triggerStationParameters(spectrometerTrack)};
+            std::unique_ptr<const Trk::TrackParameters> trigParameters{m_trackQuery->triggerStationParameters(spectrometerTrack, ctx)};
 
             if (trigParameters) { momentum = trigParameters->position() * Gaudi::Units::TeV / trigParameters->position().mag(); }
 
@@ -3958,7 +3947,7 @@ namespace Rec {
     void CombinedMuonTrackBuilder::dumpCaloEloss(const Trk::Track* track, const std::string& txt) const {
         // will refit if extrapolated track was definitely bad
         if (!track || !msgLevel(MSG::DEBUG)) return;
-        if (!m_trackQuery->isCaloAssociated(*track)) {
+        if (!m_trackQuery->isCaloAssociated(*track, Gaudi::Hive::currentContext())) {
             ATH_MSG_DEBUG(txt << " no TSOS in Calorimeter ");
             return;
         }

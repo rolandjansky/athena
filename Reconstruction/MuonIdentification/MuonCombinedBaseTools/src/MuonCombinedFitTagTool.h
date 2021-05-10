@@ -49,20 +49,18 @@ namespace MuonCombined {
         std::unique_ptr<Trk::Track> buildCombinedTrack(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
                                                        const Trk::Track* extrapolatedTrack, const EventContext& ctx) const;
 
-        bool combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack) const;
+        bool combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack, const EventContext& ctx) const;
 
         std::unique_ptr<Trk::Track> evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag, const Trk::Track& idTrack,
                                                             const xAOD::TrackParticle& idTrackParticle, const EventContext& ctx) const;
 
-        bool extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack) const;
+        bool extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack, const EventContext& ctx) const;
 
         bool bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, Trk::Track& curTrack,
                               Trk::Track* curMETrack, const InDetCandidate& bestCandidate, const CombinedFitTag& bestTag,
                               Trk::Track& bestTrack, Trk::Track* bestMETrack) const;
 
-        void dumpCaloEloss(Trk::Track* track, std::string txt) const;
-
-        void dumpCaloEloss(const Trk::Track* track, std::string txt) const;
+        void dumpCaloEloss(const Trk::Track* track, const std::string& txt, const EventContext& ctx) const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

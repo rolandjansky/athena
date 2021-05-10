@@ -187,11 +187,11 @@ namespace Rec {
         AmgSymMatrix(5) covariance;
         covariance.setZero();
 
-        if (m_trackQuery->isCombined(track1)) {
+        if (m_trackQuery->isCombined(track1, Gaudi::Hive::currentContext())) {
             // FIXME: should take weighted difference etc -
             //        but this is anyway unreliable due to rounding errors
             ATH_MSG_WARNING("track1 isCombined: results unreliable ");
-        } else if (m_trackQuery->isCombined(track2)) {
+        } else if (m_trackQuery->isCombined(track2, Gaudi::Hive::currentContext())) {
             // FIXME: weighted difference etc
             ATH_MSG_WARNING("track2 isCombined: results unreliable ");
         }

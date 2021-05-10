@@ -120,8 +120,8 @@ namespace MuonCombined {
             }
 
             if (msgLevel() >= MSG::DEBUG) {
-                dumpCaloEloss(combinedTrack.get(), "Combined Track ");
-                dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Extrapolated Track ");
+                dumpCaloEloss(combinedTrack.get(), "Combined Track ", ctx);
+                dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Extrapolated Track ", ctx);
             }
 
             // calculate track score
@@ -150,7 +150,7 @@ namespace MuonCombined {
                 for (rit = sortedInDetCandidates.rbegin(); rit != sortedInDetCandidates.rend(); ++rit) {
                     combinedTrack.reset(m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),
                                                                          muonCandidate.muonSpectrometerTrack(), ctx));
-                    if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, *((*rit).second->indetTrackParticle().track()))) {
+                    if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, *((*rit).second->indetTrackParticle().track()), ctx)) {
                         combinedTrack->info().addPatternReco((*rit).second->indetTrackParticle().track()->info());
                         combinedTrack->info().addPatternReco(muonCandidate.muonSpectrometerTrack().info());
                         combinedTrack->info().setParticleHypothesis(Trk::muon);
@@ -162,8 +162,8 @@ namespace MuonCombined {
                         currentTag.reset(new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, score));
 
                         if (msgLevel() >= MSG::DEBUG) {
-                            dumpCaloEloss(combinedTrack.get(), "Recovery Combined Track ");
-                            dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Recovery Extrapolated Track ");
+                            dumpCaloEloss(combinedTrack.get(), "Recovery Combined Track ", ctx);
+                            dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Recovery Extrapolated Track ", ctx);
                         }
 
                         // re-fit standalone track (if needed) and store output into tag object
@@ -196,8 +196,8 @@ namespace MuonCombined {
 
             if (bestCandidate->indetTrackParticle().trackLink().isValid() && bestMETrack) {
                 if (msgLevel() >= MSG::DEBUG) {
-                    dumpCaloEloss(bestCombTrack.get(), " bestCandidate Combined Track ");
-                    dumpCaloEloss(bestMETrack.get(), " bestCandidate Extrapolated Track ");
+                    dumpCaloEloss(bestCombTrack.get(), " bestCandidate Combined Track ", ctx);
+                    dumpCaloEloss(bestMETrack.get(), " bestCandidate Extrapolated Track ", ctx);
                 }
             }
             ATH_MSG_DEBUG("Final combined muon: " << m_printer->print(*bestCombTrack));
@@ -247,7 +247,7 @@ namespace MuonCombined {
         }
 
         // filter out rubbish fits
-        if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, indetTrack)) {
+        if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, indetTrack, ctx)) {
             combinedTrack->info().addPatternReco(indetTrack.info());
             combinedTrack->info().setParticleHypothesis(Trk::muon);
             combinedTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidCombined);
@@ -256,9 +256,10 @@ namespace MuonCombined {
         return nullptr;
     }
 
-    bool MuonCombinedFitTagTool::combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack) const {
+    bool MuonCombinedFitTagTool::combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack,
+                                                           const EventContext& ctx) const {
         // require calo correctly associated to track
-        if (!m_trackQuery->isCaloAssociated(combinedTrack)) {
+        if (!m_trackQuery->isCaloAssociated(combinedTrack, ctx)) {
             ATH_MSG_DEBUG(" No Calorimeter CaloDeposit found on combined track ");
             return false;
         }
@@ -301,7 +302,7 @@ namespace MuonCombined {
                                                                                 const EventContext& ctx) const {
         // evaluate field integral and momentum balance significance for combined track
         const Trk::Track* combTrack = combinedTrack;
-        tag.fieldIntegral(m_trackQuery->fieldIntegral(*combTrack));
+        tag.fieldIntegral(m_trackQuery->fieldIntegral(*combTrack, ctx));
         tag.momentumBalanceSignificance(m_momentumBalanceTool->momentumBalanceSignificance(*combTrack));
 
         if (tag.muonCandidate().extrapolatedTrack()) {
@@ -406,15 +407,10 @@ namespace MuonCombined {
         return refittedExtrapolatedTrack;
     }
 
-    void MuonCombinedFitTagTool::dumpCaloEloss(Trk::Track* track, std::string txt) const {
-        const Trk::Track* inTrack = track;
-        dumpCaloEloss(inTrack, txt);
-    }
-
-    void MuonCombinedFitTagTool::dumpCaloEloss(const Trk::Track* inTrack, std::string txt) const {
+    void MuonCombinedFitTagTool::dumpCaloEloss(const Trk::Track* inTrack, const std::string& txt, const EventContext& ctx) const {
         // will refit if extrapolated track was definitely bad
         if (!inTrack) return;
-        if (!m_trackQuery->isCaloAssociated(*inTrack)) {
+        if (!m_trackQuery->isCaloAssociated(*inTrack, ctx)) {
             ATH_MSG_DEBUG(txt << " no TSOS in Calorimeter ");
             return;
         }
@@ -498,10 +494,11 @@ namespace MuonCombined {
         return;
     }
 
-    bool MuonCombinedFitTagTool::extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack) const {
+    bool MuonCombinedFitTagTool::extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack,
+                                                        const EventContext& ctx) const {
         // will refit if extrapolated track was definitely bad
         if (!extrTrack) return true;
-        if (!m_trackQuery->isCaloAssociated(*extrTrack)) return true;
+        if (!m_trackQuery->isCaloAssociated(*extrTrack, ctx)) return true;
 
         // otherwise will keep original SA fit if no change to MS or Calo TSOS
         const Trk::Track& originalTrack = *extrTrack;
