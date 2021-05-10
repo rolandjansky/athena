@@ -278,11 +278,11 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
     tiltx =  beamspotptr->beamTilt(0);
     tilty =  beamspotptr->beamTilt(1);
   }
-  Amg::Transform3D * amgTransf = new Amg::Transform3D();
+  Amg::Transform3D amgTransf;
   Amg::Translation3D amgtranslation(beamspot);
-  *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
-  *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
-  *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
+  amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
+  amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
+  amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
  // preparation
   Trk::PerigeeSurface persf(amgTransf);
   const Trk::TrackParameters* vertexPerigee = nullptr;
@@ -290,13 +290,11 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
   const Trk::Perigee& trackparPerigee = tp.perigeeParameters();
   if ( trackparPerigee.associatedSurface() == persf) {
        ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
-       delete amgTransf;
        return(trackparPerigee.clone());
   } else
       vertexPerigee = m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
   if (!vertexPerigee){
      ATH_MSG_DEBUG("Extrapolation to Beam Line failed, a NULL pointer is returned.");
-     delete amgTransf;
   }
   return vertexPerigee;
 
