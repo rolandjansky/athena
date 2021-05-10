@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBBPCRAW_H
@@ -137,8 +137,8 @@ class TBBPCRaw : public TBBeamDetector
     size_t theIndex = 0;
     while ( firstInStore != theIterator && firstInStore != lastInStore )
       {
-	theIndex++;
-	firstInStore++;
+	++theIndex;
+	++firstInStore;
       }
     if ( firstInStore == lastInStore ) theIndex = size_t(-1);
     return theIndex;
@@ -150,8 +150,8 @@ class TBBPCRaw : public TBBeamDetector
     size_t theIndex = 0;
     while ( firstInStore != theIterator && firstInStore != lastInStore )
       {
-	theIndex++;
-	firstInStore++;
+	++theIndex;
+	++firstInStore;
       }
     if ( firstInStore == lastInStore ) theIndex = size_t(-1);
     return theIndex;

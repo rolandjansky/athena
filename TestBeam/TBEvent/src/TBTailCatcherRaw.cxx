@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,12 +42,12 @@ TBTailCatcherRaw::addScintillator(TBScintillatorRaw* thisScint)
 }
 
 const TBScintillatorRaw* 
-TBTailCatcherRaw::getScintillator(std::string thisScintName) const
+TBTailCatcherRaw::getScintillator(const std::string& thisScintName) const
 {
   DataVector< TBScintillatorRaw >::const_iterator first = this->begin();
   while ( first != this->end() && (*first)->getDetectorName() != thisScintName )
     {
-      first++;
+      ++first;
     }
   return ( first != this->end() )
     ? *first
@@ -76,14 +76,14 @@ TBTailCatcherRaw::getSignal(const TBScintillatorRaw* thisScint) const
 }
 
 unsigned int
-TBTailCatcherRaw::findIndex(std::string thisScintName) const
+TBTailCatcherRaw::findIndex(const std::string& thisScintName) const
 {
   DataVector< TBScintillatorRaw >::const_iterator first = this->begin();
   unsigned int theIndex = 0;
   while( first != this->end() && thisScintName != (*first)->getDetectorName() )
     {
-      first++;
-      theIndex++;
+      ++first;
+      ++theIndex;
     }
   return theIndex;
 }

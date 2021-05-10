@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,26 +38,22 @@ void TBBPCRaw::setSignals(const TBTDCRawCont* theTDCCont,
 			  const std::list<const TBADCRaw*>& theADCs)
 {
   // store TDC measurement
-  std::list<const TBTDCRaw*>::const_iterator firstTDC = theTDCs.begin();
-  std::list<const TBTDCRaw*>::const_iterator lastTDC  = theTDCs.end();
-  for ( ; firstTDC != lastTDC; firstTDC++ )
+  for (const TBTDCRaw* tdc : theTDCs)
     {
       ElementLink<TBTDCRawCont> theLink;
-      //      const TBTDCRaw* tbtdc= (*firstTDC);
-      theLink.toContainedElement(*theTDCCont,(*firstTDC));
+      //      const TBTDCRaw* tbtdc= tdc;
+      theLink.toContainedElement(*theTDCCont,tdc);
       m_tdcSignals.push_back(theLink);
-      m_overflow = m_overflow || (*firstTDC)->isOverflow();
+      m_overflow = m_overflow || tdc->isOverflow();
     }
 
   // store ADC measurement
-  std::list<const TBADCRaw*>::const_iterator firstADC = theADCs.begin();
-  std::list<const TBADCRaw*>::const_iterator lastADC  = theADCs.end();
-  for ( ; firstADC != lastADC; firstADC++ )
+  for (const TBADCRaw* adc : theADCs)
     {
       ElementLink<TBADCRawCont> theLink;
-      theLink.toContainedElement(*theADCCont,(*firstADC));
+      theLink.toContainedElement(*theADCCont,adc);
       m_adcSignals.push_back(theLink);
-      m_overflow = m_overflow || (*firstADC)->isOverflow();
+      m_overflow = m_overflow || adc->isOverflow();
     }
 }
 
