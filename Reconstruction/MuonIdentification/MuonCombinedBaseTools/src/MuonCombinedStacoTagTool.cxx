@@ -98,7 +98,7 @@ namespace MuonCombined {
         if (bestCandidate) {
             double outerMatchChi2 = 1e19;
             if (bestCandidate->indetTrackParticle().trackLink().isValid()) {
-                outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack());
+                outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
             }
             ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(*bestPerigee) << " match chi2 " << bestChi2 << " outer match "
                                                    << outerMatchChi2);
