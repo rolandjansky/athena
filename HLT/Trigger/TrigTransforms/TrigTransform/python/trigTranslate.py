@@ -44,6 +44,9 @@ def getOption(runArgs, name, substep, first, output):
         option['save-output'] = runArgs['outputBSFile'].value[0]
     elif 'BS' in output:
         option['save-output'] = output['BS'].value[0]
+    elif 'DRAW_TRIGCOST' in output or 'HIST_DEBUGSTREAMMON' in output:
+        msg.info('BS output needed, but not defined. Saving as temp.BS, but not avaialable to other steps')
+        option['save-output'] = "temp.BS"
     else:
         msg.warning('No BS filename defined, athenaHLT will not save the output')
 
