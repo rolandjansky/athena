@@ -40,22 +40,6 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Transform3D& tTransform)
     std::make_unique<Transforms>(tTransform, tTransform.translation(), s_xAxis);
 }
 
-Trk::PerigeeSurface::PerigeeSurface(
-  std::unique_ptr<Amg::Transform3D> tTransform)
-  : Surface() // default ctor base
-  , m_lineDirection{}
-{
-  Surface::m_transforms = tTransform
-                            ? std::make_unique<Transforms>(
-                                *tTransform, tTransform->translation(), s_xAxis)
-                            : nullptr;
-}
-
-// delegate to the unique_ptr one here.
-Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
-  : PerigeeSurface(std::unique_ptr<Amg::Transform3D>(tTransform))
-{}
-
 #if defined(FLATTEN) && defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call

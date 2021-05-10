@@ -123,7 +123,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
 
     // recreate free surface
     if (type==Trk::SurfaceType::Perigee) {
-      surface = new Trk::PerigeeSurface(std::move(transform));
+      surface = new Trk::PerigeeSurface(*transform);
     } else if (type==Trk::SurfaceType::Plane){
       surface = new Trk::PlaneSurface(std::move(transform));
     } else if (type==Trk::SurfaceType::Line){
