@@ -400,6 +400,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
 
+    if digitizationFlags.doRadiationDamage.get_Value():
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelRadSimFluenceMapAlg
+        condSeq += PixelRadSimFluenceMapAlg()
+
     useNewChargeFormat  = False
 
     ############################################################################################

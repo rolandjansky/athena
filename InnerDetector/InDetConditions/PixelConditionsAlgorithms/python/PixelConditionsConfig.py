@@ -503,6 +503,15 @@ def PixelReadoutSpeedAlgCfg(flags, name="PixelReadoutSpeedAlg", **kwargs):
     acc.addCondAlgo(CompFactory.PixelReadoutSpeedAlg(name, **kwargs))
     return acc
 
+def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelRadSimFluenceMapAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    kwargs.setdefault("PixelModuleData", "PixelModuleData")
+    kwargs.setdefault("WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData")
+    acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
+    return acc
+
 def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured ITkPixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
@@ -512,3 +521,4 @@ def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **
     kwargs.setdefault("InputSource", 2)
     acc.addCondAlgo(CompFactory.ITkPixelOfflineCalibCondAlg(name, **kwargs))
     return acc
+

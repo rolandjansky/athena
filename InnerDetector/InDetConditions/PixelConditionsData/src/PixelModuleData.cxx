@@ -6,7 +6,11 @@
 
 PixelModuleData::PixelModuleData():
   m_moduleStatus(),
-  m_chipStatus()
+  m_chipStatus(),
+  m_fluenceLayer(),
+  m_RadSimFluenceMapList(),
+  m_fluenceLayer3D(),
+  m_RadSimFluenceMapList3D()
 {
 }
 
@@ -308,6 +312,19 @@ float PixelModuleData::getDefaultBiasVoltage(int bec, int layer) const {
 void PixelModuleData::setDefaultTemperature(float temperature) { m_temperature=temperature; }
 float PixelModuleData::getDefaultTemperature() const { return m_temperature; }
 
+// Radiation damage fluence maps
+void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
+std::vector<double> PixelModuleData::getFluenceLayer() const { return m_fluenceLayer; }
+
+void PixelModuleData::setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList) { m_RadSimFluenceMapList = RadSimFluenceMapList; }
+std::vector<std::string> PixelModuleData::getRadSimFluenceMapList() const { return m_RadSimFluenceMapList; }
+
+void PixelModuleData::setFluenceLayer3D(std::vector<double> fluenceLayer) { m_fluenceLayer3D = fluenceLayer; }
+std::vector<double> PixelModuleData::getFluenceLayer3D() const { return m_fluenceLayer3D; }
+
+void PixelModuleData::setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D) { m_RadSimFluenceMapList3D = RadSimFluenceMapList3D; }
+std::vector<std::string> PixelModuleData::getRadSimFluenceMapList3D() const { return m_RadSimFluenceMapList3D; }
+
 // Cabling parameters
 void PixelModuleData::setCablingMapToFile(bool cablingMapToFile) { m_cablingMapToFile = cablingMapToFile; }
 bool PixelModuleData::getCablingMapToFile() const { return m_cablingMapToFile; }
@@ -352,5 +369,9 @@ std::string PixelModuleData::getDistortionFileName() const { return m_distortion
 void PixelModuleData::clear() {
   m_moduleStatus.clear();
   m_chipStatus.clear();
+  m_fluenceLayer.clear();
+  m_RadSimFluenceMapList.clear();
+  m_fluenceLayer3D.clear();
+  m_RadSimFluenceMapList3D.clear();
 }
 

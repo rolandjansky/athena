@@ -59,11 +59,6 @@ private:
     this, "diffusionConstant", 0.0, "Geant4:Diffusion Constant for PixelPlanar"
   };
 
-  Gaudi::Property<bool> m_doRadDamage
-  {
-    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
-  };
-
   Gaudi::Property<bool> m_doInterpolateEfield
   {
     this, "doInterpolateEfield", false, "doInterpolateEfield bool: should be flag"
