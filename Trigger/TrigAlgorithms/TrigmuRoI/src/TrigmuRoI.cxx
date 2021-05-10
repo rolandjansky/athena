@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigmuRoIMT.h"
+#include "TrigmuRoI.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "CxxUtils/phihelper.h"
@@ -10,7 +10,7 @@
 // ================================================================================
 // ================================================================================
 
-TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
+TrigmuRoI::TrigmuRoI(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {   
 }
@@ -19,7 +19,7 @@ TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
 // ================================================================================
 // ================================================================================
 
-StatusCode TrigmuRoIMT::initialize()
+StatusCode TrigmuRoI::initialize()
 {
 
   ATH_MSG_DEBUG("MinValueForOutOfTimeBC: "<<m_minValueForOutOfTimeBC);
@@ -44,7 +44,7 @@ StatusCode TrigmuRoIMT::initialize()
 // ================================================================================
 // ================================================================================
 
-unsigned int TrigmuRoIMT::getBitMaskValue( const unsigned int uintValue, const unsigned int mask ) const {
+unsigned int TrigmuRoI::getBitMaskValue( const unsigned int uintValue, const unsigned int mask ) const {
   unsigned int result;
   unsigned int maskcopy;
   maskcopy = mask;
@@ -61,7 +61,7 @@ unsigned int TrigmuRoIMT::getBitMaskValue( const unsigned int uintValue, const u
 // ================================================================================
 // ================================================================================
 
-StatusCode TrigmuRoIMT::execute(const EventContext& ctx) const
+StatusCode TrigmuRoI::execute(const EventContext& ctx) const
 {
 
   std::vector<int> outOfTimeRpc, outOfTimeTgc;

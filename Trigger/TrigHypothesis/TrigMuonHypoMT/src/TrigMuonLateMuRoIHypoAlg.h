@@ -35,7 +35,7 @@ class TrigMuonLateMuRoIHypoAlg
     ToolHandleArray<TrigMuonLateMuRoIHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiKey{
-	this, "LateRoIs", "rois", "Name of the out-of-time RoIs produced by TrigmuRoIMT"};
+	this, "LateRoIs", "rois", "Name of the out-of-time RoIs produced by TrigmuRoI"};
 
 };
 

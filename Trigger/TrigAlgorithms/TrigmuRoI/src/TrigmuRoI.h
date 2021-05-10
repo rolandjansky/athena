@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUROI_TRIGMUROIMT_H
-#define TRIGMUROI_TRIGMUROIMT_H
+#ifndef TRIGMUROI_TRIGMUROI_H
+#define TRIGMUROI_TRIGMUROI_H
 
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
@@ -12,11 +12,11 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-class TrigmuRoIMT : public AthReentrantAlgorithm
+class TrigmuRoI : public AthReentrantAlgorithm
 {
    public:
 
-      TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator); //!< std Gaudi algorthm constructor
+      TrigmuRoI(const std::string& name, ISvcLocator* pSvcLocator); //!< std Gaudi algorthm constructor
       virtual StatusCode initialize() override;
       virtual StatusCode execute(const EventContext& ctx) const override;
 
