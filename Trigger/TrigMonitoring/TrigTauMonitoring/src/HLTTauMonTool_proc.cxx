@@ -33,6 +33,28 @@ StatusCode HLTTauMonTool::proc()
 	}
 	}
       */
+
+      for(unsigned int i=0;i<m_trigL1Items.size();i++)
+        {
+          setCurrentMonGroup("HLT/TauMon/Expert/L1/"+m_trigL1Items[i]+"/L1RoI");
+          plotUnderOverFlow(hist("hL1RoIEta"));
+          plotUnderOverFlow(hist("hL1RoIPhi"));
+          plotUnderOverFlow(hist("hL1RoIeT"));
+          plotUnderOverFlow(hist("hL1RoIisol"));
+          plotUnderOverFlow(hist("hL1RoITauClus"));
+          plotUnderOverFlow(hist("hL1RoIEMIso"));
+          plotUnderOverFlow(hist("hL1RoIHadCore"));
+          plotUnderOverFlow(hist("hL1RoIHadIsol"));
+          if (m_doL1JetPlots)
+            {
+              plotUnderOverFlow(hist("hL1JetRoIEta"));
+              plotUnderOverFlow(hist("hL1JetRoIPhi"));
+              plotUnderOverFlow(hist("hL1JetRoIeT"));
+            }
+
+	  setCurrentMonGroup("HLT/TauMon/Expert/L1/"+m_trigL1Items[i]+"/L1VsOffline");
+	  plotUnderOverFlow(hist("hL1EtRatio"));
+      }
 	
       for(unsigned int i=0;i<m_trigItems.size();++i)
 	{
@@ -178,24 +200,6 @@ StatusCode HLTTauMonTool::proc()
               plotUnderOverFlow(hist("hpstau_trkres_z0"));
 	    }
 
-            
-	  setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/L1RoI");
-	  plotUnderOverFlow(hist("hL1RoIEta"));
-	  plotUnderOverFlow(hist("hL1RoIPhi"));
-	  plotUnderOverFlow(hist("hL1RoIeT"));
-	  plotUnderOverFlow(hist("hL1RoIisol"));
-	  plotUnderOverFlow(hist("hL1RoITauClus"));
-	  //plotUnderOverFlow(hist("hL1RoITauClus2"));
-	  plotUnderOverFlow(hist("hL1RoIEMIso"));
-	  plotUnderOverFlow(hist("hL1RoIHadCore"));
-	  plotUnderOverFlow(hist("hL1RoIHadIsol"));
-	  if (m_doL1JetPlots)
-	    {
-	      plotUnderOverFlow(hist("hL1JetRoIEta"));            
-	      plotUnderOverFlow(hist("hL1JetRoIPhi"));
-	      plotUnderOverFlow(hist("hL1JetRoIeT"));
-	    }
-
 	  // no preselection taus for some chains  
 	  // tracktwoEFmvaTES catched with tracktwoEF
 	  if(m_trigItems[i].find("tracktwoMVA")==string::npos && m_trigItems[i].find("tracktwoEF")==string::npos && m_trigItems[i].find("ptonly")==string::npos) {
@@ -308,9 +312,6 @@ StatusCode HLTTauMonTool::proc()
 
 	    // add tracks and clusters when element links are fixed
 	  }
-
-	  setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/L1VsOffline");
-	  plotUnderOverFlow(hist("hL1EtRatio"));
             
 	  // no preselection taus for some chains  
 	  // tracktwoEFmvaTES catched with tracktwoEF
@@ -601,18 +602,17 @@ StatusCode HLTTauMonTool::proc()
 	      if(m_trigItems.at(j)==lowest_trigger_names.at(i)) good_item = true;
             }
 	  if(!good_item) continue;
-            
 	  setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoITauClus","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIeT","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIisol","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIHadCore","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram("hL1RoIHadIsol","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram2("hL1EtaVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
-	  cloneHistogram2("hL1RoITauClusEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
+	  cloneHistogram("hL1RoIEta","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIPhi","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoITauClus","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIeT","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIisol","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIEMIso","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIHadCore","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram("hL1RoIHadIsol","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram2("hL1EtaVsPhi","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
+	  cloneHistogram2("hL1RoITauClusEMIso","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1RoI");
 
 	  // if(m_emulation){
 	  //divide("hL1Emulation","hL1EmulationPassTDT","hL1Emulation","HLT/TauMon/Expert/Emulation");
@@ -759,7 +759,7 @@ StatusCode HLTTauMonTool::proc()
 	  }
             
 	  setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/L1VsOffline");
-	  cloneHistogram("hL1EtRatio","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1VsOffline");
+	  cloneHistogram("hL1EtRatio","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/L1VsOffline");
             
 	  setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/EFVsOffline");
 	  cloneHistogram2("hEFvsOffnTrks","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFVsOffline");
@@ -809,15 +809,15 @@ StatusCode HLTTauMonTool::proc()
 	    //         cloneHistogram("hRecoL1NVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
 	    //         cloneHistogram("hRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 
-	    cloneProfile("TProfRecoL1PtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
-	    cloneProfile("TProfRecoL1HighPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
+	    cloneProfile("TProfRecoL1PtEfficiency","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/TurnOnCurves/RecoEfficiency");
+	    cloneProfile("TProfRecoL1HighPtEfficiency","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/TurnOnCurves/RecoEfficiency");
 	    cloneProfile("TProfRecoHLTHighPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
 	    cloneProfile("TProfRecoHLTPtEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
-	    cloneProfile("TProfRecoL1PhiEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
+	    cloneProfile("TProfRecoL1PhiEfficiency","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/TurnOnCurves/RecoEfficiency");
 	    cloneProfile("TProfRecoHLTPhiEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
-	    cloneProfile("TProfRecoL1EtaEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
+	    cloneProfile("TProfRecoL1EtaEfficiency","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/TurnOnCurves/RecoEfficiency");
 	    cloneProfile("TProfRecoHLTEtaEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
-	    cloneProfile("TProfRecoL1NVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
+	    cloneProfile("TProfRecoL1NVtxEfficiency","HLT/TauMon/Expert/L1/"+m_HLTtoL1Map[lowest_trigger_names.at(i)]+"/TurnOnCurves/RecoEfficiency");
 	    cloneProfile("TProfRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 
 	  }	    

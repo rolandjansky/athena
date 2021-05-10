@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.h
@@ -68,11 +68,13 @@ class HLTTauMonTool : public IHLTMonTool {
 //#endif
 
   /// Method fills the histograms for one tau trigger item.
-  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
- private:
+  StatusCode fillHistogramsForItem( const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
+  
+  private:
 
   /// Method books the histograms for one tau trigger item.
   void bookHistogramsForItem(const std::string & trigItem);
+  void bookHistogramsForL1Item(const std::string & trigL1Item);
   void bookHistogramsAllItem();  
   /// Method filling the L1 RoI  histograms
   //StatusCode fillL1ForItem(const std::string & trigItem);
@@ -98,7 +100,7 @@ class HLTTauMonTool : public IHLTMonTool {
   void examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
   StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
-  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
+  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType, bool fillL1);
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
   StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
@@ -188,6 +190,10 @@ class HLTTauMonTool : public IHLTMonTool {
   float m_mu_offline;
   int m_mu_online;
 	int LB;
+
+  std::map<std::string,std::string> m_HLTtoL1Map;
+  std::vector<std::string> m_trigL1Items; 
+  std::vector<std::string> m_L1Items;
 
   ///Name of the trigger items to be monitored.
   ///Set by job options
