@@ -34,6 +34,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(false),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
+    m_IterWeight(0.5),
     m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
     m_MuonSelectionTool("") {
     
@@ -53,6 +54,7 @@ namespace CP {
     declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19");
     declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true);
     declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
+    declareProperty("SagittaIterWeight", m_IterWeight=0.5);
     declareProperty("sgItersCB",m_sgItersCB=4);
     declareProperty("sgItersID",m_sgItersID=4);
     declareProperty("sgItersME",m_sgItersME=4);
@@ -163,6 +165,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace),
     m_doSagittaCorrection(tool.m_doSagittaCorrection),
     m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR),
+    m_IterWeight(tool.m_IterWeight),
     m_SagittaIterations(tool.m_SagittaIterations),
     m_GlobalZScales(tool.m_GlobalZScales){
     declareProperty( "Year", m_year = "Data16" );
