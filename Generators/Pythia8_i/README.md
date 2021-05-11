@@ -134,6 +134,11 @@ Finally, (re)build:
 You may wish to run a `make clean` before `make`, to ensure that everything is
 definitely rebuilt as intended.
 
+## MLM matching within Athena
+Where CKKWL cannot be applied (notably, in all loop induced processes) it can be useful to run MLM matching.
+The first efforts in implementing MLM matching within Athena are documented in this [JIRA ticket](https://its.cern.ch/jira/browse/AGENE-1879).
+The MLM matching base fragment is Pythia8_i/Pythia8_ClassicalMLM_Match.py, which works in close analogy to the corresponding CKKWL base fragment.
+This implement the classical, Madgraph inspired, MLM matching technique,  checking on an event-by-event basis the event jet multiplicity.
 
 ## Sacrifice standalone steering package
 
