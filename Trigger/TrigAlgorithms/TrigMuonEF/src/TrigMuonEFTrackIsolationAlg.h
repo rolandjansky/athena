@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H
-#define TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H 1
+#ifndef TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALG_H
+#define TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALG_H 1
 
 // Base class
 #include "AthenaBaseComps/AthReentrantAlgorithm.h" 
@@ -21,14 +21,14 @@
 
 //#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class TrigMuonEFTrackIsolationAlgMT : public AthReentrantAlgorithm
+class TrigMuonEFTrackIsolationAlg : public AthReentrantAlgorithm
 {
   public :
 
     /** Constructor **/
-    TrigMuonEFTrackIsolationAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigMuonEFTrackIsolationAlg( const std::string& name, ISvcLocator* pSvcLocator );
     /** Destructor **/
-    ~TrigMuonEFTrackIsolationAlgMT(){};
+    ~TrigMuonEFTrackIsolationAlg(){};
   
     /** initialize. Called by the Steering. */
     virtual StatusCode initialize() override;
