@@ -205,6 +205,8 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
 
+    kwargs.setdefault("MaxAvePullSumPerChamber", 6)
+    kwargs.setdefault("Chi2Cut", flags.Muon.Chi2NDofCut)
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
