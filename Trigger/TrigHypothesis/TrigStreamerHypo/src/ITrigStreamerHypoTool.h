@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGSTREAMER_ITRIGSTREAMERHYPOTOOLMT_H
-#define TRIGSTREAMER_ITRIGSTREAMERHYPOTOOLMT_H
+#ifndef TRIGSTREAMER_ITRIGSTREAMERHYPOTOOL_H
+#define TRIGSTREAMER_ITRIGSTREAMERHYPOTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -11,10 +11,10 @@
 #include <vector>
 
 
-class ITrigStreamerHypoToolMT : virtual public::IAlgTool {
+class ITrigStreamerHypoTool : virtual public::IAlgTool {
     
 public:
-  DeclareInterfaceID(ITrigStreamerHypoToolMT, 1, 0);
+  DeclareInterfaceID(ITrigStreamerHypoTool, 1, 0);
 
   struct HypoInfo {
     HypoInfo( TrigCompositeUtils::Decision* newD, const TrigCompositeUtils::Decision* previousD )
@@ -26,7 +26,7 @@ public:
     const TrigCompositeUtils::DecisionIDContainer m_previousDecisionIDs;
   };
 
-  virtual ~ITrigStreamerHypoToolMT(){};
+  virtual ~ITrigStreamerHypoTool(){};
   virtual StatusCode decide(std::vector<HypoInfo>&) const = 0;
   virtual const HLT::Identifier& getId() const = 0; 
 

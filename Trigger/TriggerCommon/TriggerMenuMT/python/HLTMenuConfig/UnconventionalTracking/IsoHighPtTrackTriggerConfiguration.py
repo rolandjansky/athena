@@ -63,18 +63,18 @@ def IsoHPtTrackTriggerHypoSequence():
                             )
 
 def FTFRecoOnlySequence():
-        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-        from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
+        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
+        from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ( TrkSeq, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
 
-        HypoAlg = TrigStreamerHypoAlgMT("UncTrkDummyStream")
+        HypoAlg = TrigStreamerHypoAlg("UncTrkDummyStream")
 
 
         log.debug("Building the Step dictinary for IsoHPt!")
         return MenuSequence( Sequence    = seqAND("UncTrkrecoSeq", TrkSeq),
                             Maker       = InputMakerAlg,
                             Hypo        = HypoAlg,
-                            HypoToolGen = StreamerHypoToolMTgenerator
+                            HypoToolGen = StreamerHypoToolGenerator
                             )

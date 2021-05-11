@@ -4,35 +4,35 @@
 
 // ********************************************************************
 //
-// NAME:     TrigStreamerHypoToolMT.cxx
+// NAME:     TrigStreamerHypoTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigStreamer
 //
 //
 // ********************************************************************
 
-#include "TrigStreamerHypoToolMT.h"
+#include "TrigStreamerHypoTool.h"
 
 
-TrigStreamerHypoToolMT::TrigStreamerHypoToolMT(const std::string& type,
+TrigStreamerHypoTool::TrigStreamerHypoTool(const std::string& type,
                   const std::string& name,
                   const IInterface* parent):
   base_class(type, name, parent),
   m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
 
-TrigStreamerHypoToolMT::~TrigStreamerHypoToolMT() {}
+TrigStreamerHypoTool::~TrigStreamerHypoTool() {}
 
 
-StatusCode TrigStreamerHypoToolMT::initialize() {
-  ATH_MSG_DEBUG("Initializing TrigStreamerHypoToolMT");
+StatusCode TrigStreamerHypoTool::initialize() {
+  ATH_MSG_DEBUG("Initializing TrigStreamerHypoTool");
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigStreamerHypoToolMT::finalize() {
+StatusCode TrigStreamerHypoTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::HypoInfo>& hypoInfo) const
+StatusCode TrigStreamerHypoTool::decide(std::vector<ITrigStreamerHypoTool::HypoInfo>& hypoInfo) const
 {
   ATH_MSG_DEBUG("Executing decide() of " << name() << " over " << hypoInfo.size() << " Decision Objects" );
   if ( not m_pass ) {
@@ -40,7 +40,7 @@ StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::H
     return StatusCode::SUCCESS;
   }
   size_t count = 0;
-  for (ITrigStreamerHypoToolMT::HypoInfo& hi : hypoInfo) {
+  for (ITrigStreamerHypoTool::HypoInfo& hi : hypoInfo) {
     // Perform logic-flow check (this HypoTool can only accept the chain if the chain was active also in the previous decision object)
     if (TrigCompositeUtils::passed(getId().numeric(), hi.m_previousDecisionIDs)) {
       // There is no other pass/fail logic - this is a streamer, we accept unconditionally
@@ -56,7 +56,7 @@ StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::H
 
 }
 
-const HLT::Identifier& TrigStreamerHypoToolMT::getId() const{
+const HLT::Identifier& TrigStreamerHypoTool::getId() const{
   return m_decisionId;
 } 
 
