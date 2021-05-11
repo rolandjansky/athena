@@ -1110,14 +1110,13 @@ namespace Muon {
 
     const MdtPrepDataCollection* MuonChamberHoleRecoveryTool::findMdtPrdCollection(const Identifier& chId, const EventContext& ctx) const {
         SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt, ctx);
-        const Muon::MdtPrepDataContainer* mdtPrdContainer;
+        const Muon::MdtPrepDataContainer* mdtPrdContainer{nullptr};
         if (h_mdtPrdCont.isValid()) {
             mdtPrdContainer = h_mdtPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
-            return nullptr;
         }
-        if (mdtPrdContainer->size() == 0) return nullptr;
+        if (!mdtPrdContainer || mdtPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId, hash_id);
 
@@ -1131,14 +1130,13 @@ namespace Muon {
     const CscPrepDataCollection* MuonChamberHoleRecoveryTool::findCscPrdCollection(const Identifier& detElId,
                                                                                    const EventContext& ctx) const {
         SG::ReadHandle<Muon::CscPrepDataContainer> h_cscPrdCont(m_key_csc, ctx);
-        const Muon::CscPrepDataContainer* cscPrdContainer;
+        const Muon::CscPrepDataContainer* cscPrdContainer{nullptr};
         if (h_cscPrdCont.isValid()) {
             cscPrdContainer = h_cscPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key());
-            return nullptr;
         }
-        if (cscPrdContainer->size() == 0) return nullptr;
+        if (!cscPrdContainer || cscPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->cscIdHelper().get_geo_module_hash(detElId, hash_id);
 
@@ -1152,14 +1150,13 @@ namespace Muon {
     const TgcPrepDataCollection* MuonChamberHoleRecoveryTool::findTgcPrdCollection(const Identifier& detElId,
                                                                                    const EventContext& ctx) const {
         SG::ReadHandle<Muon::TgcPrepDataContainer> h_tgcPrdCont(m_key_tgc, ctx);
-        const Muon::TgcPrepDataContainer* tgcPrdContainer;
+        const Muon::TgcPrepDataContainer* tgcPrdContainer{nullptr};
         if (h_tgcPrdCont.isValid()) {
             tgcPrdContainer = h_tgcPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key());
-            return nullptr;
         }
-        if (tgcPrdContainer->size() == 0) return nullptr;
+        if (!tgcPrdContainer || tgcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(detElId, hash_id);
 
@@ -1173,14 +1170,14 @@ namespace Muon {
     const RpcPrepDataCollection* MuonChamberHoleRecoveryTool::findRpcPrdCollection(const Identifier& detElId,
                                                                                    const EventContext& ctx) const {
         SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc, ctx);
-        const Muon::RpcPrepDataContainer* rpcPrdContainer = nullptr;
+        const Muon::RpcPrepDataContainer* rpcPrdContainer{nullptr};
         if (h_rpcPrdCont.isValid()) {
             rpcPrdContainer = h_rpcPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key());
             return nullptr;
         }
-        if (rpcPrdContainer->size() == 0) return nullptr;
+        if (!rpcPrdContainer || rpcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(detElId, hash_id);
         auto collptr = rpcPrdContainer->indexFindPtr(hash_id);
@@ -1193,14 +1190,14 @@ namespace Muon {
     const sTgcPrepDataCollection* MuonChamberHoleRecoveryTool::findStgcPrdCollection(const Identifier& detElId,
                                                                                      const EventContext& ctx) const {
         SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc, ctx);
-        const Muon::sTgcPrepDataContainer* stgcPrdContainer = nullptr;
+        const Muon::sTgcPrepDataContainer* stgcPrdContainer{nullptr};
         if (h_stgcPrdCont.isValid()) {
             stgcPrdContainer = h_stgcPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_stgc.key());
             return nullptr;
         }
-        if (stgcPrdContainer->size() == 0) return nullptr;
+        if (!stgcPrdContainer || stgcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->stgcIdHelper().get_module_hash(detElId, hash_id);
 
@@ -1213,14 +1210,13 @@ namespace Muon {
 
     const MMPrepDataCollection* MuonChamberHoleRecoveryTool::findMmPrdCollection(const Identifier& detElId, const EventContext& ctx) const {
         SG::ReadHandle<Muon::MMPrepDataContainer> h_mmPrdCont(m_key_mm, ctx);
-        const Muon::MMPrepDataContainer* mmPrdContainer;
+        const Muon::MMPrepDataContainer* mmPrdContainer{nullptr};
         if (h_mmPrdCont.isValid()) {
             mmPrdContainer = h_mmPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_mm.key());
-            return nullptr;
         }
-        if (mmPrdContainer->size() == 0) return nullptr;
+        if (!mmPrdContainer || mmPrdContainer->size() == 0) return nullptr;
 
         IdentifierHash hash_id;
         m_idHelperSvc->mmIdHelper().get_module_hash(detElId, hash_id);
