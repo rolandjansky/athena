@@ -16,8 +16,8 @@ def TrigL2TauHypoToolFromDict( chainDict ):
 
     # Re-define the calo part using the generic hypo
     if part == 'calo':
-       from TrigTauHypo.TrigTauHypoConf import TrigTauGenericHypoMT
-       currentHypo = TrigTauGenericHypoMT(name)
+       from TrigTauHypo.TrigTauHypoConf import TrigTauGenericHypo
+       currentHypo = TrigTauGenericHypo(name)
        currentHypo.MonTool = ""
        currentHypo.AcceptAll = False
        if 'idperf' in name:

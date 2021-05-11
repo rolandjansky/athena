@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTAUHYPO_TrigTauTrackRoiUpdaterMT_H
-#define TRIGTAUHYPO_TrigTauTrackRoiUpdaterMT_H
+#ifndef TRIGTAUHYPO_TrigTauTrackRoiUpdater_H
+#define TRIGTAUHYPO_TrigTauTrackRoiUpdater_H
 
 #include <iostream>
 
@@ -18,11 +18,11 @@
 #include "xAODTau/TauJetContainer.h"
 #include "tauRecTools/BDTHelper.h"
 
-class TrigTauTrackRoiUpdaterMT : public AthReentrantAlgorithm {
+class TrigTauTrackRoiUpdater : public AthReentrantAlgorithm {
 
  public:
-  TrigTauTrackRoiUpdaterMT(const std::string&, ISvcLocator*);
-  ~TrigTauTrackRoiUpdaterMT();
+  TrigTauTrackRoiUpdater(const std::string&, ISvcLocator*);
+  ~TrigTauTrackRoiUpdater();
   
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext&) const override;

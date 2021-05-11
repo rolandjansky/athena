@@ -3,19 +3,19 @@
 */
 
 #include "Gaudi/Property.h"
-#include "TrigTrackPreSelHypoAlgMT.h"
+#include "TrigTrackPreSelHypoAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils;
 
-TrigTrackPreSelHypoAlgMT::TrigTrackPreSelHypoAlgMT( const std::string& name, 
+TrigTrackPreSelHypoAlg::TrigTrackPreSelHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
+StatusCode TrigTrackPreSelHypoAlg::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_fastTracksKey.initialize() );
   ATH_CHECK( m_roiForID2ReadKey.initialize(SG::AllowEmpty) );
@@ -25,7 +25,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigTrackPreSelHypoAlg::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit

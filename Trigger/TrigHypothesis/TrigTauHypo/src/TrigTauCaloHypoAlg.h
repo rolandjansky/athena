@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGTAUHYPO_TrigTauCaloHypoAlgMT_H
-#define TRIGTAUHYPO_TrigTauCaloHypoAlgMT_H
+#ifndef TRIGTAUHYPO_TrigTauCaloHypoAlg_H
+#define TRIGTAUHYPO_TrigTauCaloHypoAlg_H
 
 #include <string>
 
@@ -16,13 +16,13 @@
 #include "ITrigTauGenericHypoTool.h"
 
 /**
- * @class TrigL2CaloHypoAlgMT
+ * @class TrigTauCaloHypoAlg
  * @brief Implements egamma calo selection for the new HLT framework
  **/
-class TrigTauCaloHypoAlgMT : public ::HypoBase {
+class TrigTauCaloHypoAlg : public ::HypoBase {
  public: 
 
-  TrigTauCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigTauCaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;

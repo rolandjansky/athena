@@ -4,7 +4,7 @@
 
 /********************************************************************
  *
- * NAME:     TrigTauGenericHypoMT.cxx
+ * NAME:     TrigTauGenericHypo.cxx
  * PACKAGE:  Trigger/TrigHypothesis/TrigTauHypo
  *
  * AUTHORS:   P.O. DeViveiros
@@ -22,11 +22,11 @@
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
-#include "TrigTauGenericHypoMT.h"
+#include "TrigTauGenericHypo.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 
-TrigTauGenericHypoMT::TrigTauGenericHypoMT( const std::string& type,
+TrigTauGenericHypo::TrigTauGenericHypo( const std::string& type,
                   const std::string& name, 
                   const IInterface* parent ) 
   : base_class( type, name, parent ),
@@ -37,7 +37,7 @@ TrigTauGenericHypoMT::TrigTauGenericHypoMT( const std::string& type,
 }
 
 
-StatusCode TrigTauGenericHypoMT::initialize() {
+StatusCode TrigTauGenericHypo::initialize() {
 
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
@@ -59,7 +59,7 @@ StatusCode TrigTauGenericHypoMT::initialize() {
 }
 
 
-bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& input ) const {
+bool TrigTauGenericHypo::decide( const ITrigTauGenericHypoTool::ClusterInfo& input ) const {
 
   bool pass = false;
 
@@ -124,7 +124,7 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
 
 
 
-StatusCode TrigTauGenericHypoMT::decide(  std::vector<ClusterInfo>& input )  const {
+StatusCode TrigTauGenericHypo::decide(  std::vector<ClusterInfo>& input )  const {
 
   using namespace TrigCompositeUtils;
 

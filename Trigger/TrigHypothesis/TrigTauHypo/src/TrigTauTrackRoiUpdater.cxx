@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-#include "TrigTauTrackRoiUpdaterMT.h"
+#include "TrigTauTrackRoiUpdater.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -22,22 +22,22 @@
 #include "PathResolver/PathResolver.h"
 #include "tauRecTools/HelperFunctions.h"
 
-TrigTauTrackRoiUpdaterMT::TrigTauTrackRoiUpdaterMT(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigTauTrackRoiUpdater::TrigTauTrackRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
-TrigTauTrackRoiUpdaterMT::~TrigTauTrackRoiUpdaterMT()
+TrigTauTrackRoiUpdater::~TrigTauTrackRoiUpdater()
 {
 }
 
-StatusCode TrigTauTrackRoiUpdaterMT::initialize()
+StatusCode TrigTauTrackRoiUpdater::initialize()
 {
 
   ATH_MSG_DEBUG( "Initializing " << name() << " ... " );
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
-  ATH_MSG_DEBUG( " TrigTauTrackRoiUpdaterMT parameters 	" 	);
+  ATH_MSG_DEBUG( " TrigTauTrackRoiUpdater parameters 	" 	);
   ATH_MSG_DEBUG( " z0HalfWidth               " 	<< m_z0HalfWidth );
   if ( m_etaHalfWidth>0 ) ATH_MSG_DEBUG( " etaHalfWidth              "  << m_etaHalfWidth );
   if ( m_phiHalfWidth>0 ) ATH_MSG_DEBUG( " phiHalfWidth              "  << m_phiHalfWidth );
@@ -65,7 +65,7 @@ StatusCode TrigTauTrackRoiUpdaterMT::initialize()
 
 }
 
-StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
+StatusCode TrigTauTrackRoiUpdater::execute(const EventContext& ctx) const
 {
 
 
@@ -236,7 +236,7 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
 
 }
 
-double TrigTauTrackRoiUpdaterMT::getBDTscore(const xAOD::TauJet* tau, const Trk::Track* track, const Trk::Track* leadtrack ) const
+double TrigTauTrackRoiUpdater::getBDTscore(const xAOD::TauJet* tau, const Trk::Track* track, const Trk::Track* leadtrack ) const
 {
 
   std::map<TString, float*> BDTvars;
