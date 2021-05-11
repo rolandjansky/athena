@@ -484,7 +484,7 @@ bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDi
   }
  
   
-  for (const std::pair <int, const InDetDD::SCT_ModuleSideDesign *> &subDesign : children){
+  for (const std::pair <const int, const InDetDD::SCT_ModuleSideDesign *> &subDesign : children){
     
     //Create the charged diodes collection.
     //We are incrementing the eta index with the number of the 
