@@ -112,7 +112,8 @@ private:
   /** Interpolates cut values along pt*/
   double interpolateCuts( const std::vector<double>& cuts, double et, double eta ) const;
 
-
+  /// Set all entries of the TResult to a default value of -9999
+  void resetTResult() const;
 
   // Private member variables
 private:
@@ -178,7 +179,18 @@ private:
   int m_cutPosition_MVA;
   /// The position of the MVA value bit in the TResult return object
   int m_resultPosition_MVA;
-
+  /// The position of the electron probability bit in the TResult return object
+  int  m_resultPosition_EL;
+  /// The position of the chargeFlip probability bit in the TResult return object
+  int  m_resultPosition_CF;
+  /// The position of the photonConversion probability bit in the TResult return object
+  int  m_resultPosition_PC;
+  /// The position of the heavyFlavor probability bit in the TResult return object
+  int  m_resultPosition_HF;
+  /// The position of the lightFlavorEgamma probability bit in the TResult return object
+  int  m_resultPosition_LE;
+  /// The position of the lightFlavorHadron probability bit in the TResult return object
+  int  m_resultPosition_LH;
 
   /// number of discrimintants vs Et
   static const unsigned int s_fnDiscEtBins = 10;
