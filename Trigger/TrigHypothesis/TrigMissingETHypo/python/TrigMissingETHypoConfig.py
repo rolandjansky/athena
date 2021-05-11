@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-TrigMissingETHypoAlgMT = CompFactory.TrigMissingETHypoAlgMT
-TrigMissingETHypoToolMT = CompFactory.TrigMissingETHypoToolMT
+TrigMissingETHypoAlg = CompFactory.TrigMissingETHypoAlg
+TrigMissingETHypoTool = CompFactory.TrigMissingETHypoTool
 
-class MissingETHypoAlgMT(TrigMissingETHypoAlgMT):
+class MissingETHypoAlg(TrigMissingETHypoAlg):
     __slots__ = []
     def __init__(self, name, hTools=[], metKey=""):
-        super( MissingETHypoAlgMT, self ).__init__( name )
+        super( MissingETHypoAlg, self ).__init__( name )
 
         if len(hTools)!=0: 
             self.HypoTools = hTools 
@@ -18,10 +18,10 @@ class MissingETHypoAlgMT(TrigMissingETHypoAlgMT):
         from TrigMissingETHypo.TrigMissingETHypoMonitoringTool import TrigMissingETHypoMonitoringTool
         self.MonTool = TrigMissingETHypoMonitoringTool()
 
-class MissingETHypoToolMT(TrigMissingETHypoToolMT):
+class MissingETHypoTool(TrigMissingETHypoTool):
     __slots__ = []
     def __init__(self, name, **kwargs):
-        super( MissingETHypoToolMT, self ).__init__( name )
+        super( MissingETHypoTool, self ).__init__( name )
 
         # Configure threshold from trigger name
         if 'alg' in kwargs:
@@ -41,7 +41,7 @@ def TrigMETCellHypoToolFromDict(chainDict):
     # also there seems no property to decide if it is met from cells yet, not setting it therefore
     # possibly there would be only one function if the met source is available in the chainDict and settable tool property
     
-    tool = MissingETHypoToolMT( chainDict['chainName'] )
+    tool = MissingETHypoTool( chainDict['chainName'] )
     tool.metThreshold = int(chainDict['chainParts'][0]['threshold'])
     
     return tool
@@ -56,11 +56,11 @@ def TrigMETCellHypoToolFromName(name, conf):
 
 
 def TrigMETPufitHypoToolFromName(name, conf):
-    return MissingETHypoToolMT(name, alg='pufit')
+    return MissingETHypoTool(name, alg='pufit')
 
 
 def TrigMETJetHypoToolFromName(name, conf):
-    return MissingETHypoToolMT(name, alg='mht')
+    return MissingETHypoTool(name, alg='mht')
 
 
 if __name__ == "__main__":

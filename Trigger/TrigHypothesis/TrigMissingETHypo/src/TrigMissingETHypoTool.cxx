@@ -4,36 +4,36 @@
 
 // ********************************************************************
 //
-// NAME:     TrigMissingETHypoToolMT.cxx
+// NAME:     TrigMissingETHypoTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigMissingET
 //
 //
 // ********************************************************************
 
-#include "TrigMissingETHypoToolMT.h"
+#include "TrigMissingETHypoTool.h"
 
 
-TrigMissingETHypoToolMT::TrigMissingETHypoToolMT(const std::string& type,
+TrigMissingETHypoTool::TrigMissingETHypoTool(const std::string& type,
                   const std::string& name,
                   const IInterface* parent):
 	base_class(type, name, parent),
 	m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
 
-TrigMissingETHypoToolMT::~TrigMissingETHypoToolMT() {}
+TrigMissingETHypoTool::~TrigMissingETHypoTool() {}
 
 
-StatusCode TrigMissingETHypoToolMT::initialize() {
-	ATH_MSG_DEBUG("Initializing TrigMissingETHypoToolMT");
+StatusCode TrigMissingETHypoTool::initialize() {
+	ATH_MSG_DEBUG("Initializing TrigMissingETHypoTool");
     ATH_MSG_DEBUG("MET threshold set to " << m_metThreshold );
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMissingETHypoToolMT::finalize() {
+StatusCode TrigMissingETHypoTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMissingETHypoToolMT::decide(const xAOD::TrigMissingETContainer* metContainer, bool& pass) const
+StatusCode TrigMissingETHypoTool::decide(const xAOD::TrigMissingETContainer* metContainer, bool& pass) const
 {
 	ATH_MSG_DEBUG("Executing decide() of " << name());
 	float ex = (*metContainer)[0]->ex();
@@ -51,7 +51,7 @@ StatusCode TrigMissingETHypoToolMT::decide(const xAOD::TrigMissingETContainer* m
 
 }
 
-const HLT::Identifier& TrigMissingETHypoToolMT::getId() const{
+const HLT::Identifier& TrigMissingETHypoTool::getId() const{
   return m_decisionId;
 } 
 

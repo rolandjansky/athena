@@ -2,11 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigMissingETHypoToolMTMT_H
-#define TrigMissingETHypoToolMTMT_H
+#ifndef TrigMissingETHypoTool_H
+#define TrigMissingETHypoTool_H
 /********************************************************************
  *
- * NAME:     TrigMissingETHypoToolMTMT.h
+ * NAME:     TrigMissingETHypoTool.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigMissingETHypo
  *
  *
@@ -19,16 +19,16 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
-#include "ITrigMissingETHypoToolMT.h"
+#include "ITrigMissingETHypoTool.h"
 
-class TrigMissingETHypoToolMT: public extends<AthAlgTool, ITrigMissingETHypoToolMT>  {
+class TrigMissingETHypoTool: public extends<AthAlgTool, ITrigMissingETHypoTool>  {
 
  public:
   
-  TrigMissingETHypoToolMT(const std::string& type,
+  TrigMissingETHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
-  virtual ~TrigMissingETHypoToolMT();
+  virtual ~TrigMissingETHypoTool();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 

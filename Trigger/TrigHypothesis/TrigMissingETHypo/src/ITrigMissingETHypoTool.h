@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMISSINGET_ITRIGMISSINGETHYPOTOOLMT_H
-#define TRIGMISSINGET_ITRIGMISSINGETHYPOTOOLMT_H
+#ifndef TRIGMISSINGET_ITRIGMISSINGETHYPOTOOL_H
+#define TRIGMISSINGET_ITRIGMISSINGETHYPOTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
@@ -11,13 +11,13 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 
-class ITrigMissingETHypoToolMT : virtual public::IAlgTool {
+class ITrigMissingETHypoTool : virtual public::IAlgTool {
     
 public:
-  DeclareInterfaceID(ITrigMissingETHypoToolMT, 1, 0);
+  DeclareInterfaceID(ITrigMissingETHypoTool, 1, 0);
 
 
-  virtual ~ITrigMissingETHypoToolMT(){};
+  virtual ~ITrigMissingETHypoTool(){};
   virtual StatusCode decide(const xAOD::TrigMissingETContainer*, bool&) const = 0;
   virtual const HLT::Identifier& getId() const = 0; 
 

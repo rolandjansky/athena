@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALGMT_H
-#define TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALGMT_H
+#ifndef TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALG_H
+#define TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALG_H
 
 #include <string>
 
@@ -11,17 +11,17 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
-#include "ITrigMissingETHypoToolMT.h"
+#include "ITrigMissingETHypoTool.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 /**
- * @class TrigMissingETHypoAlgMT
+ * @class TrigMissingETHypoAlg
  * @brief Implements MET selection for the HLT framework
  **/
-class TrigMissingETHypoAlgMT : public ::HypoBase {
+class TrigMissingETHypoAlg : public ::HypoBase {
  public: 
 
-  TrigMissingETHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigMissingETHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
@@ -35,7 +35,7 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
                     const EventContext& context
         ) const;
 
-  ToolHandleArray<ITrigMissingETHypoToolMT> m_hypoTools {
+  ToolHandleArray<ITrigMissingETHypoTool> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
      
   SG::ReadHandleKey< xAOD::TrigMissingETContainer > m_metKey {

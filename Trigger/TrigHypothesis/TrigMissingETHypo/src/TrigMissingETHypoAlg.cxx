@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigMissingETHypoAlgMT.h"
+#include "TrigMissingETHypoAlg.h"
 
 #include "Gaudi/Property.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -10,19 +10,19 @@
 using namespace TrigCompositeUtils;
 using xAOD::TrigMissingETContainer;
 
-TrigMissingETHypoAlgMT::TrigMissingETHypoAlgMT( const std::string& name, 
+TrigMissingETHypoAlg::TrigMissingETHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigMissingETHypoAlgMT::initialize() {
+StatusCode TrigMissingETHypoAlg::initialize() {
 
   CHECK( m_hypoTools.retrieve() );
   CHECK( m_metKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigMissingETHypoAlg::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   // read in the met container
@@ -59,14 +59,14 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
 
 
 
-StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* metContainer,
+StatusCode TrigMissingETHypoAlg::decide(const xAOD::TrigMissingETContainer* metContainer,
                          TrigCompositeUtils::DecisionContainer*  newDecisions,
                          const DecisionContainer* oldDecisions,
                          const EventContext& context) const{
 
   ATH_MSG_DEBUG("Executing decide() of " << name() );
   if (oldDecisions->size() != 1) {
-    ATH_MSG_ERROR("TrigMissingETHypoAlgMT requires there to be exactly one previous Decision object, but found " << oldDecisions->size());
+    ATH_MSG_ERROR("TrigMissingETHypoAlg requires there to be exactly one previous Decision object, but found " << oldDecisions->size());
     return StatusCode::FAILURE;
   }
   const Decision* previousDecision = oldDecisions->at(0);

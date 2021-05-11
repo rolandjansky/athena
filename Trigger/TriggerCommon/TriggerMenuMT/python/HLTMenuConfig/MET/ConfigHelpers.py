@@ -147,7 +147,7 @@ class AlgConfig(ABC):
         if hasattr(self, "_menuSequences"):
             return self._menuSequences
 
-        from TrigMissingETHypo.TrigMissingETHypoConfigMT import (
+        from TrigMissingETHypo.TrigMissingETHypoConfig import (
             TrigMETCellHypoToolFromDict,
         )
         from TrigStreamerHypo.TrigStreamerHypoConfig import (
@@ -195,9 +195,9 @@ class AlgConfig(ABC):
     def make_hypo_alg(self):
         """ The hypo alg used for this configuration """
 
-        from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT
+        from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlg
 
-        return TrigMissingETHypoAlgMT(
+        return TrigMissingETHypoAlg(
             name="METHypoAlg_{}".format(self._suffix), METContainerKey=self.outputKey
         )
 
