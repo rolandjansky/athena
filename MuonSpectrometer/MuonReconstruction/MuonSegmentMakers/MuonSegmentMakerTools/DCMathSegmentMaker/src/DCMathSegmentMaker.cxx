@@ -591,6 +591,10 @@ namespace Muon {
         // create local segment direction
         Trk::LocalDirection segLocDir;
         surf->globalToLocalDirection(gdir, segLocDir);
+	if(segLocDir.angleYZ()==0 && segLocDir.angleXZ()==0){
+	  ATH_MSG_DEBUG("invalid local direction");
+	  return nullptr;
+	}
 
         // sanity checks
         double diff_phi = roaddir2.phi() - gdir.phi();
@@ -1583,7 +1587,7 @@ namespace Muon {
             MdtDriftCircleOnTrack* nonconstDC = 0;
             bool hasT0 = segment.hasT0Shift();
             if (!hasT0) {
-                // ATH_MSG_VERBOSE(" recalibrate MDT hit");
+	        // ATH_MSG_VERBOSE(" recalibrate MDT hit");
                 nonconstDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir);
             } else {
                 ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());
