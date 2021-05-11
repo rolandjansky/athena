@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
@@ -175,6 +176,13 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
 
+    viewMakerMap = {compName(vm):vm for vm in viewMakers}
+    for vmname, vm in viewMakerMap.items():
+        log.debug(f"{vmname} InputMakerOutputDecisions: {vm.InputMakerOutputDecisions}")
+        if vmname.endswith("_probe"):
+            log.debug(f"Setting InputCachedViews on {vmname} to read decisions from tag leg {vmname[:-6]}: {vm.InputMakerOutputDecisions}")
+            vm.InputCachedViews = viewMakerMap[vmname[:-6]].InputMakerOutputDecisions
+
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     Configurable.configurableRun3Behavior=0
@@ -194,7 +202,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
-
+        
     Configurable.configurableRun3Behavior=1
     edmAlg = triggerMergeViewsAndAddMissingEDMCfg(ConfigFlags, ['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     Configurable.configurableRun3Behavior=0
@@ -307,7 +315,7 @@ def sequenceScanner( HLTNode ):
     _seqMapInStep = defaultdict(set)
     _status = True
 
-    def _mapSequencesInSteps(seq, stepIndex):
+    def _mapSequencesInSteps(seq, stepIndex, childInView):
         """ Recursively finds the steps in which sequences are used"""
         if not isSequence(seq):
             return stepIndex
@@ -315,24 +323,37 @@ def sequenceScanner( HLTNode ):
         match=re.search('^Step([0-9]+)_filter',name)
         if match:
             stepIndex = match.group(1)
-            log.debug("sequenceScanner: This is another step: %s %s", name, stepIndex)            
+            log.debug("sequenceScanner: This is another step: %s %s", name, stepIndex)
+        inViewSequence = ""
+        inView = False
         for c in getSequenceChildren( seq ):
             if isSequence(c):
-                stepIndex = _mapSequencesInSteps(c, stepIndex)
-                _seqMapInStep[compName(c)].add(stepIndex)
+                # Detect whether this is the view sequence pointed to
+                # by the EV creator alg, or if it is in such a sequence
+                inView = c.name()==inViewSequence or childInView
+                stepIndex = _mapSequencesInSteps(c, stepIndex, childInView=inView)
+                _seqMapInStep[compName(c)].add((stepIndex,inView))
+            else:
+                from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+                if isinstance(c,EventViewCreatorAlgorithm):
+                    inViewSequence = c.ViewNodeName
         return stepIndex
 
     # do the job:
-    final_step=_mapSequencesInSteps(HLTNode, 0)
+    final_step=_mapSequencesInSteps(HLTNode, 0, childInView=False)
 
     for alg, steps in _seqMapInStep.items():
-        if len(steps)> 1:
-            log.error("sequenceScanner: Sequence %s is expected in more than one step: %s", alg, steps)
+        # Sequences in views can be in multiple steps
+        nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])
+        if nonViewSteps > 1:
+            steplist = [stepIndex for stepIndex,inViewSequence in steps]
+            log.error("sequenceScanner: Sequence %s is expected outside of a view in more than one step: %s", alg, )
             match=re.search('Step([0-9]+)',alg)
             if match:
                 candidateStep=match.group(1)
                 log.error("sequenceScanner:         ---> candidate good step is %s", candidateStep)
-            _status=False     
+            _status=False
+            raise RuntimeError(f"Duplicated event-scope sequence {alg} in steps {steplist}")
 
     log.debug("sequenceScanner: scanned %s steps with status %d", final_step, _status)
     return _status

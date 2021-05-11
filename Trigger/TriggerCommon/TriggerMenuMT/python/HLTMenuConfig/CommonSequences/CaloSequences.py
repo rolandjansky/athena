@@ -30,7 +30,7 @@ def fastCaloSequence(flags, name="fastCaloSequence"):
 
 
 
-def fastCaloMenuSequence(name, doRinger=True):
+def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
     """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     """
@@ -50,9 +50,8 @@ def fastCaloMenuSequence(name, doRinger=True):
     return MenuSequence( Sequence    = sequence,
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
-                         HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
-
-
+                         HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
