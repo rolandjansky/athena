@@ -35,9 +35,9 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 600,
-  'INFO': 1220,
-  'other': 80
+  'WARNING': 550,
+  'INFO': 750,
+  'other': 20
 }
 msgcount.required = True # make the test exit code depend on this step
 

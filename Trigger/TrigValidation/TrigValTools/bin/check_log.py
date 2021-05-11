@@ -31,7 +31,8 @@ errorRegex = [
     r'in state: CONTROLREADY$',
     r'^\s*missing data: ',
     r'^\s*can be produced by alg(s): ',
-    r'pure virtual method called'
+    r'pure virtual method called',
+    r'Selected dynamic Aux atribute.*not found in the registry',
 ]
 
 # Add list of all builtin Python errors
