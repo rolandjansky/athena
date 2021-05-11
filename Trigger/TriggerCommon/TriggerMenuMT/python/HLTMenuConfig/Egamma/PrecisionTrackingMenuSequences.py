@@ -28,7 +28,7 @@ def precisionTrackingSequence(ConfigFlags):
     # calling precision tracking
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackSequences import precisionTracking
     precisionTrackInViewSequence, trackparticles = precisionTracking(InViewRoIs, precisionCaloMenuDefs.precisionCaloClusters)
-    
+
     precisionEtcutInViewAlgs = parOR("precisionEtcutInViewAlgs", [precisionTrackInViewSequence])
     precisionEtcutViewsMaker.ViewNodeName = "precisionEtcutInViewAlgs"    
 
@@ -36,8 +36,7 @@ def precisionTrackingSequence(ConfigFlags):
     theSequence = seqAND("precisionEtcutSequence", [precisionEtcutViewsMaker, precisionEtcutInViewAlgs] )
     return (theSequence,precisionEtcutViewsMaker,precisionCaloMenuDefs.precisionCaloClusters,trackparticles)
 
-
-def precisionTrackingMenuSequence(name):
+def precisionTrackingMenuSequence(name,is_probe_leg=False):
     """ Creates precisionCalo MENU sequence """
     (sequence, precisionTrackingViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackingSequence, ConfigFlags)
 
@@ -50,5 +49,7 @@ def precisionTrackingMenuSequence(name):
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackingViewsMaker, 
                          Hypo        = thePrecisionTrackingHypo,
-                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict)
+                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
+
 

@@ -41,7 +41,7 @@ def precisionCaloSequence_LRT(ConfigFlags):
     theSequence = seqAND("precisionCaloSequence_LRT", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
     return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
-def precisionCaloMenuSequence_LRT(name):
+def precisionCaloMenuSequence_LRT(name,is_probe_leg=False):
     """ Creates precisionCalo MENU sequence """
     (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence_LRT, ConfigFlags)
 
@@ -55,4 +55,5 @@ def precisionCaloMenuSequence_LRT(name):
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 
                          Hypo        = thePrecisionCaloHypo,
-                         HypoToolGen = TrigEgammaPrecisionCaloHypoToolFromDict)
+                         HypoToolGen = TrigEgammaPrecisionCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg)

@@ -27,6 +27,7 @@ def precisionElectronSequence(ConfigFlags):
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
     (electronPrecisionRec, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
 
+    # Suffix to distinguish probe leg sequences
     electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs"
 
@@ -34,7 +35,7 @@ def precisionElectronSequence(ConfigFlags):
     return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut)
 
 
-def precisionElectronMenuSequence():
+def precisionElectronMenuSequence(is_probe_leg=False):
     # retrieve the reco seuqence+EVC
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags)
 
@@ -47,7 +48,8 @@ def precisionElectronMenuSequence():
     return  MenuSequence( Maker       = precisionElectronViewsMaker,
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
-                          HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )
+                          HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict,
+                          IsProbe     = is_probe_leg)
 
 
 
