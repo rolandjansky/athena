@@ -189,7 +189,8 @@ namespace Trk {
     
     if ( StatusCode::SUCCESS != evtStore()->retrieve(originalTracks, m_inputTrackCollection) ){
       ATH_MSG_WARNING(" Can't retrieve " << m_inputTrackCollection << " from the StoreGate ");
-      return StatusCode::FAILURE;
+      finalTracks = originalTracks; // return empty collection
+      return StatusCode::SUCCESS;
     } 
     
     TrackCollection* trackCollection = new TrackCollection;
