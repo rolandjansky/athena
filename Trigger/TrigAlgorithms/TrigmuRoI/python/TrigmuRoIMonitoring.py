@@ -2,9 +2,9 @@
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
-class TrigmuRoIMTMonitoring(GenericMonitoringTool):
-    def __init__ (self, name = "TrigmuRoIMTMonitoring"):
-        super(TrigmuRoIMTMonitoring, self).__init__( name )
+class TrigmuRoIMonitoring(GenericMonitoringTool):
+    def __init__ (self, name = "TrigmuRoIMonitoring"):
+        super(TrigmuRoIMonitoring, self).__init__( name )
 
         self.HistPath = name
         self.defineHistogram('RpcOutOfTime', type='TH1F', path='EXPERT', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",xbins=21, xmin=-10.5, xmax=10.5)
