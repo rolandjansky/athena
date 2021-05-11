@@ -122,6 +122,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double pHitTime = hitTime(phit);
 
   if (m_doRadDamage) {
+    const bool doChunkCorrection = m_doChunkCorrection.value();
     //**************************************//
     //*** Now diffuse charges to surface *** //
     //**************************************//
@@ -156,7 +157,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         depth_i += 1.0 * iHitRecord.first / iTotalLength * dDepth;
       }
 
-      double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;    //in MeV
+      const double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;    //in MeV
       ATH_MSG_DEBUG("es_current: " << energy_per_step << " split between " << ncharges << " charges");
 
       double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
@@ -206,16 +207,15 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const double mobilityElectron = getMobility(efield, false);
       const double mobilityHole     = getMobility(efield, true);
 
+      //Need to determine how many elementary charges this charge chunk represents.
+      double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
+
+      //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
+      if (chunk_size < 1) chunk_size = 1;
+      const double kappa = 1. / std::sqrt(chunk_size);
+
       //Loop over charge-carrier pairs
       for (int j = 0; j < ncharges; j++) {
-        double eHit = energy_per_step;
-        //Need to determine how many elementary charges this charge chunk represents.
-        double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
-
-        //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
-        if (chunk_size < 1) chunk_size = 1;
-        double kappa = 1. / std::sqrt(chunk_size);
-
         // Loop over everything twice: once for electrons and once for holes
         for (int eholes = 0; eholes < 2; eholes++) {
           const bool isHole = (eholes == 1); // Set a condition to keep track of electron/hole-specific functions
@@ -293,10 +293,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               float ramoFinal = ramoPotentialMap.getContent(ramoPotentialMap.getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
               // Record deposit
-              double eHitRamo = (isHole ? -1. : 1.) * eHit * (ramoFinal - ramoInit);
+              double eHitRamo = (isHole ? -1. : 1.) * energy_per_step * (ramoFinal - ramoInit);
 
-              if (m_doChunkCorrection) {
-                eHitRamo = eHit * average_charge + kappa * (eHitRamo - eHit * average_charge);
+              if (doChunkCorrection) {
+                eHitRamo = energy_per_step * average_charge + kappa * (eHitRamo - energy_per_step * average_charge);
               }
 
               double induced_charge = eHitRamo * eleholePairEnergy;
