@@ -34,7 +34,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
 
     SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronsKey, ctx);
 
-    std::vector<float> deltaEta0_vec, deltaEta1_vec, deltaEta2_vec, deltaEta3_vec, deltaPhi0_vec, deltaPhi1_vec, deltaPhi2_vec, deltaPhi3_vec, deltaPhiRescaled0_vec, deltaPhiRescaled1_vec, deltaPhiRescaled2_vec, deltaPhiRescaled3_vec, deltaPhiLast_vec;
+    std::vector<float> deltaEta0_vec, deltaEta1_vec, deltaEta2_vec, deltaEta3_vec, deltaPhi0_vec, deltaPhi1_vec, deltaPhi2_vec, deltaPhi3_vec, deltaPhiRescaled0_vec, deltaPhiRescaled1_vec, deltaPhiRescaled2_vec, deltaPhiRescaled3_vec, deltaPhiLast_vec, d0_vec;
 
     auto deltaEta0_col = Monitored::Collection("deltaEta0",deltaEta0_vec);
     auto deltaEta1_col = Monitored::Collection("deltaEta1",deltaEta1_vec);
@@ -49,6 +49,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
     auto deltaPhiRescaled2_col = Monitored::Collection("deltaPhiRescaled2",deltaPhiRescaled2_vec);
     auto deltaPhiRescaled3_col = Monitored::Collection("deltaPhiRescaled3",deltaPhiRescaled3_vec);
     auto deltaPhiLast_col = Monitored::Collection("deltaPhiLast",deltaPhiLast_vec );
+    auto d0_col = Monitored::Collection("d0",d0_vec);
 
     for (const auto electron : *electrons){
 
@@ -65,12 +66,13 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
         deltaPhiRescaled2_vec.push_back(getCaloTrackMatch_deltaPhiRescaled2(electron));
         deltaPhiRescaled3_vec.push_back(getCaloTrackMatch_deltaPhiRescaled3(electron));
         deltaPhiLast_vec.push_back(getCaloTrackMatch_deltaPhiFromLastMeasurement(electron));
+        d0_vec.push_back(getTrack_d0(electron));
                     
     }
   
     auto mon = Monitored::Group(m_monTool, deltaEta0_col,deltaEta1_col,deltaEta2_col,deltaEta3_col,
                                 deltaPhi0_col,deltaPhi1_col,deltaPhi2_col,deltaPhi3_col,deltaPhiRescaled0_col,
-                                deltaPhiRescaled1_col,deltaPhiRescaled2_col,deltaPhiRescaled3_col,deltaPhiLast_col);
+                                deltaPhiRescaled1_col,deltaPhiRescaled2_col,deltaPhiRescaled3_col,deltaPhiLast_col,d0_col);
 
     ATH_MSG_DEBUG("Electron - Track Online Monitoring in Reconstruction ..."); 
     

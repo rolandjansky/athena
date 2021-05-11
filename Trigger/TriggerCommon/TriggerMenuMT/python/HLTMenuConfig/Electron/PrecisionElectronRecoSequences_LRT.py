@@ -75,4 +75,17 @@ def precisionElectronRecoSequence_LRT(RoIs):
     ## TrigElectronIsoBuilderCfg_LRT ##
     isoBuilder = TrigElectronIsoBuilderCfg_LRT("TrigElectronIsoBuilderCfg_LRT")
     thesequence += isoBuilder
+
+    #online monitoring for topoEgammaBuilder_LRT
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
+    PrecisionElectronRecoMonAlgo_LRT = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoEgammaBuilder_LRT")
+    PrecisionElectronRecoMonAlgo_LRT.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
+    thesequence += PrecisionElectronRecoMonAlgo_LRT
+
+    #online monitoring for TrigElectronSuperClusterBuilder_LRT
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronSuperClusterMonitorCfg
+    PrecisionElectronSuperClusterMonAlgo_LRT = PrecisionElectronSuperClusterMonitorCfg("PrecisionElectronSuperClusterBuilder_LRT")
+    PrecisionElectronSuperClusterMonAlgo_LRT.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    thesequence += PrecisionElectronSuperClusterMonAlgo_LRT
+    
     return (thesequence, collectionOut)
