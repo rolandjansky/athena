@@ -12,10 +12,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-class TrigSuperRoIBuilderMT : public AthAlgorithm {
+class TrigSuperRoIBuilder : public AthAlgorithm {
 
  public:
-  TrigSuperRoIBuilderMT(const std::string&, ISvcLocator*);
+  TrigSuperRoIBuilder(const std::string&, ISvcLocator*);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

@@ -2,16 +2,16 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigBjetBtagHypoAlgMT.h"
+#include "TrigBjetBtagHypoAlg.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 
-TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name, 
+TrigBjetBtagHypoAlg::TrigBjetBtagHypoAlg( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 
-  TrigBjetHypoAlgBaseMT( name, pSvcLocator ) {}
+  TrigBjetHypoAlgBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigBjetBtagHypoAlgMT::initialize() {
+StatusCode TrigBjetBtagHypoAlg::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
@@ -30,7 +30,7 @@ StatusCode TrigBjetBtagHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigBjetBtagHypoAlg::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   // ========================================================================================================================== //    ** Retrieve Ingredients 
@@ -208,7 +208,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs, const ElementLinkVector<xAOD::JetContainer >& all_bTaggedJetELs ) const {
+StatusCode TrigBjetBtagHypoAlg::monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs, const ElementLinkVector<xAOD::JetContainer >& all_bTaggedJetELs ) const {
 
   auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", jetELs,
     [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->pt() / 1000.0 /*Gev*/; } );
@@ -244,7 +244,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_jets( const ElementLinkVector<xAOD::Je
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const EventContext& context, const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const {
+StatusCode TrigBjetBtagHypoAlg::monitor_tracks( const EventContext& context, const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const {
   // This vector is for checking we are not reading more than once from the same View, thus retrieving the same objects multiple times!
   std::vector< ElementLink< ViewContainer > > readViews;
   for ( const TrigCompositeUtils::Decision* previousDecision: *prevDecisionContainer ) {
@@ -323,7 +323,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const EventContext& context, c
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_flavor_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name ) const {
+StatusCode TrigBjetBtagHypoAlg::monitor_flavor_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name ) const {
   auto monitor_pu = Monitored::Collection( "btag_"+var_name+"_pu", bTaggingEL,
     [var_name](const ElementLink< xAOD::BTaggingContainer >& bTagLink) { 
       double pu = -1; 
@@ -358,7 +358,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_flavor_probabilities( const ElementLin
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const {
+StatusCode TrigBjetBtagHypoAlg::monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const {
   auto monitor_for_primVtx_x = Monitored::Scalar( "primVtx_x", (*primVertexEL)->x() );  
   auto monitor_for_primVtx_y = Monitored::Scalar( "primVtx_y", (*primVertexEL)->y() );  
   auto monitor_for_primVtx_z = Monitored::Scalar( "primVtx_z", (*primVertexEL)->z() );  
@@ -368,7 +368,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_primary_vertex( const ElementLink< xAO
 }
 
 
-ElementLinkVector<xAOD::BTaggingContainer> TrigBjetBtagHypoAlgMT::collect_valid_links(
+ElementLinkVector<xAOD::BTaggingContainer> TrigBjetBtagHypoAlg::collect_valid_links(
     const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, std::string tagger ) const {
 
   ElementLinkVector<xAOD::BTaggingContainer> valid_bTaggingEL;
@@ -379,7 +379,7 @@ ElementLinkVector<xAOD::BTaggingContainer> TrigBjetBtagHypoAlgMT::collect_valid_
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const {
+StatusCode TrigBjetBtagHypoAlg::monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const {
   // Monitor high-level tagger flavor probabilites
   CHECK( monitor_flavor_probabilities(bTaggingEL, "DL1r") );
   CHECK( monitor_flavor_probabilities(bTaggingEL, "rnnip") );

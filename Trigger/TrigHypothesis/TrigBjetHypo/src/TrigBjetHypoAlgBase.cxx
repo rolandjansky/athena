@@ -2,17 +2,17 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigBjetHypoAlgBaseMT.h"
+#include "TrigBjetHypoAlgBase.h"
 
-TrigBjetHypoAlgBaseMT::TrigBjetHypoAlgBaseMT( const std::string& name, 
+TrigBjetHypoAlgBase::TrigBjetHypoAlgBase( const std::string& name, 
 					      ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetHypoAlgBaseMT::~TrigBjetHypoAlgBaseMT() {}
+TrigBjetHypoAlgBase::~TrigBjetHypoAlgBase() {}
 
 // ============================================================================== //
 
-StatusCode TrigBjetHypoAlgBaseMT::retrievePreviousDecisionContainer( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::retrievePreviousDecisionContainer( const EventContext& context,
 								     const TrigCompositeUtils::DecisionContainer*& prevDecisionContainer ) const {
 
   ATH_MSG_DEBUG( "Retrieving Previous Decision" );
