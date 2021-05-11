@@ -55,13 +55,8 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
   SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
-<<<<<<< HEAD
-  std::vector<TrigEgammaFastPhotonHypoTool::PhotonInfo> hypoToolInput;
-
-=======
   std::vector<TrigEgammaFastPhotonHypoToolInc::PhotonInfo> hypoToolInput;
  
->>>>>>> upstream/master
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //previousDecision->objectLink< ViewContainer >( "view" );
     const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );

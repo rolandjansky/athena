@@ -21,7 +21,6 @@
 DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoTool )
 DECLARE_COMPONENT( TrigEgammaTLAPhotonFexMT )
-DECLARE_COMPONENT( TrigEgammaFastPhotonFexMT )
 DECLARE_COMPONENT( TrigEgammaTLAPhotonFexMT )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )

@@ -126,18 +126,10 @@ def TrigEgammaFastPhotonHypoToolFromName( name, conf ):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/master
     return TrigEgammaFastPhotonHypoToolFromDict( decodedDict )
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")
-=======
     
     tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
->>>>>>> upstream/master
     assert tool, "Not configured simple tool"
