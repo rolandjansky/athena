@@ -8,6 +8,7 @@
 #include "AthViews/ViewHelper.h"
 #include "HLTEDMCreator.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "TriggerEDMAuxAccessors.h"
 
 HLTEDMCreator::HLTEDMCreator( const std::string& type, 
             const std::string& name,

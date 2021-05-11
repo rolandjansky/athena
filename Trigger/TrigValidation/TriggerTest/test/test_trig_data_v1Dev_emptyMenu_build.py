@@ -38,9 +38,8 @@ test.check_steps.remove(test.get_step("ZeroCounts"))
 # Overwrite default MessageCount settings
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 40,
-  'INFO': 600,
-  'other': 40
+  'INFO': 400,
+  'other': 10
 }
 msgcount.required = True # make the test exit code depend on this step
 
