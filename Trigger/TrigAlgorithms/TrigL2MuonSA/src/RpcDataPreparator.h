@@ -44,16 +44,16 @@ class RpcDataPreparator: public AthAlgTool
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
                              TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
-			     const ToolHandle<RpcPatFinder>*   rpcPatFinder) const;
+			     const ToolHandle<RpcPatFinder>*   rpcPatFinder,
+			     const bool dynamicDeltaRpc) const;
 
       //for multi-track SA mode
       StatusCode prepareData(const TrigRoiDescriptor*         p_roids,
                              TrigL2MuonSA::RpcLayerClusters&  rpcLayerClusters,
-                             const ToolHandle<ClusterPatFinder>*    clusterPatFinder) const;
+                             const ToolHandle<ClusterPatFinder>*    clusterPatFinder,
+                             const bool dynamicDeltaRpc) const;
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
-
-      void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
       ToolHandle<IRegSelTool> m_regionSelector{this,"RegSel_RPC","RegSelTool/RegSelTool_RPC"};
@@ -73,7 +73,6 @@ class RpcDataPreparator: public AthAlgTool
       bool m_use_RoIBasedDataAccess;
 
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
-      bool m_doMultiMuon{false};
 };
 
 } // namespace TrigL2MuonSA
