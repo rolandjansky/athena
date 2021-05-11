@@ -1597,7 +1597,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   // for particle with a certain incident angle.
   double covariancePola = (134.*m_radlengthN)*(q*q);
   // Refining this calculation for fast tracking purpose.
-  if(m_tools->useFastTracking()) {
+  if(m_tools->useFastTracking() and Model==1) {
     double qc             = (1.+.038*log(m_radlengthN))*q;
     covariancePola = (185.*m_radlengthN)*qc*qc;
   }
@@ -1605,15 +1605,13 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   double covarianceIMom = 0.;
   double correctionIMom = 1.;
 
-  if (not m_tools->useFastTracking()) {
-    if(Model==1) {
-      double        dp = m_energylose*q*s;
-      covarianceIMom = (.2*dp*dp)*(q*q);
-      correctionIMom = 1.-dp;
-    } else {
-      correctionIMom = .70;
-      covarianceIMom = (correctionIMom-1.)*(correctionIMom-1.)*(q*q);
-    }
+  if (not m_tools->useFastTracking() and Model==1) {
+    double        dp = m_energylose*q*s;
+    covarianceIMom = (.2*dp*dp)*(q*q);
+    correctionIMom = 1.-dp;
+  } else if (Model==2) {
+    correctionIMom = .70;
+    covarianceIMom = (correctionIMom-1.)*(correctionIMom-1.)*(q*q);
   }
   if(Dir>0) correctionIMom = 1./correctionIMom;
   m_noise.set(covarianceAzim,covariancePola,covarianceIMom,correctionIMom);
@@ -1647,7 +1645,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProductionWithMomentum
   m_radlengthN = s*m_radlength;
   double covariancePola = (134.*m_radlengthN)*(q*q);
   // Refining this calculation for fast tracking purpose.
-  if(m_tools->useFastTracking()) {
+  if(m_tools->useFastTracking() and Model==1) {
     double qc             = (1.+.038*log(m_radlengthN))*q;
     covariancePola = (185.*m_radlengthN)*qc*qc;
   }
