@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu40
+# art-description: art job for all_ttbar_nopileup
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
@@ -31,7 +31,7 @@ Threads = 8
 Slots   = 8
 Release = "current"
 
-Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+Input   = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat  -r Offline -o data-hists-offline-vtx.root" ) ]
