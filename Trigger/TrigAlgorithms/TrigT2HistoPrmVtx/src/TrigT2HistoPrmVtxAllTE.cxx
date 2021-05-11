@@ -12,8 +12,8 @@
 // 
 // ************************************************
 
-#include "TrigT2HistoPrmVtxAllTEMT.h"
-#include "TrigT2HistoPrmVtxBaseMT.h"
+#include "TrigT2HistoPrmVtxAllTE.h"
+#include "TrigT2HistoPrmVtxBase.h"
 #include "HistoVertexHelper.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -24,8 +24,8 @@
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-TrigT2HistoPrmVtxAllTEMT::TrigT2HistoPrmVtxAllTEMT(const std::string& name, ISvcLocator* pSvcLocator) :
-  TrigT2HistoPrmVtxBaseMT( name,pSvcLocator ),
+TrigT2HistoPrmVtxAllTE::TrigT2HistoPrmVtxAllTE(const std::string& name, ISvcLocator* pSvcLocator) :
+  TrigT2HistoPrmVtxBase( name,pSvcLocator ),
   m_hisVtx( std::unique_ptr< HistoVertexHelper >( new HistoVertexHelper(8000, -200, 200) ) )
 {
 }
@@ -33,11 +33,11 @@ TrigT2HistoPrmVtxAllTEMT::TrigT2HistoPrmVtxAllTEMT(const std::string& name, ISvc
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-StatusCode TrigT2HistoPrmVtxAllTEMT::initialize() {
+StatusCode TrigT2HistoPrmVtxAllTE::initialize() {
   ATH_MSG_INFO( "Inizializing " << name() <<" ... " );
 
   // Print properties
-  CHECK( TrigT2HistoPrmVtxBaseMT::initialize() );
+  CHECK( TrigT2HistoPrmVtxBase::initialize() );
 
   // Initialize Beam Spot
   CHECK( m_beamSpotKey.initialize() );
@@ -65,7 +65,7 @@ StatusCode TrigT2HistoPrmVtxAllTEMT::initialize() {
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-unsigned int TrigT2HistoPrmVtxAllTEMT::getTrackNumbers(const xAOD::TrackParticleContainer* pointerToEFTrackCollections) {
+unsigned int TrigT2HistoPrmVtxAllTE::getTrackNumbers(const xAOD::TrackParticleContainer* pointerToEFTrackCollections) {
   
   unsigned int nEFtracks = 0;
   
@@ -81,7 +81,7 @@ unsigned int TrigT2HistoPrmVtxAllTEMT::getTrackNumbers(const xAOD::TrackParticle
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-StatusCode TrigT2HistoPrmVtxAllTEMT::execute() {
+StatusCode TrigT2HistoPrmVtxAllTE::execute() {
   ATH_MSG_DEBUG( "Executing " << name() <<" ... " );
 
   const EventContext& ctx = getContext();

@@ -12,8 +12,8 @@
 // 
 // ************************************************
 
-#ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_MT_H
-#define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_MT_H
+#ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_H
+#define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -30,10 +30,10 @@ namespace Rec {
 }
 
 
-class TrigT2HistoPrmVtxBaseMT : public AthAlgorithm {
+class TrigT2HistoPrmVtxBase : public AthAlgorithm {
 
  public:
-  TrigT2HistoPrmVtxBaseMT( const std::string&, ISvcLocator* );
+  TrigT2HistoPrmVtxBase( const std::string&, ISvcLocator* );
 
   virtual StatusCode initialize() override;
 

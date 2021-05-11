@@ -12,10 +12,10 @@
 // 
 // ************************************************
 
-#ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_MT_H
-#define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_MT_H
+#ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_H
+#define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXALLTE_H
 
-#include "TrigT2HistoPrmVtxBaseMT.h"
+#include "TrigT2HistoPrmVtxBase.h"
 #include "HistoVertexHelper.h"
 
 #include "xAODTracking/VertexContainer.h"
@@ -34,9 +34,9 @@
  * This is the base class for the primary vertex reconstruction at LVL2.
  */
 
-class TrigT2HistoPrmVtxAllTEMT : public TrigT2HistoPrmVtxBaseMT {
+class TrigT2HistoPrmVtxAllTE : public TrigT2HistoPrmVtxBase {
  public:
-  TrigT2HistoPrmVtxAllTEMT(const std::string&, ISvcLocator*);
+  TrigT2HistoPrmVtxAllTE(const std::string&, ISvcLocator*);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
