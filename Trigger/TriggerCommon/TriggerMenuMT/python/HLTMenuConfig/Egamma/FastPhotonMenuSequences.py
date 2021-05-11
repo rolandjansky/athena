@@ -29,7 +29,6 @@ def fastPhotonMenuSequence():
     thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
-    # make deepcopy of HLT_FastPhotons, HLT_FastPhoton_TLA as a recordable item of the "TLA" Fex (algorithm)
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
     l2PhotonViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
