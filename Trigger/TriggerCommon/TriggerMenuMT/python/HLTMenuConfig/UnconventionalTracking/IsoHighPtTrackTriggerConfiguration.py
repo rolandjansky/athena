@@ -39,7 +39,7 @@ def FTFTrackSequence(ConfigFlags):
 
 def IsoHPtTrackTriggerHypoSequence():
         from TrigLongLivedParticlesHypo.TrigIsoHPtTrackTriggerHypoTool import TrigIsoHPtTrackTriggerHypoToolFromDict
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlgMT)
+        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlg)
 
         # Get sequence name
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -47,7 +47,7 @@ def IsoHPtTrackTriggerHypoSequence():
         sequenceOut = IDTrigConfig.tracks_FTF()
 
         #Setup the hypothesis algorithm
-        theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlgMT("L2IsoHPtTrack")
+        theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlg("L2IsoHPtTrack")
         theIsoHPtTrackTriggerHypo.trackKey =  sequenceOut
 
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
