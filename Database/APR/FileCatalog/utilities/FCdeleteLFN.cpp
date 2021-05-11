@@ -25,7 +25,7 @@ static const char* opts[] = {"q","l","u","h",0};
 int main(int argc, char** argv)
 {
   SystemTools::initGaudi();
-  
+
   std::string  myuri;
   std::string  mylfn;
   std::string  myquery;
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
       myuri=commands.GetByName("u");
     }else{
       myuri=SystemTools::GetEnvStr("POOL_CATALOG");
-    }    
+    }
     if( commands.Exists("q") ){
       myquery=commands.GetByName("q");
     }
@@ -52,14 +52,14 @@ int main(int argc, char** argv)
     std::cerr << "Error: command parsing error "<<strError<<std::endl;
     exit(0);
   }
-  
+
   if( mylfn.empty() && myquery.empty() ){
     printUsage();
     std::cerr<<"Error: must specify pfname using -l, query using -q"<<std::endl;
     exit(0);
   }
-  try{  
-    std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
+  try{
+    auto mycatalog = std::make_unique<IFileCatalog>();
     pool::URIParser p( myuri );
     p.parse();
     mycatalog->setWriteCatalog(p.contactstring());
@@ -67,11 +67,11 @@ int main(int argc, char** argv)
     mycatalog->start();
     if( !myquery.empty() ){
        std::cerr << "Query option not supported" << std::endl;
-       exit(2); 
+       exit(2);
     }else if( !mylfn.empty() ) {
        mycatalog->deleteLFN(mylfn);
     }
-    mycatalog->commit();  
+    mycatalog->commit();
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
