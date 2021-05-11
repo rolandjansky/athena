@@ -646,7 +646,7 @@ def exeResourceReport(exe, report):
         exeResource['memory'] = exe.memStats
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
-    if exe.reSimEvent:
+    if exe.name=='ReSim':
         exeResource['resimevents'] = exe.reSimEvent
     if exe.athenaMP:
         exeResource['mpworkers'] = exe.athenaMP
