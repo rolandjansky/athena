@@ -63,8 +63,9 @@ namespace VKalVrtAthena {
 		       ", Rmin = " << endcap->rmin() <<
 		       ", Rmax = " << endcap->rmax()    );
       
-      Amg::Transform3D *trnsf = new Amg::Transform3D();
-      trnsf->translate( Amg::Vector3D(0.,0.,endcap->zpos()) );
+      Amg::Transform3D trnsf;
+      trnsf.setIdentity();
+      trnsf.translate( Amg::Vector3D(0.,0.,endcap->zpos()) );
       Trk::DiscSurface surfBorder(trnsf, endcap->rmin(), endcap->rmax() );
       Output = m_extrapolator->extrapolateDirectly(*per, surfBorder, Trk::anyDirection, true, Trk::pion);
       
