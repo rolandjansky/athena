@@ -64,43 +64,46 @@ newInDetAlignAlg_Options = {
     ,"runOutlier"           : True                   #  whether to refit tracks with outlier removal
     ,"particleNumber"       : 3                      #  particle hypothesis to use in the refit
     ,"useTrackSelector"     : True                   #  whether to use track selector
-    ,"writeAlignNtuple"     : False                       #  whether to write an alignment specific ntuple
-    ,"alignNtupleName"      : "newIDalign.root"          #  name of the ntuple file
-    ,"writeDerivatives"     : False                      #  whether to store dr/da in the ntuple
-    ,"writeHitmap"          : True                           #  whether to store the hitmap
-    ,"writeHitmapTxt"       : True                       #  whether to store the hitmap in a text file
-    ,"writeEigenMat"        : False                      #  whether to write the eigenspectrum/eigenvectors into files
-    ,"writeEigenMatTxt"     : False                      #  whether to write the eigenspectrum/eigenvectors into text files
-    ,"inputHitmapFiles"     : [ "hitmap.bin" ]               #  list of hitmap files when solving only
-    ,"readHitmaps"              : True                           #  whether to use the hitmap information when solve only
-    ,"doMonitoring"             : True                       #  whether to run the monitoring scripts
-    ,"monitoringName"           : ""                         # apply a monitoring name
-    ,"Cosmics"                  : False                          #  whether to use special cosmic track selection
-    ,"useTRT"                   : True                           #  whether to use TRT for track selection
-    ,"useOldPreProcessor"       : False                               #  temporary option, new preProcessor with beam-spot constraint is
-                                                         #  available only from tag TrkAlignGenTools-01-07-08 which didn't
-                                                         #  make it into 15.6.9, once in the release, old preProcessor will
-                                                         #  be removed
-    ,"doBSConstraint"           : True                      #  run with beam-spot constraint
-    ,"doPVConstraint"           : False                  #  run with primary vertex constraint
-    ,"doFullVertex"             : False                              #  run with the full GX vertex constraint
-    ,"doBSTrackSelection"       : False                       #  run BS constraint only for tracks which pass tighter track selection
+    ,"writeAlignNtuple"     : False                  #  whether to write an alignment specific ntuple
+    ,"alignNtupleName"      : "newIDalign.root"      #  name of the ntuple file
+    ,"writeDerivatives"     : False                  #  whether to store dr/da in the ntuple
+    ,"writeHitmap"          : True                   #  whether to store the hitmap
+    ,"writeHitmapTxt"       : True                   #  whether to store the hitmap in a text file
+    ,"writeEigenMat"        : False                  #  whether to write the eigenspectrum/eigenvectors into files
+    ,"writeEigenMatTxt"     : False                  #  whether to write the eigenspectrum/eigenvectors into text files
+    ,"inputHitmapFiles"     : [ "hitmap.bin" ]       #  list of hitmap files when solving only
+    ,"readHitmaps"          : True                   #  whether to use the hitmap information when solve only
+    ,"doMonitoring"         : True                   #  whether to run the monitoring scripts
+    ,"monitoringName"       : ""                     # apply a monitoring name
+    ,"Cosmics"              : False                  #  whether to use special cosmic track selection
+    ,"useTRT"               : True                   #  whether to use TRT for track selection
+    ,"useOldPreProcessor"   : False                  #  temporary option, new preProcessor with beam-spot constraint is
+                                                     #  available only from tag TrkAlignGenTools-01-07-08 which didn't
+                                                     #  make it into 15.6.9, once in the release, old preProcessor will
+                                                     #  be removed
+    ,"doBSConstraint"       : False                  #  run with beam-spot constraint
+    ,"doPVConstraint"       : False                  #  run with primary vertex constraint
+    ,"doFullVertex"         : False                  #  run with the full GX vertex constraint
+    ,"doBSTrackSelection"   : False                  #  run BS constraint only for tracks which pass tighter track selection
     ,"doBSAssociatedToPVSelection"  : False                  #  run BS constraint only for tracks associated to primary vertex
     ,"beamspotScalingFactor"    : 1.                     #  factor to scale the size of the beam spot
     ,"PtCutForBSConstraint"     : 0.                     #  Max Pt Cut for the BS constraint in order to not clash with the IP constraints
     ,"MinPtForConstrainedProvider" : 0.                     #  Max Pt Cut for the BS constraint in order to not clash with the IP constraints
-    ,"eoverpmapconstraint"      : ""                                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
-    ,"eoverpmapconstraintmap"   : ""                                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
-    ,"z0mapconstraint"          : ""                                 #  z0 bias map file for IP constraint
+    ,"eoverpmapconstraint"      : ""                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
+    ,"eoverpmapconstraintmap"   : "h_deltasagitta_computed_map"                                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
+    ,"z0mapconstraint"          : ""                 #  z0 bias map file for IP constraint
     ,"z0mapconstraintmap"       : "z0CorrectionVsEtaPhi"                                 #  z0 bias map name for IP constraint
-    ,"d0mapconstraint"          : ""                     #  filename for d0 bias map for IP constraint
+    ,"d0mapconstraint"          : ""                #  filename for d0 bias map for IP constraint
     ,"d0mapconstraintmap"       : "d0CorrectionVsEtaPhi"                     #  d0 bias map for IP constraint
-    ,"PtCut"                    : 5000                  #  Pt cut for the reconstruction [MeV]
+    ,"CorrectPt"             : False                 #
+    ,"CorrectD0"             : False                 #
+    ,"CorrectZ0"             : False                 #
+    ,"PtCut"                 : 10000                 #  Pt cut for the reconstruction [MeV]
 
 
     ,"doSiHitQualSel"       : True                   #  perform Si hit (pix+sct) quality selection with InDetAlinHitQualSelTool
-    ,"AlignIBLbutNotPixel"  : False		# Set to True to align the IBL but not the Old Pixel (L11).
-    ,"AlignPixelbutNotIBL"  : False		# Set to True to align the Old Pixel but not the IBL (L11).
+    ,"AlignIBLbutNotPixel"  : False	             # Set to True to align the IBL but not the Old Pixel (L11).
+    ,"AlignPixelbutNotIBL"  : False		     # Set to True to align the Old Pixel but not the IBL (L11).
 
     ,"Remove_Pixel_Tx"      : False		# Set to True to remove Old Pixel's Tx Dof from the alignment Matrix (L11).
     ,"Remove_Pixel_Ty"      : False		# Set to True to remove Old Pixel's Ty Dof from the alignment Matrix (L11).
@@ -122,6 +125,7 @@ newInDetAlignAlg_Options = {
 
 }
 
+print (" == InDetAlign_setup == InDetAlign_Setup STARTED == ")
 ##############################################################################
 ## If the variables are defined use thier values.
 ## If not defined the defaults given above are used
@@ -151,6 +155,7 @@ print (" == doBSAssoc2PV   ?: ",newInDetAlignAlg_Options["doBSAssociatedToPVSele
 
 
 if (len(newInDetAlignAlg_Options["eoverpmapconstraint"])>0):
+    newInDetAlignAlg_Options["CorrectPt"] = True
     print (" <InDetAlign_setup> file with momentum constraint map: %s" %newInDetAlignAlg_Options["eoverpmapconstraint"])
     print (" <InDetAlign_setup> histogram momentum constraint map: %s" %newInDetAlignAlg_Options["eoverpmapconstraintmap"])
 else:
@@ -159,7 +164,7 @@ else:
 if (len(newInDetAlignAlg_Options["d0mapconstraint"])>0):
     newInDetAlignAlg_Options["CorrectD0"] = True
     print (" <InDetAlign_setup> file with d0 constraint map: %s" %newInDetAlignAlg_Options["d0mapconstraint"])
-    print (" <InDetAlign_setup> histogram z0 constraint map: %s" %newInDetAlignAlg_Options["d0mapconstraintmap"])
+    print (" <InDetAlign_setup> histogram d0 constraint map: %s" %newInDetAlignAlg_Options["d0mapconstraintmap"])
 else:
     print (" <InDetAlign_setup> NO d0 constraint")
 
@@ -185,6 +190,8 @@ if newInDetAlignAlg_Options["useOldPreProcessor"]:
 ## ==                                                               ==
 ## ==               Settings for the alignment                      ==
 ## ==                                                               ==
+print (' == InDetAlign_setup == runAccumulate ?  %r' %newInDetAlignAlg_Options["runAccumulate"])
+print (' == InDetAlign_setup == runSolving ?     %r' %newInDetAlignAlg_Options["runSolving"])
 if not newInDetAlignAlg_Options["runAccumulate"] and not newInDetAlignAlg_Options["runSolving"]:
     print (' == InDetAlign_setup == ERROR: Both event processing and solving switched off. Nothing to be done.')
     exit(10)
@@ -247,11 +254,9 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 # this will be most likely overwritten with detector specific alignModuleTool
 # during geometry setup but it is a reasonable default
 from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AlignModuleTool
-alignModuleTool = Trk__AlignModuleTool(
-    name = "AlignModuleTool",
-    OutputLevel = newInDetAlignAlg_Options["outputLevel"]
-
-)
+alignModuleTool = Trk__AlignModuleTool( name = "AlignModuleTool",
+                                        OutputLevel = newInDetAlignAlg_Options["outputLevel"]
+                                    )
 ToolSvc += alignModuleTool
 print (alignModuleTool)
 
@@ -425,6 +430,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     ###############################
     # create AlignTrackPreProcessor
     if newInDetAlignAlg_Options["useOldPreProcessor"] :
+        print (" == InDetAlign_setup == WARNING using old preprocessor") 
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AlignTrackPreProcessor
         # with hit quality selection tool
         preProcessor = Trk__AlignTrackPreProcessor(
@@ -453,10 +459,9 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             preProcessor.SelectTracks = True
             preProcessor.TrackSelectorTool = trackSelectorNew
     else :
-        print (" == InDetAlign_setup == OldPreProcessor is NOT used ") 
+        print (" == InDetAlign_setup == Using new preProcessor") 
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
-        #print " <InDetAlign_setup> TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"])
-        print (' <InDetAlign_setup> setting BeamspotVertexPreProcessor ')
+        print (' == InDetAlign_setup == setting BeamspotVertexPreProcessor ')
         preProcessor = Trk__BeamspotVertexPreProcessor("BeamspotVertexPreProcessor",
                                                        OutputLevel           = newInDetAlignAlg_Options["outputLevel"],
                                                        RefitTracks           = newInDetAlignAlg_Options["refitTracks"],
@@ -465,6 +470,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
                                                        UseSingleFitter       = True,
                                                        ParticleNumber        = newInDetAlignAlg_Options["particleNumber"],
                                                        RunOutlierRemoval     = newInDetAlignAlg_Options["runOutlier"],
+                                                       DoTrackSelection      = False, # accept the tracks as provided by the IDPerfMon
                                                        DoBSConstraint        = newInDetAlignAlg_Options["doBSConstraint"],
                                                        #maxPt                = newInDetAlignAlg_Options["PtCutForBSConstraint"],
                                                        DoPVConstraint        = newInDetAlignAlg_Options["doPVConstraint"],
@@ -495,40 +501,37 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     ################################
     # create AlignResidualCalculator
     from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AlignResidualCalculator
-    alignResidualCalculator = Trk__AlignResidualCalculator(
-        name = "AlignResidualCalculator",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        ResidualType = newInDetAlignAlg_Options["residualType"],
-        IncludeScatterers = False
-    )
+    alignResidualCalculator = Trk__AlignResidualCalculator( name = "AlignResidualCalculator",
+                                                            OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                            ResidualType = newInDetAlignAlg_Options["residualType"],
+                                                            IncludeScatterers = False
+                                                        )
     ToolSvc += alignResidualCalculator
     print (alignResidualCalculator)
 
     ################################
     # create AlignTrackCreator
     from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AlignTrackCreator
-    alignTrackCreator = Trk__AlignTrackCreator(
-        name = "AlignTrackCreator",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        AlignModuleTool = alignModuleTool,
-        ResidualCalculator = alignResidualCalculator,
-        IncludeScatterers = False,
-        RemoveATSOSNotInAlignModule = True,
-        WriteEventList = False,
-        RequireOverlap = False
-    )
+    alignTrackCreator = Trk__AlignTrackCreator( name = "AlignTrackCreator",
+                                                OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                AlignModuleTool = alignModuleTool,
+                                                ResidualCalculator = alignResidualCalculator,
+                                                IncludeScatterers = False,
+                                                RemoveATSOSNotInAlignModule = True,
+                                                WriteEventList = False,
+                                                RequireOverlap = False
+                                            )
     ToolSvc += alignTrackCreator
     print (alignTrackCreator)
 
     ################################
     # create AnalyticalDerivCalcTool
     from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AnalyticalDerivCalcTool
-    derivCalcTool = Trk__AnalyticalDerivCalcTool(
-        name = "AnalyticalDerivCalcTool",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"],
-        AlignModuleTool = alignModuleTool
-    )
+    derivCalcTool = Trk__AnalyticalDerivCalcTool( name = "AnalyticalDerivCalcTool",
+                                                  OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                  StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"],
+                                                  AlignModuleTool = alignModuleTool
+                                              )
     # some extra settings when running local
     if newInDetAlignAlg_Options["runLocal"]:
         derivCalcTool.UseLocalSetting = True
@@ -543,11 +546,10 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     ################################
     # create AlignTrackDresser that uses AnalyticalDerivCalcTool
     from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__AlignTrackDresser
-    alignTrackDresser = Trk__AlignTrackDresser(
-        name = "AlignTrackDresser",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        DerivCalcTool = derivCalcTool
-    )
+    alignTrackDresser = Trk__AlignTrackDresser( name = "AlignTrackDresser",
+                                                OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                DerivCalcTool = derivCalcTool
+                                            )
     ToolSvc += alignTrackDresser
     print (alignTrackDresser)
 
@@ -556,43 +558,41 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     ntupleTool = ""
     if newInDetAlignAlg_Options["writeAlignNtuple"]:
         from InDetAlignNtupleTools.InDetAlignNtupleToolsConf import InDet__SimpleIDNtupleTool
-        ntupleTool = InDet__SimpleIDNtupleTool(
-            name = "SimpleIDNtupleTool",
-            OutputLevel = INFO,
-            TrackSummaryTool = InDetTrackSummaryTool,
-            AlignModuleTool = alignModuleTool,
-            StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"]
-        )
+        ntupleTool = InDet__SimpleIDNtupleTool( name = "SimpleIDNtupleTool",
+                                                OutputLevel = INFO,
+                                                TrackSummaryTool = InDetTrackSummaryTool,
+                                                AlignModuleTool = alignModuleTool,
+                                                StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"]
+                                            )
         ToolSvc += ntupleTool
         print (ntupleTool)
-
+        
     ###############################
     ###############################
     # Track Collection Provider
     if newInDetAlignAlg_Options["Cosmics"]:
         newInDetAlignAlg_Options["trackCollection"] = "CombinedInDetTracks"
 
+    print (" == CorrectD0 ? %r" %newInDetAlignAlg_Options["CorrectD0"])
+    print (" == CorrectZ0 ? %r" %newInDetAlignAlg_Options["CorrectZ0"])
+    print (" == CorrectPt ? %r" %newInDetAlignAlg_Options["CorrectPt"])
 
-    if len(newInDetAlignAlg_Options["eoverpmapconstraint"]) == 0:
+    if (newInDetAlignAlg_Options["CorrectPt"] or newInDetAlignAlg_Options["CorrectD0"] or newInDetAlignAlg_Options["CorrectZ0"]):
+        # this is the case when some constraint will be applied to the track fit 
         newInDetAlignAlg_Options["trackCollection"] = "SelectedMuonsRefit1"
-        from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__TrackCollectionProvider
-        trackCollectionProvider = Trk__TrackCollectionProvider("TrackCollectionProvider2",
-                                                               OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-                                                               InputTrkCol = newInDetAlignAlg_Options["trackCollection"]
-                                                           )
-    else:
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__ConstrainedTrackProvider
         trackCollectionProvider=Trk__ConstrainedTrackProvider("TrackCollectionProvider",
-                                                              #OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-                                                              OutputLevel = DEBUG,
+                                                              OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                              doTrackSelection = False, 
                                                               InputTracksCollection= newInDetAlignAlg_Options["trackCollection"],
                                                               MinPt = newInDetAlignAlg_Options["MinPtForConstrainedProvider"],
                                                               MaxPt = 120,
                                                               MomentumConstraintFileName = newInDetAlignAlg_Options["eoverpmapconstraint"],
                                                               MomentumConstraintHistName = newInDetAlignAlg_Options["eoverpmapconstraintmap"],
-                                                              CorrectMomentum = True,
+                                                              CorrectMomentum = newInDetAlignAlg_Options["CorrectPt"],
                                                               DeltaScaling = 1,
-                                                              ReduceConstraintUncertainty = 1.,
+                                                              ScalePMapToGeV = True,
+                                                              ReduceConstraintUncertainty = 1., 
                                                               CorrectZ0 = newInDetAlignAlg_Options["CorrectZ0"],
                                                               z0ConstraintFileName =  newInDetAlignAlg_Options["z0mapconstraint"],
                                                               z0ConstraintHistName =  newInDetAlignAlg_Options["z0mapconstraintmap"],
@@ -600,10 +600,17 @@ if newInDetAlignAlg_Options["runAccumulate"]:
                                                               d0ConstraintFileName =  newInDetAlignAlg_Options["d0mapconstraint"],
                                                               d0ConstraintHistName =  newInDetAlignAlg_Options["d0mapconstraintmap"],
                                                               UseConstraintError =  False,
-                                                              UseConstrainedTrkOnly= False,
+                                                              UseConstrainedTrkOnly= True,
                                                               TrackFitter = trackFitter   
                                                           )
-        print (trackCollectionProvider)
+    else:
+        newInDetAlignAlg_Options["trackCollection"] = "SelectedMuonsRefit1"
+        from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__TrackCollectionProvider
+        trackCollectionProvider = Trk__TrackCollectionProvider("TrackCollectionProvider2",
+                                                               OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                                               InputTrkCol = newInDetAlignAlg_Options["trackCollection"]
+                                                           )
+    print (trackCollectionProvider)
     ToolSvc += trackCollectionProvider
 
     ################################
@@ -611,20 +618,19 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     # build GlobalAlign algorithm
     #
     from TrkAlignGenAlgs.TrkAlignGenAlgsConf import Trk__AlignAlg
-    InDetGlobalAlign =  Trk__AlignAlg(
-        "InDetGlobalAlign",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        TrackCollectionProvider = trackCollectionProvider,
-        AlignTrackCreator = alignTrackCreator,
-        AlignTrackDresser = alignTrackDresser,
-        AlignTrackPreProcessor = preProcessor,
-        GeometryManagerTool = trkAlignGeoManagerTool,
-        FillNtupleTool = ntupleTool,
-        WriteNtuple = newInDetAlignAlg_Options["writeAlignNtuple"],
-        FileName = newInDetAlignAlg_Options["alignNtupleName"],
-        AlignTool = globalChi2AlignTool,
-        AlignDBTool = trkAlignDBTool
-    )
+    InDetGlobalAlign =  Trk__AlignAlg( name = "InDetGlobalAlign",
+                                       OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                       TrackCollectionProvider = trackCollectionProvider,
+                                       AlignTrackCreator = alignTrackCreator,
+                                       AlignTrackDresser = alignTrackDresser,
+                                       AlignTrackPreProcessor = preProcessor,
+                                       GeometryManagerTool = trkAlignGeoManagerTool,
+                                       FillNtupleTool = ntupleTool,
+                                       WriteNtuple = newInDetAlignAlg_Options["writeAlignNtuple"],
+                                       FileName = newInDetAlignAlg_Options["alignNtupleName"],
+                                       AlignTool = globalChi2AlignTool,
+                                       AlignDBTool = trkAlignDBTool
+                                   )
 
     topSequence += InDetGlobalAlign
     print (InDetGlobalAlign)
@@ -638,15 +644,14 @@ else:
     # build GlobalAlign algorithm
     #
     from TrkAlignGenAlgs.TrkAlignGenAlgsConf import Trk__AlignAlg
-    InDetGlobalSolve =  Trk__AlignAlg(
-        "InDetGlobalSolve",
-        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-        GeometryManagerTool = trkAlignGeoManagerTool,
-        AlignTool = globalChi2AlignTool,
-        AlignDBTool = trkAlignDBTool,
-        SolveOnly = True,
-        WriteNtuple = False
-    )
+    InDetGlobalSolve =  Trk__AlignAlg( name = "InDetGlobalSolve",
+                                       OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                       GeometryManagerTool = trkAlignGeoManagerTool,
+                                       AlignTool = globalChi2AlignTool,
+                                       AlignDBTool = trkAlignDBTool,
+                                       SolveOnly = True,
+                                       WriteNtuple = False
+                                   )
 
     topSequence += InDetGlobalSolve
     print (InDetGlobalSolve)
