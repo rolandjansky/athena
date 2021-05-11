@@ -32,7 +32,7 @@ class _ConfigSettings_electron( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name      = "electron"
       self._suffix    = "Electron"
-      self._roi       = "HLT_Roi_Electron" 
+      self._roi       = "HLT_Roi_Electron"
       self._doCloneRemoval      = True #Previously False in Run2!
       self._doSeedRedundancyCheck = True
       self._doTRT               = True
@@ -92,7 +92,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name     = "tauIso"
       self._suffix   = "TauIso"
-      self._roi      = "RoiForTauIso" 
+      self._roi      = "RoiForTauIso"
       self._etaHalfWidth   = 0.4
       self._phiHalfWidth   = 0.4
       self._doTRT          = True
@@ -141,7 +141,7 @@ class _ConfigSettings_beamSpot( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name     = "beamSpot"
       self._suffix   = "BeamSpot"
-      self._roi      = "HLT_Roi_FS" 
+      self._roi      = "HLT_Roi_FS"
       self._doFullScan      = True
       self._doZFinder       = True
       self._DoubletDR_Max   = 200
@@ -159,12 +159,12 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._name     = "fullScan"
       self._suffix   = "FS"
       self._roi      = "HLT_Roi_FS"
-      self._vertex              = "HLT_IDVertex_FS" 
+      self._vertex              = "HLT_IDVertex_FS"
       self._adaptiveVertex      = True
-      # these are being evaluated and may be added 
+      # these are being evaluated and may be added
       # self._addSingleTrackVertices = True
       # self._TracksMaxZinterval = 3
-      self._vertex_jet          = "HLT_IDVertex_FSJet" 
+      self._vertex_jet          = "HLT_IDVertex_FSJet"
       self._adaptiveVertex_jet  = False
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
@@ -253,6 +253,11 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
       self._Triplet_D0Max       = 300.
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
+      self._etaHalfWidth        = 0.05
+      self._phiHalfWidth        = 0.4
+      self._keepTrackParameters = True
+      self._doSeedRedundancyCheck = True
+      self._nClustersMin        = 8
       self._isLRT               = True
 
 
@@ -264,11 +269,15 @@ class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
       self._roi        = "HLT_Roi_Muon"
       self._UsePixelSpacePoints = False
       self._etaHalfWidth        = 0.2
-      self._phiHalfWidth        = 0.2
+      self._phiHalfWidth        = 0.4
       self._Triplet_D0Max       = 300.
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
+      self._doSeedRedundancyCheck = True
+      self._nClustersMin        = 8
       self._isLRT               = True
+      self._doResMon            = True
+      self._DoPhiFiltering      = False
 
 
 class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
@@ -285,6 +294,7 @@ class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
       self._Triplet_D0Max       = 300.
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
+      self._nClustersMin        = 8
       self._isLRT               = True
 
 
@@ -300,6 +310,7 @@ class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
       self._Triplet_D0Max       = 300.
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
+      self._nClustersMin        = 8
       self._isLRT               = True
 
 
@@ -319,6 +330,8 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._TrackInitialD0Max     = 300.
       self._TrackZ0Max            = 500.
       self._Triplet_D0_PPS_Max    = 300.
+      self._DoubletDR_Max         = 200
+      self._nClustersMin          = 8
       self._isLRT                 = True
 
 
