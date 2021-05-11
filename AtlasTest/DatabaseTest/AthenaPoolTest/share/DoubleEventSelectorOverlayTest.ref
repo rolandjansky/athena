@@ -100,7 +100,7 @@ AddressRemappin...  DEBUG Service base class initialized successfully
 ProxyProviderSvc    DEBUG  added Address Provider AddressRemappingSvc
 ProxyProviderSvc    DEBUG Service base class initialized successfully
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])

@@ -72,8 +72,10 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::T
   : Trk::Surface(detelement)
   , m_bounds(nullptr)
 {
-  if(transf){
-    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
+  //consider updating to passing by unique_ptr or value
+  auto tmptransf=std::unique_ptr<Amg::Transform3D>(transf);
+  if(tmptransf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*tmptransf);
   }
 }
 
@@ -84,11 +86,20 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
   : Trk::Surface(detelement, id)
   , m_bounds(nullptr)
 {
-  if(transf){
-    Trk::Surface::m_transforms = std::make_unique<Transforms>(*transf);
+  //consider updating to passing by value or unique_ptr
+  auto tmptransf=std::unique_ptr<Amg::Transform3D>(transf);
+  if(tmptransf){
+    Trk::Surface::m_transforms = std::make_unique<Transforms>(*tmptransf);
   }
-
 }
+
+// construct planar surface without bounds
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+{}
+
+
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans)

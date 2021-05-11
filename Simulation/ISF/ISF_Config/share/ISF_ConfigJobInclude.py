@@ -86,9 +86,17 @@ from AthenaCommon.ConfigurableDb import getConfigurable
 ServiceMgr.AuditorSvc += getConfigurable("ChronoAuditor")()
 # --- write out a short message upon entering or leaving each algorithm
 # ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
+# --- check for FPEs
+ServiceMgr.AuditorSvc += getConfigurable("FPEAuditor")()
+import signal
+try:
+    ServiceMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+except ValueError:
+    pass
 #
 theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
+theApp.AuditTools      = True  
 #
 # --- Display detailed size and timing statistics for writing and reading
 ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True

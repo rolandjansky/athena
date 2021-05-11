@@ -6,7 +6,7 @@
 // JetRecAlg.cxx
 
 #include <memory>
-#include "JetRecAlg.h"
+#include "JetRec/JetRecAlg.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "xAODJet/JetAuxContainer.h"
 
@@ -79,7 +79,7 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
     Monitored::ScopedTimer time_provider(t_jpv);
 #endif
     ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
-    ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
+    ATH_MSG_DEBUG("Created jet container of size "<< (*jetContHandle).size() << "  | writing to "<< m_output.key() );
   }
 
   // Define a scope to ease monitoring of the JetModifier action

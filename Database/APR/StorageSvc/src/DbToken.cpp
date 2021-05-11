@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbToken.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Implementation file of a DbToken class
 //--------------------------------------------------------------------
@@ -12,6 +11,7 @@
 //  @author      M.Frank
 //====================================================================
 #include "StorageSvc/DbToken.h"
+#include "CxxUtils/checker_macros.h"
 #include <cstdio>
 using namespace pool;
 
@@ -87,7 +87,7 @@ void DbToken::setUserKey(int i, const Guid& guid) {
 
 /// Fast token comparison
 bool DbToken::equal(const Token& refTok) const    {
-  DbToken* dbTok = (DbToken*)&refTok;
+  const DbToken* dbTok = static_cast<const DbToken*>(&refTok);
   if ( this == dbTok )  {
     return true;
   }
@@ -99,7 +99,7 @@ bool DbToken::equal(const Token& refTok) const    {
 
 /// Fast token comparison
 bool DbToken::less(const Token& refTok) const    {
-  DbToken* dbTok = (DbToken*)&refTok;
+  const DbToken* dbTok = static_cast<const DbToken*>(&refTok);
   if ( this == dbTok )  {
     return false;
   }

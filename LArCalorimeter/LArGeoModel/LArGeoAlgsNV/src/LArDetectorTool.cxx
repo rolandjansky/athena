@@ -6,6 +6,7 @@
 
 #include "LArDetectorToolNV.h"
 #include "LArDetectorFactory.h"
+#include "LArDetectorFactoryLite.h"
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -27,6 +28,7 @@
 
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelRead/ReadGeoModel.h"
 #include "LArHV/LArHVManager.h"
 
 #include "AthenaKernel/ClassID_traits.h"
@@ -75,51 +77,53 @@ LArDetectorToolNV::~LArDetectorToolNV()
 
 StatusCode LArDetectorToolNV::create()
 {
-  // Initialize the HV System:
-  LArHVManager *hvManager= new LArHVManager();
+  if(m_detector) {
+    ATH_MSG_FATAL("LAr GeoModel description has already been built. LArDetectorToolNV::create() cannot be called more than once!");
+    return StatusCode::FAILURE;
+  }
 
+  // Initialize the HV System:
+  LArHVManager* hvManager = new LArHVManager();;
   ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));
 
   // Get the detector configuration.
   ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
   ATH_CHECK(geoDbTag.retrieve());
 
-  std::string AtlasVersion = geoDbTag->atlasVersion();
-  std::string LArVersion   = geoDbTag->LAr_VersionOverride();
-
-  ServiceHandle<IRDBAccessSvc> accessSvc("RDBAccessSvc",name());
+  ServiceHandle<IRDBAccessSvc> accessSvc(geoDbTag->getParamSvcName(),name());
   ATH_CHECK(accessSvc.retrieve());
 
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-  ATH_MSG_INFO("Keys for LAr are "  << detectorKey  << "  " << detectorNode);
-  ATH_MSG_INFO("Building LAr version " << geoDbTag->LAr_Version()
-      << " while ATLAS version is " <<  AtlasVersion);
+  GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
+  std::string detectorKey{""};
+  std::string detectorNode{""};
 
-  if(LArVersion=="CUSTOM") {
-    ATH_MSG_WARNING("LArDetectorToolNV:  Detector Information coming from a custom configuration!!");
+  if(!sqliteReader) {
+    // Geometry is constructed from the Geometry DB
+    std::string AtlasVersion = geoDbTag->atlasVersion();
+    std::string LArVersion   = geoDbTag->LAr_VersionOverride();
+
+    detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+    detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+    ATH_MSG_INFO("Keys for LAr are "  << detectorKey  << "  " << detectorNode);
+    ATH_MSG_INFO("Building LAr version " << geoDbTag->LAr_Version()
+		 << " while ATLAS version is " <<  AtlasVersion);
   }
-  else {
-    IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("LArSwitches", detectorKey, detectorNode);
-    if ((*switchSet).size()==0) {
-      ATH_MSG_ERROR("Unable to retrieve LArSwitches from Geometry DB");
-      return StatusCode::FAILURE;
-    }
-    const IRDBRecord    *switches   = (*switchSet)[0];
-    m_barrelSaggingOn           = switches->getInt("SAGGING");
 
-    try {
-      if (!switches->isFieldNull("BARREL_ON")) {
-	m_buildBarrel = switches->getInt("BARREL_ON");
-      }
+  IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("LArSwitches", detectorKey, detectorNode);
+  if ((*switchSet).size()==0) {
+    ATH_MSG_ERROR("Unable to retrieve LArSwitches from Geometry DB");
+    return StatusCode::FAILURE;
+  }
 
-      if (!switches->isFieldNull("ENDCAP_ON")) {
-	m_buildEndcap = switches->getInt("ENDCAP_ON");
-      }
-    }
-    catch(const std::exception& e) {
-      ATH_MSG_DEBUG(e.what());
-    }
+  const IRDBRecord* switches = (*switchSet)[0];
+  m_barrelSaggingOn = switches->getInt("SAGGING");
+  
+  if (!switches->isFieldNull("BARREL_ON")) {
+    m_buildBarrel = switches->getInt("BARREL_ON");
+  }
+
+  if (!switches->isFieldNull("ENDCAP_ON")) {
+    m_buildEndcap = switches->getInt("ENDCAP_ON");
   }
 
   ATH_MSG_INFO("LAr Geometry Options:"  );
@@ -131,8 +135,6 @@ StatusCode LArDetectorToolNV::create()
   GeoModelExperiment* theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt,"ATLAS"));
 
-  // determine the geometry layout - Atlas/Testbeam
-  std::string geometryLayout = "Atlas";
   int testbeam = 0 ;
   // testbeam=0  Atlas
   // testbeam=1  H8 test beam => build GeoModel in LArDetectorFactory
@@ -141,40 +143,49 @@ StatusCode LArDetectorToolNV::create()
   std::string LArTag = accessSvc->getChildTag("LAr",detectorKey,detectorNode);
 
   if(LArTag.find("H8")!=std::string::npos) {
-    geometryLayout = "H8";
     testbeam = 1 ;
   }
   else if(LArTag.find("H6")!=std::string::npos) {
-    geometryLayout = "H6";
     testbeam = 2 ;
   }
-  else if(LArTag.find("G3")!=std::string::npos) {
-    geometryLayout = "G3";
+
+  GeoPhysVol *world=theExpt->getPhysVol();
+  if(sqliteReader) {
+    // Geometry is constructed from SQLite file
+    LArGeo::LArDetectorFactoryLite theLArFactoryLite(detStore().operator->()
+						     , accessSvc.operator->()
+						     , sqliteReader
+						     , hvManager);
+    theLArFactoryLite.setBarrelSagging(m_barrelSaggingOn);
+    theLArFactoryLite.create(world);
   }
+  else {
+    // Geometry is constructed from the Geometry DB
+    LArGeo::LArDetectorFactory theLArFactory(detStore().operator->()
+					     , hvManager
+					     , testbeam
+					     , m_geometryConfig=="FULL");
 
-  LArGeo::LArDetectorFactory theLArFactory(testbeam,m_geometryConfig=="FULL",hvManager);
+    theLArFactory.setBarrelSagging       (m_barrelSaggingOn);
+    theLArFactory.setBarrelCellVisLimit  (m_barrelVisLimit);
+    theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
+    theLArFactory.setBuildBarrel(m_buildBarrel);
+    theLArFactory.setBuildEndcap(m_buildEndcap);
+    theLArFactory.setEMECVariant(m_EMECVariantInner, m_EMECVariantOuter);
+    theLArFactory.setActivateFT(m_activateFT);
+    theLArFactory.setEnableMBTS(m_enableMBTS);
 
-  theLArFactory.setBarrelSagging       (m_barrelSaggingOn);
-  theLArFactory.setBarrelCellVisLimit  (m_barrelVisLimit);
-  theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
-  theLArFactory.setBuildBarrel(m_buildBarrel);
-  theLArFactory.setBuildEndcap(m_buildEndcap);
-  theLArFactory.setEMECVariant(m_EMECVariantInner, m_EMECVariantOuter);
-  theLArFactory.setActivateFT(m_activateFT);
-  theLArFactory.setEnableMBTS(m_enableMBTS);
-
-  if(m_detector==nullptr) {
-    GeoPhysVol *world=&*theExpt->getPhysVol();
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
     ATH_CHECK(detStore()->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName()));
     theExpt->addManager(theLArFactory.getDetectorManager());
-
-    // Release RDB Recordsets if we are inside reco job
-    if(m_geometryConfig=="RECO") LArGeo::VDetectorParameters::SetInstance(0);
-    return StatusCode::SUCCESS;
+    if(m_geometryConfig=="RECO") {
+      // Release RDB Recordsets if we are inside reco job
+      LArGeo::VDetectorParameters::SetInstance(0);
+    }
   }
-  return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode LArDetectorToolNV::clear()

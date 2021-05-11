@@ -12,14 +12,6 @@
 #CaloCellGetter()
 include ("CaloRec/CaloRec_jobOptions.py")
 
-if not doSim:
-    ToolSvc.LArAutoCorrTotalTool.NMinBias=0 
-
-if doLArOFC:
-    if not doSim:
-        ToolSvc.LArOFCTool.FromDatabase=TRUE
-
-
 #from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
 ToolSvc.LArCellBuilderFromLArRawChannelTool.LArRegion = "LAr_EM"
 ToolSvc.LArCellBuilderFromLArRawChannelTool.EThreshold =-1.e32* MeV # lowered the threshold to get rid of unuseful warnings! 

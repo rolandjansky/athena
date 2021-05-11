@@ -28,8 +28,6 @@ namespace Rec {
         declareInterface<IMuonMeanMDTdADCFiller>(this);
     }
 
-    MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool(void) {}
-
     // Athena Algorithm's Hooks
     ////////////////////////////
     StatusCode MuonMeanMDTdADCFillerTool::initialize() {
@@ -42,35 +40,30 @@ namespace Rec {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode MuonMeanMDTdADCFillerTool::finalize() {
-        ATH_MSG_INFO("Finalizing " << name() << "...");
-
-        return StatusCode::SUCCESS;
-    }
-
     double MuonMeanMDTdADCFillerTool::meanMDTdADCFiller(const xAOD::Muon& muon) const {
         // exclude statistical combination
         if (muon.author() == xAOD::Muon::STACO) return -9999.;
 
         // Trk::Track* for trackParticle
-        const Trk::Track* theTrack =
-            muon.trackParticle(xAOD::Muon::CombinedTrackParticle) ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track() : 0;
+        const Trk::Track* theTrack = muon.trackParticle(xAOD::Muon::CombinedTrackParticle)
+                                         ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track()
+                                         : nullptr;
 
         if (theTrack) { return meanMDTdADCFiller(*theTrack); }
 
         const Trk::Track* theTrack1 = muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)
                                           ? muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->track()
-                                          : 0;
+                                          : nullptr;
 
         if (theTrack1) { return meanMDTdADCFiller(*theTrack1); }
 
         const Trk::Track* theTrack2 = muon.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)
                                           ? muon.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)->track()
-                                          : 0;
+                                          : nullptr;
 
         if (theTrack2) { return meanMDTdADCFiller(*theTrack2); }
 
-        const Trk::Track* theTrack3 = muon.trackParticle(xAOD::Muon::Primary) ? muon.trackParticle(xAOD::Muon::Primary)->track() : 0;
+        const Trk::Track* theTrack3 = muon.trackParticle(xAOD::Muon::Primary) ? muon.trackParticle(xAOD::Muon::Primary)->track() : nullptr;
 
         if (theTrack3) { return meanMDTdADCFiller(*theTrack3); }
 
@@ -92,7 +85,7 @@ namespace Rec {
         // return mean Number of ADC counts for MDT tubes on the track
 
         const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
-        if (states == NULL) {
+        if (!states) {
             ATH_MSG_INFO("Cannot get track states on surface for TrackParticle");
             return -9999.;
         }
@@ -122,7 +115,7 @@ namespace Rec {
             if (!(*tsit)->type(Trk::TrackStateOnSurface::Measurement) || (*tsit)->type(Trk::TrackStateOnSurface::Outlier)) { continue; }
 
             const Trk::MeasurementBase* measurement = (*tsit)->measurementOnTrack();
-            if (measurement == NULL) { continue; }
+            if (!measurement) { continue; }
             Identifier id = m_edmHelperSvc->getIdentifier(*measurement);
             if (!(m_idHelperSvc->isMuon(id))) {
                 continue;  // MS summary variables - don't need other technologies
@@ -131,7 +124,7 @@ namespace Rec {
             // mdt station counts
             if (m_idHelperSvc->isMdt(id)) {
                 const Muon::MdtDriftCircleOnTrack* mdtcirc = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(measurement);
-                if (mdtcirc == NULL) {
+                if (!mdtcirc) {
                     ATH_MSG_WARNING("cannot cast Trk::MeasurementBase to Muon::MdtDriftCircleOnTrack");
                     continue;
                 }

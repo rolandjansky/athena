@@ -7,6 +7,10 @@
 ///////////////////////////////////////////////////////////////////
 
 // Trk includes
+#include <memory>
+
+
+
 #include "TrkDigEvent/TrapezoidSegmentation.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -121,9 +125,9 @@ void Trk::TrapezoidSegmentation::createSegmenationSurfaces(std::vector< std::sha
   std::unique_ptr<Amg::Transform3D> binTransform(new Amg::Transform3D(Amg::getTransformFromRotTransl(yBinRotationMatrix,binSurfaceCenter)));
         // these are the boundaries
         if (ibiny == 0 || ibiny == m_binsY)
-            boundarySurfaces.push_back(std::shared_ptr<Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*yBinBounds)));
+            boundarySurfaces.push_back(std::make_shared<Trk::PlaneSurface>(&*binTransform,&*yBinBounds));
         else // these are the bin boundaries
-            segmentationSurfacesY.push_back(std::shared_ptr<Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*yBinBounds)));
+            segmentationSurfacesY.push_back(std::make_shared<Trk::PlaneSurface>(&*binTransform,&*yBinBounds));
     }  
 }
 

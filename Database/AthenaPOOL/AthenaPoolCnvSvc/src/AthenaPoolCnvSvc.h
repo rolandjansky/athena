@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
@@ -233,9 +233,13 @@ private: // properties
    std::map<std::string, long long> m_databaseMaxFileSize;
 
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
-   /// default = false.
+   /// default = true.
    BooleanProperty m_persSvcPerOutput{this,"PersSvcPerOutput",true};
    unsigned outputContextId(const std::string& outputConnection);
+
+   /// PersSvcPerInputType,boolean property to use multiple persistency services, one per input type.
+   /// default = false.
+   BooleanProperty m_persSvcPerInputType{this,"PersSvcPerInputType",false};
    std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
@@ -252,7 +256,7 @@ private: // properties
    /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
    BooleanProperty m_parallelCompression{this,"ParallelCompression",true};
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"
-   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:1095"};
+   StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:0"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
    IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",-1};
 };

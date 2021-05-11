@@ -108,7 +108,7 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
   case egammaPIDObs::IsGoodOQ:
     return set_egammaIDint( key, (unsigned int) value);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    using elParams = std::pair<egammaPIDObs::PID, double>;
     
     std::vector<elParams>::iterator p = m_egammaID.begin();
     
@@ -134,7 +134,7 @@ bool egPID::set_egammaIDint(egammaPIDObs::PID key, unsigned int value)
   // method to set value
   //
 
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  using elParams = std::pair<egammaPIDObs::PID, unsigned int>;
 
   std::vector<elParams>::iterator p = m_egammaIDint.begin();
  
@@ -192,7 +192,7 @@ unsigned int egPID::egammaIDint(egammaPIDObs::PID key, bool *found) const
   // method to retrieve value
   //
   
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  using elParams = std::pair<egammaPIDObs::PID, unsigned int>;
 
   std::vector<elParams>::const_iterator p = m_egammaIDint.begin();
  

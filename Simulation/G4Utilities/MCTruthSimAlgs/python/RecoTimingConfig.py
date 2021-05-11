@@ -2,7 +2,7 @@
 Based on a fragment from MCTruthSimAlgsConfig.py
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -28,7 +28,7 @@ def MergeRecoTimingObjCfg(flags, name="MergeRecoTimingObjTool", **kwargs):
         kwargs.setdefault("LastXing",  TimingObj_LastXing())
 
     kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault("RecoTimingObjOutputKey", flags.Overlay.BkgPrefix + "EVNTtoHITS_timings")
     else:
         kwargs.setdefault("RecoTimingObjOutputKey", "EVNTtoHITS_timings")    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -136,16 +136,16 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   auto mon_FtSlot = Monitored::Scalar<int>("mon_FtSlot",-1);
   std::vector<LArChanHelp> the_coverageMap(0);
   //Note for when we'll have the proper histogram class: the feedthrough-slot coverage plot must be filled with the latest value, the eta-phi coverage plot must be filled with the maximum value
-  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp ch){return ch.getChFtSlot();});
-  auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp ch){return ch.getChNumber();});
-  auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp ch){return ch.getChEta();});
-  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp ch){return ch.getChPhi();});
+  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp& ch){return ch.getChFtSlot();});
+  auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp& ch){return ch.getChNumber();});
+  auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp& ch){return ch.getChEta();});
+  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp& ch){return ch.getChPhi();});
 
   //cutmasks for filling the proper partition
-  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==0);});
-  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==1);});
-  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==2);});
-  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==3);});
+  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==0);});
+  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==1);});
+  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==2);});
+  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==3);});
 
   /** Coverage map 
    * each line is a FEB, each column a sampling (needed for eta-phi plots): coverageMapHWEMBA[ft*(Nslot)+slot-1][sampling]=channelStatus. 

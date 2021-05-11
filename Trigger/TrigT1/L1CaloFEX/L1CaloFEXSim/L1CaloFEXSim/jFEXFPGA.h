@@ -67,11 +67,13 @@ namespace LVL1 {
     /**Form a tob word out of the potential candidate Tau tob */
     virtual uint32_t formTauTOB(int &, int &) override;
     virtual std::vector <uint32_t> getTauTOBs() override;    
+    virtual std::vector <uint32_t> getTauxTOBs() override;    
     
  
    /** Internal data */
   private:
-    static bool etSort(uint32_t i, uint32_t j){ return (((i >> 0 ) & 0x7ff)> ((j >> 0) & 0x7ff));}
+    static bool etSRJetSort(uint32_t i, uint32_t j){ return (((i >> 12 ) & 0x7ff)> ((j >> 12) & 0x7ff));}
+    static bool etLRJetSort(uint32_t i, uint32_t j){return (((i >>10) & 0x1fff)> ((j>>10) & 0x1fff));}
     static bool etTauSort(uint32_t i, uint32_t j) {
       return (((i >> 0 ) & 0x7ff000)> ((j >> 0) & 0x7ff000));
     }
@@ -80,7 +82,6 @@ namespace LVL1 {
     std::vector<uint32_t> m_SRJet_tobwords;
     std::vector<uint32_t> m_LRJet_tobwords;
     std::vector<uint32_t> m_tau_tobwords;
-
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};

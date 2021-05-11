@@ -11,6 +11,7 @@
 # art-output: dcube*
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
+# art-output: NSWPRDValAlg.digi.dcube.root
 # art-output: NSWDigiCheck.txt
 # art-output: OUT_ESD.root
 # art-output: OUT_ESD_1thread.root
@@ -96,6 +97,31 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.digi.ntuple.root &> NSWDigiCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWDigiCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeDigitHistograms.py --doRPC --doMDT
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeDigitHist"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# download last nightly's ART results to compare against
+echo "download latest result"
+art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
+ls -l lastResults
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.digi.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_digitisation_asymRun3.xml -x dcubeDigitisation -p NSWPRDValAlg.digi.dcube.root
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeDigits"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}

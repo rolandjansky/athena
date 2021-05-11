@@ -186,6 +186,11 @@ namespace Muon {
                                                         << MuonStationIndex::layerName(it->layerIndex) << " phi  " << surface.center().phi()
                                                         << " r " << surface.center().perp() << " z " << surface.center().z());
             }
+            if (currentPars->momentum().perp() < 500.) {
+                ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
+                break;
+            }
+
             const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*currentPars, surface, Trk::alongMomentum, false, Trk::muon);
             if (!exPars) {
                 ATH_MSG_VERBOSE("extrapolation failed, trying next layer ");

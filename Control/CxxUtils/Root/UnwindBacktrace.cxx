@@ -218,6 +218,7 @@ bool tryUnwindFixup (_Unwind_Ptr addr)
   SynthData& data = synthData;
   data.cie.length = sizeof (data.cie) - sizeof (data.cie.length);
   data.fde.length = sizeof (data.fde) - sizeof (data.fde.length);
+  // cppcheck-suppress comparePointers
   data.fde.CIE_delta = reinterpret_cast<char*>(&data.fde.CIE_delta) - reinterpret_cast<char*>(&data.cie.length);
   data.fde.pc_begin = (void*)addr;
   data.fde.pc_range = 8;

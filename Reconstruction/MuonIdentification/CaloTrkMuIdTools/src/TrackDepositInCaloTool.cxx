@@ -620,14 +620,14 @@ const Trk::TrackParameters* TrackDepositInCaloTool::extrapolateToSolenoid(const 
   if (!parAtSolenoid) {
     // --- Guess EndCap side by direction ---
     double zTrans = par->eta()>0? halfLengthOfCylinder : -halfLengthOfCylinder;
-    Trk::DiscSurface disc(new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,zTrans))),
+    Trk::DiscSurface disc(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,zTrans))),
                           0, m_solenoidRadius);
 
     parAtSolenoid = m_extrapolator->extrapolate(*par, disc, direction, checkBoundary, muonHypo);
 
     if (!parAtSolenoid) {
       ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation to cap of solenoid failed. Trying opposite side.");
-      Trk::DiscSurface discOpp(new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-zTrans))),
+      Trk::DiscSurface discOpp(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-zTrans))),
                                0, m_solenoidRadius);
       parAtSolenoid = m_extrapolator->extrapolate(*par, discOpp, direction, checkBoundary, muonHypo);
     }
@@ -1094,7 +1094,7 @@ transforms is passed to the Trk::Surface result.
       else {
         offset = descr->calo_z_max()*descr->calo_sign();
       }
-      res = new Trk::DiscSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
+      res = new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
                           descr->calo_r_min(), descr->calo_r_max());
       return res;
     }
@@ -1108,7 +1108,7 @@ transforms is passed to the Trk::Surface result.
     if (type>=Entrance&&type<=Exit) {
       double thickness = descr->calo_z_max() - descr->calo_z_min();
       double offset = descr->calo_sign()*(thickness*type/2.0 + descr->calo_z_min());
-      res = new Trk::DiscSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
+      res = new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
                                  descr->calo_r_min(), descr->calo_r_max() );
       return res;
     }

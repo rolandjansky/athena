@@ -68,8 +68,9 @@ class TileBchPrbs
     IgnoreCs                   = 2109,
     UnstableCs                 = 2110,
     WrongBCID                  = 2111,
-    TimingDmuBcOffset          = 2112,
-    BurntIntegrator            = 2113,
+    TimingDmuBcOffsetPos       = 2112,
+    TimingDmuBcOffsetNeg       = 2113,
+    BurntIntegrator            = 2114,
     
     //============================================
     //=== Level-1 Trigger (all channel) - online
@@ -87,7 +88,8 @@ class TileBchPrbs
     DisableForL1               = 4002,
     OnlineBadTiming            = 4105,
     OnlineWrongBCID            = 4111,
-    OnlineTimingDmuBcOffset    = 4112,
+    OnlineTimingDmuBcOffsetPos = 4112,
+    OnlineTimingDmuBcOffsetNeg = 4113,
 
     //================================
     //=== Other ONLINE ADC

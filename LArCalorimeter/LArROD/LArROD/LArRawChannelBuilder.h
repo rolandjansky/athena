@@ -24,7 +24,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"
@@ -45,7 +45,6 @@ public:
 
 private:
   //Services & Tools 
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   const LArOnlineID* m_onlineHelper;
   //LArRoI_Map* m_roiMap;
   //LArRawOrdering m_larRawOrdering; 
@@ -111,6 +110,8 @@ private:
   // to be used for detailed DEBUG output only
   const LArEM_ID* m_emId;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
 
   int m_firstSample;  // shift to apply to Shape from DB to match digitized samples
   std::string m_pedestalKey;

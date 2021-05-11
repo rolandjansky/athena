@@ -24,6 +24,7 @@ class TrigEgammaKeys(object):
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel21_20180312'
+      dnnVersion = 'mc16_20210430'
 
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
@@ -41,9 +42,33 @@ class TrigEgammaKeys_GSF(object):
 #
 # Electron DNN Selectors
 #
-#def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
+def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
 # We should include the DNN here
+    if not ConfigFilePath:
+      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+  
+    import collections
+    SelectorNames = collections.OrderedDict({
+          'dnntight':'AsgElectronDNNTightSelector',
+          'dnnmedium':'AsgElectronDNNMediumSelector',
+          'dnnloose':'AsgElectronDNNLooseSelector',
+          })
 
+    ElectronToolConfigFile = collections.OrderedDict({
+          'dnntight':'ElectronDNNMulticlassTight.conf',
+          'dnnmedium':'ElectronDNNMulticlassMedium.conf',
+          'dnnloose':'ElectronDNNMulticlassLoose.conf',
+          })
+
+    selectors = []
+    mlog.debug('Configuring electron DNN' )
+    for dnnname, name in SelectorNames.items():
+      SelectorTool = CfgMgr.AsgElectronSelectorTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
+      SelectorTool.skipDeltaPoverP = True
+      selectors.append(SelectorTool)
+
+    return selectors
 
 #
 # Electron LH Selectors
@@ -81,6 +106,59 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
 
     return selectors
 
+
+#
+# Electron CB Selectors
+#
+def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
+    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
+
+    ElectronLooseHI = (0
+        | 1 << BitDefElectron.ClusterEtaRange_Electron
+        | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
+        | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
+        | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
+        | 1 << BitDefElectron.ClusterMiddleWidth_Electron
+        | 1 << BitDefElectron.ClusterStripsWtot_Electron
+    )
+
+    ElectronMediumHI = (ElectronLooseHI
+        | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
+        | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
+        | 1 << BitDefElectron.ClusterStripsEratio_Electron
+        | 1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron
+        | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
+        | 1 << BitDefElectron.ClusterStripsFracm_Electron
+        | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
+    )
+
+    if not ConfigFilePath:
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+
+    from collections import OrderedDict
+    SelectorNames = OrderedDict({
+        'medium': 'AsgElectronIsEMSelectorHIMedium',
+        'loose': 'AsgElectronIsEMSelectorHILoose',
+    })
+
+    ElectronToolConfigFile = {
+        'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
+        'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+    }
+
+    ElectronMaskBits = {
+        'medium': ElectronMediumHI,
+        'loose': ElectronLooseHI,
+    }
+
+    selectors = []
+    for sel, name in SelectorNames.items():
+        SelectorTool = CfgMgr.AsgElectronIsEMSelector(name)
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
+        SelectorTool.isEMMask = ElectronMaskBits[sel]
+        selectors.append(SelectorTool)
+
+    return selectors
 
 
 #

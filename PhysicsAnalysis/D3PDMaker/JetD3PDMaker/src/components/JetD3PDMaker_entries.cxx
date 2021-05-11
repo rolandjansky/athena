@@ -16,9 +16,6 @@
 //#include "../JetFixupAlg.h"
 #include "../JetROIWordFillerTool.h"
 #include "../JetSamplingsFracFillerTool.h"
-#include "../JetL1TriggerObjectAssociationTool.h"
-#include "../JetL2TriggerObjectAssociationTool.h"
-#include "../JetEFTriggerObjectAssociationTool.h"
 
 
 DECLARE_COMPONENT( D3PD::JetBTagWeightFillerTool )
@@ -39,7 +36,4 @@ DECLARE_COMPONENT( JetTileFilterAlg )
 //DECLARE_COMPONENT( D3PD::JetFixupAlg )
 DECLARE_COMPONENT( D3PD::JetROIWordFillerTool )
 DECLARE_COMPONENT( D3PD::JetSamplingsFracFillerTool )
-DECLARE_COMPONENT( D3PD::JetL1TriggerObjectAssociationTool )
-DECLARE_COMPONENT( D3PD::JetL2TriggerObjectAssociationTool )
-DECLARE_COMPONENT( D3PD::JetEFTriggerObjectAssociationTool )
 

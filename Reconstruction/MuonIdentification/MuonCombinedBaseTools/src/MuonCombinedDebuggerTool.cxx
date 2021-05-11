@@ -13,6 +13,7 @@
 #include <TTree.h>
 
 #include "AthLinks/ElementLink.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "xAODTruth/TruthParticle.h"
@@ -26,9 +27,17 @@ namespace MuonCombined {
     }
 
     StatusCode MuonCombinedDebuggerTool::initialize() {
+        ATH_MSG_INFO("initialize " << name() << " for debugging purposes of the muon reconstruction");
         ATH_CHECK(m_matchQuality.retrieve());
         ATH_CHECK(m_truthToTrack.retrieve());
         ATH_CHECK(m_histSvc.retrieve());
+        if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+            ATH_MSG_FATAL("Detected more than one thread, namaely "
+                          << Gaudi::Concurrency::ConcurrencyFlags::numThreads()
+                          << ", to run this tool. Which should never happen as the results will be a total desaster");
+            return StatusCode::FAILURE;
+        }
+        bookBranches();
         return StatusCode::SUCCESS;
     }
 
@@ -126,7 +135,7 @@ namespace MuonCombined {
     }
 
     void MuonCombinedDebuggerTool::fillBranches(const MuonCandidateCollection& muonCandidates,
-                                                const InDetCandidateCollection& inDetCandidates) const {
+                                                const InDetCandidateCollection& inDetCandidates) {
         fillMsBranches(muonCandidates);
         fillIdBranches(inDetCandidates);
         fillMsIdBranches(muonCandidates, inDetCandidates);
@@ -134,7 +143,7 @@ namespace MuonCombined {
     }
 
     void MuonCombinedDebuggerTool::fillMsIdBranches(const MuonCandidateCollection& muonCandidates,
-                                                    const InDetCandidateCollection& inDetCandidates) const {
+                                                    const InDetCandidateCollection& inDetCandidates) {
         m_ms_id_ochi2.clear();
         m_ms_id_ondf.clear();
         m_ms_id_oprob.clear();
@@ -189,7 +198,7 @@ namespace MuonCombined {
         }
     }
 
-    void MuonCombinedDebuggerTool::fillIdBranches(const InDetCandidateCollection& inDetCandidates) const {
+    void MuonCombinedDebuggerTool::fillIdBranches(const InDetCandidateCollection& inDetCandidates) {
         // truth
         m_idtrack_truth_id.clear();
         m_idtrack_truth_barcode.clear();
@@ -305,7 +314,7 @@ namespace MuonCombined {
         }
     }
 
-    void MuonCombinedDebuggerTool::fillMsBranches(const MuonCandidateCollection& muonCandidates) const {
+    void MuonCombinedDebuggerTool::fillMsBranches(const MuonCandidateCollection& muonCandidates) {
         // ms track
         m_mstrack_sur_x.clear();
         m_mstrack_sur_y.clear();

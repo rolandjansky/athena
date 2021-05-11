@@ -156,7 +156,7 @@ void compare (const Trk::Surface& s1,
 template <class CNV>
 void testit (const Trk::Surface& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CNV cnv;
   cnv.setCnvToolName ("TestCnvTool");
   Trk::Surface_p2 pers;
@@ -219,22 +219,22 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit<StraightLineSurfaceCnv_p2> (*h->getSurface (Identifier (3)));
   testit<SaggedLineSurfaceCnv_p2> (*h->getSurface (Identifier (4)));
 
-  Trk::DiscSurface disc (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
+  Trk::DiscSurface disc (Amg::Transform3D(Amg::getRotateX3D (0.5)));
   testit<DiscSurfaceCnv_p2> (disc);
 
-  Trk::ConeSurface cone (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.5)));
+  Trk::ConeSurface cone (Amg::Transform3D(Amg::getRotateY3D (0.5)));
   testit<ConeSurfaceCnv_p2> (cone);
 
-  Trk::CylinderSurface cyl (std::make_unique<Amg::Transform3D>(Amg::getRotateZ3D (0.5)));
+  Trk::CylinderSurface cyl (Amg::Transform3D(Amg::getRotateZ3D (0.5)));
   testit<CylinderSurfaceCnv_p2> (cyl);
 
-  Trk::PerigeeSurface per (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PerigeeSurface per (Amg::Transform3D(Amg::getRotateX3D (0.7)));
   testit<PerigeeSurfaceCnv_p2> (per);
 
-  Trk::PlaneSurface plane (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PlaneSurface plane (Amg::Transform3D(Amg::getRotateX3D (0.7)));
   testit<PlaneSurfaceCnv_p2> (plane);
 
-  Trk::StraightLineSurface sl (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.7)));
+  Trk::StraightLineSurface sl (Amg::Transform3D(Amg::getRotateY3D (0.7)));
   testit<StraightLineSurfaceCnv_p2> (sl);
 }
 

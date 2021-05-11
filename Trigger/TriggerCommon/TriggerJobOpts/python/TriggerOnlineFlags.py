@@ -27,14 +27,6 @@ class doDBConfigBaseName(JobProperty):
 
 _flags += [doDBConfigBaseName]
 
-class doValidation(JobProperty):
-   """ Configure job for validation (i.e. remove time stamps from messages) """
-   statusOn = True
-   allowedTypes = ['bool']
-   StoredValue = True
-
-_flags += [doValidation]
-
 class partitionName(JobProperty):
    """ Name of the partition if running in online environment, otherwise empty """
    statusOn = True

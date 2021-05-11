@@ -250,64 +250,62 @@ namespace Muon {
         ~MuonTrackCleaner() = default;
 
         /** @brief AlgTool initialize */
-        StatusCode initialize();
-
-        /** @brief AlgTool finalize */
-        StatusCode finalize();
+        StatusCode initialize() override;
 
         /** @brief clean a track, returns a pointer to a new track if successfull.
         If the input track is does not require cleaning a pointer the the initial track is return in which case the
         user should not delete the old track!
         The caller should ensure the track gets deleted. */
-        std::unique_ptr<Trk::Track> clean(Trk::Track& track) const;
+        std::unique_ptr<Trk::Track> clean(const Trk::Track& track) const override;
+        std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const EventContext& ctx) const override;
 
         /** @brief clean a track, returns a pointer to a new track if successfull.
         If the input track is does not require cleaning a pointer the the initial track is return in which case the
         user should not delete the old track! The cleaning will not clean if all the chambers in the exclusions list
         are marked as to be deleted.
         The caller should ensure the track gets deleted. */
-        std::unique_ptr<Trk::Track> clean(Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList) const;
+        std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList) const override;
+        std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
+                                          const EventContext& ctx) const override;
 
+    private:
         /** @brief calculate Residual/Pull for a given MeasurementBase + TrackParameters, ownership is transfered to user */
         const Trk::ResidualPull* calculateResPul(const Trk::MeasurementBase& meas, const Trk::TrackParameters& pars) const;
 
-    private:
         /** @brief clean a track, actual implementation */
-        std::unique_ptr<Trk::Track> cleanTrack(Trk::Track* track, CleaningState& state) const;
+        std::unique_ptr<Trk::Track> cleanTrack(const EventContext& ctx, const Trk::Track* track, CleaningState& state) const;
 
         /** @brief calculate the pull given measurement error and track error */
         double calcPull(const double residual, const double locMesCov, const double locTrkCov, const bool& trkStateIsUnbiased) const;
 
-        /** some useful print routines */
-        std::string toString(const Trk::Track track) const;
-        std::string toString(const Trk::ResidualPull& resPull) const;
-
         /** clean up competing ROTs that consist out of two clusters */
-        std::unique_ptr<Trk::Track> cleanCompROTs(std::unique_ptr<Trk::Track> track, CleaningState& state) const;
+        std::unique_ptr<Trk::Track> cleanCompROTs(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state) const;
 
         /** flip signs of MDT hits with large pull if pull if the oppositely signed radius is small */
-        std::unique_ptr<Trk::Track> recoverFlippedMdt(std::unique_ptr<Trk::Track> track, CleaningState& state) const;
+        std::unique_ptr<Trk::Track> recoverFlippedMdt(const EventContext& ctx, std::unique_ptr<Trk::Track> track,
+                                                      CleaningState& state) const;
 
         /** remove bad hits from track. The returned track pointer can be zero, pointing to the initial track or a new pointer */
-        std::unique_ptr<Trk::Track> hitCleaning(std::unique_ptr<Trk::Track> track, CleaningState& state) const;
+        std::unique_ptr<Trk::Track> hitCleaning(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state) const;
 
         /** remove bad chamber from track. The returned track pointer can be zero, pointing to the initial track or a new pointer */
-        std::unique_ptr<Trk::Track> chamberCleaning(std::unique_ptr<Trk::Track> track, CleaningState& state) const;
+        std::unique_ptr<Trk::Track> chamberCleaning(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state) const;
 
         /** recover outliers that are within the cuts.
             If the additional chamber index is provided, the code will only consider that particular layer
         */
-        std::unique_ptr<Trk::Track> outlierRecovery(std::unique_ptr<Trk::Track> track, CleaningState& state,
-                                                    MuonStationIndex::ChIndex* currentIndex = 0) const;
+        std::unique_ptr<Trk::Track> outlierRecovery(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state,
+                                                    MuonStationIndex::ChIndex* currentIndex = nullptr) const;
 
         /** check whether hit is an outlier */
         bool isOutsideOnTrackCut(const Identifier& id, double res, double pull, double cutScaleFactor) const;
 
         /** remove chamber from track */
-        ChamberRemovalOutput removeChamber(Trk::Track* track, Identifier chId, bool removePhi, bool removeEta, CleaningState& state) const;
+        ChamberRemovalOutput removeChamber(const EventContext& ctx, const std::unique_ptr<Trk::Track>& track, Identifier chId,
+                                           bool removePhi, bool removeEta, CleaningState& state) const;
 
         /** init cleaner */
-        void init(const Trk::Track& track, CleaningState& state) const;
+        void init(const EventContext& ctx, const Trk::Track& track, CleaningState& state) const;
 
         // check for station removal
         bool checkStations(CleaningState& state) const;
@@ -325,7 +323,7 @@ namespace Muon {
         void printStates(Trk::Track* track) const;
 
         // choose fitter and fit
-        std::unique_ptr<Trk::Track> fitTrack(Trk::Track& track, Trk::ParticleHypothesis pHyp, bool slFit) const;
+        std::unique_ptr<Trk::Track> fitTrack(const EventContext& ctx, Trk::Track& track, Trk::ParticleHypothesis pHyp, bool slFit) const;
 
         ToolHandle<Trk::ITrackFitter> m_trackFitter{
             this,

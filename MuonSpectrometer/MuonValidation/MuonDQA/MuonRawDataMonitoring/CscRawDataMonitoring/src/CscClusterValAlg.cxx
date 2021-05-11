@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -329,7 +329,7 @@ void CscClusterValAlg::bookClusterHistograms() {
 
   m_h1csc_clus_occupancy_signal_EC = new TH1F("h1csc_clus_occupancy_signal_EC", 
       Form("EndCap C: Layer occupancy, Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEC,nyminEC,nymaxEC);
-  CscBins::BinLabels(m_h1csc_clus_occupancy_signal_EC,1);
+  CscBins::BinLabels(m_h1csc_clus_occupancy_signal_EC,-1);
 
   // cluster qsum
   m_h2csc_clus_qsum = new TH2F("h2csc_clus_qsum", "Cluster charge (Qsum);counts;[sector] + [0.2 #times layer]",

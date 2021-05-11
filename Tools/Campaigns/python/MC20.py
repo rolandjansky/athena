@@ -18,7 +18,7 @@ def MC20a(flags):
     # pile-up
     if flags.Digitization.PileUp:
         from Digitization.PileUpUtils import setupPileUpFlags
-        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_MC20_2015', 'RunDependentSimData.PileUpProfile_run284500_MC20a')
+        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_2015', 'RunDependentSimData.PileUpProfile_run284500_MC20a')
 
 
 def MC20d(flags):
@@ -39,7 +39,7 @@ def MC20d(flags):
     # pile-up
     if flags.Digitization.PileUp:
         from Digitization.PileUpUtils import setupPileUpFlags
-        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_MC20_2017', 'RunDependentSimData.PileUpProfile_run300000_MC20d')
+        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_2017', 'RunDependentSimData.PileUpProfile_run300000_MC20d')
 
 
 def MC20e(flags):
@@ -60,4 +60,4 @@ def MC20e(flags):
     # pile-up
     if flags.Digitization.PileUp:
         from Digitization.PileUpUtils import setupPileUpFlags
-        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_MC20_2017', 'RunDependentSimData.PileUpProfile_run310000_MC20e')
+        setupPileUpFlags(flags, 'RunDependentSimData.BunchTrains_2017', 'RunDependentSimData.PileUpProfile_run310000_MC20e')

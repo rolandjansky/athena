@@ -39,7 +39,8 @@ def getEMScaleMomTool(jetdef, modspec=""):
 
     emscalemom = CompFactory.JetEMScaleMomTool(
         "emscalemom_{}".format(jetdef.basename),
-        UseUncalibConstits = useUncalibConstits
+        UseUncalibConstits = useUncalibConstits,
+        JetContainer = jetdef.fullname(),
     )
 
     return emscalemom

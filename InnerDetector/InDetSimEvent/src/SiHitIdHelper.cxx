@@ -10,9 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "G4Types.hh"
-#ifdef G4MULTITHREADED
-#  include "GaudiKernel/ContextSpecificPtr.h"
-#endif
 
 //
 // private constructor
@@ -21,15 +18,8 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 const SiHitIdHelper* SiHitIdHelper::GetHelper() {
-  #ifdef G4MULTITHREADED
-  // Context-specific singleton
-  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr ATLAS_THREAD_SAFE;
-  if (!helperPtr) helperPtr = new SiHitIdHelper();
-  return helperPtr.get();
-  #else
   static const SiHitIdHelper helper;
   return &helper;
-  #endif
 }
 
 void SiHitIdHelper::Initialize() {

@@ -326,7 +326,7 @@ def getHLTmap_fromTM(period, release):
     for chain in menu.chainsInMenu:
         hltname = chain.name
         l1seed  = chain.name[chain.name.rfind("_L1")+3:] #surely a better way to do this
-        primary = any('Primary' in g for g in chain.groups)
+        primary = any('Primary' in g or 'TagAndProbe' in g for g in chain.groups)
         ps = 1 if primary else 0
         hltMap[hltname] = (l1seed, dummyfutureLBs*ps, False)  #hasRerun=False
         

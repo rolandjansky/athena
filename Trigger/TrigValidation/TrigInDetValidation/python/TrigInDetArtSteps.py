@@ -180,7 +180,7 @@ class TrigCostStep(Step):
         self.required = True
         self.depends_on_previous = True
         self.input = 'tmp.RDO_TRIG'
-        self.args = ' --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
+        self.args = '  --monitorChainAlgorithm --MCCrossSection=0.5 Input.Files=\'["tmp.RDO_TRIG"]\' '
         self.executable = 'RunTrigCostAnalysis.py'
 
 

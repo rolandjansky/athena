@@ -5,6 +5,10 @@
 # Author: Margherita Spalla (margherita.spalla@cern.ch)
 # Function for post-processing of histograms from LArMonitoring
 #
+# The functions in this file are being implemented through the yaml config file inside the DataQuality package:
+#   DataQuality/DataQualityUtils/data/postprocessing/LArMonPostProc.yaml
+#
+
 
 from ROOT import TMath, TH2F
 
@@ -28,11 +32,18 @@ def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):
 def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
     """ For each bin, fill the output with the max filled error code. All histograms should have the same bin content"""
     assert len(inputs) >= 1 , len(inputs)  # for testing
-        
-    cl = inputs[0][1][0].Clone()
-    sampling = int(inputs[0][0]['sampling'])
-    partition = inputs[0][0]['part']
 
+    cl = inputs[0][1][0].Clone()
+    partition = inputs[0][0]['part']
+    if 'side' in inputs[0][0]:
+        partition=partition+inputs[0][0]['side']
+        pass
+    if 'sampling' in inputs[0][0]:
+        sampling = int(inputs[0][0]['sampling'])
+    else:
+        sampling=-1 #a default value, != 0,1,2,3
+        pass
+    
     doFixEmptyBins = (not isFtSlotPlot and (('EMB' in partition and sampling==1) or ('EMEC' in partition and sampling==2) or ('HEC' in partition)))
     
     #if we only have one and doesn't need bin fix, return it
@@ -197,7 +208,6 @@ def divideHist(inputs,titleToReplace="",replaceWith=""):
     assert len(inputs) == 1  
     assert len(inputs[0][1]) == 2
 
-    print(inputs[0][1][0].GetName()+"-->"+str(inputs[0][1][0].GetNbinsX())+" "+inputs[0][1][1].GetName()+"-->"+str(inputs[0][1][1].GetNbinsX()))
     cl = inputs[0][1][0].Clone()
     cl.Divide(inputs[0][1][1])
 

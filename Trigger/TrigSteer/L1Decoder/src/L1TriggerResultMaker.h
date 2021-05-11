@@ -5,6 +5,9 @@
 #ifndef TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
 #define TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
 
+// Local includes
+#include "L1Decoder/IRoIThresholdsTool.h"
+
 // Trigger includes
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
@@ -42,6 +45,12 @@ private:
   SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eFexEMRoIKey {
     this, "eFexEMRoIKey", "L1_eEMRoI",
     "Key of the eFex EM RoI container to be linked to L1 Trigger Result"};
+
+  // Threshold pattern tools
+  ToolHandleArray<IRoIThresholdsTool> m_thresholdPatternTools {
+    this, "ThresholdPatternTools", {},
+    "Tools decorating RoI containers with threshold patterns"
+  };
 
   // Placeholder for other L1 xAOD outputs:
   // - CTP result

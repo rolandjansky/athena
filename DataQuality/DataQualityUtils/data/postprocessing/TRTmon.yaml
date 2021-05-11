@@ -1,0 +1,14 @@
+# 
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Separate blocks with ---
+#
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/Barrel/Stack(?P<stack>\d.)(?P<side>[A,C]*)/hHitAMapS' ]
+Output: [ 'run_{n}/TRT/Barrel/Stack{stack}{side}/hOccupancyS' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.occupancyS
+Description: TRTOCCS
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/Barrel/Stack(?P<stack>\d.)(?P<side>[A,C]*)/hHitAMapC' ]
+Output: [ 'run_{n}/TRT/Barrel/Stack{stack}{side}/hOccupancyC' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.occupancyC
+Description: TRTOCCC

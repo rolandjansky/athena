@@ -20,7 +20,6 @@ using namespace TrigConf;
 
 TrigConfigSvc::TrigConfigSvc(const std::string &name,
                              ISvcLocator *pSvcLocator) : base_class(name, pSvcLocator),
-                                                         m_l1topoSvc("TrigConf::L1TopoConfigSvc/L1TopoConfigSvc", name),
                                                          m_lvl1Svc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
                                                          m_hltSvc("TrigConf::HLTConfigSvc/HLTConfigSvc", name),
                                                          m_dsSvc("TrigConf::DSConfigSvc/DSConfigSvc", name)
@@ -79,15 +78,6 @@ TrigConfigSvc::initialize() {
             }
          }
 
-         if ( m_l1toposervice == 0 && (testsvc == "xmll1" || testsvc == "xml") ) {
-            if (m_l1topoSvc.retrieve().isSuccess()) {
-               m_l1toposervice = m_l1topoSvc.operator->();
-            } else {
-               ATH_MSG_FATAL("failed to retrieve L1TopoConfigSvc: " << m_l1topoSvc);
-               return StatusCode::FAILURE;
-            }
-         }
-
          if ( m_l1service == 0 && (testsvc == "xmll1" || testsvc == "xml") ) {
             if (m_lvl1Svc.retrieve().isSuccess()) {
                m_l1service = m_lvl1Svc.operator->();
@@ -109,15 +99,14 @@ TrigConfigSvc::initialize() {
             }
          }
 
-         if( m_l1toposervice!=0 && m_l1service!=0 && m_hltservice!=0 )   break;
+         if( m_l1service!=0 && m_hltservice!=0 )   break;
       }
 
-      if( m_l1toposervice==0 && m_l1service==0 && m_hltservice==0 ) {
+      if( m_l1service==0 && m_hltservice==0 ) {
          ATH_MSG_FATAL("No trigger configuration service found");
          return StatusCode::FAILURE;
       }
 
-      ATH_MSG_INFO("Using for L1 topo configuration  : " << (m_l1toposervice!=0?m_l1toposervice->name():"none") );
       ATH_MSG_INFO("Using for L1 configuration       : " << (m_l1service!=0?m_l1service->name():"none") );
       ATH_MSG_INFO("Using for HLT configuration      : " << (m_hltservice!=0?m_hltservice->name():"none") );
 
@@ -133,15 +122,6 @@ TrigConfigSvc::initialize() {
    return StatusCode::SUCCESS;
 }
 
-
-const TXC::L1TopoMenu*
-TrigConfigSvc::menu() const {
-   if(m_l1toposervice)
-      return m_l1toposervice->menu();
-      
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
-   return 0;
-}
 
 const Muctpi*
 TrigConfigSvc::muctpiConfig() const {

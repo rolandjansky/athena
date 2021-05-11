@@ -78,7 +78,7 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_singleTimeRangeName { this, "SingleTimeRangeName", "All",
       "Name for single time range" };
 
-    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_18022021.txt",
+    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_29042021.txt",
       "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
 
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
@@ -104,6 +104,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     Gaudi::Property<bool> m_doMonitorChain { this, "DoMonitorChain", true,
       "Monitor individual chains by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorChainAlgorithm { this, "DoMonitorChainAlgorithm", false,
+      "Monitor algorithms associated with chains by instance name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };

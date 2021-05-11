@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Package includes
@@ -17,7 +17,7 @@ namespace {
       typename std::tuple_element<TO, CLIDTuple_t>::type& to,
       const typename std::tuple_element<FROM, CLIDTuple_t>::type& from)
     {
-      static std::vector<CLIDTuple_t> CLIDVector {
+      static const std::vector<CLIDTuple_t> CLIDVector {
         {1178459224, xAOD::Type::Muon, "xAOD::MuonContainer"},
         {1087532415, xAOD::Type::Electron, "xAOD::ElectronContainer"},
         {1219821989, xAOD::Type::CaloCluster, "xAOD::CaloClusterContainer"},

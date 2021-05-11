@@ -47,6 +47,7 @@ namespace InDetDD{
 }
 
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
+#include "SiDigitization/SiHelper.h"
 
 struct SiChargedDiodeHash
 {
@@ -161,9 +162,12 @@ class SiChargedDiodeCollection : Identifiable {
   // Add a new SiCharge to the collection
   // (add or merge in an existing SiChargedDiode):
   //   Diode which contains the new charge
-  //   SiCharge to be added. 
-  void add(const InDetDD::SiCellId & diode, const SiCharge &charge);
-  void add(const InDetDD::SiCellId & diode, const SiTotalCharge &totcharge);
+  //   SiCharge to be added.
+  template <class T> 
+  void add(const InDetDD::SiCellId & diode, const T &charge);
+
+  template <class T> 
+  void emplace_charge(const InDetDD::SiCellId & diode, const T &charge);
 
   bool AlreadyHit(const InDetDD::SiCellId & siId);
   bool AlreadyHit(const Identifier & id);
@@ -190,13 +194,6 @@ class SiChargedDiodeCollection : Identifiable {
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  //NB m_allocator should always be declared before m_chargedDiodes in
-  //the intialization list.  If the allocator is declared after
-  //m_chargedDiodes, when the collection is destroyed, the allocator
-  //will be destroyed (and the memory it manages freed) before the
-  //SiChargedDiodeMap.  This will cause a crash unless the
-  //SiChargedDiodeMap is empty.
-  SiTotalCharge::alloc_t m_allocator; 
   SiChargedDiodeMap m_chargedDiodes; // list of SiChargedDiodes 
   SiChargedDiodeOrderedSet m_orderedChargedDiodes; // list of SiChargedDiodes 
   const InDetDD::SolidStateDetectorElementBase* m_sielement; // detector element
@@ -278,7 +275,36 @@ inline bool SiChargedDiodeCollection::empty() const {
   return m_chargedDiodes.empty();
 }
 
+template<class T>
+void SiChargedDiodeCollection::emplace_charge(const InDetDD::SiCellId & diode, const T& charge) 
+{
+    InDetDD::SiReadoutCellId roCell=design().readoutIdOfCell(diode);
+    if (!roCell.isValid()) { // I don't think this can occur at this stage but cant hurt.
+      MsgStream log(Athena::getMessageSvc(),"SiChargedDiodeCollection");
+      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
+    }
+    // create a new charged diode
+    SiChargedDiode chargedDiode(diode,roCell);
+    // add the new charge to it
+    chargedDiode.add(charge);
+    if (charge.processType() == SiCharge::extraNoise) SiHelper::noise(chargedDiode,true);
+    // add the new charged diode to the charged diode collection
+    auto p = m_chargedDiodes.emplace(diode,chargedDiode);
+    if (!m_orderedChargedDiodes.empty()) {
+      m_orderedChargedDiodes.insert (&p.first->second);
+    }
+}
 
+template <class T>
+void SiChargedDiodeCollection::add(const InDetDD::SiCellId & diode,
+				   const T & charge)
+{
+  // check the pointer is correct
+  if (!diode.isValid()) return;
+  SiChargedDiodeIterator the_diode = m_chargedDiodes.find(diode);
+  if(the_diode != m_chargedDiodes.end()) the_diode->second.add(charge);
+  else emplace_charge(diode, charge);
+}
 
 #endif // SIDIGITIZATION_SICHARGEDDIODECOLLECTION_H
 

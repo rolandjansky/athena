@@ -42,27 +42,38 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
   ConeLayer() {}
 
   /**Constructor with ConeBounds components and  MaterialProperties */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface and  MaterialProperties */
-  ConeLayer(ConeSurface* cyl, const LayerMaterialProperties& laymatprop,
-            double thickness = 0., OverlapDescriptor* od = nullptr,
+  ConeLayer(ConeSurface* cyl,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
             int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface components and pointer to SurfaceArray
    * (passing ownership) */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
-            SurfaceArray* surfaceArray, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
+            SurfaceArray* surfaceArray,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface components,
      MaterialProperties and pointer SurfaceArray (passing ownership) */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
             SurfaceArray* surfaceArray,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Copy constructor of ConeLayer*/
   ConeLayer(const ConeLayer& cla);

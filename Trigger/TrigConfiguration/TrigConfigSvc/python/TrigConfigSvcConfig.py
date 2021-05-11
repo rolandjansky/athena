@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
-                                             TrigConf__L1TopoConfigSvc,
                                              TrigConf__HLTConfigSvc,
                                              TrigConf__DSConfigSvc,
                                              TrigConf__TrigConfigSvc)
@@ -251,15 +250,6 @@ class LVL1ConfigSvc ( DefaultLVL1ConfigSvc ):
     def setDefaults(self, handle):
         pass
 
-class L1TopoConfigSvc ( TrigConf__L1TopoConfigSvc ) :
-    """L1Topo configuration"""
-    __slots__ = []
-    def __init__(self, name="L1TopoConfigSvc" ):
-        super (L1TopoConfigSvc, self).__init__(name)
-
-    def setDetaults(self, handle):
-        pass
-
 class DSConfigSvc ( TrigConf__DSConfigSvc ) :
     """Detector Store implementation of the TrigConfigSvc"""
     __slots__ = []
@@ -310,7 +300,6 @@ class SetupTrigConfigSvc(object):
             self.mlog = logging.getLogger("TrigConfigSvcConfig.py")
 
             # svc properties:
-            self.l1topoXmlFile = 'NONE'
             self.hltXmlFile = 'HLT_XML_FILE_NOT_SET'
             self.l1XmlFile  = 'L1_XML_FILE_NOT_SET'
 
@@ -382,11 +371,6 @@ class SetupTrigConfigSvc(object):
                     l1.JsonFileName = l1JsonFileName
                     l1.JsonFileNameBGS = jsonBgsFileName
                 ServiceMgr += l1
-
-                self.mlog.info( "setup L1TopoConfigSvc and add instance to ServiceMgr (xml file="+self.l1topoXmlFile+")" )
-                l1topo = L1TopoConfigSvc()
-                l1topo.XMLMenuFile = self.l1topoXmlFile
-                ServiceMgr += l1topo
 
 
             if 'ds' in self.states:

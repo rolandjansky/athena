@@ -9,12 +9,12 @@
 
 namespace Trk {
 
-  void TransformNtupleBranch::initForWrite(TTree& tree, std::string prefix ){    
+  void TransformNtupleBranch::initForWrite(TTree& tree, const std::string& prefix ){    
     m_rotation.initForWrite(tree,"rot",3,3,prefix);
     m_translation.initForWrite(tree,"trans",3,prefix);
   }
 
-  void TransformNtupleBranch::initForRead(TTree& tree, std::string prefix ) { 
+  void TransformNtupleBranch::initForRead(TTree& tree, const std::string& prefix ) { 
     m_rotation.initForRead(tree,"rot",3,3,prefix);
     m_translation.initForRead(tree,"trans",3,prefix);
   }

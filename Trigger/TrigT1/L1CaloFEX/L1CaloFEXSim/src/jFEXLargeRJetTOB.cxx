@@ -14,7 +14,7 @@ LVL1::jFEXLargeRJetTOB::jFEXLargeRJetTOB():
   m_eta{99999},
   m_phi{99999},
   m_ET{99999},
-  m_Sub{99999},
+  m_Res{99999},
   m_Sat{99999}
 {}
 
@@ -36,10 +36,10 @@ unsigned int LVL1::jFEXLargeRJetTOB::setET(unsigned int et)
   return m_ET;
 }
 
-unsigned int LVL1::jFEXLargeRJetTOB::setSub(unsigned int Sub)
+unsigned int LVL1::jFEXLargeRJetTOB::setRes(unsigned int Res)
 {
-  m_Sub = Sub;
-  return m_Sub;
+  m_Res = Res;
+  return m_Res;
 }
 
 unsigned int LVL1::jFEXLargeRJetTOB::setSat(unsigned int sat)

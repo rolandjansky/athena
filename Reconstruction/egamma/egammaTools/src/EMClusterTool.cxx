@@ -53,20 +53,10 @@ EMClusterTool::initialize()
     m_doTopoSeededContainer));
 
   // Get the cluster correction tool
-  if (m_clusterCorrectionTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve " << m_clusterCorrectionTool);
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_DEBUG("Retrieved tool " << m_clusterCorrectionTool);
+  ATH_CHECK(m_clusterCorrectionTool.retrieve());
 
   // Get the cluster correction tool
-  if (m_MVACalibSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibSvc);
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibSvc);
+  ATH_CHECK(m_MVACalibSvc.retrieve());
 
   ATH_MSG_DEBUG("Initialization successful");
 

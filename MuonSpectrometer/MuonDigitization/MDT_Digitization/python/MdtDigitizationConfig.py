@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MDT_Digitization job properties
@@ -47,7 +47,7 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
       kwargs.setdefault("LastXing",  MDT_LastXing() )  # this should match the range for the MDT in Digitization/share/MuonDigitization.py
 
    kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
-   if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+   if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
       from OverlayCommonAlgs.OverlayFlags import overlayFlags
       kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MDT_SDO")
    else:

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -85,8 +85,6 @@ class TriggerConfigGetter(Configured):
 
     def setConfigSvcConnParams(self,connectionParameters):
         sl = []
-        if hasattr(svcMgr,'L1TopoConfigSvc'):
-            sl += [svcMgr.L1TopoConfigSvc]
         if hasattr(svcMgr,'LVL1ConfigSvc'):
             sl += [svcMgr.LVL1ConfigSvc]
         if hasattr(svcMgr,'HLTConfigSvc'):
@@ -114,9 +112,6 @@ class TriggerConfigGetter(Configured):
                     svc.DBUser    = connectionParameters["user"  ]
                     svc.DBPass    = connectionParameters["passwd"]
 
-        if hasattr(svcMgr,'L1TopoConfigSvc'):
-            svcMgr.L1TopoConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
-            svcMgr.L1TopoConfigSvc.UseFrontier = TriggerFlags.triggerUseFrontier()
         if hasattr(svcMgr,'LVL1ConfigSvc'):
             svcMgr.LVL1ConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
             svcMgr.LVL1ConfigSvc.DBLVL1PSKey = TriggerFlags.triggerDbKeys()[1]
@@ -224,7 +219,7 @@ class TriggerConfigGetter(Configured):
         self.makeTempCool   = self.readRDO and \
                               ( self.writeESDAOD or 'ds' in self.ConfigSrcList ) and \
                               ( self.readMC \
-                                or (self.isCommisioning and (TriggerFlags.readLVL1configFromXML() and TriggerFlags.readHLTconfigFromXML())) \
+                                or (self.isCommisioning and TriggerFlags.readLVL1configFromXML()) \
                                 or TriggerFlags.readMenuFromTriggerDb() )
 
         log.info("Need to create temporary cool file? : %r", self.makeTempCool)
@@ -257,15 +252,10 @@ class TriggerConfigGetter(Configured):
 
             if 'xml' in self.ConfigSrcList or self.makeTempCool:
                 # sets them if plain XML reading is to be used
-                self.svc.l1topoXmlFile = TriggerFlags.outputL1TopoConfigFile()  # generated in python
                 self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
                 self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
-                if TriggerFlags.readL1TopoConfigFromXML():
-                    self.svc.l1topoXmlFile  = TriggerFlags.inputL1TopoConfigFile() # given XML
                 if TriggerFlags.readLVL1configFromXML():
                     self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
-                if TriggerFlags.readHLTconfigFromXML():
-                    self.svc.hltXmlFile  = TriggerFlags.inputHLTconfigFile()   # given XML
 
             try:
                 self.svc.SetStates( self.ConfigSrcList )
@@ -326,7 +316,7 @@ class TriggerConfigGetter(Configured):
         # if we have MC data (nothing in ORACLE/COOL) we need to write an SQlite file
         # and change the dbConnection
         if ( self.readMC \
-             or (self.isCommisioning and (TriggerFlags.readLVL1configFromXML and TriggerFlags.readHLTconfigFromXML)) \
+             or (self.isCommisioning and TriggerFlags.readLVL1configFromXML) \
              or TriggerFlags.readMenuFromTriggerDb ):
 
             log.info( 'TempCoolSetup: Setting up the writing of a temporary COOL DB')
@@ -372,10 +362,7 @@ class TriggerConfigGetter(Configured):
             addNewFolders = TriggerFlags.configForStartup()=="HLTonline" and self.readRDO
         else: # for sqlite COOL: temp (usually /tmp/hltMenu.xxx.db) or predefined (e.g. trigconf.db)
             log.info("COOL DBConnection: " + TrigCoolDbConnection )
-            addNewFolders = ( ( TriggerFlags.configForStartup()=="HLToffline"
-                                or TriggerFlags.configForStartup()=="HLTonline"
-                                or globalflags.DataSource()!='data')
-                              and self.readRDO )  # bytestream or MC RDO
+            addNewFolders = globalflags.DataSource()!='data' and self.readRDO # bytestream or MC RDO
 
         # add folders for reading
         from IOVDbSvc.CondDB import conddb
@@ -513,6 +500,7 @@ class TriggerConfigGetter(Configured):
 
             enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
             enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+            enhancedBiasWeightCompAlg.FinalDecisionKey = "HLTNav_Summary"
 
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,6 +21,9 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CxxUtils/hexdump.h"
+#include <system_error>
+#include <iostream>
 
 
 namespace {
@@ -288,9 +291,22 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
 IProxyDict* DataProxyHolder::source() const
 {
   SG::DataProxy* dp = proxy();
-  if (!dp)
-    return 0;
-  return dp->store();
+  try {
+    if (!dp)
+      return 0;
+    return dp->store();
+  }
+  catch (const std::system_error& e) {
+    std::cerr << "FATAL caught system_error in DataProxyHolder::source(): " << e.what() << "\n";
+    std::cerr << "  Link at " << this << " dp at " << dp << "\n";
+    CxxUtils::safeHexdump (std::cerr,
+                           reinterpret_cast<const char*>(this) - 32*8, 32*16);
+    std::cerr << "\n";
+    CxxUtils::safeHexdump (std::cerr,
+                           reinterpret_cast<const char*>(dp) - 16,
+                           sizeof(SG::DataProxy) + 64);
+    throw;
+  }
 }
 
 

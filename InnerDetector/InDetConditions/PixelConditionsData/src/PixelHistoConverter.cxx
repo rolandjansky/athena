@@ -103,18 +103,6 @@ bool PixelHistoConverter::isFirstZ(const float value) const {
   return (getBinZ(value) == 0);
 }
 
-float PixelHistoConverter::getBinX(const float value) const {
-  return findBin(m_xAxis, value);
-}
-  
-float PixelHistoConverter::getBinY(const float value) const {
-  return findBin(m_yAxis, value);
-}
-
-float PixelHistoConverter::getBinZ(const float value) const {
-  return findBin(m_zAxis, value);
-}
-
 bool PixelHistoConverter::setAxis(Axis& axis, const TAxis* rootAxis) {
 
   if (!rootAxis) {

@@ -49,7 +49,8 @@ def _ftf(flags, chainDict):
     fastInDetReco.mergeReco(idTracking)
     fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
                                 DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
-    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import fastElectronFexAlgCfg
+
+    from TrigEgammaFastRec.TrigEgammaFastElectronConfig import fastElectronFexAlgCfg
     fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
     selAcc.mergeReco(fastInDetReco)
     fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlgMT()

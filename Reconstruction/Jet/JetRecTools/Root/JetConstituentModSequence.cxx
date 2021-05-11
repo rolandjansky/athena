@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source file for the JetConstituentModSequence.h
@@ -24,21 +24,20 @@
 #include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
 
+#include "AsgDataHandles/WriteHandle.h"
+
 #ifndef XAOD_ANALYSIS
 #include "AthenaMonitoringKernel/Monitored.h"
 #endif
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
-  m_trigInputConstits(NULL), m_trigOutputConstits(NULL),m_modifiers(this) {
+  m_trigInputConstits(NULL), m_trigOutputConstits(NULL){
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
-  declareProperty("InputContainer", m_inputContainer, "The input container for the sequence.");
-  declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
-  declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
   declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
@@ -222,13 +221,13 @@ JetConstituentModSequence::copyModRecordPFO() const {
   auto outAllPFOHandle = makeHandle(m_outAllPFOKey);
   ATH_CHECK(outAllPFOHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
   //    Merge charged & neutral PFOs into the viw container
-  outAllPFOHandle->assign(outNeutralPFOHandle->begin(), outNeutralPFOHandle->end());
-  outAllPFOHandle->insert(outAllPFOHandle->end(),
-                          outChargedPFOHandle->begin(), 
-                          outChargedPFOHandle->end());
+  (*outAllPFOHandle).assign((*outNeutralPFOHandle).begin(), (*outNeutralPFOHandle).end());
+  (*outAllPFOHandle).insert((*outAllPFOHandle).end(),
+			    (*outChargedPFOHandle).begin(), 
+			    (*outChargedPFOHandle).end());
 
   // 3. Now process modifications on all PFOs
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(outAllPFOHandle.ptr()));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process( &*outAllPFOHandle));}
 
   return StatusCode::SUCCESS;
 }
@@ -274,13 +273,13 @@ StatusCode JetConstituentModSequence::copyModRecordFE() const {
   SG::WriteHandle<xAOD::FlowElementContainer> outAllFEHandle = makeHandle(m_outAllFEKey);
   ATH_CHECK(outAllFEHandle.record(std::make_unique<xAOD::FlowElementContainer>(SG::VIEW_ELEMENTS)));
   //    Merge charged & neutral FEs into the view container
-  outAllFEHandle->assign(outNeutralFEHandle->begin(), outNeutralFEHandle->end());
-  outAllFEHandle->insert(outAllFEHandle->end(),
-                          outChargedFEHandle->begin(), 
-                          outChargedFEHandle->end());
+  (*outAllFEHandle).assign((*outNeutralFEHandle).begin(), (*outNeutralFEHandle).end());
+  (*outAllFEHandle).insert((*outAllFEHandle).end(),
+			   (*outChargedFEHandle).begin(), 
+			   (*outChargedFEHandle).end());
 
   // 3. Now process modifications on all FEs
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(outAllFEHandle.ptr()));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(&*outAllFEHandle));}
 
   return StatusCode::SUCCESS;
 }

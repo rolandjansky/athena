@@ -11,6 +11,7 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
 {
 
   if( !dec ) return false;
+
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
   if( !initRoi.link.isValid() ) 
     return false;
@@ -23,7 +24,8 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
     if( ! roi.isValid()) continue;                                                              
     if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      return true;
+      bool passed = (featLinkInfo.state==TrigCompositeUtils::ActiveState::ACTIVE);
+      if(passed)  return true;
     }
   }
   return false;                      
@@ -41,18 +43,17 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed<TrigRoiDescriptorCollection
   if( !initRoi.link.isValid() ) 
     return false;
 
-  
-  
   auto vec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
- 
+
   for( auto &featLinkInfo : vec )
-  {                                                       
+  {                                                  
     if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      return true;
+      bool passed = (featLinkInfo.state==TrigCompositeUtils::ActiveState::ACTIVE);
+      if(passed)  return true; 
     }
   }
-  return false;                      
+  return true;                      
 }
 
 

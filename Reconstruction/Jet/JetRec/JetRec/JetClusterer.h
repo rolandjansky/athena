@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_JETCLUSTERER_H
@@ -43,8 +43,10 @@ class JetClusterer
 
 public:
 
-  using asg::AsgTool::AsgTool;
-
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  JetClusterer(const std::string &name): AsgTool(name){}
+  
+  
   StatusCode initialize() override;
 
   /// Return the final jets with their aux store.

@@ -126,9 +126,9 @@ void test_line (Trk::IIntersector& tool)
   std::cout << "test_line\n";
   Amg::Vector3D pos1 { 0, 0, 5*meter };
   Amg::Vector3D norm1 { 0, 1, 0 };
-  Trk::StraightLineSurface line1 (transf (pos1, norm1));
+  Trk::StraightLineSurface line1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 10*meter };
-  Trk::StraightLineSurface line2 (transf (pos2, norm1));
+  Trk::StraightLineSurface line2 (*transf (pos2, norm1));
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);
@@ -205,9 +205,9 @@ void test_disc (Trk::IIntersector& tool)
 
   Amg::Vector3D pos1 { 0, 0, 3*meter };
   Amg::Vector3D norm1 { 0, 0, 1 };
-  Trk::DiscSurface disc1 (transf (pos1, norm1));
+  Trk::DiscSurface disc1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 6*meter };
-  Trk::DiscSurface disc2 (transf (pos2, norm1));
+  Trk::DiscSurface disc2 (*transf (pos2, norm1));
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);
@@ -245,9 +245,9 @@ void test_perigee (Trk::IIntersector& tool)
 
   Amg::Vector3D pos1 { 0, 0, 4*meter };
   Amg::Vector3D norm1 { 0, 1, 0 };
-  Trk::PerigeeSurface perigee1 (transf (pos1, norm1));
+  Trk::PerigeeSurface perigee1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 8*meter };
-  Trk::PerigeeSurface perigee2 (transf (pos2, norm1));
+  Trk::PerigeeSurface perigee2 (*transf (pos2, norm1));
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);

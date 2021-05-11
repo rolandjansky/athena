@@ -1,37 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <cstdlib>
 
+#include <AsgMessaging/MessageCheck.h>
+
 int main()
 {
-  std::cout << "Unit test for SUSYTools on data" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Result of 'ls'" << std::endl;
-  system("ls");
-  system("echo PWD=$PWD");
-  
-  std::cout << "Result of 'ls SUSYTools/data'" << std::endl;
-  system("ls $ROOTCOREBIN/../SUSYTools/data");
+  using namespace asg::msgUserCode;
 
-  std::cout << std::endl;
-  std::cout << "list of RootCore/lib" << std::endl;
-  system("ls $ROOTCOREDIR/lib");
+  ATH_MSG_INFO ("Unit test for SUSYTools on data");
 
-  std::cout << std::endl;
-  std::cout << "Environment variables" << std::endl;
-  system("env");
+  // Stored updated references in SUSY ART area for now
+  //std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root";
+  std::string inputFile = "/eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root";
 
-  std::string cmd = "SUSYToolsTester $ASG_TEST_FILE_DATA 1000 isData=1 isAtlfast=0 Debug=0";
-  std::cout << "Will now run this command: " << cmd << std::endl;
+  std::string cmd("SUSYToolsTester " + inputFile + " maxEvents=500 isData=1 isAtlfast=0 Debug=0");
+  ATH_MSG_INFO ("Will now run this command: " << cmd);
   int ret = system(cmd.c_str());
 
   if (ret != 0) {
-    std::cout << "Test failed (return code was " << ret << ")" << std::endl;
+    ATH_MSG_ERROR ("Test failed (return code was " << ret << ")");
     return 1;
   }
-  std::cout << "Finished (return code was " << ret << ")" << std::endl;
+  ATH_MSG_INFO ("Finished (return code was " << ret << ")");
   return 0;
 }

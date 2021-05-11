@@ -35,7 +35,7 @@ jetmoddict.update (jetrecmods)
 ########################################################################
 # Below, we populate the jetmoddict with modifier definitions for tools
 # that are defined in other packages.
-# When necessary, the helper functions 'createfn' for tools in PackageName live in modules called
+# When necessary, the helper functions 'createfn' for tools from package 'PackageName' live in modules called
 # PackageName.PackageConfig (modules to be moved)
 
 # Calibration
@@ -52,22 +52,28 @@ jetmoddict.update(jetcalibmods)
 # than only non-const modification. Mode of operation should be
 # determined by interface called from parent tool/alg.
 
+
+# Many JetMoment tools need to know the name of the container they operate on.
+# We set this function as the 'JetContainer' property so the config system can assign the right name to the c++ tool.
+def _jetname(jetdef,modspec):
+    return jetdef.fullname()
+
 # Standard jet moments
 from JetMomentTools import JetMomentToolsConfig
 jetmomentmods = {
 
-    # Easy cases, no special config or prereqs, just default tool config
-    "ClusterMoments":  JetModifier("JetClusterMomentsTool", "clsmoms"),
-    "ECPSFrac":        JetModifier("JetECPSFractionTool", "ecpsfrac"),
-    "Width":           JetModifier("JetWidthTool", "width"),
+    # Easy cases, no special config or prereqs, just default tool config 
+    "ClusterMoments":  JetModifier("JetClusterMomentsTool", "clsmoms", JetContainer = _jetname),
+    "ECPSFrac":        JetModifier("JetECPSFractionTool", "ecpsfrac", JetContainer = _jetname),
+    "Width":           JetModifier("JetWidthTool", "width", JetContainer = _jetname),
 
     # More complex cases here
-    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens",
-                                   prereqs=["mod:EMScaleMom"]
+    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens", 
+                                   prereqs=["mod:EMScaleMom"], JetContainer = _jetname,
                                    ),
     "CaloQuality":     JetModifier("JetCaloQualityTool", "caloqual",
                                    TimingCuts = [5,10],
-                                   Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],),
+                                   Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],JetContainer = _jetname),
 
     "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
                                    createfn=JetMomentToolsConfig.getConstitFourMomTool,),
@@ -81,7 +87,7 @@ jetmomentmods = {
                                    createfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
     "LArHVCorr":       JetModifier("JetLArHVTool", "larhvcorr",
-                                   prereqs = ["mod:EMScaleMom"]),
+                                   prereqs = ["mod:EMScaleMom"],JetContainer = _jetname),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),
     "TrackMoments":    JetModifier("JetTrackMomentsTool", "trkmoms",

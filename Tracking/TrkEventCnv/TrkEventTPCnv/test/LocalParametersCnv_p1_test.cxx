@@ -35,7 +35,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Trk::LocalParameters trans1 (1.5, 2.5, 3.5, 4.5, 5.5);
   LocalParametersCnv_p1 cnv;
   Trk::LocalParameters_p1 pers;

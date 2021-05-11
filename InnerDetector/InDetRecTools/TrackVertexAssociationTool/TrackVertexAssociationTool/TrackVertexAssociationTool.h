@@ -123,6 +123,9 @@ namespace CP {
     /// Flag to cut on d0sig instead of d0.
     bool m_doUsedInFit;
 
+    /// Flag to switch priority to match the primary vertex instead of closest vertex.
+    bool m_doPVPriority;
+
     /// Flag to cut on d0sig instead of d0.
     bool m_requirePriVtx;
 

@@ -44,6 +44,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
   # Pixel
   if flags.Detector.GeometryPixel:
+    # for Pixel DetectorElement conditions data :
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( flags ))
+
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder'+nameSuffix)
     PixelLayerBuilder.PixelCase            = True
@@ -70,6 +74,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 3 ]
 
   if flags.Detector.GeometrySCT:
+    # for SCT DetectorElement conditions data :
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    result.merge(SCT_GeometryCfg( flags ))
+
     # SCT building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder'+nameSuffix)
@@ -93,7 +101,11 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-  if flags.Detector.GeometryTRT:                                                      
+  if flags.Detector.GeometryTRT:
+    # for TRT DetectorElement conditions data :
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result.merge(TRT_GeometryCfg( flags ))
+
     InDet__TRT_LayerBuilder=CompFactory.InDet.TRT_LayerBuilderCond
     TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder'+nameSuffix)
     # TRT barrel specifications - assume defaults
@@ -168,12 +180,23 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
-  lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,TrackingVolumeHelper = trackingVolumeHelper,)
+  lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,
+                                           TrackingVolumeHelper = trackingVolumeHelper,
+                                           BarrelEnvelopeCover  = 5.0, # TrkDetFlags.LArBarrelEnvelopeCover(),
+                                           EndcapEnvelopeCover  = 5.0, # TrkDetFlags.LArEndcapEnvelopeCover(),
+                                           OutputLevel = 3,            # TrkDetFlags.LArBuildingOutputLevel(),
+                                           UseCaloSurfBuilder = True   # TrkDetFlags.LArUseCaloSurfBuilder(),
+                                           )
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
-  tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix, TrackingVolumeHelper = trackingVolumeHelper,  )
+  tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix,
+                                               TrackingVolumeHelper = trackingVolumeHelper,
+                                               BarrelEnvelopeCover = 5.0, # TrkDetFlags.TileBarrelEnvelopeCover(),
+                                               UseCaloSurfBuilder = True, # TrkDetFlags.TileUseCaloSurfBuilder(),
+                                               OutputLevel = 3            # TrkDetFlags.TileBuildingOutputLevel()
+                                              )
   result.addPublicTool(tileVolumeBuilder)
   
   Calo__CaloTrackingGeometryBuilder=CompFactory.Calo.CaloTrackingGeometryBuilderCond
@@ -237,15 +260,15 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
 
     if flags.Detector.GeometryMuon:
       # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
-      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = namePrefix+'MuonStationTypeBuilder'+nameSuffix)
+      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
       result.addPublicTool(muonStationTypeBuilder)
 
-      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilder
+      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilderCond
       muonStationBuilder= Muon__MuonStationBuilder(name = namePrefix+'MuonStationBuilder'+nameSuffix)
       muonStationBuilder.StationTypeBuilder = muonStationTypeBuilder
       result.addPublicTool(muonStationBuilder)
 
-      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilder
+      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilderCond
       muonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = namePrefix+'MuonInertMaterialBuilder'+nameSuffix)
       result.addPublicTool(muonInertMaterialBuilder)
 

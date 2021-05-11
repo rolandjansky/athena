@@ -11,7 +11,7 @@
 namespace ChainBits 
 {
   const uint32_t maskLow16 = 0x0000ffff;
-  const uint32_t maskDecis = 0x01ff0000;
+  //const uint32_t maskDecis = 0x01ff0000;
 }
 
 //--------------------------------------------------------------------------------------

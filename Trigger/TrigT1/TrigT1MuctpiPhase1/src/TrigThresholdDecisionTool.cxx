@@ -3,54 +3,51 @@
 */
 
 #include "TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
-#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 namespace LVL1
 {
+  namespace MURoIThresholdsToolParams {
+    const char ContainerName[] = "LVL1MuonRoIs";
+    const char ThresholdType[] = "MU";
+  }
+
   TrigThresholdDecisionTool::TrigThresholdDecisionTool(const std::string& type, 
 						       const std::string& name, 
 						       const IInterface* parent)
-    :
-    base_class(type, name, parent),
-    m_l1menu(nullptr)
-  {
-  }
-  
-  TrigThresholdDecisionTool::~TrigThresholdDecisionTool()
-  {
-    
-  }
+    : base_class(type, name, parent) {}
   
   StatusCode TrigThresholdDecisionTool::initialize()
   {
-    ATH_MSG_INFO( "========================================" );
-    ATH_MSG_INFO( "Initialize for TrigThresholdDecisionTool"  );
-    ATH_MSG_INFO( "========================================" );
+    ATH_MSG_DEBUG( "========================================" );
+    ATH_MSG_DEBUG( "Initialize for TrigThresholdDecisionTool"  );
+    ATH_MSG_DEBUG( "========================================" );
 
+    ATH_CHECK(RoIThresholdsTool::initialize());
     ATH_CHECK( m_rpcTool.retrieve() );
     ATH_CHECK( m_tgcTool.retrieve() );
-    ATH_CHECK( m_detStore->retrieve(m_l1menu) );
     return StatusCode::SUCCESS;
   }
   
   StatusCode TrigThresholdDecisionTool::start()
   {
-    ATH_MSG_INFO( "==========================================" );
-    ATH_MSG_INFO( "Start for Phase1 TrigThresholdDecisionTool"  );
-    ATH_MSG_INFO( "==========================================" );
+    ATH_MSG_DEBUG( "==========================================" );
+    ATH_MSG_DEBUG( "Start for Phase1 TrigThresholdDecisionTool"  );
+    ATH_MSG_DEBUG( "==========================================" );
 
 
     //front-load the TGC flag parsing and all possible 3-bit decisions for the menu
-    const std::vector<std::shared_ptr<TrigConf::L1Threshold>>* thresholds = &m_l1menu->thresholds("MU");
-    for (auto itr=thresholds->begin();itr!=thresholds->end();++itr)
-    {
-      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(*itr);
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey);
+    ATH_CHECK(l1Menu.isValid());
+    std::optional<ThrVecRef> menuThresholds = getMenuThresholds(*l1Menu);
+    ATH_CHECK(menuThresholds.has_value());
+
+    for (const std::shared_ptr<TrigConf::L1Threshold>& thrBase : menuThresholds.value().get()) {
+      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(thrBase);
       std::string tgcFlags = thr->tgcFlags();
 
       //parse the tgc flags and buffer them
       parseTGCFlags(tgcFlags);
-
 
       //loop over all 3-bit flag combinations
       for (unsigned flags=0;flags<8;flags++)
@@ -65,17 +62,23 @@ namespace LVL1
     return StatusCode::SUCCESS;
   }
   
-  std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > TrigThresholdDecisionTool::getThresholdDecisions(const unsigned& dataWord) const
-  {
+  uint64_t TrigThresholdDecisionTool::getPattern(const xAOD::MuonRoI& roi,
+                                                 const ThrVec& menuThresholds,
+                                                 const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const {
+    return getPattern(roi.roiWord(), menuThresholds, menuExtraInfo);
+  }
+
+  uint64_t TrigThresholdDecisionTool::getPattern(uint32_t dataWord,
+                                                 const ThrVec& menuThresholds,
+                                                 const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const {
+    uint64_t thresholdsPattern = 0;
+
     //first figure out if we need to use the RPC or TGC tool for decoding the ROI
     LVL1::ITrigT1MuonRecRoiTool::MuonTriggerSystem system = m_rpcTool->getSystem(dataWord);
     const LVL1::ITrigT1MuonRecRoiTool* roiTool;
     if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiTool = &(*m_rpcTool);
     else roiTool = &(*m_tgcTool);
-    
-    //the object that will be returned: pairs of thresholds and pass/fail decisions
-    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > threshold_decisions;
-    
+
     //buffer the some information
     unsigned isub = roiTool->getBitMaskValue(&dataWord, roiTool->SubSysIDMask());
     LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem side = static_cast<LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSubSystem>(isub);
@@ -91,6 +94,7 @@ namespace LVL1
       roi      = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardRoIMask());
       sectorID = roiTool->getBitMaskValue(&dataWord, roiTool->ForwardSectorIDMask());
     }
+    const TrigConf::L1ThrExtraInfo_MU& muThrExtraInfo = dynamic_cast<const TrigConf::L1ThrExtraInfo_MU&>(menuExtraInfo);
 
     //buffer (notional) TGC flags
     bool F=false, C=false, H=false;
@@ -101,50 +105,85 @@ namespace LVL1
       H = dataWord & roiTool->GoodMFMask();
     }
 
-    
     //loop over the thresholds
-    const std::vector<std::shared_ptr<TrigConf::L1Threshold> >* thresholds = &m_l1menu->thresholds("MU");
-    int nThresholds = thresholds->size();
-    for (int ithresh=0;ithresh<nThresholds;ithresh++)
-    {
-      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>((*thresholds)[ithresh]);
-      threshold_decisions.push_back(std::make_pair(thr, false));
- 
-      bool passed=false;      
-      if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel)
-      {
-	//skip the threshold with regions not corresponding to ALL or barrel
-	if (thr->region().find("ALL") == std::string::npos &&
-	    thr->region().find("BA") == std::string::npos) continue;
-	
-	//veto this candidate from this multiplicity if it's part of the excluded ROI list
-	bool pass = !isExcludedRPCROI(thr->rpcExclROIList(), roi, sectorID, side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC());
-	if (!pass) continue;
-	if (ptword >= thr->idxBarrel()+1) passed=true;
+    for (const std::shared_ptr<TrigConf::L1Threshold>& thrBase : menuThresholds) {
+      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(thrBase);
+
+      bool passed{false};
+      if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel) {
+        //skip the threshold with regions not corresponding to ALL or barrel
+        if (thr->region().find("ALL") == std::string::npos &&
+            thr->region().find("BA") == std::string::npos) continue;
+
+        //veto this candidate from this multiplicity if it's part of the excluded ROI list
+        const bool isSideC = (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC());
+        if (isExcludedRPCROI(muThrExtraInfo, thr->rpcExclROIList(), roi, sectorID, isSideC)) continue;
+
+        if (ptword >= thr->idxBarrel()+1) {
+          // mark this threshold as passed
+          passed = true;
+        }
       }
-      else // Endcap or Forward
-      {
-	if (system == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) // Endcap
-	{
-	//skip the threshold with regions not corresponding to ALL or endcap
-	  if (thr->region().find("ALL") == std::string::npos &&
-	      thr->region().find("EC") == std::string::npos) continue;
-	  if (ptword >= thr->idxEndcap()+1) passed=true;
-	}
-	else // Forward
-	{
-	//skip the threshold with regions not corresponding to ALL or forward
-	  if (thr->region().find("ALL") == std::string::npos &&
-	      thr->region().find("FW") == std::string::npos) continue;
-	  if (ptword >= thr->idxForward()+1) passed=true;
-	}
-	
-	bool pass = getTGCDecision(thr->tgcFlags(), F, C, H);
-	if (!pass) continue;
+      else { // Endcap or Forward
+        if (system == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) { // Endcap
+          //skip the threshold with regions not corresponding to ALL or endcap
+          if (thr->region().find("ALL") == std::string::npos &&
+              thr->region().find("EC") == std::string::npos) continue;
+
+          if (ptword >= thr->idxEndcap()+1) {
+            // mark this threshold as passed
+            passed = true;
+          }
+        }
+        else { // Forward
+          //skip the threshold with regions not corresponding to ALL or forward
+          if (thr->region().find("ALL") == std::string::npos &&
+              thr->region().find("FW") == std::string::npos) continue;
+
+          if (ptword >= thr->idxForward()+1) {
+            // mark this threshold as passed
+            passed = true;
+          }
+        }
+
+        passed &= getTGCDecision(thr->tgcFlags(), F, C, H);
       } // end Endcap or Forward
-      threshold_decisions[ithresh].second = passed;
-    } // N Thresholds
-    
+
+      if (passed) {
+        // set the corresponding bit in the pattern
+        thresholdsPattern |= (1 << thr->mapping());
+      }
+
+    } // loop over thresholds
+
+    return thresholdsPattern;
+  }
+
+  std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+  TrigThresholdDecisionTool::getThresholdDecisions(uint32_t dataWord,
+                                                   const EventContext& eventContext) const {
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, eventContext);
+    std::optional<ThrVecRef> menuThresholds = getMenuThresholds(*l1Menu);
+    std::optional<ExtraInfoRef> menuExtraInfo = getMenuThresholdExtraInfo(*l1Menu);
+    // Call the other overload
+    return getThresholdDecisions(dataWord, menuThresholds.value().get(), menuExtraInfo.value().get());
+  }
+
+  std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+  TrigThresholdDecisionTool::getThresholdDecisions(uint32_t dataWord,
+                                                   const ThrVec& menuThresholds,
+                                                   const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const {
+
+    const uint64_t pattern = getPattern(dataWord, menuThresholds, menuExtraInfo);
+
+    //the object that will be returned: pairs of thresholds and pass/fail decisions
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > threshold_decisions;
+    threshold_decisions.resize(menuThresholds.size());
+    for (const std::shared_ptr<TrigConf::L1Threshold>& thr : menuThresholds) {
+      const bool decision = pattern & (1 << thr->mapping());
+      threshold_decisions[thr->mapping()] = std::make_pair(thr, decision);
+    }
     return threshold_decisions;
   }
 
@@ -165,12 +204,15 @@ namespace LVL1
     return std::make_pair(thrName, thrVal);
   }
 
-  bool TrigThresholdDecisionTool::isExcludedRPCROI(const std::string& rpcExclROIList, const unsigned& roi, const unsigned& sectorID, const bool& isSideC) const
-  {
+  bool TrigThresholdDecisionTool::isExcludedRPCROI(const TrigConf::L1ThrExtraInfo_MU& menuExtraInfo,
+                                                   const std::string& rpcExclROIList,
+                                                   const unsigned roi,
+                                                   const unsigned sectorID,
+                                                   const bool isSideC) const {
     if (rpcExclROIList != "")
     {
-      const std::map<std::string, std::vector<unsigned int> >* exclList = &m_l1menu->thrExtraInfo().MU().exclusionList(rpcExclROIList);
-      if (exclList->size() != 0)
+      const std::map<std::string, std::vector<unsigned int> >& exclList = menuExtraInfo.exclusionList(rpcExclROIList);
+      if (exclList.size() != 0)
       {
 	//build the sector name of this ROI to compare against the exclusion list
 	std::stringstream sectorName;
@@ -181,8 +223,8 @@ namespace LVL1
 	sectorName << sectorNumber;
 	
 	//do the comparison
-	auto exclROIs = exclList->find(sectorName.str());
-	if (exclROIs != exclList->end())
+	auto exclROIs = exclList.find(sectorName.str());
+	if (exclROIs != exclList.end())
 	{
 	  for (auto roi_itr=exclROIs->second.begin();roi_itr!=exclROIs->second.end();roi_itr++)
 	  {
@@ -195,7 +237,7 @@ namespace LVL1
     return false;
   }
 
-  bool TrigThresholdDecisionTool::getTGCDecision(const std::string& tgcFlags, const bool& F, const bool& C, const bool& H) const
+  bool TrigThresholdDecisionTool::getTGCDecision(const std::string& tgcFlags, const bool F, const bool C, const bool H) const
   {
     //check if the word has been checked before for this string of flags (it should always, as we've buffered them in 'start')
     TGCFlagDecision decision(F,C,H);
@@ -207,7 +249,7 @@ namespace LVL1
     return false;
   }
 
-  void TrigThresholdDecisionTool::makeTGCDecision(const std::string& tgcFlags, const bool& F, const bool& C, const bool& H)
+  void TrigThresholdDecisionTool::makeTGCDecision(const std::string& tgcFlags, const bool F, const bool C, const bool H)
   {
     //check if the word has been checked before for this string of flags
     TGCFlagDecision decision(F,C,H);

@@ -20,5 +20,7 @@
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetWidthTool.h"
 #include "JetMomentTools/JetQGTaggerVariableTool.h"
+#include "JetMomentTools/JetEMScaleMomTool.h"
+#include "JetMomentTools/JetCaloEnergies.h"
 
 #endif

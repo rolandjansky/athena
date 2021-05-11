@@ -22,7 +22,7 @@
 /** Constructor **/
 Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
-  m_idHelper(0),
+  m_idHelper(nullptr),
   m_idPrdProvider(""),
   m_msPrdProvider("")
 {
@@ -71,7 +71,7 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
    m_prdMultiTruthCollections.clear();
    m_prdMultiTruthCollections.reserve(m_prdMultiTruthCollectionNames.size());
    // load the PRD collections from SG
-   for(auto pmtCollNameIter:m_prdMultiTruthCollectionNames){
+   for(const auto& pmtCollNameIter:m_prdMultiTruthCollectionNames){
      // try to retrieve the PRD multi truth collection
      SG::ReadHandle<PRD_MultiTruthCollection> curColl (pmtCollNameIter);
      if (!curColl.isValid()){

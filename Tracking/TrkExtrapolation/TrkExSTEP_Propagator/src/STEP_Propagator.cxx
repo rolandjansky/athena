@@ -2267,50 +2267,46 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
 /////////////////////////////////////////////////////////////////////////////////
 
 void
-Trk::STEP_Propagator::getMagneticField( Cache& cache,
-                                        const Amg::Vector3D&  position,
-                                        bool            getGradients,
-                                        double*          BG) const
+Trk::STEP_Propagator::getMagneticField(Cache& cache,
+                                       const Amg::Vector3D& position,
+                                       bool getGradients,
+                                       double* ATH_RESTRICT BG) const
 {
-  double      pos[3] = {0.}; //Auxiliary variable, needed for fieldGradient_XYZ_in_mm.
-  pos[0] = position.x();
-  pos[1] = position.y();
-  pos[2] = position.z();
   const double magScale = 10000.;
-  double* R=&pos[0];
+  const double* R = position.data();
   double H[3];
   double dH[9];
 
-  if (getGradients && m_includeBgradients) {   // field gradients needed and available
+  if (getGradients &&
+      m_includeBgradients) { // field gradients needed and available
 
-    getFieldGradient(cache, R,H,dH);
-    BG[0]=H[0]*magScale;
-    BG[1]=H[1]*magScale;
-    BG[2]=H[2]*magScale;
-    BG[3] =dH[0]*magScale;
-    BG[4] =dH[1]*magScale;
-    BG[5] =dH[2]*magScale;
-    BG[6] =dH[3]*magScale;
-    BG[7] =dH[4]*magScale;
-    BG[8] =dH[5]*magScale;
-    BG[9] =dH[6]*magScale;
-    BG[10]=dH[7]*magScale;
-    BG[11]=dH[8]*magScale;
+    getFieldGradient(cache, R, H, dH);
+    BG[0] = H[0] * magScale;
+    BG[1] = H[1] * magScale;
+    BG[2] = H[2] * magScale;
+    BG[3] = dH[0] * magScale;
+    BG[4] = dH[1] * magScale;
+    BG[5] = dH[2] * magScale;
+    BG[6] = dH[3] * magScale;
+    BG[7] = dH[4] * magScale;
+    BG[8] = dH[5] * magScale;
+    BG[9] = dH[6] * magScale;
+    BG[10] = dH[7] * magScale;
+    BG[11] = dH[8] * magScale;
 
-  }
-  else {  //Homogenous field or no gradients needed, only retrieve the field strength.
+  } else { // Homogenous field or no gradients needed, only retrieve the field
+           // strength.
 
-    getField(cache, R,H);
-    BG[0]=H[0]*magScale;
-    BG[1]=H[1]*magScale;
-    BG[2]=H[2]*magScale;
+    getField(cache, R, H);
+    BG[0] = H[0] * magScale;
+    BG[1] = H[1] * magScale;
+    BG[2] = H[2] * magScale;
 
-    for (int i=3; i<12; i++) { //Set gradients to zero
+    for (int i = 3; i < 12; i++) { // Set gradients to zero
       BG[i] = 0.;
     }
   }
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////
 // Main program for step estimation to surfaces

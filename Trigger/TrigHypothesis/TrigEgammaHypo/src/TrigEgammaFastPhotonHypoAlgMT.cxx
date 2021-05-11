@@ -14,7 +14,8 @@ TrigEgammaFastPhotonHypoAlgMT::TrigEgammaFastPhotonHypoAlgMT( const std::string&
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaFastPhotonHypoAlgMT::initialize() {
+StatusCode TrigEgammaFastPhotonHypoAlgMT::initialize() 
+{
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_photonsKey.initialize() );
   renounce( m_photonsKey );// clusters are made in views, so they are not in the EvtStore: hide them
@@ -54,8 +55,13 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
   SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();
 
+<<<<<<< HEAD
   std::vector<TrigEgammaFastPhotonHypoTool::PhotonInfo> hypoToolInput;
 
+=======
+  std::vector<TrigEgammaFastPhotonHypoToolInc::PhotonInfo> hypoToolInput;
+ 
+>>>>>>> upstream/master
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //previousDecision->objectLink< ViewContainer >( "view" );
     const auto viewEL = previousDecision->objectLink<ViewContainer>( TCU::viewString() );
@@ -88,8 +94,8 @@ StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context )
       // we shall avoid calling the tools for chains which were already rejected on certain cluster, but this is left to hypo tools
       TCU::DecisionIDContainer clusterDecisionIDs;
       TCU::decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
-
-      hypoToolInput.emplace_back( TrigEgammaFastPhotonHypoTool::PhotonInfo{ d, *photonIter,  origCluster->first, clusterDecisionIDs } );
+      
+      hypoToolInput.emplace_back( TrigEgammaFastPhotonHypoToolInc::PhotonInfo{ d, *photonIter,  origCluster->first, clusterDecisionIDs } );
     }
   }
 

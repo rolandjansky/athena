@@ -437,8 +437,8 @@
             "ytitle": "Tracks",
             "path":  {"PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -2,
-            "xmax": 2,
+            "xmin": -5,
+            "xmax": 5,
             "type": "TH1D",
             "forData": "true"
         },
@@ -450,8 +450,8 @@
             "ytitle": "Tracks",
             "path":  {"PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -2,
-            "xmax": 2,
+            "xmin": -5,
+            "xmax": 5,
             "type": "TH1D",
             "forData": "true"
         },

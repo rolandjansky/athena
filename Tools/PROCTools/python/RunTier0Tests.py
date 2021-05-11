@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## RunTier0Tests.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # $Id$
@@ -159,7 +159,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
-def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
+def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -171,9 +171,6 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
 
     if q == 'q221' or q == 'q440':
         extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
-
-    if trigConfig == "2016":
-        extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
     logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
@@ -190,7 +187,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", nosetup=False):
+def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, nosetup=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -202,9 +199,6 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", 
 
     if q == 'q221' or q == 'q440':
         extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
-
-    if trigConfig == "2016":
-        extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
@@ -584,12 +578,6 @@ def main():
                       dest="val",
                       default=None,
                       help="define a particular validation release")
-    parser.add_option("-t",
-                      "--trigRun2Config",
-                      type="string",
-                      dest="trigRun2Config_flag",
-                      default="2017",
-                      help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
     parser.add_option("-s",
                       "--sim",
                       action="store_true",
@@ -648,7 +636,6 @@ def main():
     RunPileUp       = options.pileup_flag
     CleanRunHeadDir = options.cleanDir
     r2aMode         = options.r2a_flag
-    trigRun2Config  = options.trigRun2Config_flag    
     ciMode          = options.ci_flag
     DiffExclusionListsDir    = options.diffExclusionListsDir
 
@@ -664,13 +651,6 @@ def main():
         logging.info("")
         RunPatchedOnly = True   
  
-########### Is TriggerFlags.run2Config defined properly?
-    if trigRun2Config != "2016" and trigRun2Config != "2017":
-        logging.error("")
-        logging.error("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
-        logging.error("")
-        sys.exit(-1)
-        
 
 ########### Does the clean run head directory exist?
     if str(CleanRunHeadDir) == "/tmp/":
@@ -778,7 +758,7 @@ def main():
                         else:
                             RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
-                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode)
                     pass
 
                 def mypatchedqtest(q=q):
@@ -790,7 +770,7 @@ def main():
                         else:
                             RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -815,7 +795,7 @@ def main():
                         else:
                             RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, nosetup=ciMode)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -839,7 +819,7 @@ def main():
                         else:
                             RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
-                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode)
                     pass
                 
                 def mypatchedqtest(q=q):
@@ -851,7 +831,7 @@ def main():
                         else:
                             RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:   
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg,doR2A=r2aMode,trigConfig=trigRun2Config)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg,doR2A=r2aMode)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)

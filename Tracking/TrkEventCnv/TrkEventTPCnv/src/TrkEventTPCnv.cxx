@@ -183,8 +183,7 @@ DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp1,
 			 Trk::VxContainer_tlp1,
 			     Athena::TPCnvVers::Old)
 		     
-typedef T_TPCnv<VxContainer, Trk::VxContainer_tlp2 >
-		VxContainerARACnv_tlp2;
+using VxContainerARACnv_tlp2 = T_TPCnv<VxContainer, Trk::VxContainer_tlp2>;
 DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp2,
 			 VxContainer,
 			 Trk::VxContainer_tlp2,

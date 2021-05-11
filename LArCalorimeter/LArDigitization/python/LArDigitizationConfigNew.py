@@ -1,6 +1,6 @@
 """Define functions for LAr Digitization with ComponentAccumulator
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -107,7 +107,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
         kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
     else:
         kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
@@ -157,11 +157,11 @@ def LArOutputCfg(flags):
         ItemList = []
         if flags.Digitization.AddCaloDigi:
             ItemList.append("LArDigitContainer#*")
-        elif flags.Digitization.PileUpPremixing:
+        elif flags.Digitization.PileUpPresampling:
             ItemList.append("LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         elif flags.Digitization.AddCaloDigiThinned:
             ItemList.append("LArDigitContainer#LArDigitContainer_MC_Thinned")
-        if not flags.Digitization.PileUpPremixing:
+        if not flags.Digitization.PileUpPresampling:
             ItemList.append("LArRawChannelContainer#LArRawChannels")
         if flags.Digitization.TruthOutput:
             ItemList.append("CaloCalibrationHitContainer#*")
@@ -229,7 +229,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("PileUp", flags.Digitization.PileUp)
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
     LArTTL1Maker = CompFactory.LArTTL1Maker
@@ -256,6 +256,9 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
     kwargs.setdefault("PileUp", True)
     kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1EM")
     kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1HAD")
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))

@@ -21,11 +21,11 @@ namespace Trk {
            const IInterface* parent)
     
     : AthAlgTool(type,name,parent)
-    , m_idHelper         (0)
-    , m_alignModules     (0)
-    , m_alignModuleMaps  (AlignModule::NDetectorTypes,(const AlignModuleList*)0)
-    , m_alignParList     (0)
-    , m_fullAlignParList (0)
+    , m_idHelper         (nullptr)
+    , m_alignModules     (nullptr)
+    , m_alignModuleMaps  (AlignModule::NDetectorTypes,(const AlignModuleList*)nullptr)
+    , m_alignParList     (nullptr)
+    , m_fullAlignParList (nullptr)
     , m_alignParList1D   (SG::VIEW_ELEMENTS)
     , m_subDetElement    (AlignModule::NDetectorTypes,false)
   {
@@ -33,7 +33,7 @@ namespace Trk {
     
     declareProperty("AlignModuleListType", m_alignModuleListType = Trk::L3);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -130,12 +130,12 @@ namespace Trk {
 
     if (!det) {
       ATH_MSG_VERBOSE("no det!");
-      return 0;
+      return nullptr;
     }
 
     if (m_subDetElement[detType]) {
       ATH_MSG_ERROR("please use findAlignModule method passing RIO_OnTrack");
-      return 0;
+      return nullptr;
     }
     
     ATH_MSG_VERBOSE("in findAlignModule, detType="<<detType);
@@ -144,7 +144,7 @@ namespace Trk {
       detType=getDetectorType(det);
     if (detType==AlignModule::NDetectorTypes || !m_alignModuleMaps[detType]) {
       ATH_MSG_VERBOSE("bad detector type or no map for detType "<<detType);
-      return 0;
+      return nullptr;
     }
     
     // find align module
@@ -162,7 +162,7 @@ namespace Trk {
 
     if (!rio) {
       ATH_MSG_VERBOSE("no rio!");
-      return 0;
+      return nullptr;
     }
 
     // find detector type using TrkDetElementBase
@@ -174,7 +174,7 @@ namespace Trk {
         detType=getDetectorType(detelement);
       if (detType==AlignModule::NDetectorTypes || !m_alignModuleMaps[detType]) {
         ATH_MSG_VERBOSE("bad detector type or no map for detType "<<detType);
-        return 0;
+        return nullptr;
       }
     
       // find align module
@@ -193,14 +193,14 @@ namespace Trk {
     }
 
     ATH_MSG_VERBOSE("no detector element!");
-    return 0;
+    return nullptr;
   }
   
   
   //________________________________________________________________________
   DataVector<AlignPar>* AlignModuleTool::getAlignPars(const AlignModule* alignModule) const
   {
-    if (!alignModule) return 0;
+    if (!alignModule) return nullptr;
     
     int idHash =alignModule->identifyHash();
     ATH_MSG_DEBUG("getting alignPars for idHash "<<idHash);

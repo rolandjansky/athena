@@ -137,11 +137,8 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     // select RDOs to be decoded when seeded mode is used  
     std::vector<const TgcRdo*> rdoCollVec; 
     if(sizeVectorRequested!=0) { 
-      unsigned int nRdo = 0; 
-      std::vector<IdentifierHash>::iterator tgchid   = requestedIdHashVect.begin(); 
-      std::vector<IdentifierHash>::iterator tgchid_e = requestedIdHashVect.end(); 
-      for(; tgchid!=tgchid_e; tgchid++) { 
-        IdentifierHash offlineCollHash = *tgchid; 
+      unsigned int nRdo = 0;
+      for (IdentifierHash offlineCollHash : requestedIdHashVect) {
         uint16_t onlineId = cinfo->m_hashToOnlineId.at(static_cast<unsigned int>(offlineCollHash)); 
 
         if(decodedOnlineId.at(onlineId)) { 
@@ -155,7 +152,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 
         TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin(); 
         TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end(); 
-        for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) { 
+        for(; rdo_container_it!=rdo_container_it_e; ++rdo_container_it) { 
           const TgcRdo* rdoColl = *rdo_container_it; 
           if(rdoColl->identify()==onlineId) { 
             if(!isAlreadyConverted(decodedRdoCollVec, rdoCollVec, rdoColl)) { 
@@ -172,29 +169,25 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     // Decode Hits
     if(sizeVectorRequested!=0) {
       ATH_MSG_DEBUG("Start loop over rdos - seeded mode");
-    
-      std::vector<const TgcRdo*>::const_iterator iRdo   = rdoCollVec.begin();
-      std::vector<const TgcRdo*>::const_iterator iRdo_e = rdoCollVec.end();
-      for(; iRdo!=iRdo_e; iRdo++) {
-        TgcRdo::const_iterator itD   = (*iRdo)->begin(); 
-        TgcRdo::const_iterator itD_e = (*iRdo)->end();
-        for(; itD!=itD_e; itD++) { 
+
+      for (const TgcRdo* rdo : rdoCollVec) {
+        for (const TgcRawData* rd : *rdo) {
 	  //Since OnlineIds are not unique, need some additional filtering on offline hashId 
 	  //to avoid decoding RDO outside of an RoI
 	  Identifier offlineId;
 	  IdentifierHash tgcHashId;
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
-	  if(tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
+	  if(tgcCabling->getElementIDfromReadoutID(offlineId, rd->subDetectorId(), rd->rodId(), rd->sswId(), rd->slbId(), rd->bitpos())){
 	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
 	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
 		selectDecoder(getHitCollection, getCoinCollection,
-                              itD, (*iRdo));
+                              *rd, rdo);
 	      }
 	    }
 	  }
         }
-        decodedRdoCollVec.push_back(*iRdo);
+        decodedRdoCollVec.push_back(rdo);
       }
       // show the vector of IdentifierHash which contains the data within requested range
       showIdentifierHashVector(state, selectedIdHashVect);
@@ -203,17 +196,15 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     
       TgcRdoContainer::const_iterator rdoColli   = rdoContainer->begin();
       TgcRdoContainer::const_iterator rdoColli_e = rdoContainer->end();
-      for(; rdoColli!=rdoColli_e; rdoColli++) {
+      for(; rdoColli!=rdoColli_e; ++rdoColli) {
         // loop over all elements of the rdo container 
         const TgcRdo* rdoColl = *rdoColli;
 
         if(rdoColl->size()>0 && !isAlreadyConverted(decodedRdoCollVec, rdoCollVec, rdoColl)) {
           ATH_MSG_DEBUG(" Number of RawData in this rdo " << rdoColl->size());
-          TgcRdo::const_iterator itD   = rdoColl->begin(); 
-          TgcRdo::const_iterator itD_e = rdoColl->end();
-          for(; itD!=itD_e; itD++) { 
+          for (const TgcRawData* rd : *rdoColl) {
             selectDecoder(getHitCollection, getCoinCollection,
-                          itD, rdoColl);
+                          *rd, rdoColl);
           }
           decodedRdoCollVec.push_back(rdoColl);
         }

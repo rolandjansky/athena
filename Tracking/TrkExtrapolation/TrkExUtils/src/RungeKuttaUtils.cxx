@@ -224,8 +224,8 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
                        double* ATH_RESTRICT par,
                        double* ATH_RESTRICT Jac)
 {
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
 
   double d[3] = {P[0]-T(0,3),P[1]-T(1,3),P[2]-T(2,3)};
 
@@ -261,9 +261,9 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
                       double* ATH_RESTRICT par,
                       double* ATH_RESTRICT Jac)
 {
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
-
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
+  
   const double d[3] = {P[0]-T(0,3),P[1]-T(1,3),P[2]-T(2,3)};
 
   const double RC   = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
@@ -311,11 +311,9 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
                           double* ATH_RESTRICT Jac)
 {
 
-
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
-  const double Az[3] = {T(0,2),T(1,2),T(2,2)};
-
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
+  const double* Az = T.matrix().col(2).data();//2nd column
 
   double x  = P[0]-T(0,3);
   double y  = P[1]-T(1,3);
@@ -361,41 +359,48 @@ transformGlobalToLine(const Amg::Transform3D&  T,
                       double* ATH_RESTRICT par,
                       double* ATH_RESTRICT Jac)
 {
-  const double A[3] = {T(0,2),T(1,2),T(2,2)};
+  const double* Az = T.matrix().col(2).data();//2nd column
 
-  double Bx = A[1]*P[5]-A[2]*P[4];
-  double By = A[2]*P[3]-A[0]*P[5];
-  double Bz = A[0]*P[4]-A[1]*P[3];
-  const double Bn = 1./sqrt(Bx*Bx+By*By+Bz*Bz);
-  Bx*=Bn; By*=Bn; Bz*=Bn;
-  const double x  = P[0]-T(0,3);
-  const double y  = P[1]-T(1,3);
-  const double z  = P[2]-T(2,3);
-  par[0]    = x*Bx  +y*By  +z*Bz  ;
-  par[1]    = x*A[0]+y*A[1]+z*A[2];
+  double Bx = Az[1]*P[5]-Az[2]*P[4];
+  double By = Az[2]*P[3]-Az[0]*P[5];
+  double Bz = Az[0]*P[4]-Az[1]*P[3];
+  const double Bn = 1. / sqrt(Bx * Bx + By * By + Bz * Bz);
+  Bx *= Bn;
+  By *= Bn;
+  Bz *= Bn;
+  const double x = P[0] - T(0, 3);
+  const double y = P[1] - T(1, 3);
+  const double z = P[2] - T(2, 3);
+  par[0] = x * Bx + y * By + z * Bz;
+  par[1]    = x*Az[0]+y*Az[1]+z*Az[2];
 
   if(!useJac) {return;}
 
   // Condition trajectory on surface
   //
-  const double d  = P[3]*A[0]+P[4]*A[1]+P[5]*A[2];
-  double a  = (1.-d)*(1.+d); if(a!=0.) a=1./a;
-  const double X = d*A[0]-P[3], Y = d*A[1]-P[4], Z = d*A[2]-P[5];
+  const double d  = P[3]*Az[0]+P[4]*Az[1]+P[5]*Az[2];
+  double a = (1. - d) * (1. + d);
+  if (a != 0.){
+    a = 1. / a;
+  }
+  const double X = d * Az[0] - P[3];
+  const double Y = d * Az[1] - P[4];
+  const double Z = d * Az[2] - P[5];
 
   double D[5] = {};
-  mult3x5Helper(D, A, &P[10]);
-  const double s0 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(D[0]*A[0]-P[10]))+(y*(D[0]*A[1]-P[11])+z*(D[0]*A[2]-P[12])))*a;
-  const double s1 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(D[1]*A[0]-P[17]))+(y*(D[1]*A[1]-P[18])+z*(D[1]*A[2]-P[19])))*a;
-  const double s2 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(D[2]*A[0]-P[24]))+(y*(D[2]*A[1]-P[25])+z*(D[2]*A[2]-P[26])))*a;
-  const double s3 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(D[3]*A[0]-P[31]))+(y*(D[3]*A[1]-P[32])+z*(D[3]*A[2]-P[33])))*a;
-  const double s4 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(D[4]*A[0]-P[38]))+(y*(D[4]*A[1]-P[39])+z*(D[4]*A[2]-P[40])))*a;
+  mult3x5Helper(D, Az, &P[10]);
+  const double s0 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(D[0]*Az[0]-P[10]))+(y*(D[0]*Az[1]-P[11])+z*(D[0]*Az[2]-P[12])))*a;
+  const double s1 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(D[1]*Az[0]-P[17]))+(y*(D[1]*Az[1]-P[18])+z*(D[1]*Az[2]-P[19])))*a;
+  const double s2 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(D[2]*Az[0]-P[24]))+(y*(D[2]*Az[1]-P[25])+z*(D[2]*Az[2]-P[26])))*a;
+  const double s3 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(D[3]*Az[0]-P[31]))+(y*(D[3]*Az[1]-P[32])+z*(D[3]*Az[2]-P[33])))*a;
+  const double s4 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(D[4]*Az[0]-P[38]))+(y*(D[4]*Az[1]-P[39])+z*(D[4]*Az[2]-P[40])))*a;
 
   //pass -1 (As we want do add rather subtract in the helper)
   globalToLocalVecHelper(P, -1.*s0, -1.*s1, -1.*s2, -1.*s3, -1.*s4);
   // Jacobian production
   const double B[3]={Bx,By,Bz};
   mult3x5Helper(&Jac[0],B,&P[7]);
-  mult3x5Helper(&Jac[5],A,&P[7]);
+  mult3x5Helper(&Jac[5],Az,&P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -410,10 +415,9 @@ transformGlobalToCone(const Amg::Transform3D&  T,
                       double* ATH_RESTRICT par,
                       double* ATH_RESTRICT Jac)
 {
-
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
-  const double Az[3] = {T(0,2),T(1,2),T(2,2)};
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
+  const double* Az = T.matrix().col(2).data();//2nd column
 
   const double x  = P[0]-T(0,3);
   const double y  = P[1]-T(1,3);
@@ -447,8 +451,8 @@ transformPlaneToGlobal(bool useJac,
                        const AmgVector(5)& ATH_RESTRICT p,
                        double* ATH_RESTRICT P)
 {
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
 
   P[ 0] = p[0]*Ax[0]+p[1]*Ay[0]+T(0,3);                            // X
   P[ 1] = p[0]*Ax[1]+p[1]*Ay[1]+T(1,3);                            // Y
@@ -474,8 +478,9 @@ transformDiscToGlobal(bool useJac,
                       const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
+
   double Sf,Cf; sincos(p[1],&Sf,&Cf);
 
   const double d0 = Cf*Ax[0]+Sf*Ay[0];
@@ -504,9 +509,9 @@ transformCylinderToGlobal(bool useJac,
                           const AmgVector(5)& ATH_RESTRICT p,
                           double* ATH_RESTRICT P)
 {
-  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
-  const double Az[3] = {T(0,2),T(1,2),T(2,2)};
+  const double* Ax = T.matrix().col(0).data();//Oth column
+  const double* Ay = T.matrix().col(1).data();//1st column
+  const double* Az = T.matrix().col(2).data();//2nd column
 
   const double fr = p[0]/R;
   double Sf,Cf; sincos(fr,&Sf,&Cf);
@@ -533,31 +538,40 @@ transformLineToGlobal(bool useJac,
                       const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
-  const double A[3] = {T(0,2),T(1,2),T(2,2)};
+  const double* Az = T.matrix().col(2).data();//2nd column
 
-  double Bx = A[1]*P[5]-A[2]*P[4];
-  double By = A[2]*P[3]-A[0]*P[5];
-  double Bz = A[0]*P[4]-A[1]*P[3];
-  const double Bn = 1./sqrt(Bx*Bx+By*By+Bz*Bz);
-  Bx*=Bn; By*=Bn; Bz*=Bn;
-  P[ 0]     = p[1]*A[0]+Bx*p[0]+T(0,3);                             // X
-  P[ 1]     = p[1]*A[1]+By*p[0]+T(1,3);                             // Y
-  P[ 2]     = p[1]*A[2]+Bz*p[0]+T(2,3);                             // Z
+  double Bx = Az[1] * P[5] - Az[2] * P[4];
+  double By = Az[2] * P[3] - Az[0] * P[5];
+  double Bz = Az[0] * P[4] - Az[1] * P[3];
+  const double Bn = 1. / sqrt(Bx * Bx + By * By + Bz * Bz);
+  Bx *= Bn;
+  By *= Bn;
+  Bz *= Bn;
+  P[0] = p[1] * Az[0] + Bx * p[0] + T(0, 3); // X
+  P[1] = p[1] * Az[1] + By * p[0] + T(1, 3); // Y
+  P[2] = p[1] * Az[2] + Bz * p[0] + T(2, 3); // Z
 
   if(!useJac) return;
 
-  double Bx2 =           -A[2]*P[25], Bx3 = A[1]*P[33]-A[2]*P[32];
-  double By2 = A[2]*P[24]           , By3 = A[2]*P[31]-A[0]*P[33];
-  double Bz2 = A[0]*P[25]-A[1]*P[24], Bz3 = A[0]*P[32]-A[1]*P[31];
-  double B2  = Bx*Bx2+By*By2+Bz*Bz2 , B3  = Bx*Bx3+By*By3+Bz*Bz3 ;
-  Bx2        =(Bx2-Bx*B2)*Bn        ; Bx3 =(Bx3-Bx*B3)*Bn        ;
-  By2        =(By2-By*B2)*Bn        ; By3 =(By3-By*B3)*Bn        ;
-  Bz2        =(Bz2-Bz*B2)*Bn        ; Bz3 =(Bz3-Bz*B3)*Bn        ;
+  double Bx2 = -Az[2] * P[25];
+  double Bx3 = Az[1] * P[33] - Az[2] * P[32];
+  double By2 = Az[2] * P[24];
+  double By3 = Az[2] * P[31] - Az[0] * P[33];
+  double Bz2 = Az[0] * P[25] - Az[1] * P[24];
+  double Bz3 = Az[0] * P[32] - Az[1] * P[31];
+  const double B2 = Bx * Bx2 + By * By2 + Bz * Bz2;
+  const double B3 = Bx * Bx3 + By * By3 + Bz * Bz3;
+  Bx2 = (Bx2 - Bx * B2) * Bn;
+  Bx3 = (Bx3 - Bx * B3) * Bn;
+  By2 = (By2 - By * B2) * Bn;
+  By3 = (By3 - By * B3) * Bn;
+  Bz2 = (Bz2 - Bz * B2) * Bn;
+  Bz3 = (Bz3 - Bz * B3) * Bn;
 
   //  /dL1  |     /dL2    |      /dPhi      |     /dThe       |
-  P[ 7] = Bx; P[14] = A[0]; P[21] = Bx2*p[0]; P[28] = Bx3*p[0];     // dX/
-  P[ 8] = By; P[15] = A[1]; P[22] = By2*p[0]; P[29] = By3*p[0];     // dY/
-  P[ 9] = Bz; P[16] = A[2]; P[23] = Bz2*p[0]; P[30] = Bz3*p[0];     // dZ/
+  P[ 7] = Bx; P[14] = Az[0]; P[21] = Bx2*p[0]; P[28] = Bx3*p[0];     // dX/
+  P[ 8] = By; P[15] = Az[1]; P[22] = By2*p[0]; P[29] = By3*p[0];     // dY/
+  P[ 9] = Bz; P[16] = Az[2]; P[23] = Bz2*p[0]; P[30] = Bz3*p[0];     // dZ/
 }
 
 

@@ -222,10 +222,10 @@ InDet::TRT_TrackExtensionToolCosmics::newEvent(const EventContext& ctx) const
 
   t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
   event_data->m_trtcylinder= new Trk::CylinderSurface(t,1150.,3000.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
-  event_data->m_trtdiscA   = new Trk::DiscSurface    (t,1.,1200.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
-  event_data->m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
+  Amg::Transform3D transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
+  event_data->m_trtdiscA   = new Trk::DiscSurface    (transf,1.,1200.);
+  transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
+  event_data->m_trtdiscC   = new Trk::DiscSurface    (transf,1.,1200.);
 
   return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
 

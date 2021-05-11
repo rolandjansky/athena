@@ -17,6 +17,10 @@
 #include "EventInfoMgt/ITagInfoMgr.h"
 
 class ISvcLocator;
+class GMDBManager;
+namespace GeoModelIO {
+  class ReadGeoModel;
+}
 
 template <class TYPE> class SvcFactory;
 
@@ -43,9 +47,6 @@ public:
     virtual const IGeoModelTool* getTool(std::string toolName) const override;
 
     virtual StatusCode clear() override;
-
-    virtual std::string getParamSvcName() const override;
-    virtual bool buildFromSQLite() const override;
 
     friend class SvcFactory<GeoModelSvc>;
 
@@ -89,6 +90,9 @@ private:
 
     int           m_supportedGeometry;            // Supported geometry flag is set in jobOpt and is equal to major release version
     bool          m_ignoreTagSupport;             // If true then don't check SUPPORT flag for ATLAS tag
+
+    GeoModelIO::ReadGeoModel* m_sqliteReader{nullptr};
+    GMDBManager*              m_sqliteDbManager{nullptr};
 
     Gaudi::Property<std::string> m_sqliteDb { this
 	, "SQLiteDB"

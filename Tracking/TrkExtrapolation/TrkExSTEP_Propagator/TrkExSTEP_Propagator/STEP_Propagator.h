@@ -17,8 +17,6 @@
 #ifndef STEP_Propagator_H
 #define STEP_Propagator_H
 
-#include <list>
-#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -39,6 +37,10 @@
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+//
+#include "CxxUtils/restrict.h"
+#include <vector>
+#include <list>
 
 namespace Trk {
   class Surface;
@@ -447,18 +449,16 @@ namespace Trk {
                      bool&   firstStep,
                      double& distanceStepped) const;
 
-
     /////////////////////////////////////////////////////////////////////////////////
     // Get the magnetic field and gradients
     // Input: Globalposition
-    // Output: BG, which contains Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx, dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
+    // Output: BG, which contains Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx,
+    // dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
     /////////////////////////////////////////////////////////////////////////////////
-    void
-    getMagneticField(Cache& cache,
-                     const Amg::Vector3D&  position,
-                     bool            getGradients,
-                     double*          BG) const;
-
+    void getMagneticField(Cache& cache,
+                          const Amg::Vector3D& position,
+                          bool getGradients,
+                          double* ATH_RESTRICT BG) const;
 
     /////////////////////////////////////////////////////////////////////////////////
     // Distance to surface
@@ -546,9 +546,8 @@ namespace Trk {
                                                   bool                     usePathLimit,
                                                   bool                     returnCurv=false) const;
 
-    void getField        (Cache& cache, double*,double*        ) const;
-    void getFieldGradient(Cache& cache, double*,double*,double*) const;
-
+    void getField(Cache& cache, const double*, double*) const;
+    void getFieldGradient(Cache& cache, const double*, double*, double*) const;
 
     double                         m_tolerance;         //!< Error tolerance. Low tolerance gives high accuracy
     bool                           m_materialEffects;   //!< Switch material effects on or off
@@ -575,30 +574,38 @@ namespace Trk {
     CLHEP::HepRandomEngine*               m_randomEngine;
     std::string                           m_randomEngineName;
 
-      // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
+      this,
+      "AtlasFieldCacheCondObj",
+      "fieldCondObj",
+      "Name of the Magnetic Field conditions object key"
+    };
     void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;
   };
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods for magnetic field information
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline void STEP_Propagator::getField        (Cache& cache, double* R, double* H) const
+  inline void
+  STEP_Propagator::getField(Cache& cache, const double* R, double* H) const
   {
-
-      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H);
-      cache.m_fieldCache.getField  (R, H);
+    // getFieldZR has been turned off for Step: if(m_solenoid) return
+    // cache.m_fieldCache.getFieldZR(R,H);
+    cache.m_fieldCache.getField(R, H);
   }
 
-  inline void STEP_Propagator::getFieldGradient(Cache& cache, double* R, double* H, double* dH) const
+  inline void
+  STEP_Propagator::getFieldGradient(Cache& cache,
+                                    const double* R,
+                                    double* H,
+                                    double* dH) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H,dH);
-      cache.m_fieldCache.getField  (R, H, dH);
-
+    // getFieldZR has been turned off for Step: if(m_solenoid) return
+    // cache.m_fieldCache.getFieldZR(R,H,dH);
+    cache.m_fieldCache.getField(R, H, dH);
   }
-}
-
-
+  }
 
 #endif // STEP_Propagator_H

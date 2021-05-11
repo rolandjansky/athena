@@ -801,21 +801,21 @@ std::string TrigEgammaEmulationTool::getL1Item(std::string trigger){
 
 //!==========================================================================
 std::string TrigEgammaEmulationTool::getPid(const std::string pidtype){
-  static std::map<std::string,std::string> PidMap; //no longer class member but static
-  if(PidMap.empty()){
-      PidMap["vloose"]="VLoose";
-      PidMap["loose"]="Loose";
-      PidMap["medium"]="Medium";
-      PidMap["tight"]="Tight";
-      PidMap["loose1"]="Loose";
-      PidMap["medium1"]="Medium";
-      PidMap["tight1"]="Tight";
-      PidMap["lhvloose"]="LHVLoose";
-      PidMap["lhloose"]="LHLoose";
-      PidMap["lhmedium"]="LHMedium";
-      PidMap["lhtight"]="LHTight";
-  }
-  return PidMap[pidtype];
+  static const std::map<std::string,std::string> PidMap = {
+    {"vloose", "VLoose"},
+    {"loose", "Loose"},
+    {"medium", "Medium"},
+    {"tight", "Tight"},
+    {"loose1", "Loose"},
+    {"medium1", "Medium"},
+    {"tight1", "Tight"},
+    {"lhvloose", "LHVLoose"},
+    {"lhloose", "LHLoose"},
+    {"lhmedium", "LHMedium"},
+    {"lhtight", "LHTight"}
+  };
+
+  return PidMap.at(pidtype);
 }
 
 //!==========================================================================

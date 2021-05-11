@@ -14,7 +14,9 @@
 
 #include <AnaAlgorithm/MessageCheck.h>
 #include <AsgTools/CurrentContext.h>
-#include <RootCoreUtils/Assert.h>
+#include "RootCoreUtils/Assert.h"
+
+
 
 //
 // method implementations

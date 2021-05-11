@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1MuctpiPhase1 )
@@ -10,9 +10,7 @@ find_package( Boost )
 atlas_add_library( TrigT1MuctpiPhase1Lib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1MuctpiPhase1
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfData TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger
-                   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} )
+                   LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfData TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger L1DecoderLib )
 
 atlas_add_component( TrigT1MuctpiPhase1
                      src/components/*.cxx

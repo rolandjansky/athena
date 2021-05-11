@@ -68,9 +68,9 @@ namespace MuonCombined {
         SG::ReadHandleKey<CaloCellContainer> m_caloCellCont{this, "CaloCells", "AllCalo", "calo cell container"};
 
         // --- Internal cache ---
-        mutable std::atomic_int m_nTrueMuons;     //!< Counts the number true muons
-        mutable std::atomic_int m_nTracksTagged;  //!< Counts the number of tracks tagged
-        mutable std::atomic_int m_nMuonsTagged;   //!< Counts the number of truth muons tagged
+        mutable std::atomic_int m_nTrueMuons{0};     //!< Counts the number true muons
+        mutable std::atomic_int m_nTracksTagged{0};  //!< Counts the number of tracks tagged
+        mutable std::atomic_int m_nMuonsTagged{0};   //!< Counts the number of truth muons tagged
 
         // --- Set up what to do and what not to do ---
         Gaudi::Property<bool> m_doCaloMuonTag{this, "doCaloMuonTag", true, "run CaloMuonTag Tool"};

@@ -33,7 +33,8 @@ Trk::ConeSurface::ConeSurface(const ConeSurface& csf)
 {}
 
 // copy constructor with shift
-Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf)
+Trk::ConeSurface::ConeSurface(const ConeSurface& csf,
+                              const Amg::Transform3D& transf)
   : Trk::Surface(csf, transf)
   , m_bounds(csf.m_bounds)
   , m_referencePoint(nullptr)
@@ -41,7 +42,9 @@ Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& tr
 {}
 
 // constructor by opening angle and whether its symmetric or a single cone
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              double alpha,
+                              bool symmetric)
   : Trk::Surface(htrans)
   , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, symmetric))
   , m_referencePoint(nullptr)
@@ -49,7 +52,11 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symme
 {}
 
 // constructor by opening angle and its z values
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmin, double zmax, double halfPhi)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              double alpha,
+                              double zmin,
+                              double zmax,
+                              double halfPhi)
   : Trk::Surface(htrans)
   , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, zmin, zmax, halfPhi))
   , m_referencePoint(nullptr)
@@ -57,7 +64,8 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmi
 {}
 
 // constructor by ConeBounds
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              Trk::ConeBounds* cbounds)
   : Trk::Surface(htrans)
   , m_bounds(cbounds)
   , m_referencePoint(nullptr)
@@ -67,13 +75,12 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds
 }
 
 // constructor from transform, bounds not set.
-Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Trk::Surface(std::move(htrans))
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
   , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
-
 
 Trk::ConeSurface&
 Trk::ConeSurface::operator=(const ConeSurface& csf)

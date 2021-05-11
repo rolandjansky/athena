@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ControlTest )
@@ -36,8 +36,8 @@ atlas_add_test( CircularDep_test
 
 atlas_add_test( SGDataLink_test
    SOURCES test/SGDataLink_test.cxx
-   LINK_LIBRARIES TestTools AthLinks AthenaKernel AthContainers SGTools StoreGateLib
-   GaudiKernel
+   LINK_LIBRARIES TestTools AthLinks AthenaKernel AthContainers SGTools StoreGateLib GaudiKernel
+   LOG_IGNORE_PATTERN "ERROR.*known CLID.*7368883"  # duplicate CLID defined by test
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( ElementLink_test
@@ -48,6 +48,7 @@ atlas_add_test( ElementLink_test
 atlas_add_test( ElementLinkVector_test
    SOURCES test/ElementLinkVector_test.cxx
    LINK_LIBRARIES TestTools AthLinks AthContainers SGTools StoreGateLib GaudiKernel
+   LOG_IGNORE_PATTERN "ERROR.*known CLID.*7368883"  # duplicate CLID defined by test
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( StoreGateSvcClient_test

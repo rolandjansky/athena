@@ -31,7 +31,7 @@ namespace TrkDriftCircleMath {
 
   MdtChamberGeometry::MdtChamberGeometry( MdtStationId id, unsigned int nml, unsigned int nlay,
 					  unsigned int ntubesml0, unsigned int ntubesml1, 
-					  LocPos tube0ml0, LocPos tube0ml1, 
+					  const LocPos& tube0ml0, const LocPos& tube0ml1, 
 					  double tubeDist, double tubeStage, double layDist, double stationTheta ) 
     : m_id(id),m_cachedPos(0.,0.), m_isSecondMultiLayer(false)
   {
@@ -54,8 +54,8 @@ namespace TrkDriftCircleMath {
       // initialize first tubes to zero
       m_ntubesml.push_back(0);
       m_ntubesml.push_back(0);
-      m_firstTube.push_back( LocPos(0.,0.) );
-      m_firstTube.push_back( LocPos(0.,0.) );
+      m_firstTube.emplace_back(0.,0. );
+      m_firstTube.emplace_back(0.,0. );
       m_wasInit.push_back(1);
       m_wasInit.push_back(1);
       m_crossedTubes.reserve(50);
@@ -63,7 +63,7 @@ namespace TrkDriftCircleMath {
 
     void MdtChamberGeometry::setGeometry(unsigned int nml, unsigned int nlay,
 					 unsigned int ntubesml0, unsigned int ntubesml1, 
-					 LocPos tube0ml0, LocPos tube0ml1, 
+					 const LocPos& tube0ml0, const LocPos& tube0ml1, 
 					 double tubeDist, double tubeStage, double layDist, double stationTheta )
     {
       m_nml  = nml;

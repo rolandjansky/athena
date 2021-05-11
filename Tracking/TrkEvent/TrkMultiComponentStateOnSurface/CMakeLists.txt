@@ -7,8 +7,9 @@ atlas_subdir( TrkMultiComponentStateOnSurface )
 atlas_add_library( TrkMultiComponentStateOnSurface
                    src/*.cxx
                    PUBLIC_HEADERS TrkMultiComponentStateOnSurface
-                   LINK_LIBRARIES TrkEventPrimitives TrkParameters TrkTrack AthContainers
-                   PRIVATE_LINK_LIBRARIES GaudiKernel TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase )
+                   LINK_LIBRARIES TrkEventPrimitives TrkParameters TrkTrack 
+                   AthContainers TrkGaussianSumFilterUtilsLib
+		               PRIVATE_LINK_LIBRARIES GaudiKernel TrkMaterialOnTrack  TrkMeasurementBase)
 
 atlas_add_dictionary( TrkMultiComponentStateOnSurfaceDict
                       TrkMultiComponentStateOnSurface/TrkMultiComponentStateOnSurfaceDict.h

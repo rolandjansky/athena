@@ -85,7 +85,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if "JetDS" in self.chainName:
+        if self.dict["eventBuildType"]=="JetDS":
             # Select the TLA jets from the full jet container
             # rather than the filtered one seen by the hypo
             # (No diff in practice if the TLA cut is higher than the hypo filter)
@@ -148,33 +148,22 @@ class JetChainConfiguration(ChainConfigurationBase):
             'trkpresel': 'nopresel',
             'cleaning': 'noCleaning',
         }
-        preselJetParts = dict(preselRecoDict)
+        from ..Menu.SignatureDicts import JetChainParts_Default
+        preselJetParts = dict(JetChainParts_Default)
         preselParts    = self.recoDict["trkpresel"].split('j')
         multiplicity   = preselParts[0].split('presel')[1] if preselParts[0] != 'presel' else '1'
         threshold      = preselParts[1]
         chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
+        preselJetParts.update(preselRecoDict)
         preselJetParts.update(
             {'L1threshold': 'J',
-             'TLA': '',
-             'addInfo': [],
-             'bConfig': [],
-             'bMatching': [],
-             'bTag': '',
-             'bTracking': '',
              'chainPartName': chainPartName,
-             'dataScouting': '',
-             'etaRange': '0eta320',
-             'extra': '',
-             'hypoScenario': 'simple',
-             'jvt': '',
-             'momCuts': '',
              'multiplicity': multiplicity,
-             'scan': 'FS',
-             'signature': 'Jet',
-             'smc': 'nosmc',
              'threshold': threshold,
-             'topo': [],
-             'trigType': 'j'}
+             # fix selections that we don't want even if they
+             # become default
+             'jvt':'',
+             }
         )
         preselChainDict = dict(self.dict)
         preselChainDict['chainParts'] = [preselJetParts]

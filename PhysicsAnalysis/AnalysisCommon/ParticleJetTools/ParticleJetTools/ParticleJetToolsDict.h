@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEJETTOOLSDICT_H
@@ -16,5 +16,8 @@
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 #include "ParticleJetTools/JetTruthLabelingTool.h"
+#include "ParticleJetTools/JetPartonTruthLabel.h"
+#include "ParticleJetTools/JetConeLabeling.h"
+#include "ParticleJetTools/JetQuarkLabel.h"
 
 #endif

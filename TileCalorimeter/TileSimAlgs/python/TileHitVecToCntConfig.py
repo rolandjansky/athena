@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Tile hit vector to container tool"""
 
@@ -103,6 +103,9 @@ def TileHitVecToCntCfg(flags, **kwargs):
 
     # choose which alg to attach to, following PileUpToolsCfg
     if flags.Common.ProductionStep == ProductionStep.Overlay:
+        if flags.Concurrency.NumThreads > 0:
+            kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
         kwargs.setdefault('name', 'TileHitVecToCnt')
         Alg = CompFactory.TileHitVecToCnt
         acc.addEventAlgo(Alg(**kwargs))

@@ -4,6 +4,7 @@
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool
+from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
 
@@ -25,6 +26,11 @@ def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
    kwargs.setdefault("MuonLayerSegmentFinderTool", getPublicTool("MuonLayerSegmentFinderTool"))
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
+
+def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
+   if globalflags.DataSource() != 'data':
+      kwargs.setdefault("isMC",True)
+   return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
    return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)

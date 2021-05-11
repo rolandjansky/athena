@@ -64,6 +64,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidPtRangeHighKey{this, "ValidPtRangeHighName", "ValidPtRangeHigh", "SG key for ValidPtRangeHigh"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidPtRangeLowKey{this, "ValidPtRangeLowName", "ValidPtRangeLow", "SG key for ValidPtRangeLow"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidEtaRangeKey{this, "ValidEtaRangeName", "ValidEtaRange", "SG key for ValidEtaRange"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidKinRangeKey{this, "ValidKinRangeName", "ValidKinRange", "SG key for ValidKinRange"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidJetContentKey{this, "ValidJetContentName", "ValidJetContent", "SG key for ValidJetContent"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidEventContentKey{this, "ValidEventContentName", "ValidEventContent", "SG key for ValidEventContent"};
     

@@ -49,7 +49,7 @@ def CscMonitoringESD_AlgConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of a algorithm
     # some generic property
-    cscClusMonAlg.CSCQmaxCutADC = 0
+    cscClusMonAlg.CSCQmaxCutADC = 50
     cscClusMonAlg.CSCDoEventSelection = False
     cscClusMonAlg.CSCEventSelTriggers = [ "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
     cscPrdMonAlg.NoiseCutADC = 100 
@@ -106,11 +106,11 @@ def CscMonitoringESD_AlgConfig(inputFlags):
     cscClusGroup.defineHistogram('noStrips_mon,secLayer;h2csc_clus_etacluswidth_signal',type='TH2F',cutmask='clus_etaSig',title='#eta-cluster width, Qmax > '+qmaxCut+' counts;# strips;[sector] + [0.2 #times layer]',
                                  path='Clusters/Expert',xbins=192,xmin=0,xmax=192,ybins=175,ymin=-17,ymax=18)
 
-    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EA")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EA")
     cscClusGroup.defineHistogram('secLayer;h1csc_clus_occupancy_signal_EA',type='TH1F',cutmask='sideA',title='EndCap A: Layer occupancy, Qmax > '+qmaxCut+' counts;;entries/layer',
                                  path='Overview/CSCEA/Cluster',xbins=90,xmin=0,xmax=18, xlabels=thisLabelx)
 
-    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EC")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EC")
     cscClusGroup.defineHistogram('secLayer;h1csc_clus_occupancy_signal_EC',type='TH1F',cutmask='sideC',title='EndCap C: Layer occupancy, Qmax > '+qmaxCut+' counts;;entries/layer',
                                  path='Overview/CSCEC/Cluster',xbins=85,xmin=-17.,xmax=0., xlabels=thisLabelx) 
 
@@ -280,7 +280,7 @@ def CscMonitoringESD_AlgConfig(inputFlags):
     cscPrdGroup.defineHistogram('spid;h1csc_prd_hitmap_signal_EC_count',cutmask='sideC',type='TH1F',title='EndCap C: Signal Occupancy;channel;entries/channel;',
                                 path='Overview/CSCEC/PRD',xbins=242,xmin=-49.,xmax=193.)
 
-    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EC")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EC")
     cscPrdGroup.defineHistogram('secLayer;h1csc_prd_hitmap_signal_EC_occupancy',cutmask='sideC',type='TH1F',title='EndCap C: Signal Occupancy;;entries/layer',
                                 path='Overview/CSCEC/PRD',xbins=85,xmin=-17.,xmax=0., xlabels=thisLabelx) #labels
 
@@ -293,7 +293,7 @@ def CscMonitoringESD_AlgConfig(inputFlags):
     cscPrdGroup.defineHistogram('spid;h1csc_prd_hitmap_signal_EA_count',cutmask='sideA',type='TH1F',title='EndCap A: Signal Occupancy;channel;entries/channel;',
                                 path='Overview/CSCEA/PRD',xbins=242,xmin=-49.,xmax=193.)
     
-    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EA")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EA")
     cscPrdGroup.defineHistogram('secLayer;h1csc_prd_hitmap_signal_EA_occupancy',cutmask='sideA',type='TH1F',title='EndCap A: Signal Occupancy;;entries/layer',
                                 path='Overview/CSCEA/PRD',xbins=90,xmin=0.,xmax=18., xlabels=thisLabelx) #labels
 

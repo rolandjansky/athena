@@ -22,7 +22,7 @@ namespace TrkDriftCircleMath {
 
     MdtChamberGeometry( MdtStationId id, unsigned int nml, unsigned int nlay,
  			unsigned int ntubesml0, unsigned int ntubesml1, 
-			LocPos tube0ml0, LocPos tube0ml1, 
+			const LocPos& tube0ml0, const LocPos& tube0ml1, 
 			double tubeDist, double tubeStage, double layDist, double stationTheta );  
   
     virtual ~MdtChamberGeometry()=default;
@@ -30,7 +30,7 @@ namespace TrkDriftCircleMath {
     void init();
     void setGeometry(unsigned int nml, unsigned int nlay,
 		     unsigned int ntubesml0, unsigned int ntubesml1, 
-		     LocPos tube0ml0, LocPos tube0ml1, 
+		     const LocPos& tube0ml0, const LocPos& tube0ml1, 
 		     double tubeDist, double tubeStage, double layDist, double stationTheta ); 
 
     unsigned int nml() const { return m_nml; }

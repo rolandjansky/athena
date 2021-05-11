@@ -1,6 +1,8 @@
 #
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
+from AthenaCommon.Logging import logging
+log = logging.getLogger('runHLT_standalone_newJO')
 
 from AthenaConfiguration.ComponentAccumulator import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -9,6 +11,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
 
+flags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
 
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT = True
@@ -26,11 +29,6 @@ flags.Detector.GeometryMDT = True
 flags.Detector.GeometryTGC = True
 flags.Detector.GeometryCSC = True
 flags.Detector.GeometryRPC = True
-
-
-flags.Detector.RecoPixel = True
-flags.Detector.RecoSCT = True
-
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
@@ -59,7 +57,9 @@ flags.InDet.usePixelDCS = False
 # they override values from above
 parser = flags.getArgumentParser()
 args = flags.fillFromArgs(parser=parser)
-
+log.info("Command line arguments:")
+import sys
+log.info(" ".join(sys.argv))
 flags.lock()
 # Enable when debugging deduplication issues
 # ComponentAccumulator.debugMode = "trackCA trackEventAlog ... and so on"
@@ -113,9 +113,6 @@ acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
 acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = not flags.Input.isMC # test setup on data
 
 
-
-from AthenaCommon.Logging import logging
-log = logging.getLogger('runHLT_standalone_newJO')
 logging.getLogger('forcomps').setLevel(DEBUG)
 acc.foreach_component("*/L1Decoder").OutputLevel = INFO
 acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
@@ -125,14 +122,14 @@ acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
 acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silence mon tools (addressing by type)
 
 if log.getEffectiveLevel() <= logging.DEBUG:
     acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
 
-fName =  "runHLT_standalone_newJO.pkl"
+fName =  args.configOnly if args.configOnly else "runHLT_standalone_newJO.pkl" 
 log.info("Storing config in the file %s ", fName)
 with open(fName, "wb") as p:
     acc.store(p)

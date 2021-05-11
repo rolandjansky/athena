@@ -56,6 +56,7 @@ private:
   std::vector<int>* m_etaModule;
   std::vector<int>* m_side;
   std::vector<int>* m_strip;
+  std::vector<int>* m_row;
   // SCT_RDORawData
   std::vector<int>* m_groupSize;
   // Global and Local positions
@@ -80,6 +81,7 @@ private:
   std::vector<int>* m_etaModule_sdo;
   std::vector<int>* m_side_sdo;
   std::vector<int>* m_strip_sdo;
+  std::vector<int>* m_row_sdo;
   // SCT_SimHelper
   std::vector<bool>* m_noise;
   std::vector<bool>* m_belowThresh;
@@ -101,6 +103,7 @@ private:
   TH1* m_h_etaModule;
   TH1* m_h_side;
   TH1* m_h_strip;
+  TH1* m_h_row;
   TH1* m_h_groupSize;
   TH2* m_h_phi_v_eta;
   // barrel SCT
@@ -128,6 +131,7 @@ private:
   TH1* m_h_etaModule_sdo;
   TH1* m_h_side_sdo;
   TH1* m_h_strip_sdo;
+  TH1* m_h_row_sdo;
   TH1* m_h_barcode;
   TH1* m_h_eventIndex;
   TH1* m_h_charge;

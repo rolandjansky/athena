@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FileDescriptor.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Storage service file descriptor class definitions
 //--------------------------------------------------------------------
@@ -27,6 +26,7 @@ namespace pool    {
   // as from IFileCatalog
   typedef std::string FileID;
   typedef class DatabaseConnection *ConnectionH;
+  typedef const DatabaseConnection *ConstConnectionH;
 
   /** @class FileDescriptor FileDescriptor.h POOLCore/FileDescriptor.h
     *
@@ -74,7 +74,8 @@ namespace pool    {
     void setFID(const FileID& val)          { m_FID = val;        }
     
     /// Access to file descriptor (READ)
-    ConnectionH dbc()  const                { return m_DBC;       }
+    ConnectionH dbc()                       { return m_DBC;       }
+    ConstConnectionH dbc()  const           { return m_DBC;       }
     /// Access to file descriptor (WRITE)
     void setDbc(ConnectionH val)            { m_DBC = val;        }
   };

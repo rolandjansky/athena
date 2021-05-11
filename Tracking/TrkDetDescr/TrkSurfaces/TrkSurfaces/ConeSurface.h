@@ -66,25 +66,26 @@ public:
   /**Destructor*/
   virtual ~ConeSurface() = default ;
 
+  /**Constructor form Transform and an opening angle */
+  ConeSurface(const Amg::Transform3D& htrans,
+              double alpha,
+              bool symmetric = false);
 
-  /**Constructor form HepTransform and an opening angle */
-  ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
-
-  /**Constructor form HepTransform, radius halfphi, and halflenght*/
-  ConeSurface(Amg::Transform3D* htrans,
+  /**Constructor form Transform, radius halfphi, and halflenght*/
+  ConeSurface(const Amg::Transform3D& htrans,
               double alpha,
               double locZmin,
               double locZmax,
               double halfPhi = M_PI);
 
-  /**Constructor from HepTransform and CylinderBounds
+  /**Constructor from Transform and CylinderBounds
     - ownership of the bounds is passed
     */
-  ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
+  ConeSurface(const Amg::Transform3D& htrans, ConeBounds* cbounds);
 
-  /**Constructor from HepTransform by unique_ptr.
+  /**Constructor from Amg Transform by ref.
      - bounds is not set. */
-  ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
+  ConeSurface(const Amg::Transform3D& htrans);
 
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);

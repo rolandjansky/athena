@@ -22,11 +22,8 @@ topSequence += LArRawChannelBuilder
 LArRawChannelBuilder.DataLocation = "LArDigitContainer_MC" 
 LArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels" 
 
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theADC2MeVTool = LArADC2MeVToolDefault()
-ToolSvc += theADC2MeVTool
-LArRawChannelBuilder.ADC2MeVTool = theADC2MeVTool
-
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
 LArOFCCondAlgDefault()
 
@@ -37,4 +34,3 @@ if digitizationFlags.doDigiTruth():
   topSequence += LArRawChannelBuilder_DigiHSTruth
   LArRawChannelBuilder_DigiHSTruth.DataLocation = "LArDigitContainer_DigiHSTruth"
   LArRawChannelBuilder_DigiHSTruth.LArRawChannelContainerName = "LArRawChannels_DigiHSTruth"
-  LArRawChannelBuilder_DigiHSTruth.ADC2MeVTool = theADC2MeVTool

@@ -121,20 +121,10 @@ class trigRecoExecutor(athenaExecutor):
             optionList = getTranslated(self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
             self._cmd.extend(optionList)
 
-            # Run preRun step debug stream analysis if output BS file and output histogram are set
-            if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict and 'BS' in self.conf.dataDictionary:
-                inputFiles = dict()
-                for dataType in input:
-                    inputFiles[dataType] = self.conf.dataDictionary[dataType]
-                outputFiles = dict()
-                for dataType in output:
-                    outputFiles[dataType] = self.conf.dataDictionary[dataType]
-
-                # Set file name for debug stream analysis output
-                fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
-
+            # Run preRun step debug stream analysis if output histogram are set
+            if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
                 # Do debug stream preRun step and get asetup string from debug stream input files
-                dbgAsetupString, dbAlias = dbgStream.dbgPreRun(inputFiles['BS_RDO'], fileNameDbg, self.conf.argdict)
+                dbgAsetupString, dbAlias = dbgStream.dbgPreRun(self.conf.dataDictionary['BS_RDO'], self.conf.dataDictionary['HIST_DEBUGSTREAMMON'].value, self.conf.argdict)
                 # Setup asetup from debug stream
                 # if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
                 if asetupString is None and dbgAsetupString is not None:
@@ -146,7 +136,7 @@ class trigRecoExecutor(athenaExecutor):
                     msg.warn("Database alias will be set to %s", dbAlias)
                     self._cmd.append("--db-server " + dbAlias)
             else:
-                msg.info("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream analysis will not run.")
+                msg.info("Flag outputHIST_DEBUGSTREAMMONFile not defined - debug stream analysis will not run.")
 
 
         # Call athenaExecutor parent as the above overrides what athenaExecutor would have done
@@ -334,10 +324,7 @@ class trigRecoExecutor(athenaExecutor):
         argInDict = {}
         if self._rc != 0:
             msg.error('HLT step failed (with status %s) so skip BS filename check', self._rc)
-        elif 'BS' in self.conf.dataDictionary:
-            argInDict = self.conf.dataDictionary['BS']
-            # keep dataset in case need to update argument
-            dataset_argInDict = argInDict._dataset
+        elif 'BS' in self.conf.dataDictionary or 'DRAW_TRIGCOST' in self.conf.dataDictionary or 'HIST_DEBUGSTREAMMON' in self.conf.dataDictionary:
             # expected string based on knowing that the format will be of form: ####._HLTMPPy_####.data
             expectedOutputFileName = '*_HLTMPPy_*.data'
             # list of filenames of files matching expectedOutputFileName
@@ -345,10 +332,13 @@ class trigRecoExecutor(athenaExecutor):
             # check there are file matches and rename appropriately
             if(len(matchedOutputFileNames) > 1):
                 msg.warning('Multiple BS files found: will only rename internal arg')
-                msg.info('Renaming internal BS arg from %s to %s', argInDict.value[0], matchedOutputFileNames)
-                argInDict.multipleOK = True
-                argInDict.value = matchedOutputFileNames
-                argInDict._dataset = dataset_argInDict
+                if 'BS' in self.conf.dataDictionary:
+                    argInDict = self.conf.dataDictionary['BS']
+                    dataset_argInDict = argInDict._dataset
+                    msg.info('Renaming internal BS arg from %s to %s', argInDict.value[0], matchedOutputFileNames)
+                    argInDict.multipleOK = True
+                    argInDict.value = matchedOutputFileNames
+                    argInDict._dataset = dataset_argInDict
             elif(len(matchedOutputFileNames)):
                 msg.info('Single BS file found: will split (if requested) and rename file')
 
@@ -360,28 +350,33 @@ class trigRecoExecutor(athenaExecutor):
                             'Did not produce any BS file when selecting CostMonitoring stream with trigbs_extractStream.py in file')
 
                 # Run debug step for all streams
-                if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
-                    self._postExecuteDebug(argInDict)
+                if "HIST_DEBUGSTREAMMON" in self.conf.dataDictionary:
+                    self._postExecuteDebug(matchedOutputFileNames[0])
 
-                # If a stream (not All) is selected, then slim the orignal (many stream) BS output to the particular stream
-                if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
-                    splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
-                    if(splitFailed):
-                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                            'Did not produce any BS file when selecting stream with trigbs_extractStream.py in file')
+                # Rename BS file if requested
+                if 'BS' in self.conf.dataDictionary:
+                    argInDict = self.conf.dataDictionary['BS']
+                    # If a stream (not All) is selected, then slim the orignal (many stream) BS output to the particular stream
+                    if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
+                        splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
+                        if(splitFailed):
+                            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                                'Did not produce any BS file when selecting stream with trigbs_extractStream.py in file')
+                    else:
+                        msg.info('Stream "All" requested, so not splitting BS file')
+                        self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
                 else:
-                    msg.info('Stream "All" requested, so not splitting BS file')
-                    self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
+                    msg.info('BS output filetype not defined so skip renaming BS')
             else:
                 msg.error('no BS files created with expected name: %s', expectedOutputFileName)
         else:
-            msg.info('BS output filetype not defined so skip BS filename check')
+            msg.info('BS, DRAW_TRIGCOST or HIST_DEBUGSTREAMMON output filetypes not defined so skip BS post processing')
 
         msg.info('Now run athenaExecutor:postExecute')
         super(trigRecoExecutor, self).postExecute()
 
 
-    def _postExecuteDebug(self, argInDict):
+    def _postExecuteDebug(self, outputBSFile):
         # Run postRun step debug stream analysis if output BS file and output histogram are set
         msg.info("debug stream analysis in postExecute")
 
@@ -396,4 +391,4 @@ class trigRecoExecutor(athenaExecutor):
             msg.info('No file created  in PreRun step {0}'.format(fileNameDbg))
 
         # Do debug stream postRun step
-        dbgStream.dbgPostRun(argInDict, fileNameDbg, self.conf.argdict)
+        dbgStream.dbgPostRun(outputBSFile, fileNameDbg[0], self.conf.argdict)

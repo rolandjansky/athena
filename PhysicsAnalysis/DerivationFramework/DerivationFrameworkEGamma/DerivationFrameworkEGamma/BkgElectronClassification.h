@@ -7,8 +7,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+//
 #include "GaudiKernel/ToolHandle.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
+///
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
@@ -32,7 +34,12 @@ public:
 
 private:
   /** @brief MCTruthClassifier **/
-  ToolHandle<IMCTruthClassifier> m_mcTruthClassifier;
+  ToolHandle<IMCTruthClassifier> m_mcTruthClassifier{
+    this,
+    "MCTruthClassifierTool",
+    "",
+    "Handle to the MCTruthClassifier"
+  };
   /** @brief barcode cut for egamma helpers **/
   int m_barcodecut;
 
@@ -51,9 +58,8 @@ private:
     "Input Truth Particles"
   };
 
-
-  //Write decoration handle keys 
-  //these are not really configuarable
+  // Write decoration handle keys
+  // these are not really configuarable
   SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_truthPdgId{
     "Electrons.truthPdgId"
   };

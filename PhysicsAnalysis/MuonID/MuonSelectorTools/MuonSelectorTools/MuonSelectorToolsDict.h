@@ -7,9 +7,9 @@
 
 #if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
 #define EIGEN_DONT_VECTORIZE
-#endif // __GCCXML__
+#endif  // __GCCXML__
 
 // Includes for the dictionary generation:
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
-#endif // MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H
+#endif  // MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H

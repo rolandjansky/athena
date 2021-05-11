@@ -38,10 +38,14 @@
 #include <memory>
 #include <string>
 
+
 // Forward declarations
 class ISiChargedDiodesProcessorTool;
 class SCT_ID;
 class SiChargedDiodeCollection;
+
+typedef std::unordered_map<int, std::unique_ptr<SiChargedDiodeCollection>> SiChargedDiodeCollectionMap;
+typedef std::pair<const int, std::unique_ptr<SiChargedDiodeCollection>> SiChargedDiodeCollectionIterator;
 
 namespace CLHEP
 {
@@ -70,7 +74,7 @@ public:
 
 protected:
 
-  bool digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
+  bool digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
   void applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
   void addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 

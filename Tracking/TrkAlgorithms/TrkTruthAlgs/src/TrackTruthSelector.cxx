@@ -20,6 +20,8 @@ TrackTruthSelector::TrackTruthSelector(const std::string &name,ISvcLocator *pSvc
   declareProperty("WeightRPC",    m_subDetWeights[SubDetHitStatistics::RPC]);
   declareProperty("WeightTGC",    m_subDetWeights[SubDetHitStatistics::TGC]);
   declareProperty("WeightCSC",    m_subDetWeights[SubDetHitStatistics::CSC]);
+  declareProperty("WeightsTGC",   m_subDetWeights[SubDetHitStatistics::STGC]=0.25);
+  declareProperty("WeightMM",     m_subDetWeights[SubDetHitStatistics::MM]=0.25);
 }
 
 // -----------------------------------------------------------------------------------------------------
@@ -43,7 +45,7 @@ StatusCode TrackTruthSelector::execute() {
 
   //----------------------------------------------------------------
   // Retrieve the input
-  const DetailedTrackTruthCollection *detailed = 0;
+  const DetailedTrackTruthCollection *detailed = nullptr;
   SG::ReadHandle<DetailedTrackTruthCollection> rh_detailed(m_detailedTrackTruthName);
   SG::WriteHandle<TrackTruthCollection> wh_output(m_outputName);
   if(!rh_detailed.isValid()){

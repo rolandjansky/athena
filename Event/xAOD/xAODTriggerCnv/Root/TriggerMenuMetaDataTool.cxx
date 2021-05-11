@@ -139,6 +139,10 @@ namespace xAODMaker {
       std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer) {
 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(inputMetaSGKey)) {
+         return StatusCode::SUCCESS;
+      }
+
       const xAOD::TriggerMenuJsonContainer* input = nullptr;
       if (inputMetaStore()->retrieve( input, inputMetaSGKey ).isSuccess() ) {
 

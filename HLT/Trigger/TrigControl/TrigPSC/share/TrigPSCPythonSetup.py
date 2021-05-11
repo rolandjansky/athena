@@ -33,11 +33,6 @@ else:
    from TriggerJobOpts.TriggerFlags import TriggerFlags
    TriggerFlags.doHLT.set_Value_and_Lock(True)
 
-   ### By default do not run in validation mode (do not lock this one!)
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
-   TriggerFlags.Online.doValidation = False
-   del TriggerFlags
-
    ### Athena configuration -----------------------------------------------------
    from GaudiPython import *                   # noqa: F401, F403
    from AthenaCommon.Configurable import *     # noqa: F401, F403

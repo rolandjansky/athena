@@ -2,7 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PseudoJetMerger.h"
+#include <numeric> // for std::accumulate
+
+#include "JetRec/PseudoJetMerger.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 StatusCode PseudoJetMerger::initialize() {
   ATH_MSG_DEBUG("Initializing...");

@@ -88,6 +88,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QComboBox" name="comboBox_energytype">
+          <item>
+           <property name="text">
+            <string>Et</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>E</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
          <spacer>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -216,7 +230,7 @@
       <item>
        <widget class="QGroupBox" name="bTaggingroupBox">
         <property name="title">
-         <string>B Taggging</string>
+         <string>B Tagging</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="1">

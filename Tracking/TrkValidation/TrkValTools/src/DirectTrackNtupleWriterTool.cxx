@@ -31,7 +31,7 @@ Trk::DirectTrackNtupleWriterTool::DirectTrackNtupleWriterTool(
         AthAlgTool(t,n,p),
         m_ValidationNtupleTools(),
         m_extrapolatorHandle("Trk::Extrapolator/InDetExtrapolator"),
-        m_nt(0),
+        m_nt(nullptr),
         m_doTruth(true)
 {
     declareInterface<IDirectTrackNtupleWriter>(this);

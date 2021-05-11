@@ -33,9 +33,8 @@ class AthMonitorCfgHelper(object):
         self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
         self.resobj.addSequence(self.monSeq)
-        if inputFlags.DQ.useTrigger:
-            from .TriggerInterface import getTrigDecisionTool
-            self.resobj.merge(getTrigDecisionTool(inputFlags))
+        from .TriggerInterface import getTrigDecisionTool
+        self.resobj.merge(getTrigDecisionTool(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
@@ -65,9 +64,8 @@ class AthMonitorCfgHelper(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
-        if self.inputFlags.DQ.useTrigger:
-            algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
-            algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
+        algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
+        algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
         if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True

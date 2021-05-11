@@ -13,14 +13,9 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
     acc = ComponentAccumulator()
 
     # matching windows parameters tuned in 2016 and 2015 data (T&P Z  and J/psi samples)
-    if flags.Trigger.run2Config == '2016':
-        winEtaSigma = 4.0
-        winPhiSigma = 4.0
-        chi2Weight  = 1.0
-    else:
-        winEtaSigma = 7.0
-        winPhiSigma = 7.0
-        chi2Weight  = 2.0
+    winEtaSigma = 7.0
+    winPhiSigma = 7.0
+    chi2Weight  = 2.0
         
     # pt resolution parameters for ID-SAmuon match from SAmuon developers (2016 data)
     if flags.Muon.doCSCs:

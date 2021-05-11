@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
@@ -40,7 +40,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
         kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Digitization.PileUpPresampling:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
     elif flags.Common.ProductionStep == ProductionStep.Overlay:
@@ -49,6 +49,9 @@ def TileHitToTTL1Cfg(flags, **kwargs):
     else:
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
+
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     TileHitToTTL1=CompFactory.TileHitToTTL1
     acc.addEventAlgo(TileHitToTTL1(**kwargs), primary = True)

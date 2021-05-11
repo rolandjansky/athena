@@ -2231,7 +2231,7 @@ class argSubstepSteering(argSubstep):
     # usecases of steering. 
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
-    # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
+    # "doOverlay" - run event overlay on presampled RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     # "doTRIGtoALL" - produce AODs directly from trigger RDOs
@@ -2376,6 +2376,7 @@ class trfArgParser(argparse.ArgumentParser):
         self._argClass = {}
         self._argGroups = {}
         self._argKeyGroups = {}
+        self._argAlias = {}
         super(trfArgParser, self).__init__(*args, **kwargs)
 
     def add_argument(self, *args, **kwargs):
@@ -2409,7 +2410,14 @@ class trfArgParser(argparse.ArgumentParser):
         for arg in ('group',):
             if arg in kwargs:
                 strippedArgs[arg] = kwargs.pop(arg)
-            
+
+        # Setup aliases
+        if len(args) > 1:
+            for i in range(1, len(args)):
+                argAlias = args[i].lstrip('-')
+                msg.debug('Adding an alias of {0}: {1}'.format(argName, argAlias))
+                self._argAlias[argAlias] = argName
+
         # Optinally add an argument to an argparse argument group
         if 'group' in strippedArgs:
             if strippedArgs['group'] in self._argGroups:

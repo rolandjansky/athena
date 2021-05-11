@@ -189,12 +189,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     # Setup the station fitter
     TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA::MuFastStationFitter","TrigL2MuonSA::PtFromAlphaBeta")
     PtFromAlphaBeta = TrigL2MuonSA__PtFromAlphaBeta()
-    if flags.Trigger.run2Config == '2016':
-        PtFromAlphaBeta.useCscPt = False
-        PtFromAlphaBeta.AvoidMisalignedCSCs = True
-    else:
-        PtFromAlphaBeta.useCscPt = True
-        PtFromAlphaBeta.AvoidMisalignedCSCs = False
+    PtFromAlphaBeta.useCscPt = True
+    PtFromAlphaBeta.AvoidMisalignedCSCs = False
 
     MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
     TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker=CompFactory.getComps("TrigL2MuonSA::MuFastPatternFinder","TrigL2MuonSA::MuFastTrackFitter","TrigL2MuonSA::MuFastTrackExtrapolator","TrigL2MuonSA::MuCalStreamerTool","TrigL2MuonSA::CscSegmentMaker")
@@ -234,10 +230,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                            Aligned     = False,
                                                            DataSet     = False )
 
-    if flags.Trigger.run2Config == '2016':
-        muFastAlg.UseEndcapInnerFromBarrel = False
-    else: 
-        muFastAlg.UseEndcapInnerFromBarrel = True
+    muFastAlg.UseEndcapInnerFromBarrel = True
 
     if setup == '900GeV':
         muFastAlg.WinPt = 4.0

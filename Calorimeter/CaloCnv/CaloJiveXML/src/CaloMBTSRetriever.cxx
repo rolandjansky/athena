@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloMBTSRetriever.h"
@@ -33,13 +33,11 @@ namespace JiveXML {
   CaloMBTSRetriever::CaloMBTSRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("MBTS"),
-    m_tileTBID(nullptr)
+    m_tileTBID(nullptr),
+    m_sgKeyMBTS ("MBTSContainer")
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
-
-    m_sgKeyMBTS = "MBTSContainer";
 
     declareProperty("StoreGateKeyMBTS" , m_sgKeyMBTS);
     declareProperty("MBTSThreshold", m_mbtsThreshold = 0.05);

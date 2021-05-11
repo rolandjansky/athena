@@ -16,9 +16,7 @@
 
 
 #include "LArElecCalib/LArVectorProxy.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArAutoCorr.h"
-#include "LArElecCalib/ILArAutoCorrTotalTool.h"
 //#include "LArElecCalib/ILArAutoCorrDecoderTool.h"
 #include "LArElecCalib/ILArCableAttenuation.h"
 #include "LArElecCalib/ILArCableLength.h"
@@ -36,7 +34,6 @@
 #include "LArElecCalib/ILArMphysOverMcal.h"
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArPhysCaliTdiff.h"
 #include "LArElecCalib/ILArRamp.h"

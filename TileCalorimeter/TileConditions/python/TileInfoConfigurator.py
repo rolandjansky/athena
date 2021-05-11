@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 #
@@ -107,9 +107,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
  #       from .TileCondToolConf import getTileCondToolPulseShape
  #       ToolSvc += getTileCondToolPulseShape('COOL')
 
-
-        #in future will need this tool as well
-        #from .TileCondToolConf import getTileCellNoiseTool
 
         return
 
@@ -529,8 +526,6 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     #    from .TileCondToolConf import getTileCondToolOfcCool
     #    ToolSvc += getTileCondToolOfcCool()
 
-    #in future will need this tool as well
-    #from .TileCondToolConf import getTileCellNoiseTool
 
     #=== by default COOL is not configured
     svc._coolIsConfigured = False

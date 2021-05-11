@@ -114,9 +114,6 @@ if doObj("OFC"):
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/HVScaleCorr"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
-  from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-  theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
-  ToolSvc += theLArADC2MeVToolDefault
 
   from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
   LArOFCCondAlgDefault()

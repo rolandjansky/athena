@@ -353,10 +353,6 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.Detector.GeometryTRT   = True
 
-    ConfigFlags.Detector.RecoIBL = True
-    ConfigFlags.Detector.RecoPixel = True
-    ConfigFlags.Detector.RecoTRT = True
-
     ConfigFlags.InDet.doTRTSeededTrackFinder = True
     ConfigFlags.InDet.doResolveBackTracks = True
 

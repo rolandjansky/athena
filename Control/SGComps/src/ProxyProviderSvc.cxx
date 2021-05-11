@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -59,8 +59,7 @@ ProxyProviderSvc::~ProxyProviderSvc() {}
 StatusCode 
 ProxyProviderSvc::initialize() 
 {
-  ATH_MSG_VERBOSE( "Initializing " << name() 
-                   << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_VERBOSE( "Initializing " << name() );
 
   const bool CREATEIF(true);
   // cache pointer to Persistency Service

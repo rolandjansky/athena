@@ -33,24 +33,28 @@ class _ConfigSettingsBase() :
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
-      self._doTRT               = False #Apply TRT extension sequence after ambiguity solving
-      self._keepTrackParameters = False #Keep track parameters in conversion to TrackParticles
+      self._doTRT               = True 
+      self._keepTrackParameters = False # Keep track parameters in conversion to TrackParticles
       self._UsePixelSpacePoints = True
       self._TrackInitialD0Max   = 20.0
       self._TrackZ0Max          = 300.0
       self._isLRT               = False
+      self._UseTrigSeedML       = None 
+      self._RoadWidth           = 10
+      self._nClustersMin        = None
       self._roi                 = None
       self._isLRT               = False
       self._doRecord            = True
-      self._adaptiveVertex      = False
       self._vertex              = None
-      self._adaptiveVertex_jet  = False
-      self._vertex_jet          = None
+      self._adaptiveVertex      = False
       self._addSingleTrackVertices = False
+      self._TracksMaxZinterval  = 1 #mm
       self._minNSiHits_vtx      = None
+      self._vertex_jet          = None
+      self._adaptiveVertex_jet  = False
       
    def tracks_FTF(self):
-      if self._suffix is None:
+      if not self._suffix:
          raise Exception( "ID Trigger configuration:  called with non existent slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable('HLT_IDTrack_{}_FTF'.format( self._suffix ))
@@ -193,6 +197,18 @@ class _ConfigSettingsBase() :
       return self._roi
 
    @property
+   def UseTrigSeedML(self):
+      return self._UseTrigSeedML
+
+   @property
+   def RoadWidth(self):
+      return self._RoadWidth
+
+   @property
+   def nClustersMin(self):
+      return self._nClustersMin
+
+   @property
    def isRecordable(self):
       return self._doRecord
 
@@ -202,7 +218,7 @@ class _ConfigSettingsBase() :
 
    @property
    def vertex(self):
-      if self._vertex is None:
+      if not self._vertex:
          raise Exception( "ID Trigger configuration: vertex not defined for slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable(self._vertex)
@@ -211,7 +227,7 @@ class _ConfigSettingsBase() :
 
    @property
    def vertex_jet(self):
-      if self._vertex_jet is None:
+      if not self._vertex_jet:
          raise Exception( "ID Trigger configuration: vertex_jet not defined for slice: ", self._name, self._input_name  )
       if self._doRecord: 
          return recordable(self._vertex_jet)
@@ -233,6 +249,10 @@ class _ConfigSettingsBase() :
    @property
    def minNSiHits_vtx(self):
        return self._minNSiHits_vtx
+
+   @property
+   def TracksMaxZinterval(self):
+      return self._TracksMaxZinterval
 
 
    def printout(self):

@@ -22,7 +22,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 722 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 1699 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 6214 CLIDRegistry entries for module ALL
@@ -39,8 +39,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 111 CLIDRegistry entries for
 ToolSvc.TrigSer...   INFO Initializing
 ClassIDSvc           INFO  getRegistryEntries: read 17980 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-StreamBSFileOut...   INFO Initializing StreamBSFileOutput.DefaultNameTool - package version AthenaServices-00-00-00
+StreamBSFileOut...   INFO Initializing StreamBSFileOutput.DefaultNameTool
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -68,7 +67,7 @@ EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 ClassIDSvc           INFO  getRegistryEntries: read 110 CLIDRegistry entries for module ALL
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
 ROBDataProviderSvc   INFO Initializing
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False

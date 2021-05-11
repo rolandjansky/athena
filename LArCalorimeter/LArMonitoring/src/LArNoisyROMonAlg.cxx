@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMonAlg.h"
@@ -43,15 +43,20 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   { // extra namespace for mutex
      std::lock_guard<std::mutex> lock(m_lock);
      if(!m_knownFilled) { // first time fill known Bad and MNB FEBs
+        // get the EventInfo, to know if we are in simulation
+        const xAOD::EventInfo* ei = nullptr;
+        if (evtStore()->retrieve(ei).isFailure()) {
+           ATH_MSG_WARNING ( " Cannot access to event info, assume we are working on data " );
+        }
         SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
         const LArBadFebCont *badCont{*badHdl};
         if(badCont) {
-           if(badCont->begin() == badCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && badCont->begin() == badCont->end()) ) {
                 ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotBad",0);
               auto FT=Monitored::Scalar<unsigned>("FTBad",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
@@ -68,12 +73,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
         SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
         const LArBadFebCont* mnbCont{*mnbHdl};
         if(mnbCont) {
-           if(mnbCont->begin() == mnbCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && mnbCont->begin() == mnbCont->end()) ) {
                 ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
               auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);

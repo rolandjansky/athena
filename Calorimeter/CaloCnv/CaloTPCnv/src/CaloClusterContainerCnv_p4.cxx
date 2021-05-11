@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p4.h" 
@@ -184,8 +184,8 @@ void CaloClusterContainerCnv_p4::persToTrans (const CaloClusterContainer_p4* per
            CaloClusterBadChannelData data(eta,phi,layer,flag);
            // std::cout << " add bad channel data " << transCluster << " " << eta << " " << phi << " " << layer << " " << status << " " << flag.packedData() << std::endl;
            transCluster->addBadChannel(data); 
-           ibad1++;
-           nbad++;   
+           ++ibad1;
+           ++nbad;
       }
     }
 
@@ -196,15 +196,15 @@ void CaloClusterContainerCnv_p4::persToTrans (const CaloClusterContainer_p4* per
       }
       else
         transCluster->m_rawE = (*iraw1);
-      iraw1++;
+      ++iraw1;
     }
     if (iraw1 != iraw2) {
       transCluster->m_rawEta = (*iraw1) + transCluster->eta();
-      iraw1++;
+      ++iraw1;
     }
     if (iraw1 != iraw2) { 
       transCluster->m_rawPhi = CaloPhiRange::fix((*iraw1)+transCluster->phi());
-      iraw1++;
+      ++iraw1;
     }
     if (iraw1 == iraw2 && !raw_overrun_err) {
       REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, 
@@ -216,7 +216,7 @@ void CaloClusterContainerCnv_p4::persToTrans (const CaloClusterContainer_p4* per
     }
     if (iraw1 != iraw2) {
       transCluster->m_rawM = (*iraw1);
-      iraw1++;
+      ++iraw1;
     }
    // std::cout << " perstotrans rawE/eta/phi/M " << transCluster->m_rawE << " " << transCluster->m_rawEta << " " <<
    //   transCluster->m_rawPhi << " " << transCluster->m_rawM << std::endl;

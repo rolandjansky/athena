@@ -118,36 +118,32 @@ StatusCode LArAutoCorrMaker::execute()
      ATH_MSG_DEBUG("BCID " << bcid << " is " << nBCsFromFront << " BCs from front of BunchTrain. Event accepted.(min=" <<m_bunchCrossingsFromFront << ")");
   }
 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();  
   const LArDigitContainer* larDigitContainer = nullptr;
-  
-  for (;key_it!=key_it_e;key_it++) {   
-    ATH_MSG_DEBUG("Reading LArDigitContainer from StoreGate! key=" << *key_it);
-    sc= evtStore()->retrieve(larDigitContainer,*key_it);
+
+  for (const std::string& key : m_keylist) {
+    ATH_MSG_DEBUG("Reading LArDigitContainer from StoreGate! key=" << key);
+    sc= evtStore()->retrieve(larDigitContainer,key);
     if (sc.isFailure() || !larDigitContainer) {
-      ATH_MSG_DEBUG("Cannot read LArDigitContainer from StoreGate! key=" << *key_it);
+      ATH_MSG_DEBUG("Cannot read LArDigitContainer from StoreGate! key=" << key);
       continue;
     }
     if(larDigitContainer->size()==0) {
-      ATH_MSG_DEBUG("Got empty LArDigitContainer (key=" << *key_it << ").");
+      ATH_MSG_DEBUG("Got empty LArDigitContainer (key=" << key << ").");
       continue;
     }
-    ATH_MSG_DEBUG("Got LArDigitContainer with key " << *key_it <<", size="  << larDigitContainer->size());
+    ATH_MSG_DEBUG("Got LArDigitContainer with key " << key <<", size="  << larDigitContainer->size());
     ++m_nEvents;
-    LArDigitContainer::const_iterator it=larDigitContainer->begin();
-    LArDigitContainer::const_iterator it_end=larDigitContainer->end();  
     m_nsamples = (*larDigitContainer->begin())->nsamples();
     ATH_MSG_DEBUG("NSAMPLES (from digit container) = " << m_nsamples );
 
-    for(;it!=it_end;it++){
-      const HWIdentifier chid=(*it)->hardwareID();
-      const CaloGain::CaloGain gain=(*it)->gain();
+    for (const LArDigit* digit : *larDigitContainer) {
+      const HWIdentifier chid=digit->hardwareID();
+      const CaloGain::CaloGain gain=digit->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
-      const std::vector<short> & samples = (*it)->samples();
+      const std::vector<short> & samples = digit->samples();
       //      LArAutoCorr& thisAC=m_autocorr[gain][chid];
       LArAutoCorr& thisAC=m_autocorr.get(chid,gain);
 
@@ -157,7 +153,7 @@ StatusCode LArAutoCorrMaker::execute()
 	  const short &  min = thisAC.get_min();
 	  const short &  max = thisAC.get_max();
 	  
-	  for (;s_it!=s_it_e && *s_it>=min && *s_it<=max;s_it++)
+	  for (;s_it!=s_it_e && *s_it>=min && *s_it<=max;++s_it)
             ;
 	  if (s_it==s_it_e) 
 	    thisAC.add(samples,m_nsamples);

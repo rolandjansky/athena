@@ -65,11 +65,8 @@ public:
   /**Constructor from GlobalPosition*/
   PerigeeSurface(const Amg::Vector3D& gp);
 
-  /**Constructor with a Transform - needed for tilt */
-  PerigeeSurface(Amg::Transform3D* tTransform);
-
-  /**Constructor with a Transform by unique_ptr - needed for tilt */
-  PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
+  /**Constructor with a Transform by ref - needed for tilt */
+  PerigeeSurface(const Amg::Transform3D& tTransform);
 
   /**Copy constructor with shift*/
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);

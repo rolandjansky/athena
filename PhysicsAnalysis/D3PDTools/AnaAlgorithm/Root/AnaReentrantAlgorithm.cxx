@@ -13,7 +13,6 @@
 #include <AnaAlgorithm/AnaReentrantAlgorithm.h>
 
 #include <AsgMessaging/MessageCheck.h>
-#include <RootCoreUtils/Assert.h>
 #include <stdexcept>
 
 #ifdef XAOD_STANDALONE

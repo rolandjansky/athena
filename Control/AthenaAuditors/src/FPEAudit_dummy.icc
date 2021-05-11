@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_FPEAUDIT_DUMMY_ICC
@@ -20,33 +20,33 @@ extern "C" {
 namespace FPEAudit {
 
 int n_fp_exceptions=0;
-    
-void 
+
+void
 fpe_sig_action(int, siginfo_t *, void *)
 {
   ::fprintf(stderr, "FPEAudit::fpe_sig_action not available\n");
   ::abort();
 }
 
-void 
+void
 mask_fpe(void)
 {
   ::fprintf(stderr, "FPEAudit::mask_fpe not available\n");
   ::abort();
 }
 
-void 
+void
 unmask_fpe(void)
 {
   ::fprintf(stderr, "FPEAudit::unmask_fpe not available\n");
-  ::abort();   
+  ::abort();
 }
 
-void 
-resolve(void *, MsgStream& , bool)
+void
+resolve(void *, MsgStream& , bool = false)
 {
   ::fprintf(stderr, "FPEAudit::resolve not available\n");
-  ::abort();     
+  ::abort();
 }
 
 } // FPEAudit

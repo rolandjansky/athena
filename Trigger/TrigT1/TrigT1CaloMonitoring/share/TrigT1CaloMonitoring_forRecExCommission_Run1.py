@@ -30,6 +30,7 @@ if l1caloRawMon:
     triggerConfigService = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #================================= Monitoring configuration ======================
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     L1CaloMan = AthenaMonManager( "L1CaloMonManager" )

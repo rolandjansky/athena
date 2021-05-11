@@ -39,6 +39,7 @@ class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
       ///
       bool m_BMGpresent{false};
       int m_BMG_station_name{-1};
+      int m_BIS_station_name{-1};
       
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};

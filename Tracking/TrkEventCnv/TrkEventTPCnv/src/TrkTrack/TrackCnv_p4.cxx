@@ -42,9 +42,9 @@ void TrackCnv_p4::persToTrans( const Trk::Track_p4 *persObj,
    }
    
    // Should always be a FQ so let's just go ahead and make it...
-   transObj->m_fitQuality   = new FitQuality(persObj->m_chiSquared, persObj->m_numberDoF);
+  transObj->m_fitQuality   = std::make_unique<FitQuality>(persObj->m_chiSquared, persObj->m_numberDoF);
   
-  transObj->m_trackStateVector = m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log );
+  transObj->m_trackStateVector.reset(m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log ));
 }
 
 //-----------------------------------------------------------------------------
@@ -99,10 +99,10 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
     m_trackStateVectorCnv.transToPers( &pers_tsos, &persObj->m_trackState, log );
   }
   else {
-    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
+    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector.get(), &persObj->m_trackState, log );
   }
   }
   else {
-    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
+    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector.get(), &persObj->m_trackState, log );
   }
 }

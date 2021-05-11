@@ -23,6 +23,7 @@
 
 #include "TFile.h"
 
+#include <cmath>
 #include <memory>
 
 using namespace InDetDD;
@@ -86,24 +87,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     return StatusCode::FAILURE;
   }
 
-  //Calculate trapping times based on fluence (already includes check for fluence=0)
-  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
-  if (m_doRadDamage) {
-    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
-    m_trappingTimeElectrons = trappingTimes.first;
-    m_trappingTimeHoles = trappingTimes.second;
-  }
-  const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
-  const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
-  const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
-  const PixelHistoConverter& xPositionMap_h   = fluenceData->getXPositionMap3D_h(0);
-  const PixelHistoConverter& yPositionMap_e   = fluenceData->getYPositionMap3D_e(0);
-  const PixelHistoConverter& yPositionMap_h   = fluenceData->getYPositionMap3D_h(0);
-  const PixelHistoConverter& timeMap_e        = fluenceData->getTimeMap3D_e(0);
-  const PixelHistoConverter& timeMap_h        = fluenceData->getTimeMap3D_h(0);
-  const PixelHistoConverter& avgChargeMap_e   = fluenceData->getAvgChargeMap3D_e();
-  const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
-
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];
   double depth_0 = initialConditions[2];
@@ -133,10 +116,33 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag =
     (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
+
+  // pre-make HepMcParticleLink
+  auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+  const double pHitTime = hitTime(phit);
+
   if (m_doRadDamage) {
     //**************************************//
     //*** Now diffuse charges to surface *** //
     //**************************************//
+    //Calculate trapping times based on fluence (already includes check for fluence=0)
+    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
+    if (m_doRadDamage) {
+      std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
+      m_trappingTimeElectrons = trappingTimes.first;
+      m_trappingTimeHoles = trappingTimes.second;
+    }
+    const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
+    const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
+    const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
+    const PixelHistoConverter& xPositionMap_h   = fluenceData->getXPositionMap3D_h(0);
+    const PixelHistoConverter& yPositionMap_e   = fluenceData->getYPositionMap3D_e(0);
+    const PixelHistoConverter& yPositionMap_h   = fluenceData->getYPositionMap3D_h(0);
+    const PixelHistoConverter& timeMap_e        = fluenceData->getTimeMap3D_e(0);
+    const PixelHistoConverter& timeMap_h        = fluenceData->getTimeMap3D_h(0);
+    const PixelHistoConverter& avgChargeMap_e   = fluenceData->getAvgChargeMap3D_e();
+    const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
+
     for (unsigned int istep = 0; istep < trfHitRecord.size(); istep++) {
       std::pair < double, double > iHitRecord = trfHitRecord[istep];
 
@@ -300,9 +306,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               double y_mod = y_pix + yNeighbor + pixel_size_y * extraNPixY - 0.5*module_size_y;
               const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-              const SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
-                                                            phit), SiCharge::track, HepMcParticleLink(
-                                                            phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+              const SiSurfaceCharge scharge(chargePos,
+                                            SiCharge(induced_charge,
+                                                     pHitTime, SiCharge::track, particleLink));
               const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
               if (diode.isValid()) {
                 const SiCharge& charge = scharge.charge();
@@ -394,8 +400,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             double y_mod = y_neighbor + 0.5*pixel_size_y + pixel_size_y * nPixY - 0.5*module_size_y;
             const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
-            const SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                          phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+            const SiSurfaceCharge scharge(chargePos,
+                                          SiCharge(ed, pHitTime, SiCharge::track, particleLink));
             const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
             if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
@@ -514,10 +520,11 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   double u = CLHEP::RandFlat::shoot(0., 1.); //
   double driftTime = 0;
 
+  // need to update to std::logf when we update gcc - this is a known bug in gcc libc
   if (isHoleBit) {
-    driftTime = (-1.) * m_trappingTimeHoles * std::log(u); // ns
+    driftTime = (-1.) * m_trappingTimeHoles * logf(u); // ns
   } else {
-    driftTime = (-1.) * m_trappingTimeElectrons * std::log(u); // ns
+    driftTime = (-1.) * m_trappingTimeElectrons * logf(u); // ns
   }
   return driftTime;
 }

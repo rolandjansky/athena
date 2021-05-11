@@ -55,7 +55,7 @@ StatusCode Trk::ExtrapolationEngine::initialize()
         
     } else {
         EX_MSG_DEBUG( "", "initialize", "", "Successfully retrieved " << m_extrapolationEngines.size() << " ExtrapolationEngines. Ordering them now." );
-        m_eeAccessor = std::vector<const Trk::IExtrapolationEngine*>(int(Trk::NumberOfGeometryTypes), (const Trk::IExtrapolationEngine*)NULL);
+        m_eeAccessor = std::vector<const Trk::IExtrapolationEngine*>(int(Trk::NumberOfGeometryTypes), (const Trk::IExtrapolationEngine*)nullptr);
         for (auto& ee : m_extrapolationEngines){
             EX_MSG_DEBUG( "", "initialize", "", "Registering " << ee->name() << " - for GeometryType : "  << ee->geometryType() );
             m_eeAccessor[ee->geometryType()] = (&*ee);

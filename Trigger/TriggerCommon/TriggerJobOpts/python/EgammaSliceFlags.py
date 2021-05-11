@@ -40,7 +40,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_mc16a/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170214/'
 
 _flags.append(pidVersion)
 
@@ -49,9 +49,9 @@ class clusterCorrectionVersion (JobProperty):
     Cluster correction version for HLT Calo
     """
     statusOn=True
-    allowedTypes=['str','None']
+    allowedTypes=['str']
     allowedValues=['v12phiflip_noecorrnogap','None']
-    StoredValue=None
+    StoredValue='v12phiflip_noecorrnogap'
 
 _flags.append(clusterCorrectionVersion)
 
@@ -61,7 +61,7 @@ class calibMVAVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='egammaMVACalib/online/v3'
+    StoredValue='egammaMVACalib/online/v6'
 
 _flags.append(calibMVAVersion)
 
@@ -75,18 +75,3 @@ TriggerFlags.add_Container(EgammaSlice)
 
 for flag in _flags:
     TriggerFlags.EgammaSlice.add_JobProperty(flag)
-
-run2Flag = TriggerFlags.run2Config
-if run2Flag=='2016':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    TriggerFlags.EgammaSlice.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_mc16a/'
-    TriggerFlags.EgammaSlice.clusterCorrectionVersion = None
-    TriggerFlags.EgammaSlice.calibMVAVersion = 'egammaMVACalib/online/v3'
-elif run2Flag=='2017':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    TriggerFlags.EgammaSlice.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170214/'
-    TriggerFlags.EgammaSlice.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
-    TriggerFlags.EgammaSlice.calibMVAVersion = 'egammaMVACalib/online/v6'
-else:
-    log.info('EgammaSliceFlags not set use defaults',run2Flag)
-

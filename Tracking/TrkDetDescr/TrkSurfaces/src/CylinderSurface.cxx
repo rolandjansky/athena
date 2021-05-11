@@ -76,6 +76,15 @@ Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBou
 }
 
 // constructor from transform by unique_ptr
+Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
+  , m_bounds(nullptr)
+  , m_referencePoint(nullptr)
+  , m_rotSymmetryAxis(nullptr)
+{}
+
+
+// constructor from transform by unique_ptr
 Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Trk::Surface(std::move(htrans))
   , m_bounds(nullptr)

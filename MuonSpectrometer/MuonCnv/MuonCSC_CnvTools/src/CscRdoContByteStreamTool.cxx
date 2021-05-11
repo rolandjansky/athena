@@ -42,7 +42,7 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
 }
 
 // convert CSC RDO to ByteStream
-StatusCode Muon::CscRdoContByteStreamTool::convert(const CscRawDataContainer* cont, RawEventWrite* /*re*/, 
+StatusCode Muon::CscRdoContByteStreamTool::convert(const CscRawDataContainer* cont, 
 					     MsgStream& log) const
 {
   // Get the event assembler

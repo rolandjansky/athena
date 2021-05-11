@@ -8,10 +8,13 @@
 #                                                                      #
 ########################################################################
 
+import os
 from AthenaCommon import Logging
 jrtlog = Logging.logging.getLogger('JetRecToolsConfig')
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.JetRecConfig import isAthenaRelease
+
 
 # May need to specify non-standard tracking collections, e.g. for trigger
 # Testing code -- move to another module and perhaps allow extensions
@@ -35,11 +38,14 @@ def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
     idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
         "idtrackselloose",
         CutLevel         = cutLevel,
-        minPt            = minPt,
-        UseTrkTrackTools = False,
-        Extrapolator     = "",
-        TrackSummaryTool = ""
+        minPt            = minPt,        
     )
+    if os.environ.get("AtlasProject",None) != "AnalysisBase":
+        # thes options can not be set in AnalysisBase. (but not setting them is equivalent to set them to False)
+        idtrackselloose.UseTrkTrackTools = False
+        idtrackselloose.Extrapolator     = ""
+        idtrackselloose.TrackSummaryTool = ""
+
     jettrackselloose = CompFactory.JetTrackSelectionTool(
         "jettrackselloose",
         Selector        = idtrackselloose
@@ -55,22 +61,22 @@ def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
 
     return jettrackselloose
 
-def getTrackVertexAssocTool(trkopt="", theSequence=None):
+def getTrackVertexAssocTool(trkopt="", theSequence=None, ttva_opts = { "WorkingPoint" : "Custom", "d0_cut" : 2.0, "dzSinTheta_cut" : 2.0 }):
     if trkopt: "_{}".format(trkopt)
     # Track-vertex association
     # This is to be deprecated
     # In fact can probably be switched already to match legacy master
     # but for a future MR
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+
     idtvassoc = getTTVAToolForReco(
         "idloosetvassoc",
-        WorkingPoint = "Custom",
-        d0_cut = 2.0,
-        dzSinTheta_cut = 2.0,
         TrackContName = trackcollectionmap[trkopt]["Tracks"],
         VertexContName = trackcollectionmap[trkopt]["Vertices"],
         returnCompFactory = True,
-        add2Seq=theSequence
+        add2Seq=theSequence,
+        addDecoAlg=isAthenaRelease(),
+        **ttva_opts
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(

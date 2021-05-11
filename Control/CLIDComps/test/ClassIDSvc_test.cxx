@@ -68,8 +68,8 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert(pClassIDSvc);
 
   assert(pClassIDSvc->nextAvailableID() == CLIDdetail::MINCLID);
-  Athena::PackageInfo info(PACKAGE_VERSION);
-  Athena::PackageInfo info2("APack-00-39-98");
+  Athena::PackageInfo info(ATLAS_PACKAGE_NAME);
+  Athena::PackageInfo info2("APackage");
   assert(pClassIDSvc->setTypePackageForID(7890, "Bla", info2).isSuccess());
   ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDdetail::MINCLID/2, "No", 
 					       info).isSuccess());
@@ -88,6 +88,8 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert(pClassIDSvc->setTypePackageForID(7890, "Bla   ", info2).isSuccess());
   assert(pClassIDSvc->setTypePackageForID(7890, " Bla  ", info2).isSuccess());
 
+  assert(pClassIDSvc->setTypePackageForID(9944, "Blo", info, "BloTypeInfo").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypePackageForID(9946, "Blo2", info, "BloTypeInfo").isSuccess());
 
   string name; 
   assert(pClassIDSvc->getTypeNameOfID(8101, name).isSuccess());

@@ -103,13 +103,12 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
-                       scripts/generateL1TopoMenuMT.py
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
                        scripts/generateBunchGroupSetFromOldKey.py
-                       scripts/trigmenu_modify_precale_json.py
+                       scripts/trigmenu_modify_prescale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
                        scripts/generateUnprescaledLists.py
@@ -170,6 +169,10 @@ atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py
                 PROPERTIES TIMEOUT 200 
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
               )
+
+atlas_add_test( RecoFragmentsPool
+                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.RecoFragmentsPoolTest
+                POST_EXEC_SCRIPT nopost.sh )
 
 #----------------------------------
 # List of menus to be created:

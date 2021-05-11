@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,7 @@ const int      JemSubBlockV1::s_jetIndicatorBit;
 const int      JemSubBlockV1::s_jetIndicator;
 const int      JemSubBlockV1::s_mainThreshId;
 const int      JemSubBlockV1::s_mainFwdThreshId;
-const int      JemSubBlockV1::s_threshWordId;
+const uint32_t JemSubBlockV1::s_threshWordId;
 const uint32_t JemSubBlockV1::s_threshMask;
 const uint32_t JemSubBlockV1::s_sourceIdMask;
 

@@ -161,8 +161,9 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._vertex              = "HLT_IDVertex_FS" 
       self._adaptiveVertex      = True
-      # this is being evaluated and may be added 
+      # these are being evaluated and may be added 
       # self._addSingleTrackVertices = True
+      # self._TracksMaxZinterval = 3
       self._vertex_jet          = "HLT_IDVertex_FSJet" 
       self._adaptiveVertex_jet  = False
       self._doFullScan      = True
@@ -172,8 +173,10 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
       self._TripletDoPPS    = False
-      self._minCluster      = 8
-      self._roadWidth       = 5
+      self._nClustersMin    = 8
+      self._RoadWidth       = 5
+      #      to be added as the default later
+      #      self._UseTrigSeedML  = 4
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
@@ -189,8 +192,8 @@ class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
       self._TripletDoPPS    = False
-      self._minCluster      = 8
-      self._roadWidth       = 5
+      self._nClustersMin    = 8
+      self._RoadWidth       = 5
       self._doRecord        = False
 
 
@@ -207,8 +210,8 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
       self._TripletDoPPS    = False
-      self._minCluster      = 8
-      self._roadWidth       = 5
+      self._nClustersMin    = 8
+      self._RoadWidth       = 5
       self._vertex          = "HLT_IDVertex_FS"
 
 
@@ -328,6 +331,7 @@ _ConfigSettings = {
 
     "muon"        : _ConfigSettings_muon(),
     "muonIso"     : _ConfigSettings_muonIso(),
+    "muonIsoMS"   : _ConfigSettings_muonIso(),
     "muonCore"    : _ConfigSettings_muon(),
     "muonFS"      : _ConfigSettings_muon(),
     "muonLate"    : _ConfigSettings_muon(),

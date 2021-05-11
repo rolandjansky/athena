@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -78,9 +78,6 @@ StatusCode CaloTowerAlgorithm::initialize()
   CaloTowerSeg theTowerSeg(m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
 
 
-  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator firstITool = m_ptools.begin();
-  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator lastITool  = m_ptools.end();
-
   unsigned int toolCtr = 0;
   ATH_MSG_INFO(" ");
   ATH_MSG_INFO("List of tools in execution sequence:");
@@ -88,21 +85,21 @@ StatusCode CaloTowerAlgorithm::initialize()
 
   ATH_CHECK(m_ptools.retrieve());
 
-  for (; firstITool != lastITool; firstITool++) {
+  for (ToolHandle<ICaloTowerBuilderToolBase>& tool : m_ptools) {
     toolCtr++;
 
-    ATH_MSG_INFO(std::setw(2) << toolCtr << ".) " << (*firstITool)->type()
-        << "::name() = \042" << (*firstITool)->name() << "\042");
+    ATH_MSG_INFO(std::setw(2) << toolCtr << ".) " << tool->type()
+        << "::name() = \042" << tool->name() << "\042");
 
     ATH_MSG_INFO("------------------------------------");
     ATH_MSG_INFO(" ");
 
     ATH_MSG_DEBUG(" set correct tower seg for this tool "
-        << (*firstITool)->name());
+        << tool->name());
 
-    (*firstITool)->setTowerSeg(theTowerSeg);
+    tool->setTowerSeg(theTowerSeg);
 
-//    if ((*firstITool)->initializeTool().isFailure()) {
+//    if (tool->initializeTool().isFailure()) {
 //      ATH_MSG_WARNING(" Tool failed to initialize");
 //    }
 
@@ -158,7 +155,7 @@ StatusCode CaloTowerAlgorithm::execute (const EventContext& ctx) const
       ATH_MSG_DEBUG((*firstITool)->name()
           << ": CaloTowerContainer::size() = " << theTowers->size());
 
-      firstITool++;
+      ++firstITool;
     } else {
       // some problem - but do not skip event loop!
       ATH_MSG_ERROR("problems while or after processing tool \042"
@@ -166,7 +163,7 @@ StatusCode CaloTowerAlgorithm::execute (const EventContext& ctx) const
           << "\042 - cross-check CaloTowerContainer::size() = "
           << theTowers->size());
 
-      firstITool++;
+      ++firstITool;
     }
   }
 

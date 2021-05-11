@@ -159,24 +159,6 @@ def createDetectorConfigFlags():
                                                                 prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP or
                                                                 prevFlags.Detector.EnableFwdRegion))
 
-
-    # Reconstruction flags (ID and ITk only. Disabled by default)
-    dcf.addFlag('Detector.RecoBCM',   False)
-    dcf.addFlag('Detector.RecoIBL', lambda prevFlags : (prevFlags.Detector.RecoPixel and prevFlags.GeoModel.Run in ["RUN2", "RUN3"])) # TODO Review if a separate RecoIBL flag is really required here
-    dcf.addFlag('Detector.RecoPixel', False)
-    dcf.addFlag('Detector.RecoSCT',   False)
-    dcf.addFlag('Detector.RecoTRT',   False)
-    dcf.addFlag('Detector.RecoID',    lambda prevFlags : (prevFlags.Detector.RecoBCM or prevFlags.Detector.RecoIBL or
-                                                          prevFlags.Detector.RecoPixel or prevFlags.Detector.RecoSCT or
-                                                          prevFlags.Detector.RecoTRT))
-    
-#    dcf.addFlag('Detector.Reco',      lambda prevFlags : (prevFlags.Detector.RecoID or prevFlags.Detector.RecoCalo or
-#                                                          prevFlags.Detector.RecoMuon))
-    dcf.addFlag('Detector.RecoITkPixel', False)
-    dcf.addFlag('Detector.RecoITkStrip',   False)
-    dcf.addFlag('Detector.RecoBCMPrime',   False)
-    dcf.addFlag('Detector.RecoITk',    lambda prevFlags : (prevFlags.Detector.RecoITkPixel or prevFlags.Detector.RecoITkStrip or prevFlags.Detector.RecoBCMPrime))
-
     return dcf
 
 

@@ -277,7 +277,7 @@ StatusCode LArRampBuilder::execute()
     }
 	ATH_MSG_DEBUG("Succefully retrieved LArCaliWaveContainer from StoreGate!");
     
-    for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
+    for (;key_it!=key_it_e;++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
       
       // first, set reference DAC (dirty hardcoding for now...)
       CaloGain::CaloGain gainref = CaloGain::LARLOWGAIN;
@@ -307,11 +307,7 @@ StatusCode LArRampBuilder::execute()
       
       for (; itVec != itVec_e; ++itVec) {
 	
-	LArCaliWaveContainer::LArCaliWaves::const_iterator itwave     = (*itVec).begin();
-	LArCaliWaveContainer::LArCaliWaves::const_iterator itwave_end = (*itVec).end();
-	
-	for (;itwave!=itwave_end;itwave++) {  //Loop over all cells
-	  const LArCaliWave& larCaliWave=(*itwave);
+        for (const LArCaliWave& larCaliWave : *itVec) {  //Loop over all cells
 	  unsigned int DAC = larCaliWave.getDAC(); 
 	  IdentifierHash chidwave_hash = m_onlineHelper->channel_Hash(itVec.channelId());
 
@@ -354,7 +350,7 @@ StatusCode LArRampBuilder::execute()
 
   
   // now start to deal with digits   
-  for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
+  for (;key_it!=key_it_e;++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
     
     sc= evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
     if (sc.isFailure()) {
@@ -362,18 +358,16 @@ StatusCode LArRampBuilder::execute()
       continue; //Try next container
     }
     HWIdentifier  lastFailedFEB(0);
-    LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
-    LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
     
-    if(it == it_end) ATH_MSG_DEBUG("LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty ");
+    if(larAccumulatedCalibDigitContainer->empty()) ATH_MSG_DEBUG("LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty ");
+
+    for (const LArAccumulatedCalibDigit* digit : *larAccumulatedCalibDigitContainer) {  //Loop over all cells
     
-    for (;it!=it_end;it++) {  //Loop over all cells
-    
-      if (!(*it)->isPulsed()){  //Check if cell is pulsed
+      if (!(digit->isPulsed())){  //Check if cell is pulsed
 	continue; //Cell not pulsed -> ignore
       }
 
-      HWIdentifier chid=(*it)->hardwareID();
+      HWIdentifier chid=digit->hardwareID();
       HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       if (febErrSum) {
 	const uint16_t febErrs=febErrSum->feb_error(febid);
@@ -389,15 +383,15 @@ StatusCode LArRampBuilder::execute()
 
 
       if (m_delay==-1) { //First (pulsed) cell to be processed:
-	m_delay=(*it)->delay();
+	m_delay=digit->delay();
       }
       else
-	if (m_delay!=(*it)->delay()) {
-	  ATH_MSG_ERROR( "Delay does not match! Found " << (*it)->delay() << " expected: " << m_delay);
+	if (m_delay!=digit->delay()) {
+	  ATH_MSG_ERROR( "Delay does not match! Found " << digit->delay() << " expected: " << m_delay);
 	  continue; //Ignore this cell
 	}
       
-      CaloGain::CaloGain gain=(*it)->gain();
+      CaloGain::CaloGain gain=digit->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
 	{ATH_MSG_ERROR( "Found not-matching gain number ("<< (int)gain <<")");
 	  return StatusCode::FAILURE;
@@ -443,8 +437,8 @@ StatusCode LArRampBuilder::execute()
 	} // m_ipassPedestal 	 
       }
       
-      LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()];
-      LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
+      LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[digit->DAC()];
+      LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add(digit->sampleSum(),digit->sample2Sum(),digit->nTriggers());
       if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
 	ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
       }
@@ -538,7 +532,7 @@ StatusCode LArRampBuilder::stop()
 
 
 
-      for (;dac_it!=dac_it_e;dac_it++) {
+      for (;dac_it!=dac_it_e;++dac_it) {
 
         LArRawRamp::RAMPPOINT_t ramppoint;
 
@@ -676,7 +670,7 @@ StatusCode LArRampBuilder::stop()
 	      peak.push_back(-999);
 	    }
 	    
-	    if(peak.size()>0){
+	    if(peak.size()>1){
 	      adcpeak = peak[0];
 	      timepeak = peak[1];
 	    }

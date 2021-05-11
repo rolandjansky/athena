@@ -107,6 +107,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.trigPidDecorator << " threshold " << info.trigThrHLT);
         matchObjects(trigName, probes, pairObjs);
 
+
         // Just for counting
         ATH_MSG_DEBUG("Probes " << probes.size() << " Pairs " << pairObjs.size() );
 

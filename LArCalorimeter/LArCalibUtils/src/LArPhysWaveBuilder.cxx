@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LArPhysWaveBuilder.cxx,v 1.13 2009-04-27 15:46:36 gunal Exp $
 /**
  * @file  LArCalibUtils/LArPhysWaveBuilder.h
  * @brief Build LAr wave shapes from real data.
@@ -19,13 +18,14 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -179,7 +179,6 @@ LArPhysWaveBuilder::LArPhysWaveBuilder (const std::string& name,
                                         ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_peakParabolaTool (0),
-    m_adc2mevTool (0),
     m_phase_tool (0),
     m_hmaxADCpeak(0),
     m_hADCpeak(0),
@@ -263,9 +262,9 @@ LArPhysWaveBuilder::~LArPhysWaveBuilder()
 StatusCode LArPhysWaveBuilder::initialize()
 {
    ATH_CHECK(m_cablingKey.initialize());
+   ATH_CHECK(m_adc2mevKey.initialize());
 
   // Fetch tools and services.
-  CHECK( toolSvc()->retrieveTool("LArADC2MeVTool", m_adc2mevTool) );
   if (m_phase_tool_name != "peak")
     CHECK( toolSvc()->retrieveTool(m_phase_tool_name, m_phase_tool) );
   if (m_use_parabola)
@@ -302,12 +301,14 @@ StatusCode LArPhysWaveBuilder::execute()
   ATH_MSG_DEBUG ( "LArPhysWaveBuilder in execute()" );
 
   // Retrieve cabling
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling=*cablingHdl;
   if (!cabling) {
     ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
     return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
 
   // Get the identifier helper.
   const CaloCell_ID* idHelper = nullptr;
@@ -452,9 +453,9 @@ StatusCode LArPhysWaveBuilder::execute()
     }
 
     // Find the energy in this cell.
-    if (m_adc2mevTool) {
+    {
       //ADC2MeV (a.k.a. Ramp)   
-      const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,digiGain);
+      LArVectorProxy ramp=adc2mev->ADC2MEV(chid,digiGain);
 
       //Check ramp coefficents
       if (ramp.size()>1 && ramp[1]<500 && ramp[1]>0) {
@@ -463,7 +464,7 @@ StatusCode LArPhysWaveBuilder::execute()
         //for (unsigned i=1;i<ramp.size();i++){
         //  energy += ramp[i]*pow(maxADCPeak,i);
         //}
-        energy = ramp.back();
+        energy = ramp[ramp.size()-1];
         for (unsigned i = ramp.size()-2; i >= 1; i--)
           energy = energy * maxADCPeak + ramp[i];
         energy *= maxADCPeak;

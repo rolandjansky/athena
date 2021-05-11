@@ -16,6 +16,8 @@
 #include "xAODTracking/VertexContainer.h" 
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include <string>
 ///////////////////////////////////////////////

@@ -14,11 +14,11 @@
 #include "TrkAlgebraUtils/AlMat.h"
 
 #include <algorithm>
-#include <iomanip>
+#include <cfloat>
+#include <cmath>
+#include <cstdint>
 #include <fstream>
-#include <math.h>
-#include <float.h>
-#include <stdint.h>
+#include <iomanip>
 #include <stdexcept>
 
 #include <TMatrixDSparse.h>
@@ -427,8 +427,8 @@ int AlSpaMat::SolveWithEigen(AlVec& RHS){
   mapiterator pos;
   for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++){
     elem(pos->first, i, j);
-    tripletList.push_back(Triplet(i,j,pos->second));
-    if(i!=j) tripletList.push_back(Triplet(j,i,pos->second));
+    tripletList.emplace_back(i,j,pos->second);
+    if(i!=j) tripletList.emplace_back(j,i,pos->second);
     counter++;
   }
   eigenBigMatrix.setFromTriplets(tripletList.begin(), tripletList.end());

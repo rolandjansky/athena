@@ -12,7 +12,7 @@
 #include "EnhancedBiasWeighter/ReadLumiBlock.h"
 
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <unordered_map>
 #include <mutex>
@@ -124,7 +124,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * @return How far into the current train this BCID is.
    * Retrieved from the database using the BunchCrossingTool or fetched from TRIG1 dAOD
    */
-   virtual uint32_t getDistanceIntoTrain(const xAOD::EventInfo* eventInfo) const override;
+   virtual StatusCode getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const override;
 
    /**
    * @return the RunNumber.
@@ -173,7 +173,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     int32_t getEventEBID(const xAOD::EventInfo* eventInfo) const; 
     int32_t getEventEBID(const EventContext& context) const; 
 
-    ToolHandle<Trig::IBunchCrossingTool> m_bcTool; //!< Tool to get distance into bunch train
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; //!< Tool to get distance into bunch train
 
     Gaudi::Property<uint32_t> m_runNumber{this, "RunNumber", 0, "Run we're processing (if data), needed at initialize to locate and read in extra configuration."};
     Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};

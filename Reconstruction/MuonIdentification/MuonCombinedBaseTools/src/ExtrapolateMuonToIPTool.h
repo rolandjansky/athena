@@ -31,28 +31,30 @@ public:
     virtual ~ExtrapolateMuonToIPTool() = default;
 
     /** initialize */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** initialize */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** @brief extrapolate all tracks in the track collection to the IP
         @param   muonTracks the track collection with muon tracks to be extrapolated to the IP
         @return  TrackCollection with the tracks at the IP, ownership is passed to the caller
     */
-    TrackCollection* extrapolate(const TrackCollection& muonTracks) const;
+    TrackCollection* extrapolate(const TrackCollection& muonTracks) const override;
+    TrackCollection* extrapolate(const TrackCollection& muonTracks, const EventContext& ctx) const override;
 
     /** @brief extrapolate a muon track the IP, will return 0 if the back extrapolation fails
         @param   muonTrack the moun inpu track
         @return  Track at the IP, ownership is passed to the caller, return zero if back extrapolation failed
     */
-    Trk::Track* extrapolate(const Trk::Track& muonTrack) const;
+    Trk::Track* extrapolate(const Trk::Track& muonTrack) const override;
+    Trk::Track* extrapolate(const Trk::Track& muonTrack, const EventContext& ctx) const override;
 
 private:
     /** find measured parameters closest to IP to start back extrapolation */
     const Trk::TrackParameters* findMeasuredParametersClosestToIP(const Trk::Track& track) const;
 
-    std::unique_ptr<const Trk::Perigee> createPerigee(const Trk::TrackParameters& pars) const;
+    std::unique_ptr<const Trk::Perigee> createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const;
 
     ToolHandle<Trk::IExtrapolator> m_extrapolator{
         this,

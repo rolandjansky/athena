@@ -7,10 +7,10 @@
 
 namespace Trk
 {
- TrkPriVxPurity::TrkPriVxPurity(int ntrk, const std::vector<double> puWeights, 
-                                const std::vector<double> noTruth, 
-                                int brLinks, const std::vector<double> inWeights, 
-		                const std::vector<double> outWeights):
+ TrkPriVxPurity::TrkPriVxPurity(int ntrk, const std::vector<double>& puWeights, 
+                                const std::vector<double>& noTruth, 
+                                int brLinks, const std::vector<double>& inWeights, 
+		                const std::vector<double>& outWeights):
 				m_fittedTracks(ntrk), m_puWeights(puWeights),
 				m_noTruth(noTruth),m_brokenLinks(brLinks), 
 				m_inWeights(inWeights),

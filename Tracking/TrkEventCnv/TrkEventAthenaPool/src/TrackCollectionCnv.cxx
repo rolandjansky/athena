@@ -51,15 +51,15 @@ void TrackCollectionCnv::initializeOldExtConverters()
    bool doCalo(true);
 
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
-    if(converter != 0) registerExtendingCnv( converter );    
+    if(converter != nullptr) registerExtendingCnv( converter );    
     else doInDet=false;
 
     converter =  m_athenaPoolCnvSvc->converter( CLID(239128586) );
-    if(converter !=0 ) registerExtendingCnv( converter );
+    if(converter !=nullptr ) registerExtendingCnv( converter );
     else doMuon=false;
 
     converter =  m_athenaPoolCnvSvc->converter( CLID(1213853277) );
-    if(converter !=0 ) registerExtendingCnv( converter );
+    if(converter !=nullptr ) registerExtendingCnv( converter );
     else doCalo=false;
     
     //-------------------------------------------------------------------------
@@ -101,7 +101,7 @@ TrackCollection *TrackCollectionCnv::createTransientWithKey(const std::string& k
     static const pool::Guid p1_guid( "ECB12567-B999-4908-B0C6-C43CF9F9A987" );
     static const pool::Guid p0_guid( "70ECEBFC-BE00-46C2-8B35-4CC12D18DE39" );
 
-    TrackCollection *p_collection = 0;
+    TrackCollection *p_collection = nullptr;
     if( compareClassGuid( p6_guid )){
       poolReadObject< TrackCollection_PERS >( m_TPConverter );
       p_collection = m_TPConverter.createTransientWithKey( key, m_log );

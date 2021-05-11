@@ -115,7 +115,6 @@ def getTB_RegionCreatorList(ConfigFlags):
 def ATLAS_FieldMgrListCfg(ConfigFlags):
     result = ComponentAccumulator()
     fieldMgrList = []
-
     if ConfigFlags.Sim.TightMuonStepping:
         acc   = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)

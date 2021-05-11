@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbTypeInfo.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -20,9 +20,11 @@
 #include "DataModelRoot/RootType.h"
 #include "StorageSvc/pool.h"
 #include "StorageSvc/Shape.h"
+#include "CxxUtils/CachedValue.h"
 
 // C/C++ include files
 #include <vector>
+#include <atomic>
 
 /*
  *  POOL namespace declaration
@@ -52,13 +54,13 @@ namespace pool  {
 
   private:
     /// Reference counter
-    mutable int m_refCount;
+    mutable std::atomic<int> m_refCount;
     /// Column definitions
     Columns     m_columns;
     /// Multiplicity
     int         m_mult;
     /// Reflection class
-    TypeH       m_class;
+    CxxUtils::CachedValue<TypeH>       m_class;
 
   protected:
     /// Constructor with type id
@@ -71,7 +73,7 @@ namespace pool  {
     /// Load type information object from string representation
     DbStatus i_fromString(const std::string& string_rep);
     /// try to add a new shape
-    static DbTypeInfo* regShape(const Guid& guid, const TypeH type, Columns& cols);
+    static DbTypeInfo* regShape(const Guid& guid, const TypeH& type, Columns& cols);
    
   public:
     /// Destroy type information; to be used with extreme care

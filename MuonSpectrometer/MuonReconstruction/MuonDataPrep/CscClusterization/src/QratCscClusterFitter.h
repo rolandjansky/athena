@@ -20,12 +20,11 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 namespace Muon {
-class CscPrepData;
+    class CscPrepData;
 }
 
 class QratCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
-
-  public:
+public:
     QratCscClusterFitter(std::string, std::string, const IInterface*);
 
     ~QratCscClusterFitter() = default;
@@ -37,29 +36,29 @@ class QratCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool
     using ICscClusterFitter::fit;
     Results fit(const StripFitList& sfits) const;
     Results fit(const StripFitList& sfits, double dposdz) const;
-    double  getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
+    double getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
 
-  private:
+private:
     // Properties
     std::vector<unsigned int> m_max_width;
-    std::string               m_posopt_eta;
-    std::string               m_posopt_phi;
-    std::string               m_erropt_eta;
-    std::string               m_erropt_phi;
-    double                    m_error_eta;
-    double                    m_error_phi;
-    double                    m_precisionErrorScaler;
-    double                    m_qrat_maxdiff;
-    double                    m_qrat_maxsig;
-    double                    m_error_tantheta;
-    double                    m_xtan_css_eta_offset;
-    double                    m_xtan_css_eta_slope;
-    double                    m_xtan_csl_eta_offset;
-    double                    m_xtan_csl_eta_slope;
-    double                    m_qratmin_css_eta;
-    double                    m_qratmin_csl_eta;
-    std::vector<double>       m_qratcor_css_eta;
-    std::vector<double>       m_qratcor_csl_eta;
+    std::string m_posopt_eta;
+    std::string m_posopt_phi;
+    std::string m_erropt_eta;
+    std::string m_erropt_phi;
+    double m_error_eta;
+    double m_error_phi;
+    double m_precisionErrorScaler;
+    double m_qrat_maxdiff;
+    double m_qrat_maxsig;
+    double m_error_tantheta;
+    double m_xtan_css_eta_offset;
+    double m_xtan_css_eta_slope;
+    double m_xtan_csl_eta_offset;
+    double m_xtan_csl_eta_slope;
+    double m_qratmin_css_eta;
+    double m_qratmin_csl_eta;
+    std::vector<double> m_qratcor_css_eta;
+    std::vector<double> m_qratcor_csl_eta;
 
     double m_atanh_a_css_eta;  // MS: atanh qrat parametrization
     double m_atanh_b_css_eta;

@@ -82,7 +82,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
                     
     # Second calibration DB Service in case pile-up and physics hits have different calibrations
-    if flags.Detector.RecoTRT:
+    if flags.Detector.EnableTRT:
         from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
         InDetTRTCalDbTool2 = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
         acc.addPublicTool(InDetTRTCalDbTool2)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.Detector.RecoTRT = True
+    # TODO: TRT only?
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads

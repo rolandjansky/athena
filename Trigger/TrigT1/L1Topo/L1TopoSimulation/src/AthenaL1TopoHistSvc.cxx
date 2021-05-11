@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./AthenaL1TopoHistSvc.h"
@@ -11,7 +11,6 @@
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
-#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "StoreGate/ReadHandleKey.h"

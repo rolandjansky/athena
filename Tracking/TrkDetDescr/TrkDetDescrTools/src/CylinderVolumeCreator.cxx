@@ -865,7 +865,8 @@ Trk::DiscLayer* Trk::CylinderVolumeCreator::createDiscLayer(double z,
     ATH_MSG_VERBOSE( "Creating a DiscLayer at position " << z << " and rMin/rMax " << rMin << " / " << rMax);
 
     // positioning
-    Amg::Transform3D* transform = fabs(z)>0.1 ? new Amg::Transform3D : nullptr;
+    std::unique_ptr<Amg::Transform3D> transform =
+      fabs(z) > 0.1 ? std::make_unique<Amg::Transform3D>() : nullptr;
     if (transform)
       (*transform) = Amg::Translation3D(0.,0.,z);
     Trk::BinnedLayerMaterial* discMaterial = nullptr;
@@ -886,7 +887,7 @@ Trk::DiscLayer* Trk::CylinderVolumeCreator::createDiscLayer(double z,
     // bounds
     Trk::DiscBounds* discBounds = new Trk::DiscBounds(rMin,rMax);
     // create the disc
-    Trk::DiscLayer* discLayer = new Trk::DiscLayer(transform,
+    Trk::DiscLayer* discLayer = new Trk::DiscLayer(*transform,
                                                    discBounds,
                                                    *discMaterial,
                                                    thickness,

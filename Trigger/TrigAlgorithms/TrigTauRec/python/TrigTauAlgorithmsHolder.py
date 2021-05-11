@@ -122,6 +122,7 @@ def getMvaTESVariableDecorator():
                                                       VertexCorrection = doVertexCorrection)
 
     MvaTESVariableDecorator.Key_vertexInputContainer = ""
+    MvaTESVariableDecorator.EventShapeKey = ""
 
     ToolSvc += MvaTESVariableDecorator
     cached_instances[_name] = MvaTESVariableDecorator

@@ -151,8 +151,9 @@ def getConstitModAlg(constit, monTool=None):
                                                    OutputContainer = outputcontainer,
                                                    InputContainer= inputcontainer,
                                                    Modifiers = modlist,
-                                                   MonTool = monTool,
     )
+    if monTool:
+        modseq.MonTool = monTool
 
     constitmodalg = CompFactory.JetAlgorithm("jetalg_{0}".format(modseq.getName()))
     constitmodalg.Tools = [modseq]

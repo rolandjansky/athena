@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,17 +10,17 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
-#include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
+#include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
+#include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateCombiner.h"
+#include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+//
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
-
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
 namespace {
@@ -65,7 +65,7 @@ Trk::GsfMaterialMixtureConvolution::initialize()
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::update(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -81,9 +81,9 @@ Trk::GsfMaterialMixtureConvolution::update(
 
   Trk::MultiComponentState updatedMergedState = update(
     caches, multiComponentState, layer, direction, particleHypothesis, Normal);
-  ATH_MSG_DEBUG("UPDATE update N in: " << multiComponentState.size()
-                                       << " N out: "
-                                       << updatedMergedState.size());
+  ATH_MSG_DEBUG(
+    "UPDATE update N in: " << multiComponentState.size()
+                           << " N out: " << updatedMergedState.size());
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -99,7 +99,7 @@ Trk::GsfMaterialMixtureConvolution::update(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::preUpdate(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -113,15 +113,16 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
-  Trk::MultiComponentState updatedMergedState = update(caches,
-                                                       multiComponentState,
-                                                       layer,
-                                                       direction,
-                                                       particleHypothesis,
-                                                       Preupdate);
-  ATH_MSG_DEBUG("PREUPDATE update N in: " << multiComponentState.size()
-                                          << " N out: "
-                                          << updatedMergedState.size());
+  Trk::MultiComponentState updatedMergedState = update(
+    caches,
+    multiComponentState,
+    layer,
+    direction,
+    particleHypothesis,
+    Preupdate);
+  ATH_MSG_DEBUG(
+    "PREUPDATE update N in: " << multiComponentState.size()
+                              << " N out: " << updatedMergedState.size());
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -137,7 +138,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::postUpdate(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -153,16 +154,17 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(
      Preliminary checks
      ------------------------------------- */
 
-  Trk::MultiComponentState updatedMergedState = update(caches,
-                                                       multiComponentState,
-                                                       layer,
-                                                       direction,
-                                                       particleHypothesis,
-                                                       Postupdate);
+  Trk::MultiComponentState updatedMergedState = update(
+    caches,
+    multiComponentState,
+    layer,
+    direction,
+    particleHypothesis,
+    Postupdate);
 
-  ATH_MSG_DEBUG("POSTUPDATE update N in: " << multiComponentState.size()
-                                           << " N out: "
-                                           << updatedMergedState.size());
+  ATH_MSG_DEBUG(
+    "POSTUPDATE update N in: " << multiComponentState.size()
+                               << " N out: " << updatedMergedState.size());
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -174,7 +176,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::update(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& inputState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -194,15 +196,17 @@ Trk::GsfMaterialMixtureConvolution::update(
   if (updateType == Preupdate) {
     updateFactor =
       layer.preUpdateMaterialFactor(*inputState.front().first, direction);
-    ATH_MSG_DEBUG("Material effects update prior to propagation using layer "
-                  "information and particle hypothesis: "
-                  << particleHypothesis);
+    ATH_MSG_DEBUG(
+      "Material effects update prior to propagation using layer "
+      "information and particle hypothesis: "
+      << particleHypothesis);
   } else if (updateType == Postupdate) {
     updateFactor =
       layer.postUpdateMaterialFactor(*inputState.front().first, direction);
-    ATH_MSG_DEBUG("Material effects update after propagation using layer "
-                  "information and particle hypothesis: "
-                  << particleHypothesis);
+    ATH_MSG_DEBUG(
+      "Material effects update after propagation using layer "
+      "information and particle hypothesis: "
+      << particleHypothesis);
   }
 
   if (updateFactor < 0.01) {
@@ -248,12 +252,13 @@ Trk::GsfMaterialMixtureConvolution::update(
     // Apply the update factor
     matPropPair.second *= updateFactor;
 
-    m_materialEffects->compute(caches[i],
-                               inputState[i],
-                               *matPropPair.first,
-                               matPropPair.second,
-                               direction,
-                               particleHypothesis);
+    m_materialEffects->compute(
+      caches[i],
+      inputState[i],
+      *matPropPair.first,
+      matPropPair.second,
+      direction,
+      particleHypothesis);
 
     // check vectors have the same size
     if (caches[i].numWeights != caches[i].numDeltaPs) {
@@ -272,8 +277,8 @@ Trk::GsfMaterialMixtureConvolution::update(
       caches[i].deltaParameters[j] = inputState[i].first->parameters();
       // Adjust the momentum of the component's parameters vector here. Check to
       // make sure update is good.
-      if (!updateP(caches[i].deltaParameters[j][Trk::qOverP],
-                   caches[i].deltaPs[j])) {
+      if (!updateP(
+            caches[i].deltaParameters[j][Trk::qOverP], caches[i].deltaPs[j])) {
         ATH_MSG_ERROR("Cannot update state vector momentum!!! return nullptr");
         return {};
       }
@@ -335,22 +340,25 @@ Trk::GsfMaterialMixtureConvolution::update(
     const AmgSymMatrix(5)* measuredCov =
       inputState[stateIndex].first->covariance();
     std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
-    if (measuredCov &&
-        caches[stateIndex].deltaCovariances.size() > materialIndex) {
+    if (
+      measuredCov &&
+      caches[stateIndex].deltaCovariances.size() > materialIndex) {
       updatedCovariance =
         AmgSymMatrix(5)(caches[stateIndex].deltaCovariances[materialIndex]);
     }
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
       inputState[stateIndex]
         .first->associatedSurface()
-        .createUniqueTrackParameters(updatedStateVector[Trk::loc1],
-                                     updatedStateVector[Trk::loc2],
-                                     updatedStateVector[Trk::phi],
-                                     updatedStateVector[Trk::theta],
-                                     updatedStateVector[Trk::qOverP],
-                                     std::move(updatedCovariance));
+        .createUniqueTrackParameters(
+          updatedStateVector[Trk::loc1],
+          updatedStateVector[Trk::loc2],
+          updatedStateVector[Trk::phi],
+          updatedStateVector[Trk::theta],
+          updatedStateVector[Trk::qOverP],
+          std::move(updatedCovariance));
 
-    Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters), 1.);
+    Trk::ComponentParameters dummyCompParams(
+      std::move(updatedTrackParameters), 1.);
     Trk::MultiComponentState returnMultiState;
     returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
@@ -428,12 +436,13 @@ Trk::GsfMaterialMixtureConvolution::update(
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
       inputState[stateIndex]
         .first->associatedSurface()
-        .createUniqueTrackParameters(stateVector[Trk::loc1],
-                                     stateVector[Trk::loc2],
-                                     stateVector[Trk::phi],
-                                     stateVector[Trk::theta],
-                                     stateVector[Trk::qOverP],
-                                     measuredCov);
+        .createUniqueTrackParameters(
+          stateVector[Trk::loc1],
+          stateVector[Trk::loc2],
+          stateVector[Trk::phi],
+          stateVector[Trk::theta],
+          stateVector[Trk::qOverP],
+          measuredCov);
 
     double updatedWeight = caches[stateIndex].weights[materialIndex];
 
@@ -443,9 +452,10 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   if (nMerges + assemblerCache.multiComponentState.size() != n) {
-    ATH_MSG_WARNING("Combining complete but merger size is incompatible: "
-                    << n << "  " << nMerges << " "
-                    << assemblerCache.multiComponentState.size());
+    ATH_MSG_WARNING(
+      "Combining complete but merger size is incompatible: "
+      << n << "  " << nMerges << " "
+      << assemblerCache.multiComponentState.size());
   }
 
   // Check all weights
@@ -453,9 +463,9 @@ Trk::GsfMaterialMixtureConvolution::update(
     MultiComponentStateAssembler::assembledState(std::move(assemblerCache));
 
   if (mergedState.size() > m_maximumNumberOfComponents)
-    ATH_MSG_ERROR("Merging failed, target size: " << m_maximumNumberOfComponents
-                                                  << " final size: "
-                                                  << mergedState.size());
+    ATH_MSG_ERROR(
+      "Merging failed, target size: " << m_maximumNumberOfComponents
+                                      << " final size: " << mergedState.size());
   return mergedState;
 }
 

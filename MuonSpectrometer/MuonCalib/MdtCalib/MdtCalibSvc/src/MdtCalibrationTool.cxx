@@ -71,8 +71,6 @@ public:
   double m_unphysicalHitRadiusUpperBound;
   double m_unphysicalHitRadiusLowerBound;
   double m_resTwin;
-  bool m_BMGpresent;
-  int m_BMGid;
 
 };
 
@@ -86,9 +84,7 @@ MdtCalibrationTool::Imp::Imp(std::string ) :
   m_doTMaxShift(false),
   m_unphysicalHitRadiusUpperBound(-1.),
   m_unphysicalHitRadiusLowerBound(-1.),
-  m_resTwin(-1.),
-  m_BMGpresent(false),
-  m_BMGid(-1) {
+  m_resTwin(-1.) {
 }
 
 
@@ -126,13 +122,6 @@ StatusCode MdtCalibrationTool::initialize() {
   ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
 
   ATH_CHECK(m_idHelperSvc.retrieve());
-
-  // assign BMG identifier
-  m_imp->m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
-  if(m_imp->m_BMGpresent){
-    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
-  }
 
   // initialise MuonGeoModel access
   ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
@@ -289,7 +278,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   hit.setTimeOfFlight( settings.doTof ? triggerTime : 0. );
 
   // calculate drift time
-  double driftTime = hit.tdcCount() * tdcBinSize(id) - hit.timeOfFlight()
+  double driftTime = hit.tdcCount() * tdcBinSize() - hit.timeOfFlight()
                      - hit.tubeT0() - hit.propagationTime();
   hit.setDriftTime( driftTime );
 
@@ -379,7 +368,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // summary
   ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_idHelperSvc->mdtIdHelper().print_to_string(id)
 		 << (calibOk ? " OK" : "FAILED") );
-  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize(id)
+  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize()
 		 << " TriggerOffset " << inputData.triggerOffset << endmsg
 		 << "Tof " << inputData.tof << " Propagation Delay "
 		 << hit.propagationTime() << " T0 " << hit.tubeT0()
@@ -431,8 +420,8 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   const MuonGM::MdtReadoutElement *geoSecond = secondHit.geometry();
 
   // get 'raw' drifttimes of twin pair; we don't use timeofFlight or propagationTime cause they are irrelevant for twin coordinate
-  double driftTime = hit.tdcCount()*tdcBinSize(id) - hit.tubeT0();
-  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize(idSecond) - secondHit.tubeT0();
+  double driftTime = hit.tdcCount()*tdcBinSize() - hit.tubeT0();
+  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize() - secondHit.tubeT0();
 
   if(!geo) {
     ATH_MSG_WARNING( "Geometry not set for first hit" );
@@ -636,10 +625,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   return true;
 }  //end MdtCalibrationTool::twinPositionFromTwinHits
 
-double MdtCalibrationTool::tdcBinSize(const Identifier &id) const {
-//BMG which uses HPTDC instead of AMT, and has 0.2ns TDC ticksize
-  if( m_idHelperSvc->mdtIdHelper().stationName(id) == m_imp->m_BMGid && m_imp->m_BMGpresent)
-    return 0.1953125; // 25/128
+double MdtCalibrationTool::tdcBinSize() const {
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0
 }
 

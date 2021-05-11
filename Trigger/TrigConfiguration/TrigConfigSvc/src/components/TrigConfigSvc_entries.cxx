@@ -1,4 +1,3 @@
-#include "../L1TopoConfigSvc.h"
 #include "../LVL1ConfigSvc.h"
 #include "../DSConfigSvc.h"
 #include "../HLTConfigSvc.h"
@@ -9,7 +8,6 @@
 #include "../HLTPrescaleCondAlg.h"
 
 
-DECLARE_COMPONENT( TrigConf::L1TopoConfigSvc )
 DECLARE_COMPONENT( TrigConf::LVL1ConfigSvc )
 DECLARE_COMPONENT( TrigConf::HLTConfigSvc )
 DECLARE_COMPONENT( TrigConf::JobOptionsSvc )
