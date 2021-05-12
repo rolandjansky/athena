@@ -1,14 +1,12 @@
 #!/bin/sh
 #
 # art-description: Run simulation outside ISF, using 2011 geometry and conditions, reading single muon events, writing HITS
-# art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.HITS.pool.root
+# art-output: test.OLD.HITS.pool.root
+# art-output: test.NEW.HITS.pool.root
+# art-output: log.G4AtlasAlg*
 
 AtlasG4_tf.py \
 --CA \
