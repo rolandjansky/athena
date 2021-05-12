@@ -196,7 +196,7 @@ def addP1Signatures():
 def setupMenu():
 
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
+    log = logging.getLogger(__name__)
     log.info('setupMenu ...')
 
     physics_menu.setupMenu()

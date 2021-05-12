@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import parOR
 
 #logging
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronRecoSequences_GSF')
+log = logging.getLogger(__name__)
 
 def precisionElectronRecoSequence_GSF(RoIs):
     """

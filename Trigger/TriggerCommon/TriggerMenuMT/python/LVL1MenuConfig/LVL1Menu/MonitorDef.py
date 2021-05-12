@@ -32,7 +32,7 @@ For each of these type 64 L1Items can be monitored independently
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('LVL1Menu.MonitorDef')
+log = logging.getLogger(__name__)
 
 class MonitorDef(object):
 

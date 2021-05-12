@@ -31,7 +31,7 @@ Building a menu happens in two stages
   * Thresholds are defined in files ThresholdDef.py
 """
 
-log = logging.getLogger("Menu.L1.L1MenuConfig")
+log = logging.getLogger(__name__)
 
 class L1MenuConfig(object):
 

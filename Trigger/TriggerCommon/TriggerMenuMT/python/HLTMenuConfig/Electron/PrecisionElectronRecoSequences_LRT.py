@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import parOR
 
 #logging
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronRecoSequences_LRT')
+log = logging.getLogger(__name__)
 
 def precisionElectronRecoSequence_LRT(RoIs):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a electron for TrigEgamma 

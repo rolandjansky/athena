@@ -9,7 +9,7 @@ from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerType, TriggerPeriod
 from collections import Counter
 import six
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerInfo' )
+log = logging.getLogger(__name__)
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.

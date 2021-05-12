@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from functools import lru_cache
 from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import (isComboHypoAlg,
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
-log = logging.getLogger( __name__.split(".")[-1] )
+log = logging.getLogger( __name__ )
 
 def resetDF(acc):
     """

@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import caloFSRoI
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
+log = logging.getLogger(__name__)
 
 def HLTCaloCellMakerCfg( flags, cellsname, cdaSvc ):
     result = ComponentAccumulator()

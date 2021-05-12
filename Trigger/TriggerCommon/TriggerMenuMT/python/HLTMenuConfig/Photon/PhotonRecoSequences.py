@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import parOR
 
 #logging
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences' )  
+log = logging.getLogger(__name__)
 
 def precisionPhotonRecoSequence(RoIs):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a photon for TrigEgamma 

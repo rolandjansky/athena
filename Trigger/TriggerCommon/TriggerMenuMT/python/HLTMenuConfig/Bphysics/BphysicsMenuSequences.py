@@ -5,7 +5,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
-log = logging.getLogger('BphysicsMenuSequence')
+log = logging.getLogger(__name__)
 
 
 def bmumuxAlgSequence(ConfigFlags):

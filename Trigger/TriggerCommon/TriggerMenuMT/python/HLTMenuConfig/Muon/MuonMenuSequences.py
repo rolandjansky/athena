@@ -6,7 +6,7 @@ from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
-log = logging.getLogger('MuonMenuSequences')
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
