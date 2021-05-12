@@ -75,7 +75,6 @@ TopoSteeringStructure::~TopoSteeringStructure() {
       delete ps;
 }
 
-
 TCS::StatusCode
 TopoSteeringStructure::reset() {
    for(Connector* conn: m_connectors)
@@ -157,12 +156,13 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 	     
 	              const string & tlName = tl.name();
 	              auto & algo = l1menu.algorithmFromTriggerline(tlName);
+		      const string algoName = (legacy?"R2_"+algo.name():algo.name());
 
 	              // One algorithm can have multiple trigger lines. Check the connector/algorithm has not been stored already
-	              auto it = find(storedConn.begin(), storedConn.end(), algo.name());
+	              auto it = find(storedConn.begin(), storedConn.end(), algoName);
 	              if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
 
-	                storedConn.push_back(algo.name());
+	                storedConn.push_back(algoName);
 	                vector<string> inputNames;
 	                for( auto & input : algo.inputs() ) {
 		                if( sortingConnector(input) == 0 ) { // if connector does not exist, create it
@@ -186,7 +186,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
 	                } // loop over inputs
 
-	                DecisionConnector * conn = new DecisionConnector(algo.name(), inputNames, algo.klass()+"/"+algo.name(), algo.outputs());
+	                DecisionConnector * conn = new DecisionConnector(algoName, inputNames, algo.klass()+"/"+algoName, algo.outputs());
 	                conn->m_decision.setNBits( algo.outputs().size() );
 
 	                if(tl.name() != "UNDEF")
@@ -296,12 +296,13 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
    for ( auto & confAlgo : confAlgorithms ) {
      
       auto & l1algo = l1menu.algorithm(confAlgo.at(0), confAlgo.at(1));
-       
-      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
-      alg->setAlgoId( l1algo.algId() );
-     
+      auto l1algoName = confAlgo.at(0);
+      if (l1algo.type() == TrigConf::L1TopoAlgorithm::AlgorithmType::DECISION && legacy)
+	      l1algoName ="R2_"+confAlgo.at(0);
+
       if(debug)
-         cout << "Algorithm " << alg->name() << " has algoId " << alg->algoId() <<  endl << " (reading parameters)" << endl;
+         cout << "TopoSteeringStructure: Parameters for algorithm with name " << l1algoName << " going to be configured." << endl;
+      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algoName);
      
       if(alg->isDecisionAlg())
          ( dynamic_cast<DecisionAlg *>(alg) )->setNumberOutputBits(l1algo.outputs().size());
@@ -346,22 +347,6 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
       if(debug)
          cout << " --> (parameters set)";
        
-      if( alg->isDecisionAlg() ) {
-         if( m_parameters[alg->algoId()] != nullptr ) {
-	      //	   TCS_EXCEPTION("Decision algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
-         }
-         m_parameters[alg->algoId()] = ps;
-     } else if (alg->isSortingAlg() ) {
-       if( m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] != nullptr ) {
-	 //	   TCS_EXCEPTION("Sorting algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
-       }
-       m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] = ps;
-     } else {
-       // newed parameters used so delete to avoid memory leak
-       delete ps;
-       ps=0;
-     }
-
      if(debug)
        cout << " --> (parameters stored)" << endl;
    } // Set parameters for Sorting/Decision algorithms
@@ -374,7 +359,6 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
       if (l1algo.klass() != "EMMultiplicity") continue; // Look at eEM multiplicities for now, missing inputs in the menu for the other types of thresholds
 
       ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
-      alg->setAlgoId( l1algo.algId() ); // This does not really do anything anymore
 
       // Get L1Threshold object and pass it to CountingAlg, from where it will be propagated to and decoded in each algorithm
       // The output of each algorithm and the threshold name is the same - use output name to retrieve L1Threshold object
