@@ -72,7 +72,7 @@ namespace InDetDDSLHC {
     ATH_MSG_INFO( "C R E A T E   W O R L D" );
    
     ATH_MSG_INFO( m_detectorManager->getVersion().fullDescription() );
-    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
+    ITk::PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
     //    GmxInterface gmxInterface;
