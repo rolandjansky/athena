@@ -551,7 +551,7 @@ namespace InDet {
     ATH_MSG_DEBUG("Trying to extrapolate to Pixel layer " << layer);
 
     Trk::CylinderSurface BiggerThanBLayerSurface(
-      new Transform3D(Transform3D::Identity()), 100.0, 10000.0);
+      Transform3D(Transform3D::Identity()), 100.0, 10000.0);
 
     // extrapolate stepwise to this parameter (be careful, sorting might be
     // wrong)

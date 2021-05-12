@@ -72,32 +72,24 @@ public:
   /**Destructor*/
   virtual ~CylinderSurface() = default;
 
-
   /**Constructor from EigenTransform, radius and halflength*/
-  CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
-
-  /**Constructor from EigenTransform, radius and halflength*/
-  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
+  CylinderSurface(const Amg::Transform3D& htrans,
                   double radius,
                   double hlength);
 
   /**Constructor from EigenTransform, radius halfphi, and halflength*/
-  CylinderSurface(Amg::Transform3D* htrans,
+  CylinderSurface(const Amg::Transform3D& htrans,
                   double radius,
                   double hphi,
                   double hlength);
 
   /**Constructor from EigenTransform and CylinderBounds
     - ownership of the bounds is passed */
-  CylinderSurface(Amg::Transform3D* htrans, CylinderBounds* cbounds);
+  CylinderSurface(const Amg::Transform3D& htrans, CylinderBounds* cbounds);
 
   /**Constructor from EigenTransform from unique_ptr.
      - bounds is not set */
   CylinderSurface(const Amg::Transform3D& htrans);
-
-  /**Constructor from EigenTransform from unique_ptr.
-     - bounds is not set */
-  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
   /** Constructor from radius and halflength - speed optimized for concentric
    * volumes */

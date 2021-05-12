@@ -1082,7 +1082,7 @@ transforms is passed to the Trk::Surface result.
       double radius = type/2.0*thickness + descr->calo_r_min();
       // ATH_MSG_INFO("r = " << radius << " for type " << type << " and sample " << descr->getSampling());
 //    HepGeom::Transform3D* trans = new HepGeom::Translate3D(0,0,descr->calo_sign()*middle);
-      res = new Trk::CylinderSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,descr->calo_sign()*middle)),
+      res = new Trk::CylinderSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,descr->calo_sign()*middle)),
                                      radius, halfLength);
       return res;
     }
@@ -1122,7 +1122,7 @@ transforms is passed to the Trk::Surface result.
       }
       double halfLength = (descr->calo_z_max()-descr->calo_z_min())/2.0;
       double offset = descr->calo_sign()*(descr->calo_z_min()+halfLength);
-      res = new Trk::CylinderSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
+      res = new Trk::CylinderSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,offset)),
                                      radius, halfLength);
       return res;
     }

@@ -190,10 +190,10 @@ CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  con
     ATH_MSG_VERBOSE("got -flat- cylinder for Sample " << (int) sample << " radius, hlen are " << radius
        << " " << hlen );
     if ( hphi < 0.9*M_PI){
-      surf = new Trk::CylinderSurface(pos.release(),radius,hphi,hlen);
+      surf = new Trk::CylinderSurface(*pos,radius,hphi,hlen);
     }
     else{
-      surf = new Trk::CylinderSurface(pos.release(),radius,hlen);
+      surf = new Trk::CylinderSurface(*pos,radius,hlen);
     }
   }
   else {
@@ -306,10 +306,10 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
     // for Atlas configuration, avoid to create a hole at phi ~ pi by hphi
     // rounding effects  (the phi range was introduced for the testbeam)
     if ( hphi < 0.9*M_PI) {
-      surf = new Trk::CylinderSurface(pos.release(),radius,hphi,hlen);
+      surf = new Trk::CylinderSurface(*pos,radius,hphi,hlen);
     }
     else{
-      surf = new Trk::CylinderSurface(pos.release(),radius,hlen);
+      surf = new Trk::CylinderSurface(*pos,radius,hlen);
     }
   }
   else {
@@ -425,10 +425,10 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
 
 
       if ( hphi < 0.9*M_PI){
-        return surf = new Trk::CylinderSurface(pos.release(),radius,hphi,hlen);
+        return surf = new Trk::CylinderSurface(*pos,radius,hphi,hlen);
       }
       else{
-        return surf = new Trk::CylinderSurface(pos.release(),radius,hlen);
+        return surf = new Trk::CylinderSurface(*pos,radius,hlen);
       }
     }
   }
@@ -542,7 +542,7 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
 
     // log << MSG::DEBUG << "DD barrel Layer constructed with material-properties: " << objectMaterial << endmsg;
     // CylinderLayer takes ownership of the transformation.
-    thelayer->push_back(new Trk::CylinderLayer(new Amg::Transform3D(htrans),
+    thelayer->push_back(new Trk::CylinderLayer(Amg::Transform3D(htrans),
                                                objectBounds, objectLayerMaterial));
   }
 

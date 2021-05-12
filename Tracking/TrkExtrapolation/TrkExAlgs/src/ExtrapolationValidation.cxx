@@ -322,8 +322,8 @@ StatusCode Trk::ExtrapolationValidation::execute()
    m_estimationR        = m_maximumR * m_flatDist->shoot();
 
    // --------------- propagate to find a first intersection ---------------------
-   Amg::Transform3D * CylTrf = new Amg::Transform3D;
-   CylTrf->setIdentity();
+   Amg::Transform3D CylTrf;
+   CylTrf.setIdentity();
    Trk::CylinderSurface estimationCylinder(CylTrf, m_estimationR, 10e10);
    const Trk::TrackParameters* estimationParameters = m_extrapolator->extrapolateDirectly(startParameters,
                                                                                           estimationCylinder,

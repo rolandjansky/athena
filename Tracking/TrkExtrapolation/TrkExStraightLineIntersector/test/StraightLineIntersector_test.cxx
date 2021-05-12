@@ -119,8 +119,8 @@ void test_cylinder (Trk::IIntersector& tool)
 
   Amg::Vector3D pos1 { 0, 0, 0 };
   Amg::Vector3D norm1 { 0, 0, 1 };
-  Trk::CylinderSurface cyl1 (transf (pos1, norm1).release(),  50, 100);
-  Trk::CylinderSurface cyl2 (transf (pos1, norm1).release(), 200, 100);
+  Trk::CylinderSurface cyl1 (*transf (pos1, norm1).release(),  50, 100);
+  Trk::CylinderSurface cyl2 (*transf (pos1, norm1).release(), 200, 100);
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);

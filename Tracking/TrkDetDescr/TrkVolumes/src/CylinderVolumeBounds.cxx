@@ -127,7 +127,7 @@ const std::vector<const Trk::Surface*>*
   // outer Cylinder
   if (!isConcentric)
     retsf->push_back(new Trk::CylinderSurface(
-      new Amg::Transform3D(transform), outerCylinderBounds()));
+      Amg::Transform3D(transform), outerCylinderBounds()));
   else
     retsf->push_back(new Trk::CylinderSurface(outerCylinderBounds()));
 
@@ -135,7 +135,7 @@ const std::vector<const Trk::Surface*>*
   if (innerRadius() > s_numericalStable) {
     if (!isConcentric)
       retsf->push_back(new Trk::CylinderSurface(
-        new Amg::Transform3D(transform), innerCylinderBounds()));
+        Amg::Transform3D(transform), innerCylinderBounds()));
     else
       retsf->push_back(new Trk::CylinderSurface(innerCylinderBounds()));
   }

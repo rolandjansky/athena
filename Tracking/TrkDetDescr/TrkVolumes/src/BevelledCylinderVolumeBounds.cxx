@@ -168,10 +168,10 @@ const std::vector<const Trk::Surface*>*
   // outer BevelledCylinder/Plane
   if (m_type < 0)
     retsf->push_back(new Trk::CylinderSurface(
-      new Amg::Transform3D(transform), outerBevelledCylinderBounds()));
+      Amg::Transform3D(transform), outerBevelledCylinderBounds()));
   else if (m_type < 2)
     retsf->push_back(new Trk::CylinderSurface(
-      new Amg::Transform3D(transform), outerCylinderBounds()));
+      Amg::Transform3D(transform), outerCylinderBounds()));
   else
     retsf->push_back(new Trk::PlaneSurface(
       new Amg::Transform3D(
@@ -185,10 +185,10 @@ const std::vector<const Trk::Surface*>*
   if (innerRadius() > s_numericalStable) {
     if (m_type < 1)
       retsf->push_back(new Trk::CylinderSurface(
-        new Amg::Transform3D(transform), innerBevelledCylinderBounds()));
+        Amg::Transform3D(transform), innerBevelledCylinderBounds()));
     else if (m_type == 2)
       retsf->push_back(new Trk::CylinderSurface(
-        new Amg::Transform3D(transform), innerCylinderBounds()));
+        Amg::Transform3D(transform), innerCylinderBounds()));
     else
       retsf->push_back(new Trk::PlaneSurface(
         new Amg::Transform3D(
