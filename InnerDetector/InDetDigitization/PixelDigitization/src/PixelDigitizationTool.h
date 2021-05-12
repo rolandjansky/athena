@@ -307,6 +307,7 @@ protected:
   std::string   m_inputObjectName;
   bool          m_createNoiseSDO;
   bool m_doSpecialPixels;
+  bool m_ignoreMissingElements;
 
 };
 

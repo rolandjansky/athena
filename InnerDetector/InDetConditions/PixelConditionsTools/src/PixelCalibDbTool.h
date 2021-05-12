@@ -103,6 +103,8 @@ private:
   mutable PixelCalibDataColl* m_calibData;
  
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+
+  bool m_ignoreMissing;
     
 };
 
