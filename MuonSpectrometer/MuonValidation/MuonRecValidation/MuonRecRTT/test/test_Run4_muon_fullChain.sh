@@ -15,11 +15,11 @@
 # art-output: muonPerformance_xAOD.txt
 
 #####################################################################
-# run simulation on 50 Zmumu events using the Run4 muon layout on top of the latest Run3 ATLAS layout
+# run simulation on 50 Zmumu events using the Run4 muon layout on top of the latest Run3 setup (s3680) with the symmetric layout ATLAS-R3S-2021-01-00-02
 # the postExec overrides the muon geometry to use the Run4 muon layout
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
+          --AMI=s3680 \
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
-          --AMI=s3512 \
           --maxEvents 50 \
           --imf False \
           --postExec 'database_layout="MuonSpectrometer-R.10.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");' \
