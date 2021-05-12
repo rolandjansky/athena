@@ -302,7 +302,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
 
    // --------------- propagate to find a first intersection ---------------------
-   Trk::CylinderSurface estimationCylinder(new Amg::Transform3D, estimationR, 10e10);
+   Trk::CylinderSurface estimationCylinder(Amg::Transform3D(), estimationR, 10e10);
 
    ATH_MSG_VERBOSE( "Cylinder to be intersected : " << estimationCylinder );
 

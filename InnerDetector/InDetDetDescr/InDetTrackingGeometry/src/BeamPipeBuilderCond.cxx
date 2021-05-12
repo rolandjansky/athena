@@ -102,15 +102,15 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
   std::vector<const Trk::CylinderLayer*>* beamPipe = new std::vector<const Trk::CylinderLayer*>;
   
   // the geometry
-  Amg::Transform3D* beamPipeTransform =  new Amg::Transform3D;
-  beamPipeTransform->setIdentity();
+  Amg::Transform3D beamPipeTransform;
+  beamPipeTransform.setIdentity();
 
   double beamPipeRadius = m_beamPipeRadius;
   
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
-        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
+        beamPipeTransform = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
@@ -145,12 +145,12 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
         }
         ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
-      (*beamPipeTransform) = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
+      beamPipeTransform = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
 
   ATH_MSG_VERBOSE("BeamPipe shift estimated as    : " 
-      <<  beamPipeTransform->translation().x() << ", "
-      <<  beamPipeTransform->translation().y() << ","
-      <<  beamPipeTransform->translation().y());
+      <<  beamPipeTransform.translation().x() << ", "
+      <<  beamPipeTransform.translation().y() << ","
+      <<  beamPipeTransform.translation().y());
   
   Trk::CylinderBounds* beamPipeBounds    = new Trk::CylinderBounds(beamPipeRadius, m_beamPipeHalflength);
   ATH_MSG_VERBOSE("BeamPipe bounds constructed as : " << (*beamPipeBounds) );

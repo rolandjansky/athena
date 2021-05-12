@@ -1341,9 +1341,9 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     if (trackRadius < radius - 2000. || trackRadius > radius + 2000.) {
         return nullptr;
     }
-    auto matrix = std::make_unique<Amg::Transform3D>();
-    matrix->setIdentity();
-    auto cylinder = std::make_unique < Trk::CylinderSurface > (matrix.release(), radius, m_barrelPivotPlaneHalfLength.value());
+    Amg::Transform3D matrix;
+    matrix.setIdentity();
+    auto cylinder = std::make_unique < Trk::CylinderSurface > (matrix, radius, m_barrelPivotPlaneHalfLength.value());
 
     distance[0] = trackRadius;
     distance[1] = trackRadius - radius;

@@ -123,7 +123,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
               navLayerHalflengthZ = layerSurface.bounds().halflengthZ();
               ATH_MSG_VERBOSE( "bi-equidistant : creating cylindrical NavigationLayer at   radius : " << navigationR );
               Trk::CylinderSurface* navLayerSurface = layerTransform ?
-                      new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navigationR, navLayerHalflengthZ) : 
+                      new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navigationR, navLayerHalflengthZ) : 
                       new Trk::CylinderSurface(navigationR, navLayerHalflengthZ);
               // the navigation layer
               navLayer = new Trk::NavigationLayer(navLayerSurface);
@@ -139,7 +139,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // special treatment for the last one
             ATH_MSG_VERBOSE( "bi-equidistant : creating cylindrical NavigationLayer at   radius : " << navigationR+radialStep);
             Trk::CylinderSurface* navLayerSurfacFinal = layerTransform ? 
-                            new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navigationR+radialStep, navLayerHalflengthZ) :
+                            new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navigationR+radialStep, navLayerHalflengthZ) :
                             new Trk::CylinderSurface(navigationR+radialStep, navLayerHalflengthZ);
             // the navigation layer
             navLayer = new Trk::NavigationLayer(navLayerSurfacFinal);
@@ -184,7 +184,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                 // navigation layer : previous bin
                 double navLayerRadius = 0.5*( (layerRadius-0.5*layerThickness) + boundaries[boundaries.size()-1] );
                 Trk::CylinderSurface* navLayerSurface = layerTransform ? 
-                                    new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navLayerRadius, halfLengthZ) :
+                                    new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navLayerRadius, halfLengthZ) :
                                     new Trk::CylinderSurface(navLayerRadius, halfLengthZ);
                 // material layer : current bin
                 cylinderLayer = checkAndReplaceEmptyLayer(layIter);
@@ -207,7 +207,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // close up the array with last bin
             double navLayerRadiusFinal = 0.5*(rmax+boundaries[boundaries.size()-1]);
             Trk::CylinderSurface* navLayerSurfaceFinal = layerTransform ?  
-                                        new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navLayerRadiusFinal, halfLengthZ) :
+                                        new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navLayerRadiusFinal, halfLengthZ) :
                                         new Trk::CylinderSurface(navLayerRadiusFinal, halfLengthZ);
             boundaries.push_back(rmax);
             ATH_MSG_VERBOSE( "arbitrary : creating cylindrical NavigationLayer at radius : " << navLayerRadiusFinal );

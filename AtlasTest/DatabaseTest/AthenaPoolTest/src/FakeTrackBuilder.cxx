@@ -58,8 +58,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   //std::cout<<counter++<<std::endl;
 
   // test state #1 - arbitrary TP AtaCylinder
-  // Amg::Transform3D t = Amg::Transform3D::Identity(); t.setIdentity();
-  Trk::CylinderSurface surface(0, 1.0, 2*M_PI, 4.0);
+  Trk::CylinderSurface surface(1.0, 2*M_PI, 4.0);
   trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
   //std::cout<<counter++<<std::endl;

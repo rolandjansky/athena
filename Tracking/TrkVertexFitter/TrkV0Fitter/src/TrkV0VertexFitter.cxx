@@ -134,8 +134,8 @@ namespace Trk
           msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endmsg;
           msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endmsg;
         } else {
-          Amg::Transform3D * CylTrf = new Amg::Transform3D;
-          CylTrf->setIdentity();
+          Amg::Transform3D CylTrf;
+          CylTrf.setIdentity();
           Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
           const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
           MaterialUpdateMode mode = Trk::removeNoise;

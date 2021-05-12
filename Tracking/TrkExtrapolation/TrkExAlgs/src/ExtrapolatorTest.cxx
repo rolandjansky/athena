@@ -120,7 +120,7 @@ StatusCode Trk::ExtrapolatorTest::initialize()
           // create the Surface triplet
           std::vector< const Trk::Surface*> surfaceTriplet;
              surfaceTriplet.push_back(new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,*halfZIter)),0.,*radiusIter));
-             surfaceTriplet.push_back(new Trk::CylinderSurface(new Amg::Transform3D,*radiusIter, *halfZIter));
+             surfaceTriplet.push_back(new Trk::CylinderSurface(Amg::Transform3D(),*radiusIter, *halfZIter));
              surfaceTriplet.push_back(new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,-(*halfZIter))),0.,*radiusIter));
 	     
 	     ATH_MSG_INFO("Creating surfaces: R " << *radiusIter << " Z " << *halfZIter);

@@ -134,7 +134,7 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
              surface = new Trk::ConeSurface(*transform, m_flatDist->shoot()*0.7*M_PI); 
          } break;
          case 1 : {   
-             surface = new Trk::CylinderSurface(transform.release(), 50.+m_worldDimensions[0]*m_flatDist->shoot(), m_worldDimensions[2]);
+             surface = new Trk::CylinderSurface(*transform, 50.+m_worldDimensions[0]*m_flatDist->shoot(), m_worldDimensions[2]);
          } break;
          // create a disc surface
          case 2 : {   
