@@ -30,7 +30,7 @@ An example jobOptions file with pythia showering can be found at /athena/Generat
 
 ## Some Notes
 * The S^2 model can be changed by adjusting the Init.isurv value
-* The Init.diff should be either 'el', 'sda', 'sdb', or 'dd'.  Be careful to make sure that the "BeamRemnants:unresolvedHadron = 0" component of the pythia commands is adjusted accordingly below (el -> 0, sda -> 2, sdb ->1, and dd -> 3)
+* The Init.diff should be either 'el', 'sda', 'sdb', or 'dd'.  Be careful to make sure that the "BeamRemnants:unresolvedHadron = 0" component of the pythia commands is adjusted accordingly below (el -> 3, sda -> 2, sdb ->1, and dd -> 0)
 * The list of processes for Init.proc can be found in section 7 of the [manual](https://superchic.hepforge.org/superchic4.pdf)
 * Output kinematics can of course be changed from what is in the samples.  Two body decays use "a" and "b" particles (as in pta and ptb).  Four body decays use "a", "b", "c", "d", and so forth.
   * Cuts that have "x" in them refer to the hard process as a whole, so e.g. the di-lepton system in a di-lepton event

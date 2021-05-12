@@ -59,5 +59,7 @@ import Superchic_i.EventFiller as EF
 ef = EF.LheEVNTFiller()
 fileName = "evrecs/evrec"+Init.outtg[1:-1]+".dat"
 ef.fileName = fileName
+outputFileName = "outputs/output"+Init.outtg[1:-1]+".dat"
+ef.outputFileName = outputFileName
 genSeq += ef
 

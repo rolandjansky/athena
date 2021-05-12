@@ -14,11 +14,12 @@ class LheEVNTFiller(EvgenAlg):
         super(LheEVNTFiller, self).__init__(name=name)
 
     fileName = "evrecs/evrecout.dat"
+    outputFileName = "outputs/outputout.dat"
     eventsProcessed = 0
 
     def initialize(self):
         seed = None
-        if(os.path.isfile(self.fileName)):
+        if(os.path.isfile(self.fileName) and os.path.isfile(self.outputFileName)):
             print(self.fileName)
             return StatusCode.Success
         else:
@@ -30,7 +31,26 @@ class LheEVNTFiller(EvgenAlg):
         eventsSeen = 0
         firstLine = True
         particlesSeen = 0
+        xsWritten = False
 
+        if( not xsWritten ):
+            with open(self.outputFileName,'r') as inputOutputFile:
+                for line in inputOutputFile:
+                    if 'Cross section =' in line:
+                        print(line)
+                        splitLine = line.split()
+                        factor = 1.
+                        if(splitLine[-1] == "pb"):
+                            factor = 0.001
+                        if(splitLine[-1] == "fb"):
+                            factor = 0.000001
+                        if(splitLine[-1] == "ub"):
+                            factor = 1000.
+                        if(splitLine[-1] == "mb"):
+                            factor = 1000000.
+                        print("MetaData: cross-section (nb)= "+str(float(splitLine[3])*factor))
+                        xsWritten = True
+        
         with open(self.fileName,'r') as inputfile:
             event = False
             for line in inputfile:

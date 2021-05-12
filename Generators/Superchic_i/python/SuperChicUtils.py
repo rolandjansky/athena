@@ -120,7 +120,7 @@ def writeInputDAT(Init):
     outF.write("********************Unweighted events**********************************************\n")
     outF.write("***********************************************************************************\n")
     outF.write(Init.genunw + "                              ! [genunw] : Generate unweighted events \n")
-    outF.write(Init.nev + "                                 ! [nev] : Number of events (1 or a small value is recommended) ( the number of produced total events are controlled by athena ) \n")
+    outF.write(Init.nev + "                                 ! [nev] : Number of events (preferably controlled by maxEvents option in Gen_tf command) \n")
     outF.write(Init.erec + "                               ! [erec] : Event record format ('hepmc','lhe','hepevt') \n")
     outF.write(Init.readwt + "                             ! [readwt] : Set to true to read in pre-calculated maxium weight below \n")
     outF.write(Init.wtmax +  "                               ! [wtmax] : Maximum weight \n")
