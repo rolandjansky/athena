@@ -59,7 +59,8 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   m_dbTag(""),
   m_dbRevision(0),
   m_calibData(0),
-  m_geoModelSvc("GeoModelSvc",name)
+  m_geoModelSvc("GeoModelSvc",name),
+  m_ignoreMissing(false)
 {
   declareInterface< IPixelCalibDbTool >(this); 
 
@@ -74,6 +75,7 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   declareProperty("dbTag",m_dbTag);
   declareProperty("dbRevision",m_dbRevision);
   declareProperty("GeoModelService",m_geoModelSvc);
+  declareProperty("IgnoreMissingElements", m_ignoreMissing);
 
 }
 //================ Address update =============================================
@@ -268,7 +270,14 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	Identifier ident = m_pixid->wafer_id(component, layer, phi, eta);
 	PixelCalib::PixelCalibData* datamod = 0;
 	datamod = getCalibPtr(ident);
-	  
+	if(!datamod){
+	  if(m_ignoreMissing){
+	    ATH_MSG_DEBUG("Invalid hash for "<<m_pixid->show_to_string(ident)<<" ...continuing");
+	    continue;
+	  }
+	  else ATH_MSG_ERROR("Invalid hash for "<<m_pixid->show_to_string(ident));
+	}
+	
 	int item[12];
 	float fitem[8];
 	int n; 
@@ -566,7 +575,8 @@ const PixelCalib::PixelCalibData* PixelCalibDbTool::cgetCalibPtr(const Identifie
   //  const PixelCalib::PixelCalibData* pat = 0; 
   //const PixelCalibDataColl* patc = m_calibData; 
   IdentifierHash id_hash = m_pixid->wafer_hash(key); 
-  return (*m_calibData)[id_hash]; 
+  if(!id_hash.is_valid()) return nullptr;
+  else return (*m_calibData)[id_hash]; 
 }
 
 //==============================================================================================

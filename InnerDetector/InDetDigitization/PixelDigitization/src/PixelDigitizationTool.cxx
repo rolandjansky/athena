@@ -104,7 +104,8 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_eventNextUpdate(0),
   m_inputObjectName(""),
   m_createNoiseSDO(false),
-  m_doSpecialPixels(true)
+  m_doSpecialPixels(true),
+  m_ignoreMissingElements(false)
 {
 
   declareInterface<PixelDigitizationTool>(this);
@@ -149,6 +150,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
   declareProperty("EnableSpecialPixels",m_doSpecialPixels);
+  declareProperty("IgnoreMissingElements",m_ignoreMissingElements);
 }
 
 
@@ -230,6 +232,7 @@ StatusCode PixelDigitizationTool::createOutputContainers() {
   /////////////////////////////////////////////////
   // create a new RDO conatiner and store in SG
   /////////////////////////////////////////////////
+
 
   if (!m_rdoContainer.isValid()) {
     m_rdoContainer = CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max());
@@ -418,7 +421,12 @@ bool PixelDigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDio
 
   if (sielement==0) {
     ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule());
-    ATH_MSG_ERROR ( "detector manager could not find element with id = " << id );
+    if(m_ignoreMissingElements){
+      ATH_MSG_DEBUG ( "detector manager could not find element with id = " << id <<" - probably this is expected?");
+    }
+    else{
+      ATH_MSG_ERROR ( "detector manager could not find element with id = " << id );
+    }
     return false;
   }
   // create the charged diodes collection
@@ -742,8 +750,14 @@ StatusCode PixelDigitizationTool::createAndStoreRDO(SiChargedDiodeCollection *ch
   PixelRDO_Collection *RDOColl=this->createRDO(chDiodeCollection);
 
   if (m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()).isFailure()) {
-    ATH_MSG_FATAL("Pixel RDOs could not be added to container !");
-    return StatusCode::FAILURE;
+    if(m_ignoreMissingElements){
+      ATH_MSG_WARNING("Pixel RDOs could not be added to container ! RDO Identifier "<<m_detID->show_to_string(RDOColl->identify()));
+      return StatusCode::RECOVERABLE;
+    }
+    else{
+      ATH_MSG_FATAL("Pixel RDOs could not be added to container ! RDO Identifier "<<m_detID->show_to_string(RDOColl->identify()));
+      return StatusCode::FAILURE;
+    }
   }
   else {
     ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
