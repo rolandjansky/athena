@@ -41,28 +41,15 @@ void AnalysisConfigMT_Ntuple::loop() {
         m_provider->msg(MSG::DEBUG) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
 				   << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endmsg;
 
+
+	bool foundOffline = false;
+
 	// get (offline) beam position
 	double xbeam = 0;
 	double ybeam = 0;
 	double zbeam = 0;
 	std::vector<double> beamline;
 
-	bool foundOffline = false;
-
-	if ( m_iBeamCondSvc ) {
-
-	  const Amg::Vector3D& vertex = m_iBeamCondSvc->beamPos();
-	  xbeam = vertex[0];
-	  ybeam = vertex[1];
-	  zbeam = vertex[2];
-
-	  /// leave this code commented here - useful for debugging 
-	  //	  m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << "\tz=" << zbeam <<endmsg; 
-	  beamline.push_back(xbeam);
-	  beamline.push_back(ybeam);
-	  beamline.push_back(zbeam);
-	  //     m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endmsg;	
-	}
 
 	// get (online) beam position
 	double xbeam_online = 0;
@@ -70,23 +57,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	double zbeam_online = 0;
 
 	std::vector<double> beamline_online;
-
-	if ( m_iOnlineBeamCondSvc ) {
-
-	  const Amg::Vector3D& vertex = m_iOnlineBeamCondSvc->beamPos();
-	  xbeam_online = vertex[0];
-	  ybeam_online = vertex[1];
-	  zbeam_online = vertex[2];
-
-	  beamline_online.push_back( xbeam_online );
-	  beamline_online.push_back( ybeam_online );
-	  beamline_online.push_back( zbeam_online );
-
-	  //	  m_provider->msg(MSG::INFO) << " using online beam position" 
-	  //				     << "\tx=" << xbeam_online 
-	  //				     << "\ty=" << ybeam_online 
-	  //				     << "\tz=" << zbeam_online << endmsg; 
-	}
 
 	//	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endmsg; 
 	//	m_provider->msg(MSG::INFO) << " online  beam position\tx=" << xbeam_online << "\ty=" << ybeam_online << "\tz=" << zbeam_online << endmsg; 
@@ -177,11 +147,14 @@ void AnalysisConfigMT_Ntuple::loop() {
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
 
+	if ( xbeam!=0 || ybeam!=0 ) { 
+	  selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
+	  selectorRef.setBeamline( xbeam, ybeam, zbeam );
+	}
 
-	selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorRef.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
-
+	if ( xbeam_online!=0 || ybeam_online!=0 ) { 
+	    selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
+	}
 
 	selectorTruth.correctTracks( true );
 	selectorRef.correctTracks( true );
@@ -594,10 +567,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    beamline_.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(beamline_);
 	  }
-	  else { 
-	    m_event->back().back().addUserData(beamline);
-	  }
-
 
 
 	  Noff = selectorRef.tracks().size();
@@ -733,9 +702,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      beamline_.push_back( selectorTest.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
 	    }
-	    else { 
-	      m_event->back().back().addUserData(beamline);
-	    }
 	    
 	    int Ntest = selectorTest.tracks().size();
 	    
@@ -793,9 +759,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    beamline_.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(beamline_);
 	  }
-	  else { 	  
-	    m_event->back().back().addUserData(beamline);
-	  }
+
 	}
 	
        
@@ -825,15 +789,13 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->addChain(mchain);
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> beamline_;
 	      beamline_.push_back( selectorRef.getBeamX() );
 	      beamline_.push_back( selectorRef.getBeamY() );
 	      beamline_.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
-	  }
-	  else { 	  
-	      m_event->back().back().addUserData(beamline);
 	  }
 
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endmsg; 
@@ -909,9 +871,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      beamline_.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
 	    }
-	    else { 	  
-	      m_event->back().back().addUserData(beamline);
-	    }
+
 	  }
 	}
 	
@@ -1157,7 +1117,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  chain.addRoi( *roi_tmp );
 		  chain.back().addTracks(testTracks);
 		  chain.back().addVertices(tidavertices);
-		  chain.back().addUserData(beamline_online);
 		  
 #if 0
 		  /// jets can't be added yet
@@ -1171,10 +1130,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		    beamline_.push_back( selectorTest.getBeamZ() );
 		    chain.back().addUserData(beamline_);
 		  }
-		  else { 	  
-		    if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
-		  }
-		  
+	  
 		  if ( roi_tmp ) delete roi_tmp;
 		  roi_tmp = 0;
 		}
