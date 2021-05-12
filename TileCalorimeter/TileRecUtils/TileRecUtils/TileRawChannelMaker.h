@@ -47,9 +47,9 @@ class TileRawChannelMaker: public AthAlgorithm {
     // destructor
     virtual ~TileRawChannelMaker();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
     virtual bool isClonable() const override final { return true; }
 
   private:
