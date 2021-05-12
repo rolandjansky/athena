@@ -14,7 +14,7 @@ class FastReductionAlgToolFactory:
     def __init__(self):
         
         self.tool_factories = {
-            'hypo_tool': [CompFactory.TrigJetHypoToolMT, 0],
+            'hypo_tool': [CompFactory.TrigJetHypoTool, 0],
             'helper_tool': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
 
             'HelperToolConfigTool':

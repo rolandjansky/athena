@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "TrigHLTJetHypo/../src/ConditionFilter.h"
 #include "TrigHLTJetHypo/../src/ITrigJetHypoInfoCollector.h"
-#include "TrigHLTJetHypo/../src/EtaConditionAbsMT.h"
+#include "TrigHLTJetHypo/../src/EtaConditionAbs.h"
 #include "TrigHLTJetHypo/../src/RepeatedCondition.h"
 #include "TrigHLTJetHypo/../src/ITrigHypoJetVectorFilterConfig.h"
 

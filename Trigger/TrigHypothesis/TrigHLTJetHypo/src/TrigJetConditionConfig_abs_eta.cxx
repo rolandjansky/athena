@@ -5,7 +5,7 @@
 #include "TrigJetConditionConfig_abs_eta.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./EtaConditionAbsMT.h"
+#include "./EtaConditionAbs.h"
 
 TrigJetConditionConfig_abs_eta::TrigJetConditionConfig_abs_eta(const std::string& type,
 						       const std::string& name,
@@ -21,9 +21,9 @@ StatusCode TrigJetConditionConfig_abs_eta::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_abs_eta::getCondition() const {
+Condition TrigJetConditionConfig_abs_eta::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<EtaConditionAbsMT>(a2d(m_min), a2d(m_max));
+  return std::make_unique<EtaConditionAbs>(a2d(m_min), a2d(m_max));
 }
 
 

@@ -2,23 +2,23 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_IREPEATEDCONDITIONMT_H
-#define TRIGHLTJETHYPO_IREPEATEDCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_IREPEATEDCONDITION_H
+#define TRIGHLTJETHYPO_IREPEATEDCONDITION_H
 
 /********************************************************************
  *
- * NAME:     IRepeatedConditionMT.h
+ * NAME:     IRepeatedCondition.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
  * 
- * extend IConditionMT by adding a method that checks whether the
+ * extend ICondition by adding a method that checks whether the
  * capacity of the Condition has been attained.
  *          
  *********************************************************************/
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "IConditionMT.h"
+#include "ICondition.h"
 
 #include <string>
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
@@ -26,7 +26,7 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class ITrigJetHypoInfoCollector;
 
-class IRepeatedCondition: public IConditionMT {
+class IRepeatedCondition: public ICondition {
  public:
   virtual ~IRepeatedCondition(){}
 
