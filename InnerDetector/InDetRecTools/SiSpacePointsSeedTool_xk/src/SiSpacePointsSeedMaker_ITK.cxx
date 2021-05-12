@@ -2198,10 +2198,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparisonPPP
   int jn=0,i=0; 
 
   float Qmin = 1.e20;
-  float Rb   = 2.*SPb->radius();
-  int   NTc(2); if(Rb > 280.) NTc = 1;
+  float Rb   = SPb->radius();
+  int   NTc(2); if(Rb > m_rmaxPPP) NTc = 1;
   int   nmin = -1;
-  bool  Qm   = Rb < 120. || std::abs(Zob) > 150.;
+  bool  Qm   = Rb < 60. || std::abs(Zob) > 150.;
   
   for(; i!=m_nCmSp; ++i) {
 
