@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 from importlib import import_module
@@ -662,8 +662,11 @@ class L1MenuConfig(object):
         # ------------------
         # final consistency check
         # ------------------
+
         self.l1menu.check()
 
+        # check that only the minimal set of legacy and detector thresholds is used
+        self.l1menu.checkLegacyThresholds()   
 
 
 
