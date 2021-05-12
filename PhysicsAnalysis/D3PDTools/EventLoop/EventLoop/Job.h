@@ -36,6 +36,9 @@ namespace asg
 
 namespace EL
 {
+  class PythonConfigBase;
+
+
   /// effects: standard swap
   /// guarantee: no-fail
   void swap (Job& a, Job& b);
@@ -100,6 +103,7 @@ namespace EL
     void algsAdd (const AnaAlgorithmConfig& config);
     void algsAdd (const AnaReentrantAlgorithmConfig& config);
     void algsAdd (const asg::AsgServiceConfig& config);
+    void algsAdd (const EL::PythonConfigBase& config);
 
 
     /// \brief add a clone of the given algorithm
