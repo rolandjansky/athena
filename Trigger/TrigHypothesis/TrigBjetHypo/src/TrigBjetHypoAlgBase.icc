@@ -5,7 +5,7 @@
 #include "AthViews/ViewHelper.h"
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromView( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::retrieveCollectionFromView( const EventContext& context,
 	   			  			      ElementLinkVector< CONTAINER >& EL,
 				   			      const SG::ReadHandleKey< CONTAINER >& inputKey,
 				   			      const TrigCompositeUtils::Decision* prevDecision ) const {
@@ -28,7 +28,7 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromView( const EventContext
 }
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromNavigation( const std::string& linkName,
+StatusCode TrigBjetHypoAlgBase::retrieveObjectFromNavigation( const std::string& linkName,
 	   							ElementLink< CONTAINER >& EL,
 	   							const TrigCompositeUtils::Decision* prevDecision )  const {
 
@@ -47,7 +47,7 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromNavigation( const std::strin
 }
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromNavigation( const std::string& linkName,
+StatusCode TrigBjetHypoAlgBase::retrieveCollectionFromNavigation( const std::string& linkName,
                                                     		    ElementLinkVector< CONTAINER >& objELs,
 								    const TrigCompositeUtils::DecisionContainer* prevDecisionContainer )  const {
 
@@ -68,7 +68,7 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromNavigation( const std::s
 
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromStoreGate( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::retrieveObjectFromStoreGate( const EventContext& context,
 							       ElementLinkVector< CONTAINER >& ELs,
 							       const SG::ReadHandleKey< CONTAINER >& inputKey ) const {
   
@@ -87,7 +87,7 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromStoreGate( const EventContex
 }
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromEventView( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::retrieveObjectFromEventView( const EventContext& context,
                                                                ElementLinkVector< CONTAINER >& ELs,
                                                                const SG::ReadHandleKey< CONTAINER >& inputKey,
                                                                const TrigCompositeUtils::DecisionContainer* prevDevisionContainer ) const {
@@ -134,7 +134,7 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromEventView( const EventContex
 
 
 template< class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionFromStoreGate( TrigCompositeUtils::Decision& outputDecision,
+StatusCode TrigBjetHypoAlgBase::attachObjectLinkToDecisionFromStoreGate( TrigCompositeUtils::Decision& outputDecision,
                                                                            const SG::ReadHandleKey< CONTAINER >& objectKey,
                                                                            const std::string& objLink,
                                                                            int objIndex ) const {
@@ -147,7 +147,7 @@ StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionFromStoreGate( TrigC
 }
 
 template< class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionsFromStoreGate( std::vector< TrigCompositeUtils::Decision* >& outputDecisions,
+StatusCode TrigBjetHypoAlgBase::attachObjectLinkToDecisionsFromStoreGate( std::vector< TrigCompositeUtils::Decision* >& outputDecisions,
 									    const SG::ReadHandleKey< CONTAINER >& objectKey,
 									    const std::string& objLink,
 									    int forcedIndex ) const {
@@ -173,7 +173,7 @@ StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionsFromStoreGate( std:
 
 
 template< class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionFromEventView( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::attachObjectLinkToDecisionFromEventView( const EventContext& context,
                                                                            TrigCompositeUtils::Decision& outputDecision,
                                                                            const SG::ReadHandleKey< CONTAINER >& objectKey,
                                                                            const std::string& objLink,
@@ -208,7 +208,7 @@ StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionFromEventView( const
 }
 
 template< class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionsFromEventView( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::attachObjectLinkToDecisionsFromEventView( const EventContext& context,
 									    std::vector< TrigCompositeUtils::Decision* >& outputDecisions,
 									    const SG::ReadHandleKey< CONTAINER >& objectKey,
 									    const std::string& objLink,
@@ -235,7 +235,7 @@ StatusCode TrigBjetHypoAlgBaseMT::attachObjectLinkToDecisionsFromEventView( cons
 }
 
 template < class CONTAINER >
-StatusCode TrigBjetHypoAlgBaseMT::attachObjectCollectionLinkToDecisionsFromEventView( const EventContext& context,
+StatusCode TrigBjetHypoAlgBase::attachObjectCollectionLinkToDecisionsFromEventView( const EventContext& context,
 										      std::vector< TrigCompositeUtils::Decision* >& outputDecisions,
 										      const SG::ReadHandleKey< CONTAINER >& objectKey,
 										      const std::string& objLink ) const {

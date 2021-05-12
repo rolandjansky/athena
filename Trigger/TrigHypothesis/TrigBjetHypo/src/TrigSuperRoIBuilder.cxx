@@ -3,18 +3,18 @@
 */
 
 //
-#include "TrigSuperRoIBuilderMT.h"
+#include "TrigSuperRoIBuilder.h"
 #include "CxxUtils/phihelper.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-TrigSuperRoIBuilderMT::TrigSuperRoIBuilderMT(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigSuperRoIBuilder::TrigSuperRoIBuilder(const std::string & name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator) {}
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode TrigSuperRoIBuilderMT::initialize() {
+StatusCode TrigSuperRoIBuilder::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_etaHalfWidth    );
@@ -32,7 +32,7 @@ StatusCode TrigSuperRoIBuilderMT::initialize() {
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-StatusCode TrigSuperRoIBuilderMT::execute() {
+StatusCode TrigSuperRoIBuilder::execute() {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
   const EventContext& ctx = getContext();

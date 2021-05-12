@@ -3,10 +3,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H
-#define TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H 1
+#ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALG_H
+#define TRIGBJETHYPO_TRIGBJETBTAGHYPOALG_H 1
 
-#include "TrigBjetHypoAlgBaseMT.h"
+#include "TrigBjetHypoAlgBase.h"
 #include "TrigBjetBtagHypoTool.h"
 
 #include <string>
@@ -34,15 +34,15 @@
     );
 
 
-class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
+class TrigBjetBtagHypoAlg : public TrigBjetHypoAlgBase {
  public:
-  TrigBjetBtagHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigBjetBtagHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
   
   virtual StatusCode  initialize();
   virtual StatusCode  execute( const EventContext& context ) const;
 
  private: 
-  TrigBjetBtagHypoAlgMT();
+  TrigBjetBtagHypoAlg();
 
   // online monitoring 
   virtual StatusCode monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs, const ElementLinkVector<xAOD::JetContainer >& all_bTaggedJetELs ) const ;

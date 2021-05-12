@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGBJETHYPO_TRIGBJETHYPOALGBASEMT_H
-#define TRIGBJETHYPO_TRIGBJETHYPOALGBASEMT_H 1
+#ifndef TRIGBJETHYPO_TRIGBJETHYPOALGBASE_H
+#define TRIGBJETHYPO_TRIGBJETHYPOALGBASE_H 1
 
 #include "DecisionHandling/HypoBase.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -15,17 +15,17 @@
  * @brief 
  **/
 
-class TrigBjetHypoAlgBaseMT : public ::HypoBase {
+class TrigBjetHypoAlgBase : public ::HypoBase {
  public: 
 
-  TrigBjetHypoAlgBaseMT( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~TrigBjetHypoAlgBaseMT();
+  TrigBjetHypoAlgBase( const std::string& name, ISvcLocator* pSvcLocator );
+  virtual ~TrigBjetHypoAlgBase();
 
   virtual StatusCode initialize() = 0;
   virtual StatusCode execute( const EventContext& ) const = 0;
 
  protected:
-  TrigBjetHypoAlgBaseMT();
+  TrigBjetHypoAlgBase();
 
   StatusCode retrievePreviousDecisionContainer( const EventContext&,
 						const TrigCompositeUtils::DecisionContainer*& ) const;
@@ -100,7 +100,7 @@ class TrigBjetHypoAlgBaseMT : public ::HypoBase {
 
 // ======================================================================================== //
 
-#include "TrigBjetHypoAlgBaseMT.icc"
+#include "TrigBjetHypoAlgBase.icc"
 
 // ======================================================================================== //
 
