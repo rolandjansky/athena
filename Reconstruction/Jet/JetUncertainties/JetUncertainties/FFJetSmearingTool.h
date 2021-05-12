@@ -184,10 +184,12 @@ namespace CP {
             CP::SystematicSet  m_SysList;
 
             //Maps that relates the systematic name with some of its caracteristics
-            std::map<std::string,std::string> m_Syst_HistPath_map;
             std::map<std::string,std::string> m_Syst_MassDefAffected_map;
             std::map<std::string,std::string> m_Syst_TopologyAffected_map;
+            std::map<std::string,std::string> m_Syst_HistPath_map;
             std::map<std::string,std::unique_ptr<TH2D>> m_Syst_Hist_map;
+            std::map<std::string,std::string> m_Syst_HistTAPath_map;
+            std::map<std::string,std::unique_ptr<TH2D>> m_Syst_HistTA_map;
             std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
 
             //The current systematic configuration
