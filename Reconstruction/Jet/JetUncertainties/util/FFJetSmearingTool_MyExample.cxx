@@ -99,6 +99,7 @@ int main(int argc, char* argv[]){
     std::string output = "";
     std::string string_configfile_path = "";
     std::string string_debugtool = "";
+    int eventsMax=10000000;
     //---------------------------
     // Decoding the user settings
     //---------------------------
@@ -127,6 +128,7 @@ int main(int argc, char* argv[]){
         if ( opt.find("--ConfigFile=")   != std::string::npos ) string_configfile_path = v[1];
         if ( opt.find("--DebugTool=")   != std::string::npos ) string_debugtool = v[1];
         if ( opt.find("--output=")   != std::string::npos ) output = v[1];
+        if ( opt.find("--eventsMax=")   != std::string::npos ) eventsMax = std::atoi(v[1].data());
     }//End: Loop over input options
 
 
@@ -230,6 +232,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
     // Print the recommended systematics
 
     const CP::SystematicSet& recommendedSysts = ffjetsmearingtool.recommendedSystematics();//take the systematics of the FFJETSmearing Tool
+    
     printf("Recommended systematics: \n");
     for(auto sysItr = recommendedSysts.begin();
         sysItr != recommendedSysts.end(); ++sysItr){
@@ -353,13 +356,13 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
         // Get the number of events
         const Long64_t nevents = event.getEntries();
-
+	
         // Decide how many events to run over
         //if(nevents>10000){nevents = 10000; }
 
 
 
-        for(Long64_t ievent = 0;  ievent < nevents; ++ievent){
+        for(Long64_t ievent = 0;  ievent < nevents && ievent < eventsMax; ++ievent){
 
             // Load the event:
             if( event.getEntry( ievent ) < 0 ) {
@@ -480,7 +483,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()*MeVtoGeV); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()*MeVtoGeV);  }
 
                 if(kindofmass=="TA"){
-
                     Double_t aux_original_jet_mass = jet_reco->m()*MeVtoGeV;
 
                     ffjetsmearingtool.applyCorrection(*jet_reco_TA);
