@@ -10,10 +10,11 @@
 #include <string>
 
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
-#include "MuPatCandidateBase.h"
 #include "MuPatHitTool.h"
-#include "MuPatSegment.h"
-#include "MuPatTrack.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatSegment.h"
+#include "MuPatPrimitives/MuPatTrack.h"
+#include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -21,7 +22,6 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
-#include "SortMuPatHits.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -56,8 +56,6 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode MuPatCandidateTool::finalize() { return StatusCode::SUCCESS; }
-
     MuPatSegment* MuPatCandidateTool::createSegInfo(const MuonSegment& segment, HitGarbage& hitsToBeDeleted,
                                                     MeasGarbage& measurementsToBeDeleted) const {
         Identifier chid = m_edmHelperSvc->chamberId(segment);
@@ -89,7 +87,7 @@ namespace Muon {
         info->quality = m_segmentSelector->quality(segment);
         info->segQuality = dynamic_cast<const MuonSegmentQuality*>(segment.fitQuality());
 
-        info->segPars = m_edmHelperSvc->createTrackParameters(segment, 5000., 0.);
+        info->segPars.reset(m_edmHelperSvc->createTrackParameters(segment, 5000., 0.));
         if (!info->segPars) { ATH_MSG_WARNING(" failed to create track parameter for segment "); }
 
         updateHits(*info, info->segment->containedMeasurements(), measurementsToBeDeleted, m_doMdtRecreation, m_doCscRecreation, true);

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SORTMUPATHITS_H
 #define SORTMUPATHITS_H
 
-#include "MuPatHit.h"
+#include "MuPatPrimitives/MuPatHit.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"

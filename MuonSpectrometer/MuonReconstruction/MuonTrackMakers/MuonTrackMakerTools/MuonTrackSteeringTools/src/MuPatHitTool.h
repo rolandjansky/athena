@@ -11,7 +11,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuPatHit.h"
+#include "MuPatPrimitives/MuPatHit.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -48,9 +48,6 @@ namespace Muon {
 
         /** initialize method, method taken from bass-class AlgTool */
         StatusCode initialize();
-
-        /** finialize method, method taken from bass-class AlgTool */
-        StatusCode finalize();
 
         /** @brief access to tool interface */
         static const InterfaceID& interfaceID() { return IID_MuPatHitTool; }

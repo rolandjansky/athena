@@ -8,8 +8,9 @@
 
 #include "AthenaKernel/Timeout.h"
 #include "CxxUtils/checker_macros.h"
-#include "MuPatSegment.h"
-#include "MuPatTrack.h"
+#include "MuPatPrimitives/MuPatSegment.h"
+#include "MuPatPrimitives/MuPatTrack.h"
+#include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
@@ -19,7 +20,6 @@
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
-#include "SortMuPatHits.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkSegment/SegmentCollection.h"
 ATLAS_CHECK_FILE_THREAD_SAFETY;

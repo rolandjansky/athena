@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATTRACK_H
@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "MuPatCandidateBase.h"
-#include "MuPatSegment.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatSegment.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
@@ -188,44 +188,6 @@ namespace Muon {
         std::vector<MuPatSegment*> m_excludedSegments;  //<! list of associated segments
         std::unique_ptr<Trk::Track> m_track;            //<! associated track
         MuPatSegment* m_seedSeg;                        //!< The special segment for this track
-
-    public:
-        /** @brief Mboy data members  */
-        struct MboyInfo {
-            // m_MboyStatus:
-            //-1: unknown
-            // 0: never reconstructed
-            // 1: produced as primary fit
-            // 2: produced as secondary fit
-            // 3: produced as main fit
-            int m_MboyStatus;
-
-            int m_ISC0;
-
-            double m_DZT1;
-            double m_DS1;
-            double m_DZT2;
-            double m_DS2;
-
-            double m_SMU;
-
-            double m_CFI;
-            double m_SFI;
-            double m_CFA;
-            double m_SFA;
-
-            double m_Z1;
-            double m_T1;
-            double m_S1;
-
-            double m_Z2;
-            double m_T2;
-            double m_S2;
-
-            int m_ndof;
-            double m_chi2;
-        };
-        MboyInfo* mboyInfo;
 
     };  // class MuPatTrack
 

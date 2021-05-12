@@ -19,6 +19,14 @@ namespace Trk {
 
 namespace Muon {
 
+    /**
+        List of MuPatHit pointers.
+    */
+    class MuPatHit;
+    typedef std::list<MuPatHit*> MuPatHitList;
+    typedef MuPatHitList::const_iterator MuPatHitCit;
+    typedef MuPatHitList::iterator MuPatHitIt;
+
     class MuPatHit {
     public:
         enum Type { UnknownType = -1, MDT = 0, RPC = 1, TGC = 2, CSC = 3, MM = 4, sTGC = 5, PREC = 6, Pseudo = 7, Scatterer = 8 };
@@ -59,7 +67,7 @@ namespace Muon {
         MuPatHit& operator=(const MuPatHit&);
 
         /** destructor */
-        ~MuPatHit();
+        virtual ~MuPatHit();
 
         /** @brief returns a reference to the TrackParameters */
         const Trk::TrackParameters& parameters() const;
@@ -114,8 +122,6 @@ namespace Muon {
         //
         // private member functions
         //
-        /** no default constructor */
-        MuPatHit() = delete;
 
         /** @brief copy hit */
         void copy(const MuPatHit& hit);
@@ -127,13 +133,6 @@ namespace Muon {
         Info m_info;
 
     };  // class MuPatHit
-
-    /**
-        List of MuPatHit pointers.
-    */
-    typedef std::list<MuPatHit*> MuPatHitList;
-    typedef MuPatHitList::const_iterator MuPatHitCit;
-    typedef MuPatHitList::iterator MuPatHitIt;
 
     //
     // static inline functions implementations
@@ -150,24 +149,6 @@ namespace Muon {
     }
 
     inline void MuPatHit::removeInstance() { --s_numberOfInstantiations; }
-
-    //
-    // inline member functions implementations
-    //
-    inline const Trk::TrackParameters& MuPatHit::parameters() const { return *m_pars; }
-
-    inline const Trk::MeasurementBase& MuPatHit::measurement() const {
-        if (info().selection == Precise) return *m_precisionMeas;
-        return *m_broadMeas;
-    }
-
-    inline const Trk::MeasurementBase& MuPatHit::preciseMeasurement() const { return *m_precisionMeas; }
-
-    inline const Trk::MeasurementBase& MuPatHit::broadMeasurement() const { return *m_broadMeas; }
-
-    inline const MuPatHit::Info& MuPatHit::info() const { return m_info; }
-
-    inline MuPatHit::Info& MuPatHit::info() { return m_info; }
 
 }  // namespace Muon
 

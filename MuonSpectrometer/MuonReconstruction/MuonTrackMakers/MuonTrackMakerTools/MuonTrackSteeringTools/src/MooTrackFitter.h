@@ -35,9 +35,9 @@
 // Local
 #include <set>
 
-#include "MuPatCandidateBase.h"
-#include "MuPatHit.h"
 #include "MuPatHitTool.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatHit.h"
 
 namespace Trk {
     class PrepRawData;
@@ -76,52 +76,37 @@ namespace Muon {
         typedef std::vector<std::pair<const Trk::TrackParameters*, const Trk::Layer*> > MaterialLayers;
 
         struct FitterData {
-            FitterData() :
-                nOverlaps(-1),
-                nSmall(-1),
-                nLarge(-1),
-                avePhi(0),
-                phiMin(0),
-                phiMax(0),
-                hasBarrel(false),
-                hasEndcap(false),
-                firstEntry(0),
-                secondEntry(0),
-                startPars(0),
-                firstIsTrack(false),
-                secondIsTrack(false),
-                firstHasMomentum(false),
-                secondHasMomentum(false) {}
+            FitterData() = default;
             MeasVec phiHits;
             MeasVec etaHits;
             MeasVec measurements;
             MeasVec firstLastMeasurements;
 
-            int nOverlaps;
-            int nSmall;
-            int nLarge;
+            int nOverlaps{-1};
+            int nSmall{-1};
+            int nLarge{-1};
             SLStationMap smallLargeChambersPerStation;
 
-            double avePhi;
-            double phiMin;
-            double phiMax;
+            double avePhi{0.};
+            double phiMin{0.};
+            double phiMax{0.};
 
-            bool hasBarrel;
-            bool hasEndcap;
-            const MuPatCandidateBase* firstEntry;
-            const MuPatCandidateBase* secondEntry;
+            bool hasBarrel{false};
+            bool hasEndcap{false};
+            const MuPatCandidateBase* firstEntry{nullptr};
+            const MuPatCandidateBase* secondEntry{nullptr};
             std::set<MuonStationIndex::StIndex> stations;
             MuPatHitList hitList;
 
             MuPatHitList copyHitList1;
             MuPatHitList copyHitList2;
 
-            Trk::Perigee* startPars;
+            Trk::Perigee* startPars{nullptr};
 
-            bool firstIsTrack;
-            bool secondIsTrack;
-            bool firstHasMomentum;
-            bool secondHasMomentum;
+            bool firstIsTrack{false};
+            bool secondIsTrack{false};
+            bool firstHasMomentum{false};
+            bool secondHasMomentum{false};
             std::set<Identifier> mdtIdsFirst;
             std::set<Identifier> mdtIdsSecond;
 

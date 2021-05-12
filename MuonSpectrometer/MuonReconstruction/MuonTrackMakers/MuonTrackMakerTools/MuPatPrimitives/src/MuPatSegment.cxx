@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuPatSegment.h"
+#include "MuPatPrimitives/MuPatSegment.h"
 
 #include <iostream>
 #define DUMP_MCTB_OBJECT_POINTERS
@@ -13,21 +13,7 @@ namespace Muon {
     unsigned int MuPatSegment::s_numberOfInstantiations = 0;
     unsigned int MuPatSegment::s_numberOfCopies = 0;
 
-    MuPatSegment::MuPatSegment() :
-        MuPatCandidateBase(),
-        quality(0.0),
-        segQuality(0),
-        segment(0),
-        segPars(0),
-        segmentIndex(-1),
-        usedInFit(0),
-        chIndex(MuonStationIndex::ChUnknown),
-        stIndex(MuonStationIndex::StUnknown),
-        isEndcap(false),
-        isMdt(false),
-        mboyInfo(0)
-
-    {
+    MuPatSegment::MuPatSegment() {
 #ifdef MCTB_OBJECT_COUNTERS
         addInstance();
 #endif
@@ -37,8 +23,6 @@ namespace Muon {
     }
 
     MuPatSegment::~MuPatSegment() {
-        delete segPars;
-        if (mboyInfo) delete mboyInfo;
 #ifdef MCTB_OBJECT_COUNTERS
         removeInstance();
 #endif
@@ -51,7 +35,7 @@ namespace Muon {
         quality = info.quality;
         segQuality = info.segQuality;
         segment = info.segment;
-        segPars = info.segPars ? info.segPars->clone() : 0;
+        segPars = info.segPars;
         segmentIndex = info.segmentIndex;
         usedInFit = info.usedInFit;
         chid = info.chid;
@@ -60,24 +44,6 @@ namespace Muon {
         stIndex = info.stIndex;
         isEndcap = info.isEndcap;
         isMdt = info.isMdt;
-        if (!info.mboyInfo) {
-            mboyInfo = 0;
-        } else {
-            mboyInfo = new MboyInfo();
-            mboyInfo->m_ISC0 = info.mboyInfo->m_ISC0;
-            mboyInfo->m_FFDRAT = info.mboyInfo->m_FFDRAT;
-            mboyInfo->m_GGDRAT = info.mboyInfo->m_GGDRAT;
-            mboyInfo->m_EZDRAT = info.mboyInfo->m_EZDRAT;
-            mboyInfo->m_JFDRAT = info.mboyInfo->m_JFDRAT;
-            mboyInfo->m_IWDRAT1 = info.mboyInfo->m_IWDRAT1;
-            mboyInfo->m_ZZDRAT1 = info.mboyInfo->m_ZZDRAT1;
-            mboyInfo->m_TTDRAT1 = info.mboyInfo->m_TTDRAT1;
-            mboyInfo->m_SSDRAT1 = info.mboyInfo->m_SSDRAT1;
-            mboyInfo->m_IWDRAT2 = info.mboyInfo->m_IWDRAT2;
-            mboyInfo->m_ZZDRAT2 = info.mboyInfo->m_ZZDRAT2;
-            mboyInfo->m_TTDRAT2 = info.mboyInfo->m_TTDRAT2;
-            mboyInfo->m_SSDRAT2 = info.mboyInfo->m_SSDRAT2;
-        }
 #ifdef MCTB_OBJECT_COUNTERS
         addInstance();
         ++s_numberOfCopies;
@@ -93,8 +59,7 @@ namespace Muon {
             quality = info.quality;
             segQuality = info.segQuality;
             segment = info.segment;
-            delete segPars;
-            segPars = info.segPars ? info.segPars->clone() : 0;
+            segPars = info.segPars;
             segmentIndex = info.segmentIndex;
             usedInFit = info.usedInFit;
             chid = info.chid;
@@ -103,25 +68,7 @@ namespace Muon {
             stIndex = info.stIndex;
             isEndcap = info.isEndcap;
             isMdt = info.isMdt;
-            if (mboyInfo) delete mboyInfo;
-            if (!info.mboyInfo) {
-                mboyInfo = 0;
-            } else {
-                mboyInfo = new MboyInfo();
-                mboyInfo->m_ISC0 = info.mboyInfo->m_ISC0;
-                mboyInfo->m_FFDRAT = info.mboyInfo->m_FFDRAT;
-                mboyInfo->m_GGDRAT = info.mboyInfo->m_GGDRAT;
-                mboyInfo->m_EZDRAT = info.mboyInfo->m_EZDRAT;
-                mboyInfo->m_JFDRAT = info.mboyInfo->m_JFDRAT;
-                mboyInfo->m_IWDRAT1 = info.mboyInfo->m_IWDRAT1;
-                mboyInfo->m_ZZDRAT1 = info.mboyInfo->m_ZZDRAT1;
-                mboyInfo->m_TTDRAT1 = info.mboyInfo->m_TTDRAT1;
-                mboyInfo->m_SSDRAT1 = info.mboyInfo->m_SSDRAT1;
-                mboyInfo->m_IWDRAT2 = info.mboyInfo->m_IWDRAT2;
-                mboyInfo->m_ZZDRAT2 = info.mboyInfo->m_ZZDRAT2;
-                mboyInfo->m_TTDRAT2 = info.mboyInfo->m_TTDRAT2;
-                mboyInfo->m_SSDRAT2 = info.mboyInfo->m_SSDRAT2;
-            }
+
 #ifdef MCTB_OBJECT_COUNTERS
             ++s_numberOfCopies;
 #endif
