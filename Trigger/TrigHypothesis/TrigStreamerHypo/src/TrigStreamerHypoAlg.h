@@ -1,31 +1,31 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGSTREAMERHYPO_TRIGSTREAMERHYPOALGMT_H
-#define TRIGSTREAMERHYPO_TRIGSTREAMERHYPOALGMT_H
+#ifndef TRIGSTREAMERHYPO_TRIGSTREAMERHYPOALG_H
+#define TRIGSTREAMERHYPO_TRIGSTREAMERHYPOALG_H
 
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/HypoBase.h"
 
-#include "ITrigStreamerHypoToolMT.h"
+#include "ITrigStreamerHypoTool.h"
 
 /**
- * @class TrigStreamerHypoAlgMT
+ * @class TrigStreamerHypoAlg
  * @brief Implements a streamer (aka no selection) for the HLT framework.
  **/
-class TrigStreamerHypoAlgMT : public ::HypoBase {
+class TrigStreamerHypoAlg : public ::HypoBase {
  public: 
 
-  TrigStreamerHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigStreamerHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
 
  private:
 
-  ToolHandleArray<ITrigStreamerHypoToolMT> m_hypoTools {
+  ToolHandleArray<ITrigStreamerHypoTool> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
      
 }; 

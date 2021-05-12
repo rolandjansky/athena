@@ -32,12 +32,12 @@ from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence
 cellRecoSeq, METkey = metCellRecoSequence(InputMakerAlg.RoIs)
 topSequence += cellRecoSeq
 
-from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, MissingETHypoToolMT
+from TrigMissingETHypo.TrigMissingETHypoConfig import MissingETHypoAlg, MissingETHypoTool
 
-metHypoTool = MissingETHypoToolMT("METHypoTool")
+metHypoTool = MissingETHypoTool("METHypoTool")
 metHypoTool.metThreshold=50
 
-metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
+metHypoAlg = MissingETHypoAlg("METHypoAlg")
 metHypoAlg.HypoTools = [metHypoTool]
 metHypoAlg.METContainerKey="HLT_MET"
 metHypoAlg.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions
@@ -137,14 +137,14 @@ topSequence += metAlg
 #################################################
 # Add TrigMissingETHypo algorithm and tool
 #################################################
-from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, MissingETHypoToolMT
+from TrigMissingETHypo.TrigMissingETHypoConfig import MissingETHypoAlg, MissingETHypoTool
 
 def makeMETHypoTool():
-    hypoTool = MissingETHypoToolMT("HLT_xe10")
+    hypoTool = MissingETHypoTool("HLT_xe10")
     hypoTool.metThreshold = 10
     return hypoTool
 
-hypoAlg = MissingETHypoAlgMT("METHypoAlg")
+hypoAlg = MissingETHypoAlg("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
 hypoAlg.METContainerKey=metAlg.METContainerKey
 

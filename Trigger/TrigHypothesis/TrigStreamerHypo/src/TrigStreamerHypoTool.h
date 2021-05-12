@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigStreamerHypoToolMTMT_H
-#define TrigStreamerHypoToolMTMT_H
+#ifndef TrigStreamerHypoTool_H
+#define TrigStreamerHypoTool_H
 /********************************************************************
  *
- * NAME:     TrigStreamerHypoToolMTMT.h
+ * NAME:     TrigStreamerHypoTool.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigStreamerHypo
  *
  *
@@ -17,20 +17,20 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-#include "ITrigStreamerHypoToolMT.h"
+#include "ITrigStreamerHypoTool.h"
 
-class TrigStreamerHypoToolMT: public extends<AthAlgTool, ITrigStreamerHypoToolMT>  {
+class TrigStreamerHypoTool: public extends<AthAlgTool, ITrigStreamerHypoTool>  {
 
  public:
   
-  TrigStreamerHypoToolMT(const std::string& type,
+  TrigStreamerHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
-  virtual ~TrigStreamerHypoToolMT();
+  virtual ~TrigStreamerHypoTool();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual StatusCode decide(std::vector<ITrigStreamerHypoToolMT::HypoInfo>& hypoInfo) const override;
+  virtual StatusCode decide(std::vector<ITrigStreamerHypoTool::HypoInfo>& hypoInfo) const override;
   virtual const HLT::Identifier& getId() const override; 
  private:
 

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALGMT_H
-#define TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALGMT_H 1
+#ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALG_H
+#define TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALG_H 1
 
 #include "Gaudi/Property.h"
 
@@ -13,16 +13,16 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 /**
- * @class TrigIsoHPtTrackTriggerHypoAlgMT
+ * @class TrigIsoHPtTrackTriggerHypoAlg
  * @brief Implements Hypo selection on triggering high pt isolated tracks 
  * @author Ismet Siral <ismet.siral@cern.ch> - University of Oregon
  **/
 
-class TrigIsoHPtTrackTriggerHypoAlgMT  :  public ::HypoBase 
+class TrigIsoHPtTrackTriggerHypoAlg  :  public ::HypoBase 
 { 
  public: 
 
-  TrigIsoHPtTrackTriggerHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigIsoHPtTrackTriggerHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute(const EventContext& context) const override;
@@ -34,4 +34,4 @@ class TrigIsoHPtTrackTriggerHypoAlgMT  :  public ::HypoBase
   
 }; 
 
-#endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALGMT_H
+#endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOALG_H

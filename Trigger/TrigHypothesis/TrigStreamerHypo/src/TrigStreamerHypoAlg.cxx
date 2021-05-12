@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigStreamerHypoAlgMT.h"
+#include "TrigStreamerHypoAlg.h"
 
 #include "Gaudi/Property.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -10,18 +10,18 @@
 
 using namespace TrigCompositeUtils;
 
-TrigStreamerHypoAlgMT::TrigStreamerHypoAlgMT( const std::string& name, 
+TrigStreamerHypoAlg::TrigStreamerHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigStreamerHypoAlgMT::initialize() {
+StatusCode TrigStreamerHypoAlg::initialize() {
 
   CHECK( m_hypoTools.retrieve() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigStreamerHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigStreamerHypoAlg::execute( const EventContext& context ) const {  
 
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto h_prevDecisions = SG::makeHandle( decisionInput(), context );
@@ -33,7 +33,7 @@ StatusCode TrigStreamerHypoAlgMT::execute( const EventContext& context ) const {
   DecisionContainer* newDecisions = outputHandle.ptr();
 
   // Struct to pass info on to the HypoTools
-  std::vector< ITrigStreamerHypoToolMT::HypoInfo > hypoInfo;
+  std::vector< ITrigStreamerHypoTool::HypoInfo > hypoInfo;
 
   for (const Decision* previousDecision : *h_prevDecisions ) {
     // Create output Decision object, link it to prevDecision.

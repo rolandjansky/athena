@@ -147,11 +147,11 @@ class AlgConfig(ABC):
         if hasattr(self, "_menuSequences"):
             return self._menuSequences
 
-        from TrigMissingETHypo.TrigMissingETHypoConfigMT import (
+        from TrigMissingETHypo.TrigMissingETHypoConfig import (
             TrigMETCellHypoToolFromDict,
         )
-        from TrigStreamerHypo.TrigStreamerHypoConfigMT import (
-            StreamerHypoToolMTgenerator,
+        from TrigStreamerHypo.TrigStreamerHypoConfig import (
+            StreamerHypoToolGenerator,
         )
 
         sequences = []
@@ -163,7 +163,7 @@ class AlgConfig(ABC):
                 hypo_tool = TrigMETCellHypoToolFromDict
             else:
                 hypo = self.make_passthrough_hypo_alg(idx)
-                hypo_tool = StreamerHypoToolMTgenerator
+                hypo_tool = StreamerHypoToolGenerator
             sequences.append(
                 MenuSequence(
                     Sequence=seq,
@@ -195,16 +195,16 @@ class AlgConfig(ABC):
     def make_hypo_alg(self):
         """ The hypo alg used for this configuration """
 
-        from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT
+        from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlg
 
-        return TrigMissingETHypoAlgMT(
+        return TrigMissingETHypoAlg(
             name="METHypoAlg_{}".format(self._suffix), METContainerKey=self.outputKey
         )
 
     def make_passthrough_hypo_alg(self, step):
-        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
 
-        return TrigStreamerHypoAlgMT(
+        return TrigStreamerHypoAlg(
             f"METPassThroughHypo_{self._suffix}_step{step}"
         )
 

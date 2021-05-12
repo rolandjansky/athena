@@ -109,12 +109,12 @@ def MinBiasZVertexFinderSequence():
     
     ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
     
-    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-    from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-    ZVertFindHypoAlg = TrigStreamerHypoAlgMT("ZVertFinderHypoAlg")
+    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
+    from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+    ZVertFindHypoAlg = TrigStreamerHypoAlg("ZVertFinderHypoAlg")
     ZVertFindHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
     
-    ZVertFindHypoToolGen = StreamerHypoToolMTgenerator
+    ZVertFindHypoToolGen = StreamerHypoToolGenerator
 
     return MenuSequence(Sequence    = ZVertFindSequence,
                         Maker       = ZVertFindInputMakerAlg,

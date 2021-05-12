@@ -1007,8 +1007,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   efmuisoRecoSequence += PTSeq
 
   # set up algs
-  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
-  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso"+name)
+  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationConfig
+  trigEFmuIso = TrigMuonEFTrackIsolationConfig("TrigEFMuIso"+name)
   if doMSiso:
     trigEFmuIso.requireCombinedMuon=False
   trigEFmuIso.MuonEFContainer = Muons

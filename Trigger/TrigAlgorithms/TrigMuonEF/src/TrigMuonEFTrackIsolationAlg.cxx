@@ -2,11 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMuonEFTrackIsolationAlgMT.h"
+#include "TrigMuonEFTrackIsolationAlg.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
 
-TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
+TrigMuonEFTrackIsolationAlg::TrigMuonEFTrackIsolationAlg( const std::string& name, 
                                                               ISvcLocator* pSvcLocator )
   :AthReentrantAlgorithm(name, pSvcLocator),
    m_coneSizes()
@@ -17,7 +17,7 @@ TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string&
 }
 
 
-StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
+StatusCode TrigMuonEFTrackIsolationAlg::initialize()
 {
   ATH_MSG_DEBUG("Initialization");
 
@@ -46,7 +46,7 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
 }
 
 
-StatusCode TrigMuonEFTrackIsolationAlgMT::execute(const EventContext& ctx) const
+StatusCode TrigMuonEFTrackIsolationAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Execution");
 

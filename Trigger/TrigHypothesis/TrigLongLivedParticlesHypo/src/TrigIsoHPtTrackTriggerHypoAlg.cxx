@@ -4,7 +4,7 @@
   * Trigger Hypo Tool, that is aimed at triggering high pt isolated tracks 
   * author Ismet Siral <ismet.siral@cern.ch> - University of Oregon
 */
-#include "TrigIsoHPtTrackTriggerHypoAlgMT.h"
+#include "TrigIsoHPtTrackTriggerHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -24,19 +24,19 @@ using TrigCompositeUtils::LinkInfo;
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::allFailed;
 
-TrigIsoHPtTrackTriggerHypoAlgMT::TrigIsoHPtTrackTriggerHypoAlgMT( const std::string& name, 
+TrigIsoHPtTrackTriggerHypoAlg::TrigIsoHPtTrackTriggerHypoAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::initialize() {
+StatusCode TrigIsoHPtTrackTriggerHypoAlg::initialize() {
   CHECK( m_hypoTools.retrieve() );
   CHECK( m_trackKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigIsoHPtTrackTriggerHypoAlg::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
