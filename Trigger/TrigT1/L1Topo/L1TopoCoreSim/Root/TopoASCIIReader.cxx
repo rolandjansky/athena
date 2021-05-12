@@ -58,9 +58,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>" || currentLine == "</info>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<jJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</jJet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>" || currentLine == "</info>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<jJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -94,6 +94,13 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             jet.setPhiDouble( atof(results.at(5).c_str()) );
          }
          m_event->addJet( jet );
+      } else if(type == "<jJet>") {
+         TCS::jJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
+         if(results.size()==5) {
+            jet.setEtaDouble( atof(results.at(3).c_str()) );
+            jet.setPhiDouble( atof(results.at(4).c_str()) );
+         }
+         m_event->addjJet( jet );
       } else if(type == "<muon>") {
          unsigned int et = atoi(results.at(0).c_str());
          int eta = atoi(results.at(1).c_str());

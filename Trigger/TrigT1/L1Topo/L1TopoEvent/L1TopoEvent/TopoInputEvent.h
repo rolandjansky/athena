@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_TopoInputEvent
 #define L1TopoEvent_TopoInputEvent
@@ -8,6 +8,7 @@
 
 #include "L1TopoEvent/ClusterTOBArray.h"
 #include "L1TopoEvent/JetTOBArray.h"
+#include "L1TopoEvent/jJetTOBArray.h"
 #include "L1TopoEvent/LateMuonTOBArray.h"
 #include "L1TopoEvent/MuonNextBCTOBArray.h"
 #include "L1TopoEvent/MuonTOBArray.h"
@@ -28,13 +29,7 @@ namespace TCS {
    class TopoInputEvent : public TrigConf::TrigConfMessaging {
    public:
       
-      TopoInputEvent(const std::string & clusterName = "InputClusters",
-                     const std::string & tauName = "InputTaus",
-                     const std::string & jetName = "InputJets",
-                     const std::string & muonName = "InputMuons",
-                     const std::string & lateMuonName = "InputLateMuons",
-                     const std::string & muonNextBCName = "InputMuonsNextBC",
-                     const std::string & metName = "InputMet");
+      TopoInputEvent();
       ~TopoInputEvent();
       
       const ClusterTOBArray & clusters() const { return m_clusters; }
@@ -63,6 +58,7 @@ namespace TCS {
       StatusCode addLateMuon(const LateMuonTOB & muon);
       StatusCode addMuonNextBC(const MuonNextBCTOB & muon);
       StatusCode addJet(const JetTOB & jet);
+      StatusCode addjJet(const jJetTOB & jet);
       StatusCode setMET(const MetTOB & met);
       StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
       /** @defgroup groupOverflowSetters
@@ -100,6 +96,7 @@ namespace TCS {
       ClusterTOBArray   m_clusters;
       ClusterTOBArray   m_taus;
       JetTOBArray       m_jets;
+      jJetTOBArray      m_jJets;
       MuonTOBArray      m_muons;
       LateMuonTOBArray  m_lateMuons;
       MuonNextBCTOBArray  m_muonsNextBC;

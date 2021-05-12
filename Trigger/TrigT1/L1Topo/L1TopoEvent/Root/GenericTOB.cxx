@@ -39,6 +39,18 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_tobType(JET)
 {}
 
+// constructor from small R jet
+TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
+   BaseTOB(jet)
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(jet.phi())
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
 // constructor from cluster
 TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    BaseTOB(cluster)
