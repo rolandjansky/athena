@@ -212,10 +212,10 @@ def setupMenu():
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
         # Low eT photon chains for TLA
-        ChainProp(name='HLT_g35_loose_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_medium_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_tight_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_loose_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_medium_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_icaloloose_L1EM22VHI', groups=SinglePhotonGroup),
 
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),

@@ -48,8 +48,6 @@ class TrigEgammaFastPhotonHypoToolInc : virtual public ::AthAlgTool
     HLT::Identifier m_decisionId;
 
     Gaudi::Property<bool>                  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-    Gaudi::Property<float>                 m_detacluster{ this,  "dETACLUSTERthr", {0.1}, "Delta Eta to Cluster" };
-    Gaudi::Property<float>                 m_dphicluster{ this,  "dPHICLUSTERthr", {0.1}, "Delta Phi to Cluster" };
     Gaudi::Property< std::vector<float> >  m_etabin{ this,  "EtaBins", {0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47}, "Eta bins" };
     Gaudi::Property< std::vector<float> >  m_F1thr{ this,  "F1thr", {0.005}, "F1 Threshold" };
     Gaudi::Property< std::vector<float> >  m_eTthr{this, "ETthr", {0.*Gaudi::Units::GeV}, "et threshold"};
