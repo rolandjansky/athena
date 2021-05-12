@@ -2,12 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigTauHypo_TrigTauGenericHypoMT_H
-#define TrigTauHypo_TrigTauGenericHypoMT_H
+#ifndef TrigTauHypo_TrigTauGenericHypo_H
+#define TrigTauHypo_TrigTauGenericHypo_H
 
 /********************************************************************
  *
- * NAME:     TrigTauGenericHypoMT.h
+ * NAME:     TrigTauGenericHypo.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigTauHypo
  *
  * AUTHORS:   P.O. DeViveiros
@@ -30,9 +30,9 @@
 #include "ITrigTauGenericHypoTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
-class TrigTauGenericHypoMT : public extends<AthAlgTool, ITrigTauGenericHypoTool> {
+class TrigTauGenericHypo : public extends<AthAlgTool, ITrigTauGenericHypoTool> {
  public:
-  TrigTauGenericHypoMT( const std::string& type, 
+  TrigTauGenericHypo( const std::string& type, 
            const std::string& name, 
            const IInterface* parent );
 

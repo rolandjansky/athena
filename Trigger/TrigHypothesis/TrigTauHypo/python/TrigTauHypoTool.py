@@ -246,7 +246,7 @@ def TrigL2TauHypoToolFromDict( chainDict ):
 
     threshold = chainPart['threshold']
     from AthenaConfiguration.ComponentFactory import CompFactory
-    currentHypo = CompFactory.TrigTauGenericHypoMT(name)
+    currentHypo = CompFactory.TrigTauGenericHypo(name)
     currentHypo.MonTool  = ""
     currentHypo.Details  = [int(-1)]
     currentHypo.Formulas = ['y > '+threshold+'*1000.0']

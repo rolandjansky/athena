@@ -2,13 +2,9 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-//
-//   @file    TrigRoiBuilderMT.h        
-//
 
-
-#ifndef  TrigTauCaloRoiUpdaterMT_H
-#define  TrigTauCaloRoiUpdaterMT_H
+#ifndef  TrigTauCaloRoiUpdater_H
+#define  TrigTauCaloRoiUpdater_H
 
 #include <iostream>
 
@@ -21,10 +17,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-class TrigTauCaloRoiUpdaterMT : public AthAlgorithm {
+class TrigTauCaloRoiUpdater : public AthAlgorithm {
 
  public:
-  TrigTauCaloRoiUpdaterMT(const std::string&, ISvcLocator*);
+  TrigTauCaloRoiUpdater(const std::string&, ISvcLocator*);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

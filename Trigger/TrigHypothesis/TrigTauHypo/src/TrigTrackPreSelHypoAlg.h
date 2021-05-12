@@ -15,10 +15,10 @@
 
 #include "ITrigTrackPreSelHypoTool.h"
 
-class TrigTrackPreSelHypoAlgMT : public ::HypoBase {
+class TrigTrackPreSelHypoAlg : public ::HypoBase {
  public: 
 
-  TrigTrackPreSelHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigTrackPreSelHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;

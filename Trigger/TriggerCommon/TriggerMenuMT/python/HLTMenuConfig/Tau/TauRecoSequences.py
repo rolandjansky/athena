@@ -48,8 +48,8 @@ def _getTauSignatureShort( name ):
     return signature, signatureID
 
 def _algoTauRoiUpdater(inputRoIs, clusters):
-    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
-    algo                               = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
+    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdater
+    algo                               = TrigTauCaloRoiUpdater("TauCaloRoiUpdater")
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedCaloRoI"
     algo.CaloClustersKey               = clusters
@@ -84,8 +84,8 @@ def _algoTauCaloOnlyMVA(L1RoIs, inputRoIs, clusters):
     return algo
 
 def _algoTauTrackRoiUpdater(inputRoIs, tracks):
-    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
-    algo                               = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
+    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
+    algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdater")
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackRoI"
     algo.fastTracksKey                 = tracks
@@ -93,8 +93,8 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     return algo
 
 def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
-    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
-    algo                               = TrigTauTrackRoiUpdaterMT("TrackRoiUpdaterBDT")
+    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
+    algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdaterBDT")
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
     algo.fastTracksKey                 = tracks

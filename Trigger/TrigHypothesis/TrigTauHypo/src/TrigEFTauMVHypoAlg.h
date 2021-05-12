@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGTAUHYPO_TrigEFTauMVHypoAlgMT_H
-#define TRIGTAUHYPO_TrigEFTauMVHypoAlgMT_H
+#ifndef TRIGTAUHYPO_TrigEFTauMVHypoAlg_H
+#define TRIGTAUHYPO_TrigEFTauMVHypoAlg_H
 
 #include <string>
 
@@ -15,10 +15,10 @@
 #include "xAODTau/TauJetContainer.h"
 #include "ITrigEFTauMVHypoTool.h"
 
-class TrigEFTauMVHypoAlgMT : public ::HypoBase {
+class TrigEFTauMVHypoAlg : public ::HypoBase {
  public: 
 
-  TrigEFTauMVHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigEFTauMVHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;

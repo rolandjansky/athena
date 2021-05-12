@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTauCaloRoiUpdaterMT.h"
+#include "TrigTauCaloRoiUpdater.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -13,10 +13,10 @@
 
 #include "TLorentzVector.h"
 
-TrigTauCaloRoiUpdaterMT::TrigTauCaloRoiUpdaterMT(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigTauCaloRoiUpdater::TrigTauCaloRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator) {}
 
-StatusCode TrigTauCaloRoiUpdaterMT::initialize() {
+StatusCode TrigTauCaloRoiUpdater::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_dRForCenter     );
@@ -32,7 +32,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::initialize() {
 
 
 
-StatusCode TrigTauCaloRoiUpdaterMT::execute() {
+StatusCode TrigTauCaloRoiUpdater::execute() {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
   const EventContext& ctx = getContext();
