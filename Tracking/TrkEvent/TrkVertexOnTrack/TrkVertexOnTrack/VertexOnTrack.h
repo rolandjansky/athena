@@ -30,13 +30,13 @@ namespace Trk{
 /** @class VertexOnTrack
 
   Class to handle Vertex On Tracks,
-  it inherits from the common MeasurementBase. 
+  it inherits from the common MeasurementBase.
 
   @author haertel@mppmu.mpg.de
 
  */
 
-  class VertexOnTrack : public MeasurementBase {
+  class VertexOnTrack final : public MeasurementBase {
 
     friend class ::TrackCollectionCnv;
 
@@ -65,9 +65,9 @@ namespace Trk{
       virtual ~VertexOnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      VertexOnTrack* clone() const override;
+      VertexOnTrack* clone() const override final;
 
-      /** returns the surface for the local to global transformation 
+      /** returns the surface for the local to global transformation
       - interface from MeasurementBase */
       virtual const PerigeeSurface& associatedSurface() const override final;
 
@@ -82,9 +82,9 @@ namespace Trk{
       }
 
       /**returns the some information about this VertexOnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const override;
+      virtual MsgStream&    dump( MsgStream& out ) const override final;
       /**returns the some information about this VertexOnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const override;
+      virtual std::ostream& dump( std::ostream& out ) const override final;
 
      // perhaps return Vertex Object
 
@@ -96,7 +96,7 @@ namespace Trk{
       const Amg::Vector3D*  m_globalPosition;
   };
 
-  inline VertexOnTrack* VertexOnTrack::clone() const 
+  inline VertexOnTrack* VertexOnTrack::clone() const
   { return new VertexOnTrack(*this); }
 
   inline const PerigeeSurface& VertexOnTrack::associatedSurface() const
