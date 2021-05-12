@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATSEGMENT_H
@@ -9,7 +9,7 @@
 #include <set>
 
 #include "Identifier/Identifier.h"
-#include "MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "MuonStationIndex/MuonStationIndex.h"
@@ -50,42 +50,18 @@ namespace Muon {
 
         MuPatSegment& operator=(const MuPatSegment& info);
 
-        int quality;
-        const MuonSegmentQuality* segQuality;
-        const MuonSegment* segment;
-        const Trk::AtaPlane* segPars;
-        int segmentIndex;  //!< index of segment within station
-        int usedInFit;
-        Identifier chid;
-        std::string name;
-        MuonStationIndex::ChIndex chIndex;
-        MuonStationIndex::StIndex stIndex;
-        bool isEndcap;
-        bool isMdt;  //!< true for MDT, false for CSC
-
-        //** @brief Mboy Specific */
-        struct MboyInfo {
-            int m_ISC0;     //! Mboy Nbering
-            int m_IWDRAT1;  //! Mboy Nbering
-            int m_IWDRAT2;  //! Mboy Nbering
-
-            int m_JFDRAT;  //! Octant Number
-
-            double m_FFDRAT;  //! Phi   angle
-            double m_GGDRAT;  //! Gamma angle
-
-            double m_EZDRAT;  //! Error associated to CSC clusters
-
-            double m_SSDRAT1;  //! S in SZT system for the upper layer
-            double m_ZZDRAT1;  //! Z in SZT system for the upper layer
-            double m_TTDRAT1;  //! T in SZT system for the upper layer
-
-            double m_SSDRAT2;  //! S in SZT system for the lower layer
-            double m_ZZDRAT2;  //! Z in SZT system for the lower layer
-            double m_TTDRAT2;  //! T in SZT system for the lower layer
-        };
-
-        MboyInfo* mboyInfo;
+        int quality{0};
+        const MuonSegmentQuality* segQuality{nullptr};
+        const MuonSegment* segment{nullptr};
+        std::shared_ptr<const Trk::AtaPlane> segPars{nullptr};
+        int segmentIndex{-1};  //!< index of segment within station
+        int usedInFit{0};
+        Identifier chid{0};
+        std::string name{};
+        MuonStationIndex::ChIndex chIndex{MuonStationIndex::ChUnknown};
+        MuonStationIndex::StIndex stIndex{MuonStationIndex::StUnknown};
+        bool isEndcap{false};
+        bool isMdt{false};  //!< true for MDT, false for CSC
 
         /** @brief returns first track parameters */
         const Trk::TrackParameters& entryPars() const;

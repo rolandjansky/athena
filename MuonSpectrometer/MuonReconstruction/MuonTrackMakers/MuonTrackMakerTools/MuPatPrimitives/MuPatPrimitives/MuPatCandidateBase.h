@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATEBASE_H
@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Identifier/Identifier.h"
-#include "MuPatHit.h"
+#include "MuPatPrimitives/MuPatHit.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -61,13 +61,13 @@ namespace Muon {
 
     public:
         /** @brief constructor. */
-        MuPatCandidateBase();
+        MuPatCandidateBase() = default;
 
         /** @brief constructor. The constructor takes ownership of the entryPars but not of the hits. */
         MuPatCandidateBase(const MeasVec& etaHits, const MeasVec& phiHits, const MeasVec& fakePhiHits, const MeasVec& allHits);
 
         /** @brief destructor. */
-        virtual ~MuPatCandidateBase();
+        virtual ~MuPatCandidateBase() = default;
 
         /** @brief return all eta hits on the entry */
         const MeasVec& etaHits() const;
@@ -175,87 +175,25 @@ namespace Muon {
     protected:
         std::set<MuonStationIndex::ChIndex> m_chambers;  //<! set to store chamber indices of segments associated with candidate
         std::set<MuonStationIndex::StIndex> m_stations;  //<! set to store station indices of segments associated with candidate
-        bool m_hasMomentum;
+        bool m_hasMomentum{false};
 
     public:
         /** public hit counters */
-        unsigned int nmdtHitsMl1;
-        unsigned int nmdtHitsMl2;
-        unsigned int ncscHitsEta;
-        unsigned int ncscHitsPhi;
-        unsigned int nrpcHitsEta;
-        unsigned int nrpcHitsPhi;
-        unsigned int ntgcHitsEta;
-        unsigned int ntgcHitsPhi;
+        unsigned int nmdtHitsMl1{0};
+        unsigned int nmdtHitsMl2{0};
+        unsigned int ncscHitsEta{0};
+        unsigned int ncscHitsPhi{0};
+        unsigned int nrpcHitsEta{0};
+        unsigned int nrpcHitsPhi{0};
+        unsigned int ntgcHitsEta{0};
+        unsigned int ntgcHitsPhi{0};
 
     private:
-        bool m_hasEndcap;
-        bool m_hasSmallChamber;
-        bool m_hasLargeChamber;
-        bool m_hasSLOverlap;
+        bool m_hasEndcap{false};
+        bool m_hasSmallChamber{false};
+        bool m_hasLargeChamber{false};
+        bool m_hasSLOverlap{false};
     };
-
-    inline const std::set<MuonStationIndex::StIndex>& MuPatCandidateBase::stations() const { return m_stations; }
-
-    inline const std::set<MuonStationIndex::ChIndex>& MuPatCandidateBase::chambers() const { return m_chambers; }
-
-    inline const std::set<Identifier>& MuPatCandidateBase::chamberIds() const { return m_chamberIds; }
-
-    /** @brief returns set with contained chamber ids */
-    inline std::set<Identifier>& MuPatCandidateBase::chamberIds() { return m_chamberIds; }
-
-    inline void MuPatCandidateBase::addChamber(MuonStationIndex::ChIndex chIndex) {
-        m_chambers.insert(chIndex);
-        m_stations.insert(MuonStationIndex::toStationIndex(chIndex));
-    }
-
-    inline bool MuPatCandidateBase::hasSmallChamber() const { return m_hasSmallChamber; }
-
-    inline bool MuPatCandidateBase::hasLargeChamber() const { return m_hasLargeChamber; }
-
-    inline bool MuPatCandidateBase::hasSLOverlap() const { return m_hasSLOverlap; }
-
-    inline void MuPatCandidateBase::hasSmallChamber(bool hasSmall) { m_hasSmallChamber = hasSmall; }
-
-    inline void MuPatCandidateBase::hasLargeChamber(bool hasLarge) { m_hasLargeChamber = hasLarge; }
-
-    inline void MuPatCandidateBase::hasSLOverlap(bool hasSL) { m_hasSLOverlap = hasSL; }
-
-    inline const MuPatCandidateBase::MeasVec& MuPatCandidateBase::MuPatCandidateBase::etaHits() const { return m_etaHits; }
-
-    inline const MuPatCandidateBase::MeasVec& MuPatCandidateBase::phiHits() const { return m_phiHits; }
-
-    inline const MuPatCandidateBase::MeasVec& MuPatCandidateBase::fakePhiHits() const { return m_fakePhiHits; }
-
-    inline const MuPatCandidateBase::MeasVec& MuPatCandidateBase::hits() const { return m_allHits; }
-
-    inline void MuPatCandidateBase::setEtaHits(const MuPatCandidateBase::MeasVec& hits) { m_etaHits = hits; }
-
-    inline void MuPatCandidateBase::setPhiHits(const MuPatCandidateBase::MeasVec& hits) { m_phiHits = hits; }
-
-    inline void MuPatCandidateBase::setFakePhiHits(const MuPatCandidateBase::MeasVec& hits) { m_fakePhiHits = hits; }
-
-    inline void MuPatCandidateBase::setAllHits(const MuPatCandidateBase::MeasVec& hits) { m_allHits = hits; }
-
-    inline bool MuPatCandidateBase::hasEndcap() const { return m_hasEndcap; }
-
-    inline void MuPatCandidateBase::hasEndcap(bool hasEC) { m_hasEndcap = hasEC; }
-
-    inline bool MuPatCandidateBase::containsChamber(MuonStationIndex::ChIndex chIndex) const {
-        return m_chambers.find(chIndex) != m_chambers.end();
-    }
-
-    inline bool MuPatCandidateBase::containsStation(MuonStationIndex::StIndex stIndex) const {
-        return m_stations.find(stIndex) != m_stations.end();
-    }
-
-    inline void MuPatCandidateBase::clearChambers() {
-        m_chambers.clear();
-        m_stations.clear();
-        m_chamberIds.clear();
-    }
-
-    inline bool MuPatCandidateBase::hasMomentum() const { return m_hasMomentum; }
 
 }  // namespace Muon
 

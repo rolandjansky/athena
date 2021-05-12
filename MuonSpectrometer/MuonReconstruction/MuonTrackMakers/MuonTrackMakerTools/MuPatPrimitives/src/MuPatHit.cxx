@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuPatHit.h"
+#include "MuPatPrimitives/MuPatHit.h"
 
 #include <iostream>
 
@@ -22,16 +22,12 @@ namespace Muon {
     MuPatHit::MuPatHit(std::shared_ptr<const Trk::TrackParameters> pars, const Trk::MeasurementBase* presMeas,
                        std::unique_ptr<const Trk::MeasurementBase> broadMeas, const Info& info) :
         m_pars(std::move(pars)), m_precisionMeas(presMeas), m_broadMeas(std::move(broadMeas)), m_info(info) {
-//     std::cout << " new MuPatHit  " << this;
-//     if( pars ) std::cout << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi();
-//     std::cout << std::endl;
 #ifdef MCTB_OBJECT_COUNTERS
         addInstance();
 #endif
     }
 
     MuPatHit::MuPatHit(const MuPatHit& hit) {
-        //     std::cout << " ctor MuPatHit  " << this << std::endl;
         copy(hit);
 #ifdef MCTB_OBJECT_COUNTERS
         addInstance();
@@ -63,10 +59,17 @@ namespace Muon {
         m_info = hit.m_info;
     }
 
-    void MuPatHit::updateParameters(std::shared_ptr<const Trk::TrackParameters> pars) {
-        //     if( pars ) std::cout << " update pars " << this << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi()
-        //     << std::endl;
-        m_pars = std::move(pars);
+    void MuPatHit::updateParameters(std::shared_ptr<const Trk::TrackParameters> pars) { m_pars = pars; }
+
+    const Trk::TrackParameters& MuPatHit::parameters() const { return *m_pars; }
+
+    const Trk::MeasurementBase& MuPatHit::measurement() const {
+        if (info().selection == Precise) return *m_precisionMeas;
+        return *m_broadMeas;
     }
+    const Trk::MeasurementBase& MuPatHit::preciseMeasurement() const { return *m_precisionMeas; }
+    const Trk::MeasurementBase& MuPatHit::broadMeasurement() const { return *m_broadMeas; }
+    const MuPatHit::Info& MuPatHit::info() const { return m_info; }
+    MuPatHit::Info& MuPatHit::info() { return m_info; }
 
 }  // namespace Muon

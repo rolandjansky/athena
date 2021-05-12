@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuPatTrack.h"
+#include "MuPatPrimitives/MuPatTrack.h"
 
 #include <algorithm>
 
@@ -69,7 +69,7 @@ namespace Muon {
 
     // member functions
     MuPatTrack::MuPatTrack(const std::vector<MuPatSegment*>& segments, std::unique_ptr<Trk::Track>& track, MuPatSegment* seedSeg) :
-        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_segments(segments), m_seedSeg(0), mboyInfo(0) {
+        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_segments(segments), m_seedSeg(nullptr) {
 #ifdef MCTB_OBJECT_POINTERS
         std::cout << " new track " << this << std::endl;
 #endif
@@ -91,7 +91,7 @@ namespace Muon {
     }
 
     MuPatTrack::MuPatTrack(MuPatSegment* segment, std::unique_ptr<Trk::Track>& track) :
-        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_seedSeg(0), mboyInfo(0) {
+        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_seedSeg(nullptr) {
         m_track.swap(track);
 #ifdef MCTB_OBJECT_POINTERS
         std::cout << " new track " << this << std::endl;
@@ -111,7 +111,7 @@ namespace Muon {
     }
 
     MuPatTrack::MuPatTrack(MuPatSegment* segment1, MuPatSegment* segment2, std::unique_ptr<Trk::Track>& track, MuPatSegment* seedSeg) :
-        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_seedSeg(0), mboyInfo(0) {
+        MuPatCandidateBase(), created(Unknown), lastSegmentChange(Unknown), m_seedSeg(nullptr) {
         m_track.swap(track);
 #ifdef MCTB_OBJECT_POINTERS
         std::cout << " new track " << this << std::endl;
@@ -141,7 +141,6 @@ namespace Muon {
         std::cout << " delete trackcan " << this << std::endl;
 #endif
         modifySegmentCounters(-1);
-        if (mboyInfo) delete mboyInfo;
 #ifdef MCTB_OBJECT_COUNTERS
         removeInstance();
 #endif
@@ -163,37 +162,7 @@ namespace Muon {
         m_hasMomentum = can.m_hasMomentum;
         // increase segment counters
         modifySegmentCounters(+1);
-        if (!can.mboyInfo) {
-            mboyInfo = 0;
-        } else {
-            mboyInfo = new MboyInfo();
-            mboyInfo->m_MboyStatus = can.mboyInfo->m_MboyStatus;
 
-            mboyInfo->m_ISC0 = can.mboyInfo->m_ISC0;
-
-            mboyInfo->m_DZT1 = can.mboyInfo->m_DZT1;
-            mboyInfo->m_DS1 = can.mboyInfo->m_DS1;
-            mboyInfo->m_DZT2 = can.mboyInfo->m_DZT2;
-            mboyInfo->m_DS2 = can.mboyInfo->m_DS2;
-
-            mboyInfo->m_SMU = can.mboyInfo->m_SMU;
-
-            mboyInfo->m_CFI = can.mboyInfo->m_CFI;
-            mboyInfo->m_SFI = can.mboyInfo->m_SFI;
-            mboyInfo->m_CFA = can.mboyInfo->m_CFA;
-            mboyInfo->m_SFA = can.mboyInfo->m_SFA;
-
-            mboyInfo->m_Z1 = can.mboyInfo->m_Z1;
-            mboyInfo->m_T1 = can.mboyInfo->m_T1;
-            mboyInfo->m_S1 = can.mboyInfo->m_S1;
-
-            mboyInfo->m_Z2 = can.mboyInfo->m_Z2;
-            mboyInfo->m_T2 = can.mboyInfo->m_T2;
-            mboyInfo->m_S2 = can.mboyInfo->m_S2;
-
-            mboyInfo->m_ndof = can.mboyInfo->m_ndof;
-            mboyInfo->m_chi2 = can.mboyInfo->m_chi2;
-        }
 #ifdef MCTB_OBJECT_COUNTERS
         addInstance();
         ++s_numberOfCopies;
@@ -229,38 +198,6 @@ namespace Muon {
             // increase new segment counters
             modifySegmentCounters(+1);
 
-            if (!can.mboyInfo) {
-                mboyInfo = 0;
-            } else {
-                mboyInfo = new MboyInfo();
-                mboyInfo->m_MboyStatus = can.mboyInfo->m_MboyStatus;
-
-                mboyInfo->m_ISC0 = can.mboyInfo->m_ISC0;
-
-                mboyInfo->m_DZT1 = can.mboyInfo->m_DZT1;
-                mboyInfo->m_DS1 = can.mboyInfo->m_DS1;
-                mboyInfo->m_DZT2 = can.mboyInfo->m_DZT2;
-                mboyInfo->m_DS2 = can.mboyInfo->m_DS2;
-
-                mboyInfo->m_SMU = can.mboyInfo->m_SMU;
-
-                mboyInfo->m_CFI = can.mboyInfo->m_CFI;
-                mboyInfo->m_SFI = can.mboyInfo->m_SFI;
-                mboyInfo->m_CFA = can.mboyInfo->m_CFA;
-                mboyInfo->m_SFA = can.mboyInfo->m_SFA;
-
-                mboyInfo->m_Z1 = can.mboyInfo->m_Z1;
-                mboyInfo->m_T1 = can.mboyInfo->m_T1;
-                mboyInfo->m_S1 = can.mboyInfo->m_S1;
-
-                mboyInfo->m_Z2 = can.mboyInfo->m_Z2;
-                mboyInfo->m_T2 = can.mboyInfo->m_T2;
-                mboyInfo->m_S2 = can.mboyInfo->m_S2;
-
-                mboyInfo->m_ndof = can.mboyInfo->m_ndof;
-                mboyInfo->m_chi2 = can.mboyInfo->m_chi2;
-            }
-
 #ifdef MCTB_OBJECT_COUNTERS
             ++s_numberOfCopies;
 #endif
@@ -286,8 +223,8 @@ namespace Muon {
             if (cov) {
                 // sum covariance terms of momentum, use it to determine whether fit was SL fit
                 double momCov = 0.;
-                for (int i = 0; i < 4; ++i) momCov += fabs((*cov)(4, i));
-                for (int i = 0; i < 4; ++i) momCov += fabs((*cov)(i, 4));
+                for (int i = 0; i < 4; ++i) momCov += std::abs((*cov)(4, i));
+                for (int i = 0; i < 4; ++i) momCov += std::abs((*cov)(i, 4));
                 if (momCov > 1e-10) { hasMom = true; }
             }
         }
@@ -303,9 +240,7 @@ namespace Muon {
         m_segments.push_back(segment);
         segment->addTrack(this);
         ++segment->usedInFit;
-        std::set<MuonStationIndex::ChIndex>::const_iterator chit = segment->chambers().begin();
-        std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = segment->chambers().end();
-        for (; chit != chit_end; ++chit) addChamber(*chit);
+        for (const MuonStationIndex::ChIndex& chit : segment->chambers()) addChamber(chit);
 
         if (newTrack) {
             // delete old track, assign new
@@ -316,13 +251,9 @@ namespace Muon {
 
     void MuPatTrack::modifySegmentCounters(int change) {
         // modify usedInFit counter of segment
-        std::vector<MuPatSegment*>::iterator it = m_segments.begin();
-        std::vector<MuPatSegment*>::iterator it_end = m_segments.end();
-        for (; it != it_end; ++it) {
-            std::set<MuonStationIndex::ChIndex>::const_iterator chit = (*it)->chambers().begin();
-            std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = (*it)->chambers().end();
-            for (; chit != chit_end; ++chit) addChamber(*chit);
-            (*it)->usedInFit += change;
+        for (MuPatSegment* seg : m_segments) {
+            for (const MuonStationIndex::ChIndex& chit : seg->chambers()) addChamber(chit);
+            seg->usedInFit += change;
         }
     }
 
@@ -336,10 +267,8 @@ namespace Muon {
         // NOTE: can not cache m_segments.end() because it may change in the loop
         while (it != m_segments.end()) {
             bool inChamberSet = false;
-            std::set<MuonStationIndex::ChIndex>::const_iterator chit = (*it)->chambers().begin();
-            std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = (*it)->chambers().end();
-            for (; chit != chit_end; ++chit) {
-                if (containsChamber(*chit)) {
+            for (const MuonStationIndex::ChIndex& chit : (*it)->chambers()) {
+                if (containsChamber(chit)) {
                     inChamberSet = true;
                     break;
                 }
@@ -359,37 +288,28 @@ namespace Muon {
     std::vector<MuonStationIndex::StIndex> MuPatTrack::stationsInOrder() {
         std::vector<MuonStationIndex::StIndex> stations;
         stations.reserve(m_segments.size());
-        std::vector<MuPatSegment*>::iterator it = m_segments.begin();
-        std::vector<MuPatSegment*>::iterator it_end = m_segments.end();
-        for (; it != it_end; ++it) stations.push_back((*it)->stIndex);
+        for (MuPatSegment* seg : m_segments) stations.push_back(seg->stIndex);
         return stations;
     }
 
     std::string MuPatTrack::segmentNames() const {
         std::string names;
-        std::vector<MuPatSegment*>::const_iterator sit = m_segments.begin();
-        std::vector<MuPatSegment*>::const_iterator sit_end = m_segments.end();
-        if (sit != sit_end) {
-            names += (*sit)->name;
-            ++sit;
-        }
         // rest with spaces
-        while (sit != sit_end) {
+        for (const MuPatSegment* seg : m_segments) {
+            names += seg->name;
             names += "  ";
-            names += (*sit)->name;
-            ++sit;
         }
-        return names;
+        /// Remove the trailing white space
+        return names.substr(0, names.size() - 1);
     }
 
     void MuPatTrack::updateSegments(bool add) {
-        std::vector<MuPatSegment*>::iterator sit = m_segments.begin();
-        std::vector<MuPatSegment*>::iterator sit_end = m_segments.end();
-        for (; sit != sit_end; ++sit) {
-            if (add)
-                (*sit)->addTrack(this);
-            else
-                (*sit)->removeTrack(this);
+        for (MuPatSegment* seg : m_segments) {
+            if (add) {
+                seg->addTrack(this);
+            } else {
+                seg->removeTrack(this);
+            }
         }
     }
 

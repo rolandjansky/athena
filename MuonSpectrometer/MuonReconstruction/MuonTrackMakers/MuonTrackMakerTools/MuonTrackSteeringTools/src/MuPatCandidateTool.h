@@ -66,9 +66,6 @@ namespace Muon {
         /** initialize method, method taken from bass-class AlgTool */
         virtual StatusCode initialize() override;
 
-        /** finialize method, method taken from bass-class AlgTool */
-        virtual StatusCode finalize() override;
-
         /** @brief access to tool interface */
         static const InterfaceID& interfaceID() { return IID_MuPatCandidateTool; }
 
