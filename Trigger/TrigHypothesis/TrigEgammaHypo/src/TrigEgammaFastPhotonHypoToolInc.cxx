@@ -31,8 +31,6 @@ StatusCode TrigEgammaFastPhotonHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "HADETthr       = " << m_hadeTthr << "(lo)/" << m_hadeT2thr << "(hi)"     );
   ATH_MSG_DEBUG( "CARCOREthr     = " << m_carcorethr  );
   ATH_MSG_DEBUG( "CAERATIOthr    = " << m_caeratiothr );
-  ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
-  ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
 
 
   std::vector<size_t> sizes( {m_eTthr.size(), m_eT2thr.size(), 
@@ -70,8 +68,6 @@ bool TrigEgammaFastPhotonHypoToolInc::decide( const xAOD::TrigPhoton* photon ) c
   auto PhEt =  Monitored::Scalar( "PhEt", -99. );
   auto PhEta = Monitored::Scalar( "PhEta", -99. );
   auto PhPhi = Monitored::Scalar( "PhPhi", -99. );
-  auto dEta = Monitored::Scalar( "dEta", -99. );
-  auto dPhi = Monitored::Scalar( "dPhi", -99. );
   auto PhRcore = Monitored::Scalar( "PhRcore", -99. );
   auto PhEratio = Monitored::Scalar( "PhRcore", -99. );
   auto PhHadEt = Monitored::Scalar( "PhHadEt", -99. );
@@ -80,7 +76,6 @@ bool TrigEgammaFastPhotonHypoToolInc::decide( const xAOD::TrigPhoton* photon ) c
                                       cutCounter, 
                                       PhEt,
                                       PhEta, PhPhi,
-                                      dEta, dPhi,
                                       PhRcore, PhEratio,
                                       PhHadEt, PhF1 );
 
@@ -115,17 +110,25 @@ bool TrigEgammaFastPhotonHypoToolInc::decide( const xAOD::TrigPhoton* photon ) c
   
   // eta range                                                                                                                                                                                              
   if ( etaBin==-1 ) {
-    ATH_MSG_INFO( "Photon eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] );
-    return true;
+    ATH_MSG_DEBUG( "Photon FAILS eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] );
+    return false;
   } else {
-    ATH_MSG_INFO( "eta bin used for cuts " << etaBin );
+    ATH_MSG_DEBUG( "eta bin used for cuts " << etaBin );
   }
   cutCounter++; // passed eta cut       
 
 
+  // ET_em                                                                                                                                                                                                  
+  if ( EmET < m_eTthr[etaBin]) {
+    ATH_MSG_DEBUG( "TrigPhoton FAILS ET_em=" << EmET
+		     << " not in etaBin " << etaBin << " is ET_em < " << m_eTthr[etaBin] );
+    return false;
+  }
+  cutCounter++; // passed ET threshold cut
+
   // Reta (was previously called Rcore) 
-  if ( Reta > m_carcorethr[etaBin] ){
-    ATH_MSG_INFO( "TrigPhoton Reta=" << Reta << " cut in etaBin " 
+  if ( Reta < m_carcorethr[etaBin] ){
+    ATH_MSG_DEBUG( "FastPhoton FAILS Reta=" << Reta << " cut in etaBin " 
                       << etaBin << " is Reta >= "  << m_carcorethr[etaBin]  );
     return  false;
   }
@@ -135,23 +138,17 @@ bool TrigEgammaFastPhotonHypoToolInc::decide( const xAOD::TrigPhoton* photon ) c
   //  // Eratio           
   bool inCrack = ( absEta > 2.37 || ( absEta > 1.37 && absEta < 1.52) );
   if ( inCrack || f1<m_F1thr[etaBin] ) {
-    ATH_MSG_INFO(  "TrigPhoton: InCrack= " << inCrack << " F1=" << f1
+    ATH_MSG_DEBUG(  "FastPhoton: InCrack= " << inCrack << " F1=" << f1
                      << " Eratio cut not being applied" );
   } else {
-    if ( Eratio > m_caeratiothr[etaBin] ) {
+    if ( Eratio < m_caeratiothr[etaBin] ) {
+    ATH_MSG_DEBUG( "FastPhoton FAILS Eratio=" << Eratio << " cut in etaBin " 
+                      << etaBin << " is Eratio >= "  << m_caeratiothr[etaBin]  );
       return false;
     }
   }
   cutCounter++;
   if(inCrack)  Eratio  = -1; //Set default value in crack for monitoring.                                                                                                                                   
-
-  // ET_em                                                                                                                                                                                                  
-  if ( EmET < m_eTthr[etaBin]) {
-    ATH_MSG_INFO( "TrigPhoton: ET_em=" << EmET
-		     << " not in etaBin " << etaBin << " is ET_em < " << m_eTthr[etaBin] );
-    return false;
-  }
-  cutCounter++;
 
   // ET_had                                                                                                                                                                                                 
   // find which ET_had to apply : this depends on the ET_em and the eta bin                                                                                                                                 
@@ -159,21 +156,22 @@ bool TrigEgammaFastPhotonHypoToolInc::decide( const xAOD::TrigPhoton* photon ) c
 
   if ( EmET >  m_eT2thr[etaBin] ) {
     hadET_cut = m_hadeT2thr[etaBin] ;
-    ATH_MSG_INFO( "ET_em>" << m_eT2thr[etaBin] );
+    ATH_MSG_DEBUG( "ET_em>" << m_eT2thr[etaBin] );
   } else {
     hadET_cut = m_hadeTthr[etaBin];
-    ATH_MSG_INFO( "ET_em<" << m_eT2thr[etaBin] );
+    ATH_MSG_DEBUG( "ET_em<" << m_eT2thr[etaBin] );
   }
 
   HadEmRatio = (EmET!=0) ? HadET/EmET : -1.0;
 
-  if ( HadEmRatio < hadET_cut ){
-    ATH_MSG_INFO( "TrigPhoton: ET_had=" <<  HadEmRatio
-		     << "  not in etaBin " << etaBin );
+  if ( HadEmRatio > hadET_cut ){
+    ATH_MSG_DEBUG( "FastPhoton FAILS ET_had=" << HadEmRatio << " cut in etaBin " 
+                      << etaBin << " is ERatio >= "  << hadET_cut  );
     return false;
 
   }
   cutCounter++;
+  ATH_MSG_DEBUG( "FastPhoton PASS");
   
   return true;
   
