@@ -31,6 +31,7 @@ auto intAccessors = initAccessors<int>(
   "JetFitter_nSingleTracks", "JetFitter_nTracksAtVtx", "JetFitter_nVTX", "JetFitter_ndof",
   "SV1_N2Tpair", "SV1_NGTinSvx", "sp_isPix", "sp_isSct", "sp_layer", "sp_usedTrkId", "seed_et_small", "seed_et_large",
   "pixCL", "pixCL_1", "pixCL_2", "pixCLmin3", "pixCLBarrel", "pixCLEndcapA", "pixCLEndcapC",
+  "nCells",
   "sctSP", "sctSPBarrel", "sctSPEndcapA", "sctSPEndcapC",
   "hit_iblovfl", "hit_loc", "hit_trkid", "hit_layer", "trk_id", "trk_dedx_n_usedhits", "trk_n_hdedx_hits");
 
