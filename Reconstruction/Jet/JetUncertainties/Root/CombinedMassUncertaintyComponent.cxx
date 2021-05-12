@@ -315,6 +315,7 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     // Accessors for the scales we need
     static JetFourMomAccessor caloMassScale(CompMassDef::getJetScaleString(CompMassDef::CaloMass).Data());
     static JetFourMomAccessor TAMassScale(CompMassDef::getJetScaleString(CompMassDef::TAMass).Data());
+    static JetFourMomAccessor combMassScale(CompMassDef::getJetScaleString(CompMassDef::CombMassQCD).Data());
 
     // Get the weight factors
     const double factorCalo = getWeightFactorCalo(jet,shiftFactorCalo);
@@ -323,8 +324,21 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     // Watch for division by zero
     if (factorCalo+factorTA == 0)
     {
-        ATH_MSG_ERROR("Encountered division by zero when calculating weights: " << getName().Data());
-        return StatusCode::FAILURE;
+        if (combMassScale.m(jet) == 0)
+        {
+            // JetCalibTools sets the mass to zero when this situation occurs
+            // This is therefore not an error state, rather we want to be consistent
+            combMass = 0;
+            return StatusCode::SUCCESS;
+        }
+        else
+        {
+            // We somehow have invalid calo and TA masses, but a "valid" combined mass
+            // This is an error state that should result in a message to the user
+            // If this occurs, most likely there is something wrong in the inputs
+            ATH_MSG_ERROR("Encountered division by zero when calculating weights: mCalo = " << caloMassScale.m(jet) << ", mTA = " << TAMassScale.m(jet) << ", mComb = " << combMassScale.m(jet));
+            return StatusCode::FAILURE;
+        }
     }
 
     // Calculate the weights
