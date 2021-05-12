@@ -8,7 +8,7 @@ from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronRecoSequences')
 
-def precisionElectronRecoSequence(RoIs):
+def precisionElectronRecoSequence(RoIs, ion=False):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a electron for TrigEgamma 
 
     Sequence of algorithms is the following:
@@ -20,6 +20,8 @@ def precisionElectronRecoSequence(RoIs):
     """
 
     log.debug('precisionElectronRecoSequence(RoIs = %s)',RoIs)
+
+    tag = '_ion' if ion is True else ''
     
     import AthenaCommon.CfgMgr as CfgMgr
     # First the data verifiers:
@@ -29,11 +31,14 @@ def precisionElectronRecoSequence(RoIs):
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 
-    ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier")
+    caloClusters = precisionCaloMenuDefs.caloClusters(ion)
+    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
+
+    ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier" + tag)
 
     ViewVerifyTrk.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.precisionCaloClusters ),
-                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.TrigElectronTracksCollectionName)]
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % trackParticles)]
 
 
     """ Retrieve the factories now """
@@ -46,33 +51,33 @@ def precisionElectronRecoSequence(RoIs):
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
     #The sequence of these algorithms
-    thesequence = parOR( "precisionElectron%s" % RoIs)
+    thesequence = parOR( "precisionElectron" + RoIs + tag)
     thesequence += ViewVerifyTrk
     
     ## TrigEMTrackMatchBuilder_noGSF ##
-    TrigEMTrackMatchBuilder = TrigEMTrackMatchBuilder("TrigEMTrackMatchBuilder_noGSF")
-    TrigEMTrackMatchBuilder.TrackParticlesName =  TrigEgammaKeys.TrigElectronTracksCollectionName
+    TrigEMTrackMatchBuilder = TrigEMTrackMatchBuilder("TrigEMTrackMatchBuilder_noGSF" + tag)
+    TrigEMTrackMatchBuilder.TrackParticlesName = trackParticles
 
     ## TrigEgammaRecElectron_noGSF ##
-    TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF")
+    TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF" + tag)
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+    TrigEgammaRecAlgo.InputTopoClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_noGSF ##
-    TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF")
+    TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)
     thesequence += TrigSuperElectronAlgo
     TrigSuperElectronAlgo.InputEgammaRecContainerName =  TrigEgammaRecAlgo.egammaRecContainer
     TrigSuperElectronAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
 
     ## TrigTopoEgammaElectronCfg_noGSF ##
-    TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF")
+    TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF" + tag)
     thesequence += TrigTopoEgammaAlgo
     TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
 
     ## TrigElectronIsoBuilderCfg_noGSF ##
-    isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF")
+    isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
     thesequence += isoBuilder
 
     #online monitoring for topoEgammaBuilder

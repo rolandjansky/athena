@@ -13,13 +13,15 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionTracking')
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 
-def precisionTracking(RoIs, precisionCaloClusters):
+def precisionTracking(RoIs, precisionCaloClusters, ion=False):
 ## Taking Fast Track information computed in 2nd step ##
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'electron' )
 
+    tag = '_ion' if ion is True else ''
+
     # TrackCollection="TrigFastTrackFinder_Tracks_Electron"
-    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier" + tag)
     
     ViewVerifyTrk.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloClusters ),
@@ -45,11 +47,11 @@ def precisionTracking(RoIs, precisionCaloClusters):
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
 
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
-    PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
+    PTSeq = parOR("precisionTrackingInElectrons" + tag, PTAlgs)
     #trackParticles = PTTrackParticles[-1]    
-    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName    
+    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
 
-    electronPrecisionTrack = parOR("electronPrecisionTrack")
+    electronPrecisionTrack = parOR("electronPrecisionTrack" + tag)
     electronPrecisionTrack += ViewVerifyTrk
     electronPrecisionTrack += PTSeq
 

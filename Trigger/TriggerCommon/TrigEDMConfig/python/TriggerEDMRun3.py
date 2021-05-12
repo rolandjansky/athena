@@ -201,6 +201,10 @@ TriggerHLTListRun3 = [
     # these two corresponds to the output of the precisionCalo step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+
+    # these two corresponds to the output of the precisionHICalo step
+    ('xAOD::CaloClusterContainer#HLT_HICaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_HICaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
     
     # these two corresponds to the output of the precisionCalo_LRT step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_LRT',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_LRT'),
@@ -224,6 +228,10 @@ TriggerHLTListRun3 = [
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI_LRT',          'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_LRT'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersRoI_LRTAux.nCells', 'BS ESD AODFULL', 'Egamma'),
+
+    # UE subtracted versions for heavy ion paths
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersHIRoI',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersHIRoIAux.nCells',   'BS ESD AODFULL', 'Egamma'),
 
     # These are for precision photon and precision Electron Keeping same names as in Run2
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
@@ -505,6 +513,10 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrigCompositeContainer#HLT_FSLRT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::TrigCompositeAuxContainer#HLT_FSLRT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'Jet'),
+
+    # HI event shape
+    ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),
+    ('xAOD::HIEventShapeAuxContainer#HLT_HIEventShapeEGAux.',   'BS ESD AODFULL',   'Egamma'),
 
     # custom BeamSpot tracks - we don't want to write these out in general so this
     # is commented, if we want to write them out at some point, then these lines

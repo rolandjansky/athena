@@ -51,14 +51,23 @@ def precisionCaloSequenceCfg( flags, is_probe_leg=False ):
 def precisionCaloSequenceCfg_lrt( flags, is_probe_leg=False ):
     return precisionCaloMenuSequence_LRT('Electron', is_probe_leg=is_probe_leg)
 
+def precisionCaloSequenceCfg_ion( flags, is_probe_leg=False ):
+    return precisionCaloMenuSequence('Electron', is_probe_leg=is_probe_leg, ion=True)
+
 def precisionTrackingSequenceCfg( flags, is_probe_leg=False ):
     return precisionTrackingMenuSequence('Electron', is_probe_leg=is_probe_leg)
+
+def precisionTrackingSequenceCfg_ion( flags, is_probe_leg=False ):
+    return precisionTrackingMenuSequence('Electron', is_probe_leg=is_probe_leg, ion=True)
 
 def precisionTrackingSequenceCfg_lrt( flags, is_probe_leg=False ):
     return precisionTrackingMenuSequence_LRT('Electron', is_probe_leg=is_probe_leg)
 
 def precisionElectronSequenceCfg( flags, is_probe_leg=False ):
     return precisionElectronMenuSequence(is_probe_leg=is_probe_leg)
+
+def precisionElectronSequenceCfg_ion( flags, is_probe_leg=False ):
+    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=True)
 
 def precisionGSFElectronSequenceCfg( flags, is_probe_leg=False ):
     return precisionElectronMenuSequence_GSF(is_probe_leg=is_probe_leg)
@@ -238,6 +247,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,stepName,[ fastElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
 
     def getPrecisionCaloElectron(self,is_probe_leg=False):
+        if self.chainPart['extra'] == 'ion':
+            stepName = 'precisionCalo_ion_electron'
+            return self.getStep(3, stepName, [precisionCaloSequenceCfg_ion], is_probe_leg=is_probe_leg)
+
         stepName = "precisionCalo_electron"
         return self.getStep(3,stepName,[ precisionCaloSequenceCfg], is_probe_leg=is_probe_leg)
     
@@ -246,6 +259,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt],is_probe_leg=False)
 
     def getPrecisionTracking(self,is_probe_leg=False):
+        if self.chainPart['extra'] == 'ion':
+            stepName = 'precisionTracking_ion_electron'
+            return self.getStep(4, stepName, [precisionTrackingSequenceCfg_ion], is_probe_leg=is_probe_leg)
+
         stepName = "precisionTracking_electron"
         return self.getStep(4,stepName,[ precisionTrackingSequenceCfg], is_probe_leg=is_probe_leg)
 
@@ -267,6 +284,9 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif "bBeeM6000" in self.chainName:
             stepName = "precision_electron_bBee"+isocut
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+        elif self.chainPart['extra'] == 'ion':
+            stepName = "precision_ion_electron" + str(isocut)
+            return self.getStep(5,stepName,[precisionElectronSequenceCfg_ion], is_probe_leg=is_probe_leg)
         else:
             stepName = "precision_electron"+str(isocut)
             return self.getStep(5,stepName,[ precisionElectronSequenceCfg], is_probe_leg=is_probe_leg)

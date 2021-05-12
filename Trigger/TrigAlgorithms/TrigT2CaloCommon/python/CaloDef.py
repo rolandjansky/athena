@@ -29,6 +29,28 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    algo.CellsName=outputEDM
    return algo
 
+def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', outputEDM='HIEventShape'):
+    from HIGlobal.HIGlobalConf import HIEventShapeMaker
+    from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
+
+    algo = HIEventShapeMaker(name)
+    algo.UseCaloCell = True
+    algo.InputCellKey = inputEDM
+    algo.OutputContainerKey = outputEDM
+    algo.HIEventShapeFillerTool = HIEventShapeFillerTool()
+
+    return algo
+
+def _algoHLTCaloCellCorrector(name='HLTCaloCellCorrector', inputEDM='CellsClusters', outputEDM='CorrectedCellsClusters', eventShape='HIEventShape'):
+  from TrigCaloRec.TrigCaloRecConf import HLTCaloCellCorrector
+
+  algo = HLTCaloCellCorrector(name)
+  algo.EventShapeCollection = eventShape
+  algo.InputCellKey = inputEDM
+  algo.OutputCellKey = outputEDM
+
+  return algo
+
 def _algoHLTTopoCluster(inputEDM="CellsClusters", algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
@@ -190,6 +212,28 @@ def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
     cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="RoI%s"%algSuffix)
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI%s"%algSuffix)
     RecoSequence = parOR("RoITopoClusterRecoSequence%s"%algSuffix, [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
+    return (RecoSequence, topoClusterMaker.CaloClusters)
+
+
+def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, lrtInfo=''):
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
+    eventShape = precisionCaloMenuDefs.egEventShape
+
+    import AthenaCommon.CfgMgr as CfgMgr
+    HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTHIRoITopoRecoSequenceVDV")
+    HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
+                                             ( 'xAOD::HIEventShapeContainer' , 'StoreGateSvc+' + eventShape ),
+                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
+
+    cellMaker = HLTCellMaker(ConfigFlags, RoIs, algSuffix="HIRoI")
+    cellCorrector = _algoHLTCaloCellCorrector(
+        name='HLTRoICaloCellCorrector',
+        inputEDM=cellMaker.CellsName,
+        outputEDM='CorrectedRoICaloCells',
+        eventShape=eventShape)
+
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellCorrector.OutputCellKey, algSuffix="HIRoI")
+    RecoSequence = parOR("HIRoITopoClusterRecoSequence", [HLTRoITopoRecoSequenceVDV, cellMaker, cellCorrector, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 

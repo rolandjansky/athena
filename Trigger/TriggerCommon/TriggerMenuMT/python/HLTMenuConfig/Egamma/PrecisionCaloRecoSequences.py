@@ -4,6 +4,7 @@
 
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
+from AthenaCommon.CFElements import parOR
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
 from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
@@ -18,22 +19,25 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec' )
 # in the RecoFragmentsPool -- only the RoIs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
 # taken from Jet/JetRecoSequences.py
-def precisionCaloRecoSequence(DummyFlag, RoIs):
+def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     log.debug('DummyFlag = %s',str(DummyFlag))
     log.debug('RoIs = %s',RoIs)
 
+    from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence, HLTHIRoITopoRecoSequence
+    topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
+    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
+
+    tag = 'HI' if ion is True else ''
+    outputCaloClusters = precisionCaloMenuDefs.caloClusters(ion)
+
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
-                                          name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
-                                          InputTopoCollection= "caloclusters",
-                                          OutputTopoCollection=precisionCaloMenuDefs.precisionCaloClusters,
-                                          OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs.precisionCaloClusters,
+                                          name = 'TrigEgammaTopoClusterCopier' + tag + RoIs ,
+                                          InputTopoCollection = caloclusters,
+                                          OutputTopoCollection = outputCaloClusters,
+                                          OutputTopoCollectionShallow = "tmp_" + outputCaloClusters,
                                           doAdd = False )
 
-    from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs, algSuffix='')
-
     algo = egammaTopoClusterCopier()
-    algo.InputTopoCollection = caloclusters
     precisionRecoSequence += algo
     sequenceOut = algo.OutputTopoCollection
 
@@ -84,3 +88,26 @@ def precisionCaloRecoSequence_FWD(DummyFlag, RoIs):
     sequenceOut = algo.OutputTopoCollection
 
     return (precisionRecoSequence, sequenceOut)
+
+
+def egammaFSCaloRecoSequence():
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
+
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+
+    cellMaker = HLTCaloCellMaker('HLTCaloCellMakerEGFS')
+    cellMaker.RoIs = mapThresholdToL1RoICollection('FSNOSEED')
+    cellMaker.TrigDataAccessMT = svcMgr.TrigCaloDataAccessSvc
+    cellMaker.CellsName = 'CaloCellsEGFS'
+
+    from TrigT2CaloCommon.CaloDef import _algoHLTHIEventShape
+    eventShapeMaker = _algoHLTHIEventShape(
+        name='HLTEventShapeMakerEG',
+        inputEDM=cellMaker.CellsName,
+        outputEDM=precisionCaloMenuDefs.egEventShape
+    )
+
+    return parOR("egammaFSRecoSequence", [cellMaker, eventShapeMaker])
