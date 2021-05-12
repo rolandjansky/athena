@@ -29,7 +29,7 @@ def TLAPhotonSequence(flags, photonsIn):
 
     from TrigEgammaHypo import TrigEgammaTLAPhotonFexMTConfig
     # this has yet to be written, should be similar to the jet tla
-    TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut, outputLevel=WARNING)
+    TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])
