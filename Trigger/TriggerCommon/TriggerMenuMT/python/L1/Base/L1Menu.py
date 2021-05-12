@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .CTP import CTP
 from .Items import MenuItemsCollection
@@ -103,4 +103,23 @@ class L1Menu(object):
             log.info("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
             log.info("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
             log.info("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
-        
+
+    def checkLegacyThresholds(self):
+        from collections import defaultdict as dd 
+        from ..Menu.LegacyMenuThresholds import legacyThresholds
+        extraThresholds = dd(list)
+        for item in self.items:
+            for thrName in item.thresholdNames():
+                if thrName[0] not in ('e','j','g') and "TOPO" not in thrName and "MU" not in thrName:
+                    if thrName not in legacyThresholds:
+                        extraThresholds[thrName].append(item.name)
+
+        for thrName in sorted(extraThresholds.keys()):
+            log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
+
+
+
+
+
+
+       
