@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef __ASGELECTRONEFFICIENCYCORRECTIONTOOL__
@@ -202,6 +202,10 @@ private:
         int m_nCorrSyst;
         int m_nUncorrSyst ;
         std::map<float, std::vector<float> > m_pteta_bins;
+
+	// custom binning for SIMPLIFIED model
+	std::vector<float> m_uncorrSimplfEtaBinsUser;
+	std::vector<float> m_uncorrSimplfEtBinsUser;
 
         // simplified uncorrelation regions
         TH2F * m_UncorrRegions;
