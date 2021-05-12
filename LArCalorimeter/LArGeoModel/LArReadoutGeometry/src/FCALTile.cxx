@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCALTile.h"
@@ -28,11 +28,16 @@ FCALTile::~FCALTile()
 }
 
 
+// cppcheck-suppress operatorEqVarError
 FCALTile & FCALTile::operator=(const FCALTile &right)
 {
   if (this!=&right) {
     m_module=right.m_module;
     m_tile=right.m_tile;
+    m_tube.reset();
+    for (int i = 0; i < 4; i++) {
+      m_line[i].store (nullptr);
+    }
   }
   return *this;
 }
@@ -119,7 +124,7 @@ FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
 
     //std::cout << " side,sampling " << iSide << " " << iSampling << std::endl;
  
-    for (FCAL_ChannelMap::tubemap_const_iterator t=channelMap->tubemap_begin(moduleNumber);t!=channelMap->tubemap_end(moduleNumber); t++) {
+    for (FCAL_ChannelMap::tubemap_const_iterator t=channelMap->tubemap_begin(moduleNumber);t!=channelMap->tubemap_end(moduleNumber); ++t) {
       if ((*t).second.get_tileName()==(*m_tile).first) {
 	std::string FeedThrough = (*t).second.getHVft();
 	//int         ElectrodeId = (*t).second.getElectrodeDataID();
