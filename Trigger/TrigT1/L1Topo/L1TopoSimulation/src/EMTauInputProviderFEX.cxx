@@ -42,7 +42,12 @@ EMTauInputProviderFEX::initialize() {
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
-   CHECK(m_eEDMKey.initialize());
+   auto isEDMvalid = m_eEDMKey.initialize();
+
+   //Temporarily check EDM status by hand to avoid the crash!
+   if (isEDMvalid != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("No EDM found for eFEX..");
+   }
 
    return StatusCode::SUCCESS;
 }
@@ -103,6 +108,7 @@ StatusCode
 EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   
   SG::ReadHandle<xAOD::eFexEMRoIContainer> myRoIContainer(m_eEDMKey);
+  //Temporarily check EDM status by hand to avoid the crash!
   if(!myRoIContainer.isValid()){
     ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEDMKey.key() << ". No eFEX input for L1Topo");
     
@@ -123,7 +129,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) continue;
+    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
 
     int ieta = ConvertEta((int)eFexRoI->iEta());
     int iphi = eFexRoI->iPhi();

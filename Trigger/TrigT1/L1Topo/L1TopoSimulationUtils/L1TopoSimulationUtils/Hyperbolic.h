@@ -20,8 +20,8 @@
 
 namespace TSU {
    struct Hyperbolic{
-     static const std::unordered_map<unsigned,std::string> Coshleg;
-     static const std::unordered_map<unsigned,std::string> Cosh;
+     static const std::vector<std::string> Coshleg;
+     static const std::vector<std::string> Cosh;
    };
 }
 #endif

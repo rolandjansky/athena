@@ -87,12 +87,23 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     l1Phase1TopoSimDataSeq = L1TopoSimulation('L1Phase1TopoSimulation')
     l1LegacyTopoSimDataSeq = L1TopoSimulation('L1LegacyTopoSimulation')
+    l1LegacyTopoSimDataSeq.InputDumpFile = 'inputdump_legacy.txt'
+    l1Phase1TopoSimDataSeq.InputDumpFile = 'inputdump_phase1.txt'
+    # Generic flag can be put for enabling l1topo input file
+    EnableInputDump = False
+    l1LegacyTopoSimDataSeq.EnableInputDump = EnableInputDump
+    l1Phase1TopoSimDataSeq.EnableInputDump = EnableInputDump
     l1Phase1TopoSimDataSeq.IsLegacyTopo = False
     l1LegacyTopoSimDataSeq.IsLegacyTopo = True
     l1Phase1TopoSimDataSeq.MonHistBaseDir = 'L1/L1Phase1TopoAlgorithms'
     l1LegacyTopoSimDataSeq.MonHistBaseDir = 'L1/L1LegacyTopoAlgorithms'
     l1Phase1TopoSimDataSeq.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     l1LegacyTopoSimDataSeq.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
+    # Calo inputs
+    if ConfigFlags.Trigger.enableL1CaloPhase1:
+        l1Phase1TopoSimDataSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+        l1Phase1TopoSimDataSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
     # Muon inputs
     from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
@@ -136,10 +147,6 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     if not ConfigFlags.Trigger.enableL1MuonPhase1:
         l1Phase1TopoSimDataSeq.MuonInputProvider = ToolSvc.MuonInputProviderLegacy
         l1LegacyTopoSimDataSeq.MuonInputProvider = ToolSvc.MuonInputProviderLegacy
-
-    # Calo inputs
-    if ConfigFlags.Trigger.enableL1CaloPhase1:
-        l1Phase1TopoSimDataSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
 
     # TODO: at the moment, both simulation are running but they should be configured based on the phase1 flags (ATR-23319)
     isL1TopoLegacyOutputProvided = False
@@ -266,6 +273,7 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
         setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSim)
 
         l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
+        #l1CaloSim += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
 
     ##################################################
     # Muons MC
@@ -287,6 +295,12 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     l1LegacyTopoSim = L1TopoSimulation('L1LegacyTopoSimulation')
     l1Phase1TopoSim.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     l1LegacyTopoSim.MuonInputProvider.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+    l1LegacyTopoSim.InputDumpFile = 'inputdump_legacy.txt'
+    l1Phase1TopoSim.InputDumpFile = 'inputdump_phase1.txt'
+    # Generic flag can be put for enabling l1topo input file
+    EnableInputDump = False
+    l1LegacyTopoSim.EnableInputDump = EnableInputDump
+    l1Phase1TopoSim.EnableInputDump = EnableInputDump
 
     from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
     ToolSvc += MuonInputProviderLegacy('MuonInputProviderLegacy')    
@@ -297,9 +311,9 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
     l1Phase1TopoSim.MonHistBaseDir = 'L1/L1Phase1TopoAlgorithms'
     l1LegacyTopoSim.MonHistBaseDir = 'L1/L1LegacyTopoAlgorithms'
 
-    # Calo inputs
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         l1Phase1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+        l1Phase1TopoSim.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
     # Muon inputs
     # TODO: the legacy L1Topo sim should not need muon inputs 

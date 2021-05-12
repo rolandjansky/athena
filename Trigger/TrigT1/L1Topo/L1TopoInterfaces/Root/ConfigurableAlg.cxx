@@ -17,6 +17,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include <iostream>
+#include <sstream>
 
 using namespace TCS;
 
@@ -257,14 +258,16 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax) {
-  std::string newTitle = std::to_string((int)xmin)+title+std::to_string((int)xmax);
-  std::string newName=name+"_"+std::to_string((int)xmin)+title+std::to_string((int)xmax);
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax) {
+  std::string xmin_str = ToString(xmin);
+  std::string xmax_str = ToString(xmax);
+  std::string newTitle = xmin_str+title+xmax_str;
+  std::string newName = name+"_"+xmin_str+title+xmax_str;
   std::replace( newName.begin(), newName.end(), '-', 'n');
   std::replace( newName.begin(), newName.end(), ' ', '_');
   regName.push_back(m_name+"/"+newName);
 
-  float xmin_new,xmax_new;
+  int xmin_new,xmax_new;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
@@ -293,17 +296,21 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
   auto usPos = title.find(" vs ");
   std::string xName = title.substr(0,usPos);
   std::string yName = title.substr(usPos+4);
-  std::string newTitle = std::to_string((int)xmin)+xName+std::to_string((int)xmax)+" vs "+std::to_string((int)ymin)+yName+std::to_string((int)ymax);
-  std::string newName=name+"_"+std::to_string((int)xmin)+xName+std::to_string((int)xmax)+"_"+std::to_string((int)ymin)+yName+std::to_string((int)ymax);
+  std::string xmin_str = ToString(xmin);
+  std::string xmax_str = ToString(xmax);
+  std::string ymin_str = ToString(ymin);
+  std::string ymax_str = ToString(ymax);
+  std::string newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
+  std::string newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
   std::replace( newName.begin(), newName.end(), '-', 'n');
   std::replace( newName.begin(), newName.end(), ' ', '_');
   regName.push_back(m_name+"/"+newName);
 
-  float xmin_new,xmax_new;
+  int xmin_new,xmax_new;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
@@ -317,7 +324,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   else
     { xmax_new=1.5*xmax; }
 
-  float ymin_new,ymax_new;
+  int ymin_new,ymax_new;
   if ( ymin > 0.0)
     { ymin_new=0.0; }
   else
@@ -363,6 +370,13 @@ void ConfigurableAlg::fillHist2D(const std::string & histName, double x, double 
   m_impl->fillHist2D(histName,x,y);
 }
 
+std::string ConfigurableAlg::ToString(const int val)
+{
+  const int val_int = static_cast<int>(val);
+  std::ostringstream temp;
+  temp << val_int;
+  return temp.str();
+}
 
 namespace TCS {
 
