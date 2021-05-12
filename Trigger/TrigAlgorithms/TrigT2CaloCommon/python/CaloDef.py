@@ -30,15 +30,15 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    return algo
 
 def _algoHLTTopoCluster(inputEDM="CellsClusters", algSuffix="") :
-   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-   algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
+   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
+   algo = TrigCaloClusterMaker_topo(name="TrigCaloClusterMaker_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
    from TrigEDMConfig.TriggerEDMRun3 import recordable
    algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    return algo
 
 def _algoHLTTopoClusterLC(inputEDM="CellsClusters", algSuffix="") :
-   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-   algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
+   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
+   algo = TrigCaloClusterMaker_topo(name="TrigCaloClusterMaker_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
    from TrigEDMConfig.TriggerEDMRun3 import recordable
    algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    return algo

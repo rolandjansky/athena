@@ -4,18 +4,18 @@
 
 /********************************************************************
  *
- * NAME:      TrigCaloClusterCalibratorMT
+ * NAME:      TrigCaloClusterCalibrator
  * PACKAGE:   Trigger/TrigAlgorithms/TrigCaloRec
  *
  * AUTHOR:    Jon Burr
  * CREATED:   2020/07/10
  *
  * Shallow copy an existing cluster container and apply cluster processors to
- * it. Largely copied from the TrigCaloClusterMakerMT.
+ * it. Largely copied from the TrigCaloClusterMaker.
  *********************************************************************/
 
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigCaloClusterCalibratorMT.h"
+#include "TrigCaloClusterCalibrator.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/ShallowAuxContainer.h"
 #include "StoreGate/ReadHandle.h"
@@ -23,13 +23,13 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include <tuple>
 
-TrigCaloClusterCalibratorMT::TrigCaloClusterCalibratorMT(
+TrigCaloClusterCalibrator::TrigCaloClusterCalibrator(
     const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
-StatusCode TrigCaloClusterCalibratorMT::initialize()
+StatusCode TrigCaloClusterCalibrator::initialize()
 {
   ATH_MSG_INFO("Initialise " << name() );
 
@@ -46,7 +46,7 @@ StatusCode TrigCaloClusterCalibratorMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCaloClusterCalibratorMT::execute(const EventContext& ctx) const
+StatusCode TrigCaloClusterCalibrator::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Running " << name() );
   auto time_corr = Monitored::Timer("TIME_ClustCorr");

@@ -6,18 +6,18 @@
 
 /********************************************************************
  *
- * NAME:      TrigCaloClusterCalibratorMT
+ * NAME:      TrigCaloClusterCalibrator
  * PACKAGE:   Trigger/TrigAlgorithms/TrigCaloRec
  *
  * AUTHOR:    Jon Burr
  * CREATED:   2020/07/10
  *
  * Shallow copy an existing cluster container and apply cluster processors to
- * it. Largely copied from the TrigCaloClusterMakerMT.
+ * it. Largely copied from the TrigCaloClusterMaker.
  *********************************************************************/
 
-#ifndef TRIGCALOREC_TRIGCALOCLUSTERCALIBRATORMT_H
-#define TRIGCALOREC_TRIGCALOCLUSTERCALIBRATORMT_H
+#ifndef TRIGCALOREC_TRIGCALOCLUSTERCALIBRATOR_H
+#define TRIGCALOREC_TRIGCALOCLUSTERCALIBRATOR_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -28,9 +28,9 @@
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 
-class TrigCaloClusterCalibratorMT : public AthReentrantAlgorithm {
+class TrigCaloClusterCalibrator : public AthReentrantAlgorithm {
   public:
-    TrigCaloClusterCalibratorMT(const std::string& name, ISvcLocator* pSvcLocator);
+    TrigCaloClusterCalibrator(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -58,6 +58,6 @@ class TrigCaloClusterCalibratorMT : public AthReentrantAlgorithm {
       this, "IsSW", false, 
       "Is this running corrections to 'SW' clusters? If it is, then cluster "
       "processors will be run selectively based on the cluster's eta"};
-}; //> end class TrigCaloClusterCalibratorMT
+}; //> end class TrigCaloClusterCalibrator
 
-#endif //> !TRIGCALOREC_TRIGCALOCLUSTERCALIBRATORMT_H
+#endif //> !TRIGCALOREC_TRIGCALOCLUSTERCALIBRATOR_H
