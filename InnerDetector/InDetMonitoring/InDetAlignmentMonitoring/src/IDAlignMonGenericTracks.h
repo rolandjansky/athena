@@ -418,6 +418,7 @@ protected:
   bool m_extendedPlots;
   float m_d0Range;
   float m_d0BsRange;
+  int   m_d0BsNbins;
   float m_pTRange;
   float m_z0Range;
   float m_etaRange;
