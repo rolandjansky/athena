@@ -118,6 +118,8 @@ else:
     simFlags.TruthStrategy    = 'MC12'
     simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
 include('ISF_Config/ISF_ConfigJobInclude.py')
 
 

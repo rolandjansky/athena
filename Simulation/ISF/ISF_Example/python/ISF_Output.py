@@ -33,10 +33,28 @@ def getHITSStreamItemList():
     ## Calo
     if DetFlags.Calo_on():
         hitsItemList += ["CaloCalibrationHitContainer#*",
-                         "LArHitContainer#*",
-                         "TileHitVector#*",
+                         "LArHitContainer#LArHitEMB",
+                         "LArHitContainer#LArHitEMEC",
+                         "LArHitContainer#LArHitHEC",
+                         "LArHitContainer#LArHitFCAL",
+                         "LArHitContainer#LArHitMiniFCAL",
+                         "TileHitVector#TileHitVec",
+                         "TileHitVector#MBTSHits",
                          #"SimpleScintillatorHitCollection#*",
                          "TrackRecordCollection#MuonEntryLayer"]
+        from ISF_Config.ISF_jobProperties import ISF_Flags
+        if ISF_Flags.HITSMergingRequired.get_Value().get('CALO', False):
+            hitsItemList += ["LArHitContainer#LArHitEMB_G4",
+                             "LArHitContainer#LArHitEMEC_G4",
+                             "LArHitContainer#LArHitHEC_G4",
+                             "LArHitContainer#LArHitFCAL_G4",
+                             "LArHitContainer#LArHitEMB_FastCaloSim",
+                             "LArHitContainer#LArHitEMEC_FastCaloSim",
+                             "LArHitContainer#LArHitHEC_FastCaloSim",
+                             "LArHitContainer#LArHitFCAL_FastCaloSim",
+                             "TileHitVector#MBTSHits_G4",
+                             "TileHitVector#TileHitVec_G4",
+                             "TileHitVector#TileHitVec_FastCaloSim"]
     ## Muon
     if DetFlags.Muon_on():
         hitsItemList += ["RPCSimHitCollection#*",

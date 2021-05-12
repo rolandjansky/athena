@@ -26,7 +26,7 @@ export JOB_LOG="athena.AODtoDERIV.log"
 echo "Running AOD->DERIV with Reco_tf command:"
 (set -x
 Reco_tf.py \
---asetup="AthDerivation,21.2,latest,slc6" \
+--asetup="AthDerivation,21.2,latest,centos7" \
 --inputAODFile AOD.pool.root \
 --outputDAODFile DAOD.root \
 --reductionConf JETM6 \

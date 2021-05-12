@@ -16,7 +16,7 @@ theCaloClusterRetriever = JiveXML__CaloClusterRetriever (name = "CaloClusterRetr
 #theCaloClusterRetriever.DoWriteHLT = True
 ## Default collection (most Electron have elementLink to this one):
 
-theCaloClusterRetriever.FavouriteClusterCollection="egClusterCollection"
+theCaloClusterRetriever.FavouriteClusterCollection="egammaTopoCluster"
 
 ## example how to set other collection. when commented out: all other, non-HLT
 ##

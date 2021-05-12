@@ -22,7 +22,7 @@ namespace FSR {
         declareProperty( "overlap_el_mu", m_overlap_el_mu = 0.001 );
         declareProperty( "far_fsr_drcut", m_far_fsr_drcut = 0.15 );
         declareProperty( "far_fsr_etcut", m_far_fsr_etcut = 10000.0 );
-        declareProperty( "far_fsr_isoWorkingPoint", m_far_fsr_isoWorkingPoint = "Cone20");
+        declareProperty( "far_fsr_isoWorkingPoint", m_far_fsr_isoWorkingPoint = "FixedCutLoose");
         declareProperty( "drcut", m_drcut = 0.15 );
         declareProperty( "etcut", m_etcut = 1000.0 );
         declareProperty( "f1cut", m_f1cut =  0.1 );
@@ -37,6 +37,18 @@ namespace FSR {
         // Greet the user:
         ATH_MSG_INFO( "Initialising..." );
 
+        ATH_MSG_INFO( "high_et_min " << m_high_et_min);
+        ATH_MSG_INFO( "overlap_el_ph " << m_overlap_el_ph);
+        ATH_MSG_INFO( "overlap_el_mu " << m_overlap_el_mu);
+        ATH_MSG_INFO( "far_fsr_drcut " << m_far_fsr_drcut);
+        ATH_MSG_INFO( "far_fsr_etcut " << m_far_fsr_etcut);
+        ATH_MSG_INFO( "far_fsr_isoWorkingPoint " << m_far_fsr_isoWorkingPoint);
+        ATH_MSG_INFO( "drcut " << m_drcut);
+        ATH_MSG_INFO( "etcut " << m_etcut);
+        ATH_MSG_INFO( "f1cut " << m_f1cut);
+        ATH_MSG_INFO( "topo_drcut " << m_topo_drcut);
+        ATH_MSG_INFO( "topo_f1cut " << m_topo_f1cut);
+          
         // Initialize the isolation selection tool
         if (m_isoSelTool.empty()){
             CP::IsolationSelectionTool* isoTool = new CP::IsolationSelectionTool("FsrIsoSelectionTool" + name());
@@ -47,6 +59,7 @@ namespace FSR {
                          << " IsoSelectionTool photon working point");
         }
         ASG_CHECK(m_isoSelTool.retrieve());
+
 
         // Return gracefully:
         return StatusCode::SUCCESS;
@@ -148,9 +161,10 @@ namespace FSR {
             bool is_tight_photon = false;
             photon->passSelection(is_tight_photon, "Tight");
 
-            if (   ((photon->author() == 4) || (photon->author() == 16))
-                   && (photon->p4().Et() > m_far_fsr_etcut)
-                   && is_tight_photon) {
+            // old requirement to avoid topo cluster photons
+            // if (   ((photon->author() == 4) || (photon->author() == 16))
+
+            if ( (photon->p4().Et() > m_far_fsr_etcut) && is_tight_photon) {
                 bool farPhIsoOK         = (bool)m_isoSelTool->accept(*photon);
                 bool far_fsr_drcut_isOK = false;
                 if (farPhIsoOK) {
@@ -187,18 +201,18 @@ namespace FSR {
    	for (auto photon : *photons_cont) {
             float photon_f1;
             photon->showerShapeValue(photon_f1, xAOD::EgammaParameters::f1);
-   
-            bool std_photon_author = (photon->author() == 4 || photon->author()==16 );
-            if(  (    std_photon_author  && (photon->p4().Et() > m_high_et_min)
-                      && (photon->p4().Et() > m_etcut) && (photon_f1 > m_f1cut) )
-                 ||(    (photon->author() == 128) && (photon_f1 > m_topo_f1cut)
-                        && ((m_etcut < photon->p4().Et()) && (photon->p4().Et() <= m_high_et_min)) )  ) {
+
+            // Selection is tighter for photons below high_et_min
+            bool high_et_photon = (photon->p4().Et() > m_high_et_min);
+            if(  ( high_et_photon && (photon->p4().Et() > m_etcut) && (photon_f1 > m_f1cut) )
+                 ||( !high_et_photon && (photon_f1 > m_topo_f1cut)
+                     && (m_etcut < photon->p4().Et())) ) {
    
                 double dr = deltaR(muon->eta(), muon->phi(), photon->eta(), photon->phi());
    
                 // ph_cl_eta/phi should be used in duplicate
-                if (   (photon->author() == 128 && dr < m_topo_drcut)
-                       || (std_photon_author && dr < m_drcut)  ) {
+                if (   (!high_et_photon && dr < m_topo_drcut)
+                       || (high_et_photon && dr < m_drcut)  ) {
                     nearFsrCandList.push_back(std::make_pair(photon, dr));
                     ATH_MSG_DEBUG( "Near Fsr candidates ( photon ) kinematics ; author  "
                                    << photon->author()
@@ -235,8 +249,12 @@ namespace FSR {
 
                 ATH_MSG_VERBOSE( "Near Fsr candidate ( electron ) Et = " << clEt << " eCorr " << eCorr);
            
-                if(    (elmutrackmatch) && (clEt > m_etcut) && (clEt > m_high_et_min)
-                       && ( electron_f1 > m_f1cut ) ) {
+                // Allow topo-clusters to come in as electrons - apply f1 sliding window cut for Et
+                // > 3.5 GeV and f1 topo cut for Et 1-3.5 GeV
+                if( elmutrackmatch &&
+                    ((clEt < m_high_et_min && m_etcut < clEt && electron_f1 > m_topo_f1cut ) ||
+                     (m_high_et_min < clEt                   && electron_f1 > m_f1cut )) ) {
+
                     double dr = deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi());
    
                     if ( dr < m_drcut ) {
@@ -253,17 +271,21 @@ namespace FSR {
                                           << " f1 = " << electron_f1
                                           << " dr = " << dr );
                 }
-                else {
-                    ATH_MSG_VERBOSE( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
-                                     << electron->author()
-                                     << " Et = " << clEt
-                                     << " f1 = " << electron_f1
-                                     << " dr = " << deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi())
-                                     << " theta/phi el/mu " << electron_track->theta() << "/" << muon->p4().Theta()
-                                     << "/" << electron_track->phi() << "/" << muon->phi()
-                                     << " theta/phi mu trk " << muon_track->theta() << "/" << muon_track->phi()
-                                     );
-                }
+                // else {
+                //     double dr = deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi());
+   
+                //     if (elmutrackmatch && dr < m_drcut ) {
+                //     ATH_MSG_INFO( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
+                //                      << electron->author()
+                //                      << " Et = " << clEt
+                //                      << " f1 = " << electron_f1
+                //                      << " dr = " << deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi())
+                //                      << " theta/phi el/mu " << electron_track->theta() << "/" << muon->p4().Theta()
+                //                      << "/" << electron_track->phi() << "/" << muon->phi()
+                //                      << " theta/phi mu trk " << muon_track->theta() << "/" << muon_track->phi()
+                //                   );
+                //     }
+                // }
             }
    
         return sortFsrCandidates(nearFsrCandList);

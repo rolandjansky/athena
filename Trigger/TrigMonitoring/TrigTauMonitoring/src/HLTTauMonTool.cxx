@@ -129,7 +129,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   //declareProperty("HltEmulationTool", 	m_hltemulationTool,  "Handle to the HLT emulation tool");
   declareProperty("doTrackCurves",            m_doTrackCurves=false, "Efficiency plots of track distributions");
   //declareProperty("doTestTracking", 		m_doTestTracking=false);
-  declareProperty("doEfficiencyRatioPlots",            m_doEfficiencyRatioPlots=false, "Efficiency ratio plots of FTK vs nonFTK LST chains");
   declareProperty("doTopoValidation",         m_doTopoValidation=false);
   declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
   declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
@@ -167,30 +166,9 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   counterOfdR0_Topoeltau = 0;
 
   for (int i=0; i<3; i++)
-    {
-      LST_FTK_PassHLTsel.push_back(0);
-      LST_FTK0Prong_PassHLTsel.push_back(0);
-      LST_FTKBDT_PassHLTsel.push_back(0);
-      LST_FTK0ProngBDT_PassHLTsel.push_back(0);
+  {
       LST_tracktwo_PassHLTsel.push_back(0);
-    }
-
-  // FTK LST chains activation check flags
-  FTKLST_idperfActive = false;
-  FTKLST_perfActive = false;
-  FTKLST_medium1Active = false;
-  FTKLST_perf0Active = false;	
-  FTKLST_medium0Active = false;
-  FTKLST_medium1NoPrecActive = false;
-  FTKLST_medium0NoPrecActive = false;
-
-  // FTKEffTProf flags
-  doFTKEffTProf = false;
-  doFTKEffTProf_2 = false;
-  do0prongFTKEffTProf = false;
-  do0prongFTKEffTProf_2 = false;
-  doFTKNoPrecEffTProf_2 = false;
-  do0prongFTKNoPrecEffTProf_2 = false;
+  }
 
   // EffRatioPlots flags
   effRatioChains_Active = false;
@@ -258,11 +236,6 @@ StatusCode HLTTauMonTool::init() {
     m_trigItemsZtt.push_back(*it);
   }
 
-  // List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
-  m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
-  m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
-  m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
-  m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
   m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
   m_Ratio = {"idperf", "perf", "medium1"};
   // List of MVA triggers
@@ -282,66 +255,6 @@ StatusCode HLTTauMonTool::init() {
     
   if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
   if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
-
-  // Check if chains for Efficiency Ratio plots are in the "cleaned-up" m_trigItems list.
-  for(unsigned int i=0; i<m_trigItems.size(); i++){
-    // LST FTK
-    if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(0))	
-      {
-	FTKLST_idperfActive=true;
-	activeFTKvsNonFTKEffRatioChains++;
-      }
-    if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(1))
-      {
-	FTKLST_perfActive=true;
-	activeFTKvsNonFTKEffRatioChains++;
-      }
-    if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(2))	
-      {
-	FTKLST_medium1Active=true;
-	activeFTKvsNonFTKEffRatioChains++;
-      }
-    // LST FTK - 0prong
-    //if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(0))	FTKLST_idperfActive=true;
-    if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(1))	
-      {
-	FTKLST_perf0Active=true;
-	activeFTKvsNonFTKEffRatio0prongChains++;
-      }
-    if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(2))
-      {
-	FTKLST_medium0Active=true;
-	activeFTKvsNonFTKEffRatio0prongChains++;
-      }
-    // LST FTK - NoPrec
-    if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))
-      {
-	FTKLST_medium1NoPrecActive=true;
-	//activeFTKvsNonFTKEffRatioNoPrecChains++;
-	effRatioBDTChains_Active = true;
-      }
-    // LST FTK - 0prong NoPrec
-    if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))	
-      {
-	FTKLST_medium0NoPrecActive=true;
-	//activeFTKvsNonFTKEffRatio0prongNoPrecChains++;
-	effRatio0ProngBDTChains_Active = true;
-      }
-  }
-
-  if (FTKLST_idperfActive && FTKLST_perfActive) doFTKEffTProf = true;
-  if (FTKLST_perfActive && FTKLST_medium1Active) doFTKEffTProf_2 = true;
-  if (activeFTKvsNonFTKEffRatioChains == m_LST_HLTsel_FTK_chains.size()) effRatioChains_Active = true;
-
-  if (FTKLST_idperfActive && FTKLST_perf0Active) do0prongFTKEffTProf = true;
-  if (FTKLST_perf0Active && FTKLST_medium0Active) do0prongFTKEffTProf_2 = true;
-  if (activeFTKvsNonFTKEffRatio0prongChains == (m_LST_HLTsel0Prong_FTK_chains.size()-1)) effRatio0ProngChains_Active = true;
-
-  if (FTKLST_perfActive && FTKLST_medium1NoPrecActive) doFTKNoPrecEffTProf_2 = true;
-  //if (activeFTKvsNonFTKEffRatioNoPrecChains == (m_LST_HLTsel_FTKNoPrec_chains.size()) effRatioBDTChains_Active = true;
-
-  if (FTKLST_perf0Active && FTKLST_medium0NoPrecActive) do0prongFTKNoPrecEffTProf_2 = true;
-  //if (activeFTKvsNonFTKEffRatio0prongNoPrecChains == m_LST_HLTsel0Prong_FTKNoPrec_chains.size()) effRatio0ProngBDTChains_Active = true;
 
   // end Check for Efficiency Ratio plots
 
@@ -551,24 +464,19 @@ StatusCode HLTTauMonTool::fill() {
 			 
       // muCut on Filling the Histograms
       if (muCut40Passed)
-	{
-	  sc = fillHistogramsForItem(m_trigItems[j], monRNN, monBDT, goodTauRefType);
-	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
-	  if(m_doTrackCurves){
-	    sc = trackCurves (m_trigItems[j], goodTauRefType);
-	    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
-	  }
-	  if(m_doEfficiencyRatioPlots){
-	    sc = efficiencyRatioPlots (m_trigItems[j], goodTauRefType);
-	    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed efficiencyRatioPlots()"); } //return sc;}
-	  }
-	}
+      {
+        sc = fillHistogramsForItem(m_trigItems[j], monRNN, monBDT, goodTauRefType);
+        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
+        if(m_doTrackCurves){
+          sc = trackCurves (m_trigItems[j], goodTauRefType);
+          if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
+        }
+      }
       else
-	{
-	  ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: HistogramsForItem"); 
-	} 
-
-
+      {
+        ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: HistogramsForItem"); 
+      } 
+  
     }
 
   // do L1TopoLeptons
@@ -2976,213 +2884,6 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	  LST_tracktwo_PassHLTsel.at(2) = 1;
 	}
     }
-	   
-    // FTK eff TProfiles 
-    if (doFTKEffTProf)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel_FTK_chains.at(0))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTK_1")->Fill(pt/GeV,1);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu,1);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_1")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_1")->Fill(pt/GeV,1);
-		//hist("hRecoHLTLSTPt_FTK_1")->Fill(pt/GeV);
-		//hist("hRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta);
-		//hist("hRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks);
-		//hist("hRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(0), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTK_1")->Fill(pt/GeV,0);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu,0);
-		//hist("hRecoHLTLSTPt_idperf_FTK_1")->Fill(pt/GeV);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_1")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_1")->Fill(pt/GeV,0);
-		LST_FTK_PassHLTsel.at(0) = 1;
-	      }
-	  }
-      }
-    if (doFTKEffTProf_2)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel_FTK_chains.at(1))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(2), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTK_2")->Fill(pt/GeV,1);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTK_2")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTK_2")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_FTK_2")->Fill(mu,1);					
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_2")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_2")->Fill(pt/GeV,1);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTK_2")->Fill(pt/GeV,0);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTK_2")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTK_2")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_FTK_2")->Fill(mu,0);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_2")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_2")->Fill(pt/GeV,0);
-		LST_FTK_PassHLTsel.at(1) = 1;
-	      }
-	  }
-	if(trigItem==m_LST_HLTsel_FTK_chains.at(2))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(2), TauTLV, 0.2)  )
-	      {
-		LST_FTK_PassHLTsel.at(2) = 1;
-	      }
-	  }
-      }
-
-    // NoPrec
-    if (doFTKNoPrecEffTProf_2)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel_FTKNoPrec_chains.at(1)) //perf
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(2), TauTLV, 0.2)  ) //medium1
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTKNoPrec_2")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTKNoPrec_2")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_FTKNoPrec_2")->Fill(mu,1);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
-		profile("TProfRecoHLTLSTEtaEfficiency_FTKNoPrec_2")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_FTKNoPrec_2")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_FTKNoPrec_2")->Fill(mu,0);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
-	      }
-	  }
-	if(trigItem==m_LST_HLTsel_FTKNoPrec_chains.at(2)) //perf
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(2), TauTLV, 0.2)  ) //medium1
-	      {
-		LST_FTKBDT_PassHLTsel.at(2) = 1;
-	      }
-	  }
-      }
-
-    // 0prong
-    if (do0prongFTKEffTProf)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(0))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
-		//hist("hRecoHLTLSTPt_perf_FTK_1")->Fill(pt/GeV);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_1")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_1")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_1")->Fill(mu,1);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(0), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
-		//hist("hRecoHLTLSTPt_idperf_FTK_1")->Fill(pt/GeV);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_1")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_1")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_1")->Fill(mu,0);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
-	      }
-	  }
-      }
-    if (do0prongFTKEffTProf_2)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(1))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(2), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_2")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_2")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_2")->Fill(mu,1);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_2")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_2")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_2")->Fill(mu,0);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
-		LST_FTK0Prong_PassHLTsel.at(1) = 1;
-	      }
-	  }
-	if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(2))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(2), TauTLV, 0.2)  )
-	      {
-		LST_FTK0Prong_PassHLTsel.at(2) = 1;
-	      }
-	  }
-      }
-
-    // 0prong NoPrec
-    if (do0prongFTKNoPrecEffTProf_2)
-      {
-	//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
-	if(trigItem==m_LST_HLTsel0Prong_FTKNoPrec_chains.at(1))
-	  {
-	    setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTKNoPrec_2")->Fill(eta,1);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTKNoPrec_2")->Fill(ntracks,1);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTKNoPrec_2")->Fill(mu,1);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
-	      }
-	    else if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(1), TauTLV, 0.2)  )
-	      {
-		profile("TProfRecoHLTLSTPtEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
-		profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTKNoPrec_2")->Fill(eta,0);
-		profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTKNoPrec_2")->Fill(ntracks,0);
-		profile("TProfRecoHLTLSTMuEfficiency_0prong_FTKNoPrec_2")->Fill(mu,0);
-		if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
-		if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
-	      }
-	  }
-	if(trigItem==m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))
-	  {
-	    //setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-	    if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2), TauTLV, 0.2)  )
-	      {
-		LST_FTK0ProngBDT_PassHLTsel.at(2) = 1;
-	      }
-	  }
-      }// end FTK eff TProfiles
-
   }	
 
   return StatusCode::SUCCESS;

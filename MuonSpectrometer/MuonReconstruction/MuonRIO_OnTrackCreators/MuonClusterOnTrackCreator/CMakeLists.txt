@@ -20,7 +20,9 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces 
+			  MuonSpectrometer/MuonReconstruction/MuonDataPrep/MMClusterization
+                          MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools )
 
 # Component(s) in the package:
 atlas_add_component( MuonClusterOnTrackCreator

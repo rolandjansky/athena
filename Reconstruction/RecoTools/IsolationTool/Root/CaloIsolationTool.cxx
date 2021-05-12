@@ -24,6 +24,7 @@
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include "boost/foreach.hpp"
 #include "boost/format.hpp"
@@ -392,14 +393,14 @@ namespace xAOD {
         float etaT = 0, phiT = 0;
         int nSample = 0;
         for(unsigned int i=0; i<CaloSampling::Unknown; i++) // dangerous?
-	  { 
-	    auto s = static_cast<CaloSampling::CaloSample>(i);
-	    if(!cluster->hasSampling(s)) continue;
-	    ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
-	    etaT += cluster->etaSample(s);
-	    phiT += cluster->phiSample(s);
-	    nSample++;
-	  }
+        { 
+          auto s = static_cast<CaloSampling::CaloSample>(i);
+          if(!cluster->hasSampling(s)) continue;
+          ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
+          etaT += cluster->etaSample(s);
+          phiT += cluster->phiSample(s);
+          nSample++;
+        }
         if(nSample>0){
           eta = etaT/nSample;
           phi = phiT/nSample;

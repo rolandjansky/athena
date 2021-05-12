@@ -58,7 +58,11 @@ class AODFix_r210(AODFix_base):
             if "phIso" not in oldMetadataList:
                 self.phIso_postSystemRec(topSequence)
                 pass
-    
+            if "elPflowIso" not in oldMetadataList:
+                self.elPflowIso_postSystemRec(topSequence)
+                pass
+   
+ 
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
@@ -151,3 +155,7 @@ class AODFix_r210(AODFix_base):
     def phIso_postSystemRec (self, topSequence):
         from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
         isoAODFixGetter("Photons")        
+    def elPflowIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.PFlowIsoAODFixGetter import pflowIsoAODFixGetter
+        pflowIsoAODFixGetter()
+

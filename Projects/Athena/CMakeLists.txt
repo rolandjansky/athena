@@ -46,6 +46,8 @@ endforeach()
 unset( _external )
 unset( _externals )
 
+# Extra package(s) needed for the runtime environment.
+find_package( PNG )
 
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()

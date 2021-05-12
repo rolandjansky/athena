@@ -66,6 +66,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h"
+#include "ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h"
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -124,12 +125,14 @@
 #pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>+;
 #pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>+;
 #pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>+;
+#pragma link C++ class TFCS1DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>+;
 
 #pragma link C++ class TFCS1DFunctionInt8Int8Histogram+;
 #pragma link C++ class TFCS1DFunctionInt8Int16Histogram+;
 #pragma link C++ class TFCS1DFunctionInt8Int32Histogram+;
 #pragma link C++ class TFCS1DFunctionInt16Int16Histogram+;
 #pragma link C++ class TFCS1DFunctionInt16Int32Histogram+;
+#pragma link C++ class TFCS1DFunctionInt32Int32Histogram+;
 
 #pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>+;
 #pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>+;
@@ -335,6 +338,7 @@
 #pragma link C++ class TFCSHitCellMappingWiggle+;
 #pragma link C++ class TFCSHitCellMappingWiggleEMB+;
 #pragma link C++ class TFCSEnergyRenormalization+;
+#pragma link C++ class TFCSVoxelHistoLateralCovarianceFluctuations+;
 
 #pragma link C++ class TFCSTruthState+;
 #pragma link C++ class TFCSExtrapolationState+;

@@ -177,7 +177,7 @@ def fillTestBeamMetadata(dbFiller):
 def fillISFMetadata(dbFiller):
     from ISF_Config.ISF_jobProperties import ISF_Flags
     dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
-    if ISF_Flags.Simulator() in ['G4FastCalo', 'G4FastCaloTest', 'G4FastCaloDNN', 'G4FastCalo_QS']:
+    if ISF_Flags.Simulator() in ['G4FastCalo', 'G4FastCaloTest', 'G4FastCaloDNN', 'ATLFAST3','ATLFAST3_QS']:
         from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
         dbFiller.addSimParam('FCSParamFile', ISF_FastCaloSimFlags.ParamsInputFilename())
 
