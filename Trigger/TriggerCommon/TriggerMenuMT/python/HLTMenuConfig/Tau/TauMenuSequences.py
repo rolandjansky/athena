@@ -218,12 +218,12 @@ def tauPreSelSeq():
     from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
     TrigTrackPreSelHypoTool.AcceptAll = True
 
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+    from TrigTauHypo.TrigTauHypoTool import TrigPresTauMVHypoToolFromDict
 
     return  MenuSequence( Sequence    = sequence,
                           Maker       = preSelViewsMaker,
                           Hypo        = preSelHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+                          HypoToolGen = TrigPresTauMVHypoToolFromDict )
 
 # ===============================================================================================                                                            
 #     Tau Preselection + EFMVHypo step   (tracktwo)                                                                                                   
@@ -239,12 +239,12 @@ def tauPreSelTTSeq():
     from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
     TrigTrackPreSelHypoTool.AcceptAll = True
 
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+    from TrigTauHypo.TrigTauHypoTool import TrigPresTauMVHypoToolFromDict
 
     return  MenuSequence( Sequence    = sequence,
                           Maker       = preSelViewsMaker,
                           Hypo        = preSelHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+                          HypoToolGen = TrigPresTauMVHypoToolFromDict )
 
 # ===============================================================================================                                                            
 #     Precision Tracking + TrkPrecHypo step   (track)                                                                             
