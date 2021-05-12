@@ -105,8 +105,25 @@ StatusCode LVL1::eFakeTower::loadnext()
 }
 
 StatusCode LVL1::eFakeTower::execute() {
+    int FPGAtowerids[10][6];
+
+  // set the Et of all towers to zero first
+  for (int efex{ 0 }; efex < 24; efex++) {
+    for (int fpga{ 0 }; fpga < 4; fpga++) {
+      StatusCode sc = m_eFEXFPGATowerIdProviderTool->getRankedTowerIDinFPGA(efex, fpga, FPGAtowerids);
+      if (sc ==  StatusCode::FAILURE) {
+        return StatusCode::FAILURE;
+      }
+      for (int myrow = 0; myrow<10; myrow++){
+        for (int mycol = 0; mycol<6; mycol++){
+          LVL1::eTower* thistower = m_eTowerContainer->findTower(FPGAtowerids[myrow][mycol]);
+          thistower->clearET();
+        }
+      }
+    }
+  }
+  
   // replace all supercell energies in the eTowerContainer using the test vector.
-  int FPGAtowerids[10][6];
   for (int efex{ 0 }; efex < 24; efex++) {
     for (int fpga{ 0 }; fpga < 4; fpga++) {
       StatusCode sc = m_eFEXFPGATowerIdProviderTool->getRankedTowerIDinFPGA(efex, fpga, FPGAtowerids);
@@ -129,6 +146,13 @@ StatusCode LVL1::eFakeTower::changeFPGAET(int tmp_eTowersIDs_subset[][6], int FP
   for (int myrow = 0; myrow<10; myrow++){
     for (int mycol = 0; mycol<6; mycol++){
       LVL1::eTower* thistower = m_eTowerContainer->findTower(tmp_eTowersIDs_subset[myrow][mycol]);
+      
+      // ignore umpty FPGA
+      bool nothaveFPGA = m_dict.find(getFPGAnumber(eFEXnumber, FPGAnumber)) == m_dict.end();
+      if (nothaveFPGA) {
+        continue;
+      }
+
       ATH_CHECK( changeTowerET(thistower, mycol, myrow, getFPGAnumber(eFEXnumber, FPGAnumber)) );
     }
   }

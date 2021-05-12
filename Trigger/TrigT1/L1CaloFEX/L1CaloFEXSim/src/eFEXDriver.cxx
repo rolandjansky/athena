@@ -92,10 +92,12 @@ StatusCode eFEXDriver::initialize()
 
   ATH_CHECK( m_eEDMKey.initialize() );
 
-  // test vector WIP
-  // ATH_CHECK( m_eFakeTowerTool.retrieve() );
-  // std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
-  // ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
+  // test vector code for validation
+  // if(false){ // replace SuperCell Et with the values from the online simulation test vector
+  //   ATH_CHECK( m_eFakeTowerTool.retrieve() );
+  //   std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
+  //   ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
+  // }
 
   //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
@@ -164,26 +166,27 @@ StatusCode eFEXDriver::finalize()
       
       DataVector<LVL1::eTower>::iterator thistower;
       for (thistower = local_eTowerContainerRaw->begin(); thistower != local_eTowerContainerRaw->end(); thistower++){
-	
-	int slotcount = 0;
-	for (int layer = 0; layer<=4; layer++){
-	  std::vector<Identifier> scIDs = (*thistower)->getLayerSCIDs(layer);
-	  std::vector<int> splits = (*thistower)->getETSplits();
-	  for (long unsigned int ncell = 0; ncell < scIDs.size(); ncell++){
-	    sc_tower_map << (*thistower)->id() << "," << scIDs[ncell] << "," << slotcount << "," << splits[slotcount] << "\n";
-	    slotcount++;
-	  }
-	}
+        int slotcount = 0;
+        for (int layer = 0; layer<=4; layer++){
+          std::vector<Identifier> scIDs = (*thistower)->getLayerSCIDs(layer);
+          std::vector<int> splits = (*thistower)->getETSplits();
+          for (long unsigned int ncell = 0; ncell < scIDs.size(); ncell++){
+            sc_tower_map << (*thistower)->id() << "," << scIDs[ncell] << "," << slotcount << "," << splits[slotcount] << "\n";
+            slotcount++;
+          }
+        }
       }
       sc_tower_map.close();
       
     }
   }
-  // TODO
-  // test vector code
-  // ATH_CHECK( m_eFakeTowerTool->loadnext() );
-  // ATH_CHECK( m_eFakeTowerTool->seteTowers(local_eTowerContainerRaw.get()) );
-  // ATH_CHECK( m_eFakeTowerTool->execute() );
+
+  // test vector code for validation
+  // if(false){ // replace SuperCell Et with the values from the online simulation test vector
+  //   ATH_CHECK( m_eFakeTowerTool->loadnext() );
+  //   ATH_CHECK( m_eFakeTowerTool->seteTowers(local_eTowerContainerRaw.get()) );
+  //   ATH_CHECK( m_eFakeTowerTool->execute() );
+  // }
 
 
   // STEP 4 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
@@ -229,16 +232,16 @@ StatusCode eFEXDriver::finalize()
     for(const auto& it : * myRoIContainer){
       myRoI = it;
       ATH_MSG_DEBUG("EDM eFex Number: " 
-		    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
-		    << " et: " 
-		    << myRoI->et() // returns the et value of the EM cluster in MeV
-		    << " eta: "
-		    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
-		    << " phi: "
-		    << myRoI->phi() // returns a floating point global phi
-		    << " is TOB? "
-		    << +myRoI->isTOB() // returns 1 if true, returns 0 if xTOB
-		    );
+                    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+                    << " et: " 
+                    << myRoI->et() // returns the et value of the EM cluster in MeV
+                    << " eta: "
+                    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+                    << " phi: "
+                    << myRoI->phi() // returns a floating point global phi
+                    << " is TOB? "
+                    << +myRoI->isTOB() // returns 1 if true, returns 0 if xTOB
+                    );
     }
 
     return StatusCode::SUCCESS;
