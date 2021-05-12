@@ -5,6 +5,11 @@ athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 
 doDumpProperties=True
 
+#Set some jet flags to ensure we rebuild origin corrected topoclusters
+from JetRec.JetRecFlags import jetFlags
+jetFlags.useVertices.set_Value_and_Lock(True)
+jetFlags.useTracks.set_Value_and_Lock(True)
+
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(True)
 
@@ -41,3 +46,4 @@ athenaCommonFlags.EvtMax=10
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
 UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
+include("eflowRec/RemapItems.py")

@@ -9,7 +9,6 @@ AddressRemappingSvc.addInputRename ('xAOD::PFOContainer','JetETMissChargedPartic
 AddressRemappingSvc.addInputRename ('xAOD::PFOContainer','JetETMissNeutralParticleFlowObjects.pfo_ElectronLinks','JetETMissNeutralParticleFlowObjects.pfo_ElectronLinks_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::PFOContainer','JetETMissNeutralParticleFlowObjects.pfo_PhotonLinks','JetETMissNeutralParticleFlowObjects.pfo_PhotonLinks_renamed')
 
-
 AddressRemappingSvc.addInputRename ('xAOD::ElectronContainer','Electrons.chargedFELinks','Electrons.chargedFELinks_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::ElectronContainer','Electrons.neutralFELinks','Electrons.neutralFELinks_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::PhotonContainer','Photons.chargedFELinks','Photons.chargedFELinks_renamed')
@@ -32,3 +31,8 @@ AddressRemappingSvc.addInputRename ('xAOD::TauJetContainer','TauJets.neutralFELi
 AddressRemappingSvc.addInputRename ('xAOD::TauJetContainer','TauJets.chargedFELinks','TauJets.chargedFELinks_renamed') 
 AddressRemappingSvc.addInputRename ('xAOD::FlowElementContainer','JetETMissChargedFlowElements.FE_TauLinks','JetETMissChargedFlowElements.FE_TauLinks_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::FlowElementContainer','JetETMissNeutralFlowElements.FE_TauLinks','JetETMissNeutralFlowElements.FE_TauLinks_renamed')
+#Remap the origin corrected topoclusters
+AddressRemappingSvc.addInputRename ('xAOD::CaloClusterContainer','LCOriginTopoClusters','LCOriginTopoClusters_renamed')
+AddressRemappingSvc.addInputRename ('xAOD::CaloClusterContainer','EMOriginTopoClusters','EMOriginTopoClusters_renamed')
+#Remap the muon cluster links to topoclusters
+AddressRemappingSvc.addInputRename ('xAOD::CaloClusterContainer','MuonClusterCollection.constituentClusterLinks','MuonClusterCollection.constituentClusterLinks_renamed')
