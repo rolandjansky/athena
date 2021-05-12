@@ -27,11 +27,12 @@ rec.doTrigger.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
 
-#Disable linking of PFO/FE to and from other objects - this won't work because e.g electrons already have links to PFO/FE and
-#we cannot overwrite those.
+#Disable linking of FE to taus - we run tau reco via UserAlgs and so will have to also run the linking there directly
 from eflowRec.eflowRecFlags import jobproperties
-jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(False)
-jobproperties.eflowRecFlags.usePFFlowElementAssoc.set_Value_and_Lock(False)
+jobproperties.eflowRecFlags.usePFlowFlowElementTauAssoc.set_Value_and_Lock(False)
+#Disable masking of electron and muon tracks
+jobproperties.eflowRecFlags.useElectrons.set_Value_and_Lock(False)
+jobproperties.eflowRecFlags.useMuons.set_Value_and_Lock(False)
 
 #Disable thinning, which would mess up links for e.g taus
 from ParticleBuilderOptions.AODFlags import AODFlags
@@ -60,6 +61,8 @@ UserAlgs = ["eflowRec/jetAlgs.py"]
 from tauRec.tauRecFlags import tauFlags
 tauFlags.isStandalone.set_Value_and_Lock(True)
 UserAlgs += ["tauRec/tauRec_jobOptions.py"]
+#Rerun tau-FE linking
+UserAlgs += ["eflowRec/link_tauFE.py"]
 #Rebuild MET from the rebuilt PFO etc
 import ROOT
 ROOT.gROOT.ProcessLine ('#include "xAODTracking/TrackParticleContainer.h"')
