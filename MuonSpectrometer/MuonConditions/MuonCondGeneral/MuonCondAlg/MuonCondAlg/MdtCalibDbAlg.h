@@ -13,6 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "CoralUtilities/blobaccess.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -105,15 +106,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
   ATHRNG::RNGWrapper* m_RNGWrapper;
 
   StringArrayProperty m_RTfileNames; //temporary!!!
-
-  //decompression buffer and length of buffer
-  uLongf m_buffer_length;
-  std::unique_ptr<Bytef[]> m_decompression_buffer;
   
-  //wrapper function for the zlib uncompress, 
-  //that automatically creates or increases the buffer if needed.    
-  inline bool uncompressInMyBuffer(const coral::Blob &blob);
-  inline coral::Blob compressBlob(const std::string dataString) const;
   inline MuonCalib::RtResolutionLookUp* getRtResolutionInterpolation(const std::vector<MuonCalib::SamplePoint> &sample_points);
   inline StatusCode extractString(std::string& input, std::string& output, std::string separator);  
 

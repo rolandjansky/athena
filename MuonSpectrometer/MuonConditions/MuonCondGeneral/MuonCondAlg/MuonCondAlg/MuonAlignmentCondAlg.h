@@ -15,8 +15,8 @@
 #include "MuonAlignmentData/CorrContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CoralUtilities/blobaccess.h"
 
-#include "zlib.h"
 #include "nlohmann/json.hpp"
 
 
@@ -97,10 +97,6 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   
   bool m_newFormat2020 = false;
 
-  //decompression buffer and length of buffer
-  uLongf m_buffer_length;
-  std::unique_ptr<Bytef[]> m_decompression_buffer;
-
   StatusCode loadParameters();
   StatusCode loadAlignABLines();
   StatusCode loadAlignABLines(std::string folderName,
@@ -118,8 +114,6 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   void dumpALines(const std::string& folderName, ALineMapContainer* writeALineCdo);
   void dumpBLines(const std::string& folderName, BLineMapContainer* writeBLineCdo);
   void dumpILines(const std::string& folderName, CscInternalAlignmentMapContainer* writeCdo);
-
-  inline bool uncompressInMyBuffer(const coral::Blob &blob);
 
 };
 
