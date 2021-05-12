@@ -1,13 +1,10 @@
 #
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-from GaudiKernel.Constants import WARNING
+
+def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inputPhotonsKey="HLT_egamma_Photons", TLAPhotonsKey="HLT_egamma_Photons_TLA"):
 
 
-# verify if this needs to be in the same directory of the FexMT.cxx, in TrigHypothesis/Egamma/python corrispondente
-def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inputPhotonsKey="HLT_egamma_Photons", TLAPhotonsKey="HLT_egamma_Photons_TLA", outputLevel=WARNING):
-
-    # we need to change names to  'TrigEgammaTLAPhotonFexMT', it doesn't make sense to keep it as it is
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -22,10 +19,9 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=35000, maxNPhotons=-1, inpu
 
     #makes sure that the name of the output collection is acceptable by Run3 stadards (i.e. is contained in TriggerHLTListRun3 defined in
     # TrigEDMConfig/python/TriggerEDMRun3.py
-    # we should add lines to include "HLT_FastPhotons_TLA", otherwise we get an error
     outputPhotonsValidName = recordable(TLAPhotonsKey)
     
     TrigEgammaTLAPhotonFexMT.TLAOutputPhotonContainer = outputPhotonsValidName
-    TrigEgammaTLAPhotonFexMT.OutputLevel = outputLevel
+    
 
     return TrigEgammaTLAPhotonFexMT

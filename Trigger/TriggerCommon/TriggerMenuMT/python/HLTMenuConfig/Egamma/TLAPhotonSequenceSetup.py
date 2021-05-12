@@ -16,12 +16,13 @@ def TLAPhotonSequence(flags, photonsIn):
     ''''Create TLA Photon Sequence'''
 
 
-    # empty reco sequence sequence acting on fastphotons?
+    # empty reco sequence sequence
     recoSeq = seqAND("PhotonTLASeq_"+photonsIn,  [])
     #this is the name of the output photons
     sequenceOut = photonsIn+"_TLA"
     # initializes and configure the TLA Selector Algorithm
 
+    # this ensures data access to the HLT_egamma_Photons collection previously built in the precisionPhoton View
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("TLAPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::PhotonContainer' , 'StoreGateSvc+HLT_egamma_Photons')]
     
@@ -30,6 +31,7 @@ def TLAPhotonSequence(flags, photonsIn):
     # this has yet to be written, should be similar to the jet tla
     TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut, outputLevel=WARNING)
 
+    # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])
 
     # adds the selector to the newborn sequence)
@@ -38,13 +40,12 @@ def TLAPhotonSequence(flags, photonsIn):
     return ( recoSeq, sequenceOut )
 
 def TLAPhotonAthSequence(flags, photonsIn):
-    from AthenaConfiguration.ComponentFactory import CompFactory
-
-    #creates the alg that creates the input for the TLA Algorithm. Is this necessary?
-    #
+    
+    
     tlaPhotonViewsMakerAlg = EventViewCreatorAlgorithm("IM_TLAPhotons")
     tlaPhotonViewsMakerAlg.RoIsLink = "initialRoI"
-    tlaPhotonViewsMakerAlg.RoITool = ViewCreatorPreviousROITool() # what's the difference with ViewCreatorPreviousROITool?
+    tlaPhotonViewsMakerAlg.RoITool = ViewCreatorPreviousROITool() 
+    # ensure that the sequence runs within a view spawned from the precisionPhoton ROI
     tlaPhotonViewsMakerAlg.InViewRoIs = "precisionPhotonRoIs"
     tlaPhotonViewsMakerAlg.ViewFallThrough = True
     tlaPhotonViewsMakerAlg.RequireParentView = True
@@ -53,7 +54,7 @@ def TLAPhotonAthSequence(flags, photonsIn):
 
     tlaPhotonViewsMakerAlg.ViewNodeName = "tlaPhotonInViewAlgs"
 
-    #InputMakerAlg = CompFactory.InputMakerForRoI( "IM_HLT_RoI_FastPhotons" ) # what goes here?
+    
 
     
     
