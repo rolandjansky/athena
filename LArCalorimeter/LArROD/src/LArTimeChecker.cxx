@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArTimeChecker.h"
@@ -59,16 +59,12 @@ StatusCode LArTimeChecker::execute() {
   }
   
 
-  LArDigitContainer::const_iterator cell_it=larDigitContainer->begin();
-  LArDigitContainer::const_iterator cell_it_e=larDigitContainer->end();
+  for (const LArDigit* digit : *larDigitContainer) {
 
-
-  for (;cell_it!=cell_it_e;cell_it++) {
-
-    const std::vector<short>& samples=(*cell_it)->samples();
+    const std::vector<short>& samples=digit->samples();
     //const unsigned nSamples=samples.size(); 
-    const HWIdentifier chid=(*cell_it)->channelID();
-    const CaloGain::CaloGain gain=(*cell_it)->gain();
+    const HWIdentifier chid=digit->channelID();
+    const CaloGain::CaloGain gain=digit->gain();
       
     if(samples[2]>maxSample)
       {
