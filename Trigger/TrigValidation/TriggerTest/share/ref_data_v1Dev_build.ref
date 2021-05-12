@@ -3397,13 +3397,19 @@ HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM:
     3: 3
     4: 2
 HLT_tau25_medium1_track_L1TAU12IM:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 3
     1: 3
+    2: 2
+    3: 2
+    4: 1
   stepFeatures:
     0: 4
     1: 3
+    2: 2
+    3: 2
+    4: 1
 HLT_tau25_medium1_tracktwoEF_L1TAU12IM:
   eventCount: 1
   stepCounts:
@@ -3419,15 +3425,21 @@ HLT_tau25_medium1_tracktwoEF_L1TAU12IM:
     3: 3
     4: 1
 HLT_tau25_medium1_tracktwo_L1TAU12IM:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 3
     1: 3
     2: 3
+    3: 2
+    4: 2
+    5: 1
   stepFeatures:
     0: 4
     1: 3
     2: 3
+    3: 2
+    4: 2
+    5: 1
 HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM:
   eventCount: 1
   stepCounts:
