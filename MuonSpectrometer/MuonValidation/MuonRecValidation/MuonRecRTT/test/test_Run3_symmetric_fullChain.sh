@@ -20,7 +20,7 @@
 LOG_SIM="log_Run3_symmetric_sim.log"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
-          --AMI=s3512 \
+          --AMI=s3680 \
           --maxEvents 25 \
           --imf False \
           --outputHITSFile OUT_HITS.root &> ${LOG_SIM}
@@ -80,6 +80,7 @@ fi
 # now use the produced RDO file and run reconstruction
 # the postInclude adds a validation algorithm which writes out an ntuple for digit/RDO/PRD validation
 # (without the postInclude, a standard reconstruction job would run)
+# the postExec is needed to specify the correct (symmetric) MDT calibration setup matching the layout (ATLAS-R3S-2021-01-00-02)
 LOG_RECO="log_Run3_symmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
