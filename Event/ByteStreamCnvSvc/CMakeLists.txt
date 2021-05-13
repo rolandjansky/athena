@@ -8,6 +8,7 @@ find_package( Boost COMPONENTS system )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( tdaq-common COMPONENTS eformat_old eformat_write RawFileName
    DataReader DataWriter )
+find_package( GTest )
 
 # Libraries in the package:
 atlas_add_library( ByteStreamCnvSvcLib
