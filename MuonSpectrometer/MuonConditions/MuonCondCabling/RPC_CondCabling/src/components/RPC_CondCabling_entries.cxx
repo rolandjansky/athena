@@ -4,4 +4,4 @@
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
 
-DECLARE_COMPONENT( RpcCablingCondAlg )
+DECLARE_COMPONENT(RpcCablingCondAlg)
