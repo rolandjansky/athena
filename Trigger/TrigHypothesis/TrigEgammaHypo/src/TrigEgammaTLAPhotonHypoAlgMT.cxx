@@ -111,43 +111,6 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::execute( const EventContext& ctx) const
 
 
 
-
-
-/// NEW WAY FOLLOWING PRECISION CALO
-/*
-size_t counter = 0;
-const Decision* previousDecision = nullptr;
-for (auto prevDec : *previousDecisionHandle)
-{
-   //get updated RoI  
-  auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( prevDec, TrigCompositeUtils::roiString() );
-  ATH_CHECK( roiELInfo.isValid() );
-  
-  // this should retrieve an element link to the view associated to the previous decision
-  const auto viewEL = previousDecision->objectLink<ViewContainer>( TrigCompositeUtils::viewString() );
-  ATH_CHECK( viewEL.isValid() );
-  auto tlaPhotonsHandle = ViewHelper::makeHandle( *(viewEL), m_TLAPhotonsKey, context);
-  ATH_CHECK( tlaPhotonsHandle.isValid() );
-  ATH_MSG_DEBUG ( "TLA Photons handle size: " << tlaPhotonsHandle->size() << "..." );
-  for (size_t ph=0; ph < tlaPhotonsHandle->size(); ph++)
-  {
-    auto el = ViewHelper::makeLink( *(viewEL), tlaPhotonsHandle, ph);
-    ATH_MSG_DEBUG ( "Checking el.isValid()...");
-    if( !el.isValid() ) {
-       ATH_MSG_DEBUG ( "Photon Handle in position " << ph << " -> invalid ElemntLink!. Skipping...");
-    }
-    ATH_CHECK(el.isValid());
-    ATH_MSG_DEBUG ( "Photon Handle in position " << ph << " processing...");
-    auto d = TrigCompositeUtils::newDecisionIn( decisions, TrigCompositeUtils::hypoAlgNodeName() );
-    d->setObjectLink( TrigCompositeUtils::featureString() , el);
-    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-  
-  }
-  }*/
-
-
-
-
   if (!atLeastOneDecision)
   {
     ATH_MSG_ERROR("Unable to associate a previous decision to any of the photons in the input TLA Photon container.");
