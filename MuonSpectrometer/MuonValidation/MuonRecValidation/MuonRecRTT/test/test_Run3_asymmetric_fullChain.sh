@@ -19,8 +19,7 @@
 # run simulation on 25 events using the asymmetric Run3 layout
 LOG_SIM="log_Run3_asymmetric_sim.log"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3-2021-01-00-02_VALIDATION' \
-          --AMI=s3512 \
+          --AMI=s3680 \
           --maxEvents 25 \
           --imf False \
           --outputHITSFile OUT_HITS.root &> ${LOG_SIM}
@@ -85,7 +84,6 @@ Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD.root &> ${LOG_RECO}
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
