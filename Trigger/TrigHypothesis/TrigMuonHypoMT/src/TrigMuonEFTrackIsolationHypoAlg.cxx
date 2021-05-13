@@ -82,7 +82,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
 
-    ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt()/Gaudi::Units::GeV << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
     ATH_MSG_DEBUG("Added view, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
