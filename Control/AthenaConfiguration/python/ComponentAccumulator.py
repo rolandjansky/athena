@@ -973,8 +973,15 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
     def __alreadyConfigured( comp, parent ):
         from AthenaCommon.Configurable import Configurable
         instanceName = comp.getName()
-        for name, conf in Configurable.allConfigurables.items():
-            if name==instanceName:
+        for conf in Configurable.allConfigurables.values():
+            conf_name = ''
+            try:
+                conf_name=conf.name()
+            except TypeError:
+                # Is a string?
+                conf_name==conf
+            
+            if (conf_name==instanceName):
                 if conf.getParent() == parent:
                     _log.debug( "%s Matched component: \"%s\" with parent %s with same from allConfigurables match.", indent, instanceName, parent if parent else "[not set]" )
                     return conf
@@ -1031,7 +1038,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
             return listOrDictHelper
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
-        _log.debug( "%sChecking if settings are the same %s %s",
+        _log.debug( "%sChecking if settings are the same %s (%s) old(new)",
                     indent, existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() )
         if (existingConfigurableInstance.getType() != newConf2Instance.__cpp_type__):
             raise ConfigurationError("Old/new ({} | {}) cpp types are not the same for ({} | {}) !".format(
@@ -1039,8 +1046,8 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                     existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() ) )
 
         alreadySetProperties = existingConfigurableInstance.getValuedProperties().copy()
-        _log.debug( "Existing properties: %s", alreadySetProperties )
-        _log.debug( "New properties: %s", newConf2Instance._properties )
+        _log.debug( "%sExisting properties: %s", indent, alreadySetProperties )
+        _log.debug( "%sNew properties: %s", indent, newConf2Instance._properties )
         for pname, pvalue in newConf2Instance._properties.items():
             if __isOldConfigurable( pvalue ):
                 _log.warning( "%sNew configuration object %s property %s has legacy configuration "
@@ -1057,9 +1064,9 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                 oldCset = set(toolDict); newCset = set(newCdict)
                 _log.debug('Private tool property names? %s %s', oldCset, newCset)
                 if ( not (oldCset == newCset) ):
-                    _log.warning('%s PrivateToolHandleArray %s  does not have the same named components',indent, pname )
-                    _log.warning('%s Old (conf1) %s for %s',indent, oldCset, existingConfigurableInstance.getFullJobOptName())
-                    _log.warning('%s New (conf2) %s for %s',indent, newCset, newConf2Instance.getFullJobOptName())
+                    _log.warning('%s PrivateToolHandleArray %s of %s does not have the same named components',indent, pname, existingConfigurableInstance.getFullJobOptName() )
+                    _log.warning('%s Old (conf1) %s for %s',indent, sorted(oldCset), existingConfigurableInstance.getFullJobOptName())
+                    _log.warning('%s New (conf2) %s for %s',indent, sorted(newCset), newConf2Instance.getFullJobOptName())
                     _log.warning('%s Will try to merge them, but this might go wrong!',indent)
                 for oldC in oldCset & newCset:
                     __areSettingsSame( toolDict[oldC], newCdict[oldC], __indent(indent))
@@ -1136,20 +1143,20 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                             and alreadySetProperties[pname].toStringProperty().split('+')[-1] == pvalue):
                             # Okay. so they ARE actually the same
                             merge=False
-                    except AttributeError:
+                    except AttributeError :
                         # This is fine - it just means it's not e.g. a DataHandle and doesn't have toStringProperty()
                         pass
 
   
                     # Okay, not the same ... let's merge
                     if merge:
-                        _log.debug( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
+                        _log.debug( "%sMerging property: %s for new config: %s", indent, pname, newConf2Instance.getName() )
                         # create surrogate
                         clone = newConf2Instance.getInstance("Clone")
                         setattr(clone, pname, alreadySetProperties[pname])
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
-                        except ValueError:
+                        except TypeError:
                             err_message = f"Failed merging new config value ({getattr(newConf2Instance, pname)}) and old config value ({getattr(clone, pname)}) for the ({pname}) property of {existingConfigurableInstance.getFullJobOptName() } ({newConf2Instance.getFullJobOptName()}) old (new)." 
                             _log.fatal( err_message )
                             raise ConfigurationError(err_message)
@@ -1163,16 +1170,16 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                 indent, alreadySetProperties[pname], pvalue, pname,
                                 updatedPropValue, existingConfigurable.getFullName())
 
-    _log.debug( "%s Conf2 Full name: %s ", indent, comp.getFullJobOptName() )
+    _log.debug( "%sConf2 Full name: %s ", indent, comp.getFullJobOptName() )
     existingConfigurable = __alreadyConfigured( comp, parent )
 
     if existingConfigurable: # if configurable exists we try to merge with it
-        _log.debug( "%sPre-existing configurable %s was found, checking if has the same properties", indent, comp.getName() )
-        __areSettingsSame( existingConfigurable, comp )
+        _log.debug( "%sPre-existing configurable %s was found, checking if has the same properties", indent, existingConfigurable.getFullJobOptName() )
+        __areSettingsSame( existingConfigurable, comp, indent )
         _log.debug( "%sPre-existing configurable %s was found to have the same properties", indent, comp.name )
         instance = existingConfigurable if not suppressDupes else None
     else: # create new configurable
-        _log.debug( "%sCreating component configurable %s", indent, comp.getFullJobOptName() )
+        _log.debug( "%sExisting Conf1 not found. Creating component configurable %s", indent, comp.getFullJobOptName() )
         configurableClass = __findConfigurableClass( comp.getFullJobOptName().split( "/" )[0] )
         instance = configurableClass( comp.name )
         __setProperties( instance, comp, __indent( indent ) )
@@ -1199,7 +1206,7 @@ def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
 
 def appendCAtoAthena(ca):
     _log = logging.getLogger( "conf2toConfigurable" )
-    _log.info( "Merging ComponentAccumulator into global configuration" )
+    _log.debug( "Merging ComponentAccumulator into global configuration" )
 
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len( ca.getPublicTools() ) != 0:
