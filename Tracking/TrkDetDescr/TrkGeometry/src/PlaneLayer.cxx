@@ -15,7 +15,7 @@
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::RectangleBounds* rbounds,
                             const Trk::LayerMaterialProperties& laymatprop,
                             double thickness, Trk::OverlapDescriptor* olap,
@@ -23,7 +23,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
     : PlaneSurface(transform, rbounds),
       Layer(laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::TrapezoidBounds* tbounds,
                             const Trk::LayerMaterialProperties& laymatprop,
                             double thickness, Trk::OverlapDescriptor* olap,
@@ -31,7 +31,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
     : PlaneSurface(transform, tbounds),
       Layer(laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::DiamondBounds* tbounds,
                             const Trk::LayerMaterialProperties& laymatprop,
                             double thickness, Trk::OverlapDescriptor* olap,
@@ -39,7 +39,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
     : PlaneSurface(transform, tbounds),
       Layer(laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::EllipseBounds* tbounds,
                             const Trk::LayerMaterialProperties& laymatprop,
                             double thickness, Trk::OverlapDescriptor* olap,
@@ -54,35 +54,35 @@ Trk::PlaneLayer::PlaneLayer(Trk::PlaneSurface* plane,
     : PlaneSurface(*plane), Layer(laymatprop, thickness, olap, laytyp) {}
 
 Trk::PlaneLayer::PlaneLayer(
-    Amg::Transform3D* transform,
+    const Amg::Transform3D & transform,
     Trk::SharedObject<const Trk::SurfaceBounds>& tbounds,
     const Trk::LayerMaterialProperties& laymatprop, double thickness,
     Trk::OverlapDescriptor* olap, int laytyp)
     : PlaneSurface(transform, tbounds),
       Layer(laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::RectangleBounds* rbounds,
                             Trk::SurfaceArray* surfaceArray, double thickness,
                             Trk::OverlapDescriptor* olap, int laytyp)
     : PlaneSurface(transform, rbounds),
       Layer(surfaceArray, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::TrapezoidBounds* tbounds,
                             Trk::SurfaceArray* surfaceArray, double thickness,
                             Trk::OverlapDescriptor* olap, int laytyp)
     : PlaneSurface(transform, tbounds),
       Layer(surfaceArray, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::DiamondBounds* tbounds,
                             Trk::SurfaceArray* surfaceArray, double thickness,
                             Trk::OverlapDescriptor* olap, int laytyp)
     : PlaneSurface(transform, tbounds),
       Layer(surfaceArray, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::RectangleBounds* rbounds,
                             Trk::SurfaceArray* surfaceArray,
                             const Trk::LayerMaterialProperties& laymatprop,
@@ -91,7 +91,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
     : PlaneSurface(transform, rbounds),
       Layer(surfaceArray, laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::TrapezoidBounds* tbounds,
                             Trk::SurfaceArray* surfaceArray,
                             const Trk::LayerMaterialProperties& laymatprop,
@@ -100,7 +100,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
     : PlaneSurface(transform, tbounds),
       Layer(surfaceArray, laymatprop, thickness, olap, laytyp) {}
 
-Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
+Trk::PlaneLayer::PlaneLayer(const Amg::Transform3D & transform,
                             Trk::DiamondBounds* tbounds,
                             Trk::SurfaceArray* surfaceArray,
                             const Trk::LayerMaterialProperties& laymatprop,

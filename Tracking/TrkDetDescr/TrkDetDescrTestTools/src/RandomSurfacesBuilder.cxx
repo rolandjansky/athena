@@ -146,7 +146,7 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
          } break;
          // create a plane surface
          case 4 : {
-             surface = new Trk::PlaneSurface(transform.release(), m_worldDimensions[0], m_worldDimensions[0]);
+             surface = new Trk::PlaneSurface(*transform, m_worldDimensions[0], m_worldDimensions[0]);
          } break;
          // create a straight line surface
          case 5 : {

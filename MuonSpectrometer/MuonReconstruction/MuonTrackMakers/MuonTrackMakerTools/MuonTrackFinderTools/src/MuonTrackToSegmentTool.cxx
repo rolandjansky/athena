@@ -156,8 +156,8 @@ namespace Muon {
             minDist = (perigee->position() - refPos).dot(dir);
         }
 
-        Amg::Transform3D* transform = new Amg::Transform3D(surfaceTransform->rotation());
-        transform->pretranslate(refPos);
+        Amg::Transform3D transform(surfaceTransform->rotation());
+        transform.pretranslate(refPos);
         double surfDim = 500.;
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(transform, surfDim, surfDim);
         delete surfaceTransformToBeDeleted;

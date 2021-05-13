@@ -537,10 +537,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 Amg::Translation3D(navigationX,navigationY,navigationZ);
                 
                 Trk::PlaneSurface* navLayerSurface = nullptr;
-                Amg::Transform3D* navLayerTransform  = new Amg::Transform3D;
-                (*navLayerTransform)  = Amg::Translation3D(navigationX,0.,0.);
+                Amg::Transform3D navLayerTransform(Amg::Translation3D(navigationX,0.,0.));
 
-                if (fabs(minHalfX)<10e-5) {
+                if (std::abs(minHalfX)<10e-5) {
                     navLayerSurface = new Trk::PlaneSurface(navLayerTransform,
                                                             maxHalfX,
                                                             halfY);
@@ -575,10 +574,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
             double navigationYFinal   = (bv == Trk::binY) ? navigationPosFinal : 0.;
             double navigationZFinal   = (bv == Trk::binZ) ? navigationPosFinal : 0.;
             
-            Amg::Transform3D* navLayerTransform  = new Amg::Transform3D;
-            (*navLayerTransform)  = Amg::Translation3D(navigationXFinal,navigationYFinal,navigationZFinal);
+            Amg::Transform3D navLayerTransform(Amg::Translation3D(navigationXFinal,navigationYFinal,navigationZFinal));
 
-            Trk::PlaneSurface* navLayerSurface = (fabs(minHalfX)<10e-5) ?
+            Trk::PlaneSurface* navLayerSurface = (std::abs(minHalfX)<10e-5) ?
                     new Trk::PlaneSurface(navLayerTransform, maxHalfX,halfY) :
                     new Trk::PlaneSurface(navLayerTransform, minHalfX, maxHalfX, halfY);
         
@@ -644,10 +642,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 double navLayerPositionY = (bv == Trk::binY) ? 0.5*(layerPosition+boundaries[boundaries.size()-1]) : layerCenter.y();
                 double navLayerPositionZ = (bv == Trk::binZ) ? 0.5*(layerPosition+boundaries[boundaries.size()-1]) : layerCenter.z();
                 Amg::Translation3D navLayerPosition(navLayerPositionX,navLayerPositionY,navLayerPositionZ);
-                Amg::Transform3D* navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform)  = navLayerPosition;
+                Amg::Transform3D navLayerTransform(navLayerPosition);
                 // create the navigation plane layer        
-                Trk::PlaneSurface* navLayerSurface = (fabs(minHalfX)<10e-5) ?
+                Trk::PlaneSurface* navLayerSurface = (std::abs(minHalfX)<10e-5) ?
                         new Trk::PlaneSurface( navLayerTransform, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransform, minHalfX, maxHalfX, halfY );
                 ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << navLayerPositionX );
@@ -667,10 +664,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
             double navLayerPositionYFinal = (bv == Trk::binY) ? 0.5*(posmax+boundaries[boundaries.size()-1]) : layerCenter.y();
             double navLayerPositionZFinal = (bv == Trk::binZ) ? 0.5*(posmax+boundaries[boundaries.size()-1]) : layerCenter.z();
             Amg::Translation3D navLayerPositionFinal(navLayerPositionXFinal,navLayerPositionYFinal,navLayerPositionZFinal);
-            Amg::Transform3D* navLayerTransformFinal = new Amg::Transform3D;
-            (*navLayerTransformFinal)  = navLayerPositionFinal;
+            Amg::Transform3D navLayerTransformFinal(navLayerPositionFinal);
             // create the navigation plane layer        
-            Trk::PlaneSurface* navLayerSurfaceFinal = (fabs(minHalfX)<10e-5) ?
+            Trk::PlaneSurface* navLayerSurfaceFinal = (std::abs(minHalfX)<10e-5) ?
                         new Trk::PlaneSurface( navLayerTransformFinal, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransformFinal, minHalfX, maxHalfX, halfY );
             ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << 0.5*(posmax+boundaries[boundaries.size()-1]) );

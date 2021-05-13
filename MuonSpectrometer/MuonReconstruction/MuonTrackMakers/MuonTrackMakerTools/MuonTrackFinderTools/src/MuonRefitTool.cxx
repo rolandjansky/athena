@@ -1403,8 +1403,8 @@ namespace Muon {
         Amg::Transform3D amdbToGlobal = detEl->AmdbLRSToGlobalTransform();
 
         // create new surface
-        Amg::Transform3D* surfaceTransform = new Amg::Transform3D(amdbToGlobal.rotation());
-        surfaceTransform->pretranslate(pars.position());
+        Amg::Transform3D surfaceTransform(amdbToGlobal.rotation());
+        surfaceTransform.pretranslate(pars.position());
         double surfDim = 500.;
         const std::unique_ptr<Trk::PlaneSurface> surf = std::make_unique<Trk::PlaneSurface>(surfaceTransform, surfDim, surfDim);
 

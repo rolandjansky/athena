@@ -52,9 +52,9 @@ void test_plane (Trk::IIntersector& tool)
   std::cout << "test_plane\n";
   Amg::Vector3D pos1 { 0, 0, 100 };
   Amg::Vector3D norm1 { 0, 1, 1 };
-  Trk::PlaneSurface plane1 (transf (pos1, norm1));
+  Trk::PlaneSurface plane1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 200 };
-  Trk::PlaneSurface plane2 (transf (pos2, norm1));
+  Trk::PlaneSurface plane2 (*transf (pos2, norm1));
   
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,1,1), 0);

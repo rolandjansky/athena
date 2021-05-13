@@ -6,7 +6,7 @@
 // RiddersAlgorithm.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include <cmath>
+
 
 
 
@@ -23,6 +23,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "GaudiKernel/SystemOfUnits.h"
+#include <cmath>
 
 //================ Constructor =================================================
 
@@ -332,7 +333,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
    double rotateTrans =  M_PI * m_flatDist->shoot();
    rotateTrans       *= (m_flatDist->shoot() > 0.5 ) ? -1. : 1.; 
 
-   Amg::Transform3D* surfaceTransform = nullptr;
+   Amg::Transform3D surfaceTransform;
 
    if (m_useAlignedSurfaces){
       // create a radial vector
@@ -347,7 +348,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
       surfaceRotation.col(1) = surfaceYdirection;
       surfaceRotation.col(2) = surfaceZdirection;
       Amg::Transform3D nominalTransform(surfaceRotation, estimatedPosition);   
-      surfaceTransform =  new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(rotateTrans,Amg::Vector3D(0.,0.,1.)));
+      surfaceTransform = Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(rotateTrans,Amg::Vector3D(0.,0.,1.)));
    } else
       surfaceTransform = createTransform(estimationX,
                                          estimationY,
@@ -888,7 +889,8 @@ StatusCode Trk::RiddersAlgorithm::execute()
 }
 
 //============================================================================================
-Amg::Transform3D* Trk::RiddersAlgorithm::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
+Amg::Transform3D 
+Trk::RiddersAlgorithm::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
  if (phi!=0. && theta != 0.){
@@ -910,11 +912,11 @@ Amg::Transform3D* Trk::RiddersAlgorithm::createTransform(double x, double y, dou
    surfaceRotation.col(1) = surfaceYdirection;
    surfaceRotation.col(2) = surfaceZdirection;
    Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);   
-   return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+   return Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
    
  }
 
-  return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+  return Amg::Transform3D(Amg::Translation3D(x,y,z));
 }
 
 double Trk::RiddersAlgorithm::parabolicInterpolation(double y0, double y1, double y2,

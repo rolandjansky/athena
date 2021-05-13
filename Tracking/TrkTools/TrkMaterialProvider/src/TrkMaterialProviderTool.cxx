@@ -1597,8 +1597,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           Amg::Vector3D coly(-dir.x()*dir.z()/norm, -dir.y()*dir.z()/norm, norm);
           Amg::Vector3D colz( dir.x(),             dir.y(),                dir.z());
 
-          Amg::Transform3D* surfaceTransformFirst = new Amg::Transform3D(colx,coly,colz,pos0);
-          Amg::Transform3D* surfaceTransformLast = new Amg::Transform3D(colx,coly,colz,posNew);
+          Amg::Transform3D surfaceTransformFirst(colx,coly,colz,pos0);
+          Amg::Transform3D surfaceTransformLast(colx,coly,colz,posNew);
           Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
           Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
 	  //        make MaterialEffectsOnTracks
@@ -1774,10 +1774,10 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 
       ATH_MSG_VERBOSE(" WITH aggregation and WITH reposition center planes x " << pos.x() << " y " << pos.y() << " z " << pos.z() << " halflength " << halflength << " w_tot " << w_tot << " X0_tot " << X0_tot );
 
-      Amg::Transform3D* surfaceTransformFirst = new Amg::Transform3D(colx,coly,colz,pos0);
-      Amg::Transform3D* surfaceTransformLast = new Amg::Transform3D(colx,coly,colz,posNew);
+      Amg::Transform3D surfaceTransformFirst(colx,coly,colz,pos0);
+      Amg::Transform3D surfaceTransformLast(colx,coly,colz,posNew);
       Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
-      Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
+      Trk::PlaneSurface* surfLast= new Trk::PlaneSurface( surfaceTransformLast );
       //        calculate TrackParameters at first surface
       double qOverP0 = mfirst->trackParameters()->charge()/(mfirst->trackParameters()->momentum().mag()+std::abs(deltaEFirst));
       //        calculate TrackParameters at last surface
@@ -1840,7 +1840,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         //
         // make three scattering planes and TSOS in Calorimeter
         //
-        Amg::Transform3D* surfaceTransform = new Amg::Transform3D(colx,coly,colz,pos);
+        Amg::Transform3D surfaceTransform(colx,coly,colz,pos);
         Trk::PlaneSurface* surf = new Trk::PlaneSurface( surfaceTransform );
         std::unique_ptr<Trk::TrackParameters> pars  = surf->createUniqueParameters<5,Trk::Charged>(0.,0.,dir.phi(),dir.theta(),qOverPNew);
 

@@ -65,8 +65,8 @@ namespace Muon {
             Amg::Vector3D globalPosition(0., 0., layerDescriptor.referencePosition);
 
             // reference transform + surface
-            Amg::Transform3D* trans = new Amg::Transform3D(sectorRotation);  //*Amg::AngleAxis3D(xToZRotation,Amg::Vector3D(0.,1.,0.)
-            trans->pretranslate(globalPosition);
+            Amg::Transform3D trans(sectorRotation);  //*Amg::AngleAxis3D(xToZRotation,Amg::Vector3D(0.,1.,0.)
+            trans.pretranslate(globalPosition);
 
             Trk::PlaneSurface* surface = new Trk::PlaneSurface(trans);
             MuonLayerSurface data(MuonLayerSurface::SurfacePtr(surface), sector, regionIndex, layer);
@@ -113,8 +113,8 @@ namespace Muon {
             // Amg::Vector3D globalPosition2 = sectorRotation*positionInSector2;
 
             // reference transform + surface
-            Amg::Transform3D* trans = new Amg::Transform3D(sectorRotation * Amg::AngleAxis3D(xToZRotation, Amg::Vector3D(0., 1., 0.)));
-            trans->pretranslate(globalPosition);
+            Amg::Transform3D trans(sectorRotation * Amg::AngleAxis3D(xToZRotation, Amg::Vector3D(0., 1., 0.)));
+            trans.pretranslate(globalPosition);
             Trk::PlaneSurface* surface = new Trk::PlaneSurface(trans);
 
             MuonLayerSurface data(MuonLayerSurface::SurfacePtr(surface), sector, MuonStationIndex::Barrel, layer);
