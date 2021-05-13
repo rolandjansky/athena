@@ -5,7 +5,7 @@
 #ifndef TRIGHLTJETHYPO_IHYPOJETVECTORFILTER_H
 #define TRIGHLTJETHYPO_IHYPOJETVECTORFILTER_H
 
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 
 class IHypoJetVectorFilter {
  public:

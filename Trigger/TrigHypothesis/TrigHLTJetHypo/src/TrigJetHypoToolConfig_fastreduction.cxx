@@ -10,7 +10,7 @@
 #include "./RepeatedCondition.h"
 #include "./FastReductionMatcher.h"
 #include "./Tree.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -108,16 +108,16 @@ TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
 }
 
 
-std::unique_ptr<IJetsMatcherMT>
+std::unique_ptr<IJetsMatcher>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
   auto repeatedConds = getRepeatedConditions();
 
   if(repeatedConds.empty()){
-    return std::unique_ptr<IJetsMatcherMT>(nullptr);
+    return std::unique_ptr<IJetsMatcher>(nullptr);
   }
 
-  auto matcher =  std::unique_ptr<IJetsMatcherMT>();
+  auto matcher =  std::unique_ptr<IJetsMatcher>();
 
   auto conditions = std::move(repeatedConds);
   auto filters = getFilters();

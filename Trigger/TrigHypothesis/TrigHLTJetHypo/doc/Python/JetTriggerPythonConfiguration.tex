@@ -95,8 +95,8 @@ Provide the initialisation for any JetHypoAlgTool and its helper AlgTool classes
   \end{block}
   \begin{block}{Classes to be initialised for each chain}
   \begin{itemize}
-  \item TrigJetHypoToolMT
-  \item TrigJetHypoToolHelperMT
+  \item TrigJetHypoTool
+  \item TrigJetHypoToolHelper
   \item TrigJetHypoToolHelperConfig\_fastreduction
   \item multiple TrigJetConditionConfig
   \end{itemize}
@@ -299,7 +299,7 @@ The scenarioList is what allows nesting (recursion).
 \end{block}
 \begin{block}{}
  \begin{description}
- \item[ConditionsToolSetterFastReduction\_visitor] Modifies self: attaches  a TrigJetHypoToolHelperMT instance
+ \item[ConditionsToolSetterFastReduction\_visitor] Modifies self: attaches  a TrigJetHypoToolHelper instance
  \end{description}
  \end{block}
  }
@@ -346,7 +346,7 @@ The scenarioList is what allows nesting (recursion).
 
 \frame{
  \frametitle{Concepts}
- \begin{block}{TrigJetHypoToolHelperMT}
+ \begin{block}{TrigJetHypoToolHelper}
  \begin{description}
 \item[Tree] A graph where each node has a single parent, except the rroot node. Each node as zero or more children.
 \item [Jet Group] a vector of jets

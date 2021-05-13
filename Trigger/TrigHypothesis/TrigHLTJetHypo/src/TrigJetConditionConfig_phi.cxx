@@ -5,7 +5,7 @@
 #include "TrigJetConditionConfig_phi.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./PhiConditionMT.h"
+#include "./PhiCondition.h"
 #include <cmath>
 
 TrigJetConditionConfig_phi::TrigJetConditionConfig_phi(const std::string& type,
@@ -46,8 +46,8 @@ StatusCode TrigJetConditionConfig_phi::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_phi::getCondition() const {
-  return std::make_unique<PhiConditionMT>(m_min, m_max);
+Condition TrigJetConditionConfig_phi::getCondition() const {
+  return std::make_unique<PhiCondition>(m_min, m_max);
 }
 
 

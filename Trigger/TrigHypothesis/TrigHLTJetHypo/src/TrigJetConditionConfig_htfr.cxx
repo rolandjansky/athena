@@ -25,7 +25,7 @@ StatusCode TrigJetConditionConfig_htfr::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_htfr::getCondition() const {
+Condition TrigJetConditionConfig_htfr::getCondition() const {
   auto a2d = ArgStrToDouble();
   return std::make_unique<HTConditionFastReduction>(a2d(m_min), a2d(m_max));
 }

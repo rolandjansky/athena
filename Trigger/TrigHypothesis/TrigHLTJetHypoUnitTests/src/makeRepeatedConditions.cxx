@@ -3,7 +3,7 @@
 */
 
 #include "./makeRepeatedConditions.h"
-#include "TrigHLTJetHypo/../src/EtaConditionAbsMT.h"
+#include "TrigHLTJetHypo/../src/EtaConditionAbs.h"
 #include "TrigHLTJetHypo/../src/RepeatedCondition.h"
 
 #include <memory>
@@ -12,8 +12,8 @@ ConditionPtrs makeRepeatedConditions(const EtaPair& eta){
 
   ConditionPtrs conditions;
 
-  auto el_condition = std::unique_ptr<IConditionMT>(nullptr);
-  el_condition.reset(new EtaConditionAbsMT(eta.first, eta.second));
+  auto el_condition = std::unique_ptr<ICondition>(nullptr);
+  el_condition.reset(new EtaConditionAbs(eta.first, eta.second));
       
   auto rep_condition = std::unique_ptr<IRepeatedCondition>(nullptr);
   
@@ -32,8 +32,8 @@ ConditionPtrs makeRepeatedConditions(const EtaPairs& etas){
   ConditionPtrs conditions;
 
   for (const auto& ep : etas){
-    auto el_condition = std::unique_ptr<IConditionMT>(nullptr);
-    el_condition.reset(new EtaConditionAbsMT(ep.first, ep.second));
+    auto el_condition = std::unique_ptr<ICondition>(nullptr);
+    el_condition.reset(new EtaConditionAbs(ep.first, ep.second));
       
     auto rep_condition = std::unique_ptr<IRepeatedCondition>(nullptr);
 

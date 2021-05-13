@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_pt.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./PtConditionMT.h"
+#include "./PtCondition.h"
 #include "./ArgStrToDouble.h"
 
 
@@ -24,9 +24,9 @@ StatusCode TrigJetConditionConfig_pt::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_pt::getCondition() const {
+Condition TrigJetConditionConfig_pt::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<PtConditionMT>(a2d(m_min));
+  return std::make_unique<PtCondition>(a2d(m_min));
 }
 				     
 

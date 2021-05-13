@@ -7,7 +7,7 @@
  */
 #include "./TrigJetConditionConfig_repeated.h"
 #include "RepeatedCondition.h"
-#include "CompoundConditionMT.h"
+#include "CompoundCondition.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include <vector>
@@ -26,9 +26,9 @@ StatusCode TrigJetConditionConfig_repeated::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<IConditionMT>
+std::unique_ptr<ICondition>
 TrigJetConditionConfig_repeated::getCompoundCondition() const {
-  std::vector<ConditionMT> elements;
+  std::vector<Condition> elements;
   for(const auto& el : m_elementConditions){
     
     auto cond = el->getCondition();
@@ -37,7 +37,7 @@ TrigJetConditionConfig_repeated::getCompoundCondition() const {
     }
   }
   
-  return std::make_unique<CompoundConditionMT>(elements);
+  return std::make_unique<CompoundCondition>(elements);
 }
 
 ConditionPtr

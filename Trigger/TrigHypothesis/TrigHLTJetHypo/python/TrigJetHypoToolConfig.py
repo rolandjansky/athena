@@ -24,7 +24,7 @@ def  trigJetHypoToolFromDict(chain_dict):
 
     
 def  trigJetTLAHypoToolFromDict(chain_dict):
-    return  CompFactory.TrigJetTLAHypoToolMT(chain_dict['chainName'])
+    return  CompFactory.TrigJetTLAHypoTool(chain_dict['chainName'])
 
 
 import unittest

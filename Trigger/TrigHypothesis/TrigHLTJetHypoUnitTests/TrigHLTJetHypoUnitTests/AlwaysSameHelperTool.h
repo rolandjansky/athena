@@ -2,14 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_ALWAYSSAMEHELPERTOOLMT_H
-#define TRIGHLTJETHYPO_ALWAYSSAMEHELPERTOOLMT_H
+#ifndef TRIGHLTJETHYPO_ALWAYSSAMEHELPERTOOL_H
+#define TRIGHLTJETHYPO_ALWAYSSAMEHELPERTOOL_H
 /********************************************************************
  *
  * NAME:     AlwaysSameHelperTool.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
- * Checks lhs and rhs IChilddrenTrigJetHypoToolHelperMT c
+ * Checks lhs and rhs IChilddrenTrigJetHypoToolHelper c
  * set pass to true if both fail or if both pass.
  * used for hypo implementation comparisons
  *
@@ -17,7 +17,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "TrigHLTJetHypo/../src/ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/../src/ITrigJetHypoInfoCollector.h"
@@ -25,7 +25,7 @@
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
-class AlwaysSameHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
+class AlwaysSameHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelper> {
 
  public:
 

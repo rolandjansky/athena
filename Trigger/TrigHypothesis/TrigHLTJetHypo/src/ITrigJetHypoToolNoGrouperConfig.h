@@ -6,13 +6,13 @@
 
 
 #include "GaudiKernel/IAlgTool.h"
-#include "./ConditionsDefsMT.h"
-#include "./IJetsMatcherMT.h"
+#include "./ConditionsDefs.h"
+#include "./IJetsMatcher.h"
 #include "./ConditionFilter.h"
 
 class ITrigJetHypoToolNoGrouperConfig : virtual public ::IAlgTool {
   /** PABC (Pure Abstract Base Class) for JetHypoTool Condiguration classes.
-   TrigJetHypoToolHelperMT is a general purpose class to run
+   TrigJetHypoToolHelper is a general purpose class to run
    parts of a jet hypo. The Condiguration tools supply them
    with the components according to the hypo scenario. */
 public:
@@ -25,7 +25,7 @@ public:
 
 
   /** return an object that tests jet group - Conditions matching */
-  virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const = 0;
+  virtual std::unique_ptr<IJetsMatcher> getMatcher() const = 0;
 
 
   /*( Gives the minimum number of jets the helper using this Confiog
