@@ -103,7 +103,7 @@ public:
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);
 
- /**Copy Constructor with shift*/
+  /**Copy Constructor with shift*/
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
 
   /**Equality operator*/
@@ -231,12 +231,11 @@ public:
 
   /**  Special method for DiscSurface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localPolarToCartesian(const Amg::Vector2D& locpol) const;
+  Amg::Vector2D localPolarToCartesian(const Amg::Vector2D& locpol) const;
 
   /**  Special method for Disc surface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localCartesianToPolar(
-    const Amg::Vector2D& loccart) const;
+  Amg::Vector2D localCartesianToPolar(const Amg::Vector2D& loccart) const;
 
   /**  Special method for Disc surface : local<->local transformations polar <->
    * cartesian by value*/
@@ -244,18 +243,17 @@ public:
 
   /**  Special method for DiscSurface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localPolarToLocalCartesian(
-    const Amg::Vector2D& locpol) const;
+  Amg::Vector2D localPolarToLocalCartesian(const Amg::Vector2D& locpol) const;
 
   /** Special method for DiscSurface :  local<->global transformation when
    * provided cartesian coordinates */
-  const Amg::Vector3D* localCartesianToGlobal(
-    const Amg::Vector2D& locpos) const;
+  Amg::Vector3D localCartesianToGlobal(const Amg::Vector2D& locpos) const;
 
   /** Special method for DiscSurface : global<->local from cartesian coordinates
    */
-  const Amg::Vector2D* globalToLocalCartesian(const Amg::Vector3D& glopos,
-                                              double tol = 0.) const;
+  std::optional<Amg::Vector2D> globalToLocalCartesian(
+    const Amg::Vector3D& glopos,
+    double tol = 0.) const;
 
   /** fast straight line intersection schema - standard: provides closest
      intersection and (signed) path length forceDir is to provide the closest
