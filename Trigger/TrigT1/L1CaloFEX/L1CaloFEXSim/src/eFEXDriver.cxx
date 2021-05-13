@@ -95,7 +95,7 @@ StatusCode eFEXDriver::initialize()
   // test vector code for validation
   // if(false){ // replace SuperCell Et with the values from the online simulation test vector
   //   ATH_CHECK( m_eFakeTowerTool.retrieve() );
-  //   std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
+  //   std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/testvector/";
   //   ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
   // }
 
