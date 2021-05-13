@@ -96,6 +96,10 @@ class TableConstructorBase:
             fullHistName = prefix + dirName + '_' + histName
             hist = dirObj.Get(fullHistName)
 
+            # Check for overflows
+            if hist.GetBinContent(hist.GetNbinsX() + 1) > 0:
+                log.warning("Histogram {0} contains overflow of {1}".format(fullHistName, hist.GetBinContent(hist.GetNbinsX() + 1)))
+
             if not hist:
                 log.debug("Full name %s", fullHistName)
                 log.debug("Directory: %s", dirObj.ls())
