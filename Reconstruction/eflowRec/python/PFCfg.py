@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
     PFTrackSelectorFactory=CompFactory.PFTrackSelector
@@ -85,11 +86,12 @@ def getPFRecoverSplitShowersTool(inputFlags,toolName):
     return PFRecoverSplitShowersTool
 
 def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
+    result=ComponentAccumulator()
     PFMomentCalculatorToolFactory = CompFactory.PFMomentCalculatorTool
     PFMomentCalculatorTool = PFMomentCalculatorToolFactory("PFMomentCalculatorTool")
 
     from CaloRec.CaloTopoClusterConfig import getTopoMoments
-    PFClusterMomentsMaker = getTopoMoments(inputFlags)
+    PFClusterMomentsMaker = result.popToolsAndMerge(getTopoMoments(inputFlags))
     if (len(momentsToCalculateList) > 0):
         PFClusterMomentsMaker.MomentsNames = momentsToCalculateList
     PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
@@ -102,7 +104,8 @@ def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
         from CaloRec.CaloTopoClusterConfig import getTopoCalibMoments
         PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2 = getTopoCalibMoments(inputFlags)
 
-    return PFMomentCalculatorTool
+    result.setPrivateTools(PFMomentCalculatorTool)
+    return result
 
 def getPFLCCalibTool(inputFlags):
     PFLCCalibTool = CompFactory.PFLCCalibTool

@@ -94,6 +94,7 @@ def getTopoClusterLocalCalibTools(configFlags):
     return lccalibtools
 
 def getTopoMoments(configFlags):
+    result=ComponentAccumulator()
     CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
     TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
     TopoMoments.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
@@ -135,26 +136,23 @@ def getTopoMoments(configFlags):
                                 ,"AVG_TILE_Q"
                                 ,"PTD"
                                 ,"MASS"
-                                , "SECOND_TIME"
+                                ,"SECOND_TIME"
+                                ,"NCELL_SAMPLING"
                                 ]
 
-    # Disable for now, as broken on MC
-    if False:
-        # *****
-        # Is this still right?
-        # only add HV related moments if it is offline.
-        # from IOVDbSvc.CondDB import conddb
-        # if not conddb.isOnline:
-        LArHVFraction=CompFactory.LArHVFraction
+
+    if not configFlags.Common.isOnline:
+        from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+        result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr"]))
         if configFlags.Input.isMC:
-            TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
+            TopoMoments.LArHVFraction=CompFactory.LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
         else:
-            TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
+            TopoMoments.LArHVFraction=CompFactory.LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
         TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
                                      ,"N_BAD_HV_CELLS"
                                      ]
-
-    return TopoMoments
+    result.setPrivateTools(TopoMoments)
+    return result
 
 # a.k.a. DigiTruth
 def getTopoTruthMoments(configFlags):
@@ -302,7 +300,7 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
 
 # Steering options for trigger
 # Maybe offline reco options should be extracted from flags elsewhere
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloTopoClusters",doLCCalib=None):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopoClusters",doLCCalib=None):
     result=ComponentAccumulator()
 
 
@@ -317,9 +315,6 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloTopoClu
     CaloClusterMaker, CaloClusterSnapshot=CompFactory.getComps("CaloClusterMaker","CaloClusterSnapshot",)
 
     result.merge(LArGMCfg(configFlags))
-
-    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
-    result.merge(LArHVScaleCfg(configFlags))
 
     result.merge(TileGMCfg(configFlags))
 
@@ -350,7 +345,8 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloTopoClu
     BadChannelListCorr = CaloClusterBadChannelList(badChannelTool = caloBadChanTool)
     CaloTopoCluster.ClusterCorrectionTools += [BadChannelListCorr]
 
-    CaloTopoCluster.ClusterCorrectionTools += [getTopoMoments(configFlags)]
+    momentsMaker=result.popToolsAndMerge(getTopoMoments(configFlags))
+    CaloTopoCluster.ClusterCorrectionTools += [momentsMaker]
 
     if doLCCalib is None:
         doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
@@ -384,8 +380,6 @@ if __name__=="__main__":
 
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-    # from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-    # cfg.mergeAll(IOVDbSvcCfg(ConfigFlags))
 
     theKey="CaloCalTopoClustersNew"
 
