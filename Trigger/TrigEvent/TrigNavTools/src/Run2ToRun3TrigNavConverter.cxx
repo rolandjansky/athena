@@ -40,6 +40,13 @@ StatusCode Run2ToRun3TrigNavConverter::initialize()
   //m_chainsToSave - m_setChainName
   m_setChainName.insert(begin(m_chainsToSave), end(m_chainsToSave));
 
+  //m_roisToSave - m_setRoiName
+  for (const auto& name : m_roisToSave) {
+    m_setRoiName.push_back(name);
+  }
+  
+
+
   ATH_CHECK(m_clidSvc->getIDOfTypeName("TrigRoiDescriptor", m_roIDescriptorCLID));
   ATH_CHECK(m_clidSvc->getIDOfTypeName("TrigRoiDescriptorCollection", m_roIDescriptorCollectionCLID));
   ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrigRingerRings", m_TrigRingerRingsCLID));
@@ -145,6 +152,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
     return d1;
   };
 
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@ begin of chain loop @@@@@@@@@@@@@@@@@@@@@@@@@@
   for (auto p : m_configSvc->chains())
   {
     if (m_setChainName.find(p->name()) != m_setChainName.end())
@@ -152,6 +160,13 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
       std::string chainName = p->name();
       auto c = p;
       HLT::Identifier chainId = HLT::Identifier(chainName);
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@ ordered_sorter @@@@@@@@@@@@@@@@@@@@@@@@@@
+        auto ordered_sorter = [&](const auto& left, const auto& right) {
+           return std::find(cbegin(m_setRoiName), cend(m_setRoiName), left) < std::find(cbegin(m_setRoiName), cend(m_setRoiName), right);
+        };
+        std::map<std::string, HLT::TriggerElement::FeatureAccessHelper, decltype(ordered_sorter)> mp(ordered_sorter);
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
       for (auto s_iter = c->signatures().begin(), first_s_iter = s_iter; s_iter != c->signatures().end(); ++s_iter)
       {
@@ -165,60 +180,47 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
           if (tes.empty() == false)
             decisionLast.clear();
 
-          HLT::TriggerElement::FeatureAccessHelper updatedTEROIfeature;
-          std::string updatedTEROIname;
-          bool kROIdetected{false}; // if the first ROI detected then true
-          HLT::TriggerElement *prevTEptr{nullptr};
-
           for (auto teptr : tes)
           {
 
             tempDecisionVector.clear();
 
             auto vectorTEfeatures_ptr = getTEfeatures(teptr, navDecoder);
-
-            if (prevTEptr == nullptr)
-            {
-              prevTEptr = teptr;
-              kROIdetected = false;
-            }
-            else if (std::find(navDecoder.getDirectPredecessors(teptr).begin(), navDecoder.getDirectPredecessors(teptr).end(), prevTEptr) == navDecoder.getDirectPredecessors(teptr).end())
-            {
-              kROIdetected = false;
-            }
-            auto vectorTEROIfeatures_ptr = getTEROIfeatures(teptr, navDecoder);
-            if (!vectorTEROIfeatures_ptr.empty())
-            {
-              auto [sgKey, sgCLID, sgName] = getSgKey(navDecoder, vectorTEROIfeatures_ptr.front());
-              updatedTEROIname = sgName;
-              size_t roiPos{0};
-              for (roiPos = 0; roiPos < m_roisToSave.size(); ++roiPos)
-              {
-                if (m_roisToSave[roiPos] == updatedTEROIname)
-                  break;
-              }
-              if (kROIdetected == false)
-              {
-                updatedTEROIfeature = vectorTEROIfeatures_ptr.front();
-                kROIdetected = true;
-              }
-              else
-              { // check previous and update if necessary
-                auto [sgKey, sgCLID, sgName] = getSgKey(navDecoder, updatedTEROIfeature);
-                size_t roiPosPrev{0};
-                for (roiPosPrev = 0; roiPosPrev < m_roisToSave.size(); ++roiPosPrev)
-                {
-                  if (m_roisToSave[roiPosPrev] == sgName)
-                    break;
-                }
-                if (roiPos < roiPosPrev)
-                { // more important roi detected
-                  updatedTEROIfeature = vectorTEROIfeatures_ptr.front();
-                }
-              }
-            }
-
+            auto vectorTEROIfeatures_ptr = getTEROIfeatures( teptr, navDecoder );
             auto vectorTRACKfeatures_ptr = getTRACKfeatures(teptr);
+
+            mp.clear();
+
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@ roiFinder @@@@@@@@@@@@@@@@@@@@@@@@@@
+            std::function<void(HLT::TriggerElement*)> roiFinder = [&](HLT::TriggerElement* ptrTE) {
+                auto vecTEpred = navDecoder.getDirectPredecessors(ptrTE);
+                if (vecTEpred.empty()) {
+                  return;
+                } else {
+                  for (auto pred : vecTEpred) { // vector predecessors TE
+                    auto vectorTEROIfeatures_ptr = getTEROIfeatures( pred, navDecoder );
+                    if (vectorTEROIfeatures_ptr.empty()==false) {
+                      auto [sgKey, sgCLID, sgName] = getSgKey(navDecoder,vectorTEROIfeatures_ptr.front());
+                      mp[sgName] = vectorTEROIfeatures_ptr.front();
+                    } 
+                  }        
+                  if (mp.empty()) {
+                    for (auto pred : vecTEpred) { // vector predecessors TE
+                      roiFinder(pred);
+                    }
+                  }
+                }
+                return; 
+            };
+
+
+            if (vectorTEROIfeatures_ptr.empty()) {
+              roiFinder(teptr);
+            } else {
+              auto [sgKey, sgCLID, sgName] = getSgKey(navDecoder,vectorTEROIfeatures_ptr.front());
+              mp[sgName] = vectorTEROIfeatures_ptr.front();
+            }
+
 
             if (vectorTEfeatures_ptr.empty())
             {
@@ -245,12 +247,11 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                 TrigCompositeUtils::linkToPrevious(decision, l1_decision, context);
               }
 
-              auto [sgKey1, sgCLID1, sgName1] = getSgKey(navDecoder, updatedTEROIfeature);
 
-              if (kROIdetected)
-              {
-                ATH_CHECK(addTEROIfeatures(navDecoder, updatedTEROIfeature, decision)); // updated roi on the way
+              if (mp.empty() == false) {
+                ATH_CHECK(addTEROIfeatures(navDecoder, (mp.begin())->second, decision)); 
               }
+
 
               for (const auto &rNodes : HLT::TrigNavStructure::getRoINodes(teptr))
               {
@@ -259,13 +260,8 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                   auto vectorROIfeatures_ptr = getROIfeatures(rNodes, navDecoder);
                   for (auto featureRoI : vectorROIfeatures_ptr)
                   {
-                    if (!kROIdetected)
-                    {
+                    if (mp.empty()) {
                       ATH_CHECK(addTEROIfeatures(navDecoder, featureRoI, decision)); // roi link to initialRoi
-                    }
-                    else
-                    {
-                      ATH_CHECK(addTEROIfeatures(navDecoder, updatedTEROIfeature, decision)); // updated roi on the way
                     }
                   }
 
@@ -294,6 +290,8 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
               mapTEtoDecisionActive[teptr].push_back(decision);
             }
 
+
+
             for (const auto &elemFE : vectorTEfeatures_ptr)
             {
               TrigCompositeUtils::Decision *decision{nullptr};
@@ -304,13 +302,12 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                 auto [decisionFeature, decisionPtr] = getDecisionObject(elemFE, i, decisionOutput, kInsert);
                 decision = decisionPtr;
 
-                if (kROIdetected)
-                {
-                  ATH_CHECK(addTEROIfeatures(navDecoder, updatedTEROIfeature, decision)); // updated roi on the way
+                if (mp.empty() == false) {
+                      ATH_CHECK(addTEROIfeatures(navDecoder, (mp.begin())->second, decision)); // updated roi on the way
                 }
 
-                if (teptr->getActiveState())
-                  TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
+
+                if (teptr->getActiveState()) TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
                 TrigCompositeUtils::addDecisionID(chainId, decision);
                 TrigCompositeUtils::linkToPrevious(decisionFeature, decision, context);
 
@@ -330,13 +327,11 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                 auto [decisionFeature, decisionPtr] = getDecisionObject(elemFE, elemFE.getIndex().objectsBegin(), decisionOutput, kInsert);
                 decision = decisionPtr;
 
-                if (kROIdetected)
-                {
-                  ATH_CHECK(addTEROIfeatures(navDecoder, updatedTEROIfeature, decision)); // updated roi on the way
+                if (mp.empty() == false) {
+                    ATH_CHECK(addTEROIfeatures(navDecoder, (mp.begin())->second, decision)); // updated roi on the way
                 }
 
-                if (teptr->getActiveState())
-                  TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
+                if (teptr->getActiveState()) TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
                 TrigCompositeUtils::addDecisionID(chainId, decision);
                 TrigCompositeUtils::linkToPrevious(decisionFeature, decision, context);
 
@@ -354,7 +349,8 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
               {
                 if (HLT::TrigNavStructure::isRoINode(rNodes))
                 {
-                  for (auto featureRoI : getROIfeatures(rNodes, navDecoder))
+                  auto vectorROIfeatures_ptr = getROIfeatures(rNodes,navDecoder);
+                  for (auto featureRoI : vectorROIfeatures_ptr)
                   {
                     if (s_iter == first_s_iter)
                     {
@@ -366,8 +362,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                         ATH_CHECK(addROIfeatures(navDecoder, featureRoI, l1_decision, -1, &l1Obj)); // test coding for initialRoi
                       }
                       // check for updated roi
-                      if (!kROIdetected)
-                      {
+                      if (mp.empty()) {
                         ATH_CHECK(addTEROIfeatures(navDecoder, featureRoI, decision)); // roi link to initialRoi
                       }
                       TrigCompositeUtils::linkToPrevious(decision, l1_decision, context);
@@ -375,22 +370,24 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                     else
                     {
                       // check for updated roi
-                      if (!kROIdetected)
-                      {
+                      if (mp.empty()) {
                         ATH_CHECK(addTEROIfeatures(navDecoder, featureRoI, decision)); // roi link to initialRoi
                       }
                     }
                   }
                   // ### TRACKS ### check for track features and connect the same RoI
+                  if (!vectorROIfeatures_ptr.empty())
                   for (const auto &elemTRACK : vectorTRACKfeatures_ptr)
                   {
                     for (size_t i{elemTRACK.getIndex().objectsBegin()}; i < elemTRACK.getIndex().objectsEnd(); ++i)
                     {
-                      ElementLink<TrigRoiDescriptorCollection> ROIElementLink = decision->objectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::roiString());
-                      if (ROIElementLink.isValid())
-                      {
-                        ATH_CHECK(addTRACKfeatures(navDecoder, elemTRACK, decision, ROIElementLink));
-                      }
+                        if (mp.empty()) {
+                            ElementLink<TrigRoiDescriptorCollection> ROIElementLink = decision->objectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::roiString());
+                            if (ROIElementLink.isValid())
+                            {
+                                ATH_CHECK(addTRACKfeatures(navDecoder, elemTRACK, decision, ROIElementLink));
+                            }
+                        }
                     }
                   }
                 }
@@ -448,12 +445,9 @@ std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(con
   std::string type_name;
 
   const CLID saveCLID = [&](const CLID &clid) {
-    if (clid == m_roIDescriptorCLID)
-      return m_roIDescriptorCollectionCLID;
-    if (clid == m_TrigEMClusterCLID)
-      return m_TrigEMClusterContainerCLID;
-    if (clid == m_TrigRingerRingsCLID)
-      return m_TrigRingerRingsContainerCLID;
+    if (clid == m_roIDescriptorCLID) return m_roIDescriptorCollectionCLID;
+    if (clid == m_TrigEMClusterCLID) return m_TrigEMClusterContainerCLID;
+    if (clid == m_TrigRingerRingsCLID) return m_TrigRingerRingsContainerCLID;
     return clid;
   }(helper.getCLID());
 
@@ -466,6 +460,7 @@ std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(con
   return {sg, saveCLID, sgKeyString}; // sgKey, sgCLID, sgName
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTEROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 StatusCode Run2ToRun3TrigNavConverter::addTEROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
@@ -475,6 +470,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTEROIfeatures(const HLT::StandaloneNav
   return StatusCode::SUCCESS;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 StatusCode Run2ToRun3TrigNavConverter::addROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, int idx, L1ObjMap *om) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
@@ -496,6 +492,7 @@ StatusCode Run2ToRun3TrigNavConverter::addROIfeatures(const HLT::StandaloneNavig
   return StatusCode::SUCCESS;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTRACKfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, ElementLink<TrigRoiDescriptorCollection> &rLink) const
 {
   SG::AuxElement::Decorator<ElementLink<TrigRoiDescriptorCollection>> viewBookkeeper("viewIndex");
@@ -522,6 +519,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::StandaloneNav
   return StatusCode::SUCCESS;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTEfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, std::pair<TrigCompositeUtils::Decision *, TrigCompositeUtils::Decision *> &decisionPtr, int idx, DecisionObjMap *om) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
@@ -543,6 +541,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::StandaloneNaviga
   return StatusCode::SUCCESS;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getTEfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
 {
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
@@ -558,22 +557,34 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   return ptrFAHelper;
 }
 
-// @@@ -----------------------------------------------------------------
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getTEROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
 {
-  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@ ordered_sorter @@@@@@@@@@@@@@@@@@@@@@@@@@
+  auto ordered_sorter = [&](const auto& left, const auto& right) -> bool {
+      return std::find(cbegin(m_setRoiName), cend(m_setRoiName), left) < std::find(cbegin(m_setRoiName), cend(m_setRoiName), right);
+  };
+
+  std::map<std::string, HLT::TriggerElement::FeatureAccessHelper, decltype(ordered_sorter)> mp(ordered_sorter);
+
+
   for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
   {
-    auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
-    if (std::find(m_roisToSave.begin(), m_roisToSave.end(), sgName) == m_roisToSave.end())
-    {
-      continue;
-    }
-    ptrFAHelper.push_back(helper);
+    auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder,helper);
+       if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) == m_setRoiName.end()) {
+        continue;
+       }
+      mp[sgName] = helper;
   }
+
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
+  std::transform(cbegin(mp),cend(mp),back_inserter(ptrFAHelper),
+  [](const std::map<std::string, HLT::TriggerElement::FeatureAccessHelper>::value_type& p ){return p.second;});
+
   return ptrFAHelper;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getTRACKfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTRACKfeatures(const HLT::TriggerElement *te_ptr) const
 {
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
@@ -587,6 +598,7 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   return ptrFAHelper;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
 {
 
@@ -605,6 +617,7 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   return ptrFAHelper;
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ printFeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 StatusCode Run2ToRun3TrigNavConverter::printFeatures(const HLT::StandaloneNavigation &nav) const
 {
   std::set<std::string> totset;
