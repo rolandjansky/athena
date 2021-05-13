@@ -87,16 +87,18 @@ Trig::CacheGlobalMemory::~CacheGlobalMemory() {
 }
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
-                                                                  const std::string& alias) {
+                                                                  const std::string& alias,
+                                                                  const bool parseAsRegex) {
   // mutex in case this is called directly
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
+
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
   auto res = m_chainGroups.try_emplace (key, nullptr);
   if (res.second) {
     res.first->second = new ChainGroup( key, *this );
-    updateChainGroup(res.first->second);
+    updateChainGroup(res.first->second, parseAsRegex);
     m_chainGroupsRef[key] = res.first->second;
   }
   // this overwrites the pointer in the map each time in case the alias needs defining
@@ -111,11 +113,12 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
       }
     }
   }
+
   return m_chainGroupsRef[key];
 }
 
-void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup) {
-  chainGroup->update(m_confChains, m_confItems);
+void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup, const bool parseAsRegex) {
+  chainGroup->update(m_confChains, m_confItems, parseAsRegex);
 }
 
 
@@ -222,9 +225,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
           << alias );
         // cg already exists (from previous config, we need to update it)
         preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second);
+        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
       } else {
-        createChainGroup(mstIt->second,alias);
+        createChainGroup(mstIt->second, alias, /*parseAsRegex=*/ false);
       }
 
     }
@@ -236,9 +239,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         ATH_MSG_INFO( "Replacing predefined, config group based, chain "
           << "group: " << alias );
         preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second);
+        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
       } else {
-        createChainGroup(mstIt->second,alias);
+        createChainGroup(mstIt->second,alias, /*parseAsRegex=*/ false);
       }
     }
     ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
