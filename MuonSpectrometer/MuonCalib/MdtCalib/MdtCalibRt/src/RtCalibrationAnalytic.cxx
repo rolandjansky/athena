@@ -726,13 +726,13 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput *rt_input) {
     }
 
     // RtChebyshev //
-    if (!rt_Chebyshev) {
+    if (rt_Chebyshev) {
         m_t_length = rt_Chebyshev->tUpper() - rt_Chebyshev->tLower();
         m_t_mean = 0.5 * (rt_Chebyshev->tLower() + rt_Chebyshev->tUpper());
     }
 
     // RtRelationLookUp, dangerous implementation, but the only way right now //
-    if (!rt_LookUp) {
+    if (rt_LookUp) {
         m_t_length = rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) - rt_LookUp->par(0);
         m_t_mean = 0.5 * (rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) + rt_LookUp->par(0));
     }
