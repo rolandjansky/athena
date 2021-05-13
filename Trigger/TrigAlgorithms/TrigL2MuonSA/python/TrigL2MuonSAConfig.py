@@ -153,12 +153,3 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
 
         self.StationFitter.PtFromAlphaBeta.useCscPt = True
         self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'BackExtrapolator'):
-            if handle.BackExtrapolator.name().find("AlignedBackExtrapolator")!=-1:
-                log.info("using BackExtrapolatorLUT for Aligned Detector")
-            if handle.BackExtrapolator.name().find("MisalignedBackExtrapolator")!=-1:
-                log.info("using BackExtrapolatorLUT for Misligned Detector")
-            if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
-                log.info("using BackExtrapolatorLUT for Data")
