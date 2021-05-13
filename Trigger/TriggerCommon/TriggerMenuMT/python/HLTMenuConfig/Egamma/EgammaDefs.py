@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------
 # Static classes to configure photon chain container names
@@ -10,7 +10,7 @@ from AthenaCommon import CfgMgr
 from ROOT import egammaPID
 from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
-mlog = logging.getLogger ('EgammaDefs')
+log = logging.getLogger(__name__)
 
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
@@ -61,7 +61,7 @@ def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
           })
 
     selectors = []
-    mlog.debug('Configuring electron DNN' )
+    log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
       SelectorTool = CfgMgr.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
@@ -96,7 +96,7 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
           })
 
     selectors = []
-    mlog.debug('Configuring electron PID' )
+    log.debug('Configuring electron PID' )
     for pidname, name in SelectorNames.items():
       SelectorTool = CfgMgr.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
@@ -194,10 +194,10 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
 
     selectors = []
     for sel, name in SelectorNames.items():
-        mlog.debug('Configuring photon PID for %s', sel)
+        log.debug('Configuring photon PID for %s', sel)
         SelectorTool = ConfiguredAsgPhotonIsEMSelector(name, SelectorPID[sel])
         ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
-        mlog.debug('Configuration file: %s', ConfigFile)
+        log.debug('Configuration file: %s', ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True
         SelectorTool.isEMMask = PhotonIsEMBits[sel] 
@@ -219,7 +219,7 @@ def createTrigEgammaFastCaloSelectors(doPhotons=False, ConfigFilePath='RingerSel
     # add ONNX into app service mgr
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
     from AthenaCommon.Logging import logging
-    log = logging.getLogger('TrigEgammaFastCaloSelectors') 
+    log = logging.getLogger(__name__)
 
     SelectorNames = collections.OrderedDict( {
         "Electrons": collections.OrderedDict({

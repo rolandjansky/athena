@@ -6,7 +6,7 @@ import L1TopoHardware.L1TopoHardware as HW
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TopoAlgoDefMUTCPI.py')
+log = logging.getLogger(__name__)
 
 class TopoAlgoDefMuctpi:
 

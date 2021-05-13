@@ -6,7 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-log = logging.getLogger('MuonRecoSequences')
+log = logging.getLogger(__name__)
 
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable

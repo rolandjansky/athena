@@ -11,7 +11,7 @@ import traceback
 
 from ..Base.L1MenuFlags import L1MenuFlags
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.ItemDef')
+log = logging.getLogger(__name__)
 
 # The trigger types
 from ..Base.Limits import Limits

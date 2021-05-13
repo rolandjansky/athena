@@ -37,7 +37,7 @@ from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
+log = logging.getLogger(__name__)
 
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg

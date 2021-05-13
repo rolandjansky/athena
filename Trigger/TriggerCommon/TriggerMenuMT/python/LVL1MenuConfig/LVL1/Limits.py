@@ -5,7 +5,7 @@ This temporarily holds CTP sizes
 """
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('LVL1.Limits')
+log = logging.getLogger(__name__)
 
 class Access(type):
     """Metaclass to implement __getattr__ for class variables"""

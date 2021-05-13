@@ -8,7 +8,7 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 # logger
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionPhotonMenuSequences' )
+log = logging.getLogger(__name__)
 
 
 def precisionPhotonSequence(ConfigFlags):

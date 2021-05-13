@@ -10,7 +10,7 @@ from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.L1Menu")
+log = logging.getLogger(__name__)
 
 class L1Menu(object):
     """

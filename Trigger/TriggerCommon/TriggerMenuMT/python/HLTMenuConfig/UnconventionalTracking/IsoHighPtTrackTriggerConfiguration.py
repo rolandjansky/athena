@@ -5,7 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.Logging import logging
 
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.IsoHighPtTrackTriggerConfiguration")
+log = logging.getLogger(__name__)
 
 
 def FTFTrackSequence(ConfigFlags):

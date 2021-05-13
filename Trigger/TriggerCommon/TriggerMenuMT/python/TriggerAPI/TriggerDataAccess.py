@@ -8,7 +8,7 @@ import sys
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
 from TriggerMenuMT.TriggerAPI.TriggerPeriodData import TriggerPeriodData
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerAPI.TriggerDataAccess' )
+log = logging.getLogger(__name__)
 
 import six
 
@@ -164,7 +164,7 @@ def queryHLTPrescaleTableRun2(connection,psk):
 def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
     from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales
 
-    mutelog = logging.getLogger( "TrigConfigSvcUtils.py" )
+    mutelog = logging.getLogger(__name__)
     mutelog.setLevel(logging.ERROR) #avoid the spam from TrigConfigSvcUtils
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
@@ -307,7 +307,7 @@ def getHLTmap_fromTM(period, release):
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
     
-    mutelog = logging.getLogger( 'Menu.L1.L1MenuConfig' )
+    mutelog = logging.getLogger(__name__)
     mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
 
     ConfigFlags.Trigger.triggerMenuSetup = menu

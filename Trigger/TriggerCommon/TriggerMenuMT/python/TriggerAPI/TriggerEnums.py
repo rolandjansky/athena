@@ -124,7 +124,7 @@ class TriggerRenaming:
 
 if __name__ == "__main__":
     from AthenaCommon.Logging import logging
-    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerEnums' )
+    log = logging.getLogger(__name__)
     log.info(TriggerPeriod.y2015.isBasePeriod() )
     log.info(TriggerPeriod.y2017.isBasePeriod() )
     log.info(TriggerPeriod.basePeriods() )

@@ -3,7 +3,7 @@
 __all__ = ['log', 'idgen', 'binstr', 'get_smk_psk_Name', 'oldStyle']
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerConfigL1")
+log = logging.getLogger(__name__)
 
 # Old CTP = Old CTP
 def oldStyle():

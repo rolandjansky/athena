@@ -8,7 +8,7 @@ from .LVL1.Lvl1Flags import Lvl1Flags
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerConfigLVL1")
+log = logging.getLogger(__name__)
 
 class TriggerConfigLVL1(object):
 

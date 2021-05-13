@@ -30,7 +30,7 @@ For each of these type 64 L1Items can be monitored independently
 """
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.MonitorDef')
+log = logging.getLogger(__name__)
 
 from ..Base.MonCounters import CtpinCounter, CtpmonCounter
 

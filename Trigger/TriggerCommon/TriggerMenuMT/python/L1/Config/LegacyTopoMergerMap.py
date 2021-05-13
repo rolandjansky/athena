@@ -3,7 +3,7 @@
 from collections import namedtuple, OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("L1.Config.LegacyTopoMergerMap")
+log = logging.getLogger(__name__)
 
 MC = namedtuple('MC', "target_bit, topo_board, source_bit, signals")
 

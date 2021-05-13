@@ -10,7 +10,7 @@ from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypo
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.generatePhoton' )
+log = logging.getLogger(__name__)
 
 # TODO reuse electron calo setup (these two could share all algorithms)
 def _fastCalo(flags, chainDict):
