@@ -1297,6 +1297,19 @@ class writeSeedValNtuple(InDetFlagsJobProperty):
    statusOn     = True
    allowedTypes = ['bool']
    StoredValue  = False
+   
+class doStagingStudies(InDetFlagsJobProperty):
+   """Enable to study "staging" geometries for ITk"""
+   statusOn     = True
+   allowedTypes = ['bool']
+   StoredValue  = False
+   
+class stagingConfig(InDetFlagsJobProperty):
+   """ choose staging configuration: no5thLayer, noOuterEndcap"""
+   statusOn     = True
+   allowedTypes = ['str']
+   allowedValues= ['no5thLayer','noOuterEndcap']
+   StoredValue  = 'no5thLayer'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2951,7 +2964,9 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doPixelDigitalClustering,
                             doSCT_DigitalClustering,
-                            writeSeedValNtuple
+                            writeSeedValNtuple,
+                            doStagingStudies,
+                            stagingConfig
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
