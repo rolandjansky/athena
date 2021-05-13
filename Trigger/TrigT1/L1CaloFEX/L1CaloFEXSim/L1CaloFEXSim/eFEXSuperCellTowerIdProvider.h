@@ -21,12 +21,13 @@ namespace LVL1 {
   struct towerinfo {
     int eTowerID;
     int slot;
+    bool isSplit;
   };
   public:
     eFEXSuperCellTowerIdProvider(const std::string& type,const std::string& name,const IInterface* parent);
     ~eFEXSuperCellTowerIdProvider();
     StatusCode setAddress(std::string) override;
-    StatusCode geteTowerIDandslot(uint64_t, int&, int&) const override;
+    StatusCode geteTowerIDandslot(uint64_t, int&, int&, bool&) const override;
     bool ifhaveinputfile() const override;
   private:
     bool m_hascsvfile;

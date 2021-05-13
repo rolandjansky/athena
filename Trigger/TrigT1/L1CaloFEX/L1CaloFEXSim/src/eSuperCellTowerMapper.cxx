@@ -118,19 +118,25 @@ void eSuperCellTowerMapper::reset(){
   //const CaloCell_Base_ID* idHelper = caloIdManager->getCaloCell_SuperCell_ID(); // getting the id helper class
   const CaloCell_Base_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
-
   for (const auto& cell : * jk_scellsCollection){
 
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID
     int region = idHelper->region(ID);
     float et = (cell)->energy();
-    // csv mapping -WIP
-    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile() && false){
-      int towerid{-1};
-      int slot{-1};
-      ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool->geteTowerIDandslot(ID.get_compact(), towerid, slot) );
-      bool doenergysplit = false;
+    int pos_neg = idHelper->pos_neg(ID);
+    //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
+    if(abs(pos_neg) == 3){ continue; }
+    // mapping with csv file
+    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile()){
+      int towerid{ -1 };
+      int slot{ -1 };
+      bool doenergysplit { false };
+      ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool->geteTowerIDandslot(ID.get_compact(), towerid, slot, doenergysplit) );
+      // ignore invalid SuperCell
+      if (towerid == -1) {
+        continue;
+      }
       int layer_tem = -1;
       // Layer 0:  Cell 0
       // Layer 1:  Cell 1, 2, 3, 4
@@ -149,15 +155,10 @@ void eSuperCellTowerMapper::reset(){
         layer_tem = 4;
       }
 
-      if( region == 3) {
-        //TODO
-        doenergysplit = false;
-      }
       ConnectSuperCellToTower( my_eTowerContainerRaw, towerid, ID, slot, et, layer_tem, doenergysplit);
       continue;
     }
     int layer = -1;
-    int pos_neg = idHelper->pos_neg(ID);
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
     int prov = (cell)->provenance();
@@ -202,9 +203,6 @@ void eSuperCellTowerMapper::reset(){
 
            Unknown 28
     */
-
-    //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
-    if(abs(pos_neg) == 3){ continue; }
 
     // LOCAL TO GLOBAL ETA INDEX PATCH - USE A 'TOWER OFFSET' TO MARK THE START OF THE ETA_INDEX COUNTING (e.g. the rounded eta value of the innermost supercell)
     switch(sample){

@@ -162,7 +162,7 @@ StatusCode eFEXDriver::finalize()
     if(m_numberOfEvents == 1){
       std::ofstream sc_tower_map;
       sc_tower_map.open("./sc_tower_map.csv");
-      sc_tower_map << "eTowerID,scID,slot,isSplit" << "\n";
+      sc_tower_map << "#eTowerID,scID,slot,isSplit" << "\n";
       
       DataVector<LVL1::eTower>::iterator thistower;
       for (thistower = local_eTowerContainerRaw->begin(); thistower != local_eTowerContainerRaw->end(); thistower++){

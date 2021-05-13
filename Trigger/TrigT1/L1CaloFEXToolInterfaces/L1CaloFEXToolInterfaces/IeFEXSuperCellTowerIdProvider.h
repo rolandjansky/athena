@@ -21,7 +21,7 @@ namespace LVL1 {
     public:
       static const InterfaceID& interfaceID() { return IID_IIeFEXSuperCellTowerIdProvider; };
       virtual StatusCode setAddress(std::string) = 0;
-      virtual StatusCode geteTowerIDandslot(uint64_t, int&, int&) const = 0;
+      virtual StatusCode geteTowerIDandslot(uint64_t, int&, int&, bool&) const = 0;
       virtual bool ifhaveinputfile() const = 0;
 
     private:
