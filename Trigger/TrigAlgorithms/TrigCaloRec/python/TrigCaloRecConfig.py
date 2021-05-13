@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMakerMT,
                                          TrigCaloTowerMakerMT,
@@ -574,7 +574,7 @@ class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
         setMinimalCaloSetup()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym') ]
         self.CellsName="SeedLessFS"
         self.RoIs=''
         self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -584,7 +584,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym') ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0

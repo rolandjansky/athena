@@ -5,6 +5,7 @@
 #include "TrigCaloDataAccessSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <sstream>
 #include <type_traits>
@@ -26,6 +27,7 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_robDataProvider.retrieve() );
   CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_regionSelector_TTEM.retrieve() );
+  CHECK( m_mcsymKey.initialize() );
   CHECK( m_regionSelector_TTHEC.retrieve() );
   CHECK( m_regionSelector_FCALEM.retrieve() );
   CHECK( m_regionSelector_FCALHAD.retrieve() );
@@ -189,10 +191,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
 }
 
 
-unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) {
+unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context) {
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
-  if ( !m_lateInitDone && lateInit() ) {
+  if ( !m_lateInitDone && lateInit(context) ) {
     ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
@@ -238,10 +240,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
   return status;
 }
 
-unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventContext& context ) {
+unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventContext& context) {
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
-  if ( !m_lateInitDone && lateInit() ) {
+  if ( !m_lateInitDone && lateInit(context) ) {
     ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
@@ -267,7 +269,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
   return status;
 }
 
-unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
+unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // non-const this thing
 
   std::lock_guard<std::mutex> lock( m_initMutex );
   if ( m_lateInitDone ) 
@@ -326,6 +328,8 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), vrodid32lar.begin(), vrodid32lar.end() );
   
 
+  SG::ReadCondHandle<LArMCSym> mcsym (m_mcsymKey, context);
+
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
   unsigned int jj=0;
@@ -350,7 +354,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( ).isFailure() )
+  if ( cache->larContainer->initialize( **mcsym ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);
@@ -591,7 +595,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
                                                          DETID detector ) {
 
   // If the full event was already unpacked, don't need to unpack RoI
-  if ( !m_lateInitDone && lateInit() ) {
+  if ( !m_lateInitDone && lateInit(context) ) {
     return 0x1; // dummy code
   }
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
@@ -650,7 +654,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
                                                          const IRoiDescriptor& roi) {
 
   // If the full event was already unpacked, don't need to unpack RoI
-  if ( !m_lateInitDone && lateInit() ) {
+  if ( !m_lateInitDone && lateInit(context) ) {
     return 0x1; // dummy code
   }
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
@@ -677,10 +681,10 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
   return status;
 }
 
-unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& context ) {
+unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& context) {
 
   // If the full event was already unpacked, don't need to unpack RoI
-  if ( !m_lateInitDone && lateInit() ) {
+  if ( !m_lateInitDone && lateInit(context) ) {
     return 0x0; // dummy code
   }
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
