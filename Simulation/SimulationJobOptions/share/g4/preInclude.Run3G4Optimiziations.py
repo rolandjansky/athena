@@ -27,11 +27,11 @@ if hasattr(simFlags, 'ApplyPRR') and \
     simFlags.ApplyPRR = True
     simFlags.PRRThreshold = prr_threshold
     simFlags.PRRWeight = prr_weight
-    printfunc ("Turning on PhotonRussianRoulette with threshold %s MeV and weight %s." % (
+    print "Turning on PhotonRussianRoulette with threshold %s MeV and weight %s." % (
       simFlags.PRRThreshold.get_Value(),
-      simFlags.PRRWeight.get_Value()))
+      simFlags.PRRWeight.get_Value())
 else:
-  printfunc ("WARNING: attribute PRRThreshold or PRRWeight not found in simFlags.")
+  print "WARNING: attribute PRRThreshold or PRRWeight not found in simFlags."
 
 
 
@@ -54,11 +54,11 @@ if hasattr(simFlags, 'ApplyNRR') and \
     simFlags.ApplyNRR = True
     simFlags.NRRThreshold = nrr_threshold
     simFlags.NRRWeight = nrr_weight
-    printfunc ("Turning on NeutronRussianRoulette with threshold %s MeV and weight %s." % (
+    print "Turning on NeutronRussianRoulette with threshold %s MeV and weight %s." % (
       simFlags.NRRThreshold.get_Value(),
-      simFlags.NRRWeight.get_Value()))
+      simFlags.NRRWeight.get_Value())
 else:
-  printfunc ("WARNING: attribute NRRThreshold or NRRWeight not found in simFlags.")
+  print "WARNING: attribute NRRThreshold or NRRWeight not found in simFlags."
 
 
 ############################################################
