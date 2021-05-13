@@ -23,9 +23,6 @@
 
 namespace EL
 {
-
-
-
   AnaReentrantAlgorithmConfig ::
   AnaReentrantAlgorithmConfig ()
   {
@@ -45,7 +42,6 @@ namespace EL
   AnaReentrantAlgorithmConfig (const AsgComponentConfig& val_config)
     : AsgComponentConfig (val_config)
   {
-    RCU_NEW_INVARIANT (this);
   }
 
 
