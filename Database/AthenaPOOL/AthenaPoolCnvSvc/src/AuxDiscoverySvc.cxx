@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AuxDiscoverySvc.cxx
@@ -73,7 +73,7 @@ bool AuxDiscoverySvc::setData(SG::auxid_t auxid, void* data, const RootType& typ
    } else {
       // Move the data to the dynamic store.
       std::unique_ptr<SG::IAuxTypeVector> vec(registry.makeVectorFromData(auxid, data, false, true));
-      m_storeInt->addVector(auxid, std::move(vec), false); data = nullptr;
+      m_storeInt->addVector(auxid, std::move(vec), false);
    }
    return true;
 }
@@ -217,22 +217,22 @@ StatusCode AuxDiscoverySvc::sendStore(const IAthenaSerializeSvc* serSvc,
          return(StatusCode::FAILURE);
       }
    }
-   for (SG::auxid_set_t::const_iterator iter = auxIDs.begin(), last = auxIDs.end(); iter != last; iter++) {
-      const std::string& dataStr = this->getAttrName(*iter) + "\n" + this->getTypeName(*iter) + "\n" + this->getElemName(*iter);
+   for (SG::auxid_t auxid : auxIDs) {
+      const std::string& dataStr = this->getAttrName(auxid) + "\n" + this->getTypeName(auxid) + "\n" + this->getElemName(auxid);
       if (!ipcTool->putObject(dataStr.c_str(), dataStr.size() + 1, num).isSuccess()) {
          return(StatusCode::FAILURE);
       }
-      const std::type_info* tip = this->getType(*iter);
+      const std::type_info* tip = this->getType(auxid);
       if (tip == nullptr) {
          return(StatusCode::FAILURE);
       }
       RootType type(*tip);
       StatusCode sc = StatusCode::FAILURE;
       if (type.IsFundamental()) {
-         sc = ipcTool->putObject(this->getData(*iter), type.SizeOf(), num);
+         sc = ipcTool->putObject(this->getData(auxid), type.SizeOf(), num);
       } else {
          size_t nbytes = 0;
-         void* buffer = serSvc->serialize(this->getData(*iter), type, nbytes);
+         void* buffer = serSvc->serialize(this->getData(auxid), type, nbytes);
          sc = ipcTool->putObject(buffer, nbytes, num);
          delete [] static_cast<char*>(buffer); buffer = nullptr;
       }

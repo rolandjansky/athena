@@ -5,7 +5,7 @@
 #ifndef MUONCABLINGTOOLS_RPCDEF_H
 #define MUONCABLINGTOOLS_RPCDEF_H
 
-enum ViewType {Eta,Phi,NoView};
-enum HalfType {Negative,Positive,NoHalf};
+enum ViewType { Eta, Phi, NoView };
+enum HalfType { Negative, Positive, NoHalf };
 
 #endif

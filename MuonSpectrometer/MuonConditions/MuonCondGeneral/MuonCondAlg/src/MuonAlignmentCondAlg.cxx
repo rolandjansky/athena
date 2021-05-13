@@ -519,15 +519,11 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 
     std::string data;
     if(atr["data"].specification().type() == typeid(coral::Blob)){
-      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-        ATH_MSG_FATAL( "Cannot uncompress buffer" );
-        return StatusCode::FAILURE;
-      }
-      if(!m_decompression_buffer){
+      ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+      if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), data)){
         ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
         return StatusCode::FAILURE;
       }
-      data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
     }
     else {
       data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
@@ -740,15 +736,11 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 
     std::string data;
     if(atr["data"].specification().type() == typeid(coral::Blob)){
-      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-        ATH_MSG_FATAL( "Cannot uncompress buffer" );
-        return StatusCode::FAILURE;
-      }
-      if(!m_decompression_buffer){
+      ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+      if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), data)){
         ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
         return StatusCode::FAILURE;
       }
-      data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
     }
     else {
       data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
@@ -1255,36 +1247,3 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
   return;
 }
 
-inline bool MuonAlignmentCondAlg::uncompressInMyBuffer(const coral::Blob &blob) {
-  if (!m_decompression_buffer) {
-    m_buffer_length= 50000;
-    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-  }
-  uLongf actual_length;	
-  while(1) {
-    actual_length=m_buffer_length;
-    int res(uncompress(m_decompression_buffer.get(), &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
-    if (res == Z_OK) break;
-    //double buffer if it was not big enough
-    if( res == Z_BUF_ERROR) {
-      m_buffer_length*=2;
-      ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
-      m_decompression_buffer.reset();
-      m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-      continue;
-    }
-    //something else is wrong
-    return false;
-  }
-  //append 0 to terminate string, increase buffer if it is not big enough
-  if (actual_length >= m_buffer_length)	{
-    std::unique_ptr<Bytef[]> old_buffer(std::move(m_decompression_buffer));
-    size_t old_length=m_buffer_length;
-    m_buffer_length*=2;
-    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-    memcpy(m_decompression_buffer.get(), old_buffer.get(), old_length);
-    old_buffer.reset();
-  }
-  m_decompression_buffer.get()[actual_length]=0;
-  return true;
-}

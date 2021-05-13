@@ -1,149 +1,64 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/BaseObject.h"
-#include <pthread.h>
 
-static pthread_mutex_t StopDisplayStream = PTHREAD_MUTEX_INITIALIZER;
-
-void
-MessageStream::init_message()
-{
-    m_display = new __osstream;
+BaseObject::BaseObject(ObjectType tag, const std::string& obj_name) : m_tag(tag), m_name(obj_name), m_message(nullptr) {
+    IMessageSvc* msgSvc = nullptr;
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
+    StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
+    if (sc.isFailure()) { std::cout << "Can't locate the MessageSvc" << std::endl; }
+    m_message = std::make_shared<MsgStream>(msgSvc, obj_name);
 }
 
-void
-MessageStream::delete_message()
-{
-    delete m_display;
-}
-
-
-
-BaseObject::BaseObject(ObjectType tag,std::string name) : 
-    m_tag(tag),m_name(name) 
-{
-    m_message = new MessageStream;
-}
-
-BaseObject::BaseObject(ObjectType tag,const char* name) : 
-    m_tag(tag)
-{
-    int i=0;
-    while(name[i]!='\0') ++i;
-    m_name.resize(i);
-    i=0;
-    while(name[i]!='\0')
-    {
-        m_name[i] = name[i];
-	++i;
-    }
-    m_message = new MessageStream;
-}
-
-BaseObject::BaseObject(const BaseObject& obj)
-{
-    m_tag  = obj.tag();
+BaseObject::BaseObject(const BaseObject& obj) {
+    m_tag = obj.tag();
     m_name = obj.name();
-    m_message = new MessageStream;
+    m_message = obj.m_message;
 }
 
-BaseObject::~BaseObject()
-{
-    delete m_message;
-}
+BaseObject::~BaseObject() = default;
 
-
-void
-BaseObject::display_error(__osstream& display) const
-{
+void BaseObject::display_error(__osstream& display) const {
 #ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
+    std::cout << display.str() << std::endl;
 #else
-    StatusCode sc;    
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::ERROR << display.str() <<endmsg; 
-    }
+    (*m_message) << MSG::ERROR << display.str() << endmsg;
 #endif
 }
 
-void
-BaseObject::display_debug(__osstream& display) const
-{
+void BaseObject::display_debug(__osstream& display) const {
 #ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
+    std::cout << display.str() << std::endl;
 #else
-    StatusCode sc;
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::DEBUG << display.str() <<endmsg; 
-    }
+    (*m_message) << MSG::DEBUG << display.str() << endmsg;
 #endif
 }
 
-void
-BaseObject::display_warning(__osstream& display) const
-{
+void BaseObject::display_warning(__osstream& display) const {
 #ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
+    std::cout << display.str() << std::endl;
 #else
-    StatusCode sc;    
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::WARNING << display.str() <<endmsg; 
-    }
+    (*m_message) << MSG::WARNING << display.str() << endmsg;
+
 #endif
 }
 
-void
-BaseObject::display_info(__osstream& display) const
-{
+void BaseObject::display_info(__osstream& display) const {
 #ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
+    std::cout << display.str() << std::endl;
 #else
-    StatusCode sc;
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::INFO << display.str() <<endmsg; 
-    }
+    (*m_message) << MSG::INFO << display.str() << endmsg;
+
 #endif
 }
 
-void
-BaseObject::lock() const
-{
-    pthread_mutex_lock(&StopDisplayStream);
-}
-
-
-void
-BaseObject::unlock() const
-{
-    pthread_mutex_unlock(&StopDisplayStream);
-}
-
-BaseObject&
-BaseObject::operator=(const BaseObject& obj)
-{
-    if(this!=&obj) {
-      m_tag  = obj.m_tag;
-      m_name = obj.m_name;
-      delete m_message;
-      m_message = new MessageStream;
+BaseObject& BaseObject::operator=(const BaseObject& obj) {
+    if (this != &obj) {
+        m_tag = obj.m_tag;
+        m_name = obj.m_name;
+        m_message = obj.m_message;
     }
-    return*this;
+    return *this;
 }

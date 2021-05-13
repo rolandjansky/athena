@@ -245,9 +245,8 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   # Load conditions Monitoring tool
   if not flags.Common.isOnline :
       # @TODO really also for MC ?
-      monCondAcc = SCT_MonitorConditionsToolCfg(flags)
-      SCT_MonitorConditionsTool = monCondAcc.popPrivateTools()
-      result.merge(monCondAcc)
+      SCT_MonitorConditionsTool = result.popToolsAndMerge( SCT_MonitorConditionsToolCfg(flags) )
+      ConditionsTools += [ SCT_MonitorConditionsTool ]
       if (flags.InDet.doPrintConfigurables):
           print (SCT_MonitorConditionsTool)
 
@@ -265,7 +264,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   result.setPrivateTools(InDetSCT_ConditionsSummaryTool)
   return result
 
-def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", **kwargs):
+def SCT_ConfigurationConditionsToolCfg(flags, name="InDetSCT_ConfigurationConditionsTool", **kwargs):
   # Load conditions configuration service and load folders and algorithm for it
   # Load folders that have to exist for both MC and Data
   SCTConfigurationFolderPath='/SCT/DAQ/Config/'
@@ -379,7 +378,7 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
   return result
 
 
-def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
+def SCT_ReadCalibDataToolCfg(flags, name="InDetSCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
   result = ComponentAccumulator()
 
   # For SCT_ID and SCT_DetectorElementCollection used in SCT_ReadCalibDataCondAlg and SCT_ReadCalibDataTool
@@ -414,7 +413,7 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
   return result
 
 
-def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs):
+def SCT_FlaggedConditionToolCfg(flags, name="InDetSCT_FlaggedConditionTool", **kwargs):
   result = ComponentAccumulator()
 
   # For SCT_ID and SCT_DetectorElementCollection used in SCT_FlaggedConditionTool

@@ -29,8 +29,7 @@
 # the postInclude adds a validation algorithm which writes out an ntuple for sim hit validation
 # (without the postInclude, a standard simulation job would run)
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3-2021-01-00-02_VALIDATION' \
-          --AMI=s3512 \
+          --AMI=s3680 \
           --maxEvents 100 \
           --imf False \
           --postInclude MuonPRDTest/NSWPRDValAlg.sim.py \
@@ -64,6 +63,7 @@ fi
 echo "download latest result"
 art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
 ls -l lastResults
+# run dcube for simulation output
 $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_simulation_asymRun3.xml -x dcubeSimulation -p NSWPRDValAlg.dcube.root
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeSim"
@@ -115,10 +115,7 @@ fi
 #####################################################################
 
 #####################################################################
-# download last nightly's ART results to compare against
-echo "download latest result"
-art.py download --user=artprod --dst=lastResults "$ArtPackage" "$ArtJobName"
-ls -l lastResults
+# run dcube for digitisation output
 $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -r lastResults/NSWPRDValAlg.digi.dcube.root -t KS chi2 -c $Athena_DIR/XML/MuonPRDTest/dcube_config_digitisation_asymRun3.xml -x dcubeDigitisation -p NSWPRDValAlg.digi.dcube.root
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeDigits"
@@ -136,7 +133,6 @@ Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
@@ -166,7 +162,6 @@ fi
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=1" \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_1thread"
@@ -182,7 +177,6 @@ mv log.RAWtoESD log.RAWtoESD_1thread
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=5" \
-           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3ASYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3ASYM-01")' \
            --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_5thread"

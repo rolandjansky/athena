@@ -68,14 +68,15 @@ std::unique_ptr<Amg::Transform3D> transf (const Amg::Vector3D& pos,
 }
 
 
+
 void test_plane (Trk::IIntersector& tool)
 {
   std::cout << "test_plane\n";
   Amg::Vector3D pos1 { 0, 0, 5*meter };
   Amg::Vector3D norm1 { 0, 1, 1 };
-  Trk::PlaneSurface plane1 (transf (pos1, norm1));
+  Trk::PlaneSurface plane1 (*transf (pos1, norm1));
   Amg::Vector3D pos2 { 0, 0, 10*meter };
-  Trk::PlaneSurface plane2 (transf (pos2, norm1));
+  Trk::PlaneSurface plane2 (*transf (pos2, norm1));
   
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,1,1), 0);
@@ -166,8 +167,8 @@ void test_cylinder (Trk::IIntersector& tool)
 
   Amg::Vector3D pos1 { 0, 0, 0 };
   Amg::Vector3D norm1 { 0, 0, 1 };
-  Trk::CylinderSurface cyl1 (transf (pos1, norm1).release(), 2*meter, 10*meter);
-  Trk::CylinderSurface cyl2 (transf (pos1, norm1).release(), 5*meter, 10*meter);
+  Trk::CylinderSurface cyl1 (*transf (pos1, norm1).release(), 2*meter, 10*meter);
+  Trk::CylinderSurface cyl2 (*transf (pos1, norm1).release(), 5*meter, 10*meter);
 
   Trk::TrackSurfaceIntersection isect0
     (Amg::Vector3D{0,0,0}, unit(1,0,1), 0);

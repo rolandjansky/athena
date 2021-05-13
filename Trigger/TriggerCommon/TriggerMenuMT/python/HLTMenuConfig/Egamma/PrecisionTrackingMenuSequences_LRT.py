@@ -36,7 +36,7 @@ def precisionTrackSequence_LRT(ConfigFlags):
     theSequence = seqAND("precisionTrackSequence_LRT", [precisionTrackViewsMaker, precisionTrackInViewAlgs] )
     return (theSequence,precisionTrackViewsMaker,precisionCaloMenuDefs_LRT.precisionCaloClusters,trackparticles)
 
-def precisionTrackingMenuSequence_LRT(name):
+def precisionTrackingMenuSequence_LRT(name, is_probe_leg=False):
     """ Creates precisionCalo MENU sequence """
     (sequence, precisionTrackViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackSequence_LRT, ConfigFlags)
 
@@ -49,5 +49,6 @@ def precisionTrackingMenuSequence_LRT(name):
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackViewsMaker, 
                          Hypo        = thePrecisionTrackingHypo,
-                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict)
+                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
 

@@ -36,7 +36,7 @@ def precisionElectronSequence_GSF(ConfigFlags):
     return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut)
 
 
-def precisionElectronMenuSequence_GSF():
+def precisionElectronMenuSequence_GSF(is_probe_leg=False):
     # retrieve the reco seuqence+EVC
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence_GSF, ConfigFlags)
 
@@ -50,7 +50,8 @@ def precisionElectronMenuSequence_GSF():
     return  MenuSequence( Maker       = precisionElectronViewsMaker,
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
-                          HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )
+                          HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict,
+                          IsProbe     = is_probe_leg )
 
 
 

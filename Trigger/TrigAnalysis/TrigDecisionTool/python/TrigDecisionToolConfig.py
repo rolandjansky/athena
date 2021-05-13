@@ -38,7 +38,6 @@ def getRun3NavigationContainerFromInput(ConfigFlags):
 def getTrigDecisionTool(ConfigFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     from AthenaCommon.Logging import logging
     msg = logging.getLogger('getTrigDecisionTool')
 
@@ -46,10 +45,7 @@ def getTrigDecisionTool(ConfigFlags):
 
     cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
     # We serve in-file metadata where possible. If it does not exist (e.g. RAWtoESD, RAWtoALL), then it is obtained from the Conditions and Detector stores
-    md = GetFileMD(ConfigFlags.Input.Files)
-    # This matches against both the R2 and R3 in-file metadata formats. xAODConfigSvc can serve either.
-    use_infile_metadata = ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
-    cfgsvc.UseInFileMetadata = use_infile_metadata
+    cfgsvc.UseInFileMetadata = ConfigFlags.Trigger.InputContainsConfigMetadata
     acc.addService(cfgsvc)
 
     tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
@@ -67,12 +63,12 @@ def getTrigDecisionTool(ConfigFlags):
     acc.addPublicTool(nav)
     acc.addPublicTool(tdt, primary=True)
 
-    if use_infile_metadata:
+    if ConfigFlags.Trigger.InputContainsConfigMetadata:
         from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
         acc.merge(MetaDataSvcCfg(ConfigFlags))
 
     msg.info("Configuring the TrigDecisionTool and xAODConfigSvc to use ConfigSource:{}, Run3NavigationFormat:{}, Run3NavigationSummaryCollection:{}".format(
-        "InFileMetadata" if use_infile_metadata else "ConditionsAndDetStore",
+        "InFileMetadata" if ConfigFlags.Trigger.InputContainsConfigMetadata else "ConditionsAndDetStore",
         str(use_run3_format),
         tdt.HLTSummary)
     )

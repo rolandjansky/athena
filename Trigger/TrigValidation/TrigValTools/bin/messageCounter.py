@@ -23,6 +23,14 @@ default_ignore_patterns = [
     r'TrigCOOLUpd.*INFO.*Invalidated',
     r'warn.*frontier.c.*Request',
     r'warn.*frontier.c.*Trying',
+    r'AthenaHiveEventLoopMgr.*INFO.*processing event',
+    r'IOVDbFolder.*INFO.*tag.*resolved to',
+    r'IOVDbSvc.*INFO.*Opening.*connection',
+    r'IOVDbSvc.*INFO.*Disconnecting from',
+    r'RootDatabase\.open.*INFO.*File version',
+    r'Domain.*INFO.*DbDatabase',
+    r'INFO Database being retired',
+    r'StorageSvc.*INFO Building shape according to reflection information',
 ]
 
 

@@ -12,9 +12,9 @@
 #include <string>
 #include <utility>
 
-#include "MuPatCandidateBase.h"
-#include "MuPatSegment.h"
-#include "MuPatTrack.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatSegment.h"
+#include "MuPatPrimitives/MuPatTrack.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
@@ -69,23 +69,12 @@ namespace Muon {
 
         return StatusCode::SUCCESS;
     }
-
-    //-----------------------------------------------------------------------------------------------------------
-
-    StatusCode MuonTrackSteering::finalize() {
-        for (unsigned int i = 0; i < m_strategies.size(); i++) delete m_strategies[i];
-        return StatusCode::SUCCESS;
-    }
-
-    //-----------------------------------------------------------------------------------------------------------
-    // Private Methods
-    //-----------------------------------------------------------------------------------------------------------
-
-    TrackCollection* MuonTrackSteering::find(const MuonSegmentCollection& coll) const {
+    
+     TrackCollection* MuonTrackSteering::find(const MuonSegmentCollection& coll) const {
         MeasGarbage measurementsToBeDeleted;
         HitGarbage hitsToBeDeleted;
 
-        TrackCollection* result = 0;
+        TrackCollection* result = nullptr;
 
         SegColVec chamberSegments(MuonStationIndex::ChIndexMax);  // <! Segments sorted per Chamber
         SegColVec stationSegments(MuonStationIndex::StIndexMax);  // <! Segments sorted per station
@@ -829,14 +818,14 @@ namespace Muon {
 
     StatusCode MuonTrackSteering::decodeStrategyVector(const std::vector<std::string>& strategy) {
         for (unsigned int i = 0; i < strategy.size(); ++i) {
-            const MuonTrackSteeringStrategy* holder = decodeStrategy(strategy[i]);
-            if (0 == holder) {
+            std::unique_ptr<const MuonTrackSteeringStrategy> holder = decodeStrategy(strategy[i]);
+            if (!holder) {
                 // complain
                 ATH_MSG_DEBUG("failed to decode strategy");
             } else {
                 // flag whether segments should be combined
                 if (holder->option(MuonTrackSteeringStrategy::CombineSegInStation)) m_combinedSLOverlaps = true;
-                m_strategies.push_back(holder);
+                m_strategies.emplace_back(std::move(holder));
             }
         }
         return StatusCode::SUCCESS;
@@ -844,7 +833,7 @@ namespace Muon {
 
     //-----------------------------------------------------------------------------------------------------------
 
-    const MuonTrackSteeringStrategy* MuonTrackSteering::decodeStrategy(const std::string& strategy) const {
+    std::unique_ptr<const MuonTrackSteeringStrategy> MuonTrackSteering::decodeStrategy(const std::string& strategy) const {
         const std::string delims(" \t[],;");
 
         // The strategy name
@@ -861,7 +850,7 @@ namespace Muon {
         std::string seqStr;
 
         bool success = false;
-        const MuonTrackSteeringStrategy* result = 0;
+        std::unique_ptr<const MuonTrackSteeringStrategy> result;
 
         std::string::size_type length = strategy.length();
 
@@ -929,7 +918,7 @@ namespace Muon {
                 }
                 path.push_back(idxGrp);
             }
-            result = new MuonTrackSteeringStrategy(name, options, path);
+            result = std::make_unique<MuonTrackSteeringStrategy>(name, options, path);
         }
 
         return result;

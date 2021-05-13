@@ -14,10 +14,10 @@ def _cellsMET(flags, chainDict):
     selAcc=SelectionCA('FastCaloMET')
     selAcc.mergeReco(recoAcc)
 
-    hypoAlg = CompFactory.TrigMissingETHypoAlgMT("METHypoAlg_Cells", METContainerKey=cellMETKey)
+    hypoAlg = CompFactory.TrigMissingETHypoAlg("METHypoAlg_Cells", METContainerKey=cellMETKey)
     selAcc.addHypoAlgo(hypoAlg)
 
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import TrigMETCellHypoToolFromDict
+    from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETCellHypoToolFromDict
 
     menuCellsSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigMETCellHypoToolFromDict)                                      

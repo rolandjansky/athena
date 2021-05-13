@@ -23,9 +23,6 @@
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfigMT_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfigMT_Tier0_H
 
-
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
@@ -234,16 +231,6 @@ protected:
     // get (offline) beam position
     double xbeam = 0;
     double ybeam = 0;
-    if ( m_iBeamCondSvc ) {
-
-      const Amg::Vector3D& vertex = m_iBeamCondSvc->beamPos();
-      xbeam = vertex[0];
-      ybeam = vertex[1];
-
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
-        m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
-      }
-    }
 
     if ( m_first ) {
 
@@ -373,10 +360,9 @@ protected:
     TrigTrackSelector selectorTest( &filterTest );
     m_selectorTest = &selectorTest;
 
-
-    m_selectorRef->setBeamline(  xbeam, ybeam );
-  
-    //   m_selectorRef->setBeamline(  -0.693, -0.617 );
+    if ( xbeam!=0 || ybeam!=0 ) { 
+      m_selectorRef->setBeamline(  xbeam, ybeam );
+    }  
 
     /// now start everything going for this event properly ...
 
@@ -1103,15 +1089,6 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << "AnalysisConfigMT_Tier0::book() " << name() << endmsg;
 
-    // get the beam condition services - one for online and one for offline
-
-    m_iBeamCondSvc = 0;
-    if ( m_useBeamCondSvc ) { 
-      if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() && m_provider->msg().level() <= MSG::ERROR ) {
-	m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
-      }
-    }
-    
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
@@ -1362,9 +1339,6 @@ protected:
 
 
 protected:
-
-  IBeamCondSvc*  m_iBeamCondSvc;
-  IBeamCondSvc*  m_iOnlineBeamCondSvc;
 
   bool           m_useBeamCondSvc;
 

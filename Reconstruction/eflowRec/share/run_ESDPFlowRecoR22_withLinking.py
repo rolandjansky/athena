@@ -5,6 +5,11 @@ athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 
 doDumpProperties=True
 
+#Set some jet flags to ensure we rebuild origin corrected topoclusters
+from JetRec.JetRecFlags import jetFlags
+jetFlags.useVertices.set_Value_and_Lock(True)
+jetFlags.useTracks.set_Value_and_Lock(True)
+
 #Turn on calotopocluster algorithms, such that we rebuild CaloTopoCluster
 from CaloRec.CaloRecFlags import jobproperties
 jobproperties.CaloRecFlags.Enabled.set_Value_and_Lock(True)
@@ -60,6 +65,7 @@ import ROOT
 ROOT.gROOT.ProcessLine ('#include "xAODTracking/TrackParticleContainer.h"')
 ROOT.gROOT.ProcessLine ('#include "xAODJet/JetContainer.h"')
 ROOT.gROOT.ProcessLine ('#include "xAODCaloEvent/CaloClusterContainer.h"')
+UserAlgs+=["eflowRec/metAlgs.py"]
 UserAlgs+=["METReconstruction/METReconstruction_jobOptions.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
-include("eflowRec/RemapDecorations.py")
+include("eflowRec/RemapItems.py")

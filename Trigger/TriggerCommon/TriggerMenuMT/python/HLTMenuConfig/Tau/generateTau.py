@@ -21,7 +21,7 @@ def generateChains( flags, chainDict ):
                                                     clustersKey='HLT_TopoCaloClustersLC'))
 
         from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMergedMTOnlyMVACfg
-        recoAcc.addRecoAlgo(CompFactory.TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater",
+        recoAcc.addRecoAlgo(CompFactory.TrigTauCaloRoiUpdater("TauCaloRoiUpdater",
                                                                 CaloClustersKey = 'HLT_TopoCaloClustersLC',
                                                                 RoIInputKey = 'HLT_TAURoI',
                                                                 RoIOutputKey = 'UpdatedCaloRoI'))
@@ -29,7 +29,7 @@ def generateChains( flags, chainDict ):
 
         selAcc = SelectionCA("CaloTau")
         selAcc.mergeReco(recoAcc)
-        hypoAlg = CompFactory.TrigTauCaloHypoAlgMT("HL2CaloTauHypo",
+        hypoAlg = CompFactory.TrigTauCaloHypoAlg("HL2CaloTauHypo",
                                                     taujets = "HLT_TrigTauRecMerged_CaloOnly" )
         selAcc.addHypoAlgo(hypoAlg)
         from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict

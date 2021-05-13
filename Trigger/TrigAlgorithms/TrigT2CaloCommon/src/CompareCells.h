@@ -12,6 +12,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "LArRawConditions/LArMCSym.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CompareCells : public ::AthReentrantAlgorithm
 {
@@ -27,6 +29,9 @@ class CompareCells : public ::AthReentrantAlgorithm
 
 	SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey {
         this, "BCIDAvgKey", "CaloBCIDAverage", "" };
+
+        SG::ReadCondHandleKey<LArMCSym> m_mcsymKey
+          {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"};
 
 };
 #endif

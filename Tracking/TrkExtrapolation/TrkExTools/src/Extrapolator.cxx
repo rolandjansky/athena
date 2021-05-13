@@ -216,7 +216,7 @@ Trk::Extrapolator::initialize()
 {
 
   // cppcheck-suppress publicAllocationError; false positive
-  m_referenceSurface = new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0., 0.);
+  m_referenceSurface = new Trk::PlaneSurface(Amg::Transform3D(Trk::s_idTransform), 0., 0.);
   m_referenceSurface->setOwner(Trk::TGOwn);
 
   m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField)

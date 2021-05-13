@@ -30,7 +30,8 @@ CaloDataAccessSvcDependencies = [('IRegSelLUTCondData', 'ConditionStore+RegSelLU
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTHEC'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TILE'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD')]
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
+                                 ('LArMCSym', 'ConditionStore+LArMCSym')]
 
 
 def CaloOffsetCorrectionCfg(flags):
@@ -49,6 +50,8 @@ def CaloOffsetCorrectionCfg(flags):
 
     from CaloRec.CaloBCIDAvgAlgConfig import CaloBCIDAvgAlgCfg
     acc.merge(CaloBCIDAvgAlgCfg(flags))
+    from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
+    acc.merge( LArMCSymCondAlgCfg( flags ) )
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
@@ -145,6 +148,7 @@ if __name__ == "__main__":
     acc.merge( ByteStreamReadCfg( ConfigFlags ) )
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
+
     
     TestCaloDataAccess=CompFactory.TestCaloDataAccess
     testAlg = TestCaloDataAccess()

@@ -127,7 +127,7 @@ const std::vector<const Trk::Surface*>*
   // outer Cylinder
   if (!isConcentric)
     retsf->push_back(new Trk::CylinderSurface(
-      new Amg::Transform3D(transform), outerCylinderBounds()));
+      Amg::Transform3D(transform), outerCylinderBounds()));
   else
     retsf->push_back(new Trk::CylinderSurface(outerCylinderBounds()));
 
@@ -135,7 +135,7 @@ const std::vector<const Trk::Surface*>*
   if (innerRadius() > s_numericalStable) {
     if (!isConcentric)
       retsf->push_back(new Trk::CylinderSurface(
-        new Amg::Transform3D(transform), innerCylinderBounds()));
+        Amg::Transform3D(transform), innerCylinderBounds()));
     else
       retsf->push_back(new Trk::CylinderSurface(innerCylinderBounds()));
   }
@@ -143,7 +143,7 @@ const std::vector<const Trk::Surface*>*
   if (std::abs(halfPhiSector() - M_PI) > s_numericalStable) {
     // sectorPlane 1 (negative phi)
     retsf->push_back(new Trk::PlaneSurface(
-      new Amg::Transform3D(
+      Amg::Transform3D(
         transform *
         Amg::AngleAxis3D(-halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
         Amg::Translation3D(Amg::Vector3D(mediumRadius(), 0., 0.)) *
@@ -151,7 +151,7 @@ const std::vector<const Trk::Surface*>*
       sectorPlaneBounds()));
     // sectorPlane 2 (positive phi)
     retsf->push_back(new Trk::PlaneSurface(
-      new Amg::Transform3D(
+      Amg::Transform3D(
         transform *
         Amg::AngleAxis3D(halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
         Amg::Translation3D(Amg::Vector3D(mediumRadius(), 0., 0.)) *

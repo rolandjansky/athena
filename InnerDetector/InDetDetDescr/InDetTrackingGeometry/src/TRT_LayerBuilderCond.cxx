@@ -335,8 +335,8 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                      layerSectorPosition = elementSurface->center();
 
                      // now register the two surfaces
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
 
                      // now register it to for building the array
                      layerApproachSurfaces.emplace_back( Trk::SharedObject<const Trk::ApproachSurfaces>(aSurfaces),elementCenter);
@@ -361,7 +361,6 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                        takeSmallerBigger(phiMin, phiMax, currentPhi);
                        // make the ordering position
                        Amg::Vector3D strawOrderPos(currentStraw->center());
-                       //Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
                        /*
                         * The above line was using the nodel (not delete option for the old shared object
                         * now that SharedObject is a shared_ptr typeded do the same with empty deleter

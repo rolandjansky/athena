@@ -31,7 +31,7 @@ Threads = 8
 Slots   = 8
 Release = "current"
 
-Input   = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
+Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat  -r Offline -o data-hists-offline-vtx.root" ) ]

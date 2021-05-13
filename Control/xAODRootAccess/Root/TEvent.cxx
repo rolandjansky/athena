@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <cassert>
@@ -3003,6 +3003,7 @@ namespace xAOD {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
                                    "right type" ), auxKey.c_str() );
+            return StatusCode::FAILURE;
          }
          store = amgr->getConstStore();
          // If the store still doesn't know its type, help it now:
@@ -3021,6 +3022,7 @@ namespace xAOD {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
                                    "right type" ), auxKey.c_str() );
+            return StatusCode::FAILURE;
          }
          void* p = omgr->holder()->getAs( typeid( SG::IConstAuxStore ) );
          store = reinterpret_cast< const SG::IConstAuxStore* >( p );

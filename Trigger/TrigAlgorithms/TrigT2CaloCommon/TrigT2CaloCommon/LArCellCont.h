@@ -23,6 +23,7 @@
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "LArRawConditions/LArMCSym.h"
 
 #include <vector>
 
@@ -68,7 +69,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( ) ;
+  StatusCode initialize( const LArMCSym& mcsym ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */

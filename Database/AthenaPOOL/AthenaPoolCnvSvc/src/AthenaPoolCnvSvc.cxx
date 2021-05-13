@@ -17,7 +17,6 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 
 #include "AthenaKernel/IAthenaSerializeSvc.h"
-#include "AthenaKernel/IAthenaSharedWriterSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
 #include "PersistentDataModel/Placement.h"
@@ -52,18 +51,15 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
-      // Initialize AthenaRootSharedWriter
-      ServiceHandle<IAthenaSharedWriterSvc> arswsvc("AthenaRootSharedWriterSvc", this->name());
-      ATH_CHECK(arswsvc.retrieve());
+      if (m_makeStreamingToolClient.value() == -1) {
+        // Initialize AthenaRootSharedWriter
+        ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
+        ATH_CHECK(arswsvc.retrieve());
+      }
       // Put PoolSvc into share mode to avoid duplicating catalog.
       m_poolSvc->setShareMode(true);
       // Disable PersistencySvc per output file mode
       m_persSvcPerOutput.setValue(false);
-      // In parallel compression mode reset the port value
-      if(m_parallelCompression) {
-        const std::string portSuffix = arswsvc->getStreamPortSuffix();
-        m_streamPortString.setValue(portSuffix);
-      }
    }
    if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
       // Retrieve AthenaSerializeSvc
@@ -1084,7 +1080,9 @@ StatusCode AthenaPoolCnvSvc::makeServer(int num) {
       if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		      && !m_outputStreamingTool[m_streamServer]->isServer()) {
          ATH_MSG_DEBUG("makeServer: " << m_outputStreamingTool << " = " << num);
-         if (m_outputStreamingTool[m_streamServer]->makeServer(num).isFailure()) {
+         ATH_MSG_DEBUG("makeServer: Calling shared memory tool with port suffix " << m_streamPortString);
+         const std::string streamPortSuffix = m_streamPortString.value();
+         if (m_outputStreamingTool[m_streamServer]->makeServer(num, streamPortSuffix).isFailure()) {
             ATH_MSG_ERROR("makeServer: " << m_outputStreamingTool << " failed");
             return(StatusCode::FAILURE);
          }
@@ -1097,16 +1095,21 @@ StatusCode AthenaPoolCnvSvc::makeServer(int num) {
       return(StatusCode::RECOVERABLE);
    }
    ATH_MSG_DEBUG("makeServer: " << m_inputStreamingTool << " = " << num);
-   return(m_inputStreamingTool->makeServer(num));
+   return(m_inputStreamingTool->makeServer(num, ""));
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::makeClient(int num) {
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && num > 0) {
       ATH_MSG_DEBUG("makeClient: " << m_outputStreamingTool << " = " << num);
       for (std::size_t streamClient = 0; streamClient < m_outputStreamingTool.size(); streamClient++) {
-         if (m_outputStreamingTool[streamClient]->makeClient(num).isFailure()) {
+         std::string streamPortSuffix;
+         if (m_outputStreamingTool[streamClient]->makeClient(num, streamPortSuffix).isFailure()) {
             ATH_MSG_ERROR("makeClient: " << m_outputStreamingTool << ", " << streamClient << " failed");
             return(StatusCode::FAILURE);
+         } else if (streamClient == 0) {
+            // We don't seem to use a dedicated port per stream so doing this for the first client is probably OK
+            ATH_MSG_DEBUG("makeClient: Setting conversion service port suffix to " << streamPortSuffix);
+            m_streamPortString.setValue(streamPortSuffix);
          }
       }
    }
@@ -1114,7 +1117,8 @@ StatusCode AthenaPoolCnvSvc::makeClient(int num) {
       return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_inputStreamingTool << " = " << num);
-   return(m_inputStreamingTool->makeClient(num));
+   std::string dummyStr;
+   return(m_inputStreamingTool->makeClient(num, dummyStr));
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::readData() {

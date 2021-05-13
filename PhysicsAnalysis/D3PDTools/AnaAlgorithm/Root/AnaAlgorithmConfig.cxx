@@ -23,9 +23,6 @@
 
 namespace EL
 {
-
-
-
   AnaAlgorithmConfig :: 
   AnaAlgorithmConfig ()
   {
@@ -36,6 +33,14 @@ namespace EL
   AnaAlgorithmConfig ::
   AnaAlgorithmConfig (const std::string& val_typeAndName)
     : AsgComponentConfig (val_typeAndName)
+  {
+  }
+
+
+
+  AnaAlgorithmConfig ::
+  AnaAlgorithmConfig (const AsgComponentConfig& val_config)
+    : AsgComponentConfig (val_config)
   {
   }
 

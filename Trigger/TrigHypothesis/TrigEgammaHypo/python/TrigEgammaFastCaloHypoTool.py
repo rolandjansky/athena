@@ -201,12 +201,12 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringer(self):
 
     self.__log.debug( 'Configure noringer' )
-    from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
+    from TrigEgammaHypo.TrigEgammaFastCutDefs import TrigFastCaloElectronCutMaps
     self.tool().UseRinger   = False
     self.tool().ETthr       = same( ( self.etthr()  - 3 )*GeV , self.tool())
-    self.tool().HADETthr    = L2CaloCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
-    self.tool().CARCOREthr  = L2CaloCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
-    self.tool().CAERATIOthr = L2CaloCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
+    self.tool().HADETthr    = TrigFastCaloElectronCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
+    self.tool().CARCOREthr  = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
+    self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
   def ringer(self):

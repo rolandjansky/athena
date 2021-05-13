@@ -324,9 +324,13 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
             }
             // check if boundary layer should be built
             if (buildBoundaryLayer){
-                Amg::Transform3D* mLayerTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
-                if (mLayerTransform) (*mLayerTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
-                mLayerSurface.reset( mLayerTransform ? new Trk::CylinderSurface(mLayerTransform,boundaryr,0.5*(zmax-zmin))  :
+              std::unique_ptr<Amg::Transform3D> mLayerTransform =
+                ((zmin + zmax) * (zmin + zmax) < 10e-4)
+                  ? nullptr
+                  : std::make_unique < Amg::Transform3D>();
+
+              if (mLayerTransform) (*mLayerTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
+                mLayerSurface.reset( mLayerTransform ? new Trk::CylinderSurface(*mLayerTransform,boundaryr,0.5*(zmax-zmin))  :
                                      new Trk::CylinderSurface(boundaryr,0.5*(zmax-zmin)) );
                 // create a MaterialLayer
                 std::unique_ptr<const Trk::LayerMaterialProperties>  lmps( layerMaterialProperties(*mLayerSurface) );
@@ -340,10 +344,14 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 // creating only one boundary surface
                 ATH_MSG_VERBOSE("Creating a joint boundary surface for n-to-n glueing case.");
                 // the boundary transform can be 0 for cylinder surfaces
-                Amg::Transform3D* boundaryTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
+                std::unique_ptr<Amg::Transform3D> boundaryTransform =
+                  ((zmin + zmax) * (zmin + zmax) < 10e-4)
+                    ? nullptr
+                    : std::make_unique<Amg::Transform3D>();
+
                 if (boundaryTransform) (*boundaryTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
                 // create the cylinder surface for the shared boundary
-                Trk::CylinderSurface cSurface = boundaryTransform ? Trk::CylinderSurface(boundaryTransform,boundaryr,0.5*(zmax-zmin)) :
+                Trk::CylinderSurface cSurface = boundaryTransform ? Trk::CylinderSurface(*boundaryTransform,boundaryr,0.5*(zmax-zmin)) :
                                                                Trk::CylinderSurface(boundaryr,0.5*(zmax-zmin));
                 // get the volume outer radius of the sconf volumes 
                 const Trk::CylinderVolumeBounds* cbTwo = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(secondVolumes[secondVolumes.size()-1]->volumeBounds()));

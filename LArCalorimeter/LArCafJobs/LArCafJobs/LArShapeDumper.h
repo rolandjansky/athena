@@ -130,7 +130,7 @@ class LArShapeDumper : public AthAlgorithm
   bool m_onlyEmptyBC;
 
   LArSamples::DataStore* m_samples;
-  LArSamples::RunData* m_runData;
+  std::unique_ptr<LArSamples::RunData> m_runData;
   std::vector<const Trig::ChainGroup*> m_triggerGroups;
   TRandom m_random;
 };

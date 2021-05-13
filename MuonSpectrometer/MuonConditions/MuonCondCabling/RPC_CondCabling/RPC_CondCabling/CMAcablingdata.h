@@ -7,8 +7,9 @@
 
 #include <iostream>
 #include <list>
-#include "MuonCablingTools/ShowRequest.h"
+
 #include "MuonCablingTools/RPCdef.h"
+#include "MuonCablingTools/ShowRequest.h"
 #include "MuonCablingTools/dbline.h"
 #include "RPC_CondCabling/EtaCMA.h"
 #include "RPC_CondCabling/EvenPhiCMA.h"
@@ -16,54 +17,51 @@
 
 namespace RPC_CondCabling {
 
-class CMAcablingdata : public BaseObject
-{
+    class CMAcablingdata : public BaseObject {
     private:
-    typedef std::list < EtaCMA > ETAlist;
+        typedef std::list<EtaCMA> ETAlist;
 
-    bool m_fail;
+        bool m_fail;
 
-    int m_number;
-    int m_station;
-    int m_type;
+        int m_number;
+        int m_station;
+        int m_type;
 
-    int m_eta_index;
-    int m_phi_index;
+        int m_eta_index;
+        int m_phi_index;
 
-    int m_lowPt_start_co;
-    int m_lowPt_stop_co;
-    int m_lowPt_number_co;
+        int m_lowPt_start_co;
+        int m_lowPt_stop_co;
+        int m_lowPt_number_co;
 
-    int m_highPt_start_co;
-    int m_highPt_stop_co;
-    int m_highPt_number_co;
+        int m_highPt_start_co;
+        int m_highPt_stop_co;
+        int m_highPt_number_co;
 
-    ViewType    m_view;
-    CMAcoverage m_coverage;
-    std::string m_covtag;
+        ViewType m_view;
+        CMAcoverage m_coverage;
+        std::string m_covtag;
 
-    ETAlist m_etaCMA;
+        ETAlist m_etaCMA;
 
-    void reset_data(void);
-    bool get_data(DBline&);
-    bool confirm_data(ViewType);
+        void reset_data(void);
+        bool get_data(DBline&);
+        bool confirm_data(ViewType);
 
     public:
-    CMAcablingdata();
-    CMAcablingdata(DBline&,int);
-    ~CMAcablingdata();
+        CMAcablingdata();
+        CMAcablingdata(DBline&, int);
+        ~CMAcablingdata();
 
-    std::unique_ptr<EtaCMA> give_eta_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma(void);
 
-    void Print(std::ostream&,bool) const;
-};
+        void Print(std::ostream&, bool) const;
+    };
 
-template <class X> X& operator<< (X& stream, CMAcablingdata& data)
-{
-    data.Print(stream,false);
-    return stream;
-}
+    template <class X> X& operator<<(X& stream, CMAcablingdata& data) {
+        data.Print(stream, false);
+        return stream;
+    }
 
-
-}
+}  // namespace RPC_CondCabling
 #endif

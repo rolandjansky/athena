@@ -592,10 +592,10 @@ def muCombRecoSequence( RoIs, name, l2mtmode=False ):
 
   muCombRecoSequence+=ViewVerify
 
-  ### please read out TrigmuCombMTConfig file ###
-  ### and set up to run muCombMT algorithm    ###
-  from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon"+postFix,name)
+  ### please read out TrigmuCombConfig file ###
+  ### and set up to run muComb algorithm    ###
+  from TrigmuComb.TrigmuCombConfig import TrigmuCombConfig
+  muCombAlg = TrigmuCombConfig("Muon"+postFix,name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName+postFix
   if ('LRT' in name):
     muCombAlg.L2CombinedMuonContainerName   = muNamesLRT.L2CBName
@@ -1007,8 +1007,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   efmuisoRecoSequence += PTSeq
 
   # set up algs
-  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
-  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso"+name)
+  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationConfig
+  trigEFmuIso = TrigMuonEFTrackIsolationConfig("TrigEFMuIso"+name)
   if doMSiso:
     trigEFmuIso.requireCombinedMuon=False
   trigEFmuIso.MuonEFContainer = Muons
@@ -1040,8 +1040,8 @@ def efLateMuRoISequence():
   topSequence = AlgSequence()
   topSequence.SGInputLoader.Load += [( 'MuCTPI_RDO' , 'StoreGateSvc+MUCTPI_RDO' )]
 
-  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMTConfig
-  roiAlg = TrigmuRoIMTConfig("TrigmuRoIMT")
+  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
+  roiAlg = TrigmuRoIConfig("TrigmuRoI")
   sequenceOut = "LateMuRoIs"
   roiAlg.RoisWriteHandleKey=sequenceOut
 

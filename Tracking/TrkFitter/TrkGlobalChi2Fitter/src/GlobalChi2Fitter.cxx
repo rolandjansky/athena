@@ -663,10 +663,10 @@ namespace Trk {
       if (associatedSurface.type() == Trk::SurfaceType::Cylinder) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder) {
           const CylinderBounds *cylbounds = static_cast <const CylinderBounds * >(&associatedSurface.bounds());
-          std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(associatedSurface.transform());
+          Amg::Transform3D trans = Amg::Transform3D(associatedSurface.transform());
           double radius = cylbounds->r();
           double hlength = cylbounds->halflengthZ();
-          muonsurf = std::make_unique<CylinderSurface>(trans.release(), radius + 1, hlength);
+          muonsurf = std::make_unique<CylinderSurface>(trans, radius + 1, hlength);
         }
       } else if (associatedSurface.type() == Trk::SurfaceType::Disc) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Disc) {
@@ -1112,10 +1112,10 @@ namespace Trk {
           rot.col(1) = curvV;
           rot.col(2) = trackdir;
           
-          std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-          trans->linear().matrix() << rot;
-          trans->translation() << startPar->position() - .1 * trackdir;
-          PlaneSurface curvlinsurf(trans.release());
+          Amg::Transform3D trans;
+          trans.linear().matrix() << rot;
+          trans.translation() << startPar->position() - .1 * trackdir;
+          PlaneSurface curvlinsurf(trans);
           
           const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
             *startPar, 
@@ -4045,11 +4045,11 @@ namespace Trk {
               disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             
             if (cylcalosurf != nullptr) {
-              std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>(cylcalosurf->transform());
+              Amg::Transform3D trans = Amg::Transform3D(cylcalosurf->transform());
               const CylinderBounds & cylbounds = cylcalosurf->bounds();
               double radius = cylbounds.r();
               double hlength = cylbounds.halflengthZ();
-              calosurf = std::make_unique<CylinderSurface>(trans.release(), radius - 1, hlength);
+              calosurf = std::make_unique<CylinderSurface>(trans, radius - 1, hlength);
             } else if (disccalosurf != nullptr) {
               double newz = (
                 disccalosurf->center().z() > 0 ? 
@@ -4281,10 +4281,10 @@ namespace Trk {
             rot.col(0) = curvU;
             rot.col(1) = curvV;
             rot.col(2) = trackdir;
-            std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-            trans->linear().matrix() << rot;
-            trans->translation() << muonpar1->position() - .1 * trackdir;
-            PlaneSurface curvlinsurf(trans.release());
+            Amg::Transform3D trans;
+            trans.linear().matrix() << rot;
+            trans.translation() << muonpar1->position() - .1 * trackdir;
+            PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
               *muonpar1, 
@@ -4438,10 +4438,10 @@ namespace Trk {
             rot.col(0) = curvU;
             rot.col(1) = curvV;
             rot.col(2) = trackdir;
-            std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-            trans->linear().matrix() << rot;
-            trans->translation() << muonpar1->position() - .1 * trackdir;
-            PlaneSurface curvlinsurf(trans.release());
+            Amg::Transform3D trans;
+            trans.linear().matrix() << rot;
+            trans.translation() << muonpar1->position() - .1 * trackdir;
+            PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
               *muonpar1, 

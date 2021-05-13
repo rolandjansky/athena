@@ -113,8 +113,8 @@ AthTruthSelectionTool::initialize() {
     //    m_cutList.add(Accept_t(acceptExtrapolatedTPToSurface, "SelectCylinder"));
     if (not m_cylinder) {
       ATH_MSG_VERBOSE("Creating and caching cylinder surface");
-      Amg::Transform3D *trnsf = new Amg::Transform3D;
-      trnsf->setIdentity();
+      Amg::Transform3D trnsf;
+      trnsf.setIdentity();
       m_cylinder = std::make_unique<Trk::CylinderSurface>( trnsf, m_radiusCylinder, 20000.);
     }
     m_cutList.add(Accept_t([this](const P_t& p) -> bool {

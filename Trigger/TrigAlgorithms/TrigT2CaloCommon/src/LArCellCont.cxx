@@ -11,7 +11,6 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
-#include "LArElecCalib/ILArMCSymTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 #include <iostream>
@@ -20,7 +19,7 @@ LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEv
 {}
 
 StatusCode
-LArCellCont::initialize() {
+LArCellCont::initialize( const LArMCSym& mcsym ) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -120,21 +119,15 @@ std::vector<uint32_t> RobsFromMissingFeb;
 
 //std::map<HWIdentifier,int> m_indexset;
 int count = 0;
-//ToolHandle<ILArMCSymTool>  larmcsym ("LArMCSymTool");
-ILArMCSymTool*  larmcsym;
-if ( (toolSvc->retrieveTool("LArMCSymTool",larmcsym)).isFailure() ) {
-    std::cout << "did not managed to retrieve LArMCSymTool" << std::endl;
-} else {
 std::vector<HWIdentifier>::const_iterator beg = onlineId->channel_begin();
 std::vector<HWIdentifier>::const_iterator end = onlineId->channel_end  ();
 for(  ;  beg != end;  ++beg ){
-	HWIdentifier hwid = larmcsym->symOnline(*beg);
+	HWIdentifier hwid = mcsym.ZPhiSymOnl(*beg);
 	if ( m_indexset.find ( hwid ) == m_indexset.end() ){
 		m_indexset[hwid]=count;
 		count++;
 	} 
 } // end of loop over online IDs
-}
 int indexsetmax = m_indexset.size();
 // the extra indexsetmax is used for invalid cells
 m_corrBCID.resize(indexsetmax+1,0.0);
@@ -177,7 +170,7 @@ m_hashSym.resize(onlineId->febHashMax());
 		larcell->setGain(CaloGain::LARHIGHGAIN);
 		(*this)[idx]->push_back(larcell);	
 		collMap[ttId].push_back(larcell);
-		HWIdentifier hwsym = larmcsym->symOnline(onlineId->channel_Id(febid,ch));
+		HWIdentifier hwsym = mcsym.ZPhiSymOnl(onlineId->channel_Id(febid,ch));
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
 		  hashTab.push_back( index );

@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-import re
-
 from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -215,15 +213,6 @@ class TriggerConfigGetter(Configured):
                 else: # should not get here: should be found by checkInput
                     log.fatal('no reading of BS, RDO, AOD, ESD, or TAG specified')
 
-        # we need the temporary COOL database, if we read the configuration from XML and write ESD/AOD (or have 'ds' set for some reason)
-        self.makeTempCool   = self.readRDO and \
-                              ( self.writeESDAOD or 'ds' in self.ConfigSrcList ) and \
-                              ( self.readMC \
-                                or (self.isCommisioning and TriggerFlags.readLVL1configFromXML()) \
-                                or TriggerFlags.readMenuFromTriggerDb() )
-
-        log.info("Need to create temporary cool file? : %r", self.makeTempCool)
-
         log.info('Creating the Trigger Configuration Services')
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -250,7 +239,7 @@ class TriggerConfigGetter(Configured):
             # non-MT (Run-2) Trigger Configuration
             self.svc = SetupTrigConfigSvc()
 
-            if 'xml' in self.ConfigSrcList or self.makeTempCool:
+            if 'xml' in self.ConfigSrcList:
                 # sets them if plain XML reading is to be used
                 self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
                 self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
@@ -279,13 +268,8 @@ class TriggerConfigGetter(Configured):
             self.setConfigSvcConnParams(self.trigDbConnectionParameters)
 
         log.info("TriggerFlags.triggerCoolDbConnection is '%s' [default: '']", TriggerFlags.triggerCoolDbConnection())
-        TrigCoolDbConnection = TriggerFlags.triggerCoolDbConnection()
-
-        if self.makeTempCool:
-            TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
-
         if ('ds' in self.ConfigSrcList) and not self.hasxAODMeta:
-            self.setupCOOLReading(TrigCoolDbConnection)
+            self.setupCOOLReading(TriggerFlags.triggerCoolDbConnection())
 
         if hasattr(svcMgr, 'DSConfigSvc'):
             db = 'TRIGGERDB'
@@ -306,39 +290,6 @@ class TriggerConfigGetter(Configured):
 
         # all went fine we are configured
         return True
-
-
-    def setupTempCOOLWriting(self,TrigCoolDbConnection):
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-
-        log.info( 'Trigger the copying of COOL data into DetectorStore. I am not certain this is needed any longer JS.')
-
-        # if we have MC data (nothing in ORACLE/COOL) we need to write an SQlite file
-        # and change the dbConnection
-        if ( self.readMC \
-             or (self.isCommisioning and TriggerFlags.readLVL1configFromXML) \
-             or TriggerFlags.readMenuFromTriggerDb ):
-
-            log.info( 'TempCoolSetup: Setting up the writing of a temporary COOL DB')
-
-            from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
-            if self.readTriggerDB:
-                log.info("TempCoolSetup: source is db [%s] with keys %s/%s/%s", TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0],TriggerFlags.triggerDbKeys()[1],TriggerFlags.triggerDbKeys()[2])
-                theConfCOOLWriter.smk        = TriggerFlags.triggerDbKeys()[0]
-                theConfCOOLWriter.l1psk      = TriggerFlags.triggerDbKeys()[1]
-                theConfCOOLWriter.hltpsk     = TriggerFlags.triggerDbKeys()[2]
-                theConfCOOLWriter.setTriggerDBConnection(self.trigDbConnectionParameters)
-            else:
-                log.info("TempCoolSetup: sources are '%s' and '%s'", self.svc.l1XmlFile,self.svc.hltXmlFile)
-                theConfCOOLWriter.lvl1menu = self.svc.l1XmlFile
-                theConfCOOLWriter.hltmenu  = self.svc.hltXmlFile
-            if TrigCoolDbConnection == "": # nothing specified by the user
-                TrigCoolDbConnection = re.match(".*;schema=(.*);dbname=.*",theConfCOOLWriter.dbConnection).group(1)
-                theConfCOOLWriter.isWritingNeeded = True
-                log.info("TempCoolSetup: Setting TrigCoolDbConnection to %s", TrigCoolDbConnection )
-                log.info("TempCoolSetup: Enabling writing and IOV adjustment")
-
-        return TrigCoolDbConnection
 
 
     def setupCOOLReading(self,TrigCoolDbConnection):

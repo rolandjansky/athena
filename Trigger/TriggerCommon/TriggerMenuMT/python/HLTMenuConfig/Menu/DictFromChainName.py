@@ -356,10 +356,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-        if 'larnoiseburst' in chainName:
-            chainProperties['alignmentGroup'] = 'JetMET'
-        else:
-            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
 
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
@@ -385,7 +381,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', mdicts[chainindex]['extra'])
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', chainProperties['extra'])
 
 
 
@@ -457,9 +453,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)
 
+        # ---- set the alignment group here, once we have fully worked out the properties ----
+        # ---- this is for the benefit of the probe leg in T&P chains ----
+        if 'larnoiseburst' in chainName:
+            chainProperties['alignmentGroup'] = 'JetMET'
+        else:
+            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], chainProperties['extra'])
+
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
-
 
     # ---- depending on if signatures are different in this chain, break up the chainProperties dictionary ----
     # ---- finally also taking care of the signature key ----

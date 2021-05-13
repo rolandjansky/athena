@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -167,7 +167,8 @@ StatusCode EventSelectorAthenaPool::initialize() {
       ATH_MSG_FATAL("Cannot get " << m_eventStreamingTool.typeAndName() << "");
       return(StatusCode::FAILURE);
    } else if (m_makeStreamingToolClient.value() == -1) {
-      if (!m_eventStreamingTool->makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+      std::string dummyStr;
+      if (!m_eventStreamingTool->makeClient(m_makeStreamingToolClient.value(), dummyStr).isSuccess()) {
          ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
          return(StatusCode::FAILURE);
       }
@@ -874,7 +875,7 @@ StatusCode EventSelectorAthenaPool::makeServer(int num) {
    }
    m_processMetadata = false;
    ATH_MSG_DEBUG("makeServer: " << m_eventStreamingTool << " = " << num);
-   return(m_eventStreamingTool->makeServer(1));
+   return(m_eventStreamingTool->makeServer(1, ""));
 }
 
 //________________________________________________________________________________
@@ -887,7 +888,8 @@ StatusCode EventSelectorAthenaPool::makeClient(int num) {
       return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_eventStreamingTool << " = " << num);
-   return(m_eventStreamingTool->makeClient(0));
+   std::string dummyStr;
+   return(m_eventStreamingTool->makeClient(0, dummyStr));
 }
 
 //________________________________________________________________________________

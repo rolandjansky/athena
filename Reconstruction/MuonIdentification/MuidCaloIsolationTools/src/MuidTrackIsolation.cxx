@@ -56,9 +56,9 @@ MuidTrackIsolation::initialize()
     // create the calo barrel surfaces (cylinder) and 2 endcap discs)
     double radius	= 2.0*Gaudi::Units::meter;
     double halfLength	= 4.0*Gaudi::Units::meter;
-    auto transform = std::make_unique<Amg::Transform3D>();
-    transform->setIdentity();
-    m_caloCylinder	= std::make_unique<Trk::CylinderSurface>(std::move(transform), radius, halfLength);
+    Amg::Transform3D transform;
+    transform.setIdentity();
+    m_caloCylinder	= std::make_unique<Trk::CylinderSurface>(transform, radius, halfLength);
 
     // the corresponding max barrel cotTheta
     m_barrelCotTheta	= halfLength/radius;

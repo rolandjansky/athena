@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*- 
 
-panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel };
+panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel, trt_panel };
 
 
 eff_panel = { 
@@ -82,5 +82,16 @@ sp_panel = {
 
    "npix_pt_rec/mean",           "mean number of pixel hits",  "xaxis:log:auto",   "Reference p_{T} [GeV]",   "yaxis:lin:3:6",  "Trigger Pixel hits",
    "nsct_pt_rec/mean",           "mean number of SCT hits",    "xaxis:log:auto",   "Reference p_{T} [GeV]",   "yaxis:lin:7:10", "Trigger SCT clusters",
+};
+
+
+
+trt_panel = { 
+   "ntrt_eta/mean",           "mean number of TRT hits",  "xaxis:lin",   "Reference #eta",   "yaxis:lin:auto",  "Reference TRT hits",
+   "ntrt_eta_rec/mean",       "mean number of TRT hits",  "xaxis:lin",   "Reference #eta",   "yaxis:lin:auto",  "Trigger TRT hits",
+
+
+   "ntrt_eta/1d",           " TRT hits",    "xaxis:lin:auto",   "Reference TRT multiplcicity",   "yaxis:log:auto", "Entries",
+   "ntrt_eta_rec/1d",       " TRT hits",    "xaxis:lin:auto",   "Trigger TRT multiplcicity",     "yaxis:log:auto", "Entries"
 };
 

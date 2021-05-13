@@ -8,6 +8,7 @@
 #include "AthViews/ViewHelper.h"
 #include "HLTEDMCreator.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "TriggerEDMAuxAccessors.h"
 
 HLTEDMCreator::HLTEDMCreator( const std::string& type, 
             const std::string& name,
@@ -97,6 +98,7 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( BTagVertexContainer );
   INIT_XAOD( CaloClusterContainer );
   INIT_XAOD( TrigT2MbtsBitsContainer );
+  INIT_XAOD( HIEventShapeContainer );
 #undef INIT
 #undef INIT_XAOD
 
@@ -366,6 +368,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
   CREATE_XAOD( TrigT2MbtsBitsContainer, TrigT2MbtsBitsAuxContainer );
+  CREATE_XAOD( HIEventShapeContainer, HIEventShapeAuxContainer );
 
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );

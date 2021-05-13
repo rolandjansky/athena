@@ -105,14 +105,14 @@ const std::vector<const Trk::Surface*>*
 
   //   (1) - at negative local z
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::AngleAxis3D(180 * Gaudi::Units::deg, Amg::Vector3D(0., 1., 0.)) *
       Amg::Translation3D(Amg::Vector3D(0., 0., this->halflengthZ()))),
     this->faceXYDiamondBounds()));
   //   (2) - at positive local z
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::Translation3D(Amg::Vector3D(0., 0., this->halflengthZ()))),
     this->faceXYDiamondBounds()));
@@ -131,7 +131,7 @@ const std::vector<const Trk::Surface*>*
   Amg::Vector3D faceAlpha1Position(
     A + alpha1Rotation.col(0) * faceAlpha1Bounds->halflengthX());
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+   Amg::Transform3D(
       alpha1Rotation * Amg::Translation3D(faceAlpha1Position)),
     faceAlpha1Bounds));
   //   (4) - at point B, attached to beta opening angle
@@ -147,7 +147,7 @@ const std::vector<const Trk::Surface*>*
   Amg::Vector3D faceBeta1Position(
     B + beta1Rotation.col(0) * faceBeta1Bounds->halflengthX());
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(beta1Rotation * Amg::Translation3D(faceBeta1Position)),
+    Amg::Transform3D(beta1Rotation * Amg::Translation3D(faceBeta1Position)),
     faceBeta1Bounds));
   // face surfaces yz
   // transmute cyclical
@@ -164,7 +164,7 @@ const std::vector<const Trk::Surface*>*
   Amg::Vector3D faceAlpha2Position(
     AA + alpha2Rotation.col(0) * faceAlpha2Bounds->halflengthX());
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       alpha2Rotation * Amg::Translation3D(faceAlpha2Position)),
     faceAlpha2Bounds));
   //   (6) - at point B', attached to beta opening angle
@@ -180,12 +180,12 @@ const std::vector<const Trk::Surface*>*
   Amg::Vector3D faceBeta2Position(
     BB + beta2Rotation.col(0) * faceBeta2Bounds->halflengthX());
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(beta2Rotation * Amg::Translation3D(faceBeta2Position)),
+    Amg::Transform3D(beta2Rotation * Amg::Translation3D(faceBeta2Position)),
     faceBeta2Bounds));
   // face surfaces zx
   //   (7) - at negative local y
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::AngleAxis3D(180. * Gaudi::Units::deg, Amg::Vector3D(1., 0., 0.)) *
       Amg::Translation3D(Amg::Vector3D(0., 2 * this->halflengthY1(), 0.)) *
@@ -194,7 +194,7 @@ const std::vector<const Trk::Surface*>*
     this->faceZXRectangleBoundsBottom()));
   //   (8) - at positive local y
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::Translation3D(Amg::Vector3D(0., this->halflengthY2(), 0.)) *
       Amg::AngleAxis3D(-90 * Gaudi::Units::deg, Amg::Vector3D(0., 1., 0.)) *

@@ -59,6 +59,7 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_doHitQuality(0),
 	m_d0Range(2.0),
 	m_d0BsRange(0.5),
+        m_d0BsNbins(100),
 	m_z0Range(250.0),
 	m_etaRange(3.0),
 	m_NTracksRange(200),
@@ -83,6 +84,7 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("useExtendedPlots"     , m_extendedPlots = false);
   declareProperty("d0Range"              , m_d0Range);
   declareProperty("d0BsRange"            , m_d0BsRange);
+  declareProperty("d0BsNbins"            , m_d0BsNbins);
   declareProperty("z0Range"              , m_z0Range);
   declareProperty("etaRange"             , m_etaRange);
   declareProperty("pTRange"              , m_pTRange);
@@ -676,15 +678,15 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_phi->GetXaxis()->SetTitle("Track #phi"); 
     m_phi->GetYaxis()->SetTitle("Number of Tracks");  
 
-    m_d0_bscorr = TH1F_LW::create("d0_bscorr","d0 (corrected for beamspot); d0 [mm]",200,-m_d0BsRange,m_d0BsRange);  
+    m_d0_bscorr = TH1F_LW::create("d0_bscorr","d0 (corrected for beamspot); d0 [mm]", m_d0BsNbins, -m_d0BsRange, m_d0BsRange);  
     RegisterHisto(al_mon_ls,m_d0_bscorr) ;  
     
-    m_z0 = TH1F_LW::create("z0","z0;[mm]",100,-m_z0Range,m_z0Range);  
+    m_z0 = TH1F_LW::create("z0","z0;[mm]", m_d0BsNbins, -m_z0Range, m_z0Range);  
     RegisterHisto(al_mon,m_z0) ;  
-    m_z0sintheta = TH1F_LW::create("z0sintheta","z0sintheta",100,-m_z0Range,m_z0Range);  
+    m_z0sintheta = TH1F_LW::create("z0sintheta","z0sintheta", m_d0BsNbins, -m_z0Range, m_z0Range);  
     RegisterHisto(al_mon,m_z0sintheta) ;  
 
-    m_d0 = TH1F_LW::create("d0","d0;[mm]",400,-m_d0Range,m_d0Range);  
+    m_d0 = TH1F_LW::create("d0","d0;[mm]", 2*m_d0BsNbins, -m_d0Range, m_d0Range);  
     RegisterHisto(al_mon,m_d0) ;  
     
 
@@ -985,7 +987,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errTheta->GetXaxis()->SetTitle("Track #Delta(#theta)"); 
       m_errTheta->GetYaxis()->SetTitle("Number of Tracks"); 
 
-      m_errThetaVsD0BS = new TH2F("errThetaVsD0BS","Error of Theta vs d0BS",50,-m_d0BsRange,m_d0BsRange,50,0 ,0.02);
+      m_errThetaVsD0BS = new TH2F("errThetaVsD0BS","Error of Theta vs d0BS",50, -m_d0BsRange, m_d0BsRange,50,0 ,0.02);
       RegisterHisto(al_mon,m_errThetaVsD0BS) ;  
       m_errThetaVsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errThetaVsD0BS->GetYaxis()->SetTitle("Track #delta(#theta)");
@@ -1014,7 +1016,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errD0);
       m_errD0->GetXaxis()->SetTitle("d0 error (mm)"); 
       
-      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50,-m_d0BsRange,m_d0BsRange,100,0 ,0.50);
+      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50, -m_d0BsRange, m_d0BsRange,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsD0BS);
       m_errD0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errD0VsD0BS->GetYaxis()->SetTitle("d0 error (mm)");
@@ -1058,7 +1060,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errPhi0);
       m_errPhi0->GetXaxis()->SetTitle("#phi0 error (rad)"); 
 
-      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50,-m_d0BsRange,m_d0BsRange, 50,0,0.010);
+      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50, -m_d0BsRange, m_d0BsRange, 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsD0BS);
       m_errPhi0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errPhi0VsD0BS->GetYaxis()->SetTitle("#phi0 error (rad)");
@@ -1087,7 +1089,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errZ0);
       m_errZ0->GetXaxis()->SetTitle("z0 error (mm)"); 
       
-      m_errZ0VsD0BS = new TH2F("errZ0VsD0BS", "Error of Z0 vs D0BS", 50,-m_d0BsRange,m_d0BsRange, 50,0,0.3);
+      m_errZ0VsD0BS = new TH2F("errZ0VsD0BS", "Error of Z0 vs D0BS", 50, -m_d0BsRange, m_d0BsRange, 50,0,0.3);
       RegisterHisto(al_mon,m_errZ0VsD0BS);
       m_errZ0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errZ0VsD0BS->GetYaxis()->SetTitle("z0 error (mm)");
@@ -1170,7 +1172,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errPt_Pt2VsPhi0->GetXaxis()->SetTitle("#eta"); 
       m_errPt_Pt2VsPhi0->GetYaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");
   
-      m_D0VsPhi0 = new TH2F("D0VsPhi0", "d0 Vs #phi0 ", 100, 0, 2*M_PI, 400, -m_d0Range, m_d0Range);
+      m_D0VsPhi0 = new TH2F("D0VsPhi0", "d0 Vs #phi0 ", 100, 0, 2*M_PI, 2*m_d0BsNbins, -m_d0Range, m_d0Range);
       RegisterHisto(al_mon,m_D0VsPhi0);
       m_D0VsPhi0->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_D0VsPhi0->GetYaxis()->SetTitle("d0 (mm)"); 
@@ -1217,34 +1219,34 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_D0bsVsPhi0ECA);
       m_D0bsVsPhi0ECA->GetYaxis()->SetTitle("d0_{bs} (mm)"); 
       
-      m_D0bsVsPhi0Barrel = new TH2F("D0bsVsPhi0_Barrel", "d0_{bs} Vs #phi0 (BA)", 50, 0, 2*M_PI, 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPhi0Barrel = new TH2F("D0bsVsPhi0_Barrel", "d0_{bs} Vs #phi0 (BA)", 50, 0, 2*M_PI, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPhi0Barrel->GetXaxis()->SetTitle("#phi0"); 
       RegisterHisto(al_mon,m_D0bsVsPhi0Barrel);
       m_D0bsVsPhi0Barrel->GetYaxis()->SetTitle("d0_{bs} (mm)"); 
         
       // versus Eta
-      m_D0bsVsEta = new TH2F("D0bsVsEta", "d0_{bs} Vs #eta", 50, -3., 3., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsEta = new TH2F("D0bsVsEta", "d0_{bs} Vs #eta", 50, -3., 3., 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsEta->GetXaxis()->SetTitle("#eta"); 
       RegisterHisto(al_mon,m_D0bsVsEta);
       m_D0bsVsEta->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
       //versus Pt
-      m_D0bsVsPt = new TH2F("D0bsVsPt", "d0_{bs} Vs qPt ",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPt = new TH2F("D0bsVsPt", "d0_{bs} Vs qPt ",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPt->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPt);
       m_D0bsVsPt->GetYaxis()->SetTitle("d0_{bs} (mm)");  
 
-      m_D0bsVsPtECC = new TH2F("D0bsVsPt_ECC", "d0_{bs} Vs qPt (ECC)",  100, -40.,40.,400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtECC = new TH2F("D0bsVsPt_ECC", "d0_{bs} Vs qPt (ECC)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtECC->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtECC);
       m_D0bsVsPtECC->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
-      m_D0bsVsPtECA = new TH2F("D0bsVsPt_ECA", "d0_{bs} Vs qPt (ECA)",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtECA = new TH2F("D0bsVsPt_ECA", "d0_{bs} Vs qPt (ECA)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtECA->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtECA);
       m_D0bsVsPtECA->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
-      m_D0bsVsPtBarrel = new TH2F("D0bsVsPt_Barrel", "d0_{bs} Vs qPt (BA)",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtBarrel = new TH2F("D0bsVsPt_Barrel", "d0_{bs} Vs qPt (BA)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtBarrel->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtBarrel);
       m_D0bsVsPtBarrel->GetYaxis()->SetTitle("d0_{bs} mm )");

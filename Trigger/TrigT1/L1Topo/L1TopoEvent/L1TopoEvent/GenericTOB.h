@@ -1,13 +1,14 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoEvent_GeneralTOP
-#define L1TopoEvent_GeneralTOP
+#ifndef GENERICTOB_H
+#define GENERICTOB_H
 
 #include <iostream>
 #include <string>
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
+#include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
 #include "L1TopoEvent/LateMuonTOB.h"
@@ -33,6 +34,9 @@ namespace TCS {
 
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
+
+      // constructor from small r jet
+      GenericTOB(const jJetTOB & jet);
 
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);

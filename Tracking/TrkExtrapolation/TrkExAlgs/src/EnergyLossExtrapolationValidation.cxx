@@ -217,7 +217,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
     m_theDiscs1 = new DataVector<const Trk::DiscSurface>();
     m_theDiscs2 = new DataVector<const Trk::DiscSurface>();
     for (size_t lay=0; lay<m_cylinders+1; ++lay) {
-    	m_theCylinders->push_back(new Trk::CylinderSurface(new Amg::Transform3D, m_cylinderR[lay], m_cylinderZ[lay]));
+    	m_theCylinders->push_back(new Trk::CylinderSurface(Amg::Transform3D(), m_cylinderR[lay], m_cylinderZ[lay]));
 		  ATH_MSG_INFO( "initialize() Cylinder " << lay << ": " << *m_theCylinders->at(lay) );
       m_theDiscs1->push_back(new Trk::DiscSurface(*createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
       ATH_MSG_INFO( "initialize() Disc1 " << lay << ": " << *m_theDiscs1->at(lay) );

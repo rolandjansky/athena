@@ -86,8 +86,8 @@ def bJetStep2Sequence():
     # Sequence
     BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
 
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
-    hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlg
+    hypo = TrigBjetBtagHypoAlg( "TrigBjetBtagHypoAlg" )
     # keys
     hypo.BTaggedJetKey = InputMakerAlg.InViewJets
     hypo.BTaggingKey = bTaggingContainerName

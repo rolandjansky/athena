@@ -172,7 +172,6 @@ def setupMenu():
         # be auto-filled by DictFromChainName for L1Topo items
         ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I', l1SeedThresholds=['EM12'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
 
-        # TnP triggers
         ## Zee triggers
         ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH', l1SeedThresholds=['EM15VH','EM7'], groups=MultiElectronGroup), #idperf leg
 
@@ -213,10 +212,10 @@ def setupMenu():
         ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
         # Low eT photon chains for TLA
-        ChainProp(name='HLT_g35_loose_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_medium_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_tight_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g35_tight_icaloloose_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_loose_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_medium_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g35_tight_icaloloose_L1EM22VHI', groups=SinglePhotonGroup),
 
      
      
@@ -833,6 +832,6 @@ def setupMenu():
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
 
 
-        # ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']), # ATR-23347, transient menu compilation error...
-        # ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']), #ATR-23347, transitent menu compilation error...
+        ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
     ]

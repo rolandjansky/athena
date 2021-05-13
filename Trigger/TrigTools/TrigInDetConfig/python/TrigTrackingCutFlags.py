@@ -7,17 +7,13 @@ from InDetConfig.TrackingCutsFlags import createTrackingFlags
 from TrigInDetConfig.ConfigSettings import _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT
 from TrigInDetConfig.ConfigSettingsBase import _ConfigSettingsBase
 
-def genError(setting):
-    def _shouldNotBeUsed(f):
-        raise RuntimeError(f"Flag {setting} is unset and since there is not good default it can not be used")
-    return _shouldNotBeUsed
 
 def copyValues(flags, configClass):
     settings = configClass
     for setting, value in settings.__dict__.items():
         setting = setting.lstrip("_")
         if value is None:
-            flags._set(setting, genError(setting) )
+            flags._set(setting, lambda pf: None )
         else:
             flags._set(setting, value)
 
@@ -26,7 +22,7 @@ def __sliceFlags():
     for setting, value in _ConfigSettingsBase().__dict__.items():
         setting = setting.lstrip("_")
         if value is None:
-            flags.addFlag(setting, genError(setting))
+            flags.addFlag(setting, lambda pf: None)
         else:
             flags.addFlag(setting, value)
     return flags
@@ -72,10 +68,9 @@ class FlagsCopiedTest(unittest.TestCase):
         self.assertEqual(self.newflags.InDet.Tracking.minPT, 2.0 * Units.GeV, msg="Flags are not copied")
 
 
-class UnsetFlagsRiseTest(FlagsCopiedTest):
+class UnsetFlagsTest(FlagsCopiedTest):
     def runTest(self):
-        with self.assertRaises(RuntimeError):
-            self.newflags.InDet.Tracking.vertex_jet
+        self.assertEqual(self.newflags.InDet.Tracking.vertex_jet, None)
 
 
 if __name__ == "__main__":

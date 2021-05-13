@@ -12,7 +12,6 @@
 #include <chrono>
 #include <ctime>
 #include <sstream>
-#include "zlib.h"
 #include "vector"
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -24,6 +23,7 @@
 #include "GaudiKernel/ICondSvc.h"
 
 //Athena
+#include "CoralUtilities/blobaccess.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVInfiniteRange.h"
@@ -54,7 +54,6 @@ private:
 	StatusCode retrieve(const EventContext&, std::string, std::string, std::chrono::duration<double>&) const;
 	StatusCode processBlob(std::string, std::string, std::string) const;
 
-	Bytef*  uncompressInMyBuffer(const coral::Blob &blob) const;
 	StatusCode extractString(std::string &input, std::string &output, std::string separator) const;
 
 	std::string timestamp() const; 

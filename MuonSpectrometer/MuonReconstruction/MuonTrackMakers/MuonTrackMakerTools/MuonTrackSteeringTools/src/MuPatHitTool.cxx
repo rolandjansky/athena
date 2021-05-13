@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
@@ -15,7 +16,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
-#include "SortMuPatHits.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -53,9 +53,6 @@ namespace Muon {
 
         return StatusCode::SUCCESS;
     }
-
-    StatusCode MuPatHitTool::finalize() { return StatusCode::SUCCESS; }
-
     bool MuPatHitTool::insert(MuPatHit* /*hit*/, MuPatHitList& /*hitList*/) const { return true; }
 
     bool MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const {

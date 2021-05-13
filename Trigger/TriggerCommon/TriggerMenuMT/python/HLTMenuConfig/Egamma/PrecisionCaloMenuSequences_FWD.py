@@ -43,7 +43,7 @@ def precisionCaloSequence_FWD(ConfigFlags):
     return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
 
-def precisionCaloMenuSequence_FWD(name):
+def precisionCaloMenuSequence_FWD(name, is_probe_leg=False):
     """ Creates precisionCalo FWD MENU sequence """
     (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence_FWD, ConfigFlags)
 
@@ -57,4 +57,5 @@ def precisionCaloMenuSequence_FWD(name):
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 
                          Hypo        = thePrecisionCaloHypo,
-                         HypoToolGen = TrigEgammaForwardPrecisionCaloHypoToolFromDict)
+                         HypoToolGen = TrigEgammaForwardPrecisionCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg )

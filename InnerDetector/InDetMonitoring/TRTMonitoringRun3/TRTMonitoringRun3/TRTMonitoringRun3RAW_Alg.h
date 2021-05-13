@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTMONITORINGRUN3RAW_ALG_H
@@ -85,7 +85,6 @@ private:
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
-    int m_totalEvents{0};
     FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
     
     Gaudi::Property<std::vector<int>> m_strawMax {this,"strawMax", {-1, -1}};
