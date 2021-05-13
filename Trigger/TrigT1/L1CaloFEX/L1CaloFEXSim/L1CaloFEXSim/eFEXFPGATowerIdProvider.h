@@ -48,6 +48,9 @@ namespace LVL1 {
     /// @brief Destructor
     ~eFEXFPGATowerIdProvider();
 
+    /// @brief initialize the tool
+    StatusCode initialize() override;
+
     /// @brief set path to the csv file and load
     StatusCode setAddress(std::string inputaddress) override;
 

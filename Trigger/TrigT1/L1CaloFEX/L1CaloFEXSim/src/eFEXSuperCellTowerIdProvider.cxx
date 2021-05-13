@@ -14,24 +14,35 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include "PathResolver/PathResolver.h"
 
 LVL1::eFEXSuperCellTowerIdProvider::eFEXSuperCellTowerIdProvider(const std::string &type, const std::string &name, const IInterface *parent):
   AthAlgTool(type, name, parent)
 {
   declareInterface<IeFEXSuperCellTowerIdProvider>(this);
-  m_hascsvfile = false;
-  std::string csvpath = getenv("WorkDir_DIR") + std::string("/share/sc_tower_map.csv");
-  if (setAddress(csvpath) == StatusCode::FAILURE) {
-    ATH_MSG_WARNING("sc_tower_map.csv missing or invalid. Swiching to hard-coded mapping.");
-  };
 }
 
 LVL1::eFEXSuperCellTowerIdProvider::~eFEXSuperCellTowerIdProvider()
 {
 }
 
+StatusCode LVL1::eFEXSuperCellTowerIdProvider::initialize()
+{
+  m_hascsvfile = false;
+  std::string csvpath = PathResolver::find_file("sc_tower_map.csv", "DATAPATH");
+  if (setAddress(csvpath) == StatusCode::FAILURE) {
+    ATH_MSG_WARNING("sc_tower_map.csv missing or invalid. Swiching to hard-coded mapping.");
+  };
+  return StatusCode::SUCCESS;   
+}
+
 StatusCode LVL1::eFEXSuperCellTowerIdProvider::setAddress(std::string inputaddress)
 {
+  if (inputaddress.empty()) {
+    m_hascsvfile = false;
+    return StatusCode::FAILURE;
+  }
+
   m_hascsvfile = true;
   m_csvaddress = inputaddress;
   if ( loadcsv() == StatusCode::FAILURE) {

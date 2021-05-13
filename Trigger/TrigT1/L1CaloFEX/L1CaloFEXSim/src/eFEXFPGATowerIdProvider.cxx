@@ -16,14 +16,22 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
+#include "PathResolver/PathResolver.h"
 
 LVL1::eFEXFPGATowerIdProvider::eFEXFPGATowerIdProvider(const std::string &type, const std::string &name, const IInterface *parent):
   AthAlgTool(type, name, parent)
 {
   declareInterface<IeFEXFPGATowerIdProvider>(this);
+}
+
+StatusCode LVL1::eFEXFPGATowerIdProvider::initialize()
+{
   m_hascsvfile = false;
-  std::string csvpath = getenv("WorkDir_DIR") + std::string("/share/tower_fpga_efex_map.csv");
-  if (setAddress(csvpath) == StatusCode::FAILURE) {};
+  std::string csvpath =  PathResolver::find_file("tower_fpga_efex_map.csv", "DATAPATH");
+  if (setAddress(csvpath) == StatusCode::FAILURE) {
+    ATH_MSG_WARNING("tower_fpga_efex_map.csv missing or invalid. Swiching to hard-coded mapping.");
+  };
+  return StatusCode::SUCCESS;   
 }
 
 LVL1::eFEXFPGATowerIdProvider::~eFEXFPGATowerIdProvider()
@@ -41,6 +49,10 @@ LVL1::eFEXFPGATowerIdProvider::~eFEXFPGATowerIdProvider()
 
 StatusCode LVL1::eFEXFPGATowerIdProvider::setAddress(std::string inputaddress) 
 {
+  if (inputaddress.empty()) {
+    m_hascsvfile = false;
+    return StatusCode::FAILURE;
+  }
   m_hascsvfile = true;
   m_csvaddress = inputaddress;
   if (loadcsv() == StatusCode::FAILURE) {

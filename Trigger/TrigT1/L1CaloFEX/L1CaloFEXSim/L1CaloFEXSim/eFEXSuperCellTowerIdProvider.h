@@ -46,6 +46,9 @@ namespace LVL1 {
     /// @brief Destructor
     ~eFEXSuperCellTowerIdProvider();
 
+    /// @brief initialize the tool
+    StatusCode initialize() override;
+
     /// @brief set the address to the csv file and load
     StatusCode setAddress(std::string) override;
 
