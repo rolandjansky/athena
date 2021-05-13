@@ -21,6 +21,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAODTrigger/BunchConfKey.h
    xAODTrigger/BunchConfContainer.h xAODTrigger/BunchConfAuxContainer.h
    xAODTrigger/TrigPassBitsContainer.h xAODTrigger/TrigPassBitsAuxContainer.h
+   xAODTrigger/eFexEMRoIContainer.h xAODTrigger/eFexEMRoIAuxContainer.h
    xAODTrigger/eFexTauRoIContainer.h xAODTrigger/eFexTauRoIAuxContainer.h
    xAODTrigger/jFexSRJetRoIContainer.h xAODTrigger/jFexSRJetRoIAuxContainer.h
    xAODTrigger/jFexLRJetRoIContainer.h xAODTrigger/jFexLRJetRoIAuxContainer.h
@@ -40,6 +41,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::BunchConfKey
    xAOD::BunchConfContainer xAOD::BunchConfAuxContainer
    xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer
+   xAOD::eFexEMRoIContainer xAOD::eFexEMRoIAuxContainer
    xAOD::eFexTauRoIContainer xAOD::eFexTauRoIAuxContainer
    xAOD::jFexSRJetRoIContainer xAOD::jFexSRJetRoIAuxContainer
    xAOD::jFexLRJetRoIContainer xAOD::jFexLRJetRoIAuxContainer 
