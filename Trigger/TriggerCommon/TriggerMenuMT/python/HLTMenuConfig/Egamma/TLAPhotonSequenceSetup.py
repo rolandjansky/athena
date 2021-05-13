@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.CFElements import parOR, seqAND
-from GaudiKernel.Constants import WARNING
 import AthenaCommon.CfgMgr as CfgMgr
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import  ViewCreatorPreviousROITool
