@@ -99,7 +99,7 @@ StatusCode AthenaSharedMemoryTool::finalize() {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::makeServer(int num) {
+StatusCode AthenaSharedMemoryTool::makeServer(int num, const std::string& streamPortSuffix) {
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Server.");
       return(StatusCode::FAILURE);
@@ -122,6 +122,7 @@ StatusCode AthenaSharedMemoryTool::makeServer(int num) {
    for (int i = 0; i < num; i++) {
       std::memcpy(static_cast<char*>(m_status->get_address()) + i * sizeof(ShareEventHeader), &evtH, sizeof(ShareEventHeader));
    }
+   std::memcpy(static_cast<char*>(m_payload->get_address()), streamPortSuffix.c_str(), 63);
    return(StatusCode::SUCCESS);
 }
 
@@ -131,7 +132,7 @@ bool AthenaSharedMemoryTool::isServer() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::makeClient(int num) {
+StatusCode AthenaSharedMemoryTool::makeClient(int num, std::string& streamPortSuffix) {
    if (m_isServer) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Client.");
       return(StatusCode::FAILURE);
@@ -171,6 +172,9 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
       while (lockObject("start").isRecoverable()) {
          usleep(100);
       }
+      char text[64];
+      std::memcpy(text, static_cast<char*>(m_payload->get_address()), 63);
+      streamPortSuffix.assign(text);
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       while (evtH->evtProcessStatus != ShareEventHeader::UNLOCKED) {
          usleep(100);

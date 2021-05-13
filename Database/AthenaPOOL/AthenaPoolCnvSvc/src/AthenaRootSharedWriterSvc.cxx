@@ -184,7 +184,10 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
          }
          streamPort = m_rootServerSocket->GetLocalPort();
          const std::string newStreamPortString{streamPortStringProp.value().substr(0,streamPortStringProp.value().find(":")+1) + std::to_string(streamPort)};
-         IAthenaSharedWriterSvc::setStreamPortSuffix(newStreamPortString);
+         if(propertyServer->setProperty(propertyName,newStreamPortString).isFailure()) {
+            ATH_MSG_FATAL("Could not set Conversion Service property " << propertyName << " from " << streamPortString << " to " << newStreamPortString);
+            return StatusCode::FAILURE;
+         }
          m_rootMonitor = new TMonitor;
          m_rootMonitor->Add(m_rootServerSocket);
          ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections, " << streamPort);

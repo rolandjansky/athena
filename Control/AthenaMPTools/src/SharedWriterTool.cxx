@@ -204,6 +204,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Shared Writer PID=" << getpid());
 
+  // Try to initialize AthenaRootSharedWriterSvc early on
+  IAthenaSharedWriterSvc* sharedWriterSvc;
+  StatusCode sc = serviceLocator()->service("AthenaRootSharedWriterSvc", sharedWriterSvc);
+  if(sc.isFailure() || sharedWriterSvc == nullptr) {
+    ATH_MSG_WARNING("Error retrieving AthenaRootSharedWriterSvc from SharedWriterTool::bootstrap_func()");
+  }
+
   // Use IDataShare to make ConversionSvc a Share Server
   IDataShare* cnvSvc = dynamic_cast<IDataShare*>(m_cnvSvc);
   if (cnvSvc == 0 || !cnvSvc->makeServer(-m_nprocs - 1 - 1024 * m_rankId).isSuccess()) {
