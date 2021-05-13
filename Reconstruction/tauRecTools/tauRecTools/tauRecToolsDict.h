@@ -6,6 +6,7 @@
 #define TAURECTOOLS_TAURECTOOLSDICT_H
 
 // Local include(s).
+#include "tauRecTools/TauVertexedClusterDecorator.h"
 #include "tauRecTools/TauCalibrateLC.h"
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/TauSubstructureVariables.h"
