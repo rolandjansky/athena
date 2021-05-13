@@ -6,15 +6,15 @@
 
 /********************************************************************
  *
- * NAME:      TrigCaloTowerMakerMT
+ * NAME:      TrigCaloTowerMaker
  * PACKAGE:   Trigger/TrigAlgorithms/TrigCaloRec
  *
  * AUTHOR:    P.A. Delsart
  * CREATED:   August 2006
  *
  *********************************************************************/
-#ifndef TRIGCALOREC_TRIGCALOTOWERMAKERMT_H
-#define TRIGCALOREC_TRIGCALOTOWERMAKERMT_H
+#ifndef TRIGCALOREC_TRIGCALOTOWERMAKER_H
+#define TRIGCALOREC_TRIGCALOTOWERMAKER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloEvent/CaloTowerContainer.h"
@@ -24,12 +24,12 @@
 
 class CaloTowerBuilderToolBase;
 
-class TrigCaloTowerMakerMT : public AthAlgorithm {
+class TrigCaloTowerMaker : public AthAlgorithm {
 
  public:
 
   /**  constructor */
-  TrigCaloTowerMakerMT(const std::string& name, ISvcLocator* pSvcLocator);
+  TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** HLT method to initialize */
   virtual StatusCode initialize() override;
@@ -47,7 +47,7 @@ class TrigCaloTowerMakerMT : public AthAlgorithm {
   double m_minEta, m_maxEta;
   double m_deta, m_dphi;
 
-  /** Name of the offlinet tools for tower making wrapped-up by TrigCaloTowerMakerMT */
+  /** Name of the offlinet tools for tower making wrapped-up by TrigCaloTowerMaker */
   std::vector<std::string> m_towerMakerNames;
 
   /** Pointers for offline tower maker tools */

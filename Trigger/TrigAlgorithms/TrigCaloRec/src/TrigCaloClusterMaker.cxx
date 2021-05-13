@@ -27,7 +27,7 @@
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloRec/CaloClusterProcessor.h"
 
-#include "TrigCaloClusterMakerMT.h"
+#include "TrigCaloClusterMaker.h"
 
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
@@ -38,7 +38,7 @@
 // CONSTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 //
-TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator)
+TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
@@ -51,9 +51,9 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
 /////////////////////////////////////////////////////////////////////
 //
 
-StatusCode TrigCaloClusterMakerMT::initialize()
+StatusCode TrigCaloClusterMaker::initialize()
 {
-  ATH_MSG_DEBUG("in TrigCaloClusterMakerMT::initialize()" );
+  ATH_MSG_DEBUG("in TrigCaloClusterMaker::initialize()" );
 
   if (!m_monTool.empty()) {
     ATH_MSG_DEBUG("Retrieving monTool");
@@ -94,13 +94,13 @@ StatusCode TrigCaloClusterMakerMT::initialize()
       ATH_CHECK(setter->setCaloCellContainerName(m_inputCellsKey.key()));
   }
 
-  ATH_MSG_DEBUG("Initialization of TrigCaloClusterMakerMT completed successfully");
+  ATH_MSG_DEBUG("Initialization of TrigCaloClusterMaker completed successfully");
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
+StatusCode TrigCaloClusterMaker::execute(const EventContext& ctx) const
 {
   // Monitoring initialization...
   auto time_tot = Monitored::Timer("TIME_execute");
@@ -110,7 +110,7 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
   // Start timer
   time_tot.start();
 
-  ATH_MSG_DEBUG("in TrigCaloClusterMakerMT::execute()" );
+  ATH_MSG_DEBUG("in TrigCaloClusterMaker::execute()" );
 
   // We now take care of the Cluster Making... 
   auto  clusterContainer =   SG::makeHandle (m_outputClustersKey, ctx); 

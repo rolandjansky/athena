@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     TrigCaloTowerMakerMT.cxx
+// NAME:     TrigCaloTowerMaker.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigCaloRec
 //
 // AUTHOR:   P.A. Delsart
@@ -31,7 +31,7 @@
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloEvent/CaloTowerContainer.h"
 
-#include "TrigCaloTowerMakerMT.h"
+#include "TrigCaloTowerMaker.h"
 
 class ISvcLocator;
 
@@ -39,7 +39,7 @@ class ISvcLocator;
 // CONSTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 //
-TrigCaloTowerMakerMT::TrigCaloTowerMakerMT(const std::string& name, ISvcLocator* pSvcLocator)
+TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_nEtaTowers(50)
   , m_nPhiTowers(64)
@@ -72,7 +72,7 @@ TrigCaloTowerMakerMT::TrigCaloTowerMakerMT(const std::string& name, ISvcLocator*
     /////////////////////////////////////////////////////////////////////
 
 
-    StatusCode TrigCaloTowerMakerMT::initialize()
+    StatusCode TrigCaloTowerMaker::initialize()
 {
   ATH_MSG_DEBUG ("in initialize()");
 
@@ -135,7 +135,7 @@ ATH_CHECK( m_outputTowerKey.initialize() );
 ATH_CHECK( m_caloTowerNav4LinkKey.initialize() );
 
   ATH_MSG_DEBUG
-        ( "Initialization of TrigCaloTowerMakerMT completed successfully"
+        ( "Initialization of TrigCaloTowerMaker completed successfully"
         );
 
   return StatusCode::SUCCESS;
@@ -143,7 +143,7 @@ ATH_CHECK( m_caloTowerNav4LinkKey.initialize() );
 
 
 
-StatusCode TrigCaloTowerMakerMT::execute()
+StatusCode TrigCaloTowerMaker::execute()
 {
   // Monitoring initialization...
   auto timer = Monitored::Timer("TIME_execute");

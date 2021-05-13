@@ -16,8 +16,8 @@
  *          Builds Clusters from CaloCell in a ROI using offline calo tools.
  *          Works currently only for CaloTopoCluster and SWClusters. (hard coded hack...)
  *********************************************************************/
-#ifndef TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
-#define TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
+#ifndef TRIGCALOREC_TRIGCALOCLUSTERMAKER_H
+#define TRIGCALOREC_TRIGCALOCLUSTERMAKER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -29,11 +29,11 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 
 
-class TrigCaloClusterMakerMT : public AthReentrantAlgorithm {
+class TrigCaloClusterMaker : public AthReentrantAlgorithm {
 
  public:
 
-  TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator);
+  TrigCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
