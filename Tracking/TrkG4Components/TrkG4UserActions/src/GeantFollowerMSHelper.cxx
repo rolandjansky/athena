@@ -939,8 +939,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           Amg::Vector3D coly(-dir.x()*dir.z()/norm, -dir.y()*dir.z()/norm, norm);
           Amg::Vector3D colz( dir.x(),             dir.y(),                dir.z());
 
-          Amg::Transform3D* surfaceTransformFirst = new Amg::Transform3D(colx,coly,colz,pos0);
-          Amg::Transform3D* surfaceTransformLast = new Amg::Transform3D(colx,coly,colz,posNew);
+          Amg::Transform3D surfaceTransformFirst(colx,coly,colz,pos0);
+          Amg::Transform3D surfaceTransformLast(colx,coly,colz,posNew);
           Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
           Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
 //        make MaterialEffectsOnTracks
@@ -1068,10 +1068,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                         << " halflength " << halflength << " w_tot " << w_tot
                         << " X0_tot " << X0_tot);
 
-          Amg::Transform3D* surfaceTransformFirst =
-            new Amg::Transform3D(colx, coly, colz, pos0);
-          Amg::Transform3D* surfaceTransformLast =
-            new Amg::Transform3D(colx, coly, colz, posNew);
+          Amg::Transform3D surfaceTransformFirst(colx, coly, colz, pos0);
+          Amg::Transform3D surfaceTransformLast(colx, coly, colz, posNew);
           Trk::PlaneSurface* surfFirst =
             new Trk::PlaneSurface(surfaceTransformFirst);
           Trk::PlaneSurface* surfLast =
@@ -1151,8 +1149,7 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             //
             const Trk::ScatteringAngles* scatZero =
               new ScatteringAngles(0., 0., 0., 0.);
-            Amg::Transform3D* surfaceTransform =
-              new Amg::Transform3D(colx, coly, colz, pos);
+            Amg::Transform3D surfaceTransform(colx, coly, colz, pos);
             Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform);
             std::unique_ptr<Trk::TrackParameters> pars =
               surf->createUniqueParameters<5, Trk::Charged>(

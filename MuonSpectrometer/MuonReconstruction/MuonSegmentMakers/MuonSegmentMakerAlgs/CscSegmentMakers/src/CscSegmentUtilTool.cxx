@@ -832,9 +832,9 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   Amg::Vector3D locp(0.0, 0.0, seg.zshift);
   Amg::Vector3D glop  = lToGlobal*locp;
   // Use chamber rotation.
-  Amg::Transform3D* pxf = new Amg::Transform3D();
-  *pxf = pro->transform(chid).rotation();
-  pxf->pretranslate(glop);
+  Amg::Transform3D xf;
+  xf = pro->transform(chid).rotation();
+  xf.pretranslate(glop);
   // Use chamber bounds.
   Trk::SurfaceBounds* pbnd = pro->bounds(chid).clone();
   Trk::TrapezoidBounds* pbnd_trap =
@@ -845,14 +845,13 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
 
   ATH_MSG_VERBOSE ( "                Surface: " );
   if ( pbnd_trap ) {
-    psrf = new Trk::PlaneSurface(pxf, pbnd_trap);
+    psrf = new Trk::PlaneSurface(xf, pbnd_trap);
     ATH_MSG_VERBOSE ( "trapezoid" );
   } else if ( pbnd_rtrap ) {
-    psrf = new Trk::PlaneSurface(pxf, pbnd_rtrap);
+    psrf = new Trk::PlaneSurface(xf, pbnd_rtrap);
     ATH_MSG_VERBOSE ( "rotated trapezoid" );
   } else {
     ATH_MSG_FATAL ( "  Invalid boundary: " << *pbnd );
-    delete pxf;
     abort();
   }
   ATH_MSG_VERBOSE ( "  Segment surface: " << *psrf );
@@ -1872,17 +1871,15 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   Trk::TrapezoidBounds* bnd_trap = dynamic_cast<Trk::TrapezoidBounds*>(bnd);
   Trk::RotatedTrapezoidBounds* bnd_rtrap = dynamic_cast<Trk::RotatedTrapezoidBounds*>(bnd);
   Amg::Vector3D glop = etasrf.transform().translation();
-  Amg::Transform3D* pxf = new Amg::Transform3D();
-  *pxf = phisrf.transform().rotation();
-  pxf->pretranslate(glop);
+  Amg::Transform3D xf(phisrf.transform().rotation());
+  xf.pretranslate(glop);
   Trk::PlaneSurface* psrf = 0;
   if( bnd_trap ) {
-     psrf = new Trk::PlaneSurface(pxf,bnd_trap);
+     psrf = new Trk::PlaneSurface(xf,bnd_trap);
   } else if( bnd_rtrap ) {
-     psrf = new Trk::PlaneSurface(pxf,bnd_rtrap);
+     psrf = new Trk::PlaneSurface(xf,bnd_rtrap);
   } else {
      ATH_MSG_WARNING ( " no SurfaceBounds bounds for 4D segment found keep old bound ");
-     delete pxf;
      psrf = new Trk::PlaneSurface(phisrf);
   }
 

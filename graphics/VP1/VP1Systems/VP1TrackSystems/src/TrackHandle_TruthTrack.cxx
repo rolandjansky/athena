@@ -76,7 +76,7 @@ public:
     Amg::Vector3D pos(v->position().x(),v->position().y(),v->position().z());
 
     Amg::Translation3D amgtranslation(pos.x(),pos.y(),pos.z());
-    Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation * Amg::RotationMatrix3D::Identity());
+    Amg::Transform3D amgTransf(amgtranslation * Amg::RotationMatrix3D::Identity());
 
     return new Trk::AtaPlane(pos,mom,charge, *(new Trk::PlaneSurface(amgTransf)));
   }

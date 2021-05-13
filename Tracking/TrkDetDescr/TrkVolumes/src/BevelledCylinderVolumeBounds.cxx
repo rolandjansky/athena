@@ -115,7 +115,7 @@ const std::vector<const Trk::Surface*>*
   // bottom Ellipse/Disc (negative z)
   if (m_type < 0)
     retsf->push_back(new Trk::PlaneSurface(
-      new Amg::Transform3D(
+      Amg::Transform3D(
         (discRot *
          Amg::AngleAxis3D(-m_thetaMinus + M_PI, Amg::Vector3D(0., 1., 0.))) *
         Amg::Translation3D(
@@ -143,7 +143,7 @@ const std::vector<const Trk::Surface*>*
   // top Ellipse/Disc (positive z)
   if (m_type < 0)
     retsf->push_back(new Trk::PlaneSurface(
-      new Amg::Transform3D(
+      Amg::Transform3D(
         discRot * Amg::AngleAxis3D(m_thetaPlus, Amg::Vector3D(0., 1., 0.)) *
         Amg::Translation3D(
           cylCenter +
@@ -174,7 +174,7 @@ const std::vector<const Trk::Surface*>*
       Amg::Transform3D(transform), outerCylinderBounds()));
   else
     retsf->push_back(new Trk::PlaneSurface(
-      new Amg::Transform3D(
+      Amg::Transform3D(
         transform *
         Amg::Translation3D(Amg::Vector3D(this->outerRadius(), 0., 0.)) *
         Amg::AngleAxis3D(-90 * Gaudi::Units::deg, Amg::Vector3D(0., 0., 1.)) *
@@ -191,7 +191,7 @@ const std::vector<const Trk::Surface*>*
         Amg::Transform3D(transform), innerCylinderBounds()));
     else
       retsf->push_back(new Trk::PlaneSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform *
           Amg::Translation3D(Amg::Vector3D(this->innerRadius(), 0., 0.)) *
           Amg::AngleAxis3D(+90 * Gaudi::Units::deg, Amg::Vector3D(0., 0., 1.)) *
@@ -204,7 +204,7 @@ const std::vector<const Trk::Surface*>*
     if (m_type < 0) {
       // sectorPlane 1 (negative phi)
       retsf->push_back(new Trk::PlaneSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform *
           Amg::AngleAxis3D(-halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
           Amg::Translation3D(Amg::Vector3D(mediumRadius(), 0., 0.)) *
@@ -212,7 +212,7 @@ const std::vector<const Trk::Surface*>*
         sectorTrdBounds()));
       // sectorPlane 2 (positive phi)
       retsf->push_back(new Trk::PlaneSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform *
           Amg::AngleAxis3D(halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
           Amg::Translation3D(Amg::Vector3D(mediumRadius(), 0., 0.)) *
@@ -227,7 +227,7 @@ const std::vector<const Trk::Surface*>*
       if (m_type > 1)
         ro *= 1. / cos(halfPhiSector());
       retsf->push_back(new Trk::PlaneSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform *
           Amg::AngleAxis3D(-halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
           Amg::Translation3D(Amg::Vector3D(0.5 * (ri + ro), 0., 0.)) *
@@ -235,7 +235,7 @@ const std::vector<const Trk::Surface*>*
         sectorPlaneBounds()));
       // sectorPlane 2 (positive phi)
       retsf->push_back(new Trk::PlaneSurface(
-        new Amg::Transform3D(
+        Amg::Transform3D(
           transform *
           Amg::AngleAxis3D(halfPhiSector(), Amg::Vector3D(0., 0., 1.)) *
           Amg::Translation3D(Amg::Vector3D(0.5 * (ri + ro), 0., 0.)) *

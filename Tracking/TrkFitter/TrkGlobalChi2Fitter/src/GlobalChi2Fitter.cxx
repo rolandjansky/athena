@@ -1112,10 +1112,10 @@ namespace Trk {
           rot.col(1) = curvV;
           rot.col(2) = trackdir;
           
-          std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-          trans->linear().matrix() << rot;
-          trans->translation() << startPar->position() - .1 * trackdir;
-          PlaneSurface curvlinsurf(trans.release());
+          Amg::Transform3D trans;
+          trans.linear().matrix() << rot;
+          trans.translation() << startPar->position() - .1 * trackdir;
+          PlaneSurface curvlinsurf(trans);
           
           const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
             *startPar, 
@@ -4281,10 +4281,10 @@ namespace Trk {
             rot.col(0) = curvU;
             rot.col(1) = curvV;
             rot.col(2) = trackdir;
-            std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-            trans->linear().matrix() << rot;
-            trans->translation() << muonpar1->position() - .1 * trackdir;
-            PlaneSurface curvlinsurf(trans.release());
+            Amg::Transform3D trans;
+            trans.linear().matrix() << rot;
+            trans.translation() << muonpar1->position() - .1 * trackdir;
+            PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
               *muonpar1, 
@@ -4438,10 +4438,10 @@ namespace Trk {
             rot.col(0) = curvU;
             rot.col(1) = curvV;
             rot.col(2) = trackdir;
-            std::unique_ptr<Amg::Transform3D> trans = std::make_unique<Amg::Transform3D>();
-            trans->linear().matrix() << rot;
-            trans->translation() << muonpar1->position() - .1 * trackdir;
-            PlaneSurface curvlinsurf(trans.release());
+            Amg::Transform3D trans;
+            trans.linear().matrix() << rot;
+            trans.translation() << muonpar1->position() - .1 * trackdir;
+            PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
               *muonpar1, 

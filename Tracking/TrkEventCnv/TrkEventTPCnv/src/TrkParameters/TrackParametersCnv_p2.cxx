@@ -24,7 +24,6 @@
 #include "TrkEventTPCnv/TrkParameters/TrackParametersCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "TrkEventTPCnv/helpers/CLHEPHelpers.h"
-// #include "TrkEventPrimitives/Charged.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include <cassert>
@@ -125,7 +124,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
     if (type==Trk::SurfaceType::Perigee) {
       surface = new Trk::PerigeeSurface(*transform);
     } else if (type==Trk::SurfaceType::Plane){
-      surface = new Trk::PlaneSurface(std::move(transform));
+      surface = new Trk::PlaneSurface(*transform);
     } else if (type==Trk::SurfaceType::Line){
       surface = new Trk::StraightLineSurface(*transform);
     } 
@@ -136,7 +135,6 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
       return nullptr;
     }
   } else {
-    //if (debug) std::cout<<"Reading in parameters with non-free surface type ="<<type<< "(i.e. no transform was written out)"<<std::endl;
 
     // Surface must have belonged to a ReadoutElement, or some part of the geometry or have a nominal/default perigee surface.
     if (type!=Trk::SurfaceType::Perigee) {		

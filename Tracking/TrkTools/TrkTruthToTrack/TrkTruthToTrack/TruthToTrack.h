@@ -24,10 +24,12 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 
 namespace HepPDT { class ParticleDataTable; }
 
 namespace Trk {
+
   
   class TruthToTrack : virtual public ITruthToTrack,
 		       public ::AthAlgTool

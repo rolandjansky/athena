@@ -553,7 +553,8 @@ StatusCode Trk::ExtrapolationValidation::execute()
 }
 
 //============================================================================================
-Amg::Transform3D * Trk::ExtrapolationValidation::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
+Amg::Transform3D 
+Trk::ExtrapolationValidation::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
  if (phi!=0. && theta != 0.){
@@ -586,12 +587,12 @@ Amg::Transform3D * Trk::ExtrapolationValidation::createTransform(double x, doubl
    surfaceRotation.col(2) = surfaceZdirection;
    // return it
    if (alphaZ==0.)
-     return new Amg::Transform3D(surfaceRotation, surfacePosition);   
+     return Amg::Transform3D(surfaceRotation, surfacePosition);   
    Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);   
-   return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+   return Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
    
  }
 
-  return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+  return Amg::Transform3D(Amg::Translation3D(x,y,z));
 }
 

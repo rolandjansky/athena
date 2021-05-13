@@ -537,8 +537,8 @@ namespace Muon {
         Amg::Vector3D gpos = sInfo.amdbTrans * lpos;
 
         // create new surface
-        Amg::Transform3D* surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
-        surfaceTransform->pretranslate(gpos);
+        Amg::Transform3D surfaceTransform(sInfo.amdbTrans.rotation());
+        surfaceTransform.pretranslate(gpos);
         double surfDim = 500.;
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform, surfDim, surfDim);
 
@@ -578,8 +578,8 @@ namespace Muon {
 
                     // recreate  surface
                     delete surf;
-                    surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
-                    surfaceTransform->pretranslate(gpos);
+                    surfaceTransform = Amg::Transform3D(sInfo.amdbTrans.rotation());
+                    surfaceTransform.pretranslate(gpos);
                     surf = new Trk::PlaneSurface(surfaceTransform, surfDim, surfDim);
 
                     // finally update global direction

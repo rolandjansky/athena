@@ -1595,16 +1595,16 @@ MdtReadoutElement::surface() const
 
       if (MuonReadoutElement::barrel()){
         m_associatedSurface.set
-          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
-                                               MuonReadoutElement::getSsize()/2.,
-                                               MuonReadoutElement::getZsize()/2.));
+          (std::make_unique<Trk::PlaneSurface>(Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()*0.5,
+                                               MuonReadoutElement::getZsize()*0.5));
       }
       else {
         m_associatedSurface.set
-          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
-                                               MuonReadoutElement::getSsize()/2.,
-                                               MuonReadoutElement::getLongSsize()/2.,
-                                               MuonReadoutElement::getRsize()/2.));
+          (std::make_unique<Trk::PlaneSurface>(Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()*0.5,
+                                               MuonReadoutElement::getLongSsize()*0.5,
+                                               MuonReadoutElement::getRsize()*0.5));
       }
     }
     return *m_associatedSurface;

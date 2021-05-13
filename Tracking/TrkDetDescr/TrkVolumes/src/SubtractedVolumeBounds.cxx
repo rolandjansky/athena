@@ -185,7 +185,7 @@ const std::vector<const Trk::Surface*>*
           throw std::logic_error("Not DiscBounds");
         EllipseBounds* eb = new EllipseBounds(
           db->rMin(), db->rMin(), db->rMax(), db->rMax(), db->halfPhiSector());
-        plo = new PlaneSurface(new Amg::Transform3D(dlo->transform()), eb);
+        plo = new PlaneSurface(Amg::Transform3D(dlo->transform()), eb);
         retsf->push_back(new Trk::SubtractedPlaneSurface(*plo, volEx, false));
         delete plo;
       }
@@ -278,7 +278,7 @@ const std::vector<const Trk::Surface*>*
         throw std::logic_error("Not DiscBounds");
       EllipseBounds* eb = new EllipseBounds(
         db->rMin(), db->rMin(), db->rMax(), db->rMax(), db->halfPhiSector());
-      PlaneSurface pla(new Amg::Transform3D(dli->transform()), eb);
+      PlaneSurface pla(Amg::Transform3D(dli->transform()), eb);
       Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(outerSub);
       retsf->push_back(new Trk::SubtractedPlaneSurface(pla, volEx, true));
     } else {

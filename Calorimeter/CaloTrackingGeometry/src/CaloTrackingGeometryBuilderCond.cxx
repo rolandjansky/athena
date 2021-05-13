@@ -15,7 +15,6 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/IDynamicLayerCreator.h"
-//#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -35,20 +34,9 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
-#include "TrkSurfaces/PlaneSurface.h"
+//#include "TrkSurfaces/PlaneSurface.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include <memory>
-// CLHEP
-//#include "CLHEP/Geometry/Transform3D.h"
-
-//using HepGeom::Transform3D;
-//using HepGeom::Translate3D;
-//using HepGeom::RotateZ3D;
-//using HepGeom::Vector3D;
-//using CLHEP::Hep3Vector;
-//using CLHEP::HepRotation;
-//using CLHEP::mm;
-//using CLHEP::radian;
 
 // constructor
 Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :

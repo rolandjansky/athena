@@ -341,51 +341,19 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
   if (!trk||!prevpars||!extrapolator)
     return 0;
 
-
-  //Code from thijs begin
-  // CLHEP::Hep3Vector dir(prevpars->sinTheta()*prevpars->cosPhi(),prevpars->sinTheta()*prevpars->sinPhi(),prevpars->cosTheta());
-  //  double theta=prevpars->parameters()[Trk::theta];
-  //  double newtheta=(theta<M_PI/2.) ? theta+M_PI/2. : theta-M_PI/2.;
-  //  CLHEP::Hep3Vector dir2(sin(newtheta)*prevpars->cosPhi(),sin(newtheta)*prevpars->sinPhi(),cos(newtheta));
-  //  CLHEP::Hep3Vector dir3=dir.cross(dir2);
-  //  CLHEP::HepRotation rot;
-  //  rot.rotateAxes(dir2,dir3,dir);
-  //  Hep3Vector transl=prevpars->position()+dist*dir;
-  //  HepTransform3D *transf=new HepTransform3D(rot,transl);
-  //  Trk::PlaneSurface plsurf(transf);
-  //Code from thijs end
-  //   //Alternative test code from thomas begin
-  //   //(shows same issues as thijs' code unfortunately)
-  // Ed's attempt:
-  // HepGeom::Rotate3D    rotation;
-  //  HepGeom::Scale3D     scale;
-  //  HepGeom::Translate3D translation;
-  //  Trk::Surface* surf= prevpars->associatedSurface()->clone();
-  //  surf->transform ().getDecomposition(scale,rotation,translation);
-  //  translation = HepTranslate3D(prevpars->position()+prevpars->momentum().unit()*dist);
-
   Trk::CurvilinearUVT uvt(prevpars->momentum().unit());
   
   
-  Amg::Transform3D*  t  = new Amg::Transform3D(uvt.curvU(),uvt.curvV(),uvt.curvT(), prevpars->position()+(prevpars->momentum().unit()*dist));
+  Amg::Transform3D  t(uvt.curvU(),uvt.curvV(),uvt.curvT(), prevpars->position()+(prevpars->momentum().unit()*dist));
   
   Trk::PlaneSurface surf(t);
   
-  // Trk::PlaneSurface surf(new HepGeom::Transform3D(CLHEP::HepRotation(uvt.curvU(),uvt.curvV(),uvt.curvT()),
-  //                                           prevpars->position()+(prevpars->momentum().unit()*dist)));
   
   if (showExtrapSurfaces) surfaces.push_back(surf);
   
-  // theclass->messageVerbose("extrapolateToNewPar. current position: "+str(prevpars->position())+" ("+str(prevpars->position().mag())+"), dist="+str(dist));
-  // theclass->messageVerbose("new position: "+str(surf.center())+", using dir="+str(prevpars->momentum().unit()*dist));
-    
-  // if ((prevpars->position()-surf.center()).mag()<0.01){
-  //   theclass->messageVerbose("Bugger. Translation didn't work. ");
-  //   return 0;
-  // }
+ 
   const Trk::TrackParameters *newpars(0);
   try {
-    // newpars = extrapolator->extrapolate(*trk,surf,Trk::anyDirection,false,hypo); // change this to extrapolate current param to surface.
     newpars = extrapolator->extrapolate(*prevpars,surf,Trk::alongMomentum,false,hypo); // change this to extrapolate current param to surface.
   } catch (const std::runtime_error& e) {
     theclass->message("Failure trying to use extrapolator for track (Exception thrown: " + QString(e.what())+")");
@@ -395,25 +363,6 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
     theclass->message("Failure trying to use extrapolator for track");
     return 0;
   }
-
-    //in case this lead to a large kink, we try a different, less ambitous, method:
-  // Amg::Vector3D actualdirp((newpars->position()-prevpars->position()).unit());
-  // const double dot = actualdirp.x()*dir.x()+actualdirp.y()*dir.y()+actualdirp.z()*dir.z();
-  // if (dot<0.866025403784439) {//>30deg
-  //   theclass->messageVerbose("Detected kink. Trying alternative extrapolation)");
-  //   delete newpars;
-  //   newpars = 0;
-  //   HepTransform3D *transf2=new HepTransform3D(rot,transl);
-  //   Trk::PlaneSurface plsurf2(transf2);
-  //   try {
-  //     newpars = extrapolator->extrapolateDirectly(*prevpars,plsurf2,Trk::anyDirection,false,hypo);
-  //   } catch (std::runtime_error e) {
-  //     theclass->message("Failure trying to use alternative extrapolation method for track (Exception thrown: " + QString(e.what())+")");
-  //     return 0;
-  //   }
-  // }
-
-
   if (!newpars) {
     theclass->message("Failure trying to use extrapolator for track");
     return 0;
@@ -424,10 +373,6 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
 bool TrackPropagationHelper::showExtrapolationSurfaces() const {
   return m_d->showExtrapSurfaces;
 }
-
-// double TrackPropagationHelper::maxR2ForTracks() const {
-//   return m_d->maxR2;
-// }
 
 
   //____________________________________________________________________
