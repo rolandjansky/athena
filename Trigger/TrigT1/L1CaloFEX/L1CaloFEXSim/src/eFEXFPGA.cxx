@@ -139,7 +139,7 @@ StatusCode eFEXFPGA::execute(){
       SetIsoWP(RetaCoreEnv,tempThrs,RetaWP);
       SetIsoWP(RhadCoreEnv,tempThrs,RhadWP);
       SetIsoWP(WstotCoreEnv,tempThrs,WstotWP);
-      int eta_ind = ieta - 1;
+      int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;    
 
 

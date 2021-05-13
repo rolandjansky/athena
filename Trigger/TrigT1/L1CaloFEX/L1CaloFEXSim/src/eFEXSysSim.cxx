@@ -394,12 +394,22 @@ namespace LVL1 {
     uint8_t eFEXNumber = eFexNum; 
     uint32_t tobWord0 = tobWord;
     uint32_t tobWord1 = 0;
+
+    // Kludge to test new eFEX number format
+    int offset = 0;
+    if (eFEXNumber < 0xC0) offset = 1;
+    if (eFEXNumber < 0xB0) offset = 2;
+    int octant = eFEXNumber&0xf;
+    int residual = octant%4;
+
+    uint8_t shelf = (octant > 3 ? 1 : 0);    
+    uint8_t eFEX = residual*3 + offset;
         
     xAOD::eFexEMRoI* myEDM = new xAOD::eFexEMRoI();
     m_eContainer->push_back( myEDM );
 
-    myEDM->initialize(eFEXNumber, tobWord0, tobWord1);
-    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
+    myEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
+    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " shelf: " << +myEDM->shelfNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() << " TOB word: " << tobWord0 );
 
     return StatusCode::SUCCESS;
 
