@@ -102,7 +102,7 @@ bool ElectronSelectorHelpers::passBLayerRequirement(const xAOD::TrackParticle *t
 }
 
 
-bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint8_t criterion){
+bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint16_t criterion){
 
   // helper to check if ambiguity type is one of several that are stored in a bitmask
   //
