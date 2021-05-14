@@ -5,7 +5,7 @@ monManJetTag = AthenaMonManager(name="JetTagMonManager",
                                 ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
                                 DataType            = DQMonFlags.monManDataType())
 
-from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexTool as toolBTagTrackToVertexTool
+from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex as toolBTagTrackToVertexTool
 trackToVertexTool = toolBTagTrackToVertexTool('BTagTrackToVertexTool')
 options = {}
 options.setdefault('trackToVertexTool', trackToVertexTool)
