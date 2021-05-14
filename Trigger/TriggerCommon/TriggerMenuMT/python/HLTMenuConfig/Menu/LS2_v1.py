@@ -537,6 +537,8 @@ def setupMenu():
         ChainProp(name='HLT_3j20_pf_ftf_010jvt_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED']*2, groups=MultiBjetGroup),
         ChainProp(name='HLT_4j20_pf_ftf_010jvt_boffperf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup),
 
+        # Chains for b-jet trigger training
+        ChainProp(name='HLT_j20_pf_ftf_boffperf_L1J15', groups=SingleBjetGroup),
 
         # EMTopo Chains (likely not used)
         # ATR-22165

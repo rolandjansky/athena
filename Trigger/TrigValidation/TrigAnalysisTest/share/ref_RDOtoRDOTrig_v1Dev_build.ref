@@ -3220,6 +3220,16 @@ HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21:
     0: 4
     1: 38
     2: 38
+HLT_j20_pf_ftf_boffperf_L1J15:
+  eventCount: 20
+  stepCounts:
+    0: 20
+    1: 20
+    2: 20
+  stepFeatures:
+    0: 20
+    1: 193
+    2: 193
 HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100:
   eventCount: 0
   stepCounts:
