@@ -15,7 +15,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
 
 def checkScenarioPresence(chain_parts, chain_name):
     full_scenarios = JetChainParts['hypoScenario']
-    headers = set([s.split('SEP')[0] for s in full_scenarios])
+    headers = set([s.split('XX')[0] for s in full_scenarios])
 
     headers_in_chain_name = {h: chain_name.count(h) for h in headers}
         

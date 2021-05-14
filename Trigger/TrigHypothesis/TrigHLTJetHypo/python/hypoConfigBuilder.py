@@ -32,15 +32,17 @@ from DecisionHandling.TrigCompositeUtils import isLegId, getLegIndexInt
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import DEBUG
 
+import re
+
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 # Dictionary to interpret / map scenario aliases into actual scenario strings that can be understood by scenario_XX.py
 aliasesDict = {
-  'ht'           : {},
-  'dijet'        : {'dijetAliasExample' : 'dijet20j12etSEP110djmass',},
-  'fbdjshared'   : {},
-  'fbdjnoshared' : {},
+  'HT'           : {},
+  'DIJET'        : {'DIJETaliasExample' : 'DIJET20j12etXX110djmass',},
+  'FBDJSHARED'   : {},
+  'FBDJNOSHARED' : {},
 }
 
 def make_root_repcondconfig():
@@ -178,19 +180,24 @@ def process_nonsimple(scenario, chainPartInd):
     if jet sharing among Conditions is required."""
     
     router = {
-        'ht': process_ht,
-        'dijet': process_dijet,
-        'fbdjshared': process_fbdjshared,
-        'fbdjnoshared': process_fbdjnoshared,
+        'HT': process_ht,
+        'DIJET': process_dijet,
+        'FBDJSHARED': process_fbdjshared,
+        'FBDJNOSHARED': process_fbdjnoshared,
     }
 
-    # scenario type (ht, dijet, etc)
-    key = [x for x in router if x in scenario]
+    # get scenario stub and make sure is correct
+    pattern = r'^(?P<stub>[A-Z]+)'
+    rgx     = re.compile(pattern)
+    m       = rgx.match(scenario)
+    assert m is not None,'No scenario stub was found'
+    groupdict = m.groupdict()
+    assert groupdict['stub'] in router,'scenario stub ({}) not recognized'.format(groupdict['stub'])
 
     # interpret scenario aliases
-    if scenario in aliasesDict[key[0]].keys(): scenario = aliasesDict[key[0]][scenario]
+    if scenario in aliasesDict[groupdict['stub']].keys(): scenario = aliasesDict[groupdict['stub']][scenario]
 
-    return router[key[0]](scenario, chainPartInd)  # list of HelperToolConfigTool
+    return router[groupdict['stub']](scenario, chainPartInd)  # list of HelperToolConfigTool
 
 
 def make_fastreduction_configurers(chain_dict):
@@ -251,34 +258,41 @@ def make_prefilter_configurers(chain_dict):
 
     [pf_strings.extend(cp['prefilters']) for cp in chain_parts]
     
-    # TEMPORARY - 'cleanLB' as a prefilter string also affects reconstruction,
+    # TEMPORARY - 'CLEANLB' as a prefilter string also affects reconstruction,
     # and already appears in chain names for this purpose.
-    # Until the cleanLB hypo prefilter code is implemented, remove the string
+    # Until the CLEANLB hypo prefilter code is implemented, remove the string
     # from the prefilter strings.
     try:
-        pf_strings.remove('cleanLB')
+        pf_strings.remove('CLEANLB')
     except ValueError:
         pass
     
 
  
-    # if not pre filter strings (pf_strings) are found in the chainDict,
+    # if not prefilter strings (pf_strings) are found in the chainDict,
     # a PassThroughFilter configurer is made.
 
     if not pf_strings:
         return [makePassThroughFilterConfigurer()]
 
-    # route the prefilter strings to rhe approriate handler
+    # route the prefilter strings to the appropriate handler
     prefilter_router = {
-        'mask': prefilter_mask,
-        'ptrange': prefilter_ptrange,
-        'cleanLB': prefilter_cleanLB,
+        'MASK': prefilter_mask,
+        'PTRANGE': prefilter_ptrange,
+        'CLEANLB': prefilter_cleanLB,
     }
+
+    pattern = r'(?P<stub>[A-Z]*)'
+    rgx     = re.compile(pattern)
 
     filters = []
     for pf_string in pf_strings:
-        key = pf_string.split('SEP')[0]
-        filters.append(prefilter_router[key](pf_string))
+        # get prefilter stub and make sure is correct
+        m = rgx.match(pf_string)
+        assert m is not None,'No prefilter stub was found'
+        groupdict = m.groupdict()
+        assert groupdict['stub'] in prefilter_router,'prefilter stub ({}) not recognized'.format(groupdict['stub'])
+        filters.append(prefilter_router[groupdict['stub']](pf_string))
         
     return filters
 

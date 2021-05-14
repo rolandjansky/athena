@@ -34,7 +34,7 @@ class TestStringMethods(unittest.TestCase):
             dictFromChainName,)
 
         chain_names = (
-            'HLT_j0_fbdjnoshared10etSEP20etSEP34massSEP50fbet_L1J20',)
+            'HLT_j0_FBDJNOSHARED10etXX20etXX34massXX50fbet_L1J20',)
         
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:

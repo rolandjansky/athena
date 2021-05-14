@@ -16,24 +16,24 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern_thresh_pt = r'^dijet'\
-    r'((?P<j12ptlo>\d*)j12pt(?P<j12pthi>\d*)SEP|'\
-    r'(?P<j1ptlo>\d*)j1pt(?P<j1pthi>\d*)SEP'\
-    r'(?P<j2ptlo>\d*)j2pt(?P<j2pthi>\d*)SEP)'
+pattern_thresh_pt = r'^DIJET'\
+    r'((?P<j12ptlo>\d*)j12pt(?P<j12pthi>\d*)XX|'\
+    r'(?P<j1ptlo>\d*)j1pt(?P<j1pthi>\d*)XX'\
+    r'(?P<j2ptlo>\d*)j2pt(?P<j2pthi>\d*)XX)'
 
 
-pattern_thresh_et = r'^dijet'\
-    r'((?P<j12etlo>\d*)j12et(?P<j12ethi>\d*)SEP|'\
-    r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
-    r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP)'
+pattern_thresh_et = r'^DIJET'\
+    r'((?P<j12etlo>\d*)j12et(?P<j12ethi>\d*)XX|'\
+    r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)XX'\
+    r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)XX)'
 
 
-pattern_common =  r'((?P<j12etalo>\d*)j12eta(?P<j12etahi>\d*)SEP|'\
-    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP)?'\
-    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP)?)?'\
+pattern_common =  r'((?P<j12etalo>\d*)j12eta(?P<j12etahi>\d*)XX|'\
+    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)XX)?'\
+    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)XX)?)?'\
     r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*)'\
-    r'(SEP(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?'\
-    r'(SEP(?P<djdetalo>\d*)djdeta(?P<djdetahi>\d*))?$'
+    r'(XX(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?'\
+    r'(XX(?P<djdetalo>\d*)djdeta(?P<djdetahi>\d*))?$'
 
     
 pattern_pt = pattern_thresh_pt + pattern_common
@@ -100,22 +100,22 @@ def scenario_dijet(scenario, chainPartInd):
 
 
     example scenarios:
-    dijet50j1etSEP80j2etSEP0j1eta240SEP0j2eta320SEP700djmass
+    DIJET50j1etXX80j2etXX0j1eta240XX0j2eta320XX700djmass
        mixed j1/j2 et/eta values
    
-    dijet80j12etSEP0j12eta240SEP700djmass
+    DIJET80j12etXX0j12eta240XX700djmass
        same et/eta cuts for j1 and j2
 
-    dijet80j12etSEP700djmassSEP26djdphi
+    DIJET80j12etXX700djmassXX26djdphi
        including delta phi cut
 
-    dijet70j12etSEP1000djmassSEP20djdphiSEP40djdeta
+    DIJET70j12etXX1000djmassXX20djdphiXX40djdeta
        including delta eta cut
 
     The tree vector is [0, 0, 1, 1]
     # pos 0: root; pos 1 dijet cuts; pos 2: j1 cuts; pos 3: j2 cuts'"""
 
-    assert scenario.startswith('dijet'), \
+    assert scenario.startswith('DIJET'), \
         'routing error, module %s: bad scenario %s' % (__name__, scenario)
 
     # Note:

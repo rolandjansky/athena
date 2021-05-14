@@ -12,8 +12,8 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^prefilterSEP'\
-    r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)SEP'\
+pattern = r'^PREFILTER'\
+    r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)XX'\
     r'(?P<philo>\d*)(?P<phitype>nphi|cphi|pphi>)(?P<phihi>\d*)$'
 
 rgx = re.compile(pattern)

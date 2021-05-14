@@ -73,7 +73,7 @@ Chains2Monitor['MT'] = {
   'HLT_j85_pf_ftf_L1J20'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
   'HLT_j45_pf_nojcalib_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',              'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_cssk_pf_nojcalib_ftf_L1J15'     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
-  'HLT_10j40_pf_subresjesgscIS_ftf_L14J15' : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_10j40_pf_ftf_L14J15'                : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   # Large-R reclustered chains
   'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10EMTopoRCJets_subjesIS',                'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   # Large-R LCTopo chains
@@ -93,8 +93,10 @@ Chains2Monitor['MT'] = {
   'HLT_j460_a10t_lcw_jes_L1SC111-CJ15'          : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   # HT and dijet scenarios
-  'HLT_j0_ht1000_L1J20'                                : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
-  'HLT_j0_dijet80j12etSEP0j12eta240SEP700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000_L1J20'                              : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000XX30et_L1J20'                        : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_DIJET80j12etXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
 }
 
 # Legacy

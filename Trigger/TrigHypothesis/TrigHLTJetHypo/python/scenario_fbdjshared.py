@@ -31,7 +31,7 @@ def scenario_fbdjshared(scenario, chainPartInd):
 
     No  conditions are filtered"""
 
-    assert scenario.startswith('fbdjshared'),\
+    assert scenario.startswith('FBDJSHARED'),\
         'routing error, module %s: bad scenario %s' % (__name__, scenario)
 
 
