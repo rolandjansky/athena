@@ -10,6 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Tools & interfaces
+#include "MuPatPrimitives/MuPatGarbage.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -25,6 +26,7 @@
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+
 // For magneticfield
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
@@ -83,8 +85,6 @@ namespace Muon {
         typedef IMuonSegmentTrackBuilder::PrepVec PrepVec;
         typedef PrepVec::iterator PrepIt;
         typedef PrepVec::const_iterator PrepCit;
-        typedef MuPatCandidateTool::MeasGarbage MeasGarbage;
-        typedef MuPatCandidateTool::HitGarbage HitGarbage;
 
     public:
         /** @brief default AlgTool constructor */
@@ -170,9 +170,7 @@ namespace Muon {
             @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
          */
         std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding(const MuPatTrack& candidate, const MuPatSegment& segInfo,
-                                                                            HitGarbage& hitsToBeDeleted,
-                                                                            MeasGarbage& measurementsToBeDeleted,
-                                                                            const PrepVec* patternPhiHits = 0) const;
+                                                                            GarbageContainer&, const PrepVec* patternPhiHits = 0) const;
 
         /** @brief find tracks by redoing the segment finding in the chamber of the segment
             @param candidate a reference to a MuPatTrack
@@ -181,8 +179,7 @@ namespace Muon {
             @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
          */
         std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding(const MuPatTrack& candidate, const Trk::TrackParameters& pars,
-                                                                            const std::set<Identifier>& chIds, HitGarbage& hitsToBeDeleted,
-                                                                            MeasGarbage& measurementsToBeDeleted,
+                                                                            const std::set<Identifier>& chIds, GarbageContainer& trash_bin,
                                                                             const PrepVec* patternPhiHits = 0) const;
 
         /** @brief find tracks by redoing the segment finding in the chamber of the segment
@@ -230,8 +227,7 @@ namespace Muon {
         bool isSplitTrack(const Trk::Track& track1, const Trk::Track& track2) const;
 
         /** @brief look for split tracks in collection and merge them */
-        TrackCollection* mergeSplitTracks(const TrackCollection& tracks, HitGarbage& hitsToBeDeleted,
-                                          MeasGarbage& measurementsToBeDeleted) const;
+        TrackCollection* mergeSplitTracks(const TrackCollection& tracks, GarbageContainer& trash_bin) const;
 
         /**
             @brief interface for tools to find track in the muon system starting from a vector of segments
@@ -241,14 +237,13 @@ namespace Muon {
 
         */
         virtual std::vector<std::unique_ptr<MuPatTrack> > find(MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
-                                                               HitGarbage& hitsToBeDeleted,
-                                                               MeasGarbage& measurementsToBeDeleted) const override;
+                                                               GarbageContainer& trash_bin) const override;
 
         /** @brief interface for tools which refine the hit content of a given track
             @param track input track
             @return new refined track. Pointer could be zero, ownership passed to caller
         */
-        virtual void refine(MuPatTrack& track, HitGarbage& hitsToBeDeleted, MeasGarbage& measurementsToBeDeleted) const override;
+        virtual void refine(MuPatTrack& track, GarbageContainer& trash_bin) const override;
 
     private:
         void removeDuplicateWithReference(std::unique_ptr<Trk::SegmentCollection>& segments,

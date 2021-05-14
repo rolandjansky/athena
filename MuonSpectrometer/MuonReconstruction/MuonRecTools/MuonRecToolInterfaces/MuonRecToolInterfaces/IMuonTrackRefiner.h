@@ -10,8 +10,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonTrackRefiner("Muon::IMuonTrackRefiner", 1, 0);
-
 namespace Trk {
     class Track;
     class MeasurementBase;
@@ -21,6 +19,7 @@ namespace Muon {
 
     class MuPatTrack;
     class MuPatHit;
+    class GarbageContainer;
 
     /** @brief The IMuonTrackRefiner is a pure virtual interface for tools which refine the hit content of a given track
 
@@ -33,17 +32,17 @@ namespace Muon {
     class IMuonTrackRefiner : virtual public IAlgTool {
     public:
         /** access to tool interface */
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonTrackRefiner("Muon::IMuonTrackRefiner", 1, 0);
+            return IID_IMuonTrackRefiner;
+        }
 
         /** @brief interface for tools which refine the hit content of a given track
             @param track input track
             @return new refined track. Pointer could be zero, ownership passed to caller
         */
-        virtual void refine(MuPatTrack& track, std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
-                            std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted) const = 0;
+        virtual void refine(MuPatTrack& track, GarbageContainer& trash_bin) const = 0;
     };
-
-    inline const InterfaceID& IMuonTrackRefiner::interfaceID() { return IID_IMuonTrackRefiner; }
 }  // namespace Muon
 
 #endif  // IMuonTrackRefiner_H
