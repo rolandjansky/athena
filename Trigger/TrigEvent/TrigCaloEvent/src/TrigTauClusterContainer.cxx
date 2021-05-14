@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,8 +28,8 @@ void
 TrigTauClusterContainer::print ( void ) const {
 	std::cout << "TrigTauClusterContainer with ";
 	std::cout << size() << " TrigTauClusters" << std::endl;
-	for ( TrigTauClusterContainer::const_iterator i = begin(); i!=end();i++)
-		(*i)->print();
+        for (const TrigTauCluster* c : *this)
+		c->print();
 }
 
 // Simple debug method using MsgStream
@@ -37,8 +37,8 @@ void
 TrigTauClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigTauClusterContainer with ";
 	log <<MSG::DEBUG<< size() << " TrigTauClusters" << endmsg;
-	for ( TrigTauClusterContainer::const_iterator i = begin(); i!=end();i++)
-		(*i)->print(log);
+        for (const TrigTauCluster* c : *this)
+		c->print(log);
 }
 
 // End of file TrigTauClusterContainer.cxx
