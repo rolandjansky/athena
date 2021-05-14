@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_v1_H
@@ -235,7 +235,7 @@ namespace xAOD
 		     const std::vector<unsigned char>& overlapTypes);  /*!< @brief Set overlap indices and types for a given contributing object referenced by pointer */
     bool setOverlaps(size_t objIdx,const std::vector<size_t>& overlapIndices,
 		     const std::vector<unsigned char>& overlapTypes);           /*!< @brief Set overlap indices and types for a given contributing object referenced by index */
-    void setOverrideMom(std::map<const IParticle*,ConstVec> pOverride);         /*!< @brief Set override momenta */
+    void setOverrideMom(const std::map<const IParticle*,ConstVec>& pOverride);         /*!< @brief Set override momenta */
     std::map<const IParticle*,ConstVec> overrideMom();                          /*!< @brief Get override momenta */
     void addOverrideMom(std::map<const IParticle*,ConstVec> &pOverride);        /*!< @brief Extend override momentum map */
 
