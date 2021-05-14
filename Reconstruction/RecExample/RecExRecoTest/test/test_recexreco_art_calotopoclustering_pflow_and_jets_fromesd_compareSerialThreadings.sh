@@ -10,4 +10,4 @@
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh eflowRec/run_ESDStandardReco.py 
+test_compare_SerialAndThreadedAthenas.sh eflowRec/run_ESDPFlowRecoR22_withLinking.py
