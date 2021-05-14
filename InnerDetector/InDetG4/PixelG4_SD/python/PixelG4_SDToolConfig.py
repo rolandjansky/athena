@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -36,7 +36,10 @@ def DBMSensorSDCfg(name="DBMSensorSD", **kwargs):
     return PixelSensorSDTool(name, **kwargs)
 
 def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
-    print("WARNING: ITkPixelSensorSDCfg: ITkPixel doesn't yet have any Sensitive Detectors defined!")
-    kwargs.setdefault("LogicalVolumeNames", ["addSensitiveDetectorsHere"])
+    kwargs.setdefault("LogicalVolumeNames", ["ITkPixel::InnerSingleMod_Chip",
+                                             "ITkPixel::InnerQuadMod_Chip",
+                                             "ITkPixel::OuterQuadMod_Chip"])
+    kwargs.setdefault("OutputCollectionNames", ["ITkPixelHits"])
+    # Ensure we create a Gmx sensor 
+    kwargs.setdefault("GmxSensor",True) 
     return PixelSensorSDCfg(ConfigFlags,name,**kwargs)
-
