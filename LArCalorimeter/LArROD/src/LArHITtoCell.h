@@ -90,8 +90,6 @@ private:
   const CaloCell_SuperCell_ID*     m_scHelper;
   /** pointer to the offline id helper  */
   const CaloCell_ID*               m_OflHelper;
-  /** pointer to the online LAr helper */
-  const LArOnlineID_Base*   m_OnlSCHelper;
 
 
     template <class T>
