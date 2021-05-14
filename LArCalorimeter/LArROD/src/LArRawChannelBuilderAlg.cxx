@@ -19,8 +19,8 @@ LArRawChannelBuilderAlg::LArRawChannelBuilderAlg(const std::string& name, ISvcLo
   
 StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_digitKey.initialize());	 
-  if ( m_isSC ) ATH_CHECK(m_cellKey.initialize());
-  else ATH_CHECK(m_rawChannelKey.initialize());
+  ATH_CHECK(m_cellKey.initialize(m_isSC));
+  ATH_CHECK(m_rawChannelKey.initialize(!m_isSC));
   ATH_CHECK(m_pedestalKey.initialize());	 
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
