@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloTowerContainer_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -286,13 +284,13 @@ void test3()
 
   double sum = 0;
   for (CaloTowerContainer::iterator i = tc1.begin();
-       i != tc1.end(); i++)
+       i != tc1.end(); ++i)
     sum += (*i)->energy();
   assert (sum == 3025);
 
   sum = 0;
   for (CaloTowerContainer::const_iterator i = ctc1.begin();
-       i != ctc1.end(); i++)
+       i != ctc1.end(); ++i)
     sum += (*i)->energy();
   assert (sum == 3025);
 
@@ -304,7 +302,7 @@ void test3()
 
   sum = 0;
   for (CaloTowerContainer::const_reverse_iterator i = ctc1.rbegin();
-       i != ctc1.rend(); i++)
+       i != ctc1.rend(); ++i)
     sum += (*i)->energy();
   assert (sum == 3025);
 }
