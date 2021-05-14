@@ -13,6 +13,7 @@
 #include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateCombiner.h"
 //
 #include "TrkParameters/TrackParameters.h"
@@ -24,10 +25,9 @@ namespace {
 
 /// Method for merging and assembling a state
 Trk::MultiComponentState
-mergeFullDistArray(
-  Trk::MultiComponentStateAssembler::Cache& cache,
-  Trk::MultiComponentState& statesToMerge,
-  const unsigned int maximumNumberOfComponents)
+mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
+                   Trk::MultiComponentState& statesToMerge,
+                   const unsigned int maximumNumberOfComponents)
 {
   Component1DArray componentsArray;
   const int32_t n = statesToMerge.size();
@@ -53,8 +53,8 @@ mergeFullDistArray(
   for (int32_t i = 0; i < numMerges; ++i) {
     const int8_t mini = KL.merges[i].To;
     const int8_t minj = KL.merges[i].From;
-    Trk::MultiComponentStateCombiner::combineWithWeight(
-      statesToMerge[mini], statesToMerge[minj]);
+    Trk::MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
+                                                        statesToMerge[minj]);
     statesToMerge[minj].first.reset();
     statesToMerge[minj].second = 0.;
   }
@@ -85,8 +85,8 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(
   // Assembler Cache
   MultiComponentStateAssembler::Cache cache;
   if (statesToMerge.size() <= maximumNumberOfComponents) {
-    MultiComponentStateAssembler::addMultiState(
-      cache, std::move(statesToMerge));
+    MultiComponentStateAssembler::addMultiState(cache,
+                                                std::move(statesToMerge));
     return MultiComponentStateAssembler::assembledState(std::move(cache));
   }
 
@@ -103,12 +103,11 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(
   }
   if (componentWithoutMeasurement) {
     // Sort to select the one with the largest weight
-    std::sort(
-      statesToMerge.begin(),
-      statesToMerge.end(),
-      [](const ComponentParameters& x, const ComponentParameters& y) {
-        return x.second > y.second;
-      });
+    std::sort(statesToMerge.begin(),
+              statesToMerge.end(),
+              [](const ComponentParameters& x, const ComponentParameters& y) {
+                return x.second > y.second;
+              });
 
     Trk::ComponentParameters dummyCompParams(
       statesToMerge.begin()->first->clone(), 1.);
