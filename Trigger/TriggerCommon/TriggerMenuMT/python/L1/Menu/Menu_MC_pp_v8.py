@@ -248,6 +248,8 @@ def defineMenu():
         # TOPO items
         #--------------------------------
 
+        'L1_LAR-ZEE',
+
         # B-jet
 
         # ZH
@@ -406,7 +408,7 @@ def defineMenu():
         'L1_TAU90' : 56,
         'L1_TAU20IM_2TAU12IM' : 58,
         'L1_2TAU5' : 59,
-        'L1_2TAU8' : 71,
+        'L1_2TAU8' : 72,
         'L1_EM15VHI_2TAU12IM' : 60,
         'L1_EM15VHI_2TAU12IM_XE35' : 78,
         'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
