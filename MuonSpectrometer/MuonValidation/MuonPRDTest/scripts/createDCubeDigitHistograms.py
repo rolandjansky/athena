@@ -45,56 +45,56 @@ if __name__ == "__main__":
 
     #############################################################################
     # truth information
-    truthPtHist = ROOT.TH1F("truthPt","truthPt;p_{T} [GeV]",50,0,200)
-    truthEtaHist = ROOT.TH1F("truthEta","truthEta;#eta",20,-10,10)
-    truthPhiHist = ROOT.TH1F("truthPhi","truthPhi;#phi",20,-10,10)
+    truthPt = ROOT.TH1F("truthPt","truthPt;p_{T} [GeV]",100,0,2000) #standard unit = MeV? 
+    truthEta = ROOT.TH1F("truthEta","truthEta;#eta",20,-10,10)
+    truthPhi = ROOT.TH1F("truthPhi","truthPhi;#phi",20,-10,10)
     #############################################################################
     # RPCs (all stations)
-    rpclocalX = ROOT.TH1F("rpclocalX","rpclocalX;Digits_RPC_localPosX",100,-1200,1200)
-    rpclocalY = ROOT.TH1F("rpclocalY","rpclocalY;Digits_RPC_localPosY",100,-2,2)
+    rpclocalX = ROOT.TH1F("rpclocalX","rpclocalX;Digits_RPC_localPosX [mm]",100,-1200,1200)
+    rpclocalY = ROOT.TH1F("rpclocalY","rpclocalY;Digits_RPC_localPosY [mm]",100,-2,2)
     rpcStationEta = ROOT.TH1F("rpcStationEta","rpcStationEta;Digits_RPC_stationEta",20,-10,10)
     rpcStationPhi = ROOT.TH1F("rpcStationPhi","rpcStationPhi;Digits_RPC_stationPhi",10,0,10)
-    rpcglobalX = ROOT.TH1F("rpcglobalX","rpcglobalX;Digits_RPC_globalPosX",100,-13000,12000)
-    rpcglobalY = ROOT.TH1F("rpcglobalY","rpcglobalY;Digits_RPC_globalPosY",100,-15000,14000)
-    rpcglobalZ = ROOT.TH1F("rpcglobalZ","rpcglobalZ;Digits_RPC_globalPosZ",100,-15000,15000)
+    rpcglobalX = ROOT.TH1F("rpcglobalX","rpcglobalX;Digits_RPC_globalPosX [mm]",100,-13000,12000)
+    rpcglobalY = ROOT.TH1F("rpcglobalY","rpcglobalY;Digits_RPC_globalPosY [mm]",100,-15000,14000)
+    rpcglobalZ = ROOT.TH1F("rpcglobalZ","rpcglobalZ;Digits_RPC_globalPosZ [mm]",100,-15000,15000)
     rpcGasGap = ROOT.TH1F("rpcGasGap","rpcGasGap;Digits_RPC_gas_gap",5,0,5)
-    rpcdoubletR = ROOT.TH1F("rpcdoubletR","rpcdoubletR;Digits_RPC_doubletR",100,-20,20)
-    rpcdoubletZ = ROOT.TH1F("rpcdoubletZ","rpcdoubletZ;Digits_RPC_doubletZ",100,-20,20)
-    rpcdoubletPhi = ROOT.TH1F("rpcdoubletPhi","rpcdoubletPhi;Digits_RPC_doubletPhi",10,0,10)
+    rpcdoubletR = ROOT.TH1F("rpcdoubletR","rpcdoubletR;Digits_RPC_doubletR",4,0,4)
+    rpcdoubletZ = ROOT.TH1F("rpcdoubletZ","rpcdoubletZ;Digits_RPC_doubletZ",4,0,4)
+    rpcdoubletPhi = ROOT.TH1F("rpcdoubletPhi","rpcdoubletPhi;Digits_RPC_doubletPhi",4,0,4)
     rpcTime = ROOT.TH1F("rpcTime","rpcTime;Digits_RPC_time",100,0,100)
-    rpcStrip = ROOT.TH1F("rpcStrip","rpcStrip;Digits_RPC_strip",10,0,10)
-    rpcStripNumber = ROOT.TH1F("rpcStripNumber","rpcStripNumber;Digits_RPC_stripNumber",10,0,10)
-    rpcMeasuresPhi = ROOT.TH1F("rpcMeasuresPhi","rpcMeasuresPhi;Digits_RPC_measuresPhi",10,0,10)
+    rpcStrip = ROOT.TH1F("rpcStrip","rpcStrip;Digits_RPC_strip",10,0,80)
+    rpcStripNumber = ROOT.TH1F("rpcStripNumber","rpcStripNumber;Digits_RPC_stripNumber",10,0,80)
+    rpcMeasuresPhi = ROOT.TH1F("rpcMeasuresPhi","rpcMeasuresPhi;Digits_RPC_measuresPhi",2,0,2)
     rpcChannel = ROOT.TH1F("rpcChannel","rpcChannel;Digits_RPC_channel",10,0,10)
     
     # BIS RPCs only
-    bis_rpclocalX = ROOT.TH1F("bis_rpclocalX","bis_rpclocalX;Digits_bis_rpc_localPosX",100,-1200,1200)
-    bis_rpclocalY = ROOT.TH1F("bis_rpclocalY","bis_rpclocalY;Digits_bis_rpc_localPosY",100,-2,2)
+    bis_rpclocalX = ROOT.TH1F("bis_rpclocalX","bis_rpclocalX;Digits_bis_rpc_localPosX [mm]",100,-1200,1200)
+    bis_rpclocalY = ROOT.TH1F("bis_rpclocalY","bis_rpclocalY;Digits_bis_rpc_localPosY [mm]",100,-2,2)
     bis_rpcStationEta = ROOT.TH1F("bis_rpcStationEta","bis_rpcStationEta;Digits_bis_rpc_stationEta",20,-10,10)
     bis_rpcStationPhi = ROOT.TH1F("bis_rpcStationPhi","bis_rpcStationPhi;Digits_bis_rpc_stationPhi",10,0,10)
-    bis_rpcglobalX = ROOT.TH1F("bis_rpcglobalX","bis_rpcglobalX;Digits_bis_rpc_globalPosX",100,-13000,12000)
-    bis_rpcglobalY = ROOT.TH1F("bis_rpcglobalY","bis_rpcglobalY;Digits_bis_rpc_globalPosY",100,-15000,14000)
-    bis_rpcglobalZ = ROOT.TH1F("bis_rpcglobalZ","bis_rpcglobalZ;Digits_bis_rpc_globalPosZ",100,-15000,15000)
+    bis_rpcglobalX = ROOT.TH1F("bis_rpcglobalX","bis_rpcglobalX;Digits_bis_rpc_globalPosX [mm]",100,-13000,12000)
+    bis_rpcglobalY = ROOT.TH1F("bis_rpcglobalY","bis_rpcglobalY;Digits_bis_rpc_globalPosY [mm]",100,-15000,14000)
+    bis_rpcglobalZ = ROOT.TH1F("bis_rpcglobalZ","bis_rpcglobalZ;Digits_bis_rpc_globalPosZ [mm]",100,-15000,15000)
     bis_rpcGasGap = ROOT.TH1F("bis_rpcGasGap","bis_rpcGasGap;Digits_bis_rpc_gas_gap",5,0,5)
-    bis_rpcdoubletR = ROOT.TH1F("bis_rpcdoubletR","bis_rpcdoubletR;Digits_bis_rpc_doubletR",100,-20,20)
-    bis_rpcdoubletZ = ROOT.TH1F("bis_rpcdoubletZ","bis_rpcdoubletZ;Digits_bis_rpc_doubletZ",100,-20,20)
-    bis_rpcdoubletPhi = ROOT.TH1F("bis_rpcdoubletPhi","bis_rpcdoubletPhi;Digits_bis_rpc_doubletPhi",10,0,10)
+    bis_rpcdoubletR = ROOT.TH1F("bis_rpcdoubletR","bis_rpcdoubletR;Digits_bis_rpc_doubletR",4,0,4)
+    bis_rpcdoubletZ = ROOT.TH1F("bis_rpcdoubletZ","bis_rpcdoubletZ;Digits_bis_rpc_doubletZ",4,0,4)
+    bis_rpcdoubletPhi = ROOT.TH1F("bis_rpcdoubletPhi","bis_rpcdoubletPhi;Digits_bis_rpc_doubletPhi",4,0,4)
     bis_rpcTime = ROOT.TH1F("bis_rpcTime","bis_rpcTime;Digits_bis_rpc_time",100,0,100)
     bis_rpcStrip = ROOT.TH1F("bis_rpcStrip","bis_rpcStrip;Digits_bis_rpc_strip",10,0,10)
-    bis_rpcStripNumber = ROOT.TH1F("bis_rpcStripNumber","bis_rpcStripNumber;Digits_bis_rpc_stripNumber",10,0,10)
-    bis_rpcMeasuresPhi = ROOT.TH1F("bis_rpcMeasuresPhi","bis_rpcMeasuresPhi;Digits_bis_rpc_measuresPhi",10,0,10)
+    bis_rpcStripNumber = ROOT.TH1F("bis_rpcStripNumber","bis_rpcStripNumber;Digits_bis_rpc_stripNumber",10,0,80)
+    bis_rpcMeasuresPhi = ROOT.TH1F("bis_rpcMeasuresPhi","bis_rpcMeasuresPhi;Digits_bis_rpc_measuresPhi",2,0,2)
     bis_rpcChannel = ROOT.TH1F("bis_rpcChannel","bis_rpcChannel;Digits_bis_rpc_channel",10,0,10)
     #############################################################################
     # MDTs (all stations)
-    mdtlocalX = ROOT.TH1F("mdtlocalX","mdtlocalX;Digits_MDT_localPosX",100,-1500,1500)
-    mdtlocalY = ROOT.TH1F("mdtlocalY","mdtlocalY;Digits_MDT_localPosY",100,-1500,1500)
+    mdtlocalX = ROOT.TH1F("mdtlocalX","mdtlocalX;Digits_MDT_localPosX [mm]",100,-1500,1500)
+    mdtlocalY = ROOT.TH1F("mdtlocalY","mdtlocalY;Digits_MDT_localPosY [mm]",100,-1500,1500)
     mdtStationEta = ROOT.TH1F("mdtStationEta","mdtStationEta;Digits_MDT_stationEta",20,-10,10)
     mdtStationPhi = ROOT.TH1F("mdtStationPhi","mdtStationPhi;Digits_MDT_stationPhi",10,0,10)
-    mdtglobalX = ROOT.TH1F("mdtglobalX","mdtglobalX;Digits_MDT_globalPosX",100,-13000,12000)
-    mdtglobalY = ROOT.TH1F("mdtglobalY","mdtglobalY;Digits_MDT_globalPosY",100,-15000,14000)
-    mdtglobalZ = ROOT.TH1F("mdtglobalZ","mdtglobalZ;Digits_MDT_globalPosZ",100,-26000,26000)
+    mdtglobalX = ROOT.TH1F("mdtglobalX","mdtglobalX;Digits_MDT_globalPosX [mm]",100,-13000,12000)
+    mdtglobalY = ROOT.TH1F("mdtglobalY","mdtglobalY;Digits_MDT_globalPosY [mm]",100,-15000,14000)
+    mdtglobalZ = ROOT.TH1F("mdtglobalZ","mdtglobalZ;Digits_MDT_globalPosZ [mm]",100,-26000,26000)
     mdtNumberOfMultilayers = ROOT.TH1F("mdtNumberOfMultilayers","mdtNumberOfMultilayers;Digits_MDT_numberOfMultilayers",4,0,4)
-    mdtTube = ROOT.TH1F("mdtTube","mdtTube;Digits_MDT_tube",6,0,6) 
+    mdtTube = ROOT.TH1F("mdtTube","mdtTube;Digits_MDT_tube",80,0,80) 
     mdtTubeLayer = ROOT.TH1F("mdtTubeLayer","mdtTubeLayer;Digits_MDT_tubeLayer",6,0,6)  
     mdtMultilayer = ROOT.TH1F("mdtMultilayer","mdtMultilayer;Digits_MDT_Multilayer",4,0,4) 
     mdtTime = ROOT.TH1F("mdtTime","mdtTime;Digits_MDT_time",100,0,2000)
@@ -102,15 +102,15 @@ if __name__ == "__main__":
     mdtChannel = ROOT.TH1F("mdtChannel","mdtChannel;Digits_MDT_channel",10,0,10)
     
     # BIS MDTs only
-    bis_mdtlocalX = ROOT.TH1F("bis_mdtlocalX","bis_mdtlocalX;Digits_bis_mdt_localPosX",100,-1500,1500)
-    bis_mdtlocalY = ROOT.TH1F("bis_mdtlocalY","bis_mdtlocalY;Digits_bis_mdt_localPosY",100,-1500,1500)
+    bis_mdtlocalX = ROOT.TH1F("bis_mdtlocalX","bis_mdtlocalX;Digits_bis_mdt_localPosX [mm]",100,-1500,1500)
+    bis_mdtlocalY = ROOT.TH1F("bis_mdtlocalY","bis_mdtlocalY;Digits_bis_mdt_localPosY [mm]",100,-1500,1500)
     bis_mdtStationEta = ROOT.TH1F("bis_mdtStationEta","bis_mdtStationEta;Digits_bis_mdt_stationEta",20,-10,10)
     bis_mdtStationPhi = ROOT.TH1F("bis_mdtStationPhi","bis_mdtStationPhi;Digits_bis_mdt_stationPhi",10,0,10)
-    bis_mdtglobalX = ROOT.TH1F("bis_mdtglobalX","bis_mdtglobalX;Digits_bis_mdt_globalPosX",100,-13000,12000)
-    bis_mdtglobalY = ROOT.TH1F("bis_mdtglobalY","bis_mdtglobalY;Digits_bis_mdt_globalPosY",100,-15000,14000)
-    bis_mdtglobalZ = ROOT.TH1F("bis_mdtglobalZ","bis_mdtglobalZ;Digits_bis_mdt_globalPosZ",100,-26000,26000)
+    bis_mdtglobalX = ROOT.TH1F("bis_mdtglobalX","bis_mdtglobalX;Digits_bis_mdt_globalPosX [mm]",100,-13000,12000)
+    bis_mdtglobalY = ROOT.TH1F("bis_mdtglobalY","bis_mdtglobalY;Digits_bis_mdt_globalPosY [mm]",100,-15000,14000)
+    bis_mdtglobalZ = ROOT.TH1F("bis_mdtglobalZ","bis_mdtglobalZ;Digits_bis_mdt_globalPosZ [mm]",100,-26000,26000)
     bis_mdtNumberOfMultilayers = ROOT.TH1F("bis_mdtNumberOfMultilayers","bis_mdtNumberOfMultilayers;Digits_bis_mdt_numberOfMultilayers",4,0,4)
-    bis_mdtTube = ROOT.TH1F("bis_mdtTube","bis_mdtTube;Digits_bis_mdt_tube",6,0,6) 
+    bis_mdtTube = ROOT.TH1F("bis_mdtTube","bis_mdtTube;Digits_bis_mdt_tube",80,0,80) 
     bis_mdtTubeLayer = ROOT.TH1F("bis_mdtTubeLayer","bis_mdtTubeLayer;Digits_bis_mdt_tubeLayer",6,0,6)  
     bis_mdtMultilayer = ROOT.TH1F("bis_mdtMultilayer","bis_mdtMultilayer;Digits_bis_mdt_Multilayer",4,0,4) 
     bis_mdtTime = ROOT.TH1F("bis_mdtTime","bis_mdtTime;Digits_bis_mdt_time",100,0,2000)
@@ -122,9 +122,9 @@ if __name__ == "__main__":
         
 # Truth
         for ntruth in range(0,len(inputTree.MuEntry_Particle_Pt)):
-                truthPtHist.Fill(inputTree.MuEntry_Particle_Pt[ntruth])
-                truthEtaHist.Fill(inputTree.MuEntry_Particle_Eta[ntruth])
-                truthPhiHist.Fill(inputTree.MuEntry_Particle_Phi[ntruth])
+                truthPt.Fill(inputTree.MuEntry_Particle_Pt[ntruth]*0.001)
+                truthEta.Fill(inputTree.MuEntry_Particle_Eta[ntruth])
+                truthPhi.Fill(inputTree.MuEntry_Particle_Phi[ntruth])
 # RPC
         if Options.doRPC == True:
             for nrpcHit in range(0,len(inputTree.Digits_RPC_localPosX)):
@@ -180,7 +180,7 @@ if __name__ == "__main__":
                 mdtCharge.Fill(inputTree.Digits_MDT_charge[nmdtHit])
                 
                 # Cut on BIS modules only
-                if inputTree.Digits_MDT_stationName[nmdtHit]=="BIS":
+                if inputTree.Digits_MDT_stationName[nmdtHit]=="BIS": # and inputTree.Digits_MDT_stationEta[nmdtHit]==7: # uncomment this to cut on BIS78 MDTs (currently not in ART nightlies for some reason)
                     bis_mdtlocalX.Fill(inputTree.Digits_MDT_localPosX[nmdtHit])
                     bis_mdtlocalY.Fill(inputTree.Digits_MDT_localPosY[nmdtHit])
                     bis_mdtStationEta.Fill(inputTree.Digits_MDT_stationEta[nmdtHit])
@@ -197,9 +197,9 @@ if __name__ == "__main__":
                 else: continue    
             
 # Truth
-    ODir.WriteTObject(truthPtHist, truthPtHist.GetName())
-    ODir.WriteTObject(truthEtaHist, truthEtaHist.GetName())
-    ODir.WriteTObject(truthPhiHist, truthPhiHist.GetName())
+    ODir.WriteTObject(truthPt, truthPt.GetName())
+    ODir.WriteTObject(truthEta, truthEta.GetName())
+    ODir.WriteTObject(truthPhi, truthPhi.GetName())
 # RPC
     ODir.WriteTObject(rpclocalX, rpclocalX.GetName())
     ODir.WriteTObject(rpclocalY, rpclocalY.GetName())
@@ -266,4 +266,3 @@ if __name__ == "__main__":
     ODir.WriteTObject(bis_mdtChannel, bis_mdtChannel.GetName())
 
     print ('INFO: Written histograms to file %s'%(Options.outputFile))
-
