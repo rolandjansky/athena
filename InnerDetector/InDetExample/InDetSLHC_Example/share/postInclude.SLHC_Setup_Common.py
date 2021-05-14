@@ -37,8 +37,10 @@ if rec.OutputFileNameForRecoStep():
     print "Disabling HDCFromCOOL"
     ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
-### This is needed if the PixelCalibCondDB is not used
-#if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
-#    if DetFlags.makeRIO.pixel_on():
-#        from AthenaCommon.AppMgr import ToolSvc
-#        ToolSvc.InDetClusterMakerTool.UsePixelCalibCondDB=False
+from InDetRecExample.InDetJobProperties import InDetFlags
+if InDetFlags.doStagingStudies:
+    print("Staging studies: Allowing missing modules to be ignored in Conditions")
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
+    ToolSvc += PixelCalibDbTool()
+    ToolSvc.PixelCalibDbTool.IgnoreMissingElements = True
+    
