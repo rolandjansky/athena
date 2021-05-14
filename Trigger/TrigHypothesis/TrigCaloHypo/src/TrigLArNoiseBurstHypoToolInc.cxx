@@ -37,10 +37,8 @@ StatusCode TrigLArNoiseBurstHypoToolInc::initialize()  {
   
   ATH_MSG_INFO("TrigLArNoiseBurstHypoTool initialization completed successfully.");
  
-/*
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
-*/
 
   return StatusCode::SUCCESS;
 }
@@ -60,6 +58,13 @@ StatusCode TrigLArNoiseBurstHypoToolInc::decide( std::vector<CaloCellNoiseInfo>&
 
 bool TrigLArNoiseBurstHypoToolInc::decide( const ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo& input ) const {
 
+  bool monitor(true);
+  if ( m_monTool.name().empty() ) monitor=false;
+  auto timer = Monitored::Timer("TIME_larnoisetool");
+  auto mon = Monitored::Group(m_monTool,timer);
+  std::string bitWise_flags("bitWise_flags");
+  
+  
   // no cells, no discussion
   if ( !input.cells ) return false;
   unsigned int flag = 0;
@@ -67,25 +72,49 @@ bool TrigLArNoiseBurstHypoToolInc::decide( const ITrigLArNoiseBurstHypoTool::Cal
   ATH_MSG_DEBUG ("Got cell container, will process it");
   std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(input.cells, input.knownBadFEBs, input.knownMNBFEBs);
   ATH_MSG_DEBUG("processed it");
+  if ( monitor ){
+    auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"Input");
+    fill(m_monTool,bitWise); 
+  }
   if ( noisyRO->BadFEBFlaggedPartitions() ) {
         ATH_MSG_DEBUG("Passed : BadFEBFlaggedPartitions");
         flag |= 0x1;
+	if ( monitor ) {
+          auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"BadFEBFlaggedPartitions");
+          fill(m_monTool,bitWise); 
+	}
   }
   if ( noisyRO->BadFEB_WFlaggedPartitions() ) {
         ATH_MSG_DEBUG("Passed : BadFEB_WFlaggedPartitions");
         flag |= 0x8;
+	if ( monitor ) {
+          auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"BadFEB_WFlaggedPartitions");
+          fill(m_monTool,bitWise); 
+	}
   }
   if ( noisyRO->SatTightFlaggedPartitions() ) {
         ATH_MSG_DEBUG("Passed : SatTightFlaggedPartitions");
         flag |= 0x2;
+	if ( monitor ) {
+          auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"SatTightFlaggedPartitions");
+          fill(m_monTool,bitWise); 
+	}
   }
   if ( noisyRO->MNBLooseFlaggedPartitions() ) {
         ATH_MSG_DEBUG("Passed : MNBLooseFlaggedPartions");
         flag |= 0x10;
+	if ( monitor ) {
+	  auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"MNBLooseFlaggedPartions");
+          fill(m_monTool,bitWise); 
+	}
   }
   if ( noisyRO->MNBTightFlaggedPartitions() ) {
         ATH_MSG_DEBUG("Passed : MNBTightFlaggedPartions");
         flag |= 0x20;
+	if ( monitor ) {
+          auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"MNBTightFlaggedPartions");
+          fill(m_monTool,bitWise); 
+	}
   }
 
   ATH_MSG_DEBUG("got the flag : " << (unsigned int)flag);
@@ -93,8 +122,11 @@ bool TrigLArNoiseBurstHypoToolInc::decide( const ITrigLArNoiseBurstHypoTool::Cal
   if ( (flag & m_mask) != 0x0 ) {
         ATH_MSG_DEBUG("LAr Noise detected : ");
         pass = true;
+	if ( monitor ) {
+          auto bitWise = Monitored::Scalar<std::string>(bitWise_flags,"Output");
+          fill(m_monTool,bitWise); 
+	}
   }
         else ATH_MSG_DEBUG("LAr Noise not detected!");
-
   return pass;
 }
