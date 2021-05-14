@@ -49,8 +49,8 @@ namespace Muon {
     public:
         /** Class with matching return information */
         struct MooTrackSegmentMatchResult : public TrackSegmentMatchResult {
-            const MuPatTrack* MCTBTrack;
-            const MuPatSegment* MCTBSegment;
+            const MuPatTrack* MCTBTrack{nullptr};
+            const MuPatSegment* MCTBSegment{nullptr};
 
             MooTrackSegmentMatchResult();
 

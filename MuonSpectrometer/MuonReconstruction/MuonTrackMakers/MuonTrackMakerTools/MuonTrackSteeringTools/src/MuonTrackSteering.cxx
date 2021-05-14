@@ -25,6 +25,30 @@
 
 namespace Muon {
 
+    std::string print(const MuPatSegment& /* seg */) { return ""; }
+
+    std::string print(const std::vector<MuPatSegment*>& segVec) {
+        std::ostringstream s;
+        std::vector<MuPatSegment*>::const_iterator sit = segVec.begin();
+        std::vector<MuPatSegment*>::const_iterator sit_end = segVec.end();
+        for (; sit != sit_end; ++sit) { s << " " << print(**sit); }
+        return s.str();
+    }
+
+    std::string print(const MuPatTrack& track) {
+        std::ostringstream s;
+        s << "Track:" << print(track.segments());
+        return s.str();
+    }
+
+    std::string print(const std::vector<std::unique_ptr<MuPatTrack> >& tracks) {
+        std::ostringstream s;
+        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit = tracks.begin();
+        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit_end = tracks.end();
+        for (; tit != tit_end; ++tit) s << std::endl << print(**tit);
+
+        return s.str();
+    }
     //----------------------------------------------------------------------------------------------------------
 
     MuonTrackSteering::MuonTrackSteering(const std::string& t, const std::string& n, const IInterface* p) :
@@ -69,10 +93,9 @@ namespace Muon {
 
         return StatusCode::SUCCESS;
     }
-    
-     TrackCollection* MuonTrackSteering::find(const MuonSegmentCollection& coll) const {
-        MeasGarbage measurementsToBeDeleted;
-        HitGarbage hitsToBeDeleted;
+
+    TrackCollection* MuonTrackSteering::find(const MuonSegmentCollection& coll) const {
+        GarbageContainer trash_bin;
 
         TrackCollection* result = nullptr;
 
@@ -81,10 +104,9 @@ namespace Muon {
         ChSet chambersWithSegments;
         StSet stationsWithSegments;
         // Extract segments into work arrays
-        if (extractSegments(coll, chamberSegments, stationSegments, chambersWithSegments, stationsWithSegments, hitsToBeDeleted,
-                            measurementsToBeDeleted)) {
+        if (extractSegments(coll, chamberSegments, stationSegments, chambersWithSegments, stationsWithSegments, trash_bin)) {
             // Perform the actual track finding
-            result = findTracks(chamberSegments, stationSegments, hitsToBeDeleted, measurementsToBeDeleted);
+            result = findTracks(chamberSegments, stationSegments, trash_bin);
         }
         // Tracking complete - cleanup
         cleanUp();
@@ -123,8 +145,7 @@ namespace Muon {
     //-----------------------------------------------------------------------------------------------------------
 
     bool MuonTrackSteering::extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
-                                            ChSet& chambersWithSegments, StSet& stationsWithSegments, HitGarbage& hitsToBeDeleted,
-                                            MeasGarbage& measurementsToBeDeleted) const {
+                                            ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const {
         if (coll.empty()) return false;
 
         MuonSegmentCollection theSegments;
@@ -140,7 +161,7 @@ namespace Muon {
         MuonSegmentCollection::const_iterator iend = theSegments.end();
         for (; iter != iend; ++iter) {
             ATH_MSG_DEBUG("Adding segment ");
-            MuPatSegment* aSeg = m_candidateTool->createSegInfo(*(*iter), hitsToBeDeleted, measurementsToBeDeleted);
+            MuPatSegment* aSeg = m_candidateTool->createSegInfo(*(*iter), trash_bin);
             ATH_MSG_DEBUG(" -> MuPatSegment " << m_candidateTool->print(*aSeg));
 
             MuonStationIndex::ChIndex chIndex = aSeg->chIndex;
@@ -166,21 +187,21 @@ namespace Muon {
 
         if (m_combinedSLOverlaps) {
             combineOverlapSegments(chamberSegments[MuonStationIndex::BIS], chamberSegments[MuonStationIndex::BIL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::BMS], chamberSegments[MuonStationIndex::BML], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::BOS], chamberSegments[MuonStationIndex::BOL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::EIS], chamberSegments[MuonStationIndex::EIL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::EMS], chamberSegments[MuonStationIndex::EML], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::EOS], chamberSegments[MuonStationIndex::EOL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::EES], chamberSegments[MuonStationIndex::EEL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             combineOverlapSegments(chamberSegments[MuonStationIndex::CSS], chamberSegments[MuonStationIndex::CSL], stationSegments,
-                                   stationsWithSegments, hitsToBeDeleted, measurementsToBeDeleted);
+                                   stationsWithSegments, trash_bin);
             std::vector<MuPatSegment*>& segments = chamberSegments[MuonStationIndex::BEE];
             if (!segments.empty()) {
                 chambersWithSegments.insert(MuonStationIndex::BEE);
@@ -193,8 +214,8 @@ namespace Muon {
     }
 
     void MuonTrackSteering::combineOverlapSegments(std::vector<MuPatSegment*>& ch1, std::vector<MuPatSegment*>& ch2,
-                                                   SegColVec& stationSegments, StSet& stationsWithSegments, HitGarbage& hitsToBeDeleted,
-                                                   MeasGarbage& measurementsToBeDeleted) const {
+                                                   SegColVec& stationSegments, StSet& stationsWithSegments,
+                                                   GarbageContainer& trash_bin) const {
         /** try to find small/large overlaps, insert segment into stationVec */
 
         // if both empty there is nothing to be done
@@ -269,7 +290,7 @@ namespace Muon {
                     continue;
                 }
 
-                MuPatSegment* segInfo = m_candidateTool->createSegInfo(*newseg, hitsToBeDeleted, measurementsToBeDeleted);
+                MuPatSegment* segInfo = m_candidateTool->createSegInfo(*newseg, trash_bin);
 
                 // check whether segment of good quality AND that its quality is equal or better than the input segments
                 if (segInfo->quality < 2 || (segInfo->quality < (*sit1)->quality || segInfo->quality < (*sit2)->quality)) {
@@ -362,8 +383,8 @@ namespace Muon {
 
     //-----------------------------------------------------------------------------------------------------------
 
-    TrackCollection* MuonTrackSteering::findTracks(SegColVec& chamberSegments, SegColVec& stationSegments, HitGarbage& hitsToBeDeleted,
-                                                   MeasGarbage& measurementsToBeDeleted) const {
+    TrackCollection* MuonTrackSteering::findTracks(SegColVec& chamberSegments, SegColVec& stationSegments,
+                                                   GarbageContainer& trash_bin) const {
         // Very basic : output all of the segments we are starting with
         ATH_MSG_DEBUG("List of all strategies: " << m_strategies.size());
         for (unsigned int i = 0; i < m_strategies.size(); ++i) ATH_MSG_DEBUG((*(m_strategies[i])));
@@ -521,7 +542,7 @@ namespace Muon {
                     if (segsInCone > m_segThreshold && seedSeg->quality < m_segQCut[0] + 1) continue;
 
                     std::vector<std::unique_ptr<MuPatTrack> > found =
-                        findTrackFromSeed(*seedSeg, *(m_strategies[i]), seeds[lin], mySegColVec, hitsToBeDeleted, measurementsToBeDeleted);
+                        findTrackFromSeed(*seedSeg, *(m_strategies[i]), seeds[lin], mySegColVec, trash_bin);
 
                     ATH_MSG_VERBOSE("  Tracks for seed: " << std::endl << " --- " << m_candidateTool->print(result));
                     if (!found.empty()) {
@@ -531,8 +552,7 @@ namespace Muon {
             }      // Done with loop over seed layers
 
             // Post-processing : refinement
-            if (!result.empty() && strategy.option(MuonTrackSteeringStrategy::DoRefinement))
-                refineTracks(result, hitsToBeDeleted, measurementsToBeDeleted);
+            if (!result.empty() && strategy.option(MuonTrackSteeringStrategy::DoRefinement)) refineTracks(result, trash_bin);
 
             // Post-processing : ambiguity resolution
             if (msgLvl(MSG::DEBUG) && !result.empty()) {
@@ -574,8 +594,7 @@ namespace Muon {
                             m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
                         }
 
-                        std::unique_ptr<MuPatTrack> can =
-                            m_candidateTool->createCandidate(**sit, segmentTrack, hitsToBeDeleted, measurementsToBeDeleted);
+                        std::unique_ptr<MuPatTrack> can = m_candidateTool->createCandidate(**sit, segmentTrack, trash_bin);
                         if (can)
                             resultAll.push_back(std::move(can));
                         else
@@ -598,38 +617,10 @@ namespace Muon {
         return finalTrack;
     }
 
-    //-----------------------------------------------------------------------------------------------------------
-
-    std::string print(const MuPatSegment& /* seg */) { return ""; }
-
-    std::string print(const std::vector<MuPatSegment*>& segVec) {
-        std::ostringstream s;
-        std::vector<MuPatSegment*>::const_iterator sit = segVec.begin();
-        std::vector<MuPatSegment*>::const_iterator sit_end = segVec.end();
-        for (; sit != sit_end; ++sit) { s << " " << print(**sit); }
-        return s.str();
-    }
-
-    std::string print(const MuPatTrack& track) {
-        std::ostringstream s;
-        s << "Track:" << print(track.segments());
-        return s.str();
-    }
-
-    std::string print(const std::vector<std::unique_ptr<MuPatTrack> >& tracks) {
-        std::ostringstream s;
-        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit = tracks.begin();
-        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit_end = tracks.end();
-        for (; tit != tit_end; ++tit) s << std::endl << print(**tit);
-
-        return s.str();
-    }
-
     std::vector<std::unique_ptr<MuPatTrack> > MuonTrackSteering::findTrackFromSeed(MuPatSegment& seedSeg,
                                                                                    const MuonTrackSteeringStrategy& strat,
                                                                                    const unsigned int layer, const SegColVec& segs,
-                                                                                   HitGarbage& hitsToBeDeleted,
-                                                                                   MeasGarbage& measurementsToBeDeleted) const {
+                                                                                   GarbageContainer& trash_bin) const {
         // the resulting vector of tracks to be returned
         std::vector<std::unique_ptr<MuPatTrack> > result;
         ATH_MSG_DEBUG("Working on seed: " << std::endl << " --- " << m_candidateTool->print(seedSeg));
@@ -680,9 +671,9 @@ namespace Muon {
             std::vector<std::unique_ptr<MuPatTrack> > tracks;
 
             if (matchedSegs.size() != 0 && m_useTightMatching)
-                tracks = m_trackBTool->find(seedSeg, matchedSegs, hitsToBeDeleted, measurementsToBeDeleted);
+                tracks = m_trackBTool->find(seedSeg, matchedSegs, trash_bin);
             else
-                tracks = m_trackBTool->find(seedSeg, segs[ilayer], hitsToBeDeleted, measurementsToBeDeleted);
+                tracks = m_trackBTool->find(seedSeg, segs[ilayer], trash_bin);
             ++m_seedCombinatorics;
             ++m_findingDepth;
             if (!tracks.empty()) {
@@ -702,7 +693,7 @@ namespace Muon {
                     if (nextLayer < strat.getAll().size()) {
                         int cutLevel = tightCuts ? 1 : 0;
                         std::vector<std::unique_ptr<MuPatTrack> > nextTracks =
-                            extendWithLayer(**cit, segs, nextLayer, endLayer, hitsToBeDeleted, measurementsToBeDeleted, cutLevel);
+                            extendWithLayer(**cit, segs, nextLayer, endLayer, trash_bin, cutLevel);
                         if (!nextTracks.empty()) {
                             result.insert(result.end(), std::make_move_iterator(nextTracks.begin()),
                                           std::make_move_iterator(nextTracks.end()));
@@ -720,8 +711,7 @@ namespace Muon {
 
     std::vector<std::unique_ptr<MuPatTrack> > MuonTrackSteering::extendWithLayer(MuPatTrack& candidate, const SegColVec& segs,
                                                                                  unsigned int nextlayer, const unsigned int endlayer,
-                                                                                 HitGarbage& hitsToBeDeleted,
-                                                                                 MeasGarbage& measurementsToBeDeleted, int cutLevel) const {
+                                                                                 GarbageContainer& trash_bin, int cutLevel) const {
         ++m_findingDepth;
 
         std::vector<std::unique_ptr<MuPatTrack> > result;
@@ -730,7 +720,7 @@ namespace Muon {
                 if (segs[nextlayer].empty()) continue;
 
                 std::vector<std::unique_ptr<MuPatTrack> > nextTracks;
-                nextTracks = m_trackBTool->find(candidate, segs[nextlayer], hitsToBeDeleted, measurementsToBeDeleted);
+                nextTracks = m_trackBTool->find(candidate, segs[nextlayer], trash_bin);
                 ++m_seedCombinatorics;
 
                 if (!nextTracks.empty()) {
@@ -738,7 +728,7 @@ namespace Muon {
                     std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = nextTracks.end();
                     for (; cit != cit_end; ++cit) {
                         std::vector<std::unique_ptr<MuPatTrack> > nextTracks2 =
-                            extendWithLayer((**cit), segs, nextlayer + 1, endlayer, hitsToBeDeleted, measurementsToBeDeleted, cutLevel);
+                            extendWithLayer((**cit), segs, nextlayer + 1, endlayer, trash_bin, cutLevel);
                         if (!nextTracks2.empty()) {
                             result.insert(result.end(), std::make_move_iterator(nextTracks2.begin()),
                                           std::make_move_iterator(nextTracks2.end()));
@@ -775,11 +765,8 @@ namespace Muon {
         return result;
     }
 
-    void MuonTrackSteering::refineTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, HitGarbage& hitsToBeDeleted,
-                                         MeasGarbage& measurementsToBeDeleted) const {
-        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit = candidates.begin();
-        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = candidates.end();
-        for (; cit != cit_end; ++cit) { m_trackRefineTool->refine(**cit, hitsToBeDeleted, measurementsToBeDeleted); }
+    void MuonTrackSteering::refineTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, GarbageContainer& trash_bin) const {
+        for (std::unique_ptr<MuPatTrack>& cit : candidates) { m_trackRefineTool->refine(*cit, trash_bin); }
     }
 
     //-----------------------------------------------------------------------------------------------------------
