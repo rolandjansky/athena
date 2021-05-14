@@ -18,8 +18,8 @@
 # art-output: log.RAWtoESD_8thread
 
 #####################################################################
-# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
+# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.34)
+Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_34/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --outputESDFile OUT_ESD.root
@@ -34,8 +34,8 @@ mv log.RAWtoESD log.RAWtoESD_serial
 
 #####################################################################
 # now run reconstruction with AthenaMT with 1 thread
-# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
+# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.34)
+Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_34/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=1" \
@@ -51,8 +51,8 @@ mv log.RAWtoESD log.RAWtoESD_1thread
 
 #####################################################################
 # now run reconstruction with AthenaMT with 5 threads
-# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
+# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.34)
+Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_34/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=5" \
@@ -68,8 +68,8 @@ mv log.RAWtoESD log.RAWtoESD_5thread
 
 #####################################################################
 # now run reconstruction with AthenaMT with 8 threads
-# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
+# to save some computing time, start already from the q221 trigger RDO output (made in 22.0.34)
+Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_34/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=8" \
