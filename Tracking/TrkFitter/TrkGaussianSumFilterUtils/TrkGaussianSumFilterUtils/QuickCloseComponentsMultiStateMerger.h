@@ -15,14 +15,10 @@
 #ifndef TrkQuickCloseComponentsMultiStateMerger_H
 #define TrkQuickCloseComponentsMultiStateMerger_H
 
-#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 
 namespace Trk {
-class IMultiComponentStateCombiner;
-class TrackStateOnSurface;
-
 namespace QuickCloseComponentsMultiStateMerger {
-
 /// Method for merging components - ownership of objects is passed
 MultiComponentState
 merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
