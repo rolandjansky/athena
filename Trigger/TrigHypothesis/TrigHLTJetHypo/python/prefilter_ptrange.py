@@ -10,7 +10,7 @@ import re
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^ptrangeSEP(?P<begin>\d+)(r)(?P<end>\d+)$'
+pattern = r'^PTRANGE(?P<begin>\d+)(r)(?P<end>\d+)$'
 
 rgx = re.compile(pattern)
 
@@ -20,7 +20,7 @@ def prefilter_ptrange(pf_string):
     AlgTool starting from the prefilter substring if it appears in the 
     chain dict"""
 
-    assert pf_string.startswith('ptrange'),\
+    assert pf_string.startswith('PTRANGE'),\
         'routing error, module %s: bad prefilter %s' % (__name__, pf_string)
 
     m = rgx.match(pf_string)
