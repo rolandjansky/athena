@@ -511,7 +511,8 @@ namespace Analysis {
     m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
     std::unique_ptr< TFile > pfile(TFile::Open(pfname.c_str(),"READ"));
     if (pfile.get()==nullptr || !pfile.get()->IsOpen()) {
-      ATH_MSG_WARNING("Problems opening input file "+pfname);
+      ATH_MSG_WARNING("Problems opening input file " << pfname 
+                      << " [GUID " << coolguid << "]");
       return StatusCode::FAILURE;
     }
 
