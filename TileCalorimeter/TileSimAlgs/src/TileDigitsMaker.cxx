@@ -96,7 +96,7 @@ TileDigitsMaker::TileDigitsMaker(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false,"Pileup and/or noise added by overlaying random events (default=false)");
   declareProperty("UseCoolPulseShapes",m_useCoolPulseShapes = true,"Pulse shapes from database (default=true)");
   declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
-  declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true);
+  declareProperty("DoHSTruthReconstruction",m_doDigiTruth = false);
   declareProperty("AllChannels", m_allChannels = -1, "Create all channels, use 0 or 1 or 2 (default=-1 - unset)");
 }
 
@@ -343,9 +343,9 @@ StatusCode TileDigitsMaker::initialize() {
       m_drawerBufferHi_DigiHSTruth.push_back(pDigitSamplesHi);
       m_drawerBufferLo_DigiHSTruth.push_back(pDigitSamplesLo);
     }
-    ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize() );
-    ATH_CHECK( m_digitsContainer_DigiHSTruthKey.initialize() );
   }
+  ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
+  ATH_CHECK( m_digitsContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
 
   /* ==================================*/
 
