@@ -1495,6 +1495,8 @@ HLT_g35_loose_3j25_pf_ftf_L1EM22VHI:
   eventCount: 0
 HLT_g35_loose_L1EM22VHI:
   eventCount: 0
+HLT_g35_loose_PhotonDS_L1EM22VHI:
+  eventCount: 0
 HLT_g35_loose_mu15_mu2noL1_L1EM22VHI:
   eventCount: 0
 HLT_g35_loose_mu15_mu2noL1_L1EM24VHI:

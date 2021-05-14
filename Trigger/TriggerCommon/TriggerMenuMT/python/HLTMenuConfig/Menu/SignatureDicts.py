@@ -529,7 +529,7 @@ PhotonChainParts = {
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
     'topo'          : AllowedTopos_g,
-    'chainPartIndex': list(range(0,10))
+    'chainPartIndex': list(range(0,10)),
     }
 
 # ---- Photon Dictionary of default Values ----
@@ -552,7 +552,7 @@ PhotonChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'chainPartIndex': 0
+    'chainPartIndex': 0,
     }
 
 #==========================================================

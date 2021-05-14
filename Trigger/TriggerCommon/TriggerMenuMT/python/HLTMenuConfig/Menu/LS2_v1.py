@@ -217,6 +217,12 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g35_tight_icaloloose_L1EM22VHI', groups=SinglePhotonGroup),
 
+     
+     
+        # PhotonDS chains for TLA
+        ChainProp(name='HLT_g35_loose_PhotonDS_L1EM22VHI',stream=['PhotonDS'], groups=SinglePhotonGroup),
+
+     
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
@@ -358,6 +364,9 @@ def setupMenu():
         ChainProp(name='HLT_JetDS_j20_L1J100', stream=['JetDS'], groups=SingleJetGroup),
         # TLA test HT chains, ATR-21594
         ChainProp(name='HLT_JetDS_j20_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
+
+       
+
 
         # ATR-22096
         ChainProp(name='HLT_j420_ftf_L1J100',             groups=SingleJetGroup+ PrimaryLegGroup),
