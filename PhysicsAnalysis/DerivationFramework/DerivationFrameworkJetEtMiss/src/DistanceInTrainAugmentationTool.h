@@ -17,8 +17,7 @@
 #include "StoreGate/ReadDecorHandleKey.h"
 
 #include "xAODEventInfo/EventInfo.h"
-
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 namespace DerivationFramework {
 
@@ -35,8 +34,8 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-
-      ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
+      // Tool to get distance into bunch train
+      SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; 
 
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
       
