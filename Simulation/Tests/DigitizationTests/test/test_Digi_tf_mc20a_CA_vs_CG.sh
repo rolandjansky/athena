@@ -62,6 +62,7 @@ Digi_tf.py \
 --skipEvents 0
 
 rc=$?
+status=$rc
 echo "art-result: $rc CGdigi"
 mv runargs.HITtoRDO.py runargs.legacy.HITtoRDO.py 
 mv log.HITtoRDO legacy.HITtoRDO
@@ -90,6 +91,7 @@ then
     --skipEvents 0
 
     rc2=$?
+    status=$rc2
 fi
 
 echo  "art-result: $rc2 CAdigi"
@@ -101,6 +103,9 @@ then
         --mode=semi-detailed --error-mode resilient --order-trees \
         --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 
 echo  "art-result: $rc3 comparison"
+
+exit $status
