@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,11 +55,11 @@ Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg)
 
 // move constructor
 Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg) noexcept
-  : Trk::Segment(tseg)
+  : Trk::Segment(tseg),
+    m_associatedSurface(tseg.m_associatedSurface),
+    m_globalPosition(std::move(tseg.m_globalPosition))
 {
-  m_associatedSurface = tseg.m_associatedSurface;
   tseg.m_associatedSurface = nullptr;
-  m_globalPosition = std::move(tseg.m_globalPosition);
 }
 
 Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
