@@ -96,8 +96,6 @@ namespace Muon {
         bool extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
                              ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
-        virtual void cleanUp() const override;
-
         StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
         std::unique_ptr<const MuonTrackSteeringStrategy> decodeStrategy(const std::string& strategy) const;
         bool decodeList(const std::string& input, std::vector<std::string>& list) const;
@@ -146,11 +144,6 @@ namespace Muon {
         ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool{this, "HoleRecoveryTool",
                                                                 "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
-
-        mutable SegCol m_segmentsToDelete ATLAS_THREAD_SAFE;
-        mutable std::vector<const MuonSegment*> m_constsegmentsToDelete ATLAS_THREAD_SAFE;
-        mutable std::mutex m_segmentsMutex;
-        mutable std::mutex m_constSegmentsMutex;
 
         std::vector<std::unique_ptr<const MuonTrackSteeringStrategy>> m_strategies;
         std::vector<std::string> m_stringStrategies;

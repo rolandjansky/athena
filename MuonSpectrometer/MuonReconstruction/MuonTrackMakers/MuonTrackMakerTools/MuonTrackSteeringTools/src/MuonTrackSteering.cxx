@@ -108,42 +108,8 @@ namespace Muon {
             // Perform the actual track finding
             result = findTracks(chamberSegments, stationSegments, trash_bin);
         }
-        // Tracking complete - cleanup
-        cleanUp();
-
         return result;
     }
-
-    //-----------------------------------------------------------------------------------------------------------
-
-    void MuonTrackSteering::cleanUp() const {
-        return;
-        {
-            const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
-            std::for_each(m_constsegmentsToDelete.begin(), m_constsegmentsToDelete.end(), MuonDeleteObject<const MuonSegment>());
-            m_constsegmentsToDelete.clear();
-        }
-
-        {
-            const std::lock_guard<std::mutex> lock(m_segmentsMutex);
-            // sanity check that the track/segment association is ok
-            // at this point all MuPatTracks should be deleted so the segments should not be assigned to any track anymore
-            SegColIt sit = m_segmentsToDelete.begin();
-            SegColIt sit_end = m_segmentsToDelete.end();
-            for (; sit != sit_end; ++sit) {
-                if (!(*sit)->tracks().empty()) {
-                    ATH_MSG_WARNING("Detected segment/track association issue for segment ");
-                    std::set<MuPatTrack*>::const_iterator tit = (*sit)->tracks().begin();
-                    std::set<MuPatTrack*>::const_iterator tit_end = (*sit)->tracks().end();
-                    for (; tit != tit_end; ++tit) { ATH_MSG_DEBUG(" Track ptr " << *tit); }
-                }
-            }
-            std::for_each(m_segmentsToDelete.begin(), m_segmentsToDelete.end(), MuonDeleteObject<MuPatSegment>());
-            m_segmentsToDelete.clear();
-        }
-    }
-
-    //-----------------------------------------------------------------------------------------------------------
 
     bool MuonTrackSteering::extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
                                             ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const {
@@ -181,8 +147,9 @@ namespace Muon {
                 segments2.push_back(aSeg);
             }
             {
-                std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                m_segmentsToDelete.push_back(aSeg);
+                // std::lock_guard<std::mutex> lock(m_segmentsMutex);
+                // m_segmentsToDelete.push_back(aSeg);
+                trash_bin.push_back(aSeg);
             }
         }
 
@@ -350,12 +317,12 @@ namespace Muon {
 
                 // store pointer to segment so it can be deleted at the end of track search
                 {
-                    const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
+                    //const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
                     //m_constsegmentsToDelete.push_back(newseg);
                     trash_bin.push_back(newseg);
                 }
                 {
-                    const std::lock_guard<std::mutex> lock(m_segmentsMutex);
+                    // const std::lock_guard<std::mutex> lock(m_segmentsMutex);
                     //m_segmentsToDelete.push_back(segInfo);
                     trash_bin.push_back(segInfo);
                     //m_segmentsToDelete.push_back(segInfo);
