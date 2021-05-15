@@ -168,6 +168,10 @@ else:
          DQMonFlags.doLucidMon=False
          DQMonFlags.doJetTagMon=False
          DQMonFlags.doJetMon=False
+   
+   # no HLT monitoring if new monitoring and input is Run 2 EDM
+   if DQMonFlags.doNewMonitoring() and ConfigFlags.Trigger.EDMVersion == 2:
+      DQMonFlags.doHLTMon = False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():

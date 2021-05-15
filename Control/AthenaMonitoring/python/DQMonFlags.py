@@ -425,7 +425,7 @@ class triggerMixedMode(JobProperty):
     """ Enable R21 HLT/L1 trigger monitoring on Run 2 data """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[triggerMixedMode]
 
 ##-----------------------------------------------------------------------------
