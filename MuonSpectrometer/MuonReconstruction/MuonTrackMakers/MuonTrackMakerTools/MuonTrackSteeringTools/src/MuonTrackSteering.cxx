@@ -117,6 +117,7 @@ namespace Muon {
     //-----------------------------------------------------------------------------------------------------------
 
     void MuonTrackSteering::cleanUp() const {
+        return;
         {
             const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
             std::for_each(m_constsegmentsToDelete.begin(), m_constsegmentsToDelete.end(), MuonDeleteObject<const MuonSegment>());
@@ -350,11 +351,14 @@ namespace Muon {
                 // store pointer to segment so it can be deleted at the end of track search
                 {
                     const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
-                    m_constsegmentsToDelete.push_back(newseg);
+                    //m_constsegmentsToDelete.push_back(newseg);
+                    trash_bin.push_back(newseg);
                 }
                 {
                     const std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                    m_segmentsToDelete.push_back(segInfo);
+                    //m_segmentsToDelete.push_back(segInfo);
+                    trash_bin.push_back(segInfo);
+                    //m_segmentsToDelete.push_back(segInfo);
                 }
 
                 // flag segments as matched
