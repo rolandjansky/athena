@@ -6,7 +6,7 @@
 #define TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
 
 
-#include "./IJetsMatcherMT.h"
+#include "./IJetsMatcher.h"
 #include "./RepeatedConditionsDefs.h"
 #include "./ConditionFilter.h"
 #include "./Tree.h"
@@ -18,7 +18,7 @@ class ITrigJetHypoInfoCollector;
 using  ConditionFilters =
   std::vector<std::unique_ptr<IHypoJetVectorFilter>>;
 
-class FastReductionMatcher: public IJetsMatcherMT {
+class FastReductionMatcher: public IJetsMatcher {
  public:
 
   FastReductionMatcher(ConditionPtrs&,

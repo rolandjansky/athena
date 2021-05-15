@@ -104,6 +104,16 @@ def L1TriggerByteStreamEncoderCfg(flags):
   if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", flags=flags, writeBS=True)
     acc.addPublicTool(roibResultTool)
+    # Special - in BS->BS job without L1Sim, need to decode extra data from input
+    # for encoding the CTP information back to BS
+    if flags.Input.Format == 'BS' and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
+      if flags.Trigger.Online.isPartition:
+          from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
+          bsReadCfg = TrigByteStreamCfg
+      else:
+          from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+          bsReadCfg = ByteStreamReadCfg
+      acc.merge(bsReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
 
   if flags.Trigger.enableL1MuonPhase1:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool", flags=flags, writeBS=True)

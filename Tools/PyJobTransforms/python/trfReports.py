@@ -579,7 +579,7 @@ class machineReport(object):
             try:
                 machine[attr] = getattr(platform, attr).__call__()
             except AttributeError as e:
-                msg.error('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
+                msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
 
         # Now try to get processor information from /proc/cpuinfo
         try:

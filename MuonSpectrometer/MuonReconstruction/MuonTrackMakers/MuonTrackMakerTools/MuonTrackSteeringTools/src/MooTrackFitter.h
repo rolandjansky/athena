@@ -37,6 +37,7 @@
 
 #include "MuPatHitTool.h"
 #include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatGarbage.h"
 #include "MuPatPrimitives/MuPatHit.h"
 
 namespace Trk {
@@ -139,25 +140,6 @@ namespace Muon {
             MaterialLayers materialLayers;
         };
 
-        struct GarbageCan {
-            MeasVec measurementsToBeDeleted;  //<! vector of measurements created during fitting that should be deleted
-            std::vector<const Trk::TrackParameters*>
-                parametersToBeDeleted;  //<! vector of parameters created during fitting that should be deleted
-            std::vector<const MuPatHit*> mctbHitsToBeDeleted;
-
-            /** clean up memory managed by tool */
-            void cleanUp() {
-                for (const auto meas : measurementsToBeDeleted) delete meas;
-                measurementsToBeDeleted.clear();
-
-                for (const auto par : parametersToBeDeleted) delete par;
-                parametersToBeDeleted.clear();
-
-                for (const auto hit : mctbHitsToBeDeleted) delete hit;
-                mctbHitsToBeDeleted.clear();
-            }
-        };
-
     public:
         /** default AlgTool constructor */
         MooTrackFitter(const std::string&, const std::string&, const IInterface*);
@@ -196,7 +178,7 @@ namespace Muon {
         Trk::Perigee* createPerigee(const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
 
         /** fit track */
-        std::unique_ptr<Trk::Track> fit(const Trk::Perigee& startPars, MeasVec& hits, GarbageCan& garbage,
+        std::unique_ptr<Trk::Track> fit(const Trk::Perigee& startPars, MeasVec& hits, GarbageContainer& garbage,
                                         Trk::ParticleHypothesis partHypo = Trk::muon, bool prefit = false) const;
 
         /** fit track, refit if needed */
@@ -209,7 +191,8 @@ namespace Muon {
 
         /** construct a track from a list of TSOS and a start parameters */
         std::unique_ptr<Trk::Track> fitSplitTrack(const Trk::TrackParameters& startPars,
-                                                  const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage) const;
+                                                  const std::vector<const Trk::TrackStateOnSurface*>& tsos,
+                                                  GarbageContainer& garbage) const;
 
     private:
         /** clean and evaluate the track,
@@ -219,13 +202,13 @@ namespace Muon {
 
         /** extract all information needed for the fit from the track */
         bool extractData(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData,
-                         GarbageCan& garbage) const;
+                         GarbageContainer& garbage) const;
 
         /** extract all information from the HitList of a FitterData object */
         bool extractData(FitterData& fitterData, bool usePreciseHits) const;
 
         /** check fitterData, add fake phi hits if needed. If provided the reference parameter will be used to calcualte the fake hits */
-        bool addFakePhiHits(FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageCan& garbage) const;
+        bool addFakePhiHits(FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageContainer& garbage) const;
 
         /** sanity check for entries */
         bool corruptEntry(const MuPatCandidateBase& entry) const;
@@ -234,10 +217,10 @@ namespace Muon {
         bool getMaterial(const Trk::TrackParameters& pars, FitterData& fitterData) const;
 
         /** create a perigee parameter give the input data */
-        Trk::Perigee* createStartParameters(FitterData& inputData, GarbageCan& garbage) const;
+        Trk::Perigee* createStartParameters(FitterData& inputData, GarbageContainer& garbage) const;
 
         /** get segment from entry */
-        const MuonSegment* segmentFromEntry(const MuPatCandidateBase& entry, GarbageCan& garbage) const;
+        const MuonSegment* segmentFromEntry(const MuPatCandidateBase& entry, GarbageContainer& garbage) const;
 
         /** check whether data has sufficient phi constraints */
         unsigned int hasPhiConstrain(FitterData& inputData) const;
@@ -247,13 +230,14 @@ namespace Muon {
 
         /** create fake phi hit on the surface of the give measurement */
         const Trk::MeasurementBase* createFakePhiForMeasurement(const Trk::MeasurementBase& measurement, const Amg::Vector3D* overlapPos,
-                                                                const Amg::Vector3D* phiPos, double error, GarbageCan& garbage) const;
+                                                                const Amg::Vector3D* phiPos, double error, GarbageContainer& garbage) const;
 
         /** get q/p from entry */
         double qOverPFromEntry(const MuPatCandidateBase& entry) const;
 
         /** get q/p using angle + position of the two entries */
-        double qOverPFromEntries(const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, GarbageCan& garbage) const;
+        double qOverPFromEntries(const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
+                                 GarbageContainer& garbage) const;
 
         /** calculate phi used to for seeding the fit */
         double phiSeeding(FitterData& fitterData) const;
@@ -262,8 +246,7 @@ namespace Muon {
         double thetaSeeding(const MuPatCandidateBase& entry, MeasVec& etaHits) const;
 
         /** clean phi hits, returns true if anything happened during the cleaning */
-        bool cleanPhiHits(double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageCan& garbage,
-                          MuPatHitTool::HitGarbage& hitsToBeDeleted) const;
+        bool cleanPhiHits(double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageContainer& garbage) const;
 
         /** check whether mometum of start parameter is ok */
         bool validMomentum(const Trk::TrackParameters& pars) const;
@@ -274,7 +257,7 @@ namespace Muon {
         void removeSegmentOutliers(FitterData& fitterData) const;
         void cleanEntry(const MuPatCandidateBase& entry, std::set<Identifier>& removedIdentifiers) const;
         void cleanSegment(const MuonSegment& seg, std::set<Identifier>& removedIdentifiers) const;
-        void copyHitList(const MuPatHitList& hitList, MuPatHitList& copy, GarbageCan& garbage) const;
+        void copyHitList(const MuPatHitList& hitList, MuPatHitList& copy, GarbageContainer& garbage) const;
 
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator",
                                                   "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};  //!< propagator

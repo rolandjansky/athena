@@ -103,7 +103,8 @@ def Lvl1SimulationSequence_Data( ConfigFlags ):
     # Calo inputs
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         l1Phase1TopoSimDataSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
-        l1Phase1TopoSimDataSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        #TThis can be implemented when appropriate EDM available.
+        #l1Phase1TopoSimDataSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
     # Muon inputs
     from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
@@ -313,7 +314,8 @@ def Lvl1SimulationSequence_MC( ConfigFlags ):
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         l1Phase1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
-        l1Phase1TopoSim.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        #This can be implemented when appropriate EDM available. Require fix in ATR-23334
+        #l1Phase1TopoSim.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
     # Muon inputs
     # TODO: the legacy L1Topo sim should not need muon inputs 

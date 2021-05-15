@@ -8,7 +8,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
 #include "./DebugInfoCollector.h"
-#include "./CompoundConditionMT.h"
+#include "./CompoundCondition.h"
 #include <algorithm>
 #include <sstream>
 

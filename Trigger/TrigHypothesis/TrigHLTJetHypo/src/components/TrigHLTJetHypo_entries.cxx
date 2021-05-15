@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "../TrigJetHypoAlgMT.h"
+#include "../TrigJetHypoAlg.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
 #include "../TrigJetHypoToolConfig_conditionfilter.h"
 #include "../TrigJetHypoToolConfig_passthroughfilter.h"
@@ -25,10 +25,10 @@
 #include "../TrigJetConditionConfig_repeated.h"
 
 //
-#include "../TrigJetHypoToolMT.h"
+#include "../TrigJetHypoTool.h"
 #include "../TrigJetHypoToolHelperNoGrouper.h"
-#include "../TrigJetTLAHypoAlgMT.h"
-#include "../TrigJetTLAHypoToolMT.h"
+#include "../TrigJetTLAHypoAlg.h"
+#include "../TrigJetTLAHypoTool.h"
 
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_conditionfilter)
@@ -50,9 +50,9 @@ DECLARE_COMPONENT(TrigJetConditionConfig_moment)
 DECLARE_COMPONENT(TrigJetConditionConfig_repeated)
 DECLARE_COMPONENT(TrigJetConditionConfig_qjet_mass)
 
-DECLARE_COMPONENT(TrigJetHypoAlgMT)
-DECLARE_COMPONENT(TrigJetHypoToolMT)
-DECLARE_COMPONENT(TrigJetTLAHypoAlgMT)
-DECLARE_COMPONENT(TrigJetTLAHypoToolMT)
+DECLARE_COMPONENT(TrigJetHypoAlg)
+DECLARE_COMPONENT(TrigJetHypoTool)
+DECLARE_COMPONENT(TrigJetTLAHypoAlg)
+DECLARE_COMPONENT(TrigJetTLAHypoTool)
 DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
 

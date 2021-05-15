@@ -3,7 +3,7 @@
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TypeWideThresholdConfig')
+log = logging.getLogger(__name__)
 
 from ..Base.ThresholdType import ThrType
 

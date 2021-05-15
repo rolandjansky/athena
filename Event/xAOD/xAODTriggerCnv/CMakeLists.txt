@@ -60,7 +60,8 @@ else()
       xAODTriggerCnv/*.h src/*.cxx Root/*.cxx src/components/*.cxx
       LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger GaudiKernel AthenaBaseComps
       AthenaKernel StoreGateLib EventInfo AnalysisTriggerEvent
-      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces )
+      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces
+      TrigOutputHandlingLib )
 
 endif()
 

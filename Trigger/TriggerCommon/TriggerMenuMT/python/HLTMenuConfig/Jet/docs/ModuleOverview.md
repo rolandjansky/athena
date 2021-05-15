@@ -95,7 +95,7 @@ The following possible types of `ChainStep` are defined:
 Defines the `MenuSequence` objects that form the basis of `ChainSteps`. Each `MenuSequence` contains a reco sequence, an `InputMaker` (which defines the Region of Interest for the reco), a hypo algorithm and a hypo tool generator function. These are created as follows:
 * Reco sequence -- defined via functions in `JetRecoSequences.py`, based on the `JetRecoDict` extracted from the chain dictionary.
 * InputMaker -- varies depending on which sequence is needed. The basic fullscan InputMaker is provided by calo code.
-* Hypo algorithm -- In most cases this is a `TrigJetHypoAlgMT` defined in the `TrigHLTJetHypo` package. For the calo reco sequence only, this is a streamer hypo that does no selection.
+* Hypo algorithm -- In most cases this is a `TrigJetHypoAlg` defined in the `TrigHLTJetHypo` package. For the calo reco sequence only, this is a streamer hypo that does no selection.
 * Hypo tool generator -- For standard steps with hypo selection, this is the `TrigHLTJetHypo.TrigJetHypoToolConfig.trigJetHypoToolFromDict()` function, which will interpret the chain dict. For passthrough calo reco steps, this is instead just a function that returns a streamer hypo tool.
 
 *Note: For every jet collection there is exactly one matching hypo algorithm, but every distinct selection on that collection is defined by a different hypo tool that is a child of this hypo algorithm.*

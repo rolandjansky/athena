@@ -5,7 +5,7 @@
 #include "TrigJetConditionConfig_smc.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./SMCConditionMT.h"
+#include "./SMCCondition.h"
 
 TrigJetConditionConfig_smc::TrigJetConditionConfig_smc(const std::string& type,
 						       const std::string& name,
@@ -21,9 +21,9 @@ StatusCode TrigJetConditionConfig_smc::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_smc::getCondition() const {
+Condition TrigJetConditionConfig_smc::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<SMCConditionMT>(a2d(m_min), a2d(m_max));
+  return std::make_unique<SMCCondition>(a2d(m_min), a2d(m_max));
 }
 
 

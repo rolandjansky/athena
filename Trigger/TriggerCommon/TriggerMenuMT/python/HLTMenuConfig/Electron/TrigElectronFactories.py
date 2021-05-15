@@ -49,7 +49,7 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
 
 def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
     
-    mlog = logging.getLogger("TrigElectronFactories")
+    mlog = logging.getLogger(__name__)
     mlog.info('Starting configuration')
     TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = name,
             SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,

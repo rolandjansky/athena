@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def getOfflinePFAlgorithm(inputFlags):
+    result=ComponentAccumulator()
 
     PFAlgorithm=CompFactory.PFAlgorithm
     PFAlgorithm = PFAlgorithm("PFAlgorithm")   
@@ -18,11 +19,12 @@ def getOfflinePFAlgorithm(inputFlags):
         PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
 
     from eflowRec.PFCfg import getPFMomentCalculatorTool
-    PFAlgorithm.BaseToolList = [getPFMomentCalculatorTool(inputFlags,[])]
+    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
+    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
     from eflowRec.PFCfg import getPFLCCalibTool
     PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
-
-    return PFAlgorithm
+    result.addEventAlgo(PFAlgorithm)
+    return result
 
 def PFCfg(inputFlags,**kwargs):
 
@@ -98,7 +100,8 @@ def PFCfg(inputFlags,**kwargs):
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags,doLCCalib=True))
+    result.merge(CaloTopoClusterCfg(inputFlags,clustersname="CaloTopoClusters",
+                                    doLCCalib=True))
     
     from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
     result.merge(caloTopoCoolFolderCfg(inputFlags))
@@ -118,7 +121,7 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector"))
 
-    result.addEventAlgo(getOfflinePFAlgorithm(inputFlags))
+    result.merge(getOfflinePFAlgorithm(inputFlags))
 
     from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
     result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))

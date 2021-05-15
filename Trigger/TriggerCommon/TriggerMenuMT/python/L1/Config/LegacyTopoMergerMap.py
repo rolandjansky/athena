@@ -3,7 +3,7 @@
 from collections import namedtuple, OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("L1.Config.LegacyTopoMergerMap")
+log = logging.getLogger(__name__)
 
 MC = namedtuple('MC', "target_bit, topo_board, source_bit, signals")
 
@@ -12,7 +12,7 @@ MC = namedtuple('MC', "target_bit, topo_board, source_bit, signals")
 __mapping = [
     MC(target_bit =  0, topo_board = 0, source_bit =  0, signals = ( "900INVM9999-AJ30s6-AJ20s6", None )),
     MC(target_bit =  1, topo_board = 0, source_bit =  1, signals = ( "800INVM9999-AJ30s6-AJ20s6", None )),
-    MC(target_bit =  2, topo_board = 0, source_bit =  2, signals = ( "700INVM9999-AJ30s6-AJ20s6", None )),
+    MC(target_bit =  2, topo_board = 0, source_bit =  2, signals = ( "700INVM9999-AJ30s6-AJ20s6", "ZEE-EM20shi2" )),
     MC(target_bit =  3, topo_board = 0, source_bit =  3, signals = ( "500INVM9999-AJ30s6-AJ20s6", None )),
     MC(target_bit =  4, topo_board = 0, source_bit =  4, signals = ( "400INVM9999-AJ30s6-AJ20s6", "0DR03-EM7ab-CJ15ab" )),
     MC(target_bit =  5, topo_board = 0, source_bit =  5, signals = ( "300INVM9999-AJ30s6-AJ20s6", "10MINDPHI-J20s2-XE30" )),

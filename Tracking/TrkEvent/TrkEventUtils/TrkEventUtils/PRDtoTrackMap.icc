@@ -1,63 +1,52 @@
-#include "PRDtoTrackMap.h"
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 
-inline
-Trk::PRDtoTrackMap &Trk::PRDtoTrackMap::operator=(Trk::PRDtoTrackMap &&a) {
-  if (this != &a) {
-    m_prepRawDataTrackMap = std::move(a.m_prepRawDataTrackMap);
-    m_trackPrepRawDataMap = std::move(a.m_trackPrepRawDataMap);
+inline const std::type_info&
+Trk::PRDtoTrackMap::getType() const
+{
+  return typeid(PRDtoTrackMap);
+}
+
+inline Trk::PRDtoTrackMap::PrepRawDataTrackMapRange
+Trk::PRDtoTrackMap::onTracks(const PrepRawData& prd)
+{
+  return m_prepRawDataTrackMap.equal_range(&prd);
+}
+
+inline Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange
+Trk::PRDtoTrackMap::onTracks(const PrepRawData& prd) const
+{
+  return m_prepRawDataTrackMap.equal_range(&prd);
+}
+
+inline void
+Trk::PRDtoTrackMap::clear()
+{
+  m_prepRawDataTrackMap.clear();
+  m_trackPrepRawDataMap.clear();
+}
+
+inline std::vector<const Trk::PrepRawData*>
+Trk::PRDtoTrackMap::getPrdsOnTrack(const Track& track) const
+{
+  PRDtoTrackMap::TrackPrepRawDataMap::const_iterator itvec =
+    m_trackPrepRawDataMap.find(&track);
+  if (itvec != m_trackPrepRawDataMap.end()) {
+    return itvec->second;
+  } else {
+    return std::vector<const PrepRawData*>();
   }
-  return *this;
 }
 
-
-inline
-const std::type_info& Trk::PRDtoTrackMap::getType() const
+inline bool
+Trk::PRDtoTrackMap::isUsed(const PrepRawData& prd) const
 {
-   return typeid(PRDtoTrackMap);
+  return (m_prepRawDataTrackMap.find(&prd) != m_prepRawDataTrackMap.end());
 }
 
-inline
-Trk::PRDtoTrackMap::PrepRawDataTrackMapRange
-   Trk::PRDtoTrackMap::onTracks(const PrepRawData& prd)
+inline bool
+Trk::PRDtoTrackMap::isShared(const PrepRawData& prd) const
 {
-   return m_prepRawDataTrackMap.equal_range(&prd);
-}
-
-inline
-Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange
-   Trk::PRDtoTrackMap::onTracks(const PrepRawData& prd) const
-{
-   return m_prepRawDataTrackMap.equal_range(&prd);
-}
-
-inline
-void Trk::PRDtoTrackMap::clear()
-{
-   m_prepRawDataTrackMap.clear();
-   m_trackPrepRawDataMap.clear();
-}
-
-inline
-std::vector< const Trk::PrepRawData* > Trk::PRDtoTrackMap::getPrdsOnTrack(const Track& track) const
-{
-   PRDtoTrackMap::TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
-   if (itvec!=m_trackPrepRawDataMap.end())
-   {
-      return itvec->second;
-   }
-   else {
-      return std::vector< const PrepRawData*>();
-   }
-}
-
-inline
-bool Trk::PRDtoTrackMap::isUsed(const PrepRawData& prd) const
-{
-   return (m_prepRawDataTrackMap.find(&prd) != m_prepRawDataTrackMap.end());
-}
-
-inline
-bool Trk::PRDtoTrackMap::isShared(const PrepRawData& prd) const
-{
-   return (m_prepRawDataTrackMap.count(&prd)>1);
+  return (m_prepRawDataTrackMap.count(&prd) > 1);
 }

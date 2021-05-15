@@ -57,7 +57,8 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
 			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap) const;
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+			 const bool                  dynamicDeltaRpc) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -67,7 +68,8 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
 			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap) const;
+			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+			 const bool                  dynamicDeltaRpc) const;
 
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -102,7 +104,8 @@ class MuFastDataPreparator: public AthAlgTool {
                          std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                          TrigL2MuonSA::MdtHits&               mdtHits_normal,
                          TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const;
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
+                         const bool                           dynamicDeltaRpc) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*                 p_roi,
 			 const TrigRoiDescriptor*             p_roids,
@@ -110,7 +113,8 @@ class MuFastDataPreparator: public AthAlgTool {
                          std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                          TrigL2MuonSA::MdtHits&               mdtHits_normal,
                          TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const;
+                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
+                         const bool                           dynamicDeltaRpc) const;
 
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
@@ -128,8 +132,6 @@ class MuFastDataPreparator: public AthAlgTool {
 			     bool use_RoIBasedDataAccess_MM);
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
-
-  void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
@@ -155,7 +157,6 @@ class MuFastDataPreparator: public AthAlgTool {
 
   bool m_use_rpc{false};
   bool m_use_mcLUT{false};
-  bool m_doMultiMuon{false};
 
 };
 

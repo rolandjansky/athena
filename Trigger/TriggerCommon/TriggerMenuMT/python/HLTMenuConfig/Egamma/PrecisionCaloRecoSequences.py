@@ -11,7 +11,7 @@ from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
 from .PrecisionCaloMenuSequences_FWD import precisionCaloMenuDefs_FWD
 from AthenaCommon.Logging import logging
 
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec' )
+log = logging.getLogger(__name__)
 
 
 

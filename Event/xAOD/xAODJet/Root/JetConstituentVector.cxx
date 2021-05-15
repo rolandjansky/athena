@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -67,10 +67,10 @@ namespace xAOD {
 
   using iterator = JetConstituentVector::iterator;
   
-  iterator & iterator::operator++(){ m_index++; return *this ; }
-  iterator & iterator::operator++(int) { ++m_index; return *this ; }
-  iterator & iterator::operator--() { m_index--; return *this ; }
-  iterator & iterator::operator--(int) { --m_index; return *this ; }
+  iterator & iterator::operator++(){ ++m_index; return *this ; }
+  iterator   iterator::operator++(int) { iterator tmp = *this; ++m_index; return tmp ; }
+  iterator & iterator::operator--() { --m_index; return *this ; }
+  iterator   iterator::operator--(int) { iterator tmp = *this; --m_index; return tmp ; }
   bool iterator::operator==( const iterator & other) { return m_index == other.m_index; }
   bool iterator::operator!=( const iterator & other) { return m_index != other.m_index; }
   

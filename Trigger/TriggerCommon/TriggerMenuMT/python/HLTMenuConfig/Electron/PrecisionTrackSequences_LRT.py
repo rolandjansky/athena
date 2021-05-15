@@ -8,7 +8,7 @@ import AthenaCommon.CfgMgr as CfgMgr
 
 #logging
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionTracking_LRT')
+log = logging.getLogger(__name__)
 #from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup_LRT import precisionCaloMenuDefs_LRT
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_LRT

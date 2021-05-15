@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Logging import logging
-    log = logging.getLogger('ComponentAccumulator')
+    log = logging.getLogger(__name__)
 
     acc = ComponentAccumulator()
 

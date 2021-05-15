@@ -9,6 +9,12 @@
 
 #include <stdexcept>
 
+// Hack to initialise decoration accessors for Trigger EDM in offline jobs
+// starting from ESD or later, see ATR-22421
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#include "TrigOutputHandling/TriggerEDMAuxAccessors.h"
+#endif
+
 // Local include(s):
 #include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
 

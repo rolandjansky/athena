@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMakerMT,
-                                         TrigCaloTowerMakerMT,
-                                         TrigCaloClusterCalibratorMT)
+from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMaker,
+                                         TrigCaloTowerMaker,
+                                         TrigCaloClusterCalibrator)
 
 #from CaloRec.CaloRecConf import (CaloCellContainerCorrectorTool,
 #                                 CaloCellContainerFinalizerTool,
@@ -30,16 +30,16 @@ def AddFolderCheck(folder, tag):
 
 # MT classes
 
-class TrigCaloTowerMakerMTBase (TrigCaloTowerMakerMT):
+class TrigCaloTowerMakerBase (TrigCaloTowerMaker):
     __slots__ = []
     def __init__(self, name):
-        super( TrigCaloTowerMakerMTBase, self ).__init__(name)
+        super( TrigCaloTowerMakerBase, self ).__init__(name)
 
 
-class TrigCaloClusterMakerMTBase (TrigCaloClusterMakerMT):
+class TrigCaloClusterMakerBase (TrigCaloClusterMaker):
     __slots__ = []
     def __init__(self, name):
-        super( TrigCaloClusterMakerMTBase, self ).__init__(name)
+        super( TrigCaloClusterMakerBase, self ).__init__(name)
 
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
@@ -69,10 +69,10 @@ class TrigCaloClusterMakerMTBase (TrigCaloClusterMakerMT):
         self.MonTool = monTool
 
 
-class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_eGamma (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_eGamma'):
-        super(TrigCaloTowerMakerMT_eGamma, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_eGamma'):
+        super(TrigCaloTowerMaker_eGamma, self).__init__(name)
 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",  # noqa: ATL900 (OutputLevel)
@@ -94,10 +94,10 @@ class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
         
 
 
-class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_jet'):
-        super(TrigCaloTowerMakerMT_jet, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_jet'):
+        super(TrigCaloTowerMaker_jet, self).__init__(name)
 
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
@@ -146,10 +146,10 @@ class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
         self.TowerMakerTools = [ tilecmbtwrbldr.getFullName(), larcmbtwrbldr.getFullName(), fcalcmbtwrbldr.getFullName() ]
         
         
-class TrigCaloTowerMakerMT_tau (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_tau (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_tau'):
-        super(TrigCaloTowerMakerMT_tau, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_tau'):
+        super(TrigCaloTowerMaker_tau, self).__init__(name)
 
         #input to  LArTowerMBuilder:  Cells in LArEM 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
@@ -173,10 +173,10 @@ class TrigCaloTowerMakerMT_tau (TrigCaloTowerMakerMTBase):
         self.TowerMakerTools=[lartowerbuilder.getFullName()]
         
 
-class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_slw', cells="cells", towers="calotowers"):
-        super(TrigCaloClusterMakerMT_slw, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_slw', cells="cells", towers="calotowers"):
+        super(TrigCaloClusterMaker_slw, self).__init__(name)
 
         from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
         trigslw= make_CaloClusterBuilderSW ("trigslw",
@@ -209,10 +209,10 @@ class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
             mlog.info("Adding tool %s", tool.getFullName())
 
 
-class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_topo', cells="cells",doMoments=True, doLC=True ):
-        super(TrigCaloClusterMakerMT_topo, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_topo', cells="cells",doMoments=True, doLC=True ):
+        super(TrigCaloClusterMaker_topo, self).__init__(name)
 
         self.Cells=cells
 
@@ -466,10 +466,10 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
 
 
 
-class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_EMtopo'):
-        super(TrigCaloClusterMakerMT_EMtopo, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_EMtopo'):
+        super(TrigCaloClusterMaker_EMtopo, self).__init__(name)
 
         from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker
         from CaloRec.CaloTopoClusterFlags import jobproperties
@@ -603,11 +603,11 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
         self.MonTool = monTool
         self.monitorCells = monitorCells
 
-class TrigCaloClusterCalibratorMT_LC(TrigCaloClusterCalibratorMT):
+class TrigCaloClusterCalibrator_LC(TrigCaloClusterCalibrator):
     """ Class to set up the default configurations for LC calibrations """
 
-    def __init__(self, name="TrigCaloClusterCalibratorMT_LC", **kwargs):
-        super(TrigCaloClusterCalibratorMT_LC, self).__init__(name, **kwargs)
+    def __init__(self, name="TrigCaloClusterCalibrator_LC", **kwargs):
+        super(TrigCaloClusterCalibrator_LC, self).__init__(name, **kwargs)
 
         from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
         from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
@@ -752,7 +752,7 @@ def hltTopoClusterMakerCfg(flags, name=None, clustersKey=None):
                                 'AVG_TILE_Q'
                                 ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    alg = CompFactory.TrigCaloClusterMakerMT(name,
+    alg = CompFactory.TrigCaloClusterMaker(name,
                                              Cells = 'CaloCells',
                                              CaloClusters=recordable(clustersKey),
                                              ClusterMakerTools = [ topoMaker, topoSplitter, topoMoments] # moments are missing yet

@@ -61,35 +61,6 @@ Trk::Surface::Surface(const Amg::Transform3D& tform)
 #endif
 }
 
-#if defined(FLATTEN) && defined(__GNUC__)
-// We compile this function with optimization, even in debug builds; otherwise,
-// the heavy use of Eigen makes it too slow.  However, from here we may call
-// to out-of-line Eigen code that is linked from other DSOs; in that case,
-// it would not be optimized.  Avoid this by forcing all Eigen code
-// to be inlined here if possible.
-__attribute__((flatten))
-#endif
-Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform)
-  : m_transforms(tform ? std::make_unique<Transforms>(*tform) : nullptr)
-  , m_associatedDetElement(nullptr)
-  , m_associatedDetElementId()
-  , m_associatedLayer(nullptr)
-  , m_materialLayer(nullptr)
-  , m_owner(Trk::noOwn)
-{
-#ifndef NDEBUG
-  s_numberOfInstantiations++; // EDM Monitor - increment one instance
-  s_numberOfFreeInstantiations++;
-#endif
-}
-
-// delegate to the unique_ptr one
-Trk::Surface::Surface(Amg::Transform3D* tform)
-  : Surface(std::unique_ptr<Amg::Transform3D>(tform))
-{
-// No EDM monitor here since we delegate to the previous constructor.
-}
-
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
   : m_transforms(nullptr)
   , m_associatedDetElement(&detelement)

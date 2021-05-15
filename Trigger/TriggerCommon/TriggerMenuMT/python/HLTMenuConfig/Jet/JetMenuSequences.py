@@ -87,7 +87,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     def trigStreamerHypoTool(chain_dict):
         return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
 
-    hyponame = "TrigJetHypoAlgMT_"+jetDefString
+    hyponame = "TrigJetHypoAlg_"+jetDefString
     trigHypoToolGen = trigJetHypoToolFromDict
     if hypoType==JetHypoAlgType.PASSTHROUGH:
         hyponame = "TrigStreamerHypoAlg_caloReco"
@@ -95,9 +95,9 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
         trigHypoToolGen = trigStreamerHypoTool
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
-        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlgMT(hyponame, Jets=jetsIn, DoPresel=True))
+        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn, DoPresel=True))
     else:
-        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlgMT(hyponame, Jets=jetsIn))
+        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn))
 
     return  MenuSequence(   Sequence    = jetSeq,
                             Maker       = IMAlg,

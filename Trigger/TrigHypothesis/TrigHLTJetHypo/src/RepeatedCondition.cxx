@@ -8,7 +8,7 @@
 #include <string>
 
 
-RepeatedCondition::RepeatedCondition(std::unique_ptr<IConditionMT> cp,
+RepeatedCondition::RepeatedCondition(std::unique_ptr<ICondition> cp,
 				     std::size_t mult,
 				     int cpInd,
 				     bool invert):

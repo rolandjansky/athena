@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthViews/DebugView.h"
@@ -7,7 +7,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 
-DebugView::DebugView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
+DebugView::DebugView( std::string const& Name, bool AllowFallThrough, std::string const& storeName ) :
   SimpleView( Name, AllowFallThrough, storeName ),
   AthMessaging( Athena::getMessageSvc(), Name )
 {

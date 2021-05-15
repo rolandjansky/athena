@@ -4,7 +4,7 @@ from enum import Enum, unique
 from functools import total_ordering
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.ThresholdType")
+log = logging.getLogger(__name__)
 
 @total_ordering
 @unique

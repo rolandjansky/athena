@@ -314,31 +314,29 @@ namespace Trk {
     trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
 
     bool firstismuon = isMuonTrack(intrk1);
-  
     const Track *indettrack = firstismuon ? &intrk2 : &intrk1;
     const Track *muontrack = firstismuon ? &intrk1 : &intrk2;
-    
     bool muonisstraight = muontrack->info().trackProperties(TrackInfo::StraightTrack);
     bool measphi = false;
 
     for (const auto *i : *(muontrack->measurementsOnTrack())) {
-      const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>(i);
       const RIO_OnTrack *rot = nullptr;
       
-      if (crot != nullptr) {
+      if (i->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+        const auto crot = static_cast<const CompetingRIOsOnTrack *>(i);
         rot = &crot->rioOnTrack(0);
       } else {
-        rot = dynamic_cast<const RIO_OnTrack *>(i);
+        if (i->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+          rot =static_cast<const RIO_OnTrack *>(i);
+        }
       }
       if ((rot != nullptr) && !m_DetID->is_mdt(rot->identify())) {
         const Surface *surf = &rot->associatedSurface();
         Amg::Vector3D measdir = surf->transform().rotation().col(0);
-        
         double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
         double dotprod2 = measdir.dot(
           Amg::Vector3D(surf->center().x(), surf->center().y(), 0) /
           surf->center().perp());
-
         if (std::abs(dotprod1) < .5 && std::abs(dotprod2) < .5) {
           measphi = true;
           break;
@@ -778,7 +776,7 @@ namespace Trk {
     DataVector<const TrackStateOnSurface>::const_iterator endState2 = intrk2.trackStateOnSurfaces()->end();
 
     for (; itStates != endState; ++itStates) {
-      if (firstismuon && (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr)) {
+      if (firstismuon && (*itStates)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
         continue;
       }
       
@@ -1206,8 +1204,7 @@ namespace Trk {
           cache.m_idmat = false;
         }
       }
-
-      bool ispseudo = dynamic_cast<const PseudoMeasurementOnTrack *>(meas) != nullptr;
+      bool ispseudo = meas->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack);
       if (
         ispseudo && 
         !(itStates2 == beginStates2 || itStates2 == beginStates2 + 1) && 
@@ -1271,7 +1268,8 @@ namespace Trk {
     return track;
   }
 
-  Track *GlobalChi2Fitter::backupCombinationStrategy(
+  Track *
+  GlobalChi2Fitter::backupCombinationStrategy(
     const EventContext& ctx,
     Cache & cache,
     const Track & intrk1,
@@ -1283,36 +1281,7 @@ namespace Trk {
 
     bool firstismuon = false;
     const Track *indettrack = &intrk1;
-    int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
-    
-    const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = nullptr;
-    
-    if (testrot == nullptr) {
-      testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-      
-      if (testcrot != nullptr) {
-        testrot = &testcrot->rioOnTrack(0);
-      }
-    }
-    
-    if (testrot == nullptr) {
-      testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-      
-      if (testrot == nullptr) {
-        testcrot = dynamic_cast<const CompetingRIOsOnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-        
-        if (testcrot != nullptr) {
-          testrot = &testcrot->rioOnTrack(0);
-        }
-      }
-    }
-    
-    if (
-      (testrot != nullptr) && 
-      !m_DetID->is_indet(testrot->identify()) && 
-      m_DetID->is_muon(testrot->identify())
-    ) {
+    if(isMuonTrack(intrk1)) {
       firstismuon = true;
       indettrack = &intrk2;
     }
@@ -1325,12 +1294,13 @@ namespace Trk {
     DataVector<const TrackStateOnSurface>::const_iterator endState2 = intrk2.trackStateOnSurfaces()->end();
 
     const TrackParameters *firstidpar = nullptr;
+    const auto pParametersVector = indettrack->trackParameters();
     // Dont understand why the second track parameters are taken
     // Is it assumed the ID track is slimmed?
-    if (indettrack->trackParameters()->size() > 1)
-      firstidpar = (*indettrack->trackParameters())[1];
+    if (pParametersVector->size() > 1)
+      firstidpar = (*pParametersVector)[1];
     else
-      firstidpar = indettrack->trackParameters()->back();
+      firstidpar = pParametersVector->back();
 
     std::unique_ptr<const TrackParameters> lastidpar = nullptr;
     if ((firstidpar != nullptr) && (cache.m_caloEntrance != nullptr))
@@ -1342,7 +1312,7 @@ namespace Trk {
       ));
       
     if (lastidpar == nullptr) {
-      lastidpar.reset(indettrack->trackParameters()->back()->clone());
+      lastidpar.reset(pParametersVector->back()->clone());
     }
     
     std::unique_ptr < const TrackParameters > firstscatpar;
@@ -1479,7 +1449,7 @@ namespace Trk {
     for (; itStates != endState; ++itStates) {
       if (
         firstismuon && 
-        (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr)
+        (*itStates)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)
       ) {
         continue;
       }
@@ -1534,21 +1504,22 @@ namespace Trk {
       ) {
         continue;
       }
-      
-      const Surface *surf = &(*itStates2)->measurementOnTrack()->associatedSurface();
-      const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((*itStates2)->measurementOnTrack());
+      const auto pMeasurement = (*itStates2)->measurementOnTrack();
+      const Surface *surf = &pMeasurement->associatedSurface();
+      bool isCompetingRIOsOnTrack = pMeasurement->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack);
       const RIO_OnTrack *rot = nullptr;
       
-      if (crot != nullptr) {
+      if (isCompetingRIOsOnTrack) {
+        const auto crot =  static_cast<const CompetingRIOsOnTrack *>(pMeasurement);
         rot = &crot->rioOnTrack(0);
       } else {
-        rot = dynamic_cast<const RIO_OnTrack *>((*itStates2)->measurementOnTrack());
+        if (pMeasurement->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+          rot = static_cast<const RIO_OnTrack *>(pMeasurement);
+        }
       }
-      
       if ((rot != nullptr) && m_DetID->is_mdt(rot->identify()) && (triggersurf1 != nullptr)) {
         seenmdt = true;
       }
-      
       if (
         (rot != nullptr) && (
           m_DetID->is_tgc(rot->identify()) || 
@@ -1558,14 +1529,11 @@ namespace Trk {
       ) {
         bool measphi = true;
         Amg::Vector3D measdir = surf->transform().rotation().col(0);
-        
         double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
         double dotprod2 = measdir.dot(Amg::Vector3D(surf->center().x(), surf->center().y(), 0) / surf->center().perp());
-        
         if (std::abs(dotprod1) > .5 || std::abs(dotprod2) > .5) {
           measphi = false;
         }
-        
         if (measphi) {
           nphi++;
           Amg::Vector3D thispos =
@@ -1607,27 +1575,24 @@ namespace Trk {
       if (surf == nullptr) {
         continue;
       }
-      
-      const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((*itStates2)->measurementOnTrack());
+      const auto pThisMeasurement = (*itStates2)->measurementOnTrack();
+      bool isCompetingRioOnTrack = pThisMeasurement->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack);
       const RIO_OnTrack *rot = nullptr;
       
-      if (crot != nullptr) {
+      if (isCompetingRioOnTrack) {
+        auto crot = static_cast<const CompetingRIOsOnTrack *>(pThisMeasurement);
         rot = &crot->rioOnTrack(0);
       } else {
-        rot = dynamic_cast<const RIO_OnTrack *>((*itStates2)->measurementOnTrack());
+        if (pThisMeasurement->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+          rot = static_cast<const RIO_OnTrack *>(pThisMeasurement);
+        }
       }
-      
-      bool thisismdt = false;
-      
-      if ((rot != nullptr) && m_DetID->is_mdt(rot->identify())) {
-        thisismdt = true;
-      }
-      
+      const bool thisismdt = rot and m_DetID->is_mdt(rot->identify());
       if (thisismdt) {
         Amg::Vector3D globpos =
           (*itStates2)->trackParameters() != nullptr ? 
           (*itStates2)->trackParameters()->position() : 
-          (*itStates2)->measurementOnTrack()->globalPosition();
+          pThisMeasurement->globalPosition();
         if (triggerpos1.mag() > 1 && (globpos - triggerpos1).mag() < mdttrig1) {
           mdttrig1 = (globpos - triggerpos1).mag();
           mdtsurf1 = surf;
@@ -1649,11 +1614,11 @@ namespace Trk {
     std::unique_ptr<PseudoMeasurementOnTrack> newpseudo;
     
     for (itStates2 = beginStates2; itStates2 != endState2; ++itStates2) {
-      const MeasurementBase *pseudo = dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates2)->measurementOnTrack());
-
+      const auto pMeasurement{(*itStates2)->measurementOnTrack()};
+      bool isPseudo = pMeasurement->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack);
       bool isStraightLine = 
-        (*itStates2)->measurementOnTrack() != nullptr ? 
-        (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::SurfaceType::Line : 
+        pMeasurement != nullptr ? 
+        pMeasurement->associatedSurface().type() == Trk::SurfaceType::Line : 
         false;
 
       if (
@@ -1661,29 +1626,26 @@ namespace Trk {
         !firstismuon && 
         (newpseudo == nullptr) && (
           (itStates2 == beginStates2 || itStates2 == beginStates2 + 1) &&
-          std::abs((*itStates2)->measurementOnTrack()->globalPosition().z()) < 10000
+          std::abs(pMeasurement->globalPosition().z()) < 10000
         )
       ) {
         std::unique_ptr<const TrackParameters> par2;
-        
         if (((*itStates2)->trackParameters() != nullptr) && nphi > 99) {
           par2.reset((*itStates2)->trackParameters()->clone());
         } else {
           par2 = m_propagator->propagateParameters(
               ctx,
               *secondscatstate->trackParameters(),
-              (*itStates2)->measurementOnTrack()->associatedSurface(),
+              pMeasurement->associatedSurface(),
               alongMomentum, 
               false,
               trajectory.m_fieldprop,
               Trk::nonInteracting
           );
         }
-
         if (par2 == nullptr) {
           continue;
         }
-        
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
         
@@ -1707,7 +1669,7 @@ namespace Trk {
         continue;
       }
       
-      if ((pseudo != nullptr) && !firstismuon) {
+      if (isPseudo && !firstismuon) {
         continue;
       }
       
@@ -1851,7 +1813,7 @@ namespace Trk {
         itStates != (firstismuon ? endState2 : beginStates - 1);
         (firstismuon ? ++itStates : --itStates)
       ) {
-        if (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr) {
+        if ((*itStates)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
           continue;
         }
         
@@ -1983,41 +1945,34 @@ namespace Trk {
     bool phibo = false;
     
     for (; itStates != endState; ++itStates) {
+      const auto pMeasurement = (**itStates).measurementOnTrack();
       if (
-        ((**itStates).measurementOnTrack() == nullptr) && 
+        (pMeasurement == nullptr) && 
         ((**itStates).materialEffectsOnTrack() != nullptr) && 
         matEffects != inputTrack.info().particleHypothesis()
       ) {
         continue;
       }
 
-      if ((**itStates).measurementOnTrack() != nullptr) {
-        const Surface *surf = &(**itStates).measurementOnTrack()->associatedSurface();
-
+      if (pMeasurement != nullptr) {
+        const Surface *surf = &pMeasurement->associatedSurface();
         Identifier hitid = surf->associatedDetectorElementIdentifier();
-        
         if (!hitid.is_valid()) {
-          const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((**itStates).measurementOnTrack());
-          
-          if (crot != nullptr) {
+          if (pMeasurement->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+            const CompetingRIOsOnTrack *crot = static_cast<const CompetingRIOsOnTrack *>(pMeasurement);
             hitid = crot->rioOnTrack(0).identify();
           }
         }
-        
         if (hitid.is_valid()) {
           if (firsthitsurf == nullptr) {
             firsthitsurf = surf;
           }
-          
           lasthitsurf = surf;
-          
           if (m_DetID->is_indet(hitid)) {
             hasid = true;
-            
             if (hasmuon) {
               iscombined = true;
             }
-            
             if ((**itStates).trackParameters() != nullptr) {
               lastidpar = (**itStates).trackParameters();
               if (firstidpar == nullptr) {
@@ -2029,22 +1984,17 @@ namespace Trk {
               Amg::Vector3D measdir = surf->transform().rotation().col(0);
               double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
               double dotprod2 = measdir.dot(Amg::Vector3D(surf->center().x(), surf->center().y(), 0) / surf->center().perp());
-              
               if (std::abs(dotprod1) < .5 && std::abs(dotprod2) < .5) {
                 seenphimeas = true;
-                
                 if (std::abs(surf->center().z()) > 13000) {
                   phiem = true;
                 }
-                
                 if (surf->center().perp() > 9000 && std::abs(surf->center().z()) < 13000) {
                   phibo = true;
                 }
               }
             }
-            
             hasmuon = true;
-            
             if (hasid) {
               iscombined = true;
             }
@@ -2052,13 +2002,11 @@ namespace Trk {
         }
         
         if (iscombined && seenphimeas && (phiem || phibo)) {
-          const PseudoMeasurementOnTrack *pseudo = dynamic_cast<const PseudoMeasurementOnTrack *>((**itStates).measurementOnTrack());
-          if (pseudo != nullptr) {
+          if (pMeasurement->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
             continue;
           }
         }
       }
-      
       makeProtoState(cache, trajectory, *itStates);
     }
 
@@ -2759,7 +2707,9 @@ namespace Trk {
     const Segment *seg = nullptr;
 
     if (!measbase->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
-      seg = dynamic_cast<const Segment *>(measbase);
+      if (measbase->type(Trk::MeasurementBaseType::Segment)){
+        seg = static_cast<const Segment *>(measbase);
+      }
     }
 
     int imax = 1;
@@ -2781,11 +2731,10 @@ namespace Trk {
       errors[0] = errors[1] = errors[2] = errors[3] = errors[4] = -1;
       TrackState::MeasurementType hittype = TrackState::unidentified;
       Identifier hitid = measbase2->associatedSurface().associatedDetectorElementIdentifier();
-      const CompetingRIOsOnTrack *crot = nullptr;
-      
+      //const CompetingRIOsOnTrack *crot = nullptr;
       if (!hitid.is_valid()) {
-        crot = dynamic_cast < const CompetingRIOsOnTrack *>(measbase2);
-        if (crot != nullptr) {
+        if (measbase2->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack )){
+          const CompetingRIOsOnTrack *crot = static_cast<const CompetingRIOsOnTrack *>(measbase2);
           hitid = crot->rioOnTrack(0).identify();
         }
       }
@@ -2858,7 +2807,6 @@ namespace Trk {
           Amg::Vector3D measdir = surf->transform().rotation().col(0);
           double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
           double dotprod2 = measdir.dot(Amg::Vector3D(surf->center().x(), surf->center().y(), 0) / surf->center().perp());
-          
           if (std::abs(dotprod1) < .5 && std::abs(dotprod2) < .5) {
             measphi = true;
           }
@@ -2892,19 +2840,17 @@ namespace Trk {
           errors[4] = std::sqrt(covmat(param_index, param_index));
           param_index++;
         }
-        
-        if (dynamic_cast < const PseudoMeasurementOnTrack * >(measbase2) != nullptr) {
+        if (measbase2->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
           hittype = TrackState::Pseudo;
           ATH_MSG_DEBUG("PseudoMeasurement, pos=" << measbase2->globalPosition());
-        } else if (dynamic_cast < const VertexOnTrack * >(measbase2) != nullptr) {
+        } else if (measbase2->type(Trk::MeasurementBaseType::VertexOnTrack )) {
           hittype = TrackState::Vertex;
           ATH_MSG_DEBUG("VertexOnTrack, pos=" << measbase2->globalPosition());  // print out the hit type
-        } else if (dynamic_cast < const Segment * >(measbase2) != nullptr) {
+        } else if (measbase2->type(Trk::MeasurementBaseType::Segment )) {
           hittype = TrackState::Segment;
           ATH_MSG_DEBUG("Segment, pos=" << measbase2->globalPosition());        // print out the hit type
         }
       }
-      
       if (
         errors[0] > 0 || 
         errors[1] > 0 || 
@@ -6124,14 +6070,13 @@ namespace Trk {
           } else if (trtrecal) {
             double *errors = state->measurementErrors();
             double olderror = errors[0];
-            const Trk::RIO_OnTrack * oldrot = dynamic_cast<const Trk::RIO_OnTrack *>(state->measurement());
-            
-            if (oldrot == nullptr) {
+            const Trk::RIO_OnTrack * oldrot{};
+            const auto thisMeasurement{state->measurement()};
+            if ( not thisMeasurement->type(Trk::MeasurementBaseType::RIO_OnTrack)){
               continue;
-            }
-            
+            } 
+            oldrot = static_cast<const Trk::RIO_OnTrack *>(thisMeasurement);
             double oldradius = oldrot->localParameters()[Trk::driftRadius];
-            
             if (oldrot->prepRawData() != nullptr) {
               double dcradius = oldrot->prepRawData()->localPosition()[Trk::driftRadius];
               double dcerror = std::sqrt(oldrot->prepRawData()->localCovariance()(Trk::driftRadius, Trk::driftRadius));
@@ -6346,16 +6291,16 @@ namespace Trk {
         oldtrajectory->chi2() / oldtrajectory->nDOF() > .25 * m_chi2cut
       ) {
         state_maxsipull = oldtrajectory->trackStates()[stateno_maxsipull].get();
-
-        const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(state_maxsipull->measurement());
-
-        const PrepRawData *prd = rot != nullptr ? rot->prepRawData() : nullptr;
+        const PrepRawData *prd{};
+        if (const auto pMeas = state_maxsipull->measurement(); pMeas->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+          const auto rot = static_cast<const RIO_OnTrack *>(pMeas);
+          prd = rot->prepRawData();
+        }
         std::unique_ptr < const RIO_OnTrack > broadrot;
         double *olderror = state_maxsipull->measurementErrors();
         TrackState::MeasurementType hittype_maxsipull = state_maxsipull->measurementType();
         const TrackParameters *trackpar_maxsipull = state_maxsipull->trackParameters();
         Amg::VectorX parameterVector = trackpar_maxsipull->parameters();
-
         std::unique_ptr<const TrackParameters> trackparForCorrect(
           trackpar_maxsipull->associatedSurface().createUniqueTrackParameters(
             parameterVector[Trk::loc1],
@@ -6779,29 +6724,26 @@ namespace Trk {
     int nrealmeas = 0;
     
     for (auto & hit : oldtrajectory.trackStates()) {
-      if (
-        hit->getStateType(TrackStateOnSurface::Measurement) && (
-          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+      if (auto pMeas{hit->measurement()};
+        hit->getStateType(TrackStateOnSurface::Measurement) and (
+          pMeas->type(Trk::MeasurementBaseType::RIO_OnTrack) or  
+          pMeas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)
         )
       ) {
         nrealmeas += hit->numberOfMeasuredParameters();
       }
     } 
-    
     cache.m_derivmat.resize(nrealmeas, oldtrajectory.numberOfFitParameters());
     cache.m_derivmat.setZero();
-
     int measindex = 0;
     int measindex2 = 0;
     int nperpars = oldtrajectory.numberOfPerigeeParameters();
     int nscat = oldtrajectory.numberOfScatterers();
-    
     for (auto & hit : oldtrajectory.trackStates()) {
-      if (
-        hit->getStateType(TrackStateOnSurface::Measurement) && (
-          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+      if (auto pMeas{hit->measurement()};
+        hit->getStateType(TrackStateOnSurface::Measurement) and (
+          pMeas->type(Trk::MeasurementBaseType::RIO_OnTrack) or 
+          pMeas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)
         )
       ) {
         for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
@@ -8310,32 +8252,41 @@ __attribute__ ((flatten))
     return !(theta < 0 || theta > M_PI || phi < -M_PI || phi > M_PI);
   }
 
-  bool GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
-    int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
-    
-    const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = nullptr;
-    
-    if (testrot == nullptr) {
-      testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-      
-      if (testcrot != nullptr) {
+  bool 
+  GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
+    auto pDataVector = intrk1.measurementsOnTrack();
+    auto nmeas1 = pDataVector->size();
+    auto pLastValue = (*pDataVector)[nmeas1 - 1];
+    //
+    const bool lastMeasIsRIO = pLastValue->type(Trk::MeasurementBaseType::RIO_OnTrack);
+    const bool lastMeasIsCompetingRIO = pLastValue->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack);
+    //we only need the RIO on track pointer to be valid to identify
+    const RIO_OnTrack *testrot{};
+    //
+    if (lastMeasIsRIO){
+     testrot = static_cast<const RIO_OnTrack *>(pLastValue);
+    } else {
+      if (lastMeasIsCompetingRIO){
+        auto testcrot = static_cast<const CompetingRIOsOnTrack*>(pLastValue);
         testrot = &testcrot->rioOnTrack(0);
       }
     }
-    
+    //still undefined, so try penultimate measurement as well
     if (testrot == nullptr) {
-      testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-      
-      if (testrot == nullptr) {
-        testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-        
-        if (testcrot != nullptr) {
+      auto pPenultimate = (*pDataVector)[nmeas1 - 2];
+      const bool penultimateIsRIO = pPenultimate->type(Trk::MeasurementBaseType::RIO_OnTrack);
+      const bool penultimateIsCompetingRIO  = pPenultimate->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack);
+      if(penultimateIsRIO){
+        testrot = static_cast<const RIO_OnTrack *>(pPenultimate);
+      } else {
+        if (penultimateIsCompetingRIO){
+          auto testcrot = static_cast<const CompetingRIOsOnTrack*>(pPenultimate);
           testrot = &testcrot->rioOnTrack(0);
         }
       }
     }
-    
+    //check: we've successfully got a valid RIO on track; it's not the inner detector;
+    //it's really the muon detector (question: doesn't that make the previous check redundant?)
     return (
       (testrot != nullptr) && 
       !m_DetID->is_indet(testrot->identify()) && 

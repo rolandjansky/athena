@@ -18,6 +18,9 @@ AthMonitorAlgorithm::~AthMonitorAlgorithm() {}
 StatusCode AthMonitorAlgorithm::initialize() {
     StatusCode sc;
 
+    // ROOT global histogram flag: off (not thread-safe to have it on)
+    TH1::AddDirectory(kFALSE);
+
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
         ATH_CHECK( m_tools.retrieve() );

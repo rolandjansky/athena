@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,9 +12,10 @@ const InDetDD::PixelDetectorManager* GeoSiHit::initPixMgr()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
   const InDetDD::PixelDetectorManager* pix = nullptr;
-  if(detStore->retrieve(pix,"Pixel").isFailure()){
-    //if Pixel retrieval fails, try ITkPixel
-    if(detStore->retrieve(pix,"ITkPixel").isFailure()) 
+  if (!detStore->contains<InDetDD::PixelDetectorManager>("Pixel") || detStore->retrieve(pix,"Pixel").isFailure())
+  {
+    // if Pixel retrieval fails, try ITkPixel
+    if (!detStore->contains<InDetDD::PixelDetectorManager>("ITkPixel") || detStore->retrieve(pix,"ITkPixel").isFailure()) 
     {
       std::abort();
     }
@@ -27,8 +28,11 @@ const InDetDD::SCT_DetectorManager* GeoSiHit::initSctMgr()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
   const InDetDD::SCT_DetectorManager* sct = nullptr;
-  if(detStore->retrieve(sct,"SCT").isFailure()){
-    if(detStore->retrieve(sct,"ITkStrip").isFailure()) {
+  if (!detStore->contains<InDetDD::SCT_DetectorManager>("SCT") || detStore->retrieve(sct,"SCT").isFailure())
+  {
+    // if SCT retrieval fails, try ITkStrip
+    if (!detStore->contains<InDetDD::SCT_DetectorManager>("ITkStrip") || detStore->retrieve(sct,"ITkStrip").isFailure())
+    {
       std::abort();
     }
   }

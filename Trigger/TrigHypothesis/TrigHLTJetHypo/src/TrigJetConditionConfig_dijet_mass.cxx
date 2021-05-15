@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_dijet_mass.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./DijetMassConditionMT.h"
+#include "./DijetMassCondition.h"
 #include "./ArgStrToDouble.h"
 
 TrigJetConditionConfig_dijet_mass::TrigJetConditionConfig_dijet_mass(const std::string& type,
@@ -25,9 +25,9 @@ StatusCode TrigJetConditionConfig_dijet_mass::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_dijet_mass::getCondition() const {
+Condition TrigJetConditionConfig_dijet_mass::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<DijetMassConditionMT>(a2d(m_min), a2d(m_max));
+  return std::make_unique<DijetMassCondition>(a2d(m_min), a2d(m_max));
 }
 
  

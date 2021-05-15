@@ -6,7 +6,7 @@ from .TypeWideThresholdConfig import getTypeWideThresholdConfig
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
 import L1TopoHardware.L1TopoHardware as HW
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TopoAlgoDefLegacy')
+log = logging.getLogger(__name__)
 
 class TopoAlgoDefLegacy:
 

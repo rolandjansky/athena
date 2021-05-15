@@ -12,7 +12,7 @@ from Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerConfigLVL1")
+log = logging.getLogger(__name__)
 
 
 def readLogic( logicElement, thresholdMap ):

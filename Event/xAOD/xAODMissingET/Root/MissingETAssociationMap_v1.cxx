@@ -33,8 +33,9 @@ MissingETAssociationMap_v1::MissingETAssociationMap_v1(SG::OwnershipPolicy own, 
 {
 }
 
-MissingETAssociationMap_v1::MissingETAssociationMap_v1(MissingETAssociationMap_v1::iterator first, MissingETAssociationMap_v1::iterator last,
-						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
+MissingETAssociationMap_v1::MissingETAssociationMap_v1(const MissingETAssociationMap_v1::iterator& first,
+                                                       const MissingETAssociationMap_v1::iterator& last,
+                                                       SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETAssociation_v1>(first,last,own,trackIndices)
 {
 }
@@ -168,7 +169,12 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(const ElementLink<IPartic
 {
   size_t index = MissingETBase::Numerical::invalidIndex();
   std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
-  if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+  if (iConstMap==m_jetConstLinks.end()) {
+    for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); ++jConstMap)
+    {
+      if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+    }
+  }
   if(iConstMap!=m_jetConstLinks.end()) {
     index = iConstMap->second;
     const_iterator fAssoc(this->begin());

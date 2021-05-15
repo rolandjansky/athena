@@ -10,7 +10,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # logger
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonMenuSequences' )
+log = logging.getLogger(__name__)
 
 
 def fastPhotonMenuSequence():
