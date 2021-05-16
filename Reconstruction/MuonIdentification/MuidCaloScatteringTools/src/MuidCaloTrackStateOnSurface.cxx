@@ -104,7 +104,7 @@ namespace Rec {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        EventContext ctx = Gaudi::Hive::currentContext();
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
@@ -135,7 +135,7 @@ namespace Rec {
                 }
                 if (middleParams) {
                     // get calo energy deposit
-                    middleTS = m_caloEnergyParam->trackStateOnSurface(*middleParams, innerParams, outerParams);
+                    middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *middleParams, innerParams, outerParams);
                     if (!middleTS) {
                         delete middleParams;
                         middleParams = 0;
@@ -191,9 +191,9 @@ namespace Rec {
                             if (!params) {
                                 middleTS = 0;
                             } else if (params->momentum().perp() > m_paramPtCut) {
-                                middleTS = m_caloEnergyDeposit->trackStateOnSurface(*params, innerParams, outerParams);
+                                middleTS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *params, innerParams, outerParams);
                             } else {
-                                middleTS = m_caloEnergyParam->trackStateOnSurface(*params, innerParams, outerParams);
+                                middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *params, innerParams, outerParams);
                             }
                         }
                         delete outerTS;
@@ -219,9 +219,9 @@ namespace Rec {
                     if (innerParams) {
                         // get calo energy deposit
                         if (middleParams->momentum().perp() > m_paramPtCut) {
-                            middleTS = m_caloEnergyDeposit->trackStateOnSurface(*middleParams, innerParams, outerParams);
+                            middleTS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *middleParams, innerParams, outerParams);
                         } else {
-                            middleTS = m_caloEnergyParam->trackStateOnSurface(*middleParams, innerParams, outerParams);
+                            middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *middleParams, innerParams, outerParams);
                         }
                         delete innerParams;  // these will be recomputed below
 
@@ -319,7 +319,9 @@ namespace Rec {
     const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::middleTSOS(const Trk::TrackParameters& middleParams,
                                                                             const Trk::TrackParameters* innerParams,
                                                                             const Trk::TrackParameters* outerParams) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         const Trk::TrackParameters* extrapolation = middleParameters(middleParams);
+
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" middleTSOS:  extrapolation fails ");
             delete extrapolation;
@@ -328,9 +330,9 @@ namespace Rec {
 
         const Trk::TrackStateOnSurface* TSOS = 0;
         if (extrapolation->momentum().perp() > m_paramPtCut) {
-            TSOS = m_caloEnergyDeposit->trackStateOnSurface(*extrapolation, innerParams, outerParams);
+            TSOS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams);
         } else {
-            TSOS = m_caloEnergyParam->trackStateOnSurface(*extrapolation, innerParams, outerParams);
+            TSOS = m_caloEnergyParam->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams);
         }
 
         return TSOS;
