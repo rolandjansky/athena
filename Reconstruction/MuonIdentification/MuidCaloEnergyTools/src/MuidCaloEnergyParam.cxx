@@ -20,7 +20,10 @@
 #include "muonEvent/CaloEnergy.h"
 
 namespace Units = Athena::Units;
-
+namespace {
+    constexpr double FifteenGeV = 15 * Units::GeV;
+    constexpr double PerGeV = 1. / Units::GeV;
+}  // namespace
 namespace Rec {
 
     //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -338,13 +341,6 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-
-    StatusCode MuidCaloEnergyParam::finalize() {
-        ATH_MSG_DEBUG("Finalizing");
-
-        return StatusCode::SUCCESS;
-    }
-
     CaloEnergy* MuidCaloEnergyParam::meanParametrizedEnergy(double trackMomentum, double eta, double phi) const {
         CaloEnergy* caloEnergy = nullptr;
         double meanEloss = meanEnergyLoss(eta, trackMomentum);
@@ -379,13 +375,14 @@ namespace Rec {
         double mopError = mopEnergyLossError(eta, trackMomentum);
 
         // scale low transverse momentum to allow for fluctuations
-        double pt = trackMomentum * sin(2. * atan(exp(-eta)));
+        double pt = trackMomentum / std::cosh(eta);
         double scale = 1.;
-        if (pt < 15. * Units::GeV) scale = (2.5 - pt * (1.5 / (15. * Units::GeV)));
+        if (pt < FifteenGeV) scale = (2.5 - pt * (1.5 / (FifteenGeV)));
 
         // asymmetric error to allow for Landau
-        double alpha = 0.2;
-        double beta = 300. * Units::MeV;
+
+        constexpr double alpha = 0.2;
+        constexpr double beta = 300. * Units::MeV;
         double mopErrorPlus = mopError + alpha * (meanEloss - mopEloss) + beta;
 
         // cosmics: energy sign flip in upper hemisphere
@@ -413,13 +410,13 @@ namespace Rec {
         double mopError = mopEnergyLossError(eta, trackMomentum);
 
         // scale low transverse momentum to allow for fluctuations
-        double pt = trackMomentum * sin(2. * atan(exp(-eta)));
+        double pt = trackMomentum / std::cosh(eta);
         double scale = 1.;
-        if (pt < 15. * Units::GeV) scale = (2.5 - pt * (1.5 / (15. * Units::GeV)));
+        if (pt < FifteenGeV) scale = (2.5 - pt * (1.5 / (FifteenGeV)));
 
         // asymmetric error to allow for Landau
-        double alpha = 0.1;
-        double beta = 150. * Units::MeV;
+        constexpr double alpha = 0.1;
+        constexpr double beta = 150. * Units::MeV;
         double mopErrorPlus = mopError + alpha * (meanEloss - mopEloss) + beta;
 
         // cosmics: energy sign flip in upper hemisphere
@@ -462,7 +459,7 @@ namespace Rec {
 
     MuidCaloEnergyParam::BinsWeights MuidCaloEnergyParam::etaFixedBin(double eta) const {
         MuidCaloEnergyParam::BinsWeights BW;
-        eta = fabs(eta);
+        eta = std::abs(eta);
         double offsetEta1 = eta - m_etaOffset;
         double offsetEta2 = eta + m_etaOffset;
         BW.etaWeight2 = 0.5;
@@ -491,7 +488,7 @@ namespace Rec {
     }
 
     MuidCaloEnergyParam::BinsWeights MuidCaloEnergyParam::etaVariableBin(double eta) const {
-        eta = fabs(eta);
+        eta = std::abs(eta);
         if (eta < 1.05)  // barrel: contains the variable bin region
         {
             if (eta < 0.75)  // identical to fixed binning
@@ -520,8 +517,7 @@ namespace Rec {
         double p0 = BW.etaWeight1 * m_meanEnergyLossP0[BW.etaBin1] + BW.etaWeight2 * m_meanEnergyLossP0[BW.etaBin2];
         double p1 = BW.etaWeight1 * m_meanEnergyLossP1[BW.etaBin1] + BW.etaWeight2 * m_meanEnergyLossP1[BW.etaBin2];
         double p2 = BW.etaWeight1 * m_meanEnergyLossP2[BW.etaBin1] + BW.etaWeight2 * m_meanEnergyLossP2[BW.etaBin2];
-        double parametrisedDeposit =
-            p0 * Units::GeV + p1 * Units::GeV * log(0.0067 * momentum * momentum / Units::GeV / Units::GeV) + p2 * momentum;
+        double parametrisedDeposit = p0 * Units::GeV + p1 * Units::GeV * std::log(0.0067 * std::pow(momentum * PerGeV, 2)) + p2 * momentum;
 
         //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011, 03/2012)
         //  NOTE:  constant bin width used here
@@ -534,9 +530,10 @@ namespace Rec {
         // 				    -0.516059 , -0.522978 , -0.53896   , -0.550683 , -0.51722  ,
         // 				    -0.543858 };
         // mc12 tune
-        double fixFromPeter[26] = {-0.159195, -0.039180, 0.071644,  -0.118753, -0.144227, -0.182778, -0.158818, -0.188853, -0.180997,
-                                   -0.269571, -0.227767, -0.191740, -0.121575, -0.304938, -0.296636, -0.312171, -0.352982, -0.303020,
-                                   -0.357250, -0.396249, -0.433535, -0.417214, -0.424093, -0.415557, -0.325372, -0.553009};
+        constexpr double fixFromPeter[26] = {-0.159195, -0.039180, 0.071644,  -0.118753, -0.144227, -0.182778, -0.158818,
+                                             -0.188853, -0.180997, -0.269571, -0.227767, -0.191740, -0.121575, -0.304938,
+                                             -0.296636, -0.312171, -0.352982, -0.303020, -0.357250, -0.396249, -0.433535,
+                                             -0.417214, -0.424093, -0.415557, -0.325372, -0.553009};
         double fix = BW.etaWeight1 * fixFromPeter[BW.etaBin1] + BW.etaWeight2 * fixFromPeter[BW.etaBin2];
         parametrisedDeposit += fix * Units::GeV;
 
@@ -564,8 +561,7 @@ namespace Rec {
         double p0 = BW.etaWeight1 * m_mopEnergyLossP0[BW.etaBin1] + BW.etaWeight2 * m_mopEnergyLossP0[BW.etaBin2];
         double p1 = BW.etaWeight1 * m_mopEnergyLossP1[BW.etaBin1] + BW.etaWeight2 * m_mopEnergyLossP1[BW.etaBin2];
         double p2 = BW.etaWeight1 * m_mopEnergyLossP2[BW.etaBin1] + BW.etaWeight2 * m_mopEnergyLossP2[BW.etaBin2];
-        double parametrisedDeposit =
-            p0 * Units::GeV + p1 * Units::GeV * log(0.0067 * momentum * momentum / Units::GeV / Units::GeV) + p2 * momentum;
+        double parametrisedDeposit = p0 * Units::GeV + p1 * Units::GeV * std::log(0.0067 * std::pow(momentum * PerGeV, 2)) + p2 * momentum;
 
         //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011)
         //  NOTE:  constant bin width used here
@@ -578,9 +574,10 @@ namespace Rec {
         // 				    -0.516059 , -0.522978 , -0.53896   , -0.550683 , -0.51722  ,
         // 				    -0.543858 };
         // mc12 tune
-        double fixFromPeter[26] = {-0.159195, -0.039180, 0.071644,  -0.118753, -0.144227, -0.182778, -0.158818, -0.188853, -0.180997,
-                                   -0.269571, -0.227767, -0.191740, -0.121575, -0.304938, -0.296636, -0.312171, -0.352982, -0.303020,
-                                   -0.357250, -0.396249, -0.433535, -0.417214, -0.424093, -0.415557, -0.325372, -0.553009};
+        constexpr double fixFromPeter[26] = {-0.159195, -0.039180, 0.071644,  -0.118753, -0.144227, -0.182778, -0.158818,
+                                             -0.188853, -0.180997, -0.269571, -0.227767, -0.191740, -0.121575, -0.304938,
+                                             -0.296636, -0.312171, -0.352982, -0.303020, -0.357250, -0.396249, -0.433535,
+                                             -0.417214, -0.424093, -0.415557, -0.325372, -0.553009};
 
         double fix = BW.etaWeight1 * fixFromPeter[BW.etaBin1] + BW.etaWeight2 * fixFromPeter[BW.etaBin2];
         parametrisedDeposit += fix * Units::GeV;
@@ -589,7 +586,7 @@ namespace Rec {
     }
 
     double MuidCaloEnergyParam::mopEnergyLossError(double eta, double momentum) const {
-        eta = fabs(eta);
+        eta = std::abs(eta);
         MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
         double sigma_p0 = BW.etaWeight1 * m_mopEnergyLossErrorP0[BW.etaBin1] + BW.etaWeight2 * m_mopEnergyLossErrorP0[BW.etaBin2];
         double sigma_p1 = BW.etaWeight1 * m_mopEnergyLossErrorP1[BW.etaBin1] + BW.etaWeight2 * m_mopEnergyLossErrorP1[BW.etaBin2];
@@ -612,13 +609,12 @@ namespace Rec {
         double p0 = BW.etaWeight1 * m_mopSymmetricEnergyLossP0[BW.etaBin1] + BW.etaWeight2 * m_mopSymmetricEnergyLossP0[BW.etaBin2];
         double p1 = BW.etaWeight1 * m_mopSymmetricEnergyLossP1[BW.etaBin1] + BW.etaWeight2 * m_mopSymmetricEnergyLossP1[BW.etaBin2];
         double p2 = BW.etaWeight1 * m_mopSymmetricEnergyLossP2[BW.etaBin1] + BW.etaWeight2 * m_mopSymmetricEnergyLossP2[BW.etaBin2];
-        double parametrisedDeposit =
-            p0 * Units::GeV + p1 * Units::GeV * log(0.0067 * momentum * momentum / Units::GeV / Units::GeV) + p2 * momentum;
+        double parametrisedDeposit = p0 * Units::GeV + p1 * Units::GeV * log(0.0067 * std::pow(momentum * PerGeV, 1)) + p2 * momentum;
         return parametrisedDeposit;
     }
 
     double MuidCaloEnergyParam::x0mapInertMaterial(double eta) const {
-        int index = static_cast<int>(floor(fabs(eta) / m_etaGranularity));
+        int index = static_cast<int>(floor(std::abs(eta) / m_etaGranularity));
         if (index >= 277) index = 276;
 
         double x01 = m_dead_x01[index];
@@ -632,7 +628,7 @@ namespace Rec {
     }
 
     double MuidCaloEnergyParam::x0mapEmMaterial(double eta) const {
-        int index = static_cast<int>(floor(fabs(eta) / m_etaGranularity));
+        int index = static_cast<int>(floor(std::abs(eta) / m_etaGranularity));
         if (index >= 277) index = 276;
 
         double x01 = m_dead_x01[index];
@@ -646,7 +642,7 @@ namespace Rec {
     }
 
     double MuidCaloEnergyParam::x0mapHecMaterial(double eta) const {
-        int index = static_cast<int>(floor(fabs(eta) / m_etaGranularity));
+        int index = static_cast<int>(floor(std::abs(eta) / m_etaGranularity));
         if (index >= 277) index = 276;
 
         // double x01      = m_dead_x01[index];
@@ -679,7 +675,7 @@ namespace Rec {
 
     double MuidCaloEnergyParam::caloCompartmentDepthTile(int icomp) const {
         // depth in absorption lengths (from Tile TDR p 22) eta = 0
-        const double comp[4] = {1.5, 4.2, 1.9, 0.};  // assign 0. to ITC for the moment
+        constexpr double comp[4] = {1.5, 4.2, 1.9, 0.};  // assign 0. to ITC for the moment
         double total = 0.;
         for (int i = 0; i < 4; i++) total += comp[i];
         if (icomp >= 0 && icomp < 4) { return comp[icomp] / total; }
@@ -688,7 +684,7 @@ namespace Rec {
 
     double MuidCaloEnergyParam::caloCompartmentDepthLArHEC(int icomp) const {
         // depth in absorption lengths (from Liquid Argon TDR Table 1-3 p 11)
-        const double comp[4] = {1.4, 2.9, 5.7 / 2., 5.7 / 2.};  // divide 5.7 rad lengths equally to 3rd and 4th sampling
+        constexpr double comp[4] = {1.4, 2.9, 5.7 / 2., 5.7 / 2.};  // divide 5.7 rad lengths equally to 3rd and 4th sampling
         double total = 0.;
         for (int i = 0; i < 4; i++) total += comp[i];
         const double inv_total = 1. / total;
@@ -698,7 +694,7 @@ namespace Rec {
 
     double MuidCaloEnergyParam::caloCompartmentDepthLArEM(int icomp) const {
         // depth in radiation lengths (from Liquid Argon TDR p 5) eta = 0
-        const double comp[4] = {0.2, 4.3, 16., 2.};
+        constexpr double comp[4] = {0.2, 4.3, 16., 2.};
         double total = 0.;
         for (int i = 0; i < 4; i++) total += comp[i];
         if (icomp >= 0 && icomp < 4) { return comp[icomp] / total; }
@@ -706,7 +702,7 @@ namespace Rec {
     }
 
     double MuidCaloEnergyParam::emMopFraction(double eta) const {
-        int ieta = static_cast<int>(fabs(eta) / 0.10);
+        int ieta = static_cast<int>(std::abs(eta) / 0.10);
         if (ieta > 25) ieta = 25;
 
         return m_emMopFraction[ieta];

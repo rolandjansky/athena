@@ -31,7 +31,6 @@ namespace Rec {
         ~MuidCaloEnergyParam(void);  // destructor
 
         StatusCode initialize();
-        StatusCode finalize();
 
         // mean muon energy loss with asymmetric errors describing the whole distribution
         CaloEnergy* meanParametrizedEnergy(double trackMomentum, double eta, double phi) const;
