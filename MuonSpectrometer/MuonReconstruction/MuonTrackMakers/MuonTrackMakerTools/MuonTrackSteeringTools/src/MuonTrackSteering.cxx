@@ -146,11 +146,7 @@ namespace Muon {
                 std::vector<MuPatSegment*>& segments2 = stationSegments[stIndex];
                 segments2.push_back(aSeg);
             }
-            {
-                // std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                // m_segmentsToDelete.push_back(aSeg);
-                trash_bin.push_back(aSeg);
-            }
+            trash_bin.push_back(aSeg);
         }
 
         if (m_combinedSLOverlaps) {
@@ -316,17 +312,8 @@ namespace Muon {
                                                                             << m_printer->print(*segInfo->segment));
 
                 // store pointer to segment so it can be deleted at the end of track search
-                {
-                    //const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
-                    //m_constsegmentsToDelete.push_back(newseg);
-                    trash_bin.push_back(newseg);
-                }
-                {
-                    // const std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                    //m_segmentsToDelete.push_back(segInfo);
-                    trash_bin.push_back(segInfo);
-                    //m_segmentsToDelete.push_back(segInfo);
-                }
+                trash_bin.push_back(newseg);
+                trash_bin.push_back(segInfo);
 
                 // flag segments as matched
                 wasMatched1 = true;
