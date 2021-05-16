@@ -31,29 +31,25 @@ namespace Rec {
             match chiSquared between two tracks expressed at same inner (IP) surface,
             expected to handle indet with extrapolated spectrometer track or combined
             with constituent track */
-        double innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const;
-        double innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
+        double innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at IP */
-        int innerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const;
+        int innerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at IP */
-        double innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const;
-        double innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
+        double innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom, chi2, probability  for chi2 match at IP */
-        std::pair<int, std::pair<double, double> > innerMatchAll(const Trk::Track& track1, const Trk::Track& track2) const;
         std::pair<int, std::pair<double, double> > innerMatchAll(const Trk::Track& track1, const Trk::Track& track2,
-                                                                 const EventContext& ctx) const;
+                                                                 const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             match chiSquared between two tracks expressed at first muon spectrometer hit,
             extrapolates indet to first hit of spectrometer track */
-        double outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const;
-        double outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
+        double outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at first MS hit */
@@ -61,8 +57,7 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at first MS hit */
-        double outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const;
-        double outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
+        double outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             check the track perigee parameters are expressed at the same surface */
@@ -70,8 +65,7 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             as inner match chiSquared but simplified to just use diagonal errors */
-        double simpleChi2(const Trk::Track& track1, const Trk::Track& track2) const;
-        double simpleChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
+        double simpleChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
     private:
         // cache

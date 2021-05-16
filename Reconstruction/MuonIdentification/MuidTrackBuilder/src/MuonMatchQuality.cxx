@@ -38,13 +38,9 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-
     /** IMuonMatchQuality interface:
         match chiSquared between two tracks expressed at same inner (IP) surface,
         expected to handle indet with extrapolated spectrometer track or combined with constituent track */
-    double MuonMatchQuality::innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const {
-        return innerMatchChi2(track1, track2, Gaudi::Hive::currentContext());
-    }
     double MuonMatchQuality::innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const {
         MuonMatchQuality::CacheAll CA = setCache(track1, track2, ctx);
         return CA.innerMatchChi2;
@@ -67,20 +63,11 @@ namespace Rec {
 
         return matchDOF;
     }
-
-    /** IMuonMatchQuality interface: match probability for chi2 match at IP */
-    double MuonMatchQuality::innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const {
-        return innerMatchProbability(track1, track2, Gaudi::Hive::currentContext());
-    }
     double MuonMatchQuality::innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const {
         MuonMatchQuality::CacheAll CA = setCache(track1, track2, ctx);
         return CA.innerMatchProbability;
     }
 
-    /** IMuonMatchQuality interface: match  DOF, Chi2 , probability for chi2 match at IP */
-    std::pair<int, std::pair<double, double> > MuonMatchQuality::innerMatchAll(const Trk::Track& track1, const Trk::Track& track2) const {
-        return innerMatchAll(track1, track2, Gaudi::Hive::currentContext());
-    }
     std::pair<int, std::pair<double, double> > MuonMatchQuality::innerMatchAll(const Trk::Track& track1, const Trk::Track& track2,
                                                                                const EventContext& ctx) const {
         MuonMatchQuality::CacheAll CA = setCache(track1, track2, ctx);
@@ -89,10 +76,6 @@ namespace Rec {
             std::make_pair(CA.innerMatchDOF, std::make_pair(CA.innerMatchChi2, CA.innerMatchProbability));
 
         return aTriad;
-    }
-
-    double MuonMatchQuality::outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const {
-        return outerMatchChi2(track1, track2, Gaudi::Hive::currentContext());
     }
     double MuonMatchQuality::outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const {
         // caching needs some development...
@@ -105,15 +88,7 @@ namespace Rec {
 
     /** IMuonMatchQuality interface: degrees of freedom for chi2 match at first MS hit */
     int MuonMatchQuality::outerMatchDOF(const Trk::Track& /*track1*/, const Trk::Track& /*track2*/) const { return 4; }
-
-    /** IMuonMatchQuality interface: match probability for chi2 match at first MS hit */
-    double MuonMatchQuality::outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const {
-        return outerMatchProbability(track1, track2, Gaudi::Hive::currentContext());
-    }
     double MuonMatchQuality::outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const {
-        // this needs work
-        // setCache(track1,track2);
-
         double outerMatchProbability = 0.;
         if (!m_tagTool.empty()) {
             double outer_chi2 = outerMatchChi2(track1, track2, ctx);
@@ -133,10 +108,6 @@ namespace Rec {
         const Trk::Perigee* perigee2 = track2.perigeeParameters();
 
         return perigee1 && perigee2 && (*perigee1).associatedSurface().center() == (*perigee2).associatedSurface().center();
-    }
-
-    double MuonMatchQuality::simpleChi2(const Trk::Track& track1, const Trk::Track& track2) const {
-        return simpleChi2(track1, track2, Gaudi::Hive::currentContext());
     }
     double MuonMatchQuality::simpleChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const {
         MuonMatchQuality::CacheAll CA = setCache(track1, track2, ctx);
