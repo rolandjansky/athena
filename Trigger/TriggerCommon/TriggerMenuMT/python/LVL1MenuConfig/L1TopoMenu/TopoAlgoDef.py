@@ -5,7 +5,7 @@
 #
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.L1Topo.TopoAlgoDef')
+log = logging.getLogger(__name__)
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 

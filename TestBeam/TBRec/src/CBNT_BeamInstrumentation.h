@@ -51,7 +51,7 @@ class CBNT_BeamInstrumentation : public CBNT_TBRecBase
 
   //Private function to build names for ntuple entries. Concatinates strings
   //but omitts characters that are problematic for root like -+:*/
-  std::string add_name(const char* base, const std::string extension);
+  std::string add_name(const char* base, const std::string& extension);
 };
 
 #endif

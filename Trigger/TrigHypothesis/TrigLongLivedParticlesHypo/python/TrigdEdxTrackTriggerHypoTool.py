@@ -24,7 +24,7 @@ def TrigdEdxTrackTriggerHypoToolFromDict( chainDict ):
     monTool.defineHistogram('trackdEdx',  type='TH1F', path='EXPERT', title="Hypo dE/dx (after a0beam cut);dE/dx;Nevents", xbins=50, xmin=0, xmax=10) 
     monTool.defineHistogram('trackNhighdEdxHits', type='TH1F', path='EXPERT', title="Hypo Nr high dE/dx hits (after dEdx cut);N high dE/dx hits;Nevents", xbins=10, xmin=0, xmax=10) 
 
-    monTool.HistPath = 'dEdxTrackTriggerHypoAlgMT/'+tool.getName()
+    monTool.HistPath = 'dEdxTrackTriggerHypoAlg/'+tool.getName()
     tool.MonTool = monTool
 
     strThr = ""

@@ -88,62 +88,65 @@ public:
 
   /** Constructor from TrkDetElementBase*/
   PlaneSurface(const TrkDetElementBase& detelement,
-               Amg::Transform3D* transf = nullptr);
+               const Amg::Transform3D& transf);
+               
+  /** Constructor from TrkDetElementBase*/
+  PlaneSurface(const TrkDetElementBase& detelement);
 
   /** Constructor from TrkDetElementBase and Identifier in case one element
    * holds more surfaces*/
   PlaneSurface(const TrkDetElementBase& detelement,
                const Identifier& id,
-               Amg::Transform3D* transf = nullptr);
+               const Amg::Transform3D & transf);
+               
+  /** Constructor from TrkDetElementBase and Identifier in case one element
+   * holds more surfaces*/
+  PlaneSurface(const TrkDetElementBase& detelement,
+               const Identifier& id);
 
   /** Constructor for planar Surface without Bounds , reference */
   PlaneSurface(const Amg::Transform3D& htrans);
 
-  /** Constructor for planar Surface without Bounds plain ptr to be replaced*/
-  PlaneSurface(Amg::Transform3D* htrans);
-
-  /** Constructor for planar Surface from unique_ptr without Bounds unique_ptr to be replaced*/
-  PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
+  
   /** Constructor for Rectangular Planes*/
-  PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta);
+  PlaneSurface(const Amg::Transform3D & htrans, double halephi, double haleta);
 
   /** Constructor for Trapezoidal Planes*/
-  PlaneSurface(Amg::Transform3D* htrans,
+  PlaneSurface(const Amg::Transform3D & htrans,
                double minhalephi,
                double maxhalephi,
                double haleta);
 
   /** Constructor for Planes with provided RectangleBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, RectangleBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D & htrans, RectangleBounds* rbounds);
 
   /** Constructor for Planes with provided TriangleBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, TriangleBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D & htrans, TriangleBounds* rbounds);
 
   /** Constructor for Planes with provided AnnulusBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, AnnulusBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, AnnulusBounds* rbounds);
 
   /** Constructor for Planes with provided TrapezoidBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, TrapezoidBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, TrapezoidBounds* rbounds);
 
   /** Constructor for Planes with provided RotatedTrapezoidBounds - ownership of
    * bounds is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, RotatedTrapezoidBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, RotatedTrapezoidBounds* rbounds);
 
   /** Constructor for Planes with provided DiamondBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, DiamondBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, DiamondBounds* rbounds);
 
   /** Constructor for Planes with provided EllipseBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, EllipseBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, EllipseBounds* rbounds);
 
   /** Constructor for Planes with shared object*/
-  PlaneSurface(Amg::Transform3D* htrans,
+  PlaneSurface(const Amg::Transform3D& htrans,
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
 
   /**Equality operator*/

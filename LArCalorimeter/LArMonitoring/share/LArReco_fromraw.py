@@ -157,10 +157,6 @@ tf.doHLT.set_Value_and_Lock(False)
 tf.doL1Topo.set_Value_and_Lock(False)
 tf.doID.set_Value_and_Lock(False)
 tf.doMuon.set_Value_and_Lock(False)
-tf.doBcm.set_Value_and_Lock(False)
-tf.doTrt.set_Value_and_Lock(False)
-tf.configForStartup="HLTonline"
-tf.configForStartup.lock()
 
 include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 

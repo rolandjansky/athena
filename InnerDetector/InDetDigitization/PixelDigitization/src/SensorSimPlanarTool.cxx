@@ -22,6 +22,7 @@
 
 #include "TFile.h"
 
+#include <cmath>
 #include <memory>
 
 using namespace InDetDD;
@@ -206,17 +207,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const PixelID* p_pixelId = static_cast<const PixelID*>(Module.getIdHelper());
   int layer = p_pixelId->layer_disk(Module.identify());
 
-  SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
-
-  std::pair<double, double> trappingTimes;
-  if (m_doRadDamage && Module.isBarrel()) {
-    if (m_doInterpolateEfield) {
-      trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluenceLayer[layer]);
-    } else {
-      trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
-    }
-  }
-
   //Load values from energyDeposition
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];
@@ -266,56 +256,51 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double halfEtaPitch = 0.5*Module.etaPitch();
   const double halfPhiPitch = 0.5*Module.phiPitch();
 
-  std::map<unsigned, SiCellId> diodeCellMap;
-  for (size_t i = 0; i < trfHitRecord.size(); i++) {
-    std::pair<double, double> const& iHitRecord = trfHitRecord[i];
+  if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
 
-    double eta_i = eta_0;
-    double phi_i = phi_0;
-    double depth_i = depth_0;
-    if (iTotalLength) {
-      eta_i += 1.0 * iHitRecord.first / iTotalLength * dEta;
-      phi_i += 1.0 * iHitRecord.first / iTotalLength * dPhi;
-      depth_i += 1.0 * iHitRecord.first / iTotalLength * dDepth;
+    std::pair<double, double> trappingTimes;
+    if (m_doInterpolateEfield) {
+      trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluenceLayer[layer]);
+    } 
+    else {
+      trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
     }
 
-    //Find the position of the centre of the pixel in which the charge carriers are created, wrt centre of module
-    SiLocalPosition pos_i = Module.hitLocalToLocal(eta_i, phi_i);
-    SiCellId pixel_i = Module.cellIdOfPosition(pos_i);
+    std::map<unsigned, SiCellId> diodeCellMap;
+    for (size_t i = 0; i < trfHitRecord.size(); i++) {
+      std::pair<double, double> const& iHitRecord = trfHitRecord[i];
 
-    SiLocalPosition centreOfPixel_i;
+      double eta_i = eta_0;
+      double phi_i = phi_0;
+      double depth_i = depth_0;
+      if (iTotalLength) {
+        eta_i += 1.0 * iHitRecord.first / iTotalLength * dEta;
+        phi_i += 1.0 * iHitRecord.first / iTotalLength * dPhi;
+        depth_i += 1.0 * iHitRecord.first / iTotalLength * dDepth;
+      }
 
-    int nnLoop_pixelEtaMax(0);
-    int nnLoop_pixelEtaMin(0);
-    int nnLoop_pixelPhiMax(0);
-    int nnLoop_pixelPhiMin(0);
-
-    if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+      //Find the position of the centre of the pixel in which the charge carriers are created, wrt centre of module
+      SiLocalPosition pos_i = Module.hitLocalToLocal(eta_i, phi_i);
+      SiCellId pixel_i = Module.cellIdOfPosition(pos_i);
       if (!pixel_i.isValid()) continue;
-      centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
+
+      // Distance between charge and readout side.  p_design->readoutSide() is
+      // +1 if readout side is in +ve depth axis direction and visa-versa.
+      double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
+      if (dist_electrode < 0) {
+        dist_electrode = 0;
+      }
+
+      SiLocalPosition centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
 
       //Make limits for NN loop
-      nnLoop_pixelEtaMax = std::min(1, pixel_i.etaIndex());
-      nnLoop_pixelEtaMin = std::max(-1, pixel_i.etaIndex() + 1 - etaCells);
+      int nnLoop_pixelEtaMax = std::min(1, pixel_i.etaIndex());
+      int nnLoop_pixelEtaMin = std::max(-1, pixel_i.etaIndex() + 1 - etaCells);
+      int nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
+      int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
 
-      nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
-      nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
-    }
-
-    // Distance between charge and readout side.  p_design->readoutSide() is
-    // +1 if readout side is in +ve depth axis direction and visa-versa.
-    double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
-    if (dist_electrode < 0) {
-      dist_electrode = 0;
-    }
-
-    // nonTrapping probability
-    double nontrappingProbability = 1.0;
-    if (Module.isDBM()) {
-      nontrappingProbability = exp(-dist_electrode / collectionDist);
-    }
-
-    if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
+      std::array<double, 3> sensorScales;
 
       const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
       const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
@@ -334,10 +319,22 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const auto pixel_phi = pixel_i.phiIndex();
 
       for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
+        const std::size_t ieta = p - nnLoop_pixelEtaMin;
+        // scale factors accounting for different pixel sizes
+        double scale_f = 1.;
+        double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
+        if (std::abs(columnWidth - 0.6) < 1e-9) {
+          scale_f = 4. / 6.;
+        } else if (std::abs(columnWidth - 0.45) < 1e-9) {
+          scale_f = 25. / 45.;
+        } else if (std::abs(columnWidth - 0.5) < 1e-9) {
+          scale_f = 25. / 50.;
+        }
+        sensorScales[ieta] = scale_f;
+
         for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
           const SiLocalPosition& centreOfPixel_nn = p_design.positionFromColumnRow(pixel_eta - p,
                                                                                    pixel_phi - q);
-          const std::size_t ieta = p - nnLoop_pixelEtaMin;
           const std::size_t iphi = q - nnLoop_pixelPhiMin;
           const std::size_t index = iphi + ieta*sizePhi;
           m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
@@ -350,9 +347,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
         double u = CLHEP::RandFlat::shoot(0., 1.);
-        const double drifttime_e = (-1.) * (trappingTimes.first) * std::log(u); //ns
+        // need to update to std::logf when we update gcc - this is a known bug in gcc libc
+        const double drifttime_e = (-1.) * (trappingTimes.first) * logf(u); //ns
         u = CLHEP::RandFlat::shoot(0., 1.);
-        const double drifttime_h = (-1.) * (trappingTimes.second) * std::log(u); //ns
+        const double drifttime_h = (-1.) * (trappingTimes.second) * logf(u); //ns
 
         //Now, need the z-position at the trap.
         //TODO: the holes map does not currently extend for a drift time long enough that, any hole will reach
@@ -406,16 +404,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         //Loop over nearest neighbours in x and y
         //We assume that the lateral diffusion is minimal
         for (int p = nnLoop_pixelEtaMin; p <= nnLoop_pixelEtaMax; p++) {
-          // scale factors accounting for different pixel sizes
-          double scale_f = 1.;
-          double columnWidth = p_design.widthFromColumnRange(pixel_eta - p, pixel_eta - p);
-          if (std::abs(columnWidth - 0.6) < 1e-9) {
-            scale_f = 4. / 6.;
-          } else if (std::abs(columnWidth - 0.45) < 1e-9) {
-            scale_f = 25. / 45.;
-          } else if (std::abs(columnWidth - 0.5) < 1e-9) {
-            scale_f = 25. / 50.;
-          }
           const std::size_t ieta = p - nnLoop_pixelEtaMin;
 
           for (int q = nnLoop_pixelPhiMin; q <= nnLoop_pixelPhiMax; q++) {
@@ -432,15 +420,13 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
             //This all has to be done relative to the (0,0) position since the
             //Ramo weighting potential is only mapped out for 1/8th of a pixel. Much of this logic is reflecting the
-            // charge
-            //carrier across the boundaries.
+            // charge carrier across the boundaries.
             //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
 
-
             //Final position of charge carriers wrt nn centre
-            const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*scale_f;
+            const double dEta_f_e = std::abs(pixelEta_f_e - dEta_nn_centre)*sensorScales[ieta];
             const double dPhi_f_e = std::abs(pixelPhi_f_e - dPhi_nn_centre);
-            const double dEta_f_h = 1e3*std::abs(pixelEta_f_h - dEta_nn_centre)*scale_f;
+            const double dEta_f_h = 1e3*std::abs(pixelEta_f_h - dEta_nn_centre)*sensorScales[ieta];
             const double dPhi_f_h = 1e3*std::abs(pixelPhi_f_h - dPhi_nn_centre);
 
             //Boundary check on maps
@@ -480,10 +466,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
               SiCharge(induced_charge, pHitTime, SiCharge::track, particleLink)
               );
 
-	    unsigned key = (static_cast<unsigned>(pixel_eta-p) << 16) | static_cast<unsigned>(pixel_phi-q);
-	    auto diodeIterator = diodeCellMap.find(key);
-	    if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
-	    const SiCellId& diode = diodeIterator->second;
+            unsigned key = (static_cast<unsigned>(pixel_eta-p) << 16) | static_cast<unsigned>(pixel_phi-q);
+            auto diodeIterator = diodeCellMap.find(key);
+            if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
+            const SiCellId& diode = diodeIterator->second;
 
             if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
@@ -492,8 +478,35 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
           } //For q
         } //for p
+      }//end cycle for charge
+    } //trfHitRecord.size()
+  } 
+  else { //If no radDamage, run original
+    for (size_t i = 0; i < trfHitRecord.size(); i++) {
+      std::pair<double, double> const& iHitRecord = trfHitRecord[i];
+
+      double eta_i = eta_0;
+      double phi_i = phi_0;
+      double depth_i = depth_0;
+      if (iTotalLength) {
+        eta_i += 1.0 * iHitRecord.first / iTotalLength * dEta;
+        phi_i += 1.0 * iHitRecord.first / iTotalLength * dPhi;
+        depth_i += 1.0 * iHitRecord.first / iTotalLength * dDepth;
       }
-    } else { //If no radDamage, run original
+
+      // Distance between charge and readout side.  p_design->readoutSide() is
+      // +1 if readout side is in +ve depth axis direction and visa-versa.
+      double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
+      if (dist_electrode < 0) {
+        dist_electrode = 0;
+      }
+
+      // nonTrapping probability
+      double nontrappingProbability = 1.0;
+      if (Module.isDBM()) {
+        nontrappingProbability = exp(-dist_electrode / collectionDist);
+      }
+
       for (int j = 0; j < ncharges; j++) {
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
@@ -531,9 +544,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           const SiCharge& charge = scharge.charge();
           chargedDiodes.add(diode, charge);
         }
-      } //else: no radDamage, run original
-    }//end cycle for charge
-  }//trfHitRecord.size()
+      }//end cycle for charge
+    }//trfHitRecord.size()
+  } //else: no radDamage, run original
+
   return StatusCode::SUCCESS;
 }
 

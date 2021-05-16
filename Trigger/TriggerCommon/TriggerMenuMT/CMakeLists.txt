@@ -103,7 +103,6 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
-                       scripts/generateL1TopoMenuMT.py
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
                        scripts/verify_menu_config.py
@@ -122,9 +121,6 @@ atlas_install_scripts( scripts/generateL1MenuMT.sh
 
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
-
-# Temporary copy of LVL1 XML DTD (remove this and the file once XML menu is deprecated)
-atlas_install_xmls( share/*.dtd )
 
 # Tests:
 file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
@@ -171,8 +167,17 @@ atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
               )
 
-#----------------------------------
-# List of menus to be created:
+atlas_add_test( RecoFragmentsPool
+                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.RecoFragmentsPoolTest
+                POST_EXEC_SCRIPT nopost.sh )
+
+############ Support of legacy XML menus ############
+# Can be removed once all clients are migrated to JSON: ATR-21862
+#
+# Temporary copy of LVL1 XML DTD (remove this and the file once XML menu is deprecated)
+atlas_install_xmls( share/*.dtd )
+
+# List of XML menus to be created:
 atlas_build_lvl1_trigger_menu( Physics_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( PhysicsP1_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( MC_pp_run3_v1 )
@@ -185,3 +190,19 @@ atlas_build_lvl1_trigger_menu( LS2_v1 )
 atlas_build_lvl1_trigger_menu( LS2_v1_TriggerValidation_prescale DEPENDS LS2_v1 )
 atlas_build_lvl1_trigger_menu( LS2_v1_BulkMCProd_prescale DEPENDS LS2_v1_TriggerValidation_prescale )
 atlas_build_lvl1_trigger_menu( LS2_v1_CPSampleProd_prescale DEPENDS LS2_v1_BulkMCProd_prescale )
+#####################################################
+
+# Test L1 trigger menus:
+function( atlas_test_lvl1_trigger_menu menu )
+   atlas_add_test( "L1_${menu}"
+                   SCRIPT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateL1MenuRun3.py
+                   --destdir ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} ${menu})
+endfunction()
+
+atlas_test_lvl1_trigger_menu( LS2_v1 )
+atlas_test_lvl1_trigger_menu( Physics_pp_run3_v1 )
+atlas_test_lvl1_trigger_menu( PhysicsP1_pp_run3_v1 )
+atlas_test_lvl1_trigger_menu( MC_pp_run3_v1 )
+atlas_test_lvl1_trigger_menu( Cosmic_run3_v1 )
+atlas_test_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
+atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )

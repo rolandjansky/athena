@@ -33,16 +33,15 @@ namespace Rec {
 
         /// Constructor with parameters:
         MuonMeanMDTdADCFillerTool(const std::string& type, const std::string& name, const IInterface* parent);
-        virtual ~MuonMeanMDTdADCFillerTool(void);
+        virtual ~MuonMeanMDTdADCFillerTool() = default;
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
 
         /** return mean Number of ADC counts for MDT tubes on the track of muon (method will simply step down to the relevant track)*/
-        double meanMDTdADCFiller(const xAOD::Muon& muon) const;
+        double meanMDTdADCFiller(const xAOD::Muon& muon) const override;
 
         /** return mean Number of ADC counts for MDT tubes on the track */
-        double meanMDTdADCFiller(const Trk::Track& track) const;
+        double meanMDTdADCFiller(const Trk::Track& track) const override;
 
     private:
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",

@@ -10,8 +10,7 @@
 #include "xAODTrigEgamma/TrigElectronContainer.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/View.h"
-
-#include "TrigEgammaFastElectronHypoTool.h"
+#include "TrigEgammaFastElectronHypoToolInc.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
 
@@ -31,7 +30,7 @@ class TrigEgammaFastElectronHypoAlgMT  :  public ::HypoBase
   virtual StatusCode  execute(const EventContext& context) const override;
 
  private: 
-  ToolHandleArray< TrigEgammaFastElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
+  ToolHandleArray< TrigEgammaFastElectronHypoToolInc > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};

@@ -11,7 +11,7 @@ import traceback
 
 from ..Base.L1MenuFlags import L1MenuFlags
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.ItemDef')
+log = logging.getLogger(__name__)
 
 # The trigger types
 from ..Base.Limits import Limits
@@ -1665,7 +1665,7 @@ class ItemDef:
             MenuItem('L1_LAR-EM').setLogic( d.R2TOPO_LAR_EM20shi1 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-11897)
             MenuItem('L1_LAR-J').setLogic( d.R2TOPO_LAR_J100s1 & physcond).setTriggerType( TT.lardemo )  # LAr demo (ATR-11897)
 
-            MenuItem('L1_LAR-ZEE').setLogic( d.R2TOPO_ZEE_EM20shi2 & physcond).setTriggerType( TT.calo ) # LAr demo (ATR-11897)
+            MenuItem('L1_LAR-ZEE').setLogic( d.R2TOPO_ZEE_EM20shi2 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-11897, ATR-23403)
             MenuItem('L1_LAR-ZEE_LAR-EM').setLogic( d.R2TOPO_ZEE_EM20shi2 & d.R2TOPO_LAR_EM20shi1 &physcond).setTriggerType( TT.lardemo )
 
 

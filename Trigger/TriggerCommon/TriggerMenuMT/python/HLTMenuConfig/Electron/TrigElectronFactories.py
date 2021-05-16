@@ -48,13 +48,8 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
 
 
 def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-    monTool = GenericMonitoringTool("MonTool_topoEgammaBuilder")
-    monTool.Histograms = [ defineHistogram('EldeltaEta',type='TH1F', title='#Delta#eta',    path='EXPERT',xbins=80, xmin=-0.01,xmax=0.01),
-                           defineHistogram('EldeltaPhi',type='TH1F', title='#Delta#phi',    path='EXPERT',xbins=80, xmin=-0.01, xmax=0.01),
-                           defineHistogram('EleT',      type='TH1F', title='p#_{T} [GeV]',  path='EXPERT',xbins=80, xmin=0., xmax=100)]
     
-    mlog = logging.getLogger("TrigElectronFactories")
+    mlog = logging.getLogger(__name__)
     mlog.info('Starting configuration')
     TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = name,
             SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
@@ -68,7 +63,6 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             doAdd = False,
             doPhotons = False,
             doElectrons = True,
-            #MonTool = monTool
             )
     return TrigTopoEgammaElectron()
 

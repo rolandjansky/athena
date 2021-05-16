@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
@@ -27,11 +27,6 @@ class T0TriggerGetter(Configured):
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
         cfg =  TriggerConfigGetter()  # noqa: F841
-
-        # after the menu xml file has been created or the TriggerDB access is configured,
-        # the COOL/SQlite db can be written 
-        from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
-        theConfCOOLWriter.writeConf2COOL()
 
         # preconfigure TrigDecisionTool
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool

@@ -227,7 +227,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
 	    Trk::OverlapDescriptor* od=0;
 	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
-	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+	    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
 				bounds, mat,thickness, od, 1 );
 	  } else if (rdia) {
 	    // create active layer for diamond shape of NSW-sTGC QL3
@@ -236,7 +236,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
 	    Trk::OverlapDescriptor* od=0;
 	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
-	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+	    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
 				bounds, mat,thickness, od, 1 );
 	  } else if (trd) {
 	    // create active layer for trapezoid shape of rest of NSW-sTGC
@@ -245,7 +245,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
 	    Trk::OverlapDescriptor* od=0;
 	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
-	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+	    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
 					bounds, mat,thickness, od, 1 );
 	  } else {
 	    // create active layer
@@ -255,7 +255,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
 	    Trk::OverlapDescriptor* od=0;
 	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
-	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+	    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
 					bounds, mat,thickness, od, 1 );
 	  }
 

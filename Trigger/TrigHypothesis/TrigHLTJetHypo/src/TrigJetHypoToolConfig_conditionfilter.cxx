@@ -58,7 +58,7 @@ TrigJetHypoToolConfig_conditionfilter::getHypoJetVectorFilter() const {
   };
 
   // fill a container with pointers to an elemental condition
-  // note: IRepeatedCondition derives from IConditionMT
+  // note: IRepeatedCondition derives from ICondition
   ConditionPtrs prefilterConditions{};
   std::transform(m_conditionMakers.begin(),
 		 m_conditionMakers.end(),

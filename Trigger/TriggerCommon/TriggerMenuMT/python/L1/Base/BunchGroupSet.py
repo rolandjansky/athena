@@ -9,7 +9,7 @@ from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
 
 
-log = logging.getLogger("Menu.L1.Base.BunchGroupSet")
+log = logging.getLogger(__name__)
 
 def createDefaultBunchGroupSetMC():
     """

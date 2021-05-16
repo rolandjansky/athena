@@ -59,13 +59,9 @@ atlas_add_test( ThinningCacheTool_test
    SOURCES test/ThinningCacheTool_test.cxx
    LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
-atlas_add_test( TestStopRun
-   SCRIPT test/TestStopRun.sh
-   PROPERTIES TIMEOUT 300 )
-
 atlas_add_test( AthTPCnvSvc
    SCRIPT test/AthTPCnvSvc.sh
-   LOG_IGNORE_PATTERN "^ApplicationMgr +INFO"
+   LOG_IGNORE_PATTERN "^ApplicationMgr +INFO|ERROR Cannot set CLID.*AthenaServicesTestConverters"
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( AthDictLoaderSvc
@@ -83,7 +79,6 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/MultiplePass_test.py
    share/MultiplePassWithAlgFilter_test.py
    share/OverrideEventNumber.py
-   share/TestStopRun.py
    share/TestSeedRunEvent.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py

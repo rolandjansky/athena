@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoVAlignmentStore.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 namespace InDetDD {
 
@@ -31,7 +32,6 @@ namespace InDetDD {
       m_idHelper(nullptr),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
-
     //
     // Initialized the Identifier helper.
     //
@@ -48,7 +48,7 @@ namespace InDetDD {
     }
   }
 
-   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore)
+  PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore)
      : PixelDetectorManager(detStore, "Pixel"){ }
 
 
@@ -248,6 +248,7 @@ namespace InDetDD {
                             GeoAlignableTransform *transform,
                             const GeoVPhysVol * child)
   {
+    GeoNodePtr<GeoAlignableTransform> tmp_transform(transform);
     if (m_idHelper) {
 
       const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
@@ -264,6 +265,7 @@ namespace InDetDD {
                             GeoAlignableTransform *transform,
                             const GeoVFullPhysVol * child)
   {
+    GeoNodePtr<GeoAlignableTransform> tmp_transform(transform);
     if (m_idHelper) {
       if (level == 0) {
         IdentifierHash idHash = m_idHelper->wafer_hash(id);

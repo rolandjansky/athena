@@ -201,12 +201,12 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringer(self):
 
     self.__log.debug( 'Configure noringer' )
-    from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
+    from TrigEgammaHypo.TrigEgammaFastCutDefs import TrigFastCaloElectronCutMaps
     self.tool().UseRinger   = False
     self.tool().ETthr       = same( ( self.etthr()  - 3 )*GeV , self.tool())
-    self.tool().HADETthr    = L2CaloCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
-    self.tool().CARCOREthr  = L2CaloCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
-    self.tool().CAERATIOthr = L2CaloCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
+    self.tool().HADETthr    = TrigFastCaloElectronCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
+    self.tool().CARCOREthr  = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
+    self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
   def ringer(self):
@@ -224,7 +224,7 @@ class TrigEgammaFastCaloHypoToolConfig:
   #
   def compile(self):
 
-    if 'etcut' == self.pidname():
+    if 'etcut' == self.pidname() or 'ion' in self.pidname():
       self.etcut()
 
     elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
@@ -314,7 +314,7 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
         return cpart['threshold']
 
     def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'] + cpart['extra']
 
     def __cand(cpart):
         return cpart['trigType']

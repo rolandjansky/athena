@@ -19,7 +19,7 @@
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "ActsFatras/Kernel/Simulator.hpp"
+#include "ActsFatras/Kernel/Simulation.hpp"
 // BOOST
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>

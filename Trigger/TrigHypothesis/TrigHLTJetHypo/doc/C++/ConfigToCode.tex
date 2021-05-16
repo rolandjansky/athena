@@ -254,23 +254,23 @@ Cond indx& jet groups indices\\ \hline
 \begin{block}{Conditions Table}
 \begin{tiny}
 \begin{tabular}{ll}
-  0: & AcceptAllConditionMT\\
-  1: & AcceptAllConditionMT\\
-  2: & AcceptAllConditionMT\\
-  3: & EtConditionMT 84000 \\
-     & EtaConditionSignedMT etaMin -3.2 etaMax 0 \\
-  4: & EtConditionMT Et threshold: 84000 \\
-     & EtaConditionSignedMT etaMin 0 etaMax 3.2 \\
-  5: & QjetMassConditionMT: mass min: 170000 mass max: 190000 \\
-  6: & AcceptAllConditionMT\\
-  7: & DijetMassConditionMT mass min: 70000 mass max: 90000 \\
-  8: & AcceptAllConditionMT\\
-  9: & EtConditionMT Et threshold: 10000 \\
- 10: & EtConditionMT Et threshold: 11000 \\
- 11: & DijetMassConditionMT mass min: 71000 mass max: 91000\\
- 12: & AcceptAllConditionMT\\
- 13: & EtConditionMT (0x646cea0)  Et threshold: 12000 \\
- 14: & EtConditionMT (0x646ceb0)  Et threshold: 13000 \\
+  0: & AcceptAllCondition\\
+  1: & AcceptAllCondition\\
+  2: & AcceptAllCondition\\
+  3: & EtCondition 84000 \\
+     & EtaConditionSigned etaMin -3.2 etaMax 0 \\
+  4: & EtCondition Et threshold: 84000 \\
+     & EtaConditionSigned etaMin 0 etaMax 3.2 \\
+  5: & QjetMassCondition: mass min: 170000 mass max: 190000 \\
+  6: & AcceptAllCondition\\
+  7: & DijetMassCondition mass min: 70000 mass max: 90000 \\
+  8: & AcceptAllCondition\\
+  9: & EtCondition Et threshold: 10000 \\
+ 10: & EtCondition Et threshold: 11000 \\
+ 11: & DijetMassCondition mass min: 71000 mass max: 91000\\
+ 12: & AcceptAllCondition\\
+ 13: & EtCondition (0x646cea0)  Et threshold: 12000 \\
+ 14: & EtCondition (0x646ceb0)  Et threshold: 13000 \\
 \end{tabular}
 \end{tiny}
 \end{block}
@@ -384,12 +384,12 @@ Cond indx& jet groups indices\\ \hline
 
 \begin{block}{Classes}
 \begin{description}
-\item[TrigJetHypoAlgMT] Interacts with Trigger Framework: decides
-retrieves Decision objects, retrieves jet collection, passes these to each TrigJetHypoToolMT
-\item[TrigJetHypoToolMT] Represents a chain hypo. Decides
+\item[TrigJetHypoAlg] Interacts with Trigger Framework: decides
+retrieves Decision objects, retrieves jet collection, passes these to each TrigJetHypoTool
+\item[TrigJetHypoTool] Represents a chain hypo. Decides
 whether the jet hypo should run, sends jet collection, to  TrigJetHypoHelperTool]  
 reports a list of jets participating in a positive decision
-\item[TrigJetHypoHelperToolMT] Attribute of TrigJetHypoTool. Receives jets, runs FastJet.
+\item[TrigJetHypoHelperTool] Attribute of TrigJetHypoTool. Receives jets, runs FastJet.
 \item 
 \end{description}
 \end{block}
@@ -397,8 +397,8 @@ reports a list of jets participating in a positive decision
 
 \frame
 {
-\frametitle{TrigJetHypoHelperTool MT C++}
-\begin{block}{TrigJetHypoHelperTool MT attributes}
+\frametitle{TrigJetHypoHelperTool C++}
+\begin{block}{TrigJetHypoHelperTool attributes}
 \begin{description}
 \item[JetGrouper ]  Splits incoming jet collection into smaller groups of a specified size.
 \item[Matcher ]  Matcher - Passes the jet groups to Conditions. Keeps track of Condition satisfaction.

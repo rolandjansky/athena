@@ -6,6 +6,10 @@
 // RiddersAlgorithm.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+
+
+
+
 #include "TrkExAlgs/RiddersAlgorithm.h"
 // Trk stuff
 #include "TrkExInterfaces/IPropagator.h"
@@ -19,6 +23,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "GaudiKernel/SystemOfUnits.h"
+#include <cmath>
 
 //================ Constructor =================================================
 
@@ -29,7 +34,7 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
   m_useCustomField(true),
   m_useAlignedSurfaces(true),
   m_fieldValue(2.*Gaudi::Units::tesla),
-  m_magFieldProperties(0),
+  m_magFieldProperties(nullptr),
   m_sigmaLoc(100.*Gaudi::Units::micrometer),    
   m_sigmaR(0.0),
   m_minPhi(-M_PI),                    
@@ -43,7 +48,7 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
   m_localVariations(),
   m_angularVariations(),
   m_qOpVariations(),
-  m_validationTree(0),  
+  m_validationTree(nullptr),  
   m_validationTreeName("RiddersTree"),
   m_validationTreeDescription("Output of the RiddersAlgorithm"),
   m_validationTreeFolder("/val/RiddersAlgorithm"),
@@ -83,8 +88,8 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
 	m_qopqop{},    
 	m_qopsteps{},  
 
-  m_gaussDist(0),
-  m_flatDist(0)
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr)
 {
   
 
@@ -197,14 +202,14 @@ StatusCode Trk::RiddersAlgorithm::initialize()
    m_validationTree->Branch("QopSteps",   m_qopsteps,    "qopsteps[steps]/F");
 
    // now register the Tree
-   ITHistSvc* tHistSvc = 0;
+   ITHistSvc* tHistSvc = nullptr;
    if (service("THistSvc",tHistSvc).isFailure()){ 
       ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
    if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
       ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
 
   if (!m_localVariations.size()){
@@ -298,7 +303,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
 
    // --------------- propagate to find a first intersection ---------------------
-   Trk::CylinderSurface estimationCylinder(new Amg::Transform3D, estimationR, 10e10);
+   Trk::CylinderSurface estimationCylinder(Amg::Transform3D(), estimationR, 10e10);
 
    ATH_MSG_VERBOSE( "Cylinder to be intersected : " << estimationCylinder );
 
@@ -328,7 +333,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
    double rotateTrans =  M_PI * m_flatDist->shoot();
    rotateTrans       *= (m_flatDist->shoot() > 0.5 ) ? -1. : 1.; 
 
-   Amg::Transform3D* surfaceTransform = 0;
+   Amg::Transform3D surfaceTransform;
 
    if (m_useAlignedSurfaces){
       // create a radial vector
@@ -343,7 +348,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
       surfaceRotation.col(1) = surfaceYdirection;
       surfaceRotation.col(2) = surfaceZdirection;
       Amg::Transform3D nominalTransform(surfaceRotation, estimatedPosition);   
-      surfaceTransform =  new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(rotateTrans,Amg::Vector3D(0.,0.,1.)));
+      surfaceTransform = Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(rotateTrans,Amg::Vector3D(0.,0.,1.)));
    } else
       surfaceTransform = createTransform(estimationX,
                                          estimationY,
@@ -358,7 +363,7 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
 
    // transport the  start to the destination surface
-   Trk::TransportJacobian* transportJacobian = 0;
+   Trk::TransportJacobian* transportJacobian = nullptr;
    AmgMatrix(5,5) testMatrix; testMatrix.setZero();
    Trk::TransportJacobian currentStepJacobian(testMatrix);
    double pathLimit = -1.;
@@ -753,39 +758,39 @@ StatusCode Trk::RiddersAlgorithm::execute()
        // (A2) 
        if (recStep > 1){
             // fill the differences into the last one log (loc1)
-            m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
-            m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
-            m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
-            m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
-            m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
+            m_loc1loc1[recStep]   = std::fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -std::log10(std::fabs(m_loc1loc1[recStep-1] )) : 0.;  
+            m_loc1loc2[recStep]   = std::fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -std::log10(std::fabs(m_loc1loc2[recStep-1] )) : 0.;  
+            m_loc1phi[recStep]    = std::fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -std::log10(std::fabs(m_loc1phi[recStep-1]  )) : 0.;  
+            m_loc1theta[recStep]  = std::fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -std::log10(std::fabs(m_loc1theta[recStep-1])) : 0.;  
+            m_loc1qop[recStep]    = std::fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -std::log10(std::fabs(m_loc1qop[recStep-1]  )) : 0.;  
             m_loc1steps[recStep]  = 3;                                       
             // fill the differences into the last one log (loc2)                                                      
-            m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
-            m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
-            m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
-            m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
-            m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
+            m_loc2loc1[recStep]   = std::fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_loc2loc1[recStep-1] )) : 0.;
+            m_loc2loc2[recStep]   = std::fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_loc2loc2[recStep-1] )) : 0.;
+            m_loc2phi[recStep]    = std::fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_loc2phi[recStep-1]  )) : 0.;
+            m_loc2theta[recStep]  = std::fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -std::log10(std::fabs(m_loc2theta[recStep-1])) : 0.;
+            m_loc2qop[recStep]    = std::fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_loc2qop[recStep-1]  )) : 0.;
             m_loc2steps[recStep]  = 3;
             // fill the differences into the last one log (phi)
-            m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
-            m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
-            m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
-            m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
-            m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
+            m_philoc1[recStep]    = std::fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -std::log10(std::fabs(m_philoc1[recStep-1] )) : 0.;
+            m_philoc2[recStep]    = std::fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -std::log10(std::fabs(m_philoc2[recStep-1] )) : 0.;
+            m_phiphi[recStep]     = std::fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -std::log10(std::fabs(m_phiphi[recStep-1]  )) : 0.;
+            m_phitheta[recStep]   = std::fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -std::log10(std::fabs(m_phitheta[recStep-1])) : 0.;
+            m_phiqop[recStep]     = std::fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -std::log10(std::fabs(m_phiqop[recStep-1]  )) : 0.;
             m_phisteps[recStep]   = 3;
             // fill the differences into the last one log (theta)
-            m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
-            m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
-            m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
-            m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
-            m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
+            m_thetaloc1[recStep]  = std::fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_thetaloc1[recStep-1] )) : 0.;
+            m_thetaloc2[recStep]  = std::fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_thetaloc2[recStep-1] )) : 0.;
+            m_thetaphi[recStep]   = std::fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_thetaphi[recStep-1]  )) : 0.;
+            m_thetatheta[recStep] = std::fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -std::log10(std::fabs(m_thetatheta[recStep-1])) : 0.;
+            m_thetaqop[recStep]   = std::fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_thetaqop[recStep-1]  )) : 0.;
             m_thetasteps[recStep] = 3;
             // fill the differences into the last one log (qop)
-            m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc1[recStep-1] )) : 0.;
-            m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc2[recStep-1] )) : 0.;
-            m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopphi[recStep-1]  )) : 0.;
-            m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10(fabs(m_qoptheta[recStep-1])) : 0.;
-            m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopqop[recStep-1]  )) : 0.;
+            m_qoploc1[recStep]    = std::fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -std::log10(std::fabs(m_qoploc1[recStep-1] )) : 0.;
+            m_qoploc2[recStep]    = std::fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -std::log10(std::fabs(m_qoploc2[recStep-1] )) : 0.;
+            m_qopphi[recStep]     = std::fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -std::log10(std::fabs(m_qopphi[recStep-1]  )) : 0.;
+            m_qoptheta[recStep]   = std::fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -std::log10(std::fabs(m_qoptheta[recStep-1])) : 0.;
+            m_qopqop[recStep]     = std::fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -std::log10(std::fabs(m_qopqop[recStep-1]  )) : 0.;
             m_qopsteps[recStep]   = 3;
        }
        ++recStep;
@@ -833,39 +838,39 @@ StatusCode Trk::RiddersAlgorithm::execute()
        // (R2) 
        // Relative differences ----------------------------------------------------
        if (recStep > 0){
-         m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
-         m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
-         m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
-         m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
-         m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
+         m_loc1loc1[recStep]   = std::fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -std::log10(std::fabs(m_loc1loc1[recStep-1] )) : 0.;  
+         m_loc1loc2[recStep]   = std::fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -std::log10(std::fabs(m_loc1loc2[recStep-1] )) : 0.;  
+         m_loc1phi[recStep]    = std::fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -std::log10(std::fabs(m_loc1phi[recStep-1]  )) : 0.;  
+         m_loc1theta[recStep]  = std::fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -std::log10(std::fabs(m_loc1theta[recStep-1])) : 0.;  
+         m_loc1qop[recStep]    = std::fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -std::log10(std::fabs(m_loc1qop[recStep-1]  )) : 0.;  
          m_loc1steps[recStep]  = 5;                                       
          // fill the differences into the last one log (loc2)                                                      
-         m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
-         m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
-         m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
-         m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
-         m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
+         m_loc2loc1[recStep]   = std::fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_loc2loc1[recStep-1] )) : 0.;
+         m_loc2loc2[recStep]   = std::fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_loc2loc2[recStep-1] )) : 0.;
+         m_loc2phi[recStep]    = std::fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_loc2phi[recStep-1]  )) : 0.;
+         m_loc2theta[recStep]  = std::fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -std::log10(std::fabs(m_loc2theta[recStep-1])) : 0.;
+         m_loc2qop[recStep]    = std::fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_loc2qop[recStep-1]  )) : 0.;
          m_loc2steps[recStep]  = 5;
          // fill the differences into the last one log (phi)
-         m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
-         m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
-         m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
-         m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
-         m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
+         m_philoc1[recStep]    = std::fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -std::log10(std::fabs(m_philoc1[recStep-1] )) : 0.;
+         m_philoc2[recStep]    = std::fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -std::log10(std::fabs(m_philoc2[recStep-1] )) : 0.;
+         m_phiphi[recStep]     = std::fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -std::log10(std::fabs(m_phiphi[recStep-1]  )) : 0.;
+         m_phitheta[recStep]   = std::fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -std::log10(std::fabs(m_phitheta[recStep-1])) : 0.;
+         m_phiqop[recStep]     = std::fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -std::log10(std::fabs(m_phiqop[recStep-1]  )) : 0.;
          m_phisteps[recStep]   = 5;
          // fill the differences into the last one log (theta)
-         m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
-         m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
-         m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
-         m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
-         m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
+         m_thetaloc1[recStep]  = std::fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_thetaloc1[recStep-1] )) : 0.;
+         m_thetaloc2[recStep]  = std::fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -std::log10(std::fabs(m_thetaloc2[recStep-1] )) : 0.;
+         m_thetaphi[recStep]   = std::fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_thetaphi[recStep-1]  )) : 0.;
+         m_thetatheta[recStep] = std::fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -std::log10(std::fabs(m_thetatheta[recStep-1])) : 0.;
+         m_thetaqop[recStep]   = std::fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -std::log10(std::fabs(m_thetaqop[recStep-1]  )) : 0.;
          m_thetasteps[recStep] = 5;
          // fill the differences into the last one log (qop)
-         m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc1[recStep-1] ) ): 0.;
-         m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc2[recStep-1] ) ): 0.;
-         m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopphi[recStep-1]  ) ): 0.;
-         m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10( fabs(m_qoptheta[recStep-1]) ): 0.;
-         m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopqop[recStep-1]  ) ): 0.;
+         m_qoploc1[recStep]    = std::fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -std::log10( std::fabs(m_qoploc1[recStep-1] ) ): 0.;
+         m_qoploc2[recStep]    = std::fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -std::log10( std::fabs(m_qoploc2[recStep-1] ) ): 0.;
+         m_qopphi[recStep]     = std::fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -std::log10( std::fabs(m_qopphi[recStep-1]  ) ): 0.;
+         m_qoptheta[recStep]   = std::fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -std::log10( std::fabs(m_qoptheta[recStep-1]) ): 0.;
+         m_qopqop[recStep]     = std::fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -std::log10( std::fabs(m_qopqop[recStep-1]  ) ): 0.;
          m_qopsteps[recStep]   = 5;
        }
        ++recStep;
@@ -884,7 +889,8 @@ StatusCode Trk::RiddersAlgorithm::execute()
 }
 
 //============================================================================================
-Amg::Transform3D* Trk::RiddersAlgorithm::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
+Amg::Transform3D 
+Trk::RiddersAlgorithm::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
  if (phi!=0. && theta != 0.){
@@ -906,11 +912,11 @@ Amg::Transform3D* Trk::RiddersAlgorithm::createTransform(double x, double y, dou
    surfaceRotation.col(1) = surfaceYdirection;
    surfaceRotation.col(2) = surfaceZdirection;
    Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);   
-   return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+   return Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
    
  }
 
-  return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+  return Amg::Transform3D(Amg::Translation3D(x,y,z));
 }
 
 double Trk::RiddersAlgorithm::parabolicInterpolation(double y0, double y1, double y2,

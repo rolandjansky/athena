@@ -57,8 +57,7 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_doEM(false),
   m_doHEC(false),
   m_doFCAL(false),
-  m_samples(nullptr),
-  m_runData(0)
+  m_samples(nullptr)
 {
   declareProperty("FileName", m_fileName = "samples.root");
   declareProperty("MaxChannels", m_maxChannels = 200000);
@@ -137,32 +136,32 @@ StatusCode LArShapeDumper::initialize()
 
 StatusCode LArShapeDumper::start()
 {
-  m_runData = new RunData(0);
+  m_runData = std::make_unique<RunData>(0);
 
   if (m_doTrigger) {
     std::vector<boost::regex> regexs;
-    for (std::vector<std::string>::const_iterator name = m_triggerNames.begin(); 
-         name != m_triggerNames.end(); name++)
-      regexs.push_back(boost::regex(*name));
+    for (const std::string& name : m_triggerNames) {
+      regexs.push_back(boost::regex(name));
+    }
 
     std::vector<std::string> chains = m_trigDec->getListOfTriggers();
     std::vector<std::string> myChains;
     boost::cmatch match;
 
-    for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++) {
-      ATH_MSG_INFO ( "Configured chain : " << *chain );
-      for (std::vector<boost::regex>::const_iterator regex = regexs.begin(); regex != regexs.end(); regex++)
-        if (boost::regex_match(chain->c_str(), match, *regex)) myChains.push_back(*chain);
+    for (const std::string& chain : chains) {
+      ATH_MSG_INFO ( "Configured chain : " << chain );
+      for (const boost::regex& regex : regexs) {
+        if (boost::regex_match(chain.c_str(), match, regex)) myChains.push_back(chain);
+      }
     }
-    std::vector<std::string> groups = m_trigDec->getListOfGroups();
-    for (std::vector<std::string>::const_iterator group = groups.begin(); group != groups.end(); group++)
-      ATH_MSG_INFO ( "Configured group : " << *group );
+    for (const std::string& group : m_trigDec->getListOfGroups())
+      ATH_MSG_INFO ( "Configured group : " << group );
     const Trig::ChainGroup* calibStreamGroup = m_trigDec->getChainGroup("Calibration"); 
     if (calibStreamGroup) {
       std::vector<std::string> chains = calibStreamGroup->getListOfTriggers();
       ATH_MSG_INFO ( "Chains for Calibration group:" );
-      for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++)
-        ATH_MSG_INFO ( "Calib chain : " << *chain );
+      for (const std::string& chain : chains)
+        ATH_MSG_INFO ( "Calib chain : " << chain );
     }
 
     unsigned int idx = 0;
@@ -170,38 +169,36 @@ StatusCode LArShapeDumper::start()
     if (m_doAllLvl1) {
       m_trigDec->ExperimentalAndExpertMethods()->enable();
       const Trig::ChainGroup* group = m_trigDec->getChainGroup("L1_.*");
-      std::vector<std::string> l1Triggers = group->getListOfTriggers();
-      for (std::vector<std::string>::const_iterator l1Item = l1Triggers.begin(); 
-           l1Item != l1Triggers.end(); l1Item++) {
-        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(*l1Item);
+      for (const std::string& l1Item : group->getListOfTriggers()) {
+        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(l1Item);
         if (!confItem) {
-          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
+          ATH_MSG_WARNING ( "LVL1 item " << l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
           continue;
         }
         int pos = confItem->ctpId();
         if (pos < 0 || pos >= 256) {
-          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << "has out-of-range ctpId " << pos );
+          ATH_MSG_WARNING ( "LVL1 item " << l1Item << "has out-of-range ctpId " << pos );
           continue;
         }
-        m_runData->addBit(l1Item->c_str(), pos);
-        ATH_MSG_INFO ( "Adding LVL1 trigger bit for " << *l1Item << " at position " << pos );
+        m_runData->addBit(l1Item.c_str(), pos);
+        ATH_MSG_INFO ( "Adding LVL1 trigger bit for " << l1Item << " at position " << pos );
       }
       idx = 256;
     }
-  
-    for (std::vector<std::string>::const_iterator name = myChains.begin(); name != myChains.end(); name++) {
-      if (m_trigDec->getListOfTriggers(*name).empty()) {
-        ATH_MSG_WARNING ( "Requested trigger name " << *name << " is not configured in this run" );
+
+    for (const std::string& name : myChains) {
+      if (m_trigDec->getListOfTriggers(name).empty()) {
+        ATH_MSG_WARNING ( "Requested trigger name " << name << " is not configured in this run" );
         continue;
       }
-      const Trig::ChainGroup* group = m_trigDec->getChainGroup(*name);
+      const Trig::ChainGroup* group = m_trigDec->getChainGroup(name);
       if (!group) {
-        ATH_MSG_WARNING ( "Could not retrieve chain group for trigger " << *name );
+        ATH_MSG_WARNING ( "Could not retrieve chain group for trigger " << name );
         continue;
       }
-      m_runData->addBit(name->c_str(), idx++);
+      m_runData->addBit(name.c_str(), idx++);
       m_triggerGroups.push_back(group);
-      ATH_MSG_INFO ( "Adding trigger bit for " << *name << " at position " << idx-1 );
+      ATH_MSG_INFO ( "Adding trigger bit for " << name << " at position " << idx-1 );
     }
   }
   return StatusCode::SUCCESS;
@@ -385,9 +382,8 @@ StatusCode LArShapeDumper::execute()
     if (m_minADCMax > 0 || m_noiseSignifCut > 0) {
       const std::vector<short>& samples = (*digit)->samples();
       double maxValue = -1;
-      for (std::vector<short>::const_iterator sample = samples.begin(); 
-           sample != samples.end(); sample++)
-        if (*sample - pedestal > maxValue) maxValue = *sample - pedestal;
+      for (short sample : samples)
+        if (sample - pedestal > maxValue) maxValue = sample - pedestal;
       if (m_minADCMax > 0 && fabs(maxValue) < m_minADCMax) continue;
       if (m_noiseSignifCut > 0 && fabs(maxValue) < pedestalRMS*m_noiseSignifCut) continue;
     }
@@ -472,7 +468,7 @@ StatusCode LArShapeDumper::execute()
 
 StatusCode LArShapeDumper::stop()
 {
-  m_samples->addRun(m_runData);
+  m_samples->addRun(m_runData.release());
   return StatusCode::SUCCESS;
 }
 
@@ -533,15 +529,14 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
       return -1;
     }
     const std::vector<ROIB::CTPRoI> tav = l1Result->cTPResult().TAV();
-    for (std::vector<ROIB::CTPRoI>::const_iterator word = tav.begin(); word != tav.end(); word++)    
-      triggerWords.push_back(word->roIWord());
+    for (const ROIB::CTPRoI& word : tav)
+      triggerWords.push_back(word.roIWord());
 
-    for (std::map<TString, unsigned int>::const_iterator bit = m_runData->triggerConfig().begin();
-	 bit != m_runData->triggerConfig().end(); bit++) {
-      while (triggerWords.size() <= bit->second/32) triggerWords.push_back(0);
-      if (m_trigDec->isPassed(bit->first.Data())) {
-	triggerWords[bit->second/32] |= (0x1 << (bit->second % 32));
-      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endmsg;
+    for (const std::pair<const TString, unsigned int>& p : m_runData->triggerConfig()) {
+      while (triggerWords.size() <= p.second/32) triggerWords.push_back(0);
+      if (m_trigDec->isPassed(p.first.Data())) {
+	triggerWords[p.second/32] |= (0x1 << (p.second % 32));
+      //msg() << MSG::INFO << "Trigger line " << p.first.Data() << " passed" << endmsg;
       }
     }
     //msg() << MSG::INFO << "Trigger words : ";
@@ -551,19 +546,18 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   
   eventData = new EventData(event, 0, lumiBlock, bunchXing);
   if (m_runData->run() == 0) m_runData->setRun(run);
-  eventData->setRunData(m_runData);
+  eventData->setRunData(m_runData.get());
   eventData->setTriggerData(triggerWords);
   if (m_doRoIs) {
     //msg() << MSG::INFO << "Filling RoI list" << endmsg;
-    for (std::vector<const Trig::ChainGroup*>::const_iterator group = m_triggerGroups.begin();
-	 group != m_triggerGroups.end(); group++) {
-      std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = (*group)->features().get<TrigRoiDescriptor>();
-      for (std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roI = roIs.begin(); roI != roIs.end(); roI++) {
+    for (const Trig::ChainGroup* group : m_triggerGroups) {
+      std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = group->features().get<TrigRoiDescriptor>();
+      for (const Trig::Feature<TrigRoiDescriptor>& roI : roIs) {
 	//msg() << MSG::INFO << "Found an roi for chain ";
-        //for (unsigned int i = 0; i < (*group)->getListOfTriggers().size(); i++) cout << (*group)->getListOfTriggers()[i] << " ";
-        //cout << "@ " << roI->cptr()->eta() << ", " << roI->cptr()->phi() << ", TE = " 
-	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endmsg;
-	eventData->addRoI(roI->cptr()->eta(), roI->cptr()->phi(), (*group)->getListOfTriggers()[0].c_str(), roI->label().c_str());
+        //for (unsigned int i = 0; i < group->getListOfTriggers().size(); i++) cout << group->getListOfTriggers()[i] << " ";
+        //cout << "@ " << roI.cptr()->eta() << ", " << roI.cptr()->phi() << ", TE = " 
+	//	 << roI.te()->getId() << " " << Trig::getTEName(*roI.te()) << " with label " << roI.label() << endmsg;
+	eventData->addRoI(roI.cptr()->eta(), roI.cptr()->phi(), group->getListOfTriggers()[0].c_str(), roI.label().c_str());
 	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endmsg;
       }
     }

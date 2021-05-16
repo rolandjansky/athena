@@ -4,7 +4,6 @@ import TrigL2MuonSA.TrigL2MuonSAConf as MuonSA
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
 from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from AthenaCommon.Logging import logging
@@ -120,10 +119,7 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         MuonSA.MuFastSteering.dEtasurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
         MuonSA.MuFastSteering.dPhisurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
 
-        if TriggerFlags.run2Config=='2016':
-          self.UseEndcapInnerFromBarrel = False
-        else:
-          self.UseEndcapInnerFromBarrel = True
+        self.UseEndcapInnerFromBarrel = True
 
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0
@@ -155,18 +151,5 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         # defined which histogram are created at TrigL2MuonSAMonitoring.py
         self.MonTool = TrigL2MuonSAMonitoring()
 
-        def setDefaults(cls,handle):
-            if hasattr(handle,'BackExtrapolator'):
-                if handle.BackExtrapolator.name().find("AlignedBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Aligned Detector")
-                if handle.BackExtrapolator.name().find("MisalignedBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Misligned Detector")
-                if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
-                    log.info("using BackExtrapolatorLUT for Data")
-                    
-        if TriggerFlags.run2Config=='2016':
-            self.StationFitter.PtFromAlphaBeta.useCscPt = False
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
-        else:
-            self.StationFitter.PtFromAlphaBeta.useCscPt = True
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False
+        self.StationFitter.PtFromAlphaBeta.useCscPt = True
+        self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False

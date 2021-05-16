@@ -58,22 +58,20 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   //std::cout<<counter++<<std::endl;
 
   // test state #1 - arbitrary TP AtaCylinder
-  // Amg::Transform3D t = Amg::Transform3D::Identity(); t.setIdentity();
-  Trk::CylinderSurface surface(0, 1.0, 2*M_PI, 4.0);
+  Trk::CylinderSurface surface(1.0, 2*M_PI, 4.0);
   trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
-  //std::cout<<counter++<<std::endl;
 
   // test state #2 - arbitrary TP AtaDisc
   Amg::Translation3D amgtranslation(1.,2.,3.);
-  Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation);
+  Amg::Transform3D amgTransf = Amg::Transform3D(amgtranslation);
   DiscSurface discSf(amgTransf, 1.0, 2.0);
   trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  0) );
-  //std::cout<<counter++<<std::endl;
 
   // test state #3 - arbitrary AtaPlane + Estimated Brem
-  PlaneSurface planeSf(amgTransf, 1.0, 2.0);
+  Amg::Transform3D amgTransf2(amgtranslation);
+  PlaneSurface planeSf(amgTransf2, 1.0, 2.0);
   trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
   const MaterialEffectsBase *ebr
     = new EstimatedBremOnTrack((0.7), -0.3,
@@ -82,7 +80,6 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type1(0);
   type1.set(Trk::TrackStateOnSurface::BremPoint);
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  ebr,type1) );
-  //std::cout<<counter++<<std::endl;
 
   if (elements){
     // test state #4 - AtaPlane at a valid detector element + MatEffects

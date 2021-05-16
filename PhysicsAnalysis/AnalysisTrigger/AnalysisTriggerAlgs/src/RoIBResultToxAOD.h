@@ -7,7 +7,7 @@
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 
 // Gaudi/Athena include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -41,7 +41,7 @@
  * @author Alan Watson <Alan.Watson@cern.ch>
  * @author Wolfgang Ehrenfeld <Wolfgang.Menges@desy.de>
  */
-class RoIBResultToxAOD : public AthAlgorithm {
+class RoIBResultToxAOD : public AthReentrantAlgorithm {
 
 public:
    /// Algorithm constructor
@@ -57,17 +57,17 @@ public:
    virtual StatusCode initialize() override;
 
    /// Function executing the algorithm
-   virtual StatusCode execute() override;
+   virtual StatusCode execute(const EventContext& ctx) const override;
 
    /// @}
 
 private:
    /// Create the EmTau RoI objects
    StatusCode createEmTauRoI( const ROIB::RoIBResult& roib,
-                              const EventContext& ctx );
+                              const EventContext& ctx ) const;
    /// Create the JetEnergy RoI object
    StatusCode createJetEnergyRoI( const ROIB::RoIBResult& roib,
-                                  const EventContext& ctx );
+                                  const EventContext& ctx ) const;
    /// Create the Muon RoI objects
    StatusCode createMuonRoI( const ROIB::RoIBResult& roib,
                              const EventContext& ctx ) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,6 +36,7 @@ void fill( xAOD::TrackParticle& tp ) {
       2.0, 4.0,  6.0,  8.0,  10.0,
       3.0, 6.0,  9.0,  12.0, 15.0,
       4.0, 8.0,  12.0, 16.0, 20.0,
+      // cppcheck-suppress constStatement
       5.0, 10.0, 15.0, 20.0, 25.0;
    tp.setDefiningParametersCovMatrix( covMatrix );
 

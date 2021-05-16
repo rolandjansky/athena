@@ -30,13 +30,13 @@
 
 Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator),
-  m_highestVolume(0),
+  m_highestVolume(nullptr),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_materialCollectionValidation(false),
-  m_validationTree(0),
-  m_validationRunTree(0),
+  m_validationTree(nullptr),
+  m_validationRunTree(nullptr),
   m_validationTreeFolder("/val/EventTreeTG"),
   m_validationTreeName("EventTreeTG"),
   m_validationTreeDescription("Event output of the EnergyLossExtrapolationValidation Algorithm"),
@@ -78,9 +78,9 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
   m_collectedLayerBack(0),
   m_cylinderR{},
   m_cylinderZ{},
-  m_theCylinders(0),
-  m_theDiscs1(0),
-  m_theDiscs2(0)
+  m_theCylinders(nullptr),
+  m_theDiscs1(nullptr),
+  m_theDiscs2(nullptr)
 {
     // used algorithms and alg tools
     declareProperty("Extrapolator"              , m_extrapolator);
@@ -165,17 +165,17 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
   m_validationRunTree->Branch("AvgRecordedLayers", &m_avgRecordedLayers, "avgRecLayers/F");
 
 	// now register the Trees
-	ITHistSvc* tHistSvc = 0;
+	ITHistSvc* tHistSvc = nullptr;
 	if (service("THistSvc",tHistSvc).isFailure()){
 		ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-		delete m_validationTree; m_validationTree = 0;
-		delete m_validationRunTree; m_validationRunTree = 0;
+		delete m_validationTree; m_validationTree = nullptr;
+		delete m_validationRunTree; m_validationRunTree = nullptr;
 	}
 	if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()
 			|| (tHistSvc->regTree(m_validationRunTreeFolder, m_validationRunTree)).isFailure() ) {
 		ATH_MSG_ERROR( "initialize() Could not register the validation Trees -> Switching ValidationMode Off !" );
-		delete m_validationTree; m_validationTree = 0;
-		delete m_validationRunTree; m_validationRunTree = 0;
+		delete m_validationTree; m_validationTree = nullptr;
+		delete m_validationRunTree; m_validationRunTree = nullptr;
 	}
 
 	// initialize the random number generators
@@ -217,11 +217,11 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
     m_theDiscs1 = new DataVector<const Trk::DiscSurface>();
     m_theDiscs2 = new DataVector<const Trk::DiscSurface>();
     for (size_t lay=0; lay<m_cylinders+1; ++lay) {
-    	m_theCylinders->push_back(new Trk::CylinderSurface(new Amg::Transform3D, m_cylinderR[lay], m_cylinderZ[lay]));
+    	m_theCylinders->push_back(new Trk::CylinderSurface(Amg::Transform3D(), m_cylinderR[lay], m_cylinderZ[lay]));
 		  ATH_MSG_INFO( "initialize() Cylinder " << lay << ": " << *m_theCylinders->at(lay) );
-      m_theDiscs1->push_back(new Trk::DiscSurface(createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      m_theDiscs1->push_back(new Trk::DiscSurface(*createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
       ATH_MSG_INFO( "initialize() Disc1 " << lay << ": " << *m_theDiscs1->at(lay) );
-      m_theDiscs2->push_back(new Trk::DiscSurface(createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      m_theDiscs2->push_back(new Trk::DiscSurface(*createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
       ATH_MSG_INFO( "initialize() Disc2 " << lay << ": " << *m_theDiscs2->at(lay) );
     }
 
@@ -272,9 +272,9 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
     if (!m_highestVolume){
         // get TrackingGeometry and highest volume
         const Trk::TrackingGeometry* trackingGeometry = m_extrapolator->trackingGeometry();
-        m_highestVolume = trackingGeometry ? trackingGeometry->highestTrackingVolume() : 0;
+        m_highestVolume = trackingGeometry ? trackingGeometry->highestTrackingVolume() : nullptr;
         const Trk::CylinderVolumeBounds* cylBounds = m_highestVolume ?
-                dynamic_cast<const Trk::CylinderVolumeBounds*>(&(m_highestVolume->volumeBounds())) : 0;
+                dynamic_cast<const Trk::CylinderVolumeBounds*>(&(m_highestVolume->volumeBounds())) : nullptr;
         // bail out
         if (!cylBounds){
             ATH_MSG_WARNING( "execute() No highest TrackingVolume / no VolumeBounds ... pretty useless!" );
@@ -339,8 +339,8 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
     // --------------- propagate to find an intersection ---------------------
 
 	// fill the TrackParameters vector with extrapolation from startParameters to dummy cylinder surface
-    const Trk::TrackParameters* lastParameters = 0;
-    const Trk::TrackParameters* newParameters = 0;
+    const Trk::TrackParameters* lastParameters = nullptr;
+    const Trk::TrackParameters* newParameters = nullptr;
 
     if (!m_materialCollectionValidation) {
 
@@ -365,7 +365,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
         if (collectedMaterial && collectedMaterial->size()) {
             // get the last track state on surface & clone the destination parameters
             const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
-            lastParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : 0;
+            lastParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
             m_collectedLayerForward += collectedMaterial->size();
             // delete the layers / cleanup
             std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsosIter    =  collectedMaterial->begin();
@@ -393,7 +393,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
         }
 
         // trying to extrapolate to cylinder barrel
-        newParameters = 0;
+        newParameters = nullptr;
         if (!m_materialCollectionValidation) {
 
             newParameters = m_extrapolator->extrapolate(
@@ -417,7 +417,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
             if (collectedMaterial && collectedMaterial->size()){
                 // get the last track state on surface & clone the destination parameters
                 const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
-                newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : 0;
+                newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
                 if (m_onion)
                     m_collectedLayerForward += collectedMaterial->size();
                 else
@@ -458,7 +458,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
                 if (collectedMaterial && collectedMaterial->size()){
                     // get the last track state on surface & clone the destination parameters
                     const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
-                    newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : 0;
+                    newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
                     if (m_onion)
                         m_collectedLayerForward += collectedMaterial->size();
                     else
@@ -537,7 +537,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 }
 
 //============================================================================================
-Amg::Transform3D* Trk::EnergyLossExtrapolationValidation::createTransform(
+std::unique_ptr<Amg::Transform3D> Trk::EnergyLossExtrapolationValidation::createTransform(
         double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
@@ -556,17 +556,18 @@ Amg::Transform3D* Trk::EnergyLossExtrapolationValidation::createTransform(
         Amg::Vector3D surfaceXdirection(surfaceYdirection.cross(surfaceZdirection));
         // the rotation
         Amg::RotationMatrix3D surfaceRotation;
-	surfaceRotation.col(0) = surfaceXdirection;
-	surfaceRotation.col(1) = surfaceYdirection;
-	surfaceRotation.col(2) = surfaceZdirection;
+        surfaceRotation.col(0) = surfaceXdirection;
+        surfaceRotation.col(1) = surfaceYdirection;
+        surfaceRotation.col(2) = surfaceZdirection;
         // return it
-        if (alphaZ==0.)
-            return new Amg::Transform3D(surfaceRotation, surfacePosition);
+        if (alphaZ==0.){
+            return std::make_unique<Amg::Transform3D>(surfaceRotation, surfacePosition);
+        }
         Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);
-        return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+        return std::make_unique<Amg::Transform3D>(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
 
     }
 
-    return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+    return std::make_unique<Amg::Transform3D>(Amg::Translation3D(x,y,z));
 }
 

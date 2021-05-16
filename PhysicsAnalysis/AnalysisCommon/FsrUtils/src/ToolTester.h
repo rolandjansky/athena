@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FSRUTILS_TOOLTESTER_H
@@ -35,8 +35,10 @@ namespace FSR {
       virtual StatusCode execute();
 
    private:
-      /// StoreGate key for the muon container to investigate
-      std::string m_sgKey;
+      /// StoreGate keys for the muon, photon and electron containers to investigate
+      std::string m_sgMuonKey;
+      std::string m_sgPhotonKey;
+      std::string m_sgElectronKey;
 
       /// Connection to the fsr tool
       ToolHandle< IFsrPhotonTool > m_fsrTool;

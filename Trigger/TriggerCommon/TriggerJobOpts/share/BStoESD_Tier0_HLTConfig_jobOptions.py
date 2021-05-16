@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##############################################################
 # BStoESD_Tier0_HLTConfig_jobOptions.py
 # For DATA reconstruction
 ##############################################################
 
 # Configuration depends on TriggerFlags.configForStartup():
-#   HLTonlineNoL1Thr : Everything is taken from COOL, except LVL1ConfigSvc for thresholds
 #   HLToffline       : HLT is ran offline, configuration is read from XML/JSON files
 #   HLTonline        : Normal running, everything is taken from COOL
 
@@ -63,38 +62,10 @@ if rec.doTrigger():
         from AthenaCommon.Resilience import treatException
         treatException("Could not run TriggerConfigGetter()")
 
-
-    #---------------------------------------------------------------------------
-    if tf.configForStartup() == "HLTonlineNoL1Thr":
-
-        # Want to use LVL1ConfigSvc for LVL1 thresholds only
-        from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-        l1 = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-        l1.XMLFile = "LVL1config_SingleBeam_v1_7-bit_trigger_types.xml"
-        l1.CreateLegacyObjects=True
-        ServiceMgr += l1
-
-        tf.inputLVL1configFile = "LVL1config_SingleBeam_v1_7-bit_trigger_types.xml"
-        tf.inputLVL1configFile.lock() # this is needed to not be overwritten by TrigT1CTMonitoring
-
-        # The following are using LVL1ConfigSvc (no thresholds involved)
-        # They should use COOL and not the xml file
-        if not hasattr(ToolSvc,'RecMuCTPIByteStreamTool'):
-            from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RecMuCTPIByteStreamTool
-            ToolSvc += RecMuCTPIByteStreamTool("RecMuCTPIByteStreamTool")
-        ToolSvc.RecMuCTPIByteStreamTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        if not hasattr(ToolSvc,'L1EmTauTools'):
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EmTauTools
-            ToolSvc += LVL1__L1EmTauTools("L1EmTauTools")
-        ToolSvc.L1EmTauTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-
     #---------------------------------------------------------------------------    
-    elif tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
+    if tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2: # Run 1+2 setup, not needed for Run 3 reco
             tf.readLVL1configFromXML = True # has to use the .xml file used for reco
-            tf.readHLTconfigFromXML = True # has to use the .xml file used for reco
             # You have to set the 2 following files to the .xml files you want.
             # Here are the default files for reprocessing special case with trigger
             tf.inputHLTconfigFile = "HLTMenu.xml" # Has to be set correctly

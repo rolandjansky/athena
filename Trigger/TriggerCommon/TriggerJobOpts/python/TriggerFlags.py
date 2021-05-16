@@ -26,25 +26,17 @@ def bool_flag_with_default(name, val):
 default_true_flags = [
     "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
     "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "useCaloTTL", # False for DC1. Can use True for Rome files with Digits or post-Rome data """
     "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
     "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
-    "doFEX",  # if False disable Feature extraction algorithms """
-    "doHypo",  # if False disable all Hypothesis algorithms (HYPO)"""
     "doID",  # if False, disable ID algos at LVL2 and EF """
     "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
     "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
-    "doBcm",  # if False, disable BCM algorithms at LVL2 & EF """
-    "doTrt",  # if False, disable TRT algorithms at LVL2 & EF """
-    "doZdc",  # if False, disable ZDC algorithms at LVL2 & EF """"
-    "doLucid", # if False, disable Lucid algorithms at LVL2 & EF
     "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
     "doNavigationSlimming",  # Enable the trigger navigation slimming"""
 ]
 
 default_false_flags = [
     "fakeLVL1", # create fake RoI from KINE info  """
-    "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
     "doTruth",
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
@@ -133,31 +125,15 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonlineNoL1Thr'
+    StoredValue = 'HLTonline'
     
     allowedValues = [
         'HLTonline',
-        'HLToffline',
-        'HLTonlineNoL1Thr',
-        'HLTofflineNoL1Thr'
+        'HLToffline'
         ]
 
 _flags.append(configForStartup)
 
-class run2Config(JobProperty):
-    """ A flag to specify 2016 or 2017 (tunes, etc) running conditions """
-    statusOn=True
-    allowedType=['string']
-    StoredValue = '2017'
-    allowedValues = [
-        '2016',
-        '2017',
-        ]
-    def _do_action(self):
-        log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-        log.warning('The run2Config flag is deprecated. Please remove references to it.')
-
-_flags.append(run2Config)
 
 class dataTakingConditions(JobProperty):
     """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
@@ -206,9 +182,7 @@ class triggerConfig(JobProperty):
     For MC reconstruction use MCRECO prefix:
     MCRECO:DEFAULT                                       -default L1 and HLT menu
     MCRECO:MenuName                                      -takes the L1 and HLT xml respresentations of the menu
-    MCRECO:L1CaloCalib=True/False:MenuName               -takes the L1 and HLT xml respresentations of the menu, sets L1 calo calib
     MCRECO:DB:connectionstring:SMKey,L1PSK,HLTPSK[,BGK]  -takes these db keys
-    MCRECO:DB:L1CaloCalib=True/False:connectionstring:SMKey,L1PSK,HLTPSK  -takes these db keys, sets L1 calo calib
     MCRECO:DB:connectionstring:MenuName,Rel              -takes this menu from the db (looks up the SMK)
                                                          -NB for the above: move to alias tables?
                                                    
@@ -337,20 +311,7 @@ class triggerConfig(JobProperty):
                 ### We read the menu from the TriggerDB
                 tf.readMenuFromTriggerDb=True
                 tf.triggerUseFrontier = (configs[1]=='DBF')
-                
-                #see if L1 calib arg supplied
-                if "L1CaloCalib" in configs[2]:
-                    if configs[2].split("=")[-1] == "True" or configs[2].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
-                        tf.useL1CaloCalibration=True
-                    elif configs[2].split("=")[-1] == "False" or configs[2].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
-                        tf.useL1CaloCalibration=False
-                    else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[2].split("=")[-1])
-                    tf.triggerDbConnection = ':'.join(configs[3:-1])  # the dbconnection goes from third to last ':', it can contain ':'
-                else:
-                    tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
+                tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
                 DBkeys = configs[-1].split(",")
                 if (len(DBkeys) == 4):                            # we got 4 keys (SM, L1PS, HLTPS,BGK)
                     tf.triggerDbKeys=[int(x) for x in DBkeys]
@@ -374,22 +335,12 @@ class triggerConfig(JobProperty):
                 log.info("triggerConfig: Setting tf.triggerMenuSetup to " + tf.triggerMenuSetup())
             else:
                 ### We read the menu from xml
-                if "L1CaloCalib" in configs[1]:
-                    if configs[1].split("=")[-1] == "True" or configs[1].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
-                        tf.useL1CaloCalibration=True
-                    elif configs[1].split("=")[-1] == "False" or configs[1].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
-                        tf.useL1CaloCalibration=False
-                    else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[1].split("=")[-1])
                 if (configs[-1] == 'DEFAULT' or configs[-1] == 'default'):
                     tf.triggerMenuSetup = 'default'
                 else:
                     tf.triggerMenuSetup = configs[-1]
 
                 tf.readLVL1configFromXML=True
-                tf.readHLTconfigFromXML=True
                 log.info("triggerConfig: MCRECO menu from xml (%s)", tf.triggerMenuSetup())
 
             # This part was there in the original (old) csc_reco_trigger.py snippet
@@ -415,32 +366,6 @@ class triggerConfig(JobProperty):
 _flags.append(triggerConfig)
 
 
-
-class readL1TopoConfigFromXML(JobProperty):
-    """Use to specify external l1topo xml configuration file
-    (e.g. from the release or a local directory)
-    
-    If set to True:
-    the L1Topo config will be taken from TriggerFlags.inputL1TopoConfigFile()
-    
-    If set to False:    
-    the L1Topo config xml file is read from the python generated XML
-    file, which is specified in TriggerFlags.outputL1TopoconfigFile()
-    """
-    statusOn=True
-    allowedType=['bool']
-    # note: if you change the following default value, you must also change the default value in class inputLVL1configFile
-    # StoredValue=False
-    StoredValue = False # once the python generation is implemented the default should be False
-
-    def _do_action(self):
-        """ setup some consistency """
-        if self.get_Value():
-            TriggerFlags.inputL1TopoConfigFile = "TriggerMenuXML/L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            TriggerFlags.inputL1TopoConfigFile = TriggerFlags.outputL1TopoConfigFile()
-
-_flags.append(readL1TopoConfigFromXML)
 
 class readLVL1configFromXML(JobProperty):
     """ If set to True the LVL1 config file is read from earlier generated XML file """
@@ -471,53 +396,6 @@ class readLVL1configFromXML(JobProperty):
 
 _flags.append(readLVL1configFromXML)
 
-class readHLTconfigFromXML(JobProperty):
-    """ If set to True the HLT config file is read from earlier generated XMl file """
-    statusOn=True
-    allowedType=['bool']
-    # note: if you change the following default value, you must also change the default value in class inputHLTconfigFile
-    # StoredValue=False
-    StoredValue = False
-
-    def _do_action(self):
-        """ Disable all subcontainers defining slices ON/OFF flags """
-
-        import os
-        log = logging.getLogger( 'TriggerFlags.readHLTconfigFromXML' )
-
-        ## loop over all properties in the container
-        for prop in TriggerFlags.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                for slice_prop_name in prop.__dict__:
-                    slice_prop = prop.__dict__.get(slice_prop_name)
-                    if issubclass(slice_prop.__class__, JobProperty):
-                        if self.get_Value() is True: ## now depending on the value set flags are on/off
-                            slice_prop.set_Off()
-                        else:
-                            slice_prop.set_On()
-        ## in addition set inputHLTconfigFile to be the same as outputHLTconfigFile
-        if self.get_Value() is False:
-            TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
-        else:
-            if TriggerFlags.inputHLTconfigFile != 'NONE':
-                
-                TriggerFlags.inputHLTconfigFile = "TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                nightlyPaths=os.environ['XMLPATH'].split(':')
-
-                for p in nightlyPaths:
-                    full_path_name = p+"/"+TriggerFlags.inputHLTconfigFile()
-                    if os.path.exists(full_path_name) is True:
-                        log.info("The HLT xml file is: "+full_path_name)
-                        success = True
-                        break
-                    else:
-                        success = False
-
-                if success is False:
-                    log.error("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
-                
-_flags.append(readHLTconfigFromXML)
-
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""
     statusOn=False
@@ -541,24 +419,6 @@ class triggerCoolDbConnection(JobProperty):
     StoredValue=''
 
 _flags.append(triggerCoolDbConnection)
-
-class outputL1TopoConfigFile(JobProperty):
-    """ File name for output L1Topo configuration XML file produced by the python menu generation """
-    statusOn=True
-    allowedType=['str']
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            # triggerMenuSetup contains the prescale mode in many
-            # cases, e.g. MC_pp_v5_tight_mc_prescale. Prescaling is
-            # not available for L1Topo, therefore that part is being
-            # removed.
-            return "L1Topoconfig_" + _getMenuBaseName(TriggerFlags.triggerMenuSetup()) + "_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(outputL1TopoConfigFile)
 
 class outputLVL1configFile(JobProperty):
     """ File name for output LVL1 configuration XML file """
@@ -599,28 +459,6 @@ class outputHLTmenuJsonFile(JobProperty):
             return self.get_Value()
 
 _flags.append(outputHLTmenuJsonFile)
-
-class inputL1TopoConfigFile(JobProperty):
-    """Used to define an external L1Topo configuration file. To be
-    used together with trigger flag readL1TopoConfigFromXML.
-
-    If TriggerFlags.readL1TopoConfigFromXML()==True, then this file is
-    used for L1TopoConfiguration.
-    
-    Defaults to L1Topoconfig_<triggerMenuSetup>_<menuVersion>.xml
-    """
-    statusOn=True
-    allowedType=['str']
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(inputL1TopoConfigFile)
-
 
 
 class inputLVL1configFile(JobProperty):
@@ -799,24 +637,8 @@ class triggerMenuSetup(JobProperty):
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
             TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
-        if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
-            TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 
 _flags.append(triggerMenuSetup)
-
-class L1PrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(L1PrescaleSet)
-
-class HLTPrescaleSet(JobProperty):
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValues = ['', 'None']
-    StoredValue = ''
-_flags.append(HLTPrescaleSet)
 
 
 # the container of all trigger flags

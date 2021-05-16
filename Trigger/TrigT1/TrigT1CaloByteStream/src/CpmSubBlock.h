@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_CPMSUBBLOCK_H
@@ -81,7 +81,7 @@ class CpmSubBlock : public L1CaloSubBlock {
    static const uint32_t s_dataIdMask      = 0x3;
    //  Hit counts bit positions and masks
    static const int      s_indicatorBit    = 24;
-   static const int      s_threshWordId    = 0x2;
+   static const uint32_t s_threshWordId    = 0x2;
    static const uint32_t s_threshMask      = 0xffffff;
    //  G-Link/Neutral format
    static const int      s_pairsPerPin       = 4;

@@ -13,9 +13,9 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
-#include "MuPatCandidateBase.h"
-#include "MuPatSegment.h"
-#include "MuPatTrack.h"
+#include "MuPatPrimitives/MuPatCandidateBase.h"
+#include "MuPatPrimitives/MuPatSegment.h"
+#include "MuPatPrimitives/MuPatTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrkEventPrimitives/JacobianPhiThetaLocalAngles.h"
@@ -54,8 +54,8 @@ namespace Muon {
 
     void MooCandidateMatchingTool::MooTrackSegmentMatchResult::clear() {
         TrackSegmentMatchResult::clear();
-        MCTBTrack = 0;
-        MCTBSegment = 0;
+        MCTBTrack = nullptr;
+        MCTBSegment = nullptr;
     }
 
     MooCandidateMatchingTool::MooCandidateMatchingTool(const std::string& t, const std::string& n, const IInterface* p) :
@@ -240,19 +240,18 @@ namespace Muon {
     }
 
     bool MooCandidateMatchingTool::match(const Trk::Track& track, const MuonSegment& segment, bool useTightCuts) const {
-        MuPatCandidateTool::MeasGarbage measurementsToBeDeleted;
-        MuPatCandidateTool::HitGarbage hitsToBeDeleted;
+        GarbageContainer trash_bin;
 
         ATH_MSG_DEBUG("Match track/segment: useTightCuts " << useTightCuts);
         // convert segment and track
         std::unique_ptr<Trk::Track> inTrack = std::make_unique<Trk::Track>(track);
-        std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack, hitsToBeDeleted, measurementsToBeDeleted);
+        std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack, trash_bin);
         if (!candidate) {
             ATH_MSG_VERBOSE("Failed to create track candidate");
             return false;
         }
 
-        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment, hitsToBeDeleted, measurementsToBeDeleted));
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment, trash_bin));
         if (!segInfo) {
             ATH_MSG_VERBOSE("Failed to create segment candidate");
             return false;
@@ -838,11 +837,10 @@ namespace Muon {
         //
         if (straightLineMatch || entry1.hasMomentum()) {
             // extrapolate to segment surface
-            const Trk::IExtrapolator* extrapolator = 0;
-            const Trk::TrackParameters* exPars = 0;
-            const Trk::TrackParameters* exMeasPars = 0;
+            std::unique_ptr<const Trk::TrackParameters> exPars;
+            const Trk::TrackParameters* exMeasPars = nullptr;
             if (closestMeasPars) {
-                const Trk::TrackParameters* tmpPars = closestMeasPars->covariance() ? closestMeasPars : 0;
+                const Trk::TrackParameters* tmpPars = closestMeasPars->covariance() ? closestMeasPars : nullptr;
 
                 if (tmpPars) {
                     // Check sector+
@@ -854,9 +852,8 @@ namespace Muon {
                     int segmentSector = m_idHelperSvc->sector(info.segmentChamberId);
                     int sectorDiff = std::abs(trackSector - segmentSector);
                     if (sectorDiff > 1 && sectorDiff != 15) {
-                        if (msgLvl(MSG::VERBOSE))
-                            msg(MSG::VERBOSE) << "track sector   =" << trackSector << " segment sector =" << segmentSector
-                                              << " => not in neighbouring sectors " << endmsg;
+                        ATH_MSG_VERBOSE("track sector   =" << trackSector << " segment sector =" << segmentSector
+                                                           << " => not in neighbouring sectors ");
 
                         info.reason = TrackSegmentMatchResult::SegmentMatching;
                         return;
@@ -864,34 +861,30 @@ namespace Muon {
                     // Check sector-
 
                     if (straightLineMatch && !entry1.hasMomentum()) {
-                        extrapolator = &*(m_slExtrapolator);
-                        exPars = extrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection, false,
-                                                                   Trk::muon);
+                        exPars.reset(m_slExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                                                                           false, Trk::muon));
                     } else {
-                        extrapolator = &(*m_atlasExtrapolator);
                         ATH_MSG_VERBOSE(" Extrapolating to other segment " << m_printer->print(*tmpPars) << std::endl
                                                                            << Amg::toString(*tmpPars->covariance(), 10));
-                        exPars =
-                            extrapolator->extrapolate(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection, false, Trk::muon);
+                        exPars.reset(m_atlasExtrapolator->extrapolate(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                                                                      false, Trk::muon));
                     }
                 }
                 if (!exPars) {
                     ATH_MSG_DEBUG("track-segment match: Failed to extrapolate measured track parameters\n"
                                   << m_printer->print(*closestPars) << "\nfrom " << m_idHelperSvc->toStringChamber(info.trackChamberId)
-                                  << " to segment surface " << m_idHelperSvc->toStringChamber(info.segmentChamberId) << " using "
-                                  << extrapolator->name());
+                                  << " to segment surface " << m_idHelperSvc->toStringChamber(info.segmentChamberId));
                     info.matchOK = false;
                     info.reason = TrackSegmentMatchResult::ExtrapolFailed;
                     return;
                 }
 
-                exMeasPars = exPars->covariance() ? exPars : 0;
+                exMeasPars = exPars->covariance() ? exPars.get() : nullptr;
                 if (!exMeasPars) {
                     const Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
                     ATH_MSG_DEBUG("track-segment match: Did not get measured track parameters from extrapolation\n"
                                   << "\nfrom " << m_idHelperSvc->toStringChamber(info.trackChamberId) << " to segment surface "
                                   << m_idHelperSvc->toStringChamber(info.segmentChamberId) << " using " << extrapolator->name());
-                    delete exPars;
                     info.reason = TrackSegmentMatchResult::ExtrapolNoErrors;
                     return;
                 }
@@ -902,19 +895,16 @@ namespace Muon {
                 // no closest measured parameters, take closest parameters
 
                 if (straightLineMatch && !entry1.hasMomentum()) {
-                    extrapolator = &*(m_slExtrapolator);
-                    exPars = extrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection, false,
-                                                               Trk::muon);
+                    exPars.reset(m_slExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                                                                       false, Trk::muon));
                 } else {
-                    extrapolator = &(*m_atlasExtrapolator);
-                    exPars =
-                        extrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection, false, Trk::muon);
+                    exPars.reset(m_atlasExtrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                                                                  false, Trk::muon));
                 }
                 if (!exPars) {
                     ATH_MSG_DEBUG("track-segment match: Failed to extrapolate track parameters without errors\n"
                                   << m_printer->print(*closestPars) << "\nfrom " << m_idHelperSvc->toStringChamber(info.trackChamberId)
-                                  << " to segment surface " << m_idHelperSvc->toStringChamber(info.segmentChamberId) << " using "
-                                  << extrapolator->name());
+                                  << " to segment surface " << m_idHelperSvc->toStringChamber(info.segmentChamberId));
                     info.matchOK = false;
                     info.reason = TrackSegmentMatchResult::ExtrapolFailed;
                     return;
@@ -1094,10 +1084,6 @@ namespace Muon {
             } else {
                 info.reason = TrackSegmentMatchResult::NoMeasErrors;
             }
-
-            delete exPars;
-            exPars = 0;
-            exMeasPars = 0;  // points to the same object as exPars
 
         } else {  //! straighLineMatch && !entry1.hasMomemtum()
             info.reason = TrackSegmentMatchResult::NoMomentumWithMagField;

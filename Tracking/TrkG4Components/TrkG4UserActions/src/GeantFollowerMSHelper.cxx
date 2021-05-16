@@ -164,14 +164,14 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
    m_crossedMuonEntry = false;
    m_exitLayer = false;
    // now register the Tree
-   ITHistSvc* tHistSvc = 0;
+   ITHistSvc* tHistSvc = nullptr;
    if (service("THistSvc",tHistSvc).isFailure()){
       ATH_MSG_ERROR( "Could not find Hist Service -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
    if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
       ATH_MSG_ERROR( "Could not register the validation Tree -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
 
    ATH_MSG_INFO("initialize() successful" );
@@ -746,9 +746,9 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
    double deltaE_rad_tot = 0.;
    double sigmaDeltaE_rad_tot =0.;
 
-   const Trk::TrackStateOnSurface* mprevious = 0;
-   const Trk::TrackStateOnSurface* mfirst = 0;
-   const Trk::TrackStateOnSurface* mlast = 0;
+   const Trk::TrackStateOnSurface* mprevious = nullptr;
+   const Trk::TrackStateOnSurface* mfirst = nullptr;
+   const Trk::TrackStateOnSurface* mlast = nullptr;
    Amg::Vector3D posFirst(0.,0.,0.);
 //   double distLast = 0.;
    double deltaEFirst = 0.;
@@ -787,8 +787,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
      if(m->materialEffectsOnTrack()) {
        double X0 = m->materialEffectsOnTrack()->thicknessInX0();
        const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
-       const Trk::EnergyLoss* energyLoss = 0;
-       const Trk::ScatteringAngles* scat = 0;
+       const Trk::EnergyLoss* energyLoss = nullptr;
+       const Trk::ScatteringAngles* scat = nullptr;
        if(meot) {
          energyLoss = meot->energyLoss();
          if (energyLoss) {
@@ -873,7 +873,7 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
         const Trk::TrackParameters* pars = m->trackParameters()->clone();
 
 // make new TSOS
-        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, meotLast, typePattern );
+        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
         newTSOSvector.push_back(newTSOS);
         ATH_MSG_DEBUG(" NO aggregation and NO reposition   TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << X0_tot << " deltaE " << energyLossNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
 
@@ -904,7 +904,7 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, energyLossNew, surf, meotPattern);
           const Trk::TrackParameters* pars = m->trackParameters()->clone();
 //        make new TSOS
-          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, meotLast, typePattern );
+          const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
           newTSOSvector.push_back(newTSOS);
           ATH_MSG_DEBUG(" NO aggregation and WITH reposition Thin Scatterer  TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << meotLast->thicknessInX0() << " deltaE " << energyLossNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
 
@@ -939,8 +939,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           Amg::Vector3D coly(-dir.x()*dir.z()/norm, -dir.y()*dir.z()/norm, norm);
           Amg::Vector3D colz( dir.x(),             dir.y(),                dir.z());
 
-          Amg::Transform3D* surfaceTransformFirst = new Amg::Transform3D(colx,coly,colz,pos0);
-          Amg::Transform3D* surfaceTransformLast = new Amg::Transform3D(colx,coly,colz,posNew);
+          Amg::Transform3D surfaceTransformFirst(colx,coly,colz,pos0);
+          Amg::Transform3D surfaceTransformLast(colx,coly,colz,posNew);
           Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
           Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
 //        make MaterialEffectsOnTracks
@@ -967,10 +967,10 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           //
           const Trk::TrackStateOnSurface* newTSOSFirst =
             new Trk::TrackStateOnSurface(
-              0, std::move(parsFirst), 0, meotFirst, typePattern);
+              nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
           const Trk::TrackStateOnSurface* newTSOS =
             new Trk::TrackStateOnSurface(
-              0, std::move(parsLast), 0, meotLast, typePattern);
+              nullptr, std::move(parsLast), nullptr, meotLast, typePattern);
 
           ATH_MSG_DEBUG(
             " first NO aggregation and WITH reposition   TSOS type "
@@ -1068,10 +1068,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                         << " halflength " << halflength << " w_tot " << w_tot
                         << " X0_tot " << X0_tot);
 
-          Amg::Transform3D* surfaceTransformFirst =
-            new Amg::Transform3D(colx, coly, colz, pos0);
-          Amg::Transform3D* surfaceTransformLast =
-            new Amg::Transform3D(colx, coly, colz, posNew);
+          Amg::Transform3D surfaceTransformFirst(colx, coly, colz, pos0);
+          Amg::Transform3D surfaceTransformLast(colx, coly, colz, posNew);
           Trk::PlaneSurface* surfFirst =
             new Trk::PlaneSurface(surfaceTransformFirst);
           Trk::PlaneSurface* surfLast =
@@ -1106,13 +1104,13 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             //
             const Trk::TrackStateOnSurface* newTSOSFirst =
               new Trk::TrackStateOnSurface(
-                0, std::move(parsFirst), 0, meotFirst, typePattern);
+                nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
             const Trk::TrackStateOnSurface* newTSOS =
               (elossFlag != 0
                  ? new Trk::TrackStateOnSurface(
-                     0, std::move(parsLast), 0, meotLast, typePatternDeposit)
+                     nullptr, std::move(parsLast), nullptr, meotLast, typePatternDeposit)
                  : new Trk::TrackStateOnSurface(
-                     0, std::move(parsLast), 0, meotLast, typePattern));
+                     nullptr, std::move(parsLast), nullptr, meotLast, typePattern));
             ATH_MSG_DEBUG(
               " first WITH aggregation and WITH reposition   TSOS type "
               << newTSOSFirst->dumpType() << " TSOS surface "
@@ -1151,8 +1149,7 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             //
             const Trk::ScatteringAngles* scatZero =
               new ScatteringAngles(0., 0., 0., 0.);
-            Amg::Transform3D* surfaceTransform =
-              new Amg::Transform3D(colx, coly, colz, pos);
+            Amg::Transform3D surfaceTransform(colx, coly, colz, pos);
             Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform);
             std::unique_ptr<Trk::TrackParameters> pars =
               surf->createUniqueParameters<5, Trk::Charged>(
@@ -1174,13 +1171,13 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                 X0_tot / 2., scatNew, energyLoss0, *surfLast, meotPattern);
             const Trk::TrackStateOnSurface* newTSOSFirst =
               new Trk::TrackStateOnSurface(
-                0, std::move(parsFirst), 0, meotFirst, typePattern);
+                nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
             const Trk::TrackStateOnSurface* newTSOS =
               new Trk::TrackStateOnSurface(
-                0, std::move(pars), 0, meot, typePatternDeposit);
+                nullptr, std::move(pars), nullptr, meot, typePatternDeposit);
             const Trk::TrackStateOnSurface* newTSOSLast =
               new Trk::TrackStateOnSurface(
-                0, std::move(parsLast), 0, meotLast, typePattern);
+                nullptr, std::move(parsLast), nullptr, meotLast, typePattern);
             newTSOSvector.push_back(newTSOSFirst);
             newTSOSvector.push_back(newTSOS);
             newTSOSvector.push_back(newTSOSLast);

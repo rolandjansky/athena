@@ -11,118 +11,104 @@
 // Wolfgang.Liebig@cern.ch / Andreas.Salzburger@cern.ch / Martin.Siebel@CERN.ch
 ///////////////////////////////////////////////////////////////////
 
-
 #ifndef MUONTGRECTOOLS_TRACKSTATEONSURFACECOMPARISONFUNCTION_H
 #define MUONTGRECTOOLS_TRACKSTATEONSURFACECOMPARISONFUNCTION_H
 
-//Trk
+// Trk
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkSurfaces/DiscSurface.h"
 // extra-maths for cylinder intersections
-#include "TrkSurfaces/CylinderSurface.h"
-#include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkSurfaces/RectangleBounds.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
-#include "TrkSurfaces/CylinderBounds.h"
 #include "TrkParameters/TrackParameters.h"
-//STL
+#include "TrkSurfaces/CylinderBounds.h"
+#include "TrkSurfaces/CylinderSurface.h"
+#include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+// STL
 #include <ext/algorithm>
 
 namespace Muon {
 
-  /**
-   * Class implementing a comparison function, or relational definition, for
-   *     sorting TrackStateOnSurface objects
-   */
-  class TrackStateOnSurfaceComparisonFunction {
-  public:
+    /**
+     * Class implementing a comparison function, or relational definition, for
+     *     sorting TrackStateOnSurface objects
+     */
+    class TrackStateOnSurfaceComparisonFunction {
+    public:
+        /** Constructor with the fallback direction to use for ordering */
+        TrackStateOnSurfaceComparisonFunction(const Amg::Vector3D& dir) : m_direction(new Amg::Vector3D(dir.unit())) {}
 
-    /** Constructor with the fallback direction to use for ordering */
-    TrackStateOnSurfaceComparisonFunction( const Amg::Vector3D&     dir)
-      :
-      m_direction(new  Amg::Vector3D(dir.unit()))
-      {}
+        /** Copy Ctor */
+        TrackStateOnSurfaceComparisonFunction(const TrackStateOnSurfaceComparisonFunction& MCF) : m_direction(0) {
+            if (MCF.m_direction) m_direction = new Amg::Vector3D(*(MCF.m_direction));
+        }
 
-    /** Copy Ctor */
-    TrackStateOnSurfaceComparisonFunction(const TrackStateOnSurfaceComparisonFunction& MCF): 
-      m_direction(0)
-      {
-        if (MCF.m_direction) m_direction = new Amg::Vector3D(*(MCF.m_direction)); 
-      }
+        /** Destructor */
+        virtual ~TrackStateOnSurfaceComparisonFunction() { delete m_direction; }
 
-    /** Destructor */
-    virtual ~TrackStateOnSurfaceComparisonFunction()
-      {
-	delete m_direction;
-      }
-               
-    /** The comparison function defining in what case a TSOS is 'smaller' than
-        a second one.
-	The idea is to order the TSOS of a track along the track momentum.
-	A TSOS is considered to be smaller than another one, if the 
-	projection of the momentum of the smaller TSOS on the vector connecting
-	the positions of the two TSOS' is positive.
-	In case the smaller TSOS does not provide a momentum, the momentum
-	of the other TSOS is taken. In case this TSOS does also not provide a
-	momentum, a default fallback direction is used. The fallback direction
-	has to be specified in the constructer as e.g. the momentum of the
-	track's perigee.
-    */
-    bool operator() (const Trk::TrackStateOnSurface* tsone,
-		     const Trk::TrackStateOnSurface* tstwo) const {
+        /** The comparison function defining in what case a TSOS is 'smaller' than
+            a second one.
+            The idea is to order the TSOS of a track along the track momentum.
+            A TSOS is considered to be smaller than another one, if the
+            projection of the momentum of the smaller TSOS on the vector connecting
+            the positions of the two TSOS' is positive.
+            In case the smaller TSOS does not provide a momentum, the momentum
+            of the other TSOS is taken. In case this TSOS does also not provide a
+            momentum, a default fallback direction is used. The fallback direction
+            has to be specified in the constructer as e.g. the momentum of the
+            track's perigee.
+        */
+        bool operator()(const Trk::TrackStateOnSurface* tsone, const Trk::TrackStateOnSurface* tstwo) const {
+            // const Trk::Surface *surf2;
 
-      //const Trk::Surface *surf2;
+            if (!tsone) return false;
+            if (!tstwo) return true;
 
-      if (!tsone) return false; 
-      if (!tstwo) return true;
+            Amg::Vector3D dir = *m_direction;
+            Amg::Vector3D pos1(0., 0., 0.);  // dummy init
+            Amg::Vector3D pos2(0., 0., 0.);  // dummy init
 
-      Amg::Vector3D dir = *m_direction;
-      Amg::Vector3D pos1(0.,0.,0.);        // dummy init
-      Amg::Vector3D pos2(0.,0.,0.);        // dummy init
+            if (tsone->trackParameters() && tsone->trackParameters()->momentum().unit().dot(*m_direction) > 0.)
+                dir = tsone->trackParameters()->momentum().unit();
+            else if (tstwo->trackParameters() && tstwo->trackParameters()->momentum().unit().dot(*m_direction) > 0.)
+                dir = tstwo->trackParameters()->momentum().unit();
 
-      if (tsone->trackParameters() && tsone->trackParameters()->momentum().unit().dot(*m_direction)>0.)
-	dir = tsone->trackParameters()->momentum().unit();
-      else if (tstwo->trackParameters() && tstwo->trackParameters()->momentum().unit().dot(*m_direction)>0.)
-	dir = tstwo->trackParameters()->momentum().unit();
-     
+            if (tsone->trackParameters())
+                pos1 = tsone->trackParameters()->position();
+            else if (tsone->measurementOnTrack())
+                pos1 = tsone->measurementOnTrack()->globalPosition();
+            else
+                pos1.setZero();
 
-      if (tsone->trackParameters() )
-	pos1 = tsone->trackParameters()->position();
-      else if (tsone->measurementOnTrack())
-	pos1 = tsone->measurementOnTrack()->globalPosition();
-      else
-        pos1.setZero();
+            if (tstwo->trackParameters())
+                pos2 = tstwo->trackParameters()->position();
+            else if (tstwo->measurementOnTrack())
+                pos2 = tstwo->measurementOnTrack()->globalPosition();
+            else
+                pos2.setZero();
 
-      if (tstwo->trackParameters() )
-	pos2 = tstwo->trackParameters()->position();
-      else if (tstwo->measurementOnTrack())
-	pos2=  tstwo->measurementOnTrack()->globalPosition();
-      else
-        pos2.setZero();
-      
-      //Trk::GlobalDirection norm=surf2->normal();
-      //Amg::Vector3D center=surf2->center();
-      
-      /* the intersection of the propagation from pos1 in direction dir
-	 with the plane surf fulfils  pos1 + t*dir = center + p with p in surf and
-	 t to be determined. multiplying with norm using norm perp. to p, yields
-	 pos1*norm + t*dir*norm = center*norm. Can be solved for t. 
-      */
+            // Trk::GlobalDirection norm=surf2->normal();
+            // Amg::Vector3D center=surf2->center();
 
-      double t = (pos2-pos1).dot(dir);
+            /* the intersection of the propagation from pos1 in direction dir
+               with the plane surf fulfils  pos1 + t*dir = center + p with p in surf and
+               t to be determined. multiplying with norm using norm perp. to p, yields
+               pos1*norm + t*dir*norm = center*norm. Can be solved for t.
+            */
 
-      if (t>0) return true;
-      return false;
-    }
-  private:
-    Amg::Vector3D*     m_direction;
+            double t = (pos2 - pos1).dot(dir);
 
-  };
+            if (t > 0) return true;
+            return false;
+        }
 
-} // end of namespace
+    private:
+        Amg::Vector3D* m_direction;
+    };
 
-#endif //MUONTGRECTOOLS_TRACKSTATEONSURFACECOMPARISONFUNCTION_H
+}  // namespace Muon
 
+#endif  // MUONTGRECTOOLS_TRACKSTATEONSURFACECOMPARISONFUNCTION_H

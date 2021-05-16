@@ -104,13 +104,13 @@ const std::vector<const Trk::Surface*>*
   // face surfaces xy
   //  (1) - at positive local z
   Trk::PlaneSurface* xyPlane = new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform * Amg::Translation3D(Amg::Vector3D(0., 0., m_halfZ))),
     new Trk::TriangleBounds(m_xyVtx));
   retsf->push_back(xyPlane);
   //  (2) - at negative local z
   Trk::PlaneSurface* xymPlane = new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform * Amg::Translation3D(Amg::Vector3D(0., 0., -m_halfZ)) *
       Amg::AngleAxis3D(180 * Gaudi::Units::deg, Amg::Vector3D(1., 0., 0.))),
     new Trk::TriangleBounds(mirror_xyVtx()));
@@ -155,7 +155,7 @@ Trk::PrismVolumeBounds::sideSurf(
       phi += M_PI;
   }
 
-  Amg::Transform3D* tr = new Amg::Transform3D(
+  Amg::Transform3D tr(
     transform * Amg::Translation3D(pos) *
     Amg::AngleAxis3D(phi, Amg::Vector3D(0., 0., 1.)) *
     Amg::AngleAxis3D(-ori * 90 * Gaudi::Units::deg, Amg::Vector3D(1., 0., 0.)));
@@ -183,7 +183,7 @@ Trk::PrismVolumeBounds::sideSurf(
   // protect against wrong orientation
   if (d.dot(plane->normal()) > 0.) {
     delete plane;
-    tr = new Amg::Transform3D(
+    tr = Amg::Transform3D(
       transform * Amg::Translation3D(pos) *
       Amg::AngleAxis3D(phi + M_PI, Amg::Vector3D(0., 0., 1.)) *
       Amg::AngleAxis3D(

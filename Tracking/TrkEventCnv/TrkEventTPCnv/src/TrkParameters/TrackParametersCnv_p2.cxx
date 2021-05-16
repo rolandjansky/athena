@@ -24,7 +24,6 @@
 #include "TrkEventTPCnv/TrkParameters/TrackParametersCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "TrkEventTPCnv/helpers/CLHEPHelpers.h"
-// #include "TrkEventPrimitives/Charged.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include <cassert>
@@ -46,7 +45,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     cov = (*transcov);
  }
   // ---- Parameters
-  Trk::TrackParameters    *transObj=0;
+  Trk::TrackParameters    *transObj=nullptr;
   unsigned int size=persObj->m_parameters.size();
   if (size==7){
     // FIXME - at some point we need to think about ExtendedParameters here, but that's not necessary yet...
@@ -96,7 +95,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
 }
 
 AmgSymMatrix(5)* TrackParametersCnv_p2::transErrorMatrix(const Trk :: TrackParameters_p2 *persObj,MsgStream& log){
-  AmgSymMatrix(5)* cov=0;
+  AmgSymMatrix(5)* cov=nullptr;
   if (!persObj->m_errorMatrix.isNull()){
     // fill errormatrix
     cov = new AmgSymMatrix(5);
@@ -113,7 +112,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
                                     Trk::SurfaceType type,
                                     MsgStream& log)
 {
-  const Trk::Surface* surface = 0;
+  const Trk::Surface* surface = nullptr;
   // check if surface had transform.
   if (persObj->m_transform.size()){
     //if (debug) std::cout<<"Reading in parameters with FREE surface type ="<<type<<std::endl;
@@ -123,9 +122,9 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
 
     // recreate free surface
     if (type==Trk::SurfaceType::Perigee) {
-      surface = new Trk::PerigeeSurface(std::move(transform));
+      surface = new Trk::PerigeeSurface(*transform);
     } else if (type==Trk::SurfaceType::Plane){
-      surface = new Trk::PlaneSurface(std::move(transform));
+      surface = new Trk::PlaneSurface(*transform);
     } else if (type==Trk::SurfaceType::Line){
       surface = new Trk::StraightLineSurface(*transform);
     } 
@@ -133,17 +132,16 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
     if (!surface){
       log << MSG::WARNING << "Free surface of type=" << static_cast<int>(type)
           << " isn't currently supported in TrackParametersCnv_p2" << endmsg;
-      return 0;
+      return nullptr;
     }
   } else {
-    //if (debug) std::cout<<"Reading in parameters with non-free surface type ="<<type<< "(i.e. no transform was written out)"<<std::endl;
 
     // Surface must have belonged to a ReadoutElement, or some part of the geometry or have a nominal/default perigee surface.
     if (type!=Trk::SurfaceType::Perigee) {		
       Identifier id=Identifier32(persObj->m_associatedDetElementId);
       if (!id.get_compact() && persObj->m_associatedDetElementId != 0)
         id = Identifier(persObj->m_associatedDetElementId);
-      if (m_nosurf)surface = 0;
+      if (m_nosurf)surface = nullptr;
       else {
         const Trk::Surface* detSurf = m_eventCnvTool->getSurface(id);
         if (!detSurf){
@@ -160,7 +158,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
 }
 
 void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& log) {
-  bool isCurvilinear = (dynamic_cast<const Trk::CurvilinearParameters*>(transObj)!=0);
+  bool isCurvilinear = (dynamic_cast<const Trk::CurvilinearParameters*>(transObj)!=nullptr);
   bool deleteAtEnd = false;
   if (isCurvilinear){
     convertTransCurvilinearToPers(transObj,persObj);
@@ -232,7 +230,7 @@ void TrackParametersCnv_p2::fillPersSurface(const Trk :: TrackParameters    *tra
   persObj->m_associatedDetElementId = surf->associatedDetectorElementIdentifier().get_identifier32().get_compact();
   static const Trk::PerigeeSurface s_nominalPerigeeSurface; // FIXME - should there be a  common 'nominal' surface ie on Perigee, as before?
   // Need to write out transforms for TG owned surfaces, and 'free' (noOwn) surfaces - i.e. anything which isn't on det element
-  if( surf->cachedTransform()!=0 ) {
+  if( surf->cachedTransform()!=nullptr ) {
     // FIXME - I think maybe we can just remove all of the code below and ALWAYS write out the transform if it exists - i.e. it won't exist if the surface is 'nominal'
     if (surf->type() != Trk::SurfaceType::Perigee ||
         (surf->type() == Trk::SurfaceType::Perigee &&

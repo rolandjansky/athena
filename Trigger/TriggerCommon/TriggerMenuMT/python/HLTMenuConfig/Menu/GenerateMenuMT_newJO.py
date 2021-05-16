@@ -10,7 +10,7 @@ from .MenuAlignmentTools import MenuAlignment
 import importlib
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( "GenerateMenuMT_newJO" )
+log = logging.getLogger(__name__)
 
 def getChainsOfMenu(flags):
     """

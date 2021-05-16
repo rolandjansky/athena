@@ -19,6 +19,7 @@
 #include "MooCandidateMatchingTool.h"
 #include "MooTrackBuilder.h"
 #include "MuPatCandidateTool.h"
+#include "MuPatPrimitives/MuPatGarbage.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
@@ -29,21 +30,19 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "MuonTrackSelectorTool.h"
+#include "MuonTrackSteeringStrategy.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-
 namespace Muon {
     class MuPatSegment;
-    class MuonTrackSteeringStrategy;
     class MuPatTrack;
 }  // namespace Muon
 
 namespace Trk {
-    class Track;
     class IExtendedTrackSummaryTool;
 }  // namespace Trk
 namespace Muon {
@@ -73,9 +72,6 @@ namespace Muon {
         typedef StSet::iterator StIt;
         typedef StSet::const_iterator StCit;
 
-        typedef MuPatCandidateTool::MeasGarbage MeasGarbage;
-        typedef MuPatCandidateTool::HitGarbage HitGarbage;
-
     public:
         /** default AlgTool constructor */
         MuonTrackSteering(const std::string&, const std::string&, const IInterface*);
@@ -86,9 +82,6 @@ namespace Muon {
         /** initialize method, method taken from bass-class AlgTool */
         virtual StatusCode initialize() override;
 
-        /** finialize method, method taken from bass-class AlgTool */
-        virtual StatusCode finalize() override;
-
         /** @brief find tracks starting from a MuonSegmentCollection
             @param coll a reference to a MuonSegmentCollection
             @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
@@ -96,46 +89,42 @@ namespace Muon {
         TrackCollection* find(const MuonSegmentCollection& coll) const override;
 
     private:
-        TrackCollection* selectTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, bool takeOwnership = true) const;
+        TrackCollection* selectTracks(std::vector<std::unique_ptr<MuPatTrack>>& candidates, bool takeOwnership = true) const;
 
         /** actual find method */
-        TrackCollection* findTracks(SegColVec& chamberSegments, SegColVec& stationSegments, HitGarbage& hitsToBeDeleted,
-                                    MeasGarbage& measurementsToBeDeleted) const;
+        TrackCollection* findTracks(SegColVec& chamberSegments, SegColVec& stationSegments, GarbageContainer& trash_bin) const;
         bool extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
-                             ChSet& chambersWithSegments, StSet& stationsWithSegments, HitGarbage& hitsToBeDeleted,
-                             MeasGarbage& measurementsToBeDeleted) const;
+                             ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
         virtual void cleanUp() const override;
 
         StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
-        const MuonTrackSteeringStrategy* decodeStrategy(const std::string& strategy) const;
+        std::unique_ptr<const MuonTrackSteeringStrategy> decodeStrategy(const std::string& strategy) const;
         bool decodeList(const std::string& input, std::vector<std::string>& list) const;
 
-        std::vector<std::unique_ptr<MuPatTrack> > extendWithLayer(MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer,
-                                                                  const unsigned int endlayer, HitGarbage& hitsToBeDeleted,
-                                                                  MeasGarbage& measurementsToBeDeleted, int cutLevel = 0) const;
+        std::vector<std::unique_ptr<MuPatTrack>> extendWithLayer(MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer,
+                                                                 const unsigned int endlayer, GarbageContainer& trash_bin,
+                                                                 int cutLevel = 0) const;
         /** @brief Find tracks starting from a good segment
             @param seedSeg the seeding MuonSegment pointer
             @param strat the current track finding strategy
             @param layer the current layer for the seed
         */
-        std::vector<std::unique_ptr<MuPatTrack> > findTrackFromSeed(MuPatSegment& seedSeg, const MuonTrackSteeringStrategy& strat,
-                                                                    const unsigned int layer, const SegColVec& segs,
-                                                                    HitGarbage& hitsToBeDeleted,
-                                                                    MeasGarbage& measurementsToBeDeleted) const;
+        std::vector<std::unique_ptr<MuPatTrack>> findTrackFromSeed(MuPatSegment& seedSeg, const MuonTrackSteeringStrategy& strat,
+                                                                   const unsigned int layer, const SegColVec& segs,
+                                                                   GarbageContainer& trash_bin) const;
 
-        void refineTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, HitGarbage& hitsToBeDeleted,
-                          MeasGarbage& measurementsToBeDeleted) const;
+        void refineTracks(std::vector<std::unique_ptr<MuPatTrack>>& candidates, GarbageContainer& trash_bin) const;
 
         /** @brief Resolve ambiguities among tracks for a single strategy
                    This allows a strategy-specific ambiguity solving (with some options per strategy)
             @param vector of tracks that were found
             @param strat the steering strategy
         */
-        void solveAmbiguities(std::vector<std::unique_ptr<MuPatTrack> >& tracks, const MuonTrackSteeringStrategy* strat = nullptr) const;
+        void solveAmbiguities(std::vector<std::unique_ptr<MuPatTrack>>& tracks, const MuonTrackSteeringStrategy* strat = nullptr) const;
 
         void combineOverlapSegments(std::vector<MuPatSegment*>& ch1, std::vector<MuPatSegment*>& ch2, SegColVec& stationSegments,
-                                    StSet& stationsWithSegments, HitGarbage& hitsToBeDeleted, MeasGarbage& measurementsToBeDeleted) const;
+                                    StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
     private:
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
@@ -163,7 +152,7 @@ namespace Muon {
         mutable std::mutex m_segmentsMutex;
         mutable std::mutex m_constSegmentsMutex;
 
-        std::vector<const MuonTrackSteeringStrategy*> m_strategies;
+        std::vector<std::unique_ptr<const MuonTrackSteeringStrategy>> m_strategies;
         std::vector<std::string> m_stringStrategies;
 
         int m_segQCut[3];  //!< Required segment quality for seed, 2nd, and other segments

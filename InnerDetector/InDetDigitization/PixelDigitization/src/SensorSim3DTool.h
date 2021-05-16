@@ -76,11 +76,6 @@ private:
     this, "numberOfSteps", 50, "Number of steps for Pixel3D module"
   };
 
-  Gaudi::Property<bool> m_doRadDamage
-  {
-    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
-  };
-
   Gaudi::Property<bool> m_doChunkCorrection
   {
     this, "doChunkCorrection", false, "doChunkCorrection bool: should be flag"

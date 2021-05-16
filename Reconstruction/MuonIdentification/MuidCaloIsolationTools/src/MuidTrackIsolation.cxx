@@ -56,9 +56,9 @@ MuidTrackIsolation::initialize()
     // create the calo barrel surfaces (cylinder) and 2 endcap discs)
     double radius	= 2.0*Gaudi::Units::meter;
     double halfLength	= 4.0*Gaudi::Units::meter;
-    auto transform = std::make_unique<Amg::Transform3D>();
-    transform->setIdentity();
-    m_caloCylinder	= std::make_unique<Trk::CylinderSurface>(std::move(transform), radius, halfLength);
+    Amg::Transform3D transform;
+    transform.setIdentity();
+    m_caloCylinder	= std::make_unique<Trk::CylinderSurface>(transform, radius, halfLength);
 
     // the corresponding max barrel cotTheta
     m_barrelCotTheta	= halfLength/radius;
@@ -68,10 +68,10 @@ MuidTrackIsolation::initialize()
     discRotation.setIdentity();
     Amg::Vector3D forwardDiscPosition(0.,0.,halfLength);
     auto transform1 = std::make_unique<Amg::Transform3D> (discRotation * forwardDiscPosition);
-    m_caloForwardDisc	= std::make_unique<Trk::DiscSurface>(std::move(transform1), 0., radius);
+    m_caloForwardDisc	= std::make_unique<Trk::DiscSurface>(*transform1, 0., radius);
     Amg::Vector3D backwardDiscPosition(0.,0.,-halfLength);
     auto transform2 = std::make_unique<Amg::Transform3D> (discRotation * backwardDiscPosition);
-    m_caloBackwardDisc	= std::make_unique<Trk::DiscSurface>(std::move (transform2), 0., radius);
+    m_caloBackwardDisc	= std::make_unique<Trk::DiscSurface>(*transform2, 0., radius);
 
     ATH_CHECK(m_inDetTracksLocation.initialize());
 

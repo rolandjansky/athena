@@ -72,8 +72,8 @@ StatusCode CaloClusterVertexFractionMaker::initialize()
   // a surface at the entrance to the calorimeter
 //   HepGeom::TranslateZ3D* translateAlongPositiveZ = new HepGeom::TranslateZ3D(m_CALO_INNER_Z);
 //   HepGeom::TranslateZ3D* translateAlongNegativeZ = new HepGeom::TranslateZ3D(-m_CALO_INNER_Z);
-  Amg::Transform3D* translateAlongPositiveZ = new Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
-  Amg::Transform3D* translateAlongNegativeZ = new Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
+  Amg::Transform3D translateAlongPositiveZ = Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
+  Amg::Transform3D translateAlongNegativeZ = Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
 
   m_cylinderSurface_atCaloEntrance = new Trk::CylinderSurface(m_CALO_INNER_R, 8000.);
   m_discSurface_atCaloEntrance_positiveZ = new Trk::DiscSurface(translateAlongPositiveZ, 0., 10000.);

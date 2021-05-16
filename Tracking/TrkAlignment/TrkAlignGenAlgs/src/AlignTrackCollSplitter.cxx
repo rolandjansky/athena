@@ -89,7 +89,9 @@ StatusCode AlignTrackCollSplitter::execute()
   // vector to keep all different AlignTrack collections
   // +1 is for undefined AlignTrack type
   std::vector<TrackCollection *> alignTracks;
-  for(int i=0;i<AlignTrack::NTrackTypes+1;i++)
+  alignTracks.reserve(AlignTrack::NTrackTypes+1);
+
+for(int i=0;i<AlignTrack::NTrackTypes+1;i++)
     alignTracks.push_back(new TrackCollection);
 
   // loop over AlignTracks and fill the corresponding track collections

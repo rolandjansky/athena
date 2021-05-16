@@ -16,6 +16,7 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavStructure/TypedHolder.h"
 #include "TrigNavStructure/StandaloneNavigation.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 // STL includes
 #include <string>
@@ -38,30 +39,54 @@ public:
 
 private:
 
-
     SG::ReadHandleKey<xAOD::TrigNavigation> m_trigNavKey { this, "TrigNavReadKey", "TrigNavigation"};
     Gaudi::Property<bool> m_doPrint{ this, "doPrint", true };
-    Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "setConfig", {} };
+    Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
+    Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {} };
+    Gaudi::Property<std::vector<std::string>> m_roisToSave{ this, "Rois", {} };
+
     ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc { this, "HLTConfigSvc", "HLTConfigSvc", "HLTConfig Service" };
     ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class name" };
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigNavWriteKey { this, "TrigNavWriteKey", "HLTNav_all" };
+    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigNavWriteKey { this, "TrigNavWriteKey", "HLTNav_All" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigSummaryWriteKey { this, "TrigSummaryWriteKey", "HLTNav_Summary" };
 
     Gaudi::Property<bool> m_onlyFeaturePriting { this, "onlyFeaturePrinting", false, "When enabled do not do conversion but scan all chains in all events for features attached to related TEs"};
 
 
     std::set<CLID> m_setCLID;
-    StatusCode addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, HLT::TriggerElement::FeatureAccessHelper helper, TrigCompositeUtils::Decision *decisionPtr, bool kRoI=false) const;
-    const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorTEfeatures(const HLT::TriggerElement *te_ptr) const;
+    std::set<std::string> m_setChainName;
+    std::vector<std::string> m_setRoiName;
 
-    CLID m_roIDescriptorCLID;
-    CLID m_roIDescriptorCollectionCLID;
-    const std::vector<HLT::TriggerElement::FeatureAccessHelper> vectorROIfeatures(const HLT::TriggerElement *te_ptr) const;
-    
+    using DecisionObjMap = std::map<uint32_t,std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>>; // decisionFeature, decision
+    using TEObjMap = std::map<const HLT::TriggerElement*,std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>>; // decisionFeature, decision
+    using FElessObjMap = std::map<TrigCompositeUtils::Decision*,std::pair<TrigCompositeUtils::Decision*,const HLT::TriggerElement*>>; // decisionFeature-H no FE ->, decision,TEptr
+    using L1ObjMap = std::map<uint32_t,TrigCompositeUtils::Decision*>; // L1decision
+    using TEMap = std::map<const HLT::TriggerElement*, bool>; // map of TEs (true FE, false FE-less)
+
+    std::tuple<uint32_t,CLID,std::string> getSgKey(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const;
+    StatusCode addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>&  decisionPtr, int idx, DecisionObjMap* om) const;
+    StatusCode addTEROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr) const;
+    StatusCode addROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr, int idx, L1ObjMap* om) const;
+    StatusCode addTRACKfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr, ElementLink<TrigRoiDescriptorCollection>& rLink) const;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTRACKfeatures(const HLT::TriggerElement *te_ptr) const;
+
+
+    CLID m_roIDescriptorCLID { 0 };
+    CLID m_roIDescriptorCollectionCLID { 0 };
+    CLID m_TrigRingerRingsCLID { 0 };
+    CLID m_TrigRingerRingsContainerCLID { 0 };
+    CLID m_TrigEMClusterCLID { 0 };
+    CLID m_TrigEMClusterContainerCLID { 0 };
+    CLID m_CaloClusterCLID { 0 };
+    CLID m_CaloClusterContainerCLID { 0 };
+    CLID m_TrackParticleContainerCLID { 0 };
+    CLID m_TauTrackContainerCLID { 0 };
+
     using TE_Decision_map = std::map<HLT::TriggerElement*, std::vector<TrigCompositeUtils::Decision*>>;
-    //!< iterates over all chains and for each prints features associated to it
     StatusCode printFeatures(const HLT::StandaloneNavigation& ) const;
-
 };
 
 #endif // TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTER_H

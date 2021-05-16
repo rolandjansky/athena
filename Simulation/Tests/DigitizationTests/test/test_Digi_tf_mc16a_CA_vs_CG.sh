@@ -85,7 +85,7 @@ then
     --outputRDOFile ${DigiOutFileNameCA} \
     --pileupFinalBunch 6 \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
-    --preInclude 'HITtoRDO:Campaigns.MC20a' \
+    --preInclude 'HITtoRDO:Campaigns.MC16a' \
     --skipEvents 0
 
     rc2=$?

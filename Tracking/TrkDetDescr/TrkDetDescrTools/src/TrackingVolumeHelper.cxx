@@ -248,18 +248,20 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 centerzOne = volIter->center().z();
             }
             if (buildBoundaryLayer){
-                Amg::Transform3D* mLayerTransform = new Amg::Transform3D;
-                (*mLayerTransform) = Amg::Translation3D(0.,0.,boundaryz);
-                // layer surface
-                mLayerSurface = std::make_unique<Trk::DiscSurface>( mLayerTransform,rmin,rmax );
-                // create a MaterialLayer
-                std::unique_ptr<const Trk::LayerMaterialProperties> lmps( layerMaterialProperties(*mLayerSurface) );
-                // MaterialLayer clones the LayerMaterialPropteries.
+              Amg::Transform3D mLayerTransform =
+                Amg::Transform3D(Amg::Translation3D(0., 0., boundaryz));
+              // layer surface
+              mLayerSurface =
+                std::make_unique<Trk::DiscSurface>(mLayerTransform, rmin, rmax);
+              // create a MaterialLayer
+              std::unique_ptr<const Trk::LayerMaterialProperties> lmps(
+                layerMaterialProperties(*mLayerSurface));
+              // MaterialLayer clones the LayerMaterialPropteries.
 
-                if (lmps) {
-                  mLayer = std::make_unique<Trk::MaterialLayer>( 
-                                                       std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)), 
-                                                       *lmps );
+              if (lmps) {
+                mLayer = std::make_unique<Trk::MaterialLayer>(
+                  std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)),
+                  *lmps);
                 }
             }
             if (boundaryFaceExchange){
@@ -268,10 +270,10 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 // check if the seconf volumes have a bigger z value or a smaller one
                 double centerzTwo = secondVolumes[secondVolumes.size()-1]->center().z();
                 // thi sboundary surface is having a z-axix along the global z-axis
-                Amg::Transform3D* boundaryTransform = new Amg::Transform3D;
-                (*boundaryTransform) = Amg::Translation3D(0.,0.,boundaryz);
+                Amg::Transform3D boundaryTransform =
+                  Amg::Transform3D(Amg::Translation3D(0., 0., boundaryz));
                 // disc surfaces
-                Trk::DiscSurface dSurface(boundaryTransform,rmin,rmax);
+                Trk::DiscSurface dSurface(boundaryTransform, rmin, rmax);
                 // swap if needed 
                 if (centerzTwo < centerzOne){
                     Trk::BinnedArray<Trk::TrackingVolume>* navArraySwap = navArrayOne;
@@ -322,9 +324,13 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
             }
             // check if boundary layer should be built
             if (buildBoundaryLayer){
-                Amg::Transform3D* mLayerTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
-                if (mLayerTransform) (*mLayerTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
-                mLayerSurface.reset( mLayerTransform ? new Trk::CylinderSurface(mLayerTransform,boundaryr,0.5*(zmax-zmin))  :
+              std::unique_ptr<Amg::Transform3D> mLayerTransform =
+                ((zmin + zmax) * (zmin + zmax) < 10e-4)
+                  ? nullptr
+                  : std::make_unique < Amg::Transform3D>();
+
+              if (mLayerTransform) (*mLayerTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
+                mLayerSurface.reset( mLayerTransform ? new Trk::CylinderSurface(*mLayerTransform,boundaryr,0.5*(zmax-zmin))  :
                                      new Trk::CylinderSurface(boundaryr,0.5*(zmax-zmin)) );
                 // create a MaterialLayer
                 std::unique_ptr<const Trk::LayerMaterialProperties>  lmps( layerMaterialProperties(*mLayerSurface) );
@@ -338,10 +344,14 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 // creating only one boundary surface
                 ATH_MSG_VERBOSE("Creating a joint boundary surface for n-to-n glueing case.");
                 // the boundary transform can be 0 for cylinder surfaces
-                Amg::Transform3D* boundaryTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
+                std::unique_ptr<Amg::Transform3D> boundaryTransform =
+                  ((zmin + zmax) * (zmin + zmax) < 10e-4)
+                    ? nullptr
+                    : std::make_unique<Amg::Transform3D>();
+
                 if (boundaryTransform) (*boundaryTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
                 // create the cylinder surface for the shared boundary
-                Trk::CylinderSurface cSurface = boundaryTransform ? Trk::CylinderSurface(boundaryTransform,boundaryr,0.5*(zmax-zmin)) :
+                Trk::CylinderSurface cSurface = boundaryTransform ? Trk::CylinderSurface(*boundaryTransform,boundaryr,0.5*(zmax-zmin)) :
                                                                Trk::CylinderSurface(boundaryr,0.5*(zmax-zmin));
                 // get the volume outer radius of the sconf volumes 
                 const Trk::CylinderVolumeBounds* cbTwo = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(secondVolumes[secondVolumes.size()-1]->volumeBounds()));

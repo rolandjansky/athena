@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -189,7 +189,7 @@ StatusCode TrigMuonEFHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolI
     	float muonR = sqrt( pow(tool.muon->eta(),2) +pow(tool.muon->phi(),2));
     	float coneCheck=m_conesize*muonR;
           for (auto& tooltmp : toolInput){
-            ATH_MSG_DEBUG(">>Testing Muon with pt: "<<tooltmp.muon->pt() << "GeV, eta: "
+            ATH_MSG_DEBUG(">>Testing Muon with pt: "<<tooltmp.muon->pt()/Gaudi::Units::GeV << "GeV, eta: "
                        << tooltmp.muon->eta() << ", phi: " << tooltmp.muon->phi());
             if (tooltmp.muon->p4() == tool.muon->p4()) {
             ATH_MSG_DEBUG("<< same muon, skipping...");
@@ -266,7 +266,7 @@ StatusCode TrigMuonEFHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& to
     return StatusCode::SUCCESS;
   }
   for(auto i : passingIndices){
-    ATH_MSG_DEBUG("Muon["<<i<<"] passes "<<m_decisionId<<" with pT = "<<toolInput[i].muon->pt() << "GeV");
+    ATH_MSG_DEBUG("Muon["<<i<<"] passes "<<m_decisionId<<" with pT = "<<toolInput[i].muon->pt()/Gaudi::Units::GeV << "GeV");
     TrigCompositeUtils::addDecisionID(m_decisionId.numeric(), toolInput[i].decision);
   }
   return StatusCode::SUCCESS;

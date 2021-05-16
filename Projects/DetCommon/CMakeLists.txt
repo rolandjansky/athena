@@ -18,9 +18,9 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake QUIET )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "python3"   # Needs to match tdaq release (NO layer, ATLINFR-3977)
+set( LCG_VERSION_POSTFIX "_ATLAS_1"   # Needs to match tdaq release (NO layer, ATLINFR-3977)
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 98
+set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )
 # Reduced set of LCG components (i.e. no generators):
 set( LCG_COMPONENTS "externals"

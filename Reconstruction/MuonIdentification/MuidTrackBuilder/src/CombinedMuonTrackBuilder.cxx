@@ -82,13 +82,6 @@ namespace Rec {
         m_perigeeSurface(nullptr),
         m_sigmaPhiSector(0),
         m_vertex(nullptr),
-        m_countAcceptedStandaloneFit(0),
-        m_countBeamAxis(0),
-        m_countCombinedCleanerVeto(0),
-        m_countDegradedStandaloneFit(0),
-        m_countExtensionCleanerVeto(0),
-        m_countStandaloneCleanerVeto(0),
-        m_countVertexRegion(0),
         m_messageHelper(nullptr),
         m_updateWithCaloTG(false),
         m_useCaloTG(false),
@@ -139,18 +132,13 @@ namespace Rec {
     }
 
     StatusCode CombinedMuonTrackBuilder::initialize() {
-        ATH_CHECK(AthAlgTool::initialize());
-
-        ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder");
+        ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder.");
         ATH_MSG_DEBUG(" with options: ");
 
         if (m_allowCleanerVeto) ATH_MSG_DEBUG(" AllowCleanerVeto");
         if (m_cleanCombined) ATH_MSG_DEBUG(" CleanCombined");
         if (m_cleanStandalone) ATH_MSG_DEBUG(" CleanStandalone");
         if (m_perigeeAtSpectrometerEntrance) ATH_MSG_DEBUG(" PerigeeAtSpectrometerEntrance");
-
-        m_perigeeAtSpectrometerEntranceLocal = m_perigeeAtSpectrometerEntrance;
-
         if (m_reallocateMaterial) ATH_MSG_DEBUG(" ReallocateMaterial");
         if (!m_cscRotCreator.empty()) ATH_MSG_DEBUG(" RedoCscRots");
         if (!m_mdtRotCreator.empty()) ATH_MSG_DEBUG(" RedoMdtRots");
@@ -234,8 +222,6 @@ namespace Rec {
         ATH_MSG_DEBUG("Retrieved tool " << m_fitterSL);
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_MSG_DEBUG("Retrieved tool " << m_idHelperSvc);
-        ATH_CHECK(m_intersector.retrieve());
-        ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
         /// handle to the magnetic field cache
         ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
         ATH_MSG_DEBUG("Setup handle for key " << m_fieldCacheCondObjInputKey);
@@ -330,18 +316,19 @@ namespace Rec {
                          << m_countExtensionCleanerVeto << " extension fits with cleaner veto" << endmsg << "     "
                          << m_countCombinedCleanerVeto << " combined fits with cleaner veto");
         }
-
         // summarize WARNINGs
         m_messageHelper->printSummary();
         return StatusCode::SUCCESS;
     }
-
-    /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
     Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                                      const Trk::Track&) const {
+                                                      const Trk::Track& spectrometerTrack) const {
+        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
+    }
+    Trk::Track* CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const Trk::Track&,
+                                                      const EventContext& ctx) const {
         ATH_MSG_VERBOSE("===== Start of combinedFit:: ");
 
-        countAEOTs(&extrapolatedTrack, " extrapolatedTrack start combinedFit ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(&extrapolatedTrack, " extrapolatedTrack start combinedFit ");
 
         // require MeasuredPerigee for indetTrack
         const Trk::Perigee* indetPerigee = indetTrack.perigeeParameters();
@@ -353,7 +340,7 @@ namespace Rec {
 
         // take inner calorimeter scattering surface from extrapolated track
         const Trk::Surface* surface = nullptr;
-        if (m_trackQuery->isCaloAssociated(extrapolatedTrack)) {
+        if (m_trackQuery->isCaloAssociated(extrapolatedTrack, ctx)) {
             for (const Trk::TrackStateOnSurface* it : *extrapolatedTrack.trackStateOnSurfaces()) {
                 if (!it->materialEffectsOnTrack()) continue;
 
@@ -371,16 +358,7 @@ namespace Rec {
         // provided momentum defined (solenoid on)
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
             std::unique_ptr<const Trk::TrackStateOnSurface> innerTSOS;
@@ -423,48 +401,49 @@ namespace Rec {
             }
         }
 
-        std::unique_ptr<Trk::Track> muonTrack = nullptr;
+        std::unique_ptr<Trk::Track> muonTrack;
 
         if (!fieldCache.toroidOn()) {
             ATH_MSG_VERBOSE(" SL MS track: Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-            muonTrack.reset(
-                createMuonTrack(indetTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
-                                extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size()));
+            muonTrack =
+                createMuonTrack(ctx, indetTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                                extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
         } else {
             // create a muon track without perigee in case of non-optimal precision -
             // such as need to replace calorimeter material or presence of pseudomeasurements
             if (!surface) {  // extrapolate outwards to associate calorimeter material effects
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack.reset(createMuonTrack(
-                    extrapolatedTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
-                    extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size()));
+                muonTrack = createMuonTrack(
+                    ctx, extrapolatedTrack, indetTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                    extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
             } else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1) {  // remove pseudo meas
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack.reset(createMuonTrack(extrapolatedTrack, nullptr, nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
-                                                extrapolatedTrack.trackStateOnSurfaces()->end(),
-                                                extrapolatedTrack.trackStateOnSurfaces()->size()));
+                muonTrack =
+                    createMuonTrack(ctx, extrapolatedTrack, nullptr, nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
+                                    extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size());
             } else {  // otherwise can just copy the extrapolated track
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack.reset(createMuonTrack(
-                    extrapolatedTrack, extrapolatedTrack.perigeeParameters(), nullptr, extrapolatedTrack.trackStateOnSurfaces()->begin(),
-                    extrapolatedTrack.trackStateOnSurfaces()->end(), extrapolatedTrack.trackStateOnSurfaces()->size()));
+                muonTrack =
+                    createMuonTrack(ctx, extrapolatedTrack, extrapolatedTrack.perigeeParameters(), nullptr,
+                                    extrapolatedTrack.trackStateOnSurfaces()->begin(), extrapolatedTrack.trackStateOnSurfaces()->end(),
+                                    extrapolatedTrack.trackStateOnSurfaces()->size());
             }
         }
 
         // no combined muon when failure to intersect calo
         if (!muonTrack) return nullptr;
 
-        countAEOTs(muonTrack.get(), " muonTrack track before fit ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(muonTrack.get(), " muonTrack track before fit ");
 
         // combined track fit
-        std::unique_ptr<Trk::Track> combinedTrack(fit(indetTrack, *muonTrack, m_cleanCombined, Trk::muon));
+        std::unique_ptr<Trk::Track> combinedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
 
         // quit if fit failure or all MS measurements removed by fit or perigee outside indet
         bool haveMS = false;
         bool perigeeOutside = false;
 
         if (combinedTrack) {
-            countAEOTs(combinedTrack.get(), " combinedTrack track after fit ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(combinedTrack.get(), " combinedTrack track after fit ");
             ATH_MSG_VERBOSE(" combined track " << m_printer->print(*combinedTrack) << std::endl
                                                << m_printer->printStations(*combinedTrack));
 
@@ -532,11 +511,11 @@ namespace Rec {
             std::unique_ptr<Trk::Track> oldTrack(std::move(muonTrack));
 
             ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-            muonTrack.reset(createMuonTrack(extrapolatedTrack, combinedEnergyParameters, nullptr, combinedTSOS->begin(),
-                                            combinedTSOS->end(), combinedTSOS->size()));
+            muonTrack = createMuonTrack(ctx, extrapolatedTrack, combinedEnergyParameters, nullptr, combinedTSOS->begin(),
+                                        combinedTSOS->end(), combinedTSOS->size());
 
             if (indetNewTrack && muonTrack) {
-                std::unique_ptr<Trk::Track> refittedTrack(fit(*indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon));
+                std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, *indetNewTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                 caloEnergy = caloEnergyParameters(refittedTrack.get(), muonTrack.get(), combinedEnergyParameters, muonEnergyParameters);
 
                 if (caloEnergy) {
@@ -592,11 +571,11 @@ namespace Rec {
                               << (caloEnergy->deltaE() - paramEnergy->deltaE()) / Gaudi::Units::GeV);
 
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack.reset(createMuonTrack(extrapolatedTrack, nullptr, paramEnergy, muonTrack->trackStateOnSurfaces()->begin(),
-                                                muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size()));
+                muonTrack = createMuonTrack(ctx, extrapolatedTrack, nullptr, paramEnergy, muonTrack->trackStateOnSurfaces()->begin(),
+                                            muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
 
                 if (muonTrack) {
-                    std::unique_ptr<Trk::Track> refittedTrack(fit(indetTrack, *muonTrack, m_cleanCombined, Trk::muon));
+                    std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
                     if (refittedTrack) { combinedTrack.swap(refittedTrack); }
                 }
             }
@@ -615,38 +594,42 @@ namespace Rec {
         }
 
         //  adds uncertainties and removes AEOTs
-        std::unique_ptr<Trk::Track> newTrack(addIDMSerrors(combinedTrack.get()));
+        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(combinedTrack.get())};
 
         // recollect eloss for combined track and refit
-        if (newTrack) {
-            countAEOTs(newTrack.get(), " combinedTrack after addIDMSerrors ");
+        if (newTrack && newTrack.get() != combinedTrack.get()) {
+            if (msgLevel(MSG::DEBUG)) countAEOTs(newTrack.get(), " combinedTrack after addIDMSerrors ");
             // Don't run the outliers anymore at this stage
             dumpCaloEloss(newTrack.get(), "CB input TSOS after refine IDMS ");
-            std::unique_ptr<Trk::Track> refittedTrack(fit(*newTrack, false, Trk::muon));
-            if (refittedTrack) countAEOTs(refittedTrack.get(), " CB fit after refit ");
+            std::unique_ptr<Trk::Track> refittedTrack{fit(*newTrack, ctx, false, Trk::muon)};
+            if (msgLevel(MSG::DEBUG)) countAEOTs(refittedTrack.get(), " CB fit after refit ");
             if (refittedTrack) dumpCaloEloss(refittedTrack.get(), "CB refit after refine IDMS ");
-            if (newTrack == combinedTrack) newTrack.release();
-
+            /// This should only happen if adding the ID/MS errors fails or the property is disabled
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit", refittedTrack.get(), combinedTrack.get())) {
                 combinedTrack.swap(refittedTrack);
             }
-	    else if(!checkTrack("addIDMS failed",combinedTrack.get(),combinedTrack.get())){
-	        ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
-	        return nullptr;
-	    }
-        }
+        } else if (newTrack.get() == combinedTrack.get())
+            newTrack.release();
 
+        /// Final check to avoid FPEs later on
+        if (!checkTrack("addIDMS failed", combinedTrack.get(), combinedTrack.get())) {
+            ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
+            return nullptr;
+        }
         // hole recovery, error optimization, attach TrackSummary
-        finalTrackBuild(combinedTrack);
+        finalTrackBuild(combinedTrack, ctx);
 
         return combinedTrack.release();
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        build and fit indet track extended to include MS Measurement set.
-        Adds material effects as appropriate plus calo energy-loss treatment */
     Trk::Track* CombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeasurements,
                                                          const Trk::TrackParameters* innerParameters,
+                                                         const Trk::TrackParameters* middleParameters,
+                                                         const Trk::TrackParameters* outerParameters) const {
+        return indetExtension(indetTrack, spectrometerMeasurements, Gaudi::Hive::currentContext(), innerParameters, middleParameters,
+                              outerParameters);
+    }
+    Trk::Track* CombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeasurements,
+                                                         const EventContext& ctx, const Trk::TrackParameters* innerParameters,
                                                          const Trk::TrackParameters* middleParameters,
                                                          const Trk::TrackParameters* outerParameters) const {
         if (msgLvl(MSG::VERBOSE)) {
@@ -692,21 +675,11 @@ namespace Rec {
 
         // propagate appropriate trackParameters to front, back and middle measurements
         // fail when solenoid off and toroid on (as extrapolation from ID is not the correct strategy)
-        ToolHandle<Trk::IPropagator> propagator = m_propagatorSL;
+        const Trk::IPropagator* propagator = m_propagatorSL.get();
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
-
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
         if (fieldCache.toroidOn()) {
             // fail when solenoid off and toroid on - as extrapolation from ID is not the correct strategy
             //   for material effects, fit starting value etc
@@ -715,7 +688,9 @@ namespace Rec {
                 return nullptr;
             }
 
-            propagator = m_propagator;
+            /// Need to check with Will whether this propagator is actually
+            /// needed or not
+            propagator = m_propagator.get();
         }
 
         const Trk::TrackParameters* frontParameters = nullptr;
@@ -726,8 +701,8 @@ namespace Rec {
                 frontParameters = innerParameters->clone();
             } else {
                 // TSoS will own this
-                frontParameters = m_propagator
-                                      ->propagate(*innerParameters, spectrometerMeasurements.front()->associatedSurface(),
+                frontParameters = propagator
+                                      ->propagate(ctx, *innerParameters, spectrometerMeasurements.front()->associatedSurface(),
                                                   Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                       .release();
             }
@@ -736,8 +711,8 @@ namespace Rec {
                 frontParameters = middleParameters->clone();
             } else {
                 // TSoS will own this
-                frontParameters = m_propagator
-                                      ->propagate(*middleParameters, spectrometerMeasurements.front()->associatedSurface(),
+                frontParameters = propagator
+                                      ->propagate(ctx, *middleParameters, spectrometerMeasurements.front()->associatedSurface(),
                                                   Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                       .release();
             }
@@ -748,9 +723,9 @@ namespace Rec {
                 backParameters = outerParameters->clone();
             } else {
                 // TSoS will own this
-                backParameters = m_propagator
-                                     ->propagate(*outerParameters, spectrometerMeasurements.back()->associatedSurface(), Trk::anyDirection,
-                                                 false, m_magFieldProperties, Trk::muon)
+                backParameters = propagator
+                                     ->propagate(ctx, *outerParameters, spectrometerMeasurements.back()->associatedSurface(),
+                                                 Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                      .release();
             }
         } else if (middleParameters) {
@@ -758,9 +733,9 @@ namespace Rec {
                 backParameters = middleParameters->clone();
             } else {
                 // TSoS will own this
-                backParameters = m_propagator
-                                     ->propagate(*middleParameters, spectrometerMeasurements.back()->associatedSurface(), Trk::anyDirection,
-                                                 false, m_magFieldProperties, Trk::muon)
+                backParameters = propagator
+                                     ->propagate(ctx, *middleParameters, spectrometerMeasurements.back()->associatedSurface(),
+                                                 Trk::anyDirection, false, m_magFieldProperties, Trk::muon)
                                      .release();
             }
         }
@@ -783,7 +758,7 @@ namespace Rec {
                     if (midDistance - previousDistance < distance - midDistance) --m;
                     // TSoS will own this
                     midParameters = m_propagator
-                                        ->propagate(*middleParameters, (**m).associatedSurface(), Trk::anyDirection, false,
+                                        ->propagate(ctx, *middleParameters, (**m).associatedSurface(), Trk::anyDirection, false,
                                                     m_magFieldProperties, Trk::muon)
                                         .release();
 
@@ -831,11 +806,11 @@ namespace Rec {
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
 
         Trk::Track muonTrack(trackInfo, trackStateOnSurfaces, nullptr);
-        countAEOTs(&muonTrack, " in detExtension muonTrack ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(&muonTrack, " in detExtension muonTrack ");
 
         // perform combined fit
         ATH_MSG_VERBOSE("Calling combinedFit from " << __func__ << " at line " << __LINE__);
-        Trk::Track* combinedTrack = combinedFit(indetTrack, muonTrack, muonTrack);
+        Trk::Track* combinedTrack = combinedFit(indetTrack, muonTrack, muonTrack, ctx);
 
         // check some MS measurements really got added
         unsigned numberMS = 0;
@@ -854,30 +829,23 @@ namespace Rec {
                 ATH_MSG_DEBUG("indetExtension:: reject with insufficient MS measurements");
                 delete combinedTrack;
                 combinedTrack = nullptr;
-            } else {
+            } else if (msgLevel(MSG::DEBUG)) {
                 countAEOTs(combinedTrack, " in detExtension final combinedTrack ");
             }
         }
 
         return combinedTrack;
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        propagate to perigee adding calo energy-loss and material to MS track */
     Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const Trk::Vertex* inputVertex,
                                                         float bs_x, float bs_y, float bs_z) const {
+        return standaloneFit(inputSpectrometerTrack, Gaudi::Hive::currentContext(), inputVertex, bs_x, bs_y, bs_z);
+    }
+    Trk::Track* CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const EventContext& ctx,
+                                                        const Trk::Vertex* inputVertex, float bs_x, float bs_y, float bs_z) const {
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (!fieldCondObj) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         // no SA fit with vertex constraint for Toroid off data
         if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !fieldCache.toroidOn()) { return nullptr; }
@@ -888,7 +856,7 @@ namespace Rec {
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << endmsg << "==== Start of standaloneFit:: " << std::setiosflags(std::ios::fixed);
 
-            if (m_trackQuery->isExtrapolated(inputSpectrometerTrack)) {
+            if (m_trackQuery->isExtrapolated(inputSpectrometerTrack, ctx)) {
                 if (m_trackQuery->isLineFit(inputSpectrometerTrack)) {
                     msg(MSG::VERBOSE) << "extrapolated has lineFit";
                 } else {
@@ -970,22 +938,21 @@ namespace Rec {
         }
 
         // check the track is roughly projective in phi
-        if (!m_trackQuery->isExtrapolated(inputSpectrometerTrack) && !m_trackQuery->isProjective(inputSpectrometerTrack)) {
+        const bool is_extrapolated = m_trackQuery->isExtrapolated(inputSpectrometerTrack, ctx);
+        if (!is_extrapolated && !m_trackQuery->isProjective(inputSpectrometerTrack)) {
             ATH_MSG_VERBOSE(" SA::failed (3)");
             return nullptr;
         }
 
         // possibly refit the spectrometer track with material reallocation
-        bool haveSpectrometerRefit = false;
         double spectrometerFitChi2 = normalizedChi2(inputSpectrometerTrack);
-        const Trk::Track* spectrometerFit = &inputSpectrometerTrack;
-        if (!vertex && (m_reallocateMaterial || m_trackQuery->isExtrapolated(inputSpectrometerTrack))) {
-            spectrometerFit = reallocateMaterial(inputSpectrometerTrack);
+        std::unique_ptr<const Trk::Track> spectrometerFit = std::make_unique<Trk::Track>(inputSpectrometerTrack);
+        if (!vertex && (m_reallocateMaterial || is_extrapolated)) {
+            spectrometerFit = reallocateMaterial(inputSpectrometerTrack, ctx);
             if (!spectrometerFit) {
                 ATH_MSG_VERBOSE(" SA::failed (4)");
                 return nullptr;
             }
-            haveSpectrometerRefit = true;
         }
 
         const Trk::Track& spectrometerTrack = *spectrometerFit;
@@ -996,8 +963,6 @@ namespace Rec {
         if (!measuredPerigee || !measuredPerigee->covariance()) {
             // missing MeasuredPerigee for spectrometer track
             m_messageHelper->printWarning(7);
-
-            if (haveSpectrometerRefit) delete spectrometerFit;
 
             ATH_MSG_VERBOSE(" SA::failed (5)");
             return nullptr;
@@ -1012,7 +977,6 @@ namespace Rec {
             ATH_MSG_WARNING("standaloneFit: measuredPerigee has non-positive-definite covariance ");
             ATH_MSG_VERBOSE(" SA::failed (5.5)");
             /// Delete manually until we switch to unique_ptrs
-            if (haveSpectrometerRefit) delete spectrometerFit;
             return nullptr;
         }
 
@@ -1058,21 +1022,19 @@ namespace Rec {
                 mvertex = std::make_unique<Trk::RecVertex>(origin, vertexRegionCovariance);
             }
 
-            parameters.reset(extrapolatedParameters(badlyDeterminedCurvature, spectrometerTrack, mvertex.get(), mperigeeSurface.get()));
+            parameters = extrapolatedParameters(ctx, badlyDeterminedCurvature, spectrometerTrack, mvertex.get(), mperigeeSurface.get());
         }
 
         if (!parameters) {
-            if (haveSpectrometerRefit) delete spectrometerFit;
             ATH_MSG_VERBOSE(" SA::failed (7)");
             return nullptr;
         }
 
         // create the spectrometer TSOS's for the extrapolated fit
         std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> spectrometerTSOS =
-            createSpectrometerTSOS(spectrometerTrack);
+            createSpectrometerTSOS(spectrometerTrack, ctx);
 
         if (!spectrometerTSOS) {
-            if (haveSpectrometerRefit) delete spectrometerFit;
             ATH_MSG_VERBOSE(" SA::failed (8)");
             return nullptr;
         }
@@ -1142,13 +1104,13 @@ namespace Rec {
             if (badlyDeterminedCurvature && parameters->momentum().mag() > m_lowMomentum) { particleHypothesis = Trk::nonInteracting; }
 
             ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
-            prefit.reset(createExtrapolatedTrack(spectrometerTrack, *parameters, particleHypothesis, false, *spectrometerTSOS, vertexInFit,
-                                                 mbeamAxis.get(), mperigeeSurface.get()));
+            prefit = createExtrapolatedTrack(ctx, spectrometerTrack, *parameters, particleHypothesis, false, *spectrometerTSOS, vertexInFit,
+                                             mbeamAxis.get(), mperigeeSurface.get());
 
             // demand prefit success
             if (!prefit || !prefit->fitQuality() || !prefit->perigeeParameters()) {
                 ATH_MSG_DEBUG(" prefit failure ");
-                prefit = nullptr;
+                prefit.reset();
             }
 
             if (prefit) {
@@ -1185,7 +1147,6 @@ namespace Rec {
             spectrometerTSOS->clear();
 
             if (!prefit) {
-                if (haveSpectrometerRefit) delete spectrometerFit;
                 ATH_MSG_VERBOSE(" SA::failed (9)");
                 return nullptr;
             }
@@ -1242,7 +1203,7 @@ namespace Rec {
         bool returnAfterCleaner = !fieldCache.toroidOn();
 
         ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
-        std::unique_ptr<Trk::Track> extrapolated(createExtrapolatedTrack(spectrometerTrack, *parameters, particleHypothesis,
+        std::unique_ptr<Trk::Track> extrapolated(createExtrapolatedTrack(ctx, spectrometerTrack, *parameters, particleHypothesis,
                                                                          m_cleanStandalone, *spectrometerTSOS, vertexInFit, mbeamAxis.get(),
                                                                          mperigeeSurface.get(), prefitResult.get()));
 
@@ -1275,7 +1236,7 @@ namespace Rec {
                 }
 
                 std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(spectrometerTrack.info(), trackStateOnSurfaces, nullptr);
-                extrapolated.reset(fit(*track, m_cleanStandalone, particleHypothesis));
+                extrapolated.reset(fit(*track, ctx, m_cleanStandalone, particleHypothesis));
             }
 
             // restart from prefit without cleaning
@@ -1294,9 +1255,9 @@ namespace Rec {
                     for (; s != prefit->trackStateOnSurfaces()->end(); ++s) { spectrometerTSOS->emplace_back((**s).clone()); }
 
                     ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
-                    extrapolated.reset(createExtrapolatedTrack(spectrometerTrack, *caloParameters, particleHypothesis, false,
-                                                               *spectrometerTSOS, vertexInFit, mbeamAxis.get(), mperigeeSurface.get(),
-                                                               prefitResult.get()));
+                    extrapolated =
+                        createExtrapolatedTrack(ctx, spectrometerTrack, *caloParameters, particleHypothesis, false, *spectrometerTSOS,
+                                                vertexInFit, mbeamAxis.get(), mperigeeSurface.get(), prefitResult.get());
                     returnAfterCleaner = true;
                 }
 
@@ -1304,7 +1265,6 @@ namespace Rec {
                     bool hasFQ = extrapolated ? (extrapolated->fitQuality() != nullptr) : false;
                     ATH_MSG_DEBUG("fail track as back extrapolation fit failed " << extrapolated.get() << " hasFQ " << hasFQ);
 
-                    if (haveSpectrometerRefit) delete spectrometerFit;
                     ATH_MSG_VERBOSE(" SA::failed (10)");
                     return nullptr;
                 }
@@ -1364,8 +1324,8 @@ namespace Rec {
 
             ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
 
-            track.reset(createExtrapolatedTrack(spectrometerTrack, *parameters, particleHypothesis, m_cleanStandalone, *spectrometerTSOS,
-                                                vertexInFit, mbeamAxis.get(), mperigeeSurface.get(), extrapolated->perigeeParameters()));
+            track = createExtrapolatedTrack(ctx, spectrometerTrack, *parameters, particleHypothesis, m_cleanStandalone, *spectrometerTSOS,
+                                            vertexInFit, mbeamAxis.get(), mperigeeSurface.get(), extrapolated->perigeeParameters());
 
             if (track) {
                 double extrapChi2 = normalizedChi2(*extrapolated);
@@ -1375,10 +1335,9 @@ namespace Rec {
         }
         if (extrapolated) { track.swap(extrapolated); }
 
-        if (!m_trackQuery->isCaloAssociated(*track)) {  // still want to perform this check probably though
+        if (!m_trackQuery->isCaloAssociated(*track, ctx)) {  // still want to perform this check probably though
             // fail as calo incorrectly described
             m_messageHelper->printWarning(12);
-            if (haveSpectrometerRefit) { delete spectrometerFit; }
             ATH_MSG_VERBOSE(" SA::failed (12)");
             return nullptr;
         }
@@ -1390,7 +1349,7 @@ namespace Rec {
 
             m_materialUpdator->updateCaloTSOS(*track);
 
-            std::unique_ptr<Trk::Track> refinedTrack(fit(*track, false, Trk::muon));
+            std::unique_ptr<Trk::Track> refinedTrack(fit(*track, ctx, false, Trk::muon));
             if (refinedTrack) {
                 ATH_MSG_VERBOSE("successfully refit after refining calo TSOS");
 
@@ -1405,20 +1364,16 @@ namespace Rec {
         }
 
         //  adds uncertainties
-        std::unique_ptr<Trk::Track> newTrack(addIDMSerrors(track.get()));
+        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(track.get())};
 
-        if (newTrack) {
-            countAEOTs(newTrack.get(), " SA track after addIDMSerrors ");
+        if (newTrack && track.get() != newTrack.get()) {
+            if (msgLevel(MSG::DEBUG)) countAEOTs(newTrack.get(), " SA track after addIDMSerrors ");
             dumpCaloEloss(newTrack.get(), "SA input TSOS after refine IDMS ");
 
             // Don't run the outliers anymore at this stage
-            std::unique_ptr<Trk::Track> refittedTrack(fit(*newTrack, false, Trk::muon));
-            if (refittedTrack) {
-                countAEOTs(refittedTrack.get(), " SA track after refit ");
-                dumpCaloEloss(refittedTrack.get(), " SA refit after refine IDMS ");
-            }
-
-            if (newTrack.get() == track.get()) newTrack.release();
+            std::unique_ptr<Trk::Track> refittedTrack(fit(*newTrack, ctx, false, Trk::muon));
+            if (msgLevel(MSG::DEBUG)) { countAEOTs(refittedTrack.get(), " SA track after refit "); }
+            dumpCaloEloss(refittedTrack.get(), " SA refit after refine IDMS ");
 
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("standaloneFit", refittedTrack.get(), track.get())) {
                 track.swap(refittedTrack);
@@ -1426,11 +1381,12 @@ namespace Rec {
                 ++improvementsFailed;
             }
         } else {
+            newTrack.release();
             ++improvementsFailed;
         }
 
         // hole recovery, error optimization, attach TrackSummary
-        finalTrackBuild(track);
+        finalTrackBuild(track, ctx);
 
         if (track) {
             dumpCaloEloss(track.get(), " finalTrackBuild ");
@@ -1444,48 +1400,37 @@ namespace Rec {
                 ++m_countDegradedStandaloneFit;
                 if (improvementsFailed >= 2) {
                     ATH_MSG_DEBUG("reject track, quality degraded and improvements failed");
-                    if (haveSpectrometerRefit) { delete spectrometerFit; }
                     return nullptr;
                 }
             }
         }
 
-        if (haveSpectrometerRefit) { delete spectrometerFit; }
         ATH_MSG_VERBOSE(" SA::ok ");
 
         return track.release();
     }
-
-    /** ICombinedMuonTrackBuilder interface:
-        refit a track removing any indet measurements with possible addition of pseudoMeasurements */
     Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const {
+        return standaloneRefit(combinedTrack, Gaudi::Hive::currentContext(), bs_x, bs_y, bs_z);
+    }
+    Trk::Track* CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x, float bs_y,
+                                                          float bs_z) const {
         //
         // update -if needed vertex and beam axis positions
         //
 
-        countAEOTs(&combinedTrack, " in standalone Refit input combinedTrack ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(&combinedTrack, " in standalone Refit input combinedTrack ");
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn()) {
             // no standalone refit for Toroid off
             return nullptr;
         }
 
-        if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << " StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z << endmsg;
-        }
+        ATH_MSG_DEBUG(" StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z);
 
         // vertex will change track by track
         Amg::Vector3D origin(bs_x, bs_y, bs_z);
@@ -1510,25 +1455,22 @@ namespace Rec {
         (vertexRegionCovariance)(1, 1) = error2d0;
         (vertexRegionCovariance)(2, 2) = error2z0;
 
-        Trk::RecVertex* vertex = new Trk::RecVertex(origin, vertexRegionCovariance);
+        std::unique_ptr<Trk::RecVertex> vertex = std::make_unique<Trk::RecVertex>(origin, vertexRegionCovariance);
 
-        if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << " StandaloneRefit  new vertex position x " << vertex->position().x() << " y " << vertex->position().y()
-                            << " z " << vertex->position().z();
-        }
+        ATH_MSG_DEBUG(" StandaloneRefit  new vertex position x " << vertex->position().x() << " y " << vertex->position().y() << " z "
+                                                                 << vertex->position().z());
 
         bool addPhiPseudo = false;
         // release 21
-        unsigned spectrometerPhiQuality = m_trackQuery->spectrometerPhiQuality(combinedTrack);
+        unsigned spectrometerPhiQuality = m_trackQuery->spectrometerPhiQuality(combinedTrack, ctx);
         if (spectrometerPhiQuality > 1) { addPhiPseudo = true; }
 
-        if (msgLvl(MSG::VERBOSE)) {
-            ATH_MSG_VERBOSE("standaloneRefit: using vertex region constraint with "
-                            << "spectrometerPhiQuality " << spectrometerPhiQuality);
-        }
+        ATH_MSG_VERBOSE("standaloneRefit: using vertex region constraint with "
+                        << "spectrometerPhiQuality " << spectrometerPhiQuality);
 
         // create standalone track TSOS vector
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> trackStateOnSurfaces =
+            std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         // size will allow for perigee + all TSOS outside indet
         unsigned size = combinedTrack.trackStateOnSurfaces()->size() + 2;
@@ -1549,8 +1491,6 @@ namespace Rec {
             if (s == combinedTrack.trackStateOnSurfaces()->end()) {
                 // fail track as no TSOS with type CaloDeposit
                 m_messageHelper->printWarning(13);
-                delete trackStateOnSurfaces;
-                delete vertex;
                 return nullptr;
             }
             if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit)) {
@@ -1562,7 +1502,7 @@ namespace Rec {
         // inner calo scatterer - keep scattering angles for vertex constraint
         // Amg::Vector3D direction;
         const Trk::ScatteringAngles* innerScattering = nullptr;
-        Trk::TrackStateOnSurface* innerTSOS = nullptr;
+        std::unique_ptr<Trk::TrackStateOnSurface> innerTSOS;
         const Trk::MaterialEffectsBase* materialEffects = (**s).materialEffectsOnTrack();
         const Trk::TrackParameters* middleParameters = nullptr;
         const Trk::TrackParameters* oldParameters = nullptr;
@@ -1574,13 +1514,12 @@ namespace Rec {
             // in r21, addVertexRegion is always true
             // if (addVertexRegion)
             //{
-            innerTSOS = (**s).clone();
+            innerTSOS.reset((**s).clone());
             const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 
             if (!meot) {
                 // innerScattering dynamic_cast failed
                 m_messageHelper->printWarning(16);
-                delete vertex;
                 return nullptr;
             }
             innerScattering = meot->scatteringAngles();
@@ -1611,10 +1550,10 @@ namespace Rec {
         // middle calo scatterer (for energy deposit)
         double energyDeposit = 0.;
 
-        Trk::TrackStateOnSurface* middleTSOS = nullptr;
+        std::unique_ptr<Trk::TrackStateOnSurface> middleTSOS;
 
         if (materialEffects && parameters && m_calorimeterVolume->inside(parameters->position())) {
-            middleTSOS = (**s).clone();
+            middleTSOS.reset((**s).clone());
             const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 
             if (meot && meot->energyLoss()) energyDeposit = meot->energyLoss()->deltaE();
@@ -1639,21 +1578,20 @@ namespace Rec {
         }
 
         // outer calo scatterer
-        Trk::TrackStateOnSurface* outerTSOS = nullptr;
+        std::unique_ptr<Trk::TrackStateOnSurface> outerTSOS;
 
         double pInner = 0.;
         double pOuter = 0.;
         if (materialEffects && parameters && m_calorimeterVolume->inside(parameters->position())) {
             pOuter = parameters->momentum().mag();
 
-            outerTSOS = (**s).clone();
+            outerTSOS.reset((**s).clone());
 
             const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 
             if (!meot) {
                 // outerScattering dynamic_cast failed
                 m_messageHelper->printWarning(24);
-                delete vertex;
                 return nullptr;
             }
             outerScattering = meot->scatteringAngles();
@@ -1672,8 +1610,8 @@ namespace Rec {
                     m_messageHelper->printWarning(25);
                 } else {
                     parameters = m_propagator
-                                     ->propagate(*parameters, middleTSOS->trackParameters()->associatedSurface(), Trk::oppositeMomentum,
-                                                 false, m_magFieldProperties, Trk::nonInteracting)
+                                     ->propagate(ctx, *parameters, middleTSOS->trackParameters()->associatedSurface(),
+                                                 Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting)
                                      .release();
                 }
             }
@@ -1693,11 +1631,6 @@ namespace Rec {
         // fail track if missing any calo surface or extrapolation failure
         if (!innerTSOS || !middleTSOS || !outerTSOS || !parameters) {
             if (outerTSOS) delete parameters;
-            delete trackStateOnSurfaces;
-            delete innerTSOS;
-            delete middleTSOS;
-            delete outerTSOS;
-            delete vertex;
             return nullptr;
         }
 
@@ -1705,7 +1638,7 @@ namespace Rec {
         oldParameters = parameters;
 
         parameters = m_propagator
-                         ->propagate(*parameters, innerTSOS->trackParameters()->associatedSurface(), Trk::oppositeMomentum, false,
+                         ->propagate(ctx, *parameters, innerTSOS->trackParameters()->associatedSurface(), Trk::oppositeMomentum, false,
                                      m_magFieldProperties, Trk::nonInteracting)
                          .release();
 
@@ -1715,10 +1648,10 @@ namespace Rec {
 
         const Trk::Perigee* perigee = nullptr;
         if (parameters) {
-            perigee = dynamic_cast<const Trk::Perigee*>(
-                m_propagator
-                    ->propagate(*parameters, *m_perigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting)
-                    .release());
+            perigee = dynamic_cast<const Trk::Perigee*>(m_propagator
+                                                            ->propagate(ctx, *parameters, *m_perigeeSurface, Trk::oppositeMomentum, false,
+                                                                        m_magFieldProperties, Trk::nonInteracting)
+                                                            .release());
         }
         delete parameters;
 
@@ -1727,7 +1660,7 @@ namespace Rec {
 
         // track back out to the 3 calo surfaces applying small correction for non-linearity
         parameters = m_propagator
-                         ->propagate(*perigee, innerTSOS->trackParameters()->associatedSurface(), Trk::alongMomentum, false,
+                         ->propagate(ctx, *perigee, innerTSOS->trackParameters()->associatedSurface(), Trk::alongMomentum, false,
                                      m_magFieldProperties, Trk::nonInteracting)
                          .release();
 
@@ -1740,7 +1673,7 @@ namespace Rec {
             oldParameters = parameters;
 
             parameters = m_propagator
-                             ->propagate(*parameters, middleParameters->associatedSurface(), Trk::alongMomentum, false,
+                             ->propagate(ctx, *parameters, middleParameters->associatedSurface(), Trk::alongMomentum, false,
                                          m_magFieldProperties, Trk::nonInteracting)
                              .release();
 
@@ -1754,7 +1687,7 @@ namespace Rec {
                 oldParameters = parameters;
 
                 parameters = m_propagator
-                                 ->propagate(*parameters, outerTSOS->trackParameters()->associatedSurface(), Trk::alongMomentum, false,
+                                 ->propagate(ctx, *parameters, outerTSOS->trackParameters()->associatedSurface(), Trk::alongMomentum, false,
                                              m_magFieldProperties, Trk::nonInteracting)
                                  .release();
 
@@ -1762,14 +1695,7 @@ namespace Rec {
             }
         }
 
-        if (!parameters) {
-            delete trackStateOnSurfaces;
-            delete innerTSOS;
-            delete middleTSOS;
-            delete outerTSOS;
-            delete vertex;
-            return nullptr;
-        }
+        if (!parameters) { return nullptr; }
 
         if (outerScattering) { momentumUpdate(parameters, pOuter, true, outerScattering->deltaPhi(), outerScattering->deltaTheta()); }
 
@@ -1794,7 +1720,7 @@ namespace Rec {
 
         // including vertex region pseudoMeas if requested: in r21, this is always requested
         std::unique_ptr<Trk::RecVertex> mbeamAxis = std::make_unique<Trk::RecVertex>(*m_beamAxis);
-        const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee, vertex, mbeamAxis.get());
+        const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee, vertex.get(), mbeamAxis.get());
         if (vertexInFit) {
             std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
             type.set(Trk::TrackStateOnSurface::Measurement);
@@ -1900,13 +1826,13 @@ namespace Rec {
         }  // end m_addElossID
 
         // add the 3 surface calo model
-        trackStateOnSurfaces->push_back(innerTSOS);
-        trackStateOnSurfaces->push_back(middleTSOS);
-        trackStateOnSurfaces->push_back(outerTSOS);
+        trackStateOnSurfaces->push_back(std::move(innerTSOS));
+        trackStateOnSurfaces->push_back(std::move(middleTSOS));
+        trackStateOnSurfaces->push_back(std::move(outerTSOS));
 
         // MS entrance perigee
-        if (m_perigeeAtSpectrometerEntranceLocal) {
-            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters());
+        if (m_perigeeAtSpectrometerEntrance) {
+            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters(), ctx);
             if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
         }
 
@@ -1922,7 +1848,6 @@ namespace Rec {
         // protection against overruning the end of the vector
         if (t == combinedTrack.trackStateOnSurfaces()->end()) {
             ATH_MSG_WARNING("At end of TSOS vector");
-            delete vertex;
             return nullptr;
         }
 
@@ -1930,7 +1855,7 @@ namespace Rec {
 
         // insert phi pseudo measurement if necessary
         if (addPhiPseudo) {
-            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(combinedTrack);
+            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(combinedTrack, ctx);
             if (tsos) trackStateOnSurfaces->push_back(tsos);
         }
 
@@ -1938,62 +1863,54 @@ namespace Rec {
         appendSelectedTSOS(*trackStateOnSurfaces, t, combinedTrack.trackStateOnSurfaces()->end());
 
         // create track for refit
-        Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> standaloneTrack =
+            std::make_unique<Trk::Track>(combinedTrack.info(), trackStateOnSurfaces.release(), nullptr);
         standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
-        if (m_trackQuery->isCombined(*standaloneTrack)) { ATH_MSG_WARNING(" This should not happen standalone Track has ID hits "); }
+        if (m_trackQuery->isCombined(*standaloneTrack, ctx)) { ATH_MSG_WARNING(" This should not happen standalone Track has ID hits "); }
 
-        countAEOTs(standaloneTrack, " in standalone Refit standaloneTrack track before fit ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(standaloneTrack.get(), " in standalone Refit standaloneTrack track before fit ");
 
-        Trk::Track* refittedTrack = fit(*standaloneTrack, false, Trk::muon);
-        delete standaloneTrack;
+        std::unique_ptr<Trk::Track> refittedTrack{fit(*standaloneTrack, ctx, false, Trk::muon)};
 
-        if (!checkTrack("standaloneRefit", refittedTrack, standaloneTrack)) {
-            delete refittedTrack;
-            delete vertex;
-            return nullptr;
-        }
+        if (!checkTrack("standaloneRefit", refittedTrack.get(), standaloneTrack.get())) { return nullptr; }
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-        std::unique_ptr<Trk::Track> refittedTrackUnique(refittedTrack);
-        if (refittedTrackUnique) {
-            if (!refittedTrackUnique->fitQuality()) {
-                delete vertex;
-                return nullptr;
-            }
+        if (refittedTrack) {
+            if (!refittedTrack->fitQuality()) { return nullptr; }
 
-            if (!m_trackQuery->isCaloAssociated(*refittedTrackUnique)) {
+            if (!m_trackQuery->isCaloAssociated(*refittedTrack, ctx)) {
                 // fail as calo incorrectly described
                 m_messageHelper->printWarning(28);
-                delete vertex;
                 return nullptr;
             }
 
-            countAEOTs(refittedTrackUnique.get(), " standaloneRefit final refittedTrack ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(refittedTrack.get(), " standaloneRefit final refittedTrack ");
 
             // fit with optimized spectrometer errors
             // this should also be inside the "if(refittedTrack) statement
-            if (!m_muonErrorOptimizer.empty() && !refittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                countAEOTs(refittedTrackUnique.get(), " before optimize ") == 0) {
+            if (!m_muonErrorOptimizer.empty() && !refittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
+                countAEOTs(refittedTrack.get(), " before optimize ") == 0) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(refittedTrackUnique.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(refittedTrack.get(), ctx);
 
                 if (optimizedTrack) {
-                    if (checkTrack("standaloneRefitOpt", optimizedTrack.get(), refittedTrackUnique.get())) {
-                        refittedTrackUnique.swap(optimizedTrack);
-                        countAEOTs(refittedTrackUnique.get(), " standaloneRefit alignment errors Track ");
+                    if (checkTrack("standaloneRefitOpt", optimizedTrack.get(), refittedTrack.get())) {
+                        refittedTrack.swap(optimizedTrack);
+                        if (msgLevel(MSG::DEBUG)) countAEOTs(refittedTrack.get(), " standaloneRefit alignment errors Track ");
                     }
                 }
             }
         }
 
-        delete vertex;
         // have to release it until the whole tool is migrated to unique_ptr
-        return refittedTrackUnique.release();
+        return refittedTrack.release();
     }
-
-    /** refit a track */
     Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+                                              const Trk::ParticleHypothesis particleHypothesis) const {
+        return fit(track, Gaudi::Hive::currentContext(), runOutlier, particleHypothesis);
+    }
+    Trk::Track* CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
                                               const Trk::ParticleHypothesis particleHypothesis) const {
         ATH_MSG_VERBOSE(" fit() " << m_printer->print(track) << std::endl << m_printer->printStations(track));
         // check valid particleHypothesis
@@ -2006,24 +1923,16 @@ namespace Rec {
         }
 
         // check if combined or subsystem track
-        bool isCombined = m_trackQuery->isCombined(track);
+        bool isCombined = m_trackQuery->isCombined(track, ctx);
         // select straightLine fitter when magnets downstream of leading measurement are off
-        ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
+        const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
-            fitter = m_fitterSL;
+            fitter = m_fitterSL.get();
             ATH_MSG_VERBOSE(" fit (track refit method): select SL fitter ");
         }
 
@@ -2032,8 +1941,8 @@ namespace Rec {
 
         // perform fit after ensuring calo is associated for combined tracks
         // calo association for combined tracks (WARN if missing from input)
-        Trk::Track* fittedTrack = nullptr;
-        if (isCombined && particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(track)) {
+        std::unique_ptr<Trk::Track> fittedTrack;
+        if (isCombined && particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(track, ctx)) {
             // about to add the TSOS's describing calorimeter association to a combined muon;
             m_messageHelper->printWarning(30);
 
@@ -2078,22 +1987,19 @@ namespace Rec {
                 }
             }
 
-            Trk::Track* combinedTrack = new Trk::Track(track.info(), combinedTSOS, nullptr);
+            std::unique_ptr<Trk::Track> combinedTrack = std::make_unique<Trk::Track>(track.info(), combinedTSOS, nullptr);
 
-            if (combinedTrack) countAEOTs(combinedTrack, " combinedTrack track before fit ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(combinedTrack.get(), " combinedTrack track before fit ");
 
-            caloAssociated = m_trackQuery->isCaloAssociated(*combinedTrack);
-            caloAssociated = true;
+            caloAssociated = m_trackQuery->isCaloAssociated(*combinedTrack, ctx);
 
             // Updates the calo TSOS with the ones from TG+corrections
             if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
                 ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Combined (re)Fit ...");
                 m_materialUpdator->updateCaloTSOS(*combinedTrack);
             }
-
             // FIT
-            fittedTrack = fitter->fit(*combinedTrack, false, particleHypothesis);
-            delete combinedTrack;
+            fittedTrack = fitter->fit(ctx, *combinedTrack, false, particleHypothesis);
         } else {
             // Updates the calo TSOS with the ones from TG+corrections
             if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
@@ -2102,87 +2008,82 @@ namespace Rec {
             }
 
             // FIT
-            fittedTrack = fitter->fit(track, false, particleHypothesis);
+            fittedTrack = fitter->fit(ctx, track, false, particleHypothesis);
         }
 
         // quit if fit has failed
         if (!fittedTrack) return nullptr;
 
-        if (!checkTrack("fitInterface1", fittedTrack, fittedTrack)) {
-            delete fittedTrack;
-            return nullptr;
-        }
+        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) { return nullptr; }
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-        std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
         // track cleaning
         if (runOutlier) {
             // fit with optimized spectrometer errors
 
-            if (!m_muonErrorOptimizer.empty() && !fittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrackUnique.get())) {
+            if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
 
                 if (optimizedTrack) {
-                    if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
-                        fittedTrackUnique.swap(optimizedTrack);
-                        countAEOTs(fittedTrackUnique.get(), " re fit scaled errors Track ");
+                    if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrack.get())) {
+                        fittedTrack.swap(optimizedTrack);
+                        if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " re fit scaled errors Track ");
                     }
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrackUnique);
+            double chi2Before = normalizedChi2(*fittedTrack);
 
             // muon cleaner
-            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
-                                                          << m_printer->printStations(*fittedTrackUnique));
+            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
+                                                          << m_printer->printStations(*fittedTrack));
 
-            if (fittedTrackUnique) countAEOTs(fittedTrackUnique.get(), " refit: fitted track before cleaning ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " refit: fitted track before cleaning ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
 
-            if (cleanTrack) countAEOTs(cleanTrack.get(), " refit: after cleaning");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(cleanTrack.get(), " refit: after cleaning");
 
-            if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrackUnique.get())) { cleanTrack.reset(); }
+            if (cleanTrack && !checkTrack("fitInterface1Cleaner", cleanTrack.get(), fittedTrack.get())) { cleanTrack.reset(); }
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                     ATH_MSG_DEBUG(" cleaner veto A ");
                     ++m_countStandaloneCleanerVeto;
-                    fittedTrackUnique.reset();
+                    fittedTrack.reset();
                 } else {
                     ATH_MSG_DEBUG(" keep original standalone track despite cleaner veto ");
                 }
-            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
+            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 double chi2After = normalizedChi2(*cleanTrack);
 
                 if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                     ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-                    fittedTrackUnique.swap(cleanTrack);
+                    fittedTrack.swap(cleanTrack);
                 } else {
                     ATH_MSG_VERBOSE(" keep original track despite cleaning ");
                 }
             }
 
             // FIXME: provide indet cleaner
-            if (fittedTrackUnique) {
-                ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
-                                                               << m_printer->printStations(*fittedTrackUnique));
+            if (fittedTrack) {
+                ATH_MSG_VERBOSE(" finished track cleaning... " << m_printer->print(*fittedTrack) << std::endl
+                                                               << m_printer->printStations(*fittedTrack));
             }
         }
 
         // have to use release until the whole tool uses unique_ptr
-        return fittedTrackUnique.release();
+        return fittedTrack.release();
     }
 
-    /**
-        fit a set of MeasurementBase objects with starting value for perigeeParameters */
-    Trk::Track* CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const Trk::TrackParameters& perigeeStartValue,
-                                              const Trk::RunOutlierRemoval runOutlier,
-                                              const Trk::ParticleHypothesis particleHypothesis) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(const EventContext& ctx, const Trk::MeasurementSet& measurementSet,
+                                                              const Trk::TrackParameters& perigeeStartValue,
+                                                              const Trk::RunOutlierRemoval runOutlier,
+                                                              const Trk::ParticleHypothesis particleHypothesis) const {
         // check valid particleHypothesis
         if (particleHypothesis != Trk::muon && particleHypothesis != Trk::nonInteracting) {
             // invalid particle hypothesis
@@ -2195,20 +2096,11 @@ namespace Rec {
         // select straightLine fitter when magnets downstream of leading measurement are off
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
-
-        ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
+        const Trk::ITrackFitter* fitter = m_fitter.get();
         if (!fieldCache.toroidOn() || std::abs(perigeeStartValue.position().z()) > m_zECToroid) {
-            fitter = m_fitterSL;
+            fitter = m_fitterSL.get();
             ATH_MSG_VERBOSE(" fit (track refit method): select SL fitter ");
         }
 
@@ -2230,7 +2122,7 @@ namespace Rec {
         }
 
         // FIT
-        Trk::Track* fittedTrack = fitter->fit(measurementSet, *perigee, false, particleHypothesis);
+        std::unique_ptr<Trk::Track> fittedTrack(fitter->fit(ctx, measurementSet, *perigee, false, particleHypothesis));
         if (perigeeSurface) {
             delete perigeeSurface;
             delete perigee;
@@ -2238,57 +2130,54 @@ namespace Rec {
 
         if (!fittedTrack) return nullptr;
 
-        if (!checkTrack("fitInterface2", fittedTrack, fittedTrack)) {
-            delete fittedTrack;
-            return nullptr;
-        }
+        if (!checkTrack("fitInterface2", fittedTrack.get(), fittedTrack.get())) { return nullptr; }
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-        std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
+
         // track cleaning
         if (runOutlier) {
             // fit with optimized spectrometer errors
 
-            if (!m_muonErrorOptimizer.empty() && !fittedTrackUnique->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrackUnique.get())) {
+            if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
-                    if (checkTrack("fitInterface2Opt", optimizedTrack.get(), fittedTrackUnique.get())) {
-                        fittedTrackUnique.swap(optimizedTrack);
-                        countAEOTs(fittedTrackUnique.get(), " fit mstSet scaled errors Track ");
+                    if (checkTrack("fitInterface2Opt", optimizedTrack.get(), fittedTrack.get())) {
+                        fittedTrack.swap(optimizedTrack);
+                        if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " fit mstSet scaled errors Track ");
                     }
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrackUnique);
+            double chi2Before = normalizedChi2(*fittedTrack);
 
             // muon cleaner
             ATH_MSG_VERBOSE(" perform track cleaning... ");
 
-            if (fittedTrackUnique) countAEOTs(fittedTrackUnique.get(), " fit mstSet before cleaning ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " fit mstSet before cleaning ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
 
-            if (cleanTrack) countAEOTs(cleanTrack.get(), " fit mstSet clean Track ");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(cleanTrack.get(), " fit mstSet clean Track ");
 
-            if (cleanTrack && !checkTrack("fitInterface2Cleaner", cleanTrack.get(), fittedTrackUnique.get())) { cleanTrack.reset(); }
+            if (cleanTrack && !checkTrack("fitInterface2Cleaner", cleanTrack.get(), fittedTrack.get())) { cleanTrack.reset(); }
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                     ATH_MSG_DEBUG(" cleaner veto B");
                     ++m_countExtensionCleanerVeto;
-                    fittedTrackUnique.reset();
+                    fittedTrack.reset();
                 } else {
                     ATH_MSG_DEBUG(" keep original extension track despite cleaner veto ");
                 }
-            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
+            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 double chi2After = normalizedChi2(*cleanTrack);
                 if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                     ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-                    fittedTrackUnique.swap(cleanTrack);
+                    fittedTrack.swap(cleanTrack);
                 } else {
                     ATH_MSG_VERBOSE(" keep original track despite cleaning ");
                 }
@@ -2298,13 +2187,13 @@ namespace Rec {
             ATH_MSG_VERBOSE(" finished cleaning");
         }
         // have to use release until the whole code uses unique_ptr
-        return fittedTrackUnique.release();
+        return fittedTrack;
     }
 
     /**combined muon fit */
-    Trk::Track* CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
-                                              const Trk::RunOutlierRemoval runOutlier,
-                                              const Trk::ParticleHypothesis particleHypothesis) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(const EventContext& ctx, const Trk::Track& indetTrack,
+                                                              Trk::Track& extrapolatedTrack, const Trk::RunOutlierRemoval runOutlier,
+                                                              const Trk::ParticleHypothesis particleHypothesis) const {
         // check valid particleHypothesis
         if (particleHypothesis != Trk::muon && particleHypothesis != Trk::nonInteracting) {
             // invalid particle hypothesis
@@ -2315,29 +2204,20 @@ namespace Rec {
         }
 
         // select straightLine fitter when solenoid and toroid are off
-        ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
+        const Trk::ITrackFitter* fitter = m_fitter.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
         if (!fieldCache.toroidOn() && !fieldCache.solenoidOn()) {
-            fitter = m_fitterSL;
+            fitter = m_fitterSL.get();
             ATH_MSG_VERBOSE(" fit (combined muon fit method): select SL fitter ");
         }
 
         // redo ROTs:  ID, CROT and MDT specific treatments
 
         // calo association (for now just WARN if missing)
-        if (particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(extrapolatedTrack)) {
+        if (particleHypothesis == Trk::muon && !m_trackQuery->isCaloAssociated(extrapolatedTrack, ctx)) {
             // combined muon track is missing the TSOS's describing calorimeter association
             m_messageHelper->printWarning(33);
         }
@@ -2353,53 +2233,51 @@ namespace Rec {
                                                     << m_printer->print(indetTrack) << std::endl
                                                     << m_printer->print(extrapolatedTrack));
 
-        Trk::Track* fittedTrack = fitter->fit(indetTrack, extrapolatedTrack, false, particleHypothesis);
+        std::unique_ptr<Trk::Track> fittedTrack(fitter->fit(ctx, indetTrack, extrapolatedTrack, false, particleHypothesis));
 
         if (!fittedTrack) return nullptr;
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-        std::unique_ptr<Trk::Track> fittedTrackUnique(fittedTrack);
 
         // track cleaning
         if (runOutlier) {
             // fit with optimized spectrometer errors
 
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
-                optimizeErrors(fittedTrackUnique.get())) {
+                optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrackUnique.get());
-
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get(), ctx);
                 if (optimizedTrack) {
-                    fittedTrackUnique.swap(optimizedTrack);
-                    countAEOTs(fittedTrackUnique.get(), " cbfit scaled errors Track ");
+                    fittedTrack.swap(optimizedTrack);
+                    if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " cbfit scaled errors Track ");
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrackUnique.get());
+            double chi2Before = normalizedChi2(*fittedTrack.get());
 
             // muon cleaner
-            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrackUnique) << std::endl
-                                                          << m_printer->printStations(*fittedTrackUnique));
+            ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
+                                                          << m_printer->printStations(*fittedTrack));
 
-            if (fittedTrackUnique) { countAEOTs(fittedTrackUnique.get(), " cb before clean Track "); }
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrackUnique);
-            if (cleanTrack) { countAEOTs(cleanTrack.get(), " cb after clean Track "); }
+            if (msgLevel(MSG::DEBUG)) { countAEOTs(fittedTrack.get(), " cb before clean Track "); }
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
+            if (msgLevel(MSG::DEBUG)) { countAEOTs(cleanTrack.get(), " cb after clean Track "); }
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
                     ATH_MSG_DEBUG(" cleaner veto C");
                     ++m_countCombinedCleanerVeto;
-                    fittedTrackUnique.reset();
+                    fittedTrack.reset();
                 } else {
                     ATH_MSG_DEBUG(" keep original combined track despite cleaner veto ");
                 }
-            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrackUnique->perigeeParameters())) {
+            } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 double chi2After = normalizedChi2(*cleanTrack);
                 if (chi2After < m_badFitChi2 || chi2After < chi2Before) {
                     ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
-                    fittedTrackUnique.swap(cleanTrack);
+                    fittedTrack.swap(cleanTrack);
                 } else {
                     ATH_MSG_VERBOSE(" keep original track despite cleaning ");
                 }
@@ -2409,19 +2287,19 @@ namespace Rec {
             ATH_MSG_VERBOSE(" finished cleaning");
         }
         // have to use release until the whole code uses unique_ptr
-        return fittedTrackUnique.release();
+        return fittedTrack;
     }
 
     /*   private methods follow */
 
-    bool CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const {
+    bool CombinedMuonTrackBuilder::optimizeErrors(const EventContext& ctx, Trk::Track* track) const {
         const Trk::MuonTrackSummary* muonSummary = nullptr;
         const Trk::TrackSummary* summary = track->trackSummary();
 
         if (summary) {
             muonSummary = summary->muonTrackSummary();
         } else {
-            m_trackSummary->updateTrack(*track);
+            m_trackSummary->updateTrack(ctx, *track);
             summary = track->trackSummary();
             muonSummary = summary->muonTrackSummary();
         }
@@ -2480,14 +2358,14 @@ namespace Rec {
         return optimize > 0;
     }
 
-    Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const {
         //
         // take track and correct the two scattering planes in the Calorimeter
         // to take into account m_IDMS_rzSigma and m_IDMS_xySigma
         //
         // returns a new Track
         //
-        if (!m_addIDMSerrors) { return track; }
+        if (!m_addIDMSerrors) { return std::unique_ptr<Trk::Track>{track}; }
 
         ATH_MSG_DEBUG(" CombinedMuonTrackBuilder addIDMSerrors to track ");
 
@@ -2501,7 +2379,7 @@ namespace Rec {
         /// it can happen that no Calorimeter Scatterers are found.
         if (!calo_entrance || !calo_exit || !ms_entrance) {
             ATH_MSG_DEBUG(" addIDMSerrors keep original track ");
-            return track;
+            return std::unique_ptr<Trk::Track>{track};
         }
 
         std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> trackStateOnSurfaces =
@@ -2569,8 +2447,7 @@ namespace Rec {
         ATH_MSG_DEBUG(" trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size() << " trackStateOnSurfaces found "
                                                               << trackStateOnSurfaces->size());
 
-        Trk::Track* newTrack = new Trk::Track(track->info(), trackStateOnSurfaces.release(), nullptr);
-        if (newTrack) countAEOTs(newTrack, " add IDMS errors ");
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces.release(), nullptr);
         return newTrack;
     }
 
@@ -2673,11 +2550,11 @@ namespace Rec {
         return m_trackQuery->caloEnergy(*combinedTrack);
     }
 
-    Trk::Track* CombinedMuonTrackBuilder::createExtrapolatedTrack(
-        const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters, Trk::ParticleHypothesis particleHypothesis,
-        Trk::RunOutlierRemoval runOutlier, const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& spectrometerTSOS,
-        const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis, const Trk::PerigeeSurface* mperigeeSurface,
-        const Trk::Perigee* seedParameters) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createExtrapolatedTrack(
+        const EventContext& ctx, const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters,
+        Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
+        const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& spectrometerTSOS, const Trk::RecVertex* vertex,
+        const Trk::RecVertex* mbeamAxis, const Trk::PerigeeSurface* mperigeeSurface, const Trk::Perigee* seedParameters) const {
         ATH_MSG_VERBOSE(" createExtrapolatedTrack: pt " << parameters.momentum().perp() << " r " << parameters.position().perp() << " z "
                                                         << parameters.position().z() << " cov " << parameters.covariance() << " muonfit "
                                                         << (particleHypothesis == Trk::muon));
@@ -2826,26 +2703,18 @@ namespace Rec {
             if (caloAssociated) {
                 MagField::AtlasFieldCache fieldCache;
                 // Get field cache object
-                const EventContext& ctx = Gaudi::Hive::currentContext();
-                SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-                const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-                if (!fieldCondObj) {
-                    ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                                  << m_fieldCacheCondObjInputKey.key());
-                    return nullptr;
-                }
-                fieldCondObj->getInitializedCache(fieldCache);
+                if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
                     const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();
 
                     if (oldParameters && !oldParameters->covariance()) { ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (0)"); }
                     // chickened out of sorting out ownership
-                    trackParameters = m_propagator->propagate(*oldParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                    trackParameters = m_propagator->propagate(ctx, *oldParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                               m_magFieldProperties, Trk::nonInteracting);
                 } else {
-                    trackParameters = m_propagatorSL->propagate(parameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                    trackParameters = m_propagatorSL->propagate(ctx, parameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                                 m_magFieldProperties, Trk::nonInteracting);
                 }
 
@@ -2963,14 +2832,14 @@ namespace Rec {
         }
 
         // MS entrance perigee
-        if (m_perigeeAtSpectrometerEntranceLocal) {
+        if (m_perigeeAtSpectrometerEntrance) {
             ATH_MSG_DEBUG("adding perigee at spectrometer entrance");
             const Trk::TrackParameters* mstrackParameters = trackStateOnSurfaces->back()->trackParameters();
 
             if (!mstrackParameters) { mstrackParameters = spectrometerTSOS.front()->trackParameters(); }
 
             if (mstrackParameters) {
-                const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(mstrackParameters);
+                const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(mstrackParameters, ctx);
                 if (entranceTSOS) { trackStateOnSurfaces->push_back(entranceTSOS); }
             }
         }
@@ -3002,7 +2871,7 @@ namespace Rec {
         std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(spectrometerTrack.info(), trackStateOnSurfaces, nullptr);
 
         dumpCaloEloss(track.get(), " createExtrapolatedTrack ");
-        countAEOTs(track.get(), " createExtrapolatedTrack before fit ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(track.get(), " createExtrapolatedTrack before fit ");
 
         // remove material when curvature badly determined (to remove energy loss uncertainty)
         if (particleHypothesis == Trk::nonInteracting) {
@@ -3017,10 +2886,10 @@ namespace Rec {
             msg() << endmsg;
         }
 
-        std::unique_ptr<Trk::Track> fittedTrack(fit(*track, runOutlier, particleHypothesis));
+        std::unique_ptr<Trk::Track> fittedTrack{fit(*track, ctx, runOutlier, particleHypothesis)};
 
         if (fittedTrack) {
-            countAEOTs(fittedTrack.get(), " createExtrapolatedTrack after fit");
+            if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " createExtrapolatedTrack after fit");
 
             // only accept when perigee in indet tracking volume
             if (fittedTrack->perigeeParameters() && !m_indetVolume->inside(fittedTrack->perigeeParameters()->position())) {
@@ -3035,15 +2904,15 @@ namespace Rec {
             }
 
             ATH_MSG_VERBOSE(" found track " << m_printer->print(*fittedTrack));
-            return fittedTrack.release();
+            return fittedTrack;
         }
         // return the unfitted track in case of problem
-        return track.release();
+        return track;
     }
 
-    Trk::Track* CombinedMuonTrackBuilder::createIndetTrack(const Trk::TrackInfo& info,
-                                                           DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
-                                                           DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createIndetTrack(
+        const Trk::TrackInfo& info, DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const {
         // create indet track TSOS vector
         DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
 
@@ -3067,15 +2936,16 @@ namespace Rec {
         // then append selected TSOS
         appendSelectedTSOS(*trackStateOnSurfaces, begin, end);
 
-        return new Trk::Track(info, trackStateOnSurfaces, nullptr);
+        return std::make_unique<Trk::Track>(info, trackStateOnSurfaces, nullptr);
     }
 
-    Trk::Track* CombinedMuonTrackBuilder::createMuonTrack(const Trk::Track& muonTrack, const Trk::TrackParameters* parameters,
-                                                          const CaloEnergy* caloEnergy,
-                                                          DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
-                                                          DataVector<const Trk::TrackStateOnSurface>::const_iterator end,
-                                                          unsigned size) const {
-        countAEOTs(&muonTrack, " createMuonTrack ");
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createMuonTrack(const EventContext& ctx, const Trk::Track& muonTrack,
+                                                                          const Trk::TrackParameters* parameters,
+                                                                          const CaloEnergy* caloEnergy,
+                                                                          DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
+                                                                          DataVector<const Trk::TrackStateOnSurface>::const_iterator end,
+                                                                          unsigned size) const {
+        if (msgLevel(MSG::DEBUG)) countAEOTs(&muonTrack, " createMuonTrack ");
 
         // set iterator to current TSOS on input track to be after the indet
         const Trk::TrackParameters* lastIDtp = nullptr;
@@ -3173,7 +3043,7 @@ namespace Rec {
         // MS entrance perigee
 
         bool hasAlreadyPerigee = false;
-        if (m_perigeeAtSpectrometerEntranceLocal) {
+        if (m_perigeeAtSpectrometerEntrance) {
             // copy calorimeter TSOS
             while ((**s).trackParameters() && m_calorimeterVolume->inside((**s).trackParameters()->position())) {
                 if (!(**s).type(Trk::TrackStateOnSurface::Perigee)) {
@@ -3190,9 +3060,9 @@ namespace Rec {
 
             if (!hasAlreadyPerigee && (**s).trackParameters()) {
                 if ((**s).trackParameters()) {
-                    entranceTSOS = entrancePerigee((**s).trackParameters());
+                    entranceTSOS = entrancePerigee((**s).trackParameters(), ctx);
                 } else {
-                    entranceTSOS = entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
+                    entranceTSOS = entrancePerigee(trackStateOnSurfaces->back()->trackParameters(), ctx);
                 }
 
                 if (entranceTSOS) {
@@ -3213,7 +3083,7 @@ namespace Rec {
         // then append selected TSOS from the extrapolated or spectrometer track
         appendSelectedTSOS(*trackStateOnSurfaces, s, end);
 
-        Trk::Track* newMuonTrack = new Trk::Track(muonTrack.info(), trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> newMuonTrack = std::make_unique<Trk::Track>(muonTrack.info(), trackStateOnSurfaces, nullptr);
 
         // Updates the calo TSOS with the ones from TG+corrections (if needed)
         if (m_updateWithCaloTG && !m_useCaloTG && redoCaloAssoc) {
@@ -3224,8 +3094,9 @@ namespace Rec {
         return newMuonTrack;
     }
 
-    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track) const {
-        auto parameters = m_trackQuery->spectrometerParameters(track);
+    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::createPhiPseudoMeasurement(const Trk::Track& track,
+                                                                                         const EventContext& ctx) const {
+        auto parameters = m_trackQuery->spectrometerParameters(track, ctx);
         Amg::MatrixX covarianceMatrix(1, 1);
         covarianceMatrix.setZero();
         covarianceMatrix(0, 0) = m_sigmaPhiSector * m_sigmaPhiSector * parameters->position().perp2();
@@ -3242,10 +3113,10 @@ namespace Rec {
     }
 
     std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> CombinedMuonTrackBuilder::createSpectrometerTSOS(
-        const Trk::Track& spectrometerTrack) const {
+        const Trk::Track& spectrometerTrack, const EventContext& ctx) const {
         const Trk::Perigee* measuredPerigee = spectrometerTrack.perigeeParameters();
 
-        if (!measuredPerigee || !measuredPerigee->covariance()) {
+        if (!measuredPerigee || !measuredPerigee->covariance() || !Amg::valid_cov(*measuredPerigee->covariance())) {
             // missing MeasuredPerigee for spectrometer track
             m_messageHelper->printWarning(38);
             return nullptr;
@@ -3266,7 +3137,7 @@ namespace Rec {
         if (numberPseudo > 1 && !m_trackQuery->isSectorOverlap(spectrometerTrack)) {
             ATH_MSG_VERBOSE("standaloneFit: add pseudo to constrain phi sector");
 
-            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(spectrometerTrack);
+            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(spectrometerTrack, ctx);
             if (tsos) { spectrometerTSOS->emplace_back(tsos); }
         }
 
@@ -3392,21 +3263,20 @@ namespace Rec {
         return spectrometerTSOS;
     }
 
-    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters) const {
+    const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters,
+                                                                              const EventContext& ctx) const {
         // make sure the spectrometer entrance volume is available
         if (!parameters) return nullptr;
-
-        const Trk::TrackingVolume* spectrometerEntrance = getVolume("MuonSpectrometerEntrance");
+        const Trk::TrackingVolume* spectrometerEntrance = getVolume("MuonSpectrometerEntrance", ctx);
         if (!spectrometerEntrance) return nullptr;
 
-        const Trk::TrackParameters* entranceParameters =
-            m_extrapolator->extrapolateToVolume(*parameters, *spectrometerEntrance, Trk::anyDirection, Trk::nonInteracting);
+        std::unique_ptr<const Trk::TrackParameters> entranceParameters{
+            m_extrapolator->extrapolateToVolume(ctx, *parameters, *spectrometerEntrance, Trk::anyDirection, Trk::nonInteracting)};
 
         if (!entranceParameters) return nullptr;
 
         Trk::PerigeeSurface surface(entranceParameters->position());
-        const Trk::TrackParameters* trackParameters = m_extrapolator->extrapolateDirectly(*entranceParameters, surface);
-        delete entranceParameters;
+        std::unique_ptr<const Trk::TrackParameters> trackParameters{m_extrapolator->extrapolateDirectly(ctx, *entranceParameters, surface)};
 
         if (!trackParameters) return nullptr;
 
@@ -3415,15 +3285,12 @@ namespace Rec {
 
         const Trk::Perigee* perigee =
             new Trk::Perigee(trackParameters->position(), trackParameters->momentum(), trackParameters->charge(), surface);
-
-        delete trackParameters;
         return new const Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr, perigeeType);
     }
 
-    const Trk::TrackParameters* CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
-                                                                                 const Trk::Track& spectrometerTrack,
-                                                                                 const Trk::RecVertex* mvertex,
-                                                                                 const Trk::PerigeeSurface* mperigeeSurface) const {
+    std::unique_ptr<const Trk::TrackParameters> CombinedMuonTrackBuilder::extrapolatedParameters(
+        const EventContext& ctx, bool& badlyDeterminedCurvature, const Trk::Track& spectrometerTrack, const Trk::RecVertex* mvertex,
+        const Trk::PerigeeSurface* mperigeeSurface) const {
         badlyDeterminedCurvature = false;
         const Trk::Perigee* measuredPerigee = spectrometerTrack.perigeeParameters();
 
@@ -3434,7 +3301,7 @@ namespace Rec {
         }
 
         // set starting parameters and measured momentum error
-        auto parameters = m_trackQuery->spectrometerParameters(spectrometerTrack);
+        auto parameters = m_trackQuery->spectrometerParameters(spectrometerTrack, ctx);
         if (!parameters || !parameters->covariance()) {
             // missing spectrometer parameters on spectrometer track
             m_messageHelper->printWarning(43);
@@ -3444,7 +3311,6 @@ namespace Rec {
         double errorP = std::sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
 
         // corrected parameters ensure the track fitting starts with a projective approximation
-        // const Trk::TrackParameters* correctedParameters = nullptr;
         std::unique_ptr<Trk::TrackParameters> correctedParameters{};
         Amg::VectorX parameterVector = parameters->parameters();
         double trackEnergy = 1. / std::abs(parameterVector[Trk::qOverP]);
@@ -3457,31 +3323,19 @@ namespace Rec {
             parameters = parameters->associatedSurface().createUniqueTrackParameters(
                 parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                 parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
-
-            // delete parameters;
-            // parameters          = correctedParameters;
         }
 
         // check if the track curvature is well determined (with sufficient energy to penetrate material)
         //  (i.e. field off or small momentum error, starting parameters upstream of endcap toroid)
         bool curvatureOK = false;
 
-        ToolHandle<Trk::IPropagator> propagator = m_propagator;
+        const Trk::IPropagator* propagator = m_propagator.get();
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key "
-                          << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
-        }
-        fieldCondObj->getInitializedCache(fieldCache);
+        if (!loadMagneticField(ctx, fieldCache)) return nullptr;
         if (!fieldCache.toroidOn()) {
             curvatureOK = true;
-            propagator = m_propagatorSL;
+            propagator = m_propagatorSL.get();
         } else if (std::abs(parameters->position().z()) < m_zECToroid &&
                    (!m_trackQuery->isLineFit(spectrometerTrack) && errorP < m_largeMomentumError)) {
             curvatureOK = true;
@@ -3490,13 +3344,11 @@ namespace Rec {
         if (curvatureOK) {
             // TDDO Run2 Calo TG
             // energy loss correction
-            CaloEnergy* caloEnergy = m_caloEnergyParam->energyLoss(trackEnergy, parameters->position().eta(), parameters->position().phi());
+            std::unique_ptr<CaloEnergy> caloEnergy{
+                m_caloEnergyParam->energyLoss(trackEnergy, parameters->position().eta(), parameters->position().phi())};
 
             if (trackEnergy + caloEnergy->deltaE() < m_minEnergy) {
                 ATH_MSG_DEBUG("standaloneFit: trapped in calorimeter");
-                delete caloEnergy;
-                // delete parameters;
-
                 return nullptr;
             }
 
@@ -3523,47 +3375,27 @@ namespace Rec {
 
             if (std::abs(spectrometerEnergyLoss) > 1.5 * std::abs(caloEnergy->deltaE())) {
                 curvatureOK = false;
-
-                if (correctedParameters == parameters) {
-                    ATH_MSG_WARNING("deleting parameters pointer that could be used further down in execution, setting it to zero!");
-
-                    parameters = nullptr;
-                }
-
-                // delete correctedParameters;
-                // correctedParameters = nullptr;
-
                 ATH_MSG_DEBUG("standaloneFit: excessive energy loss in spectrometer "
                               << std::abs(spectrometerEnergyLoss / Gaudi::Units::GeV) << " GeV"
                               << "  in calo " << std::abs(caloEnergy->deltaE() / Gaudi::Units::GeV) << " GeV");
             }
-            delete caloEnergy;
-            caloEnergy = nullptr;
         }
 
         // check perigee in indet volume when the curvature is well determined
         // otherwise will assume projectivity for starting parameters
         if (curvatureOK) {
-            const Trk::TrackParameters* perigee = propagator
-                                                      ->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                                                  m_magFieldProperties, Trk::nonInteracting)
-                                                      .release();
+            std::unique_ptr<const Trk::TrackParameters> perigee{propagator->propagate(
+                ctx, *correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting)};
 
             if (!perigee) {
                 ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
-                // delete correctedParameters;
-                // delete parameters;
                 return nullptr;
             }
 
             // large impact: set phi to be projective (note iteration)
             if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact || !fieldCache.toroidOn()) {
-                if (correctedParameters == parameters) {
-                    ATH_MSG_WARNING("deleting parameters pointer that could be used further down in execution, setting it to zero!");
-                    // parameters = nullptr;
-                }
-                // delete correctedParameters;
-                // correctedParameters = nullptr;
+                ATH_MSG_DEBUG("Track d0 perigee: " << std::abs(perigee->parameters()[Trk::d0]) << " which is smaller than "
+                                                   << m_largeImpact);
             } else {
                 Amg::Vector3D position = correctedParameters->position();
 
@@ -3585,17 +3417,12 @@ namespace Rec {
                     parameterVector[Trk::phi0] += 2. * M_PI;
                 }
 
-                // delete correctedParameters;
-                delete perigee;
-
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                     parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
-                perigee = propagator
-                              ->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties,
-                                          Trk::nonInteracting)
-                              .release();
+                perigee = propagator->propagate(ctx, *correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                                                m_magFieldProperties, Trk::nonInteracting);
 
                 if (perigee) {
                     deltaPhi = 0.;
@@ -3614,36 +3441,23 @@ namespace Rec {
                     } else if (parameterVector[Trk::phi0] < -M_PI) {
                         parameterVector[Trk::phi0] += 2. * M_PI;
                     }
-
-                    // delete correctedParameters;
-                    delete perigee;
                     correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                         parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
-                    perigee = propagator
-                                  ->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties,
-                                              Trk::nonInteracting)
-                                  .release();
+                    perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                                                    m_magFieldProperties, Trk::nonInteracting);
                 }
 
                 if (perigee) {
                     ATH_MSG_VERBOSE("standaloneFit:    restart with impact " << perigee->parameters()[Trk::d0] << "   phi0 "
                                                                              << perigee->parameters()[Trk::phi0]);
                 }
-
-                if (correctedParameters == parameters) {
-                    ATH_MSG_WARNING("deleting parameters pointer that could be used further down in execution, setting it to zero!");
-                    parameters = nullptr;
-                }
-
-                // delete correctedParameters;
                 parameterVector[Trk::qOverP] = parameters->charge() / trackEnergy;
                 correctedParameters = parameters->associatedSurface().createUniqueTrackParameters(
                     parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                     parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
-                // delete parameters;
                 parameters = std::move(correctedParameters);
             }
 
@@ -3654,19 +3468,17 @@ namespace Rec {
                                                                                   << perigee->position().z());
                 } else {
                     ATH_MSG_DEBUG("standaloneFit: perigee outside indet volume");
-                    // delete parameters;
-                    delete perigee;
                     ///  if (haveSpectrometerRefit) delete spectrometerFit;
                     return nullptr;
                 }
             }
-            delete perigee;
+            perigee.reset();
         } else {
             // otherwise track out from origin (fix bug #54820)
             badlyDeterminedCurvature = true;
             Amg::Vector3D momentum = parameters->position() * Gaudi::Units::TeV / parameters->position().mag();
 
-            const Trk::TrackParameters* trigParameters = m_trackQuery->triggerStationParameters(spectrometerTrack);
+            std::unique_ptr<const Trk::TrackParameters> trigParameters{m_trackQuery->triggerStationParameters(spectrometerTrack, ctx)};
 
             if (trigParameters) { momentum = trigParameters->position() * Gaudi::Units::TeV / trigParameters->position().mag(); }
 
@@ -3680,15 +3492,11 @@ namespace Rec {
                 }
             }
 
-            Trk::TrackParameters* perigee = new Trk::Perigee(mvertex->position(), momentum, 1., *mperigeeSurface);
+            std::unique_ptr<Trk::TrackParameters> perigee =
+                std::make_unique<Trk::Perigee>(mvertex->position(), momentum, 1., *mperigeeSurface);
 
-            parameters = m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false, m_magFieldProperties,
-                                                 Trk::nonInteracting);
-
-            // delete parameters;
-            delete perigee;
-            delete trigParameters;
-            // parameters = std::move(correctedParameters);
+            parameters = m_propagator->propagate(ctx, *perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
+                                                 m_magFieldProperties, Trk::nonInteracting);
 
             if (!parameters) {
                 ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
@@ -3696,15 +3504,15 @@ namespace Rec {
             }
         }
 
-        return parameters.release();
+        return parameters;
     }
 
-    void CombinedMuonTrackBuilder::finalTrackBuild(std::unique_ptr<Trk::Track>& track) const {
+    void CombinedMuonTrackBuilder::finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const {
         // as a final step:
         //   refit the track if any holes can be recovered,
         //   refit with optimization of the spectrometer hit errors,
         //  add the corresponding TrackSummary to the track
-        countAEOTs(track.get(), " finalTrackBuilt input ");
+        if (msgLevel(MSG::DEBUG)) countAEOTs(track.get(), " finalTrackBuilt input ");
 
         if (!m_muonHoleRecovery.empty()) {
             // chi2 before recovery
@@ -3712,7 +3520,7 @@ namespace Rec {
 
             ATH_MSG_VERBOSE(" perform spectrometer hole recovery procedure... ");
 
-            std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecovery->recover(*track));
+            std::unique_ptr<Trk::Track> recoveredTrack{m_muonHoleRecovery->recover(*track, ctx)};
 
             if (!recoveredTrack || !recoveredTrack->fitQuality() || !checkTrack("finalTrackBuild1", recoveredTrack.get(), track.get())) {
                 // final track lost, this should not happen
@@ -3737,23 +3545,16 @@ namespace Rec {
         if (!m_muonErrorOptimizer.empty() && !track->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
             countAEOTs(track.get(), " before optimize ") == 0) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
-            std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get());
+            std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(track.get(), ctx);
             if (optimizedTrack && checkTrack("finalTrackBuild2", optimizedTrack.get(), track.get())) {
                 track.swap(optimizedTrack);
-                countAEOTs(track.get(), " finalTrackBuilt alignment errors Track ");
+                if (msgLevel(MSG::DEBUG)) countAEOTs(track.get(), " finalTrackBuilt alignment errors Track ");
             }
         }
 
         // add the track summary
-        m_trackSummary->updateTrack(*track);
+        m_trackSummary->updateTrack(ctx, *track);
     }
-
-    Trk::Track* CombinedMuonTrackBuilder::interfaceNotImplemented() const {
-        ATH_MSG_WARNING(" this ITrackFitter interface has not been implemented."
-                        << " It is not relevant for combined muon tracks");
-        return nullptr;
-    }
-
     void CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate,
                                                   double deltaPhi, double deltaTheta) const {
         if (!parameters) return;
@@ -3820,7 +3621,8 @@ namespace Rec {
         return chi2;
     }
 
-    const Trk::Track* CombinedMuonTrackBuilder::reallocateMaterial(const Trk::Track& spectrometerTrack) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::reallocateMaterial(const Trk::Track& spectrometerTrack,
+                                                                             const EventContext& ctx) const {
         // build MeasurementSet for the spectrometer
         const Trk::TrackParameters* perigeeStartValue = nullptr;
         double perigeeDistance = 0.;
@@ -3859,12 +3661,12 @@ namespace Rec {
         }
 
         // fit with various recovery strategies
-        Trk::Track* spectrometerFit = fit(spectrometerMeasurements, *perigeeStartValue, true, Trk::muon);
+        std::unique_ptr<Trk::Track> spectrometerFit = fit(ctx, spectrometerMeasurements, *perigeeStartValue, true, Trk::muon);
         if (!spectrometerFit) {
-            spectrometerFit = fit(spectrometerMeasurements, *perigeeStartValue, false, Trk::muon);
+            spectrometerFit = fit(ctx, spectrometerMeasurements, *perigeeStartValue, false, Trk::muon);
 
             if (!spectrometerFit) {
-                spectrometerFit = fit(spectrometerMeasurements, *perigeeStartValue, false, Trk::nonInteracting);
+                spectrometerFit = fit(ctx, spectrometerMeasurements, *perigeeStartValue, false, Trk::nonInteracting);
 
                 if (!spectrometerFit) {
                     // spectrometer refit fails
@@ -4082,6 +3884,7 @@ namespace Rec {
     }
 
     int CombinedMuonTrackBuilder::countAEOTs(const Trk::Track* track, const std::string& txt) const {
+        if (!track) return 0;
         const DataVector<const Trk::TrackStateOnSurface>* trackTSOS = track->trackStateOnSurfaces();
         int naeots = 0;
 
@@ -4133,8 +3936,8 @@ namespace Rec {
 
     void CombinedMuonTrackBuilder::dumpCaloEloss(const Trk::Track* track, const std::string& txt) const {
         // will refit if extrapolated track was definitely bad
-        if (!track) return;
-        if (!m_trackQuery->isCaloAssociated(*track)) {
+        if (!track || !msgLevel(MSG::DEBUG)) return;
+        if (!m_trackQuery->isCaloAssociated(*track, Gaudi::Hive::currentContext())) {
             ATH_MSG_DEBUG(txt << " no TSOS in Calorimeter ");
             return;
         }
@@ -4262,9 +4065,7 @@ namespace Rec {
 
         for (const auto* const par : *pars) {
             if (!par->covariance()) { continue; }
-
-            if ((*par->covariance())(0, 0) < 0 || (*par->covariance())(1, 1) < 0 || (*par->covariance())(2, 2) < 0 ||
-                (*par->covariance())(3, 3) < 0 || (*par->covariance())(4, 4) < 0) {
+            if (!Amg::valid_cov(*par->covariance())) {
                 ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
                 ATH_MSG_DEBUG("covariance matrix has negative diagonal element, killing track");
                 return false;
@@ -4273,4 +4074,32 @@ namespace Rec {
 
         return newTrackOK;
     }
+
+    const Trk::TrackingVolume* CombinedMuonTrackBuilder::getVolume(const std::string&& vol_name, const EventContext& ctx) const {
+        /// Tracking geometry is provided by the TrackingGeometryAlg
+        if (!m_trackingGeometryReadKey.empty()) {
+            SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+            if (!handle.isValid()) {
+                ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
+            }
+            return handle.cptr()->trackingVolume(vol_name);
+        }
+        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+    }
+    const AtlasFieldCacheCondObj* CombinedMuonTrackBuilder::getFieldCacheObj(const EventContext& ctx) const {
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        if (!readHandle.isValid()) {
+            ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return nullptr;
+        }
+        return readHandle.cptr();
+    }
+    bool CombinedMuonTrackBuilder::loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& fieldCache) const {
+        const AtlasFieldCacheCondObj* fieldCondObj = getFieldCacheObj(ctx);
+        if (!fieldCondObj) return false;
+        fieldCondObj->getInitializedCache(fieldCache);
+        return true;
+    }
+
 }  // namespace Rec

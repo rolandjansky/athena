@@ -41,13 +41,16 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=DEBUG, HLTConfigSvc=confSvc)
     alg.doPrint = False
-    alg.setConfig = ["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer"]
+    alg.Collections = ["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer"]
+    
+    # EXAMPLES OF CHAINS 
+    alg.Chains = ["HLT_mu4"]
+    alg.Rois = ["forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
+
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
-
-
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     outputType="AOD"
-    toRecord = ["xAOD::TrigCompositeContainer#HLTNav_all", "xAOD::TrigCompositeAuxContainer#HLTNav_allAux.",
+    toRecord = ["xAOD::TrigCompositeContainer#HLTNav_All", "xAOD::TrigCompositeAuxContainer#HLTNav_AllAux.",
                 "xAOD::TrigCompositeContainer#HLTNav_Summary", "xAOD::TrigCompositeAuxContainer#HLTNav_SummaryAux."]
     outputCfg = OutputStreamCfg(ConfigFlags, outputType, ItemList=toRecord, disableEventTag=True)
     streamAlg = outputCfg.getEventAlgo("OutputStream"+outputType)

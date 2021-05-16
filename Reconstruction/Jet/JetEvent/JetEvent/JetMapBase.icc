@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -47,12 +47,8 @@ JetMapBase<P>::~JetMapBase()
 template<class P>
 bool JetMapBase<P>::addRecord(size_t jetIndex) const
 {
-  if (m_store.find(jetIndex) == m_end ){
-    m_store[jetIndex] =  record_ptr_t();
-    return true;
-  }
-  // the record already existed
-  return false;
+  auto r = m_store.try_emplace (jetIndex);
+  return r.second;
 }
 
 template<class P>
@@ -160,8 +156,9 @@ inline const typename JetMapBase<P>::map_t& JetMapBase<P>::map() const
 template<class P>
 void JetMapBase<P>::clear(){
   if(  m_ownPolicy == SG::OWN_ELEMENTS ) {
-    typename map_t::iterator it = m_store.begin();  
-    for(;it != m_end; it++){  (*it).second.destroy() ; }
+    for (auto& p : m_store) {
+      p.second.destroy() ;
+    }
     m_store.clear();
   }
 }

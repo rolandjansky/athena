@@ -63,7 +63,7 @@ void testit (const Trk::HomogeneousLayerMaterial& trans1)
   LayerMaterialMapCnv_tlp1 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
   Trk::HomogeneousLayerMaterial_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::HomogeneousLayerMaterial trans2;
   cnv.persToTrans (&pers, &trans2, log);

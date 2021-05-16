@@ -69,31 +69,18 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
    */
-  DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
-
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
-   */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
-              double rmin,
-              double rmax);
+  DiscSurface(const Amg::Transform3D& htrans, double rmin, double rmax);
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
    * \phi_{hsec} \f$ */
-  DiscSurface(Amg::Transform3D* htrans,
-              double rmin,
-              double rmax,
-              double hphisec);
-
-  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
-   * \phi_{hsec} \f$ */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+  DiscSurface(const Amg::Transform3D& htrans,
               double rmin,
               double rmax,
               double hphisec);
 
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
      hx_{min}, hx_{max} \f$ In this case you have DiscTrapezoidalBounds*/
-  DiscSurface(Amg::Transform3D* htrans,
+  DiscSurface(const Amg::Transform3D& htrans,
               double minhalfx,
               double maxhalfx,
               double maxR,
@@ -103,24 +90,20 @@ public:
 
   /**Constructor for Discs from HepGeom::Transform3D and DiscBounds
      - ownership of bounds is passed */
-  DiscSurface(Amg::Transform3D* htrans, DiscBounds* dbounds);
+  DiscSurface(const Amg::Transform3D& htrans, DiscBounds* dbounds);
 
   /**Constructor for Discs from HepGeom::Transform3D and DiscTrapezoidalBounds
      - ownership of bounds is passed */
-  DiscSurface(Amg::Transform3D* htrans, DiscTrapezoidalBounds* dtbounds);
+  DiscSurface(const Amg::Transform3D& htrans, DiscTrapezoidalBounds* dtbounds);
 
   /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
    - bounds is not set */
   DiscSurface(const Amg::Transform3D& htrans);
 
-  /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
-   - bounds is not set */
-  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
   /**Constructor for DiscSegment from DetectorElement*/
   DiscSurface(const TrkDetElementBase& dmnt);
 
- /**Copy Constructor with shift*/
+  /**Copy Constructor with shift*/
   DiscSurface(const DiscSurface& psf, const Amg::Transform3D& transf);
 
   /**Equality operator*/
@@ -248,12 +231,11 @@ public:
 
   /**  Special method for DiscSurface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localPolarToCartesian(const Amg::Vector2D& locpol) const;
+  Amg::Vector2D localPolarToCartesian(const Amg::Vector2D& locpol) const;
 
   /**  Special method for Disc surface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localCartesianToPolar(
-    const Amg::Vector2D& loccart) const;
+  Amg::Vector2D localCartesianToPolar(const Amg::Vector2D& loccart) const;
 
   /**  Special method for Disc surface : local<->local transformations polar <->
    * cartesian by value*/
@@ -261,18 +243,17 @@ public:
 
   /**  Special method for DiscSurface : local<->local transformations polar <->
    * cartesian */
-  const Amg::Vector2D* localPolarToLocalCartesian(
-    const Amg::Vector2D& locpol) const;
+  Amg::Vector2D localPolarToLocalCartesian(const Amg::Vector2D& locpol) const;
 
   /** Special method for DiscSurface :  local<->global transformation when
    * provided cartesian coordinates */
-  const Amg::Vector3D* localCartesianToGlobal(
-    const Amg::Vector2D& locpos) const;
+  Amg::Vector3D localCartesianToGlobal(const Amg::Vector2D& locpos) const;
 
   /** Special method for DiscSurface : global<->local from cartesian coordinates
    */
-  const Amg::Vector2D* globalToLocalCartesian(const Amg::Vector3D& glopos,
-                                              double tol = 0.) const;
+  std::optional<Amg::Vector2D> globalToLocalCartesian(
+    const Amg::Vector3D& glopos,
+    double tol = 0.) const;
 
   /** fast straight line intersection schema - standard: provides closest
      intersection and (signed) path length forceDir is to provide the closest

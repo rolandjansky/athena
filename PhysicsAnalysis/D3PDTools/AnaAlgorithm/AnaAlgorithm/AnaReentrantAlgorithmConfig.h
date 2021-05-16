@@ -29,12 +29,6 @@ namespace EL
     // public interface
     //
 
-    /// \brief test the invariant of this object
-    /// \par Guarantee
-    ///   no-fail
-  public:
-    void testInvariant () const;
-
 
     /// \brief standard constructor
     /// \par Guarantee
@@ -52,6 +46,15 @@ namespace EL
     ///   out of memory II
   public:
     explicit AnaReentrantAlgorithmConfig (const std::string& val_typeAndName);
+
+
+    /// \brief initializing constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    explicit AnaReentrantAlgorithmConfig (const AsgComponentConfig& val_config);
 
 
     /// \brief Virtual destructor, to make PyROOT happy

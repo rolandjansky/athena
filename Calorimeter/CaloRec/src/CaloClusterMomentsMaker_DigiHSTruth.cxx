@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //-----------------------------------------------------------------------
 // File and Version Information:
@@ -364,7 +364,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
   xAOD::CaloClusterContainer::iterator clusIter = theClusColl->begin();
   xAOD::CaloClusterContainer::iterator clusIterEnd = theClusColl->end();
   int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for( ;clusIter!=clusIterEnd;++clusIter,++iClus) {
     xAOD::CaloCluster * theCluster = *clusIter;
 
     double w(0),xc(0),yc(0),zc(0);
@@ -437,7 +437,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	        }
       	}
   	else {
-	  if ( myCDDE && ! (myCDDE->is_tile()) 
+	  if ( ! (myCDDE->is_tile()) 
 	       && ((pCell->provenance() & 0x2000) == 0x2000) 
 	       && !((pCell->provenance() & 0x0800) == 0x0800)) {
 	    if ( pCell->quality() > m_minBadLArQuality ) {
@@ -446,7 +446,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 	    eLAr2  += ene*weight*ene*weight;
 	    eLAr2Q += ene*weight*ene*weight*pCell->quality();
 	  }
-	  if ( myCDDE && myCDDE->is_tile() ) {
+	  if ( myCDDE->is_tile() ) {
 	    uint16_t tq = pCell->quality();
 	    uint8_t tq1 = (0xFF00&tq)>>8; // quality in channel 1
 	    uint8_t tq2 = (0xFF&tq); // quality in channel 2

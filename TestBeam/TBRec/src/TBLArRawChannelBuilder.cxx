@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBLArRawChannelBuilder.h"
@@ -109,15 +109,13 @@ StatusCode TBLArRawChannelBuilder::execute() {
   //Now all data is available, start loop over Digit Container
   ATH_MSG_DEBUG ( "Loop over Digit Container " );
 
-  LArDigitContainer::const_iterator cont_it=digitContainer->begin();
-  LArDigitContainer::const_iterator cont_it_e=digitContainer->end();
-  for (;cont_it!=cont_it_e;cont_it++) {
+  for (const LArDigit* digit : *digitContainer) {
     
     //Get data from LArDigit
-    const std::vector<short>& samples  = (*cont_it)->samples();
+    const std::vector<short>& samples  = digit->samples();
     unsigned int              nSamples = samples.size(); 
-    const HWIdentifier        chid     = (*cont_it)->channelID();
-    const CaloGain::CaloGain  gain     = (*cont_it)->gain();
+    const HWIdentifier        chid     = digit->channelID();
+    const CaloGain::CaloGain  gain     = digit->gain();
 
     //>>>> PL June 20, 2004: subtract pedestal first, assume first sample ->JO?
     std::vector<float> mySamples;

@@ -27,15 +27,7 @@ typedef ICscStripFitter::ChargeList ChargeList;
 //**********************************************************************
 
 CscBipolarStripFitter::CscBipolarStripFitter(const std::string &type, const std::string &aname, const IInterface *parent) :
-    AthAlgTool(type, aname, parent),
-    m_phelper(0),
-    m_n(0),
-    m_n2(0),
-    m_zmax(0),
-    m_bipolarNormalization(0),
-    m_tsampling(0),
-    m_powcachez(0),
-    m_powcachezn(0) {
+    AthAlgTool(type, aname, parent), m_phelper(0), m_n(0), m_n2(0), m_zmax(0), m_bipolarNormalization(0), m_tsampling(0) {
     declareInterface<ICscStripFitter>(this);
     declareProperty("chargeError", m_qerr = 5500.0);
     declareProperty("timeError", m_terr = 5.0);
@@ -67,13 +59,11 @@ StatusCode CscBipolarStripFitter::initialize() {
 
     m_n = m_cscCalibTool->getNumberOfIntegration();    // 12.;
     m_n2 = m_cscCalibTool->getNumberOfIntegration2();  // 11.66;
-    m_powcachez = -9999.;
-    m_powcachezn = -9999.;
     m_zmax = m_n + m_n2 + 2. - sqrt((m_n + 2. + m_n2) * (m_n + 2. + m_n2) - 4. * m_n * (m_n2 + 1));
     m_zmax *= 0.5;
     // m_n+1 - sqrt(m_n+1.0);
-    m_bipolarNormalization = FindPow(m_zmax) * (1 - m_zmax / (m_n2 + 1)) * exp(-m_zmax);
-    // FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
+    m_bipolarNormalization = FindPow(m_zmax) * (1 - m_zmax / (m_n2 + 1)) * std::exp(-m_zmax);
+    // FindPow(m_zmax)*(1-m_zmax/(m_n+1))*std::exp(-m_zmax);
     m_tsampling = m_cscCalibTool->getSamplingTime() / 2.;  //   50/2 =   25.;
 
     return StatusCode::SUCCESS;
@@ -178,14 +168,7 @@ double CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int 
 }
 
 double CscBipolarStripFitter::FindPow(double z) const {
-    if (fabs(m_powcachez - z) < 1.e-4) return m_powcachezn;
-
-    // double zpower = z*z*z;
-    // zpower *= zpower;
-    // zpower *= zpower;
-    double zpower = exp(m_n * log(z));
-    m_powcachez = z;
-    m_powcachezn = zpower;
+    double zpower = std::exp(m_n * std::log(z));
     return zpower;
 }
 
@@ -199,7 +182,7 @@ void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int 
         int ii = correspdim[0];
         int jj = correspdim[1];
         double determinant = -matrix[jj][ii] * matrix[ii][jj] + matrix[ii][ii] * matrix[jj][jj];
-        // if(fabs(determinant)<1.e-13)
+        // if(std::abs(determinant)<1.e-13)
         // std::cout<<" zero determinant "<<std::endl;
         double i00 = matrix[ii][ii];
         matrix[ii][ii] = matrix[jj][jj] / determinant;
@@ -214,7 +197,7 @@ void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int 
         double determinant = matrix[0][0] * matrix[1][1] * matrix[2][2] - matrix[0][0] * sm23 - sm12 * matrix[2][2] +
                              2. * matrix[0][1] * matrix[0][2] * matrix[1][2] - matrix[1][1] * sm13;
 
-        // if(fabs(determinant)<1.e-13)
+        // if(std::abs(determinant)<1.e-13)
         // std::cout << "zero determinant"<<std::endl;
         double i00 = matrix[1][1] * matrix[2][2] - sm23;
         double i11 = matrix[0][0] * matrix[2][2] - sm13;
@@ -292,7 +275,7 @@ void CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[
         double repquant = 0.;
         double dFdzNormalized = 0.;
         if (z > 0.) {
-            repquant = FindPow(z) * exp(-z) / m_bipolarNormalization;
+            repquant = FindPow(z) * std::exp(-z) / m_bipolarNormalization;
             dFdzNormalized = repquant * (m_n / z + z / (m_n2 + 1) - (m_n + 1.) / (m_n2 + 1.) - 1.);  // repquant*(m_n/z+z/(m_n+1)-2.);
         }
 
@@ -344,7 +327,7 @@ int CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initVal
     // WW.invert(ierr);
     InvertSymmetric4x4(W);
 
-    // Taylor expansion of the bipolar pulse model around the
+    // Taylor std::expansion of the bipolar pulse model around the
     // samplings : F(x) = F(p0) + A *(p-p0) + higher.order
     // CLHEP::HepMatrix fp(4,1,0); // the matrix of 0th order approximation
     double fp[4][1];
@@ -471,8 +454,8 @@ int CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initVal
         if (peakingTime < -0.5 || peakingTime > 3.) p0[1][0] = initValues[1];
 
         if (p0[0][0] < 0.) p0[0][0] = initValues[0];
-        double amplitudeChangeNew = fabs(paramDiff[0]);
-        if (fabs(paramDiff[0]) < fitTolerance0 && fabs(paramDiff[1]) < fitTolerance1) {
+        double amplitudeChangeNew = std::abs(paramDiff[0]);
+        if (std::abs(paramDiff[0]) < fitTolerance0 && std::abs(paramDiff[1]) < fitTolerance1) {
             converged = true;
             // calculate chi2
             // (m-fp).T()*W*(m-fp)

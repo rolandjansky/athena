@@ -72,7 +72,7 @@ StatusCode AthenaYamplTool::finalize() {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::makeServer(int /*num*/) {
+StatusCode AthenaYamplTool::makeServer(int /*num*/, const std::string& /*streamPortSuffix*/) {
    ATH_MSG_DEBUG("Creating Yampl channel on the Shared Reader side");
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaYamplTool a Server.");
@@ -90,7 +90,7 @@ bool AthenaYamplTool::isServer() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::makeClient(int /*num*/) {
+StatusCode AthenaYamplTool::makeClient(int /*num*/, std::string& /*streamPortSuffix*/) {
    ATH_MSG_DEBUG("Creating Yampl channel on the Event Processor side");
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaYamplTool a Client.");

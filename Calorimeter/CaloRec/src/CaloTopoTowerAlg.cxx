@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -194,7 +194,7 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
       clusterContainer = pNav->getContainer(pNav->begin());
       ATH_MSG_DEBUG( "Successfully picked up CaloClusterContainer "  );
     }
-    else fClusMap++;
+    else ++fClusMap;
   }
   
   // Make sure the cluster container is not NULL

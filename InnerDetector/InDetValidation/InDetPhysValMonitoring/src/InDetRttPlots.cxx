@@ -122,12 +122,12 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
     const float prob = particle.auxdata<float>(m_trackParticleTruthProbKey);
     float barcode = truthParticle.barcode();
     if (barcode < 200000 && barcode != 0 && prob > 0.5) {
-        m_resolutionPlotPrim.fill(particle, truthParticle);
+        m_resolutionPlotPrim.fill(particle, truthParticle, weight);
     } else if (barcode >= 200000 && prob > 0.7 && m_iDetailLevel >= 200) {
-        m_resolutionPlotSecd->fill(particle, truthParticle);
+        m_resolutionPlotSecd->fill(particle, truthParticle, weight);
     }
     if ( m_doTruthOriginPlots and isFromB ) {
-      m_resolutionPlotPrim_truthFromB.fill(particle, truthParticle);
+      m_resolutionPlotPrim_truthFromB.fill(particle, truthParticle, weight);
     }
 
     if(m_iDetailLevel >= 200 and (barcode < 200000 and barcode != 0 and prob > 0.5)){
@@ -139,11 +139,11 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
       bool isTRTStandalone = patternInfo.test(20);
       bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_resSiSPSeededFinderPlots->fill(particle, truthParticle);
-      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_resInDetExtensionProcessorPlots->fill(particle, truthParticle);
-      if(isTRTSeededTrackFinder and not isTRTStandalone) m_resTRTSeededTrackFinderPlots->fill(particle, truthParticle);
-      if(isTRTStandalone) m_resTRTStandalonePlots->fill(particle, truthParticle);
-      if(isSiSpacePointsSeedMaker_LargeD0) m_resSiSpacePointsSeedMaker_LargeD0Plots->fill(particle, truthParticle);
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_resSiSPSeededFinderPlots->fill(particle, truthParticle, weight);
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_resInDetExtensionProcessorPlots->fill(particle, truthParticle, weight);
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_resTRTSeededTrackFinderPlots->fill(particle, truthParticle, weight);
+      if(isTRTStandalone) m_resTRTStandalonePlots->fill(particle, truthParticle, weight);
+      if(isSiSpacePointsSeedMaker_LargeD0) m_resSiSpacePointsSeedMaker_LargeD0Plots->fill(particle, truthParticle, weight);
 
     }
 
@@ -317,8 +317,8 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
     if (vtx->vertexType() == xAOD::VxType::PriVtx) {
       m_hardScatterVertexPlots.fill(*vtx, weight);
-      if(truthHSVertices.size()>0)m_hardScatterVertexTruthMatchingPlots.fill(*vtx,truthHSVertices[0]);
-      else m_hardScatterVertexTruthMatchingPlots.fill(*vtx); 
+      if(truthHSVertices.size()>0)m_hardScatterVertexTruthMatchingPlots.fill(*vtx,truthHSVertices[0],weight);
+      else m_hardScatterVertexTruthMatchingPlots.fill(*vtx,nullptr,weight); 
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
     }
   }

@@ -16,7 +16,9 @@ Trk::AlignablePlaneSurface::AlignablePlaneSurface()
   , m_nominalSurface(nullptr)
 {}
 
-Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::PlaneSurface& psf, Amg::Transform3D* htrans)
+Trk::AlignablePlaneSurface::AlignablePlaneSurface(
+  const Trk::PlaneSurface& psf,
+  std::optional<Amg::Transform3D> htrans)
   : Trk::PlaneSurface(psf)
   , Trk::AlignableSurface()
   , m_nominalSurface(&psf)
@@ -29,7 +31,8 @@ Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::PlaneSurface& psf, 
   }
 }
 
-Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::AlignablePlaneSurface& apsf)
+Trk::AlignablePlaneSurface::AlignablePlaneSurface(
+  const Trk::AlignablePlaneSurface& apsf)
   : Trk::PlaneSurface(apsf)
   , Trk::AlignableSurface()
   , m_nominalSurface(apsf.m_nominalSurface)
@@ -52,7 +55,8 @@ bool
 Trk::AlignablePlaneSurface::operator==(const Trk::Surface& sf) const
 {
   // first check the type not to compare apples with oranges
-  const Trk::AlignablePlaneSurface* apsf = dynamic_cast<const Trk::AlignablePlaneSurface*>(&sf);
+  const Trk::AlignablePlaneSurface* apsf =
+    dynamic_cast<const Trk::AlignablePlaneSurface*>(&sf);
   if (!apsf)
     return false;
   bool transfEqual = transform().isApprox(apsf->transform());

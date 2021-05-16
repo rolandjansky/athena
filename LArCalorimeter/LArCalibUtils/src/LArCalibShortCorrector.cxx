@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibShortCorrector.h"
@@ -57,15 +57,12 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
 
   m_shortedNeighbors.clear();
   //Loop over all identifers (maybe better if we would have a loop only over bad-cahnnels)
-   std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-   std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-   for(;it!=it_e;it++) {
-     if (bcCont->status(*it).shortProblem()) {
-       const HWIdentifier chid1=*it;
+   for (const HWIdentifier chid1 : m_onlineId->channel_range()) {
+     if (bcCont->status(chid1).shortProblem()) {
        //Already found?
        SHORT_IT sit=m_shortedNeighbors.begin();
        SHORT_IT sit_e=m_shortedNeighbors.end();
-       for (;sit!=sit_e && sit->second!=chid1;sit++)
+       for (;sit!=sit_e && sit->second!=chid1;++sit)
          ;
        if (sit!=sit_e) continue; //This short was already found as neighbor of another shorted cell
 	
@@ -112,10 +109,8 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
 
    if (msgLvl(MSG::INFO)) {
      ATH_MSG_INFO ( "Found " << m_shortedNeighbors.size() << " pairs of shorted neighbors" );
-     std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm=m_shortedNeighbors.begin();
-     std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm_e=m_shortedNeighbors.end();
-     for (;itm!=itm_e;itm++) 
-       ATH_MSG_INFO ( " Shorted pair: " << m_onlineId->channel_name(itm->first) << ", " << m_onlineId->channel_name(itm->second) );
+     for (const std::pair<HWIdentifier, HWIdentifier>& p : m_shortedNeighbors)
+       ATH_MSG_INFO ( " Shorted pair: " << m_onlineId->channel_name(p.first) << ", " << m_onlineId->channel_name(p.second) );
    }
 
    return StatusCode::SUCCESS;
@@ -131,17 +126,15 @@ StatusCode LArCalibShortCorrector::execute(){
   const size_t nShorts=m_shortedNeighbors.size();
   
   //Loop over all digits in all containers to find the shorted ones
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   
   const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
   // now start to deal with digits   
-  
-  for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed (e.g. different gains)
-    StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+
+  for (const std::string& key : m_keylist) {
+    StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,key);
     if (sc.isFailure()){ 
-      ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
+      ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << key );
       continue; // Try next container
     }
     
@@ -152,11 +145,11 @@ StatusCode LArCalibShortCorrector::execute(){
     LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
     LArAccumulatedCalibDigitContainer::const_iterator it_e=larAccumulatedCalibDigitContainer->end();    
     if(it == it_e) {
-      ATH_MSG_VERBOSE ( "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " );
+      ATH_MSG_VERBOSE ( "LArAccumulatedCalibDigitContainer with key = " << key << " is empty " );
       //return StatusCode::SUCCESS;
       continue; // Try next container
     } else {
-      ATH_MSG_DEBUG ( "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
+      ATH_MSG_DEBUG ( "Processing LArAccumulatedCalibDigitContainer with key = " << key 
                       << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
 

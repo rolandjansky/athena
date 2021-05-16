@@ -11,7 +11,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuPatHit.h"
+#include "MuPatPrimitives/MuPatGarbage.h"
+#include "MuPatPrimitives/MuPatHit.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -19,8 +20,6 @@
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-
-class MsgStream;
 
 namespace Trk {
     class IPropagator;
@@ -38,8 +37,6 @@ namespace Muon {
 
     class MuPatHitTool : public AthAlgTool {
     public:
-        using HitGarbage = std::vector<std::unique_ptr<MuPatHit> >;
-
         /** default AlgTool constructor */
         MuPatHitTool(const std::string&, const std::string&, const IInterface*);
 
@@ -48,9 +45,6 @@ namespace Muon {
 
         /** initialize method, method taken from bass-class AlgTool */
         StatusCode initialize();
-
-        /** finialize method, method taken from bass-class AlgTool */
-        StatusCode finalize();
 
         /** @brief access to tool interface */
         static const InterfaceID& interfaceID() { return IID_MuPatHitTool; }
@@ -67,14 +61,14 @@ namespace Muon {
             @param hitList the list to be filled
             @return true if creation succeded
         */
-        bool create(const MuonSegment& seg, MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const;
+        bool create(const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const;
 
         /** @brief create a MuPatHitList from a Track
             @param track the input track
             @param hitList the list to be filled
             @return true if creation succeded
         */
-        bool create(const Trk::Track& track, MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const;
+        bool create(const Trk::Track& track, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const;
 
         /** @brief create a MuPatHitList from a Track
             @param pars the input parameters
@@ -83,7 +77,7 @@ namespace Muon {
             @return true if creation succeded
         */
         bool create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec, MuPatHitList& hitList,
-                    HitGarbage& hitsToBeDeleted) const;
+                    GarbageContainer& hitsToBeDeleted) const;
 
         /** @brief merge two MuPatHitLists into a new one
             @param hitList1 the first  list

@@ -7,7 +7,7 @@
 #ifndef TRIGHLTJETHYPOUNITTESTS_JETHYPOEXERCISERALG_H
 #define TRIGHLTJETHYPOUNITTESTS_JETHYPOEXERCISERALG_H
 
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "TrigHLTJetHypoUnitTests/IHypoJetVectorGenerator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -27,7 +27,7 @@ private:
 
 
   // ToolHandles as Properties
-  ToolHandle<ITrigJetHypoToolHelperMT> m_helper  {this, "JetHypoHelperTool", 
+  ToolHandle<ITrigJetHypoToolHelper> m_helper  {this, "JetHypoHelperTool", 
       {}, "private IJetTrigHypoToolHelper"};
 
   ToolHandle<IHypoJetVectorGenerator> m_generator  {this, "event_generator", 

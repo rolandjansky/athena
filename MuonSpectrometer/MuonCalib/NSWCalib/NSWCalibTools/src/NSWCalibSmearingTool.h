@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWCalibSmearingTool_h
@@ -48,7 +48,7 @@ namespace Muon {
     double getMMEfficiencyFromHV(double hv) const;
     double getMMGainFractionFromHV(double hv) const;
 
-    StatusCode readHighVoltages();
+    StatusCode readHighVoltagesStatus();
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

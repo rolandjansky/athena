@@ -31,7 +31,7 @@ def fastCaloSequence_FWD(flags, name="fastCaloFWDSequence"):
 #
 # Create e/g fast calo menu sequence for central or forward region.
 #
-def fastCaloMenuSequence_FWD(name, doRinger=True):
+def fastCaloMenuSequence_FWD(name, doRinger=True, is_probe_leg=False):
     """ Creates Egamma Fast Calo FWD MENU sequence (Reco and Hypo)
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     """
@@ -52,7 +52,8 @@ def fastCaloMenuSequence_FWD(name, doRinger=True):
     return MenuSequence( Sequence    = sequence,
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
-                         HypoToolGen = TrigEgammaForwardFastCaloHypoToolFromDict )
+                         HypoToolGen = TrigEgammaForwardFastCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 

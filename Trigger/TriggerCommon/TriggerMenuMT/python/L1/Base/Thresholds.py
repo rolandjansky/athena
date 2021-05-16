@@ -12,7 +12,7 @@ from .ThresholdType import ThrType
 from .Limits import CaloLimits as CL
 from .TopoAlgorithms import AlgCategory
 
-log = logging.getLogger("Menu.L1.Base.Thresholds")
+log = logging.getLogger(__name__)
 
 
 class MenuThresholdsCollection( object ):

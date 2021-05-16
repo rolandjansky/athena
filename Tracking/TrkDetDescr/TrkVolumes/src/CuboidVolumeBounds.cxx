@@ -72,14 +72,14 @@ const std::vector<const Trk::Surface*>*
   // face surfaces xy
   //   (1) - at negative local z
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::AngleAxis3D(180. * Gaudi::Units::deg, Amg::Vector3D(0., 1., 0.)) *
       Amg::Translation3D(Amg::Vector3D(0., 0., this->halflengthZ()))),
     this->faceXYRectangleBounds()));
   //   (2) - at positive local z
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::Translation3D(Amg::Vector3D(0., 0., this->halflengthZ()))),
     this->faceXYRectangleBounds()));
@@ -87,7 +87,7 @@ const std::vector<const Trk::Surface*>*
   // transmute cyclical
   //   (3) - at negative local x
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::AngleAxis3D(180. * Gaudi::Units::deg, Amg::Vector3D(0., 0., 1.)) *
       Amg::Translation3D(Amg::Vector3D(this->halflengthX(), 0., 0)) *
@@ -96,7 +96,7 @@ const std::vector<const Trk::Surface*>*
     this->faceYZRectangleBounds()));
   //   (4) - at positive local x
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::Translation3D(Amg::Vector3D(this->halflengthX(), 0., 0.)) *
       Amg::AngleAxis3D(90. * Gaudi::Units::deg, Amg::Vector3D(0., 1., 0.)) *
@@ -105,7 +105,7 @@ const std::vector<const Trk::Surface*>*
   // face surfaces zx
   //   (5) - at negative local y
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::AngleAxis3D(180. * Gaudi::Units::deg, Amg::Vector3D(1., 0., 0.)) *
       Amg::Translation3D(Amg::Vector3D(0., this->halflengthY(), 0.)) *
@@ -114,7 +114,7 @@ const std::vector<const Trk::Surface*>*
     this->faceZXRectangleBounds()));
   //   (6) - at positive local y
   retsf->push_back(new Trk::PlaneSurface(
-    new Amg::Transform3D(
+    Amg::Transform3D(
       transform *
       Amg::Translation3D(Amg::Vector3D(0., this->halflengthY(), 0.)) *
       Amg::AngleAxis3D(-90 * Gaudi::Units::deg, Amg::Vector3D(0., 1., 0.)) *

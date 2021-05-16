@@ -20,9 +20,9 @@ CounterThread::CounterThread(const std::string& name, const MonitorBase* parent)
   regHistogram("UnmonitoredTime_perEventFractional", "Unmonitored CPU Time Fractional;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
 
 
-  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
-  regHistogram("ThisAlgCalls_perEvent", "This Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
-  regHistogram("OtherAlgCalls_perEvent", "Other Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
+  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
+  regHistogram("ThisAlgCalls_perEvent", "This Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
+  regHistogram("OtherAlgCalls_perEvent", "Other Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
   regHistogram("AlgSlot_perCall", "Algorithm Slot/Call;Slot;Calls", VariableType::kPerCall, kLinear, -0.5, 20.5, 21);
 
 }

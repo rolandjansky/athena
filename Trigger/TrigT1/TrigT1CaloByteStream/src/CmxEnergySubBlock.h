@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_CMXENERGYSUBBLOCK_H
@@ -33,6 +33,7 @@ class CmxEnergySubBlock : public CmxSubBlock {
    ~CmxEnergySubBlock();
 
    /// Clear all data
+   // cppcheck-suppress duplInheritedMember
    void clear();
 
    /// Return energy subsum for given JEM and energy type

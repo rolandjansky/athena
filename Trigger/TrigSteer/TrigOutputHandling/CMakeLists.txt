@@ -12,7 +12,7 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET  xAODTrigMinBias DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorMTLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET  xAODTrigMinBias xAODHIEvent DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorMTLib
 		           PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 
@@ -38,7 +38,7 @@ atlas_add_test( serial_deserial_test
       LINK_LIBRARIES TrigOutputHandlingLib CxxUtils TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 300 DISABLED True
       )
 
 atlas_add_test( schema_evolution_test
@@ -46,5 +46,5 @@ atlas_add_test( schema_evolution_test
       LINK_LIBRARIES TrigOutputHandlingLib CxxUtils TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 300 DISABLED True
       )

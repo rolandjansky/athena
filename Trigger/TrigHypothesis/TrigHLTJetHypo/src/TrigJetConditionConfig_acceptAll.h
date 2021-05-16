@@ -7,7 +7,7 @@
 
 #include "ITrigJetConditionConfig.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 
 class TrigJetConditionConfig_acceptAll:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
@@ -18,7 +18,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
                           const std::string& name,
                           const IInterface* parent);
 
-  virtual ConditionMT getCondition() const override;
+  virtual Condition getCondition() const override;
 
 };
 #endif

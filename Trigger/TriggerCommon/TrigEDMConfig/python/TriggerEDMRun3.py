@@ -152,13 +152,13 @@ TriggerHLTListRun3 = [
 
     ('xAOD::EnergySumRoI#gXERHOPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#gXERHOPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
-    
+
     ('xAOD::EnergySumRoI#gXEJWOJPerf' ,                     'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#gXEJWOJPerfAux.',           'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
     ("xAOD::TrigEMClusterContainer#eElesPerf" ,             'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#eElesPerfAux." ,      'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
-     
+
     ('xAOD::EmTauRoIContainer#eTausPerf',                   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#eTausPerfAux.',            'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
@@ -185,7 +185,7 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
-   
+
     ('xAOD::TrackParticleContainer#HLT_IDTrack_ElectronLRT_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews_LRT'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElectronLRT_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
 
@@ -194,14 +194,18 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_ElectronLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackViews_LRT'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElectronLRT_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
-   
+
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.',           'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
-    
+
+    # these two corresponds to the output of the precisionHICalo step
+    ('xAOD::CaloClusterContainer#HLT_HICaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_HICaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+
     # these two corresponds to the output of the precisionCalo_LRT step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_LRT',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_LRT'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClusters_LRTAux.',    'BS ESD AODFULL', 'Egamma'),
@@ -224,6 +228,10 @@ TriggerHLTListRun3 = [
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI_LRT',          'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_LRT'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersRoI_LRTAux.nCells', 'BS ESD AODFULL', 'Egamma'),
+
+    # UE subtracted versions for heavy ion paths
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersHIRoI',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersHIRoIAux.nCells',   'BS ESD AODFULL', 'Egamma'),
 
     # These are for precision photon and precision Electron Keeping same names as in Run2
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
@@ -269,10 +277,10 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonLRT_FTFAux.',          'BS ESD AODFULL', 'Muon'),
 
 
-# These extra muon collections have all be removed now, as they all have identical 
+# These extra muon collections have all be removed now, as they all have identical
 # reconstruction as the standard Muon collections so unique collections names should
 # not be needed. Once we are sure that there are no affected clients these commented
-# collections can be removed 
+# collections can be removed
 
 #    ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonFS_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
 #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonFS_FTFAux.',          'BS ESD AODFULL', 'Muon'),
@@ -343,7 +351,7 @@ TriggerHLTListRun3 = [
 
     ('xAOD::L2StandAloneMuonContainer#HLT_MuonL2SAInfoIOmode',        'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
     ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfoIOmodeAux.', 'BS ESD AODFULL', 'Muon'),
-    
+
     ('xAOD::L2StandAloneMuonContainer#HLT_MuonL2SAInfol2mtmode',        'BS ESD AODFULL', 'Muon', 'inViews:MUViewRoIs'),
     ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfol2mtmodeAux.', 'BS ESD AODFULL', 'Muon'),
 
@@ -358,7 +366,7 @@ TriggerHLTListRun3 = [
 
     ('xAOD::L2CombinedMuonContainer#HLT_MuonL2CBInfol2mtmode',          'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
     ('xAOD::L2CombinedMuonAuxContainer#HLT_MuonL2CBInfol2mtmodeAux.',   'BS ESD AODFULL', 'Muon'),
-    
+
     ('xAOD::L2IsoMuonContainer#HLT_MuonL2ISInfo',               'BS ESD AODFULL', 'Muon', 'inViews:MUIsoViewRoIs'),
     ('xAOD::L2IsoMuonAuxContainer#HLT_MuonL2ISInfoAux.',        'BS ESD AODFULL', 'Muon'),
 
@@ -485,6 +493,11 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS JetDS ESD', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS JetDS ESD', 'Jet'),
 
+    # TLA Photons
+    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhotonDS ESD', 'Egamma', 'inViews:TLAPhotonsView'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                                      'BS PhotonDS ESD', 'Egamma'),
+
+
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.passPFTrackPresel.muonCaloTag.muonScore.ptCone20.etConeCore.trackIso.RErr.EOverP.caloIso.trkPtFraction.tagFakeTrack.tagMuonTrack.tagIsoTrack',          'BS ESD AODFULL', 'Jet'),
@@ -505,6 +518,14 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrigCompositeContainer#HLT_FSLRT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::TrigCompositeAuxContainer#HLT_FSLRT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'Jet'),
+
+    #FSLRT PT
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_FSLRT_IDTrig',                  'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FSLRT_IDTrigAux.',          'BS ESD AODFULL', 'Jet'),
+
+    # HI event shape
+    ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),
+    ('xAOD::HIEventShapeAuxContainer#HLT_HIEventShapeEGAux.',   'BS ESD AODFULL',   'Egamma'),
 
     # custom BeamSpot tracks - we don't want to write these out in general so this
     # is commented, if we want to write them out at some point, then these lines
@@ -655,7 +676,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',             'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.trk_id.trk_pt.trk_eta.trk_dedx.trk_dedx_n_usedhits.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',      'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_dEdxHit',             'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.hit_trkid.hit_dedx.hit_tot.hit_trkchi2.hit_trkndof.hit_iblovf.hit_loc.hit_layer',      'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.hit_trkid.hit_dedx.hit_tot.hit_trkchi2.hit_trkndof.hit_iblovfl.hit_loc.hit_layer',      'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HPtdEdx',             'BS ESD AODFULL AODSLIM', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.trk_pt.trk_eta.trk_a0beam.trk_dedx.trk_n_hdedx_hits.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct',      'BS ESD AODFULL AODSLIM', 'ID'),
 ]

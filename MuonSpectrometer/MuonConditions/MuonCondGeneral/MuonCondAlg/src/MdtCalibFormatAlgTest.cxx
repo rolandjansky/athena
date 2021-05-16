@@ -106,12 +106,10 @@ MdtCalibFormatAlgTest::retrieve(const EventContext& ctx, std::string folder, std
 		std::string data;
 		if(atr["data"].specification().type() == typeid(coral::Blob)){
 			ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
-			Bytef* decompression_buffer = uncompressInMyBuffer(atr["data"].data<coral::Blob>());
-			if(!decompression_buffer){
-				ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+			if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), data)){
+          		ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
 				return StatusCode::FAILURE;
 			}
-			data = (reinterpret_cast<char*>(decompression_buffer));
 		}
 		else {
 			ATH_MSG_VERBOSE("Loading data as a STRING");
@@ -136,45 +134,6 @@ MdtCalibFormatAlgTest::processBlob(std::string folder, std::string setup, std::s
     ATH_MSG_DEBUG("processing Blob " << folder << "," << setup << "," << data); // leave for now
 	return StatusCode::SUCCESS;
 }
-
-
-// uncompressInMyBuffer
-Bytef* 
-MdtCalibFormatAlgTest::uncompressInMyBuffer(const coral::Blob &blob) const {
-	/* stolen from here: MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbCoolStrTool/src/MdtCalibDbCoolStrTool.cxx */
-
-  uLongf buffer_length = 50000;
-  Bytef *decompression_buffer = new Bytef[buffer_length];
-  Bytef *empty = nullptr;
-  uLongf actual_length;	
-  while(1) {
-    actual_length=buffer_length;
-    int res(uncompress(decompression_buffer, &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
-    if (res == Z_OK) break;
-    //double buffer if it was not big enough
-    if( res == Z_BUF_ERROR) {
-      buffer_length*=2;
-      ATH_MSG_VERBOSE(  "Increasing buffer to " << buffer_length);
-      delete [] decompression_buffer;
-      decompression_buffer = new Bytef[buffer_length];
-      continue;
-    }
-    //something else is wrong
-    return empty;
-  }
-  //append 0 to terminate string, increase buffer if it is not big enough
-  if (actual_length >= buffer_length)	{
-    Bytef * old_buffer=decompression_buffer;
-    size_t old_length=buffer_length;
-    buffer_length*=2;
-    decompression_buffer = new Bytef[buffer_length];
-    memcpy(decompression_buffer, old_buffer, old_length);
-    delete [] old_buffer;
-  }
-  decompression_buffer[actual_length]=0;
-  return decompression_buffer;
-}
-
 
 // extractString
 StatusCode 

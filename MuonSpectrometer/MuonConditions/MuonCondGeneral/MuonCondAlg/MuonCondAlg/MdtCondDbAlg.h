@@ -8,7 +8,6 @@
 //STL includes
 #include <string>
 #include <vector>
-#include <zlib.h>
 
 //Gaudi includes
 #include "GaudiKernel/ICondSvc.h"

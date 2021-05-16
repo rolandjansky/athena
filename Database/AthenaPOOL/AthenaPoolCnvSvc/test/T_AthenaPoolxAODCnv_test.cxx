@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -65,7 +65,6 @@ public:
       std::abort();
   }
 
-  std::string m_name;
   DataVector<Y_v1>* m_pers1;
   DataVector<Y_v2>* m_pers2;
 };

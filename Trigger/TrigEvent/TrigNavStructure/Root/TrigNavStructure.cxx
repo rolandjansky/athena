@@ -30,6 +30,7 @@ std::ostream& operator<<( std::ostream& s, const std::vector<T>& v)
 
 std::string TrigNavStructure::m_unspecifiedLabel = "";
 const TriggerElement* TrigNavStructure::m_unspecifiedTE = 0;
+std::recursive_mutex TrigNavStructure::s_rmutex;
 
 
 TrigNavStructure::~TrigNavStructure() {
@@ -998,10 +999,10 @@ const TrigHolderStructure& TrigNavStructure::getHolderStorage() const {
 
 
 std::recursive_mutex& TrigNavStructure::getMutex() {
-  return m_rmutex;
+  return s_rmutex;
 }
 
 
 std::recursive_mutex& TrigNavStructure::getMutex() const {
-  return m_rmutex; // Note: Mutable
+  return s_rmutex; // Note: Mutable
 }

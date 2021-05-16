@@ -48,10 +48,10 @@ namespace Trk
  * association. Number of tracks with broken links to the truth
  * (possible software bugs) is also stored.
  */   
-   TrkPriVxPurity(int ntrk, const std::vector<double> puWeights, 
-                  const std::vector<double> noTruth, 
-                  int brLinks, const std::vector<double> inWeights, 
-		  const std::vector<double> outWeights);
+   TrkPriVxPurity(int ntrk, const std::vector<double>& puWeights, 
+                  const std::vector<double>& noTruth, 
+                  int brLinks, const std::vector<double>& inWeights, 
+		  const std::vector<double>& outWeights);
  
  /**
  * Destructor

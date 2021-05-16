@@ -244,9 +244,9 @@ MuidCaloMaterialParam::trackStateOnSurface(const Trk::TrackParameters* trackPara
 Trk::Surface*
 MuidCaloMaterialParam::createSurface(double eta, double r, double z, double cotThetaWidth)
 {
-    Amg::Transform3D* transform = new Amg::Transform3D;
-    transform->setIdentity();
-    (*transform)       = Amg::Translation3D(0., 0., z);
+    Amg::Transform3D transform;
+    transform.setIdentity();
+    transform      = Amg::Translation3D(0., 0., z);
     double halfZLength = cotThetaWidth * r;
     if (std::abs(eta) < 1.4) {
         Trk::CylinderSurface* surf = new Trk::CylinderSurface(transform, r, halfZLength);

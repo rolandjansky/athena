@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,8 @@
 
 using namespace std;
 
-static std::string levelNames[MSG::NUM_LEVELS];
+static const std::string levelNames[MSG::NUM_LEVELS] = {"NIL",     "VERBOSE", "DEBUG", "INFO",
+                                                        "WARNING", "ERROR",   "FATAL", "ALWAYS"};
 
 // Constructor
 LoggedMessageSvc::LoggedMessageSvc( const std::string& name, ISvcLocator* svcloc )
@@ -83,15 +84,6 @@ LoggedMessageSvc::LoggedMessageSvc( const std::string& name, ISvcLocator* svcloc
     m_thresholdProp[ic].declareUpdateHandler(&LoggedMessageSvc::setupThreshold, this);
   }
 
-  levelNames[0] = "NIL";
-  levelNames[1] = "VERBOSE";
-  levelNames[2] = "DEBUG";
-  levelNames[3] = "INFO";
-  levelNames[4] = "WARNING";
-  levelNames[5] = "ERROR";
-  levelNames[6] = "FATAL";
-  levelNames[7] = "ALWAYS";
-
   for (int i=0; i<MSG::NUM_LEVELS; ++i) {
       m_msgCount[i] = 0;
   }
@@ -120,7 +112,7 @@ StatusCode LoggedMessageSvc::initialize() {
   if( sc.isFailure() ) return sc;
   // hack since in Gaudi v30, msgSvc() now returns a const SmartIF<IMessageSvc>
   // Release pointer to myself done in Service base class
-  SmartIF<IMessageSvc> &si = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
+  SmartIF<IMessageSvc> &si ATLAS_THREAD_SAFE = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
   si.reset();
 
 #ifdef _WIN32

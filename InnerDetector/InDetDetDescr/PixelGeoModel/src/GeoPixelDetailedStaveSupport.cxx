@@ -34,7 +34,6 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetecto
   : GeoPixelStaveSupport (ddmgr, mgr),
     m_transform(GeoTrf::Transform3D::Identity())
 {
-  m_staveEnvelopShape=nullptr;
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
   m_physVol = Build();
 
@@ -1196,7 +1195,7 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
   
 }
 
-GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject) const 
+GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject)
 {
   if(iObject==1)
     return m_endblockFlexPhysVol;
@@ -1210,7 +1209,7 @@ GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject) c
   return m_serviceCoolPipePhysVol;
 }
 
-GeoTransform* GeoPixelDetailedStaveSupport::getEndblockEnvelopShapeTrf(int iObject) const
+GeoTransform* GeoPixelDetailedStaveSupport::getEndblockEnvelopShapeTrf(int iObject)
 {
   if(iObject==0)
     return nullptr;

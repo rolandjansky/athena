@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-// Based on handling of gFEX objects implemeted in Trigger/TrigT1/TrigT1CTP/src/CTPEmulation by Joerg Stelzer.  
 
 
-#ifndef L1TopoSimulation_JetInputProviderFEX
-#define L1TopoSimulation_JetInputProviderFEX
+#ifndef JETINPUTPROVIDERFEX_H
+#define JETINPUTPROVIDERFEX_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/LockedHandle.h"
 
-#include "xAODTrigger/JetRoIContainer.h" //jets from gFEX
+#include "xAODTrigger/jFexSRJetRoIContainer.h" //jets from gFEX
 
 #include "TH1.h"
 #include "TH2.h"
@@ -39,9 +38,10 @@ namespace LVL1 {
 
       StringProperty m_gFEXJetLoc {""};
 
-      mutable LockedHandle<TH1> m_hPt1 ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_hPt2 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
+
+      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "L1_jFexSRJetRoI", "L1_jFexSRJetRoI", "jFEX EDM"};
    };
 }
 

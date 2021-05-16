@@ -9,10 +9,8 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # TODO: how to autoconfigure those
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr"
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
     ConfigFlags.Sim.ReleaseGeoModel = False
     ConfigFlags.Sim.ISFRun = False # Need to change this for G4AA and ISF!
     ConfigFlags.GeoModel.Align.Dynamic = False
@@ -78,11 +76,10 @@ def fromRunArgs(runArgs):
         raise RuntimeError('No outputHITSFile defined')
 
     if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber] # is it updating?
+        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]
         ConfigFlags.Input.OverrideRunNumber = True
         ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
-
-    if hasattr(runArgs, 'outputHITSFile'):
+    if hasattr(runArgs, 'physicsList'):
         ConfigFlags.Sim.PhysicsList = runArgs.physicsList
 
     if hasattr(runArgs, 'conditionsTag'):

@@ -330,8 +330,8 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
                      layerSectorPosition = elementSurface->center();
 
                      // now register the two surfaces
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
 
                      // now register it to for building the array
                      layerApproachSurfaces.emplace_back( Trk::SharedObject<const Trk::ApproachSurfaces>(aSurfaces),elementCenter);
@@ -356,7 +356,6 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
                        takeSmallerBigger(phiMin, phiMax, currentPhi);
                        // make the ordering position
                        Amg::Vector3D strawOrderPos(currentStraw->center());
-                       //Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
                        /*
                         * The above line was using the nodel (not delete option for the old shared object
                         * now that SharedObject is a shared_ptr typeded do the same with empty deleter
@@ -580,8 +579,8 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
       // build the layers actually
       for ( ; zPosIter != zPosIterEnd; ++zPosIter){
          ATH_MSG_VERBOSE( "  --> Creating a layer at z pos    : " << (*zPosIter) );
-         Amg::Transform3D* zPosTrans = new Amg::Transform3D;
-         (*zPosTrans) = Amg::Translation3D(0.,0.,(*zPosIter));
+         Amg::Transform3D zPosTrans;
+         zPosTrans = Amg::Translation3D(0.,0.,(*zPosIter));
          endcapLayers->push_back(new Trk::DiscLayer(zPosTrans,
                                                     fullDiscBounds->clone(),
                                                     *layerMaterial,
@@ -662,8 +661,8 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
 
            // redefine the discZ
            discZ = 0.5*(zMin+zMax);
-           Amg::Transform3D* fullDiscTransform = new Amg::Transform3D;
-           (*fullDiscTransform) = Amg::Translation3D(0.,0.,discZ);
+           Amg::Transform3D fullDiscTransform =
+             Amg::Transform3D(Amg::Translation3D(0., 0., discZ));
 
            ATH_MSG_VERBOSE("TRT Disc being build at z Position " << discZ << " ( from " << zMin << " / " << zMax << " )");
 
@@ -674,8 +673,8 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
            const Amg::Vector3D asnPosition(0.,0.,zMax+m_layerStrawRadius);
 
            // create new surfaces
-           Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));
-           Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));
+           Amg::Transform3D asnTransform = Amg::Transform3D(Amg::Translation3D(asnPosition));
+           Amg::Transform3D aspTransform = Amg::Transform3D(Amg::Translation3D(aspPosition));
            // order in an optimised way for collision direction
            if (discZ > 0.){
                aSurfaces->push_back( new Trk::DiscSurface(asnTransform, fullDiscBounds->clone()) );

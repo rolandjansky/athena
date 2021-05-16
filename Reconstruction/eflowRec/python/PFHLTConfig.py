@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -54,7 +54,7 @@ def HLTPFTrackSelectorCfg(inputFlags,tracksin,verticesin):
     return result
 
 def getHLTPFMomentCalculatorTool(inputFlags):
-
+    result = ComponentAccumulator()
     from eflowRec.PFCfg import getPFMomentCalculatorTool
     MomentsNames = [
        "FIRST_PHI" 
@@ -87,9 +87,10 @@ def getHLTPFMomentCalculatorTool(inputFlags):
        ,"AVG_TILE_Q"
        ,"SIGNIFICANCE"
     ]
-    PFMomentCalculatorTool = getPFMomentCalculatorTool(inputFlags,MomentsNames)
-    
-    return PFMomentCalculatorTool
+
+    PFMomentCalculatorTool = result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,MomentsNames))
+    result.setPrivateTools(PFMomentCalculatorTool)
+    return result
 
 def PFCfg(inputFlags):
 
@@ -127,7 +128,7 @@ def PFCfg(inputFlags):
         getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool_HLT"),
         ]
 
-    pfmoments = getHLTPFMomentCalculatorTool(inputFlags)
+    pfmoments = result.popToolsAndMerge(getHLTPFMomentCalculatorTool(inputFlags))
     if not inputFlags.PF.useClusterMoments:
         pfmoments.CaloClusterMomentsMaker.MomentsNames = ["CENTER_MAG"]
     PFAlgorithm.BaseToolList = [pfmoments]

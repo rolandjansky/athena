@@ -413,9 +413,7 @@ StatusCode TBTree_CaloClusterH6::execute()
       return sc;
     }
     // Cell loop
-    CaloCellContainer::const_iterator itc = cellContainer->begin();
-    for (;itc!=cellContainer->end(); itc++) {
-      const CaloCell* cell = (*itc);
+    for (const CaloCell* cell : *cellContainer) {
       const Identifier id = cell->ID();
       for (int icell=0; icell<(int)m_cell_id->size(); icell++) {
           if ((int)id.get_identifier32().get_compact() == (*m_cell_id)[icell]) {
@@ -534,16 +532,15 @@ StatusCode TBTree_CaloClusterH6::execute()
       m_nEventRejected++;
       return StatusCode::FAILURE;
     }
-    DataVector< TBScintillator >::const_iterator its = wtc->begin();
     ATH_MSG_VERBOSE("scint name/signal/overflow flag:");
     short novflow = 0;
     float signal = 0;
     int nScint = 0; int nLayer = 0;
-    for (; its != wtc->end(); its++) {
-      ATH_MSG_VERBOSE((*its)->getDetectorName()<<"/"<<(*its)->getSignal()<<
-                      "/"<<(*its)->isSignalOverflow()<<" ");
-      if ((*its)->isSignalOverflow()) novflow++;
-      signal += (*its)->getSignal();
+    for (const TBScintillator* scint : *wtc) {
+      ATH_MSG_VERBOSE(scint->getDetectorName()<<"/"<<scint->getSignal()<<
+                      "/"<<scint->isSignalOverflow()<<" ");
+      if (scint->isSignalOverflow()) novflow++;
+      signal += scint->getSignal();
       if (nScint == lastScintInLayer[nLayer]) {
 	m_wtcNOverflow->push_back(novflow);
 	m_wtcSignal->push_back(signal);
@@ -635,9 +632,7 @@ StatusCode TBTree_CaloClusterH6::execute()
 
   int clu_ind = 0;
   float eAbsTotal = 0.;
-  CaloClusterContainer::const_iterator it_clu = clusterContainer->begin();
-  for (; it_clu!=clusterContainer->end(); it_clu++) {
-    const CaloCluster* cluster = (*it_clu);
+  for (const CaloCluster* cluster : *clusterContainer) {
     m_nCells += cluster->getNumberOfCells();
     m_nCellCluster->push_back((int)cluster->getNumberOfCells());
     m_eCluster->push_back((float)cluster->energy());
@@ -702,7 +697,7 @@ StatusCode TBTree_CaloClusterH6::execute()
       float m1_dens = -9999;
       float m2_dens = -9999;
       CaloCluster::moment_iterator it_mom=cluster->beginMoment(false);
-      for (; it_mom != cluster->endMoment(false); it_mom++) {
+      for (; it_mom != cluster->endMoment(false); ++it_mom) {
 	switch ( it_mom.getMomentType() ) {
 	case CaloClusterMoment::FIRST_ETA:
 	  m1_eta = it_mom.getMoment().getValue();

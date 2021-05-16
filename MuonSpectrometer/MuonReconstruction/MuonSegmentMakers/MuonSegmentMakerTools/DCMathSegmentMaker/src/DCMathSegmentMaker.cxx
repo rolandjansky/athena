@@ -537,8 +537,8 @@ namespace Muon {
         Amg::Vector3D gpos = sInfo.amdbTrans * lpos;
 
         // create new surface
-        Amg::Transform3D* surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
-        surfaceTransform->pretranslate(gpos);
+        Amg::Transform3D surfaceTransform(sInfo.amdbTrans.rotation());
+        surfaceTransform.pretranslate(gpos);
         double surfDim = 500.;
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform, surfDim, surfDim);
 
@@ -578,8 +578,8 @@ namespace Muon {
 
                     // recreate  surface
                     delete surf;
-                    surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
-                    surfaceTransform->pretranslate(gpos);
+                    surfaceTransform = Amg::Transform3D(sInfo.amdbTrans.rotation());
+                    surfaceTransform.pretranslate(gpos);
                     surf = new Trk::PlaneSurface(surfaceTransform, surfDim, surfDim);
 
                     // finally update global direction
@@ -591,6 +591,10 @@ namespace Muon {
         // create local segment direction
         Trk::LocalDirection segLocDir;
         surf->globalToLocalDirection(gdir, segLocDir);
+	if(segLocDir.angleYZ()==0 && segLocDir.angleXZ()==0){
+	  ATH_MSG_DEBUG("invalid local direction");
+	  return nullptr;
+	}
 
         // sanity checks
         double diff_phi = roaddir2.phi() - gdir.phi();
@@ -1583,7 +1587,7 @@ namespace Muon {
             MdtDriftCircleOnTrack* nonconstDC = 0;
             bool hasT0 = segment.hasT0Shift();
             if (!hasT0) {
-                // ATH_MSG_VERBOSE(" recalibrate MDT hit");
+	        // ATH_MSG_VERBOSE(" recalibrate MDT hit");
                 nonconstDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(), mdtGP, &gdir);
             } else {
                 ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());

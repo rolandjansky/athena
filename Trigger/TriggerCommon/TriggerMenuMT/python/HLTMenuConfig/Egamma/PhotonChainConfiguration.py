@@ -4,7 +4,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef")
+log = logging.getLogger(__name__)
 
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
@@ -14,16 +14,25 @@ from .FastPhotonMenuSequences import fastPhotonMenuSequence
 from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
 
+
+from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonMenuSequence
+
+
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
-# fragments generating configuration will be functions in New JO, 
+# fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
+
     return fastPhotonMenuSequence()
+
+def TLAPhotonSequenceCfg( flags ):
+    photonsIn = "HLT_egamma_Photons"
+    return TLAPhotonMenuSequence(flags, photonsIn)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
@@ -49,33 +58,33 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
+        # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
             "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
-            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
         }
-        
+
         ## This needs to be configured by the Egamma Developer!!
         log.debug('photon chain part = %s', self.chainPart)
         addInfo = 'etcut'
@@ -83,7 +92,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
-            
+
         log.debug('photon key = %s', key)
         if key in stepDictionary:
             steps=stepDictionary[key]
@@ -96,10 +105,20 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             log.debug('Adding photon trigger step %s', step)
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
-    
+
+
+ 
+        if self.dict["eventBuildType"] == "PhotonDS" :
+            log.debug('Adding photon trigger step getTLAPhoton')
+            TLAStep = self.getTLAPhoton()
+            chainSteps+= [TLAStep]
+
+
+
+
         myChain = self.buildChain(chainSteps)
         return myChain
-        
+
 
     # --------------------
     # Configuration of steps
@@ -107,15 +126,19 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getFastCalo(self):
         stepName = "PhotonFastCalo"
         return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
-        
+
     def getFastPhoton(self):
         stepName = "FastPhoton"
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
+    def getTLAPhoton(self):
+        stepName = "TLAPhoton"
+        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg])
+
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
-            
+
     def getPrecisionPhoton(self):
         if "dPhi15" in self.chainName:
             stepName = "precision_topophoton"

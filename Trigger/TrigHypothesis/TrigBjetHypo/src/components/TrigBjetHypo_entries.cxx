@@ -1,15 +1,15 @@
 
 
-#include "../TrigBjetBtagHypoAlgMT.h"
+#include "../TrigBjetBtagHypoAlg.h"
 
 #include "../TrigBjetEtHypoTool.h"
 #include "../TrigBjetBtagHypoTool.h"
-#include "../TrigSuperRoIBuilderMT.h"
+#include "../TrigSuperRoIBuilder.h"
 
 
-DECLARE_COMPONENT( TrigBjetBtagHypoAlgMT )
+DECLARE_COMPONENT( TrigBjetBtagHypoAlg )
 
 DECLARE_COMPONENT( TrigBjetEtHypoTool )
 DECLARE_COMPONENT( TrigBjetBtagHypoTool )
 
-DECLARE_COMPONENT( TrigSuperRoIBuilderMT )
+DECLARE_COMPONENT( TrigSuperRoIBuilder )

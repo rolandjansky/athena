@@ -26,7 +26,7 @@ atlas_install_data( share/*.json share/*.conf )
 
 # Unit tests:
 atlas_add_test( TrigValSteering_unit_test
-                SCRIPT test_unit_trigvalsteering.py
+                SCRIPT test_unit_trigvalsteering_build.py
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )
 

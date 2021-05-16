@@ -172,6 +172,7 @@ public:
     const SCT_ModuleSideDesign * getMother() const;
     std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
+    virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? keep for now for consistency
 
 private:
     SCT_ModuleSideDesign();

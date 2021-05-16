@@ -7,7 +7,7 @@ L1Topo specific flags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
 
-log = logging.getLogger('TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags.py')
+log = logging.getLogger(__name__)
 
 _flags = [] 
 

@@ -38,14 +38,14 @@ Trk::BremPositionNtupleHelper::BremPositionNtupleHelper(
         :
   AthAlgTool(t,n,p),
   //m_trkParametersWarning(false),
-  m_bremX(0),
-  m_bremY(0),
-  m_bremZ(0),
-  m_trkQoverP(0),
-  m_thicknessInX0(0),
-  m_dna(0),
-  m_dnaDirection(0),
-  m_trackStateIndices(0)
+  m_bremX(nullptr),
+  m_bremY(nullptr),
+  m_bremZ(nullptr),
+  m_trkQoverP(nullptr),
+  m_thicknessInX0(nullptr),
+  m_dna(nullptr),
+  m_dnaDirection(nullptr),
+  m_trackStateIndices(nullptr)
 
  {
     declareInterface<IValidationNtupleHelperTool>(this);
@@ -149,7 +149,7 @@ StatusCode Trk::BremPositionNtupleHelper::fillHoleData (
   const Trk::MaterialEffectsBase* mEffect = tsos.materialEffectsOnTrack();
   const Trk::EstimatedBremOnTrack*  ebrot = dynamic_cast<const Trk::EstimatedBremOnTrack*>(mEffect);
   const Trk::TrackParameters*        tParameter = (tsos).trackParameters();
-  if (ebrot == NULL || tParameter == NULL) {
+  if (ebrot == nullptr || tParameter == nullptr) {
     ATH_MSG_DEBUG ("Insufficient data to analyse brem. &TP=" 
                    << tParameter << " and &EB=" << ebrot);
       return StatusCode::SUCCESS;

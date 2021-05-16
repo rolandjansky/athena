@@ -12,38 +12,50 @@ def CalibrationCalculatorCfg(name="CalibrationCalculator", **kwargs):
 def EMECPosInnerWheelCalibrationCalculatorCfg(ConfigFlags, name="EMECPosInnerWheelCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.InnerAbsorberWheel)
     kwargs.setdefault("zSide", 1)
-    kwargs.setdefault("GeometryCalculator","EMECPosInnerWheelCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECPosInnerWheelCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECPosInnerWheelCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECNegInnerWheelCalibrationCalculatorCfg(ConfigFlags, name="EMECNegInnerWheelCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.InnerAbsorberWheel)
     kwargs.setdefault("zSide", -1)
-    kwargs.setdefault("GeometryCalculator","EMECNegInnerWheelCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECNegInnerWheelCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECNegInnerWheelCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECPosOuterWheelCalibrationCalculatorCfg(ConfigFlags, name="EMECPosOuterWheelCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.OuterAbsorberWheel)
     kwargs.setdefault("zSide", 1)
-    kwargs.setdefault("GeometryCalculator","EMECPosOuterWheelCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECPosOuterWheelCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECPosOuterWheelCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECNegOuterWheelCalibrationCalculatorCfg(ConfigFlags, name="EMECNegOuterWheelCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.OuterAbsorberWheel)
     kwargs.setdefault("zSide", -1)
-    kwargs.setdefault("GeometryCalculator","EMECNegOuterWheelCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECNegOuterWheelCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECNegOuterWheelCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECPosBackOuterBarretteCalibrationCalculatorCfg(ConfigFlags, name="EMECPosBackOuterBarretteCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
     kwargs.setdefault("zSide", 1)
-    kwargs.setdefault("GeometryCalculator","EMECPosBackOuterBarretteCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECPosBackOuterBarretteCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECPosBackOuterBarretteCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECNegBackOuterBarretteCalibrationCalculatorCfg(ConfigFlags, name="EMECNegBackOuterBarretteCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
     kwargs.setdefault("zSide", -1)
-    kwargs.setdefault("GeometryCalculator","EMECNegBackOuterBarretteCorrOffCalculator")
-    return CalibrationCalculatorCfg(name, **kwargs)
+    result = EMECNegBackOuterBarretteCorrOffCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("GeometryCalculator",result.getService("EMECNegBackOuterBarretteCorrOffCalculator"))
+    result.merge(CalibrationCalculatorCfg(name, **kwargs))
+    return result
 
 def EMECPresamplerCalibrationCalculatorCfg(ConfigFlags, name="EMECPresamplerCalibrationCalculator", **kwargs):
     return CompFactory.LArG4.EC.PresamplerCalibrationCalculator(name, **kwargs)

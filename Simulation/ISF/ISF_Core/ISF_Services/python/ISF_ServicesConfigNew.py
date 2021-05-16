@@ -11,7 +11,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     KeepLLPHadronicInteractionChildrenStrategyCfg,
     TruthStrategyGroupID_MC15Cfg,
     TruthStrategyGroupIDHadInt_MC15Cfg,
-    TruthStrategyGroupCaloMuBrem_MC15Cfg,
+    #TruthStrategyGroupCaloMuBrem_MC15Cfg,
     TruthStrategyGroupCaloDecay_MC15Cfg,
     LLPTruthStrategyCfg,
     TruthStrategyGroupIDCfg,
@@ -254,9 +254,8 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
         truthCfgs = [
             TruthStrategyGroupID_MC15Cfg,
             TruthStrategyGroupIDHadInt_MC15Cfg,
-            TruthStrategyGroupCaloMuBrem_MC15Cfg,
-            TruthStrategyGroupCaloDecay_MC15Cfg,
-        ]
+            TruthStrategyGroupCaloMuBremCfg, # FIXME - should be TruthStrategyGroupCaloMuBrem_MC15Cfg but keeping this for consistency with old style
+            TruthStrategyGroupCaloDecay_MC15Cfg ]
         truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
         kwargs.setdefault("TruthStrategies", truthStrats)
 
@@ -289,7 +288,7 @@ def MC15aPlusLLPTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusLLPTruthService"
         KeepLLPHadronicInteractionChildrenStrategyCfg,
         TruthStrategyGroupID_MC15Cfg,
         TruthStrategyGroupIDHadInt_MC15Cfg,
-        TruthStrategyGroupCaloMuBrem_MC15Cfg,
+        TruthStrategyGroupCaloMuBremCfg, # FIXME - should be TruthStrategyGroupCaloDecay_MC15Cfg but keeping this for consistency with old style
         TruthStrategyGroupCaloDecay_MC15Cfg,
         LLPTruthStrategyCfg,
     ]

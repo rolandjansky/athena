@@ -43,7 +43,7 @@ Trk::TrackParameters * SimHitHandle_TrackRecord::createTrackParameters() const
 	Amg::Transform3D transf =  Amg::CLHEPTranslate3DToEigen(HepGeom::Translate3D(m_trkrecord->GetPosition().x(),m_trkrecord->GetPosition().y(),m_trkrecord->GetPosition().z()));
   //Surface:
   const Trk::PlaneSurface * surf
-    = new Trk::PlaneSurface( &transf );
+    = new Trk::PlaneSurface( transf );
   //Fixme: surface and transform ever DELETED??
 
   //Fixme: Don't do this in every simhit!!:

@@ -491,19 +491,22 @@ StatusCode TrigMultiTrkComboHypo::findDiTrackCandidates(TrigMultiTrkStateCand<T>
 
   std::vector<float> trkMassBeforeFit;
   std::vector<float> bphysMass;
+  std::vector<float> d0track1, d0track2;
   std::vector<int> bphysCharge;
   auto mon_trkMassBeforeFit = Monitored::Collection("trkMassBeforeFit", trkMassBeforeFit);
   auto mon_bphysChi2 = Monitored::Collection("bphysChi2", *state.trigBphysCollection, &xAOD::TrigBphys::fitchi2);
   auto mon_bphysLxy = Monitored::Collection("bphysLxy", *state.trigBphysCollection, &xAOD::TrigBphys::lxy);
   auto mon_bphysFitMass = Monitored::Collection("bphysFitMass", *state.trigBphysCollection, [](const xAOD::TrigBphys* x){ return x->fitmass()*0.001; });
   auto mon_bphysMass = Monitored::Collection("bphysMass", bphysMass);
+  auto mon_d0track1 = Monitored::Collection("d0track1", d0track1);
+  auto mon_d0track2 = Monitored::Collection("d0track2", d0track2);
   auto mon_bphysCharge = Monitored::Collection("bphysCharge", bphysCharge);
 
   auto mon_timer = Monitored::Timer( "TIME_all" );
 
   auto group = Monitored::Group(m_monTool,
     mon_nAcceptedTrk, mon_nCombination, mon_nCombinationBeforeFit, mon_nBPhysObject,
-    mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysLxy, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge,
+    mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysLxy, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge, mon_d0track1, mon_d0track2,
     mon_timer);
 
   if (legs.size() < m_nTrk) {
@@ -571,6 +574,8 @@ StatusCode TrigMultiTrkComboHypo::findDiTrackCandidates(TrigMultiTrkStateCand<T>
     mon_nBPhysObject++;
     bphysMass.push_back(mass * 0.001);
     bphysCharge.push_back(charge);
+    d0track1.push_back((*tracklist[0])->d0());
+    d0track2.push_back((*tracklist[1])->d0());
 
   } while (std::prev_permutation(leptonTags.begin(), leptonTags.end()));
 

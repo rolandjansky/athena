@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="LArVectorProxy" />
-  <class name="ILArADC2MeVTool" />
   <class name="ILArAutoCorr" />
   <class name="ILArCableAttenuation" />
   <class name="ILArCableLength" />

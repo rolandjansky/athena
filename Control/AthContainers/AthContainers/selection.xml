@@ -11,6 +11,7 @@
     <field name="m_mutex" transient="true"/>
   </class>
   <class name="SG::AuxElement">
+    <field name="m_container" transient="true"/>
   </class>
   <class name="SG::ConstAuxElement">
     <field name="m_container" transient="true"/>

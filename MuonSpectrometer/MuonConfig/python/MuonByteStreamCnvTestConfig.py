@@ -137,7 +137,11 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     CscDigitToCscRDOTool = CompFactory.CscDigitToCscRDOTool
     tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs)
     CscDigitToCscRDO = CompFactory.CscDigitToCscRDO
-    acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool))
+    if flags.Concurrency.NumThreads > 0:
+        acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool,
+                                          Cardinality=flags.Concurrency.NumThreads))
+    else:
+        acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool))
     return acc
 
 

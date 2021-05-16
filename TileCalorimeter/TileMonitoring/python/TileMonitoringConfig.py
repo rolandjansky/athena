@@ -52,6 +52,9 @@ def TileMonitoringCfg(flags):
             from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
             acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
 
+        if flags.Beam.Type in ('cosmics', 'singlebeam'):
+            from TileMonitoring.TileMuonFitMonitorAlgorithm import TileMuonFitMonitoringConfig
+            acc.merge( TileMuonFitMonitoringConfig(flags) )
 
     return acc
 

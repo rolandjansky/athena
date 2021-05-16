@@ -1046,7 +1046,7 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("  addHit: distance " << distance << " time " << time << " beta"
                                                       << calculateBeta(time + calculateTof(1, distance), distance));
             }
-            if (error!=0.) hits.emplace_back(distance, time, error);
+            if (error != 0.) hits.emplace_back(distance, time, error);
         };
 
         // add rpc measurements

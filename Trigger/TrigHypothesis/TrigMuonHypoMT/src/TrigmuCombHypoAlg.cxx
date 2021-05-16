@@ -85,7 +85,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
       newd->setObjectLink(m_roiLinkName.value(), roiLink.link);
 
       // DEBUG
-      ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt()/Gaudi::Units::GeV << " GeV");
       ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
       ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 

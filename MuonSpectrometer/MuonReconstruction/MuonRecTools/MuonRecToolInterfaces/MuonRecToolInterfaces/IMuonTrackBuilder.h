@@ -10,8 +10,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonTrackBuilder("Muon::IMuonTrackBuilder", 1, 0);
-
 namespace Trk {
     class Track;
     class MeasurementBase;
@@ -22,7 +20,7 @@ namespace Muon {
     class MuPatCandidateBase;
     class MuPatSegment;
     class MuPatTrack;
-    class MuPatHit;
+    class GarbageContainer;
 
     /** @brief The IMuonTrackBuilder is a pure virtual interface for tools extending muon track candidates with
         segments in a given chamber
@@ -36,7 +34,10 @@ namespace Muon {
     class IMuonTrackBuilder : virtual public IAlgTool {
     public:
         /** access to tool interface */
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonTrackBuilder("Muon::IMuonTrackBuilder", 1, 0);
+            return IID_IMuonTrackBuilder;
+        }
 
         /** @brief interface for tools to find track in the muon system starting from a vector of segments
             @param segments a vector of input segments in a given chamber layer
@@ -44,13 +45,10 @@ namespace Muon {
                     The ownership of the tracks is passed to the client calling the tool.
 
         */
-        virtual std::vector<std::unique_ptr<MuPatTrack> > find(
-            MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
-            std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
-            std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted) const = 0;
+        virtual std::vector<std::unique_ptr<MuPatTrack> > find(MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
+                                                               GarbageContainer& trash_bin) const = 0;
     };
 
-    inline const InterfaceID& IMuonTrackBuilder::interfaceID() { return IID_IMuonTrackBuilder; }
 }  // namespace Muon
 
 #endif  // IMuonTrackBuilder_H

@@ -63,9 +63,9 @@ def fastElectronSequence(ConfigFlags):
     electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker)
    
-def fastElectronMenuSequence(do_idperf):
+def fastElectronMenuSequence(do_idperf,is_probe_leg=False):
     """ Creates 2nd step Electron  MENU sequence"""
-    # retrievee the reco seuqence+IM
+    # retrieve the reco sequence+IM
     (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
 
     # make the Hypo
@@ -84,5 +84,6 @@ def fastElectronMenuSequence(do_idperf):
     return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
                           Sequence    = electronAthSequence,
                           Hypo        = theElectronHypo,
-                          HypoToolGen = TrigEgammaFastElectronHypoToolFromDict )
+                          HypoToolGen = TrigEgammaFastElectronHypoToolFromDict,
+                          IsProbe=is_probe_leg)
 

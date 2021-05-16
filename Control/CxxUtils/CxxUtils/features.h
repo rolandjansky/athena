@@ -14,7 +14,8 @@
 
 /// Do we have function multiversioning?  GCC and clang > 7 support
 /// the target attribute
-#if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) &&            \
+#if ( defined(__i386__) || defined(__x86_64__) ) &&                            \
+  defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) &&              \
   !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__) &&         \
   !defined(CL_SYCL_LANGUAGE_VERSION) && !defined(SYCL_LANGUAGE_VERSION) &&     \
   !defined(__HIP__)

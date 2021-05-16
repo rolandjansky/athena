@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -256,7 +256,7 @@ inline bool xAOD::MissingETAssociation_v1::setOverlaps(const IParticle* pPart,co
 						       const std::vector<unsigned char>& overlapTypes)
 { return this->setOverlaps(this->findIndex(pPart),overlapIndices,overlapTypes); }
 
-inline void xAOD::MissingETAssociation_v1::setOverrideMom(std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride)
+inline void xAOD::MissingETAssociation_v1::setOverrideMom(const std::map<const IParticle*,MissingETBase::Types::constvec_t>& pOverride)
 { this->m_override = pOverride;}
 inline std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> xAOD::MissingETAssociation_v1::overrideMom()
 { return this->m_override;}

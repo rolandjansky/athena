@@ -16,7 +16,7 @@ void SegmentCnv_p1::persToTrans( const Trk::Segment_p1 *persObj, Trk::Segment *t
   fillTransFromPStore( &m_errorMxCnv, persObj->m_localErrorMatrix, &dummy, log );
   EigenHelpers::vectorToEigenMatrix(dummy.values, transObj->m_localCovariance, "SegmentCnv_p1");
 
-  transObj->m_fitQuality      = createTransFromPStore( (ITPConverterFor<Trk::FitQuality>**) 0, persObj->m_fitQuality, log);
+  transObj->m_fitQuality      = createTransFromPStore( (ITPConverterFor<Trk::FitQuality>**) nullptr, persObj->m_fitQuality, log);
   transObj->m_containedMeasBases = m_containedMeasBasesCnv.createTransient( &persObj->m_containedMeasBases, log );
   transObj->m_author = static_cast<Trk::Segment::Author>( persObj->m_author );
 //    std::cout << "SegmentCnv_p1::persToTrans(...) end" << std::endl;
@@ -35,7 +35,7 @@ void SegmentCnv_p1::transToPers( const Trk::Segment * transObj, Trk::Segment_p1 
   persObj->m_localErrorMatrix = toPersistent( &m_errorMxCnv, &pMat, log );
 
 
-  persObj->m_fitQuality = toPersistent((ITPConverterFor<Trk::FitQuality>**) 0, transObj->m_fitQuality, log );
+  persObj->m_fitQuality = toPersistent((ITPConverterFor<Trk::FitQuality>**) nullptr, transObj->m_fitQuality, log );
 
   m_containedMeasBasesCnv.transToPers( transObj->m_containedMeasBases, &persObj->m_containedMeasBases, log );
   persObj->m_author       = static_cast<uint16_t>( transObj->m_author );

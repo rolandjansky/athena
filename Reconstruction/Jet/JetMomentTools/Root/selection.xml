@@ -1,5 +1,6 @@
 <lcgdict>
 <class name="JetCaloQualityTool"/>
+<class name="JetCaloEnergies"/>
 <class name="JetClusterMomentsTool"/>
 <class name="JetConstitFourMomTool"/>
 <class name="JetECPSFractionTool"/>
@@ -14,4 +15,5 @@
 <class name="JetVertexTaggerTool"/>
 <class name="JetWidthTool"/>
 <class name="JetQGTaggerVariableTool"/>
+<class name="JetEMScaleMomTool"/>
 </lcgdict>

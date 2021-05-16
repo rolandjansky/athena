@@ -7,10 +7,10 @@ inline DistanceSolution::DistanceSolution(int num,
                                           bool signedDist,
                                           double first,
                                           double second)
-  : m_num(num)
-  , m_first(first)
+  : m_first(first)
   , m_second(second)
   , m_current(current)
+  , m_num(num)
   , m_signedDist(signedDist)
 {}
 

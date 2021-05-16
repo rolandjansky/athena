@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import caloFSRoI
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
+log = logging.getLogger(__name__)
 
 def HLTCaloCellMakerCfg( flags, cellsname, cdaSvc ):
     result = ComponentAccumulator()
@@ -78,7 +78,7 @@ def generateChains( flags, chainDict ):
 
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
+    hypo = CompFactory.TrigJetHypoAlg("TrigJetHypoAlg_a4tcem_subjesIS")
     jetsfullname = HLT_AntiKt4EMTopo_subjesIS.fullname()
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo, sequenceName=stepView.getName() )

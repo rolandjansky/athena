@@ -107,7 +107,7 @@ private:
     return m_trackingGeometryTool.get();
   }
 
-  using Propagator = Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>;
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using TrackLinearizer = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter = Acts::AdaptiveMultiVertexFitter<TrackWrapper, TrackLinearizer>;
   using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity<TrackWrapper>>;

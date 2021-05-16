@@ -62,8 +62,6 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_prop_beta(1.0),
   m_AthRNGSvc ("AthRNGSvc", name),
   m_RNGWrapper (nullptr),
-  m_buffer_length(0),
-  m_decompression_buffer(nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
   m_readKeyTube("/MDT/T0BLOB"),
   m_regionIdThreshold(2500)
@@ -403,15 +401,10 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
       std::string data;
       if(atr["data"].specification().type() == typeid(coral::Blob)){
         ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
-        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-          ATH_MSG_FATAL( "Cannot uncompress buffer" );
-          return StatusCode::FAILURE;
-        }
-        if(!m_decompression_buffer){
+        if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), data)){
           ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
           return StatusCode::FAILURE;
         }
-        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
       }
       else {
         ATH_MSG_VERBOSE("Loading data as a STRING");
@@ -429,7 +422,11 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
           al.extend("data", "blob"  );
           al["tech"].data<int>()         = jt.value()[1];
           al["file"].data<std::string>() = jt.value()[2]; 
-          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          std::string data = jt.value()[3];
+          if(!CoralUtilities::writeBlobFromString(data, al["data"].data<coral::Blob>())){
+            ATH_MSG_FATAL("Cannot compress BLOB!");
+            return StatusCode::FAILURE;
+          }
           dataPerChannel.push_back(al);
         }
 	  }
@@ -451,12 +448,12 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     std::string header="",payload="",trailer="";
     // if BLOB data
     if (atr["data"].specification().type() == typeid(coral::Blob)){
-      ATH_MSG_VERBOSE( "Data load is a blob. Uncompressing");
-      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-	ATH_MSG_FATAL( "Cannot uncompress buffer" );
-	return StatusCode::FAILURE;
+      std::string istr;
+      ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+      if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), istr)){
+        ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+        return StatusCode::FAILURE;
       }
-      std::string istr(reinterpret_cast<char*>(m_decompression_buffer.get()));
       ATH_CHECK( extractString(istr, header, "\n") );
       ATH_CHECK( extractString(istr, payload, "\n") );
       if( istr.size() ) ATH_CHECK( extractString(istr, trailer, "\n") );
@@ -853,15 +850,10 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
       std::string data;
       if(atr["data"].specification().type() == typeid(coral::Blob)){
         ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
-        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-          ATH_MSG_FATAL( "Cannot uncompress buffer" );
-          return StatusCode::FAILURE;
-        }
-        if(!m_decompression_buffer){
+        if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), data)){
           ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
           return StatusCode::FAILURE;
         }
-        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
       }
       else {
         ATH_MSG_VERBOSE("Loading data as a STRING");
@@ -879,7 +871,11 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
           al.extend("data", "blob"  );
           al["tech"].data<int>()         = jt.value()[1];
           al["file"].data<std::string>() = jt.value()[2]; 
-          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          std::string data = jt.value()[3];
+          if(!CoralUtilities::writeBlobFromString(data, al["data"].data<coral::Blob>())){
+            ATH_MSG_FATAL("Cannot compress BLOB!");
+            return StatusCode::FAILURE;
+          }
           dataPerChannel.push_back(al);
         }
 	  }
@@ -906,12 +902,12 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     bool t0_ts_applied = (atr["tech"].data<int>() & MuonCalib::TIME_SLEWING_CORRECTION_APPLIED);
     // If BLOB data then uncompress
     if (atr["data"].specification().type() == typeid(coral::Blob)) {
-      ATH_MSG_VERBOSE( "Data load is a blob. Uncompressing");
-      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
-	ATH_MSG_FATAL( "Cannot uncompress buffer" );
-	return StatusCode::FAILURE;
+      std::string istr;
+      ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+      if(!CoralUtilities::readBlobAsString(atr["data"].data<coral::Blob>(), istr)){
+        ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+        return StatusCode::FAILURE;
       }
-      std::string istr(reinterpret_cast<char*>(m_decompression_buffer.get()));
       ATH_CHECK( extractString(istr, header, "\n") );
       ATH_CHECK( extractString(istr, payload, "\n") );
       if( istr.size() ) ATH_CHECK( extractString(istr, trailer, "\n") );
@@ -1145,49 +1141,6 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(cons
 
   return tubes;
 }  //end MdtCalibDbAlg::buildMdtTubeCalibContainer
-
-inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
-  if (!m_decompression_buffer) {
-    m_buffer_length= 50000;
-    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-  }
-  uLongf actual_length;	
-  while(1) {
-    actual_length=m_buffer_length;
-    int res(uncompress(m_decompression_buffer.get(), &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
-    if (res == Z_OK) break;
-    //double buffer if it was not big enough
-    if( res == Z_BUF_ERROR) {
-      m_buffer_length*=2;
-      ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
-      m_decompression_buffer.reset();
-      m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-      continue;
-    }
-    //something else is wrong
-    return false;
-  }
-  //append 0 to terminate string, increase buffer if it is not big enough
-  if (actual_length >= m_buffer_length)	{
-    std::unique_ptr<Bytef[]> old_buffer(std::move(m_decompression_buffer));
-    size_t old_length=m_buffer_length;
-    m_buffer_length*=2;
-    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
-    memcpy(m_decompression_buffer.get(), old_buffer.get(), old_length);
-    old_buffer.reset();
-  }
-  m_decompression_buffer.get()[actual_length]=0;
-  return true;
-}
-inline coral::Blob MdtCalibDbAlg::compressBlob(const std::string dataString) const{
-	uLongf dest_len = compressBound(dataString.size());
-	coral::Blob blob;
-	blob.resize(dest_len);
-	Bytef * p = static_cast<Bytef *>(blob.startingAddress());		
-	compress(p, &dest_len, reinterpret_cast<const Bytef *>(dataString.c_str()), dataString.size());
-	blob.resize(dest_len);
-	return blob;
-}
 
 inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolation( const std::vector<MuonCalib::SamplePoint> &sample_points) {
 

@@ -137,7 +137,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # add to ToolSvc
   result.addPublicTool(InDetTrackingVolumeArrayCreator)  
 
-  # helpers for the InDetTrackingGeometry Builder : tracking voluem helper for glueing
+  # helpers for the InDetTrackingGeometry Builder : tracking volume helper for gluing
   Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
   InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
   # the material bins - assume defaults

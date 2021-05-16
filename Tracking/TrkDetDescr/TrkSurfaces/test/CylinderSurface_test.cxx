@@ -24,17 +24,16 @@ Amg::Vector3D unit (double x, double y, double z)
 }
 
 
-std::unique_ptr<Amg::Transform3D> transf (const Amg::Vector3D& pos,
-                                          const Amg::Vector3D& norm)
+Amg::Transform3D transf (const Amg::Vector3D& pos,
+                         const Amg::Vector3D& norm)
 {
   Trk::CurvilinearUVT c (norm);
   Amg::RotationMatrix3D curvilinearRotation;
   curvilinearRotation.col(0) = c.curvU();
   curvilinearRotation.col(1) = c.curvV();
   curvilinearRotation.col(2) = c.curvT();
-  auto transf = std::make_unique<Amg::Transform3D>();
-  *transf = curvilinearRotation;
-  transf->pretranslate(pos);
+  Amg::Transform3D transf = Amg::Transform3D(curvilinearRotation);
+  transf.pretranslate(pos);
   return transf;
 }
 
@@ -75,7 +74,7 @@ void test_intersect()
 
   Amg::Vector3D pos1 { 0, 0, 0 };
   Amg::Vector3D norm1 { 0, 0, 1 };
-  Trk::CylinderSurface cyl1 (transf (pos1, norm1).release(), 2000, 10000);
+  Trk::CylinderSurface cyl1 (transf (pos1, norm1), 2000, 10000);
 
   try_intersection (cyl1, {0, 1000, 0}, unit( 1,  0,  0));
   try_intersection (cyl1, {0, 1000, 0}, unit(-1,  0,  0));

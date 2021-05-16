@@ -11,7 +11,7 @@ from DecisionHandling import DecisionHandlingConf
 from libpyeformat_helper import SourceIdentifier, SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
-log = logging.getLogger('EventBuildingSequenceSetup')
+log = logging.getLogger(__name__)
 
 
 def addEventBuildingSequence(chain, eventBuildType, chainDict):

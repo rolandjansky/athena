@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetViewAlg.cxx
 
+#if !defined(XAOD_STANDALONE)
+// We do not compile JetViewAlg yet in AnalysisBase : need support for ShallowCopyDecorDeps
+
 #include <memory>
-#include "JetViewAlg.h"
+#include "JetRec/JetViewAlg.h"
 
 //**********************************************************************
 
@@ -82,4 +85,4 @@ StatusCode JetViewAlg::execute(const EventContext& ctx) const {
 }
 
 //**********************************************************************
-
+#endif 

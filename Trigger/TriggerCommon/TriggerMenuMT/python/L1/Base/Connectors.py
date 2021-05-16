@@ -8,7 +8,7 @@ from AthenaCommon.Logging import logging
 
 from .TopoAlgorithms import AlgCategory
 
-log = logging.getLogger("Menu.L1.Base.Connectors")
+log = logging.getLogger(__name__)
 
 class CType(Enum):
     CTPIN = (1, 'ctpin')

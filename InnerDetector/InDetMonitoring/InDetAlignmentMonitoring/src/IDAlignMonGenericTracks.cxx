@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -12,8 +12,6 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TMath.h"
-
-#include "LWHists/TH1F_LW.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -59,12 +57,15 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_doHitQuality(0),
 	m_d0Range(2.0),
 	m_d0BsRange(0.5),
+        m_d0BsNbins(100),
 	m_z0Range(250.0),
 	m_etaRange(3.0),
-	m_NTracksRange(200),
-	m_hWeightInFile(0),
-	m_etapTWeight(0)
-	
+	m_NTracksRange (200),
+	m_rangePixHits (10),
+        m_rangeSCTHits (20),
+        m_rangeTRTHits (60),
+	m_hWeightInFile (0),
+	m_etapTWeight (0)
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
@@ -83,6 +84,7 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("useExtendedPlots"     , m_extendedPlots = false);
   declareProperty("d0Range"              , m_d0Range);
   declareProperty("d0BsRange"            , m_d0BsRange);
+  declareProperty("d0BsNbins"            , m_d0BsNbins);
   declareProperty("z0Range"              , m_z0Range);
   declareProperty("etaRange"             , m_etaRange);
   declareProperty("pTRange"              , m_pTRange);
@@ -91,6 +93,9 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("hWeightInFileName"    , m_hWeightInFileName  = "hWeight.root" ); 
   declareProperty("hWeightHistName"      , m_hWeightHistName    = "trk_pT_vs_eta" );
   declareProperty("doIP"                 , m_doIP = false);
+  declareProperty("RangePixHits"         , m_rangePixHits);
+  declareProperty("RangeSCTHits"         , m_rangeSCTHits);
+  declareProperty("RangeTRTHits"         , m_rangeTRTHits);
 }
 
 
@@ -558,8 +563,8 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     const Int_t nx = 12;
     TString hitSummary[nx] = {"PixHits #geq 3","SCTHits #geq 8","TRTHits #geq 20","PixHitsB #geq 3","SCTHitsB #geq 8","TRTHitsB #geq 20","PixHitsECA #geq 2","SCTHitsECA #geq 2","TRTHitsECA #geq 15","PixHitsECC #geq 2","SCTHitsECC #geq 2","TRTHitsECC #geq 15"};   
 
-    m_summary = TH1F_LW::create("summary","summary",12,-0.5,11.5); 
-    for (int i=1;i<=12;i++) m_summary->GetXaxis()->SetBinLabel(i,hitSummary[i-1]);  
+    m_summary = new TH1F ("summary","summary",12, -0.5, 11.5); 
+    for (int i=1; i<= m_summary->GetNbinsX(); i++) m_summary->GetXaxis()->SetBinLabel(i,hitSummary[i-1]);  
     m_summary->GetYaxis()->SetTitle("Number of Tracks");    
     RegisterHisto(al_mon,m_summary);
 
@@ -592,67 +597,67 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     //###############
  
     
-    m_nhits_per_event = TH1F_LW::create("Nhits_per_event","Number of hits per event", 1024, -0.5, 1023.5);  
+    m_nhits_per_event = new TH1F("Nhits_per_event","Number of hits per event", 1024, -0.5, 1023.5);  
     RegisterHisto(al_mon,m_nhits_per_event) ;  
     m_nhits_per_event->GetXaxis()->SetTitle("Number of Hits on Tracks per Event"); 
     m_nhits_per_event->GetYaxis()->SetTitle("Number of Events");
  
-    m_ntrk = TH1F_LW::create("ntracks","Number of Tracks", m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
+    m_ntrk = new TH1F("ntracks","Number of Tracks", m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ntrk);
     m_ntrk->GetXaxis()->SetTitle("Number of Tracks");
     m_ntrk->GetYaxis()->SetTitle("Number of Events");
 
-    m_ngtrk = TH1F_LW::create("ngtracks","Number of Good Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
+    m_ngtrk = new TH1F("ngtracks","Number of Good Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ngtrk);
     m_ngtrk->GetXaxis()->SetTitle("Number of Good Tracks");
     m_ngtrk->GetYaxis()->SetTitle("Number of Events");
 
-    m_nhits_per_track = TH1F_LW::create("Nhits_per_track","Number of hits per track", 101, -0.5, 100.5);  
+    m_nhits_per_track = new TH1F ("Nhits_per_track","Number of hits per track", 101, -0.5, 100.5);  
     RegisterHisto(al_mon,m_nhits_per_track) ; 
     m_nhits_per_track->GetXaxis()->SetTitle("Number of Hits per Track"); 
     m_nhits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
  
-    m_npixhits_per_track_barrel = TH1F_LW::create("Npixhits_per_track_barrel","Number of pixhits per track (Barrel)", 14,-0.5,13.5);  
+    m_npixhits_per_track_barrel = new TH1F ("Npixhits_per_track_barrel","Number of pixhits per track (Barrel)", m_rangePixHits, -0.5, (m_rangePixHits-0.5));  
     RegisterHisto(al_mon,m_npixhits_per_track_barrel) ;  
     m_npixhits_per_track_barrel->GetXaxis()->SetTitle("Number of Pixel Hits per Track in Barrel"); 
     m_npixhits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_nscthits_per_track_barrel = TH1F_LW::create("Nscthits_per_track_barrel","Number of scthits per track (Barrel)", 30,-0.5,29.5);  
+    m_nscthits_per_track_barrel = new TH1F ("Nscthits_per_track_barrel","Number of scthits per track (Barrel)", m_rangeSCTHits, -0.5, (m_rangeSCTHits-0.5));  
     RegisterHisto(al_mon,m_nscthits_per_track_barrel) ;  
     m_nscthits_per_track_barrel->GetXaxis()->SetTitle("Number of SCT Hits per Track in Barrel"); 
     m_nscthits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_ntrthits_per_track_barrel = TH1F_LW::create("Ntrthits_per_track_barrel","Number of trthits per track (Barrel)", 100,-0.5,99.5);  
+    m_ntrthits_per_track_barrel = new TH1F ("Ntrthits_per_track_barrel","Number of trthits per track (Barrel)", m_rangeTRTHits, -0.5, (m_rangeTRTHits-0.5));    
     RegisterHisto(al_mon,m_ntrthits_per_track_barrel) ; 
     m_ntrthits_per_track_barrel->GetXaxis()->SetTitle("Number of TRT Hits per Track in Barrel"); 
     m_ntrthits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks");   
 
-    m_npixhits_per_track_eca = TH1F_LW::create("Npixhits_per_track_eca","Number of pixhits per track (Eca)",14,-0.5,13.5);  
+    m_npixhits_per_track_eca = new TH1F ("Npixhits_per_track_eca","Number of pixhits per track (Eca)", m_rangePixHits, -0.5, (m_rangePixHits-0.5));  
     RegisterHisto(al_mon,m_npixhits_per_track_eca) ;  
     m_npixhits_per_track_eca->GetXaxis()->SetTitle("Number of Pixel Hits per Track in ECA"); 
     m_npixhits_per_track_eca->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_nscthits_per_track_eca = TH1F_LW::create("Nscthits_per_track_eca","Number of scthits per track (Eca)",30,-0.5,29.5);  
+    m_nscthits_per_track_eca = new TH1F ("Nscthits_per_track_eca","Number of scthits per track (Eca)", m_rangeSCTHits, -0.5, (m_rangeSCTHits-0.5));  
     RegisterHisto(al_mon,m_nscthits_per_track_eca) ;  
     m_nscthits_per_track_eca->GetXaxis()->SetTitle("Number of SCT Hits per Track in ECA"); 
     m_nscthits_per_track_eca->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_ntrthits_per_track_eca = TH1F_LW::create("Ntrthits_per_track_eca","Number of trthits per track (Eca)",100,-0.5,99.5);  
+    m_ntrthits_per_track_eca = new TH1F ("Ntrthits_per_track_eca","Number of trthits per track (Eca)", m_rangeTRTHits, -0.5, (m_rangeTRTHits-0.5));  
     RegisterHisto(al_mon,m_ntrthits_per_track_eca) ;   
     m_ntrthits_per_track_eca->GetXaxis()->SetTitle("Number of TRT Hits per Track in ECA"); 
     m_ntrthits_per_track_eca->GetYaxis()->SetTitle("Number of Tracks");   
  
-    m_npixhits_per_track_ecc = TH1F_LW::create("Npixhits_per_track_ecc","Number of pixhits per track (Ecc)",14,-0.5,13.5);  
+    m_npixhits_per_track_ecc = new TH1F ("Npixhits_per_track_ecc","Number of pixhits per track (Ecc)", m_rangePixHits, -0.5, (m_rangePixHits-0.5));  
     RegisterHisto(al_mon,m_npixhits_per_track_ecc) ;  
     m_npixhits_per_track_ecc->GetXaxis()->SetTitle("Number of Pixel Hits per Track in ECC"); 
     m_npixhits_per_track_ecc->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_nscthits_per_track_ecc = TH1F_LW::create("Nscthits_per_track_ecc","Number of scthits per track (Ecc)",30,-0.5,29.5);  
+    m_nscthits_per_track_ecc = new TH1F ("Nscthits_per_track_ecc","Number of scthits per track (Ecc)", m_rangeSCTHits, -0.5, (m_rangeSCTHits-0.5));  
     RegisterHisto(al_mon,m_nscthits_per_track_ecc) ;  
     m_nscthits_per_track_ecc->GetXaxis()->SetTitle("Number of SCT Hits per Track in ECC"); 
     m_nscthits_per_track_ecc->GetYaxis()->SetTitle("Number of Tracks"); 
 
-    m_ntrthits_per_track_ecc = TH1F_LW::create("Ntrthits_per_track_ecc","Number of trthits per track (Ecc)",100,-0.5,99.5);  
+    m_ntrthits_per_track_ecc = new TH1F ("Ntrthits_per_track_ecc","Number of trthits per track (Ecc)",  m_rangeTRTHits, -0.5, (m_rangeTRTHits-0.5));    
     RegisterHisto(al_mon,m_ntrthits_per_track_ecc) ;    
     m_ntrthits_per_track_ecc->GetXaxis()->SetTitle("Number of TRT Hits per Track in ECC"); 
     m_ntrthits_per_track_ecc->GetYaxis()->SetTitle("Number of Tracks");  
@@ -660,43 +665,45 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     //Monitoring plots shown in the dqm web page
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    m_chi2oDoF = TH1F_LW::create("chi2oDoF","chi2oDoF", 100, 0., 10.);  
+    m_chi2oDoF = new TH1F ("chi2oDoF","chi2oDoF", 100, 0., 10.);  
     RegisterHisto(al_mon,m_chi2oDoF) ;  
     m_chi2oDoF->GetXaxis()->SetTitle("Track #chi^{2} / NDoF"); 
     m_chi2oDoF->GetYaxis()->SetTitle("Number of Tracks");  
 
-    m_eta = TH1F_LW::create("eta","eta", 80,-m_etaRange,m_etaRange);  
+    m_eta = new TH1F ("eta","eta", 80,-m_etaRange,m_etaRange);  
     RegisterHisto(al_mon_ls,m_eta) ;  
     m_eta->GetXaxis()->SetTitle("Track #eta"); 
     m_eta->GetYaxis()->SetTitle("Number of Tracks");
  
-    m_phi = TH1F_LW::create("phi","phi", 80, 0,2*M_PI);  
+    m_phi = new TH1F ("phi","phi", 80, 0,2*M_PI);  
     RegisterHisto(al_mon_ls,m_phi) ;  
     m_phi->SetMinimum(0);
     m_phi->GetXaxis()->SetTitle("Track #phi"); 
     m_phi->GetYaxis()->SetTitle("Number of Tracks");  
 
-    m_d0_bscorr = TH1F_LW::create("d0_bscorr","d0 (corrected for beamspot); d0 [mm]",200,-m_d0BsRange,m_d0BsRange);  
+    m_d0_bscorr = new TH1F ("d0_bscorr","d0 (corrected for beamspot); d0 [mm]", m_d0BsNbins, -m_d0BsRange, m_d0BsRange);  
     RegisterHisto(al_mon_ls,m_d0_bscorr) ;  
     
-    m_z0 = TH1F_LW::create("z0","z0;[mm]",100,-m_z0Range,m_z0Range);  
+    m_z0 = new TH1F ("z0","z0;[mm]", m_d0BsNbins, -m_z0Range, m_z0Range);  
     RegisterHisto(al_mon,m_z0) ;  
-    m_z0sintheta = TH1F_LW::create("z0sintheta","z0sintheta",100,-m_z0Range,m_z0Range);  
+    m_z0sintheta = new TH1F ("z0sintheta","z0sintheta", m_d0BsNbins, -m_z0Range, m_z0Range);  
     RegisterHisto(al_mon,m_z0sintheta) ;  
 
-    m_d0 = TH1F_LW::create("d0","d0;[mm]",400,-m_d0Range,m_d0Range);  
+    m_d0 = new TH1F ("d0","d0;[mm]", 2*m_d0BsNbins, -m_d0Range, m_d0Range);  
     RegisterHisto(al_mon,m_d0) ;  
     
 
-    m_npixhits_per_track = TH1F_LW::create("Npixhits_per_track","Number of pixhits per track",14,-0.5,13.5);  
+    m_npixhits_per_track = new TH1F ("Npixhits_per_track","Number of pixhits per track",  m_rangePixHits, -0.5, (m_rangePixHits-0.5));  
     RegisterHisto(al_mon_ls,m_npixhits_per_track) ;  
     m_npixhits_per_track->GetXaxis()->SetTitle("Number of Pixel Hits per Track"); 
     m_npixhits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
-    m_nscthits_per_track = TH1F_LW::create("Nscthits_per_track","Number of scthits per track",30,-0.5,29.5);  
+
+    m_nscthits_per_track = new TH1F ("Nscthits_per_track","Number of scthits per track", m_rangeSCTHits, -0.5, (m_rangeSCTHits-0.5));  
     RegisterHisto(al_mon_ls,m_nscthits_per_track) ;  
     m_nscthits_per_track->GetXaxis()->SetTitle("Number of SCT Hits per Track"); 
     m_nscthits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
-    m_ntrthits_per_track = TH1F_LW::create("Ntrthits_per_track","Number of trthits per track",100,-0.5,99.5);  
+
+    m_ntrthits_per_track = new TH1F ("Ntrthits_per_track","Number of trthits per track",  m_rangeTRTHits, -0.5, (m_rangeTRTHits-0.5));    
     RegisterHisto(al_mon_ls,m_ntrthits_per_track) ;  
     m_ntrthits_per_track->GetXaxis()->SetTitle("Number of TRT Hits per Track"); 
     m_ntrthits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
@@ -726,44 +733,44 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
     //Negative and positive tracks perigee parameters
     RegisterHisto(al_mon,m_trk_d0_vs_z0_barrel) ;
-    m_trk_phi0_neg_barrel = TH1F_LW::create("trk_phi0_neg_barrel","Phi distribution for negative tracks (Barrel)",20,0,2*M_PI);
+    m_trk_phi0_neg_barrel = new TH1F ("trk_phi0_neg_barrel","Phi distribution for negative tracks (Barrel)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_neg_barrel);
-    m_trk_phi0_pos_barrel = TH1F_LW::create("trk_phi0_pos_barrel","Phi distribution for positive tracks (Barrel)",20,0,2*M_PI);
+    m_trk_phi0_pos_barrel = new TH1F ("trk_phi0_pos_barrel","Phi distribution for positive tracks (Barrel)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_pos_barrel);
-    m_trk_pT_neg_barrel = TH1F_LW::create("trk_pT_neg_barrel","pT distribution for negative tracks (Barrel)",50,0,100);
+    m_trk_pT_neg_barrel = new TH1F ("trk_pT_neg_barrel","pT distribution for negative tracks (Barrel)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_neg_barrel);
-    m_trk_pT_pos_barrel = TH1F_LW::create("trk_pT_pos_barrel","pT distribution for positive tracks (Barrel)",50,0,100);
+    m_trk_pT_pos_barrel = new TH1F ("trk_pT_pos_barrel","pT distribution for positive tracks (Barrel)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_pos_barrel);
-    m_trk_phi0_neg_eca = TH1F_LW::create("trk_phi0_neg_eca","Phi distribution for negative tracks (Endcap A)",20,0,2*M_PI);
+    m_trk_phi0_neg_eca = new TH1F ("trk_phi0_neg_eca","Phi distribution for negative tracks (Endcap A)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_neg_eca);
-    m_trk_phi0_pos_eca = TH1F_LW::create("trk_phi0_pos_eca","Phi distribution for positive tracks (Endcap A)",20,0,2*M_PI);
+    m_trk_phi0_pos_eca = new TH1F ("trk_phi0_pos_eca","Phi distribution for positive tracks (Endcap A)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_pos_eca);
-    m_trk_pT_neg_eca = TH1F_LW::create("trk_pT_neg_eca","pT distribution for negative tracks (Endcap A)",50,0,100);
+    m_trk_pT_neg_eca = new TH1F ("trk_pT_neg_eca","pT distribution for negative tracks (Endcap A)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_neg_eca);
-    m_trk_pT_pos_eca = TH1F_LW::create("trk_pT_pos_eca","pT distribution for positive tracks (Endcap A)",50,0,100);
+    m_trk_pT_pos_eca = new TH1F ("trk_pT_pos_eca","pT distribution for positive tracks (Endcap A)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_pos_eca);
     
-    m_trk_phi0_neg_ecc = TH1F_LW::create("trk_phi0_neg_ecc","Phi distribution for negative tracks (Endcap C)",20,0,2*M_PI);
+    m_trk_phi0_neg_ecc = new TH1F ("trk_phi0_neg_ecc","Phi distribution for negative tracks (Endcap C)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_neg_ecc);
-    m_trk_phi0_pos_ecc = TH1F_LW::create("trk_phi0_pos_ecc","Phi distribution for positive tracks (Endcap C)",20,0,2*M_PI);
+    m_trk_phi0_pos_ecc = new TH1F ("trk_phi0_pos_ecc","Phi distribution for positive tracks (Endcap C)",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_pos_ecc);
-    m_trk_pT_neg_ecc = TH1F_LW::create("trk_pT_neg_ecc","pT distribution for negative tracks (Endcap C)",50,0,100);
+    m_trk_pT_neg_ecc = new TH1F ("trk_pT_neg_ecc","pT distribution for negative tracks (Endcap C)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_neg_ecc);
-    m_trk_pT_pos_ecc = TH1F_LW::create("trk_pT_pos_ecc","pT distribution for positive tracks (Endcap C)",50,0,100);
+    m_trk_pT_pos_ecc = new TH1F ("trk_pT_pos_ecc","pT distribution for positive tracks (Endcap C)",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_pos_ecc);
     
     //Asymmetry plots. Useful to spot weak modes
-    m_trk_phi0_asym_barrel = TH1F_LW::create("trk_phi0_asym_barrel","Track Charge Asymmetry versus phi (Barrel) ",20,0,2*M_PI);
+    m_trk_phi0_asym_barrel = new TH1F ("trk_phi0_asym_barrel","Track Charge Asymmetry versus phi (Barrel) ",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_asym_barrel);
-    m_trk_phi0_asym_eca = TH1F_LW::create("trk_phi0_asym_eca","Track Charge Asymmetry versus phi (Endcap A) ",20,0,2*M_PI);
+    m_trk_phi0_asym_eca = new TH1F ("trk_phi0_asym_eca","Track Charge Asymmetry versus phi (Endcap A) ",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_asym_eca);
-    m_trk_phi0_asym_ecc = TH1F_LW::create("trk_phi0_asym_ecc","Track Charge Asymmetry versus phi (Endcap C) ",20,0,2*M_PI);
+    m_trk_phi0_asym_ecc = new TH1F ("trk_phi0_asym_ecc","Track Charge Asymmetry versus phi (Endcap C) ",20,0,2*M_PI);
     RegisterHisto(al_mon,m_trk_phi0_asym_ecc);
-    m_trk_pT_asym_barrel = TH1F_LW::create("trk_pT_asym_barrel","Track Charge Asymmetry versus pT (Barrel) ",50,0,100);
+    m_trk_pT_asym_barrel = new TH1F ("trk_pT_asym_barrel","Track Charge Asymmetry versus pT (Barrel) ",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_asym_barrel);
-    m_trk_pT_asym_eca = TH1F_LW::create("trk_pT_asym_eca","Track Charge Asymmetry versus pT (Endcap A) ",50,0,100);
+    m_trk_pT_asym_eca = new TH1F ("trk_pT_asym_eca","Track Charge Asymmetry versus pT (Endcap A) ",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_asym_eca);
-    m_trk_pT_asym_ecc = TH1F_LW::create("trk_pT_asym_ecc","Track Charge Asymmetry versus pT (Endcap C) ",50,0,100);
+    m_trk_pT_asym_ecc = new TH1F ("trk_pT_asym_ecc","Track Charge Asymmetry versus pT (Endcap C) ",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_asym_ecc);
     
 
@@ -794,15 +801,15 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon, m_trk_d0_vs_phi_vs_eta_eca    );
       RegisterHisto(al_mon, m_trk_pT_vs_eta_eca     );
 
-      m_trk_d0_barrel  = TH1F_LW::create("trk_d0_barrel","Impact parameter: all tracks (Barrel); d_{0} [mm]",100, -m_d0Range, m_d0Range);
-      m_trk_d0c_barrel = TH1F_LW::create("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100, -4., 4.);  
-      m_trk_z0_barrel  = TH1F_LW::create("trk_z0_barrel","Track z0: all tracks (Barrel)",100, -m_z0Range, m_z0Range);
-      m_trk_d0_eca     = TH1F_LW::create("trk_d0_eca","Impact parameter: all tracks (Endcap A)",100, -m_d0Range, m_d0Range);
-      m_trk_d0c_eca    = TH1F_LW::create("trk_d0c_eca","Impact parameter (corrected for vertex): all tracks  (Endcap A)",100, -m_d0Range, m_d0Range);  
-      m_trk_z0_eca     = TH1F_LW::create("trk_z0_eca","Track z0: all tracks (Endcap A)",100, -m_z0Range, m_z0Range);
-      m_trk_d0_ecc     = TH1F_LW::create("trk_d0_ecc","Impact parameter: all tracks (Endcap C)",100, -m_d0Range, m_d0Range);
-      m_trk_d0c_ecc    = TH1F_LW::create("trk_d0c_ecc","Impact parameter (corrected for vertex): all tracks  (Endcap C)",100, -m_d0Range, m_d0Range);  
-      m_trk_z0_ecc     = TH1F_LW::create("trk_z0_ecc","Track z0: all tracks (Endcap C)",100, -m_z0Range, m_z0Range);
+      m_trk_d0_barrel  = new TH1F ("trk_d0_barrel","Impact parameter: all tracks (Barrel); d_{0} [mm]",100, -m_d0Range, m_d0Range);
+      m_trk_d0c_barrel = new TH1F ("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100, -4., 4.);  
+      m_trk_z0_barrel  = new TH1F ("trk_z0_barrel","Track z0: all tracks (Barrel)",100, -m_z0Range, m_z0Range);
+      m_trk_d0_eca     = new TH1F ("trk_d0_eca","Impact parameter: all tracks (Endcap A)",100, -m_d0Range, m_d0Range);
+      m_trk_d0c_eca    = new TH1F ("trk_d0c_eca","Impact parameter (corrected for vertex): all tracks  (Endcap A)",100, -m_d0Range, m_d0Range);  
+      m_trk_z0_eca     = new TH1F ("trk_z0_eca","Track z0: all tracks (Endcap A)",100, -m_z0Range, m_z0Range);
+      m_trk_d0_ecc     = new TH1F ("trk_d0_ecc","Impact parameter: all tracks (Endcap C)",100, -m_d0Range, m_d0Range);
+      m_trk_d0c_ecc    = new TH1F ("trk_d0c_ecc","Impact parameter (corrected for vertex): all tracks  (Endcap C)",100, -m_d0Range, m_d0Range);  
+      m_trk_z0_ecc     = new TH1F ("trk_z0_ecc","Track z0: all tracks (Endcap C)",100, -m_z0Range, m_z0Range);
 
 
       RegisterHisto(al_mon,m_trk_d0_barrel);
@@ -824,12 +831,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
       
       //Detailed IP Plots. All the PV Corrected are broken and need to be fixed.
-      m_trk_d0_barrel_zoomin = TH1F_LW::create("trk_d0_barrel_zoomin","Impact parameter: all tracks (Barrel)",100,-5,5);
-      m_trk_z0_barrel_zoomin = TH1F_LW::create("trk_z0_barrel_zoomin","Track z0: all tracks (Barrel)",100,-300,300);  
-      m_trk_d0_eca_zoomin = TH1F_LW::create("trk_d0_eca_zoomin","Impact parameter: all tracks (Endcap A)",100,-5,5);
-      m_trk_z0_eca_zoomin = TH1F_LW::create("trk_z0_eca_zoomin","Track z0: all tracks (Endcap A)",100,-300,300);
-      m_trk_d0_ecc_zoomin = TH1F_LW::create("trk_d0_ecc_zoomin","Impact parameter: all tracks (Endcap C)",100,-5,5);
-      m_trk_z0_ecc_zoomin = TH1F_LW::create("trk_z0_ecc_zoomin","Track z0: all tracks (Endcap C)",100,-300,300);
+      m_trk_d0_barrel_zoomin = new TH1F ("trk_d0_barrel_zoomin","Impact parameter: all tracks (Barrel)",100,-5,5);
+      m_trk_z0_barrel_zoomin = new TH1F ("trk_z0_barrel_zoomin","Track z0: all tracks (Barrel)",100,-300,300);  
+      m_trk_d0_eca_zoomin = new TH1F ("trk_d0_eca_zoomin","Impact parameter: all tracks (Endcap A)",100,-5,5);
+      m_trk_z0_eca_zoomin = new TH1F ("trk_z0_eca_zoomin","Track z0: all tracks (Endcap A)",100,-300,300);
+      m_trk_d0_ecc_zoomin = new TH1F ("trk_d0_ecc_zoomin","Impact parameter: all tracks (Endcap C)",100,-5,5);
+      m_trk_z0_ecc_zoomin = new TH1F ("trk_z0_ecc_zoomin","Track z0: all tracks (Endcap C)",100,-300,300);
 
       RegisterHisto(al_mon,m_trk_d0_barrel_zoomin);
       RegisterHisto(al_mon,m_trk_z0_barrel_zoomin) ; 
@@ -843,68 +850,68 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       //############### 
       double z0cRange=5;
       double d0cRange=0.1;
-      m_trk_d0c_neg= TH1F_LW::create("trk_d0c_neg","Impact parameter: all negative charged tracks" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_neg= new TH1F ("trk_d0c_neg","Impact parameter: all negative charged tracks" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_neg);
-      m_trk_d0c_pos= TH1F_LW::create("trk_d0c_pos","Impact parameter: all positive charged tracks" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_pos= new TH1F ("trk_d0c_pos","Impact parameter: all positive charged tracks" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_pos);
-      m_trk_d0c_neg_barrel= TH1F_LW::create("trk_d0c_neg_barrel","Impact parameter: all negative charged tracks (Barrel)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_neg_barrel= new TH1F ("trk_d0c_neg_barrel","Impact parameter: all negative charged tracks (Barrel)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_neg_barrel);
-      m_trk_d0c_pos_barrel= TH1F_LW::create("trk_d0c_pos_barrel","Impact parameter: all positive charged tracks (Barrel)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_pos_barrel= new TH1F ("trk_d0c_pos_barrel","Impact parameter: all positive charged tracks (Barrel)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_pos_barrel);
-      m_trk_d0c_neg_eca= TH1F_LW::create("trk_d0c_neg_eca","Impact parameter: all negative charged tracks (Endcap A)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_neg_eca= new TH1F ("trk_d0c_neg_eca","Impact parameter: all negative charged tracks (Endcap A)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_neg_eca);
-      m_trk_d0c_pos_eca= TH1F_LW::create("trk_d0c_pos_eca","Impact parameter: all positive charged tracks (Endcap A)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_pos_eca= new TH1F ("trk_d0c_pos_eca","Impact parameter: all positive charged tracks (Endcap A)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_pos_eca);
-      m_trk_d0c_neg_ecc= TH1F_LW::create("trk_d0c_neg_ecc","Impact parameter: all negative charged tracks (Endcap C)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_neg_ecc= new TH1F ("trk_d0c_neg_ecc","Impact parameter: all negative charged tracks (Endcap C)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_neg_ecc);
-      m_trk_d0c_pos_ecc= TH1F_LW::create("trk_d0c_pos_ecc","Impact parameter: all positive charged tracks (Endcap C)" ,50,-d0cRange,d0cRange);
+      m_trk_d0c_pos_ecc= new TH1F ("trk_d0c_pos_ecc","Impact parameter: all positive charged tracks (Endcap C)" ,50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_pos_ecc);
       
-      m_trk_d0c_asym=TH1F_LW::create("trk_d0c_asym","Track Charge Asymmetry versus d0 (corrected for vertex)",50,-d0cRange,d0cRange);
+      m_trk_d0c_asym=new TH1F ("trk_d0c_asym","Track Charge Asymmetry versus d0 (corrected for vertex)",50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_asym);
       m_trk_d0c_asym->GetYaxis()->SetTitle("d_0 (mm)");   
       m_trk_d0c_asym->GetYaxis()->SetTitle("(pos-neg)/(pos+neg)");   
       
-      m_trk_d0c_asym_barrel=TH1F_LW::create("trk_d0c_asym_barrel","Track Charge Asymmetry versus d0 (Barrel, corrected for vertex)",50,-d0cRange,d0cRange);
+      m_trk_d0c_asym_barrel=new TH1F ("trk_d0c_asym_barrel","Track Charge Asymmetry versus d0 (Barrel, corrected for vertex)",50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_asym_barrel);
-      m_trk_d0c_asym_eca=TH1F_LW::create("trk_d0c_asym_eca","Track Charge Asymmetry versus d0(Endcap A, corrected for vertex)",50,-d0cRange,d0cRange);
+      m_trk_d0c_asym_eca=new TH1F ("trk_d0c_asym_eca","Track Charge Asymmetry versus d0(Endcap A, corrected for vertex)",50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_asym_eca);
-      m_trk_d0c_asym_ecc=TH1F_LW::create("trk_d0c_asym_ecc","Track Charge Asymmetry versus d0(Endcap C, corrected for vertex)",50,-d0cRange,d0cRange);
+      m_trk_d0c_asym_ecc=new TH1F ("trk_d0c_asym_ecc","Track Charge Asymmetry versus d0(Endcap C, corrected for vertex)",50,-d0cRange,d0cRange);
       RegisterHisto(al_mon,m_trk_d0c_asym_ecc);
       
-      m_trk_z0c_neg= TH1F_LW::create("trk_z0c_neg","z0: all negative charged tracks" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_neg= new TH1F ("trk_z0c_neg","z0: all negative charged tracks" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_neg);
-      m_trk_z0c_pos= TH1F_LW::create("trk_z0c_pos","z0: all positive charged tracks" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_pos= new TH1F ("trk_z0c_pos","z0: all positive charged tracks" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_pos);
-      m_trk_z0c_neg_barrel= TH1F_LW::create("trk_z0c_neg_barrel",":z0 all negative charged tracks (Barrel)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_neg_barrel= new TH1F ("trk_z0c_neg_barrel",":z0 all negative charged tracks (Barrel)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_neg_barrel);
-      m_trk_z0c_pos_barrel= TH1F_LW::create("trk_z0c_pos_barrel","z0: all positive charged tracks (Barrel)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_pos_barrel= new TH1F ("trk_z0c_pos_barrel","z0: all positive charged tracks (Barrel)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_pos_barrel);
-      m_trk_z0c_neg_eca= TH1F_LW::create("trk_z0c_neg_eca","z0: all negative charged tracks (Endcap A)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_neg_eca= new TH1F ("trk_z0c_neg_eca","z0: all negative charged tracks (Endcap A)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_neg_eca);
-      m_trk_z0c_pos_eca= TH1F_LW::create("trk_z0c_pos_eca","z0: all positive charged tracks (Endcap A)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_pos_eca= new TH1F ("trk_z0c_pos_eca","z0: all positive charged tracks (Endcap A)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_pos_eca);
-      m_trk_z0c_neg_ecc= TH1F_LW::create("trk_z0c_neg_ecc","z0: all negative charged tracks (Endcap C)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_neg_ecc= new TH1F ("trk_z0c_neg_ecc","z0: all negative charged tracks (Endcap C)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_neg_ecc);
-      m_trk_z0c_pos_ecc= TH1F_LW::create("trk_z0c_pos_ecc","z0: all positive charged tracks (Endcap C)" ,50,-z0cRange,z0cRange);
+      m_trk_z0c_pos_ecc= new TH1F ("trk_z0c_pos_ecc","z0: all positive charged tracks (Endcap C)" ,50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_pos_ecc);
-      m_trk_z0c_asym=TH1F_LW::create("trk_z0c_asym","Track Charge Asymmetry versus z0 (corrected for vertex)",50,-z0cRange,z0cRange);
+      m_trk_z0c_asym=new TH1F ("trk_z0c_asym","Track Charge Asymmetry versus z0 (corrected for vertex)",50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_asym);
-      m_trk_z0c_asym_barrel=TH1F_LW::create("trk_z0c_asym_barrel","Track Charge Asymmetry versus z0 (Barrel, corrected for vertex)",50,-z0cRange,z0cRange);
+      m_trk_z0c_asym_barrel=new TH1F ("trk_z0c_asym_barrel","Track Charge Asymmetry versus z0 (Barrel, corrected for vertex)",50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_asym_barrel);
-      m_trk_z0c_asym_eca=TH1F_LW::create("trk_z0c_asym_eca","Track Charge Asymmetry versus z0(Endcap A, corrected for vertex)",50,-z0cRange,z0cRange);
+      m_trk_z0c_asym_eca=new TH1F ("trk_z0c_asym_eca","Track Charge Asymmetry versus z0(Endcap A, corrected for vertex)",50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_asym_eca);
-      m_trk_z0c_asym_ecc=TH1F_LW::create("trk_z0c_asym_ecc","Track Charge Asymmetry versus z0(Endcap C, corrected for vertex)",50,-z0cRange,z0cRange);
+      m_trk_z0c_asym_ecc=new TH1F ("trk_z0c_asym_ecc","Track Charge Asymmetry versus z0(Endcap C, corrected for vertex)",50,-z0cRange,z0cRange);
       RegisterHisto(al_mon,m_trk_z0c_asym_ecc);
       
       
       
       //PV corrected plots. Broken. 
-      m_d0_pvcorr = TH1F_LW::create("d0_pvcorr","d0 (corrected for primVtx); [mm]",400,-m_d0Range,m_d0Range);  
+      m_d0_pvcorr = new TH1F ("d0_pvcorr","d0 (corrected for primVtx); [mm]",400,-m_d0Range,m_d0Range);  
       RegisterHisto(al_mon,m_d0_pvcorr) ; 
-      m_z0_pvcorr = TH1F_LW::create("z0_pvcorr","z0 (corrected for primVtx);[mm]",100,-m_z0Range,m_z0Range);  
+      m_z0_pvcorr = new TH1F ("z0_pvcorr","z0 (corrected for primVtx);[mm]",100,-m_z0Range,m_z0Range);  
       RegisterHisto(al_mon,m_z0_pvcorr) ;  
-      m_z0sintheta_pvcorr = TH1F_LW::create("z0sintheta_pvcorr","z*sintheta (corrected for primVtx); [mm]",100,-m_z0Range,m_z0Range);  
+      m_z0sintheta_pvcorr = new TH1F ("z0sintheta_pvcorr","z*sintheta (corrected for primVtx); [mm]",100,-m_z0Range,m_z0Range);  
       RegisterHisto(al_mon,m_z0sintheta_pvcorr) ;  
       
       
@@ -945,12 +952,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_trk_chi2oDoF_P->GetXaxis()->SetTitle("P (GeV)"); 
       m_trk_chi2oDoF_P->GetYaxis()->SetTitle("Chi2"); 
       
-      m_trk_chi2ProbDist = TH1F_LW::create("trk_chi2ProbDist","chi2Prob distribution",50,0,1);  
+      m_trk_chi2ProbDist = new TH1F ("trk_chi2ProbDist","chi2Prob distribution",50,0,1);  
       m_trk_chi2ProbDist->GetXaxis()->SetTitle("Track #chi^{2} prob"); 
       m_trk_chi2ProbDist->GetYaxis()->SetTitle("Number of Tracks");
       RegisterHisto(al_mon,m_trk_chi2ProbDist) ;
       
-      m_errCotTheta = TH1F_LW::create("errCotTheta","Error of CotTheta", 40, 0, 0.02);
+      m_errCotTheta = new TH1F ("errCotTheta","Error of CotTheta", 40, 0, 0.02);
       RegisterHisto(al_mon,m_errCotTheta);  
       m_errCotTheta->GetXaxis()->SetTitle("Track #Delta(cot(#theta))"); 
       m_errCotTheta->GetYaxis()->SetTitle("Number of Tracks"); 
@@ -980,12 +987,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errCotThetaVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errCotThetaVsEta->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
       
-      m_errTheta = TH1F_LW::create("errTheta","Error of Theta",50,0,0.02);
+      m_errTheta = new TH1F ("errTheta","Error of Theta",50,0,0.02);
       RegisterHisto(al_mon,m_errTheta);  
       m_errTheta->GetXaxis()->SetTitle("Track #Delta(#theta)"); 
       m_errTheta->GetYaxis()->SetTitle("Number of Tracks"); 
 
-      m_errThetaVsD0BS = new TH2F("errThetaVsD0BS","Error of Theta vs d0BS",50,-m_d0BsRange,m_d0BsRange,50,0 ,0.02);
+      m_errThetaVsD0BS = new TH2F("errThetaVsD0BS","Error of Theta vs d0BS",50, -m_d0BsRange, m_d0BsRange,50,0 ,0.02);
       RegisterHisto(al_mon,m_errThetaVsD0BS) ;  
       m_errThetaVsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errThetaVsD0BS->GetYaxis()->SetTitle("Track #delta(#theta)");
@@ -1010,11 +1017,11 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errThetaVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errThetaVsEta->GetYaxis()->SetTitle("Track #delta(#theta)"); 
       
-      m_errD0 = TH1F_LW::create("errD0", "Error of d0", 60,0,0.30);
+      m_errD0 = new TH1F ("errD0", "Error of d0", 60,0,0.30);
       RegisterHisto(al_mon,m_errD0);
       m_errD0->GetXaxis()->SetTitle("d0 error (mm)"); 
       
-      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50,-m_d0BsRange,m_d0BsRange,100,0 ,0.50);
+      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50, -m_d0BsRange, m_d0BsRange,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsD0BS);
       m_errD0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errD0VsD0BS->GetYaxis()->SetTitle("d0 error (mm)");
@@ -1054,11 +1061,11 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errD0VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errD0VsEta->GetYaxis()->SetTitle("d0 error (mm)");         
       
-      m_errPhi0 = TH1F_LW::create("errPhi0", "Error of Phi0", 50,0,0.010);
+      m_errPhi0 = new TH1F ("errPhi0", "Error of Phi0", 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0);
       m_errPhi0->GetXaxis()->SetTitle("#phi0 error (rad)"); 
 
-      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50,-m_d0BsRange,m_d0BsRange, 50,0,0.010);
+      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50, -m_d0BsRange, m_d0BsRange, 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsD0BS);
       m_errPhi0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errPhi0VsD0BS->GetYaxis()->SetTitle("#phi0 error (rad)");
@@ -1083,11 +1090,11 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errPhi0VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errPhi0VsEta->GetYaxis()->SetTitle("#phi0 error (rad)");  
         
-      m_errZ0 = TH1F_LW::create("errZ0", "Error of Z0", 50,0,0.3);
+      m_errZ0 = new TH1F ("errZ0", "Error of Z0", 50,0,0.3);
       RegisterHisto(al_mon,m_errZ0);
       m_errZ0->GetXaxis()->SetTitle("z0 error (mm)"); 
       
-      m_errZ0VsD0BS = new TH2F("errZ0VsD0BS", "Error of Z0 vs D0BS", 50,-m_d0BsRange,m_d0BsRange, 50,0,0.3);
+      m_errZ0VsD0BS = new TH2F("errZ0VsD0BS", "Error of Z0 vs D0BS", 50, -m_d0BsRange, m_d0BsRange, 50,0,0.3);
       RegisterHisto(al_mon,m_errZ0VsD0BS);
       m_errZ0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errZ0VsD0BS->GetYaxis()->SetTitle("z0 error (mm)");
@@ -1112,7 +1119,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errZ0VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errZ0VsEta->GetYaxis()->SetTitle("z0 error (mm)");  
         
-      m_errPt = TH1F_LW::create("errPt", "Error of Pt", 50 ,0., 1.);
+      m_errPt = new TH1F ("errPt", "Error of Pt", 50 ,0., 1.);
       RegisterHisto(al_mon,m_errPt);
       m_errPt->GetXaxis()->SetTitle("Pt err (GeV/c)");
         
@@ -1151,7 +1158,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errPtVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errPtVsEta->GetYaxis()->SetTitle("Pt error (GeV/c)");       
         
-      m_errPt_Pt2 = TH1F_LW::create("errPt_Pt2", "Error of Pt/Pt^{2}", 50 ,0., 0.015);
+      m_errPt_Pt2 = new TH1F ("errPt_Pt2", "Error of Pt/Pt^{2}", 50 ,0., 0.015);
       RegisterHisto(al_mon,m_errPt_Pt2);
       m_errPt_Pt2->GetXaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");        
   
@@ -1170,7 +1177,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errPt_Pt2VsPhi0->GetXaxis()->SetTitle("#eta"); 
       m_errPt_Pt2VsPhi0->GetYaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");
   
-      m_D0VsPhi0 = new TH2F("D0VsPhi0", "d0 Vs #phi0 ", 100, 0, 2*M_PI, 400, -m_d0Range, m_d0Range);
+      m_D0VsPhi0 = new TH2F("D0VsPhi0", "d0 Vs #phi0 ", 100, 0, 2*M_PI, 2*m_d0BsNbins, -m_d0Range, m_d0Range);
       RegisterHisto(al_mon,m_D0VsPhi0);
       m_D0VsPhi0->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_D0VsPhi0->GetYaxis()->SetTitle("d0 (mm)"); 
@@ -1217,34 +1224,34 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_D0bsVsPhi0ECA);
       m_D0bsVsPhi0ECA->GetYaxis()->SetTitle("d0_{bs} (mm)"); 
       
-      m_D0bsVsPhi0Barrel = new TH2F("D0bsVsPhi0_Barrel", "d0_{bs} Vs #phi0 (BA)", 50, 0, 2*M_PI, 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPhi0Barrel = new TH2F("D0bsVsPhi0_Barrel", "d0_{bs} Vs #phi0 (BA)", 50, 0, 2*M_PI, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPhi0Barrel->GetXaxis()->SetTitle("#phi0"); 
       RegisterHisto(al_mon,m_D0bsVsPhi0Barrel);
       m_D0bsVsPhi0Barrel->GetYaxis()->SetTitle("d0_{bs} (mm)"); 
         
       // versus Eta
-      m_D0bsVsEta = new TH2F("D0bsVsEta", "d0_{bs} Vs #eta", 50, -3., 3., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsEta = new TH2F("D0bsVsEta", "d0_{bs} Vs #eta", 50, -3., 3., 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsEta->GetXaxis()->SetTitle("#eta"); 
       RegisterHisto(al_mon,m_D0bsVsEta);
       m_D0bsVsEta->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
       //versus Pt
-      m_D0bsVsPt = new TH2F("D0bsVsPt", "d0_{bs} Vs qPt ",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPt = new TH2F("D0bsVsPt", "d0_{bs} Vs qPt ",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPt->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPt);
       m_D0bsVsPt->GetYaxis()->SetTitle("d0_{bs} (mm)");  
 
-      m_D0bsVsPtECC = new TH2F("D0bsVsPt_ECC", "d0_{bs} Vs qPt (ECC)",  100, -40.,40.,400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtECC = new TH2F("D0bsVsPt_ECC", "d0_{bs} Vs qPt (ECC)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtECC->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtECC);
       m_D0bsVsPtECC->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
-      m_D0bsVsPtECA = new TH2F("D0bsVsPt_ECA", "d0_{bs} Vs qPt (ECA)",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtECA = new TH2F("D0bsVsPt_ECA", "d0_{bs} Vs qPt (ECA)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtECA->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtECA);
       m_D0bsVsPtECA->GetYaxis()->SetTitle("d0_{bs} (mm)");  
       
-      m_D0bsVsPtBarrel = new TH2F("D0bsVsPt_Barrel", "d0_{bs} Vs qPt (BA)",  100, -40.,40., 400, -m_d0BsRange, m_d0BsRange);
+      m_D0bsVsPtBarrel = new TH2F("D0bsVsPt_Barrel", "d0_{bs} Vs qPt (BA)",  50, -m_pTRange, m_pTRange, 2*m_d0BsNbins, -m_d0BsRange, m_d0BsRange);
       m_D0bsVsPtBarrel->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtBarrel);
       m_D0bsVsPtBarrel->GetYaxis()->SetTitle("d0_{bs} mm )");
@@ -1266,26 +1273,26 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_XBs_vs_ZBs->GetYaxis()->SetTitle("x coordinate (mm)");
       
       
-      m_XBs = TH1F_LW::create("XBs","BeamSpot Position: x",100,-1,0.);
+      m_XBs = new TH1F ("XBs","BeamSpot Position: x",100,-1,0.);
       RegisterHisto(al_mon,m_XBs);
       m_XBs->GetXaxis()->SetTitle("x (mm)");
       m_XBs->GetYaxis()->SetTitle("#events");
       
-      m_YBs= TH1F_LW::create("YBs","BeamSpot Position: y",100,-1,0.);
+      m_YBs= new TH1F ("YBs","BeamSpot Position: y",100,-1,0.);
       RegisterHisto(al_mon,m_YBs);
       m_YBs->GetXaxis()->SetTitle("y (mm)");
       m_YBs->GetYaxis()->SetTitle("#events");
       
-      m_ZBs = TH1F_LW::create("ZBs","BeamSpot Position: z",100,-50,50);
+      m_ZBs = new TH1F ("ZBs","BeamSpot Position: z",100,-50,50);
       RegisterHisto(al_mon,m_ZBs);
       m_ZBs->GetXaxis()->SetTitle("z (mm)");
       m_ZBs->GetYaxis()->SetTitle("#events");
       
-      m_TiltX_Bs = TH1F_LW::create("TiltX_Bs","Beam spot tile angle: x-z plane",100,-1e3,1e3);
+      m_TiltX_Bs = new TH1F ("TiltX_Bs","Beam spot tile angle: x-z plane",100,-1e3,1e3);
       RegisterHisto(al_mon,m_TiltX_Bs);
       m_TiltX_Bs->GetXaxis()->SetTitle("Tilt angle (#murad)");
       
-      m_TiltY_Bs = TH1F_LW::create("TiltY_Bs","Beam spot tile angle: y-z plane",100,-1e3,1e3);
+      m_TiltY_Bs = new TH1F ("TiltY_Bs","Beam spot tile angle: y-z plane",100,-1e3,1e3);
       RegisterHisto(al_mon,m_TiltY_Bs);
       m_TiltY_Bs->GetXaxis()->SetTitle("Tilt angle (#murad)");
       
@@ -1321,111 +1328,111 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
     
     //These plots are broken. Have to be passed to the PVbiases tool
-    m_trk_d0_wrtPV = TH1F_LW::create("d0_pvcorr_est","d0 (corrected for primVtx v2); [mm]",400,-0.2,0.2);  
+    m_trk_d0_wrtPV = new TH1F ("d0_pvcorr_est","d0 (corrected for primVtx v2); [mm]",400,-0.2,0.2);  
     RegisterHisto(al_mon,m_trk_d0_wrtPV) ; 
-    m_trk_z0_wrtPV = TH1F_LW::create("z0_pvcorr_est","z0 (corrected for primVtx v2); [mm]",100,-1,1);  
+    m_trk_z0_wrtPV = new TH1F ("z0_pvcorr_est","z0 (corrected for primVtx v2); [mm]",100,-1,1);  
     RegisterHisto(al_mon,m_trk_z0_wrtPV ) ; 
  
     
     
-    m_phi_barrel_pos_2_5GeV = TH1F_LW::create("phi_barrel_pos_2_5GeV","phi_barrel_pos_2_5GeV",100,0,2*M_PI);  m_phi_barrel_pos_2_5GeV->SetMinimum(0);
+    m_phi_barrel_pos_2_5GeV = new TH1F ("phi_barrel_pos_2_5GeV","phi_barrel_pos_2_5GeV",100,0,2*M_PI);  m_phi_barrel_pos_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_pos_2_5GeV) ;  
     m_phi_barrel_pos_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_pos_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 2-5 GeV"); 
-    m_phi_barrel_pos_5_10GeV = TH1F_LW::create("phi_barrel_pos_5_10GeV","phi_barrel_pos_5_10GeV",100,0,2*M_PI);  m_phi_barrel_pos_5_10GeV->SetMinimum(0);
+    m_phi_barrel_pos_5_10GeV = new TH1F ("phi_barrel_pos_5_10GeV","phi_barrel_pos_5_10GeV",100,0,2*M_PI);  m_phi_barrel_pos_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_pos_5_10GeV) ;  
     m_phi_barrel_pos_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_pos_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 5-10 GeV");  
-    m_phi_barrel_pos_10_20GeV = TH1F_LW::create("phi_barrel_pos_10_20GeV","phi_barrel_pos_10_20GeV",100,0,2*M_PI);  m_phi_barrel_pos_10_20GeV->SetMinimum(0);
+    m_phi_barrel_pos_10_20GeV = new TH1F ("phi_barrel_pos_10_20GeV","phi_barrel_pos_10_20GeV",100,0,2*M_PI);  m_phi_barrel_pos_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_pos_10_20GeV) ;  
     m_phi_barrel_pos_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_pos_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 10-20 GeV");   
-    m_phi_barrel_pos_20plusGeV = TH1F_LW::create("phi_barrel_pos_20plusGeV","phi_barrel_pos_20plusGeV",100,0,2*M_PI);  m_phi_barrel_pos_20plusGeV->SetMinimum(0);
+    m_phi_barrel_pos_20plusGeV = new TH1F ("phi_barrel_pos_20plusGeV","phi_barrel_pos_20plusGeV",100,0,2*M_PI);  m_phi_barrel_pos_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_pos_20plusGeV) ;  
     m_phi_barrel_pos_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_pos_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in barrel, >20 GeV");    
 
-    m_phi_barrel_neg_2_5GeV = TH1F_LW::create("phi_barrel_neg_2_5GeV","phi_barrel_neg_2_5GeV",100,0,2*M_PI);  m_phi_barrel_neg_2_5GeV->SetMinimum(0);
+    m_phi_barrel_neg_2_5GeV = new TH1F ("phi_barrel_neg_2_5GeV","phi_barrel_neg_2_5GeV",100,0,2*M_PI);  m_phi_barrel_neg_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_neg_2_5GeV) ;  
     m_phi_barrel_neg_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_neg_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 2-5 GeV"); 
-    m_phi_barrel_neg_5_10GeV = TH1F_LW::create("phi_barrel_neg_5_10GeV","phi_barrel_neg_5_10GeV",100,0,2*M_PI);  m_phi_barrel_neg_5_10GeV->SetMinimum(0);
+    m_phi_barrel_neg_5_10GeV = new TH1F ("phi_barrel_neg_5_10GeV","phi_barrel_neg_5_10GeV",100,0,2*M_PI);  m_phi_barrel_neg_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_neg_5_10GeV) ;  
     m_phi_barrel_neg_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_neg_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 5-10 GeV");  
-    m_phi_barrel_neg_10_20GeV = TH1F_LW::create("phi_barrel_neg_10_20GeV","phi_barrel_neg_10_20GeV",100,0,2*M_PI);  m_phi_barrel_neg_10_20GeV->SetMinimum(0);
+    m_phi_barrel_neg_10_20GeV = new TH1F ("phi_barrel_neg_10_20GeV","phi_barrel_neg_10_20GeV",100,0,2*M_PI);  m_phi_barrel_neg_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_neg_10_20GeV) ;  
     m_phi_barrel_neg_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_neg_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in barrel, 10-20 GeV");   
-    m_phi_barrel_neg_20plusGeV = TH1F_LW::create("phi_barrel_neg_20plusGeV","phi_barrel_neg_20plusGeV",100,0,2*M_PI);  m_phi_barrel_neg_20plusGeV->SetMinimum(0);
+    m_phi_barrel_neg_20plusGeV = new TH1F ("phi_barrel_neg_20plusGeV","phi_barrel_neg_20plusGeV",100,0,2*M_PI);  m_phi_barrel_neg_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_neg_20plusGeV) ;  
     m_phi_barrel_neg_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_barrel_neg_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in barrel, >20 GeV");  
 
-    m_phi_eca_pos_2_5GeV = TH1F_LW::create("phi_eca_pos_2_5GeV","phi_eca_pos_2_5GeV",100,0,2*M_PI);  m_phi_eca_pos_2_5GeV->SetMinimum(0);
+    m_phi_eca_pos_2_5GeV = new TH1F ("phi_eca_pos_2_5GeV","phi_eca_pos_2_5GeV",100,0,2*M_PI);  m_phi_eca_pos_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_pos_2_5GeV) ;  
     m_phi_eca_pos_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_pos_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 2-5 GeV"); 
-    m_phi_eca_pos_5_10GeV = TH1F_LW::create("phi_eca_pos_5_10GeV","phi_eca_pos_5_10GeV",100,0,2*M_PI);  m_phi_eca_pos_5_10GeV->SetMinimum(0);
+    m_phi_eca_pos_5_10GeV = new TH1F ("phi_eca_pos_5_10GeV","phi_eca_pos_5_10GeV",100,0,2*M_PI);  m_phi_eca_pos_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_pos_5_10GeV) ;  
     m_phi_eca_pos_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_pos_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 5-10 GeV");  
-    m_phi_eca_pos_10_20GeV = TH1F_LW::create("phi_eca_pos_10_20GeV","phi_eca_pos_10_20GeV",100,0,2*M_PI);  m_phi_eca_pos_10_20GeV->SetMinimum(0);
+    m_phi_eca_pos_10_20GeV = new TH1F ("phi_eca_pos_10_20GeV","phi_eca_pos_10_20GeV",100,0,2*M_PI);  m_phi_eca_pos_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_pos_10_20GeV) ;  
     m_phi_eca_pos_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_pos_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 10-20 GeV");   
-    m_phi_eca_pos_20plusGeV = TH1F_LW::create("phi_eca_pos_20plusGeV","phi_eca_pos_20plusGeV",100,0,2*M_PI);  m_phi_eca_pos_20plusGeV->SetMinimum(0);
+    m_phi_eca_pos_20plusGeV = new TH1F ("phi_eca_pos_20plusGeV","phi_eca_pos_20plusGeV",100,0,2*M_PI);  m_phi_eca_pos_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_pos_20plusGeV) ;  
     m_phi_eca_pos_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_pos_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in eca, >20 GeV");    
 
-    m_phi_eca_neg_2_5GeV = TH1F_LW::create("phi_eca_neg_2_5GeV","phi_eca_neg_2_5GeV",100,0,2*M_PI);  m_phi_eca_neg_2_5GeV->SetMinimum(0);
+    m_phi_eca_neg_2_5GeV = new TH1F ("phi_eca_neg_2_5GeV","phi_eca_neg_2_5GeV",100,0,2*M_PI);  m_phi_eca_neg_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_neg_2_5GeV) ;  
     m_phi_eca_neg_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_neg_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 2-5 GeV"); 
-    m_phi_eca_neg_5_10GeV = TH1F_LW::create("phi_eca_neg_5_10GeV","phi_eca_neg_5_10GeV",100,0,2*M_PI);  m_phi_eca_neg_5_10GeV->SetMinimum(0);
+    m_phi_eca_neg_5_10GeV = new TH1F ("phi_eca_neg_5_10GeV","phi_eca_neg_5_10GeV",100,0,2*M_PI);  m_phi_eca_neg_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_neg_5_10GeV) ;  
     m_phi_eca_neg_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_neg_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 5-10 GeV");  
-    m_phi_eca_neg_10_20GeV = TH1F_LW::create("phi_eca_neg_10_20GeV","phi_eca_neg_10_20GeV",100,0,2*M_PI);  m_phi_eca_neg_10_20GeV->SetMinimum(0);
+    m_phi_eca_neg_10_20GeV = new TH1F ("phi_eca_neg_10_20GeV","phi_eca_neg_10_20GeV",100,0,2*M_PI);  m_phi_eca_neg_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_neg_10_20GeV) ;  
     m_phi_eca_neg_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_neg_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in eca, 10-20 GeV");   
-    m_phi_eca_neg_20plusGeV = TH1F_LW::create("phi_eca_neg_20plusGeV","phi_eca_neg_20plusGeV",100,0,2*M_PI);  m_phi_eca_neg_20plusGeV->SetMinimum(0);
+    m_phi_eca_neg_20plusGeV = new TH1F ("phi_eca_neg_20plusGeV","phi_eca_neg_20plusGeV",100,0,2*M_PI);  m_phi_eca_neg_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca_neg_20plusGeV) ;  
     m_phi_eca_neg_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_eca_neg_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in eca, >20 GeV");   
 
-    m_phi_ecc_pos_2_5GeV = TH1F_LW::create("phi_ecc_pos_2_5GeV","phi_ecc_pos_2_5GeV",100,0,2*M_PI);  m_phi_ecc_pos_2_5GeV->SetMinimum(0);
+    m_phi_ecc_pos_2_5GeV = new TH1F ("phi_ecc_pos_2_5GeV","phi_ecc_pos_2_5GeV",100,0,2*M_PI);  m_phi_ecc_pos_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_pos_2_5GeV) ;  
     m_phi_ecc_pos_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_pos_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 2-5 GeV"); 
-    m_phi_ecc_pos_5_10GeV = TH1F_LW::create("phi_ecc_pos_5_10GeV","phi_ecc_pos_5_10GeV",100,0,2*M_PI);  m_phi_ecc_pos_5_10GeV->SetMinimum(0);
+    m_phi_ecc_pos_5_10GeV = new TH1F ("phi_ecc_pos_5_10GeV","phi_ecc_pos_5_10GeV",100,0,2*M_PI);  m_phi_ecc_pos_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_pos_5_10GeV) ;  
     m_phi_ecc_pos_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_pos_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 5-10 GeV");  
-    m_phi_ecc_pos_10_20GeV = TH1F_LW::create("phi_ecc_pos_10_20GeV","phi_ecc_pos_10_20GeV",100,0,2*M_PI);  m_phi_ecc_pos_10_20GeV->SetMinimum(0);
+    m_phi_ecc_pos_10_20GeV = new TH1F ("phi_ecc_pos_10_20GeV","phi_ecc_pos_10_20GeV",100,0,2*M_PI);  m_phi_ecc_pos_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_pos_10_20GeV) ;  
     m_phi_ecc_pos_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_pos_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 10-20 GeV");   
-    m_phi_ecc_pos_20plusGeV = TH1F_LW::create("phi_ecc_pos_20plusGeV","phi_ecc_pos_20plusGeV",100,0,2*M_PI);  m_phi_ecc_pos_20plusGeV->SetMinimum(0);
+    m_phi_ecc_pos_20plusGeV = new TH1F ("phi_ecc_pos_20plusGeV","phi_ecc_pos_20plusGeV",100,0,2*M_PI);  m_phi_ecc_pos_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_pos_20plusGeV) ;  
     m_phi_ecc_pos_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_pos_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in ecc, >20 GeV");    
 
-    m_phi_ecc_neg_2_5GeV = TH1F_LW::create("phi_ecc_neg_2_5GeV","phi_ecc_neg_2_5GeV",100,0,2*M_PI);  m_phi_ecc_neg_2_5GeV->SetMinimum(0);
+    m_phi_ecc_neg_2_5GeV = new TH1F ("phi_ecc_neg_2_5GeV","phi_ecc_neg_2_5GeV",100,0,2*M_PI);  m_phi_ecc_neg_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_neg_2_5GeV) ;  
     m_phi_ecc_neg_2_5GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_neg_2_5GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 2-5 GeV"); 
-    m_phi_ecc_neg_5_10GeV = TH1F_LW::create("phi_ecc_neg_5_10GeV","phi_ecc_neg_5_10GeV",100,0,2*M_PI);  m_phi_ecc_neg_5_10GeV->SetMinimum(0);
+    m_phi_ecc_neg_5_10GeV = new TH1F ("phi_ecc_neg_5_10GeV","phi_ecc_neg_5_10GeV",100,0,2*M_PI);  m_phi_ecc_neg_5_10GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_neg_5_10GeV) ;  
     m_phi_ecc_neg_5_10GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_neg_5_10GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 5-10 GeV");  
-    m_phi_ecc_neg_10_20GeV = TH1F_LW::create("phi_ecc_neg_10_20GeV","phi_ecc_neg_10_20GeV",100,0,2*M_PI);  m_phi_ecc_neg_10_20GeV->SetMinimum(0);
+    m_phi_ecc_neg_10_20GeV = new TH1F ("phi_ecc_neg_10_20GeV","phi_ecc_neg_10_20GeV",100,0,2*M_PI);  m_phi_ecc_neg_10_20GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_neg_10_20GeV) ;  
     m_phi_ecc_neg_10_20GeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_neg_10_20GeV->GetYaxis()->SetTitle("Number of Tracks in ecc, 10-20 GeV");   
-    m_phi_ecc_neg_20plusGeV = TH1F_LW::create("phi_ecc_neg_20plusGeV","phi_ecc_neg_20plusGeV",100,0,2*M_PI);  m_phi_ecc_neg_20plusGeV->SetMinimum(0);
+    m_phi_ecc_neg_20plusGeV = new TH1F ("phi_ecc_neg_20plusGeV","phi_ecc_neg_20plusGeV",100,0,2*M_PI);  m_phi_ecc_neg_20plusGeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc_neg_20plusGeV) ;  
     m_phi_ecc_neg_20plusGeV->GetXaxis()->SetTitle("Track #phi"); 
     m_phi_ecc_neg_20plusGeV->GetYaxis()->SetTitle("Number of Tracks in ecc, >20 GeV");    
@@ -1464,57 +1471,57 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_eta_phi_neg_20plusGeV->GetXaxis()->SetTitle("Track #eta"); 
     m_eta_phi_neg_20plusGeV->GetYaxis()->SetTitle("Track #phi");
 
-    m_chi2oDoF_barrel = TH1F_LW::create("chi2oDoF_barrel","chi2oDoF (Barrel)",100,0,10);  
+    m_chi2oDoF_barrel = new TH1F ("chi2oDoF_barrel","chi2oDoF (Barrel)",100,0,10);  
     RegisterHisto(al_mon,m_chi2oDoF_barrel) ; 
     m_chi2oDoF_barrel->GetXaxis()->SetTitle("Track in Barrel #chi^{2} / NDoF"); 
     m_chi2oDoF_barrel->GetYaxis()->SetTitle("Number of Tracks");  
-    m_chi2oDoF_eca = TH1F_LW::create("chi2oDoF_eca","chi2oDoF (Eca)",100,0,10);  
+    m_chi2oDoF_eca = new TH1F ("chi2oDoF_eca","chi2oDoF (Eca)",100,0,10);  
     RegisterHisto(al_mon,m_chi2oDoF_eca) ; 
     m_chi2oDoF_eca->GetXaxis()->SetTitle("Track in ECA #chi^{2} / NDoF"); 
     m_chi2oDoF_eca->GetYaxis()->SetTitle("Number of Tracks");  
-    m_chi2oDoF_ecc = TH1F_LW::create("chi2oDoF_ecc","chi2oDoF (Ecc)",100,0,10);  
+    m_chi2oDoF_ecc = new TH1F ("chi2oDoF_ecc","chi2oDoF (Ecc)",100,0,10);  
     RegisterHisto(al_mon,m_chi2oDoF_ecc) ; 
     m_chi2oDoF_ecc->GetXaxis()->SetTitle("Track in ECC #chi^{2} / NDoF"); 
     m_chi2oDoF_ecc->GetYaxis()->SetTitle("Number of Tracks");      
     
-    m_phi_barrel = TH1F_LW::create("phi_barrel","phi (Barrel)",100,0,2*M_PI); m_phi_barrel->SetMinimum(0);
+    m_phi_barrel = new TH1F ("phi_barrel","phi (Barrel)",100,0,2*M_PI); m_phi_barrel->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel) ;  
     m_phi_barrel->GetXaxis()->SetTitle("Track in Barrel #phi"); 
     m_phi_barrel->GetYaxis()->SetTitle("Number of Tracks");  
-    m_phi_eca = TH1F_LW::create("phi_eca","phi (Eca)",100,0,2*M_PI); m_phi_eca->SetMinimum(0);
+    m_phi_eca = new TH1F ("phi_eca","phi (Eca)",100,0,2*M_PI); m_phi_eca->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_eca) ; 
     m_phi_eca->GetXaxis()->SetTitle("Track in ECA #phi"); 
     m_phi_eca->GetYaxis()->SetTitle("Number of Tracks");  
-    m_phi_ecc = TH1F_LW::create("phi_ecc","phi (Ecc)",100,0,2*M_PI); m_phi_ecc->SetMinimum(0);
+    m_phi_ecc = new TH1F ("phi_ecc","phi (Ecc)",100,0,2*M_PI); m_phi_ecc->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_ecc) ; 
     m_phi_ecc->GetXaxis()->SetTitle("Track in ECC #phi"); 
     m_phi_ecc->GetYaxis()->SetTitle("Number of Tracks");   
 
-    m_pT = TH1F_LW::create("pT","pT",200,-m_pTRange,m_pTRange);  
+    m_pT = new TH1F ("pT","pT",200,-m_pTRange,m_pTRange);  
     RegisterHisto(al_mon_ls,m_pT) ;   
     m_pT->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
     m_pT->GetYaxis()->SetTitle("Number of Tracks");   
-    m_pTRes = TH1F_LW::create("pTRes","pTRes",100,0,1.0);  
+    m_pTRes = new TH1F ("pTRes","pTRes",100,0,1.0);  
     RegisterHisto(al_mon,m_pTRes) ;  
-    m_pTResOverP = TH1F_LW::create("pTResOverP","Momentum resolution / Momentum",100,0,0.05);  
+    m_pTResOverP = new TH1F ("pTResOverP","Momentum resolution / Momentum",100,0,0.05);  
     RegisterHisto(al_mon,m_pTResOverP) ;  
 
-    m_P = TH1F_LW::create("P","Track Momentum P",200,-m_pTRange,m_pTRange);  
+    m_P = new TH1F ("P","Track Momentum P",200,-m_pTRange,m_pTRange);  
     RegisterHisto(al_mon,m_P) ;   
     m_P->GetXaxis()->SetTitle("Signed Track P [GeV]"); 
     m_P->GetYaxis()->SetTitle("Number of Tracks");   
     
-    m_Zmumu = TH1F_LW::create("Zmumu","Zmumu Inv. Mass",60,60,120);  
+    m_Zmumu = new TH1F ("Zmumu","Zmumu Inv. Mass",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu) ;  
-    m_Zmumu_barrel = TH1F_LW::create("Zmumu_barrel","Zmumu Both Legs Barrel",60,60,120);  
+    m_Zmumu_barrel = new TH1F ("Zmumu_barrel","Zmumu Both Legs Barrel",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu_barrel) ;  
-    m_Zmumu_eca = TH1F_LW::create("Zmumu_eca","Zmumu Both Legs ECA",60,60,120);  
+    m_Zmumu_eca = new TH1F ("Zmumu_eca","Zmumu Both Legs ECA",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu_eca) ;  
-    m_Zmumu_ecc = TH1F_LW::create("Zmumu_ecc","Zmumu Both Legs ECC",60,60,120);  
+    m_Zmumu_ecc = new TH1F ("Zmumu_ecc","Zmumu Both Legs ECC",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu_ecc) ;  
-    m_Zmumu_barrel_eca = TH1F_LW::create("Zmumu_barrel_eca","Zmumu One Barrel One ECA",60,60,120);  
+    m_Zmumu_barrel_eca = new TH1F ("Zmumu_barrel_eca","Zmumu One Barrel One ECA",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu_barrel_eca) ;  
-    m_Zmumu_barrel_ecc = TH1F_LW::create("Zmumu_barrel_ecc","Zmumu One Barrel One ECC",60,60,120);  
+    m_Zmumu_barrel_ecc = new TH1F ("Zmumu_barrel_ecc","Zmumu One Barrel One ECC",60,60,120);  
     RegisterHisto(al_mon,m_Zmumu_barrel_ecc) ; 
 
     m_ZpT_n = new TH1F("ZpT_n","pT of negative tracks from Z",100,0,100);  
@@ -1546,17 +1553,17 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_hitMap_endcapC);
 
     //charge asymmetry vs.eta
-    m_eta_neg = TH1F_LW::create("eta_neg","eta for negative tracks; #eta(-)",25,-m_etaRange,m_etaRange);   
+    m_eta_neg = new TH1F ("eta_neg","eta for negative tracks; #eta(-)",25,-m_etaRange,m_etaRange);   
     RegisterHisto(al_mon,m_eta_neg);
     m_eta_neg->GetXaxis()->SetTitle("#eta"); 
     m_eta_neg->GetYaxis()->SetTitle("# tracks");   
 
-    m_eta_pos = TH1F_LW::create("eta_pos","eta for positive tracks; #eta(+)",25,-m_etaRange,m_etaRange);   
+    m_eta_pos = new TH1F ("eta_pos","eta for positive tracks; #eta(+)",25,-m_etaRange,m_etaRange);   
     RegisterHisto(al_mon,m_eta_pos);
     m_eta_pos->GetXaxis()->SetTitle("#eta"); 
     m_eta_pos->GetYaxis()->SetTitle("# tracks");   
 
-    m_eta_asym = TH1F_LW::create("eta_asym","Track Charge Asymmetry versus eta",25, -m_etaRange,m_etaRange);
+    m_eta_asym = new TH1F ("eta_asym","Track Charge Asymmetry versus eta",25, -m_etaRange,m_etaRange);
     RegisterHisto(al_mon,m_eta_asym);
     m_eta_asym->GetXaxis()->SetTitle("#eta"); 
     m_eta_asym->GetYaxis()->SetTitle("(pos-neg)/(pos+neg)");   
@@ -1570,27 +1577,27 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
     
     // lumiblock histos 
-    m_LumiBlock = TH1F_LW::create("LumiBlock","Lumi block", 1024, -0.5, 1023.5); 
+    m_LumiBlock = new TH1F ("LumiBlock","Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon,m_LumiBlock) ;
     m_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_LumiBlock->GetYaxis()->SetTitle("# events");   
 
-    m_Tracks_per_LumiBlock = TH1F_LW::create("TracksPerLumiBlock","Tracks per Lumi block", 1024, -0.5, 1023.5); 
+    m_Tracks_per_LumiBlock = new TH1F ("TracksPerLumiBlock","Tracks per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon,m_Tracks_per_LumiBlock) ;
     m_Tracks_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_Tracks_per_LumiBlock->GetYaxis()->SetTitle("# tracks");   
 
-    m_NPIX_per_LumiBlock = TH1F_LW::create("NPixPerLumiBlock","N pixel hits per Lumi block", 1024, -0.5, 1023.5); 
+    m_NPIX_per_LumiBlock = new TH1F ("NPixPerLumiBlock","N pixel hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NPIX_per_LumiBlock) ;
     m_NPIX_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NPIX_per_LumiBlock->GetYaxis()->SetTitle("# pixel hits");   
 
-    m_NSCT_per_LumiBlock = TH1F_LW::create("NSCTPerLumiBlock","N SCT hits per Lumi block", 1024, -0.5, 1023.5); 
+    m_NSCT_per_LumiBlock = new TH1F ("NSCTPerLumiBlock","N SCT hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NSCT_per_LumiBlock) ;
     m_NSCT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NSCT_per_LumiBlock->GetYaxis()->SetTitle("# SCT hits");   
 
-    m_NTRT_per_LumiBlock = TH1F_LW::create("NTRTPerLumiBlock","N TRT hits per Lumi block", 1024, -0.5, 1023.5); 
+    m_NTRT_per_LumiBlock = new TH1F ("NTRTPerLumiBlock","N TRT hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NTRT_per_LumiBlock) ;
     m_NTRT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NTRT_per_LumiBlock->GetYaxis()->SetTitle("# TRT hits");   
@@ -1599,16 +1606,6 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
   }
   return StatusCode::SUCCESS;
 
-}
-
-void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
-  
-  //histo->Sumw2(); this uses a lot of memory and isn't needed!
-  //histo->SetOption("e");
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1F_LW Histogram:" << endmsg;
-  }
 }
 
 
@@ -2497,28 +2494,6 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* h_neg, TH1F* h_pos, TH
 {
   if (h_neg->GetNbinsX()==h_pos->GetNbinsX()&& h_neg->GetNbinsX()==h_asym->GetNbinsX()) {
     for (int i=1;i<=h_neg->GetNbinsX();i++) {
-      float nneg=h_neg->GetBinContent(i);
-      float npos=h_pos->GetBinContent(i);
-      float asym=0;
-      if (nneg+npos>0) asym=(npos-nneg)/(nneg+npos);
-      h_asym->SetBinContent(i,asym);
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-                              << ">>ProcessAsymHistograms>> " << h_asym->GetTitle() 
-                              << "  bin: " << i 
-                              << "  npos=" << npos
-                              << "  nneg=" << nneg
-                              << "  asym=" << asym
-                              << endmsg;
-    }
-  }
-
-}
-
-
-void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F_LW* h_neg, TH1F_LW* h_pos, TH1F_LW* h_asym) 
-{
-  if (h_neg->GetNbinsX()==h_pos->GetNbinsX()&& h_neg->GetNbinsX()==h_asym->GetNbinsX()) {
-    for (unsigned int i=1;i<=h_neg->GetNbinsX();i++) {
       float nneg=h_neg->GetBinContent(i);
       float npos=h_pos->GetBinContent(i);
       float asym=0;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 from importlib import import_module
@@ -31,7 +31,7 @@ Building a menu happens in two stages
   * Thresholds are defined in files ThresholdDef.py
 """
 
-log = logging.getLogger("Menu.L1.L1MenuConfig")
+log = logging.getLogger(__name__)
 
 class L1MenuConfig(object):
 
@@ -662,8 +662,11 @@ class L1MenuConfig(object):
         # ------------------
         # final consistency check
         # ------------------
+
         self.l1menu.check()
 
+        # check that only the minimal set of legacy and detector thresholds is used
+        self.l1menu.checkLegacyThresholds()   
 
 
 

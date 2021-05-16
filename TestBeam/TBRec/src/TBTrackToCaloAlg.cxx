@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -169,8 +169,8 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
       if (sc.isFailure()) ATH_MSG_ERROR ("TrackParticle not found: will only play with calo " << m_TrackParticleName );
       else {
 	ATH_MSG_DEBUG ("TrackParticle found in StoreGate" );
-	for (Rec::TrackParticleContainer::const_iterator itr = (*m_particle).begin(); itr < (*m_particle).end(); itr++) {
-	  const Trk::Track* tr = (*itr)->originalTrack();
+        for (const Rec::TrackParticle* tp : *m_particle) {
+	  const Trk::Track* tr = tp->originalTrack();
 
 	  ImpactInCalo * imp = GetImpactsInCalo(tr, got_a_track);	  
 	  if(imp) outputContainer->push_back(imp);
@@ -191,9 +191,8 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
       if (sc.isFailure()) ATH_MSG_ERROR ("Tracks not found: will only play with calo " << m_TrackName );
       else {
 	ATH_MSG_DEBUG ("Tracks found in StoreGate" );
-	for (TrackCollection::const_iterator itr = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++) {
-
-	  ImpactInCalo * imp = GetImpactsInCalo(*itr, got_a_track);
+        for (const Trk::Track* tr : *m_tracks) {
+	  ImpactInCalo * imp = GetImpactsInCalo(tr, got_a_track);
 	  if(imp) outputContainer->push_back(imp);
 	  else ATH_MSG_DEBUG (" ImpactInCalo pointer not valid for this track");
 	}
@@ -212,10 +211,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
   // take the last measured point to find out if I am in barrel or endcap :
   const DataVector <const Trk::TrackParameters>* paramvec = track->trackParameters();
   if (paramvec) { 
-    DataVector <const Trk::TrackParameters>::const_iterator it = paramvec->begin();
-    DataVector <const Trk::TrackParameters>::const_iterator itEnd = paramvec->end();
-    for (;it!=itEnd; it++) 
-      trketa = (*it)->eta();
+    for (const Trk::TrackParameters* params : *paramvec)
+      trketa = params->eta();
   } 
   else
     ATH_MSG_ERROR ( "  No track parameters for this track ??? do nothing " );
@@ -463,16 +460,11 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
   
   if(sc1 == StatusCode::SUCCESS && sc2 == StatusCode::SUCCESS ){
 
-    typedef CaloClusterContainer::const_iterator cluster_iterator;
-    cluster_iterator f_clu =cluster_container->begin();
-    cluster_iterator l_clu = cluster_container->end();
-
     typedef ImpactInCaloCollection::const_iterator impact_iterator;
     impact_iterator f_imp = impact_collection->begin();
     impact_iterator l_imp = impact_collection->end();
 
-    for ( ; f_clu!=l_clu; f_clu++){ 
-      const CaloCluster* cluster = (*f_clu);
+    for (const CaloCluster* cluster : *cluster_container) {
       double hecluster = cluster->energy()/GeV;
       double heta = cluster->eta();
       double hphi = cluster->phi();
@@ -481,7 +473,7 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
                      << "(GeV), etaCaloLocal=" <<  heta 
                      << ", phiCaloLocal=" << hphi );
       
-      for ( ; f_imp!=l_imp; f_imp++){ 
+      for ( ; f_imp!=l_imp; ++f_imp){ 
 	const ImpactInCalo* impact = (*f_imp);
 		
 	ATH_MSG_INFO 
@@ -516,13 +508,7 @@ void TBTrackToCaloAlg::PrintImpact()
   
   if(sc == StatusCode::SUCCESS ){
 
-    typedef ImpactInCaloCollection::const_iterator impact_iterator;
-    impact_iterator f_imp = impact_collection->begin();
-    impact_iterator l_imp = impact_collection->end();
-
-    for ( ; f_imp!=l_imp; f_imp++){ 
-      const ImpactInCalo* impact = (*f_imp);
-
+    for (const ImpactInCalo* impact : *impact_collection) {
       const double impcosPhi = std::cos(impact->phiCaloLocal_1());
       const double impeta = impact->etaCaloLocal_1();
 
@@ -542,11 +528,10 @@ void TBTrackToCaloAlg::PrintImpact()
     ATH_MSG_INFO ( " " );
     ATH_MSG_INFO (" Now loop on Trk::Track collection " );
     ATH_MSG_INFO ( " " );
-    
-    for (TrackCollection::const_iterator itr  = 
-	   (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
+
+    for (const Trk::Track* tr : *m_tracks) {
       const Trk::Perigee *aMeasPer=
-	dynamic_cast<const Trk::Perigee*>((*itr)->perigeeParameters());
+	dynamic_cast<const Trk::Perigee*>(tr->perigeeParameters());
       if (aMeasPer==0){
 	ATH_MSG_ERROR ( "Could not get Trk::MeasuredPerigee" );
       }
@@ -672,12 +657,11 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
   }
   else{ 
     ATH_MSG_DEBUG ("Tracks found in StoreGate" );
-    
-    for (TrackCollection::const_iterator itr  = 
-	   (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
+
+    for (const Trk::Track* tr : *m_tracks) {
       
       const Trk::Perigee *aMeasPer=
-	dynamic_cast<const Trk::Perigee*>((*itr)->perigeeParameters());
+	dynamic_cast<const Trk::Perigee*>(tr->perigeeParameters());
       if (aMeasPer==0){
 	ATH_MSG_ERROR ( "Could not get Trk::MeasuredPerigee" );
       }
@@ -697,14 +681,13 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
       //           if it works, it does a new CaloCellList
       //           ==> the client has to do the delete !!!!
 
-      CaloCellList* my_list = CellsCrossedByTrack(*itr, sam, neta, nphi); 
+      CaloCellList* my_list = CellsCrossedByTrack(tr, sam, neta, nphi); 
 
       if (my_list) {
 
-	for ( CaloCellList::list_iterator itr  = 
-		my_list->begin(); itr < my_list->end(); itr++)
-	  ATH_MSG_INFO ( "found cell ! eta=" << (*itr)->eta() 
-                         << " phi=" << (*itr)->phi() << " energy=" << (*itr)->energy() );
+        for (const CaloCell* cell : *my_list)
+	  ATH_MSG_INFO ( "found cell ! eta=" << cell->eta() 
+                         << " phi=" << cell->phi() << " energy=" << cell->energy() );
 	
 	delete my_list;
 

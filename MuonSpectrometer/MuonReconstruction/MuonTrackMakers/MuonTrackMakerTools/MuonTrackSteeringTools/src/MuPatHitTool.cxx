@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
@@ -15,7 +16,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
-#include "SortMuPatHits.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -53,18 +53,15 @@ namespace Muon {
 
         return StatusCode::SUCCESS;
     }
-
-    StatusCode MuPatHitTool::finalize() { return StatusCode::SUCCESS; }
-
     bool MuPatHitTool::insert(MuPatHit* /*hit*/, MuPatHitList& /*hitList*/) const { return true; }
 
-    bool MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const {
+    bool MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
         ATH_MSG_DEBUG(" creating hit list from segment " << std::endl << m_printer->print(seg));
 
         // create parameters with very large momentum and no charge
         double momentum = 1e8;
         double charge = 0.;
-        const Trk::TrackParameters* pars = m_edmHelperSvc->createTrackParameters(seg, momentum, charge);
+        std::unique_ptr<const Trk::TrackParameters> pars{m_edmHelperSvc->createTrackParameters(seg, momentum, charge)};
         if (!pars) {
             ATH_MSG_WARNING(" could not create track parameters for segment ");
             return false;
@@ -72,14 +69,11 @@ namespace Muon {
 
         bool result = create(*pars, seg.containedMeasurements(), hitList, hitsToBeDeleted);
 
-        // clean up pars
-        delete pars;
-
         return result;
     }
 
     bool MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
-                              MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const {
+                              MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
         // store position of the current hit to speed up insertion
         MuPatHitIt currentHitIt = hitList.begin();
 
@@ -129,7 +123,7 @@ namespace Muon {
 
             // create hit and insert it into list
             ATH_MSG_VERBOSE(" inserting hit " << m_idHelperSvc->toString(id) << " " << m_printer->print(*exPars));
-            auto hit = std::make_unique<MuPatHit>(std::move(exPars), *sit, std::move(broadMeas), hitInfo);
+            std::unique_ptr<MuPatHit> hit = std::make_unique<MuPatHit>(std::move(exPars), *sit, std::move(broadMeas), hitInfo);
             currentHitIt = insert(hitList, currentHitIt, hit.get());
             hitsToBeDeleted.push_back(std::move(hit));
         }
@@ -137,7 +131,7 @@ namespace Muon {
         return true;
     }
 
-    bool MuPatHitTool::create(const Trk::Track& track, MuPatHitList& hitList, HitGarbage& hitsToBeDeleted) const {
+    bool MuPatHitTool::create(const Trk::Track& track, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
         // store position of the current hit to speed up insertion
         MuPatHitIt currentHitIt = hitList.begin();
 
@@ -183,12 +177,8 @@ namespace Muon {
 
             // create hit and insert it into list
             std::shared_ptr<const Trk::TrackParameters> pars_sp(pars, MuPatHit::Unowned());
-            auto hit = std::make_unique<MuPatHit>(std::move(pars_sp), meas, std::move(broadMeas), hitInfo);
-            if (msgLvl(MSG::VERBOSE)) {
-                msg(MSG::VERBOSE) << " inserting hit " << m_printer->print(*meas);
-                if (hitInfo.status == MuPatHit::Outlier) msg(MSG::VERBOSE) << " Outlier";
-                msg(MSG::VERBOSE) << endmsg;
-            }
+            std::unique_ptr<MuPatHit> hit = std::make_unique<MuPatHit>(std::move(pars_sp), meas, std::move(broadMeas), hitInfo);
+            ATH_MSG_VERBOSE(" inserting hit " << m_printer->print(*meas) << (hitInfo.status == MuPatHit::Outlier ? " Outlier" : ""));
 
             currentHitIt = insert(hitList, currentHitIt, hit.get());
             hitsToBeDeleted.push_back(std::move(hit));

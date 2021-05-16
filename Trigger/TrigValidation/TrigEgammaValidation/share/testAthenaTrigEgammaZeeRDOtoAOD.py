@@ -32,7 +32,6 @@ include("RecExCond/RecExCommon_flags.py")
 
 #------------ This is for ATN/RTT tests only ---------
 #TriggerFlags.triggerMenuSetup = 'default'
-TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
 #if  ('menu' in dir()):
    # TiriggerFlags.triggerMenuSetup=menu 

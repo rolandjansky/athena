@@ -81,6 +81,7 @@ class TileDigitsMaker: public AthAlgorithm {
     virtual StatusCode initialize() override; //!< initialize method
     virtual StatusCode execute() override;    //!< execute method
     virtual StatusCode finalize() override;   //!< finalize method
+    virtual bool isClonable() const override final { return true; }
 
   private:
     StatusCode overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[], const EventContext &ctx);

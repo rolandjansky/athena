@@ -402,9 +402,9 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                   double genPar_theta = direction.theta();
 
                   // Create a planar surface and transform the vertex information to a TrackParameters object
-                  Amg::Transform3D* globalSurfaceCentre = new Amg::Transform3D();
-                  globalSurfaceCentre->setIdentity();
-                  *globalSurfaceCentre *= Amg::Translation3D(productionVertex.x(),
+                  Amg::Transform3D globalSurfaceCentre;
+                  globalSurfaceCentre.setIdentity();
+                  globalSurfaceCentre *= Amg::Translation3D(productionVertex.x(),
                                                              productionVertex.y(), productionVertex.z());
 
                   Trk::PlaneSurface planeSurface(globalSurfaceCentre, 5., 5.);

@@ -8,8 +8,11 @@
 #include <iterator> // remove it (it is here to help with debugging)
 
 #include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/crc64.h"
 
 #include "TrigConfHLTData/HLTUtils.h"
 
@@ -20,6 +23,7 @@
 
 #include "TrigSerializeResult/StringSerializer.h"
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
+#include <unordered_set>
 
 #define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
@@ -240,12 +244,39 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
 
 
   MLOG(DEBUG) << "do we have holder payload? " << (inputIt != input.end()) << endmsg;
+
+  // Keep track of blobs we've deserialized for each event.
+  struct DeserializedMemo
+  {
+    std::mutex m_mutex;
+    EventContext::ContextEvt_t m_evt;
+    std::unordered_set<uint64_t> m_hashes;
+  };
+  static SG::SlotSpecificObj<DeserializedMemo> memos;
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  DeserializedMemo& memo = *memos.get (ctx);
+  std::scoped_lock memolock (memo.m_mutex);
+  if (memo.m_evt != ctx.evt()) {
+    memo.m_hashes.clear();
+    memo.m_evt = ctx.evt();
+  }
   
   // EOF TEs deserialization
   // deserialize Features
   std::vector<uint32_t>::const_iterator it  = inputIt; 
   std::vector<uint32_t> blob;
   while ( extractBlob(input, it, blob) ) {
+    // Skip this blob if we've already deserialized it.
+    // See ATLASRECTS-6278 and ATEAM-734.
+    uint64_t hash = CxxUtils::crc64 ((const char*)blob.data(),
+                                     blob.size()*sizeof(*blob.data()));
+    if (!memo.m_hashes.insert (hash).second) {
+      MLOG(DEBUG) << "blob with size/hash " << blob.size() << "/" << hash
+                  << " already deserialized; skipping" << endmsg;
+      continue;
+    }
+                                     
     MLOG(DEBUG) << "deserializing holder blob of size: " << blob.size() << endmsg;
     auto holder = std::shared_ptr<HLT::BaseHolder>(m_holderfactory->fromSerialized(version,blob.begin(),blob.end()));
     if (! holder ) {

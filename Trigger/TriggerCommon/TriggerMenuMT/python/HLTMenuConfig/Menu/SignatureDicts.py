@@ -139,8 +139,8 @@ JetChainParts = {
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
                       # 'fbdj' (forward-backward + dijet) scenario:
                       #   default eta selection for dijet mass cut is 0eta490
-                      'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
-                      'fbdjnoshared10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
+                      'FBDJSHARED',  # Forward backward jets + dijet, default parameters, fb and dj can share
+                      'FBDJNOSHARED10etXX20etXX34massXX50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       # 'dijet' scenario applies always a mass cut (deta and dphi cuts are optional)
                       #   0eta490 is the default eta selections for j1/j2
                       #   j12et sets the same et cuts for j1et and j2et
@@ -153,30 +153,36 @@ JetChainParts = {
                       #     djdeta sel (optional)
                       #
                       # et threshold cuts
-                      'dijet80j12etSEP0j12eta240SEP700djmass', # Test dijet mass sel
-                      'dijet80j12etSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
-                      'dijet70j12etSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
-                      'dijet50j12etSEP1000djmass',
-                      'dijet50j12etSEP1000djmassSEPdjdphi240',
-                      'dijet50j12etSEP900djmass',
-                      'dijet35j12etSEP1000djmass',
-                      'dijet20j12etSEP110djmass',  # very loose cuts for testing
+                      'DIJET80j12etXX0j12eta240XX700djmass', # Test dijet mass sel
+                      'DIJET80j12etXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
+                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
+                      'DIJET50j12etXX1000djmass',
+                      'DIJET50j12etXX1000djmassXXdjdphi240',
+                      'DIJET50j12etXX900djmass',
+                      'DIJET35j12etXX1000djmass',
+                      'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
-                      'dijet80j12ptSEP0j12eta240SEP700djmass', # Test dijet mass sel
-                      'dijet80j12ptSEP700djmassSEPdjdphi260', # Test dijet mass sel including dphi cut
-                      'dijet70j12ptSEP1000djmassSEPdjdphi200SEP400djdeta', # dijet mass sel including dphi and deta cuts
-                      'dijet50j12ptSEP1000djmass',
-                      'dijet50j12ptSEP1000djmassSEPdjdphi240',
-                      'dijet50j12ptSEP900djmass',
-                      'dijet35j12ptSEP1000djmass',
-                      'dijet20j12ptSEP110djmass',  # very loose cuts for testing
-   
-                      'dijetAliasExample',         # example of an alias for a dijet scenario with very loose cuts for testing
+                      'DIJET80j12ptXX0j12eta240XX700djmass', # Test dijet mass sel
+                      'DIJET80j12ptXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
+                      'DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
+                      'DIJET50j12ptXX1000djmass',
+                      'DIJET50j12ptXX1000djmassXXdjdphi240',
+                      'DIJET50j12ptXX900djmass',
+                      'DIJET35j12ptXX1000djmass',
+                      'DIJET20j12ptXX110djmass',  # very loose cuts for testing
+                      'DIJETaliasExample',        # example of an alias for a dijet scenario with very loose cuts for testing
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
-                      'ht1000',
-                      'ht500',
-                      'ht100SEP10et',
-                      'ht50SEP10etSEP0eta320' # HT selection with explicit jet et/eta cuts
+                      'HT1000',
+                      'HT500',
+                      'HT1000XX30et',
+                      'HT500XX30et',
+                      'HT50',
+                      'HT50XX010jvt', # example of a HT chain using only jets passing JVT
+                      'HT50XX30et',
+                      'HT50XX30etXX010jvt', # example of a HT chain using only jets passing JVT
+                      'HT100XX10et',
+                      'HT50XX10etXX0eta320', # HT selection with explicit jet et/eta cuts
+                      'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
@@ -185,13 +191,13 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
+      ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['cleanLB', 'maskSEP300ceta210SEP300nphi10',
+    ['CLEANLB', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
-     'ptrangeSEP0r1',  
-     'ptrangeSEP2r3'], 
+     'PTRANGE0r1',
+     'PTRANGE2r3'],
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -456,7 +462,7 @@ ElectronChainParts = {
     'alignmentGroup' : ['Electron','Egamma'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'extra'          : '',
+    'extra'          : ['probe','ion'],
     'multiplicity'   : '',
     'trigType'       : ['e'],
     'threshold'      : '',
@@ -529,7 +535,7 @@ PhotonChainParts = {
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
     'topo'          : AllowedTopos_g,
-    'chainPartIndex': list(range(0,10))
+    'chainPartIndex': list(range(0,10)),
     }
 
 # ---- Photon Dictionary of default Values ----
@@ -552,7 +558,7 @@ PhotonChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'chainPartIndex': 0
+    'chainPartIndex': 0,
     }
 
 #==========================================================

@@ -811,10 +811,11 @@ Trk::CylinderLayer* Trk::CylinderVolumeCreator::createCylinderLayer(double z,
     // prepare the material
     Trk::LayerMaterialProperties* cylinderMaterial = nullptr;
     // positioning
-    Amg::Transform3D* transform = nullptr;
-    transform = (fabs(z)>0.1) ? new Amg::Transform3D : nullptr;
-    if (transform)
-       (*transform) = Amg::Translation3D(0.,0.,z);
+    std::unique_ptr<Amg::Transform3D> transform =
+      (fabs(z) > 0.1) ? std::make_unique<Amg::Transform3D>() : nullptr;
+    if (transform){
+      (*transform) = Amg::Translation3D(0., 0., z);
+    }
    
     // z-binning
     Trk::BinUtility layerBinUtility(binsZ,z-halflengthZ,z+halflengthZ,Trk::open,Trk::binZ);
@@ -838,7 +839,7 @@ Trk::CylinderLayer* Trk::CylinderVolumeCreator::createCylinderLayer(double z,
     // bounds
     Trk::CylinderBounds* cylinderBounds = new Trk::CylinderBounds(r,halflengthZ);
     // create the cylinder
-    Trk::CylinderLayer* cylinderLayer = transform ? new Trk::CylinderLayer(transform,
+    Trk::CylinderLayer* cylinderLayer = transform ? new Trk::CylinderLayer(*transform,
                                                                            cylinderBounds,
                                                                            *cylinderMaterial,
                                                                            thickness,
@@ -865,7 +866,8 @@ Trk::DiscLayer* Trk::CylinderVolumeCreator::createDiscLayer(double z,
     ATH_MSG_VERBOSE( "Creating a DiscLayer at position " << z << " and rMin/rMax " << rMin << " / " << rMax);
 
     // positioning
-    Amg::Transform3D* transform = fabs(z)>0.1 ? new Amg::Transform3D : nullptr;
+    std::unique_ptr<Amg::Transform3D> transform =
+      fabs(z) > 0.1 ? std::make_unique<Amg::Transform3D>() : nullptr;
     if (transform)
       (*transform) = Amg::Translation3D(0.,0.,z);
     Trk::BinnedLayerMaterial* discMaterial = nullptr;
@@ -886,7 +888,7 @@ Trk::DiscLayer* Trk::CylinderVolumeCreator::createDiscLayer(double z,
     // bounds
     Trk::DiscBounds* discBounds = new Trk::DiscBounds(rMin,rMax);
     // create the disc
-    Trk::DiscLayer* discLayer = new Trk::DiscLayer(transform,
+    Trk::DiscLayer* discLayer = new Trk::DiscLayer(*transform,
                                                    discBounds,
                                                    *discMaterial,
                                                    thickness,

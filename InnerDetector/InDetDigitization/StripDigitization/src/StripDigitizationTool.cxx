@@ -123,7 +123,60 @@ namespace {
       m_chargedDiodes->add(diode, scharge.charge());
     }
   }
+
+  class MultiElementChargeInserter
+    : public ISiSurfaceChargesInserter
+{
+public:
+  MultiElementChargeInserter (SiChargedDiodeCollectionMap & chargedDiodesVec, const InDetDD::SCT_ModuleSideDesign * mum)
+
+        : m_chargedDiodesVecForInsert(chargedDiodesVec),
+        m_mum(mum) {
+    }
+
+    void operator () (const SiSurfaceCharge &scharge) const;
+private:
+  SiChargedDiodeCollectionMap & m_chargedDiodesVecForInsert;
+  const InDetDD::SCT_ModuleSideDesign * m_mum;
+};
+
+
+
+void MultiElementChargeInserter::operator ()
+    (const SiSurfaceCharge &scharge) const {
+
+  // get the diode in which this charge is
+  SiCellId motherDiode = m_mum->cellIdOfPosition(scharge.position());
+  
+  int row = -1;
+  int strip = -1;
+  
+  if(motherDiode.isValid()){
+  m_mum->getStripRow(motherDiode,&strip,&row);
+
+  //now use this row
+
+  if(m_chargedDiodesVecForInsert.at(row)){
+    
+    SiCellId diode = m_chargedDiodesVecForInsert.at(row)->element()->cellIdOfPosition(scharge.position());
+    
+    
+    if (diode.isValid()) {
+      // add this charge to the collection (or merge in existing charged
+      // diode)
+      m_chargedDiodesVecForInsert.at(row)->add(diode, scharge.charge());
+    }
+  }
+  }
+  
+}
+
+
 } // anonymous namespace
+
+
+
+
 
 // ----------------------------------------------------------------------
 // Initialise the surface charge generator Tool
@@ -271,13 +324,20 @@ void StripDigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHa
   ATH_MSG_DEBUG("Digitizing hits");
   int hitcount{0}; // First, elements with hits.
 
-  SiChargedDiodeCollection chargedDiodes;
+  //map with key representing the row of strips
+  SiChargedDiodeCollectionMap chargedDiodesMap;
 
-  while (digitizeElement(ctx, &chargedDiodes, thpcsi, rndmEngine)) {
-    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
+  while (digitizeElement(ctx, chargedDiodesMap, thpcsi, rndmEngine)) {
+    
+    ATH_MSG_DEBUG("Digitizing "<<chargedDiodesMap.size()<<" Element(s)");
 
     hitcount++;  // Hitcount will be a number in the hit collection minus
     // number of hits in missing mods
+    
+    for (SiChargedDiodeCollectionIterator & chargedDiodesIter : chargedDiodesMap){
+    
+    SiChargedDiodeCollection & chargedDiodes = *chargedDiodesIter.second;
+    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
 
     ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  "
                   << m_detID->barrel_ec(chargedDiodes.identify()) << " - "
@@ -305,6 +365,7 @@ void StripDigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHa
     }
 
     chargedDiodes.clear();
+  }
   }
   ATH_MSG_DEBUG("hits processed");
   return;
@@ -360,12 +421,14 @@ void StripDigitizationTool::digitizeNonHits(const EventContext& ctx, SG::WriteHa
   return;
 }
 
-bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodesMap, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
     return false;
   }
+
+  chargedDiodesMap.clear();
 
   // get the iterator pairs for this DetEl
 
@@ -401,8 +464,56 @@ bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDi
     ATH_MSG_ERROR("detector manager could not find element with id = " << id);
     return false;
   }
-  // create the charged diodes collection
-  chargedDiodes->setDetectorElement(sielement);
+
+
+  //Now we have to get the sub-elements if they exist!
+  const InDetDD::SCT_ModuleSideDesign * thisDesign = static_cast<const InDetDD::SCT_ModuleSideDesign*>(&sielement->design());
+  
+  const InDetDD::SCT_ModuleSideDesign * motherDesign = thisDesign->getMother();
+  
+  //should become un-ordederd map
+  std::map<int, const InDetDD::SCT_ModuleSideDesign *> children;
+  
+  if(motherDesign){
+    //see above
+    children = motherDesign->getChildren();
+  }
+  else {
+    //if no mother/children relationship, just use what you got intially
+    children.emplace(0,thisDesign);
+  }
+ 
+  
+  for (const std::pair <const int, const InDetDD::SCT_ModuleSideDesign *> &subDesign : children){
+    
+    //Create the charged diodes collection.
+    //We are incrementing the eta index with the number of the 
+    //sub-element (child) in the returned set.
+    //This "fills in" the gaps in the SiHitIdentifiers with the 
+    //number of the strip row, such that the SCT_ID is continuous
+    //once we split the single simulated sensor into multiple SiDetectorElements
+    Identifier id_child{m_detID->wafer_id(firstHit->getBarrelEndcap(), firstHit->getLayerDisk(),
+					    firstHit->getPhiModule(), firstHit->getEtaModule()+subDesign.first,
+					  firstHit->getSide())};
+    
+    IdentifierHash hash_child = m_detID->wafer_hash(id_child);
+    
+    const InDetDD::SiDetectorElement* sielement_child{elements->getDetectorElement(hash_child)};
+
+    if(sielement_child){
+      
+      std::unique_ptr<SiChargedDiodeCollection> thisChargedDiode(std::make_unique<SiChargedDiodeCollection>()); 
+      int i_index = subDesign.first;
+      thisChargedDiode->setDetectorElement(sielement_child);
+      chargedDiodesMap.insert({i_index,std::move(thisChargedDiode)});
+
+    }
+    
+    else ATH_MSG_ERROR("detector manager could not find element with id = "<<id_child<<" Barrel=" << firstHit->getBarrelEndcap() << " layer=" <<
+		       firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule()+subDesign.first <<" Phi=" << firstHit->getPhiModule() 
+		       << " Side=" <<firstHit->getSide());
+  }
+
 
   // Loop over the hits and created charged diodes:
   while (i != e) {
@@ -416,11 +527,30 @@ bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDi
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine, ctx);
+
+      if(!motherDesign) {
+	//no row splitting
+	//should only be one diode collection here, so just use it
+	if(chargedDiodesMap.size()>1) {
+	  ATH_MSG_WARNING("More DiodesCollections("<<chargedDiodesMap.size()<<") than expected (1). Please check your configuration!");
+	}
+	
+	m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement,chargedDiodesMap[0].get()), rndmEngine, ctx);
+      }
+      
+      else{
+	//with row splitting
+	m_sct_SurfaceChargesGenerator->process(sielement, phit,MultiElementChargeInserter(chargedDiodesMap,motherDesign), rndmEngine, ctx);
+      }
+
       ATH_MSG_DEBUG("charges filled!");
     }
   }
-  applyProcessorTools(chargedDiodes, rndmEngine); // !< Use of the new AlgTool surface
+  
+  //Now loop over set of diodes and apply processors
+  for (SiChargedDiodeCollectionIterator & theDiode : chargedDiodesMap){
+    if(theDiode.second) applyProcessorTools(theDiode.second.get(), rndmEngine); // !< Use of the new AlgTool surface
+  }
   // charges generator class
   return true;
 }

@@ -274,7 +274,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     } 
 
     /* Flag tracks as subtracted */
-    thisEfRecTrack->setSubtracted();
+    if (!thisEfRecTrack->isSubtracted()) thisEfRecTrack->setSubtracted();
   }
 }
 

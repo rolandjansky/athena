@@ -1,4 +1,4 @@
-#include "src/TrigmuRoIMT.h"
+#include "src/TrigmuRoI.h"
 
-DECLARE_COMPONENT( TrigmuRoIMT )
+DECLARE_COMPONENT( TrigmuRoI )
 

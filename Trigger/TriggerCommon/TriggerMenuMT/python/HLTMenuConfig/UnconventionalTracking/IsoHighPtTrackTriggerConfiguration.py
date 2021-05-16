@@ -5,7 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.Logging import logging
 
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.IsoHighPtTrackTriggerConfiguration")
+log = logging.getLogger(__name__)
 
 
 def FTFTrackSequence(ConfigFlags):
@@ -39,7 +39,7 @@ def FTFTrackSequence(ConfigFlags):
 
 def IsoHPtTrackTriggerHypoSequence():
         from TrigLongLivedParticlesHypo.TrigIsoHPtTrackTriggerHypoTool import TrigIsoHPtTrackTriggerHypoToolFromDict
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlgMT)
+        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigIsoHPtTrackTriggerHypoAlg)
 
         # Get sequence name
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -47,7 +47,7 @@ def IsoHPtTrackTriggerHypoSequence():
         sequenceOut = IDTrigConfig.tracks_FTF()
 
         #Setup the hypothesis algorithm
-        theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlgMT("L2IsoHPtTrack")
+        theIsoHPtTrackTriggerHypo = TrigIsoHPtTrackTriggerHypoAlg("L2IsoHPtTrack")
         theIsoHPtTrackTriggerHypo.trackKey =  sequenceOut
 
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -63,18 +63,18 @@ def IsoHPtTrackTriggerHypoSequence():
                             )
 
 def FTFRecoOnlySequence():
-        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-        from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
+        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
+        from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ( TrkSeq, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
 
-        HypoAlg = TrigStreamerHypoAlgMT("UncTrkDummyStream")
+        HypoAlg = TrigStreamerHypoAlg("UncTrkDummyStream")
 
 
         log.debug("Building the Step dictinary for IsoHPt!")
         return MenuSequence( Sequence    = seqAND("UncTrkrecoSeq", TrkSeq),
                             Maker       = InputMakerAlg,
                             Hypo        = HypoAlg,
-                            HypoToolGen = StreamerHypoToolMTgenerator
+                            HypoToolGen = StreamerHypoToolGenerator
                             )

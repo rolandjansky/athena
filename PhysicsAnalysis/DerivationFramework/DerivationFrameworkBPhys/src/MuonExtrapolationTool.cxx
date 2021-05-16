@@ -119,7 +119,7 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
   
   // create the barrel as a cylinder surface centered at 0,0,0
   Amg::Vector3D barrelCentre(0., 0., 0.);
-  Amg::Transform3D* matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), barrelCentre);
+  Amg::Transform3D matrix = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), barrelCentre);
   
   Trk::CylinderSurface* cylinder = 
     new Trk::CylinderSurface(matrix,
@@ -127,8 +127,6 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
 			     m_barrelPivotPlaneHalfLength);
   if (!cylinder) {
     ATH_MSG_WARNING("extrapolateToTriggerPivotPlane :: new Trk::CylinderSurface failed.");
-    delete matrix;
-    matrix = 0;
     return 0;
   }
   // and then attempt to extrapolate our track to this surface, checking for the boundaries of the barrel
@@ -155,7 +153,7 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
 
   Amg::Vector3D endcapCentre(0., 0., m_endcapPivotPlaneZ);
   // much better!
-  matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
+  matrix = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
   
   Trk::DiscSurface* disc = 
     new Trk::DiscSurface(matrix,
@@ -163,8 +161,6 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
 			 m_endcapPivotPlaneMaximumRadius);
   if (!disc) {
     ATH_MSG_WARNING("extrapolateToTriggerPivotPlane :: new Trk::DiscSurface failed."); 
-    delete matrix; 
-    matrix = 0; 
     return 0;
   }
   

@@ -97,7 +97,6 @@ StatusCode TileRawCorrelatedNoise::initialize() {
 //        ATH_MSG_DEBUG( "Matrix is being loaded: " << buff );
 //      }
       // load tokens to be searched for in a string
-      char* word;
       const char* TOKENS = { " \t\n" };
       // read Matrix
       int dima = 48;
@@ -109,16 +108,11 @@ StatusCode TileRawCorrelatedNoise::initialize() {
             // Check for comment lines
             if (*buff == '!' || *buff == '*') continue;
             // read value
-            int error = 0;
-            if (column == 0) {
-              if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
-            } else {
-              if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
+            double pippo = 0;
+            if (const char* word = strtok_r(column==0 ? buff : nullptr, TOKENS, &saveptr))
+            {
+              pippo = atof(word);
             }
-
-            double pippo;
-            if (error) pippo = 0.;
-            else pippo = atof(word);
 
             ATH_MSG_VERBOSE ( "elem " << column << " is " << pippo );
             int chline = line;
@@ -178,7 +172,6 @@ StatusCode TileRawCorrelatedNoise::initialize() {
         //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endmsg;
         //}
         // load tokens to be searched for in a string
-        char* word;
         const char* TOKENS = { " \t\n" };
         // read Vector
         int dima = 48;
@@ -190,17 +183,12 @@ StatusCode TileRawCorrelatedNoise::initialize() {
               // Check for comment lines
               if (*buff == '!' || *buff == '*') continue;
               // read value
-              int error = 0;
-              if (Sample == 0) {
-                if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
-              } else {
-                if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
-              }
-              double pippo;
-              if (error)
-                pippo = 0.;
-              else
+              double pippo = 0;
+              if (const char* word = strtok_r(Sample==0 ? buff : nullptr, TOKENS, &saveptr))
+              {
                 pippo = atof(word);
+              }
+
               ATH_MSG_VERBOSE ( "elem " << Sample << " is " << pippo );
               int chline = line;
               // read lines of mean matrix in pmt order but save it in channel order if m_pmtOrder is true

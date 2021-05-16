@@ -30,8 +30,6 @@
    configuration services in Athena:
      - TrigConf::ILVL1ConfigSvc: Interface providing LVL1 configuration data.
      - TrigConf::IHLTConfigSvc: Interface providing HLT configuration data.
-     - TrigConf::IL1TopoConfigSvc: Interface providing the configuration of
-       the L1Topo hardware.
      - TrigConf::ITrigConfigSvc: Interface providing all aspects of the
        trigger configuration for offline usage. This is the most often used
        interface for analysis purposes.

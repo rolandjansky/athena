@@ -61,23 +61,17 @@ public:
 
   /**Destructor*/
   virtual ~PerigeeSurface() = default;
- 
+
   /**Constructor from GlobalPosition*/
   PerigeeSurface(const Amg::Vector3D& gp);
 
   /**Constructor with a Transform by ref - needed for tilt */
   PerigeeSurface(const Amg::Transform3D& tTransform);
 
-  /**Constructor with a Transform by unique_ptr - needed for tilt */
-  PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
-
-  /**Constructor with a Transform - needed for tilt */
-  PerigeeSurface(Amg::Transform3D* tTransform);
-
   /**Copy constructor with shift*/
   PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
 
- /**Virtual constructor*/
+  /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override final;
 
   /**Equality operator*/
@@ -178,7 +172,7 @@ public:
      into the global frame. for calculating the global position, a momentum
      direction has to be provided as well, use the appropriate function!
        */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpos) const;
 
   /** This method is the true local->global transformation.<br>
       by providing a locR and locZ coordinate such as a GlobalMomentum
@@ -186,8 +180,8 @@ public:
       The choice between the two possible canditates is done by the sign of the
      radius
       */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos,
-                                     const Amg::Vector3D& glomom) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpos,
+                              const Amg::Vector3D& glomom) const;
 
   /** LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,

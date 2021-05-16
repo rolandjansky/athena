@@ -4,6 +4,7 @@
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver algorithm
@@ -83,6 +84,9 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
         kwargs.setdefault('MuonReceiverDigitsContainer', flags.Overlay.BkgPrefix + 'MuRcvDigitsCnt')
     else:
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
+
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     TilePulseForTileMuonReceiver=CompFactory.TilePulseForTileMuonReceiver
     acc.addEventAlgo(TilePulseForTileMuonReceiver(**kwargs), primary = True)

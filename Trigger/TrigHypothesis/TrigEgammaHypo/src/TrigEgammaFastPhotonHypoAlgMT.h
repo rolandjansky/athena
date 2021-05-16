@@ -6,10 +6,8 @@
 #define TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOALGMT_H 1
 
 #include <string>
-
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
-
-#include "TrigEgammaFastPhotonHypoTool.h"
+#include "TrigEgammaFastPhotonHypoToolInc.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
 
@@ -21,18 +19,17 @@
 
 class TrigEgammaFastPhotonHypoAlgMT  :  public ::HypoBase 
 { 
- public: 
+  public: 
 
-  TrigEgammaFastPhotonHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigEgammaFastPhotonHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute(const EventContext& context) const override;
 
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  execute(const EventContext& context) const override;
-
- private: 
-  ToolHandleArray< TrigEgammaFastPhotonHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
-  // internally used to getch from views
-  SG::ReadHandleKey< xAOD::TrigPhotonContainer > m_photonsKey {this, "Photons", "L2PhotonContainer", "Input"};
+  private: 
+    ToolHandleArray< TrigEgammaFastPhotonHypoToolInc > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
+    Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
+    // internally used to getch from views
+    SG::ReadHandleKey< xAOD::TrigPhotonContainer > m_photonsKey {this, "Photons", "L2PhotonContainer", "Input"};
   
 }; 
 

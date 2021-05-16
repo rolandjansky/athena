@@ -17,7 +17,7 @@ from ..LVL1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.Lvl1.py')
+log = logging.getLogger(__name__)
 
 class ItemDef(object):
     """

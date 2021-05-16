@@ -53,7 +53,7 @@ void testit (const Trk::MaterialProperties& trans1)
 {
   MaterialPropertiesCnv_p1 cnv;
   Trk::MaterialProperties_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::MaterialProperties trans2;
   cnv.persToTrans (&pers, &trans2, log);

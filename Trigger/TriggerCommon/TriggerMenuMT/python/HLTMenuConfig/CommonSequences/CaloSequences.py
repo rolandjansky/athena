@@ -30,7 +30,7 @@ def fastCaloSequence(flags, name="fastCaloSequence"):
 
 
 
-def fastCaloMenuSequence(name, doRinger=True):
+def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
     """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     """
@@ -50,9 +50,8 @@ def fastCaloMenuSequence(name, doRinger=True):
     return MenuSequence( Sequence    = sequence,
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
-                         HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
-
-
+                         HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
@@ -76,8 +75,8 @@ def caloClusterRecoSequence(
         outputName="HLT_TopoCaloClustersFS"):
     """ Create the EM-level fullscan clusters """
     cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
-    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-    alg = TrigCaloClusterMakerMT_topo(
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
+    alg = TrigCaloClusterMaker_topo(
             name,
             doMoments=True,
             doLC=False,
@@ -93,8 +92,8 @@ def LCCaloClusterRecoSequence(
     The clusters will be created as a shallow copy of the EM level clusters
     """
     em_sequence, em_clusters = RecoFragmentsPool.retrieve(caloClusterRecoSequence, flags=None, RoIs=RoIs)
-    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterCalibratorMT_LC
-    alg = TrigCaloClusterCalibratorMT_LC(
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterCalibrator_LC
+    alg = TrigCaloClusterCalibrator_LC(
             name,
             InputClusters = em_clusters,
             OutputClusters = outputName,

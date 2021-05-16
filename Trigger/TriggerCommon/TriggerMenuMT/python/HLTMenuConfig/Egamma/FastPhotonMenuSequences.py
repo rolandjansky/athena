@@ -10,13 +10,14 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # logger
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonMenuSequences' )
+log = logging.getLogger(__name__)
 
 
 def fastPhotonMenuSequence():
     """Creates secpond step photon sequence"""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import CaloMenuDefs
+
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
@@ -28,6 +29,7 @@ def fastPhotonMenuSequence():
     thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
+
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
     l2PhotonViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
@@ -37,12 +39,12 @@ def fastPhotonMenuSequence():
     roiTool.RoIEtaWidth = 0.05
     roiTool.RoIPhiWidth = 0.10
     l2PhotonViewsMaker.RoITool = roiTool
-    l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" 
+    l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs"
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
     l2PhotonViewsMaker.RequireParentView = True
-    
+
     thePhotonFex.RoIs = l2PhotonViewsMaker.InViewRoIs
 
     photonInViewAlgs = parOR("photonInViewAlgs", [ViewVerify, thePhotonFex ])
@@ -60,7 +62,6 @@ def fastPhotonMenuSequence():
 
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
     from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
-
 
     return MenuSequence( Maker=l2PhotonViewsMaker,
                          Sequence=photonAthSequence,

@@ -5,7 +5,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.CFElements import seqAND
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT, TrigStreamerHypoToolMT
+from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg, TrigStreamerHypoTool
 
 
 def ALFAPerfSequence():
@@ -15,10 +15,10 @@ def ALFAPerfSequence():
 #        inputMaker.RoIs="TimeBurnerInputRoIs"
 
     reco = parOR("ALFAPerfReco", [TrigALFAROBMonitor()])
-    hypoAlg = TrigStreamerHypoAlgMT("ALFAPerfHypo")
+    hypoAlg = TrigStreamerHypoAlg("ALFAPerfHypo")
     hypoAlg.RuntimeValidation = False 
     def alwaysRejectHypoToolGen(chainDict):
-        return TrigStreamerHypoToolMT(chainDict["chainName"], Pass = False)
+        return TrigStreamerHypoTool(chainDict["chainName"], Pass = False)
 
     viewSeq = seqAND("ALFAPerfRecoView", [inputMakerAlg, reco])
 

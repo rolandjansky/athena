@@ -22,13 +22,15 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::initialize()
 
   ATH_CHECK( m_hypoTools.retrieve() );
 
+  ATH_MSG_DEBUG( "Retrieving egammaElectronCBTool..."  );
+  ATH_CHECK(m_egammaElectronCBTools.retrieve());
+
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
   ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
   ATH_CHECK(m_egammaElectronLHTools.retrieve());
-
-  //ATH_MSG_DEBUG( "Retrieving egammaElectronDNNTool..."  );
-  //ATH_CHECK(m_egammaElectronDNNTools.retrieve());
-
+  ATH_MSG_DEBUG( "Retrieving egammaElectronDNNTool..."  );
+  ATH_CHECK(m_egammaElectronDNNTools.retrieve());
+ 
   // Retrieving Luminosity info
   ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
   ATH_CHECK( m_avgMuKey.initialize() );
@@ -46,8 +48,8 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 
   auto timer = Monitored::Timer("TIME_exec");
   auto timer_lh = Monitored::Timer("TIME_LH_exec");
-  //auto timer_dnn = Monitored::Timer("TIME_DNN_exec");
-  auto monitoring = Monitored::Group( m_monTool, timer, timer_lh);
+  auto timer_dnn = Monitored::Timer("TIME_DNN_exec");
+  auto monitoring = Monitored::Group( m_monTool, timer, timer_lh, timer_dnn);
 
 
   timer.start();
@@ -55,7 +57,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
+  ATH_MSG_DEBUG( "Running in precisionElectron step with "<< previousDecisionsHandle->size() <<" previous decisions");
 
 
   // new decisions
@@ -79,7 +81,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
     ATH_CHECK( viewEL.isValid() );
     auto electronHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context);
     ATH_CHECK( electronHandle.isValid() );
-    ATH_MSG_DEBUG ( "Electron handle size: " << electronHandle->size() << "..." );
+    ATH_MSG_DEBUG ( "Precision Electron handle size: " << electronHandle->size() << "..." );
     // Loop over the electronHandles
     size_t validelectrons=0;
     for (size_t cl=0; cl< electronHandle->size(); cl++){
@@ -88,11 +90,11 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
         auto el = ViewHelper::makeLink( *viewEL, electronHandle, cl );
         ATH_MSG_DEBUG ( "Checking ph.isValid()...");
         if( !el.isValid() ) {
-          ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
+          ATH_MSG_DEBUG ( "Precision ElectronHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
         }
 
         ATH_CHECK(el.isValid());
-        ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " processing...");
+        ATH_MSG_DEBUG ( "Precision ElectronHandle in position " << cl << " processing...");
         auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
         d->setObjectLink( TCU::featureString(),  el );
         TCU::linkToPrevious( d, decisionInput().key(), counter );
@@ -109,7 +111,15 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
           info.valueDecorator["avgmu"] = avg_mu;
         }
 
+        // Decorate the info with all CB decisions
+        for (std::size_t i = 0; i < m_cbNames.size(); ++i) {
+          auto const& pidname = m_cbNames[i];
+
+          info.pidDecorator[pidname] = (bool)m_egammaElectronCBTools[i]->accept(electronHandle->at(cl));
+        }
+
         // Decorate the info with all LH decisions
+        ATH_MSG_DEBUG ("Using LH Tool..");
         int idx=0;
         for ( auto &pidname : m_lhNames ){
           timer_lh.start();
@@ -127,23 +137,25 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
           timer_lh.stop();
           idx++;
         }
-
-
-        /* TODO: We should include the DNN here (For future)
-        idx=0
+       
+        // Decorate the info with DNN decision
+        ATH_MSG_DEBUG ("Using DNN Tool..");
+        idx = 0;
         for ( auto &pidname : m_dnnNames ){
+          ATH_MSG_DEBUG("pidname: "<<pidname);
           timer_dnn.start();
           if(eventInfoDecor.isPresent()) {
             float avg_mu = eventInfoDecor(0);
-            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTool[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+            ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
           }else{
             ATH_MSG_WARNING("EventInfo decoration not available!");
-            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTool[idx]->accept(context, electronHandle.cptr()->at(cl));
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl));
+            ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
           }
           timer_dnn.stop();
           idx++;
         }
-        */
 
         toolInput.push_back( info );
         validelectrons++;

@@ -95,7 +95,7 @@ double EMShower::parameter(egammaParameters::ParamDef key) const {
 // ==================================================================
 void EMShower::set_parameter(egammaParameters::ParamDef key, double value, bool overwrite) {
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   std::vector<elParams>::iterator p = m_parameters.begin();
  

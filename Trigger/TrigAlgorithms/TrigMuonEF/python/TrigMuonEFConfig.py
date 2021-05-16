@@ -18,11 +18,11 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
 
 
 
-class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFConf.TrigMuonEFTrackIsolationAlgMT):
+class TrigMuonEFTrackIsolationConfig (TrigMuonEFConf.TrigMuonEFTrackIsolationAlg):
     __slots__ = ()
 
-    def __init__( self, name="TrigMuonEFTrackIsolationMTConfig" ):
-        super( TrigMuonEFTrackIsolationMTConfig, self ).__init__( name )
+    def __init__( self, name="TrigMuonEFTrackIsolationConfig" ):
+        super( TrigMuonEFTrackIsolationConfig, self ).__init__( name )
 
         # configure the isolation tool
         TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=True)

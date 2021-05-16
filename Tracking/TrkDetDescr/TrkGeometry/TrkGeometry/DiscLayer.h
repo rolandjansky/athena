@@ -47,28 +47,39 @@ class DiscLayer final: virtual public DiscSurface, public Layer {
   DiscLayer() = default;
 
   /**Constructor with DiscSurface components and MaterialProperties */
-  DiscLayer(Amg::Transform3D* transform, DiscBounds* dbounds,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+  DiscLayer(const Amg::Transform3D& transform,
+            DiscBounds* dbounds,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Constructor with DiscSurface and MaterialProperties */
-  DiscLayer(DiscSurface* disc, const LayerMaterialProperties& laymatprop,
-            double thickness = 0., OverlapDescriptor* od = nullptr,
+  DiscLayer(DiscSurface* disc,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
             int laytyp = int(Trk::active));
 
   /**Constructor with DiscSurface components and pointer to SurfaceArray
    * (passing ownership) */
-  DiscLayer(Amg::Transform3D* transform, DiscBounds* dbounds,
-            SurfaceArray* surfaceArray, double isontolerance = 0.,
-            OverlapDescriptor* od = nullptr, IApproachDescriptor* ad = nullptr,
+  DiscLayer(const Amg::Transform3D& transform,
+            DiscBounds* dbounds,
+            SurfaceArray* surfaceArray,
+            double isontolerance = 0.,
+            OverlapDescriptor* od = nullptr,
+            IApproachDescriptor* ad = nullptr,
             int laytyp = int(Trk::active));
 
   /**Constructor with DiscSurface components,
      MaterialProperties and pointer SurfaceArray (passing ownership) */
-  DiscLayer(Amg::Transform3D* transform, DiscBounds* dbounds,
+  DiscLayer(const Amg::Transform3D& transform,
+            DiscBounds* dbounds,
             SurfaceArray* surfaceArray,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, IApproachDescriptor* ad = nullptr,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            IApproachDescriptor* ad = nullptr,
             int laytyp = int(Trk::active));
 
   /**Copy constructor of DiscLayer*/

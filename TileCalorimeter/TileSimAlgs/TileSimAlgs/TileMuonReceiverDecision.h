@@ -40,7 +40,7 @@
 #include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -56,7 +56,7 @@ class TileInfo;
 class TileCablingService;
 
 
-class TileMuonReceiverDecision: public AthAlgorithm {
+class TileMuonReceiverDecision: public AthReentrantAlgorithm {
 
  public:
   // constructor
@@ -65,8 +65,7 @@ class TileMuonReceiverDecision: public AthAlgorithm {
   virtual ~TileMuonReceiverDecision();
   // Gaudi hooks
   virtual StatusCode initialize() override; //!< initialize method
-  virtual StatusCode execute() override;    //!< execute method
-  virtual StatusCode finalize() override;   //!< finalize method
+  virtual StatusCode execute(const EventContext &ctx) const override; //!< execute method
 
  private:
 

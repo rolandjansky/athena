@@ -12,7 +12,7 @@ from JetRecConfig.JetDefinition import JetConstitSeq,JetConstitSource, xAODType,
 from .TriggerJetMods import jetmoddict  # noqa: F401
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
+log = logging.getLogger(__name__)
 
 def interpretJetCalibDefault(recoDict):
     if recoDict['recoAlg'] == 'a4':

@@ -57,9 +57,11 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
   auto mon_mass = Monitored::Scalar<float>("mass", -1.);
   auto mon_pT_trk1 = Monitored::Scalar<float>("pT_trk1", -1.);
   auto mon_pT_trk2 = Monitored::Scalar<float>("pT_trk2", -1.);
+  auto mon_D0_trk1 = Monitored::Scalar<float>("d0_trk1", -1.);
+  auto mon_D0_trk2 = Monitored::Scalar<float>("d0_trk2", -1.);
   auto mon_Lxy  = Monitored::Scalar<float>("Lxy", -1.);
 
-  auto mon = Monitored::Group( m_monTool, mon_totalCharge, mon_chi2, mon_mass, mon_pT_trk1, mon_pT_trk2, mon_Lxy);
+  auto mon = Monitored::Group( m_monTool, mon_totalCharge, mon_chi2, mon_mass, mon_pT_trk1, mon_pT_trk2, mon_Lxy, mon_D0_trk1, mon_D0_trk2);
 
   if (m_acceptAll || (isInMassRange(trigBphys->mass()) && passedChi2Cut(trigBphys->fitchi2()) && passedChargeCut(totalCharge(trigBphys)) &&
              trigBphys->lxy() > m_LxyCut )) {
@@ -69,6 +71,8 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
     mon_mass = 0.001 * trigBphys->mass();
     mon_pT_trk1 = 0.001 * trigBphys->trackParticle(0)->pt();
     mon_pT_trk2 = 0.001 * trigBphys->trackParticle(1)->pt();
+    mon_D0_trk1 =  trigBphys->trackParticle(0)->d0();
+    mon_D0_trk2 =  trigBphys->trackParticle(1)->d0();
     ATH_MSG_DEBUG( "accepting event" );
     return true;
   }

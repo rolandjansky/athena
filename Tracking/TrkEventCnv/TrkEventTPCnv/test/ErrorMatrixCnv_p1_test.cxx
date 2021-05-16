@@ -22,7 +22,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Trk::ErrorMatrix trans1;
   trans1.values.push_back (1.5);
   trans1.values.push_back (2.5);

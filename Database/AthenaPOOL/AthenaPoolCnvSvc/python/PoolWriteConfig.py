@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
 
 
-def PoolWriteCfg(flags, **kwargs):
+def PoolWriteCfg(flags):
     """Return ComponentAccumulator configured to Write POOL files"""
     # based on WriteAthenaPool._configureWriteAthenaPool
     acc = ComponentAccumulator()
@@ -24,6 +24,7 @@ def PoolWriteCfg(flags, **kwargs):
 
     # Set POOLContainerForm(DataHeaderForm) split level to 0
     PoolAttributes += ["ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '0'"]
+    PoolAttributes += ["TREE_BRANCH_OFFSETTAB_LEN ='100'"]
 
     # Kept in sync with RecoUtils.py
     from AthenaPoolCnvSvc import PoolAttributeHelper as pah
@@ -64,8 +65,6 @@ def PoolWriteCfg(flags, **kwargs):
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", 100 ) ]
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", 100 ) ]
 
-    kwargs.setdefault("PoolAttributes", PoolAttributes)
-
-    acc.addService(AthenaPoolCnvSvc(**kwargs))
-
+    acc.addService(AthenaPoolCnvSvc(PoolAttributes = PoolAttributes))
+    acc.addService(CompFactory.EvtPersistencySvc(CnvServices=["AthenaPoolCnvSvc"]))
     return acc

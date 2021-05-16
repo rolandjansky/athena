@@ -9,7 +9,7 @@ from AthenaCommon.CFElements import seqAND
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.EnhancedBiasDef")
+log = logging.getLogger(__name__)
 
 # Low threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events        
 # High(er) threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events 

@@ -14,7 +14,7 @@ namespace Trk{
 
 class EfficiencyPlots:public PlotBase {
   public:   
-    EfficiencyPlots(PlotBase* pParent, std::string sDir, ParamPlots* pNumPlots, ParamPlots* pDenomPlots);
+    EfficiencyPlots(PlotBase* pParent, const std::string& sDir, ParamPlots* pNumPlots, ParamPlots* pDenomPlots);
         
     ParamPlots* m_pDenomPlots;
     ParamPlots* m_pNumPlots;    

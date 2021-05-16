@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "TrigHLTJetHypo/../src/ConditionFilter.h"
 #include "TrigHLTJetHypo/../src/ITrigJetHypoInfoCollector.h"
-#include "TrigHLTJetHypo/../src/EtaConditionAbsMT.h"
+#include "TrigHLTJetHypo/../src/EtaConditionAbs.h"
 #include "TrigHLTJetHypo/../src/RepeatedCondition.h"
 
 
@@ -26,8 +26,8 @@ ConditionPtrs cftMakeRepeatedConditions(){
   return  makeRepeatedConditions(etas);
 
   /*
-    auto el_condition = std::unique_ptr<IConditionMT>(nullptr);
-  el_condition.reset(new EtaConditionAbsMT(0., 1.5));
+    auto el_condition = std::unique_ptr<ICondition>(nullptr);
+  el_condition.reset(new EtaConditionAbs(0., 1.5));
 
   auto rep_condition = std::unique_ptr<IRepeatedCondition>(nullptr);
 

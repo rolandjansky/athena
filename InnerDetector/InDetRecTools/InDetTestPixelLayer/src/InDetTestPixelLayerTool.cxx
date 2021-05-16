@@ -681,8 +681,8 @@ namespace InDet {
   {
     //// Cylinder bigger than the b-layer ////
     ATH_MSG_DEBUG("Trying to extrapolate to pixelLayer");
-    Amg::Transform3D* surfTrans = new Amg::Transform3D();
-    surfTrans->setIdentity();
+    Amg::Transform3D surfTrans;
+    surfTrans.setIdentity();
     Trk::CylinderSurface BiggerThanPixelLayerSurface (surfTrans, 
 						      230.0,
 						      10000.0);

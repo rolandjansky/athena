@@ -185,6 +185,11 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    */
   static std::string version( const std::string& name );
 
+  /**
+   * Build a list of module IDs to serialise based on the stream tags
+   */
+  static std::set<uint16_t> activeModuleIDs(const HLT::HLTResultMT& result);
+
 };
 
 

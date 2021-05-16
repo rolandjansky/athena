@@ -20,19 +20,19 @@ namespace Trk {
     : TrackStateOnSurface(tsos)
     , m_module(module)
     , m_rio(rio)
-    , m_crio(0)
-    , m_unbiasedTrackPars(0)
-    , m_derivatives(0)
+    , m_crio(nullptr)
+    , m_unbiasedTrackPars(nullptr)
+    , m_derivatives(nullptr)
     , m_isvalid(true)
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
-    , m_derivativesVtx(0)  
+    , m_derivativesVtx(nullptr)  
   {
     if(!module)
       m_isvalid = false;
 
-    const TrkDetElementBase * detelement(0);
+    const TrkDetElementBase * detelement(nullptr);
     detelement = tsos.measurementOnTrack()->associatedSurface().associatedDetectorElement();
     
     m_detelements.push_back(detelement);
@@ -45,15 +45,15 @@ namespace Trk {
                        TrackState::MeasurementType measType)           
     : TrackStateOnSurface(tsos)
     , m_module(module)
-    , m_rio(0)
+    , m_rio(nullptr)
     , m_crio(crio)
-    , m_unbiasedTrackPars(0)
-    , m_derivatives(0)
+    , m_unbiasedTrackPars(nullptr)
+    , m_derivatives(nullptr)
     , m_isvalid(true)
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
-    , m_derivativesVtx(0) 
+    , m_derivativesVtx(nullptr) 
   {
     if(!module)
       m_isvalid = false;
@@ -68,18 +68,18 @@ namespace Trk {
   AlignTSOS::AlignTSOS(const TrackStateOnSurface& tsos, 
                        TrackState::MeasurementType measType)
     : TrackStateOnSurface(tsos)
-    , m_module(0)
-    , m_rio(0)
-    , m_crio(0)
-    , m_unbiasedTrackPars(0)
-    , m_derivatives(0)
+    , m_module(nullptr)
+    , m_rio(nullptr)
+    , m_crio(nullptr)
+    , m_unbiasedTrackPars(nullptr)
+    , m_derivatives(nullptr)
     , m_isvalid(false)
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
-    , m_derivativesVtx(0)  
+    , m_derivativesVtx(nullptr)  
   {
-    m_detelements.push_back(0);
+    m_detelements.push_back(nullptr);
   }
 
   //________________________________________________________________________
@@ -95,15 +95,15 @@ namespace Trk {
     , m_module(atsos.m_module)
     , m_rio(atsos.m_rio)
     , m_crio(atsos.m_crio)
-    , m_unbiasedTrackPars(atsos.m_unbiasedTrackPars ? atsos.m_unbiasedTrackPars->clone() : 0)
+    , m_unbiasedTrackPars(atsos.m_unbiasedTrackPars ? atsos.m_unbiasedTrackPars->clone() : nullptr)
     , m_residuals(atsos.m_residuals)
     , m_detelements(atsos.m_detelements)
-    , m_derivatives(atsos.m_derivatives ? new std::vector<Amg::VectorX>(*(atsos.m_derivatives)) : 0)
+    , m_derivatives(atsos.m_derivatives ? new std::vector<Amg::VectorX>(*(atsos.m_derivatives)) : nullptr)
     , m_isvalid(atsos.m_isvalid)
     , m_measType(atsos.m_measType)
     , m_measDir(atsos.m_measDir)
     , m_alphaStrip(atsos.m_alphaStrip)
-    , m_derivativesVtx(0)
+    , m_derivativesVtx(nullptr)
   {
   }
 
@@ -132,10 +132,10 @@ namespace Trk {
       m_alphaStrip = atsos.m_alphaStrip;
 
       delete m_unbiasedTrackPars;
-      m_unbiasedTrackPars = atsos.m_unbiasedTrackPars ? atsos.m_unbiasedTrackPars->clone() : 0;
+      m_unbiasedTrackPars = atsos.m_unbiasedTrackPars ? atsos.m_unbiasedTrackPars->clone() : nullptr;
 
       delete m_derivatives;
-      m_derivatives = atsos.m_derivatives ? new std::vector<Amg::VectorX>(*(atsos.m_derivatives)) : 0;
+      m_derivatives = atsos.m_derivatives ? new std::vector<Amg::VectorX>(*(atsos.m_derivatives)) : nullptr;
     }
 
     return *this;
@@ -155,7 +155,7 @@ namespace Trk {
   const RIO_OnTrack* AlignTSOS::rio() const {
     if (m_rio) return m_rio; 
     else if (m_crio) return &(m_crio->rioOnTrack(0));
-    else return 0;
+    else return nullptr;
   }
   
   //________________________________________________________________________

@@ -565,7 +565,7 @@ MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Trk::Tr
 
     // CLHEP::HepVector oripars = oriPerigee->parameters();
     const AmgVector(5)& oripars = oriPerigee->parameters();
-    const Trk::PerigeeSurface periSurf = nullptr;
+    const Trk::PerigeeSurface periSurf;
     const Trk::Perigee* pPerigee = new Trk::Perigee(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, std::nullopt);
     Amg::Vector3D       startPos = pPerigee->position();
     Amg::Vector3D       startMom = pPerigee->momentum();

@@ -139,7 +139,7 @@ Trk::ExtrapolationCode Trk::StepEngine::extrapolate(ExCellCharged& ecCharged,
 	// repeat the call with printout && stop the execution 
 	EX_MSG_INFO(ecCharged.navigationStep, "extrapolate", "loop:debug mode:","rerun last extrapolation call"<<ecCharged.lastLeadParameters->position());
 	ecCharged.leadParameters = ecCharged.lastLeadParameters;
-        ecCharged.leadVolume = 0;
+        ecCharged.leadVolume = nullptr;
         m_debugCall = true;
         m_targetSurfaces.setDebugModeOn();
 	eCode = extrapolate(ecCharged,sf,bcheck);
@@ -147,7 +147,7 @@ Trk::ExtrapolationCode Trk::StepEngine::extrapolate(ExCellCharged& ecCharged,
       }
     }
 
-    const Trk::TrackParameters* nextPar = (eCode.isSuccess() || eCode.inProgress()) ? ecCharged.leadParameters : 0 ;    
+    const Trk::TrackParameters* nextPar = (eCode.isSuccess() || eCode.inProgress()) ? ecCharged.leadParameters : nullptr ;    
     if (!nextPar)    EX_MSG_VERBOSE(ecCharged.navigationStep, "propagate", "loop", "propagation failed ");
     else   EX_MSG_VERBOSE(ecCharged.navigationStep, "propagate", "loop", "propagated to :"<< nextPar->position());
 
@@ -261,7 +261,7 @@ Trk::ExtrapolationCode Trk::StepEngine::extrapolate(ExCellNeutral& ecNeutral,
  }
 
   
-void Trk::StepEngine::evaluateDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D mom,
+void Trk::StepEngine::evaluateDistance(Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& mom,
                                        Trk::TargetSurfaceVector&ts, bool trueOrdered) const
 {
     Trk::DistanceSolution distSol = tt.surf->straightLineDistanceEstimate(pos,mom);

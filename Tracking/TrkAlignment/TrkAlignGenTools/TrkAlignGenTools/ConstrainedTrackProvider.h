@@ -52,6 +52,7 @@ namespace Trk {
  
     RunOutlierRemoval     m_runOutlierRemoval;         //!< run outlier removal in the GX2 fitter 
     bool          m_scalepmaptogev;
+    bool          m_doTrackSelection;
     int           m_maxRetrievalErrors;        //!< maximum allowed number of retrieval errors at the beginning of the job (-1 for infinite)
     bool          m_useConstrainedTrkOnly;
     int           m_constrainedTracks;

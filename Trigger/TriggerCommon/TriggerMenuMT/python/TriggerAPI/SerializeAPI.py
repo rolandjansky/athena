@@ -10,7 +10,7 @@ from TriggerMenuMT.TriggerAPI.TriggerInfo import TriggerInfo, TriggerChain
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod
 from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.TriggerAPI' )
+log = logging.getLogger(__name__)
 privateJsonFile = "TriggerInfo.json"
 
 def dump(db, f=privateJsonFile):

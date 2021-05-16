@@ -621,7 +621,7 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms(const EventContext& ctx)
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
-        ita++ )
+        ++ita )
     {
       StatusCode sc = (*ita)->sysExecute( ctx );
       // this duplicates what is already done in Algorithm::sysExecute, which
@@ -717,7 +717,7 @@ StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
 
       // Call the execute() method of all output streams
       for (ListAlg::iterator ito = m_outStreamList.begin();
-           ito != m_outStreamList.end(); ito++ )
+           ito != m_outStreamList.end(); ++ito )
         {
           sc = (*ito)->sysExecute( ctx );
           if( !sc.isSuccess() )

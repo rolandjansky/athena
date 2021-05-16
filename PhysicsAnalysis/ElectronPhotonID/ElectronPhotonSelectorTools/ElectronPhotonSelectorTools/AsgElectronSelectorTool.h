@@ -137,6 +137,8 @@ private:
   /// Variables used in the MVA Tool
   std::vector<std::string> m_variables;
 
+  /// Flag for skip the use of deltaPoverP in dnn calculation (like at HLT)
+  bool m_skipDeltaPoverP;
 
   /// Multiclass model or not
   bool m_multiClass;

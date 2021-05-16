@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
@@ -76,6 +76,7 @@ class AlgNode(Node):
 
     def addOutput(self, name):
         outputs = self.readOutputList()
+        log.debug("Outputs: %s", outputs)
         if name in outputs:
             log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
@@ -278,7 +279,7 @@ class ComboMaker(AlgNode):
         self.mult=list(multiplicity)
         self.legIds = list(legIds)
         self.comboHypoCfg = comboHypoCfg
-        Alg = self.create(name)
+        Alg = self.create( name )
         log.debug("ComboMaker init: Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
 
@@ -298,7 +299,7 @@ class ComboMaker(AlgNode):
         cval2 = self.Alg.getProperties()[self.prop2]  # check necessary to see if chain was added already?
         if type(cval1) is dict:
             if chainName in cval1.keys():
-                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", compName(self.Alg), chainName)
+                log.error("ERROR in configuration: ComboAlg %s has already been configured for chain %s", compName(self.Alg), chainName)
             else:
                 cval1[chainName]=allMultis
                 cval2[chainName]=legs
@@ -422,21 +423,77 @@ class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
 
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, IsProbe=False):
         assert compName(Maker).startswith("IM"), "The input maker {} name needs to start with letter: IM".format(compName(Maker))
-        self._sequence     = Node( Alg=Sequence)
-        self._maker       = InputMakerNode( Alg = Maker )
+
+        # For probe legs we need to substitute the inputmaker and hypo alg
+        # so we will use temp variables for both
+        if IsProbe:
+            log.debug("MenuSequence: found a probe leg")
+            # Clone hypo & input maker
+            def getProbeHypo(dummyFlags,basehypo):
+                probehypo = basehypo.clone(basehypo.name()+"_probe")
+                for p,v in basehypo.getValuedProperties().items():
+                    setattr(probehypo,p,getattr(basehypo,p))
+                return probehypo
+            _Hypo = RecoFragmentsPool.retrieve(getProbeHypo,None,basehypo=Hypo)
+            # Reset this so that HypoAlgNode.addOutput will actually do something
+            _Hypo.HypoOutputDecisions = "StoreGateSvc+UNSPECIFIED_OUTPUT"
+
+            def getProbeInputMaker(dummyFlags,baseIM):
+                probeIM = baseIM.clone(baseIM.name()+"_probe")
+                for p,v in baseIM.getValuedProperties().items():
+                    setattr(probeIM,p,getattr(baseIM,p))
+
+                if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
+                    assert(baseIM.Views)
+                    probeIM.Views = baseIM.Views.Path + "_probe"
+                    probeIM.RoITool = baseIM.RoITool
+                    if hasattr(baseIM.RoITool,"RoisWriteHandleKey") and baseIM.RoITool.RoisWriteHandleKey.Path!="StoreGateSvc+":
+                        probeIM.RoITool.RoisWriteHandleKey = baseIM.RoITool.RoisWriteHandleKey.Path + "_probe"
+                else:
+                    raise TypeError(f"Probe leg input maker may not be of type '{baseIM.__class__}'.")
+                probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
+                return probeIM
+            _Maker = RecoFragmentsPool.retrieve(getProbeInputMaker,None,baseIM=Maker)
+
+        else: # For regular legs, just use the provided components
+            _Hypo = Hypo
+            _Maker = Maker
+            _Sequence = Sequence
+        self._maker       = InputMakerNode( Alg = _Maker )
         self._seed=''
         input_maker_output= self.maker.readOutputList()[0] # only one since it's merged
 
-        self._name = CFNaming.menuSequenceName(compName(Hypo))
+        self._name = CFNaming.menuSequenceName(compName(_Hypo))
         self._hypoToolConf = HypoToolConf( HypoToolGen )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         Hypo.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
-        self._hypo = HypoAlgNode( Alg = Hypo )
-        hypo_output = CFNaming.hypoAlgOutName(compName(Hypo))
+        self._hypo = HypoAlgNode( Alg = _Hypo )
+        hypo_output = CFNaming.hypoAlgOutName(compName(_Hypo))
         self._hypo.addOutput(hypo_output)
-        self._hypo.setPreviousDecision( input_maker_output)
+        self._hypo.setPreviousDecision( input_maker_output )
+
+        if IsProbe:
+            def getProbeSequence(dummyFlags,baseSeq,probeIM):
+                # Add IM and sequence contents to duplicated sequence
+                probeSeq = baseSeq.clone(baseSeq.name()+"_probe")
+                probeSeq += _Maker
+                ViewSeq = baseSeq.getChildren()[1] # There can only be one?
+                _ViewSeq = ViewSeq.clone(ViewSeq.name()+"_probe")
+                probeIM.ViewNodeName = _ViewSeq.name()
+                # Reset this initially to avoid interference
+                # with the original
+                probeIM.InputMakerInputDecisions = []
+                for viewalg in ViewSeq.getChildren():
+                    _ViewSeq += viewalg
+                probeSeq += _ViewSeq
+                return probeSeq
+                # Make sure nothing was lost
+            _Sequence = RecoFragmentsPool.retrieve(getProbeSequence,None,baseSeq=Sequence,probeIM=_Maker)
+            assert(len(_Sequence.getChildren()) == len(Sequence.getChildren()))
+
+        self._sequence = Node( Alg=_Sequence)
 
         log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg, adding: \n\
         InputMaker::%s.output=%s",\
@@ -444,7 +501,6 @@ class MenuSequence(object):
         log.debug("HypoAlg::%s.HypoInputDecisions=%s, \n \
         HypoAlg::%s.HypoOutputDecisions=%s",\
                       compName(self.hypo.Alg), self.hypo.readInputList()[0], compName(self.hypo.Alg), self.hypo.readOutputList()[0])
-
 
     @property
     def seed(self):
@@ -788,7 +844,7 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False):
 
-        # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
+        # include cases of empty steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
         else:
@@ -880,9 +936,15 @@ class ChainStep(object):
         self.combo=None 
         if self.isEmpty or self.comboHypoCfg is None:
             return
+        probesuffix = ""
+        for stepDict in self.stepDicts:
+            for chainParts in stepDict["chainParts"]:
+                if chainParts["extra"]=="probe":
+                    probesuffix = "_probe"
+            pass # For the benefit of single-leg probe chains
         hashableMult = tuple(self.multiplicity)
         hashableLegs = tuple(self.legIds)
-        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult, legIds = hashableLegs, comboHypoCfg=self.comboHypoCfg)
+        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name)+probesuffix, multiplicity=hashableMult, legIds = hashableLegs, comboHypoCfg=self.comboHypoCfg)
 
     def createComboHypoTools(self, chainName):      
         from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -1019,7 +1081,7 @@ class RecoFragmentsPool(object):
     def retrieve( cls,  creator, flags, **kwargs ):
         """ create, or return created earlier reco fragment
 
-        Reco fragment is uniquelly identified by the function and set og **kwargs.
+        Reco fragment is uniquelly identified by the function and set of **kwargs.
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
@@ -1052,7 +1114,7 @@ class RecoFragmentsPool(object):
         sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
                       else allargs[key] for key in sortedkeys]
 
-        requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
+        requestHash = hash( ( creator.__module__, creator.__qualname__, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **allargs )
             cls.fragments[requestHash] = recoFragment
