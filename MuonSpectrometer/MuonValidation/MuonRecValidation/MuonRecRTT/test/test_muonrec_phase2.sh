@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Test muon reconstruction on NSW-only symmetric Run3 layout
+# art-description: Test muon reconstruction on best knowledge Run4 muon layout
 # 
 # art-type: grid
 # art-include: master/Athena
@@ -17,13 +17,15 @@
 # art-output: NSWPRDValAlg.reco.ntuple.root
 
 #####################################################################
-# run reconstruction on 2000 di-muon events (0.9<|eta|<2.8) using the NSW-only symmetric Run3 layout (ATLAS-R3S-2021-01-00-00)
-# the input RDO was produced (simulation/digitisation was run) in Athena,master,2021-01-30 (newer than 22.0.25)
-Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/RDO/SymmetricLayout_RDO_v1.root \
+# run reconstruction on 2000 di-muon events (0.9<|eta|<2.8) using the best knowledge Run4 muon layout (MuonSpectrometer-R.10.01) on top of the symmetric Run3 setup (ATLAS-R3S-2021-01-00-02)
+# the input RDO was produced from /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonGeomRTT/EVNT_DiMuon_10k__AbsEta_09_28__Pt_10_1000GeV.root
+# simulation/digitisation was executed in Athena,22.0.34
+Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run4/RDO/RDO_DiMuon_Endcap_R4LatestLayout_v1.root \
            --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);muonRecFlags.doTrackPerformance=True;muonRecFlags.TrackPerfSummaryLevel=2;muonRecFlags.TrackPerfDebugLevel=5;from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True;from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags;muonStandaloneFlags.printSummary=True;" \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
+           --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc=GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01";conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-Run4-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-Run4-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"

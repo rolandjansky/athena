@@ -9,12 +9,6 @@
 # art-output: OUT_HITS.root
 # art-output: OUT_RDO.root
 # art-output: OUT_ESD.root
-# art-output: trkPerformance_MuonSpectrometerTracks.txt
-# art-output: trkPerformance_ExtrapolatedMuonTracks.txt
-# art-output: trkPerformance_MSOnlyExtrapolatedMuonTracks.txt
-# art-output: trkPerformance_CombinedMuonTracks.txt
-# art-output: muonPerformance_segments.txt
-# art-output: muonPerformance_xAOD.txt
 
 #####################################################################
 # run simulation on 50 Zmumu events using the Run4 muon layout on top of the latest Run3 setup (s3680) with the symmetric layout ATLAS-R3S-2021-01-00-02
@@ -24,7 +18,7 @@ Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Over
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
           --maxEvents 50 \
           --imf False \
-          --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc = GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01"' \
+          --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc=GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01"' \
           --outputHITSFile OUT_HITS.root
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
@@ -44,7 +38,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 # the postExec overrides the muon geometry to use the Run4 muon layout
 Digi_tf.py --inputHITSFile OUT_HITS.root \
            --imf False \
-           --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc = GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01"' \
+           --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc=GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01"' \
            --outputRDOFile OUT_RDO.root
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
@@ -63,12 +57,10 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 # now use the produced RDO file and run reconstruction
 # the first part of the postExec overrides the muon geometry to use the Run4 muon layout
 # the second part of the postExec overrides the MDT calibration setup to match the phase2 layout
-# the preExec is just adding some basic reconstruction validation algorithms (not needed for running nominal reconstruction)
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
-           --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc = GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01";conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-Run4-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-Run4-01")' \
-           --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);muonRecFlags.doTrackPerformance=True;muonRecFlags.TrackPerfSummaryLevel=2;muonRecFlags.TrackPerfDebugLevel=5;from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True;from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags;muonStandaloneFlags.printSummary=True;" \
+           --postExec 'from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc=GeoModelSvc();GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.10.01";conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-Run4-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-Run4-01")' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
