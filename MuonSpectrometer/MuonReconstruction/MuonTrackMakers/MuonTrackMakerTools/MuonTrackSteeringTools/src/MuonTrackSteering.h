@@ -155,9 +155,6 @@ namespace Muon {
         bool m_useTightMatching;
         bool m_onlyMDTSeeding;
         int m_segThreshold;
-
-        mutable std::atomic_uint m_findingDepth{0};
-        mutable std::atomic_uint m_seedCombinatorics{0};
     };
 
 }  // namespace Muon
