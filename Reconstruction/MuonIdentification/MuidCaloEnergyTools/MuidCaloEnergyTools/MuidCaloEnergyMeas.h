@@ -42,24 +42,40 @@ namespace Rec {
     class MuidCaloEnergyMeas : public AthAlgTool, virtual public IMuidCaloEnergyMeas {
     public:
         MuidCaloEnergyMeas(const std::string& type, const std::string& name, const IInterface* parent);
-        ~MuidCaloEnergyMeas(void);  // destructor
+        virtual ~MuidCaloEnergyMeas();  // destructor
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
         /**IMuidCaloEnergyMeas interface:
            get the muon energy loss measurement from the calorimeter,
            knowing the track intersection at the em and had cals*/
         CaloMeas* energyMeasurement(double etaEM, double phiEM, double etaHad, double phiHad) const;
 
+        std::unique_ptr<CaloMeas> energyMeasurement(const EventContext& ctx, double etaEM, double phiEM, double etaHad,
+                                                    double phiHad) const;
+
     private:
+        /// Helper enum to select which cells should be read from the
+        /// container
+        enum SubCaloId {
+            TILE = 0,
+            LARHEC = 1,
+            LAREM = 2,
+        };
         // private methods
-        void energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, double eta, double phi, int iSubCalo) const;
-        void isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, double eta, double phi, int iSubCalo) const;
-        double energyInTile(const CaloCellContainer* cellContainer, double eta, double phi, int, int) const;
-        double energyInLArHEC(const CaloCellContainer* cellContainer, double eta, double phi, int, int) const;
-        double energyInLArEM(const CaloCellContainer* cellContainer, double eta, double phi, int, int) const;
-        int cellCounting(const CaloCellContainer* cellContainer, double eta, double phi) const;
+        void energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi,
+                          int iSubCalo) const;
+        void isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi,
+                             int iSubCalo) const;
+
+        double energyInTile(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
+        double energyInLArHEC(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
+        double energyInLArEM(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
+        int cellCounting(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi) const;
+
+        //
+        int samplingID(const CaloCell* cell, int iSubCalo) const;
 
         // helpers, managers, tools
         SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{
@@ -94,12 +110,12 @@ namespace Rec {
         double m_sigmasAboveNoise;      // The minimum sigmas above the noise tool rms
         double m_sigmasAboveNoiseCore;  // The minimum sigmas above the noise tool rms
 
-        mutable std::atomic_int m_totalCoreCellsEM;
-        mutable std::atomic_int m_totalCoreCellsHEC;
-        mutable std::atomic_int m_totalCoreCellsTile;
-        mutable std::atomic_int m_totalSelectedEM;
-        mutable std::atomic_int m_totalSelectedHEC;
-        mutable std::atomic_int m_totalSelectedTile;
+        mutable std::atomic_int m_totalCoreCellsEM{0};
+        mutable std::atomic_int m_totalCoreCellsHEC{0};
+        mutable std::atomic_int m_totalCoreCellsTile{0};
+        mutable std::atomic_int m_totalSelectedEM{0};
+        mutable std::atomic_int m_totalSelectedHEC{0};
+        mutable std::atomic_int m_totalSelectedTile{0};
     };
 
 }  // namespace Rec
