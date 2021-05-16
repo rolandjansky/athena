@@ -100,9 +100,9 @@ namespace Rec {
         double m_minMuonPt;       // minimum pt of the muon
 
         // counters (for finalize)
-        mutable std::atomic_int m_countMean;         // number of tracks using mean
-        mutable std::atomic_int m_countMeasurement;  // number of tracks using measurement
-        mutable std::atomic_int m_countMop;          // number of tracks using mop
+        mutable std::atomic_int m_countMean{0};         // number of tracks using mean
+        mutable std::atomic_int m_countMeasurement{0};  // number of tracks using measurement
+        mutable std::atomic_int m_countMop{0};          // number of tracks using mop
     };
 
 }  // namespace Rec
