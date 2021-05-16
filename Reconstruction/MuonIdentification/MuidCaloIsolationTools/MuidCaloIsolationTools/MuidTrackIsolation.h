@@ -32,13 +32,12 @@ namespace Rec {
         MuidTrackIsolation(const std::string& type, const std::string& name, const IInterface* parent);
         virtual ~MuidTrackIsolation(void) = default;  // destructor
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
 
         /**IMuidTrackIsolation interface:
            get the number of tracks and summed momentum
            in a cone at the production vertex or around the muon calo intersect*/
-        std::pair<int, double> trackIsolation(double eta, double phi) const;
+        std::pair<int, double> trackIsolation(const EventContext& ctx, double eta, double phi) const override;
 
     private:
         // isolation without extrapolation to calo
@@ -57,6 +56,7 @@ namespace Rec {
         ToolHandle<Trk::IIntersector> m_intersector{this, "RungeKuttaIntersector", "Trk::RungeKuttaIntersector/RungeKuttaIntersector"};
         Gaudi::Property<double> m_minPt{this, "MinPt", 1.0 * Gaudi::Units::GeV};
         Gaudi::Property<double> m_trackCone{this, "TrackCone", 0.2};
+        double m_trackCone2{0.};
         Gaudi::Property<bool> m_trackExtrapolation{this, "TrackExtrapolation", false};
     };
 

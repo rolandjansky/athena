@@ -14,6 +14,7 @@
 #include <cmath>
 #include <iomanip>
 
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkParameters/TrackParameters.h"
@@ -22,7 +23,6 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-
 namespace Rec {
 
     MuidTrackIsolation::MuidTrackIsolation(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -36,13 +36,8 @@ namespace Rec {
         ATH_MSG_INFO("MuidTrackIsolation::initialize()");
 
         // get the Tools
-        if (m_intersector.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_intersector);
-        }
-
+        ATH_CHECK(m_intersector.retrieve());
+        m_trackCone2 = m_trackCone * m_trackCone;
         // create the calo barrel surfaces (cylinder) and 2 endcap discs)
         double radius = 2.0 * Gaudi::Units::meter;
         double halfLength = 4.0 * Gaudi::Units::meter;
@@ -67,32 +62,18 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-
-    StatusCode MuidTrackIsolation::finalize() {
-        ATH_MSG_INFO("Finalizing MuidTrackIsolation");
-
-        return StatusCode::SUCCESS;
-    }
-
-    std::pair<int, double> MuidTrackIsolation::trackIsolation(double eta, double phi) const {
+    std::pair<int, double> MuidTrackIsolation::trackIsolation(const EventContext& ctx, double eta, double phi) const {
         // debug input quantities
-        if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << " MuidTrackIsolation:: " << std::setiosflags(std::ios::fixed);
-            if (m_trackExtrapolation) {
-                msg() << "applied after extrapolation to calo, ";
-            } else {
-                msg() << "applied at perigee, ";
-            }
-            msg() << " for muon at calo with eta,phi " << std::setw(8) << std::setprecision(3) << eta << std::setw(8)
-                  << std::setprecision(3) << phi;
-            if (msgLvl(MSG::VERBOSE)) msg() << endmsg << MSG::VERBOSE;
-        }
+        ATH_MSG_DEBUG(" MuidTrackIsolation:: " << std::setiosflags(std::ios::fixed)
+                                               << (m_trackExtrapolation ? "applied after extrapolation to calo, " : "applied at perigee, ")
+                                               << " for muon at calo with eta,phi " << std::setw(8) << std::setprecision(3) << eta
+                                               << std::setw(8) << std::setprecision(3) << phi);
 
         // set initial state
-        std::pair<int, double> isolation = std::make_pair(0, 0.);
+        std::pair<int, double> isolation{0, 0.};
 
         // retrieve track collection
-        SG::ReadHandle<TrackCollection> inDetTracks(m_inDetTracksLocation);
+        SG::ReadHandle<TrackCollection> inDetTracks(m_inDetTracksLocation, ctx);
         if (!inDetTracks.isPresent()) {
             ATH_MSG_DEBUG(" no ID Track container at location  " << m_inDetTracksLocation.key());
             return isolation;
@@ -123,31 +104,29 @@ namespace Rec {
         int numberTracks = 0;
 
         // choose tracks in cone
-        for (TrackCollection::const_iterator id = inDetTracks->begin(); id != inDetTracks->end(); ++id) {
-            const Trk::Perigee& perigee = *(**id).perigeeParameters();
-            if ((**id).info().trackProperties(Trk::TrackInfo::StraightTrack) || perigee.pT() < m_minPt) continue;
+        for (const Trk::Track* id : *inDetTracks) {
+            const Trk::Perigee& perigee = *id->perigeeParameters();
+            if (id->info().trackProperties(Trk::TrackInfo::StraightTrack) || perigee.pT() < m_minPt) continue;
 
             double inDetPhi = perigee.parameters()[Trk::phi];
             double inDetEta = perigee.eta();
 
-            double diffEta = fabs(eta - inDetEta);
-            double diffPhi = fabs(phi - inDetPhi);
-            if (diffPhi > M_PI) diffPhi = 2. * M_PI - diffPhi;
+            double diffEta = std::abs(eta - inDetEta);
+            double diffPhi = xAOD::P4Helpers::deltaPhi(phi, inDetPhi);
 
-            if (msgLvl(MSG::VERBOSE))
-                msg(MSG::VERBOSE) << std::endl
-                                  << std::setiosflags(std::ios::fixed) << " Id track: momentum " << std::setw(8) << std::setprecision(1)
-                                  << perigee.momentum().mag() / Gaudi::Units::GeV << "  with perigee eta and difference " << std::setw(8)
-                                  << std::setprecision(3) << perigee.eta() << std::setw(8) << std::setprecision(3) << diffEta
-                                  << "  and same for phi " << std::setw(8) << std::setprecision(3) << perigee.parameters()[Trk::phi]
-                                  << std::setw(8) << std::setprecision(3) << diffPhi;
+            ATH_MSG_DEBUG(std::endl
+                          << std::setiosflags(std::ios::fixed) << " Id track: momentum " << std::setw(8) << std::setprecision(1)
+                          << perigee.momentum().mag() / Gaudi::Units::GeV << "  with perigee eta and difference " << std::setw(8)
+                          << std::setprecision(3) << perigee.eta() << std::setw(8) << std::setprecision(3) << diffEta
+                          << "  and same for phi " << std::setw(8) << std::setprecision(3) << perigee.parameters()[Trk::phi] << std::setw(8)
+                          << std::setprecision(3) << diffPhi);
 
-            if ((diffPhi * diffPhi + diffEta * diffEta) > m_trackCone * m_trackCone) continue;
+            if ((diffPhi * diffPhi + diffEta * diffEta) > m_trackCone2) continue;
             ++numberTracks;
-            double p = perigee.momentum().mag();
+            const double p = perigee.momentum().mag();
             sumP += p;
 
-            if (msgLvl(MSG::VERBOSE)) msg() << "  inside cone, track#" << std::setw(3) << numberTracks;
+            ATH_MSG_VERBOSE("inside cone, track#" << std::setw(3) << numberTracks);
         }
 
         return std::make_pair(numberTracks, sumP);
@@ -159,19 +138,21 @@ namespace Rec {
         int numberTracks = 0;
 
         // extrapolate close in eta tracks to calorimeter surface
-        for (TrackCollection::const_iterator id = inDetTracks->begin(); id != inDetTracks->end(); ++id) {
-            const Trk::Perigee& perigee = *(**id).perigeeParameters();
-            if ((**id).info().trackProperties(Trk::TrackInfo::StraightTrack) || perigee.pT() < m_minPt) continue;
+        for (const Trk::Track* id : *inDetTracks) {
+            const Trk::Perigee& perigee = *id->perigeeParameters();
+            if (id->info().trackProperties(Trk::TrackInfo::StraightTrack) || perigee.pT() < m_minPt) continue;
 
             double inDetEta = perigee.eta();
-            if (fabs(eta - inDetEta) > m_trackCone + m_etaSafetyFactor) continue;
+            if (std::abs(eta - inDetEta) > m_trackCone + m_etaSafetyFactor) continue;
 
             // track has sufficient momentum and is close in eta:
             // find intersection at calo surface
             double qOverP = perigee.parameters()[Trk::qOverP];
-            double cotTheta = 1 / tan(perigee.parameters()[Trk::theta]);
-            Amg::Vector3D direction(cos(perigee.parameters()[Trk::phi]), sin(perigee.parameters()[Trk::phi]), cotTheta);
+            /// Use identiy of cot (x) = tan( pi/2 - x)
+            double cotTheta = std::tan(M_PI_2 - perigee.parameters()[Trk::theta]);
+            Amg::Vector3D direction(std::cos(perigee.parameters()[Trk::phi]), std::sin(perigee.parameters()[Trk::phi]), cotTheta);
             direction /= direction.mag();
+
             const Trk::TrackSurfaceIntersection idIntersection(perigee.position(), direction, 0.);
             const Trk::Surface* surface = m_caloCylinder.get();
             if (cotTheta > m_barrelCotTheta) {
@@ -194,29 +175,25 @@ namespace Rec {
             }
 
             double diffEta = eta - caloIntersection->position().eta();
-            double diffPhi = fabs(phi - caloIntersection->position().phi());
-            if (diffPhi > M_PI) diffPhi = 2. * M_PI - diffPhi;
-
-            if (msgLvl(MSG::VERBOSE)) {
-                msg() << std::endl
-                      << std::setiosflags(std::ios::fixed) << " Id track: momentum " << std::setw(8) << std::setprecision(1)
-                      << perigee.momentum().mag() / Gaudi::Units::GeV << "  with initial,extrapolated and calo difference for eta "
-                      << std::setw(8) << std::setprecision(3) << perigee.eta() << std::setw(8) << std::setprecision(3)
-                      << caloIntersection->position().eta() << std::setw(8) << std::setprecision(3) << diffEta << "  and phi "
-                      << std::setw(8) << std::setprecision(3) << perigee.parameters()[Trk::phi] << std::setw(8) << std::setprecision(3)
-                      << caloIntersection->position().phi() << std::setw(8) << std::setprecision(3) << diffPhi;
-            }
+            double diffPhi = xAOD::P4Helpers::deltaPhi(phi, caloIntersection->position().phi());
+            ATH_MSG_VERBOSE(std::endl
+                            << std::setiosflags(std::ios::fixed) << " Id track: momentum " << std::setw(8) << std::setprecision(1)
+                            << perigee.momentum().mag() / Gaudi::Units::GeV << "  with initial,extrapolated and calo difference for eta "
+                            << std::setw(8) << std::setprecision(3) << perigee.eta() << std::setw(8) << std::setprecision(3)
+                            << caloIntersection->position().eta() << std::setw(8) << std::setprecision(3) << diffEta << "  and phi "
+                            << std::setw(8) << std::setprecision(3) << perigee.parameters()[Trk::phi] << std::setw(8)
+                            << std::setprecision(3) << caloIntersection->position().phi() << std::setw(8) << std::setprecision(3)
+                            << diffPhi);
 
             // check if inside cone
-            if ((diffPhi * diffPhi + diffEta * diffEta) < m_trackCone * m_trackCone) {
+            if ((diffPhi * diffPhi + diffEta * diffEta) < m_trackCone2) {
                 ++numberTracks;
-                double p = perigee.momentum().mag();
+                const double p = perigee.momentum().mag();
                 sumP += p;
 
-                if (msgLvl(MSG::VERBOSE)) msg() << "  inside cone, track#" << std::setw(3) << numberTracks;
+                ATH_MSG_VERBOSE("  inside cone, track#" << std::setw(3) << numberTracks);
             }
         }
-        if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
 
         return std::make_pair(numberTracks, sumP);
     }
