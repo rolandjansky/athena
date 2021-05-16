@@ -110,26 +110,25 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-
-    CaloEnergy* MuidCaloEnergyTool::energyLoss(double trackMomentum, double eta, double phi) const {
+    std::unique_ptr<CaloEnergy> MuidCaloEnergyTool::energyLoss(const EventContext& ctx, double trackMomentum, double eta,
+                                                               double phi) const {
         // debug
         ATH_MSG_VERBOSE("Muon with : p = " << trackMomentum / Units::GeV << " Phi = " << phi << " Eta =  " << eta);
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        CaloEnergy* caloEnergy = nullptr;
+        std::unique_ptr<CaloEnergy> caloEnergy;
         if (m_energyLossMeasurement) {
             // Energy Dep/Iso from calorimeters (projective assumption)
             std::unique_ptr<CaloMeas> caloMeas{m_caloMeasTool->energyMeasurement(ctx, eta, phi, eta, phi)};
-            if (caloMeas) { caloEnergy = measurement(trackMomentum, eta, phi, caloMeas.get()); }
+            if (caloMeas) { caloEnergy = measurement(ctx, trackMomentum, eta, phi, caloMeas.get()); }
         }
 
         if (!caloEnergy) {
             if (m_MOPparametrization) {
                 ++m_countMop;
-                caloEnergy = m_caloParamTool->mopParametrizedEnergy(trackMomentum, eta, phi);
+                caloEnergy.reset(m_caloParamTool->mopParametrizedEnergy(trackMomentum, eta, phi));
                 ATH_MSG_VERBOSE("Selected the Mop Parametrization value! ==> ");
             } else {
                 ++m_countMean;
-                caloEnergy = m_caloParamTool->meanParametrizedEnergy(trackMomentum, eta, phi);
+                caloEnergy.reset(m_caloParamTool->meanParametrizedEnergy(trackMomentum, eta, phi));
                 ATH_MSG_VERBOSE("Selected the Mean Parametrization value! ==> ");
             }
         }
@@ -156,15 +155,14 @@ namespace Rec {
 
         return caloEnergy;
     }
-
-    const Trk::TrackStateOnSurface* MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParameters,
+    const Trk::TrackStateOnSurface* MuidCaloEnergyTool::trackStateOnSurface(const EventContext& ctx,
+                                                                            const Trk::TrackParameters& middleParameters,
                                                                             const Trk::TrackParameters* innerParameters,
                                                                             const Trk::TrackParameters* outerParameters) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         ATH_MSG_VERBOSE("Muon with : p = " << middleParameters.momentum().mag() / Units::GeV << " Phi = "
                                            << middleParameters.position().phi() << " Eta =  " << middleParameters.position().eta());
 
-        CaloEnergy* caloEnergy = nullptr;
+        std::unique_ptr<CaloEnergy> caloEnergy;
         if (m_energyLossMeasurement) {
             // energy deposition according to the calo measurement
             double eta = middleParameters.position().eta();
@@ -182,13 +180,13 @@ namespace Rec {
                 phiHad = outerParameters->position().phi();
             }
             std::unique_ptr<CaloMeas> caloMeas{m_caloMeasTool->energyMeasurement(ctx, etaEM, phiEM, etaHad, phiHad)};
-            if (caloMeas) { caloEnergy = measurement(middleParameters.momentum().mag(), eta, phi, caloMeas.get()); }
+            if (caloMeas) { caloEnergy = measurement(ctx, middleParameters.momentum().mag(), eta, phi, caloMeas.get()); }
         }
 
         if (!caloEnergy) {
             // parametrized energy deposition
             caloEnergy =
-                energyLoss(middleParameters.momentum().mag(), middleParameters.position().eta(), middleParameters.position().phi());
+                energyLoss(ctx, middleParameters.momentum().mag(), middleParameters.position().eta(), middleParameters.position().phi());
 
             // WARN in case of anomalously high loss
             if (caloEnergy->deltaE() > 8. * Units::GeV && middleParameters.momentum().mag() < 500. * Units::GeV)
@@ -202,7 +200,7 @@ namespace Rec {
         std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern(0);
         typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
         const Trk::MaterialEffectsOnTrack* materialEffects =
-            new const Trk::MaterialEffectsOnTrack(0., caloEnergy, middleParameters.associatedSurface(), typePattern);
+            new const Trk::MaterialEffectsOnTrack(0., caloEnergy.release(), middleParameters.associatedSurface(), typePattern);
 
         // create TSOS
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -236,8 +234,8 @@ namespace Rec {
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
-    CaloEnergy* MuidCaloEnergyTool::measurement(double trackMomentum, double eta, double phi, CaloMeas* caloMeas) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
+    std::unique_ptr<CaloEnergy> MuidCaloEnergyTool::measurement(const EventContext& ctx, double trackMomentum, double eta, double phi,
+                                                                CaloMeas* caloMeas) const {
         // Mean Energy Loss parametrization
         std::unique_ptr<CaloEnergy> caloParamMean{m_caloParamTool->meanParametrizedEnergy(trackMomentum, eta, phi)};
         // Mop Energy Loss parametrization
@@ -403,13 +401,13 @@ namespace Rec {
                                << ", nTracks= " << nTracks << ",PassCut= " << PassCut);
 
         CaloEnergy::EnergyLossType lossType = CaloEnergy::NotIsolated;
-        CaloEnergy* caloEnergy = nullptr;
+        std::unique_ptr<CaloEnergy> caloEnergy;
 
         // choose between lossTypes MOP, Tail, FSR and NotIsolated according
         // to measured energy, isolation cut and Et in em
         if (FinalMeasuredEnergy < MopLoss + 2. * MopError && FinalMeasuredEnergy > m_minFinalEnergy) {
             ++m_countMop;
-            caloEnergy = mopPeak.release();
+            caloEnergy.swap(mopPeak);
         } else if (PassCut) {
             //  tail offset from high-statistics Z->mumu MC (measured by Peter K 09/12/2011),
             //  but next we try to separate any FSR contribution from the Landau tail
@@ -427,7 +425,8 @@ namespace Rec {
                 }
                 double FinalEnergyError = 0.5 * (FinalEnergyErrorMinus + FinalEnergyErrorPlus);
                 lossType = CaloEnergy::Tail;
-                caloEnergy = new CaloEnergy(FinalMeasuredEnergy, FinalEnergyError, FinalEnergyErrorMinus, FinalEnergyErrorPlus, lossType);
+                caloEnergy = std::make_unique<CaloEnergy>(FinalMeasuredEnergy, FinalEnergyError, FinalEnergyErrorMinus,
+                                                          FinalEnergyErrorPlus, lossType);
                 ATH_MSG_VERBOSE(" CaloEnergy Tail : " << FinalMeasuredEnergy);
             } else {
                 // significant e.m. deposit and high F1
@@ -443,12 +442,14 @@ namespace Rec {
                     lossType = CaloEnergy::NotIsolated;
                     if (m_MOPparametrization) {
                         ++m_countMop;
-                        caloEnergy = new CaloEnergy(caloParamMop->deltaE(), caloParamMop->sigmaDeltaE(), caloParamMop->sigmaMinusDeltaE(),
-                                                    caloParamMop->sigmaPlusDeltaE(), lossType);
+                        caloEnergy =
+                            std::make_unique<CaloEnergy>(caloParamMop->deltaE(), caloParamMop->sigmaDeltaE(),
+                                                         caloParamMop->sigmaMinusDeltaE(), caloParamMop->sigmaPlusDeltaE(), lossType);
                     } else {
                         ++m_countMean;
-                        caloEnergy = new CaloEnergy(caloParamMean->deltaE(), caloParamMean->sigmaDeltaE(),
-                                                    caloParamMean->sigmaMinusDeltaE(), caloParamMean->sigmaPlusDeltaE(), lossType);
+                        caloEnergy =
+                            std::make_unique<CaloEnergy>(caloParamMean->deltaE(), caloParamMean->sigmaDeltaE(),
+                                                         caloParamMean->sigmaMinusDeltaE(), caloParamMean->sigmaPlusDeltaE(), lossType);
                     }
                     ATH_MSG_VERBOSE(" CaloEnergy FSR : Small deposit, FinalMeasuredEnergyNoEm " << FinalMeasuredEnergyNoEm
                                                                                                 << " using Eloss " << caloEnergy->deltaE());
@@ -458,8 +459,8 @@ namespace Rec {
                     lossType = CaloEnergy::FSRcandidate;
                     double FinalEnergyErrorNoEm = 0.50 * std::sqrt(FinalMeasuredEnergyNoEm / Units::GeV) * Units::GeV;
                     FinalEnergyErrorNoEm = std::hypot(FinalEnergyErrorNoEm, MopErrorEm);
-                    caloEnergy =
-                        new CaloEnergy(FinalMeasuredEnergyNoEm, FinalEnergyErrorNoEm, FinalEnergyErrorNoEm, FinalEnergyErrorNoEm, lossType);
+                    caloEnergy = std::make_unique<CaloEnergy>(FinalMeasuredEnergyNoEm, FinalEnergyErrorNoEm, FinalEnergyErrorNoEm,
+                                                              FinalEnergyErrorNoEm, lossType);
                     ATH_MSG_VERBOSE(" CaloEnergy FSR : Large deposit, FinalMeasuredEnergyNoEm " << FinalMeasuredEnergyNoEm);
                 }
             }
@@ -467,12 +468,12 @@ namespace Rec {
             // lossType NotIsolated: MOP or Mean according to configuration
             if (m_MOPparametrization) {
                 ++m_countMop;
-                caloEnergy = new CaloEnergy(caloParamMop->deltaE(), caloParamMop->sigmaDeltaE(), caloParamMop->sigmaMinusDeltaE(),
-                                            caloParamMop->sigmaPlusDeltaE(), lossType);
+                caloEnergy = std::make_unique<CaloEnergy>(caloParamMop->deltaE(), caloParamMop->sigmaDeltaE(),
+                                                          caloParamMop->sigmaMinusDeltaE(), caloParamMop->sigmaPlusDeltaE(), lossType);
             } else {
                 ++m_countMean;
-                caloEnergy = new CaloEnergy(caloParamMean->deltaE(), caloParamMean->sigmaDeltaE(), caloParamMean->sigmaMinusDeltaE(),
-                                            caloParamMean->sigmaPlusDeltaE(), lossType);
+                caloEnergy = std::make_unique<CaloEnergy>(caloParamMean->deltaE(), caloParamMean->sigmaDeltaE(),
+                                                          caloParamMean->sigmaMinusDeltaE(), caloParamMean->sigmaPlusDeltaE(), lossType);
             }
         }
 

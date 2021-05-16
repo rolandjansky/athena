@@ -45,22 +45,23 @@ namespace Rec {
         MuidCaloEnergyTool(const std::string& type, const std::string& name, const IInterface* parent);
         ~MuidCaloEnergyTool(void);  // destructor
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
         /**IMuidCaloEnergy interface:
            to get the total energyLoss in the calorimeters */
-        CaloEnergy* energyLoss(double trackMomentum, double eta, double phi) const;
+        std::unique_ptr<CaloEnergy> energyLoss(const EventContext& ctx, double trackMomentum, double eta, double phi) const override;
 
         /**IMuidCaloEnergy interface:
            TrackStateOnSurface for parameters and energyLoss at the calorimeter mid-surface */
-        const Trk::TrackStateOnSurface* trackStateOnSurface(const Trk::TrackParameters& middleParameters,
+        const Trk::TrackStateOnSurface* trackStateOnSurface(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
                                                             const Trk::TrackParameters* innerParameters,
-                                                            const Trk::TrackParameters* outerParameters) const;
+                                                            const Trk::TrackParameters* outerParameters) const override;
 
     private:
         // private methods
-        CaloEnergy* measurement(double trackMomentum, double eta, double phi, CaloMeas* caloMeas) const;
+        std::unique_ptr<CaloEnergy> measurement(const EventContext& ctx, double trackMomentum, double eta, double phi,
+                                                CaloMeas* caloMeas) const;
         double muSpecResolParam(double trackMomentum, double eta) const;
         double paramCorrection(double trackMomentum, double eta, double MopLoss, double MopSigma) const;
         double landau(double x, double mpv, double sigma, bool norm) const;
