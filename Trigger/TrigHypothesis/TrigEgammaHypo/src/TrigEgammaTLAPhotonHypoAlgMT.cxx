@@ -23,7 +23,7 @@ StatusCode TrigEgammaTLAPhotonHypoAlgMT::initialize() {
   
   // ATTEMPT TO FOLLOW EXAMPLE OF https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaPrecisionCaloHypoAlgMT.cxx#0013
   renounce(m_TLAPhotonsKey); // TLA Photons are made in views, so they are not in the EvtStore. Hide them (?)
-  /// ATTEMPT
+  
 
   ATH_MSG_DEBUG("Initializing TrigEgammaTLAPhotonHypoAlgMT");
   return StatusCode::SUCCESS;
