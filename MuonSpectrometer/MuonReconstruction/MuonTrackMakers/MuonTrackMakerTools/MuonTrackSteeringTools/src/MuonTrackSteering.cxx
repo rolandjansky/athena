@@ -204,7 +204,7 @@ namespace Muon {
             int qualityLevel2 = ch2.size() > 5 ? 1 : 2;
             /// Start with -1 as the first operation in the loop over the second set of chambers
             /// is the counter incrementation
-            int idx_ch2 = 0;
+            int idx_ch2 = -1;
             for (MuPatSegment* sit2 : ch2) {
                 ++idx_ch2;
                 // do not combine poor quality segments AND require at least one of the segments to have a quality beter than 1
