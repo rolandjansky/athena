@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
+#include "AthenaKernel/IDictLoaderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
@@ -66,6 +67,8 @@ class CondInputLoader
   ServiceHandle<IIOVDbSvc> m_IOVDbSvc;
   ServiceHandle<IClassIDSvc> m_clidSvc;
   ServiceHandle<Athena::IRCUSvc> m_rcuSvc;
+  ServiceHandle<IDictLoaderSvc> m_dictLoader
+    { this, "DictLoaderSvc", "AthDictLoaderSvc", "" };
   
   std::map<std::string,std::string> m_keyFolderMap;
 }; 
