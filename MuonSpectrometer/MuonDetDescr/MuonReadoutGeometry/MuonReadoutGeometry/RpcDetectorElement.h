@@ -26,7 +26,7 @@ class GeoVFullPhysVol;
 class RpcIdHelper;
 
 namespace MuonGM {
-    
+
   class MuonDetectorManager;
   class MuonStation;
   class RpcReadoutElement;
@@ -34,16 +34,16 @@ namespace MuonGM {
   typedef std::vector<const RpcReadoutElement *> REVector;
   typedef std::vector<const RpcReadoutElement *>::const_iterator REIterator;
 
-    
-  class RpcDetectorElement: public MuonDetectorElement
+
+  class RpcDetectorElement final: public MuonDetectorElement
   {
 
   public:
 
     RpcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash);
-   
-    virtual int getStationEta() const {return 0;}; //!< returns stationEta 
-    virtual int getStationPhi() const {return 0;}; //!< returns stationPhi
+
+    virtual int getStationEta() const override {return 0;}; //!< returns stationEta
+    virtual int getStationPhi() const override {return 0;}; //!< returns stationPhi
 
     // access to the readout-elements in this DetectorElement
     const RpcReadoutElement* getRpcReadoutElement(Identifier id) const;
@@ -58,36 +58,42 @@ namespace MuonGM {
     unsigned int NPhimodules(int dbz) const;
     void addRpcReadoutElement(const RpcReadoutElement* rpc, int index);
 
-    unsigned int nMDTinStation() const {return 0;} 
-    unsigned int nCSCinStation() const {return 0;}
-    unsigned int nTGCinStation() const {return 0;}
-    unsigned int nRPCinStation() const {return nReadoutElements();}
+    virtual unsigned int nMDTinStation() const override {return 0;}
+    virtual unsigned int nCSCinStation() const override {return 0;}
+    virtual unsigned int nTGCinStation() const override {return 0;}
+    virtual unsigned int nRPCinStation() const override {return nReadoutElements();}
 
-    const Amg::Transform3D& transform() const;
+    virtual const Amg::Transform3D& transform() const override final;
 
-    const Trk::Surface& surface() const;
-  
-    const Trk::SurfaceBounds& bounds() const;
+    virtual const Trk::Surface& surface() const override final;
 
-    const Amg::Vector3D& center() const;
-  
-    const Amg::Vector3D& normal() const;
-  
-    const Amg::Vector3D& normal(const Identifier& id) const;
-  
-    const Trk::Surface& surface(const Identifier& id) const;
-  
-    const Trk::SurfaceBounds& bounds(const Identifier& id) const;
-  
-    const Amg::Transform3D& transform(const Identifier& id) const;
-  
-    const Amg::Vector3D& center(const Identifier& id) const;
+    virtual const Trk::SurfaceBounds& bounds() const override final;
+
+    virtual const Amg::Vector3D& center() const override final;
+
+    virtual const Amg::Vector3D& normal() const override final;
+
+    virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
+
+    virtual const Trk::Surface& surface(const Identifier& id) const override final;
+
+    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
+
+    virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
+
+    virtual const Amg::Vector3D& center(const Identifier& id) const override final;
 
     std::vector<const Trk::Surface*> surfaces() const;
 
     enum RpcGMRanges
-      {NDoubletZ = 4}; 
+      {NDoubletZ = 4};
     // using some trick to save space: dbz=4 if rib's chambers and doubletphi=2;
+
+    /** TrkDetElementInterface */
+    virtual Trk::DetectorElemType detectorType() const override final
+    {
+      return Trk::DetectorElemType::Rpc;
+    }
 
   private:
 
