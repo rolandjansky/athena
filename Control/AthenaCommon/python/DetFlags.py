@@ -152,7 +152,6 @@ class DetFlags:
             self.TRT_setOff()
             self.BCM_setOff()
             self.DBM_setOff()
-            self.HGTD_setOff()
         def Calo_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
