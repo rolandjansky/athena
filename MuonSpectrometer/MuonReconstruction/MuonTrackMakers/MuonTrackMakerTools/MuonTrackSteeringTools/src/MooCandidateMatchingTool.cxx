@@ -97,7 +97,6 @@ namespace Muon {
     MooCandidateMatchingTool::~MooCandidateMatchingTool() {}
 
     StatusCode MooCandidateMatchingTool::initialize() {
-        ATH_CHECK(m_slExtrapolator.retrieve());
         ATH_CHECK(m_atlasExtrapolator.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -861,7 +860,7 @@ namespace Muon {
                     // Check sector-
 
                     if (straightLineMatch && !entry1.hasMomentum()) {
-                        exPars.reset(m_slExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                            false, Trk::muon));
                     } else {
                         ATH_MSG_VERBOSE(" Extrapolating to other segment " << m_printer->print(*tmpPars) << std::endl
@@ -881,10 +880,9 @@ namespace Muon {
 
                 exMeasPars = exPars->covariance() ? exPars.get() : nullptr;
                 if (!exMeasPars) {
-                    const Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
                     ATH_MSG_DEBUG("track-segment match: Did not get measured track parameters from extrapolation\n"
                                   << "\nfrom " << m_idHelperSvc->toStringChamber(info.trackChamberId) << " to segment surface "
-                                  << m_idHelperSvc->toStringChamber(info.segmentChamberId) << " using " << extrapolator->name());
+                                  << m_idHelperSvc->toStringChamber(info.segmentChamberId));
                     info.reason = TrackSegmentMatchResult::ExtrapolNoErrors;
                     return;
                 }
@@ -895,7 +893,7 @@ namespace Muon {
                 // no closest measured parameters, take closest parameters
 
                 if (straightLineMatch && !entry1.hasMomentum()) {
-                    exPars.reset(m_slExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                        false, Trk::muon));
                 } else {
                     exPars.reset(m_atlasExtrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
