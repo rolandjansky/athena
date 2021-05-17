@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,10 +38,5 @@ LArHVMap is a data class that contains the mapping.
 
 web page:
 http://lpsc.in2p3.fr/atlas/lucotte/3.SOFTWARE/software_highvoltage.html
-
-@section LArTools_OtherClasses Other classes
-
-LArMCSymTool  is a tool that maps a LAr readout channel id to a channel that is considered good for MC symmetry. Typically it is first channel in phi.
-
 
 */
