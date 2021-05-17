@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTAUREC_TRIGTAURECMERGEDMT_H
-#define TRIGTAUREC_TRIGTAURECMERGEDMT_H
+#ifndef TRIGTAUREC_TRIGTAURECMERGED_H
+#define TRIGTAUREC_TRIGTAURECMERGED_H
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -24,11 +24,11 @@
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 
-class TrigTauRecMergedMT: public AthReentrantAlgorithm {
+class TrigTauRecMerged: public AthReentrantAlgorithm {
 
  public:
 
-  TrigTauRecMergedMT(const std::string& name, ISvcLocator* pSvcLocator);
+  TrigTauRecMerged(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
@@ -88,7 +88,7 @@ class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
   // Function to perform deep copy on container
   template<class W, class V, class T>
-    StatusCode TrigTauRecMergedMT::deepCopy(W& writeHandle,
+    StatusCode TrigTauRecMerged::deepCopy(W& writeHandle,
                                           const V* ,
                                           const T*& oldContainer) const {
    if(!writeHandle.isValid()){
