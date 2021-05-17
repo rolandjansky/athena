@@ -89,11 +89,11 @@ def muFastSequence():
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
     ### set up MuFastHypo ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
@@ -106,11 +106,11 @@ def muFastOvlpRmSequence():
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
     ### set up MuFastHypo ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolwORFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
@@ -123,11 +123,11 @@ def mul2mtSAOvlpRmSequence():
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2mtMufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muNames.L2SAName+"l2mtmode"
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2mtSAHypoToolwORFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import Trigl2mtSAHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
@@ -232,12 +232,12 @@ def muCombSequence():
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoAlg
     #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
@@ -287,12 +287,12 @@ def muCombLRTSequence():
     (l2muCombLRTSequence, l2muCombLRTViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombLRTAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoAlg
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg_LRT")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
     trigmuCombHypo.RoILinkName = "l2lrtroi"
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muCombLRTSequence,
                          Maker       = l2muCombLRTViewsMaker,
@@ -305,11 +305,11 @@ def muCombOvlpRmSequence():
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoAlg
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolwORFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
@@ -323,12 +323,12 @@ def mul2IOOvlpRmSequence():
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoAlg
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBIOHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muNames.L2CBName+"IOmode"
 
-    # from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2IOHypoToolwORFromDict
+    # from TrigMuonHypo.TrigMuonHypoConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import Trigl2IOHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
@@ -341,11 +341,11 @@ def mul2mtCBOvlpRmSequence():
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoAlg
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2mtMuCBHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muNames.L2CBName+"l2mtmode"
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2mtCBHypoToolwORFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import Trigl2mtCBHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
@@ -393,11 +393,11 @@ def muEFSASequence():
     (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
 
     # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg" )
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFSAonlySequence,
                          Maker       = efsaViewsMaker,
@@ -464,12 +464,12 @@ def muEFCBSequence():
     (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
     trigMuonEFCBHypo.MapToPreviousDecisions=True
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFCBSequence,
                          Maker       = efcbViewsMaker,
@@ -508,12 +508,12 @@ def muEFCBLRTSequence():
     (muonEFCBLRTSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBLRTAlgSequence, ConfigFlags)
 
     # setup EFCBLRT hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBLRTHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlgLRT" )
     trigMuonEFCBLRTHypo.MuonDecisions = sequenceOut
     trigMuonEFCBLRTHypo.MapToPreviousDecisions=True
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFCBLRTSequence,
                          Maker       = efcbViewsMaker,
@@ -555,11 +555,11 @@ def muEFSAFSSequence():
     (muonEFSAFSSequence, efsafsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAFSAlgSequence, ConfigFlags)
 
     # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
     
     return MenuSequence( Sequence    = muonEFSAFSSequence,
                          Maker       = efsafsInputMaker,
@@ -601,11 +601,11 @@ def muEFCBFSSequence():
     (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBFSAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
     trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromName
 
     return MenuSequence( Sequence    = muonEFCBFSSequence,
                          Maker       = efcbfsInputMaker,
@@ -640,11 +640,11 @@ def efLateMuRoISequence():
     (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuRoIAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonLateMuRoIHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonLateMuRoIHypoAlg
     trigMuonEFLateHypo = TrigMuonLateMuRoIHypoAlg( "TrigMuonLateMuRoIHypoAlg" )
     trigMuonEFLateHypo.LateRoIs = sequenceOut
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonLateMuRoIHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonLateMuRoIHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFLateSequence,
                          Maker       = eflateViewsMaker,
@@ -687,11 +687,11 @@ def efLateMuSequence():
     (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFLateHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerLateMuHypoAlg" )
     trigMuonEFLateHypo.MuonDecisions = sequenceOut
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFLateSequence,
                          Maker       = eflateViewsMaker,
@@ -746,11 +746,11 @@ def muEFIsoSequence():
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags)
 
     # set up hypo    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFTrackIsolationHypoAlg
     trigmuefIsoHypo = TrigMuonEFTrackIsolationHypoAlg("EFMuisoHypoAlg")
     trigmuefIsoHypo.EFMuonsName = sequenceOut
    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFTrackIsolationHypoToolFromDict
 
     return MenuSequence( Sequence    = efmuIsoSequence,
                          Maker       = efmuIsoViewsMaker,
@@ -762,11 +762,11 @@ def muEFMSIsoSequence():
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags, doMSiso=True)
 
     # set up hypo    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoAlg
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFTrackIsolationHypoAlg
     trigmuefIsoHypo = TrigMuonEFTrackIsolationHypoAlg("EFMuMSisoHypoAlg")
     trigmuefIsoHypo.EFMuonsName = sequenceOut
    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoToolFromDict
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFTrackIsolationHypoToolFromDict
 
     return MenuSequence( Sequence    = efmuIsoSequence,
                          Maker       = efmuIsoViewsMaker,

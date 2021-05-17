@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONHYPOMT_TRIGMUONEFHYPOALG_H
-#define TRIGMUONHYPOMT_TRIGMUONEFHYPOALG_H 1
+#ifndef TRIGMUONHYPO_TRIGMUONEFHYPOALG_H
+#define TRIGMUONHYPO_TRIGMUONEFHYPOALG_H 1
 
 #include "TrigMuonEFHypoTool.h"
 #include "DecisionHandling/HypoBase.h"

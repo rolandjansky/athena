@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONHYPOMT_TRIGMUONEFINVMASSHYPOTOOL_H 
-#define TRIGMUONHYPOMT_TRIGMUONEFINVMASSHYPOTOOL_H 1
+#ifndef TRIGMUONHYPO_TRIGMUONEFINVMASSHYPOTOOL_H 
+#define TRIGMUONHYPO_TRIGMUONEFINVMASSHYPOTOOL_H 1
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "TrigCompositeUtils/HLTIdentifier.h"

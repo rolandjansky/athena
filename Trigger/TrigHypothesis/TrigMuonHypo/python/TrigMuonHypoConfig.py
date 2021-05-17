@@ -2,7 +2,7 @@
 
 # import Hypo Algs/Tools
 from AthenaConfiguration.ComponentFactory import CompFactory # tools are imported from the factory, (NewJO)
-from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
+from TrigMuonHypo.TrigMuonHypoConf import (  # noqa: F401 (algs not used here)
     TrigMufastHypoAlg, TrigMufastHypoTool,
     TrigmuCombHypoAlg, TrigmuCombHypoTool,
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
@@ -13,7 +13,7 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
 
 
 # import monitoring
-from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
+from TrigMuonHypo.TrigMuonHypoMonitoring import (
     TrigMufastHypoMonitoring,
     TrigmuCombHypoMonitoring,
     TrigMuonEFHypoMonitoring,
@@ -27,7 +27,7 @@ from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
 from AthenaCommon.SystemOfUnits import GeV
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigMuonHypoMTConfig')
+log = logging.getLogger('TrigMuonHypoConfig')
 
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
