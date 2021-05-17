@@ -39,7 +39,7 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   CHECK( histSvc.retrieve() );
   m_myTree = new TTree("data","data");
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
-  
+ /* 
   m_load_truth_jet = false;
 
   m_myTree->Branch ("truth_smallRJet_eta",  &m_truth_smallRJet_eta);
@@ -55,27 +55,29 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("em",  &m_em);
   m_myTree->Branch ("had",  &m_had);
   m_myTree->Branch ("TT Et", &m_TT_Et);    
-
+*/
   m_myTree->Branch ("smallRJet_eta",  &m_smallRJet_eta);
   m_myTree->Branch ("smallRJet_phi",  &m_smallRJet_phi);
   m_myTree->Branch ("smallRJet_ET",  &m_smallRJet_ET);
-  m_myTree->Branch ("smallRJet", &m_smallRJet_Sat);
+  m_myTree->Branch ("smallRJet_clusterET", &m_smallRJet_clusterET);
   m_myTree->Branch ("smallRJet_nTOBs",  &m_smallRJet_nTOBs, "nTOBs");
   m_myTree->Branch ("smallRJet_isCentralTowerSeed",  &m_smallRJet_isCentralTowerSeed);
   
-  m_myTree->Branch("smallRJetTOB_eta", &m_smallRJetTOB_eta);
-  m_myTree->Branch("smallRJetTOB_phi", &m_smallRJetTOB_phi);
-  m_myTree->Branch("smallRJetTOB_ET", &m_smallRJetTOB_ET);
-  m_myTree->Branch("smallRJetTOB_sat", &m_smallRJetTOB_sat);
+  m_myTree->Branch ("smallRJetTOB_eta", &m_smallRJetTOB_eta);
+  m_myTree->Branch ("smallRJetTOB_phi", &m_smallRJetTOB_phi);
+  m_myTree->Branch ("smallRJetTOB_ET", &m_smallRJetTOB_ET);
+  m_myTree->Branch ("smallRJetTOB_sat", &m_smallRJetTOB_sat);
 
+  m_myTree->Branch ("largeRJet_eta", &m_largeRJet_eta);
+  m_myTree->Branch ("largeRJet_phi", &m_largeRJet_phi); 
   m_myTree->Branch ("largeRJet_ET",  &m_largeRJet_ET);
   m_myTree->Branch ("largeRJet_nTOBs",  &m_largeRJet_nTOBs);
 
-  m_myTree->Branch("largeRJetTOB_eta",  &m_largeRJetTOB_eta);
+  m_myTree->Branch ("largeRJetTOB_ET",  &m_largeRJetTOB_ET);
+  m_myTree->Branch ("largeRJetTOB_eta", &m_largeRJetTOB_eta);
   m_myTree->Branch ("largeRJetTOB_phi", &m_largeRJetTOB_phi);
-  m_myTree->Branch ("largeRJetTOB_ET", &m_largeRJetTOB_ET);
+  m_myTree->Branch ("largeRJetTOB_sat", &m_largeRJetTOB_sat);
 
-  
   m_myTree->Branch ("tau_TT_ID" ,  &m_tau_TT_ID);
   m_myTree->Branch ("tau_isLocalMax" ,  &m_tau_isLocalMax);
   m_myTree->Branch ("tau_ET" ,  &m_tau_ET);
@@ -93,9 +95,6 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("tau_TOB_phi",  &m_tau_TOB_phi);
   m_myTree->Branch ("tau_TOB_ISO",  &m_tau_TOB_ISO);
   m_myTree->Branch ("tau_TOB_Sat",  &m_tau_TOB_Sat);
-
-
-
   
 
   return StatusCode::SUCCESS;
@@ -107,23 +106,12 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
   CHECK(evtStore.retrieve() );
 
   m_jFEXOutputCollection = new jFEXOutputCollection();
- // m_jFEXOutputCollection = std::shared_ptr<jFEXOutputCollection>(new jFEXOutputCollection());
- // m_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
-  //m_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
+ 
   CHECK(evtStore->retrieve(m_jFEXOutputCollection, "jFEXOutputCollection"));
 
   CHECK(loadsmallRJetAlgoVariables());
   CHECK(loadlargeRJetAlgoVariables());
   CHECK(loadtauAlgoVariables());
-//CHECK()
-
-
- // CHECK(loadegAlgoVariables());
-//  CHECK(loadTruthTau());
-//  if (m_load_truth_jet){
-//    CHECK(loadTruthJets());
-//  }
-
   m_myTree->Fill();
   m_jFEXOutputCollection->clear();
   return StatusCode::SUCCESS;
@@ -139,16 +127,18 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
   m_smallRJet_phi.clear();
   m_smallRJet_isCentralTowerSeed.clear();
   m_smallRJet_ET.clear();
+  m_smallRJet_clusterET.clear();
   m_smallRJetTOB_eta.clear();
   m_smallRJetTOB_phi.clear();
   m_smallRJetTOB_ET.clear();
   m_smallRJetTOB_sat.clear();
-  for (int i = 0; i < m_jFEXOutputCollection->size(); i++)
+  for (int i = 0; i < m_jFEXOutputCollection->SRsize(); i++)
   {
     m_smallRJet_isCentralTowerSeed.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_isCentralTowerSeed"]);
     m_smallRJet_phi.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_phi"]);
     m_smallRJet_eta.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_eta"]);
     m_smallRJet_ET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_ET"]);
+    m_smallRJet_clusterET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_clusterET"]);
     m_smallRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_eta"]);
     m_smallRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_phi"]);
     m_smallRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_ET"]);
@@ -160,16 +150,16 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
 StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
   m_largeRJet_ET.clear();
   m_largeRJet_nTOBs.clear();
-  m_largeRJetTOB_eta.clear();
-  m_largeRJetTOB_phi.clear();
+  m_largeRJet_eta.clear();
+  m_largeRJet_phi.clear();
   m_largeRJetTOB_ET.clear();
 
-  for (int i = 0; i < m_jFEXOutputCollection->size(); i++)
+  for (int i = 0; i < m_jFEXOutputCollection->LRsize(); i++)
   {
     m_largeRJet_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_ET"]);
     m_largeRJet_nTOBs.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_nTOBs"]); 
-    m_largeRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_eta"]);
-    m_largeRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_phi"]);
+    m_largeRJet_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_eta"]);
+    m_largeRJet_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_phi"]);
     m_largeRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_ET"]);
 
   }
@@ -209,8 +199,6 @@ StatusCode LVL1::jFEXNtupleWriter::loadtauAlgoVariables() {
     m_tau_phi.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_phi"]);
     m_tau_realeta.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_realeta"]);
     m_tau_ISO.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_ISO"]);
-
-
     
     m_tau_TOB_word.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_word"]);
     m_tau_TOB_ET.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_ET"]);
