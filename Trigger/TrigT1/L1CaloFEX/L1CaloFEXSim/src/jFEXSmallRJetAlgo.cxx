@@ -60,7 +60,14 @@ void LVL1::jFEXSmallRJetAlgo::setup(int inputTable[7][7], bool barrel_region) {
   m_barrel_region = barrel_region;
 
 }
- 
+
+
+int LVL1::jFEXSmallRJetAlgo::realValue(int ID, int eta){
+
+  return ((int)(ID/pow(10,5)) % 10) % 2==0 ?  eta : -eta ;
+  
+}
+
 //Gets the ET for the TT. This ET is EM + HAD
 unsigned int LVL1::jFEXSmallRJetAlgo::getTTowerET(){
  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
@@ -78,13 +85,15 @@ unsigned int LVL1::jFEXSmallRJetAlgo::getRealPhi() {
   return phi;
 }
 //Gets Eta of the TT
-unsigned int LVL1::jFEXSmallRJetAlgo::getRealEta() { 
+int LVL1::jFEXSmallRJetAlgo::getRealEta() { 
 
   SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-
-  unsigned int eta = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[3][3])->eta();
-  return eta;
+  const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[3][3]);
+  return realValue(m_jFEXalgoTowerID[3][3],tmpTower->eta());
 }
+
+
+
 //this function calculates seed for a given TT
 void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 {
@@ -179,7 +188,7 @@ unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET(){
   cornersET += tmpTower_d->getTotalET();
 
   //SR Jet Energy cluster
-  int SRJetClusterET = searchWindowET = cornersET;
+  int SRJetClusterET = searchWindowET + cornersET;
 
   return SRJetClusterET;
 }

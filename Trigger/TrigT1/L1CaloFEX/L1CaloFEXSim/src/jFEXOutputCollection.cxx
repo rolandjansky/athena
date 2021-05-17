@@ -78,11 +78,15 @@ void LVL1::jFEXOutputCollection::fill_tau()
 }
 
 
-int LVL1::jFEXOutputCollection::size()
+int LVL1::jFEXOutputCollection::SRsize()
 {
   return m_allvalues_smallRJet.size();
 }
 
+int LVL1::jFEXOutputCollection::LRsize()
+{
+  return m_allvalues_largeRJet.size();
+}
 int LVL1::jFEXOutputCollection::tausize()
 {
   return m_allvalues_tau.size();
@@ -94,7 +98,7 @@ std::map<std::string, float>* LVL1::jFEXOutputCollection::get_smallRJet(int loca
 }
 std::map<std::string, float>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
 {
-  return m_allvalues_smallRJet[location];
+  return m_allvalues_largeRJet[location];
 }
 std::map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int location)
 {

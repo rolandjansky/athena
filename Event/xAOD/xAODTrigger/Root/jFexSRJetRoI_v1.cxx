@@ -24,16 +24,17 @@ namespace xAOD {
 
 
    }
-   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint32_t word0) {
+   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t word0) {
  
      setWord0( word0 );
      setjFexNumber( jFexNumber );
-        
+     setfpgaNumber( fpgaNumber); 
      setTobEt(unpackEtTOB());
      setEta( unpackEtaIndex() );
      setPhi( unpackPhiIndex() ); 
      setSatFlag(unpackSaturationIndex());
-      
+     setGlobalEta(getGlobalEta());
+     setGlobalPhi(getGlobalPhi());     
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
@@ -52,8 +53,8 @@ namespace xAOD {
                                          setWord0 )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, jFexNumber,
                                          setjFexNumber )
-   /// Only calculable externally
-
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(jFexSRJetRoI_v1, uint8_t, fpgaNumber, setfpgaNumber)
+   
  
    /// Extracted from data words, stored for convenience
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint16_t, tobEt,
@@ -64,6 +65,10 @@ namespace xAOD {
                                          setPhi )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, satFlag,
                                          setSatFlag)
+  //global coordinates, stored for furture use but not sent to L1Topo
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, int8_t, globalEta, setGlobalEta)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t, globalPhi, setGlobalPhi)
+  
    //-----------------
    /// Methods to decode data from the TOB/RoI and return to the user
    //-----------------
@@ -115,6 +120,16 @@ namespace xAOD {
 
    unsigned int jFexSRJetRoI_v1::phi() const {
        return iPhi();
+   }
+
+   int8_t jFexSRJetRoI_v1::getGlobalEta() const{ 
+      int8_t globalEta = iEta() + (8*(jFexNumber() -3) -1);
+      return globalEta;
+  }
+
+   uint8_t jFexSRJetRoI_v1::getGlobalPhi() const{ 
+      uint8_t globalPhi = iPhi() + (fpgaNumber() * 16); 
+      return globalPhi;
    }
 } // namespace xAOD
 

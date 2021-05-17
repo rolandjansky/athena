@@ -104,6 +104,9 @@ namespace LVL1 {
       return StatusCode::FAILURE;
     }
 
+    m_allSmallRJetTobs.clear();
+    m_allLargeRJetTobs.clear();
+    m_alltauTobs.clear();
     // We need to split the towers into 6 blocks in eta and 4 blocks in phi.
 
     // boundaries in eta: -2.5, -1.6, -0.8, 0.0, 0.8, 1.6, 2.5
@@ -810,12 +813,14 @@ namespace LVL1 {
 
     // iterate over all SRJEt Tobs and fill EDM with them   
     for( auto const& [jfex, MODULE_tobs] : m_allSmallRJetTobs ) {
+        uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
-            for(auto &tob: FPGA_tob){		
+      	    for(auto &tob: FPGA_tob){		
             	ATH_MSG_DEBUG("fillSRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
-            	ATH_CHECK(fillSRJetEDM(jfex,tob, jSRJetContainer));
+            	ATH_CHECK(fillSRJetEDM(jfex,fpgaNum,tob, jSRJetContainer));
 	    }
         }
+	fpgaNum++;
     }
     
     SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexSRJetHandle(m_jFexSRJetOutKey/*, ctx*/);
@@ -827,14 +832,16 @@ namespace LVL1 {
     std::unique_ptr< xAOD::jFexLRJetRoIAuxContainer > jLRJetAuxContainer = std::make_unique<xAOD::jFexLRJetRoIAuxContainer> ();
     jLRJetContainer->setStore(jLRJetAuxContainer.get());
 
-    // iterate over all SRJEt Tobs and fill EDM with them
+    // iterate over all LRJEt Tobs and fill EDM with them
     for(auto const& [jfex, MODULE_tobs] : m_allLargeRJetTobs ) {
-        for(auto &FPGA_tob : MODULE_tobs) {
-	    for(auto &tob: FPGA_tob){
-            	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
-            	ATH_CHECK(fillLRJetEDM(jfex,tob, jLRJetContainer));
-            }
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) { 
+     	    for(auto&tob: FPGA_tob){
+   	//	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillLRJetEDM(jfex,fpgaNum, tob, jLRJetContainer));
+	    }
 	}
+        fpgaNum++;
     }
 
     SG::WriteHandle<xAOD::jFexLRJetRoIContainer_v1> outputjFexLRJetHandle(m_jFexLRJetOutKey/*, ctx*/);
@@ -847,13 +854,15 @@ namespace LVL1 {
     jTauContainer->setStore(jTauAuxContainer.get());
     //iterate over all Tau Tobs and fill EDM with 
     for( auto const& [jfex, MODULE_tobs] : m_alltauTobs ) {
+        uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
             for(auto &tob : FPGA_tob) {
 
                 //ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
-                ATH_CHECK(fillTauEDM(jfex,tob, jTauContainer));
+                ATH_CHECK(fillTauEDM(jfex,fpgaNum, tob, jTauContainer));
             }
         }
+	fpgaNum++;
     }
 
     SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
@@ -875,38 +884,35 @@ namespace LVL1 {
   }
 
 
-  StatusCode jFEXSysSim::fillSRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
+  StatusCode jFEXSysSim::fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
     uint8_t jFEXNumber = (uint8_t)jFexNum;
     uint32_t tobWord0 = tobWord;
 
     xAOD::jFexSRJetRoI* my_EDM = new xAOD::jFexSRJetRoI();
     jContainer->push_back( my_EDM );
 
-    my_EDM->initialize(jFEXNumber, tobWord0);
+    my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
     ATH_MSG_DEBUG(" setting SRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
-
     return StatusCode::SUCCESS;
 
   }
   
   
-  StatusCode jFEXSysSim::fillTauEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer){
+  StatusCode jFEXSysSim::fillTauEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer){
 
     uint8_t jFEXNumber = (uint8_t) jFexNum;
     uint32_t tobWord0 = tobWord;
 
     xAOD::jFexTauRoI* my_EDM = new xAOD::jFexTauRoI();
     jContainer->push_back( my_EDM );
-
-    my_EDM->initialize(jFEXNumber, tobWord0);
+    my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
     ATH_MSG_DEBUG(" setting Tau jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
-
     return StatusCode::SUCCESS;
 
   }
 
 
-  StatusCode jFEXSysSim::fillLRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer){
+  StatusCode jFEXSysSim::fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer){
 
     uint8_t jFEXNumber = (uint8_t) jFexNum;
     uint32_t tobWord0 = tobWord;
@@ -914,9 +920,8 @@ namespace LVL1 {
     xAOD::jFexLRJetRoI* my_EDM = new xAOD::jFexLRJetRoI();
     jContainer->push_back( my_EDM );
 
-    my_EDM->initialize(jFEXNumber, tobWord0);
-    ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
-
+    my_EDM->initialize(jFEXNumber,fpgaNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " <<+my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
     return StatusCode::SUCCESS;
 
   }
