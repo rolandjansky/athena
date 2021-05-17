@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Epos_i )
@@ -38,4 +38,9 @@ atlas_install_runtime( share/file/epos_crmc.param
                        ${CRMC_LCGROOT}/tabs/epos.inics
                        ${CRMC_LCGROOT}/tabs/epos.inics.lhc
                        ${CRMC_LCGROOT}/tabs/epos.inidi )
+
+set( EposEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of EposEnvironment.cmake" )
+find_package( EposEnvironment )
+
 
