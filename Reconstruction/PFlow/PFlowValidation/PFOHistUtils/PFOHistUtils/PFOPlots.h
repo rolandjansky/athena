@@ -27,6 +27,10 @@ namespace PFO {
     TH1* m_PFO_m;
     TH1* m_PFO_charge;
 
+    /** Pt Hisrogram binned in pt */
+    TH1* m_PFO_pt_low;
+    TH1* m_PFO_pt_middle;
+    TH1* m_PFO_pt_high;
     
     /** Pt Histogram binned in eta */
     TH1* m_PFO_pt_etaBinA;
@@ -39,6 +43,11 @@ namespace PFO {
     TH1* m_FE_phi;
     TH1* m_FE_m;
     TH1* m_FE_charge;
+
+    /** Pt Hisrogram binned in pt */
+    TH1* m_FE_pt_low;
+    TH1* m_FE_pt_middle;
+    TH1* m_FE_pt_high;
 
     TH1* m_FE_eta_posE; // extra bin for positive energy FE
     
