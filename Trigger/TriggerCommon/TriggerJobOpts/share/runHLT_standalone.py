@@ -39,7 +39,7 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
 #    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
@@ -191,6 +191,10 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
+
+# Enable strict dependency checking for data by default
+if 'strictDependencies' not in globals():
+    opt.strictDependencies = not ConfigFlags.Input.isMC
 
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():
@@ -347,12 +351,14 @@ AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.EnableVerboseViews( True )
 
 #--------------------------------------------------------------
-# Set the FailIfNoProxy property of SGInputLoader
+# Enable strict enforcing of data dependencies
 #--------------------------------------------------------------
-if not hasattr(topSequence,"SGInputLoader"):
-    log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
-    theApp.exit(1)
-topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
+if opt.strictDependencies:
+    AlgScheduler.setDataLoaderAlg("")
+    if not hasattr(topSequence,"SGInputLoader"):
+        log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
+        theApp.exit(1)
+    topSequence.SGInputLoader.FailIfNoProxy = True
 
 # ----------------------------------------------------------------
 # Detector geometry
@@ -503,6 +509,13 @@ if not opt.createHLTMenuExternally:
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
+# ---------------------------------------------------------------
+# Tell the SGInputLoader about L1 and HLT menu in the DetectorStore
+# ---------------------------------------------------------------
+if hasattr(topSequence,"SGInputLoader"):
+    topSequence.SGInputLoader.Load += [
+        ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
+        ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 
 # ---------------------------------------------------------------
 # Monitoring

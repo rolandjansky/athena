@@ -7,9 +7,7 @@
 #--------------------------------------------------------------
 # ATLAS default Application Configuration options
 #--------------------------------------------------------------
-
-# Use McEventSelector so we can run with AthenaMP
-import AthenaCommon.AtlasUnixGeneratorJob
+import AthenaCommon.AtlasUnixStandardJob
 
 #--------------------------------------------------------------
 # Private Application Configuration options

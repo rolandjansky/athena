@@ -120,13 +120,15 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 
-        SGInputLoader=CompFactory.SGInputLoader
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         # FailIfNoProxy=False makes it a warning, not an error, if unmet data
         # dependencies are not found in the store.  It should probably be changed
         # to True eventually.
-        inputloader = SGInputLoader (FailIfNoProxy = False)
-        cfg.addEventAlgo( inputloader, "AthAlgSeq" )
-        scheduler.DataLoaderAlg = inputloader.getName()
+        inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
+        cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
+        # Specifying DataLoaderAlg makes the Scheduler automatically assign
+        # all unmet data dependencies to that algorithm
+        scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
 
         AthenaHiveEventLoopMgr=CompFactory.AthenaHiveEventLoopMgr
 

@@ -51,12 +51,11 @@ def setupCommonServices():
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader
     topSequence = AlgSequence()
-    topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
+    topSequence += SGInputLoader(FailIfNoProxy = True)
 
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
-    AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
 
     # Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
     theApp.AuditAlgorithms = True
