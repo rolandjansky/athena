@@ -83,7 +83,7 @@ def setupMenu():
         ChainProp(name='HLT_tau0_perf_ptonly_L1TAU8', groups=SingleTauGroup),
     ]
     chains["met"] = [
-        ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_cell_L1XE30', groups=SingleMETGroup),
     ]
 
     chains["minbias"] = [
