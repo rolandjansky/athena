@@ -1,5 +1,9 @@
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 from HitAnalysis.HitAnalysisConf import SiHitAnalysis
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 topSequence += SiHitAnalysis('PixelHitAnalysis')
 topSequence.PixelHitAnalysis.CollectionName='PixelHits'
 topSequence += SiHitAnalysis('SCTHitAnalysis')
