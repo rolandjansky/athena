@@ -471,8 +471,8 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-egam3Seq = CfgMgr.AthSequencer("EGAM3Sequence")
-DerivationFrameworkJob += egam3Seq
+EGAM3Sequence = CfgMgr.AthSequencer("EGAM3Sequence")
+DerivationFrameworkJob += EGAM3Sequence
 
 
 #=======================================
@@ -490,7 +490,7 @@ augmentationTools += EGAM3_ClusterEnergyPerLayerDecorators
 print("EGAM3 skimming tools: ", [EGAM3_SkimmingTool])
 print("EGAM3 thinning tools: ", thinningTools)
 print("EGAM3 augmentation tools: ", augmentationTools)
-egam3Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
+EGAM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
                                                          AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM3_SkimmingTool],
                                                          ThinningTools = thinningTools
@@ -501,14 +501,14 @@ egam3Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = ["AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,egam3Seq,"EGAM3")
+replaceAODReducedJets(reducedJetList,EGAM3Sequence,"EGAM3")
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam3Seq)
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM3Sequence)
 
 
 #========================================
@@ -520,7 +520,7 @@ if (DerivationFrameworkIsMonteCarlo):
         if hasattr(topSequence, alg):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
-            egam3Seq += edtalg
+            EGAM3Sequence += edtalg
 
 
 #====================================================================

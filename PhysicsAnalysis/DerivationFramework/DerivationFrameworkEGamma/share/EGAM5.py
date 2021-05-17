@@ -216,7 +216,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorat
 EGAM5_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM5_GainDecoratorTool
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+cluster_sizes = (3,7), (5,5), (7,11)
 EGAM5_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
@@ -336,8 +336,8 @@ print("EGAM5 thinningTools: ", thinningTools)
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-egam5Seq = CfgMgr.AthSequencer("EGAM5Sequence")
-DerivationFrameworkJob += egam5Seq
+EGAM5Sequence = CfgMgr.AthSequencer("EGAM5Sequence")
+DerivationFrameworkJob += EGAM5Sequence
 
 
 
@@ -345,7 +345,7 @@ DerivationFrameworkJob += egam5Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-egam5Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
+EGAM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
                                                          AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
                                                          SkimmingTools = [EGAM5_SkimmingTool],
                                                          ThinningTools = thinningTools
@@ -359,14 +359,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = []
 if (DerivationFrameworkIsMonteCarlo):
     reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,egam5Seq,"EGAM5")
+replaceAODReducedJets(reducedJetList,EGAM5Sequence,"EGAM5")
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam5Seq)
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM5Sequence)
 
 
 #========================================
@@ -378,7 +378,7 @@ if (DerivationFrameworkIsMonteCarlo):
         if hasattr(topSequence, alg):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
-            egam5Seq += edtalg
+            EGAM5Sequence += edtalg
 
 
 #====================================================================
