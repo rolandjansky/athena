@@ -269,9 +269,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   ATH_CHECK(m_hitVectorKeys.initialize(!m_onlyUseContainerName && !m_hitVectorKeys.empty() ));
 
   ATH_CHECK( m_hitContainerKey.initialize() );
-  if(m_doDigiTruth){
-    ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize() );
-  }
+  ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
 
   ATH_MSG_DEBUG("TileHitVecToCntTool initialization completed");
 
