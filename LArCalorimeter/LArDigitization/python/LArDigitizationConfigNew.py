@@ -19,7 +19,6 @@ from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
-from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
 
 def useLArFloat(flags):
@@ -223,8 +222,6 @@ def LArOverlayCfg(flags, **kwargs):
 def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower"""
     acc = LArDigitizationBasicCfg(flags)
-    acc.merge(LArFebRodMappingCfg(flags))
-    acc.merge(LArCalibIdMappingCfg(flags))
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
@@ -248,8 +245,6 @@ def LArTriggerDigitizationCfg(flags, **kwargs):
 def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with LAr Overlay Trigger Tower"""
     acc = LArOverlayDigitizationBasicCfg(flags)
-    acc.merge(LArFebRodMappingCfg(flags))
-    acc.merge(LArCalibIdMappingCfg(flags))
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
