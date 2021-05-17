@@ -155,7 +155,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel,
-                                              merge='weightedAverage')
+                                              merge='identical')
     badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;RAW_DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
@@ -168,7 +168,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap,
-                                              merge='weightedAverage')
+                                              merge='identical')
 
 
     #--coverageHW histograms

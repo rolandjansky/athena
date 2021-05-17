@@ -1720,6 +1720,8 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
        merge_RMSpercentDeviation( *h, *nextH );
      }else if( mergeType == "lowerLB" ) {
        merge_lowerLB( *h, *nextH );
+     }else if( mergeType == "identical" ) {
+       merge_identical( *h, *nextH );
      }else if( mergeType == "merge" ) {
        TList tl; tl.Add(nextH); h->Merge(&tl);
      } else {
