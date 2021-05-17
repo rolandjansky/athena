@@ -55,8 +55,8 @@ class TrigEgammaForwardPrecisionElectronHypoToolConfig:
     self.__sel = sel
     self.__iso = iso
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoToolInc
-    tool = TrigEgammaPrecisionElectronHypoToolInc( name )
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
+    tool = TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = []
     tool.PidName        = ""

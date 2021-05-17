@@ -44,8 +44,8 @@ def precisionElectronMenuSequence(is_probe_leg=False, ion=False):
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags, ion=ion)
 
     # make the Hypo
-    from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlgMT("TrigEgamma" + tag(ion) + "HypoAlgMT_noGSF", sequenceOut)
+    from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
+    thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF", sequenceOut)
     
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
     

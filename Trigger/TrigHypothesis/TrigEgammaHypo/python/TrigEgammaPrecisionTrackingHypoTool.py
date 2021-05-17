@@ -2,8 +2,8 @@
 
 def _IncTool(name):
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoToolInc    
-    tool = TrigEgammaPrecisionTrackingHypoToolInc( name ) 
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoTool    
+    tool = TrigEgammaPrecisionTrackingHypoTool( name ) 
     tool.AcceptAll = True
     return tool
 

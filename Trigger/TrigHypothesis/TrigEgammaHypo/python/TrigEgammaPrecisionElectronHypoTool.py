@@ -11,7 +11,7 @@ def same( val , tool):
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaPrecisionElectronHypoAlgMT(name, sequenceOut):
+def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
     
@@ -19,9 +19,9 @@ def createTrigEgammaPrecisionElectronHypoAlgMT(name, sequenceOut):
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlg
    
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT(name)
+    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
     thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
@@ -76,8 +76,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__sel = sel
     self.__iso = iso
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoToolInc
-    tool = TrigEgammaPrecisionElectronHypoToolInc( name )
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
+    tool = TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( self.__threshold*GeV, tool )
