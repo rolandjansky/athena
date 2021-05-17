@@ -69,12 +69,12 @@ def fastElectronMenuSequence(do_idperf,is_probe_leg=False):
     (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
 
     # make the Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
     if do_idperf is True:
-        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_idperf")
+        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg_idperf")
         theElectronHypo.Electrons = "HLT_FastDummyElectrons"
     else:
-        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT")
+        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg")
         theElectronHypo.Electrons = "HLT_FastElectrons"
 
     theElectronHypo.RunInView=True

@@ -46,10 +46,10 @@ def precisionCaloMenuSequence_LRT(name,is_probe_leg=False):
     (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence_LRT, ConfigFlags)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlg
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT(name+"precisionCaloHypo_LRT")
+    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlg(name+"precisionCaloHypo_LRT")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

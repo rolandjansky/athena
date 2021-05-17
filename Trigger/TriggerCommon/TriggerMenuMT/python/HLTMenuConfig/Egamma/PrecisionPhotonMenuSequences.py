@@ -43,8 +43,8 @@ def precisionPhotonMenuSequence(name):
     (sequence, precisionPhotonViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionPhotonSequence,ConfigFlags)
 
     # Hypo 
-    from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import createTrigEgammaPrecisionPhotonHypoAlgMT
-    thePrecisionPhotonHypo = createTrigEgammaPrecisionPhotonHypoAlgMT(name+"precisionPhotonHypo", sequenceOut)
+    from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import createTrigEgammaPrecisionPhotonHypoAlg
+    thePrecisionPhotonHypo = createTrigEgammaPrecisionPhotonHypoAlg(name+"precisionPhotonHypo", sequenceOut)
     
     from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool import TrigEgammaPrecisionPhotonHypoToolFromDict
 
