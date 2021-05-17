@@ -58,7 +58,7 @@ bool
 pool::PersistencySvc::Container::attributeOfType( const std::string& attributeName,
                                                   void* data,
                                                   const std::type_info& typeInfo,
-                                                  const std::string& option ) const
+                                                  const std::string& option )
 {
   pool::DbOption containerOption( attributeName, option );
   pool::DbStatus sc = m_storageExplorer.getContainerOption( m_fileDescriptor,
