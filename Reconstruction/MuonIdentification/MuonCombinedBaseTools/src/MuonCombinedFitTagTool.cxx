@@ -67,18 +67,18 @@ namespace MuonCombined {
         std::unique_ptr<Trk::Track> combinedTrack;
         std::unique_ptr<Trk::Track> METrack;
         std::unique_ptr<CombinedFitTag> currentTag;
-        const InDetCandidate* bestCandidate = 0;
+        const InDetCandidate* bestCandidate = nullptr;
         std::multimap<double, const InDetCandidate*>
             sortedInDetCandidates;  // map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
 
         // loop over ID candidates
         for (const auto& idTP : indetCandidates) {
             double outerMatchProb =
-                m_matchQuality->outerMatchProbability(*idTP->indetTrackParticle().track(), muonCandidate.muonSpectrometerTrack());
+                m_matchQuality->outerMatchProbability(*idTP->indetTrackParticle().track(), muonCandidate.muonSpectrometerTrack(), ctx);
             double innerMatchProb = -1;
             if (muonCandidate.extrapolatedTrack())
                 innerMatchProb =
-                    m_matchQuality->innerMatchProbability(*idTP->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack());
+                    m_matchQuality->innerMatchProbability(*idTP->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
             const double maxProb = std::max(outerMatchProb, innerMatchProb);
             sortedInDetCandidates.insert(std::pair<double, const InDetCandidate*>(maxProb, idTP));
         }
@@ -307,7 +307,7 @@ namespace MuonCombined {
 
         if (tag.muonCandidate().extrapolatedTrack()) {
             std::pair<int, std::pair<double, double> > aTriad =
-                m_matchQuality->innerMatchAll(idTrack, *tag.muonCandidate().extrapolatedTrack());
+                m_matchQuality->innerMatchAll(idTrack, *tag.muonCandidate().extrapolatedTrack(), ctx);
             int matchDoF = aTriad.first;
             double matchChi2 = aTriad.second.first;
             double matchProb = aTriad.second.second;
@@ -380,7 +380,7 @@ namespace MuonCombined {
         // get track quality and store
         if (refittedExtrapolatedTrack) {
             const Trk::Track* METrack = refittedExtrapolatedTrack.get();
-            std::pair<int, std::pair<double, double> > aTriad = m_matchQuality->innerMatchAll(idTrack, *METrack);
+            std::pair<int, std::pair<double, double> > aTriad = m_matchQuality->innerMatchAll(idTrack, *METrack, ctx);
             int matchDoF = aTriad.first;
             double matchChi2 = aTriad.second.first;
             double matchProb = aTriad.second.second;
@@ -391,7 +391,7 @@ namespace MuonCombined {
 
             // print comparison with original track
             if (tag.muonCandidate().extrapolatedTrack()) {
-                double oldmatchChi2 = m_matchQuality->innerMatchChi2(idTrack, *tag.muonCandidate().extrapolatedTrack());
+                double oldmatchChi2 = m_matchQuality->innerMatchChi2(idTrack, *tag.muonCandidate().extrapolatedTrack(), ctx);
 
                 ATH_MSG_VERBOSE(" evaluateMatchProperties: chi2 re-evaluated from " << oldmatchChi2 << " to " << matchChi2);
 
