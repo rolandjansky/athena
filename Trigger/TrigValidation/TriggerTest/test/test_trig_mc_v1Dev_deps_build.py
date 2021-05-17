@@ -19,7 +19,7 @@ precommand = ''.join([
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
   "fpeAuditor=True;",
-  "failIfNoProxy=True;"
+  "strictDependencies=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 
