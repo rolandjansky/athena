@@ -47,12 +47,13 @@ public:
   virtual double etaVariance() const = 0;
   virtual double phiVariance() const = 0;
   virtual bool calVarianceStatus() const = 0;
-  virtual void etaMean(double) const = 0;
-  virtual void phiMean(double) const = 0;
-  virtual void etaVariance(double) const = 0;
-  virtual void phiVariance(double) const = 0;
-  virtual void setCalVarianceStatus() const = 0;
-
+  //set  functions
+  virtual void etaMean(double) = 0;
+  virtual void phiMean(double) = 0;
+  virtual void etaVariance(double) = 0;
+  virtual void phiVariance(double) = 0;
+  virtual void setCalVarianceStatus() = 0;
+  //
   virtual unsigned int nCells() const = 0;
   virtual const std::vector<double>& cellPhi() const = 0;
   virtual const std::vector<double>& cellEta() const = 0;
@@ -84,10 +85,10 @@ template <class ObjectType, class PositionType>
 class PositionProvider: public IPositionProvider {
 protected:
   PositionProvider() {}
-  
+
 public:
   virtual ~PositionProvider() {}
-  virtual PositionType getPosition(const ObjectType* cluster) const = 0;
+  virtual PositionType getPosition(ObjectType* cluster) const = 0;
 
 };
 
@@ -118,7 +119,7 @@ protected:
 public:
   virtual ~IDistanceProvider() { }
 
-  virtual double distanceBetween(const ITrack* track, const ICluster* cluster) const = 0;
+  virtual double distanceBetween(ITrack* track, ICluster* cluster) const = 0;
 };
 
 template<class TrackPositionType, class ClusterPositionType>
@@ -138,7 +139,7 @@ public:
   }
   virtual ~DistanceProvider() {}
 
-  double distanceBetween(const ITrack* track, const ICluster* cluster) const {
+  double distanceBetween(ITrack* track, ICluster* cluster) const {
     TrackPositionProvider<TrackPositionType>* trackPositionProvider = m_trackPosition.get();
     ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = m_clusterPosition.get();
     return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));
