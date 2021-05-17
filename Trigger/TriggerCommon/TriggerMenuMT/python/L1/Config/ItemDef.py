@@ -408,6 +408,8 @@ class ItemDef:
         MenuItem('L1_TAU12_FIRSTEMPTY'     ).setLogic( d.HA12   & firstempty ).setTriggerType( TT.calo )
         MenuItem('L1_TAU30_EMPTY'          ).setLogic( d.HA30   & cosmiccond ).setTriggerType( TT.calo )
         MenuItem('L1_TAU30_UNPAIRED_ISO'   ).setLogic( d.HA30  & unpaired_isocond ).setTriggerType( TT.calo )
+        MenuItem('L1_TAU40_EMPTY'          ).setLogic( d.HA40   & cosmiccond ).setTriggerType( TT.calo )
+        MenuItem('L1_TAU40_UNPAIRED_ISO'   ).setLogic( d.HA40  & unpaired_isocond ).setTriggerType( TT.calo )
 
         #UPC TAU
         MenuItem('L1_2TAU1_VTE50' ).setLogic( d.HA1.x(2)      & Not(d.TE50) & physcond).setTriggerType(TT.calo)

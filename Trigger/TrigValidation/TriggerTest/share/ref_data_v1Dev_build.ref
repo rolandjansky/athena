@@ -1517,11 +1517,7 @@ HLT_g35_medium_tau25_dipion3_tracktwoMVA_L1EM22VHI:
   eventCount: 0
 HLT_g35_tight_3j25_pf_ftf_L1EM22VHI:
   eventCount: 0
-HLT_g35_tight_3j25_pf_ftf_L1EM30VHI:
-  eventCount: 0
 HLT_g35_tight_3j25_pf_ftf_boffperf_L1EM22VHI:
-  eventCount: 0
-HLT_g35_tight_3j25_pf_ftf_boffperf_L1EM30VHI:
   eventCount: 0
 HLT_g35_tight_L1EM22VHI:
   eventCount: 0
@@ -3030,7 +3026,7 @@ HLT_mu6_mu6noL1_L1MU6:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu6_xe30_mht_L1XE10:
+HLT_mu6_xe30_mht_L1XE30:
   eventCount: 0
   stepCounts:
     0: 1
@@ -3208,15 +3204,11 @@ HLT_noalg_L1TAU12IM:
   eventCount: 20
 HLT_noalg_L1TAU20IM:
   eventCount: 20
-HLT_noalg_L1TAU30:
-  eventCount: 20
 HLT_noalg_L1TAU40:
   eventCount: 20
 HLT_noalg_L1TAU60:
   eventCount: 20
 HLT_noalg_L1TAU8:
-  eventCount: 20
-HLT_noalg_L1XE10:
   eventCount: 20
 HLT_noalg_L1XE30:
   eventCount: 20
@@ -3233,10 +3225,6 @@ HLT_noalg_L1XE50:
 HLT_noalg_L1XE55:
   eventCount: 20
 HLT_noalg_L1XE60:
-  eventCount: 20
-HLT_noalg_L1XE70:
-  eventCount: 20
-HLT_noalg_L1XE80:
   eventCount: 20
 HLT_noalg_LArPEBCalib_L1RD0_BGRP11:
   eventCount: 20
@@ -3526,9 +3514,14 @@ HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM:
 : eventCount: 0
   stepCounts:
     0: 1
+    1: 1
+    2: 1
+    3: 1
   stepFeatures:
-    0: 8
-    1: 2
+    0: 20
+    1: 4
+    2: 4
+    3: 4
 HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM:
   eventCount: 1
   stepCounts:
@@ -3547,9 +3540,14 @@ HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM:
 : eventCount: 0
   stepCounts:
     0: 1
+    1: 1
+    2: 1
+    3: 1
   stepFeatures:
-    0: 8
-    1: 2
+    0: 20
+    1: 4
+    2: 4
+    3: 4
 HLT_tau25_perf_track_L1TAU12IM:
   eventCount: 2
   stepCounts:
@@ -4043,19 +4041,19 @@ HLT_xe110_tc_em_L1XE50:
   eventCount: 0
 HLT_xe110_tcpufit_L1XE50:
   eventCount: 0
-HLT_xe30_cell_L1XE10:
+HLT_xe30_cell_L1XE30:
   eventCount: 3
   stepCounts:
     0: 3
   stepFeatures:
     0: 3
-HLT_xe30_cell_xe30_tcpufit_L1XE10:
+HLT_xe30_cell_xe30_tcpufit_L1XE30:
   eventCount: 3
   stepCounts:
     0: 3
   stepFeatures:
     0: 9
-HLT_xe30_cvfpufit_L1XE10:
+HLT_xe30_cvfpufit_L1XE30:
   eventCount: 6
   stepCounts:
     0: 20
@@ -4063,13 +4061,13 @@ HLT_xe30_cvfpufit_L1XE10:
   stepFeatures:
     0: 20
     1: 6
-HLT_xe30_mht_L1XE10:
+HLT_xe30_mht_L1XE30:
   eventCount: 12
   stepCounts:
     0: 12
   stepFeatures:
     0: 12
-HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
+HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30:
   eventCount: 3
   stepCounts:
     0: 20
@@ -4077,7 +4075,7 @@ HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
   stepFeatures:
     0: 20
     1: 3
-HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
+HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30:
   eventCount: 2
   stepCounts:
     0: 20
@@ -4085,7 +4083,7 @@ HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
   stepFeatures:
     0: 20
     1: 2
-HLT_xe30_pfopufit_L1XE10:
+HLT_xe30_pfopufit_L1XE30:
   eventCount: 3
   stepCounts:
     0: 20
@@ -4093,7 +4091,7 @@ HLT_xe30_pfopufit_L1XE10:
   stepFeatures:
     0: 20
     1: 3
-HLT_xe30_pfsum_L1XE10:
+HLT_xe30_pfsum_L1XE30:
   eventCount: 5
   stepCounts:
     0: 20
@@ -4101,7 +4099,7 @@ HLT_xe30_pfsum_L1XE10:
   stepFeatures:
     0: 20
     1: 5
-HLT_xe30_pfsum_cssk_L1XE10:
+HLT_xe30_pfsum_cssk_L1XE30:
   eventCount: 3
   stepCounts:
     0: 20
@@ -4109,7 +4107,7 @@ HLT_xe30_pfsum_cssk_L1XE10:
   stepFeatures:
     0: 20
     1: 3
-HLT_xe30_pfsum_vssk_L1XE10:
+HLT_xe30_pfsum_vssk_L1XE30:
   eventCount: 2
   stepCounts:
     0: 20
@@ -4117,13 +4115,13 @@ HLT_xe30_pfsum_vssk_L1XE10:
   stepFeatures:
     0: 20
     1: 2
-HLT_xe30_tcpufit_L1XE10:
+HLT_xe30_tcpufit_L1XE30:
   eventCount: 6
   stepCounts:
     0: 6
   stepFeatures:
     0: 6
-HLT_xe30_trkmht_L1XE10:
+HLT_xe30_trkmht_L1XE30:
   eventCount: 6
   stepCounts:
     0: 20
