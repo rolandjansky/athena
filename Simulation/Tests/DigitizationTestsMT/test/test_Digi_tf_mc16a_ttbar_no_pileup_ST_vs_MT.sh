@@ -27,6 +27,7 @@ Digi_tf.py \
 --maxEvents 10
 
 rc=$?
+status=$rc
 echo  "art-result: $rc MTdigi"
 mv log.HITtoRDO log.HITtoRDO_MT
 
@@ -48,6 +49,7 @@ then
     --skipEvents 0 \
     --maxEvents 10
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 STdigi"
 
@@ -56,6 +58,7 @@ if [ $rc2 -eq 0 ]
 then
     acmd.py diff-root mc16a_ttbar.ST.RDO.pool.root mc16a_ttbar.MT.RDO.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
 
@@ -66,5 +69,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
     rc4=$?
+    status=$rc4
 fi
 echo  "art-result: $rc4 regression"
+
+exit $status

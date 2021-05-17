@@ -22,6 +22,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay_tf"
 
 OverlayPool_tf.py \
@@ -37,6 +38,7 @@ OverlayPool_tf.py \
 --imf False
 
 rc2=$?
+status=$rc2
 echo "art-result: $rc2 overlaypool_tf"
 
 
@@ -52,5 +54,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 comparison"
+
+exit $status
