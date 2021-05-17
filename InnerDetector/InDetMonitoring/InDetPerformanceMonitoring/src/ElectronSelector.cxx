@@ -81,7 +81,7 @@ void ElectronSelector::Init()
   } 
 
   // check config files at: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EGammaIdentificationRun2
-  std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
   if ( (m_LHTool2015->setProperty("ConfigFile", confDir)).isSuccess()) {
     (*m_msgStream) << MSG::INFO << "Electron likelihood config ("<< confDir.c_str() << ") setting SUCCESS!" << endmsg;
   }
