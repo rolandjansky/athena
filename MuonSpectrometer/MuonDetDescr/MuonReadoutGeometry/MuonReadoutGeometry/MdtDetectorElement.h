@@ -9,11 +9,11 @@
 
 //!  A MdtDetectorElement Class
 /*!
-  MdtDetectorElements are as granular as offline mdt data collections 
-  (prepRawData); hence they can be retrieved using the collection hash 
-  identifier.  MdtDetectorElement will hold an array of MdtReadoutElements 
-  which will actually implement the real functionality; MdtDetectorElement 
-  methods will delegate the job to the appropriate MdtReadoutElement.  
+  MdtDetectorElements are as granular as offline mdt data collections
+  (prepRawData); hence they can be retrieved using the collection hash
+  identifier.  MdtDetectorElement will hold an array of MdtReadoutElements
+  which will actually implement the real functionality; MdtDetectorElement
+  methods will delegate the job to the appropriate MdtReadoutElement.
 */
 
 #ifndef MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
@@ -36,17 +36,17 @@ class GeoVFullPhysVol;
 namespace MuonGM {
 
 class MuonDetectorManager;
-class MdtReadoutElement;    
+class MdtReadoutElement;
 
 /**
-   Base class for the XxxDetectorelement, with Xxx = Mdt, Rpc, Tgc, Csc. 
-   It's a Trk::TrkDetElementBase, therefore it must implement the generic 
-   tracking interfaces requested to the geometry: center, normal, 
+   Base class for the XxxDetectorelement, with Xxx = Mdt, Rpc, Tgc, Csc.
+   It's a Trk::TrkDetElementBase, therefore it must implement the generic
+   tracking interfaces requested to the geometry: center, normal,
    surfaceBound, transform.
-   No link to raw geometry. 
+   No link to raw geometry.
 */
 
-class MdtDetectorElement: public MuonDetectorElement 
+class MdtDetectorElement final: public MuonDetectorElement
 {
 
 public:
@@ -54,8 +54,8 @@ public:
    MdtDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash);
    virtual ~MdtDetectorElement(){};
 
-   virtual int getStationEta() const {return 0;}; //!< returns stationEta 
-   virtual int getStationPhi() const {return 0;}; //!< returns stationPhi
+   virtual int getStationEta() const override {return 0;}; //!< returns stationEta
+   virtual int getStationPhi() const override {return 0;}; //!< returns stationPhi
 
    //  DetectorElement content
    double getRsize() const;//<! size of the DetectorElement (collection of readout elements)
@@ -63,34 +63,34 @@ public:
    double getLongSsize() const;//<! size of the DetectorElement (collection of readout elements)
    double getLongRsize() const;//<! size of the DetectorElement (collection of readout elements)
    double getLongZsize() const;//<! size of the DetectorElement (collection of readout elements)
-    
+
    // Common tracking generic interfaces
-    const Amg::Transform3D& transform() const;
+    virtual const Amg::Transform3D& transform() const override final;
 
-    const Trk::Surface& surface() const;
-  
-    const Trk::SurfaceBounds& bounds() const;
+    virtual const Trk::Surface& surface() const override final;
 
-    const Amg::Vector3D& center() const;
-  
-    const Amg::Vector3D& normal() const;
-  
-    const Amg::Vector3D& normal(const Identifier& id) const;
-  
-    const Trk::Surface& surface(const Identifier& id) const;
-  
-    const Trk::SurfaceBounds& bounds(const Identifier& id) const;
-  
-    const Amg::Transform3D& transform(const Identifier& id) const;
-  
-    const Amg::Vector3D& center(const Identifier& id) const;
+    virtual const Trk::SurfaceBounds& bounds() const override final;
+
+    virtual const Amg::Vector3D& center() const override final;
+
+    virtual const Amg::Vector3D& normal() const override final;
+
+    virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
+
+    virtual const Trk::Surface& surface(const Identifier& id) const override final;
+
+    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
+
+    virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
+
+    virtual const Amg::Vector3D& center(const Identifier& id) const override final;
 
     std::vector<const Trk::Surface*> surfaces() const;
 
-   unsigned int nMDTinStation() const {return nReadoutElements();} 
-   unsigned int nCSCinStation() const {return 0;}
-   unsigned int nTGCinStation() const {return 0;}
-   unsigned int nRPCinStation() const {return 0;}
+   virtual unsigned int nMDTinStation() const override {return nReadoutElements();}
+   virtual unsigned int nCSCinStation() const override {return 0;}
+   virtual unsigned int nTGCinStation() const override {return 0;}
+   virtual unsigned int nRPCinStation() const override {return 0;}
 
    // Add a XxxReadoutElement to the Collection
    void addMdtReadoutElement (const MdtReadoutElement* x, Identifier  id);
@@ -104,9 +104,13 @@ public:
    //!< access via extended identifier (requires unpacking)
 
    const MdtReadoutElement* getMdtReadoutElement(int multilayer) const;
-   //!< access via multilayer index   
-    
-protected:    
+   //!< access via multilayer index
+
+   /** TrkDetElementInterface */
+   virtual Trk::DetectorElemType detectorType() const override final
+   {
+     return Trk::DetectorElemType::Mdt;
+   }
 
 private:
    const MdtReadoutElement *m_mdtRE[maxMdtREinDE];
