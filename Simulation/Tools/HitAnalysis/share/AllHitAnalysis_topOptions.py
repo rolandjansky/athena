@@ -82,16 +82,6 @@ topSequence.CaloHitAnalysis.NtupleFileName = '/HitAnalysis/Calo/ntuple/'
 topSequence.MMHitAnalysis.NtupleFileName='/HitAnalysis/MM/ntuple/'
 topSequence.sTGCHitAnalysis.NtupleFileName='/HitAnalysis/sTGC/ntuple/'
 
-#Add some more TH2 histograms
-
-
-topSequence.PixelHitAnalysis.ExpertMode= "off"
-topSequence.SCTHitAnalysis.ExpertMode= "off"
-topSequence.BCMHitAnalysis.ExpertMode= "off"
-topSequence.BLMHitAnalysis.ExpertMode= "off"
-topSequence.CaloHitAnalysis.ExpertMode = "off"
-topSequence.CaloHitAnalysis.CalibHits = "off"
-
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["HitAnalysis DATAFILE='AllHitAnalysis.root' OPT='RECREATE'" ]
