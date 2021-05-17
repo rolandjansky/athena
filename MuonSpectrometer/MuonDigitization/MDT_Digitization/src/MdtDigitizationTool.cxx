@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@
 //Calibration Service
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-
-static constexpr double s_inv_c_light(1./Gaudi::Units::c_light);
-
+namespace{
+    static constexpr double s_inv_c_light(1./Gaudi::Units::c_light);
+}
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
 {
@@ -168,7 +168,7 @@ StatusCode MdtDigitizationTool::initialize() {
   }
 
   //Retrieve the Conditions service
-  if (m_UseDeadChamberSvc==true) {
+  if (m_UseDeadChamberSvc) {
     ATH_CHECK(m_readKey.initialize());
   }
   else {
@@ -184,7 +184,7 @@ StatusCode MdtDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
   ATH_MSG_DEBUG("MdtDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
 
   m_MDTHitCollList.clear();
-  m_thpcMDT = new TimedHitCollection<MDTSimHit>() ;
+  m_thpcMDT = std::make_unique<TimedHitCollection<MDTSimHit>>() ;
   
   return StatusCode::SUCCESS;
 }
@@ -236,10 +236,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx)
 {
   
   ATH_MSG_DEBUG ( "MdtDigitizationTool::getNextEvent()" );
-
-  // initialize pointer
-  m_thpcMDT = 0;
-  
+ 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
   
@@ -252,7 +249,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx)
     }
 
     // create a new hits collection
-    m_thpcMDT = new TimedHitCollection<MDTSimHit>{1};
+    m_thpcMDT = std::make_unique<TimedHitCollection<MDTSimHit>>(1);
     m_thpcMDT->insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("MDTSimHitCollection found with " << hitCollection->size() << " hits");
 
@@ -266,7 +263,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx)
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   }
-  if (hitCollList.size()==0) {
+  if (hitCollList.empty()) {
     ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
     return StatusCode::FAILURE;
   } 
@@ -275,7 +272,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx)
   }
   
   // create a new hits collection
-  m_thpcMDT = new TimedHitCollection<MDTSimHit>() ;
+  m_thpcMDT = std::make_unique<TimedHitCollection<MDTSimHit>>() ;
   
   //now merge all collections into one
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -344,7 +341,7 @@ StatusCode MdtDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_MSG_DEBUG("Recorded MuonSimDataCollection called " << sdoContainer.name() << " in store " << sdoContainer.store());
 
   StatusCode status = StatusCode::SUCCESS;
-  if (0 == m_thpcMDT ) {
+  if (!m_thpcMDT ) {
     status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no MDT hits in this event" );
@@ -405,10 +402,8 @@ StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigit
   m_hits.clear();
   
   // reset the pointer if it is not null
-  if (m_thpcMDT) {
-    delete m_thpcMDT;
-    m_thpcMDT=0;
-  }
+  m_thpcMDT.reset();
+ 
   
   return StatusCode::SUCCESS;
 }
@@ -477,8 +472,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     double actualMaxSag = 0.;
     //double localSag = 0.;
     double driftTime = 0.;
-    double projectiveSag = hit.driftRadius() - fabs(driftRadius);
-    if (m_useDeformations ) projectiveSag = newSimhit.driftRadius() - fabs(driftRadius);
+    double projectiveSag = hit.driftRadius() - std::abs(driftRadius);
+    if (m_useDeformations ) projectiveSag = newSimhit.driftRadius() - std::abs(driftRadius);
     
     ATH_MSG_DEBUG( " Geometrical WIRESAGINFO "<< stationName << " " << stationEta << " " << stationPhi << " " 
 		   << multilayer << " " << layer << " " << tube <<" " 
@@ -491,7 +486,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
   driftRadius *= trackingSign;
 
   //+Implementation for RT_Relation_DB_Tool
-  MdtDigiToolInput digiInput(fabs(driftRadius),distRO,0.,0.,0.,0.);
+  MdtDigiToolInput digiInput(std::abs(driftRadius),distRO,0.,0.,0.,0.);
   double qcharge=1.;
   double qgamma=-9999.;
   
@@ -501,20 +496,20 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     qgamma=particleGamma(hit, phit.eventId());
     qcharge=chargeCalculator(hit, phit.eventId()); 
     
-    MdtDigiToolInput digiInput1(fabs(driftRadius),distRO,0.,0.,qcharge,qgamma); 
+    MdtDigiToolInput digiInput1(std::abs(driftRadius),distRO,0.,0.,qcharge,qgamma); 
     digiInput = digiInput1;
     
     if (m_digiTool.name() == "RT_Relation_DB_DigiTool") {
-      MdtDigiToolInput digiInput2(fabs(driftRadius),distRO,0.,0.,qcharge,qgamma,DigitId); 
+      MdtDigiToolInput digiInput2(std::abs(driftRadius),distRO,0.,0.,qcharge,qgamma,DigitId); 
       digiInput = digiInput2;
     }
   }
   else {
-    MdtDigiToolInput digiInput1(fabs(driftRadius),distRO,0.,0.,0.,0.); 
+    MdtDigiToolInput digiInput1(std::abs(driftRadius),distRO,0.,0.,0.,0.); 
     digiInput = digiInput1;
     
     if (m_digiTool.name() == "RT_Relation_DB_DigiTool") {
-      MdtDigiToolInput digiInput2(fabs(driftRadius),distRO,0.,0.,0.,0.,DigitId); 
+      MdtDigiToolInput digiInput2(std::abs(driftRadius),distRO,0.,0.,0.,0.,DigitId); 
       digiInput = digiInput2;
     }
   }
@@ -539,11 +534,11 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
       // Line below: old code
       //double param[4] = {-0.3025,0.58303,0.012177,0.0065818};
       //New code  
-      double param[6] = {-4.47741E-3, 1.75541E-2, -1.32913E-2, 2.57938E-3, -4.55015E-5, -1.70821E-7};
+      static constexpr double param[6] = {-4.47741E-3, 1.75541E-2, -1.32913E-2, 2.57938E-3, -4.55015E-5, -1.70821E-7};
       
       // get delta T, change in drift time for reference sag (default=100 microns) and scale by projective sag 
       double deltaT = 0;
-      double dR = fabs(driftRadius);
+      double dR = std::abs(driftRadius);
       for (int i = 0; i < 6; ++i) {
 	deltaT += param[i]*pow(dR,i);
       }
@@ -553,9 +548,9 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
       
       //Calculate angle at which track cross plane of sag.
       //Note that this assumes the track is coming from the center of the detector.
-      double gX = fabs(gpos.x());
-      double gY = fabs(gpos.y());
-      double gZ = fabs(gpos.z());
+      double gX = std::abs(gpos.x());
+      double gY = std::abs(gpos.y());
+      double gZ = std::abs(gpos.z());
       double cosTheta = gZ/sqrt(gZ*gZ + gY*gY + gX*gX);
 
       //This calculates the sag seen by a track; if a particle passes parallel to the sag, 
@@ -748,12 +743,12 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
   
   bool ok(true);
   
-  if( fabs(hit.driftRadius()) > tubeR ) {
+  if( std::abs(hit.driftRadius()) > tubeR ) {
     ok = false;
     ATH_MSG_DEBUG( "MDTSimHit has invalid radius: " << hit.driftRadius() << "   tubeRadius " << tubeR );
   }
   
-  if( fabs(hit.localPosition().z()) > 0.5*tubeL ) {
+  if( std::abs(hit.localPosition().z()) > 0.5*tubeL ) {
     ok = false;
     ATH_MSG_DEBUG( "MDTSimHit has invalid position along tube: " << hit.localPosition().z() << "   tubeLength " << tubeL );
   }

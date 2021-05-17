@@ -169,7 +169,7 @@ private:
   const RpcIdHelper*          m_idHelper{};
   RpcHitIdHelper*             m_muonHelper{};
   std::list<RPCSimHitCollection*> m_RPCHitCollList;
-  TimedHitCollection<RPCSimHit>* m_thpcRPC{};
+  std::unique_ptr<TimedHitCollection<RPCSimHit>> m_thpcRPC{};
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   std::map<Identifier,std::vector<MuonSimData::Deposit> > m_sdo_tmp_map;
   Gaudi::Property<int>            m_deadTime{this, "DeadTime", 100. , "dead time"};
@@ -279,6 +279,16 @@ protected:
   Gaudi::Property<bool>      m_DumpFromDbFirst   {this, "DumpFromDbFirst", false, ""};
   Gaudi::Property<float>     m_CutMaxClusterSize {this, "CutMaxClusterSize", 5.0, ""};
   Gaudi::Property<int>       m_CutProjectedTracks{this, "CutProjectedTracks", 100, ""};
+  
+  
+ int m_BOF_id {-1};
+ int m_BOG_id {-1};
+ int m_BOS_id {-1};
+
+ int m_BIL_id {-1};
+ int m_BIS_id {-1};
+ 
+ int m_CSS_id {-1};
 
 };
 

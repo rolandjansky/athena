@@ -293,7 +293,12 @@ StatusCode RpcDigitizationTool::initialize() {
 
   ///////////////////// special test
   //  m_turnON_clustersize=false;
-
+  m_BOF_id = m_idHelper->stationNameIndex("BOF");
+  m_BOG_id = m_idHelper->stationNameIndex("BOG");
+  m_BOS_id = m_idHelper->stationNameIndex("BOS");
+  m_BIL_id = m_idHelper->stationNameIndex("BIL");
+  m_BIS_id = m_idHelper->stationNameIndex("BIS");
+  m_CSS_id = m_idHelper->stationNameIndex("CSS");
   return StatusCode::SUCCESS;
 
 }
@@ -305,7 +310,7 @@ StatusCode RpcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
 
   //John's Hacks START
   m_RPCHitCollList.clear();
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>();
+  m_thpcRPC =std::make_unique<TimedHitCollection<RPCSimHit>>();
   //John's Hacks END
 
   return StatusCode::SUCCESS;
@@ -363,7 +368,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   ATH_MSG_DEBUG ( "RpcDigitizationTool::getNextEvent()" );
 
   // initialize pointer
-  m_thpcRPC = nullptr;
+  m_thpcRPC.reset();
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
@@ -377,7 +382,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
     }
 
     // create a new hits collection
-    m_thpcRPC = new TimedHitCollection<RPCSimHit>{1};
+    m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>(1);;
     m_thpcRPC->insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollection->size() << " hits");
 
@@ -399,7 +404,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   }
 
   // create a new hits collection
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>() ;
+  m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>() ;
 
   //now merge all collections into one
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -488,7 +493,7 @@ StatusCode RpcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   m_sdo_tmp_map.clear();
   /////////////////////////
 
-  if (0 == m_thpcRPC ) {
+  if (!m_thpcRPC ) {
     status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no RPC hits in this event" );
@@ -514,7 +519,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   int nKilledStrips = 0;
   int nToBeKilledStrips = 0;
   
-  RPCSimHitCollection* inputSimHitColl=NULL;
+  RPCSimHitCollection* inputSimHitColl=nullptr;
   
  if (m_validationSetup)
     {
@@ -849,7 +854,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	    }
 	}
       //apply dead time
-      if(fabs(currTime-last_time)>(m_deadTime))
+      if(std::abs(currTime-last_time)>(m_deadTime))
 	{
 
 
@@ -955,10 +960,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   }// loop to suppress digits too close in time ended
 
   // reset the pointer if it not null
-  if (m_thpcRPC) {
-    delete m_thpcRPC;
-    m_thpcRPC=0;
-  }
+  m_thpcRPC.reset();
 
   ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips<<" ("<<nToBeKilledStrips<<")");
   return StatusCode::SUCCESS;
@@ -1302,7 +1304,7 @@ double RpcDigitizationTool::PropagationTimeNew(const Identifier* id, const Amg::
 
 
   // distance in mm, SIG_VEL in ns/m
-  return fabs(distance*SIG_VEL/1000);
+  return std::abs(distance*SIG_VEL/1000);
 
 }
 
@@ -1393,7 +1395,7 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(const Identifier* id, const Amg::V
 
     //std::cout<<"position in gap is "<<posInGap<<std::endl;
 
-    if(result.y()<0) result.y() = gaplength/2.-fabs(result.y()); // wrt the beginning of the panel
+    if(result.y()<0) result.y() = gaplength/2.-std::abs(result.y()); // wrt the beginning of the panel
 
     result.y() = result.y()-panelXlength/2.; // wrt the center of the panel
 
@@ -1477,9 +1479,9 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 
   //  std::cout<<"\t start stop length impact pitch strip are "<<min_<< " "<<max_<< " "<<nstrips*pitch+2<< " "<< impact<< " "<<pitch<<" " << result<<std::endl;
 
-  posinstrip=fabs(min_-impact)-(result-1)*pitch;
+  posinstrip=std::abs(min_-impact)-(result-1)*pitch;
 
-  //std::cout<<  "posinstrip " <<  fmod(fabs(min_-impact),pitch)/pitch<< std::endl;
+  //std::cout<<  "posinstrip " <<  fmod(std::abs(min_-impact),pitch)/pitch<< std::endl;
 
   return result;
 
@@ -1698,7 +1700,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
   int doubletR    = m_idHelper->doubletR   (*IdEtaRpcStrip);
 
   //remove feet extension. driven by joboption
-  if(m_BOG_BOF_DoubletR2_OFF && (stationName==9||stationName==10) && doubletR == 2){
+  if(m_BOG_BOF_DoubletR2_OFF && (stationName==m_BOF_id||stationName==m_BOG_id) && doubletR == 2){
 
     m_SetPhiOn = false ;
     m_SetEtaOn = false ;
@@ -1791,8 +1793,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
     if( readCdo->getEfficiencyMap()     .find(IdPhi) != readCdo->getEfficiencyMap()     .end()) PhiPanelEfficiency      = readCdo->getEfficiencyMap().find(IdPhi)->second ;
     if( readCdo->getEfficiencyGapMap()  .find(IdEta) != readCdo->getEfficiencyGapMap()  .end()) GapEfficiency	        = readCdo->getEfficiencyGapMap().find(IdEta)->second ;
 
-    if (fabs(FracDeadStripEta-1.)<0.001) 
-    {
+    if (std::abs(FracDeadStripEta-1.)<0.001) 
+      {
 	ATH_MSG_DEBUG ("Watch out: SPECIAL CASE: Read from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi
                        <<" RPC_ProjectedTracksEta "<<RPC_ProjectedTracksEta<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency
                        <<" gapEff "<<GapEfficiency<<" for gas gap "<<m_idHelper->show_to_string(IdEta)<<" id "<<IdEta.get_identifier32().get_compact());
@@ -1923,9 +1925,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
         //std::cout<<" do we ever enter here ? "<<std::endl;
       unsigned int index = stationName - 2 ;
       // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-      if(stationName>5 && stationName<50) index = index - 2 ;
+      if(stationName>m_BOS_id && stationName<m_CSS_id) index = index - 2 ;
       // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-      else if(stationName>50) index = index - 44 ;
+      else if(stationName>m_BOS_id) index = index - 44 ;
       // BME and BOE 53 and 54 are at indices 7 and 8 
       ATH_MSG_DEBUG ( "Some special condition met here - resetting eff.s to python values at index=" << index << " i.e. StName="<<stationName) ;
         */
@@ -2957,7 +2959,7 @@ double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle)
   //find the i in the array
   int i_e = -1;
   for(int i=0;i<12;i++){
-    if(Charge[i] == std::fabs(qcharge)){i_e = i;break;}
+    if(Charge[i] == std::abs(qcharge)){i_e = i;break;}
   }
   int i_v = -99, j_v = 99;
   if(qbetagamma != -1){

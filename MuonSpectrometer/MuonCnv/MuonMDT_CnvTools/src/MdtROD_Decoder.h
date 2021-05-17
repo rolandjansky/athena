@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTROD_DECODER_H
@@ -49,11 +49,11 @@ public:
         */
         static const InterfaceID& interfaceID( ) ;
 
-        virtual StatusCode initialize();
-        virtual StatusCode finalize();
+        virtual StatusCode initialize()override;
+        virtual StatusCode finalize()override;
 
         /** TODO Add documentation. What is a MDT_Hid2RESrcID?*/
-        MDT_Hid2RESrcID* getHid2RE() {return m_hid2re;}
+        MDT_Hid2RESrcID* getHid2RE() const {return m_hid2re.get();}
 
         StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
 			    MdtCsmContainer& rdoIDC) const;
@@ -63,7 +63,7 @@ public:
         std::pair<IdentifierHash, Identifier> getHash (Identifier ident) const;
 
 private:
-        MDT_Hid2RESrcID* m_hid2re;
+    std::unique_ptr<MDT_Hid2RESrcID> m_hid2re;
 	SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

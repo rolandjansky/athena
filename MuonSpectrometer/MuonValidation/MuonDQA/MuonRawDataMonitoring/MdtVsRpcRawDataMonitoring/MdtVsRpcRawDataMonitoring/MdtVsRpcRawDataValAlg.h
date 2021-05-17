@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
  
   MdtVsRpcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent ); 
  
-  virtual ~MdtVsRpcRawDataValAlg();
+  virtual ~MdtVsRpcRawDataValAlg()=default;
   StatusCode initialize();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
@@ -59,8 +59,7 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   int m_side;
   std::vector<std::string> m_layer_name_list       ;
   std::vector<std::string> m_layerSector_name_list ;   
-  int m_rpc_eventstotal;
-  std::vector<Identifier>* m_padsId;
+  int m_rpc_eventstotal; 
   
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
@@ -94,6 +93,14 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   int m_StationPhi;
   int m_lastEvent;
   int m_cosmicStation;
+  
+  /// BME have special treatment in the code
+  /// 
+  int  m_BMEid{-1};
+  int  m_BISid{-1};
+  int  m_BMLid{-1};
+  int  m_BOLid{-1};
+  int  m_BMFid{-1};
  
   TH1*    m_MdtRpcZdiff             ; 
   TH2*    m_MdtNHitsvsRpcNHits      ;
