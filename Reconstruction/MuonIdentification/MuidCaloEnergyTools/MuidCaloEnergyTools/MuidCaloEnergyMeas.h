@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,10 +50,8 @@ namespace Rec {
         /**IMuidCaloEnergyMeas interface:
            get the muon energy loss measurement from the calorimeter,
            knowing the track intersection at the em and had cals*/
-        CaloMeas* energyMeasurement(double etaEM, double phiEM, double etaHad, double phiHad) const;
-
         std::unique_ptr<CaloMeas> energyMeasurement(const EventContext& ctx, double etaEM, double phiEM, double etaHad,
-                                                    double phiHad) const;
+                                                    double phiHad) const override;
 
     private:
         /// Helper enum to select which cells should be read from the

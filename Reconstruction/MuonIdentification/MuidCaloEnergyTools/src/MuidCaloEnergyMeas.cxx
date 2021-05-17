@@ -51,7 +51,7 @@ namespace Rec {
         m_isolationConeLArEM = 0.15;
     }
 
-    MuidCaloEnergyMeas::~MuidCaloEnergyMeas() {}
+    MuidCaloEnergyMeas::~MuidCaloEnergyMeas() = default;
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -80,15 +80,9 @@ namespace Rec {
     StatusCode MuidCaloEnergyMeas::finalize() {
         ATH_MSG_INFO("Finalizing MuidCaloEnergyMeas Tool");
         ATH_MSG_INFO(" EM:   selected " << m_totalSelectedEM << " from " << m_totalCoreCellsEM << " cells in core");
-
         ATH_MSG_INFO(" Tile: selected " << m_totalSelectedTile << " from " << m_totalCoreCellsTile << " cells in core");
-
         ATH_MSG_INFO(" HEC:  selected " << m_totalSelectedHEC << " from " << m_totalCoreCellsHEC << " cells in core");
         return StatusCode::SUCCESS;
-    }
-
-    CaloMeas* MuidCaloEnergyMeas::energyMeasurement(double etaEM, double phiEM, double etaHad, double phiHad) const {
-        return energyMeasurement(Gaudi::Hive::currentContext(), etaEM, phiEM, etaHad, phiHad).release();
     }
     std::unique_ptr<CaloMeas> MuidCaloEnergyMeas::energyMeasurement(const EventContext& ctx, double etaEM, double phiEM, double etaHad,
                                                                     double phiHad) const {
