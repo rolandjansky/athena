@@ -227,10 +227,10 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(m_cablingKey.initialize());
 
   ATH_CHECK(m_hitMapKey.initialize());
-  ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize());
+  ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize(m_doDigiTruth));
 
   ATH_CHECK(m_DigitContainerName.initialize());
-  ATH_CHECK(m_DigitContainerName_DigiHSTruth.initialize());
+  ATH_CHECK(m_DigitContainerName_DigiHSTruth.initialize(m_doDigiTruth));
   
 
 
