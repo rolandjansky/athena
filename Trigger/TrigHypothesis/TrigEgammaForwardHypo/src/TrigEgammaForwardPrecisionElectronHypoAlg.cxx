@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigEgammaForwardPrecisionElectronHypoAlgMT.h"
+#include "TrigEgammaForwardPrecisionElectronHypoAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -11,11 +11,11 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaForwardPrecisionElectronHypoAlgMT::TrigEgammaForwardPrecisionElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator ) :
+TrigEgammaForwardPrecisionElectronHypoAlg::TrigEgammaForwardPrecisionElectronHypoAlg( const std::string& name, ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaForwardPrecisionElectronHypoAlgMT::initialize() 
+StatusCode TrigEgammaForwardPrecisionElectronHypoAlg::initialize() 
 {
 
   ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
@@ -36,7 +36,7 @@ StatusCode TrigEgammaForwardPrecisionElectronHypoAlgMT::initialize()
 }
 
 
-StatusCode TrigEgammaForwardPrecisionElectronHypoAlgMT::execute( const EventContext& context ) const 
+StatusCode TrigEgammaForwardPrecisionElectronHypoAlg::execute( const EventContext& context ) const 
 {  
 
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );

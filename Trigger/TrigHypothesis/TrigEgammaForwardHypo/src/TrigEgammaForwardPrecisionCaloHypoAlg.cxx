@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigEgammaForwardPrecisionCaloHypoAlgMT.h"
+#include "TrigEgammaForwardPrecisionCaloHypoAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -10,12 +10,12 @@
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaForwardPrecisionCaloHypoAlgMT::TrigEgammaForwardPrecisionCaloHypoAlgMT( const std::string& name, 
+TrigEgammaForwardPrecisionCaloHypoAlg::TrigEgammaForwardPrecisionCaloHypoAlg( const std::string& name, 
   ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigEgammaForwardPrecisionCaloHypoAlgMT::initialize() {
+StatusCode TrigEgammaForwardPrecisionCaloHypoAlg::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_clustersKey.initialize() );
@@ -24,7 +24,7 @@ StatusCode TrigEgammaForwardPrecisionCaloHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaForwardPrecisionCaloHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigEgammaForwardPrecisionCaloHypoAlg::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );

@@ -9,11 +9,11 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODEgamma/Electron.h"
-#include "TrigEgammaForwardPrecisionElectronHypoToolInc.h"
+#include "TrigEgammaForwardPrecisionElectronHypoTool.h"
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaForwardPrecisionElectronHypoToolInc::TrigEgammaForwardPrecisionElectronHypoToolInc( const std::string& type, 
+TrigEgammaForwardPrecisionElectronHypoTool::TrigEgammaForwardPrecisionElectronHypoTool( const std::string& type, 
     const std::string& name, 
     const IInterface* parent ) 
   : base_class( type, name, parent ),
@@ -21,7 +21,7 @@ TrigEgammaForwardPrecisionElectronHypoToolInc::TrigEgammaForwardPrecisionElectro
 }
 
 
-StatusCode TrigEgammaForwardPrecisionElectronHypoToolInc::initialize()  
+StatusCode TrigEgammaForwardPrecisionElectronHypoTool::initialize()  
 {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
  
@@ -34,7 +34,7 @@ StatusCode TrigEgammaForwardPrecisionElectronHypoToolInc::initialize()
 }
 
 
-bool TrigEgammaForwardPrecisionElectronHypoToolInc::decide( const ITrigEgammaForwardPrecisionElectronHypoTool::ElectronInfo& /*input*/) const {
+bool TrigEgammaForwardPrecisionElectronHypoTool::decide( const ITrigEgammaForwardPrecisionElectronHypoTool::ElectronInfo& /*input*/) const {
 
   bool pass = true;
 
@@ -46,7 +46,7 @@ bool TrigEgammaForwardPrecisionElectronHypoToolInc::decide( const ITrigEgammaFor
 
 
 
-int TrigEgammaForwardPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
+int TrigEgammaForwardPrecisionElectronHypoTool::findCutIndex( float eta ) const {
   const float absEta = std::abs(eta);
   auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
   if ( binIterator == m_etabin.end() ) {
@@ -56,7 +56,7 @@ int TrigEgammaForwardPrecisionElectronHypoToolInc::findCutIndex( float eta ) con
 }
 
 
-StatusCode TrigEgammaForwardPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input)  const {
+StatusCode TrigEgammaForwardPrecisionElectronHypoTool::decide( std::vector<ElectronInfo>& input)  const {
   for ( auto& i: input ) {
     if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {

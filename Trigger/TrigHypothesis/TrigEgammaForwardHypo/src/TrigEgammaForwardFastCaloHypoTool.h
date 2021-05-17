@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigEgammaForwardFastCaloHypoToolInc_h
-#define TrigEgammaForwardFastCaloHypoToolInc_h
+#ifndef TrigEgammaForwardFastCaloHypoTool_h
+#define TrigEgammaForwardFastCaloHypoTool_h
 
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
@@ -22,13 +22,13 @@
  * @brief 
  **/
 
-class TrigEgammaForwardFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaForwardFastCaloHypoTool> { 
+class TrigEgammaForwardFastCaloHypoTool : public extends<AthAlgTool, ITrigEgammaForwardFastCaloHypoTool> { 
   
   public: 
 
-    TrigEgammaForwardFastCaloHypoToolInc( const std::string& type, const std::string& name, const IInterface* parent );
+    TrigEgammaForwardFastCaloHypoTool( const std::string& type, const std::string& name, const IInterface* parent );
  
-    virtual ~TrigEgammaForwardFastCaloHypoToolInc();
+    virtual ~TrigEgammaForwardFastCaloHypoTool();
 
     virtual StatusCode initialize() override;
  

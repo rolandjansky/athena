@@ -8,18 +8,18 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "TrigEgammaForwardPrecisionCaloHypoToolInc.h"
+#include "TrigEgammaForwardPrecisionCaloHypoTool.h"
 
 
 namespace TCU = TrigCompositeUtils;
 
-TrigEgammaForwardPrecisionCaloHypoToolInc::TrigEgammaForwardPrecisionCaloHypoToolInc( const std::string& type, 
+TrigEgammaForwardPrecisionCaloHypoTool::TrigEgammaForwardPrecisionCaloHypoTool( const std::string& type, 
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
-StatusCode TrigEgammaForwardPrecisionCaloHypoToolInc::initialize()  
+StatusCode TrigEgammaForwardPrecisionCaloHypoTool::initialize()  
 {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
@@ -52,7 +52,7 @@ StatusCode TrigEgammaForwardPrecisionCaloHypoToolInc::initialize()
 }
 
 
-bool TrigEgammaForwardPrecisionCaloHypoToolInc::decide( const ITrigEgammaForwardPrecisionCaloHypoTool::ClusterInfo& input ) const {
+bool TrigEgammaForwardPrecisionCaloHypoTool::decide( const ITrigEgammaForwardPrecisionCaloHypoTool::ClusterInfo& input ) const {
 
   bool pass = false;
 
@@ -149,7 +149,7 @@ bool TrigEgammaForwardPrecisionCaloHypoToolInc::decide( const ITrigEgammaForward
  
 }
 
-int TrigEgammaForwardPrecisionCaloHypoToolInc::findCutIndex( float eta ) const {
+int TrigEgammaForwardPrecisionCaloHypoTool::findCutIndex( float eta ) const {
   const float absEta = std::abs(eta);
   
   auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
@@ -160,7 +160,7 @@ int TrigEgammaForwardPrecisionCaloHypoToolInc::findCutIndex( float eta ) const {
 }
 
 
-StatusCode TrigEgammaForwardPrecisionCaloHypoToolInc::decide( std::vector<ClusterInfo>& input )  const {
+StatusCode TrigEgammaForwardPrecisionCaloHypoTool::decide( std::vector<ClusterInfo>& input )  const {
   for ( auto& i: input ) {
     if ( TCU::passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {

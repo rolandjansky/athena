@@ -7,13 +7,13 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "TrigEgammaForwardFastCaloHypoToolInc.h"
+#include "TrigEgammaForwardFastCaloHypoTool.h"
 
 
 using namespace TrigCompositeUtils;
 
 
-TrigEgammaForwardFastCaloHypoToolInc::TrigEgammaForwardFastCaloHypoToolInc( const std::string& type, 
+TrigEgammaForwardFastCaloHypoTool::TrigEgammaForwardFastCaloHypoTool( const std::string& type, 
     const std::string& name, 
     const IInterface* parent ) 
   : base_class( type, name, parent ),
@@ -24,11 +24,11 @@ TrigEgammaForwardFastCaloHypoToolInc::TrigEgammaForwardFastCaloHypoToolInc( cons
 }
 
 
-TrigEgammaForwardFastCaloHypoToolInc::~TrigEgammaForwardFastCaloHypoToolInc(){}
+TrigEgammaForwardFastCaloHypoTool::~TrigEgammaForwardFastCaloHypoTool(){}
 
 
 
-StatusCode TrigEgammaForwardFastCaloHypoToolInc::initialize()  
+StatusCode TrigEgammaForwardFastCaloHypoTool::initialize()  
 {
 
   ATH_MSG_DEBUG( "AcceptAll      = " << ( m_acceptAll==true ? "True" : "False" ) );
@@ -47,7 +47,7 @@ StatusCode TrigEgammaForwardFastCaloHypoToolInc::initialize()
 }
 
 
-StatusCode TrigEgammaForwardFastCaloHypoToolInc::decide( std::vector<FastClusterInfo>& input )  const {
+StatusCode TrigEgammaForwardFastCaloHypoTool::decide( std::vector<FastClusterInfo>& input )  const {
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
@@ -59,7 +59,7 @@ StatusCode TrigEgammaForwardFastCaloHypoToolInc::decide( std::vector<FastCluster
 }
 
 
-bool TrigEgammaForwardFastCaloHypoToolInc::decide( const ITrigEgammaForwardFastCaloHypoTool::FastClusterInfo& /*input*/ ) const {
+bool TrigEgammaForwardFastCaloHypoTool::decide( const ITrigEgammaForwardFastCaloHypoTool::FastClusterInfo& /*input*/ ) const {
   return true;
 }
 
