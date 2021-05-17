@@ -285,7 +285,6 @@ namespace Rec {
 
         Trk::MagneticFieldProperties m_magFieldProperties;
 
-       
         bool m_allowCleanerVeto;
         bool m_cleanCombined;
         bool m_cleanStandalone;
