@@ -433,33 +433,6 @@ class outputLVL1configFile(JobProperty):
         
 _flags.append(outputLVL1configFile)
 
-class outputHLTconfigFile(JobProperty):
-    """ File name for output HLT configuration XML file """
-    statusOn=True
-#    allowedType=['str']
-    StoredValue=""
-    
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-
-_flags.append(outputHLTconfigFile)
-
-class outputHLTmenuJsonFile(JobProperty):
-    """ File name for output HLT configuration XML file """
-    statusOn=True
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTMenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
-        else:
-            return self.get_Value()
-
-_flags.append(outputHLTmenuJsonFile)
-
 
 class inputLVL1configFile(JobProperty):
     """ File name for input LVL1 configuration XML file """
@@ -486,24 +459,6 @@ def _getMenuBaseName(menuName):
         menuName = m.groups()[0]
     return menuName
 
-
-class inputHLTconfigFile(JobProperty):
-    """ File name for input HLT configuration XML file """
-    statusOn=True
-    allowedType=['str']
-#   The following default is appropriate when XML cofig is the default
-#    StoredValue="TriggerMenuXML/HLTconfig_default_" + TriggerFlags.menuVersion() + ".xml"
-#   The following default is appropriate when python config is the default
-    StoredValue=""
-#    StoredValue = "TriggerMenuXML/HLTconfig_default_" + TriggerFlags.menuVersion() + ".xml"
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(inputHLTconfigFile)
 
 # =================
 #
