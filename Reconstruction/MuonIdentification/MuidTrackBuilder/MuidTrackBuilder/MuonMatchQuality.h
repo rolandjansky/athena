@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,8 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at first MS hit */
-        int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const;
+        virtual
+        int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at first MS hit */
@@ -61,7 +62,8 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             check the track perigee parameters are expressed at the same surface */
-        bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const;
+        virtual
+        bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             as inner match chiSquared but simplified to just use diagonal errors */
