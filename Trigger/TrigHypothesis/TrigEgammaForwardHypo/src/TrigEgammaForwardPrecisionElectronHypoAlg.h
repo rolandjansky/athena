@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigEgammaForwardPrecisionElectronHypoAlgMT_h
-#define TrigEgammaForwardPrecisionElectronHypoAlgMT_h
+#ifndef TrigEgammaForwardPrecisionElectronHypoAlg_h
+#define TrigEgammaForwardPrecisionElectronHypoAlg_h
 
 #include <string>
 
@@ -18,21 +18,21 @@
 
 
 /**
- * @class TrigEgammaForwardPrecisionElectronHypoAlgMT
+ * @class TrigEgammaForwardPrecisionElectronHypoAlg
  * @brief Implements precision electron selection for the new HLT framework
  **/
-class TrigEgammaForwardPrecisionElectronHypoAlgMT : public ::HypoBase {
+class TrigEgammaForwardPrecisionElectronHypoAlg : public ::HypoBase {
 
   public: 
 
-    TrigEgammaForwardPrecisionElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigEgammaForwardPrecisionElectronHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
     virtual StatusCode  initialize() override;
     virtual StatusCode  execute( const EventContext& context ) const override;
   
   private: 
 
-    TrigEgammaForwardPrecisionElectronHypoAlgMT();
+    TrigEgammaForwardPrecisionElectronHypoAlg();
 
     Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };     
     SG::ReadHandleKey< xAOD::ElectronContainer > m_electronsKey { this, "Electrons", "Electrons", "Electrons in roi" };  

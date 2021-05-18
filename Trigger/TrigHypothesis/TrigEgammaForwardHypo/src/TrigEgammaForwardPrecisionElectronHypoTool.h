@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigEgammaForwardPrecisionElectronHypoToolInc_h
-#define TrigEgammaForwardPrecisionElectronHypoToolInc_h
+#ifndef TrigEgammaForwardPrecisionElectronHypoTool_h
+#define TrigEgammaForwardPrecisionElectronHypoTool_h
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -16,9 +16,9 @@
  * @brief 
  **/
 
-class TrigEgammaForwardPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigEgammaForwardPrecisionElectronHypoTool> { 
+class TrigEgammaForwardPrecisionElectronHypoTool : public extends<AthAlgTool, ITrigEgammaForwardPrecisionElectronHypoTool> { 
  public: 
-  TrigEgammaForwardPrecisionElectronHypoToolInc( const std::string& type, 
+  TrigEgammaForwardPrecisionElectronHypoTool( const std::string& type, 
         const std::string& name, 
         const IInterface* parent );
 

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigEgammaForwardPrecisionCaloHypoAlgMT_h
-#define TrigEgammaForwardPrecisionCaloHypoAlgMT_h
+#ifndef TrigEgammaForwardPrecisionCaloHypoAlg_h
+#define TrigEgammaForwardPrecisionCaloHypoAlg_h
 
 #include <string>
 
@@ -13,13 +13,13 @@
 #include "ITrigEgammaForwardPrecisionCaloHypoTool.h"
 
 /**
- * @class TrigEgammaForwardPrecisionCaloHypoAlgMT
+ * @class TrigEgammaForwardPrecisionCaloHypoAlg
  * @brief Implements egamma calo selection for the new HLT framework
  **/
-class TrigEgammaForwardPrecisionCaloHypoAlgMT : public ::HypoBase {
+class TrigEgammaForwardPrecisionCaloHypoAlg : public ::HypoBase {
   public: 
 
-    TrigEgammaForwardPrecisionCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigEgammaForwardPrecisionCaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
     virtual StatusCode  initialize() override;
     virtual StatusCode  execute( const EventContext& context ) const override;
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTauRecMergedMT.h"
+#include "TrigTauRecMerged.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -31,14 +31,14 @@
 
 
 // Invokes base class constructor.
-TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvcLocator)
+TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLocator)
   :AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
-StatusCode TrigTauRecMergedMT::initialize()
+StatusCode TrigTauRecMerged::initialize()
 {
-  ATH_MSG_DEBUG("TrigTauRecMergedMT::initialize()");
+  ATH_MSG_DEBUG("TrigTauRecMerged::initialize()");
 
   if ( m_tools.begin() == m_tools.end() ) {
     ATH_MSG_DEBUG(" no tools given for this algorithm.");
@@ -94,7 +94,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
+StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Execution");
 
@@ -190,7 +190,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 
 
   // Retrieve store.
-  ATH_MSG_DEBUG("Executing TrigTauRecMergedMT");
+  ATH_MSG_DEBUG("Executing TrigTauRecMerged");
 
   // Get RoiDescriptor
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roIInputKey, ctx );
@@ -620,7 +620,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("Output TauJetTrackContainer size:"<< tauTrackHandle->size());
   
   
-  ATH_MSG_DEBUG("Recorded a tau container: HLT_TrigTauRecMergedMT");
+  ATH_MSG_DEBUG("Recorded a tau container: HLT_TrigTauRecMerged");
   ATH_MSG_DEBUG("the tau object has been registered in the tau container");
   
   return StatusCode::SUCCESS;

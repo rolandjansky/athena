@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
+from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
 from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly, tauMonitoringCaloOnlyMVA, tauMonitoringPreselection, tauMonitoringPrecision, tauMonitoringPrecisionMVA
 
-class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnly"):
             super( TrigTauRecMerged_TauCaloOnly , self ).__init__( name )
@@ -41,7 +41,7 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
             self.BeamType = jobproperties.Beam.beamType()
 
 
-class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnlyMVA"):
             super( TrigTauRecMerged_TauCaloOnlyMVA , self ).__init__( name )
@@ -81,7 +81,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
 
-class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
 
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPreselection"):
@@ -128,7 +128,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
 
 
 
-class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPrecision"):
             super( TrigTauRecMerged_TauPrecision , self ).__init__( name )
@@ -187,7 +187,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
 
-class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
         def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
         
@@ -278,7 +278,7 @@ class TrigTauDefaultsKeys:
     LargeD0TrackContainer ='InDetLargeD0TrackParticles'
 
 
-def TrigTauRecMergedMTOnlyMVACfg(flags):
+def TrigTauRecMergedOnlyMVACfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
@@ -316,7 +316,7 @@ def TrigTauRecMergedMTOnlyMVACfg(flags):
 
 
             ## add beam type flag
-    alg = CompFactory.TrigTauRecMergedMT("TrigTauRecMergedMTOnlyMVA",
+    alg = CompFactory.TrigTauRecMerged("TrigTauRecMergedOnlyMVA",
                                         BeamType=flags.Beam.Type, 
                                         Tools=tools)
 
@@ -345,6 +345,6 @@ if __name__ == "__main__":
     flags.Input.Files = defaultTestFiles.RAW
     flags.lock()
 
-    acc = TrigTauRecMergedMTOnlyMVACfg(flags)
+    acc = TrigTauRecMergedOnlyMVACfg(flags)
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.wasMerged() # do not run, do not save, we just want to see the config
