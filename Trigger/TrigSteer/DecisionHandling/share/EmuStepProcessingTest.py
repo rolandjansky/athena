@@ -40,14 +40,13 @@ for option in defaultOptions:
     else:        
         log.info(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
-TriggerFlags.generateMenuDiagnostics=True
-
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup= 'LS2_v1'
+ConfigFlags.Trigger.generateMenuDiagnostics = True
 
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags))
 svcMgr += conf2toConfigurable( getL1ConfigSvc(ConfigFlags))

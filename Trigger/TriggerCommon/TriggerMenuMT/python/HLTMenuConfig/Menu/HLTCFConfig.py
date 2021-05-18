@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
     ------ Documentation on HLT Tree creation -----
@@ -34,7 +34,7 @@ from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.AlgSequence import dumpSequence
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
@@ -382,7 +382,9 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
 
     # create dot graphs
     log.debug("finalDecisions: %s", finalDecisions)
-    if create_dot():
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if ConfigFlags.Trigger.generateMenuDiagnostics:
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
     # matrix display
@@ -530,7 +532,8 @@ def createControlFlow(HLTNode, CFseqList):
 
         HLTNode += summary
 
-        if create_dot():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.generateMenuDiagnostics:
             log.debug("Now Draw...")
             stepCF_DataFlow_to_dot(stepRecoNode.name(), CFseqList[nstep])
             stepCF_ControlFlow_to_dot(stepRecoNode)

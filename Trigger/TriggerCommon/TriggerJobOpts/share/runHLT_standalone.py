@@ -554,7 +554,6 @@ if opt.doWriteRDOTrigger:
         ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
 if opt.doWriteBS:
     rec.doWriteBS = True  # RecExCommon flag
-    TriggerFlags.writeBS = True  # RecExCommon flag
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
