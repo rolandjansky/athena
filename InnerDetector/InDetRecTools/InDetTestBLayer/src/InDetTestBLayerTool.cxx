@@ -12,7 +12,6 @@
 #include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
 #include "Particle/TrackParticle.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -104,12 +103,6 @@ InDetTestBLayerTool::initialize()
     ATH_MSG_INFO("the values from the track summary will be returned");
   }
 
-  if (m_residualPullCalculator.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_residualPullCalculator);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_residualPullCalculator);
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -119,83 +112,6 @@ InDetTestBLayerTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::ResidualPull*
-InDet::InDetTestBLayerTool::bLayerHitResidual(const Trk::Track* track) const
-{
-  return pixelLayerHitResidual(track, 0);
-}
-
-const Trk::ResidualPull*
-InDet::InDetTestBLayerTool::innermostPixelLayerHitResidual(
-  const Trk::Track* track) const
-{
-  return pixelLayerHitResidual(track, 0);
-}
-
-const Trk::ResidualPull*
-InDet::InDetTestBLayerTool::nextToInnermostPixelLayerHitResidual(
-  const Trk::Track* track) const
-{
-  return pixelLayerHitResidual(track, 1);
-}
-
-const Trk::ResidualPull*
-InDet::InDetTestBLayerTool::pixelLayerHitResidual(const Trk::Track* track,
-                                                  int layer) const
-{
-  assert(layer >= 0 && layer <= 1);
-
-  //    const Trk::ResidualPull* residualPull=0;
-  const DataVector<const Trk::TrackStateOnSurface>* trackStates =
-    track->trackStateOnSurfaces();
-
-  for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it =
-         trackStates->begin();
-       it != trackStates->end();
-       it++) {
-    if (!(*it)) {
-      ATH_MSG_WARNING("TrackStateOnSurface == Null");
-      continue;
-    }
-
-    if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-      // Get pointer to measurement on track
-      const Trk::MeasurementBase* measurement = (*it)->measurementOnTrack();
-
-      if ((*it)->trackParameters() != nullptr &&
-          /*	     &((*it)->trackParameters()->associatedSurface()) !=0 && */
-          (*it)
-              ->trackParameters()
-              ->associatedSurface()
-              .associatedDetectorElement() != nullptr &&
-          (*it)
-              ->trackParameters()
-              ->associatedSurface()
-              .associatedDetectorElement()
-              ->identify() != 0) {
-
-        Identifier id;
-        id = (*it)
-               ->trackParameters()
-               ->associatedSurface()
-               .associatedDetectorElement()
-               ->identify();
-        if (m_idHelper->is_pixel(id)) {
-          if (m_pixelId->is_barrel(id)) {
-            if (m_pixelId->layer_disk(id) == layer) {
-              return m_residualPullCalculator->residualPull(
-                measurement,
-                (*it)->trackParameters(),
-                Trk::ResidualPull::Biased);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return nullptr;
-}
 
 bool
 InDet::InDetTestBLayerTool::expectHitInBLayer(const EventContext& ctx,
