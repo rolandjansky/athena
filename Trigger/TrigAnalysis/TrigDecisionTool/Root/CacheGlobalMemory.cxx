@@ -114,6 +114,7 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
     }
   }
 
+
   return m_chainGroupsRef[key];
 }
 
@@ -158,6 +159,11 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
   for(auto& c : m_efchainsCache){delete c.second;}
   m_efchainsCache.clear();
   m_mConfChains.clear();
+
+  // Remember which chain groups we update in the STREAM and GROUP loops. Don't update them a second time below.
+  // Cache the pointer in a short-lived set
+  std::set<const Trig::ChainGroup*> processed_chain_groups;
+
   if ( ! confChains ) {
     ATH_MSG_WARNING( "No chains in configuration, probably run w/o HLT" );
   } else {
@@ -214,7 +220,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         }
       }
     }
-    //
+
+
+
     std::map<std::string, std::vector<std::string> >::iterator mstIt;
     for (mstIt=m_streams.begin(); mstIt != m_streams.end(); ++mstIt) {
       const std::string alias("STREAM_"+mstIt->first);
@@ -226,8 +234,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         // cg already exists (from previous config, we need to update it)
         preIt->second->m_patterns = mstIt->second;
         updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert(preIt->second);
       } else {
-        createChainGroup(mstIt->second, alias, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert( createChainGroup(mstIt->second, alias, /*parseAsRegex=*/ false) );
       }
 
     }
@@ -240,8 +249,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
           << "group: " << alias );
         preIt->second->m_patterns = mstIt->second;
         updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert(preIt->second);
       } else {
-        createChainGroup(mstIt->second,alias, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert( createChainGroup(mstIt->second,alias, /*parseAsRegex=*/ false) );
       }
     }
     ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
@@ -250,13 +260,13 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
   // update all previously defined chainGroups
-  for (ChGrIt it=m_chainGroups.begin();
-       it!=m_chainGroups.end();
-       it++) {
+  for (ChGrIt it=m_chainGroups.begin(); it!=m_chainGroups.end(); it++) {
+    if (processed_chain_groups.count(it->second) == 1) {
+      continue; // We already updated this chain group, just above
+    }
     updateChainGroup(it->second);
   }
-   ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so "
-                  "far" );
+   ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so far" );
    ATH_MSG_DEBUG( "Updating configuration done" );
 }
 
