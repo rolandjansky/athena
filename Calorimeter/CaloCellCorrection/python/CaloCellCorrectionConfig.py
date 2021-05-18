@@ -6,11 +6,11 @@ from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def CaloCellPedestalCorrCfg(configFlags):
-   CaloCellPedestalCorr=CompFactory.CaloCellPedestalCorr
+
 
    result=DetDescrCnvSvcCfg(configFlags)
    isMC=configFlags.Input.isMC
-   theCaloCellPedestalCorr=CaloCellPedestalCorr()
+   theCaloCellPedestalCorr=CompFactory.CaloCellPedestalCorr()
 
    if not isMC:
       theCaloCellPedestalCorr.isMC=False
@@ -22,7 +22,7 @@ def CaloCellPedestalCorrCfg(configFlags):
          folder= '/CALO/Ofl/Pedestal/CellPedestal'
          result.merge(addFolders(configFlags,folder,'CALO_OFL',className="CondAttrListCollection"))
    
-      theCaloCellPedestalCorr.PedestalShiftFolder = folder
+      thePedCorrCondAlg=CompFactory.CaloCellPedCorrCondAlg(PedestalShiftFolder=folder)
    else:
       theCaloCellPedestalCorr.isMC=True
 
@@ -37,9 +37,12 @@ def CaloCellPedestalCorrCfg(configFlags):
          if not isMC:
             lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
             result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL',className="CondAttrListCollection"))
-            theCaloCellPedestalCorr.Luminosity = -1
-            theCaloCellPedestalCorr.LumiFolderName = lumiFolder
+            thePedCorrCondAlg.Luminosity = -1
+            thePedCorrCondAlg.LumiFolderName = lumiFolder
    
+   if not isMC:
+      result.addCondAlgo(thePedCorrCondAlg)
+
    result.setPrivateTools(theCaloCellPedestalCorr)
    return result
 
