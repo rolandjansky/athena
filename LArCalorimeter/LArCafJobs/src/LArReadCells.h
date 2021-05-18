@@ -29,6 +29,7 @@ class LArReadCells: public ::AthAlgorithm {
  private: 
 
    double m_etcut;
+   double m_etcut2;
 
    const DataHandle<CaloIdManager> m_caloIdMgr;
    const CaloCell_ID*       m_calo_id;
@@ -50,7 +51,7 @@ class LArReadCells: public ::AthAlgorithm {
    int   m_QuaCell[250000];
    int   m_GainCell[250000];
    int   m_HwidCell[250000];
-   int   m_ADC[250000][32];
+   float m_ADC[250000][32];
 
     ToolHandle<LArCablingService> m_larCablingSvc;
     const LArOnlineID*          m_lar_online_id;
