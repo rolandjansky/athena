@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 
   if(C) {
     if (m_covariance == std::nullopt) {
-      m_covariance = AmgSymMatrix(5)();
+      m_covariance.emplace();
     }
 
     for (std::size_t i = 0; i < 5; i++) {
@@ -464,7 +464,7 @@ bool Trk::PatternTrackParameters::initiate
     }
   } else {
     if (m_covariance == std::nullopt) {
-      m_covariance = AmgSymMatrix(5)();
+      m_covariance.emplace();
     }
   }
 
