@@ -241,8 +241,11 @@ def TrackRecoCfg(flags):
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
     result.merge(PixelHitDiscCnfgAlgCfg(flags))
     if flags.Input.Format == "BS":
-        result.addEventAlgo(CompFactory.PixelRawDataProvider())
-        result.addEventAlgo(CompFactory.SCTRawDataProvider())
+        from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
+        result.merge(PixelRawDataProviderAlgCfg(flags))
+        from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
+        result.merge(SCTRawDataProviderCfg(flags))
+        result.merge(SCTEventFlagWriterCfg(flags))
 
     # up to here
     # needed for brem/seeding, TODO decided if needed here
@@ -255,7 +258,7 @@ def TrackRecoCfg(flags):
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
     result.merge(egammaTopoClusterCopierCfg(flags))
     from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-    result.merge(CaloClusterROI_SelectorCfg(flags, ))
+    result.merge(CaloClusterROI_SelectorCfg(flags))
 
     from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
     from InDetConfig.TrackingCommonConfig import TRT_DetElementsRoadCondAlgCfg, RIO_OnTrackErrorScalingCondAlgCfg

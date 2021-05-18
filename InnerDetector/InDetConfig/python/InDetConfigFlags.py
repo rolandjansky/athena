@@ -70,7 +70,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.magField", 'None') # control which field tool to use ("None"/"fast") 
   icf.addFlag("InDet.propagatorType", 'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
   icf.addFlag("InDet.trackFitterType", 'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
-  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool 
+  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool
+  icf.addFlag("InDet.useHolesFromPattern", False) 
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder", False) # use track finding in silicon 
   icf.addFlag("InDet.doTRTExtensionNew", True) # turn on / off TRT extensions 
@@ -139,8 +140,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.disableInDetReco", False) # Disable all ID reconstruction: pre-processing,tracking, post-processing etc. Still does the configuration: job porperties, cuts, loaign of tools and conditions
   icf.addFlag("InDet.doPixelClusterSplitting", True) # Try to split pixel clusters 
   icf.addFlag("InDet.pixelClusterSplittingType", 'NeuralNet') # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.pixelClusterSplitProb1", 0.6) # Cut value for splitting clusters into two parts 
-  icf.addFlag("InDet.pixelClusterSplitProb2", 0.2) # Cut value for splitting clusters into three parts 
+  icf.addFlag("InDet.pixelClusterSplitProb1", 0.55) # Cut value for splitting clusters into two parts 
+  icf.addFlag("InDet.pixelClusterSplitProb2", 0.45) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitProb1_run1", 0.5) # Cut value for splitting clusters into two parts 
   icf.addFlag("InDet.pixelClusterSplitProb2_run1", 0.5) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitMinPt", 1000) # Min pt for tracks to try and split hits 

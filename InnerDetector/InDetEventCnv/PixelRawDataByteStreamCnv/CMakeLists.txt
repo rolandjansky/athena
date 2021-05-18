@@ -20,3 +20,5 @@ atlas_add_component( PixelRawDataByteStreamCnv
    GaudiKernel InDetRawData AthenaBaseComps AthContainers CxxUtils StoreGateLib
    ByteStreamCnvSvcBaseLib InDetIdentifier PixelReadoutGeometry IRegionSelector
    xAODEventInfo TrigSteeringEvent InDetByteStreamErrors PixelConditionsData PixelRawDataByteStreamCnvLib PixelCablingLib ByteStreamCnvSvcLib )
+
+   atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
