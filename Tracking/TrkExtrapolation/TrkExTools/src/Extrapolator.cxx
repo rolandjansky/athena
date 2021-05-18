@@ -719,15 +719,17 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
   if (cache.m_lastMaterialLayer && !cache.m_lastMaterialLayer->isOnLayer(parm->position())) {
     cache.m_lastMaterialLayer = nullptr;
   }
+  // set tracking geometry in cache
+  (void) cache.trackingGeometry(*m_navigator, ctx);
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume(ctx);
+    cache.m_highestVolume = cache.m_trackingGeometry->highestTrackingVolume();
   }
   // resolve current position
   Amg::Vector3D gp = parm->position();
   if (vol && vol->inside(gp, m_tolerance)) {
     staticVol = vol;
   } else {
-    staticVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
+    staticVol = cache.m_trackingGeometry->lowestStaticTrackingVolume(gp);
     const Trk::TrackingVolume* nextStatVol = nullptr;
     if (m_navigator->atVolumeBoundary(currPar.get(), staticVol, dir, nextStatVol, m_tolerance) &&
         nextStatVol != staticVol) {
@@ -990,7 +992,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
 
   gp = currPar->position();
   std::vector<const Trk::DetachedTrackingVolume*>* detVols =
-    m_navigator->trackingGeometry(ctx)->lowestDetachedTrackingVolumes(gp);
+    cache.m_trackingGeometry->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume*>::iterator dIter = detVols->begin();
   for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer* layR = (*dIter)->layerRepresentation();
@@ -1409,7 +1411,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                 m_tolerance))) {
             ATH_MSG_DEBUG("  [!] WARNING: wrongly assigned static volume ?"
                           << cache.m_currentStatic->volumeName() << "->" << nextVol->volumeName());
-            nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
+            nextVol = cache.m_trackingGeometry->lowestStaticTrackingVolume(
               nextPar->position() + 0.01 * nextPar->momentum().normalized());
             if (nextVol) {
               ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -1748,6 +1750,8 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
   const Trk::TrackingVolume* assocVol = nullptr;
   // double tol = 0.001;
   // double path = 0.;
+  // set tracking geometry in cache
+  (void) cache.trackingGeometry(*m_navigator,ctx);
   if (!cache.m_highestVolume) {
     cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
@@ -1757,7 +1761,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
   if (vol && vol->inside(gp, m_tolerance)) {
     staticVol = vol;
   } else {
-    currVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
+    currVol = cache.m_trackingGeometry->lowestStaticTrackingVolume(gp);
     const Trk::TrackingVolume* nextStatVol = nullptr;
     if (m_navigator->atVolumeBoundary(currPar.get(), currVol, dir, nextStatVol, m_tolerance) &&
         nextStatVol != currVol) {
@@ -1918,7 +1922,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
                                 m_tolerance))) {
             ATH_MSG_DEBUG("  [!] WARNING: wrongly assigned static volume ?"
                           << cache.m_currentStatic->volumeName() << "->" << nextVol->volumeName());
-            nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
+            nextVol = cache.m_trackingGeometry->lowestStaticTrackingVolume(
               nextPar->position() + 0.01 * nextPar->momentum().normalized());
             if (nextVol) {
               ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -3105,10 +3109,12 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
   const Trk::TrackingVolume* currVol = &tvol;
   // ============================================================
 
+  // set tracking geometry in cache
+  (void) cache.trackingGeometry(*m_navigator,ctx);
   // arbitrary surface or destination layer ?
   // bool loopOverLayers = false;
   const Trk::Layer* destinationLayer =
-    m_navigator->trackingGeometry(ctx)->associatedLayer(sf.center());
+    cache.m_trackingGeometry->associatedLayer(sf.center());
   // if ( destinationLayer ) loopOverLayers = true;
 
   // initial distance to surface
@@ -4281,7 +4287,7 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
                                         const TrackingVolume*& associatedVolume,
                                         const TrackingVolume*& destVolume) const
 {
-
+  (void) cache.trackingGeometry(*m_navigator, ctx);
   ManagedTrackParmPtr parm(cache.manage(parm_ref));
   // @TODO parm shared ?
   // output for initializeNavigation should be an eye-catcher
@@ -4326,7 +4332,8 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       ++m_startThroughGlobalSearch;
       // non-perigee surface
       resetRecallInformation(cache);
-      associatedVolume = m_navigator->volume(ctx,parm->position());
+      associatedVolume = cache.volume(ctx,parm->position());
+
       associatedLayer =
         (associatedVolume) ? associatedVolume->associatedLayer(parm->position()) : nullptr;
 
@@ -4336,7 +4343,7 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       // ---------------------------------- ASSOCIATED STATIC VOLUME
       // -------------------------------------- this is not necessary for ( association & recall )
       const Trk::TrackingVolume* lowestStaticVol =
-        m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(parm->position());
+        cache.m_trackingGeometry->lowestStaticTrackingVolume(parm->position());
 
       if (lowestStaticVol && lowestStaticVol != associatedVolume) {
         associatedVolume = lowestStaticVol;
@@ -4425,14 +4432,14 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       }
       // get the destination Volume
       if (refParameters) {
-        destVolume = m_navigator->volume(ctx,refParameters->position());
+        destVolume = cache.volume(ctx,refParameters->position());
       }
       // ------ the last chance : associate to the globalReferencePoint
       // std::cout << "destVolume: " << destVolume << " ref par: " << refParameters << "
       // associatedVolume: "
       // << associatedVolume << std::endl;
       if (!destVolume) {
-        destVolume = m_navigator->volume(ctx,sf.globalReferencePoint());
+        destVolume = cache.volume(ctx,sf.globalReferencePoint());
       }
     }
     ATH_MSG_VERBOSE("  [I] Destination Information gathered through : " << destinationSearchType
@@ -4871,6 +4878,9 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   const Trk::TrackingVolume* assocVol = nullptr;
   unsigned int iDest = 0;
 
+  // set tracking geometry in cache
+  (void)  cache.trackingGeometry(*m_navigator, ctx);
+
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar.get(), destVol, dir, nextVol, m_tolerance) &&
       nextVol != destVol) {
@@ -4883,7 +4893,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     cache.m_lastMaterialLayer = nullptr;
   }
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume(ctx);
+    cache.m_highestVolume = cache.m_trackingGeometry->highestTrackingVolume();
   }
 
   // navigation surfaces
@@ -4895,7 +4905,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   // target volume may not be part of tracking geometry
   if (destVol) {
     const Trk::TrackingVolume* tgVol =
-      m_navigator->trackingGeometry(ctx)->trackingVolume(destVol->volumeName());
+      cache.m_trackingGeometry->trackingVolume(destVol->volumeName());
     if (!tgVol || tgVol != destVol) {
       const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
         destVol->boundarySurfaces();
@@ -4911,7 +4921,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   bool updateStatic = false;
   Amg::Vector3D gp = parm->position();
   if (!cache.m_currentStatic || !cache.m_currentStatic->inside(gp, m_tolerance)) {
-    cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
+    cache.m_currentStatic = cache.m_trackingGeometry->lowestStaticTrackingVolume(gp);
     updateStatic = true;
   }
 
@@ -5071,7 +5081,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
 
   gp = currPar->position();
   std::vector<const Trk::DetachedTrackingVolume*>* detVols =
-    m_navigator->trackingGeometry(ctx)->lowestDetachedTrackingVolumes(gp);
+    cache.m_trackingGeometry->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume*>::iterator dIter = detVols->begin();
   for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer* layR = (*dIter)->layerRepresentation();
