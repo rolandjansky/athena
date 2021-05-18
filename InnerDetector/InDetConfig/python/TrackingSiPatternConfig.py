@@ -9,7 +9,17 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "ForwardSLHCTracks"  or flags.InDet.Tracking.extension == "Disappearing" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
+    if (len(InputCollections) > 0) and \
+        (flags.InDet.Tracking.extension == "LowPt" \
+            or flags.InDet.Tracking.extension == "VeryLowPt" \
+            or flags.InDet.Tracking.extension == "LargeD0" \
+            or flags.InDet.Tracking.extension == "LowPtLargeD0" \
+            or flags.InDet.Tracking.extension == "BeamGas" \
+            or flags.InDet.Tracking.extension == "ForwardTracks" \
+            or flags.InDet.Tracking.extension == "ForwardSLHCTracks" \
+            or flags.InDet.Tracking.extension == "Disappearing" \
+            or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" \
+            or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -179,7 +189,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
 
     if flags.InDet.Tracking.extension == "Offline": 
-        kwargs.setdefault("writeHolesFromPattern", True) #TODO fixme flags.InDet.useHolesFromPattern)
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
     if is_dbm :
         kwargs.setdefault("MagneticFieldMode", "NoField")
@@ -521,7 +531,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
 def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
 
-    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "DBM"
     
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -604,7 +614,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
     kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem and flags.InDet.Tracking.extension != "DBM")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", True)# flags.InDet.useHolesFromPattern)
+    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.InDet.useHolesFromPattern)
 
     # DenseEnvironmentsAmbiguityProcessorTool
     ProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool
