@@ -29,6 +29,7 @@
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
+  , m_deltaEta1Pear{}
 {}
 
 StatusCode
@@ -392,6 +393,15 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
                                    xAOD::EgammaParameters::deltaPhi1);
   electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]),
                                    xAOD::EgammaParameters::deltaPhiRescaled1);
+
+  static const SG::AuxElement::Accessor<float> pear("deltaEta1PearDistortion");
+
+  const float pearShape = m_isTruth ? 0.0
+                                    : m_deltaEta1Pear.getDeltaEtaDistortion(
+                                        electron->caloCluster()->etaBE(2),
+                                        electron->caloCluster()->phiBE(2));
+
+  pear(*electron) = pearShape;
 
   electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]),
                                    xAOD::EgammaParameters::deltaEta2);

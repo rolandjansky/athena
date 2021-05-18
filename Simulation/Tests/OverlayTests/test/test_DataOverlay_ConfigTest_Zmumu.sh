@@ -44,6 +44,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 mv log.Overlay log.OverlayLegacy
 echo "art-result: $rc configLegacy"
 
@@ -62,6 +63,7 @@ then
     --imf False \
     --athenaopts="--threads=1"
     rc2=$?
+    status=$rc2
     mv log.Overlay log.OverlayTest
 fi
 echo  "art-result: $rc2 configNew"
@@ -84,5 +86,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
+
+exit $status

@@ -57,10 +57,10 @@ namespace xAOD {
                                                float convPtCut)
     {
       // Static accessors
-      static SG::AuxElement::Accessor<float> zvertex("zvertex");
-      static SG::AuxElement::Accessor<float> errz("errz");
-      static SG::AuxElement::Accessor<float> HPV_zvertex("HPV_zvertex");
-      static SG::AuxElement::Accessor<float> HPV_errz("HPV_errz");
+      static const SG::AuxElement::Accessor<float> zvertex("zvertex");
+      static const SG::AuxElement::Accessor<float> errz("errz");
+      static const SG::AuxElement::Accessor<float> HPV_zvertex("HPV_zvertex");
+      static const SG::AuxElement::Accessor<float> HPV_errz("HPV_errz");
 
       // Clear values
       float zCommon = 0.0, zCommonError = 0.0;
@@ -159,8 +159,8 @@ namespace xAOD {
     {
       CHECK_AND_RETURN("getTrackAtFirstMeasurement", tp == nullptr, TLorentzVector());
 
-      static SG::AuxElement::ConstAccessor<std::vector<float> > accParameterPX("parameterPX");
-      static SG::AuxElement::ConstAccessor<std::vector<float> > accParameterPY("parameterPY");
+      static const SG::AuxElement::ConstAccessor<std::vector<float> > accParameterPX("parameterPX");
+      static const SG::AuxElement::ConstAccessor<std::vector<float> > accParameterPY("parameterPY");
       
       TLorentzVector v;
       v.SetPtEtaPhiM(tp->pt(), tp->eta(), tp->phi(), 0.);

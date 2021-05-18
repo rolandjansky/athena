@@ -11,6 +11,10 @@ def TMDBSimulationSequence(flags):
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
             "TileRawChannelContainer/MuRcvRawChCnt"
         ]
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+        if hasattr(topSequence,"SGInputLoader"):
+            topSequence.SGInputLoader.Load += [('TileRawChannelContainer','StoreGateSvc+MuRcvRawChCnt')]
     else:
         pass
     TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'

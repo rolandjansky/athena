@@ -22,6 +22,12 @@ class TrigLArNoiseBurstHypoToolIncCfg ( CompFactory.TrigLArNoiseBurstHypoToolInc
             conddb.addFolder('LAR_ONL',"/LAR/BadChannels/KnownMNBFEBs", className="AthenaAttributeList")
             condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="/LAR/BadChannels/KnownMNBFEBs",WriteKey="LArKnownMNBFEBs")
          theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20,MNBLooseCut=5,MNBTightCut=17)
+         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+         monTool = GenericMonitoringTool()
+         cutLabels = ["Input","BadFEBFlaggedPartitions", "BadFEB_WFlaggedPartitions", "SatTightFlaggedPartitions", "MNBLooseFlaggedPartions", "MNBTightFlaggedPartions", "Output" ]
+         monTool.Histograms = [ defineHistogram('bitWise_flags', type='TH1I', path='EXPERT', title="LArNoiseBurst Cut Counter;Cut ;  Count", xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels),
+         defineHistogram('TIME_larnoisetool', type='TH1F', path='EXPERT', title="Time; time(ps)", xbins=100, xmin=-100.0,xmax=15000) ]
+         self.MonTool = monTool
          self.NoiseTool = theLArNoisyROTool
 
 class TrigLArNoiseBurstAlgCfg ( CompFactory.TrigLArNoiseBurstAlg ):

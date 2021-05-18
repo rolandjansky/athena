@@ -542,8 +542,9 @@ if globalflags.DataSource()=='geant4':
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-egam1Seq = CfgMgr.AthSequencer("EGAM1Sequence")
-DerivationFrameworkJob += egam1Seq
+EGAM1Sequence = CfgMgr.AthSequencer("EGAM1Sequence")
+DerivationFrameworkJob += EGAM1Sequence
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -553,7 +554,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 print("EGAM1 skimming tools: ", [EGAM1_SkimmingTool])
 print("EGAM1 thinning tools: ", thinningTools)
 print("EGAM1 augmentation tools: ", augmentationTools)
-egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
+EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
                                                          AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM1_SkimmingTool],
                                                          ThinningTools = thinningTools
@@ -567,14 +568,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = []
 if (DerivationFrameworkIsMonteCarlo):
     reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,egam1Seq,"EGAM1")
+replaceAODReducedJets(reducedJetList,EGAM1Sequence,"EGAM1")
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam1Seq)
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM1Sequence)
 
 
 #=======================================
@@ -583,8 +584,8 @@ FtagJetCollection('AntiKt4EMPFlowJets',egam1Seq)
 # not migrated yet to R22
 print('WARNING: NonPromptLepton tagger not migrated yet to R22, will not decorate electrons with its output')
 # import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-# JetTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
-# egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
+# JetTagConfig.ConfigureAntiKt4PV0TrackJets(EGAM1Sequence, "EGAM1")
+# EGAM1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
 
 
 
@@ -597,7 +598,7 @@ if (DerivationFrameworkIsMonteCarlo):
         if hasattr(topSequence, alg):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
-            egam1Seq += edtalg
+            EGAM1Sequence += edtalg
 
 
 #====================================================================

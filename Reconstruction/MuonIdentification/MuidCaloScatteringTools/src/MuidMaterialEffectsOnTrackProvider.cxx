@@ -25,9 +25,8 @@
 
 // constructor
 Rec::MuidMaterialEffectsOnTrackProvider::MuidMaterialEffectsOnTrackProvider(const std::string& t, const std::string& n,
-                                                                            const IInterface* p)
-    : AthAlgTool(t, n, p)
-{
+                                                                            const IInterface* p) :
+    AthAlgTool(t, n, p) {
     m_cosmics = false;
     declareProperty("Cosmics", m_cosmics);
     declareInterface<IMaterialEffectsOnTrackProvider>(this);
@@ -38,11 +37,8 @@ Rec::MuidMaterialEffectsOnTrackProvider::~MuidMaterialEffectsOnTrackProvider() {
 
 // Athena standard methods
 // initialize
-StatusCode
-Rec::MuidMaterialEffectsOnTrackProvider::initialize()
-{
+StatusCode Rec::MuidMaterialEffectsOnTrackProvider::initialize() {
     if (!m_cosmics) {
-
         ATH_CHECK(m_calotsos.retrieve());
         ATH_MSG_INFO("Retrieved tool " << m_calotsos.name());
 
@@ -57,23 +53,17 @@ Rec::MuidMaterialEffectsOnTrackProvider::initialize()
 }
 
 // finalize
-StatusCode
-Rec::MuidMaterialEffectsOnTrackProvider::finalize()
-{
+StatusCode Rec::MuidMaterialEffectsOnTrackProvider::finalize() {
     ATH_MSG_DEBUG(name() << " finalize() successful");
     return StatusCode::SUCCESS;
 }
 
-std::vector<Trk::MaterialEffectsOnTrack>
-Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects(
-    const Trk::TrackingVolume& /*vol*/, const Trk::IPropagator& /*prop*/, const Trk::TrackParameters& parm,
-    const Trk::Surface& /*surf*/, Trk::PropDirection /*dir*/, Trk::ParticleHypothesis /*mateffects*/) const
-{
-
+std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects(
+    const Trk::TrackingVolume& /*vol*/, const Trk::IPropagator& /*prop*/, const Trk::TrackParameters& parm, const Trk::Surface& /*surf*/,
+    Trk::PropDirection /*dir*/, Trk::ParticleHypothesis /*mateffects*/) const {
     std::vector<Trk::MaterialEffectsOnTrack> meots;
     if (m_cosmics) {
         Amg::Vector3D position(0, -3700, 0);
-
 
         double X0outer = 60;
         double X0inner = 60;
@@ -84,22 +74,17 @@ Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects(
 
         std::pair<double, double> energy;
 
-        energy.first  = -3000;
+        energy.first = -3000;
         energy.second = 500;  // ???
 
         // log << MSG::DEBUG << " returning " << matLayers->size() << " materialLayers " << endmsg;
-        ATH_MSG_DEBUG("first x0: " << X0inner << " second x0: " << X0outer << " eloss: " << energy.first
-                                   << " sigma: " << energy.second);
+        ATH_MSG_DEBUG("first x0: " << X0inner << " second x0: " << X0outer << " eloss: " << energy.first << " sigma: " << energy.second);
 
         Trk::MaterialProperties matprop(X0outer, 1., 0., 0., 0., 0.);
-        double                  sigmascat =
-            std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / parm.parameters()[Trk::qOverP]), 1., Trk::muon));
+        double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / parm.parameters()[Trk::qOverP]), 1., Trk::muon));
 
-        Trk::ScatteringAngles* newsa =
-            new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
-        Trk::ScatteringAngles* newsa2 =
-            new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
-
+        Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
+        Trk::ScatteringAngles* newsa2 = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
 
         meots.push_back(Trk::MaterialEffectsOnTrack(X0inner, newsa, innersurf));
         meots.push_back(Trk::MaterialEffectsOnTrack(0, new Trk::EnergyLoss(energy.first, energy.second), middlesurf,
@@ -122,19 +107,19 @@ Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects(
             const Trk::MaterialEffectsOnTrack* meot =
                 dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*tsosvec)[i]->materialEffectsOnTrack());
             if (!meot) continue;
-            double            sintheta = std::sin((*tsosvec)[i]->trackParameters()->parameters()[Trk::theta]);
-            double            qoverp   = (*tsosvec)[i]->trackParameters()->parameters()[Trk::qOverP];
-            const CaloEnergy* eloss    = 0;
+            double sintheta = std::sin((*tsosvec)[i]->trackParameters()->parameters()[Trk::theta]);
+            double qoverp = (*tsosvec)[i]->trackParameters()->parameters()[Trk::qOverP];
+            const CaloEnergy* eloss = 0;
             if (meot) eloss = dynamic_cast<const CaloEnergy*>(meot->energyLoss());
 
-            Trk::EnergyLoss*       neweloss = 0;
-            Trk::ScatteringAngles* newsa    = 0;
+            Trk::EnergyLoss* neweloss = 0;
+            Trk::ScatteringAngles* newsa = 0;
             if (eloss)
                 neweloss = new CaloEnergy(*eloss);
             else {
                 Trk::MaterialProperties matprop(meot->thicknessInX0(), 1., 0., 0., 0., 0.);
                 double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / qoverp), 1., Trk::muon));
-                newsa            = new Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
+                newsa = new Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
             }
             Trk::MaterialEffectsOnTrack newmeot(meot->thicknessInX0(), newsa, neweloss,
                                                 (*tsosvec)[i]->trackParameters()->associatedSurface());

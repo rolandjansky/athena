@@ -192,14 +192,14 @@ namespace CP {
       TLorentzVector vmom = xAOD::PVHelpers::getVertexMomentum(vertex, true, m_derivationPrefix);
 
       // Set input variables for MVA
-      static SG::AuxElement::ConstAccessor<float> sumPt(m_derivationPrefix + "sumPt");
+      static const SG::AuxElement::ConstAccessor<float> sumPt(m_derivationPrefix + "sumPt");
       if (sumPt.isAvailable(*vertex)) {
         m_sumPt = log10(sumPt(*vertex));
       } else {
         m_sumPt  = log10(xAOD::PVHelpers::getVertexSumPt(vertex));
       }
 
-      static SG::AuxElement::ConstAccessor<float> sumPt2(m_derivationPrefix + "sumPt2");
+      static const SG::AuxElement::ConstAccessor<float> sumPt2(m_derivationPrefix + "sumPt2");
       if (sumPt2.isAvailable(*vertex))
         m_sumPt2 = log10(sumPt2(*vertex));
       else

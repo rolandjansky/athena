@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -1927,6 +1927,19 @@ class WriteDAOD_EGAM9Stream (JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EGAM9Stream)
 listAODtoDPD.append(WriteDAOD_EGAM9Stream.StreamName)
+
+class WriteDAOD_EGAM10Stream (JobProperty):
+    """EGAM inclusive photon derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EGAM10'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkEGamma/EGAM10.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EGAM10Stream)
+listAODtoDPD.append(WriteDAOD_EGAM10Stream.StreamName)
 
 
 ######################################

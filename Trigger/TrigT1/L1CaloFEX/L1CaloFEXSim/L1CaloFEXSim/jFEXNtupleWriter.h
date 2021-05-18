@@ -34,37 +34,29 @@ private:
   //std::shared_ptr m_jFEXOutputCollection;
   //std::shared_ptr<jFEXOutputCollection> m_jFEXOutputCollection;
   //float m_eg_nTOBs;
-  bool m_load_truth_jet;
 
-  std::vector<float> m_truth_smallRJet_eta;
-  std::vector<float> m_truth_smallRJet_phi;
-  std::vector<float> m_truth_smallRJet_ET;
+  std::vector<int> m_smallRJet_eta;
+  std::vector<int> m_smallRJet_phi;
+  std::vector<int> m_smallRJet_ET;
+  std::vector<int> m_smallRJet_clusterET;
 
-  std::vector<float> m_truth_jet_eta; 
-  std::vector<float> m_truth_jet_phi;
-  std::vector<float> m_truth_jet_ET;  
-
-  std::vector<float> m_em;
-  std::vector<float> m_had;
-  std::vector<float> m_TT_Et;
+  std::vector<int> m_smallRJet_nTOBs;  
+  std::vector<int> m_smallRJet_isCentralTowerSeed;
  
-  std::vector<float> m_smallRJet_eta;
-  std::vector<float> m_smallRJet_phi;
-  std::vector<float> m_smallRJet_ET;
-  std::vector<float> m_smallRJet_Sat;
-  std::vector<float> m_smallRJet_nTOBs;  
-  std::vector<float> m_smallRJet_isCentralTowerSeed;
- 
-  std::vector<float> m_smallRJetTOB_eta;
-  std::vector<float> m_smallRJetTOB_phi;
-  std::vector<float> m_smallRJetTOB_ET;
-  std::vector<float> m_smallRJetTOB_sat;
+  std::vector<int> m_smallRJetTOB_eta;
+  std::vector<int> m_smallRJetTOB_phi;
+  std::vector<int> m_smallRJetTOB_ET;
+  std::vector<int> m_smallRJetTOB_sat;
+  
+  std::vector<int> m_largeRJet_eta;
+  std::vector<int> m_largeRJet_phi;  
+  std::vector<int> m_largeRJet_ET;
+  std::vector<int> m_largeRJet_nTOBs;
 
-  std::vector<float> m_largeRJet_ET;
-  std::vector<float> m_largeRJet_nTOBs;  
-  std::vector<float> m_largeRJetTOB_eta;
-  std::vector<float> m_largeRJetTOB_phi;
-  std::vector<float> m_largeRJetTOB_ET;
+  std::vector<int> m_largeRJetTOB_ET;
+  std::vector<int> m_largeRJetTOB_eta;
+  std::vector<int> m_largeRJetTOB_phi;
+  std::vector<int> m_largeRJetTOB_sat;
 
   std::vector<int> m_tau_isLocalMax;
   std::vector<int> m_tau_TT_ID;
@@ -91,12 +83,6 @@ private:
   StatusCode loadsmallRJetAlgoVariables();
   StatusCode loadlargeRJetAlgoVariables();
   StatusCode loadtauAlgoVariables();
-//  StatusCode loadTruthElectron();
-//  StatusCode loadTruthJets();
-//  StatusCode loadTruthTau();
- // std::unique_ptr<TLorentzVector> visibleTauP4(const xAOD::TruthParticle*);
-//  std::unique_ptr<TLorentzVector> invisibleTauP4(const xAOD::TruthParticle*);
-//  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*, int);
 };
 }
 #endif

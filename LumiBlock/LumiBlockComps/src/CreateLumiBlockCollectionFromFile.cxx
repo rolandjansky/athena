@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CreateLumiBlockCollectionFromFile.h"
@@ -126,67 +126,64 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
   std::unique_ptr<xAOD::LumiBlockRangeAuxContainer> piovSuspectAux = std::make_unique<xAOD::LumiBlockRangeAuxContainer>();
   piovSuspect->setStore( piovSuspectAux.get() );
 
-  for(RLBMap::iterator mitr=m_LumiBlockInfo.begin(); mitr!=m_LumiBlockInfo.end(); mitr++) {
+  for (std::pair<const IOVTime, inOut>& p : m_LumiBlockInfo) {
     xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
 
     // Decide which collection it goes into depending on whether the LB is complete
     // =============================================================================
     // Suspect LB's have more events read than the DB says should be there
-    if(!m_checkEventsExpected || mitr->second.second == mitr->second.first) {
+    if(!m_checkEventsExpected || p.second.second == p.second.first) {
       piovComplete->push_back(iovr);
     }
-    else if(mitr->second.second > mitr->second.first) {
+    else if(p.second.second > p.second.first) {
       piovSuspect->push_back(iovr);
     }
     else {
       piovUnfinished->push_back(iovr);
     }
-    iovr->setStartRunNumber(mitr->first.run());
-    iovr->setStartLumiBlockNumber(mitr->first.event());
-    iovr->setStopRunNumber(mitr->first.run());
-    iovr->setStopLumiBlockNumber(mitr->first.event());
-    iovr->setEventsExpected(mitr->second.first);
-    iovr->setEventsSeen(mitr->second.second);
+    iovr->setStartRunNumber(p.first.run());
+    iovr->setStartLumiBlockNumber(p.first.event());
+    iovr->setStopRunNumber(p.first.run());
+    iovr->setStopLumiBlockNumber(p.first.event());
+    iovr->setEventsExpected(p.second.first);
+    iovr->setEventsSeen(p.second.second);
   }
 
   if(piovComplete->size()>0) {
     ATH_MSG_INFO( "Number of Complete LumiBlocks:" << piovComplete->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovComplete->begin(); it!=piovComplete->end(); it++) {
+    for(const xAOD::LumiBlockRange* lbr : *piovComplete) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
+		   << ") eventsSeen = " << lbr->eventsSeen()
+		   << ", eventsExpected = " << lbr->eventsExpected()
 		   << " ]");
     }
   }
 
   if(piovUnfinished->size()>0) {
     ATH_MSG_INFO( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovUnfinished->begin(); it!=piovUnfinished->end(); it++) {
+    for(const xAOD::LumiBlockRange* lbr : *piovUnfinished) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
+		   << ") eventsSeen = " << lbr->eventsSeen()
+		   << ", eventsExpected = " << lbr->eventsExpected()
 		   << " ]");
     }
   }
 
   if(piovSuspect->size()>0) {
     ATH_MSG_INFO( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
-    xAOD::LumiBlockRangeContainer::const_iterator it;
-    for(it=piovSuspect->begin(); it!=piovSuspect->end(); it++) {
+    for(const xAOD::LumiBlockRange* lbr : *piovSuspect) {
       ATH_MSG_INFO("\t [ ("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
 		   << "):("
-		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-		   << ") eventsSeen = " << (*it)->eventsSeen()
-		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << lbr->startRunNumber()  << "," << lbr->startLumiBlockNumber()
+		   << ") eventsSeen = " << lbr->eventsSeen()
+		   << ", eventsExpected = " << lbr->eventsExpected()
 		   << " ]");
     }
   }

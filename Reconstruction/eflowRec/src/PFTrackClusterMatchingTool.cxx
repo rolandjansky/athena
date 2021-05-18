@@ -38,7 +38,7 @@ PFTrackClusterMatchingTool::PFTrackClusterMatchingTool(const std::string& type,
 StatusCode PFTrackClusterMatchingTool::initialize() {
 
   m_matcher = std::make_unique<PFMatch::TrackClusterMatcher>(DistanceFactory::Get(m_distanceType, TrackPositionFactory::Get(m_trackPositionType), ClusterPositionFactory::Get(m_clusterPositionType)),m_matchCut);
-  
+
   ATH_MSG_VERBOSE("In initialize:");
   ATH_MSG_VERBOSE("Track position type is \"" << m_trackPositionType << "\"");
   ATH_MSG_VERBOSE("Cluster position type is \"" << m_clusterPositionType << "\"");
@@ -58,10 +58,10 @@ std::vector<std::pair<eflowRecCluster*,float> > PFTrackClusterMatchingTool::doMa
   return doMatches(track, vec_clusters, nMatches);
 }
 
-std::vector<std::pair<eflowRecCluster*,float> > PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int nMatches) const {
+std::vector<std::pair<eflowRecCluster*,float> > PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, std::vector<eflowRecCluster*> clusters, int nMatches) const {
 
   /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters */
-  std::vector<const eflowMatchCluster*> matchClusters;
+  std::vector<eflowMatchCluster*> matchClusters;
   for (auto& cluster : clusters) {
       matchClusters.push_back(cluster->getMatchCluster());
   }

@@ -57,7 +57,7 @@ public:
   ClusterPlainEtaPhiProvider() { }
   virtual ~ClusterPlainEtaPhiProvider() { }
 
-  EtaPhi getPosition(const ICluster* cluster) const;
+  EtaPhi getPosition(ICluster* cluster) const;
 };
 
 class ClusterGeometricalCenterProvider: public ClusterPositionProvider<EtaPhiWithVariance> {
@@ -66,7 +66,7 @@ public:
   virtual ~ClusterGeometricalCenterProvider() { }
 
 private:
-  EtaPhiWithVariance getPosition(const ICluster* cluster) const;
+  EtaPhiWithVariance getPosition(ICluster* cluster) const;
 
   static const double m_etaPhiLowerLimit;
 };
@@ -79,7 +79,7 @@ public:
     m_barrelLayer(barrelLayer), m_endcapLayer(endcapLayer), m_fcalLayer(fcalLayer) { }
   virtual ~TrackEtaPhiInFixedLayersProvider() { }
 
-  EtaPhi getPosition(const ITrack* track) const;
+  EtaPhi getPosition(ITrack* track) const;
 
 private:
   LayerType m_barrelLayer;

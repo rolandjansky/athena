@@ -55,7 +55,7 @@ public:
   }
 
   double getError() const {return m_error;}
-  
+
 private:
 
   double DoGaussLegendreIntegration(const eflowRange& range, int nOrder){
@@ -64,8 +64,8 @@ private:
 
     /* Array offset for legendre weights/roots */
     int j = nOrder * (nOrder - 1) / 2;
-    double* roots   = legendreRoots   + j;
-    double* weights = legendreWeights + j;
+    const double* roots   = legendreRoots   + j;
+    const double* weights = legendreWeights + j;
 
     double rangeCenter    = range.getCenter();
     double rangeHalfWidth = range.getWidth()/2;

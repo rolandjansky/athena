@@ -31,7 +31,7 @@ namespace Trk {
  @author Sarka.Todorova@cern.ch
  */
 
-class SlidingCylinderSurface final: public CylinderSurface
+class SlidingCylinderSurface final : public CylinderSurface
 {
 public:
   /** Default Constructor - needed for persistency*/

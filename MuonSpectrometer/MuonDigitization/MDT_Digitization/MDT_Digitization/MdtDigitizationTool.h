@@ -226,7 +226,7 @@ class MdtDigitizationTool : public PileUpToolBase {
   std::vector<Identifier> m_IdentifiersToMask;
 
   //pile-up
-  TimedHitCollection<MDTSimHit>* m_thpcMDT{}; // the hits
+  std::unique_ptr<TimedHitCollection<MDTSimHit>> m_thpcMDT{}; // the hits
 
   //pileup truth veto
   Gaudi::Property<bool> m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};

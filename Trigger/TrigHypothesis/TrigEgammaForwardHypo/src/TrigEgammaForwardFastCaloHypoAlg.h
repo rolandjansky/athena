@@ -13,7 +13,7 @@
 #include "ITrigEgammaForwardFastCaloHypoTool.h"
 
 /**
- * @class TrigEgammaFastCaloHypoAlgMT
+ * @class TrigEgammaFastCaloHypoAlg
  * @brief Implements egamma calo selection for the new HLT framework
  **/
 class TrigEgammaForwardFastCaloHypoAlg : public ::HypoBase {

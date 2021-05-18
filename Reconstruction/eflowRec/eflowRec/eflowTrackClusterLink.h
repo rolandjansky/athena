@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
-#include <mutex>  
+#include <mutex>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -43,8 +43,10 @@ public:
                                             eflowRecCluster* cluster,
                                             const EventContext& ctx = Gaudi::Hive::currentContext());
 
-  eflowRecCluster* getCluster() const { return m_cluster; }
-  eflowRecTrack* getTrack() const { return m_track; }
+  eflowRecCluster* getCluster() { return m_cluster; }
+  const eflowRecCluster* getCluster() const { return m_cluster; }
+  eflowRecTrack* getTrack() { return m_track; }
+  const eflowRecTrack* getTrack() const { return m_track; }
 
   void setClusterIntegral(const std::vector<double>& clusterIntegral) {
     m_clusterIntegral = clusterIntegral;
@@ -67,7 +69,7 @@ private:
     std::unordered_map<key_t, std::unique_ptr<eflowTrackClusterLink>, Hasher > m_map;
     EventContext::ContextEvt_t m_evt = static_cast<EventContext::ContextEvt_t>(-1);
   };
-  
+
   eflowRecTrack* m_track;
   eflowRecCluster* m_cluster;
 

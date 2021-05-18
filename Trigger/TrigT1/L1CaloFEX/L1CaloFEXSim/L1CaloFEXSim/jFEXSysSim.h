@@ -65,9 +65,9 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
     /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
-    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillTauEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) override ;  
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillTauEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) override ;  
   
   /** Internal data */
   private:

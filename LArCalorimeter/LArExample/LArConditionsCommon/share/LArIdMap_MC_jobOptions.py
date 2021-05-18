@@ -12,6 +12,9 @@ from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg,
 
 larCondFlags.config_idmap_MC() 
 
+from Digitization.DigitizationFlags import digitizationFlags
+isPileUpDigi = digitizationFlags.doXingByXingPileUp()
+
 LArDBConnection = ""
 LArDB = "LAR_OFL"
 
@@ -27,12 +30,12 @@ if not hasattr(condSeq,"LArOnOffMappingAlg"):
   larCondFlags.addTag("/LAR/Identifier/OnOffIdMap", conddb)
   condSeq+=LArOnOffMappingAlg(ReadKey="/LAR/Identifier/OnOffIdMap")
 
-if not hasattr(condSeq,"LArCalibLineMappingAlg"):
+if not isPileUpDigi and not hasattr(condSeq,"LArCalibLineMappingAlg"):
   conddb.addFolder(LArDB,"/LAR/Identifier/CalibIdMap"+LArDBConnection,className="AthenaAttributeList")
   larCondFlags.addTag("/LAR/Identifier/CalibIdMap", conddb)
   condSeq+=LArCalibLineMappingAlg(ReadKey="/LAR/Identifier/CalibIdMap")
 
-if not hasattr(condSeq,"LArFebRodMappingAlg"):
+if not isPileUpDigi and not hasattr(condSeq,"LArFebRodMappingAlg"):
   conddb.addFolder(LArDB,"/LAR/Identifier/FebRodMap"+LArDBConnection,className="AthenaAttributeList")
   larCondFlags.addTag("/LAR/Identifier/FebRodMap", conddb)
   condSeq+=LArFebRodMappingAlg(ReadKey="/LAR/Identifier/FebRodMap")

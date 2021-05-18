@@ -64,6 +64,8 @@ if rec.doTruth():
                                           "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                                           "xAOD::TruthParticleContainer#TruthParticles",
                                           "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                                          "xAOD::TruthParticleContainer#TruthPileupParticles",
+                                          "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                                           "xAOD::TruthVertexContainer#TruthVertices", 
                                           "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
                                           "xAOD::TruthPileupEventContainer#TruthPileupEvents",
