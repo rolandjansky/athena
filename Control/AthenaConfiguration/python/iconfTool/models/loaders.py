@@ -404,3 +404,38 @@ class ComponentsDiffFileLoader:
         while j < len(diff_structure):
             diff_structure[j].mark()
             j += 1
+
+
+def loadDifferencesFile(fname) -> Dict:
+    """
+    Read differences file
+    Format:
+    full_component_name.property oldvalue=newvalue
+    example:
+    AlgX.ToolA.SubToolB.SettingZ 45=46
+    It is possible to specify missing values, e.g:
+    AlgX.ToolA.SubToolB.SettingZ 45=    means that now the old value should be ignored
+    AlgX.ToolA.SubToolB.SettingZ =46    means that now the new value should be ignored
+    AlgX.ToolA.SubToolB.SettingZ =      means that any change of the value should be ignored 
+
+    """
+    from collections import defaultdict
+    differences = defaultdict(dict)
+    count=0
+    with open(fname, "r") as f:
+        for line in f:
+            if line[0] == "#" or line == "\n":
+                continue
+            line = line.strip()
+            compAndProp, values = line.split(" ")           
+            comp, prop = compAndProp.rsplit(".", 1)
+            o,n = values.split("=")
+            oldval,newval = o if o else None, n if n else None
+                
+            differences[comp][prop] = (oldval,newval)
+            count+=1
+    logger.info("... Read %d known differences from file: %s", count, fname)
+    logger.info("..... %s", str(differences))
+
+    return differences
+

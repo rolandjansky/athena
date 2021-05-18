@@ -1,0 +1,6 @@
+# acceptable differences in base services
+AvalancheSchedulerSvc.OutputLevel =
+AvalancheSchedulerSvc.ShowControlFlow =
+AvalancheSchedulerSvc.ShowDataDependencies =
+AvalancheSchedulerSvc.ShowDataFlow =True
+AvalancheSchedulerSvc.VerboseSubSlots =True
