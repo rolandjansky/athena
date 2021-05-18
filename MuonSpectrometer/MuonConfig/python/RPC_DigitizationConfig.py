@@ -129,7 +129,7 @@ def RPC_DigitizationBasicCfg(flags, **kwargs):
 
 def RPC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with RPC Overlay digitization"""
-    acc = MuonGeoModelCfg(flags)
+    acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
