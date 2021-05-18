@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 
-#define TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 1
+#ifndef TRIGMUONHYPO_TRIGMUCOMBHYPOTOOL_H 
+#define TRIGMUONHYPO_TRIGMUCOMBHYPOTOOL_H 1
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "GaudiKernel/SystemOfUnits.h"

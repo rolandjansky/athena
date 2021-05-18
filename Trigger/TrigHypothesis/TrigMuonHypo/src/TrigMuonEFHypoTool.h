@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONHYPOMT_TRIGMUONEFHYPOTOOL_H 
-#define TRIGMUONHYPOMT_TRIGMUONEFHYPOTOOL_H 1
+#ifndef TRIGMUONHYPO_TRIGMUONEFHYPOTOOL_H 
+#define TRIGMUONHYPO_TRIGMUONEFHYPOTOOL_H 1
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
