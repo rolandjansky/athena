@@ -34,7 +34,7 @@ Slots   = 8
 Input   = 'Zee_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 Release = "current"
 GridFiles = True
-postinclude_file = "RDOtoRDOTrigger:TrigInDetValidation/TIDAcloneremoval.py"
+preinclude_file = "TrigInDetValidation/TIDAcloneremoval.py"
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root -p 11" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
