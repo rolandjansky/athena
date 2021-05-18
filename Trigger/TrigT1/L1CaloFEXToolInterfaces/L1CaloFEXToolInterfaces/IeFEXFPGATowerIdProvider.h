@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//***************************************************************************
-//                           IeFEXFPGATowerIdProvider.h  -
-//                              -------------------
-//     begin                :  14 11 2020
-//     email                :  tong.qiu@cern.ch
-//  ***************************************************************************/
 
 #ifndef IEFEXFPGATOWERIDPROVIDER_H
 #define IEFEXFPGATOWERIDPROVIDER_H

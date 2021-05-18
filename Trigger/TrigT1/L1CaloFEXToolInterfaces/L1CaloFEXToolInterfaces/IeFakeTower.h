@@ -2,12 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//***************************************************************************
-//                           IeFakeTower.h  -
-//                              -------------------
-//     begin                :  02 2 2021
-//     email                :  tong.qiu@cern.ch
-//  ***************************************************************************/
 #ifndef IEFAKETOWER_H
 #define IEFAKETOWER_H
 #include "GaudiKernel/IAlgTool.h"

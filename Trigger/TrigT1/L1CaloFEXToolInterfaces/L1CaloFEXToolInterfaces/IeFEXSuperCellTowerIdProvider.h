@@ -1,13 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//***************************************************************************
-//                           IeFEXSuperCellTowerIdProvider.h  -
-//                              -------------------
-//     begin                :  14 11 2020
-//     email                :  tong.qiu@cern.ch
-//  ***************************************************************************/
 #ifndef IEFEXSUPERCELLTOWERIDPROVIDER
 #define IEFEXSUPERCELLTOWERIDPROVIDER
 #include "GaudiKernel/IAlgTool.h"

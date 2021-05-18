@@ -1,13 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//***************************************************************************
-//                            eFEXFPGATowerIdProvider.cxx - 
-//                             -------------------
-//     begin                : 25 09 2020
-//     email                : tong.qiu@cern.ch
-// ***************************************************************************/
 
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
