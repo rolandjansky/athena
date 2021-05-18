@@ -28,15 +28,7 @@ class xAODConversionGetter(Configured):
         from TrigEDMConfig.TriggerEDM import getPreregistrationList
         from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
         xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
-        ## if ConfigFlags.Trigger.EDMVersion == 2:
-        ##     #        if TriggerFlags.doMergedHLTResult():
-        ##     #if ConfigFlags.Trigger.EDMVersion == 2: #FPP
-        ##     xaodconverter.Navigation.ClassesToPreregister = getHLTPreregistrationList()
-        ## else:
-        ##     xaodconverter.Navigation.ClassesToPreregister = list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
 
-        #we attempt to convert the entire old navigation (L2+EF)
-        #xaodconverter.BStoxAOD.ContainersToConvert = list(set(getL2PreregistrationList()+getEFPreregistrationList()))
         # we want only containers from Run 1 with the BS tag
         xaodconverter.BStoxAOD.ContainersToConvert = getL2Run1BSList() + getEFRun1BSList()
         xaodconverter.BStoxAOD.NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList()
@@ -93,21 +85,8 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         #if TriggerFlags.readBS():
         log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
         # in MC this is always FullTrigger
-        hasHLT = TriggerFlags.dataTakingConditions()=='HltOnly' or TriggerFlags.dataTakingConditions()=='FullTrigger'
+        hasHLT = TriggerFlags.dataTakingConditions() in ('HltOnly', 'FullTrigger')
         
-        if hasHLT:
-            # Decide based on the run number whether to assume a merged, or a
-            # split HLT:
-            if not TriggerFlags.doMergedHLTResult():
-                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                    "HLT::HLTResult/HLTResult_L2",
-                    "HLT::HLTResult/HLTResult_EF" ]
-            else:
-                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                    "HLT::HLTResult/HLTResult_HLT" ]
-                pass
-            pass
-
         # BS unpacking
         from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
         extr = TrigBSExtraction()
@@ -124,32 +103,39 @@ class ByteStreamUnpackGetterRun1or2(Configured):
 
             from TrigEDMConfig.TriggerEDM import getPreregistrationList
             extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
-            
-            if TriggerFlags.doMergedHLTResult():
-                extr.L2ResultKey=""
-                extr.EFResultKey=""
+
+            if ConfigFlags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
+                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
+                    "HLT::HLTResult/HLTResult_L2",
+                    "HLT::HLTResult/HLTResult_EF" ]
+                extr.L2ResultKey = "HLTResult_L2"
+                extr.EFResultKey = "HLTResult_EF"
+                extr.HLTResultKey = ""
             else:
-                extr.HLTResultKey=""
+                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
+                    "HLT::HLTResult/HLTResult_HLT" ]
+                extr.L2ResultKey = ""
+                extr.EFResultKey = ""
+                extr.HLTResultKey = "HLTResult_HLT"
 
             #
             # Configure DataScouting
             #
             from PyUtils.MetaReaderPeeker import metadata
             if 'stream' in metadata:
-                stream_local = metadata['stream']
+                stream_local = metadata['stream']   # e.g. calibration_DataScouting_05_Jets
                 if stream_local.startswith('calibration_DataScouting_'):
-                    if 'calibration' in stream_local and 'DataScouting_' in stream_local:
-                        ds_tag = stream_local[12:27]
-                        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
-                        extr.DSResultKeys += [ ds_tag ]
+                    ds_tag = '_'.join(stream_local.split('_')[1:3])   # e.g. DataScouting_05
+                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                    extr.DSResultKeys += [ ds_tag ]
 
         else:
-            #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
-            # but the extr alg must run
-            extr.L2ResultKey=""
-            extr.EFResultKey=""
-            extr.HLTResultKey=""
-            extr.DSResultKeys=[]
+            # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
+            # but the extraction algorithm must run
+            extr.L2ResultKey = ""
+            extr.EFResultKey = ""
+            extr.HLTResultKey = ""
+            extr.DSResultKeys = []
 
         topSequence += extr
         
@@ -223,9 +209,8 @@ class TrigDecisionGetterRun1or2(Configured):
             elif TriggerFlags.dataTakingConditions()=='HltOnly':
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence.TrigDecMaker.doL1=False
-            # Decide based on the doMergedHLTResult to assume a merged, or a
-            # split HLT:
-            if not TriggerFlags.doMergedHLTResult():
+
+            if ConfigFlags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
                 topSequence.TrigDecMaker.doHLT = False
                 topSequence.TrigNavigationCnvAlg.doL2 = False
                 topSequence.TrigNavigationCnvAlg.doHLT = False
@@ -254,13 +239,13 @@ class HLTTriggerResultGetter(Configured):
             from PyUtils.MetaReaderPeeker import metadata
             if 'stream' in metadata:
                 stream = metadata['stream']
-                log.debug("the stream found in 'metadata' is "+stream)
+                log.debug("the stream found in 'metadata' is %s", stream)
                 if "express" in stream:
                     from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
                     type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
                     if 'collection'in EDMDetails[type]:
                         colltype = EDMDetails[type]['collection']
-                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)
+                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream %s", stream)
                         from RecExConfig.ObjKeyStore import objKeyStore
                         objKeyStore.addStreamESD(colltype, key)
                     return True
@@ -419,9 +404,6 @@ class HLTTriggerResultGetter(Configured):
         if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
             _addSlimming('StreamESD', _TriggerESDList )                
             log.info("configured navigation slimming for ESD output")
-
-
-
 
         objKeyStore.addManyTypesStreamESD( _TriggerESDList )
         objKeyStore.addManyTypesStreamAOD( _TriggerAODList )        

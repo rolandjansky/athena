@@ -26,7 +26,6 @@ def bool_flag_with_default(name, val):
 default_true_flags = [
     "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
     "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
     "doID",  # if False, disable ID algos at LVL2 and EF """
     "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
     "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
