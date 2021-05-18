@@ -14,5 +14,5 @@ atlas_add_library( AFP_ByteStream2RawCnvLib
 
 # Component(s) in the package:
 atlas_add_component( AFP_ByteStream2RawCnv
-                     src/components/*.cxx src/*.cxx AFP_ByteStream2RawCnv/*.h
+                     src/components/*.cxx  AFP_ByteStream2RawCnv/*.h
                      LINK_LIBRARIES AFP_ByteStream2RawCnvLib )
