@@ -95,6 +95,8 @@ if not hasattr(runArgs, "randomSeed"):
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
 
+if hasattr(runArgs, "inputEVNT_PreFile"):
+   evgenLog.info("inputEVNT_PreFile = " + ','.join(runArgs.inputEVNT_PreFile))
 
 ##==============================================================
 ## Configure standard Athena and evgen services
@@ -206,7 +208,7 @@ if joparts[0].startswith("mc"): #and all(c in string.digits for c in joparts[0][
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -297,6 +299,7 @@ if not evgenConfig.nEventsPerJob:
 else:
     evgenLog.info(' nEventsPerJob = ' + str(evgenConfig.nEventsPerJob)  )
 
+
 if evgenConfig.minevents > 0 :
     raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
 
@@ -334,6 +337,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = " + kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -349,7 +353,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("evgenkeywords = not found ")
 
 ## Configure and schedule jet finding algorithms
 ## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
