@@ -16,11 +16,12 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 import sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lcxptn:",["local","config"])
+    opts, args = getopt.getopt(sys.argv[1:],"lcxptmn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l | --local   run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
+    print("-m             run cost monitoring plotting, even if -x is set")
     print("-p             run post-processing, even if -x is set")
     print("-n  N          run only on N events per job")
     print("-c | --config  run with config_only and print to a pkl file")
@@ -31,6 +32,7 @@ except getopt.GetoptError:
 Events_local  = 0
 local         = False
 exclude       = False
+costplot      = False
 postproc      = False
 testconfig    = False
 dry_run       = False
@@ -47,6 +49,8 @@ for opt,arg in opts:
         exclude=True
     if opt=="-p":
         postproc=True
+    if opt=="-m":
+        costplot=True
     if opt=="-n":
         Events_local=int(arg)
     if opt in ("-c", "--config"):
@@ -127,7 +131,6 @@ if (not exclude):
 
 # Run TIDArdict
 
-
 if ((not exclude) or postproc ):
     for job in Jobs :
         if len(job) >= 3:
@@ -147,15 +150,15 @@ for _slice in Comp :
 
 # CPU cost steps
 # cputest defined with "name" "output directory" "filename" "args" 
-cputest = [ ( "CpuCostStep1", " times ", "expert-monitoring.root", " --auto  -p TIME" ),
-            ( "CpuCostStep2", " times-FTF ", "expert-monitoring.root", " --auto -p TIME -d TrigFastTrackFinder_" ),
-            ( "CpuCostStep3", " cost-perCall ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Algorithm " ),
-            ( "CpuCostStep4", " cost-perEvent ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm " ),
-            ( "CpuCostStep5", " cost-perCall-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perCall -d /Chain_Algorithm " ),
-            ( "CpuCostStep6", " cost-perEvent-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm " ),
-            ]
+cputest = [ ( "CpuCostStep1", " times ",               "expert-monitoring.root",    " --auto -p TIME" ),
+            ( "CpuCostStep2", " times-FTF ",           "expert-monitoring.root",    " --auto -p TIME -d TrigFastTrackFinder_" ),
+            ( "CpuCostStep3", " cost-perCall ",        "TrigCostRoot_Results.root", " --auto -p _Time_perCall  -d /Algorithm  --logx " ),
+            ( "CpuCostStep4", " cost-perEvent ",       "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm  --logx " ),
+            ( "CpuCostStep5", " cost-perCall-chain ",  "TrigCostRoot_Results.root", " --auto -p _Time_perCall  -d /Chain_Algorithm  --logx " ),
+            ( "CpuCostStep6", " cost-perEvent-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm  --logx " ) ]
+            
 
-if ((not exclude) or postproc ):
+if ((not exclude) or postproc or costplot ):
     for job in cputest :
         cpucost = TrigInDetCpuCostStep( name=job[0], outdir=job[1], infile=job[2], extra=job[3] )
         test.check_steps.append(cpucost)
