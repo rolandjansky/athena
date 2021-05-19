@@ -120,14 +120,15 @@ if data_type == 'pool':
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg =  TriggerConfigGetter()
     
-    from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    Configurable.configurableRun3Behavior += 1
-    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-    acc = getTrigDecisionTool(ConfigFlags)
-    appendCAtoAthena( acc )
-    Configurable.configurableRun3Behavior -= 1
+    if not hasattr(ToolSvc, 'TrigDecisionTool'):
+        from AthenaCommon.Configurable import Configurable
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        Configurable.configurableRun3Behavior += 1
+        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+        acc = getTrigDecisionTool(ConfigFlags)
+        appendCAtoAthena( acc )
+        Configurable.configurableRun3Behavior -= 1
     
     # enable slices for monitoring 
     # otherwise enable slices via monFlags 

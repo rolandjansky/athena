@@ -29,14 +29,16 @@ class T0TriggerGetter(Configured):
         cfg =  TriggerConfigGetter()  # noqa: F841
 
         # preconfigure TrigDecisionTool
-        from AthenaCommon.Configurable import Configurable
-        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        Configurable.configurableRun3Behavior += 1
-        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-        acc = getTrigDecisionTool(ConfigFlags)
-        appendCAtoAthena( acc )
-        Configurable.configurableRun3Behavior -= 1
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, 'TrigDecisionTool'):
+            from AthenaCommon.Configurable import Configurable
+            from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            Configurable.configurableRun3Behavior += 1
+            from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+            acc = getTrigDecisionTool(ConfigFlags)
+            appendCAtoAthena( acc )
+            Configurable.configurableRun3Behavior -= 1
 
 
         if withLVL1():
