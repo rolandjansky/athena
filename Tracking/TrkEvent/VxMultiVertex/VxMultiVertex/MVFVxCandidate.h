@@ -114,7 +114,7 @@ namespace Trk
   private:
 
     Trk::MvfFitInfo m_fitInfo;
-    bool m_initialized;
+    bool m_initialized{};
     
   }; //end of class definitions   
 

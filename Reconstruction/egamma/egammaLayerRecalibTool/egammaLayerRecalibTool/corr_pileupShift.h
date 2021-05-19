@@ -27,7 +27,7 @@ class corr_pileupShift {
    int m_runMin, m_runMax;
 
    // store corrections/mu  vs eta per layer
-   TH1D* m_haverage[4];
+   TH1D* m_haverage[4]{};
    TFile* m_file;
 
 };

@@ -131,7 +131,7 @@ private:
   double m_cotTheta;
   double m_d0;
   Amg::VectorX* m_differences;
-  bool m_eigen;
+  bool m_eigen{};
   bool m_extremeMomentum;
   Amg::MatrixX* m_finalCovariance;
   int m_firstAlignmentParameter;

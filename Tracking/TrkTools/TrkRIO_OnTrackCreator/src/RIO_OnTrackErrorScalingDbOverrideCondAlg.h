@@ -41,7 +41,7 @@ class RIO_OnTrackErrorScalingDbOverrideCondAlg : public AthAlgorithm
     {this, "WriteKey","","The key for the produced error scaling conditions data."};
 
   ServiceHandle<ICondSvc>           m_condSvc;
-  const RIO_OnTrackErrorScalingKit *m_errorScalingDataKit;
+  const RIO_OnTrackErrorScalingKit *m_errorScalingDataKit{};
   std::vector<unsigned int>         m_useNParametersPerSet;
 };
 

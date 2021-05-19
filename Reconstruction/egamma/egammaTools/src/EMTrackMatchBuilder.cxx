@@ -272,7 +272,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    * Done with extrapolation
    * Lets do the matching logic
    */
-  TrackMatch trkmatch;
+  TrackMatch trkmatch{};
   // Add the matching variable to the TrackMAtch
   trkmatch.deltaEta = deltaEta;
   trkmatch.deltaPhi = deltaPhi;

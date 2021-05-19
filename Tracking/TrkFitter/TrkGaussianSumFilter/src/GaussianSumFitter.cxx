@@ -782,13 +782,9 @@ Trk::GaussianSumFitter::fitPRD(
 {
 
   // Configure for forwards filtering material effects overide
-  Trk::ParticleHypothesis configuredParticleHypothesis;
-
-  if (m_overideMaterialEffectsSwitch) {
-    configuredParticleHypothesis = m_overideParticleHypothesis;
-  } else {
-    configuredParticleHypothesis = particleHypothesis;
-  }
+  Trk::ParticleHypothesis configuredParticleHypothesis =
+    m_overideMaterialEffectsSwitch ? m_overideParticleHypothesis
+                                   : particleHypothesis;
 
   // Extract PrepRawDataSet into new local object and check that the PrepRawData
   // is associated with a detector element
@@ -868,13 +864,9 @@ Trk::GaussianSumFitter::fitMeasurements(
   }
 
   // Configure for forwards filtering material effects overide
-  Trk::ParticleHypothesis configuredParticleHypothesis;
-
-  if (m_overideMaterialEffectsSwitch) {
-    configuredParticleHypothesis = m_overideParticleHypothesis;
-  } else {
-    configuredParticleHypothesis = particleHypothesis;
-  }
+  Trk::ParticleHypothesis configuredParticleHypothesis =
+    m_overideMaterialEffectsSwitch ? m_overideParticleHypothesis
+                                   : particleHypothesis;
 
   Trk::ForwardTrajectory forwardTrajectory{};
   // Prepare the multi-component state. For starting guess this has single

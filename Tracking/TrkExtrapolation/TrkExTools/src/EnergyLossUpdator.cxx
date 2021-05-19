@@ -128,9 +128,9 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   double sigRad = 0.;
   double kazL = 0.;
   double meanIoni =
-    m_matInt.dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
+    Trk::MaterialInteraction::dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
   double meanRad =
-    m_matInt.dEdl_radiation(p, &(mat.material()), particle, sigRad);
+    Trk::MaterialInteraction::dEdl_radiation(p, &(mat.material()), particle, sigRad);
 
   meanIoni = sign * pathLength * meanIoni;
   meanRad = sign * pathLength * meanRad;
@@ -716,7 +716,7 @@ Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
   double kazL = 0.;
 
   double meanIoni =
-    sign * m_matInt.PDG_energyLoss_ionization(
+    sign * Trk::MaterialInteraction::PDG_energyLoss_ionization(
              p, &(mat.material()), particle, sigIoni, kazL, pathLength);
 
   return !m_detailedEloss ? new Trk::EnergyLoss(meanIoni, sigIoni)

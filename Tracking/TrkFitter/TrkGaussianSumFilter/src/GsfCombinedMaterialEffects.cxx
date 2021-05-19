@@ -8,6 +8,7 @@
  * @brief         Implementation code for GsfCombinedMaterialEffects class
  */
 
+
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 //
 #include "PathResolver/PathResolver.h"
@@ -163,7 +164,7 @@ bool Trk::GsfCombinedMaterialEffects::readBHParameters() {
     return false;
   }
 
-  int orderPolynomial;
+  int orderPolynomial = 0;
   fin >> m_BHnumberOfComponents;
   fin >> orderPolynomial;
   fin >> m_BHtransformationCode;
@@ -491,7 +492,7 @@ void Trk::GsfCombinedMaterialEffects::BetheHeitler(
   // Fill the cache to be returned
   componentIndex = 0;
   for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
-    double varianceInverseMomentum;
+    double varianceInverseMomentum = 0;
     // This is not mathematically correct but it does stabilize the GSF
     if (mixture[componentIndex].mean < s_componentMeanCut) {
       continue;

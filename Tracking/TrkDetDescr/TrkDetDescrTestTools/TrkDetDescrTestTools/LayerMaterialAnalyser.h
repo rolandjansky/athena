@@ -76,8 +76,8 @@ namespace Trk {
         
         mutable int           m_layerIndex;                //!< the layer index given by the TrackingGeometry
         mutable int           m_layerType;                 //!< the type of the layer 1 - cylinder, 2 - disk
-        mutable float         m_layerTranslation[3];       //!< center of the transform
-        mutable float         m_layerRotation[9];          //!< orientation of the layer         
+        mutable float         m_layerTranslation[3]{};       //!< center of the transform
+        mutable float         m_layerRotation[9]{};          //!< orientation of the layer         
         mutable float         m_layerDimension0;           //!< dimension 0 : cylinder r, disk r_min
         mutable float         m_layerDimension1;           //!< dimension 1 : cylinder z, disk r_max
         mutable int           m_layerBins;                 //!< total number of bins - loc0 * loc 1

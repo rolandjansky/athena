@@ -309,8 +309,8 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       std::vector<double> m_cov0;
-      unsigned int m_key[ 33];
-      unsigned int m_map[160];
+      unsigned int m_key[ 33]{};
+      unsigned int m_map[160]{};
       double   m_covBoundary;
     };
 

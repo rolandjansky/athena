@@ -101,23 +101,23 @@ private:
   // Read polynomial fit parameters from a specified file
   bool readBHParameters();
 
-  int m_BHnumberOfComponents;
-  int m_BHtransformationCode;
-  int m_BHnumberOfComponentsHighX0;
-  int m_BHtransformationCodeHighX0;
+  int m_BHnumberOfComponents{};
+  int m_BHtransformationCode{};
+  int m_BHnumberOfComponentsHighX0{};
+  int m_BHtransformationCodeHighX0{};
 
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialWeights;
+    m_BHpolynomialWeights{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialMeans;
+    m_BHpolynomialMeans{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialVariances;
+    m_BHpolynomialVariances{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialWeightsHighX0;
+    m_BHpolynomialWeightsHighX0{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialMeansHighX0;
+    m_BHpolynomialMeansHighX0{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialVariancesHighX0;
+    m_BHpolynomialVariancesHighX0{};
 
   Gaudi::Property<bool> m_useHighX0{ this,
                                      "UseHighX0",

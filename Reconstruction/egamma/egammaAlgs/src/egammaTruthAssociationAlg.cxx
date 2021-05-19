@@ -307,7 +307,7 @@ egammaTruthAssociationAlg::particleTruthClassifier(
   const T* particle,
   Cache* extrapolationCache) const
 {
-  MCTruthInfo_t info;
+  MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
@@ -326,7 +326,7 @@ egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(
   const xAOD::Electron* electron,
   Cache* extrapolationCache) const
 {
-  MCTruthInfo_t info;
+  MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);

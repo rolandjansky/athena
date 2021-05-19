@@ -106,7 +106,7 @@ namespace Trk {
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
-    bool m_rejectInvalidTracks;
+    bool m_rejectInvalidTracks{};
     /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 
     /// This is used when we want to use holes from the pattern recognition instead of repeating the hole search
     /// Off by default

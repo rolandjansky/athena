@@ -10,7 +10,7 @@
 std::array<float, 4> get_MVAradius(float eta)
 {
   eta = std::abs(eta);
-  std::array<float, 4> radius;
+  std::array<float, 4> radius{};
   if (eta / 0.025 < 57)
   {
     static const float

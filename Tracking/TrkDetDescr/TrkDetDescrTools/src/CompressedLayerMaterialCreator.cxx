@@ -176,7 +176,7 @@ Trk::LayerMaterialProperties* Trk::CompressedLayerMaterialCreator::createCompres
                 zarhobin = ( (size_t)zarhobin >= m_compressedMaterialZARhoBins) ? m_compressedMaterialZARhoBins-1 : zarhobin;
                 zarhobin = zarhobin < 0 ? 0 : zarhobin;
                 // create indexed material
-                Trk::IndexedMaterial idxMaterial;
+                Trk::IndexedMaterial idxMaterial{};
                 idxMaterial.materialProperties = matProp;
                 idxMaterial.firstBin  = ifir;
                 idxMaterial.secondBin = isec;

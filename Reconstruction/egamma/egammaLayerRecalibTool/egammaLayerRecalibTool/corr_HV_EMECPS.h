@@ -25,7 +25,7 @@ class corr_HV_EMECPS {
   private:
 
    // store HV corrections  in 2D hist (phi-runnumber) for EMECA and EMECC separately
-   TH2D* m_HV[2];
+   TH2D* m_HV[2]{};
    TFile* m_file;
 
 };
