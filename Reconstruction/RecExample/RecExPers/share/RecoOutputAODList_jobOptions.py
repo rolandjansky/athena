@@ -220,12 +220,11 @@ if rec.doEgamma():
     except Exception:
         treatException("Could not load egammaRec/egammaOutputItemList_jobOptions.py" )
 
-    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        try:
-            include ( "egammaRec/egammaLRTOutputItemList_jobOptions.py" )
-            fullAODList += CfgItemList( "egammaLRTAod", items = egammaLRTAODList )
-        except Exception:
-            treatException("Could not load egammaRec/egammaLRTOutputItemList_jobOptions.py" )
+    try:
+        include ( "egammaRec/egammaLRTOutputItemList_jobOptions.py" )
+        fullAODList += CfgItemList( "egammaLRTAod", items = egammaLRTAODList )
+    except Exception:
+        treatException("Could not load egammaRec/egammaLRTOutputItemList_jobOptions.py" )
 
 
 #eflow
