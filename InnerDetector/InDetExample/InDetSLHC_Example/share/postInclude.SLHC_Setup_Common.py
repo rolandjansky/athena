@@ -38,7 +38,7 @@ if rec.OutputFileNameForRecoStep():
     ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
 from InDetRecExample.InDetJobProperties import InDetFlags
-if InDetFlags.doStagingStudies:
+if InDetFlags.doStagingStudies():
     print("Staging studies: Allowing missing modules to be ignored in Conditions")
     from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
     ToolSvc += PixelCalibDbTool()

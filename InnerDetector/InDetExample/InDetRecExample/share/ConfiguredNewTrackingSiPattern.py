@@ -159,6 +159,8 @@ class  ConfiguredNewTrackingSiPattern:
             elif NewTrackingCuts.mode() == "SLHCLargeD0":
                InDetSiSpacePointsSeedMaker.usePixel              = False
                InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta()
+         if NewTrackingCuts.mode() == "SLHC" and InDetFlags.doStagingStudies() and InDetFlags.stagingConfig() == "no5thLayer":
+            InDetSiSpacePointsSeedMaker.rmaxPPPSeedConf = 0 # No PPP seed confirmation, because 4 pixel layers only
 
          if InDetFlags.writeSeedValNtuple():
            InDetSiSpacePointsSeedMaker.writeNtuple        = True
