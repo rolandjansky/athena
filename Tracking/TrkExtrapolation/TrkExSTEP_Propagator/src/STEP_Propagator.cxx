@@ -1783,7 +1783,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             } else if ( std::abs((*vsIter).second.second)>tol && std::abs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
               if ( ic>nextSf ) {   // easy case, already calculated
-                if (propDir*distanceEst<(*(vsBeg+nextSf)).second.first-tol)  {
+                if (propDir*distanceEst<(cache.m_currentDist.at(nextSf)).second.first-tol)  {
                   if ((*vsIter).first!=-1) {
                     ((*vsIter).first)++;
                     flipDirection = true;
