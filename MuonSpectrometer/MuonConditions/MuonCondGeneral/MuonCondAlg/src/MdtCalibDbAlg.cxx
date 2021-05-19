@@ -299,16 +299,14 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
     ATH_MSG_DEBUG( "defaultRt new MuonCalib::IRtResolution" );
 
     // create RT and resolution "I" objects
-    MuonCalib::IRtRelation *rtRel = MuonCalib::MdtCalibrationFactory::createRtRelation( "RtRelationLookUp", rtPars );
+    std::unique_ptr<MuonCalib::IRtRelation> rtRel {MuonCalib::MdtCalibrationFactory::createRtRelation( "RtRelationLookUp", rtPars )};
     if( !rtRel ) ATH_MSG_WARNING( "ERROR creating RtRelationLookUp " );
 
-    MuonCalib::IRtResolution *resoRel = MuonCalib::MdtCalibrationFactory::createRtResolution( "RtResolutionLookUp", resoPars );
+    std::unique_ptr<MuonCalib::IRtResolution> resoRel { MuonCalib::MdtCalibrationFactory::createRtResolution( "RtResolutionLookUp", resoPars )};
     if( !resoRel ) ATH_MSG_WARNING( "ERROR creating RtResolutionLookUp " );
 
     // if either RT and resolution are not OK then delete both and try next RT in file
     if( !resoRel || !rtRel ) {
-      if(resoRel) delete resoRel;
-      if(rtRel) delete rtRel;
       continue;
     }
 
@@ -335,10 +333,7 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
 	double t = t_min + ipt*bin_size;
 	ATH_MSG_VERBOSE(" "<<ipt<<" "<<t<<" "<< rtRel->radius(t)<<" "<< resoRel->resolution(t));
       }
-    }
-
-    delete resoRel;
-    delete rtRel;
+    }  
 
     break; //only need the first good RT from the text file
 
@@ -380,7 +375,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
   //Read Cond Handle  
   SG::ReadCondHandle<CondAttrListCollection> readHandleRt{ m_readKeyRt };
   const CondAttrListCollection* readCdoRt{*readHandleRt}; 
-  if ( readCdoRt==nullptr ) {
+  if ( !readCdoRt) {
     ATH_MSG_ERROR("readCdoRt==nullptr");
     return StatusCode::FAILURE; 
   }   
@@ -750,7 +745,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
   MdtIdHelper::const_id_iterator it     = m_idHelperSvc->mdtIdHelper().module_begin();
   MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
   for(; it!=it_end;++it ) {
-    MuonCalib::MdtTubeCalibContainer *tubes=0;
+    MuonCalib::MdtTubeCalibContainer *tubes=nullptr;
     //create an MdtTubeContainer
     tubes = buildMdtTubeCalibContainer(*it, muDetMgr);
 
