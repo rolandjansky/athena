@@ -425,7 +425,7 @@ def muEFCBStep(flags, chainDict, name='RoI'):
     recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(name))
     
     indetCandCfg = MuonCombinedInDetCandidateAlgCfg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
-                                                 InDetCandidateLocation="IndetCandidates_"+name, TrackSelector="",DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
+                                                 InDetCandidateLocation="IndetCandidates_"+name, DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
     recoCB.mergeReco(indetCandCfg)
     muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_"+name, MuonCandidateLocation=muonCandName, 
                                      InDetCandidateLocation="IndetCandidates_"+name)
