@@ -1,17 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Heavily based on Trigger/TrigSteer/L1Decoder/python/L1MuonConfig.py
-# TODO add MDTs, CSCs
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+
 
 def RPCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
-    
-    # TODO check if we actually need this here?
-    acc.merge(MuonGeoModelCfg(flags)) 
 
     rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
@@ -23,10 +19,6 @@ def RPCCablingConfigCfg(flags):
     if flags.Trigger.enableL1MuonPhase1:
         dbRepo="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
 
-    RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
-    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)
-    acc.addCondAlgo( RpcCablingAlg )
-
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, [rpcCabMap,rpcCabMapCorr], dbName, className='CondAttrListCollection' ))
@@ -35,13 +27,15 @@ def RPCCablingConfigCfg(flags):
     else:
         # to be configured in TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle
         pass
+
+    RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
+    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)
+    acc.addCondAlgo( RpcCablingAlg )
+
     return acc
 
 def TGCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
-    
-    # TODO check if we actually need this here?
-    acc.merge(MuonGeoModelCfg(flags)) 
     
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc
     TGCCablingSvc = TGCcablingServerSvc() 
@@ -57,8 +51,6 @@ def TGCCablingConfigCfg(flags):
 # athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCablingConfig.py
 def MDTCablingConfigCfg(flags):
     acc = ComponentAccumulator()
-    
-    acc.merge(MuonGeoModelCfg(flags)) 
 
     MuonMDT_CablingAlg=CompFactory.MuonMDT_CablingAlg
     MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
@@ -83,8 +75,6 @@ def MDTCablingConfigCfg(flags):
 # This should be checked by experts 
 def CSCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
-    
-    acc.merge(MuonGeoModelCfg(flags)) 
 
     CSCcablingSvc=CompFactory.CSCcablingSvc
     cscCablingSvc = CSCcablingSvc()
