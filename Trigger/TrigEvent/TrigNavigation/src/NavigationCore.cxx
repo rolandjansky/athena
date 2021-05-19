@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -279,11 +279,8 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
                                      
     MLOG(DEBUG) << "deserializing holder blob of size: " << blob.size() << endmsg;
     auto holder = std::shared_ptr<HLT::BaseHolder>(m_holderfactory->fromSerialized(version,blob.begin(),blob.end()));
-    if (! holder ) {
-      MLOG(ERROR) << "deserialize: deserialization of holder from serialized blob failed"<< endmsg;
-      continue;
-    }
- 
+    if (! holder ) continue;   // either error or class was skipped during deserialization
+
     if(!holderstorage.registerHolder(holder)){
       MLOG(WARNING) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endmsg;
     }
@@ -305,16 +302,16 @@ bool NavigationCore::merge(const NavigationCore& l2) {
       if ( (efholder->label() != l2holder->label())
 	   || (efholder->subTypeIndex() != l2holder->subTypeIndex()) ) {
 	
-	if ( m_log->level()<=MSG::DEBUG )
-	  *m_log << MSG::DEBUG << "fixing bug for " << *efholder <<    endmsg;
-	// bug which we need to fix (some week of data in autumn 2008)
-	// we have to delete current holder
-	// and replace it by L2 one
-	//
-	// efholder->setSubTypeIndex(l2holder->subTypeIndex());
+        if ( m_log->level()<=MSG::DEBUG )
+          *m_log << MSG::DEBUG << "fixing bug for " << *efholder <<    endmsg;
+        // bug which we need to fix (some week of data in autumn 2008)
+        // we have to delete current holder
+        // and replace it by L2 one
+        //
+        // efholder->setSubTypeIndex(l2holder->subTypeIndex());
 	
-	if ( m_log->level()<=MSG::DEBUG )
-	  *m_log << MSG::DEBUG << "after fixing   " << *efholder <<    endmsg;
+        if ( m_log->level()<=MSG::DEBUG )
+          *m_log << MSG::DEBUG << "after fixing   " << *efholder <<    endmsg;
       }
     } else {
       if ( m_log->level()<=MSG::DEBUG )

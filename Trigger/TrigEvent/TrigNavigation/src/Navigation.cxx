@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -33,12 +33,12 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
   declareProperty("ClassesToPayload", m_classesToPayloadProperty,
                   "List of classes which need to be serialized together with the Navigation.");
 
-  declareProperty("ClassesFromPayload", m_classesFromPayloadProperty,
-                  "List of classes which need to be de-serialized together with the Navigation.");
-  
   declareProperty("ClassesToPayload_DSonly", m_classesToPayloadProperty_DSonly,
                   "List of classes which need to be serialized together with the Navigation (Only in DataScouting collection).");
-  
+
+  declareProperty("ClassesFromPayloadIgnore", m_classesFromPayloadIgnoreProperty,
+                  "List of classes (Type[#Key]) to ignore on deserialization of the Navigation.");
+
   declareProperty("ClassesToPreregister", m_classesToPreregisterProperty,
                   "List of classes which need to be put in SG independently if they appear in event.");
   declareProperty("Dlls",  m_dlls, "Libraries to load (with trigger EDM)");
@@ -82,25 +82,27 @@ StatusCode Navigation::initialize() {
   }
   m_serializerSvc = m_serializerServiceHandle.operator->();
 
-  m_fullholderfactory.prepare(m_storeGate,m_serializerSvc,m_readonly);
+  m_fullholderfactory.prepare(m_storeGate, m_serializerSvc, m_readonly);
   m_holderfactory = &m_fullholderfactory;
 
-  CHECK(m_clidSvc.retrieve());
+  ATH_CHECK(m_clidSvc.retrieve());
 
   // payload def
-  if ( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: "
-             << m_classesToPayloadProperty << endmsg;
-    return  StatusCode::FAILURE;
+  ATH_CHECK( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload) );
+  ATH_CHECK( classKey2CLIDKey(m_classesToPayloadProperty_DSonly,  m_classesToPayload_DSonly) );
+
+  // ignored classes
+  std::vector<CSPair> ignore;
+  ATH_CHECK( classKey2CLIDKey(m_classesFromPayloadIgnoreProperty, ignore) );
+  if ( !ignore.empty() ) {
+    ATH_MSG_INFO( "Ignoring " << m_classesFromPayloadIgnoreProperty << " during deserialization");
+  }
+  for (const auto& c : ignore) {
+    ATH_MSG_DEBUG("Ignoring CLID " << c.first << (c.second.empty() ? "" : " with label "+c.second) <<
+                 " during deserialization");
+    m_fullholderfactory.addClassToIgnore(c.first, c.second);
   }
 
-  if ( classKey2CLIDKey(m_classesToPayloadProperty_DSonly,  m_classesToPayload_DSonly).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: " 
-	     << m_classesToPayloadProperty_DSonly << endmsg;
-    
-    return  StatusCode::FAILURE;
-  }
-  
   // initialize converters
   for (size_t icl=0; icl<m_classesToPayload.size(); icl++){
     CLID cl = m_classesToPayload.at(icl).first;
@@ -109,13 +111,8 @@ StatusCode Navigation::initialize() {
       *m_log << MSG::WARNING << "Initialization of a converter for CLID=" << cl << " failed" << endmsg;
   }
 
-
   // preregistration def
-  if ( classKey2CLIDKey(m_classesToPreregisterProperty,  m_classesToPreregister).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPreregister: "
-             << m_classesToPreregisterProperty << endmsg;
-    return  StatusCode::FAILURE;
-  }
+  ATH_CHECK( classKey2CLIDKey(m_classesToPreregisterProperty,  m_classesToPreregister) );
 
   // print out registered holders
   HLT::TypeMaps::CLIDtoHolderMap::const_iterator holderIt;
