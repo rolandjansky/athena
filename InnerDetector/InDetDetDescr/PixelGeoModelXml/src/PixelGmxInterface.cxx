@@ -187,7 +187,7 @@ void PixelGmxInterface::addSensor(std::string typeName,
   //
   if (!hashId.is_valid()) {
     ATH_MSG_ERROR("Invalid id for sensitive module " << typeName << " volume with indices");
-    for (const auto [key, value] : index) {
+    for (const auto& [key, value] : index) {
       msg() << MSG::ERROR << key << " = " << value << "; ";
     }
     ATH_MSG_ERROR("Refusing to make it into a sensitive element. Incompatible gmx and identifier-xml files.");
