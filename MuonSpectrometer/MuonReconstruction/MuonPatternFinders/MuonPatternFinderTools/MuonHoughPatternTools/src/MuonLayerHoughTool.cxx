@@ -11,6 +11,7 @@
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TMath.h"
 #include <iostream>
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "HepMC/GenEvent.h"
@@ -20,6 +21,7 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+
 
 namespace Muon {
 
@@ -2089,15 +2091,12 @@ namespace Muon {
             delete debug;
             continue;
           }
-          // weird large number
-          double chWidthOLD = 0.5*design->channelWidth(prd.localPosition(),true);
+	  // get the pad width from the detector design
+          chWidth = 0.5*design->channelWidth(prd.localPosition(),true);
 
-          // inputPhiPitch is in degrees
-          float radius = prd.globalPosition().perp();
-          chWidth = 0.5*design->inputPhiPitch*M_PI/180.*radius;
           if(m_debugHough) std::cout << " sPadWidth " << design->sPadWidth  << " lPadWidth " << design->lPadWidth  << " inputRowWidth " << design->inputRowWidth << std::endl;
 
-          if(m_debugHough) std::cout << " Pad chWidth " << chWidth  << " OLD " << chWidthOLD << " phi global " << prd.globalPosition().phi() << std::endl;
+          if(m_debugHough) std::cout << " Pad chWidth " << chWidth  << " phi global " << prd.globalPosition().phi() << std::endl;
         }
         else if( m_idHelper->stgcIdHelper().channelType(id) == 2 ) {
           const MuonGM::MuonChannelDesign* design = prd.detectorElement()->getDesign(id);
@@ -2106,13 +2105,9 @@ namespace Muon {
             delete debug;
             continue;
           }
-          // double etaWidth=design->channelLength(idhelper->channel(id));
-          double phiMaxWidth=design->maxYSize/design->nch;
-          // double phiMinWidth=design->minYSize/design->nch;
-          double chWidthOLD = 0.5*design->channelWidth(prd.localPosition());
-          chWidth = 0.5*phiMaxWidth;
+          chWidth = 0.5*design->channelWidth(prd.localPosition());
 
-          if(m_debugHough) std::cout << " Wire Gang chWidth " << chWidth  << " OLD " << chWidthOLD << " phi global " << prd.globalPosition().phi() << std::endl;
+          if(m_debugHough) std::cout << " Wire Gang chWidth " << chWidth  << " phi global " << prd.globalPosition().phi() << std::endl;
         }
         
         Amg::Vector2D lp1(prd.localPosition().x()+chWidth,prd.localPosition().y());
@@ -2127,7 +2122,8 @@ namespace Muon {
         double phi2 = gp2.phi();
         double phi1c = phi1;//phiCor(phi1,selectedSector);
         double phi2c = phi2;//phiCor(phi2,selectedSector);
-        if( fabs(phi1c-phi2c) > 0.3 ){
+	double phi_check = std::abs(phi1c-phi2c) < TMath::Pi() ? std::abs(phi1c-phi2c) : 2.*TMath::Pi()-std::abs(phi1c-phi2c);
+        if( phi_check > 0.3 ){
           ATH_MSG_WARNING("bad local phi: in " << phi1 << ", " << phi2 << " sector phi " << m_sectorMapping.sectorPhi(selectedSector) << " phicor " << phi1c << ", " << phi2c );
         }
         if( isNeighbouringSector && !(m_sectorMapping.insideSector(selectedSector,phi1)||m_sectorMapping.insideSector(selectedSector,phi2)) ){
