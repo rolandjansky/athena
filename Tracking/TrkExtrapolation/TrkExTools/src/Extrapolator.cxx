@@ -2415,7 +2415,6 @@ Trk::Extrapolator::validationAction() const
     m_subupdaters[imueot]->validationAction();
   }
   // record the navigator validation information
-  m_navigator->validationAction();
 }
 
 /* Private methods
@@ -3203,7 +3202,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         if (!bcheck || sf.isOnSurface(onNextLayer->position(), bcheck, m_tolerance, m_tolerance)) {
           if (sf.type() != onNextLayer->associatedSurface().type()) {
             ATH_MSG_DEBUG("mismatch in destination surface type:"
-                          << static_cast<int>(sf.type()) 
+                          << static_cast<int>(sf.type())
                           << "," << static_cast<int>(onNextLayer->associatedSurface().type())
                           << ":distance to the destination surface:" << currentDistance);
             ManagedTrackParmPtr cParms(ManagedTrackParmPtr::recapture(
