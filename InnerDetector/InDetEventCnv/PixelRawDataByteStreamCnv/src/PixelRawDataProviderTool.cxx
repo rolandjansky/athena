@@ -4,6 +4,7 @@
 
 #include "PixelRawDataProviderTool.h"
 #include "StoreGate/WriteHandle.h"
+#include "PixelRodDecoder.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -130,5 +131,5 @@ int PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer() const {
   //     -------------------------------------
   //                             Total : 54784
   //=========================================================
-  return 54784;
+  return PixelRodDecoder::ERROR_CONTAINER_MAX;
 }
