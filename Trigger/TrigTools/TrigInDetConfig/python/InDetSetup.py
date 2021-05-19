@@ -83,8 +83,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
     InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool_" + signature,
-                                                             Decoder = InDetPixelRodDecoder,
-                                                             checkLVL1ID = False)
+                                                             Decoder = InDetPixelRodDecoder)
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
