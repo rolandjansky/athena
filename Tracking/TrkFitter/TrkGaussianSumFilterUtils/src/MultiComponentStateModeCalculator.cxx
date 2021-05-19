@@ -10,6 +10,7 @@
  * Implementation code for MultiComponentStateModeCalculator
  */
 
+
 #include "TrkGaussianSumFilterUtils/MultiComponentStateModeCalculator.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 //
@@ -247,9 +248,9 @@ findRoot(
       e = m;
     } else {
       // Attempt inverse cubic interpolation
-      double p;
-      double q;
-      double r;
+      double p = 0;
+      double q = 0;
+      double r = 0;
       double s = fb / fa;
 
       if (ac_equal) {

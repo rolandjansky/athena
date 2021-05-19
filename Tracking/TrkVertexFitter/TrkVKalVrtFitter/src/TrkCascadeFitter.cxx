@@ -530,7 +530,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        }
 // Pseudo-tracks. They are filled based on fitted results for nonmerged vertices
 //             or as sum for merged vertices
-       VectMOM tmpMom;
+       VectMOM tmpMom{};
        for(iv=0; iv<(int)cstate.m_cascadeVList.size(); iv++){
          index=getSimpleVIndex( cstate.m_cascadeVList[iv].vID, cstate );               //index of current vertex in simplified structure
          int NTrkInVrt=cstate.m_cascadeVList[iv].trkInVrt.size();

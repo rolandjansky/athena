@@ -243,9 +243,9 @@ private:
                                      "Boolean for use of cosmics" };
 
   // Calculated values based on resolutions
-  double m_deltaEtaWeight;
-  double m_deltaPhiWeight;
-  double m_deltaPhiRescaleWeight;
+  double m_deltaEtaWeight{};
+  double m_deltaPhiWeight{};
+  double m_deltaPhiRescaleWeight{};
 
   TrackMatchSorter m_sorter;
 };

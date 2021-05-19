@@ -177,8 +177,8 @@ private:
     Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
     Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
     electronPearShapeAlignmentCorrection m_deltaEta1Pear;
-    bool m_doAmbiguity;
-    bool m_doOQ;
+    bool m_doAmbiguity{};
+    bool m_doOQ{};
 };
 
 #endif

@@ -99,7 +99,7 @@ namespace Trk {
         virtual void applyConstraint() override;
       private:
         bool m_onlyZ; 
-        double m_targetVertex[3];   //Target vertex is in global reference system
+        double m_targetVertex[3]{};   //Target vertex is in global reference system
    };
 //
 //  Vertex in plane constraint

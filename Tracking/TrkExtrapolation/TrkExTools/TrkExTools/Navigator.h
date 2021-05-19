@@ -153,7 +153,7 @@ namespace Trk {
       double m_insideVolumeTolerance;
       /// Tolerance for isOnSurface() method of BoundarySurfaces
       double m_isOnSurfaceTolerance;
-      bool m_useConditions;
+      bool m_useConditions{};
       Trk::MagneticFieldProperties m_fieldProperties;
       /// use the straight line approximation for the next boundary sf
       bool m_useStraightLineApproximation;
