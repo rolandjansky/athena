@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring
 # art-type: grid
@@ -43,7 +43,6 @@ tzrecoPreExec = ' '.join([
   "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"
 ])
 
