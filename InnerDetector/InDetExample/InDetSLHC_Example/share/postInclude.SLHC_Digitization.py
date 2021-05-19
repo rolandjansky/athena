@@ -41,7 +41,7 @@ if DetFlags.digitize.pixel_on():
     pixeldigi.PixelTools += ['PixelDiodeCrossTalkGenerator','PixelChargeSmearer','PixelGangedMerger','PixelRandomDisabledCellGenerator','PixelCellDiscriminator']
     pixeldigi.EnableSpecialPixels = False
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.doStagingStudies:
+    if InDetFlags.doStagingStudies():
         print("Staging studies: Allowing missing modules to be ignored in Digi")
         pixeldigi.IgnoreMissingElements = True
     if hasattr(pixeldigi,'UseCalibCondDB'):
