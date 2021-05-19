@@ -481,12 +481,20 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
         ATH_MSG_WARNING("Found non-MDT MuonFixedId, continuing...");
         continue;
       }
-      ATH_MSG_VERBOSE("The region has been translated to eta: "<<id.eta()<<" phi: "<<id.phi()<<" stationName: "<<id.stationName()<<" ("<<
-              m_idHelperSvc->mdtIdHelper().stationNameString(id.stationName())<<")");
+      athenaId = m_idToFixedIdTool->fixedIdToId(id);
+     const  std::string stationName_str =  m_idHelperSvc->mdtIdHelper().stationNameString(id.stationName());
+      if (!m_idHelperSvc->isMuon(athenaId) || stationName_str == "UNKNOWN"){
+        ATH_MSG_WARNING("The translation from the region Id "<< regionId<<" to the athena Id: "<<athenaId<<" eta: "<<id.eta()<<" phi: "<<id.phi()<<" stationName: "<<id.stationName()<<"("<<stationName_str<<") failed.");
+        continue;
+      }
+      ATH_MSG_VERBOSE("The region has been translated to  athena identifier "<<athenaId<<" eta: "<<id.eta()<<" phi: "<<id.phi()<<" stationName: "<<id.stationName()<<" ("<<
+              stationName_str<<")");
+    
+      
       if (!m_idHelperSvc->hasCSC()) {
         // in case there are no CSCs, there must be 2 NSWs, and accordingly no EIS/EIL1-3 MDTs
-        std::string stationName = id.stationNumberToFixedStationString(id.stationName());
-        if (stationName.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName.find("EIL")!=std::string::npos)) {
+       
+        if (stationName_str.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName_str.find("EIL")!=std::string::npos)) {
           static std::atomic<bool> eisWarningPrinted {false};
           if (!eisWarningPrinted) {
             ATH_MSG_WARNING("Found EIS/EIL1-3 MuonFixedId, although NSWs should be present, continuing...");
@@ -495,7 +503,8 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
           continue;
         }
       }
-      athenaId = m_idToFixedIdTool->fixedIdToId(id);
+
+     
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
       if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_idHelperSvc->mdtIdHelper().multilayer(athenaId)==2 ) {
         ATH_MSG_VERBOSE("MdtCalibDbAlg::loadRt Ignore ML2 RT for region "<<regionId<<" "<<

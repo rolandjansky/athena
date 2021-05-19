@@ -92,14 +92,14 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 {
   Identifier tmp;
   if( fid.is_mdt() ){
-    tmp = m_idHelperSvc->mdtIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->mdtIdHelper().channelID(  fid.stationName() ,
 		     fid.eta(),
 		     fid.phi(),
 		     fid.mdtMultilayer(),
 		     fid.mdtTubeLayer(),
 		     fid.mdtTube() );
   } else if( fid.is_rpc() ){
-    tmp = m_idHelperSvc->rpcIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->rpcIdHelper().channelID( fid.stationName()  ,
 		     fid.eta(),
 		     fid.phi(), 
 		     fid.rpcDoubletR(),
@@ -109,7 +109,7 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 		     fid.rpcMeasuresPhi(),
 		     fid.rpcStrip() );
   } else if( m_idHelperSvc->hasCSC() && fid.is_csc()){ 
-     tmp = m_idHelperSvc->cscIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+     tmp = m_idHelperSvc->cscIdHelper().channelID( fid.stationName()  ,
 		      fid.eta(),
 		      fid.phi(),
 		      fid.cscChamberLayer(),
@@ -117,7 +117,7 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 		      fid.cscMeasuresPhi(),
 		      fid.cscStrip() );
   } else if( fid.is_tgc() ){
-    tmp = m_idHelperSvc->tgcIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
+    tmp = m_idHelperSvc->tgcIdHelper().channelID(  fid.stationName()  ,
 		     fid.eta(),
 		     fid.phi(),
 		     fid.tgcGasGap(),
