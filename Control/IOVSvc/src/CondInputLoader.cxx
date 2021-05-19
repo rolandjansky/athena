@@ -108,6 +108,9 @@ CondInputLoader::initialize()
     }
   }
 
+  // We can get warnings later if we don't get this defined first.
+  TClass::GetClass ("coral::AttributeList", true, false);
+
   for (const auto& itr : m_keyFolderMap) { //loop over keys of IOVDbSvc
     for (auto id : m_load) {
       if (id.key() == itr.second) {//CondInputLoader deals with this folder
