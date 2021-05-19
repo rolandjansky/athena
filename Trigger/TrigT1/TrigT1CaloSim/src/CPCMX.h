@@ -27,11 +27,12 @@
  
  #include "AthContainers/DataVector.h"
 
- // Include for the configuration service:
- #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
- #include "TrigT1CaloEvent/CMXCPTob.h"
- #include "TrigT1CaloEvent/CPCMXTopoData.h"
- #include "TrigT1CaloEvent/CMXCPHits.h"
+#include "TrigConfData/L1Menu.h"
+
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigT1CaloEvent/CMXCPTob.h"
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
+#include "TrigT1CaloEvent/CMXCPHits.h"
 
 // Outputs to CTP
 #include "TrigT1Interfaces/EmTauCTP.h"
@@ -97,7 +98,7 @@
    /** Location of input data in StoreGate */
    SG::ReadHandleKey<DataVector<LVL1::CPMCMXData>> m_CPMCMXDataLocation { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation};
    
-   /** The essentials - data access, configuration, tools */
+   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
     this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
    
