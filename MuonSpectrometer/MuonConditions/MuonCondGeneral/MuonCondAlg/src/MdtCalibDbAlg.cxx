@@ -547,7 +547,6 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr) {
         } else {
             innerTubeRadius = detEl->innerTubeRadius();
         }
-        ATH_MSG_DEBUG("Oooooh my stonjek");
         std::unique_ptr<char[]> RTPar{new char[payload.size() + 1]};
         strncpy(RTPar.get(), payload.c_str(), payload.size() + 1);
         RTPar[payload.size()] =
