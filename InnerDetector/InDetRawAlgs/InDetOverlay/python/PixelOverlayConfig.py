@@ -13,7 +13,7 @@ def PixelDataOverlayExtraCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     # We need to convert BS to RDO for data overlay
-    from PixelRawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
     acc.merge(PixelRawDataProviderAlgCfg(flags, RDOKey = flags.Overlay.BkgPrefix + "PixelRDOs"))
 
     return acc
