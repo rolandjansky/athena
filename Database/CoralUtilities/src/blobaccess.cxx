@@ -79,15 +79,16 @@ bool uncompressBlob(const coral::Blob &blob, unsigned char*& out, unsigned long&
 	uncompBuf.get()[actualLen]=0; // append 0 to terminate string
 	out = uncompBuf.release();
 	len = actualLen;
-	uncompBuf.reset();
 	return true;
 }
 	 
 bool readBlobAsString(const coral::Blob &blob, std::string& out){
-	unsigned char* bf = NULL;
+	unsigned char* bf = nullptr;
 	uLongf len = 0;
 	if(!uncompressBlob(blob, bf, len)) return false;
-	out = reinterpret_cast<char*>(bf);
+	const char* cstring = reinterpret_cast<const char*>(bf); // need to cast to char*
+	out.assign(cstring); // copy over to C++ string
+	delete[] bf; // also deletes cstring since it points to the same memory as bf
 	return true;
 }
 	 
