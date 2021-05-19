@@ -210,7 +210,7 @@ StatusCode MdtCalibDbAlg::execute(){
 StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& writeCdoRt){
   ATH_MSG_DEBUG( "defaultRt " << name() );
 
-  if ( writeCdoRt == nullptr ) {
+  if ( !writeCdoRt) {
     ATH_MSG_ERROR("writeCdoRt == nullptr");
     return StatusCode::FAILURE; 
   }   
@@ -465,26 +465,29 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     ATH_MSG_VERBOSE( "Read header:" << header << " payload:" << payload << " trailer:" << trailer );
 
     // the header contains the muonfixedid rather than the hash
-    char *parameters = new char [header.size()+1];
-    strncpy(parameters, header.c_str(), header.size()+1);
+    std::unique_ptr<char[]> parameters { new char [header.size()+1]};
+    strncpy(parameters.get(), header.c_str(), header.size()+1);
     parameters[header.size()]='\0';
     unsigned int regionId, npoints(0);
     Identifier  athenaId; 
-    char *pch = strtok(parameters," _,");
+    char *pch = strtok(parameters.get()," _,");
     regionId = atoi(pch);
     //Long ago the hash was put in the RT file header, but now (2016)
     //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
     if(regionId>m_regionIdThreshold) {
+      ATH_MSG_VERBOSE("Use the following regionId: "<<regionId<<". ");
       MuonCalib::MuonFixedId id(regionId);
       if (!id.is_mdt()) {
         ATH_MSG_WARNING("Found non-MDT MuonFixedId, continuing...");
         continue;
       }
+      ATH_MSG_VERBOSE("The region has been translated to eta: "<<id.eta()<<" phi: "<<id.phi()<<" stationName: "<<id.stationName()<<" ("<<
+              m_idHelperSvc->mdtIdHelper().stationNameString(id.stationName())<<")");
       if (!m_idHelperSvc->hasCSC()) {
         // in case there are no CSCs, there must be 2 NSWs, and accordingly no EIS/EIL1-3 MDTs
         std::string stationName = id.stationNumberToFixedStationString(id.stationName());
         if (stationName.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName.find("EIL")!=std::string::npos)) {
-          static std::atomic<bool> eisWarningPrinted = false;
+          static std::atomic<bool> eisWarningPrinted {false};
           if (!eisWarningPrinted) {
             ATH_MSG_WARNING("Found EIS/EIL1-3 MuonFixedId, although NSWs should be present, continuing...");
             eisWarningPrinted.store(true, std::memory_order_relaxed);
@@ -521,8 +524,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     }
     // extract npoints in RT function
     pch = strtok (NULL, "_,");
-    npoints = atoi(pch);
-    delete [] parameters;
+    npoints = atoi(pch);   
     MuonCalib::CalibFunc::ParVec rtPars;
     MuonCalib::CalibFunc::ParVec resoPars;
 
@@ -533,7 +535,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     double innerTubeRadius = -9999.;
     const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
     if( !detEl ){
-      static std::atomic<bool> rtWarningPrinted = false;
+      static std::atomic<bool> rtWarningPrinted {false};
       if (!rtWarningPrinted) {
         ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId));
         rtWarningPrinted.store(true, std::memory_order_relaxed);
@@ -542,11 +544,11 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     } else {
       innerTubeRadius = detEl->innerTubeRadius();
     }
-
-    char *RTPar= new char [payload.size()+1];
-    strncpy(RTPar, payload.c_str(), payload.size()+1);
+  	ATH_MSG_DEBUG("Oooooh my stonjek");
+    std::unique_ptr<char[]> RTPar { new char [payload.size()+1]};
+    strncpy(RTPar.get(), payload.c_str(), payload.size()+1);
     RTPar[payload.size()]='\0';   //terminate string (not sure this is really needed because payload.c_str() should be terminated in \0)
-    char *pch1 = strtok (RTPar,",");
+    char *pch1 = strtok (RTPar.get(),",");
     unsigned int n=0;
     //loop over RT function payload (triplets of radius,time,sigma(=resolution) )
     for( int k=1; pch1!=NULL && n<=npoints; pch1=strtok(NULL,", "), k++ ) {
@@ -587,8 +589,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
 	k=0;
       }
     }   //end loop over RT function payload (triplets of radius,time,resolution)
-    delete [] RTPar;
-
+   
     //Must have at least 3 points to have a valid RT
     if(ts_points.size()<3) {
       ATH_MSG_FATAL( "Rt relation broken!");
@@ -613,15 +614,21 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     //Create resolution function from ts_points
     MuonCalib::IRtResolution *reso = getRtResolutionInterpolation(ts_points);
     if (msgLvl(MSG::VERBOSE)) {
-      ATH_MSG_VERBOSE( "Resolution points :");
-      for(std::vector<MuonCalib::SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++) {
-	ATH_MSG_VERBOSE( it->x1()<<"|"<<it->x2()<<"|"<<it->error());
+      {
+      std::stringstream ofstr;
+      for(const MuonCalib::SamplePoint & it : tr_points) {
+	       ofstr<<it.x1()<<"|"<<it.x2()<<"|"<<it.error()<<std::endl;
       }
-	
-      ATH_MSG_DEBUG( "Resolution parameters :");
-      for(unsigned int i=0; i<reso->nPar(); i++) {
-	ATH_MSG_VERBOSE(  i<<" "<<reso->par(i) );
+      ATH_MSG_VERBOSE(  tr_points.size()<<" resolution points :"<<ofstr.str());
       }
+      {
+        std::stringstream ofstr;
+        for(unsigned int i=0; i<reso->nPar(); ++i) {
+          ofstr<< i<<" "<<reso->par(i) <<std::endl;;
+        }
+        ATH_MSG_VERBOSE( reso->nPar()<<" resolution parameters : "<<ofstr.str());
+        
+    }
     }
 
     //Create RT function from tr_points and load RT and resolution functions 
@@ -633,10 +640,12 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
 	  ATH_MSG_WARNING( "Illegal regionId "<< regionId );
 	} else { 
 	  if (rt->par(1)==0.) {
-	    ATH_MSG_WARNING( "Bin size is 0");
-	    for(std::vector<MuonCalib::SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++)
-	      ATH_MSG_WARNING( it->x1() << " " <<it->x2() <<" "<< it->error() );
-	  }
+      std::stringstream ofstr;
+	    for(const MuonCalib::SamplePoint&  it:tr_points){
+	     ofstr<< it.x1() << " " <<it.x2() <<" "<< it.error()<<std::endl; }
+	    ATH_MSG_WARNING( "Bin size is 0 "<<ofstr.str());
+	  
+    }
 	  //Save ML difference if it is available
 	  if(multilayer_tmax_diff>-8e8) {
 	    rt->SetTmaxDiff(multilayer_tmax_diff);
@@ -921,15 +930,14 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
 
     // Extract info from the header line, chamber name, number of tubes.
     int ieta=-99, iphi=-99, region=-99, ntubes=-99;
-    //    std::string rName;
-
+   
     // parameters for the MdtTubeContainer
     // header filename,version,region,tubes
-    char *parameters = new char [header.size()+1];
-    strncpy(parameters, header.c_str(), header.size()+1);
+    std::unique_ptr<char[] >parameters { new char [header.size()+1]};
+    strncpy(parameters.get(), header.c_str(), header.size()+1);
     parameters[header.size()] = '\0';      //terminate string
-    char *pch = strtok(parameters," _,");  //split using delimiters "_" and ","
-    std::string name(pch,2,3);             //extract 3-character station to "name" (e.g. BIL) 
+    char *pch = strtok(parameters.get()," _,");  //split using delimiters "_" and ","
+    std::string st_name(pch,2,3);             //extract 3-character station to "name" (e.g. BIL) 
 
     // Split header line and extract phi, eta, region, ntubes
     pch = strtok (NULL, "_,");
@@ -945,22 +953,22 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
 	is >> ntubes; 
       }
     }
-    delete [] parameters;
-
+  
+    ATH_MSG_VERBOSE("Header parameters extracted: eta: "<<ieta<<", phi: "<<iphi<<", n-tubes: "<<ntubes<<", region: "<<region);
     // need to check validity of Identifier since database contains all Run 2 MDT chambers, e.g. also EI chambers which are
     // potentially replaced by NSW
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
-    Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name,ieta,iphi,true,&isValid);
+    Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(st_name,ieta,iphi,true,&isValid);
     if (!isValid) {
       static std::atomic<bool> idWarningPrinted = false;
       if (!idWarningPrinted) {
-        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping");
+        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << st_name << " is not valid, skipping");
         idWarningPrinted.store(true, std::memory_order_relaxed);
       }
       continue;
     }
  
-    MuonCalib::MdtTubeCalibContainer *tubes = NULL;
+    MuonCalib::MdtTubeCalibContainer *tubes = nullptr;
 
     // get chamber hash
     IdentifierHash hash;
@@ -974,23 +982,23 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     IdentifierHash detElHash;
     if (m_idHelperSvc->mdtIdHelper().MuonIdHelper::get_detectorElement_hash(chId, detElHash )) {
       ATH_MSG_WARNING("Retrieving detector element hash for Identifier " << chId.get_compact() << " failed, thus Identifier (original information was name=" 
-                      << name << ", eta=" << ieta << ", phi=" << iphi << ") is not valid, skipping...");
+                      << st_name << ", eta=" << ieta << ", phi=" << iphi << ") is not valid, skipping...");
       continue;
     }
 
     if( msgLvl(MSG::VERBOSE) ) {
-      ATH_MSG_VERBOSE( "name of chamber is " << pch << " station name is " << name );
+      ATH_MSG_VERBOSE( "name of chamber is " << pch << " station name is " << st_name );
       ATH_MSG_VERBOSE( "phi value is " << iphi );
       ATH_MSG_VERBOSE( "eta value is " << ieta );
       ATH_MSG_VERBOSE( "region value is " << region );
       ATH_MSG_VERBOSE( "ntubes value is " << ntubes );
-      ATH_MSG_VERBOSE( "station name is " << name << " chamber ID  is " << chId );
+      ATH_MSG_VERBOSE( "station name is " << st_name << " chamber ID  is " << chId );
       ATH_MSG_VERBOSE( "corresponding hash is " << hash );
     }
     
    //skip illegal stations.     
     if (hash>=writeCdoTube->size()) {
-      ATH_MSG_INFO( "Illegal station (1)! (" << name << "," << iphi << "," << ieta << ")" );
+      ATH_MSG_INFO( "Illegal station (1)! (" << st_name << "," << iphi << "," << ieta << ")" );
       continue;
     }
                                                                                 
@@ -998,7 +1006,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     tubes = (*writeCdoTube)[hash];
 
     if(tubes==NULL) {
-      ATH_MSG_INFO( "Illegal station (2)! (" << name << "," << iphi << "," << ieta << ")" );
+      ATH_MSG_INFO( "Illegal station (2)! (" << st_name << "," << iphi << "," << ieta << ")" );
       continue;
     }
     
@@ -1008,18 +1016,18 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     int size      = nml*nlayers*ntubesLay;
 
     if(size!=ntubes) {
-      ATH_MSG_ERROR( "Mismatch between number of tubes in MdtTubeCalibContainer for chamber "<<name<<","<<iphi<<","<<ieta<<" ("<<size<<") and COOL DB ("<<ntubes<<")");
+      ATH_MSG_ERROR( "Mismatch between number of tubes in MdtTubeCalibContainer for chamber "<<st_name<<","<<iphi<<","<<ieta<<" ("<<size<<") and COOL DB ("<<ntubes<<")");
       return StatusCode::FAILURE;
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
     MuonCalib::MdtTubeCalibContainer::SingleTubeCalib datatube;
-    char *TubePar= new char [payload.size()+1];
-    strncpy(TubePar, payload.c_str(), payload.size()+1);
+    std::unique_ptr<char[]> TubePar{ new char [payload.size()+1]};
+    strncpy(TubePar.get(), payload.c_str(), payload.size()+1);
     TubePar[payload.size()]='\0';
     
     //Loop over payload 
-    char *pch1=strtok(TubePar,",");
+    char *pch1=strtok(TubePar.get(),",");
     int ml=1, l=1, t=1;
     for( int k=1; pch1!=NULL; pch1=strtok(NULL,", "), k++) { 
       if(k==1) {
@@ -1060,8 +1068,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
           l=1;
         }
       }
-    }
-    delete [] TubePar;
+    }  
   }//end loop over readCdoTube
 
   //finally record writeCdo
@@ -1142,14 +1149,14 @@ inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolatio
   ///////////////
   // VARIABLES //
   ///////////////
-  Double_t *x = new Double_t[sample_points.size()];
-  Double_t *y = new Double_t[sample_points.size()];
+  std::unique_ptr<Double_t[]> x { new Double_t[sample_points.size()]};
+   std::unique_ptr<Double_t[]>y { new Double_t[sample_points.size()]};
 	
   for (unsigned int i=0; i<sample_points.size(); i++) {
     x[i] = sample_points[i].x1();
     y[i] = sample_points[i].x2();
   }
-  TSpline3 sp("Rt Res Tmp", x, y, sample_points.size());
+  TSpline3 sp("Rt Res Tmp", x.get(), y.get(), sample_points.size());
   ///////////////////////////////////////////////////////////////////
   // CREATE AN RtRelationLookUp OBJECT WITH THE CORRECT PARAMETERS //
   ///////////////////////////////////////////////////////////////////
@@ -1167,9 +1174,7 @@ inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolatio
       sp.Write("kacke");
       exit(99);
     }
-  }
-  delete [] x;
-  delete [] y;
+  }  
   return new MuonCalib::RtResolutionLookUp(res_param);
 }
 

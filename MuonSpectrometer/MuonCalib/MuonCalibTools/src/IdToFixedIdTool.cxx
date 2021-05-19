@@ -24,19 +24,13 @@ IdToFixedIdTool::IdToFixedIdTool(const std::string& t,
 StatusCode IdToFixedIdTool::initialize() 
 {
   ATH_MSG_VERBOSE("Initialisation started");
-  
-  ATH_CHECK(AlgTool::initialize());
-
   ATH_CHECK( m_idHelperSvc.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
 MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
 {
-  bool done;
-
-  ATH_MSG_VERBOSE("IdToFixedId started");
+  bool done{false}; 
   MuonFixedId fixedId;
 
   if( !(m_idHelperSvc->isMuon(id)) ){
@@ -96,7 +90,6 @@ MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
 
 Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 {
-  ATH_MSG_VERBOSE("FixedIdToId started     ");
   Identifier tmp;
   if( fid.is_mdt() ){
     tmp = m_idHelperSvc->mdtIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
