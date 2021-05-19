@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TROOT.h>
@@ -33,7 +33,7 @@ void CopyDirToNewDir(std::shared_ptr<TDirectory> source, std::shared_ptr<TDirect
         if (!cl) continue;
         if (cl->InheritsFrom(TDirectory::Class())) {
             source->cd(key->GetName());
-            std::shared_ptr<TDirectory> subdir(gDirectory);
+            std::shared_ptr<TDirectory> subdir(TDirectory::CurrentDirectory().load());
             TString name = prefix;
             if (prefix != "") name.Append("_");
             name+=subdir->GetName();
@@ -64,7 +64,7 @@ void CopyDirToNewDir(std::shared_ptr<TDirectory> source, std::shared_ptr<TDirect
 }
 
 int main(int argc, char** argv) {
-  
+
     if (argc != 3) {
         std::cout<<"Usage:"<<std::endl;
         std::cout<<"       combineATOuputs outputFile inputFile1[:prefix1][,inputFile2[:prefix2][,inputFile3[:prefix3]]]"<<std::endl;
@@ -73,11 +73,11 @@ int main(int argc, char** argv) {
         std::cout<<"       combineATOuputs out_combined.root out_EMTopo.root,out_EMPflow.root:EMPflow"<<std::endl;
         exit(1);
     }
-    
+
     // processing the input files string
     std::string outString(argv[2]);
     std::vector<std::string> tempStringVector;
-    
+
     // looping on the input files string and split it
     std::string::size_type start = 0, end = 0;
     while ((end = outString.find(",", start)) != std::string::npos) {
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
         start = end + 1;
     }
     tempStringVector.push_back(outString.substr(start, end - start));// the last element
-    
+
     // separate in intput files and prefixes
     std::vector<std::string> inFileNames;
     std::vector<std::string> prefixes;
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         }
         std::string tmp_fileName = tmp[0];
         std::string tmp_prefix = tmp.size()==2?tmp[1]:""; // if no prefix is provided, empty prefix is assumed
-        
+
         // checking if the file or prefix is not already used
         if (std::find(inFileNames.begin(), inFileNames.end(), tmp_fileName) != inFileNames.end()) {
             std::cout<<"Error: can't use twice the same input file "<<tmp_fileName<<std::endl;
@@ -120,17 +120,17 @@ int main(int argc, char** argv) {
             std::cout<<"Error: can't use the input file "<<argv[1]<<" as name for the output file"<<std::endl;
             exit(1);
         }
-        
+
         // now adding the input files and prefixed in the vectors
         inFileNames.push_back(tmp_fileName);
         prefixes.push_back(tmp_prefix);
     }
-    
+
     // the output file
     std::string tempOutFileName(argv[1]);
     tempOutFileName+=".tmp";
     std::shared_ptr<TFile> fout{TFile::Open(tempOutFileName.c_str(),"recreate")};
-    
+
     // now looping on the input files
     for (unsigned int i = 0; i<inFileNames.size(); i++) {
         std::shared_ptr<TFile> f{TFile::Open(inFileNames[i].c_str(),"read")};
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
             f->Close();
         }
     }
-    
+
     // check if output file is buggy
     if (fout->TestBit(TFile::kWriteError)) {
         std::cout<<"Error: output file looks buggy"<<std::endl;
@@ -157,12 +157,12 @@ int main(int argc, char** argv) {
         exit(1);
     }
     fout->Close();
-    
+
     // rename output file with its final name - crash if we can't do that
     if (std::rename(fout->GetName(), argv[1]) != 0) {
         std::cout<<"Error: impossible to rename output file"<<std::endl;
         exit(1);
     }
-    
+
     return 0;
 }
