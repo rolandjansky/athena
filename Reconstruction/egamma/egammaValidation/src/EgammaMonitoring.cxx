@@ -91,11 +91,11 @@ StatusCode EgammaMonitoring::initialize() {
     ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
     ATH_CHECK(truthRecoElectronMediumLH->initializePlots());
     ATH_CHECK(truthRecoElectronTightLH->initializePlots());
-    ATH_CHECK(truthElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronAll->initializePlots());
+    ATH_CHECK(truthElectronAll->initializePlots(true));
+    ATH_CHECK(truthPromptElectronAll->initializePlots(true));
     ATH_CHECK(truthElectronRecoElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronWithTrack->initializePlots());
-    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots());
+    ATH_CHECK(truthPromptElectronWithTrack->initializePlots(true));
+    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots(true));
     ATH_CHECK(truthPromptElectronWithReco->initializePlots());
     ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots());
 
