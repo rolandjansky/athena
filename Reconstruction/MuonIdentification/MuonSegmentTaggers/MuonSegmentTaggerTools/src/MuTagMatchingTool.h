@@ -156,7 +156,7 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool {
 
 
     std::string   m_t0Location;
-    StoreGateSvc* p_StoreGateSvc;  //!< Pointer On StoreGateSvc
+    StoreGateSvc* p_StoreGateSvc{};  //!< Pointer On StoreGateSvc
 
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{

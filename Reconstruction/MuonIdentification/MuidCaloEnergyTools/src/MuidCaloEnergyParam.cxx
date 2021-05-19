@@ -458,7 +458,7 @@ namespace Rec {
     }
 
     MuidCaloEnergyParam::BinsWeights MuidCaloEnergyParam::etaFixedBin(double eta) const {
-        MuidCaloEnergyParam::BinsWeights BW;
+        MuidCaloEnergyParam::BinsWeights BW{};
         eta = std::abs(eta);
         double offsetEta1 = eta - m_etaOffset;
         double offsetEta2 = eta + m_etaOffset;
