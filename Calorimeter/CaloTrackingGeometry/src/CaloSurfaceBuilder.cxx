@@ -17,7 +17,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <vector>
+
 
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkGeometry/CylinderLayer.h"
@@ -55,7 +55,7 @@
 
 
 #include <cmath>
-
+#include <vector>
 #include <iostream>
 #include <iomanip>
 
@@ -1066,8 +1066,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB2].second);
   if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB2].second = new Trk::SlidingCylinderSurface(*cyl,
-							                   new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									   new std::vector<float> (offset));
+							                   Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
+									   std::vector<float> (offset));
   m_layerEntries[CaloCell_ID::EMB2].second->setOwner(Trk::TGOwn);
   delete cyl;
   // EMB2 pos
@@ -1083,8 +1083,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB2].first);
   if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB2].first = new Trk::SlidingCylinderSurface(*cyl,
-									    new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									    new std::vector<float> (offset));
+									    Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
+									    std::vector<float> (offset));
   m_layerEntries[CaloCell_ID::EMB2].first->setOwner(Trk::TGOwn);
   delete cyl;
   // EMB3 neg
@@ -1100,8 +1100,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].second);
   if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].second = new Trk::SlidingCylinderSurface(*cyl,
-						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-						      new std::vector<float> (offset));
+						      Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
+						      std::vector<float> (offset));
   m_layerEntries[CaloCell_ID::EMB3].second->setOwner(Trk::TGOwn);
   delete cyl;
 
@@ -1118,8 +1118,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].first);
   if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].first = new Trk::SlidingCylinderSurface(*cyl,
-						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-						     new std::vector<float> (offset));
+						      Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
+						       std::vector<float> (offset));
   m_layerEntries[CaloCell_ID::EMB3].first->setOwner(Trk::TGOwn);
   delete cyl;
 
