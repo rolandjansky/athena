@@ -8,7 +8,7 @@ A typical jet trigger chain may look like:
 graph TD;
 
   subgraph Overview
-  L1[Step: L1 seed] --> R1(Reject):::reject
+  L1[Step: L1 item] --> R1(Reject):::reject
   L1 --> HLT1;
   HLT1[Step: HLT calo jet presel] --> R2(Reject):::reject;
   HLT1 --> HLT2;
