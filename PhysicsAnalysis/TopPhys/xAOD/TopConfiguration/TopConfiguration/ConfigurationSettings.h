@@ -125,6 +125,7 @@ namespace top {
 
   std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings);
   std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data);
+
 }
 
 

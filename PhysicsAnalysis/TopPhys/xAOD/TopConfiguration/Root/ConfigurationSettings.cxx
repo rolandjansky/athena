@@ -66,8 +66,12 @@ namespace top {
                       "This should only be used by experts for testing SFs! Default: Using the most recent recommended map.", "Default");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
+    registerParameter("ElectronEfficiencySystematicModelNToys",
+                      "Electron Efficiency Toy Systematics Number of Toys: ","40");
+    registerParameter("ElectronEfficiencySystematicModelToySeed",
+                      "Electron Efficiency Toy Systematics Seed of Toys: ","12345");
     registerParameter("ElectronEfficiencySystematicModel",
-                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)", "TOTAL");
+                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default), COMBMCTOYS", "TOTAL");
     registerParameter("ElectronEfficiencySystematicModelEtaBinning",
                       "Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)",
                       "default");
