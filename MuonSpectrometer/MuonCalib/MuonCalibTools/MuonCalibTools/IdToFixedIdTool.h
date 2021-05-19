@@ -26,37 +26,38 @@
 
 namespace MuonCalib {
 
-/**
-@class IdToFixedIdTool
-Tool responsible for wrapping the athena dependent Identifier class to a standalone Calib-EDM
-MuonFixedId identifier.
+    /**
+    @class IdToFixedIdTool
+    Tool responsible for wrapping the athena dependent Identifier class to a standalone Calib-EDM
+    MuonFixedId identifier.
 
-The athena-dependent Indentifier relies on idHelpers in order to decode the content. A MuonFixedId has methods itself to decode the content of the identifier.
-   
-@author Zdenko.Van.Kesteren@cern.ch
-*/
+    The athena-dependent Indentifier relies on idHelpers in order to decode the content. A MuonFixedId has methods itself to decode the
+    content of the identifier.
 
-class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedIdTool {
-  public: 
-    IdToFixedIdTool(const std::string& type,
-		    const std::string& name,
-		    const IInterface* parent);  //!< AlgTool constructor 
-    virtual ~IdToFixedIdTool()=default;
-    
-    StatusCode initialize(); //!< IdToFixedIdTool initialization: retrieve all the IdHelpers needed to do strap the ATHENA Identifier
+    @author Zdenko.Van.Kesteren@cern.ch
+    */
 
-    void print(const Identifier& id) const;               //!< print method to output an ATHENA Identifier, warning the user when the conversion and reconversion yields different results. 
-    void print(const MuonFixedId& fid) const;             //!< dump MuonFixedId 
+    class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedIdTool {
+    public:
+        IdToFixedIdTool(const std::string& type, const std::string& name,
+                        const IInterface* parent);  //!< AlgTool constructor
+        virtual ~IdToFixedIdTool() = default;
 
-    Identifier fixedIdToId(const MuonFixedId& fid) const; //!< Convert MuonFixedId to ATHENA Identifier 
-    MuonFixedId idToFixedId(const Identifier& id) const;  //!< Convert ATHENA Identifier to MuonFixedId 
-    Identifier regionKeyToId(std::string region) const;   //!< Returns an ATHENA Identifier for a given Region key. 
+        StatusCode initialize();  //!< IdToFixedIdTool initialization: retrieve all the IdHelpers needed to do strap the ATHENA Identifier
 
- private:
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+        void print(const Identifier& id) const;  //!< print method to output an ATHENA Identifier, warning the user when the conversion and
+                                                 //!< reconversion yields different results.
+        void print(const MuonFixedId& fid) const;  //!< dump MuonFixedId
 
-    int                                 m_print_level; //!< Sets printlevel of output
-};
-}
+        Identifier fixedIdToId(const MuonFixedId& fid) const;  //!< Convert MuonFixedId to ATHENA Identifier
+        MuonFixedId idToFixedId(const Identifier& id) const;   //!< Convert ATHENA Identifier to MuonFixedId
+        Identifier regionKeyToId(std::string region) const;    //!< Returns an ATHENA Identifier for a given Region key.
 
-#endif //MUONCALIB_IDTOFIXEDID_H
+    private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+        int m_print_level;  //!< Sets printlevel of output
+    };
+}  // namespace MuonCalib
+
+#endif  // MUONCALIB_IDTOFIXEDID_H

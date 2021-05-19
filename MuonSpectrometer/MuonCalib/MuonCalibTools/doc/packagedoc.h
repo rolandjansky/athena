@@ -13,12 +13,13 @@ This package contains general tools needed by the Muon Calibration Framework
 
 - MuonCalib::AtlasRegionSelectorTool: default Region Selector for Atlas calibration, segments are selected by chamber
 
-- MuonCalib::TestbeamRegionSelectorTool: Region Selector for 2004 testbeam, only segments in the 2 multilayers of rotating BIL are used by the calibration
+- MuonCalib::TestbeamRegionSelectorTool: Region Selector for 2004 testbeam, only segments in the 2 multilayers of rotating BIL are used by
+the calibration
 
 - MuonCalib::PatternNtupleMaker: creates and fills ntuple with MuonCalibEvents
 
 - MuonCalib::IdToFixedIdTool: translates an (ATHENA) Identifier to a (Calib EDM) MuonFixedId. And vice versa.
 
-                                                                                
-                                                                                
+
+
 */
