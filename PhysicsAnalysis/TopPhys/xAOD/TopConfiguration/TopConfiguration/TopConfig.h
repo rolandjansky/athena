@@ -754,6 +754,20 @@ namespace top {
       }
     }
 
+    inline virtual void electronEfficiencySystematicModelNToys(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelNToys = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelToySeed(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelToySeed = s;
+      }
+    }
+
+
     inline virtual void electronID(const std::string& s) {
       if (!m_configFixed) {
         m_electronID = s;
@@ -839,6 +853,14 @@ namespace top {
     inline virtual const std::string& electronEfficiencySystematicModelEtBinning() {
       return m_electronEfficiencySystematicModelEtBinning;
     }
+    inline virtual const int& electronEfficiencySystematicModelNToys() {
+      return m_electronEfficiencySystematicModelNToys;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelToySeed() {
+      return m_electronEfficiencySystematicModelToySeed;
+    }
+
     inline virtual const std::string& electronID()     const {return m_electronID;}
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
@@ -2347,6 +2369,8 @@ namespace top {
     // Electron configuration
     std::string m_egammaSystematicModel;
     std::string m_electronEfficiencySystematicModel;
+    int m_electronEfficiencySystematicModelNToys;
+    int m_electronEfficiencySystematicModelToySeed;
     std::string m_electronEfficiencySystematicModelEtaBinning;
     std::string m_electronEfficiencySystematicModelEtBinning;
     std::string m_electronID;

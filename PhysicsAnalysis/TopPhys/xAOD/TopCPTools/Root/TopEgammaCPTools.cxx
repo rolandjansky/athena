@@ -378,20 +378,25 @@ namespace top {
 
     ATH_MSG_INFO(
       "Requested Electrons SF tool for " << m_config->electronEfficiencySystematicModel() << " correlation model");
-
+     
     if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
       ATH_MSG_INFO(
         "Setting up Electrons SF tool for " << m_config->electronEfficiencySystematicModel() << " correlation model");
+
       const std::string elSFPrefixCorrModel = elSFPrefix + "CorrModel_";
       // Reco SFs
       m_electronEffSFRecoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Reco", m_electronEffSFRecoFile,
                                                                 "Reconstruction", "", "", "", dataType,
+                                                                m_config->electronEfficiencySystematicModelNToys(),
+                                                                m_config->electronEfficiencySystematicModelToySeed(),
                                                                 m_config->electronEfficiencySystematicModel(),
                                                                 m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                 m_config->electronEfficiencySystematicModelEtBinning());
       // ID SFs
       if(m_config->electronIDSFFilePath() =="Default") m_electronEffSFIDCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "ID", m_electronEffSFIDFile, "",
                                                               electronID, "", "", dataType,
+                                                              m_config->electronEfficiencySystematicModelNToys(),
+                                                              m_config->electronEfficiencySystematicModelToySeed(),
                                                               m_config->electronEfficiencySystematicModel(),
                                                               m_config->electronEfficiencySystematicModelEtaBinning(),
                                                               m_config->electronEfficiencySystematicModelEtBinning());
@@ -399,9 +404,12 @@ namespace top {
                     m_config->electronEfficiencySystematicModel(),
                     m_config->electronEfficiencySystematicModelEtaBinning(),
                     m_config->electronEfficiencySystematicModelEtBinning());
+
       m_electronEffSFIDLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IDLoose",
                                                                    m_electronEffSFIDLooseFile, "", electronIDLoose, "",
                                                                    "", dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
                                                                    m_config->electronEfficiencySystematicModel(),
                                                                    m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                    m_config->electronEfficiencySystematicModelEtBinning());
@@ -409,6 +417,8 @@ namespace top {
       m_electronEffSFTriggerCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerSF",
                                                                    m_electronEffSFTriggerFile, "", electronID,
                                                                    electronIsolation, trigger_string, dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
                                                                    m_config->electronEfficiencySystematicModel(),
                                                                    m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                    m_config->electronEfficiencySystematicModelEtBinning());
@@ -416,6 +426,8 @@ namespace top {
                                                                         m_electronEffSFTriggerLooseFile, "",
                                                                         electronIDLoose, electronIsolationLoose,
                                                                         trigger_string, dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
                                                                         m_config->electronEfficiencySystematicModel(),
                                                                         m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                         m_config->electronEfficiencySystematicModelEtBinning());
@@ -423,6 +435,8 @@ namespace top {
       m_electronEffTriggerCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Trigger",
                                                                  m_electronEffTriggerFile, "", electronID,
                                                                  electronIsolation, "Eff_" + trigger_string, dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
                                                                  m_config->electronEfficiencySystematicModel(),
                                                                  m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                  m_config->electronEfficiencySystematicModelEtBinning());
@@ -430,6 +444,8 @@ namespace top {
                                                                       m_electronEffTriggerLooseFile, "",
                                                                       electronIDLoose, electronIsolationLoose,
                                                                       "Eff_" + trigger_string, dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
                                                                       m_config->electronEfficiencySystematicModel(),
                                                                       m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                       m_config->electronEfficiencySystematicModelEtBinning());
@@ -445,6 +461,8 @@ namespace top {
       else {
 	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
 								 electronID, electronIsolation, "", dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
 								 m_config->electronEfficiencySystematicModel(),
 								 m_config->electronEfficiencySystematicModelEtaBinning(),
 								 m_config->electronEfficiencySystematicModelEtBinning());
@@ -462,6 +480,8 @@ namespace top {
 	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
 								      m_electronEffSFIsoLooseFile, "", electronIDLoose,
 								      electronIsolationLoose, "", dataType,
+                    m_config->electronEfficiencySystematicModelNToys(),
+                    m_config->electronEfficiencySystematicModelToySeed(),
 								      m_config->electronEfficiencySystematicModel(),
 								      m_config->electronEfficiencySystematicModelEtaBinning(),
 								      m_config->electronEfficiencySystematicModelEtBinning());
@@ -584,13 +604,98 @@ namespace top {
                                 bins), "Failed to set correlation model " + binningName + " binning to " + binning);
   }
 
+  void EgammaCPTools::setCorrelationModelToys(IAsgElectronEfficiencyCorrectionTool* tool,
+                                                 const std::string& ToysName, const int& number) {
+    ATH_MSG_INFO(" ---> electron SF tools will use " << ToysName << " :"<< number);
+    top::check(asg::setProperty(tool, ToysName,
+                                number), "Failed to set correlation model " + ToysName );
+  }
+
+
+IAsgElectronEfficiencyCorrectionTool*
+  EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, const std::string& map_path,
+                                            const std::string& reco_key, const std::string& ID_key,
+                                            const std::string& ISO_key, const std::string& trigger_key,
+                                            const int& data_type,
+                                            const int& correlationModelNToys,
+                                            const int& correlationModelToySeed,
+                                            const std::string& correlation_model,
+                                            const std::string& correlationModelEtaBinning,
+                                            const std::string& correlationModelEtBinning) {
+
+    std::string iso_key = ISO_key;
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#PLV_scale_factors_for_central_el
+    // If isolation WP is PLVTight or PLVLoose, switch to no isolation to trick this function.
+    if (iso_key == "PLVTight" || iso_key == "PLVLoose") iso_key = "";
+
+    std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" +
+                          ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" +
+                          std::to_string(data_type) +
+                          " correlation_model=" + correlation_model + " etaBinning=" + correlationModelEtaBinning +
+                          " etBinning=" +
+                          correlationModelEtBinning;
+    ATH_MSG_INFO(infoStr);
+    IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
+    if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
+      tool = asg::ToolStore::get<IAsgElectronEfficiencyCorrectionTool>(name);
+    } else {
+      tool = new AsgElectronEfficiencyCorrectionTool(name);
+      // Give the full map path
+      top::check(asg::setProperty(tool, "MapFilePath", map_path), "Failed to set MapFilePath to " + name);
+      // Set the data type for all tools
+      top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
+      // Set the correlation model for all tools
+      top::check(asg::setProperty(tool, "CorrelationModel",
+                                  correlation_model), "Failed to set CorrelationModel to " + name);
+
+      if (correlationModelEtaBinning != "" && correlationModelEtaBinning != "default") this->setCorrelationModelBinning(
+          tool, "UncorrEtaBinsUser", correlationModelEtaBinning);
+      if (correlationModelEtBinning != "" && correlationModelEtBinning != "default") this->setCorrelationModelBinning(
+          tool, "UncorrEtBinsUser", correlationModelEtBinning);
+
+      //MC Toy model variables
+      if (correlationModelNToys != 0 ) this->setCorrelationModelToys(
+          tool, "NumberOfToys", correlationModelNToys);
+
+      if (correlationModelToySeed != 0) this->setCorrelationModelToys(
+          tool, "MCToySeed", correlationModelToySeed);
+
+
+      // Set the keys which configure the tool options (empty string means we do not include this key)
+      if (reco_key != "" && reco_key != "None") {
+        ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
+        top::check(asg::setProperty(tool, "RecoKey", reco_key), "Failed to set RecoKey to " + name);
+      }
+      if (ID_key != "" && ID_key != "None") {
+        std::string id_key = mapWorkingPoints(ID_key);
+        ATH_MSG_INFO(" Adding IDKey      : " + id_key);
+        top::check(asg::setProperty(tool, "IdKey", id_key), "Failed to set IdKey to " + name);
+      }
+      if (iso_key != "" && iso_key != "None") {
+        ATH_MSG_INFO(" Adding IsoKey     : " + iso_key);
+        top::check(asg::setProperty(tool, "IsoKey", iso_key), "Failed to set IsoKey to " + name);
+      }
+      if (trigger_key != "" && trigger_key != "None") {
+        ATH_MSG_INFO(" Adding TriggerKey : " + trigger_key);
+        top::check(asg::setProperty(tool, "TriggerKey", trigger_key), "Failed to set TriggerKey to " + name);
+      }
+      // Initialise this tool
+
+      top::check(tool->initialize(), "Failed to initialize " + name);
+    }
+    return tool;
+}
+
+
   IAsgElectronEfficiencyCorrectionTool*
   EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, const std::string& map_path,
                                             const std::string& reco_key, const std::string& ID_key,
                                             const std::string& ISO_key, const std::string& trigger_key,
-                                            const int& data_type, const std::string& correlation_model,
+                                            const int& data_type, 
+                                            const std::string& correlation_model,
                                             const std::string& correlationModelEtaBinning,
                                             const std::string& correlationModelEtBinning) {
+    
     std::string iso_key = ISO_key;
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#PLV_scale_factors_for_central_el
     // If isolation WP is PLVTight or PLVLoose, switch to no isolation to trick this function.

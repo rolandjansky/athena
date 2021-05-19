@@ -199,6 +199,8 @@ namespace top {
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
     m_electronEfficiencySystematicModel("TOTAL"),
+    m_electronEfficiencySystematicModelNToys(40),
+    m_electronEfficiencySystematicModelToySeed(12345),
     m_electronEfficiencySystematicModelEtaBinning(""),
     m_electronEfficiencySystematicModelEtBinning(""),
     m_electronID("SetMe"),
@@ -1172,6 +1174,8 @@ namespace top {
     this->electronEfficiencySystematicModel(settings->value("ElectronEfficiencySystematicModel"));
     this->electronEfficiencySystematicModelEtaBinning(settings->value("ElectronEfficiencySystematicModelEtaBinning"));
     this->electronEfficiencySystematicModelEtBinning(settings->value("ElectronEfficiencySystematicModelEtBinning"));
+    this->electronEfficiencySystematicModelNToys(std::stof(settings->value("ElectronEfficiencySystematicModelNToys")));
+    this->electronEfficiencySystematicModelToySeed(std::stof(settings->value("ElectronEfficiencySystematicModelToySeed")));
     this->electronID(settings->value("ElectronID"));
     this->electronIDLoose(settings->value("ElectronIDLoose"));
     {
