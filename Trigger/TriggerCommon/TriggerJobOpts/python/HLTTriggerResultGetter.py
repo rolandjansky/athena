@@ -137,7 +137,7 @@ class ByteStreamUnpackGetterRun1or2(Configured):
             from PyUtils.MetaReaderPeeker import metadata
             if 'stream' in metadata:
                 stream_local = metadata['stream']
-                if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
+                if stream_local.startswith('calibration_DataScouting_'):
                     if 'calibration' in stream_local and 'DataScouting_' in stream_local:
                         ds_tag = stream_local[12:27]
                         ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
