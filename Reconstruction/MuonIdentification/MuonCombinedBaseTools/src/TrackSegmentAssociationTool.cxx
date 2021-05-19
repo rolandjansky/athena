@@ -58,7 +58,7 @@ namespace Muon {
 
         MuonSegmentKey trackKeys(tp->track()->measurementsOnTrack()->stdcont());
 
-        CompareMuonSegmentKeys compareKeys;
+        CompareMuonSegmentKeys compareKeys{};
 
         for (unsigned int i = 0; i < segments->size(); ++i) {
             const xAOD::MuonSegment* curr_seg = (*segments)[i];
