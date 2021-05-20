@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,7 +26,7 @@
 using namespace std;
 using namespace pool;
 
-std::string pool::getKey(const std::string key, const std::string encoded)
+std::string pool::getKey(const std::string& key, const std::string& encoded)
 {
    size_t keystart = encoded.find(key);
    if (keystart!=string::npos) {
@@ -42,7 +42,7 @@ std::string pool::getKey(const std::string key, const std::string encoded)
    }
 }
 
-std::string pool::getGroup(const std::string encoded)
+std::string pool::getGroup(const std::string& encoded)
 {
    return getKey("GRP=",encoded);
 }
@@ -167,7 +167,7 @@ void pool::dumpOverlapEval(const pool::ICollectionDescription& desc0,
                                  const pool::ICollectionDescription& desc1,
                                  const vector< pair<string,string> >& spec0,
                                  const vector< pair<string,string> >& spec1,
-                                 const string spectype)
+                                 const string& spectype)
 {
    // First check that inputs are valid
    vector< vector< pair<string,string> > > Specs;
@@ -208,7 +208,7 @@ void pool::dumpOverlapEval(const pool::ICollectionDescription& desc0,
       intersect_names.open(name.c_str(),ios::out | ios::trunc);
       for( vector< pair<string,string> >::iterator c = output.begin(); 
                                                    c < output.end(); 
-                                                   c++ ) {
+                                                   ++c ) {
          std::cout << " NAME: ";
          std::cout << c->first;
          std::cout << "   TYPE: ";
@@ -236,7 +236,7 @@ void pool::dumpOverlapEval(const pool::ICollectionDescription& desc0,
             vector< pair<string,string> > solo(tmp.begin(),last2); 
             for( vector< pair<string,string> >::iterator c = solo.begin(); 
                                                          c < solo.end(); 
-                                                         c++ ) {
+                                                         ++c ) {
                std::cout << " NAME: ";
                std::cout << c->first;
                std::cout << "   TYPE: ";
