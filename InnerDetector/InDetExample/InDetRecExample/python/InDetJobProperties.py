@@ -1305,10 +1305,10 @@ class doStagingStudies(InDetFlagsJobProperty):
    StoredValue  = False
    
 class stagingConfig(InDetFlagsJobProperty):
-   """ choose staging configuration: no5thLayer, noOuterEndcap"""
+   """ choose staging configuration: no5thLayer, noOuterEndcap, no5thLayerBarrel"""
    statusOn     = True
    allowedTypes = ['str']
-   allowedValues= ['no5thLayer','noOuterEndcap']
+   allowedValues= ['no5thLayer','noOuterEndcap','no5thLayerBarrel']
    StoredValue  = 'no5thLayer'
 
 ##-----------------------------------------------------------------------------

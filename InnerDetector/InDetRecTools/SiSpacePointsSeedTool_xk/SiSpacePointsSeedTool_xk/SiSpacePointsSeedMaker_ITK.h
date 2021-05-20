@@ -152,7 +152,9 @@ namespace InDet {
       float                       m_drmaxSSS                      ;
       float                       m_drminPPP                      ;
       float                       m_drmaxPPP                      ;
-      float                       m_rmaxPPPSeedConf               ;
+      float                       m_rmaxPPPSeedConfBarrel         ;
+      float                       m_rmaxPPPSeedConfEndcap         ;
+      float                       m_zmaxPPPSeedConfBarrel         ;
       float                       m_dzmaxSSS                      ;
       float                       m_dzdrmin0                      ;
       float                       m_dzdrmax0                      ;

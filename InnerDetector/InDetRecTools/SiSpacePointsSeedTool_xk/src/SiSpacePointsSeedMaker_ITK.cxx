@@ -56,7 +56,9 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_drmaxSSS  = 300.    ;
   m_drminPPP  = 6.      ;
   m_drmaxPPP  = 120.    ;
-  m_rmaxPPPSeedConf = 140.; // max radius below which PPP seeds are required to be confirmed, set between L1 and L2
+  m_rmaxPPPSeedConfBarrel = 140.; // max radius below which PPP seeds are required to be confirmed, set between L1 and L2
+  m_rmaxPPPSeedConfEndcap = 140.;
+  m_zmaxPPPSeedConfBarrel = 250.; // max z to split barrel/endcap for PPP seed confirmation
   m_dzmaxSSS  = 900.    ;
   m_zmaxPPP   = 2700.   ;
   m_zmaxSSS   = 2700.   ;
@@ -123,7 +125,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxdRadiusPPP"         ,m_drmaxPPP              );
   declareProperty("mindRadiusSSS"         ,m_drminSSS              );
   declareProperty("maxdRadiusSSS"         ,m_drmaxSSS              );
-  declareProperty("rmaxPPPSeedConf"       ,m_rmaxPPPSeedConf       );
+  declareProperty("rmaxPPPSeedConfBarrel" ,m_rmaxPPPSeedConfBarrel );
+  declareProperty("rmaxPPPSeedConfEndcap" ,m_rmaxPPPSeedConfEndcap );
   declareProperty("maxdZver"              ,m_dzver                 );
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
@@ -1616,7 +1619,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     float ax    = X*Ri          ;
     float ay    = Y*Ri          ;
     float VR    = m_diver*Ri*Ri ;
-    int   Ntm   = 2; if(R > m_rmaxPPPSeedConf) Ntm = 1;
+    float rmax_seedconf = std::abs(Z)<m_zmaxPPPSeedConfBarrel ? m_rmaxPPPSeedConfBarrel : m_rmaxPPPSeedConfEndcap;
+    int   Ntm   = 2; if(R > rmax_seedconf) Ntm = 1;
 
     // Top   links production
     //
@@ -1755,7 +1759,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
       float  CSA  = Tzb2*m_COFK      ;
       float ICSA  = Tzb2*m_ipt2C     ;
 
-      int Nc = 1; if(m_SP[b]->radius() > m_rmaxPPPSeedConf) Nc = 0;
+      float rmax_seedconf = std::abs(m_SP[b]->z())<m_zmaxPPPSeedConfBarrel ? m_rmaxPPPSeedConfBarrel : m_rmaxPPPSeedConfEndcap;
+      int Nc = 1; if(m_SP[b]->radius() > rmax_seedconf) Nc = 0;
       if(m_nOneSeedsQ) ++Nc;
 
       for(int it(it0);  it!=Nt; ++it) {
@@ -2200,7 +2205,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparisonPPP
 
   float Qmin = 1.e20;
   float Rb   = SPb->radius();
-  int   NTc(2); if(Rb > m_rmaxPPPSeedConf) NTc = 1;
+  float rmax_seedconf = std::abs(SPb->z())<m_zmaxPPPSeedConfBarrel ? m_rmaxPPPSeedConfBarrel : m_rmaxPPPSeedConfEndcap;
+  int   NTc(2); if(Rb > rmax_seedconf) NTc = 1;
   int   nmin = -1;
   bool  Qm   = Rb < 60. || std::abs(Zob) > 150.;
   
