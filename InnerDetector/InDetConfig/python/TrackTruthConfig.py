@@ -121,7 +121,7 @@ if __name__ == "__main__":
     top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
     top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
 
-    from InDetOverlay.PixelOverlayConfig import PixelRawDataProviderAlgCfg
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
     top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
