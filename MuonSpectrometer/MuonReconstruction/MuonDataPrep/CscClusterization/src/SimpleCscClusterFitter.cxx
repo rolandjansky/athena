@@ -36,19 +36,11 @@ SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string ana
 //**********************************************************************
 
 StatusCode SimpleCscClusterFitter::initialize() {
-    ATH_MSG_VERBOSE("Initializing " << name());
-
-    ATH_MSG_DEBUG("Properties for " << name() << ":");
     ATH_MSG_DEBUG("  Position option: " << m_option);
     ATH_MSG_DEBUG("  Intrinsic width: " << m_intrinsic_cluster_width << " mm");
 
     ATH_CHECK(m_idHelperSvc.retrieve());
-
-    if (m_alignmentTool.retrieve().isFailure()) {
-        ATH_MSG_WARNING(name() << ": unable to retrieve cluster fitter " << m_alignmentTool);
-    } else {
-        ATH_MSG_DEBUG(name() << ": retrieved " << m_alignmentTool);
-    }
+    ATH_CHECK(m_alignmentTool.retrieve());
     // retrieve MuonDetectorManager from the conditions store
     ATH_CHECK(m_DetectorManagerKey.initialize());
     return StatusCode::SUCCESS;
@@ -75,19 +67,19 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
         return results;
     }
 
-    const CscStripPrepData* pstrip = sfits[0].strip;
-    if (pstrip == 0) {
+    if (sfits.empty() || !sfits[0].strip) {
         ATH_MSG_WARNING("Strip pointer is null.");
         res.fitStatus = 4;
         results.push_back(res);
         return results;
     }
-    Identifier idStrip0 = pstrip->identify();
+    const CscStripPrepData* pstrip = sfits[0].strip;
+    const Identifier idStrip0 = pstrip->identify();
 
     // retrieve MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
-    if (MuonDetMgr == nullptr) {
+    if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
         return results;
     }
@@ -106,13 +98,13 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
     int wlay = m_idHelperSvc->cscIdHelper().wireLayer(idStrip0);
 
     // In SimpleCscClusterFitter  istrip_peak = strip0;
-    int peak_count = 0;       // # peaks in the cluster
-    bool edge = strip0 == 0;  // is cluster on the edge of the chamber?
-    int stripidx = 0;         // actual strip position [0-191] or [0-47]
-    int countstrip = 0;       // counting strip in for loop
-    double qsum = 0;          // charge sum of strips in cluster
-    double xsum = 0;          // stripidx sum in cluster
-    double qxsum = 0;         // position weighted (stripidx) charge sum
+    int peak_count = 0;         // # peaks in the cluster
+    bool edge = (strip0 == 0);  // is cluster on the edge of the chamber?
+    int stripidx = 0;           // actual strip position [0-191] or [0-47]
+    int countstrip = 0;         // counting strip in for loop
+    double qsum = 0;            // charge sum of strips in cluster
+    double xsum = 0;            // stripidx sum in cluster
+    double qxsum = 0;           // position weighted (stripidx) charge sum
     double qerravg = 0;
     // istrip starts from 0.
     // stripidx is for actual strip position [0-191] or [0-47].
@@ -120,12 +112,12 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
     unsigned int istrip_peak = 0;
     double lastqpeak = 0;
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
-        StripFit sfit = sfits[istrip];
+        const StripFit& sfit = sfits[istrip];
         float qthis = sfit.charge;
         float qlast = 0.0;
         if (istrip > 0) qlast = sfits[istrip - 1].charge;
         float qnext = 0.0;
-        if (istrip < nstrip - 1) qnext = sfits[istrip + 1].charge;
+        if (istrip + 1 < nstrip) qnext = sfits[istrip + 1].charge;
         stripidx = strip0 + istrip;
         qsum += qthis;
         qerravg += sfit.dcharge;
@@ -199,7 +191,7 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
         res.time_beforeT0Corr = sfits[res.strip].time_beforeT0Corr;
         res.time_beforeBPCorr = sfits[res.strip].time_beforeBPCorr;
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        results.push_back(res);
+        results.emplace_back(res);
         return results;
     }
 
@@ -304,7 +296,7 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
 
     //  res.charge = qsum;
 
-    results.push_back(res);
+    results.emplace_back(res);
     return results;
 }
 
