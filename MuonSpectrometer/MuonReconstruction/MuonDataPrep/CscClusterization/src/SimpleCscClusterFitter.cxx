@@ -111,43 +111,47 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
     // Out of for loop, stripidx will be the last strip of cluster.
     unsigned int istrip_peak = 0;
     double lastqpeak = 0;
+    float qlast = 0.;
+    float q_second_last = 0.;
+
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
         const StripFit& sfit = sfits[istrip];
-        float qthis = sfit.charge;
-        float qlast = 0.0;
-        if (istrip > 0) qlast = sfits[istrip - 1].charge;
-        float qnext = 0.0;
-        if (istrip + 1 < nstrip) qnext = sfits[istrip + 1].charge;
+        const float qthis = sfit.charge;
+        const float qnext = (istrip + 1 < nstrip) ? sfits[istrip + 1].charge : 0.;
+        const float q_over_next = (istrip + 2 < nstrip) ? sfits[istrip + 2].charge : 0.;
+        countstrip = istrip + 1;
+
         stripidx = strip0 + istrip;
         qsum += qthis;
-        qerravg += sfit.dcharge;
+        qerravg += qthis;
         xsum += stripidx;
         qxsum += qthis * stripidx;
-        countstrip = istrip + 1;
+
         if (countstrip == 2 && qthis < qlast) ++peak_count;
-        if (countstrip > 2 && qthis < qlast && qlast >= sfits[istrip - 2].charge) ++peak_count;
+        if (countstrip > 2 && qthis < qlast && qlast >= q_second_last) ++peak_count;
 
         bool ispeak = qthis > qlast && qthis > qnext;
         // Special case: next strip has the same charge.
         // Require the previous strip has less charge and the next following
         // strip be absent or have less charge.
-        if (!ispeak) {
-            if (qthis == qnext) { ispeak = (qthis > qlast) && (istrip + 2 == nstrip || sfits[istrip + 2].charge < qthis); }
-        }
+        /// The former version had istrip + 2 == nstrip as an alternative condition. But q over next is then
+        /// just zero and hence always smaller than qthis
+        if (!ispeak && qthis == qnext) { ispeak = qthis > qlast && q_over_next < qthis; }
+
         // Special case: first and second strips have the same charge.
         // Require the third strip has less charge.
-        if (!ispeak) {
-            if (istrip == 1) {
-                if (qthis == qlast) {
-                    ispeak = qthis > qnext;  // bug found 10/13/07
-                }
-            }
+        if (!ispeak && istrip == 1 && qthis == qlast) {
+            ispeak = qthis > qnext;  // bug found 10/13/07
         }
+
         // Record if peak.
         if (ispeak && qthis > lastqpeak) {
             istrip_peak = istrip;
             lastqpeak = qthis;
         }
+        /// Update the charge for the next iterator
+        q_second_last = qlast;
+        qlast = qthis;
     }
     if (stripidx == maxstrip - 1) edge = true;
     // Update peak count and edge.
