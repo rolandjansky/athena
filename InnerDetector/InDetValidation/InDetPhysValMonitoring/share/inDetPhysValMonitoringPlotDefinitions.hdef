@@ -138,6 +138,7 @@ TProfile vx_nReco_vs_nTruth_hssplit "Number of reco vertices (HSSPLIT) vs Number
 TProfile vx_nReco_vs_nTruth_none "Number of reco vertices (NONE) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
 TEfficiency vx_hs_reco_eff "HS vertex reconstruction efficiency" 4 0.0 2.0 "Local PU density [vertices/mm]" 0.8 1.2 "HS vertex reconstruction efficiency" 
 TEfficiency vx_hs_sel_eff "HS vertex selection efficiency (sum[pt,track^2])" 4 0.0 2.0 "Local PU density [vertices/mm]" 0.6 1.2 "HS vertex selection efficiency" 
+TEfficiency vx_hs_sel_loose_eff "HS vertex selection efficiency (sum[pt,track^2])" 4 0.0 2.0 "Local PU density [vertices/mm]" 0.6 1.2 "HS vertex selection efficiency" 
 TProfile vx_hs_reco_long_reso "Reco Longitudinal Resolution" 4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "Reco longitudinal resolution [mm]" 
 TProfile vx_hs_reco_trans_reso "Reco Transverse Resolution"  4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "Reco transverse resolution [mm]" 
 TH2 vx_hs_truth_long_reso_vs_PU "Truth Longitudinal Resolution vs. PU (2D)" 4 0.0 2.0 20 -0.08 0.02 "Local PU density [vertices/mm]" "|Reco-truth| longitudinal resolution [mm]" 

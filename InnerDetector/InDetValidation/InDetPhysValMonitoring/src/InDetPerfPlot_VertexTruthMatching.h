@@ -71,6 +71,7 @@ private:
     TEfficiency* m_vx_hs_reco_eff;
     // HS vertex selection efficiency vs PU
     TEfficiency* m_vx_hs_sel_eff;
+    TEfficiency* m_vx_hs_sel_loose_eff;
     // For reco (covariance) resolutions:
     TProfile* m_vx_hs_reco_long_reso;
     TProfile* m_vx_hs_reco_trans_reso;
