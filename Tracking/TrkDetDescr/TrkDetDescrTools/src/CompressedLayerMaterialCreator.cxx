@@ -38,19 +38,6 @@ Trk::CompressedLayerMaterialCreator::CompressedLayerMaterialCreator(const std::s
 Trk::CompressedLayerMaterialCreator::~CompressedLayerMaterialCreator()
 {}
 
-
-// initialize
-StatusCode Trk::CompressedLayerMaterialCreator::initialize() 
-{
-    return StatusCode::SUCCESS;
-}
-    
-// finalize
-StatusCode Trk::CompressedLayerMaterialCreator::finalize() 
-{
-    return StatusCode::SUCCESS;
-}
-
 Trk::LayerMaterialProperties* Trk::CompressedLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
   // get the material matrix

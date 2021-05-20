@@ -100,14 +100,14 @@ StatusCode LAr::LArVolumeBuilder::initialize()
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_lArTrackingVolumeHelper );
       return StatusCode::FAILURE;
     } else
-    ATH_MSG_INFO( "Retrieved tool " << m_lArTrackingVolumeHelper );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_lArTrackingVolumeHelper );
 
   // Retrieve the volume creator
   if (m_trackingVolumeCreator.retrieve().isFailure()){
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackingVolumeCreator );
     return StatusCode::FAILURE;
   } else
-    ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeCreator );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeCreator );
   
   if(m_useCaloSurfBuilder){
     if(m_calosurf.retrieve().isFailure())
@@ -115,17 +115,17 @@ StatusCode LAr::LArVolumeBuilder::initialize()
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_calosurf );
         return StatusCode::FAILURE;
       } else
-      ATH_MSG_INFO( "Retrieved tool " << m_calosurf );
+      ATH_MSG_DEBUG( "Retrieved tool " << m_calosurf );
   }
   
-  ATH_MSG_INFO( name() << " initialize() successful" );
+  ATH_MSG_DEBUG( name() << " initialize() successful" );
   return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode LAr::LArVolumeBuilder::finalize()
 {
-  ATH_MSG_INFO( "finalize() successful" );
+  ATH_MSG_DEBUG( "finalize() successful" );
 
   // empty the material garbage 
   std::map<const Trk::Material*, bool>::iterator garbageIter  = m_materialGarbage.begin();
