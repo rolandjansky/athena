@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -313,6 +313,20 @@ void PixelDigitizationTool::digitizeAllHits() {
     // it will only loop over existing modules anyway.  At the moment this
     // is just a place holder for access to COOL to query the module status.
     //
+    
+    //allow this diode to be skipped under certain circumstances
+    //(only if IgnoreMissingElements is set true)
+    bool skipDiode = false;
+    
+    if(m_ignoreMissingElements){
+      //check if there is a valid element associated, skip if not
+      if(!m_chargedDiodes->element()) {
+	skipDiode=true;
+	ATH_MSG_DEBUG("Skipping this Diode with no element associated...");
+      }
+    }
+      
+    if(!skipDiode){
     IdentifierHash idHash = m_chargedDiodes->identifyHash();
 
     assert (idHash < m_processedElements.size());
@@ -328,7 +342,7 @@ void PixelDigitizationTool::digitizeAllHits() {
           addSDO(m_chargedDiodes.get());
         }
     }
-
+    }
     m_chargedDiodes->clear();
   }
   ATH_MSG_DEBUG ( "hits processed" );
@@ -423,11 +437,14 @@ bool PixelDigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDio
     ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule());
     if(m_ignoreMissingElements){
       ATH_MSG_DEBUG ( "detector manager could not find element with id = " << id <<" - probably this is expected?");
+      //return true, as there could still be valid elements after this one
+      //thus we don't want to terminate the "while" loop
+      return true;
     }
     else{
       ATH_MSG_ERROR ( "detector manager could not find element with id = " << id );
+      return false;
     }
-    return false;
   }
   // create the charged diodes collection
   chargedDiodes->setDetectorElement(sielement);
