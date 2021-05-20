@@ -10,28 +10,26 @@
 using namespace egammaMonitoring;
 
 
-StatusCode TruthElectronHistograms::initializePlots() {
+StatusCode TruthElectronHistograms::initializePlots(bool reducedHistSet) {
 
-  histoMap["deltaPhi2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaPhi2"), ";deltaPhi2; Events", 40, -0.06, 0.06);
-  histoMap["deltaEta2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaEta2"), ";deltaEta2; Events", 40, -0.04, 0.04);
-  histoMap["deltaPhiRescaled2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaPhiRescaled2"), ";deltaPhi2; Events", 40, -0.04, 0.04);
+  if (!reducedHistSet) {
+    histoMap["deltaPhi2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaPhi2"), ";deltaPhi2; Events", 40, -0.06, 0.06);
+    histoMap["deltaEta2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaEta2"), ";deltaEta2; Events", 40, -0.04, 0.04);
+    histoMap["deltaPhiRescaled2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaPhiRescaled2"), ";deltaPhi2; Events", 40, -0.04, 0.04);
 
-  histoMap["d0Oversigmad0"] = new TH1D(Form("%s_%s",m_name.c_str(),"d0Oversigmad0"), "; d0Oversigmad0; Events", 40, -10, 10);
-  histoMap["qOverp_resolution"] = new TH1D(Form("%s_%s",m_name.c_str(),"qOverp_resolution"), ";(q/P reco - q/P truth)/ q/p truth; Events", 60, -1, 1.5);
+    histoMap["d0Oversigmad0"] = new TH1D(Form("%s_%s",m_name.c_str(),"d0Oversigmad0"), "; d0Oversigmad0; Events", 40, -10, 10);
+    histoMap["qOverp_resolution"] = new TH1D(Form("%s_%s",m_name.c_str(),"qOverp_resolution"), ";(q/P reco - q/P truth)/ q/p truth; Events", 60, -1, 1.5);
 
+    ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaPhi2", histoMap["deltaPhi2"]));
+    ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaEta2", histoMap["deltaEta2"]));
+    ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaPhiRescaled2", histoMap["deltaPhiRescaled2"]));
+    ATH_CHECK(m_rootHistSvc->regHist(m_folder+"d0Oversigmad0", histoMap["d0Oversigmad0"]));
+    ATH_CHECK(m_rootHistSvc->regHist(m_folder+"qOverp_resolution", histoMap["qOverp_resolution"]));
+  }
 
-  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaPhi2", histoMap["deltaPhi2"]));
-  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaEta2", histoMap["deltaEta2"]));
-  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaPhiRescaled2", histoMap["deltaPhiRescaled2"]));
-  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"d0Oversigmad0", histoMap["d0Oversigmad0"]));
-  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"qOverp_resolution", histoMap["qOverp_resolution"]));
-
-
-  
   ATH_CHECK(ParticleHistograms::initializePlots());
 
-
-  
+  m_reducedHistSet = reducedHistSet;
 
   return StatusCode::SUCCESS;
 
@@ -43,7 +41,7 @@ void TruthElectronHistograms::fill(const xAOD::TruthParticle *truth, const xAOD:
 
   ParticleHistograms::fill(*truth);
 
-  if (!electron) return;
+  if (!electron || m_reducedHistSet) return;
 
   const xAOD::TrackParticle* track  = electron->trackParticle(); 
 
