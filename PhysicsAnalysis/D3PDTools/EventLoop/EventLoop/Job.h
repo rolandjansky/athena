@@ -436,6 +436,10 @@ namespace EL
     /// \}
 
 
+    /// a list of files that need to be available within the worker job
+    static const std::string optUserFiles;
+
+
 
     /// description: batch-specific options
     /// rationale: these options are for configuring batch drivers
