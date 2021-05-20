@@ -309,7 +309,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
         }
     
     }
-    return new Trk::ResidualPull(residual, pull, pullIsValid, resType,
+    return new Trk::ResidualPull(std::move(residual), std::move(pull), pullIsValid, resType,
     measurement->localParameters().parameterKey());
 }
 
