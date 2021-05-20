@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_CATALOGINFO
@@ -7,6 +7,7 @@
 
 #include "CollectionUtilities/ArgQual.h"
 #include "CollectionUtilities/CmdLineArgs2.h"
+#include "CxxUtils/checker_macros.h"
 
 /**********************************************************
 
@@ -39,7 +40,7 @@ namespace pool
      std::string fileCatalogN(unsigned int i);
      bool useCC() {return m_valid;}
 
-     void          setCatalogs( pool::ICollectionService* );
+     void          setCatalogs ATLAS_NOT_THREAD_SAFE ( pool::ICollectionService* );
      void          setFileCatalogs( pool::IFileCatalog* );
   
   private:

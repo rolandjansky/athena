@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONuTILITIES_COLLSPLITGUIDBASE_H
@@ -14,6 +14,7 @@
 #include "CollectionUtilities/QueryInfo.h"
 #include "CollectionUtilities/CatalogInfo.h"
 #include "CollectionUtilities/MetaInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 
 #include <string>
@@ -24,7 +25,7 @@ namespace pool
 
    class CollectionService;
 
-   class CollSplitByGUIDBase
+   class ATLAS_NOT_THREAD_SAFE CollSplitByGUIDBase
    {
   public:
      CollSplitByGUIDBase( const std::string& name = "CollSplitByGUID" );
@@ -74,7 +75,7 @@ namespace pool
      MetaInfo    	m_metainfo;
     
      pool::CollectionService* m_collectionService;
-     mutable coral::MessageStream m_log;
+     coral::MessageStream m_log;
 
      // Vector of args
      Args2Container m_argsVec;
