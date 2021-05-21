@@ -487,7 +487,6 @@ if ( AllWavesPerCh ) :
    LArAccumulatedCalibDigitContSplitter.KeyList         = GainList
    LArAccumulatedCalibDigitContSplitter.KeyOutputList = ContNameSplitted
    LArAccumulatedCalibDigitContSplitter.NumberSplitted  = MaxCalLinePerCh
-   LArAccumulatedCalibDigitContSplitter.UseDacAndIsPulsedIndex = True
    LArAccumulatedCalibDigitContSplitter.OutputLevel = ERROR
    topSequence += LArAccumulatedCalibDigitContSplitter
 
