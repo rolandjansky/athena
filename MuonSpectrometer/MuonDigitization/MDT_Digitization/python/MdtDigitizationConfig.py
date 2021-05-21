@@ -22,6 +22,10 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 MT-safe conditions access 
    from MuonCnvExample import MuonCalibConfig
 
+   from MuonCnvExample import MuonCalibConfig
+   MuonCalibConfig.setupMdtCondDB()
+   from MuonRecExample import MuonAlignConfig  # noqa: F401 # MdtCalibAlg needs MuonDetectorManager in conditionsStore
+
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)

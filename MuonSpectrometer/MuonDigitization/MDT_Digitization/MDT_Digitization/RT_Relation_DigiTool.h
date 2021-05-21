@@ -6,11 +6,13 @@
 #define MDT_DIGITIZATION_RT_RELATION_DIGITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "GaudiKernel/RndmGenerators.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MDT_Digitization/r_to_t_converter.h"
 
 /*-----------------------------------------------
@@ -24,8 +26,6 @@
 namespace MuonGM{
   class MuonDetectorManager;
 }
-class MdtIdHelper;
-
 
 class RT_Relation_DigiTool : public AthAlgTool, 
 			      virtual public IMDT_DigitizationTool {
@@ -43,15 +43,17 @@ class RT_Relation_DigiTool : public AthAlgTool,
  private:
   double getDriftTime(double radius) const;
   double getAdcResponse() const;
-  bool  isTubeEfficient(double radius, CLHEP::HepRandomEngine *rndmEngine) const;
-  
-  double m_effRadius;
+  bool  isTubeEfficient(const double radius, CLHEP::HepRandomEngine *rndmEngine, const bool issMDT) const;
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  Gaudi::Property<double> m_effRadius{this, "EffectiveRadius", 14.4275};
+  Gaudi::Property<double> m_smallEffRadius{this, "SmallEffectiveRadius", 7.5}; // for sMDTs // which value to put here?
+
   double m_maxRadius;
+  double m_smallMaxRadius; // for sMDTs
 
   std::vector <Rt_relation *> m_rt;
-
-  const MdtIdHelper*         m_idHelper;
-
 };
 
 inline
@@ -72,13 +74,19 @@ double   RT_Relation_DigiTool::getAdcResponse() const {
 }
 
 inline
-bool  RT_Relation_DigiTool::isTubeEfficient(double radius, CLHEP::HepRandomEngine *rndmEngine) const {
-    
-  if ((radius < 0) || (radius > m_maxRadius)) return false;
-  if (radius < m_effRadius) return true;
-  double eff = 1.0 + (radius-m_effRadius)/(m_effRadius-m_maxRadius);
+bool  RT_Relation_DigiTool::isTubeEfficient(const double radius, CLHEP::HepRandomEngine *rndmEngine, const bool issMDT) const {
+  if (radius<0) return false;
+  double eff=0;
+  if (issMDT) {
+    if (radius > m_smallMaxRadius) return false;
+    if (radius < m_smallEffRadius) return true;
+    eff = 1.0 + (radius-m_smallEffRadius)/(m_smallEffRadius-m_smallMaxRadius);
+  } else {
+    if (radius > m_maxRadius) return false;
+    if (radius < m_effRadius) return true;
+    eff = 1.0 + (radius-m_effRadius)/(m_effRadius-m_maxRadius);
+  }
   if (CLHEP::RandFlat::shoot(rndmEngine,0.0, 1.0) <= eff) return true;
-  
   return false;
 }
 
