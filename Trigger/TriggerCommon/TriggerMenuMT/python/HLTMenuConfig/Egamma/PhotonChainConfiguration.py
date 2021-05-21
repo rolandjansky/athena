@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -40,16 +40,30 @@ def precisionPhotonCaloSequenceCfg( flags ):
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
 
-def diphotonDPhiHypoToolFromDict(chainDict):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDPhiHypoTool
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
+def _diPhotonComboHypoToolFromDict(chainDict, lowermass=80000,uppermass=-999,dphi=1.5,applymass=False,applydphi=False): 
     name = chainDict['chainName']
     monTool = GenericMonitoringTool("MonTool_"+name)
-    monTool.Histograms = [defineHistogram('DphiOfAccepted', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2)]
-    tool= TrigEgammaDPhiHypoTool(name)
-    tool.ThresholdDPhiCut = 1.5
-    monTool.HistPath = 'EgammaDphiHypo/'+tool.getName()
+    monTool.Histograms = [
+        defineHistogram('DphiOfAccepted', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2),
+        defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)
+    ]
+    tool= TrigEgammaTopoHypoTool(name)
+    tool.AcceptAll = False
+    tool.ApplyMassCut = applymass
+    tool.LowerMassEgammaClusterCut = lowermass
+    tool.UpperMassEgammaClusterCut = uppermass
+    tool.ApplyDPhiCut = applydphi
+    tool.ThresholdDPhiCut = dphi
+    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
     tool.MonTool = monTool
     return tool
+
+def diphotonDPhiHypoToolFromDict(chainDict):
+    return _diPhotonComboHypoToolFromDict(chainDict,lowermass=80000,uppermass=-999,dphi=1.5,applymass=False,applydphi=True)
+
+def diphotonDPhiMassHypoToolFromDict(chainDict):
+    return _diPhotonComboHypoToolFromDict(chainDict,lowermass=80000,uppermass=-999,dphi=1.5,applymass=True,applydphi=True)
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -140,9 +154,13 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
 
     def getPrecisionPhoton(self):
-        if "dPhi15" in self.chainName:
-            stepName = "precision_topophoton"
+   
+        if "dPhi15" in self.chainName and "m80" not in self.chainName:
+            stepName = "precision_photon_dPhi15"
             return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
+        elif "m80" in self.chainName and "dPhi15" in self.chainName:
+            stepName = "precision_photon_dPhi15_m80"
+            return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiMassHypoToolFromDict])
         else:
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])

@@ -242,7 +242,7 @@ def setupMenu():
 
         #ATR-21882
         ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
-
+        ChainProp(name='HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
