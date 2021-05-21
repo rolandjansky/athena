@@ -18,9 +18,6 @@
 #include <string>
 #include <vector>
 
-class MsgStream;
-class Identifier;
-
 namespace Trk {
 
 /**
