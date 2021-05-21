@@ -68,7 +68,7 @@ if (DerivationFrameworkIsMonteCarlo):
    # Set appropriate truth jet collection for tau truth matching
    ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
    # Add sumOfWeights metadata for LHE3 multiweights =======
-   #from DerivationFrameworkCore.LHE3WeightMetadata import *
+   from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 
