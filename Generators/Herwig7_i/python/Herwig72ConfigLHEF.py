@@ -168,10 +168,10 @@ saverun {} /Herwig/Generators/EventGenerator
 ## ----------------------------
 
 ## Create the Handler and Reader
-{PwgReaderLib}
 library LesHouches.so
-create ThePEG::{PwgReader}LesHouchesFileReader /Herwig/EventHandlers/LHEReader
 create ThePEG::LesHouchesEventHandler /Herwig/EventHandlers/LHEHandler
+{PwgReaderLib}
+create ThePEG::{PwgReader}LesHouchesFileReader /Herwig/EventHandlers/LHEReader
 
 ## Set LHE filename
 set /Herwig/EventHandlers/LHEReader:FileName {FileName}
