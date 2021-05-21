@@ -336,9 +336,6 @@ void Trk::GsfCombinedMaterialEffects::scattering(
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov) {
-    ATH_MSG_DEBUG(
-        "No measurement associated with track parameters... "
-        "returning original parameters");
     return;
   }
 
@@ -373,9 +370,6 @@ void Trk::GsfCombinedMaterialEffects::energyLoss(
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
   if (!measuredCov) {
-    ATH_MSG_DEBUG(
-        "No measurement on track parameters... returning original "
-        "track parameters");
     return;
   }
   double pathcorrection = pathLength / materialProperties.thickness();
