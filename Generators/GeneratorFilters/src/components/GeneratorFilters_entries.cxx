@@ -82,6 +82,8 @@
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
 #include "GeneratorFilters/xAODTauFilter.h"
+#include "GeneratorFilters/PileupTruthParticleSlimmer.h"
+#include "GeneratorFilters/TauTruthParticleSlimmer.h"
 
 DECLARE_COMPONENT( ElectronFilter )
 DECLARE_COMPONENT( LeptonFilter )
@@ -167,3 +169,5 @@ DECLARE_COMPONENT( HTFilter )
 DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )
 DECLARE_COMPONENT( xAODTauFilter )
+DECLARE_COMPONENT( PileupTruthParticleSlimmer )
+DECLARE_COMPONENT( TauTruthParticleSlimmer )
