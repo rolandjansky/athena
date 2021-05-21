@@ -275,6 +275,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -362,6 +363,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -471,6 +473,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -577,6 +580,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -658,6 +662,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -802,6 +807,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_jFEXSimTool->reset();
 
     
@@ -868,6 +874,17 @@ namespace LVL1 {
     SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
     ATH_MSG_DEBUG("  write: " << outputjFexTauHandle.key() << " = " << "..." );
     ATH_CHECK(outputjFexTauHandle.record(std::move(jTauContainer),std::move(jTauAuxContainer)));
+    
+    
+    //---SumET EDM
+    //for( auto const& [jfex, MODULE_tobs] : m_allsumEtTobs ) {
+        //for(auto &FPGA_tob : MODULE_tobs) {
+            //for(auto &tob : FPGA_tob) {
+                //std::cout<<"Module: "<<+jfex<<"\t\t TOB: "<<tob<<std::endl;
+            //}
+        //}
+    //}    
+    
 
     // ToDo
     // To implement

@@ -50,6 +50,14 @@ Interface definition for jFEXFPGA
     virtual std::vector<uint32_t> getTauTOBs() = 0;
     virtual std::vector<uint32_t> getTauxTOBs() = 0;
 
+    virtual uint32_t formSumETTOB(int , int ) =0;
+    virtual std::vector <uint32_t> getSumEtTOBs() =0;    
+
+    virtual uint32_t formMetTOB(int , int ) =0;
+    virtual std::vector <uint32_t> getMetTOBs() =0;    
+    
+    
+
     virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
     virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) = 0;
 
