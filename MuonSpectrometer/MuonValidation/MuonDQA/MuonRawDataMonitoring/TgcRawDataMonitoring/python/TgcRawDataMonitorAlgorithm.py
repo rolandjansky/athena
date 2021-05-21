@@ -33,7 +33,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
-    tgcRawDataMonAlg.UseNonMuonTriggers = True
+    tgcRawDataMonAlg.UseNonMuonTriggers = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
