@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@ class EMInsituDatabaseEntry
   EMInsituDatabaseEntry();
 		
   /** Constructor Defining DatabaseID*/
-  EMInsituDatabaseEntry(std::string dbaseID);
+  EMInsituDatabaseEntry(const std::string& dbaseID);
 
   /** Default Destructor*/
   ~EMInsituDatabaseEntry();
   /** Copy Constructor*/
-  EMInsituDatabaseEntry(const EMInsituDatabaseEntry& ob);
+  EMInsituDatabaseEntry(const EMInsituDatabaseEntry& ob) = default;
  
   /** = operator */
-  EMInsituDatabaseEntry& operator = (const EMInsituDatabaseEntry& ob);
+  EMInsituDatabaseEntry& operator = (const EMInsituDatabaseEntry& ob) = default;
 
   /** Fill this APEMClusterErrorsEntry from given APEMClusterErrorsMatrix*/
   bool setMatrix(const EMClusterErrorsMatrix &apClusterErrorsMatrix);
