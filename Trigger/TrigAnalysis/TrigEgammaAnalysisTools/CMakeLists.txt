@@ -13,7 +13,7 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    PUBLIC_HEADERS TrigEgammaAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigDecisionToolLib TrigEgammaEmulationToolLib TrigEgammaMatchingToolLib TrigHLTMonitoringLib TrigNavStructure xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigger xAODTruth
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigHLTMonitoringLib TrigNavStructure xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigger xAODTruth
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaMonitoringLib TrigConfxAODLib TrigSteeringEvent )
 
 atlas_add_component( TrigEgammaAnalysisTools
