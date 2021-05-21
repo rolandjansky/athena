@@ -1145,7 +1145,8 @@ namespace Muon {
                 ATH_MSG_DEBUG("updated competing ROT");
                 info.cleanedCompROT = std::move(updatedCompRot);
                 if (info.cleanedCompROT->associatedSurface() != meas->associatedSurface()) {
-                    const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(ctx, *pars, info.cleanedCompROT->associatedSurface(), Trk::anyDirection, false, Trk::muon);
+                    const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(ctx, *pars, info.cleanedCompROT->associatedSurface(),
+                                                                                     Trk::anyDirection, false, Trk::muon);
                     if (!exPars) {
                         ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones");
                         info.cleanedCompROT.reset();
