@@ -34,17 +34,26 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
 
     if flags.Beam.Type == 'collisions':
         kwargs.setdefault("pTMin", 2000 )
-        kwargs.setdefault("IPd0Max", 50.0 )
-        kwargs.setdefault("IPz0Max", 9999.0 )
-        kwargs.setdefault("z0Max", 9999.0 )
-        kwargs.setdefault("useTrackSummaryInfo", True )
         kwargs.setdefault("nHitBLayer", 0 )
-        kwargs.setdefault("nHitPix", 1 )
         kwargs.setdefault("nHitBLayerPlusPix", 0 )
-        kwargs.setdefault("nHitSct", 3 )
-        kwargs.setdefault("nHitSi", 4 )
         kwargs.setdefault("nHitTrt", 0 )
         kwargs.setdefault("useTrackQualityInfo", False )
+        if flags.Muon.SAMuonTrigger:
+            kwargs.setdefault("IPd0Max", 19999.0 )
+            kwargs.setdefault("IPz0Max", 19999.0 )
+            kwargs.setdefault("z0Max", 19999.0 )
+            kwargs.setdefault("useTrackSummaryInfo", False )
+            kwargs.setdefault("nHitPix", 0 )
+            kwargs.setdefault("nHitSct", 0 )
+            kwargs.setdefault("nHitSi", 0 )
+        else:
+            kwargs.setdefault("IPd0Max", 50.0 )
+            kwargs.setdefault("IPz0Max", 9999.0 )
+            kwargs.setdefault("z0Max", 9999.0 )
+            kwargs.setdefault("useTrackSummaryInfo", True )
+            kwargs.setdefault("nHitPix", 1 )
+            kwargs.setdefault("nHitSct", 3 )
+            kwargs.setdefault("nHitSi", 4 )
     else:
         kwargs.setdefault("pTMin", 500 )
         kwargs.setdefault("IPd0Max", 19999.0 )
@@ -52,6 +61,7 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
         kwargs.setdefault("z0Max", 19999.0 )
         kwargs.setdefault("useTrackSummaryInfo", False )
         kwargs.setdefault("useTrackQualityInfo", False )
+
 
     result = AtlasExtrapolatorCfg(flags)
     extrapolator = result.getPrimary()
