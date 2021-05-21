@@ -212,6 +212,7 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
       CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
       theCell->addEnergy(iter.second);
     }
+    simulstate.DoAuxInfoCleanup();
   }
   else ATH_MSG_DEBUG("Skipping simulation as extrapolation to ID-Calo boundary failed.");
 
