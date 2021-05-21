@@ -7,6 +7,12 @@ import os
 import ROOT
 import argparse
 
+def safeRetrieve (evt, typ, key):
+    if evt.contains (typ, key):
+        return evt.retrieve (typ, key)
+    print (f'WARNING: Cannot find object {typ}/{key}')
+    return []
+
 def xAODDigest(evt, counter=False, extravars=False):
     result = list()
 
@@ -19,15 +25,14 @@ def xAODDigest(evt, counter=False, extravars=False):
         runnbr = ei.runNumber()
         evtnbr = ei.eventNumber()
 
-        clusters = evt.retrieve(
-            "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
+        clusters = safeRetrieve (evt, "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
         nclus = len(clusters)
 
-        idTracks = evt.retrieve(
+        idTracks = safeRetrieve(evt,
             "xAOD::TrackParticleContainer", "InDetTrackParticles")
         nIdTracks = len(idTracks)
 
-        jets = evt.retrieve("xAOD::JetContainer", "AntiKt4EMTopoJets")
+        jets = safeRetrieve(evt, "xAOD::JetContainer", "AntiKt4EMTopoJets")
         nJets = len(jets)
         if jets:
           jet1pt = jets[0].pt()
@@ -36,7 +41,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           jet1pt = jet1eta = jet1phi = 0
 
-        muons = evt.retrieve("xAOD::MuonContainer", "Muons")
+        muons = safeRetrieve(evt, "xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
         if muons:
           muon1pt = muons[0].pt()
@@ -45,7 +50,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           muon1pt = muon1eta = muon1phi = 0
 
-        electrons = evt.retrieve("xAOD::ElectronContainer", "Electrons")
+        electrons = safeRetrieve(evt,"xAOD::ElectronContainer", "Electrons")
         nElec = len(electrons)
         if electrons:
           elec1pt = electrons[0].pt()
@@ -54,7 +59,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           elec1pt = elec1eta = elec1phi = 0
 
-        photons = evt.retrieve("xAOD::PhotonContainer", "Photons")
+        photons = safeRetrieve(evt,"xAOD::PhotonContainer", "Photons")
         nPhot = len(photons)
         if photons:
           phot1pt = photons[0].pt()
