@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ class MaterialEffectsBase
   */
   MaterialEffectsBase (double thicknessInX0,
                        const Surface& assocSurf,
-                       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern);
+                       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern);
   //! copy constructor 
   MaterialEffectsBase(const MaterialEffectsBase& meba);
   //! Assignment operator
