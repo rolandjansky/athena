@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -76,30 +76,31 @@ def precisionElectronSequenceCfg_lrt( flags, is_probe_leg=False ):
     return precisionElectronMenuSequence_LRT(is_probe_leg=is_probe_leg)
 
 # this must be moved to the HypoTool file:
-def diElectronZeeMassComboHypoToolFromDict(chainDict):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaMassHypoTool
+
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
+
+
+def _diElectronMassComboHypoToolFromDict(chainDict, mass_range): 
     name = chainDict['chainName']
     monTool = GenericMonitoringTool("MonTool_"+name)
-    monTool.Histograms = [defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)]
-    tool= TrigEgammaMassHypoTool(name)
-    tool.LowerMassElectronClusterCut = 50000
-    tool.UpperMassElectronClusterCut = 130000
+    monTool.Histograms = [
+        defineHistogram('DphiOfAccepted', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2),
+        defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)
+    ]
+    tool= TrigEgammaTopoHypoTool(name)
+    tool.AcceptAll = False
+    tool.ApplyMassCut = True
+    tool.LowerMassEgammaClusterCut = mass_range[0]
+    tool.UpperMassEgammaClusterCut = mass_range[1]
     monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
     tool.MonTool = monTool
     return tool
+
+def diElectronZeeMassComboHypoToolFromDict(chainDict):
+    return _diElectronMassComboHypoToolFromDict(chainDict, (50000, 130000))
 
 def diElectronJpsieeMassComboHypoToolFromDict(chainDict):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaMassHypoTool
-    name = chainDict['chainName']
-    monTool = GenericMonitoringTool("MonTool_"+name)
-    monTool.Histograms = [defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)]
-    tool= TrigEgammaMassHypoTool(name)
-    tool.LowerMassElectronClusterCut = 1000
-    tool.UpperMassElectronClusterCut = 5000
-    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
-    tool.MonTool = monTool
-    return tool
-
+    return _diElectronMassComboHypoToolFromDict(chainDict, (1000, 5000))
 
 def electronFastCaloCfg_fwd( flags, is_probe_leg=False ):
     return fastCaloMenuSequence_FWD("Electron", is_probe_leg=is_probe_leg)
@@ -200,6 +201,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         for L2IDAlg in self.chainPart['L2IDAlg']:
             key+=L2IDAlg
 
+        for topo in self.chainPart['topo']:
+            key+=topo
 
         log.debug('electron key = %s', key)
         if key in stepDictionary:
@@ -274,12 +277,12 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         isocut = self.chainPart['isoInfo']
         log.debug(' isolation cut = %s', isocut)
-
+    
         if "Zee" in self.chainName:
-            stepName = "precision_topoelectron"+str(isocut)
+            stepName = "precision_electron_Zee"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
         elif "Jpsiee" in self.chainName:
-            stepName = "precision_topoelectron"+str(isocut)
+            stepName = "precision_topoelectron_Jpsiee"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
         elif "bBeeM6000" in self.chainName:
             stepName = "precision_electron_bBee"+isocut
@@ -289,18 +292,18 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             return self.getStep(5,stepName,[precisionElectronSequenceCfg_ion], is_probe_leg=is_probe_leg)
         else:
             stepName = "precision_electron"+str(isocut)
-            return self.getStep(5,stepName,[ precisionElectronSequenceCfg], is_probe_leg=is_probe_leg)
+            return self.getStep(5,stepName,[ precisionElectronSequenceCfg], is_probe_leg=is_probe_leg)     
 
     def getPrecisionGSFElectron(self,is_probe_leg=False):
 
         isocut = self.chainPart['isoInfo']
         log.debug(' isolation cut = ' + str(isocut))
-
+       
         if "Zee" in self.chainName:
-            stepName = "precision_topoelectron_GSF"+str(isocut)
+            stepName = "precision_topoelectron_Zee_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
-        if "Jpsiee" in self.chainName:
-            stepName = "precision_topoelectron_GSF"+str(isocut)
+        elif "Jpsiee" in self.chainName:
+            stepName = "precision_topoelectron_Jpsiee_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
         else:
             stepName = "precision_electron_GSF"+str(isocut)
