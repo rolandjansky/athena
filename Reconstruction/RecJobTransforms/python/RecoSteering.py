@@ -83,7 +83,7 @@ def _run(input):
 
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
-#    flags.Output.AODFileName="myAOD.pool.root"
+    flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
     args = flags.fillFromArgs(parser=parser)
 
@@ -126,10 +126,5 @@ if __name__ == "__main__":
     if "--ESD" in sys.argv:    
         del sys.argv[sys.argv.index("--ESD")]
         statusCode = _run(input="ESD")
-
-#TODO enable digest production once able to read the AOD
-#        if statusCode.isSuccess():
-#            import subprocess
-#            subprocess.run("xAODDigest.py outputAOD.pool.root digetst.txt")
 
     sys.exit(not statusCode.isSuccess())
