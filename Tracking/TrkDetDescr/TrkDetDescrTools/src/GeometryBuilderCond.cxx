@@ -117,13 +117,6 @@ StatusCode Trk::GeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode Trk::GeometryBuilderCond::finalize()
-{
-    ATH_MSG_DEBUG( "finalize() successful." );
-    return StatusCode::SUCCESS;
-}
-
 
 std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
 {
