@@ -86,6 +86,7 @@ namespace LVL1 {
     std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allSmallRJetTobs; 
     std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allLargeRJetTobs;
     std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_alltauTobs;
+    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allsumEtTobs;
   };
   
 } // end of namespace

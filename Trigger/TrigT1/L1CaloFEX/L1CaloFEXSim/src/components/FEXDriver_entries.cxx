@@ -15,6 +15,8 @@
 #include "L1CaloFEXSim/jFEXFPGA.h"
 #include "L1CaloFEXSim/jFEXSmallRJetAlgo.h"
 #include "L1CaloFEXSim/jFEXtauAlgo.h"
+#include "L1CaloFEXSim/jFEXsumETAlgo.h"
+#include "L1CaloFEXSim/jFEXmetAlgo.h"
 #include "L1CaloFEXSim/jFEXLargeRJetAlgo.h"
 #include "L1CaloFEXSim/jFEXNtupleWriter.h"
 
@@ -39,5 +41,7 @@ DECLARE_COMPONENT(jSuperCellTowerMapper)
 DECLARE_COMPONENT(jFEXFPGA)
 DECLARE_COMPONENT(jFEXSmallRJetAlgo)
 DECLARE_COMPONENT(jFEXtauAlgo)
+DECLARE_COMPONENT(jFEXsumETAlgo)
+DECLARE_COMPONENT(jFEXmetAlgo)
 DECLARE_COMPONENT(jFEXLargeRJetAlgo)
 DECLARE_COMPONENT(jFEXNtupleWriter)

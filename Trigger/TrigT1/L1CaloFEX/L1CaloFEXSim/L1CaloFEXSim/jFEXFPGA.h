@@ -21,6 +21,8 @@
 #include "L1CaloFEXToolInterfaces/IjFEXSmallRJetAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXLargeRJetAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXtauAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -67,7 +69,15 @@ namespace LVL1 {
     /**Form a tob word out of the potential candidate Tau tob */
     virtual uint32_t formTauTOB(int &, int &) override;
     virtual std::vector <uint32_t> getTauTOBs() override;    
-    virtual std::vector <uint32_t> getTauxTOBs() override;    
+    virtual std::vector <uint32_t> getTauxTOBs() override; 
+       
+    /**Form a tob word out of the potential candidate SumET tob */
+    virtual uint32_t formSumETTOB(int , int ) override;
+    virtual std::vector <uint32_t> getSumEtTOBs() override;    
+       
+    /**Form a tob word out of the potential candidate MET tob */
+    virtual uint32_t formMetTOB(int , int ) override;
+    virtual std::vector <uint32_t> getMetTOBs() override;    
     
  
    /** Internal data */
@@ -82,6 +92,8 @@ namespace LVL1 {
     std::vector<uint32_t> m_SRJet_tobwords;
     std::vector<uint32_t> m_LRJet_tobwords;
     std::vector<uint32_t> m_tau_tobwords;
+    std::vector<uint32_t> m_sumET_tobwords;
+    std::vector<uint32_t> m_Met_tobwords;
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
@@ -96,6 +108,8 @@ namespace LVL1 {
     ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
     ToolHandle<IjFEXLargeRJetAlgo> m_jFEXLargeRJetAlgoTool {this, "jFEXLargeRJetAlgoTool", "LVL1::jFEXLargeRJetAlgo", "Tool that runs the jFEX Large R Jet algorithm"};
     ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool             {this, "jFEXtauAlgoTool"      , "LVL1::jFEXtauAlgo"      , "Tool that runs the jFEX tau algorithm"};
+    ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
+    ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
     //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
     
   };
