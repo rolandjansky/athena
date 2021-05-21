@@ -28,6 +28,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
+#include "TrigConfData/L1Menu.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -54,6 +56,7 @@ StatusCode eFEXFPGA::initialize()
 {
 
   ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+  ATH_CHECK(m_l1MenuKey.initialize());
 
   //ATH_CHECK(m_eFEXFPGA_eFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
@@ -100,7 +103,12 @@ StatusCode eFEXFPGA::execute(){
   StatusCode sc_tobs = evtStore()->retrieve(eFEXOutputs, "eFEXOutputCollection");
   if(sc_tobs == StatusCode::SUCCESS){ }
   else if(sc_tobs == StatusCode::FAILURE) {ATH_MSG_DEBUG("\n---- eFEXegAlgo --------- Failed to find eFEXOutputCollection in eFEXFPGA"); }
-  
+
+  // Retrieve the L1 menu configuration
+  SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+  ATH_CHECK(l1Menu.isValid());
+
+  auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
 
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
@@ -115,9 +123,46 @@ StatusCode eFEXFPGA::execute(){
       ATH_CHECK( m_eFEXegAlgoTool->safetyTest() );
       m_eFEXegAlgoTool->setup(tobtable);
 
-      // temporarily(?) removed for debugging
-      //if (eFEXFPGA_egAlgo->haveSeed() == false) continue;
-      
+      // ignore any tobs without a seed, move on to the next window
+      if (m_eFEXegAlgoTool->hasSeed() == false) continue;
+      unsigned int seed = 0;
+      seed = m_eFEXegAlgoTool->getSeed();
+
+      // the minimum energy to send to topo (not eta dependent yet, but keep inside loop as it will be eventually?)
+      unsigned int ptMinToTopoCounts = 0;
+      ptMinToTopoCounts = thr_eEM.ptMinToTopoCounts(); 
+
+      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV?
+      unsigned int eEMTobEt = 0;
+      eEMTobEt = m_eFEXegAlgoTool->getET();
+      const unsigned int eFexTobstep = 100;
+      unsigned int eEMTobEtCounts = 0;
+      eEMTobEtCounts = eEMTobEt/eFexTobstep;//steps of 100 MeV for the TOB
+
+      // thresholds from Trigger menu
+      auto iso_loose  = thr_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+      auto iso_medium = thr_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
+      auto iso_tight  = thr_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);  
+
+      std::vector<unsigned int> threshReta;
+      threshReta.push_back(iso_loose.reta());
+      threshReta.push_back(iso_medium.reta());
+      threshReta.push_back(iso_tight.reta());
+
+      std::vector<unsigned int> threshRhad;
+      threshRhad.push_back(iso_loose.rhad());
+      threshRhad.push_back(iso_medium.rhad());
+      threshRhad.push_back(iso_tight.rhad());
+
+      std::vector<unsigned int> threshWstot;
+      threshWstot.push_back(iso_loose.wstot());
+      threshWstot.push_back(iso_medium.wstot());
+      threshWstot.push_back(iso_tight.wstot());
+
+      ATH_MSG_DEBUG("ieta=" << ieta << "  loose => reta=" << threshReta[0] << ", had=" << threshRhad[0] << ", wstot=" << threshWstot[0]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  medium => reta=" << threshReta[1] << ", had=" << threshRhad[1] << ", wstot=" << threshWstot[1]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  tight => reta=" << threshReta[2] << ", had=" << threshRhad[2] << ", wstot=" << threshWstot[2]);
+
       // Get Reta and Rhad outputs
       std::vector<unsigned int> RetaCoreEnv; 
       m_eFEXegAlgoTool->getReta(RetaCoreEnv);
@@ -126,25 +171,19 @@ StatusCode eFEXFPGA::execute(){
       std::vector<unsigned int> WstotCoreEnv;
       m_eFEXegAlgoTool->getWstot(WstotCoreEnv);
 
-      // temp thresholds that will come from Trigger menu
-      std::vector<unsigned int> tempThrs;
-      tempThrs.push_back(40);
-      tempThrs.push_back(30);
-      tempThrs.push_back(20);
-      
       // Set Reta, Rhad and Wstot WP
       unsigned int RetaWP = 0;
       unsigned int RhadWP = 0;
       unsigned int WstotWP = 0;
-      SetIsoWP(RetaCoreEnv,tempThrs,RetaWP);
-      SetIsoWP(RhadCoreEnv,tempThrs,RhadWP);
-      SetIsoWP(WstotCoreEnv,tempThrs,WstotWP);
+      SetIsoWP(RetaCoreEnv,threshReta,RetaWP);
+      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP);
+      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP);
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
-      int phi_ind = iphi - 1;    
+      int phi_ind = iphi - 1;
 
-
-      uint32_t tobword = formEmTOB(eta_ind,phi_ind);
-      if ( tobword != 0 ) m_tobwords.push_back(tobword);
+      //form the egamma tob word
+      uint32_t tobword = formEmTOB(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
+      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_tobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -160,8 +199,8 @@ StatusCode eFEXFPGA::execute(){
       eFEXOutputs->addValue_eg("RetaDen", tmp_tob->getRetaDen());
       eFEXOutputs->addValue_eg("RhadNum", tmp_tob->getRhadNum());
       eFEXOutputs->addValue_eg("RhadDen", tmp_tob->getRhadDen());
-      eFEXOutputs->addValue_eg("haveSeed", m_eFEXegAlgoTool->haveSeed());
-      eFEXOutputs->addValue_eg("Et", m_eFEXegAlgoTool->getET());
+      eFEXOutputs->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
+      eFEXOutputs->addValue_eg("ET", m_eFEXegAlgoTool->getET());
       float eta = 9999;
       m_eFEXegAlgoTool->getRealEta(eta);
       eFEXOutputs->addValue_eg("eta", eta);
@@ -233,7 +272,7 @@ std::vector<uint32_t> eFEXFPGA::getEmTOBs()
   */
 
   // return the top 6 highest ET TOBs from the FPGA
-  tobsSort.resize(6);
+  if (tobsSort.size() > 6) tobsSort.resize(6);
   return tobsSort;
 
 }
@@ -300,14 +339,14 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
   if (CoreOverflow == false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
-	workingPoint = 3;
+      if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+	workingPoint = 1;
       } 
       else if ( (CoreEnv[0] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
 	workingPoint = 2;
       } 
-      else if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
-	workingPoint = 1;
+      else if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+	workingPoint = 3;
       }
       else { 
 	workingPoint = 0;
@@ -325,30 +364,21 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
 
 
-uint32_t eFEXFPGA::formEmTOB(int & ieta, int & iphi)
+uint32_t eFEXFPGA::formEmTOB(int & fpga, int & eta, int & phi, unsigned int & rhad, unsigned int & wstot, unsigned int & reta, unsigned int & seed, unsigned int & et, unsigned int & ptMinTopo)
 {
-  uint32_t tobWord = 0;
-  const unsigned int eFexTobstep = 100;
+  uint32_t tobword = 0;
 
-
-  //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV
-  unsigned int et = m_eFEXegAlgoTool->getET();
- 
-  unsigned int eFexTobEt = et/eFexTobstep;//steps of 100 MeV for the TOB
-
-  if (eFexTobEt > 0xfff) eFexTobEt = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
-  int eta = ieta;
-  int phi = iphi;
+  if (et > 0xfff) et = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
 
   //Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
-  tobWord = tobWord + eFexTobEt + (phi << 24) + (eta << 27) + (m_id << 30);
+  tobword = tobword + (fpga << 30) + (eta << 27) + (phi << 24) + (rhad << 22) + (wstot << 20) + (reta << 18) + (seed << 16) + et;
 
-  ATH_MSG_DEBUG("tobword with et, eta, phi, fpga: " << std::bitset<32>(tobWord) );
+  ATH_MSG_DEBUG("tobword: " << std::bitset<32>(tobword) );
 
-  //some arbitrary cut so that we're not flooded with tobs. to be taken from the Trigger menu in the future!
-  unsigned int minEtThreshold = 30;
+  //some arbitrary cut so that we're not flooded with tobs. taken from the Trigger menu!
+  unsigned int minEtThreshold = ptMinTopo;
   if (et < minEtThreshold) return 0;  
-  else return tobWord;
+  else return tobword;
 
 }
   
