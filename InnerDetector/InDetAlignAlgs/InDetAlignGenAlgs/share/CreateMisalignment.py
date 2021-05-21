@@ -25,17 +25,21 @@ ROOToutput = True
 
 createFreshDB = not(ReadDBPoolFile or MisalignmentOnTopOfExistingSet)
 
+MisalignmentMode = 11
+
 if not 'MisalignmentMode' in dir():
     MisalignmentMode = 3
 
-MaximumShift = 200*micrometer
+shiftInMicrons = 200 # this shift is given at a the 3rd SCT layer (r=0.5 m = 500 mm)
 if MisalignmentMode in [11, 12,31]:
-    MaximumShift = 500*micrometer
+    shiftInMicrons = 250
+    
+MaximumShift = shiftInMicrons*micrometer
 
 InFile = 'alignment_nominal'
-#InFile = 'NominalAlignment'
-#InFile = 'MisalignmentSet11'
-OutFiles = 'MisalignmentSet%s' % MisalignmentMode
+signKey = 'p'
+if(shiftInMicrons > 0): signKey = 'n' 
+OutFiles = 'MisalignmentSet%s_%s%d' % (MisalignmentMode, signKey, shiftInMicrons) 
 
 #####################################################################
 
@@ -53,6 +57,8 @@ MisalignModeMap = {0:'no Misalignment',
 
 # construct Alignmentparameter Input filename
 AlignmentInFilename = InFile + '.pool.root'
+
+# 
 
 # construct Alignment- and Monitoring NTuple filenames and Alignmentparameter Output filename
 NtupleOutFilename    = OutFiles + '.ntuple.root'
@@ -88,7 +94,7 @@ from AtlasGeoModel import SetGeometryVersion
 from InDetAlignGenTools.InDetAlignGenToolsConf import InDetAlignDBTool
 InDetDBTool = InDetAlignDBTool()
 ToolSvc += InDetDBTool
-print InDetDBTool
+print (InDetDBTool)
 
 # from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignDbTool
 #from TRT_ConditionsTools.TRT_ConditionsToolsConf import TRTAlignDbTool
@@ -111,7 +117,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 
-print "CreateMisalignAlg: Creation of misalignment mode %s: %s" % (MisalignmentMode,MisalignModeMap.get(MisalignmentMode,'unknown'))
+print ("\n CreateMisalignAlg: Creation of misalignment mode %s: %s \n" % (MisalignmentMode,MisalignModeMap.get(MisalignmentMode,'unknown')))
 
 from InDetAlignGenAlgs.InDetAlignGenAlgsConf import InDetAlignment__CreateMisalignAlg
 myMisalignAlg = InDetAlignment__CreateMisalignAlg( name = "MyMisalignmentAlg",
@@ -135,12 +141,12 @@ myMisalignAlg = InDetAlignment__CreateMisalignAlg( name = "MyMisalignmentAlg",
                                                     ScaleSCTEndcap=0.,
                                                     ScaleTRTBarrel=0.,
                                                     ScaleTRTEndcap=0.,
-                                                    MaxShift = MaximumShift
-                                                    , OutputLevel = DEBUG
+                                                    MaxShift = MaximumShift,
+                                                    OutputLevel = DEBUG
                                                  )
 
 topSequence += myMisalignAlg
-print          myMisalignAlg
+print (myMisalignAlg)
 
 # Needed for database-, Pool- and AlignableTransforms-Handling
 include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
@@ -166,7 +172,7 @@ if ReadDBPoolFile:
     ServiceMgr.CondProxyProvider.InputCollections = [ AlignmentInFilename ]
     
     ServiceMgr.CondProxyProvider.OutputLevel=INFO
-    print ServiceMgr.CondProxyProvider
+    print (ServiceMgr.CondProxyProvider)
     ServiceMgr.IOVSvc.preLoadData = True
 else:
     ##day1
@@ -182,7 +188,7 @@ if WriteDBPoolFile:
     from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
     InDetCondStream=AthenaOutputStreamTool(name="CondStream1", OutputFile = AlignmentOutFilename)
     ToolSvc += InDetCondStream
-    print InDetCondStream
+    print (InDetCondStream)
     
     include( "RegistrationServices/IOVRegistrationSvc_jobOptions.py" )
     regSvc = Service( "IOVRegistrationSvc" )
