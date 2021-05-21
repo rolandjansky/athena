@@ -33,11 +33,16 @@ namespace ClusterMatching {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    if(m_elementLinkName.empty()) {
-      ATH_MSG_ERROR("Empty name provided for TopoCluster ElementLinks -- aborting");
+    if (m_clustersIn.empty()) {
+      ATH_MSG_ERROR("Empty name provided for TopoCluster collection nothing to "
+                    "work with -- aborting");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_clustersIn.initialize() );
+    ATH_CHECK(m_clustersIn.initialize());
+
+    //adapt WriteDecorHandleKey to input name
+    const std::string baseName = m_clustersIn.key();
+    m_elementLinkName =  baseName + ".constituentClusterLinks";
     ATH_CHECK( m_elementLinkName.initialize() );
 
     return StatusCode::SUCCESS;

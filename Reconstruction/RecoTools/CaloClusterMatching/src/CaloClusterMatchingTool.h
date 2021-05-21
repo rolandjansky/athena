@@ -118,9 +118,19 @@ namespace ClusterMatching {
 
     Gaudi::Property<bool> m_reqPosE{this,"RequirePositiveE",true};
     Gaudi::Property<float> m_minSharedEfrac{this,"MinSharedEfrac",0.2};
-    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{this,"InputClusterCollection","CaloCalTopoClusters","The CaloCluster collection to match"};
-    SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};   
-
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{
+      this,
+      "InputClusterCollection",
+      "CaloCalTopoClusters",
+      "The CaloCluster collection to match"
+    };
+    // This is not really configurable on its own.
+    // It has to be:
+    // m_clustersIn.key()+.constituentClusterLinks
+    // Here a reasonable default
+    SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{
+      "CaloCalTopoClusters.constituentClusterLinks"
+    };
   }; 
 
 }
