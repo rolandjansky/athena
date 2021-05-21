@@ -93,20 +93,23 @@ def MinBiasSPSequence():
                         HypoToolGen = SPCountHypoToolGen )
 
 def MinBiasZVertexFinderSequence():
-    #TODO here a vertex z finder algorithm needs to be added once there is one
-    #TODO                                          \/
-    #TODO sequence should be changed to parOR once not empty
-    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [  ])
+    import AthenaCommon.CfgMgr as CfgMgr
+    vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
+    vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
+
+    from IDScanZFinder.IDScanZFinderConf import  TrigZFinderAlg
+    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, TrigZFinderAlg() ])
     
     #idTrigConfig = getInDetTrigConfig('InDetSetup')
+    ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
+    ZVertFindInputMakerAlg.ViewFallThrough = True
+    ZVertFindInputMakerAlg.RoITool = ViewCreatorInitialROITool()
+    ZVertFindInputMakerAlg.InViewRoIs = "InputRoI"
+    ZVertFindInputMakerAlg.Views = "ZVertFinderView"
+    ZVertFindInputMakerAlg.RequireParentView = True 
+    ZVertFindInputMakerAlg.ViewNodeName =  ZVertFindRecoSeq.name()
     
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
-    ZVertFindInputMakerAlg = InputMakerForRoI("IM_ZVertFind", 
-                                        RoIsLink="initialRoI", 
-                                        RoITool = ViewCreatorInitialROITool(),
-                                        RoIs='ZVertFindRoI',
-                                        )
-    
+
     ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
     
     from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
