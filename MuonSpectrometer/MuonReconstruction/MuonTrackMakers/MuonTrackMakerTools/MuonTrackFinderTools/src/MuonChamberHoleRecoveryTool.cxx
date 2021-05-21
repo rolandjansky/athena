@@ -31,7 +31,7 @@
 
 namespace {
     struct PullCluster {
-        double pull;
+        double pull{};
         std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };

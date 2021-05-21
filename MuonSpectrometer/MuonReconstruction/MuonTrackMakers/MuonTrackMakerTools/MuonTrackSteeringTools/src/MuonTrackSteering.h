@@ -148,7 +148,7 @@ namespace Muon {
         std::vector<std::unique_ptr<const MuonTrackSteeringStrategy>> m_strategies;
         std::vector<std::string> m_stringStrategies;
 
-        int m_segQCut[3];  //!< Required segment quality for seed, 2nd, and other segments
+        int m_segQCut[3]{};  //!< Required segment quality for seed, 2nd, and other segments
         bool m_outputSingleStationTracks;
         bool m_combinedSLOverlaps;
         bool m_doSummary;

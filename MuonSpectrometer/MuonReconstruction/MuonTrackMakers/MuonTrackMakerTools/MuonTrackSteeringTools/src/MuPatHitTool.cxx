@@ -403,7 +403,7 @@ namespace Muon {
         // if at the end of the list move pos backwards to last entry
         if (pos == list.end()) { --pos; }
 
-        SortMuPatHits isLargerCal;
+        SortMuPatHits isLargerCal{};
         bool isLarger = isLargerCal(hit, *pos);  // check whether the hit is larger that the current list item
 
         // check whether the hit is larger that the current list item
@@ -539,8 +539,8 @@ namespace Muon {
 
     std::string MuPatHitTool::print(const MuPatHitList& hitList, bool printPos, bool printDir, bool printMom) const {
         std::ostringstream sout;
-        SortMuPatHits isLargerCal;
-        MuPatHitDistanceAlongParameters distCal;
+        SortMuPatHits isLargerCal{};
+        MuPatHitDistanceAlongParameters distCal{};
 
         // for nicely aligned printout, get max width of Id printout
         std::vector<std::string> idStrings;
@@ -679,7 +679,7 @@ namespace Muon {
     }  // printData( Trk::MeasurementBase )
 
     bool MuPatHitTool::isSorted(const MuPatHitList& hitList) const {
-        SortMuPatHits isLargerCal;
+        SortMuPatHits isLargerCal{};
         MuPatHitCit it = hitList.begin();
         MuPatHitCit it_end = hitList.end();
         MuPatHitCit itNext = it;

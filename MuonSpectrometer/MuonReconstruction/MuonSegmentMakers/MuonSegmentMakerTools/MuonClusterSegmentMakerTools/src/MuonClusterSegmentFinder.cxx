@@ -284,7 +284,7 @@ MuonClusterSegmentFinder::findSegments(std::vector<const RpcPrepDataCollection*>
 void
 MuonClusterSegmentFinder::findOverlap(std::map<int, bool>& themap, candEvent* theEvent) const
 {
-    CompareMuonSegmentKeys compareKeys;
+    CompareMuonSegmentKeys compareKeys{};
     if (theEvent->keyVector().size() > 1) {
         for (unsigned int i = 0; i < theEvent->keyVector().size(); i++) {
             themap.insert(std::pair<int, bool>(i, true));

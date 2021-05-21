@@ -178,10 +178,10 @@ namespace InDet {
     int m_outputlevel{};
     int m_r_size{};
     int m_fNmax{};
-    int m_rfz_b[SizeRFZ];
-    int m_rfz_t[SizeRFZ];
-    int m_rfz_ib[SizeRFZ][SizeI];
-    int m_rfz_it[SizeRFZ][SizeI];
+    int m_rfz_b[SizeRFZ]{};
+    int m_rfz_t[SizeRFZ]{};
+    int m_rfz_ib[SizeRFZ][SizeI]{};
+    int m_rfz_it[SizeRFZ][SizeI]{};
     float m_dzdrmin{};
     float m_dzdrmax{};
     float m_sF{};

@@ -128,7 +128,7 @@ namespace Muon {
 
         // private member data
         std::shared_ptr<const Trk::TrackParameters> m_pars;
-        const Trk::MeasurementBase* m_precisionMeas;
+        const Trk::MeasurementBase* m_precisionMeas{};
         std::unique_ptr<const Trk::MeasurementBase> m_broadMeas;
         Info m_info;
 

@@ -481,7 +481,7 @@ namespace Muon {
         if (level == 0) return oss.str();
 
         if (segment.hitList().size() >= 2) {
-            MuPatHitDistanceAlongParameters distCal;
+            MuPatHitDistanceAlongParameters distCal{};
             oss << " length " << distCal(segment.hitList().front(), segment.hitList().back());
         }
         oss << std::endl << m_hitHandler->print(segment.hitList(), true, false, false);

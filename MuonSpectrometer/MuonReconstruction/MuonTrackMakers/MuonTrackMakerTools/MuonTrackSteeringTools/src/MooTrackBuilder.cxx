@@ -511,7 +511,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size() << " reference size "
                                                                           << referenceSegments.size());
 
-        CompareMuonSegmentKeys compareSegmentKeys;
+        CompareMuonSegmentKeys compareSegmentKeys{};
 
         // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
         std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> > segKeys;
