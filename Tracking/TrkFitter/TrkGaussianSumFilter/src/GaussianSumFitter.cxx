@@ -291,10 +291,9 @@ Trk::GaussianSumFitter::fit(
   ++m_FitPRD;
 
   if (outlierRemoval) {
-    ATH_MSG_DEBUG(
+    ATH_MSG_WARNING(
       "Outlier removal not yet implemented for the Gaussian Sum Filter");
   }
-
   // Protect against empty PrepRawDataSet object
   if (prepRawDataSet.empty()) {
     ATH_MSG_FATAL("PrepRawData set for fit is empty... Exiting!");
@@ -401,7 +400,7 @@ Trk::GaussianSumFitter::fit(
 {
 
   if (outlierRemoval) {
-    ATH_MSG_DEBUG(
+    ATH_MSG_WARNING(
       "Outlier removal not yet implemented for the Gaussian Sum Filter");
   }
 
@@ -1204,8 +1203,6 @@ Trk::GaussianSumFitter::fit(
       particleHypothesis);
 
     if (extrapolatedState.empty()) {
-      ATH_MSG_DEBUG(
-        "Extrapolation to measurement surface failed... rejecting track!");
       return nullptr;
     }
 
