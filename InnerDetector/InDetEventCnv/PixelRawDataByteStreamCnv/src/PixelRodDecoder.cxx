@@ -357,7 +357,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             sc = StatusCode::RECOVERABLE;
             errorRecoverable = errorRecoverable | (headerError << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
 
-            if (headerError != 0) { // only treatment for header errors now, FIXME
+            { // only treatment for header errors now, FIXME
               if (headerError & (1 << 3)) {
                 m_numPreambleErrors++;
                 headerErr_preamble = true;
