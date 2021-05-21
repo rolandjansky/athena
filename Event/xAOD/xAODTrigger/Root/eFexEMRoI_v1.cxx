@@ -18,7 +18,6 @@ namespace xAOD {
   const float eFexEMRoI_v1::s_tobEtScale = 100.;
   const float eFexEMRoI_v1::s_xTobEtScale = 25.;
   const float eFexEMRoI_v1::s_towerEtaWidth = 0.1;
-  const float eFexEMRoI_v1::s_minEta = -2.5;
 
    eFexEMRoI_v1::eFexEMRoI_v1()
       : SG::AuxElement() {
@@ -34,7 +33,7 @@ namespace xAOD {
 
       /** Quantities derived from TOB data, stored for convenience */
       setEt( etTOB()*s_tobEtScale );
-      float etaVal = s_minEta + iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
+      float etaVal = iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
       setEta( etaVal );
       float phiVal = iPhi() * M_PI/32. + M_PI/64.;
       if (phiVal > M_PI) phiVal = phiVal - 2.*M_PI;
@@ -203,25 +202,42 @@ namespace xAOD {
      unsigned int octant = int(eFexNumber()/3) + shelfNumber()*s_shelfPhiWidth;
 
      /// Find global phi index (0-63) for this window in this eFEX 
-     unsigned int index = s_eFexPhiWidth*octant + fpgaPhi() + s_eFexPhiOffset;
+     int index = s_eFexPhiWidth*octant + fpgaPhi() + s_eFexPhiOffset;
      if (index >= s_numPhi) index -= s_numPhi;
 
      return index;
    }
 
-   /// Return an eta index in the range 0-49
+   /// Return an eta index in the range -25 -> +24
+   /// Value corresponds to 10*lower eta edge of tower
    /// Note that this may not be the final format!
    /// And you need to combine with the seed() value to get full eta precision
    int eFexEMRoI_v1::iEta() const {
 
      /// With appropriate constants this should work in one line...
-     int index = (eFexNumber()%3)*s_eFexEtaWidth + fpga()*s_fpgaEtaWidth + fpgaEta();
+     int index = s_minEta + (eFexNumber()%3)*s_eFexEtaWidth + fpga()*s_fpgaEtaWidth + fpgaEta();
 
      /// Return value
      return index;
 
    }
 
+  /// Return phi index in the range used by L1Topo (0->127)
+  int eFexEMRoI_v1::iPhiTopo() const {
+
+     /// Topo use pi/64 steps. Ours are pi/32, so we simply return 2* our integer index
+     return iPhi()*2;
+
+   }
+
+   /// Return an eta index in the range used by L1Topo (-100->+99)
+   int eFexEMRoI_v1::iEtaTopo() const {
+
+     /// This returns e/g seed position as an integer index. 
+     /// Value corresponds to 4*lower eta edge of supercell (so 0 means 0.0 -> 0.025) 
+     return iEta()*4 + seed();
+
+   }
 
 
 } // namespace xAOD
