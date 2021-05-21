@@ -871,10 +871,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           int chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
           if (serviceCodeCounter>0 && serviceCode<32) {
             if (serviceCode!=14) {
-              // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
-              int indexOffset = 17*m_pixel_id->wafer_hash_max();
-              int indexSvcCounter = indexOffset+serviceCode*280*2+2*(static_cast<int>(offlineIdHash)-156)+chFE;
-              bsErrWord[indexSvcCounter] = serviceCodeCounter;
+              // Monitor service record for IBL (not DBM)
+              if (static_cast<int>(offlineIdHash)>155 && static_cast<int>(offlineIdHash)<436) {
+                // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
+                int indexOffset = 17*m_pixel_id->wafer_hash_max();
+                int indexSvcCounter = indexOffset+serviceCode*280*2+2*(static_cast<int>(offlineIdHash)-156)+chFE;
+
+                bsErrWord[indexSvcCounter] = serviceCodeCounter;
+              }
             }
           }
 
