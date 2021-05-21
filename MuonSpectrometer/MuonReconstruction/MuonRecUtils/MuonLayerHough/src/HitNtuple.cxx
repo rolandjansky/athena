@@ -370,7 +370,7 @@ namespace MuonHough {
     }
    
     for( int i=0;i<nmuons;++i ){
-      MuonDebugInfo muon;
+      MuonDebugInfo muon{};
       muon.pdgId = tpdgId[i];
       muon.barcode = tbarcode[i];
       muon.muonIndex = tmuonIndex[i];
@@ -392,7 +392,7 @@ namespace MuonHough {
 
   bool HitNtuple::readseg(std::vector<SegDebugInfo>& segments ){
     for( int i=0;i<nsegs;++i ){
-      SegDebugInfo segment;
+      SegDebugInfo segment{};
       segment.sposx = sposx[i];
       segment.sposy = sposy[i];
       segment.sposz = sposz[i];

@@ -296,13 +296,13 @@ namespace InDet {
     static constexpr float m_radiusCutIBL{43.}; 
 
     /// arrays associating bins to each other for SP formation
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottom;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsTop;  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottom; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTop; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottom{};  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsTop{};  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottom{}; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTop{}; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
 
-    std::array<int,arraySizePhiZV> m_nNeighboursVertexPhiZ;
-    std::array<std::array<int, arraySizeNeighbourBinsVertex>, arraySizePhiZ> m_neighboursVertexPhiZ;
+    std::array<int,arraySizePhiZV> m_nNeighboursVertexPhiZ{};
+    std::array<std::array<int, arraySizeNeighbourBinsVertex>, arraySizePhiZ> m_neighboursVertexPhiZ{};
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -502,30 +502,30 @@ namespace InDet {
     mutable std::string          m_treeName               ATLAS_THREAD_SAFE;
     mutable TString              m_treeFolder             ATLAS_THREAD_SAFE;
 
-    mutable float                  m_d0                   ATLAS_THREAD_SAFE;
-    mutable float                  m_z0                   ATLAS_THREAD_SAFE;
-    mutable float                  m_pt                   ATLAS_THREAD_SAFE;
-    mutable float                  m_eta                  ATLAS_THREAD_SAFE;
-    mutable double                 m_x1                   ATLAS_THREAD_SAFE;
-    mutable double                 m_x2                   ATLAS_THREAD_SAFE;
-    mutable double                 m_x3                   ATLAS_THREAD_SAFE;
-    mutable double                 m_y1                   ATLAS_THREAD_SAFE;
-    mutable double                 m_y2                   ATLAS_THREAD_SAFE;
-    mutable double                 m_y3                   ATLAS_THREAD_SAFE;
-    mutable double                 m_z1                   ATLAS_THREAD_SAFE;
-    mutable double                 m_z2                   ATLAS_THREAD_SAFE;
-    mutable double                 m_z3                   ATLAS_THREAD_SAFE;
-    mutable double                 m_r1                   ATLAS_THREAD_SAFE;
-    mutable double                 m_r2                   ATLAS_THREAD_SAFE;
-    mutable double                 m_r3                   ATLAS_THREAD_SAFE;
-    mutable float                  m_quality              ATLAS_THREAD_SAFE;
-    mutable int                    m_type                 ATLAS_THREAD_SAFE;
-    mutable double                 m_dzdr_t               ATLAS_THREAD_SAFE;
-    mutable double                 m_dzdr_b               ATLAS_THREAD_SAFE;
-    mutable bool                   m_givesTrack           ATLAS_THREAD_SAFE;
-    mutable float                  m_trackPt              ATLAS_THREAD_SAFE;
-    mutable float                  m_trackEta             ATLAS_THREAD_SAFE;
-    mutable long                   m_eventNumber          ATLAS_THREAD_SAFE;
+    mutable float                  m_d0                   ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_z0                   ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_pt                   ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_eta                  ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_x1                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_x2                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_x3                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_y1                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_y2                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_y3                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_z1                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_z2                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_z3                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_r1                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_r2                   ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_r3                   ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_quality              ATLAS_THREAD_SAFE = 0;
+    mutable int                    m_type                 ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_dzdr_t               ATLAS_THREAD_SAFE = 0;
+    mutable double                 m_dzdr_b               ATLAS_THREAD_SAFE = 0;
+    mutable bool                   m_givesTrack           ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_trackPt              ATLAS_THREAD_SAFE = 0;
+    mutable float                  m_trackEta             ATLAS_THREAD_SAFE = 0;
+    mutable long                   m_eventNumber          ATLAS_THREAD_SAFE = 0;
   };
   
 } // end of name space

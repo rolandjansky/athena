@@ -79,7 +79,7 @@ namespace Muon {
     SegmentVecVec         m_segmentsPerStation;
 
     //if the station is a CSC station, this tells us how many good eta and phi layers it has
-    int m_nGood[2];
+    int m_nGood[2]{};
   };
 
   //if there are only 2 good layers for eta or phi those segments may be 2-layer segments

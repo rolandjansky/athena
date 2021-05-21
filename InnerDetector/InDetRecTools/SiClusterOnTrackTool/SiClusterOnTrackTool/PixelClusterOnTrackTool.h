@@ -179,12 +179,12 @@ private:
   //moved from static to member variable
   static constexpr int s_nbinphi=9;
   static constexpr int s_nbineta=6;
-  double m_calphi[s_nbinphi];
-  double m_caleta[s_nbineta][3];
-  double m_calerrphi[s_nbinphi][3];
-  double m_calerreta[s_nbineta][3];
-  double m_phix[s_nbinphi+1];
-  double m_etax[s_nbineta+1];
+  double m_calphi[s_nbinphi]{};
+  double m_caleta[s_nbineta][3]{};
+  double m_calerrphi[s_nbinphi][3]{};
+  double m_calerreta[s_nbineta][3]{};
+  double m_phix[s_nbinphi+1]{};
+  double m_etax[s_nbineta+1]{};
 };
 
 } // end of namespace InDet

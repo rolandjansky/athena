@@ -319,7 +319,7 @@ MsgStream& InDet::SiTrackMaker_xk::dumpStatistics(MsgStream &out) const
 
   for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++i) {
 
-    std::array<double,SiCombinatorialTrackFinderData_xk::kNSeedTypes+1> pu;
+    std::array<double,SiCombinatorialTrackFinderData_xk::kNSeedTypes+1> pu{};
     pu.fill(0);
 
     double totalUsedSeedsEta = 0.;
