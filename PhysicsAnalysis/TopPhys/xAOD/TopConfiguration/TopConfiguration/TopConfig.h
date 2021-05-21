@@ -768,6 +768,23 @@ namespace top {
     }
 
 
+    inline virtual void electronEfficiencySystematicModelRecoSize(const int& s) {
+        m_electronEfficiencySystematicModelRecoSize = s;
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelIdSize(const int& s) {
+        m_electronEfficiencySystematicModelIdSize = s;
+    }
+
+
+
+    inline virtual void electronEfficiencySystematicModelIsoSize(const int& s) {
+        m_electronEfficiencySystematicModelIsoSize = s;
+    }
+
+
+
     inline virtual void electronID(const std::string& s) {
       if (!m_configFixed) {
         m_electronID = s;
@@ -859,6 +876,20 @@ namespace top {
 
     inline virtual const int& electronEfficiencySystematicModelToySeed() {
       return m_electronEfficiencySystematicModelToySeed;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelRecoSize() {
+      return m_electronEfficiencySystematicModelRecoSize;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelIdSize() {
+      return m_electronEfficiencySystematicModelIdSize;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelIsoSize() {
+      return m_electronEfficiencySystematicModelIsoSize;
     }
 
     inline virtual const std::string& electronID()     const {return m_electronID;}
@@ -2371,6 +2402,9 @@ namespace top {
     std::string m_electronEfficiencySystematicModel;
     int m_electronEfficiencySystematicModelNToys;
     int m_electronEfficiencySystematicModelToySeed;
+    int m_electronEfficiencySystematicModelRecoSize;
+    int m_electronEfficiencySystematicModelIdSize;
+    int m_electronEfficiencySystematicModelIsoSize;
     std::string m_electronEfficiencySystematicModelEtaBinning;
     std::string m_electronEfficiencySystematicModelEtBinning;
     std::string m_electronID;

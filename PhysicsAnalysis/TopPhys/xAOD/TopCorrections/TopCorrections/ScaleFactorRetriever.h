@@ -251,6 +251,9 @@ namespace top {
     //get vector of systematic variations of electron SFs, var=1 for up, var=-1 for down
     std::vector<float> electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var = 1) const;
 
+    //get vector of systematic variations of electron SFs, var=1 for up, var=-1 for down and size of systematic variations
+    std::vector<float> electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var = 1, int size=50) const;
+
     // Obtain the fwd electron SF
     float fwdElectronSF(const top::Event& event,
                         const top::topSFSyst SFSyst,

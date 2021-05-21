@@ -228,6 +228,10 @@ namespace top {
           "--->electron RECO " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << " is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelRecoSize(count2);
+
+
       count = 0;
       count2 = 0;
       for (const CP::SystematicSet& isyst : m_systIDCorrModel) {
@@ -239,6 +243,11 @@ namespace top {
           "--->electron ID " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << "  is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelIdSize(count2);
+
+
+
       count = 0;
       count2 = 0;
       for (const CP::SystematicSet& isyst : m_systIsoCorrModel) {
@@ -250,6 +259,10 @@ namespace top {
           "--->electron ISO " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << "  is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelIsoSize(count2);
+
+
     }
 
  
@@ -296,6 +309,9 @@ namespace top {
             name);
         count++;
       }
+      m_config->electronEfficiencySystematicModelRecoSize(count);
+
+
       count = 0;
       for (const CP::SystematicSet& isyst : m_systIDCorrModel) {
         TString name = isyst.name();
@@ -304,6 +320,9 @@ namespace top {
             name);
         count++;
       }
+      m_config->electronEfficiencySystematicModelIdSize(count);
+
+
       count = 0;
       for (const CP::SystematicSet& isyst : m_systIsoCorrModel) {
         TString name = isyst.name();
@@ -312,6 +331,10 @@ namespace top {
             name);
         count++;
       }
+      m_config->electronEfficiencySystematicModelIsoSize(count);
+
+
+
     }
 
     m_decor_triggerEff = "EL_EFF_Trigger_" + m_config->electronID();
