@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
-#include "LArCondTPCnv/LArCaliWaveSubsetCnv_p2.h"
+#include "LArCondTPCnv/LArCaliWaveSubsetCnv_p3.h"
  
 
 void
-LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCWTransType* transObj, MsgStream & log)
+LArCaliWaveSubsetCnv_p3::persToTrans(const LArCaliWaveSubset_p3* persObj,  LArCWTransType* transObj, MsgStream & log)
 {
-  log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endmsg;
+  log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p3  begin persToTrans"<<endmsg;
 
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
   unsigned int nfebids = persObj->m_subset.m_febIds.size();			log<<MSG::DEBUG<<"Total febs:"<<nfebids;
@@ -43,15 +43,11 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
       if (hasSparseData) {  		  
         if (!(chansSet & (1 << (j - chansOffset)))) {	// Channel is missing data - skip
           copyChannel = false;
-          // std::cout<<"0";
         }
-        //else std::cout<<"1";
-		    			  
         if (j%32 == 31 && j < 126) {
           chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
           chansOffset += 32;
           ifebWithData++;
-          //std::cout<<" ";
         }
       }
 		    		  
@@ -63,8 +59,8 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
         for (unsigned int nD=0;nD<nDAC;nD++){
           double time   	=persObj->m_dt[chIndex];
           unsigned int f  =persObj->m_flag[chIndex];
-          int dac		=(persObj->m_DAC[chIndex])&0xFFFF;
-          int pulsed            =(persObj->m_DAC[chIndex])>>16;
+          int dac			=persObj->m_DAC[chIndex];
+          int pulsed 			=persObj->m_isPulsed[chIndex];
           chIndex++;
 				
           std::vector<double> val, err;
@@ -86,7 +82,6 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
         }
       }
     } // loop on channels
-    //		std::cout<<std::endl;
   } // loop on FEBs
 	
 
@@ -98,7 +93,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
   for (unsigned int i = 0; i < ncorrs; ++i){
     if (cwvIndex    >= persObj->m_vDAC.size()) {// check indexes
       log << MSG::ERROR 
-          << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: cwvIndex/sizeInFile " 
+          << "LArCaliWaveSubsetCnv_p3::persToTrans - CaliWave index too large: cwvIndex/sizeInFile " 
           << cwvIndex << " " << persObj->m_vDAC.size() << " " << endmsg;
       return;
     }
@@ -113,15 +108,15 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
     for (unsigned int nD=0;nD<nDAC;nD++){	
       if (chIndex    >= persObj->m_dt.size()) {// check indexes
         log << MSG::ERROR 
-            << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: WaveIndex/sizeInFile " 
+            << "LArCaliWaveSubsetCnv_p3::persToTrans - CaliWave index too large: WaveIndex/sizeInFile " 
             << chIndex << " " << persObj->m_dt.size() << " " << endmsg;
         return;
       }
 		
       double time 	= persObj->m_dt[chIndex];
       unsigned int f  = persObj->m_flag[chIndex];
-      int dac		=(persObj->m_DAC[chIndex])&0xFFFF;
-      int pulsed        =(persObj->m_DAC[chIndex])>>16;
+      int dac			= persObj->m_DAC[chIndex];
+      int pulsed 		= persObj->m_isPulsed[chIndex];
       chIndex++;
       std::vector<double> val, err;
       std::vector<int> 	tri;
@@ -160,9 +155,9 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 
 
 void
-LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWaveSubset_p2* persObj, MsgStream & log)
+LArCaliWaveSubsetCnv_p3::transToPers(const LArCWTransType* transObj,  LArCaliWaveSubset_p3* persObj, MsgStream & log)
 {
-  log<<MSG::DEBUG<<" LArCaliWaveSubsetCNV_p2  begin Writing"<<endmsg;
+  log<<MSG::DEBUG<<" LArCaliWaveSubsetCNV_p3  begin Writing"<<endmsg;
 	
   unsigned int nfebs  		= transObj->subsetSize();
   log<<MSG::DEBUG<<"total febs:"<<nfebs;
@@ -184,7 +179,7 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
     unsigned int nfebChans = subsetIt->second.size();
 
     if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
-      log << MSG::ERROR << "LArCaliWaveSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
+      log << MSG::ERROR << "LArCaliWaveSubsetCnv_p3::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
       return;
     }
 		
@@ -198,23 +193,17 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
       if (!isSparse && CWV.size() == 0) {
         isSparse = true;
         febsWithSparseData.push_back(subsetIt->first);// save febids for sparse subsets
-        //std::cout<<"febID: "<<transObj->m_subset[i].first<<" is sparse"<<std::endl;
       }
 			
       if (CWV.size()){  // should be like this no?
         //else { 
         nchans++; // count number of channels
-        //std::cout<<":"<<CWV[0].getSize()<<std::endl; always 768
         persObj->m_samples=CWV[0].getSize(); // completely ineficient but fast to fix :-(
       }
 			
     }
 			
-    //		std::cout<<"\nFeb: "<<i<<" nonemptychannels till now: "<<nchans<<std::endl;
-	
   } // loop over febs
-	
-//	std::cout<<"total nonempty febs = "<<nsubsetsNotEmpty<<std::endl;
 	
   persObj->m_subset.m_febIds.reserve(nsubsetsNotEmpty);
 	
@@ -260,11 +249,9 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
           assert (j >= chansOffset && (j - chansOffset) <= 31);
           chansSet |= (1 << (j - chansOffset)); //store the channel number in the bit map
 					
-//					std::cout<<"1";	
         }
         else { // channel does not exist
           saveAmplitudes = false;
-//					std::cout<<"0";
         }
 				
         // Save chansSet
@@ -272,19 +259,19 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
           persObj->m_subset.m_febsWithSparseData.push_back(chansSet);
           chansSet    =   0;
           chansOffset += 32;
-//					std::cout<<" ";
         }
       } // if sparse
 			
       if (saveAmplitudes) {				// save amplitudes, errors and triggers
         const LArCaliWaveVec& CWV = subsetIt->second[j];
         int dacValues=CWV.size();
-        persObj->m_vDAC.push_back(dacValues);	//std::cout<<"CWV size: "<<dacValues<<std::endl;	
+        persObj->m_vDAC.push_back(dacValues);	
 				
         for(int dv=0;dv<dacValues;dv++){
           persObj->m_dt.push_back(CWV[dv].getDt());
           persObj->m_flag.push_back(CWV[dv].getFlag());
-          persObj->m_DAC.push_back(CWV[dv].getDAC() | (CWV[dv].getIsPulsedInt()<<16));
+          persObj->m_DAC.push_back(CWV[dv].getDAC());
+          persObj->m_isPulsed.push_back(CWV[dv].getIsPulsedInt());
           const std::vector<double>& w=CWV[dv].getWave();
           const std::vector<double>& e=CWV[dv].getErrors();
           const std::vector<int>& t=CWV[dv].getTriggers();
@@ -297,7 +284,6 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
       }
 			
     } // over channels
-//		std::cout<<std::endl;
   }// over febs
 
   // Copy corrections
@@ -317,11 +303,12 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
     for(int dv=0;dv<dacValues;dv++){
       persObj->m_dt.push_back(CWV[dv].getDt());
       persObj->m_flag.push_back(CWV[dv].getFlag());
-      persObj->m_DAC.push_back(CWV[dv].getDAC() | (CWV[dv].getIsPulsedInt()<<16));
+      persObj->m_DAC.push_back(CWV[dv].getDAC());
+      persObj->m_isPulsed.push_back(CWV[dv].getIsPulsedInt());
       const std::vector<double>& w=CWV[dv].getWave();
       const std::vector<double>& e=CWV[dv].getErrors();
       const std::vector<int>&  	t=CWV[dv].getTriggers();
-      persObj->m_samples=w.size();					//	std::cout<<" samples: "<<w.size()<<std::endl;
+      persObj->m_samples=w.size();
       for (unsigned int k = 0; k< w.size(); ++k){
         persObj->m_vAmplitudes.push_back(w[k]);
         persObj->m_vErrors.push_back(e[k]);

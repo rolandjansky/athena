@@ -228,17 +228,18 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 
      WaveMap& waveMap = m_waves.get(chid,gain);
 
-     //make dacPulsed which has dac and four bits of is pulsed info
-     int dacPulsed=(*it)->DAC();
+     //make dac and Pulsed which has dac and four bits of is pulsed info
+     int dac=(*it)->DAC();
+     int pulsed=0;
      int index;
      for(int iLine=1;iLine<5;iLine++){
        if((*it)->isPulsed(iLine)){
 	 ATH_MSG_DEBUG("GR: line pulsed true, line="<<iLine);
-	 dacPulsed=(dacPulsed | (0x1 << (15+iLine)));
+	 pulsed=(pulsed | (0x1 << (15+iLine)));
        }
      }
      if(m_useDacAndIsPulsedIndex){//switch used to turn on the option to have indexs that are DAC and isPulsed info
-       index = dacPulsed;
+       index = (dac&0xFFFF) | (pulsed<<16);
      }
      else{
        index = (*it)->DAC();
@@ -247,7 +248,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      WaveMap::iterator itm = waveMap.find(index);
      
      if ( itm == waveMap.end() ) { // A new LArCaliWave is booked
-       LArCaliWave wave(samplesum.size()*m_NStep, m_dt, dacPulsed);
+       LArCaliWave wave(samplesum.size()*m_NStep, m_dt, dac, pulsed);
        wave.setFlag( LArWave::meas );
        itm = (waveMap.insert(WaveMap::value_type(index,wave))).first;
        ATH_MSG_DEBUG("index: "<<index<<" new wave inserted");
@@ -311,7 +312,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
      WaveMap::iterator itm = waveMap.find((*it)->DAC());
      
      if ( itm == waveMap.end() ) { // A new LArCaliWave is booked     
-       LArCaliWave wave(samples.size()*m_NStep, m_dt, (*it)->DAC());
+       LArCaliWave wave(samples.size()*m_NStep, m_dt, (*it)->DAC(),0x1);
        wave.setFlag( LArWave::meas );
        itm = (waveMap.insert(WaveMap::value_type((*it)->DAC(),wave))).first;
      }
