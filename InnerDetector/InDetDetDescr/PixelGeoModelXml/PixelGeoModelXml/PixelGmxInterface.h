@@ -43,13 +43,13 @@ private:
   void makePixelModule(const std::string& typeName,
                        const std::map<std::string, std::string> &parameters);
 
-  std::shared_ptr<InDetDD::PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
-                                                         double etaPitchLong, double etaPitchEnd,
-                                                         double phiPitchLong, double phiPitchEnd,
-                                                         int nEtaLong, int nEtaEnd,
-                                                         int nPhiLong, int nPhiEnd,
-                                                         int circuitsPhi, int circuitsEta,
-                                                         int diodeRowPerCirc, int diodeColPerCirc) const;
+  std::shared_ptr<const InDetDD::PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
+                                                               double etaPitchLong, double etaPitchEnd,
+                                                               double phiPitchLong, double phiPitchEnd,
+                                                               int nEtaLong, int nEtaEnd,
+                                                               int nPhiLong, int nPhiEnd,
+                                                               int circuitsPhi, int circuitsEta,
+                                                               int diodeColPerCirc, int diodeRowPerCirc) const;
 
   std::map<std::string, int> m_geometryMap;
   InDetDD::PixelDetectorManager *m_detectorManager{};
