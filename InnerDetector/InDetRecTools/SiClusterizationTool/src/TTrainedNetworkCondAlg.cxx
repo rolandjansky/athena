@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -141,7 +141,7 @@ namespace InDet {
       ATH_MSG_VERBOSE("Get NNs from file " << pfname.c_str() << " [" << coolguid << " <- " << readHandle.key() << "]." );
       std::unique_ptr<TFile> a_file( TFile::Open(pfname.c_str(),"READ") );
       if (!a_file || !a_file->IsOpen()) {
-        ATH_MSG_ERROR("Failed to open  file " << pfname << " referenced by " << readHandle.key());
+        ATH_MSG_ERROR("Failed to open  file " << pfname << " referenced by " << readHandle.key() << " GUID " << coolguid);
         return StatusCode::FAILURE;
       }
 
