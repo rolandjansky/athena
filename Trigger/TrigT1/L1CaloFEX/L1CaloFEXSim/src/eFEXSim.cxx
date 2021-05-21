@@ -170,8 +170,8 @@ std::vector<uint32_t> eFEXSim::getEmTOBs()
   }
   */
 
-  // return the tob 6 highest ET TOBs from the efex
-  tobsSort.resize(6);
+  // return the 6 highest ET TOBs from the efex
+  if (tobsSort.size() > 6) tobsSort.resize(6);
   return tobsSort;
 }
 
