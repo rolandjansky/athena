@@ -40,7 +40,7 @@ Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOpt
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdMap with tag LARIdentifierOnOffIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/CalibIdMap with tag LARIdentifierCalibIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodMap with tag LARIdentifierFebRodMap-005
-Py:Athena            INFO including file "InDetBeamSpotService/BeamCondSvc.py"
+Py:Athena            INFO including file "BeamSpotConditions/BeamCondAlgSetup.py"
 ['EventInfo#*', 'EventInfo#*', 'CaloCellContainer#*', 'PixelRDO_Container#*', 'SCT_RDO_Container#*', 'TRT_RDO_Container#*', 'PixelRDOElemLinkVec#*']
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
