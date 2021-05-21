@@ -1874,12 +1874,12 @@ namespace top {
         m_weight_leptonSF_EL_SF_Isol_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Isol_DOWN);
 
         if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
-          m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, -1);
-          m_weight_leptonSF_EL_SF_CorrModel_ID_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, -1);
-          m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, -1);
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, 1, m_config->electronEfficiencySystematicModelRecoSize());
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, -1,m_config->electronEfficiencySystematicModelRecoSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_ID_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, 1,m_config->electronEfficiencySystematicModelIdSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, -1,m_config->electronEfficiencySystematicModelIdSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, 1,m_config->electronEfficiencySystematicModelIsoSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, -1,m_config->electronEfficiencySystematicModelIsoSize() );
         }
         m_weight_leptonSF_MU_SF_Trigger_STAT_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
         m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);

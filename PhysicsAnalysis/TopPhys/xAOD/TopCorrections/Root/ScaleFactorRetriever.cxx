@@ -253,8 +253,9 @@ namespace top {
   }
 
   std::vector<float> ScaleFactorRetriever::electronSFSystVariationVector(const top::Event& event,
-                                                                         const top::topSFComp SFComp, int var) const {
+                                                                         const top::topSFComp SFComp, int var, int sysSize) const {
     std::vector<float> sf;
+
     if (abs(var) != 1) {
       ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector must be called with var=+1 (up) or -1 (down)");
       return sf;
@@ -302,7 +303,6 @@ namespace top {
         ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in accessing decoration " << decorationName);
       }
-
       if (sf.size() == 0) sf = std::vector<float>(sf_aux.size(), leptonSF(event, top::topSFSyst::nominal));
       if (sf.size() != sf_aux.size()) ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
@@ -316,6 +316,7 @@ namespace top {
       }
     }//end of loop on electrons
 
+    if (sf.size() == 0) sf = std::vector<float>(sysSize, leptonSF(event, top::topSFSyst::nominal));
     return sf;
   }
 
