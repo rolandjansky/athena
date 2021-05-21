@@ -628,7 +628,7 @@ namespace Rec {
 
         return perigee->uniqueClone();
     }
-   ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
+    ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
         const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
