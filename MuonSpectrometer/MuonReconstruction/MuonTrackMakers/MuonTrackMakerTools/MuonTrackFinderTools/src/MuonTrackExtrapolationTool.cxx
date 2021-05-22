@@ -116,7 +116,7 @@ namespace Muon {
         if (!pp) return nullptr;
 
         const Trk::TrackParameters *closestPars = pp;
-        const Trk::TrackParameters *closestMeasPars = pp->covariance() ? pp : 0;
+        const Trk::TrackParameters *closestMeasPars = pp->covariance() ? pp : nullptr;
 
         double perp = pp->associatedSurface().center().perp();
         double z = pp->associatedSurface().center().z();
@@ -615,7 +615,7 @@ namespace Muon {
         }
 
         // create new track
-        return new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+        return new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     }
 
     TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks) const {

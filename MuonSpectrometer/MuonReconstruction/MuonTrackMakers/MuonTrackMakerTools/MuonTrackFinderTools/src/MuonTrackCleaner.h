@@ -295,7 +295,7 @@ namespace Muon {
             If the additional chamber index is provided, the code will only consider that particular layer
         */
         std::unique_ptr<Trk::Track> outlierRecovery(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state,
-                                                    MuonStationIndex::ChIndex* currentIndex = nullptr) const;
+                                                    const MuonStationIndex::ChIndex* currentIndex = nullptr) const;
 
         /** check whether hit is an outlier */
         bool isOutsideOnTrackCut(const Identifier& id, double res, double pull, double cutScaleFactor) const;
