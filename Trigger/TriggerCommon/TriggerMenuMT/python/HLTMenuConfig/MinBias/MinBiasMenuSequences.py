@@ -145,8 +145,9 @@ def MinBiasTrkSequence():
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
         trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
 
+        #TODO move a complete configuration of the algs to TrigMinBias package
         from TrigMinBias.TrigMinBiasMonitoring import TrackCountMonitoring
-        trackCountHypo.MonTool = TrackCountMonitoring()
+        trackCountHypo.MonTool = TrackCountMonitoring(trackCountHypo) # monitoring tool configures itself using config of the hypo alg
 
         trkRecoSeq = parOR("TrkRecoSeq", algs)
         trkSequence = seqAND("TrkSequence", [trkInputMakerAlg, trkRecoSeq])
