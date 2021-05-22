@@ -100,14 +100,14 @@ StatusCode LAr::LArVolumeBuilder::initialize()
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_lArTrackingVolumeHelper );
       return StatusCode::FAILURE;
     } else
-    ATH_MSG_INFO( "Retrieved tool " << m_lArTrackingVolumeHelper );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_lArTrackingVolumeHelper );
 
   // Retrieve the volume creator
   if (m_trackingVolumeCreator.retrieve().isFailure()){
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackingVolumeCreator );
     return StatusCode::FAILURE;
   } else
-    ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeCreator );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeCreator );
   
   if(m_useCaloSurfBuilder){
     if(m_calosurf.retrieve().isFailure())
@@ -115,17 +115,17 @@ StatusCode LAr::LArVolumeBuilder::initialize()
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_calosurf );
         return StatusCode::FAILURE;
       } else
-      ATH_MSG_INFO( "Retrieved tool " << m_calosurf );
+      ATH_MSG_DEBUG( "Retrieved tool " << m_calosurf );
   }
   
-  ATH_MSG_INFO( name() << " initialize() successful" );
+  ATH_MSG_DEBUG( name() << " initialize() successful" );
   return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode LAr::LArVolumeBuilder::finalize()
 {
-  ATH_MSG_INFO( "finalize() successful" );
+  ATH_MSG_DEBUG( "finalize() successful" );
 
   // empty the material garbage 
   std::map<const Trk::Material*, bool>::iterator garbageIter  = m_materialGarbage.begin();
@@ -797,10 +797,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     float z2 = entrySurf[CaloCell_ID::EME2].first->center().z();     // base value
     float z3 = entrySurf[CaloCell_ID::EME3].first->center().z();     // base value
 
-    const std::vector<float>* offset2 = 0;
+    std::vector<float> offset2;
     const Trk::SlidingDiscSurface* sd2 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME2].first);
     if (sd2) offset2 = sd2->offset();
-    const std::vector<float>* offset3 = 0;
+    std::vector<float>offset3;
     const Trk::SlidingDiscSurface* sd3 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME3].first);
     if (sd3) offset3 = sd3->offset();
     // construct bin utilities 
@@ -822,7 +822,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       else if (i<23) indx.push_back(11);
       else indx.push_back(1);
 
-      float z2c = z2 + ( offset2 ? (*offset2)[i] : 0.); 
+      float z2c = z2 + offset2[i]; 
       if (z2c!= steps.back()) { steps.push_back(z2c); indx.push_back(2);}
       else { indx.back()=2; }
       if (i<4) {}
@@ -843,7 +843,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       else if (i<35) indx.back()=19;
       else if (i<37) indx.back()=20;
       
-      steps.push_back(z3 + ( offset3 ? (*offset3)[i] : 0.) );
+      steps.push_back(z3 + offset3[i] );
       if (i<6) indx.push_back(21);
       else if (i<8) indx.push_back(22);
       else if (i<10) indx.push_back(23);
@@ -881,18 +881,18 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     z2 = entrySurf[CaloCell_ID::EME2].second->center().z();     // base value
     z3 = entrySurf[CaloCell_ID::EME3].second->center().z();     // base value
 
-    offset2 = 0;
+    offset2.clear();
     sd2 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME2].second);
     if (sd2) offset2 = sd2->offset();
-    offset3 = 0;
+    offset3.clear();
     sd3 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME3].second);
     if (sd3) offset3 = sd3->offset();
     // construct bin utilities ( in increasing ordering )
     for (unsigned int i=0; i< bun->bins(); i++) {
       steps.clear();
       steps.push_back(-lArEndcapZmax);
-      steps.push_back(z3 + ( offset3 ? (*offset3)[i] : 0.) );
-      steps.push_back(z2 + ( offset2 ? (*offset2)[i] : 0.) );
+      steps.push_back(z3 + offset3[i] );
+      steps.push_back(z2 + offset2[i] );
       if (z1!= steps.back()) { steps.push_back(z1); }
       steps.push_back(-lArEndcapZmin);
       Trk::BinUtility* zBU = new Trk::BinUtility(steps, Trk::open, Trk::binZ);

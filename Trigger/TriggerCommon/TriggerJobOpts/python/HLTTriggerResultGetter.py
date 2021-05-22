@@ -117,6 +117,10 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         
         if hasHLT:
             from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
+            extr.NavigationForL2 = HLTNavigationOffline("NavigationForL2")
+            # Ignore the L2 TrigPassBits to avoid clash with EF (ATR-23411)
+            extr.NavigationForL2.ClassesFromPayloadIgnore = ["TrigPassBits#passbits"]
+
             extr.Navigation = HLTNavigationOffline()
 
             from TrigEDMConfig.TriggerEDM import getEDMLibraries

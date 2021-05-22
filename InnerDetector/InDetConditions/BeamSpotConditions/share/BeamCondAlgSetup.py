@@ -1,6 +1,6 @@
 # jobOptions for BeamCondSvc - just define conditions data access
 
-include.block("InDetBeamSpotService/BeamCondSvc.py")
+include.block("BeamSpotConditions/BeamCondAlgSetup.py")
 from IOVDbSvc.CondDB import conddb
 try:
     from RecExConfig.RecFlags import rec

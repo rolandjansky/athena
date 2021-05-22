@@ -35,7 +35,7 @@ namespace Trk {
 
 class IExtrapolator;
 
-class ParticleCaloExtensionTool
+class ParticleCaloExtensionTool final
   : virtual public IParticleCaloExtensionTool
   , public AthAlgTool
 {
@@ -100,14 +100,15 @@ private:
     this,
     "ParticleType",
     "muon",
-    "The particle type : muon, pion, electron,nonInteracting"
+    "The particle type used to decide for the extrapolation strategy"
+    ": muon, pion, electron,nonInteracting"
   };
   Gaudi::Property<bool> m_startFromPerigee{ this,
                                             "StartFromPerigee",
                                             false,
                                             "Start from Perigee" };
   const AtlasDetectorID* m_detID;
-  ParticleHypothesis m_particleType;
+  ParticleHypothesis m_particleStrategy;
 
   Gaudi::Property<unsigned int> m_extrapolDetectorID{
     this,

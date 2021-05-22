@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/PhysicalConstants.h"
@@ -247,6 +247,7 @@ StatusCode JetIntervalFilter::filterEvent() {
   ATH_MSG_INFO("2ndJet OK? : " << flag2ndJet);
   ATH_MSG_INFO("Sign   OK? : " << flagSign);
   ATH_MSG_INFO("JJ     OK? : " << flagJJ);
+  // cppcheck-suppress shiftNegative
   ATH_MSG_INFO("Weight OK? : " << flagW);
 
   if (flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagSign != 0 && flagJJ != 0 && flagW != 0) {

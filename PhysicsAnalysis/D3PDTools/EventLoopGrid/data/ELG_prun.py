@@ -96,7 +96,12 @@ def ELG_prun(sample) :
         import copy
         dummycmd = copy.deepcopy(cmd)
         dummycmd += ["--outTarBall=jobcontents.tgz"]
-        dummycmd += ["--extFile=jobdef.root,runjob.sh"]
+        if len(sample.meta().castString('nc_EventLoop_UserFiles')) :
+            dummycmd += ["--extFile=jobdef.root,runjob.sh," + ",".join (sample.meta().castString('nc_EventLoop_UserFiles'))]
+            pass
+        else :
+            dummycmd += ["--extFile=jobdef.root,runjob.sh"]
+            pass
         dummycmd += ["--noSubmit"]
 
         try:

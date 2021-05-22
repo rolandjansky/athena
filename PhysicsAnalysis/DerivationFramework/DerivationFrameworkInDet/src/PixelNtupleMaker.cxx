@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -101,8 +101,6 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       std::vector<int> clusterIsolation20x4;
       std::vector<int> numTotalClustersPerModule;
       std::vector<int> numTotalPixelsPerModule;
-      std::vector<float> moduleBiasVoltage;
-      std::vector<float> moduleTemperature;
       std::vector<float> moduleLorentzShift;
 
       std::vector<std::vector<int>> rdoToT;
@@ -149,8 +147,6 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
             globalZ.push_back((*clus_itr)->globalZ());
             unbiasedResidualX.push_back(msos->unbiasedResidualX());
             unbiasedResidualY.push_back(msos->unbiasedResidualY());
-            moduleBiasVoltage.push_back((*clus_itr)->auxdata<float>("BiasVoltage"));
-            moduleTemperature.push_back((*clus_itr)->auxdata<float>("Temperature"));
             moduleLorentzShift.push_back((*clus_itr)->auxdata<float>("LorentzShift"));
 
             // cluster isolation   IBL:50x250um, PIXEL:50x400um
@@ -288,8 +284,6 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation20x4("ClusterIsolation20x4");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalClustersPerModule("NumTotalClustersPerModule");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalPixelsPerModule("NumTotalPixelsPerModule");
-      static SG::AuxElement::Decorator<std::vector<float>> ModuleBiasVoltage("ModuleBiasVoltage");
-      static SG::AuxElement::Decorator<std::vector<float>> ModuleTemperature("ModuleTemperature");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
       static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoToT("RdoToT");
       static SG::AuxElement::Decorator<std::vector<std::vector<float>>> RdoCharge("RdoCharge");
@@ -326,8 +320,6 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       ClusterIsolation20x4(*tp) = std::move(clusterIsolation20x4);
       NumTotalClustersPerModule(*tp) = std::move(numTotalClustersPerModule);
       NumTotalPixelsPerModule(*tp)   = std::move(numTotalPixelsPerModule);
-      ModuleBiasVoltage(*tp)  = std::move(moduleBiasVoltage);
-      ModuleTemperature(*tp)  = std::move(moduleTemperature);
       ModuleLorentzShift(*tp) = std::move(moduleLorentzShift);
       RdoToT(*tp)    = std::move(rdoToT);
       RdoCharge(*tp) = std::move(rdoCharge);

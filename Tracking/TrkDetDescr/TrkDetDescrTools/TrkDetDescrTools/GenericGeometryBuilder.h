@@ -48,9 +48,6 @@ namespace Trk {
         /** AlgTool initialize method */
         StatusCode initialize();
         
-        /** AlgTool finalize method */
-        StatusCode finalize();
-        
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
         const TrackingGeometry* trackingGeometry(const TrackingVolume* tvol = 0) const;
 

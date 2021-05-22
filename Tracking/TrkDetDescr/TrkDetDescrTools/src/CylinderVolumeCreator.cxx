@@ -85,14 +85,8 @@ StatusCode Trk::CylinderVolumeCreator::initialize()
     } else 
         ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeHelper );
 
-    ATH_MSG_INFO( "initialize() successful" );
+    ATH_MSG_DEBUG( "initialize() successful" );
 
-    return StatusCode::SUCCESS;
-}
-
-StatusCode Trk::CylinderVolumeCreator::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
     return StatusCode::SUCCESS;
 }
 

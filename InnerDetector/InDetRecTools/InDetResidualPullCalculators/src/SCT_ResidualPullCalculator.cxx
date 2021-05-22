@@ -128,7 +128,7 @@ const Trk::ResidualPull* InDet::SCT_ResidualPullCalculator::residualPull(
 
     // create the Trk::ResidualPull:
     // ParameterKey is always 1, because otherwise we rotated it back
-    return new Trk::ResidualPull(residual, pull, pullIsValid, resType, 1, sinAlpha);
+    return new Trk::ResidualPull(std::move(residual), std::move(pull), pullIsValid, resType, 1, sinAlpha);
 }
 
 

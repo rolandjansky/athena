@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthElectronHistograms.h"
@@ -10,6 +10,10 @@
 
 using namespace egammaMonitoring;
 
+
+StatusCode TruthElectronHistograms::initializePlots() {
+  return initializePlots (false);
+}
 
 StatusCode TruthElectronHistograms::initializePlots(bool reducedHistSet) {
 

@@ -20,6 +20,7 @@
 #include "AthenaKernel/Units.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
@@ -44,7 +45,6 @@
 #include "TrkiPatFitterUtils/MessageHelper.h"
 #include "VxVertex/RecVertex.h"
 #include "muonEvent/CaloEnergy.h"
-
 namespace Rec {
 
     CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder() {}
@@ -366,21 +366,12 @@ namespace Rec {
             if (m_useCaloTG) {
                 ATH_MSG_VERBOSE(" Retriving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
 
-                std::vector<const Trk::TrackStateOnSurface*>* caloTSOS =
-                    m_materialUpdator->getCaloTSOS(*indetTrack.perigeeParameters(), extrapolatedTrack);
+                std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS =
+                    getCaloTSOSfromMatProvider(*indetTrack.perigeeParameters(), extrapolatedTrack);
+                if (!caloTSOS.empty()) { innerTSOS.swap(caloTSOS.front()); }
 
-                if (caloTSOS) {
-                    if (!caloTSOS->empty()) {
-                        innerTSOS.reset(caloTSOS->front());
-                        std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = caloTSOS->begin() + 1;
-                        std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = caloTSOS->end();
-
-                        for (; it != itEnd; ++it) delete *it;
-                    }
-                    delete caloTSOS;
-                }
             } else {
-                innerTSOS.reset(m_caloTSOS->innerTSOS(*indetTrack.perigeeParameters()));
+                innerTSOS = m_caloTSOS->innerTSOS(ctx, *indetTrack.perigeeParameters());
             }
 
             if (!innerTSOS) {
@@ -1701,11 +1692,7 @@ namespace Rec {
         if (outerScattering) { momentumUpdate(parameters, pOuter, true, outerScattering->deltaPhi(), outerScattering->deltaTheta()); }
 
         // small correction term
-        double deltaPhi = outerTSOS->trackParameters()->momentum().phi() - parameters->momentum().phi();
-
-        if (deltaPhi > M_PI) deltaPhi -= 2. * M_PI;
-        if (deltaPhi < -M_PI) deltaPhi += 2. * M_PI;
-
+        double deltaPhi = xAOD::P4Helpers::deltaPhi(outerTSOS->trackParameters()->momentum().phi(), parameters->momentum().phi());
         double deltaTheta = outerTSOS->trackParameters()->momentum().theta() - parameters->momentum().theta();
 
         delete parameters;
@@ -1959,29 +1946,27 @@ namespace Rec {
                 caloAssociated = true;
             }
 
-            auto s = track.trackStateOnSurfaces()->begin();
-            auto sEnd = track.trackStateOnSurfaces()->end();
-            for (; s != sEnd; ++s) {
+            for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
                 if (caloAssociated) {
-                    combinedTSOS->push_back((**s).clone());
-                } else if (((**s).measurementOnTrack() && m_indetVolume->inside((**s).measurementOnTrack()->globalPosition())) ||
-                           ((**s).trackParameters() && m_indetVolume->inside((**s).trackParameters()->position()))) {
-                    combinedTSOS->push_back((**s).clone());
+                    combinedTSOS->push_back(tsos->clone());
+                } else if ((tsos->measurementOnTrack() && m_indetVolume->inside(tsos->measurementOnTrack()->globalPosition())) ||
+                           (tsos->trackParameters() && m_indetVolume->inside(tsos->trackParameters()->position()))) {
+                    combinedTSOS->push_back(tsos->clone());
                 } else {
-                    const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*track.perigeeParameters());
-                    if (tsos) {
-                        combinedTSOS->push_back(tsos);
-                        const Trk::TrackParameters* parameters = tsos->trackParameters();
-                        if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit)) {
-                            combinedTSOS->push_back((**s).clone());
-                            tsos = m_caloTSOS->outerTSOS(*parameters);
-                            if (tsos) combinedTSOS->push_back(tsos);
+                    std::unique_ptr<const Trk::TrackStateOnSurface> tsos_calo = m_caloTSOS->innerTSOS(ctx, *track.perigeeParameters());
+                    if (tsos_calo) {
+                        const Trk::TrackParameters* parameters = tsos_calo->trackParameters();
+                        combinedTSOS->push_back(std::move(tsos_calo));
+                        if (tsos->type(Trk::TrackStateOnSurface::CaloDeposit)) {
+                            combinedTSOS->push_back(tsos->clone());
+                            tsos_calo = m_caloTSOS->outerTSOS(ctx, *parameters);
+                            if (tsos_calo) combinedTSOS->push_back(std::move(tsos_calo));
                         } else {
-                            tsos = m_caloTSOS->middleTSOS(*parameters);
-                            if (tsos) combinedTSOS->push_back(tsos);
-                            tsos = m_caloTSOS->outerTSOS(*parameters);
-                            if (tsos) combinedTSOS->push_back(tsos);
-                            combinedTSOS->push_back((**s).clone());
+                            tsos_calo = m_caloTSOS->middleTSOS(ctx, *parameters);
+                            if (tsos_calo) combinedTSOS->push_back(std::move(tsos_calo));
+                            tsos_calo = m_caloTSOS->outerTSOS(ctx, *parameters);
+                            if (tsos_calo) combinedTSOS->push_back(std::move(tsos_calo));
+                            combinedTSOS->push_back(tsos->clone());
                         }
                     }
                     caloAssociated = true;
@@ -2306,17 +2291,10 @@ namespace Rec {
         typedef Trk::MuonTrackSummary::ChamberHitSummary ChamberHitSummary;
         const std::vector<ChamberHitSummary>& chamberHitSummary = muonSummary->chamberHitSummary();
 
-        std::vector<ChamberHitSummary>::const_iterator chit = chamberHitSummary.begin();
-        std::vector<ChamberHitSummary>::const_iterator chit_end = chamberHitSummary.end();
+        int optimize{0}, nBarrel{0}, nEndcap{0}, nSmall{0}, nLarge{0};
 
-        int optimize = 0;
-        int nBarrel = 0;
-        int nEndcap = 0;
-        int nSmall = 0;
-        int nLarge = 0;
-
-        for (; chit != chit_end; ++chit) {
-            const Identifier& id = chit->chamberId();
+        for (const ChamberHitSummary& chit : chamberHitSummary) {
+            const Identifier& id = chit.chamberId();
             bool isMdt = m_idHelperSvc->isMdt(id);
             if (!isMdt) continue;
 
@@ -2556,8 +2534,8 @@ namespace Rec {
                                                         << parameters.position().z() << " cov " << parameters.covariance() << " muonfit "
                                                         << (particleHypothesis == Trk::muon));
 
-        std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> caloTSOS;
-        std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> leadingTSOS;
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS;
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> leadingTSOS;
 
         std::unique_ptr<const Trk::TrackParameters> trackParameters;
         const Trk::Perigee* perigee = nullptr;
@@ -2610,10 +2588,15 @@ namespace Rec {
                         parameterVector[Trk::qOverP], std::nullopt));
 
                     Trk::IMaterialAllocator::Garbage_t garbage;
-                    leadingTSOS.reset(m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters, garbage));
+                    /// This method is only called once throughout the class. Do the quick and dirty copying into the vectors here
+                    std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> alloc_tsos{
+                        m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters, garbage)};
+                    if (alloc_tsos) {
+                        for (const Trk::TrackStateOnSurface* tsos : *alloc_tsos) leadingTSOS.emplace_back(tsos);
+                    }
 
-                    if (leadingTSOS && !leadingTSOS->empty() && leadingTSOS->front()->trackParameters()) {
-                        leadingParameters = leadingTSOS->front()->trackParameters();
+                    if (!leadingTSOS.empty() && leadingTSOS.front()->trackParameters()) {
+                        leadingParameters = leadingTSOS.front()->trackParameters();
                     }
                 }
             }
@@ -2624,19 +2607,18 @@ namespace Rec {
             if (particleHypothesis == Trk::muon) {
                 ATH_MSG_VERBOSE(" Retriving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
                 if (m_useCaloTG) {
-                    caloTSOS.reset(m_materialUpdator->getCaloTSOS(*leadingParameters, spectrometerTrack));
+                    caloTSOS = getCaloTSOSfromMatProvider(*leadingParameters, spectrometerTrack);
 
                     // Dump CaloTSOS
                     //
-                    for (auto& m : *caloTSOS) {
+                    for (auto& m : caloTSOS) {
                         if (!m->materialEffectsOnTrack()) continue;
                         const Trk::MaterialEffectsOnTrack* meot =
                             dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
-
-                        double pcalo = 0.;
-                        double deltaP = 0.;
-
                         if (!meot) continue;
+
+                        double pcalo{0.}, deltaP{0.};
+
                         if (meot->thicknessInX0() > 20) {
                             const Trk::ScatteringAngles* scatAngles = meot->scatteringAngles();
 
@@ -2671,26 +2653,25 @@ namespace Rec {
                     }  // for (auto m : *caloTSOS) {
 
                 } else {
-                    caloTSOS.reset(m_caloTSOS->caloTSOS(*leadingParameters));
+                    caloTSOS = m_caloTSOS->caloTSOS(ctx, *leadingParameters);
                 }
 
-                if (caloTSOS && caloTSOS->size() > 2) {
+                if (caloTSOS.size() > 2) {
                     caloAssociated = true;
                 } else {
                     ATH_MSG_VERBOSE("Failed to associated calorimeter");
                 }
             } else {
                 // TDDO Run2 Calo TG
-                const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(parameters);
+                std::unique_ptr<const Trk::TrackStateOnSurface> tsos = m_caloTSOS->innerTSOS(ctx, parameters);
                 if (tsos) {
-                    caloTSOS = std::make_unique<std::vector<const Trk::TrackStateOnSurface*>>();
-                    caloTSOS->reserve(2);
-                    caloTSOS->push_back(tsos);
+                    const Trk::TrackParameters* tsos_params = tsos->trackParameters();
+                    caloTSOS.push_back(std::move(tsos));
 
-                    tsos = m_caloTSOS->outerTSOS(*tsos->trackParameters());
+                    tsos = m_caloTSOS->outerTSOS(ctx, *tsos_params);
                     if (tsos) {
                         caloAssociated = true;
-                        caloTSOS->push_back(tsos);
+                        caloTSOS.push_back(std::move(tsos));
                     }
                 }
                 ATH_MSG_VERBOSE("Special non-muon case for calo: " << caloAssociated);
@@ -2704,7 +2685,7 @@ namespace Rec {
                 if (!loadMagneticField(ctx, fieldCache)) return nullptr;
 
                 if (fieldCache.toroidOn()) {
-                    const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();
+                    const Trk::TrackParameters* oldParameters = caloTSOS.front()->trackParameters();
 
                     if (oldParameters && !oldParameters->covariance()) { ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (0)"); }
                     // chickened out of sorting out ownership
@@ -2733,11 +2714,6 @@ namespace Rec {
             // start from vertex in case of calo association problem
             if (vertex && !caloAssociated) {
                 ATH_MSG_DEBUG("  back extrapolation problem: retry with tracking out from vertex ");
-                // delete any existing calo objects
-                if (caloTSOS) {
-                    for (const auto& to_del : *caloTSOS) { delete to_del; }
-                }
-
                 // track out from vertex
                 const Amg::Vector3D momentum = parameters.position() * Gaudi::Units::TeV / parameters.position().mag();
 
@@ -2749,17 +2725,15 @@ namespace Rec {
                 ATH_MSG_VERBOSE(" Retriving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
 
                 if (m_useCaloTG) {
-                    caloTSOS.reset(m_materialUpdator->getCaloTSOS(*trackParameters, spectrometerTrack));
+                    caloTSOS = getCaloTSOSfromMatProvider(*trackParameters, spectrometerTrack);
                 } else {
-                    const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*trackParameters);
+                    caloTSOS.clear();
+                    std::unique_ptr<const Trk::TrackStateOnSurface> tsos = m_caloTSOS->innerTSOS(ctx, *trackParameters);
                     if (tsos) {
-                        caloTSOS = std::make_unique<std::vector<const Trk::TrackStateOnSurface*>>();
-                        caloTSOS->reserve(2);
-                        caloTSOS->push_back(tsos);
-
-                        tsos = m_caloTSOS->outerTSOS(*trackParameters);
+                        caloTSOS.emplace_back(std::move(tsos));
+                        tsos = m_caloTSOS->outerTSOS(ctx, *trackParameters);
                         if (tsos) {
-                            caloTSOS->push_back(tsos);
+                            caloTSOS.push_back(std::move(tsos));
                         } else {
                             trackParameters.reset();
                         }
@@ -2768,31 +2742,18 @@ namespace Rec {
             }
 
             // failure in calo association and/or extrapolation to indet
-            if (!trackParameters || !caloTSOS) {
-                // delete leading material TSOS
-                if (leadingTSOS) {
-                    for (const auto& to_del : *leadingTSOS) { delete to_del; }
-                }
-                // delete calo objects
-                if (caloTSOS) {
-                    for (const auto& to_del : *caloTSOS) { delete to_del; }
-                } else {
-                    ATH_MSG_DEBUG("  calo association fails ");
-                }
-
+            if (!trackParameters || caloTSOS.empty()) {
                 ATH_MSG_DEBUG("  perigee back-extrapolation fails ");
                 return nullptr;
             }
         }  // if (perigee) {
 
         // set seed if provided
-        if (seedParameters) { trackParameters.reset(seedParameters->clone()); }
+        if (seedParameters) { trackParameters = seedParameters->uniqueClone(); }
 
         // append TSOS objects into DataVector
         // reserve allows for perigee + vertex + calo + entrancePerigee + spectrometer TSOS
-        unsigned int size = spectrometerTSOS.size() + 3;
-        if (caloTSOS) { size += caloTSOS->size(); }
-        if (leadingTSOS) { size += leadingTSOS->size(); }
+        unsigned int size = spectrometerTSOS.size() + 3 + caloTSOS.size() + leadingTSOS.size();
 
         DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
 
@@ -2824,9 +2785,7 @@ namespace Rec {
         }
 
         // append calo TSOS
-        if (caloTSOS) {
-            for (const auto& s : *caloTSOS) { trackStateOnSurfaces->push_back(s); }
-        }
+        for (auto& s : caloTSOS) { trackStateOnSurfaces->push_back(std::move(s)); }
 
         // MS entrance perigee
         if (m_perigeeAtSpectrometerEntrance) {
@@ -2842,14 +2801,8 @@ namespace Rec {
         }
 
         // append leading MS material TSOS
-        if (leadingTSOS) {
-            for (const auto& s : *leadingTSOS) {
-                if (s->materialEffectsOnTrack()) {
-                    trackStateOnSurfaces->push_back(s);
-                } else {
-                    delete s;
-                }
-            }
+        for (auto& s : leadingTSOS) {
+            if (s->materialEffectsOnTrack()) { trackStateOnSurfaces->push_back(std::move(s)); }
         }
 
         // append the remaining spectrometer TSOS
@@ -2877,11 +2830,8 @@ namespace Rec {
         }
 
         // fit the track
-        if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << "  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS";
-            if (particleHypothesis == Trk::nonInteracting) { msg() << " using nonInteracting hypothesis"; }
-            msg() << endmsg;
-        }
+        ATH_MSG_VERBOSE("  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS"
+                                               << (particleHypothesis == Trk::nonInteracting ? " using nonInteracting hypothesis" : ""));
 
         std::unique_ptr<Trk::Track> fittedTrack{fit(*track, ctx, runOutlier, particleHypothesis)};
 
@@ -2971,36 +2921,27 @@ namespace Rec {
             }
 
             // associate calo by extrapolation from last ID parameters
-            std::vector<const Trk::TrackStateOnSurface*>* caloTSOS;
+            std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS;
             if (m_useCaloTG) {
                 if (!lastIDtp) { lastIDtp = parameters; }
                 ATH_MSG_VERBOSE(" Retriving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
-                caloTSOS = m_materialUpdator->getCaloTSOS(*lastIDtp, muonTrack);
+                caloTSOS = getCaloTSOSfromMatProvider(*lastIDtp, muonTrack);
             } else {
-                caloTSOS = m_caloTSOS->caloTSOS(*parameters);
+                caloTSOS = m_caloTSOS->caloTSOS(ctx, *parameters);
             }
 
-            if (!caloTSOS || caloTSOS->size() < 3) {
+            if (caloTSOS.size() < 3) {
                 ATH_MSG_DEBUG(" muonTrack: parameters fail to fully intersect the calorimeter");
-                if (caloTSOS) {
-                    std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
-
-                    for (; t != caloTSOS->end(); ++t) { delete *t; }
-
-                    delete caloTSOS;
-                }
                 delete trackStateOnSurfaces;
                 return nullptr;
             }
 
-            size += caloTSOS->size();
+            size += caloTSOS.size();
             trackStateOnSurfaces->reserve(size + 1);
 
             // start with the calo TSOS
-            std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
-            for (; t != caloTSOS->end(); ++t) { trackStateOnSurfaces->push_back(*t); }
+            for (auto& tsos : caloTSOS) { trackStateOnSurfaces->push_back(std::move(tsos)); }
 
-            delete caloTSOS;
         } else {
             trackStateOnSurfaces->reserve(size + 1);
         }
@@ -4097,6 +4038,16 @@ namespace Rec {
         if (!fieldCondObj) return false;
         fieldCondObj->getInitializedCache(fieldCache);
         return true;
+    }
+    std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> CombinedMuonTrackBuilder::getCaloTSOSfromMatProvider(
+        const Trk::TrackParameters& track_params, const Trk::Track& me_track) const {
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> to_ret;
+        std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> tsos_vec{m_materialUpdator->getCaloTSOS(track_params, me_track)};
+        if (tsos_vec) {
+            for (const Trk::TrackStateOnSurface* tsos : *tsos_vec) to_ret.emplace_back(tsos);
+        }
+
+        return to_ret;
     }
 
 }  // namespace Rec

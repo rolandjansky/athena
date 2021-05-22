@@ -48,9 +48,7 @@ namespace Trk {
         /** AlgTool initialize method */
         StatusCode initialize();
         
-        /** AlgTool finalize method */
-        StatusCode finalize();
-        
+
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
         std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 

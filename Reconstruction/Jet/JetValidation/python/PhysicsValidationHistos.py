@@ -172,7 +172,6 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
               jhm.FoxWolfram3,
               jhm.FoxWolfram4,
               jhm.Sphericity,
-              jhm.Aplanarity,
               jhm.PullMag,
               jhm.PullPhi,
               jhm.Pull_C00,

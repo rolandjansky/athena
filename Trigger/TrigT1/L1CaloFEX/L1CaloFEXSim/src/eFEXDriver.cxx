@@ -38,9 +38,6 @@
 #include <cassert>
 #include "SGTools/TestStore.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <ctime>
 
 #include <iostream>
@@ -68,19 +65,6 @@ StatusCode eFEXDriver::initialize()
 {
 
   m_numberOfEvents = 1;
-
-  ServiceHandle<ITHistSvc> histSvc("THistSvc","");
-  StatusCode scHist = histSvc.retrieve();
-  if (scHist ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to retrieve THistSvc"); }
-
-  //Reta
-  TH1F* hReta = new TH1F("Reta", "Reta",20,0,1);
-  hReta->GetXaxis()->SetTitle("TObs Reta");
-  hReta->GetYaxis()->SetTitle("Events");
-  
-  StatusCode scReg = histSvc->regHist("/ISO/Reta", hReta); 
-  if (scReg ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to define stream"); }
-
 
   ATH_CHECK( m_eTowerBuilderTool.retrieve() );
 
@@ -232,16 +216,18 @@ StatusCode eFEXDriver::finalize()
     for(const auto& it : * myRoIContainer){
       myRoI = it;
       ATH_MSG_DEBUG("EDM eFex Number: " 
-                    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
-                    << " et: " 
-                    << myRoI->et() // returns the et value of the EM cluster in MeV
-                    << " eta: "
-                    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
-                    << " phi: "
-                    << myRoI->phi() // returns a floating point global phi
-                    << " is TOB? "
-                    << +myRoI->isTOB() // returns 1 if true, returns 0 if xTOB
-                    );
+		    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+        << " shelf: " 
+        << +myRoI->shelfNumber() // returns an 8 bit unsigned integer referring to the shelf number
+		    << " et: " 
+		    << myRoI->et() // returns the et value of the EM cluster in MeV
+		    << " eta: "
+		    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		    << " phi: "
+		    << myRoI->phi() // returns a floating point global phi
+		    << " is TOB? "
+		    << +myRoI->isTOB() // returns 1 if true, returns 0 if xTOB
+		    );
     }
 
     return StatusCode::SUCCESS;

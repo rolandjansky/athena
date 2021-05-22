@@ -438,26 +438,33 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getSgKey @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper) const
+std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(const HLT::StandaloneNavigation& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const
 {
-  std::string sgKeyString = navigationDecoder.label(helper.getCLID(), helper.getIndex().subTypeIndex());
+  const std::string hltLabel = navigationDecoder.label(helper.getCLID(), helper.getIndex().subTypeIndex());
 
-  std::string type_name;
-
-  const CLID saveCLID = [&](const CLID &clid) {
+  const CLID saveCLID = [&](const CLID& clid) {
     if (clid == m_roIDescriptorCLID) return m_roIDescriptorCollectionCLID;
     if (clid == m_TrigEMClusterCLID) return m_TrigEMClusterContainerCLID;
     if (clid == m_TrigRingerRingsCLID) return m_TrigRingerRingsContainerCLID;
     return clid;
   }(helper.getCLID());
 
+  std::string type_name;
   if (m_clidSvc->getTypeNameOfID(saveCLID, type_name).isFailure())
   {
-    return {0, 0, ""};
+    return { 0, 0, "" };
   }
-  auto sg = evtStore()->stringToKey(HLTNavDetails::formatSGkey("HLT", type_name, sgKeyString), saveCLID);
 
-  return {sg, saveCLID, sgKeyString}; // sgKey, sgCLID, sgName
+  const auto sgStringKey = HLTNavDetails::formatSGkey("HLT", type_name, hltLabel);
+  const bool isAvailable = evtStore()->contains( saveCLID,  sgStringKey);
+  ATH_MSG_DEBUG(" Objects presence " << helper << " " << sgStringKey <<  (isAvailable? " present" : " absent"));
+  if ( ! isAvailable ) {
+    return { 0, 0, "" };
+  }
+
+  const auto sgIntKey = evtStore()->stringToKey(sgStringKey, saveCLID);
+
+  return { sgIntKey, saveCLID, hltLabel }; // sgKey, sgCLID, sgName
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTEROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

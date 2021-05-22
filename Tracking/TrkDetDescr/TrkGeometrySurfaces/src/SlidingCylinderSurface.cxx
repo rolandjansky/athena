@@ -11,9 +11,6 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/CylinderBounds.h"
 
-// Gaudi
-#include "GaudiKernel/MsgStream.h"
-
 // Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 // STD
