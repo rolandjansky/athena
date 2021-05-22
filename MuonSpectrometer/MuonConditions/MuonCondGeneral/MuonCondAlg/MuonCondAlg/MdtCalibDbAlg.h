@@ -54,18 +54,19 @@ class MdtCalibDbAlg: public AthAlgorithm {
   
  private:
   
-  ServiceHandle<ICondSvc> m_condSvc;
-  MuonCalib::MdtTubeCalibContainer* buildMdtTubeCalibContainer(const Identifier &id, const MuonGM::MuonDetectorManager* muDetMgr);
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
+  MuonCalib::MdtTubeCalibContainer* buildMdtTubeCalibContainer(const Identifier &id);
   
-  StatusCode loadRt(const MuonGM::MuonDetectorManager* muDetMgr);
+  StatusCode loadRt();
   StatusCode defaultRt(std::unique_ptr<MdtRtRelationCollection>& writeCdoRt);
-  StatusCode loadTube(const MuonGM::MuonDetectorManager* muDetMgr);
-  StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube, const MuonGM::MuonDetectorManager* muDetMgr);
+  StatusCode loadTube();
+  StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube);
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool {this, "IdToFixedIdTool", "MuonCalib::IdToFixedIdTool"};
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc {this, "MdtCalibrationRegionSvc", "MdtCalibrationRegionSvc"};
+
+  const MuonGM::MuonDetectorManager* m_detMgr; // only needed to retrieve information on number of tubes etc. (no alignment needed)
 
   std::string m_rtFolder;
   std::string m_tubeFolder;
@@ -101,7 +102,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
   double m_rtScale;
   double m_prop_beta;
 
-  ServiceHandle<IAthRNGSvc> m_AthRNGSvc;
+  ServiceHandle<IAthRNGSvc> m_AthRNGSvc{this,"AthRNGSvc","AthRNGSvc"};
   std::string m_randomStream;
   ATHRNG::RNGWrapper* m_RNGWrapper;
 

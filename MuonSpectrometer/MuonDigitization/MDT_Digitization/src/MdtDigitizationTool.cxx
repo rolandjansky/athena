@@ -870,7 +870,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 	      t0 = singleTubeData->t0;
 	    }
 	  }
-	}
+	} else {
+    ATH_MSG_WARNING("No calibration data found, using t0="<<m_offsetTDC);
+  }
       bool isHPTDC = m_idHelperSvc->hasHPTDC(idDigit);
       int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC, rndmEngine);
       int adc = digitizeTime(it->adc, isHPTDC, rndmEngine);
