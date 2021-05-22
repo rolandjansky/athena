@@ -128,7 +128,7 @@ public:
   const std::vector<float> & offset() const { return m_depth; }
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override
+  virtual std::string name() const override final
   {
     return "Trk::SlidingDiscSurface";
   }
