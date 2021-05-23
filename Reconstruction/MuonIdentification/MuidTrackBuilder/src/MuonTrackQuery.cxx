@@ -34,7 +34,7 @@
 
 namespace Units = Athena::Units;
 namespace {
-    static const double OneOverSqrt2 = 1. / std::sqrt(2);
+    constexpr double OneOverSqrt2 = M_SQRT1_2;
 }
 namespace Rec {
 

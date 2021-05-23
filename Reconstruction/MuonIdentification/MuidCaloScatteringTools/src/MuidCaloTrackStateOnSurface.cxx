@@ -434,8 +434,7 @@ namespace Rec {
         if (dynamic_cast<const Trk::PerigeeSurface*>(&parameters.associatedSurface()))
             parameterDistance = parameters.associatedSurface().center().perp();
 
-        if (parameterDistance < 0.5 * Gaudi::Units::meter) return true;
-        return false;
+        return parameterDistance < 0.5 * Gaudi::Units::meter;
     }
 
 }  // namespace Rec

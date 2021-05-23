@@ -1817,10 +1817,10 @@ namespace Rec {
         trackStateOnSurfaces->push_back(std::move(innerTSOS));
         trackStateOnSurfaces->push_back(std::move(middleTSOS));
         trackStateOnSurfaces->push_back(std::move(outerTSOS));
-
+        const Trk::TrackParameters* outerTSOSParam = trackStateOnSurfaces->back()->trackParameters();
         // MS entrance perigee
         if (m_perigeeAtSpectrometerEntrance) {
-            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters(), ctx);
+            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOSParam, ctx);
             if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
         }
 
