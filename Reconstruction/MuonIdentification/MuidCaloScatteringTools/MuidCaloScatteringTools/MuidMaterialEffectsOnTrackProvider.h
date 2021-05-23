@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 
+namespace Trk {
+    class Surface;
+}
+
 /** @class MuidMaterialEffectsOnTrackProvider
 
 @author thijs.cornelissen@cern.ch
@@ -29,19 +33,19 @@ namespace Rec {
         MuidMaterialEffectsOnTrackProvider(const std::string&, const std::string&, const IInterface*);
 
         /**Virtual destructor*/
-        virtual ~MuidMaterialEffectsOnTrackProvider() = default;
+        virtual ~MuidMaterialEffectsOnTrackProvider();
 
         /** AlgTool initailize method.*/
-        StatusCode initialize() override;
+        StatusCode initialize();
+        /** AlgTool finalize method */
+        StatusCode finalize();
 
         /** return all MaterialLayers associated to this track **/
-        virtual std::vector<Trk::MaterialEffectsOnTrack>
-        extrapolationSurfacesAndEffects(const Trk::TrackingVolume&,
-                                        const Trk::IPropagator&,
-                                        const Trk::TrackParameters&,
-                                        const Trk::Surface&,
-                                        Trk::PropDirection,
-                                        Trk::ParticleHypothesis) const override final;
+        std::vector<Trk::MaterialEffectsOnTrack> extrapolationSurfacesAndEffects(const Trk::TrackingVolume&, const Trk::IPropagator&,
+                                                                                 const Trk::TrackParameters&, const Trk::Surface&,
+                                                                                 Trk::PropDirection,
+
+                                                                                 Trk::ParticleHypothesis) const;
 
       private:
         ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsos{

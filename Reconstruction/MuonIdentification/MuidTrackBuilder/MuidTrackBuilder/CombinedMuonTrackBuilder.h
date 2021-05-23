@@ -345,10 +345,6 @@ namespace Rec {
         const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
         const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;
         bool loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& field_cache) const;
-        /// Helper method to retrieve the CaloTSO from the Material provider
-        /// in a memory safe way
-        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> getCaloTSOSfromMatProvider(const Trk::TrackParameters& track_params,
-                                                                                                const Trk::Track& me_track) const;
 
     };  // end of class CombinedMuonTrackBuilder
 
