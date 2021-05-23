@@ -35,11 +35,15 @@ namespace Rec {
         StatusCode initialize() override;
 
         /** return all MaterialLayers associated to this track **/
-        std::vector<Trk::MaterialEffectsOnTrack> extrapolationSurfacesAndEffects(const Trk::TrackingVolume&, const Trk::IPropagator&,
-                                                                                 const Trk::TrackParameters&, const Trk::Surface&,
-                                                                                 Trk::PropDirection, Trk::ParticleHypothesis) const;
+        virtual std::vector<Trk::MaterialEffectsOnTrack>
+        extrapolationSurfacesAndEffects(const Trk::TrackingVolume&,
+                                        const Trk::IPropagator&,
+                                        const Trk::TrackParameters&,
+                                        const Trk::Surface&,
+                                        Trk::PropDirection,
+                                        Trk::ParticleHypothesis) const override final;
 
-    private:
+      private:
         ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsos{
             this,
             "TSOSTool",
