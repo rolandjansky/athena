@@ -11,8 +11,7 @@ atlas_add_component( MuidCaloScatteringTools
                      src/MuidCaloTrackStateOnSurface.cxx
                      src/MuidMaterialEffectsOnTrackProvider.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkSurfaces TrkParameters TrkExInterfaces GeoPrimitives MuidEvent
-				    muonEvent TrkGeometry TrkMaterialOnTrack TrkTrack TrkExUtils MagFieldElements MagFieldConditions FourMomUtils )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkSurfaces TrkParameters TrkExInterfaces GeoPrimitives MuidEvent muonEvent TrkGeometry TrkMaterialOnTrack TrkTrack TrkExUtils MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_headers( MuidCaloScatteringTools )

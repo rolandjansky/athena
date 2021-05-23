@@ -39,27 +39,28 @@ namespace Rec {
     class MuidCaloMaterialParam : public AthAlgTool, virtual public IMuidCaloMaterialParam {
     public:
         MuidCaloMaterialParam(const std::string& type, const std::string& name, const IInterface* parent);
-        ~MuidCaloMaterialParam();  // destructor
+        ~MuidCaloMaterialParam(void);  // destructor
 
-        StatusCode initialize() override;
+        StatusCode initialize();
+        StatusCode finalize();
 
         /**IMuidCaloMaterialParam interface:
            return inner/middle/outer surface corresponding to eta value */
-        const Trk::Surface* innerSurface(double eta) const override;
-        const Trk::Surface* middleSurface(double eta) const override;
-        const Trk::Surface* outerSurface(double eta) const override;
+        const Trk::Surface* innerSurface(double eta) const;
+        const Trk::Surface* middleSurface(double eta) const;
+        const Trk::Surface* outerSurface(double eta) const;
 
         /**IMuidCaloMaterialParam interface:
            calorimeter layer radiation thickness corresponding to eta value */
-        double radiationThickness(double eta) const override;
+        double radiationThickness(double eta) const;
 
         /**IMuidCaloMaterialParam interface:
            TrackStateOnSurface for parameters at a scattering surface */
-        const Trk::TrackStateOnSurface* trackStateOnSurface(const Trk::TrackParameters* parameters) const override;
+        const Trk::TrackStateOnSurface* trackStateOnSurface(const Trk::TrackParameters* parameters) const;
 
     private:
         // private methods
-        std::unique_ptr<Trk::Surface> createSurface(double eta, double r, double z, double cotThetaWidth) const;
+        Trk::Surface* createSurface(double eta, double r, double z, double cotThetaWidth);
         StatusCode defineCaloMaterial(void);
 
         // helpers, managers, tools
@@ -75,15 +76,15 @@ namespace Rec {
 
         // data from geantino map - organized at initialize
         double m_binSize;
-        std::vector<std::unique_ptr<const CaloLayer>> m_caloInnerLayers;
-        std::vector<std::unique_ptr<const CaloLayer>> m_caloOuterLayers;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_innerBackwardSurfaces;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_innerForwardSurfaces;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_middleBackwardSurfaces;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_middleForwardSurfaces;
+        std::vector<const CaloLayer*> m_caloInnerLayers;
+        std::vector<const CaloLayer*> m_caloOuterLayers;
+        std::vector<const Trk::Surface*> m_innerBackwardSurfaces;
+        std::vector<const Trk::Surface*> m_innerForwardSurfaces;
+        std::vector<const Trk::Surface*> m_middleBackwardSurfaces;
+        std::vector<const Trk::Surface*> m_middleForwardSurfaces;
         const unsigned m_numberBins;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_outerBackwardSurfaces;
-        std::vector<std::unique_ptr<const Trk::Surface>> m_outerForwardSurfaces;
+        std::vector<const Trk::Surface*> m_outerBackwardSurfaces;
+        std::vector<const Trk::Surface*> m_outerForwardSurfaces;
         std::vector<double> m_radiationThickness;
     };
 
