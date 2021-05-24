@@ -22,7 +22,7 @@
 
 namespace Trk {
 
-class GsfCombinedMaterialEffects
+class GsfCombinedMaterialEffects final
   : public AthAlgTool
   , virtual public IMultiStateMaterialEffects
 {
@@ -73,22 +73,6 @@ public:
     ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  // Multipe scattering
-  void scattering(
-    GsfMaterial::Scattering&,
-    const ComponentParameters& componentParameters,
-    const MaterialProperties& materialProperties,
-    double pathLength) const;
-
-  // Non brem (non-electron) energy loss
-  void energyLoss(
-    GsfMaterial::EnergyLoss&,
-    const ComponentParameters&,
-    const MaterialProperties&,
-    double,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
-
   // Electron enrrgy loss due to Bremsstrahlung
   void BetheHeitler(
     GsfMaterial::EnergyLoss& cache,
