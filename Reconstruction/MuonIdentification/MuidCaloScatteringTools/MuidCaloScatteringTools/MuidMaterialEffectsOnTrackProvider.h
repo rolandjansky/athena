@@ -47,7 +47,7 @@ namespace Rec {
 
                                                                                  Trk::ParticleHypothesis) const;
 
-      private:
+    private:
         ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_calotsos{
             this,
             "TSOSTool",
