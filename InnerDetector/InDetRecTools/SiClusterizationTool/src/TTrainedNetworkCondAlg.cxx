@@ -20,7 +20,7 @@
 namespace InDet {
 
   TTrainedNetworkCondAlg::TTrainedNetworkCondAlg (const std::string& name, ISvcLocator* pSvcLocator)
-    : ::AthAlgorithm( name, pSvcLocator )
+    : ::AthReentrantAlgorithm( name, pSvcLocator )
   {}
 
   StatusCode TTrainedNetworkCondAlg::initialize() {
@@ -101,15 +101,15 @@ namespace InDet {
   }
 
 
-  StatusCode TTrainedNetworkCondAlg::execute() {
+  StatusCode TTrainedNetworkCondAlg::execute(const EventContext& ctx) const {
 
-    SG::WriteCondHandle<TTrainedNetworkCollection > NnWriteHandle{m_writeKey};
+    SG::WriteCondHandle<TTrainedNetworkCollection > NnWriteHandle{m_writeKey, ctx};
     if (NnWriteHandle.isValid()) {
       ATH_MSG_DEBUG("Write CondHandle "<< NnWriteHandle.fullKey() << " is already valid");
       return StatusCode::SUCCESS;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
     if(!readHandle.isValid()) {
       ATH_MSG_ERROR("Invalid read handle " << m_readKey.key());
       return StatusCode::FAILURE;

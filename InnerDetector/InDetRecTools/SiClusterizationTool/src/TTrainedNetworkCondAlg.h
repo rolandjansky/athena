@@ -5,7 +5,7 @@
 #ifndef _InDet_TTrainedNetworkCondAlg_H_
 #define _InDet_TTrainedNetworkCondAlg_H_
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -27,7 +27,7 @@ namespace InDet {
 
   /**
   */
-class TTrainedNetworkCondAlg : public AthAlgorithm {
+class TTrainedNetworkCondAlg : public AthReentrantAlgorithm {
 
  public:
 
@@ -35,7 +35,7 @@ class TTrainedNetworkCondAlg : public AthAlgorithm {
   ~TTrainedNetworkCondAlg() = default;
 
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute(const EventContext& ctx) const;
   StatusCode finalize();
 
  private:
