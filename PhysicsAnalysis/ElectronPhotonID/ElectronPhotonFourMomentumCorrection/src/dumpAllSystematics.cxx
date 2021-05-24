@@ -191,7 +191,7 @@ StatusCode DumpAllSystematics::finalize() {
 
 StatusCode DumpAllSystematics::execute()
 {
-  const xAOD::EventInfo* eventInfo = 0;
+  const xAOD::EventInfo* eventInfo = nullptr;
   ATH_CHECK(evtStore()->retrieve(eventInfo));
 
   m_actualIntPerXing = eventInfo->actualInteractionsPerCrossing();

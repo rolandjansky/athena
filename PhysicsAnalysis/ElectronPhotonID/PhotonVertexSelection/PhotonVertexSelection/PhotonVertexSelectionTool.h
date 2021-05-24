@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PhotonVertexSelection_PhotonVertexSelectionTool_h
@@ -52,10 +52,10 @@ namespace CP {
     TMVA::Reader *m_mva2;
 
     /// MVA attached discriminating variables
-    float m_sumPt2;
-    float m_sumPt;
-    float m_deltaPhi;
-    float m_deltaZ;
+    float m_sumPt2{};
+    float m_sumPt{};
+    float m_deltaPhi{};
+    float m_deltaZ{};
     
     /// Last case treated (see below)
     int m_case;

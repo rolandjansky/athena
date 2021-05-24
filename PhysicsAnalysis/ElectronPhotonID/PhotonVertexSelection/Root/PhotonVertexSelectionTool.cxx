@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -121,7 +121,7 @@ namespace CP {
     const xAOD::PhotonContainer *photons = dynamic_cast<const xAOD::PhotonContainer*>(&egammas);
 
     // Retrieve PV collection from TEvent
-    const xAOD::VertexContainer* vertices = 0;
+    const xAOD::VertexContainer* vertices = nullptr;
     if (evtStore()->retrieve(vertices, m_vertexContainerName).isFailure()) {
       ATH_MSG_WARNING("Couldn't retrieve " << m_vertexContainerName << " from TEvent, returning nullptr.");
       prime_vertex = nullptr;
@@ -133,7 +133,7 @@ namespace CP {
       prime_vertex = getPrimaryVertexFromConv(photons);
       if (prime_vertex != nullptr) {
         m_case = 0;
-        m_vertexMLP.push_back(std::make_pair(prime_vertex, 0.));
+        m_vertexMLP.emplace_back(prime_vertex, 0.);
         return StatusCode::SUCCESS;
       }
     }
@@ -161,7 +161,7 @@ namespace CP {
     TMVA::Reader *reader = m_mva2;
     m_case = 2;
     if (!ignoreConv && photons) {
-      for (auto photon: *photons) {
+      for (const auto *photon: *photons) {
         if (!photon)
         {
           ATH_MSG_WARNING("Null pointer to photon");
@@ -182,7 +182,7 @@ namespace CP {
 
     // Loop over vertices and find best candidate
     float mlp = 0.0, mlp_max = -99999.0;
-    for (auto vertex: *vertices) {
+    for (const auto *vertex: *vertices) {
 
       // Skip dummy vertices
       if (vertex->vertexType() != xAOD::VxType::VertexType::PriVtx and
@@ -222,7 +222,7 @@ namespace CP {
       }
       ATH_MSG_VERBOSE("MVA output: " << mlp);
 
-      m_vertexMLP.push_back(std::make_pair(vertex, mlp));
+      m_vertexMLP.emplace_back(vertex, mlp);
 
       // Keep track of maximal likelihood vertex
       if (mlp > mlp_max) {
@@ -265,7 +265,7 @@ namespace CP {
       return nullptr;
     }
 
-    for (auto photon: *photons) {
+    for (const auto *photon: *photons) {
       conversionVertex = photon->vertex();
       if (conversionVertex == nullptr) continue;
 
@@ -294,7 +294,7 @@ namespace CP {
       }
     }
 
-    if (vertices.size() > 0) {
+    if (!vertices.empty()) {
       if (vertices.size() > 1)
         ATH_MSG_WARNING("Photons associated to different vertices! Returning lead photon association.");
       return vertices[0];
@@ -314,7 +314,7 @@ namespace CP {
   {
     TLorentzVector v, v1;
     const xAOD::CaloCluster *cluster = nullptr;
-    for (auto egamma: *egammas) {
+    for (const auto *egamma: *egammas) {
       cluster = egamma->caloCluster();
       if (cluster == nullptr) {
         ATH_MSG_WARNING("No cluster associated to egamma, not adding to 4-vector.");
