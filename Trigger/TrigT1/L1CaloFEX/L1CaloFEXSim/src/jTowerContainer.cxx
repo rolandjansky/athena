@@ -19,9 +19,9 @@ jTowerContainer::jTowerContainer(SG::OwnershipPolicy ownPolicy) :
   m_map_towerID_containerIndex.clear();
 }
 
-  void jTowerContainer::push_back(float eta, float phi, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer)
+  void jTowerContainer::push_back(float eta, float phi, int key_eta, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer)
 {
-  DataVector<LVL1::jTower>::push_back(std::make_unique<jTower>(eta,phi,keybase,posneg,centre_eta,centre_phi,fcal_layer));
+  DataVector<LVL1::jTower>::push_back(std::make_unique<jTower>(eta,phi,key_eta,keybase,posneg,centre_eta,centre_phi,fcal_layer));
 }
 
 void jTowerContainer::print() const {
