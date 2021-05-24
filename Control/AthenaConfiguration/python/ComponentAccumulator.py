@@ -449,7 +449,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: {} as service".format(type( newSvc ).__name__))
 
         if newSvc.__component_type__ != "Service":
-            raise TypeError("Attempt to add wrong type: {} as service".fomrat(newSvc.__component_type__))
+            raise TypeError("Attempt to add wrong type: {} as service".format(newSvc.__component_type__))
             pass
 
         context = createContextForDeduplication("Merging with existing Service", newSvc.name, self._componentsContext) # noqa : F841
