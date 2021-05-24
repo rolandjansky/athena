@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools for handling beam spot data in ntuples or in COOL.
@@ -544,13 +544,13 @@ class BeamSpotValue:
         s += '};'
         return s
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
       if self.run != other.run:
-        return self.run.__cmp__(other.run) 
+        return self.run.__lt__(other.run) 
       if self.bcid != other.bcid:
-        return self.bcid.__cmp__(other.bcid) 
+        return self.bcid.__lt__(other.bcid) 
       
-      return self.lbStart.__cmp__(other.lbStart) 
+      return self.lbStart.__lt__(other.lbStart) 
 
 
 class BeamSpotAverage:
@@ -620,7 +620,7 @@ class BeamSpotAverage:
                 if valErr != 0. :
                     w = 1./valErr/valErr
                 else:
-                    w = 0.
+                    w = 1e-16
                     print ('WARNING: Divison by zero for parameter %s   (val = %f  valErr = %f)\n' % (parName,val,valErr))
                     self.nWarnings += 1
             else:
@@ -762,15 +762,15 @@ class BeamSpotContainer:
 
     def next(self):
         """Return next selected element in the container."""
-        return self.iter.next()
+        return next(self.iter)
 
     def __next__(self):
         """Return next selected element in the container."""
-        return self.iter.next()
+        return self.next()
 
     def allData(self):
         """Default generator to iterate over all data. Must be overridden by derived classes."""
-        raise StopIteration
+        raise StopIteration()
 
     def selectedData(self):
         """Generator to iterate over selected elements in the container."""
@@ -898,10 +898,10 @@ class BeamSpotNt(BeamSpotContainer):
                 self.nt = ROOT.TTree(self.treeName,'Master beam spot ntuple')
                 for v in bs.varList():
                     varType = bs.getROOTType(v)
-                    self.nt.Branch(v,ROOT.AddressOf(self.ntbuf,v),v+varType)
+                    self.nt.Branch(v,ROOT.addressof( self.ntbuf,v), v+varType)
             else:
                 for v in bs.varList():
-                    self.nt.SetBranchAddress(v,ROOT.AddressOf(self.ntbuf,v))
+                    self.nt.SetBranchAddress(v,ROOT.addressof(self.ntbuf,v))
         else:
             self.rootFile = ROOT.TFile(fileName)
             self.nt = self.rootFile.Get(self.treeName)
