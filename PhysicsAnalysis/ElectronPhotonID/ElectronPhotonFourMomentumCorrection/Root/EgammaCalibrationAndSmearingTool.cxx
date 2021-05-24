@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <memory>
 
 #include <string>
 #include <utility>
@@ -440,7 +442,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
 
   // create correction tool
   ATH_MSG_DEBUG("creating internal correction tool");
-  m_rootTool.reset(new AtlasRoot::egammaEnergyCorrectionTool());
+  m_rootTool = std::make_unique<AtlasRoot::egammaEnergyCorrectionTool>();
   if (!m_rootTool) {
     ATH_MSG_ERROR("Cannot initialize underlying tool");
     return StatusCode::FAILURE;
@@ -455,7 +457,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   if (m_use_mva_calibration != 0)
   {
     ATH_MSG_DEBUG("creating MVA calibration tool (if needed)");
-    if (m_MVAfolder == "")  {  // automatically configure MVA tool
+    if (m_MVAfolder.empty())  {  // automatically configure MVA tool
       m_mva_tool = egammaMVAToolFactory(m_TESModel).release();
       if (!m_mva_tool) { ATH_MSG_INFO("not using MVA calibration"); }
     }
@@ -478,7 +480,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   }
   else{
     ATH_MSG_DEBUG("initializing layer recalibration tool (if needed)");
-    if (m_layer_recalibration_tune == "") { // automatically configure layer recalibration tool
+    if (m_layer_recalibration_tune.empty()) { // automatically configure layer recalibration tool
       m_layer_recalibration_tool = egammaLayerRecalibToolFactory(m_TESModel).release();
       if (!m_layer_recalibration_tool) { ATH_MSG_INFO("not using layer recalibration"); }
     }
@@ -592,7 +594,7 @@ StatusCode EgammaCalibrationAndSmearingTool::get_simflavour_from_metadata(PATCor
 #endif
   //here's how things will work dual use.
   if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-      const xAOD::FileMetaData* fmd = 0;
+      const xAOD::FileMetaData* fmd = nullptr;
       ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
       std::string simType("");
@@ -663,7 +665,7 @@ StatusCode EgammaCalibrationAndSmearingTool::beginEvent() {
     if (m_metadata_retrieved) return StatusCode::SUCCESS;
 
     //determine MC/Data from evtInfo ... this will work for both athena and eventloop
-    const xAOD::EventInfo* evtInfo = 0;
+    const xAOD::EventInfo* evtInfo = nullptr;
     ATH_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
     if (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
         if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
@@ -718,7 +720,7 @@ EgammaCalibrationAndSmearingTool::resolution(double energy, double cl_eta, doubl
 CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamma & input)
 {
   // Retrieve the event information:
-  const xAOD::EventInfo* event_info = 0;
+  const xAOD::EventInfo* event_info = nullptr;
   if (evtStore()->retrieve(event_info, "EventInfo").isFailure()) {
     ATH_MSG_ERROR("No EventInfo object could be retrieved");
     return CP::CorrectionCode::Error;
@@ -1283,7 +1285,7 @@ StatusCode EgammaCalibrationAndSmearingTool::applySystematicVariation(const CP::
   m_currentResolutionVariation_data = egEnergyCorr::Resolution::None;
   m_currentScalePredicate = [](const xAOD::Egamma&) { return true; };
 
-  if (systConfig.size() == 0) return StatusCode::SUCCESS;
+  if (systConfig.empty()) return StatusCode::SUCCESS;
 
   // the following code allows only ONE systematic variation at a time (1 for scale, 1 for resolution)
 

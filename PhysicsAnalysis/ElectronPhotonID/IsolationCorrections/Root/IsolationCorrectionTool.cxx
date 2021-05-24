@@ -47,9 +47,9 @@ namespace CP {
     ATH_MSG_INFO( "in initialize of " << name() << "..." );
 
     //ReadHandles
-    ASG_CHECK(m_eventInfoKey.initialize());
-    ASG_CHECK(m_centralEventShapeKey.initialize(m_apply_etaEDParPU_corr));
-    ASG_CHECK(m_forwardEventShapeKey.initialize(m_apply_etaEDParPU_corr));
+    ATH_CHECK(m_eventInfoKey.initialize());
+    ATH_CHECK(m_centralEventShapeKey.initialize(m_apply_etaEDParPU_corr));
+    ATH_CHECK(m_forwardEventShapeKey.initialize(m_apply_etaEDParPU_corr));
 
     //
     m_isol_corr->msg().setLevel(this->msg().level());

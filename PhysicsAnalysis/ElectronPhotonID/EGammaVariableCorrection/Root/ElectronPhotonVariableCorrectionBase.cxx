@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -50,7 +50,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     if (!m_configFile.empty())
     {
         configFile = PathResolverFindCalibFile(m_configFile);
-        if (configFile == "")
+        if (configFile.empty())
         {
             ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
@@ -167,7 +167,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     {
         m_uncorrectedDiscontinuities = AsgConfigHelper::HelperFloat("UncorrectedDiscontinuities", env);
         // if flag is given, but no values, fail
-        if (m_uncorrectedDiscontinuities.size() < 1)
+        if (m_uncorrectedDiscontinuities.empty())
         {
             ATH_MSG_ERROR("Did not find any discontinuities to not correct, despite finding the flag UncorrectedDiscontinuities.");
             return StatusCode::FAILURE;
@@ -338,7 +338,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::correctedCopy( co
 bool ElectronPhotonVariableCorrectionBase::isEqualToUncorrectedDiscontinuity(const float value) const
 {
     // if no values set, return false as there is nothing to check
-    if (m_uncorrectedDiscontinuities.size() < 1)
+    if (m_uncorrectedDiscontinuities.empty())
     {
         return false;
     }
@@ -488,7 +488,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getEtaPtBinningsFromConf(
             }
             else
             {
-                m_useAbsEtaBinned = m_etaBins.at(0) < 0 ? false : true;
+                m_useAbsEtaBinned = m_etaBins.at(0) >= 0;
             }
             // don't want to retrieve the same thing twice from conf
             m_retrievedEtaBinning = true;
@@ -592,7 +592,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getObjectFromRootFile(TEn
             // need to un-associate THx type objects from file directory, so they remain accessible
             if (dynamic_cast<TH1*>(return_object.get()) != nullptr)
             {
-                dynamic_cast<TH1*>(return_object.get())->SetDirectory(0);
+                dynamic_cast<TH1*>(return_object.get())->SetDirectory(nullptr);
             }
             file->Close();
         }

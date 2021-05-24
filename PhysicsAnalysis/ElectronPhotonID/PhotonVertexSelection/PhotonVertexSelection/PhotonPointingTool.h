@@ -69,7 +69,7 @@ namespace CP {
   private:
     ///
     float getCorrectedZ(float zPointing, float etas2) const;
-    bool m_isMC;
+    bool m_isMC{};
     std::string m_zOscFileMC, m_zOscFileData;
     std::string m_ContainerName;
 
