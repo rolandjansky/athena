@@ -417,7 +417,8 @@ namespace Rec {
             ATH_MSG_VERBOSE(" start Tail and FSR treatment: Et in e.m. " << EmEnergy * sinTheta / Units::GeV << "  F1 ratio " << F1);
             if (!m_FSRtreatment || EmEnergy * sinTheta < m_emEtCut || F1 < m_emF1Cut) {
                 ++m_countMeasurement;
-                double FinalEnergyErrorMinus, FinalEnergyErrorPlus = 0.50 * std::sqrt(FinalMeasuredEnergy / Units::GeV) * Units::GeV;
+                double FinalEnergyErrorPlus = 0.50 * std::sqrt(FinalMeasuredEnergy / Units::GeV) * Units::GeV;
+                double FinalEnergyErrorMinus = FinalEnergyErrorPlus;
 
                 // overall also have 50% resolution in EC rather than the 70% naively expected from LArHEC
                 if (LArHECEnergy > 1. * Units::GeV) {
