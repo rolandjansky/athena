@@ -236,7 +236,7 @@ namespace Muon {
 
         // create new track
         std::unique_ptr<Trk::Track> cleanedTrack =
-            std::make_unique<Trk::Track>(track->info(), tsos, track->fitQuality() ? track->fitQuality()->clone() : 0);
+            std::make_unique<Trk::Track>(track->info(), tsos, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
         printStates(cleanedTrack.get());
 
         // fit new track
@@ -298,7 +298,7 @@ namespace Muon {
 
         // create new track
         std::unique_ptr<Trk::Track> cleanedTrack =
-            std::make_unique<Trk::Track>(track->info(), tsos, track->fitQuality() ? track->fitQuality()->clone() : 0);
+            std::make_unique<Trk::Track>(track->info(), tsos, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
         printStates(cleanedTrack.get());
 
         // fit new track
@@ -341,8 +341,8 @@ namespace Muon {
             unsigned int nremovedPhi = 0;
             bool hasSmall = false;
             bool hasLarge = false;
-            MCTBCleaningInfo* firstPhi = 0;
-            MCTBCleaningInfo* lastPhi = 0;
+            MCTBCleaningInfo* firstPhi = nullptr;
+            MCTBCleaningInfo* lastPhi = nullptr;
             std::map<MuonStationIndex::StIndex, std::pair<bool, bool> > slCountsPerStationLayer;
             // loop over hits
             InfoIt hit = state.measInfo.begin();
@@ -514,10 +514,10 @@ namespace Muon {
             unsigned int excludedChambers = state.chamberRemovalExclusionList.size();
             if (foundChambers > excludedChambers) {
                 ATH_MSG_WARNING(" Found more excluded chambers than in list, this should not happen ");
-                return 0;
+                return nullptr;
             } else if (foundChambers == excludedChambers) {
                 ATH_MSG_DEBUG(" all excluded chambers in removal list, failing cleaning ");
-                return 0;
+                return nullptr;
             }
         }
 
@@ -577,7 +577,7 @@ namespace Muon {
         ChamberRemovalOutput& finalResult = cleaningResults.front();
         if (nchambers > 1) {
             // loop over removed hits and redo 'remove'
-            for (auto hit : finalResult.removedHits) hit->useInFit = 0;
+            for (auto *hit : finalResult.removedHits) hit->useInFit = 0;
         }
 
         ATH_MSG_DEBUG(" chamberCleaning:  track ");
@@ -666,7 +666,7 @@ namespace Muon {
     }
 
     std::unique_ptr<Trk::Track> MuonTrackCleaner::outlierRecovery(const EventContext& ctx, std::unique_ptr<Trk::Track> track,
-                                                                  CleaningState& state, MuonStationIndex::ChIndex* currentIndex) const {
+                                                                  CleaningState& state, const MuonStationIndex::ChIndex* currentIndex) const {
         const Trk::Perigee* perigee = track->perigeeParameters();
         if (!perigee) {
             ATH_MSG_DEBUG("   track without perigee ");
@@ -719,7 +719,7 @@ namespace Muon {
                 if (hit.inBounds) {
                     if (recoverableLayers.count(hit.chIndex)) {
                         // check whether we can savely add hits in this chamber to the track
-                        bool recover = !isOutsideOnTrackCut(hit.id, hit.residual, hit.pull, m_associationScaleFactor) ? true : false;
+                        bool recover = !isOutsideOnTrackCut(hit.id, hit.residual, hit.pull, m_associationScaleFactor);
                         if (recover && m_onlyUseHitErrorInRecovery && hit.pars) {
                             const Trk::ResidualPull* resPull =
                                 m_pullCalculator->residualPull(hit.meas, hit.pars, Trk::ResidualPull::HitOnly);
@@ -728,9 +728,8 @@ namespace Muon {
                                 recover = false;
                             } else {
                                 recover = !isOutsideOnTrackCut(hit.id, resPull->residual().front(), std::abs(resPull->pull().front()),
-                                                               m_associationScaleFactor)
-                                              ? true
-                                              : false;
+
+                                                               m_associationScaleFactor);
                                 delete resPull;
                             }
                         }
@@ -860,7 +859,7 @@ namespace Muon {
 
         std::set<int> rpcLayers;
         std::set<int> tgcLayers;
-        const Trk::MeasurementBase* mdtmeas = 0;
+        const Trk::MeasurementBase* mdtmeas = nullptr;
         double largestmdtpull = -999;
 
         // loop over TSOSs
@@ -997,7 +996,7 @@ namespace Muon {
             std::unique_ptr<const CompetingMuonClustersOnTrack> updatedCompRot;
             bool flipSign = false;
             if (!pseudo) {
-                const MdtDriftCircleOnTrack* mdtRot = isMDT ? dynamic_cast<const MdtDriftCircleOnTrack*>(meas) : 0;
+                const MdtDriftCircleOnTrack* mdtRot = isMDT ? dynamic_cast<const MdtDriftCircleOnTrack*>(meas) : nullptr;
                 if (mdtRot && mdtRot->prepRawData() && mdtRot->prepRawData()->adc() < m_adcCut) {
                     isNoise = true;
                     isOutlier = true;
@@ -1137,7 +1136,7 @@ namespace Muon {
                 }
             }
 
-            state.measInfo.push_back(MCTBCleaningInfo(id, chId, chIndex, inBounds, residual, pull, *tsit, meas, pars, resPull, 0));
+            state.measInfo.push_back(MCTBCleaningInfo(id, chId, chIndex, inBounds, residual, pull, *tsit, meas, pars, resPull, nullptr));
             MCTBCleaningInfo& info = state.measInfo.back();
             if (flipSign) { info.flippedMdt = std::move(mdtRotFlipped); }
             info.isNoise = isNoise;
@@ -1422,7 +1421,7 @@ namespace Muon {
         PullChamberCit cit = pullSumPerChamber.begin();
         PullChamberCit cit_end = pullSumPerChamber.end();
         if (msgLvl(MSG::DEBUG)) {
-            if (pullSumPerChamber.size()) msg() << MSG::DEBUG << "Chamber pulls " << pullSumPerChamber.size() << ":";
+            if (!pullSumPerChamber.empty()) msg() << MSG::DEBUG << "Chamber pulls " << pullSumPerChamber.size() << ":";
         }
         int ndof = 0;
         double pulltot = 0.;
@@ -1494,15 +1493,12 @@ namespace Muon {
         if (isMdt) {
             // if mdt residual cut is activated check whether the residual is small that 80% of the cut of
             if (m_useMdtResiCut) {
-                if (std::abs(res) > cutScaleFactor * m_mdtResiCut) return true;
-                return false;
+                return std::abs(res) > cutScaleFactor * m_mdtResiCut;
             } else {
-                if (std::abs(pull) > cutScaleFactor * pullCut) return true;
-                return false;
+                return std::abs(pull) > cutScaleFactor * pullCut;
             }
         } else {
-            if (std::abs(pull) > cutScaleFactor * pullCut) return true;
-            return false;
+            return std::abs(pull) > cutScaleFactor * pullCut;
         }
     }
 
@@ -1553,7 +1549,7 @@ namespace Muon {
 
     void MuonTrackCleaner::unremoveHits(ChamberRemovalOutput& result) const {
         // loop over removed hits and 'unremove' them so they are used in the next iteration
-        for (auto hit : result.removedHits) hit->useInFit = 1;
+        for (auto *hit : result.removedHits) hit->useInFit = 1;
     }
 
     void MuonTrackCleaner::printStates(Trk::Track* track) const {
