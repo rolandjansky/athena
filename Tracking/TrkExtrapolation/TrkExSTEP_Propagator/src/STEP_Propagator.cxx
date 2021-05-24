@@ -1779,7 +1779,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
               if ((*vsIter).first!=-1) flipDirection = true;
             } else if ( std::abs((*vsIter).second.second)>tol && std::abs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
-              if ( ic>nextSf ) {   // easy case, already calculated
+              if ( ic>nextSf && nextSf!=-1 ) {   // easy case, already calculated
                 if (propDir*distanceEst<(cache.m_currentDist.at(nextSf)).second.first-tol)  {
                   if ((*vsIter).first!=-1) {
                     ((*vsIter).first)++;
@@ -1794,8 +1794,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
                   nextSf = ic;
                 }
               }
-            }
-          } else if (ic==nextSf) {
+	    }
+	  } else if (ic==nextSf) {
             vsIter = vsBeg; restart = true;
             continue;
           }
