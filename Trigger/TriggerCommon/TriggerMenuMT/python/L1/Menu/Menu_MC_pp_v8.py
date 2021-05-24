@@ -123,8 +123,6 @@ def defineMenu():
         'L1_MU10_eTAU12IM_3jJ12',
         'L1_MU10_eTAU12IM_jJ25_2jJ12',
         'L1_MU10_eTAU12IM_gXERHO35',
-        # EM VBF
-        'L1_eEM18VHI_jMJJ-300-NFF',
         
         # combined mu - jet
         'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
@@ -140,6 +138,7 @@ def defineMenu():
 
         # single jet
         'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
+        'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
         'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
         'L1_J15p31ETA49_UNPAIRED_ISO',
@@ -274,17 +273,24 @@ def defineMenu():
         'L1_LAR-ZEE',
 
         # phase1 L1Topo
-
+        'L1_LAR-ZEE-eEM',
+        'L1_JPSI-1M5-eEM7',
+        'L1_JPSI-1M5-eEM12',
+        'L1_BPH-0M9-eEM7-eEM5', 'L1_BPH-0M9-eEM7-eEM5_MU6', 'L1_BPH-0M9-eEM7-eEM5_2MU4',
+        'L1_BPH-0DR3-eEM7J15', 'L1_BPH-0DR3-eEM7J15_MU6', 'L1_BPH-0DR3-eEM7J15_2MU4',
+        'L1_LLP-RO-eEM', 'L1_LLP-NOMATCH-eEM',
+        'L1_DPHI-2eEM3', 
         'L1_jHT150-jJ20s5pETA31_jMJJ-400-CF',
         'L1_DY-BOX-2MU6',
+        'L1_LFV-eEM8I-MU11', 'L1_LFV-eEM12I-MU6',
         'L1_LFV-MU6',
         'L1_LFV-MU11',
-        'L1_LFV-EM8I',
-        'L1_LFV-EM15I', 
+        'L1_LFV-eEM8I', 'L1_LFV-eEM15I', 
         'L1_jMJJ-700-NFF',
         'L1_jMJJ-300-NFF',
         'L1_jMJJ-500-NFF',
         'L1_jMJJ-400-CF',
+        'L1_eEM18VHI_jMJJ-300-NFF',
     
         #ATR-19720
         'L1_BPH-8M15-2MU4-BO',
@@ -304,13 +310,13 @@ def defineMenu():
         'L1_BPH-0M10-3MU4',
 
         #ATR-18824
-        'L1_ZAFB-04DPHI-EM15I',
-        'L1_ZAFB-25DPHI-EM15I',
+        'L1_ZAFB-04DPHI-eEM15I',
+        'L1_ZAFB-25DPHI-eEM15I',
         #ATR-22109
-        'L1_ZAFB-25DPHI-EM18I',
+        'L1_ZAFB-25DPHI-eEM18I',
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM12I',
+        'L1_DPHI-M70-2eEM10I', 'L1_DPHI-M70-2eEM12I',
 
         #ATR-19510
         'L1_DY-BOX-2MU4',
@@ -713,8 +719,8 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM18I' : 194,
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM10I' : 195,
-        'L1_DPHI-M70-2EM12I' : 159,
+        'L1_DPHI-M70-2eEM10I' : 195,
+        'L1_DPHI-M70-2eEM12I' : 159,
 
         #ATR-19720
         'L1_BPH-8M15-0DR22-2MU6' : 299,

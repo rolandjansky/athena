@@ -26,40 +26,40 @@ TCS::inputType(const std::string& input) {
    if ( input == "Clusters" || input == "EmTobArray" )
       return TCS::CLUSTER;
 
-   if ( input == "eEM" || input == "eEMTobArray" || input == "eEMTob" )
+   if ( input == "eEM" || input == "eEMTobArray" || input == "eEmTobs" )
       return TCS::CLUSTER;
 
-   if ( input == "jEM" || input == "jEMTobArray" || input == "jEMTob" )
+   if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::CLUSTER;
 
-   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTob" )
+   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" )
       return TCS::TAU;
 
-   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTob" )
+   if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::TAU;
 
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;
 
-   if ( input == "jJet" || input == "jJetTobArray" || input == "jJetTob" )
+   if ( input == "jJet" || input == "jJetTobArray" || input == "jJetTobs" )
       return TCS::JJET;
 
-   if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTob" )
+   if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" )
       return TCS::JET;
 
-   if ( input == "gJet" || input == "gJetTobArray" || input == "gJetTob" )
+   if ( input == "gJet" || input == "gJetTobArray" || input == "gJetTobs" )
       return TCS::JET;
 
-   if ( input == "gLargeRJet" || input == "gLargeRJetTobArray" || input == "gLargeRJetTob" )
+   if ( input == "gLargeRJet" || input == "gLargeRJetTobArray" || input == "gLargeRJetTobs" )
       return TCS::JET;
 
-   if ( input == "Muons" || input == "MuonTobArray" )
+   if ( input == "Muons" || input == "MuonTobArray" || input == "MuonTobs")
       return TCS::MUON;
 
    if ( input == "MuonsNextBC" || input == "MuonNextBCTobArray" )
       return TCS::MUONNEXTBC;
           
-   if ( input == "LateMuons" || input == "LateMuonTobArray" )
+   if ( input == "LateMuons" || input == "LateMuonTobArray" || input == "LateMuonTobs")
       return TCS::LATEMUON;
 
    if ( input == "MuonsNextBC" || input == "MuonNextBCTobArray" )
@@ -68,10 +68,10 @@ TCS::inputType(const std::string& input) {
    if ( input == "Taus" || input == "TauTobArray" )
       return TCS::TAU;
           
-   if ( input == "MET" || input == "MetTobArray" )
+   if ( input == "MET" || input == "MetTobArray" || input == "MetTobs" )
       return TCS::MET;
           
-   if ( input == "SumEt" || input == "SumEtTobArray" || input == "SumEtTob" )
+   if ( input == "SumEt" || input == "SumEtTobArray" || input == "SumEtTobs" )
       return TCS::MET;
           
 

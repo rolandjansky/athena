@@ -86,9 +86,9 @@ HLT_2g10_loose_mu20_L1MU20:
   stepFeatures:
     0: 14
     1: 1
-HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I:
+HLT_2g15_tight_dPhi15_L1DPHI-M70-2eEM12I:
   eventCount: 0
-HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2EM12I:
+HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2eEM12I:
   eventCount: 0
 HLT_2g20_tight_L12EM15VH:
   eventCount: 0
@@ -1345,20 +1345,8 @@ HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH:
     0: 11
     1: 4
     2: 2
-HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I:
-  eventCount: 2
-  stepCounts:
-    0: 2
-    1: 2
-    2: 2
-    3: 2
-    4: 2
-  stepFeatures:
-    0: 2
-    1: 4
-    2: 2
-    3: 2
-    4: 2
+HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I:
+  eventCount: 0
 HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
   eventCount: 0
   stepCounts:
