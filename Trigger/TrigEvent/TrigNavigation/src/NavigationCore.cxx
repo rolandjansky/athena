@@ -139,7 +139,7 @@ HLT::TrigEDMSizes* NavigationCore::retrieveOrCreateTrigEDMSizes(const std::strin
       }
     } else {
       sizes = new TrigEDMSizes();
-      m_storeGate->record(sizes, name).setChecked(); //
+      m_storeGate->record(sizes, name).ignore();
       MLOG(DEBUG) << "A new object of type = (HLT::TrigEDMSizes) and name = " << name << " was registered in SG." << endmsg;
     }
   }

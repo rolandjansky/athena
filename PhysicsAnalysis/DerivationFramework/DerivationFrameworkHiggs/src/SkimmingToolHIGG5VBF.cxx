@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   m_ntot++;
   bool acceptEvent(true);
   
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
   
   bool isTriggerFired(m_triggers.size()==0);
   for(unsigned int i(0); i<m_triggers.size(); i++) {
