@@ -1,0 +1,17 @@
+
+tdaq_package()
+
+tdaq_add_library (MuonNSWCommonDecode 
+		    src/NSWCommonDecoder.cxx 
+		    src/NSWElink.cxx)
+
+tdaq_add_executable (test_nsw_common_decoder
+		     src/test/test_nsw_common_decoder.cxx
+		     LINK_LIBRARIES
+		       MuonNSWCommonDecode
+		       tdaq-common::DataReader
+		       tdaq-common::EventStorage
+		       tdaq-common::eformat
+		       tdaq-common::ers)
+
+
