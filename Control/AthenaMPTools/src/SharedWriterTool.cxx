@@ -61,7 +61,7 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     return -1;
   }
 
-  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs) + 1;
   m_subprocTopDir = topdir;
 
   m_writer = 0;
