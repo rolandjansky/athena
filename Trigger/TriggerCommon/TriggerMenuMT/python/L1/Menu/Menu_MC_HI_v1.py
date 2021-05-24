@@ -140,6 +140,7 @@ def defineMenu():
 
         # single jet
         'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
+        'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
         'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
         'L1_J15p31ETA49_UNPAIRED_ISO',
@@ -241,71 +242,10 @@ def defineMenu():
         # TOPO items
         #--------------------------------
 
-        'L1_LAR-ZEE',
-
-        # B-jet
-
-        # ZH
+        'L1_LAR-ZEE', 'L1_LAR-ZEE-eEM',
 
 
-        # HT
-        'L1_HT190-J15s5pETA21',
 
-        'L1_jHT150-jJ20s5pETA31_jMJJ-400-CF',
-        
-        # Jpsi T&P
-        'L1_JPSI-1M5-EM7', 'L1_JPSI-1M5-EM12',    
-
-        'L1_DY-BOX-2MU6',
-        'L1_LFV-MU6',
-        'L1_LFV-MU11',
-        'L1_LFV-EM8I',
-        'L1_LFV-EM15I',
-        'L1_jMJJ-700-NFF',
-        'L1_jMJJ-300-NFF',
-        'L1_jMJJ-500-NFF',
-        'L1_J50_DETA20-J50J',
-        'L1_DPHI-2EM3',
-        'L1_LLP-RO',
-
-        'L1_DR-TAU20ITAU12I',    
-        'L1_DR-TAU20ITAU12I-J25',
-
-        'L1_30M-EM20ITAU12',
-        'L1_jMJJ-400-CF',
-    
-        #ATR-19720
-        'L1_BPH-8M15-2MU4-BO',
-
-        # combined L1Topo for VBF
-        
-        # INVM + DPHI 
-        'L1_jMJJ-400-NFF-0DPHI22',
-        'L1_jMJJ-400-NFF-0DPHI24',
-        'L1_jMJJ-400-NFF-0DPHI26',
-
-        ### ATR-15062
-
-        'L1_LATE-MU10_XE50','L1_LATE-MU10_XE40', 'L1_LATE-MU10_J50',
-
-        'L1_TAU60_DR-TAU20ITAU12I',
-
-        'L1_SC111-CJ15',
-
-        #ATR-19355
-        'L1_BPH-0M10-3MU4',
-
-        #ATR-18824
-        'L1_ZAFB-04DPHI-EM15I',
-        'L1_ZAFB-25DPHI-EM15I',
-        #ATR-22109
-        'L1_ZAFB-25DPHI-EM18I',
-
-        #ATR-19302: 
-        'L1_DPHI-M70-2EM12I',
-
-        #ATR-19510
-        'L1_DY-BOX-2MU4',
                 
         #ATR-17320
         'L1_CEP-CJ60',

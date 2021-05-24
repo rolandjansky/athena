@@ -170,7 +170,7 @@ def setupMenu():
         ## ATR-22109
         # Note: l1SeedThresholds needs to be given explicitly, as it cannot
         # be auto-filled by DictFromChainName for L1Topo items
-        ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I', l1SeedThresholds=['EM12'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I', l1SeedThresholds=['EM12'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
 
         ## Zee triggers
         ChainProp(name='HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH', l1SeedThresholds=['EM15VH','EM7'], groups=MultiElectronGroup), #idperf leg
@@ -241,8 +241,8 @@ def setupMenu():
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
 
         #ATR-21882
-        ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
-        ChainProp(name='HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
