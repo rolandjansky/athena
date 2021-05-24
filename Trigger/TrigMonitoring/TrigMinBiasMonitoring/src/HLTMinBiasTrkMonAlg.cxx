@@ -118,6 +118,9 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
 
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
   auto nAllTrkOffline = Scalar("nAllTrkOffline", offlineTrkHandle->size());
+  auto trkMask = Collection("trkMask", *offlineTrkHandle, [&](const auto& trk){ return static_cast<bool>(m_trackSelectionTool->accept(*trk)); });
+  auto trkPt   = Collection("trkPt", *offlineTrkHandle, [](const auto& trk){ return trk->pt()*1.e-3; } );
+  auto trkEta  = Collection("trkEta", *offlineTrkHandle, [](const auto& trk){ return trk->eta(); } );
 
   auto nMBTrkTrkOfflineRatio = Scalar("trkSelOfflineRatio", (offlineTrkHandle->size() == 0 ? -1 : static_cast<double>(nTrkOffline)/offlineTrkHandle->size() ));
 
@@ -170,7 +173,8 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext &context) co
 
       double nTrkRatio = offlineTrkHandle->size() > 0 ? static_cast<double>(offlineTrkHandle->size()) / static_cast<double>(trkCountsHandle->at(0)->getDetail<int>("ntrks")) : -1.0;
     auto trkRatio = Scalar("nTrkRatio", nTrkRatio);
-    fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, nTrkOnline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio, pixelCL, PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP,L1sumEt);
+    fill(trig + "_Tracking", nTrkOffline, nAllTrkOffline, nTrkOnline, decision, whichtrigger, trkRatio, nMBTrkTrkOfflineRatio, pixelCL, 
+                             PixBarr_SP, PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP,L1sumEt, trkMask, trkPt, trkEta);
     fill("EffAll", decision, whichtrigger);
   }
 }
