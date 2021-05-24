@@ -31,7 +31,7 @@ using namespace std;
 using namespace pool;
 
 
-CollAppendBase::CollAppendBase(std::string name) :
+CollAppendBase::CollAppendBase(const std::string& name) :
       m_thisProgram( name ),
       m_provName("SourceFID_ref"),
       m_provCLID("6F6A12A0-FEEF-484B-9691-94B82B90CDBA"),
@@ -276,7 +276,7 @@ pool::CollectionDescription
 CollAppendBase::buildDstDesc(const pool::ICollectionDescription& sourceDesc
                              ,const pool::TokenList &tokens
 			     ,const coral::AttributeList& attribs
-                             ,const string queryopt
+                             ,const string& queryopt
 			     )
 {
    // find which will be the Primary Token in the output collection
