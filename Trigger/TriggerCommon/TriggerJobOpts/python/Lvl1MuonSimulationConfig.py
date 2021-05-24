@@ -8,7 +8,8 @@ def Lvl1MCMuonSimulationCfg(flags):
 
     #TODO make sure that the RdoToDigit does not not depend on all muon detectors
     #    acc.addCondAlgo(CompFactory.CscCondDbAlg())
-
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags))
     rdoToDigitTool = CompFactory.MuonRdoToMuonDigitTool(DecodeMdtRDO = False,
                                                         DecodeRpcRDO = True,
                                                         DecodeTgcRDO = True,
