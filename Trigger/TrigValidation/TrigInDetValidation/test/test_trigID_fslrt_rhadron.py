@@ -24,12 +24,12 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-output: *.dat 
+# art-output: *.dat
 
 
 Slices  = ['FSLRT']
-Events  = 8000 
-Threads = 8 
+Events  = 8000
+Threads = 8
 Slots   = 8
 Input   = 'RHadron'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles = False
@@ -42,11 +42,11 @@ Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root ", "Test_bin_lrt
          ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]
 
 Comp = [ ( "L2FSLRT",  "L2FSLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots -sx Reference Truth " ),
-         #( "EFmuonLRT",  "EFmuonLRT", "data-hists.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),
+         ( "EFFSLRT",  "EFFSLRT", "data-hists.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),
          ( "L2FSLRToffline",   "L2FSLRT","data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTL2-plots-offline -sx Reference Offline " ),
-         #( "EFmuonLRToffline",   "E2muonLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTE2-plots-offline -sx Reference Offline " )
+         ( "EFFSLRToffline",   "EFFSLRT", "data-hists-offline.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots-offline -sx Reference Offline " )
        ]
 
 
-from AthenaCommon.Include import include 
+from AthenaCommon.Include import include
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

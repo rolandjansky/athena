@@ -242,7 +242,7 @@ class TriggerConfigGetter(Configured):
             if 'xml' in self.ConfigSrcList:
                 # sets them if plain XML reading is to be used
                 self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
-                self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
+                # FW, May 2021: setting of HLT XML file removed
                 if TriggerFlags.readLVL1configFromXML():
                     self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
 
@@ -369,7 +369,8 @@ class TriggerConfigGetter(Configured):
         writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-            if ConfigFlags.Trigger.doEDMVersionConversion:
+            if ConfigFlags.Trigger.doConfigVersionConversion:
+                log.info("Configuring Run2 to Run3 configuration metadata conversion")
                 # also save the menu in JSON format
                 from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
                 dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
@@ -396,6 +397,7 @@ class TriggerConfigGetter(Configured):
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
                 writeMenuJSON = True
                 topAlgs += menuwriter
+
             else:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )

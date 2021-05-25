@@ -193,7 +193,7 @@ JetChainParts = {
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['CLEANLB', 'MASK300ceta210XX300nphi10',
+    ['CLEANlb', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
      'PTRANGE0r1',
@@ -455,7 +455,7 @@ TEChainParts_Default['trigType']  = ['te']
 #==========================================================
 # Electron Chains
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","bBeeM6000"]
+AllowedTopos_e = ['Jpsiee','Zeg','Zee','Heg','bBeeM6000']
 # ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],
@@ -506,6 +506,7 @@ ElectronChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
+    'topo'          : [],
     'chainPartIndex': 0
 }
 
@@ -513,7 +514,7 @@ ElectronChainParts_Default = {
 # Photon chains
 #==========================================================
 # ---- Photon Dictionary of all allowed Values ----
-AllowedTopos_g = ['dPhi15']
+AllowedTopos_g = ['dPhi15', 'm80']
 PhotonChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Photon'],
@@ -558,7 +559,8 @@ PhotonChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'chainPartIndex': 0,
+    'topo'          : [],
+    'chainPartIndex': 0
     }
 
 #==========================================================

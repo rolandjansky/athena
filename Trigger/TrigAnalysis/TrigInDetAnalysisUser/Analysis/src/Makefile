@@ -348,6 +348,7 @@ install : all
 	cp $(EXEDIR)/listroot   $(HOME)/bin
 	cp $(EXEDIR)/runtool    $(HOME)/bin
 	cp $(EXEDIR)/sb         $(HOME)/bin
+	cp $(SRCDIR)/*.pcm      $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

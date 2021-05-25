@@ -39,7 +39,7 @@ MuonSegmentMerger::findDuplicates(const MuonSegmentMerger::SegVec& segments) con
 
     ATH_MSG_DEBUG(" working on segment vector of size " << segments.size());
 
-    CompareMuonSegmentKeys compareSegmentKeys;
+    CompareMuonSegmentKeys compareSegmentKeys{};
     SegVec                 outputSegments;
 
     // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities

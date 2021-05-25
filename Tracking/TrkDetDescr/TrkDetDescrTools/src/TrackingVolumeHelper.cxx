@@ -68,30 +68,25 @@ Trk::TrackingVolumeHelper::~TrackingVolumeHelper()
 StatusCode Trk::TrackingVolumeHelper::initialize()
 {
 
-    ATH_MSG_INFO( "initialize() " );    
+    ATH_MSG_DEBUG( "initialize() " );    
 
     // Retrieve the layer array creator  ----------------------------------------------------
     if (m_layerArrayCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_layerArrayCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_layerArrayCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_layerArrayCreator );
 
     // Retrieve the volume array creator  ----------------------------------------------------
     if (m_trackingVolumeArrayCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackingVolumeArrayCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeArrayCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeArrayCreator );
 
     return StatusCode::SUCCESS;
 }    
 
-StatusCode Trk::TrackingVolumeHelper::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-    return StatusCode::SUCCESS;
-}
 
 /** Simply forward to base class method to enhance friendship relation */
 void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& firstVol,

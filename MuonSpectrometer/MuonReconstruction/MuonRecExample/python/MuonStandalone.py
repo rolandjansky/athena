@@ -136,7 +136,7 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
 
 def MuonStandaloneTrackParticleCnvAlg( name="MuonStandaloneTrackParticleCnvAlg",**kwargs):
     from AthenaCommon.Include import include
-    include("InDetBeamSpotService/BeamCondSvc.py" )        
+    include("BeamSpotConditions/BeamCondAlgSetup.py" )
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
 
     muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")

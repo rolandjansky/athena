@@ -70,7 +70,7 @@ class TrigMultiTrkState: public ::ITrigBphysState {
 template<typename CONTAINER>
 class TrigMultiTrkStateCand : public TrigMultiTrkState{
  public:
-  virtual ~TrigMultiTrkStateCand<CONTAINER>() = default;
+  virtual ~TrigMultiTrkStateCand() = default;
   struct LEG {
     ElementLink<CONTAINER> link;
     ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;

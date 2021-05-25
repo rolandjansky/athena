@@ -1,7 +1,7 @@
 
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DUMPALLSYSTEMATICS_H
@@ -37,39 +37,39 @@ private:
   enum class ParticleType {ELECTRON, PHOTON};
   ParticleType m_particle_type;
 
-  TTree* m_tree;
+  TTree* m_tree{};
 
   StatusCode do_truth(const xAOD::Egamma& particle);
   StatusCode do_egamma(const xAOD::Egamma& particle);
   StatusCode do_energy(xAOD::Egamma& particle, int itool);
 
-  unsigned long long m_EventNumber;
-  uint32_t m_RunNumber;
-  int m_instance_index;
-  float m_actualIntPerXing;
-  float m_averageIntPerXing;
-  float m_truth_pt;
-  float m_truth_phi;
-  float m_truth_eta;
-  float m_truth_E;
-  int m_truth_pdgId;
-  int m_truth_parent_pdgId;
-  bool m_truth_matched;
-  bool m_truth_isConv;
-  float m_truth_Rconv;
-  int m_npv;
+  unsigned long long m_EventNumber{};
+  uint32_t m_RunNumber{};
+  int m_instance_index{};
+  float m_actualIntPerXing{};
+  float m_averageIntPerXing{};
+  float m_truth_pt{};
+  float m_truth_phi{};
+  float m_truth_eta{};
+  float m_truth_E{};
+  int m_truth_pdgId{};
+  int m_truth_parent_pdgId{};
+  bool m_truth_matched{};
+  bool m_truth_isConv{};
+  float m_truth_Rconv{};
+  int m_npv{};
 
-  float m_cl_phi;
-  float m_cl_eta;
-  float m_cl_etaCalo;
-  float m_cl_rawcl_Es0;
-  float m_cl_rawcl_Es1;
-  float m_cl_rawcl_Es2;
-  float m_cl_rawcl_Es3;
-  float m_cl_E;
-  float m_ph_Rconv;
-  int m_ph_convFlag;
-  float m_wstot;
+  float m_cl_phi{};
+  float m_cl_eta{};
+  float m_cl_etaCalo{};
+  float m_cl_rawcl_Es0{};
+  float m_cl_rawcl_Es1{};
+  float m_cl_rawcl_Es2{};
+  float m_cl_rawcl_Es3{};
+  float m_cl_E{};
+  float m_ph_Rconv{};
+  int m_ph_convFlag{};
+  float m_wstot{};
 
   std::vector<float> m_nominal_E;
   std::vector<float> m_energy_variations_sum_up;

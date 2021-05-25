@@ -266,26 +266,26 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
 void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
 
     clearPairList();
-    bool isEmulation = getTrigInfo(probeTrigItem).trigIsEmulation;
+    //bool isEmulation = getTrigInfo(probeTrigItem).trigIsEmulation;
 
 
     for(unsigned int i=0;i<m_probeElectrons.size();i++){
         const HLT::TriggerElement *finalFC;
-        if(isEmulation && getEmulation()){  // Collect from  support match
+        /*if(isEmulation && getEmulation()){  // Collect from  support match
           emulation()->match( m_probeElectrons[i], finalFC );
           std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
           m_pairObj.push_back(pairProbe);
-        }else{
-          // Use matching tool and create pair of offline probe and TE
-          if ( match()->match(m_probeElectrons[i], probeTrigItem, finalFC)){
-              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
-              m_pairObj.push_back(pairProbe);
-          } // end of check Probe
-          else {
-              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
-              m_pairObj.push_back(pairProbe);
-          } // still include the probe
-        }
+        }else{*/
+        // Use matching tool and create pair of offline probe and TE
+        if ( match()->match(m_probeElectrons[i], probeTrigItem, finalFC)){
+            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
+            m_pairObj.push_back(pairProbe);
+        } // end of check Probe
+        else {
+            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
+            m_pairObj.push_back(pairProbe);
+        } // still include the probe
+        //}
     }
 }
 

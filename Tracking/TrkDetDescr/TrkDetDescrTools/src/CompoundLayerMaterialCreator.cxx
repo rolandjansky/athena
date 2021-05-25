@@ -36,18 +36,6 @@ Trk::CompoundLayerMaterialCreator::~CompoundLayerMaterialCreator()
 {}
 
 
-// initialize
-StatusCode Trk::CompoundLayerMaterialCreator::initialize() 
-{
-    return StatusCode::SUCCESS;
-}
-    
-// finalize
-StatusCode Trk::CompoundLayerMaterialCreator::finalize() 
-{
-    return StatusCode::SUCCESS;
-}
-
 Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
     // get the material matrix

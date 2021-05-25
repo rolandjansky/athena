@@ -32,15 +32,8 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_caloCoolIdTool("CaloCoolIdTool",this),
-    m_cellId(nullptr),
-    //m_caloLumiBCIDTool(""),
-    m_isMC(false){
+  : AthAlgTool(type, name, parent) {
   declareInterface<ICaloCellMakerTool>(this);
-  declareProperty("Luminosity",m_lumi0=0,"Luminosity in 10**33 units");
-  declareProperty("CaloCoolIdTool",m_caloCoolIdTool,"Tool for Calo cool Id");
-  declareProperty("isMC",m_isMC,"Data/MC flag");
 }
 
 //========================================================
@@ -51,16 +44,9 @@ StatusCode CaloCellPedestalCorr::initialize()
   ATH_MSG_INFO( " in CaloCellPedestalCorr::initialize() "  );
 
   ATH_CHECK(detStore()->retrieve(m_cellId, "CaloCell_ID"));
-
-  ATH_CHECK(m_lumiFolderName.initialize(m_lumi0<0 && !m_isMC));
-  ATH_CHECK(m_pedShiftFolder.initialize(!m_isMC));
-  if (!m_isMC) {
-    ATH_CHECK(m_caloCoolIdTool.retrieve());
-  }
-
-  if (!m_caloBCIDAvg.key().empty()) {
-    ATH_CHECK(m_caloBCIDAvg.initialize());
-  }
+  
+  ATH_CHECK(m_pedShiftKey.initialize(!m_isMC));
+  ATH_CHECK(m_caloBCIDAvg.initialize(SG::AllowEmpty));
   
   ATH_MSG_INFO( "CaloCellPedestalCorr initialize() end"  );
   return StatusCode::SUCCESS;
@@ -69,31 +55,11 @@ StatusCode CaloCellPedestalCorr::initialize()
 
 StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, const EventContext& ctx) const {
 
-  const CondAttrListCollection* pedShiftColl=nullptr;
-  float lumi=m_lumi0;
-  if (!m_isMC) {
-    // Get Luminosity estimate
-    if (lumi<0) {
-      SG::ReadCondHandle<CondAttrListCollection> lumiHdl(m_lumiFolderName,ctx);
-      const CondAttrListCollection* attrListColl=(*lumiHdl);
-      if (attrListColl->size() == 0) {
-        lumi = 0;
-      }
-      else {
-        const coral::AttributeList& attrList=attrListColl->attributeList(0); //Get channel number 0
-        if (attrList["LBAvInstLumi"].isNull()) {
-          ATH_MSG_WARNING("No valid luminosity information in folder " << m_lumiFolderName.key() << ", attribute LBAvInstLumi");
-          lumi=0;
-        }
-        else {
-          lumi=attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
-        }
-      }
-    }
+  const CaloCellPedShift* pedShifts=nullptr;
 
-    //Get Pedestal shifts
-    SG::ReadCondHandle<CondAttrListCollection> pedShiftHdl(m_pedShiftFolder,ctx);
-    pedShiftColl=(*pedShiftHdl);   
+  if (!m_isMC) {
+    SG::ReadCondHandle<CaloCellPedShift> pedShiftHdl{m_pedShiftKey,ctx};    
+    pedShifts=*pedShiftHdl;
   }
 
   const CaloBCIDAverage* bcidavgshift=nullptr;
@@ -102,23 +68,14 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
     bcidavgshift=&(*bcidavgshiftHdl);
   }
 
-  std::pair<unsigned,std::unique_ptr<const CaloCondBlobFlt> >blobCache{999999,nullptr};
+  
 
   for (CaloCell* theCell : *theCellContainer) {
     float pedestal=0;
     if (!m_isMC) { 
       const unsigned int cellHash=theCell->caloDDE()->calo_hash();
-      unsigned int subHash;
-      const unsigned int iCool = m_caloCoolIdTool->getCoolChannelId(cellHash,subHash);
-      if (iCool!=blobCache.first) {
-	const coral::AttributeList& attrList=pedShiftColl->attributeList(iCool);
-	const coral::Blob& blob = attrList["CaloCondBlob16M"].data<coral::Blob>();
-	blobCache.first=iCool;
-	blobCache.second.reset(CaloCondBlobFlt::getInstance(blob));
-      }
-
-      const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());
-      pedestal = blobCache.second->getCalib(subHash, dbGain, lumi);
+      const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain()); 
+      pedestal = pedShifts->pedShift(cellHash,dbGain);
     }
 
     if (bcidavgshift) {

@@ -48,13 +48,16 @@ StatusCode DataHeaderCnv::initialize()
    //Get IncidentSvc
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
    ATH_CHECK( incSvc.retrieve() );
-   incSvc->addListener(this, IncidentType::EndInputFile, 0);
+   incSvc->addListener(this, "PreFork", 0);
    return DataHeaderCnvBase::initialize();
 }
 
 
 void DataHeaderCnv::handle(const Incident& incident)
 {
+   if( incident.type() == "PreFork" ) {
+      m_persFormMap.clear();
+   }
    if( incident.type() == IncidentType::EndInputFile ) {
       // remove cached DHForms that came from the file that is now being closed
       const std::string& guid = static_cast<const FileIncident&>(incident).fileGuid(); 

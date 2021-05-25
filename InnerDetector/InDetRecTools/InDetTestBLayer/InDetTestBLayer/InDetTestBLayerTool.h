@@ -12,14 +12,12 @@
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace Trk {
 class Track;
-class ResidualPull;
 }
 
 class AtlasDetectorID;
@@ -50,9 +48,6 @@ public:
   virtual bool expectHitInBLayer(
     const Trk::TrackParameters* trackpar) const override final;
 
-  virtual const Trk::ResidualPull* bLayerHitResidual(
-    const Trk::Track*) const override;
-
   //// return false if extrapolation failed
   virtual bool getTrackStateOnBlayerInfo(
     const Trk::Track*,
@@ -70,9 +65,6 @@ public:
   virtual bool expectHitInInnermostPixelLayer(
     const Trk::TrackParameters* trackpar) const override final;
 
-  virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(
-    const Trk::Track*) const override final;
-
   virtual bool getTrackStateOnInnermostPixelLayerInfo(
     const Trk::Track*,
     std::vector<TrackStateOnBLayerInfo>& infoList) const override final;
@@ -89,9 +81,6 @@ public:
   virtual bool expectHitInNextToInnermostPixelLayer(
     const Trk::TrackParameters* trackpar) const override final;
 
-  virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(
-    const Trk::Track*) const override;
-
   virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(
     const Trk::Track*,
     std::vector<TrackStateOnBLayerInfo>& infoList) const override final;
@@ -101,13 +90,16 @@ public:
     std::vector<TrackStateOnBLayerInfo>& infoList) const override final;
 
 private:
+
   bool expectHitInPixelLayer(const EventContext& ctx,
                              const Trk::Track*,
                              int layer,
                              bool recompute = false) const;
+
   bool expectHitInPixelLayer(const EventContext& ctx,
                              const Trk::TrackParameters* trackpar,
                              int layer) const;
+
   bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar,
                              int layer) const
   {
@@ -115,13 +107,11 @@ private:
       Gaudi::Hive::currentContext(), trackpar, layer);
   }
 
-  const Trk::ResidualPull* pixelLayerHitResidual(const Trk::Track*,
-                                                 int layer) const;
-
   bool getTrackStateOnPixelLayerInfo(
     const Trk::Track*,
     std::vector<TrackStateOnBLayerInfo>& infoList,
     int layer) const;
+
   bool getTrackStateOnPixelLayerInfo(
     const Trk::TrackParameters* trackpar,
     std::vector<TrackStateOnBLayerInfo>& infoList,
@@ -162,14 +152,6 @@ private:
     "PixelSummaryTool",
     "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool",
     "Tool to retrieve Pixel Conditions summary"
-  };
-
-  /** Handle to the residual pull calculator **/
-  ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{
-    this,
-    "ResidualPullCalculator",
-    "Trk::ResidualPullCalculator/ResidualPullCalculator",
-    "Calculate Residuals"
   };
 
   /** detector helper*/

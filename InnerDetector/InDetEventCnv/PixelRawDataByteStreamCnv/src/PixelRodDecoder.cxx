@@ -136,8 +136,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   uint32_t serviceCodeCounter = 0;  // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
   uint32_t serviceCode = 0;         // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
 
+  // @TODO find better solution for the error counter to avoid complex index computations and hard coded maximum size.
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
-  std::array<uint64_t, 54784> bsErrWord;
+  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> bsErrWord;
   std::fill(bsErrWord.begin(),bsErrWord.end(),0);
   // Check ROD status
   if (robFrag->nstatus()!=0) {
@@ -157,6 +158,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(idHash)],PixelByteStreamErrors::TruncatedROB);
         }
         ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
+        assert( bsErrWord.size() <= decodingErrors.maxSize() );
         for (size_t i=0; i<static_cast<size_t>(bsErrWord.size()); i++) {
           if (bsErrWord[i]>0) {
             decodingErrors.setOrDrop(i,bsErrWord[i]);
@@ -171,6 +173,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(idHash)],PixelByteStreamErrors::MaskedROB);
         }
         ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
+        assert( bsErrWord.size() <= decodingErrors.maxSize() );
         for (size_t i=0; i<static_cast<size_t>(bsErrWord.size()); i++) {
           if (bsErrWord[i]>0) {
             decodingErrors.setOrDrop(i,bsErrWord[i]);
@@ -354,7 +357,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             sc = StatusCode::RECOVERABLE;
             errorRecoverable = errorRecoverable | (headerError << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
 
-            if (headerError != 0) { // only treatment for header errors now, FIXME
+            { // only treatment for header errors now, FIXME
               if (headerError & (1 << 3)) {
                 m_numPreambleErrors++;
                 headerErr_preamble = true;
@@ -871,10 +874,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           int chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
           if (serviceCodeCounter>0 && serviceCode<32) {
             if (serviceCode!=14) {
-              // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
-              int indexOffset = 17*m_pixel_id->wafer_hash_max();
-              int indexSvcCounter = indexOffset+serviceCode*280*2+2*(static_cast<int>(offlineIdHash)-156)+chFE;
-              bsErrWord[indexSvcCounter] = serviceCodeCounter;
+              // Monitor service record for IBL (not DBM)
+              if (static_cast<int>(offlineIdHash)>155 && static_cast<int>(offlineIdHash)<436) {
+                // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
+                int indexOffset = 17*m_pixel_id->wafer_hash_max();
+                int indexSvcCounter = indexOffset+serviceCode*280*2+2*(static_cast<int>(offlineIdHash)-156)+chFE;
+
+                bsErrWord[indexSvcCounter] = serviceCodeCounter;
+              }
             }
           }
 

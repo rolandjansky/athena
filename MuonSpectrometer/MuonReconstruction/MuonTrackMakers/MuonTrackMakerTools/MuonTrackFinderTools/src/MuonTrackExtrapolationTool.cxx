@@ -116,7 +116,7 @@ namespace Muon {
         if (!pp) return nullptr;
 
         const Trk::TrackParameters *closestPars = pp;
-        const Trk::TrackParameters *closestMeasPars = pp->covariance() ? pp : 0;
+        const Trk::TrackParameters *closestMeasPars = pp->covariance() ? pp : nullptr;
 
         double perp = pp->associatedSurface().center().perp();
         double z = pp->associatedSurface().center().z();
@@ -249,10 +249,7 @@ namespace Muon {
         return closestMeasPars ? closestMeasPars : closestPars;
     }
 
-    Trk::Track *MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track) const {
-        return extrapolate(track, Gaudi::Hive::currentContext());
-    }
-    Trk::Track *MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track, const EventContext &ctx) const {
+    std::unique_ptr<Trk::Track> MuonTrackExtrapolationTool::extrapolate(const Trk::Track &track, const EventContext &ctx) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         // if straightline track and the field is on return nullptr
         bool isSL = m_edmHelperSvc->isSLTrack(track);
@@ -615,22 +612,19 @@ namespace Muon {
         }
 
         // create new track
-        return new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+        return std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     }
 
-    TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks) const {
-        return extrapolate(tracks, Gaudi::Hive::currentContext());
-    }
-    TrackCollection *MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks, const EventContext &ctx) const {
-        TrackCollection *extrapolateTracks = new TrackCollection();
+    std::unique_ptr<TrackCollection> MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks, const EventContext &ctx) const {
+        std::unique_ptr<TrackCollection> extrapolateTracks = std::make_unique<TrackCollection>();
         extrapolateTracks->reserve(tracks.size());
 
         // loop over muon tracks and extrapolate them to the IP
         for (const Trk::Track *tit : tracks) {
-            Trk::Track *extrapolateTrack = extrapolate(*tit, ctx);
+            std::unique_ptr<Trk::Track> extrapolateTrack = extrapolate(*tit, ctx);
             if (!extrapolateTrack) { continue; }
 
-            extrapolateTracks->push_back(extrapolateTrack);
+            extrapolateTracks->push_back(std::move(extrapolateTrack));
         }
         return extrapolateTracks;
     }

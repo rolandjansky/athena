@@ -139,7 +139,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   bool hitThroughCut(MuonHoughHit* hit, double weightmdt)const;
 
   /** pointer to the file name for the hough histograms */
-  TFile *m_file;
+  TFile *m_file{};
   /** object for use of mathematical formulas for trackmodels */
   MuonHoughMathUtils m_muonhoughmathutils;
 

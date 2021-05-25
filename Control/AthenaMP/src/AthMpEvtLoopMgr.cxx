@@ -8,6 +8,8 @@
 #include "AthenaInterprocess/SharedQueue.h"
 #include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
+#include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -226,6 +228,56 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     incSvc->fireIncident(Incident(name(),"BeforeFork"));
   }
 
+  // Extract process file descriptors
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
+
+  ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
+    itLast = m_tools.end();
+
+  // When using SharedWriter in conjunction with fork-after-N-events
+  // we have to make sure that mother process is a conversion service
+  // client so that events before forking workers are captured...
+
+  IConversionSvc* cnvSvc{nullptr};
+  StatusCode scCnvSvc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  if(!scCnvSvc.isSuccess()) {
+    ATH_MSG_FATAL("Cannot retrieve AthenaPoolCnvSvc");
+    return StatusCode::FAILURE;
+  }
+  IDataShare* dataShare{nullptr};
+  dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+
+  auto sharedWriterTool = m_tools["SharedWriterTool"];
+  const bool sharedWriterWithFAFE = (m_nEventsBeforeFork!=0 && sharedWriterTool);
+
+  if(sharedWriterWithFAFE) {
+    (*sharedWriterTool)->useFdsRegistry(registry);
+    (*sharedWriterTool)->setRandString(randStream.str());
+
+    int nChildren = (*sharedWriterTool)->makePool(maxevt,m_nWorkers,m_workerTopDir);
+    if(nChildren==-1) {
+      ATH_MSG_FATAL("makePool failed for " << (*sharedWriterTool)->name());
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_nChildProcesses+=nChildren;
+    }
+
+    // Execute the SharedWriterTool at this point
+    StatusCode mySc = (*sharedWriterTool)->exec();
+    if(!mySc.isSuccess()) {
+      ATH_MSG_FATAL("Cannot Execute SharedWriter Tool");
+      return StatusCode::FAILURE;
+    }
+
+    // Make the mother process a client
+    if(!dataShare->makeClient(m_nWorkers+1).isSuccess()) {
+      ATH_MSG_FATAL("Cannot make mother process a client for Conversion Service");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  //
   // Try processing requested number of events here
   if(m_nEventsBeforeFork) {
     // Take into account a corner case: m_nEventsBeforeFork > maxevt
@@ -246,19 +298,24 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   ATH_CHECK(ioMgr->io_finalize());
   ATH_MSG_DEBUG("Successfully finalized I/O before forking");
 
-  // Extract process file descriptors
-  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
-
   // Flush stream buffers
   fflush(NULL);
 
+  // Make the mother process not client
+  if(sharedWriterWithFAFE && !dataShare->makeClient(0).isSuccess()) {
+    ATH_MSG_FATAL("Cannot make mother process not client for Conversion Service");
+    return StatusCode::FAILURE;
+  }
+
   int maxEvents(maxevt); // This can be modified after restart
 
-  ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
-    itLast = m_tools.end();
+  // Re-extract process file descriptors
+  registry = extractFds();
 
   // Make worker pools
+  it = m_tools.begin();
   for(; it!=itLast; ++it) {
+    if(sharedWriterWithFAFE && (*it)->name() == "AthMpEvtLoopMgr.SharedWriterTool") continue;
     (*it)->useFdsRegistry(registry);
     (*it)->setRandString(randStream.str());
     if(it==m_tools.begin()) {
@@ -281,6 +338,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Assign work to child processes
   for(it=m_tools.begin(); it!=itLast; ++it) {
+    if(sharedWriterWithFAFE && (*it)->name() == "AthMpEvtLoopMgr.SharedWriterTool") continue;
     if((*it)->exec().isFailure()) {
       ATH_MSG_FATAL("Unable to submit work to the tool " << (*it)->name());
       return StatusCode::FAILURE;

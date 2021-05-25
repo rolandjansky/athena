@@ -78,9 +78,12 @@ void printCountedGuids( const ICollectionGUIDQuery::CountedGroupedGUIDs& guids )
       unsigned n =  row->first;
       for( unsigned i = 0; i<tokenN; i++ ) {
          const string& guid = row->second[i];
-         if( count.find(guid) == count.end() )
-            count[guid] = make_pair(guids.tokenNames[i],0);
-         count[guid].second += n;
+         std::pair<std::string,unsigned>& c = count[guid];
+         if (c.first.empty()) {
+           c.first = guids.tokenNames[i];
+           c.second = 0;
+         }
+         c.second += n;
       }
    }
    for( map<string, pair<string,unsigned> >::const_iterator

@@ -17,6 +17,7 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-memory: 7000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file

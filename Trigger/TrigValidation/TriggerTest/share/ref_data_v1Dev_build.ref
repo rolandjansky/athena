@@ -68,7 +68,14 @@ HLT_2g10_loose_mu20_L1MU20:
   eventCount: 0
   stepFeatures:
     0: 8
-HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I:
+HLT_2g15_tight_dPhi15_L1DPHI-M70-2eEM12I:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 5
+    1: 1
+HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2eEM12I:
   eventCount: 0
   stepCounts:
     0: 1
@@ -784,7 +791,7 @@ HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I:
+HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I:
   eventCount: 0
 HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
   eventCount: 0
@@ -2237,6 +2244,18 @@ HLT_j500_pf_ftf_preselj20_L1J100:
   eventCount: 0
 HLT_j520_pf_ftf_preselj20_L1J100:
   eventCount: 0
+HLT_j55_ftf_0eta320_bmv2c1070_2j45_ftf_320eta490_L1J40p0ETA25_2J25_J20p31ETA49:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j55_pf_ftf_0eta320_bdl1r70_2j45_pf_ftf_320eta490_L1J40p0ETA25_2J25_J20p31ETA49:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j60_j0_FBDJSHARED_L1J20:
   eventCount: 1
   stepCounts:
@@ -2285,76 +2304,142 @@ HLT_j80_L1J15:
     0: 3
   stepFeatures:
     0: 3
-HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
 HLT_j80_ftf_0eta240_020jvt_j55_ftf_0eta240_020jvt_j28_ftf_0eta240_020jvt_j20_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_ftf_j55_ftf_j28_ftf_j20_ftf_L1J45p0ETA21_3J15p0ETA25:
+HLT_j80_ftf_0eta240_j55_ftf_0eta240_j28_ftf_0eta240_j20_ftf_0eta240_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_j55_j28_j20_L1J45p0ETA21_3J15p0ETA25:
+HLT_j80_ftf_0eta320_bmv2c1070_j60_ftf_0eta320_bmv2c1085_j45_ftf_320eta490_320eta490_L1J40p0ETA25_2J25_J20p31ETA49:
   eventCount: 0
-HLT_j80_j55_j28_j20_L1MU10_2J15_J20:
-  eventCount: 0
-HLT_j80_j55_j28_j20_L1MU20:
-  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j80_j60_L1J15:
   eventCount: 0
-? HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_bdl1r70_split_j28_pf_ftf_020jvt_bdl1r70_split_j20_pf_ftf_020jvt_bdl1r70_split_L14J15
+? HLT_j80_pf_ftf_0eta240_020jvt_bdl1r60_j55_pf_ftf_0eta240_020jvt_bdl1r60_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25
 : eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_bdl1r60_split_j20_pf_ftf_020jvt_bdl1r60_split_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_j20_pf_ftf_020jvt_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_j20_pf_ftf_020jvt_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_split_j28_pf_ftf_0eta240_020jvt_bdl1r70_split_j20_pf_ftf_0eta240_020jvt_bdl1r70_split_L14J15
+? HLT_j80_pf_ftf_0eta240_020jvt_bdl1r70_j55_pf_ftf_0eta240_020jvt_bdl1r70_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25
 : eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_split_j20_pf_ftf_0eta240_020jvt_bdl1r60_split_L14J15
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r60_j28_pf_ftf_0eta240_020jvt_bdl1r60_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25
 : eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L14J15:
-  eventCount: 0
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L14J15
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1J45p0ETA21_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r70_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1MU20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r77_j28_pf_ftf_0eta240_020jvt_bdl1r77_j20_pf_ftf_0eta240_020jvt_bdl1r77_L1J45p0ETA21_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r77_j28_pf_ftf_0eta240_020jvt_bdl1r77_j20_pf_ftf_0eta240_020jvt_bdl1r77_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r77_j28_pf_ftf_0eta240_020jvt_bdl1r77_j20_pf_ftf_0eta240_020jvt_bdl1r77_L1MU20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r85_j28_pf_ftf_0eta240_020jvt_bdl1r85_j20_pf_ftf_0eta240_020jvt_bdl1r85_L1J45p0ETA21_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r85_j28_pf_ftf_0eta240_020jvt_bdl1r85_j20_pf_ftf_0eta240_020jvt_bdl1r85_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_bdl1r85_j28_pf_ftf_0eta240_020jvt_bdl1r85_j20_pf_ftf_0eta240_020jvt_bdl1r85_L1MU20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_j20_pf_ftf_0eta240_020jvt_bdl1r60_L14J15
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_j20_pf_ftf_0eta240_020jvt_bdl1r60_L1J45p0ETA21_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_j20_pf_ftf_0eta240_020jvt_bdl1r60_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r60_j20_pf_ftf_0eta240_020jvt_bdl1r60_L1MU20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1J45p0ETA21_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1MU10_2J15_J20
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_bdl1r70_j20_pf_ftf_0eta240_020jvt_bdl1r70_L1MU20
+: eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
@@ -2377,19 +2462,25 @@ HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jv
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1J45p0ETA21_3J15p0ETA25:
+HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU10_2J15_J20:
+HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_L1MU10_2J15_J20:
   eventCount: 0
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU20:
+HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j80_pf_ftf_0eta320_bdl1r70_j60_pf_ftf_0eta320_bdl1r85_j45_pf_ftf_320eta490_L1J40p0ETA25_2J25_J20p31ETA49:
   eventCount: 0
   stepCounts:
     0: 20
@@ -2413,7 +2504,7 @@ HLT_j85_050momemfrac100_L1J20:
     0: 3
   stepFeatures:
     0: 3
-HLT_j85_CLEANLB_L1J20:
+HLT_j85_CLEANlb_L1J20:
   eventCount: 3
   stepCounts:
     0: 3

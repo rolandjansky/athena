@@ -46,7 +46,7 @@ namespace Rec {
         // isolation performing extrapolation to calo
         std::pair<int, double> trackExtrapolated(const TrackCollection* indetTracks, double eta, double phi) const;
 
-        double m_barrelCotTheta;
+        double m_barrelCotTheta{};
         std::unique_ptr<const Trk::Surface> m_caloBackwardDisc;
         std::unique_ptr<const Trk::Surface> m_caloCylinder;
         std::unique_ptr<const Trk::Surface> m_caloForwardDisc;

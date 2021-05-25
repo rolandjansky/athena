@@ -105,6 +105,8 @@ namespace EL
   const std::string Job::optRetries = SH::MetaNames::openRetries();
   const std::string Job::optRetriesWait = SH::MetaNames::openRetriesWait();
 
+  const std::string Job::optUserFiles = "nc_EventLoop_UserFiles";
+
   const std::string Job::optMemResidentPerEventIncreaseLimit =
      "nc_resMemPerEventIncrease";
   const std::string Job::optMemVirtualPerEventIncreaseLimit =

@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <memory>
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "FourMomUtils/xAODP4Helpers.h"
@@ -29,7 +30,7 @@ namespace Rec {
         ATH_CHECK(m_trackQuery.retrieve());
 
         // set up alignment uncertainty between ID and MS tracking systems
-        m_alignmentUncertainty = std::unique_ptr<AmgSymMatrix(5)>{new AmgSymMatrix(5)()};
+        m_alignmentUncertainty = std::make_unique<AmgSymMatrix(5)>();
         m_alignmentUncertainty->setZero();
         (*m_alignmentUncertainty)(0, 0) = m_positionUncertainty * m_positionUncertainty;
         (*m_alignmentUncertainty)(1, 1) = m_positionUncertainty * m_positionUncertainty;

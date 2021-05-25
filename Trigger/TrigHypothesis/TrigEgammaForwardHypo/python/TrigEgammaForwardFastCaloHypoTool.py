@@ -43,7 +43,7 @@ class TrigEgammaForwardFastCaloHypoToolConfig:
     self.__noringerinfo = noringerinfo
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaForwardFastCaloHypoToolInc( name )
+    tool = CompFactory.TrigEgammaForwardFastCaloHypoTool( name )
     tool.AcceptAll      = False
     tool.EtCut          = self.__threshold*GeV
   

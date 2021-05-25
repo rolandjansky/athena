@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_CMDLINEARGS2
@@ -47,8 +47,8 @@ namespace pool
    {
   public:
      /// Constructor.	
-     CmdLineArgs2( std::string name="General" );
-     CmdLineArgs2( QualList&, std::string name="General");
+     CmdLineArgs2( const std::string& name="General" );
+     CmdLineArgs2( QualList&, const std::string& name="General");
  
      virtual ~CmdLineArgs2() {}
 
@@ -56,16 +56,16 @@ namespace pool
      virtual void 	init();
 
      /// Check if argument was found in the argv[]
-     bool 		hasQual( const std::string arg ) const;
+     bool 		hasQual( const std::string& arg ) const;
 
      /// check if option was present and return its (first) value in optval(!)
-     bool 		getOpt( const std::string opt, std::string &optval ) const;
+     bool 		getOpt( const std::string& opt, std::string &optval ) const;
 
      /// check if option was present and return its (first) numerical value in optval (!)
-     bool 		getOpt( const std::string opt, int &optval ) const;
+     bool 		getOpt( const std::string& opt, int &optval ) const;
 
      /// check if option was present and return its values in optvalvec(!)
-     bool 		getOpts( const std::string opt, std::vector<std::string> &optvalvec ) const;
+     bool 		getOpts( const std::string& opt, std::vector<std::string> &optvalvec ) const;
 
      /// Apply the criteria in the QualList to the argv[]
      virtual bool 	evalArgs(std::vector<std::string>& argv);
@@ -80,7 +80,7 @@ namespace pool
      std::string 	name() const {return m_id;}
 
      /// 
-     ArgQual& 		getArgQual(const std::string a) {return m_quals[a];}
+     ArgQual& 		getArgQual(const std::string& a) {return m_quals[a];}
      QualList& 		getArgQuals( ) {return m_quals;}
 
      /// Hack to bring in allowed types of Collections

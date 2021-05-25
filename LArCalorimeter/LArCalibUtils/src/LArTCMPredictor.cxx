@@ -60,7 +60,7 @@ LArPhysWave LArTCMPredictor::predictLArPhysWave(const LArCaliWave &larCaliWave)
 	}
 	
 	gCali = translate(gCali,(int)m_caliStart); // shift of gCali
-	m_gCali = LArCaliWave(gCali.getWave(),m_gCali.getDt(),m_gCali.getDAC()); //create shifted LArCaliWave
+	m_gCali = LArCaliWave(gCali.getWave(),m_gCali.getDt(),m_gCali.getDAC(), 0x1); //create shifted LArCaliWave
 	
 	gPhysPred.setSize(larCaliWave.getSize());
 	for(unsigned int i=0; i<m_gCali.getSize();++i) {

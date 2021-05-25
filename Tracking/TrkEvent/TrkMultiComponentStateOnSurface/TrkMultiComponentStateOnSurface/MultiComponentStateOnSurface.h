@@ -127,7 +127,7 @@ public:
 
 private:
   std::unique_ptr<const MultiComponentState> m_multiComponentState;
-  double m_mixtureModeQoverP;
+  double m_mixtureModeQoverP{};
 };
 
 /** Overload of << operator for MsgStream for debug output */

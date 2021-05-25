@@ -52,7 +52,7 @@ void PhotonValidationPlots::initializePlots(){
   res_eta_cut = BookTProfile("res_eta_cut"," IsoPhoton;#eta;(E_{T} - E_{T}^{truth})/E_{T}^{truth}",60, -3., 3.);
 }
 
-void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt){
+void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
   
   float weight = 1.;
   weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;

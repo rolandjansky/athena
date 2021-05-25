@@ -7,6 +7,12 @@ import os
 import ROOT
 import argparse
 
+def safeRetrieve (evt, typ, key):
+    if evt.contains (typ, key):
+        return evt.retrieve (typ, key)
+    print (f'WARNING: Cannot find object {typ}/{key}')
+    return []
+
 def xAODDigest(evt, counter=False, extravars=False):
     result = list()
 
@@ -19,15 +25,14 @@ def xAODDigest(evt, counter=False, extravars=False):
         runnbr = ei.runNumber()
         evtnbr = ei.eventNumber()
 
-        clusters = evt.retrieve(
-            "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
+        clusters = safeRetrieve (evt, "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
         nclus = len(clusters)
 
-        idTracks = evt.retrieve(
+        idTracks = safeRetrieve(evt,
             "xAOD::TrackParticleContainer", "InDetTrackParticles")
         nIdTracks = len(idTracks)
 
-        jets = evt.retrieve("xAOD::JetContainer", "AntiKt4EMTopoJets")
+        jets = safeRetrieve(evt, "xAOD::JetContainer", "AntiKt4EMTopoJets")
         nJets = len(jets)
         if jets:
           jet1pt = jets[0].pt()
@@ -36,7 +41,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           jet1pt = jet1eta = jet1phi = 0
 
-        muons = evt.retrieve("xAOD::MuonContainer", "Muons")
+        muons = safeRetrieve(evt, "xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
         if muons:
           muon1pt = muons[0].pt()
@@ -45,7 +50,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           muon1pt = muon1eta = muon1phi = 0
 
-        electrons = evt.retrieve("xAOD::ElectronContainer", "Electrons")
+        electrons = safeRetrieve(evt,"xAOD::ElectronContainer", "Electrons")
         nElec = len(electrons)
         if electrons:
           elec1pt = electrons[0].pt()
@@ -54,7 +59,7 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
           elec1pt = elec1eta = elec1phi = 0
 
-        photons = evt.retrieve("xAOD::PhotonContainer", "Photons")
+        photons = safeRetrieve(evt,"xAOD::PhotonContainer", "Photons")
         nPhot = len(photons)
         if photons:
           phot1pt = photons[0].pt()
@@ -108,13 +113,17 @@ def xAODDigest(evt, counter=False, extravars=False):
 def main():
     parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
-    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD input filename", action="store")
+    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD filename", action="store")
     parser.add_argument("outfilename", nargs='?', help="output text file for results", action="store", default=None)
     parser.add_argument("--outputfilename", help="output text file for results", action="store", default=None)
     parser.add_argument("--extravars", help="Extract extra variables: pt/eta/phi", action="store_true", default=False)
-    parser.add_argument("--counter", help="Print event counter%100", action="store_true", default=False)
+    parser.add_argument("--counter", help="Print event counter mod 100", action="store_true", default=False)
     parser.add_argument("--inputlist", help="Optional list of xAOD file instead of xAODFile parameter", nargs='+', action="store", default=False)
     args = parser.parse_args()
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(-1)
 
     # Check input file existance
     if not args.inputlist and not os.access(args.xAODFile, os.R_OK):
@@ -128,7 +137,8 @@ def main():
     elif args.outputfilename:
         outfilename = args.outputfilename
 
-    print("Writing to file ", outfilename)
+    if outfilename:
+        print("Writing to file ", outfilename)
 
     # Create TChain or single inputfile
     if args.inputlist:

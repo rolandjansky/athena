@@ -67,6 +67,7 @@ class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):
 
 class CscCondDbAlg(CfgMgr.CscCondDbAlg):
     def __init__(self,name="CscCondDbAlg",**kwargs):
+        pslope_from_db = False
         kwargs['ReadKey_HV'] = '' # Never used at present
         if athenaCommonFlags.isOnline:
             kwargs['isOnline'  ] = True  # COOL folders not available online
@@ -91,14 +92,16 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
             addFolder(self, "CSC_ONL", "/CSC/ONL/FTHOLD" )
             addFolder(self, "CSC_ONL", "/CSC/ONL/NOISE"  )
             addFolder(self, "CSC_ONL", "/CSC/ONL/PED"    )
-            addFolder(self, "CSC_ONL", "/CSC/ONL/PSLOPE" )
+            if pslope_from_db:
+                addFolder(self, "CSC_ONL", "/CSC/ONL/PSLOPE" )
             addFolder(self, "CSC_ONL", "/CSC/ONL/RMS"    )
             addFolder(self, "CSC_ONL", "/CSC/ONL/STAT"   )
         else:
             addFolder(self, "CSC_OFL", "/CSC/FTHOLD" )
             addFolder(self, "CSC_OFL", "/CSC/NOISE"  )
             addFolder(self, "CSC_OFL", "/CSC/PED"    )
-            addFolder(self, "CSC_OFL", "/CSC/PSLOPE" )
+            if pslope_from_db:
+                addFolder(self, "CSC_OFL", "/CSC/PSLOPE" )
             addFolder(self, "CSC_OFL", "/CSC/RMS"    )
             addFolder(self, "CSC_OFL", "/CSC/STAT"   )
             addFolder(self, "CSC_OFL", "/CSC/T0BASE" )

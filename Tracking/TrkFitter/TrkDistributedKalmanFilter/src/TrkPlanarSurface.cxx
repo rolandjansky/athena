@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 namespace Trk
 {
 
-  TrkPlanarSurface::TrkPlanarSurface(double c[3],double n[3],double m[3][3], double rl, const Surface* pS):
+  TrkPlanarSurface::TrkPlanarSurface(const double c[3],const double n[3],double m[3][3], double rl, const Surface* pS):
     m_radLength(rl), 
     m_input{},
     m_trkSurface(pS)
@@ -69,7 +69,7 @@ namespace Trk
   {
     return &m_Center[0];
   }
-  double TrkPlanarSurface::radiusVector()
+  double TrkPlanarSurface::radiusVector() const
   {
     return m_Rc;
   }
@@ -99,19 +99,19 @@ namespace Trk
     for(int m=0;m<3;m++) rc+=pS->m_M[i][m]*m_L[m][j];
     return rc;
   }
-  void TrkPlanarSurface::rotateVectorToLocal(double* X, double* Y)
+  void TrkPlanarSurface::rotateVectorToLocal(const double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_M[i][0]*X[0]+m_M[i][1]*X[1]+m_M[i][2]*X[2];
   }
-  void TrkPlanarSurface::rotateVectorToGlobal(double* X, double* Y)
+  void TrkPlanarSurface::rotateVectorToGlobal(const double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
   }
-  void TrkPlanarSurface::transformPointToLocal(double* X, double* Y)
+  void TrkPlanarSurface::transformPointToLocal(const double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
@@ -119,13 +119,13 @@ namespace Trk
 	m_M[i][1]*(X[1]-m_Center[1])+
 	m_M[i][2]*(X[2]-m_Center[2]);
   }
-  void TrkPlanarSurface::transformPointToGlobal(double* X, double* Y)
+  void TrkPlanarSurface::transformPointToGlobal(const double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_Center[i]+m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
   }
-  double TrkPlanarSurface::getRadLength()
+  double TrkPlanarSurface::getRadLength() const
   {
     //return 0.022;
     return m_radLength;
@@ -137,12 +137,12 @@ namespace Trk
     m_input=u;
   }
 
-  bool TrkPlanarSurface::isBreakPoint()
+  bool TrkPlanarSurface::isBreakPoint() const
   {
     return m_breakPoint;
   }
 
-  double TrkPlanarSurface::getInput()
+  double TrkPlanarSurface::getInput() const
   {
     return m_input;
   }

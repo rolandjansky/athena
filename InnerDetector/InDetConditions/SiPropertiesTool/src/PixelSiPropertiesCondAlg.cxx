@@ -11,7 +11,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 PixelSiPropertiesCondAlg::PixelSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_pixid(nullptr),  
   m_condSvc("CondSvc", name)
 {
@@ -35,17 +35,17 @@ StatusCode PixelSiPropertiesCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelSiPropertiesCondAlg::execute() {
+StatusCode PixelSiPropertiesCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelSiPropertiesCondAlg::execute()");
 
-  SG::WriteCondHandle<InDet::SiliconPropertiesVector> writeHandle(m_writeKey);
+  SG::WriteCondHandle<InDet::SiliconPropertiesVector> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid." << " In theory this should not be called, but may happen" << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);
   const PixelDCSTempData* readCdoTemp(*readHandleTemp);
   if (readCdoTemp==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -59,7 +59,7 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
   ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV);
+  SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV, ctx);
   const PixelDCSHVData* readCdoHV(*readHandleHV);
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -79,7 +79,7 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");

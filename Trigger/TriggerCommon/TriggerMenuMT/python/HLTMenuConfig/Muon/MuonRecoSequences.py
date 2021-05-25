@@ -795,7 +795,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
-                                                       InDetCandidateLocation="InDetCandidates_"+name, TrackSelector="")
+                                                       InDetCandidateLocation="InDetCandidates_"+name)
 
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc

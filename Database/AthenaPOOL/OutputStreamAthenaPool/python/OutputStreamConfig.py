@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -101,7 +101,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output
-   if "xAOD" in streamName:
+   if "AOD" in streamName:
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
       AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc

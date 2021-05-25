@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
@@ -77,7 +77,7 @@ class MenuAwareMonitoringStandalone:
         if self.connected_to_oracle:
             print ("MaM is already connected to the Oracle database")
         else:
-            if alias is "CUSTOM_DB":
+            if alias == "CUSTOM_DB":
                 print ("Connecting to database",database_name,"with provided username, password and directory")
                 print ("WARNING: MaM may not work as expected while using a custom DB")
                 self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
@@ -146,14 +146,14 @@ class MenuAwareMonitoringStandalone:
     def _getConnectionServicesForAlias(self,alias):
         connectionServices = None # list of services
 
-        if alias is "TRIGGERDBR2MAM":
+        if alias == "TRIGGERDBR2MAM":
             DBLOOKUP_PATH = 'MAM_CORAL_DBLOOKUP_PATH'
-        elif alias is "TRIGGERDBREPR":
+        elif alias == "TRIGGERDBREPR":
             DBLOOKUP_PATH = '/afs/cern.ch/user/a/attrgcnf/.dbauth/menuexperts'
         else:
             # TRIGGERDBREPR_R uses this path
             DBLOOKUP_PATH = 'CORAL_DBLOOKUP_PATH'
-        if alias is "TRIGGERDBREPR_R":
+        if alias == "TRIGGERDBREPR_R":
             # _R means we access the regular auth files instead of the ones with read/write access
             # need to now change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
             alias = "TRIGGERDBREPR"
@@ -178,9 +178,9 @@ class MenuAwareMonitoringStandalone:
         """
 
         authDict = {}
-        if alias is "TRIGGERDBR2MAM":
+        if alias == "TRIGGERDBR2MAM":
             AUTH_PATH = 'MAM_CORAL_AUTH_PATH'
-        elif alias is "TRIGGERDBREPR":
+        elif alias == "TRIGGERDBREPR":
             AUTH_PATH = '/afs/cern.ch/user/a/attrgcnf/.dbauth/menuexperts'
         else:
             AUTH_PATH = 'CORAL_AUTH_PATH'
@@ -443,7 +443,7 @@ class MenuAwareMonitoringStandalone:
             print ("No MCK to SMK link created.")
             return
 
-        if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
+        if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id != 0):
             print ("MCK",input_mck_id,"does not exist in database.")
             print ("No MCK to SMK link created.")
             return
@@ -1160,7 +1160,7 @@ class MenuAwareMonitoringStandalone:
                     smck_ids = self.oi.read_mck_links_from_db(row_dict['MCK_ID'])
 
                     print ("")
-                    if smck_ids is -1:
+                    if smck_ids == -1:
                         print (row_name,"is an MCK which links to no SMCKs. This MCK is empty.")
                     else:
                         print (row_name,"is an MCK, and links to the following SMCK:")

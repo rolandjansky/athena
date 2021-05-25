@@ -88,6 +88,10 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu24_idperf_L1MU20',"
                 chains += "'HLT_mu26_ivarperf_L1MU20',"
                 flags += 'doMuonSlice=True;'
+            if (i=='L2electronLRT') :
+                chains += "'HLT_e5_idperf_loose_lrtloose_L1EM3',"
+                chains += "'HLT_e26_idperf_loose_lrtloose_L1EM22VHI',"
+                flags += 'doEgammaSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
@@ -290,8 +294,8 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def configure(self, test):
         RefComparisonStep.configure(self, test)
         if self.reference is None :
-            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + " --noref --logx "
+            self.args  = self.input_file + " -o " + self.output_dir + " " + self.extra + " --noref  "
         else:
-            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra + " --logx "
+            self.args  = self.input_file + " " + self.reference + " -o " + self.output_dir + " " + self.extra
         Step.configure(self, test)
 

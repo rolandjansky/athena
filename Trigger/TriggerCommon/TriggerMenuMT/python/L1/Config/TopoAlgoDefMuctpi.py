@@ -28,7 +28,7 @@ class TopoAlgoDefMuctpi:
 
             obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype1, str(d.ocut1), d.olist)
             obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist)
-            toponame = "%iDR%i-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
+            toponame = "MUCTP-%iDR%i-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
 
             log.debug("Define %s", toponame)
 

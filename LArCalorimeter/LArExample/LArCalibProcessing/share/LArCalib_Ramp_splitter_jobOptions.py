@@ -585,7 +585,6 @@ if ( AllWavesPerCh ) :
       LArAccCaDigContSplitter[j].KeyList         = [ GainList[j] ]
       LArAccCaDigContSplitter[j].KeyOutputList = ThisKeyOut
       LArAccCaDigContSplitter[j].NumberSplitted  = MaxCalLinePerCh
-      LArAccCaDigContSplitter[j].UseDacAndIsPulsedIndex = True
       LArAccCaDigContSplitter[j].OutputLevel = ERROR
 
    theLArRampBuilder = []

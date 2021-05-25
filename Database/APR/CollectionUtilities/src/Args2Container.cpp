@@ -82,7 +82,7 @@ evalArgs(argv) : save time/errors by calling evalArgs
    on the container rather than the individual CmdLineArg2's
 
 ***************************************************************/
-Args2Container::Args2Container( std::string name, bool doxml, coral::MessageStream *l )
+Args2Container::Args2Container( const std::string& name, bool doxml, coral::MessageStream *l )
       : m_log( l? *l : *new coral::MessageStream("CmdLine") ),
         m_name(name),
         m_xml(doxml),
@@ -151,7 +151,7 @@ bool Args2Container::checkValid() const
 //
 // Evaluate the argv vector for a named argument
 //
-bool Args2Container::evalArgs(const std::string cliarg, std::vector<std::string>& argv)
+bool Args2Container::evalArgs(const std::string& cliarg, std::vector<std::string>& argv)
 {
    // Evaluate the args for the Args2Container local cla2
    if( ! m_a2c_cla2.evalArgs(argv) ) {
@@ -544,15 +544,14 @@ void Args2Container::writeXMLContent(std::vector<std::string>& argv)
       // set a target as the file argument
       std::string file(m_xFileName+".xml");
       m_log << coral::Debug << "About to write file " << file <<  coral::MessageStream::endmsg;
-      XMLFormatTarget* myFormTarget = new LocalFileFormatTarget(file.c_str());
+      LocalFileFormatTarget myFormTarget (file.c_str());
 
       // write document to target
-      theSerializer->writeNode(myFormTarget, *newDocument);
+      theSerializer->writeNode(&myFormTarget, *newDocument);
 
       // clean up the mess
-      if (theSerializer!=NULL && theSerializer!=0) delete theSerializer;
-      if (myFormTarget!=NULL && myFormTarget!=0)   delete myFormTarget;
-      if (newDocument!=NULL && newDocument!=0)     delete newDocument;
+      delete theSerializer;
+      delete newDocument;
 #else
       DOMLSSerializer *theSerializer = ((DOMImplementationLS*)impl)->createLSSerializer();
 

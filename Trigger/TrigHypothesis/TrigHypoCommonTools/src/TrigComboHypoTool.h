@@ -38,6 +38,7 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
   virtual ~TrigComboHypoTool() {};
   virtual StatusCode initialize() override;
 
+  enum comboHypoVars { DR=0, INVM, DPHI, MT}; 
 
  private:
   
@@ -50,8 +51,10 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
   Gaudi::Property< bool >      m_useMax    {this, "UseMax"   , false, "Apply max_cut"     };
 
   //legs
-  Gaudi::Property<std::string> m_legA      {this, "LegA"     ,    "", "First Leg"};
-  Gaudi::Property<std::string> m_legB      {this, "LegB"     ,    "", "Second Leg"};
+  Gaudi::Property<std::string> m_legA       {this, "LegA"      ,    "", "First Leg"};
+  Gaudi::Property<std::string> m_legB       {this, "LegB"      ,    "", "Second Leg"};
+  Gaudi::Property< bool >      m_isLegA_MET {this, "IsLegA_MET", false, "Is first Leg MET?"};
+  Gaudi::Property< bool >      m_isLegB_MET {this, "IsLegB_MET", false, "Is second Leg MET?"};
 
   // cuts
   Gaudi::Property<float> m_varMin {this,"LowerCut", -9999., "Lower cut for legs pair"};
@@ -60,6 +63,10 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
   // monitoring
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
 
+  std::map<std::string, comboHypoVars>  m_varMap;
+  comboHypoVars                         m_var;
+
+  void     fillVarMap();
 
 }; // TRIGCOMBOHYPO_TRIGCOMBOHYPOTOOL_H
 #endif

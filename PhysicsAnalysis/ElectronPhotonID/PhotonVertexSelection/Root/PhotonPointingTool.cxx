@@ -125,7 +125,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
 
   // Loop over photons and add calo pointing auxdata
   std::pair<float, float> result;
-  for (auto egamma: egammas) {
+  for (const auto *egamma: egammas) {
     // Get calo pointing variables
     result = getCaloPointing(egamma);
 
@@ -335,7 +335,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   float PhotonPointingTool::getCorrectedMass(const xAOD::EgammaContainer &egammas, float PVz) const
   {
     TLorentzVector v;
-    for (auto eg : egammas) {
+    for (const auto *eg : egammas) {
       if (!eg) {
         ATH_MSG_WARNING("Null pointer to egamma object, skipping it in mass calculation");
         continue;

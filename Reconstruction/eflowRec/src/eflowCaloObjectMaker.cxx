@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -120,7 +120,7 @@ unsigned int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTra
   return result;
 }
 
-std::vector<eflowRecCluster*> eflowCaloObjectMaker::uniqCluster(const std::vector<eflowRecTrack*> trackForNextLoop, const std::vector<eflowRecCluster*> clusterList) {
+std::vector<eflowRecCluster*> eflowCaloObjectMaker::uniqCluster(const std::vector<eflowRecTrack*>& trackForNextLoop, const std::vector<eflowRecCluster*>& clusterList) {
   std::vector<eflowRecCluster*> result; result.clear();
   std::vector<int> allClusterId; allClusterId.clear();
   for(std::vector<eflowRecTrack*>::const_iterator itr_track = trackForNextLoop.begin(); itr_track != trackForNextLoop.end(); ++itr_track) {
@@ -145,7 +145,7 @@ std::vector<eflowRecCluster*> eflowCaloObjectMaker::uniqCluster(const std::vecto
   return result;
 }
 
-std::vector<eflowRecTrack*> eflowCaloObjectMaker::uniqTrack(const std::vector<eflowRecCluster*> clusterForNextLoop, const std::vector<eflowRecTrack*> trackList) {
+std::vector<eflowRecTrack*> eflowCaloObjectMaker::uniqTrack(const std::vector<eflowRecCluster*>& clusterForNextLoop, const std::vector<eflowRecTrack*>& trackList) {
   std::vector<eflowRecTrack*> result; result.clear();
   std::vector<int> allTrackId; allTrackId.clear();
   for(std::vector<eflowRecCluster*>::const_iterator itr_cluster = clusterForNextLoop.begin(); itr_cluster != clusterForNextLoop.end(); ++itr_cluster) {
@@ -170,7 +170,7 @@ std::vector<eflowRecTrack*> eflowCaloObjectMaker::uniqTrack(const std::vector<ef
   return result;
 }
 
-void eflowCaloObjectMaker::updateTracksToConsider(std::vector<eflowRecTrack*>& total, const std::vector<eflowRecTrack*> part) {
+void eflowCaloObjectMaker::updateTracksToConsider(std::vector<eflowRecTrack*>& total, const std::vector<eflowRecTrack*>& part) {
   unsigned int nPart = part.size();
   for(unsigned int i=0; i<nPart; ++i) {
     std::vector<eflowRecTrack*>::iterator itr = total.begin();

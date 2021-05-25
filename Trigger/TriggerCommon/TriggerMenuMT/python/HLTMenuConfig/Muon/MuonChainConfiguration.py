@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
 from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
+from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 
 
 #--------------------------------------------------------

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 TaskManager is a tool for keeping track of JobRunner jobs using a
@@ -17,7 +17,7 @@ Written by Juerg Beringer (LBNL) in 2009.
 __author__  = 'Juerg Beringer'
 __version__ = 'TaskManager.py atlas/athena'
 
-import time, os, glob, dircache
+import time, os, glob
 
 from InDetBeamSpotExample.Utils import getRunFromName
 from InDetBeamSpotExample.Utils import getUserName
@@ -684,7 +684,7 @@ class JobAnalyzer:
 
     def jobList(self):
         try:
-            l = dircache.listdir(self.path)
+            l = os.listdir(self.path)
         except Exception:
             l = []
         return l

@@ -93,7 +93,7 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
     u_int16_t mynp_forward = 0;
 
 
-    for (const auto e_iter : *electrons) {
+    for (const auto *const e_iter : *electrons) {
       // Check that the electron meets our requirements
       bool isGood;
       if (! e_iter->passSelection(isGood,m_RecoName)) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PFLEPTONSELECTOR_H
 #define PFLEPTONSELECTOR_H
@@ -31,13 +31,13 @@ public:
 private:
 
   /** Select electrons to use */
-  StatusCode selectElectrons(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
+  StatusCode selectElectrons(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, const SG::WriteHandle<ConstDataVector<CaloCellContainer> >& leptonCaloCellsWriteHandle);
 
   /** store the cells of the electrons */
   void storeElectronCells(const xAOD::Egamma& electron, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** select  muons to use */
-  StatusCode selectMuons(SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
+  StatusCode selectMuons(SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle, const SG::WriteHandle<ConstDataVector<CaloCellContainer> >& leptonCaloCellsWriteHandle);
 
   /** store the cells of the muons */
   void storeMuonCells(const xAOD::Muon& muon, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);

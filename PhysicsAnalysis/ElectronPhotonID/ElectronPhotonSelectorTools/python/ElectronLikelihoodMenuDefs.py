@@ -187,7 +187,7 @@ def ElectronLikelihoodVeryLooseOfflineConfig2016(theTool) :
     This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
     '''
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
     
     
 def ElectronLikelihoodLooseOfflineConfig2016(theTool) :
@@ -197,7 +197,7 @@ def ElectronLikelihoodLooseOfflineConfig2016(theTool) :
     (NOTE: same signal eff as offline Loosepp + 1%)
     '''
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"
 
     
 def ElectronLikelihoodMediumOfflineConfig2016(theTool) :
@@ -207,7 +207,7 @@ def ElectronLikelihoodMediumOfflineConfig2016(theTool) :
     (NOTE: same signal eff as offline Mediumpp + 1%)
     '''    
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
 
     
 def ElectronLikelihoodTightOfflineConfig2016(theTool) :
@@ -217,4 +217,4 @@ def ElectronLikelihoodTightOfflineConfig2016(theTool) :
     (NOTE: same signal eff as offline Tightpp + 1%)
     '''
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"

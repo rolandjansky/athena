@@ -37,8 +37,8 @@ namespace ClusterSeg {
     std::vector<SpacePoint> createSpacePoints(std::vector<Cluster*> clust);
 
     TTree*        m_tree;
-    ClusterNtuple m_ntuple;
-    int           m_ncalls;
+    ClusterNtuple m_ntuple{};
+    int           m_ncalls{};
 
     bool m_writeOut;
     double m_ang_cut;

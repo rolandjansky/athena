@@ -17,8 +17,12 @@
 #include "L1CaloFEXSim/jFEXLargeRJetAlgo.h" 
 #include "L1CaloFEXSim/jFEXOutputCollection.h" 
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
-#include "L1CaloFEXSim/jFEXtauAlgo.h" //the future is now
-#include "L1CaloFEXSim/jFEXtauTOB.h"  //the future is now
+#include "L1CaloFEXSim/jFEXtauAlgo.h" 
+#include "L1CaloFEXSim/jFEXtauTOB.h"  
+#include "L1CaloFEXSim/jFEXsumETAlgo.h" 
+#include "L1CaloFEXSim/jFEXsumETTOB.h"  
+#include "L1CaloFEXSim/jFEXmetAlgo.h" 
+#include "L1CaloFEXSim/jFEXmetTOB.h"  
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -76,6 +80,8 @@ void jFEXFPGA::reset() {
   m_tau_tobwords.clear();
   m_SRJet_tobwords.clear();
   m_LRJet_tobwords.clear();
+  m_sumET_tobwords.clear();
+  m_Met_tobwords.clear();
 
 }
 
@@ -86,6 +92,67 @@ StatusCode jFEXFPGA::execute() {
     ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
+  
+    
+    //std::cout<< "******************************************** "<<m_jfexid<<std::endl;
+    if(m_id==0 || m_id==2){
+        if(m_jfexid > 0 && m_jfexid < 5){
+        
+            //-----------------jFEXsumETAlgo-----------------
+            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXsumETAlgoTool->reset());            
+            m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Thin);
+            m_jFEXsumETAlgoTool->buildBarrelSumET();
+            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+            
+            //-----------------jFEXmetAlgo-----------------            
+            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
+            m_jFEXmetAlgoTool->setup(m_jTowersIDs_Thin);     
+            m_jFEXmetAlgoTool->buildBarrelmet();
+            m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
+        }
+        else if(m_jfexid == 0 and 0){ //skipping until the module 0 bug fix (flip the m_jTowersIDs_Wide matrix)
+            //-----------------jFEXsumETAlgo-----------------
+            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXsumETAlgoTool->reset());         
+            m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXsumETAlgoTool->buildFWDSumET();
+            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3))); 
+                
+            //-----------------jFEXmetAlgo-----------------    
+            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
+            m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXmetAlgoTool->buildFWDmet();
+            m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));              
+        }
+        else if(m_jfexid == 5){
+            //-----------------jFEXsumETAlgo-----------------
+            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXsumETAlgoTool->reset());         
+            m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXsumETAlgoTool->buildFWDSumET();
+            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3))); 
+                
+            //-----------------jFEXmetAlgo-----------------    
+            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
+            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
+            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
+            m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXmetAlgoTool->buildFWDmet();
+            m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
+        }
+    }
+  
 
   //-----------jFEXSmallRJetAlgo-----------------
   ATH_MSG_DEBUG("==== jFEXSmallRJetAlgo ========");
@@ -273,10 +340,6 @@ StatusCode jFEXFPGA::execute() {
       }
 
       
-
-      ATH_CHECK( m_jFEXSmallRJetAlgoTool.retrieve());
-      ATH_CHECK( m_jFEXSmallRJetAlgoTool->safetyTest());
-
       ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
       ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
       m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
@@ -497,11 +560,85 @@ std::vector <uint32_t> jFEXFPGA::getTauxTOBs()
 
 }
 
+uint32_t jFEXFPGA::formSumETTOB(int ETlow, int EThigh )
+{
+  uint32_t tobWord = 0;
+  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
 
+  int satlow = 0;
+  int sathigh = 0; 
 
+  unsigned int etlow = ETlow/jFEXETResolution;
+  if (etlow > 0x7fff) { //0x7fff is 15 bits
+    ATH_MSG_DEBUG("sumEtlow saturated: " << etlow );
+    etlow = 0x7fff;
+    satlow=1;
+  }
 
+  unsigned int ethigh = EThigh/jFEXETResolution;
+  if (ethigh > 0x7fff) { //0x7fff is 15 bits
+    ATH_MSG_DEBUG("sumEthigh saturated: " << ethigh );
+    ethigh = 0x7fff;
+    sathigh=1;
+  }
 
+  //create basic tobword with 32 bits
+  tobWord = tobWord + (etlow << 17) + (satlow << 16) + (ethigh << 1) + sathigh ;
+  
+  ATH_MSG_DEBUG("tobword SumET with ETlow, Satlow, EThigh and Sathigh : " << std::bitset<32>(tobWord) );
 
+  return tobWord;
+
+}
+
+std::vector <uint32_t> jFEXFPGA::getSumEtTOBs()
+{
+  auto tobsSort = m_sumET_tobwords;
+
+  ATH_MSG_DEBUG("number of SumEt tobs: " << tobsSort.size() << " in FPGA: " << m_id);
+  return tobsSort;
+
+}
+
+uint32_t jFEXFPGA::formMetTOB(int METX, int METY )
+{
+  uint32_t tobWord = 0;
+  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+
+  int sat = 0;
+  int res = 0; 
+
+  unsigned int metX = METX/jFEXETResolution;
+  if (metX > 0x7fff) { //0x7fff is 15 bits
+    ATH_MSG_DEBUG("sumEtlow saturated: " << metX );
+    metX = 0x7fff;
+    sat=1;
+  }
+
+  unsigned int metY = METY/jFEXETResolution;
+  if (metY > 0x7fff) { //0x7fff is 15 bits
+    ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
+    metY = 0x7fff;
+    sat=1;
+  }
+
+  //create basic tobword with 32 bits
+  tobWord = tobWord + (metX << 17) + (sat << 16) + (metY << 1) + res ;
+  
+  ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
+
+  return tobWord;
+
+}
+
+std::vector <uint32_t> jFEXFPGA::getMetTOBs()
+{
+  auto tobsSort = m_Met_tobwords;
+
+  ATH_MSG_DEBUG("number of Met tobs: " << tobsSort.size() << " in FPGA: " << m_id);
+  return tobsSort;
+
+}
 
 
   

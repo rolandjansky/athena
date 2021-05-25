@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MuidEvent/CaloLayer.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -42,8 +41,6 @@ namespace Rec {
         declareInterface<IMuidCaloMaterialParam>(this);
         declareProperty("ProduceSurfacesFile", m_produceSurfacesDisplay);
     }
-
-    MuidCaloMaterialParam::~MuidCaloMaterialParam(void) {}
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -75,39 +72,13 @@ namespace Rec {
         }
 
         if (msgLvl(MSG::DEBUG)) {
-            for (std::vector<const CaloLayer*>::const_iterator lay = m_caloOuterLayers.begin(); lay != m_caloOuterLayers.end(); ++lay) {
-                // if((**lay).Zmax()>0.)
-                if ((**lay).Z() > 0.) { (**lay).print(); }
+            for (std::unique_ptr<const CaloLayer>& lay : m_caloOuterLayers) {
+                if (lay->Z() > 0.) { lay->print(); }
             }
         }
 
         return StatusCode::SUCCESS;
     }
-
-    StatusCode MuidCaloMaterialParam::finalize() {
-        ATH_MSG_DEBUG("Finalizing MuidCaloMaterialParam");
-
-        for (std::vector<const Trk::Surface*>::iterator s = m_innerBackwardSurfaces.begin(); s != m_innerBackwardSurfaces.end(); ++s)
-            delete *s;
-        for (std::vector<const Trk::Surface*>::iterator s = m_innerForwardSurfaces.begin(); s != m_innerForwardSurfaces.end(); ++s)
-            delete *s;
-        for (std::vector<const Trk::Surface*>::iterator s = m_middleBackwardSurfaces.begin(); s != m_middleBackwardSurfaces.end(); ++s)
-            delete *s;
-        for (std::vector<const Trk::Surface*>::iterator s = m_middleForwardSurfaces.begin(); s != m_middleForwardSurfaces.end(); ++s)
-            delete *s;
-        for (std::vector<const Trk::Surface*>::iterator s = m_outerBackwardSurfaces.begin(); s != m_outerBackwardSurfaces.end(); ++s)
-            delete *s;
-        for (std::vector<const Trk::Surface*>::iterator s = m_outerForwardSurfaces.begin(); s != m_outerForwardSurfaces.end(); ++s)
-            delete *s;
-
-        for (std::vector<const CaloLayer*>::const_iterator lay = m_caloInnerLayers.begin(); lay != m_caloInnerLayers.end(); ++lay)
-            delete *lay;
-        for (std::vector<const CaloLayer*>::const_iterator lay = m_caloOuterLayers.begin(); lay != m_caloOuterLayers.end(); ++lay)
-            delete *lay;
-
-        return StatusCode::SUCCESS;
-    }
-
     const Trk::Surface* MuidCaloMaterialParam::innerSurface(double eta) const {
         if (eta < 0.) {
             unsigned bin = static_cast<unsigned>(-eta / m_binSize);
@@ -115,20 +86,20 @@ namespace Rec {
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " innerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   backwards bin " << bin);
-            return m_innerBackwardSurfaces[bin];
+            return m_innerBackwardSurfaces[bin].get();
         } else if (eta > 0.) {
             unsigned bin = static_cast<unsigned>(eta / m_binSize);
             if (bin >= m_numberBins) bin = m_numberBins - 1;
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " innerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin " << bin);
-            return m_innerForwardSurfaces[bin];
+            return m_innerForwardSurfaces[bin].get();
         }
 
         ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                         << " innerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin 0");
 
-        return m_innerForwardSurfaces[0];
+        return m_innerForwardSurfaces[0].get();
     }
 
     const Trk::Surface* MuidCaloMaterialParam::middleSurface(double eta) const {
@@ -138,20 +109,20 @@ namespace Rec {
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " middleSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   backwards bin " << bin);
-            return m_middleBackwardSurfaces[bin];
+            return m_middleBackwardSurfaces[bin].get();
         } else if (eta > 0.) {
             unsigned bin = static_cast<unsigned>(eta / m_binSize);
             if (bin >= m_numberBins) bin = m_numberBins - 1;
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " middleSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin " << bin);
-            return m_middleForwardSurfaces[bin];
+            return m_middleForwardSurfaces[bin].get();
         }
 
         ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                         << " middleSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin 0");
 
-        return m_middleForwardSurfaces[0];
+        return m_middleForwardSurfaces[0].get();
     }
 
     const Trk::Surface* MuidCaloMaterialParam::outerSurface(double eta) const {
@@ -161,20 +132,20 @@ namespace Rec {
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " outerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   backwards bin " << bin);
-            return m_outerBackwardSurfaces[bin];
+            return m_outerBackwardSurfaces[bin].get();
         } else if (eta > 0.) {
             unsigned bin = static_cast<unsigned>(eta / m_binSize);
             if (bin >= m_numberBins) bin = m_numberBins - 1;
 
             ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                             << " outerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin " << bin);
-            return m_outerForwardSurfaces[bin];
+            return m_outerForwardSurfaces[bin].get();
         }
 
         ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                         << " outerSurface:  eta " << std::setw(7) << std::setprecision(3) << eta << "   forward bin 0");
 
-        return m_outerForwardSurfaces[0];
+        return m_outerForwardSurfaces[0].get();
     }
 
     double MuidCaloMaterialParam::radiationThickness(double eta) const {
@@ -200,38 +171,38 @@ namespace Rec {
             new const Trk::MaterialEffectsOnTrack(thickness, trackParameters->associatedSurface());
 
         // create TSOS
-        const Trk::FitQualityOnSurface* fitQoS = 0;
-        const Trk::MeasurementBase* measurementBase = 0;
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
         pattern.set(Trk::TrackStateOnSurface::Scatterer);
 
         ATH_MSG_VERBOSE(" trackStateOnSurface::Scatterer with radiationThickness " << thickness);
 
-        return new const Trk::TrackStateOnSurface(measurementBase, trackParameters, fitQoS, materialEffects, pattern);
+        return new const Trk::TrackStateOnSurface(nullptr, trackParameters, nullptr, materialEffects, pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
-    Trk::Surface* MuidCaloMaterialParam::createSurface(double eta, double r, double z, double cotThetaWidth) {
+    std::unique_ptr<Trk::Surface> MuidCaloMaterialParam::createSurface(double eta, double r, double z, double cotThetaWidth) const {
         Amg::Transform3D transform;
         transform.setIdentity();
         transform = Amg::Translation3D(0., 0., z);
         double halfZLength = cotThetaWidth * r;
         if (std::abs(eta) < 1.4) {
-            Trk::CylinderSurface* surf = new Trk::CylinderSurface(transform, r, halfZLength);
+            std::unique_ptr<Trk::CylinderSurface> surf = std::make_unique<Trk::CylinderSurface>(transform, r, halfZLength);
             if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf).ignore();
             return surf;
         } else {
             double halfRLength = halfZLength * r / std::abs(z);
-            Trk::DiscSurface* surf = new Trk::DiscSurface(transform, r - halfRLength, r + halfRLength);
+            std::unique_ptr<Trk::DiscSurface> surf = std::make_unique<Trk::DiscSurface>(transform, r - halfRLength, r + halfRLength);
             if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf).ignore();
             return surf;
         }
+        ATH_MSG_ERROR("The code should actually never reach this branch");
+        return nullptr;
     }
 
     StatusCode MuidCaloMaterialParam::defineCaloMaterial(void) {
         // careful - need const int declaration for array => check consistency
-        const int N = 277;
+        constexpr int N = 277;
         if (static_cast<int>(m_numberBins) != N) return StatusCode::FAILURE;
 
         // In meters... be careful!!!
@@ -357,20 +328,20 @@ namespace Rec {
             // inner surfaces
             double r = sinTheta * (mean[i] - rms[i]) * Gaudi::Units::meter;
             double z = cosTheta * (mean[i] - rms[i]) * Gaudi::Units::meter;
-            m_innerBackwardSurfaces.push_back(createSurface(eta[i], r, -z, cotThetaWidth));
-            m_innerForwardSurfaces.push_back(createSurface(eta[i], r, z, cotThetaWidth));
+            m_innerBackwardSurfaces.emplace_back(createSurface(eta[i], r, -z, cotThetaWidth));
+            m_innerForwardSurfaces.emplace_back(createSurface(eta[i], r, z, cotThetaWidth));
 
             // middle surfaces
             r = sinTheta * mean[i] * Gaudi::Units::meter;
             z = cosTheta * mean[i] * Gaudi::Units::meter;
-            m_middleBackwardSurfaces.push_back(createSurface(eta[i], r, -z, cotThetaWidth));
-            m_middleForwardSurfaces.push_back(createSurface(eta[i], r, z, cotThetaWidth));
+            m_middleBackwardSurfaces.emplace_back(createSurface(eta[i], r, -z, cotThetaWidth));
+            m_middleForwardSurfaces.emplace_back(createSurface(eta[i], r, z, cotThetaWidth));
 
             // outer surfaces
             r = sinTheta * (mean[i] + rms[i]) * Gaudi::Units::meter;
             z = cosTheta * (mean[i] + rms[i]) * Gaudi::Units::meter;
-            m_outerBackwardSurfaces.push_back(createSurface(eta[i], r, -z, cotThetaWidth));
-            m_outerForwardSurfaces.push_back(createSurface(eta[i], r, z, cotThetaWidth));
+            m_outerBackwardSurfaces.emplace_back(createSurface(eta[i], r, -z, cotThetaWidth));
+            m_outerForwardSurfaces.emplace_back(createSurface(eta[i], r, z, cotThetaWidth));
         }
 
         // fill Calo Layers with R,Z centre, surface, etc
@@ -390,16 +361,19 @@ namespace Rec {
             // middleZ[i]	= cosTheta*mean[i]*Gaudi::Units::meter;
             outerR[i] = sinTheta * (mean[i] + rms[i]) * Gaudi::Units::meter;
             outerZ[i] = cosTheta * (mean[i] + rms[i]) * Gaudi::Units::meter;
-            bool barrel = true;
-            if (eta[i] > 1.4) barrel = false;
+            bool barrel = (eta[i] <= 1.4);
 
             // outer layer
-            m_caloOuterLayers.push_back(new CaloLayer(outerSurface(-eta[i]), i, outerR[i], -outerZ[i], X0CaloLayers[i], barrel));
-            m_caloOuterLayers.push_back(new CaloLayer(outerSurface(eta[i]), i + N, outerR[i], outerZ[i], X0CaloLayers[i], barrel));
+            m_caloOuterLayers.emplace_back(
+                std::make_unique<CaloLayer>(outerSurface(-eta[i]), i, outerR[i], -outerZ[i], X0CaloLayers[i], barrel));
+            m_caloOuterLayers.emplace_back(
+                std::make_unique<CaloLayer>(outerSurface(eta[i]), i + N, outerR[i], outerZ[i], X0CaloLayers[i], barrel));
 
             // same thing for inner layer
-            m_caloInnerLayers.push_back(new CaloLayer(innerSurface(-eta[i]), i, innerR[i], -innerZ[i], X0CaloLayers[i], barrel));
-            m_caloInnerLayers.push_back(new CaloLayer(innerSurface(eta[i]), i + N, innerR[i], innerZ[i], X0CaloLayers[i], barrel));
+            m_caloInnerLayers.emplace_back(
+                std::make_unique<CaloLayer>(innerSurface(-eta[i]), i, innerR[i], -innerZ[i], X0CaloLayers[i], barrel));
+            m_caloInnerLayers.emplace_back(
+                std::make_unique<CaloLayer>(innerSurface(eta[i]), i + N, innerR[i], innerZ[i], X0CaloLayers[i], barrel));
 
             // check
             const Trk::Surface* surfM = innerSurface(-eta[i]);

@@ -160,7 +160,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     i0 = i1;
   }
   //
-  std::array<float,3> intersectionOutcome;
+  std::array<float,3> intersectionOutcome{};
   int i = i0;
   /// first, rotate in the positive phi direction
   while(1) {

@@ -4,7 +4,6 @@
 /* Dear emacs, this is -*-c++-*- */
 #ifndef _ObjContainer_H_
 #define _ObjContainer_H_
-
 #include <vector>
 #include <utility>
 #include <limits>
@@ -320,12 +319,9 @@ protected:
 
       if (--(m_objs[ref.idx()].second) == 0) {
          T_Obj *obj=m_objs[ref.idx()].first;
-         delete m_objs[ref.idx()].first;
+         delete obj;
          m_objs[ref.idx()].first=nullptr;
-         ObjRef<T_index> ref(find(obj));
-         if (ref) {
-            this->throwObjectAlreadyDeleted( ref.idx());
-         }
+         assert(!find(obj)); // Ensure that deleted objects are not referenced anymore
          if (m_freeIdx == std::numeric_limits<T_index>::max()) {
             m_freeIdx=ref.idx();
          }

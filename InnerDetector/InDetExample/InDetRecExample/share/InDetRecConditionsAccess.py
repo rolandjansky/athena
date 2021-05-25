@@ -58,7 +58,9 @@ if DetFlags.pixel_on():
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            if (runNum<222222):
+            if (runNum is None):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+            elif (runNum<222222):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
             else:
                 # Even though we are reading from COOL, set the correct fallback map.

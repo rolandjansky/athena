@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFClusterCollectionTool.h"
@@ -19,7 +19,7 @@ std::unique_ptr<eflowRecClusterContainer> PFClusterCollectionTool::retrieve(cons
   std::unique_ptr<eflowRecClusterContainer> result =  std::make_unique<eflowRecClusterContainer>();
 
   /* Loop over all eflowCaloObjects */
-  for (auto thisEflowCaloObject : theEflowCaloObjectContainer){
+  for (const auto *thisEflowCaloObject : theEflowCaloObjectContainer){
     
     /* Add all clusters on the eflowCaloObject to the container */
     unsigned int nClusters = thisEflowCaloObject->nClusters();
@@ -43,7 +43,7 @@ std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(con
   std::unique_ptr<xAOD::CaloClusterContainer> result = std::make_unique<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
 
   /* Loop over all eflowCaloObjects */
-  for (auto thisEflowCaloObject : theEflowCaloObjectContainer){
+  for (const auto *thisEflowCaloObject : theEflowCaloObjectContainer){
     
     /* Add all clusters on the eflowCaloObject to the container */
     unsigned int nClusters = thisEflowCaloObject->nClusters();

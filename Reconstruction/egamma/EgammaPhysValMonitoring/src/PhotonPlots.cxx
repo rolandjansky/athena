@@ -37,7 +37,7 @@ void PhotonPlots::initializePlots(){
   m_nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
 }
 
-  void PhotonPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt){
+  void PhotonPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
   m_oKinAllPlots.fill(photon,eventInfo);
   m_oShowerShapesAllPlots.fill(photon,eventInfo);
   

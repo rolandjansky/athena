@@ -129,7 +129,7 @@ def MDT_DigitizationBasicCfg(flags, **kwargs):
 
 def MDT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with MDT Overlay digitization"""
-    acc = MuonGeoModelCfg(flags)
+    acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

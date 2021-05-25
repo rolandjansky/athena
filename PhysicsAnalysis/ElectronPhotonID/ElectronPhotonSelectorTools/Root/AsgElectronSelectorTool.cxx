@@ -633,7 +633,7 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   }
 
 
-  MVAEnum::MVACalcVars vars;
+  MVAEnum::MVACalcVars vars{};
   vars.eta = std::abs(eta);
   vars.et = et;
   vars.f3 = f3;

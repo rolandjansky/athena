@@ -154,12 +154,16 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 // ask for Lorentz correction, get global position
 
   double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
-  const InDetDD::SiLocalPosition& localPosition = 
-          InDetDD::SiLocalPosition(localPos[Trk::locY],
-                          localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
   // find global position of element
-  Amg::Vector3D globalPos = element->globalPosition(localPosition);
+  const Amg::Transform3D& T = element->surface().transform();
+  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  double R [3] = {T(0,3),T(1,3),T(2,3)};
+
+  const Amg::Vector2D&    M = locpos;
+  Amg::Vector3D globalPos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
+
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -224,7 +228,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     break;
   }
  PixelCluster* newCluster = 
-   new PixelCluster(clusterID, locpos, 
+   new PixelCluster(clusterID, locpos, globalPos,
                     rdoList, lvl1a, totList,chargeList, 
                     width, element, errorMatrix.release(), omegax, omegay,
                     split,
@@ -356,12 +360,15 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
 // ask for Lorentz correction, get global position
   double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
-  const InDetDD::SiLocalPosition& localPosition = 
-    InDetDD::SiLocalPosition(localPos[Trk::locY],
-			     localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
 // find global position of element
-  Amg::Vector3D globalPos = element->globalPosition(localPosition);
+  const Amg::Transform3D& T = element->surface().transform();
+  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  double R [3] = {T(0,3),T(1,3),T(2,3)};
+
+  const Amg::Vector2D&    M = locpos;
+  Amg::Vector3D globalPos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
 
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
@@ -432,6 +439,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
  PixelCluster* newCluster = 
    new PixelCluster(newClusterID, 
                     locpos,
+		    globalPos,
                     rdoList,
                     lvl1a,
                     totList,

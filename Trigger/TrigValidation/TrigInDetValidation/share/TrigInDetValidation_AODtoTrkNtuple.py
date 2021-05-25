@@ -45,7 +45,7 @@ jps.AthenaCommonFlags.FilesInput = FilesInput
 ##### Histogram File Part #################
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 
-HLTMonManager = CfgMgr.AthenaMonManager( "HLTMonManager") 
+HLTMonManager = CfgMgr.AthenaMonManager( "HLTMonManager")
 algseq += HLTMonManager
 # HLTMonManager = algseq.HLTMonManager
 
@@ -65,7 +65,7 @@ if ( False ) :
 
   montools = TrigIDtrkMonitoringTool()
 
-  #  print "\n\nMonTools\n" 
+  #  print "\n\nMonTools\n"
   #  print montools
 
   HLTMonManager.AthenaMonTools += montools
@@ -74,14 +74,14 @@ if ( False ) :
   ServiceMgr += THistSvc()
   ServiceMgr.THistSvc.Output = ["AANT DATAFILE='TIDA_T0.root' OPT='RECREATE'"]
   HLTMonManager.FileKey = "AANT"
-  
+
 
 
 
 
 ############ TrigInDetAnalysis part ################################
 
-if ( True ) : 
+if ( True ) :
   from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestMonToolAC
   TestMonTool = TrigTestMonToolAC( name="TestMonToolAC")
   TestMonTool.buildNtuple = True
@@ -95,7 +95,7 @@ if ( True ) :
     if LRT == True :
       TestMonTool.FiducialRadius = 500.
 
-  if 'ptmin' in dir(): 
+  if 'ptmin' in dir():
      TestMonTool.pTCutOffline = ptmin
 
   TestMonTool.KeepAllEvents = False
@@ -107,28 +107,28 @@ if ( True ) :
     # "Muons",
     # "Muons:Tight",
     # "Muons:Medium",
-  
-    # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx", 
+
+    # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
     # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
     # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
-    
-    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx", 
-    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx", 
-    # "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx", 
-    # "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx", 
+
+    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+    # "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+    # "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
     # "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",  
-    
-    # "Electrons",                                                                                                                                    
-                           
+    #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+
+    # "Electrons",
+
     # "Electrons_MediumCB",
     # "Electrons_TightCB",
     # "Electrons_MediumLH",
     # "Electrons_TightLH",
     # "Taus",
-    
+
     # "Taus_1Prong",
     # "Taus_Loose_1Prong",
     # "Taus_Medium_1Prong",
@@ -143,7 +143,7 @@ if ( True ) :
 
     "Electron:Tight",
     "Electron:Medium",
-    
+
     #    ":HLT_IDTrack_FS_FTF",
     #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
@@ -156,7 +156,8 @@ if ( True ) :
 
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
-    
+    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_IDTrig;DTE",
+
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_IDTrig",
@@ -179,6 +180,9 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_GSF",
+
+    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
@@ -209,10 +213,10 @@ if ( True ) :
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
-    
+
 
     ]
-  
+
   from AthenaCommon.AppMgr import release_metadata
   d = release_metadata()
   TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']

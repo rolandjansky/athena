@@ -64,8 +64,12 @@ _all_streams = [
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
+    # DELAYED STREAMS
+    StreamInfo('VBFDelayed'  , 'delayed', True, True),
+    StreamInfo('BphysDelayed', 'delayed', True, True),
     # Special stream to be used only for special chains rejecting all events like timeburner
-    StreamInfo('DISCARD', 'unknown', False, True)
+    StreamInfo('DISCARD', 'unknown', False, True),
+
     # Add new streams grouped by type as above, not at the end of the list
 ]
 

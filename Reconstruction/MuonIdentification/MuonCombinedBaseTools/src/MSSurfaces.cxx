@@ -17,13 +17,13 @@ namespace {
 MSSurfaces::MSSurfaces() : m_vec(12), m_station(12) {
     const Amg::Vector3D posEI(0., 0., 7500.), posEM(0., 0., 13500.), posEO(0., 0., 21000.), posEE(0., 0., 10000.), zero(0., 0., 0.);
     Amg::Transform3D transEIA = Amg::Transform3D(Amg::Translation3D(posEI));
-    Amg::Transform3D  transEMA = Amg::Transform3D(Amg::Translation3D(posEM));
-    Amg::Transform3D  transEOA = Amg::Transform3D(Amg::Translation3D(posEO));
-    Amg::Transform3D  transEEA = Amg::Transform3D(Amg::Translation3D(posEE));
-    Amg::Transform3D  transEIC = Amg::Transform3D(Amg::Translation3D(-posEI));
-    Amg::Transform3D  transEMC = Amg::Transform3D(Amg::Translation3D(-posEM));
-    Amg::Transform3D  transEOC = Amg::Transform3D(Amg::Translation3D(-posEO));
-    Amg::Transform3D  transEEC = Amg::Transform3D(Amg::Translation3D(-posEE));
+    Amg::Transform3D transEMA = Amg::Transform3D(Amg::Translation3D(posEM));
+    Amg::Transform3D transEOA = Amg::Transform3D(Amg::Translation3D(posEO));
+    Amg::Transform3D transEEA = Amg::Transform3D(Amg::Translation3D(posEE));
+    Amg::Transform3D transEIC = Amg::Transform3D(Amg::Translation3D(-posEI));
+    Amg::Transform3D transEMC = Amg::Transform3D(Amg::Translation3D(-posEM));
+    Amg::Transform3D transEOC = Amg::Transform3D(Amg::Translation3D(-posEO));
+    Amg::Transform3D transEEC = Amg::Transform3D(Amg::Translation3D(-posEE));
 
     m_vec[BI] = std::make_unique<Trk::CylinderSurface>(rBI, lenBI);
     m_station[BI] = "BI";

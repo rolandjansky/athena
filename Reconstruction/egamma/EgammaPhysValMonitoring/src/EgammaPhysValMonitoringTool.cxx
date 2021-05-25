@@ -130,7 +130,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
       return StatusCode::FAILURE;
     }
     
-    for(const auto truthParticle : *truthParticles){
+    for(const auto *const truthParticle : *truthParticles){
       
       //--electrons
       if (std::abs(truthParticle->pdgId()) == 11 && truthParticle->status() == 1  && truthParticle->barcode() < 1000000) {
@@ -216,7 +216,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
     bool elecPrompt=false;
     bool photonPrompt=false;
     
-    for(const auto truthallParticle : *truthallParticles){// Electrons and photons from standard TruthParticle container      
+    for(const auto *const truthallParticle : *truthallParticles){// Electrons and photons from standard TruthParticle container      
       
       //--electrons
       if (std::abs(truthallParticle->pdgId()) == 11 && truthallParticle->status() == 1  && truthallParticle->barcode() < 1000000) {
@@ -322,7 +322,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
   float weight=1.;
   weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
   
-  for(const auto electron : *Electrons){
+  for(const auto *const electron : *Electrons){
     bool isElecPrompt=false;
 
     if(!(electron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
@@ -380,7 +380,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::T
   float weight=1.;
   weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
   
-  for(const auto frwdelectron : *ElectronsFrwd){
+  for(const auto *const frwdelectron : *ElectronsFrwd){
     if(!(frwdelectron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
     bool isElecPrompt=false;
     if (m_isMC) {
@@ -416,7 +416,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
   float weight=1.;
   weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
 
-  for(auto photon : *Photons){
+  for(const auto *photon : *Photons){
     bool isPhotPrompt=false;
     if (photon->author()&xAOD::EgammaParameters::AuthorCaloTopo35) continue;//21.0.>7
     if(!(photon->isGoodOQ (xAOD::EgammaParameters::BADCLUSPHOTON))) continue;
@@ -481,7 +481,7 @@ const xAOD::TruthParticle* EgammaPhysValMonitoringTool::Match(const xAOD::Egamma
 //-------------------------------------------------------------------------------------------
   float currentdr = 0.05;
   const xAOD::TruthParticle* matchedTruthParticle = nullptr;
-  for (auto truthParticle: *truthParticles){
+  for (const auto *truthParticle: *truthParticles){
     if (std::abs(truthParticle->pdgId()) != pdg || truthParticle->status() != 1) continue;
     float dr = particle->p4().DeltaR(truthParticle->p4());
     if (dr < currentdr){

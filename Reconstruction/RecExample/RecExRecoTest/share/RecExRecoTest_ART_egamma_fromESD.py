@@ -127,7 +127,7 @@ from LArConditionsCommon import LArAlignable
 ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
 
 include ("LArRecUtils/LArAffectedRegion.py")
-include("InDetBeamSpotService/BeamCondSvc.py")
+include("BeamSpotConditions/BeamCondAlgSetup.py")
 include("InDetRecExample/InDetRecConditionsAccess.py")
 # Detector Description
 #---------------------------------------------------------------------------------#

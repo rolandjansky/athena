@@ -91,36 +91,36 @@ namespace Rec {
         double m_inverseWidth;
 
         // ============ Mean parametrization coefficients ============= //
-        double m_meanEnergyLossP0[26];
-        double m_meanEnergyLossP1[26];
-        double m_meanEnergyLossP2[26];
-        double m_meanEnergyLossErrorLeftP0[26];
-        double m_meanEnergyLossErrorLeftP1[26];
-        double m_meanEnergyLossErrorRightP0[26];
-        double m_meanEnergyLossErrorRightP1[26];
+        double m_meanEnergyLossP0[26]{};
+        double m_meanEnergyLossP1[26]{};
+        double m_meanEnergyLossP2[26]{};
+        double m_meanEnergyLossErrorLeftP0[26]{};
+        double m_meanEnergyLossErrorLeftP1[26]{};
+        double m_meanEnergyLossErrorRightP0[26]{};
+        double m_meanEnergyLossErrorRightP1[26]{};
         // ============ Mop parametrization coefficients ============= //
-        double m_mopEnergyLossP0[26];
-        double m_mopEnergyLossP1[26];
-        double m_mopEnergyLossP2[26];
-        double m_mopEnergyLossErrorP0[26];
-        double m_mopEnergyLossErrorP1[26];
+        double m_mopEnergyLossP0[26]{};
+        double m_mopEnergyLossP1[26]{};
+        double m_mopEnergyLossP2[26]{};
+        double m_mopEnergyLossErrorP0[26]{};
+        double m_mopEnergyLossErrorP1[26]{};
         // ============ Symmetric Mop parametrization coefficients ==== //
-        double m_mopSymmetricEnergyLossP0[26];
-        double m_mopSymmetricEnergyLossP1[26];
-        double m_mopSymmetricEnergyLossP2[26];
+        double m_mopSymmetricEnergyLossP0[26]{};
+        double m_mopSymmetricEnergyLossP1[26]{};
+        double m_mopSymmetricEnergyLossP2[26]{};
         // ==================== fractional contribution from em calo === //
-        double m_emMopFraction[26];
+        double m_emMopFraction[26]{};
         // double			m_em1MopFraction[26];
         // ==================== Material map =========================== //
         double m_etaGranularity;    // Granularity in eta of material map
-        double m_dead_eta[277];     // eta of bin
-        double m_dead_x01[277];     // material in front of the e/m calorimeter
-        double m_dead_x02[277];     // material in front of hadronic calorimeter
-        double m_dead_x0tot[277];   // material in front of Muon Spectrometer
-        double m_dead_cryo0[277];   // Lar front cryostat (included in m_dead_x01)
-        double m_dead_cryo1[277];   // LarEm back cryostat
-        double m_dead_cryo2[277];   // LarHec back cryostat
-        double m_dead_girder[277];  // Tile calorimetergirder structure
+        double m_dead_eta[277]{};     // eta of bin
+        double m_dead_x01[277]{};     // material in front of the e/m calorimeter
+        double m_dead_x02[277]{};     // material in front of hadronic calorimeter
+        double m_dead_x0tot[277]{};   // material in front of Muon Spectrometer
+        double m_dead_cryo0[277]{};   // Lar front cryostat (included in m_dead_x01)
+        double m_dead_cryo1[277]{};   // LarEm back cryostat
+        double m_dead_cryo2[277]{};   // LarHec back cryostat
+        double m_dead_girder[277]{};  // Tile calorimetergirder structure
     };
 
 }  // namespace Rec

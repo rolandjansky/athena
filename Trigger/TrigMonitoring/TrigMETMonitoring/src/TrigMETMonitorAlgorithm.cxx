@@ -432,7 +432,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto component_status = Monitored::Scalar<int>("component_status",0.0);
     auto component_status_weight = Monitored::Scalar<int>("component_status_weight",0.0);
 
-
     // constant floor for log plots
     double epsilon = 1.189;
 
@@ -633,35 +632,35 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       };  
 
      for (int j=0; j<32; ++j) { //status loop
-       HLT_MET_status = j;
        unsigned mask = (1<<j);
        if (hlt_met->flag() & mask) {
          MET_status = 1.;
        } else {
          MET_status = 0;
        }
-       fill(tool,HLT_MET_status,MET_status);
+       auto mon1 = Monitored::Scalar<std::string>( "HLT_MET_status",bitNames[j]);
+       fill(tool,mon1,MET_status);
      }
 
      for (int i=0; i<24; ++i) { //component loop
-       HLT_MET_component = i;
        float ex = hlt_met->exComponent(i)*0.001;
        float ey = hlt_met->eyComponent(i)*0.001;
        component_Et = sqrt(ex*ex+ey*ey);
-       fill(tool,HLT_MET_component,component_Et);
+       auto mon2 = Monitored::Scalar<std::string>( "HLT_MET_component",compNames[i]);
+       fill(tool,mon2,component_Et);
      }
 
      for (int i=0; i<24; ++i) { //component loop
        for (int j=0; j<32; ++j) { //status loop
-         component = i;
-         component_status = j;
          unsigned mask = (1<<j);
          if (hlt_met->statusComponent(i) & mask) {
            component_status_weight = 1.;
          } else {
            component_status_weight = 0;
          }
-         fill(tool,component,component_status,component_status_weight);
+         auto mon_bit = Monitored::Scalar<std::string>( "component_status",bitNames[j]);
+         auto mon_comp = Monitored::Scalar<std::string>( "component",compNames[i]);
+         fill(tool,mon_comp,mon_bit,component_status_weight);
        }
      }
 

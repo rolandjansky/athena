@@ -25,7 +25,7 @@ electronPearShapeAlignmentCorrection::electronPearShapeAlignmentCorrection(
   if (!m_sdeta) {
     throw std::runtime_error("cannot find histogram for pear shape correction");
   }
-  m_sdeta->SetDirectory(0);
+  m_sdeta->SetDirectory(nullptr);
 }
 
 double

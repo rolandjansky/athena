@@ -556,10 +556,33 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     Amg::Vector3D edir = parm->momentum().unit();
     radiate(isp,updatedParameters,parm->position(),edir,timeLim, dX0, matFraction, matTot, dir, particle);
 
-    if (1./fabs(updatedParameters[4]) < m_minimumMomentum ) {
-      if (isp!=m_isp) delete isp;
+    // update parent parameters:
+    // use the manipulator to update the track parameters -------> get rid of 0!
+    updated = parm->associatedSurface()
+      .createUniqueTrackParameters(updatedParameters[0],
+                                   updatedParameters[1],
+                                   updatedParameters[2],
+                                   updatedParameters[3],
+                                   updatedParameters[4],
+                                   std::nullopt)
+      .release();
+
+    if (isp!=m_isp) {
+      delete parm;
+    }
+    parm = updated;
+
+    if ( parm->momentum().mag() < m_minimumMomentum ) {
+      if ( isp != m_isp ) {
+        delete isp;
+        delete parm;
+      }
+      else {
+        delete updated;
+      }
       return nullptr;
     }
+
   } else {
     matFraction += dX0/pathCorrection/m_matProp->thicknessInX0();
   }

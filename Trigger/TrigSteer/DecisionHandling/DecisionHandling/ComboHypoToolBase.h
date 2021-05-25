@@ -42,7 +42,7 @@ public:
    **/
   virtual HLT::Identifier decisionId() const { return m_decisionId; }
 
-  void setLegDecisionIds(const std::vector<HLT::Identifier>& legDecisionIds) { m_legDecisionIds = legDecisionIds; }
+  void setLegDecisionIds(std::vector<HLT::Identifier> legDecisionIds) { m_legDecisionIds = std::move(legDecisionIds); }
   HLT::Identifier legDecisionId(size_t i) const { return m_legDecisionIds.at(i); }
   const std::vector<HLT::Identifier>& legDecisionIds() const { return m_legDecisionIds; }
     

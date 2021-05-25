@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -419,8 +419,7 @@ namespace HLT {
     std::vector<std::string> m_classesToPayloadProperty_DSonly;              //!< list of classes#keys to be put to DS payload
     std::vector<CSPair>  m_classesToPayload_DSonly;   //!< classess are put to payload according to that priority list (CLID + key)
 
-    std::vector<std::string> m_classesFromPayloadProperty;              //!< list of classes#keys to be extracted from BS payload
-
+    std::vector<std::string> m_classesFromPayloadIgnoreProperty;    //!< list of classes#keys to ignore on deserialization
 
     std::vector<std::string> m_classesToPreregisterProperty;             //!< as above but for preregistration
     std::vector<CSPair> m_classesToPreregister;   //!< classes mentioned here will be put to SG irrespectively of thier presence in event

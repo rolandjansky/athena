@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -328,6 +328,7 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   if (!BlStruct) {
     // Second Bit is block empty or unknown
     error|= 0x2;
+    return error;
   }
 
   BlStruct->setFragment(p,n);

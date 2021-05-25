@@ -204,7 +204,6 @@ StatusCode LArRampBuilder::execute()
 { 
 
   StatusCode sc;
-  sc.setChecked();
   if ( m_event_counter < 100 || m_event_counter%100==0 )
     ATH_MSG_INFO( "Processing event " << m_event_counter);
   ++m_event_counter;
@@ -457,7 +456,6 @@ StatusCode LArRampBuilder::stop()
   ATH_MSG_INFO( "in stop."); 
 
   StatusCode sc;
-  sc.setChecked();
   //Create transient ramp object (to be filled later) (one object for all gains)
   LArRampComplete* larRampComplete;
   if (m_saveRecRamp){

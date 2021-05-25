@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p5.cxx
@@ -69,15 +69,13 @@ JetCollectionCnv_p5::persToTrans( const JetCollection_p5* pers,
   trans->setOrdered (static_cast<JetCollection::OrderedVar>(pers->m_ordered));
   // not used any more ... trans->m_ROIauthor = //pers->m_roiAuthor;
 
-  /// The jets them selves. Taken care of behind our backs.
+  /// The jets themselves. Taken care of behind our backs.
 
   trans->clear();
   trans->reserve(pers->size());
 
-  for (JetCollection_p5::const_iterator itr = pers->begin();
-       itr != pers->end();
-       itr++) {
-    trans->push_back(createTransFromPStore((ITPConverterFor<Jet>**)0, *itr, msg));
+  for (const TPObjRef& ref : *pers) {
+    trans->push_back(createTransFromPStore((ITPConverterFor<Jet>**)0, ref, msg));
 
   }
 
@@ -100,10 +98,8 @@ JetCollectionCnv_p5::transToPers( const JetCollection* trans,
   pers->clear();
   pers->reserve(trans->size());
 
-  for (JetCollection::const_iterator itr = trans->begin();
-       itr != trans->end();
-       itr++) {
-    pers->push_back(toPersistent((ITPConverterFor<Jet>**)0, *itr, msg));
+  for (const Jet* jet : *trans) {
+    pers->push_back(toPersistent((ITPConverterFor<Jet>**)0, jet, msg));
   }
 
   // RS now deal with the JetKeyDescriptor

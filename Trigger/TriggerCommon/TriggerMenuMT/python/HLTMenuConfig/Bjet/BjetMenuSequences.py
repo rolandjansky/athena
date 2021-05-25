@@ -97,7 +97,7 @@ def bJetStep2Sequence():
     hypo.BTaggingLink = bTaggingContainerName.replace( "HLT_","" )
     hypo.PrmVtxLink = newRoITool.PrmVtxLink
 
-    from TrigBjetHypo.TrigBjetOnlineMonitoringMTConfig import TrigBjetOnlineMonitoring
+    from TrigBjetHypo.TrigBjetMonitoringConfig import TrigBjetOnlineMonitoring
     hypo.MonTool = TrigBjetOnlineMonitoring()
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict

@@ -153,11 +153,24 @@ void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1, SG::ReadHan
   for (const T *j1 : *jets1) {
     TLorentzVector tlvjet1 = GetTLV(j1);
     bool j1matched = false;
-    double ptDiff  = 0., energyDiff = 0., massDiff = 0., ptResp = 0., energyResp = 0., massResp = 0., ptRef = 0., etaRef = 0.;
+    double ptDiff  = -999., energyDiff = -999., massDiff = -999., ptResp = -999., energyResp = -999., massResp = -999., ptRef = -999., etaRef = -999.;
+    if (tlvjet1.Pt() < 10000.) { // minimum pT cut of 10 GeV for jet matching
+      matchedHandle(*j1)    = j1matched; // set default values for match decorations and move to next jet
+      ptDiffHandle(*j1)     = ptDiff;
+      energyDiffHandle(*j1) = energyDiff;
+      massDiffHandle(*j1)   = massDiff;
+      ptRespHandle(*j1)     = ptResp;
+      energyRespHandle(*j1) = energyResp;
+      massRespHandle(*j1)   = massResp;
+      ptRefHandle(*j1)      = ptRef;
+      etaRefHandle(*j1)     = etaRef;
+      continue;
+    }
     double Rmin = 1E8;
     int jetIndex = 0, jetMatchIndex = 0;
     // Loop over second jet collection
     for(const xAOD::Jet* j2 : *jets2){
+      if (j2->pt() < 10000.) { jetIndex++; continue; } // minimum pT cut of 10 GeV for jet matching
       bool alreadymatched = false;
       for (int jetIndexIterator : matchedIndices) { //Loop over indices of already matched jets to skip them
         if (jetIndex == jetIndexIterator) { alreadymatched = true; break; }
@@ -173,8 +186,10 @@ void JetMatcherAlg::jetMatching(SG::ReadHandle<DataVector<T>> jets1, SG::ReadHan
         energyDiff    = tlvjet1.E()-tlvjet2.E();
         massDiff      = tlvjet1.M()-tlvjet2.M();
         ptResp        = ptDiff/tlvjet2.Pt();
-        energyResp    = energyDiff/tlvjet2.E();
-        massResp      = massDiff/tlvjet2.M();
+        if (tlvjet2.E() == 0.) energyResp = -999.;
+        else energyResp = energyDiff/tlvjet2.E();
+        if (tlvjet2.M() == 0.) massResp = -999.;
+        else massResp = massDiff/tlvjet2.M();
         ptRef         = tlvjet2.Pt(); //second jet collection (=offline) is taken for reference pT and eta
         etaRef        = tlvjet2.Eta();
 	Rmin          = dr;

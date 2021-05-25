@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_IDATABASE_H
@@ -47,10 +47,10 @@ namespace pool {
     virtual OpenMode openMode() const = 0;
 
     /// Returns the file identifier of this database
-    virtual const std::string& fid() const = 0;
+    virtual const std::string& fid() = 0;
 
     /// Returns the physical file name of this database
-    virtual const std::string& pfn() const = 0;
+    virtual const std::string& pfn() = 0;
 
     /** Sets the technology identifier for this database.
      *  This can only be called for newly created databases

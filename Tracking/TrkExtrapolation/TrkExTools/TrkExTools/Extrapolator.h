@@ -27,6 +27,7 @@
 #include "TrkExUtils/ExtrapolationCache.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
@@ -397,6 +398,7 @@ private:
     // for active volumes
     std::unique_ptr<identifiedParameters_t> m_identifiedParameters;
 
+    const Trk::TrackingGeometry *m_trackingGeometry = nullptr;
     double m_path{};
 
     std::pair<unsigned int, unsigned int> m_denseResolved;
@@ -429,6 +431,18 @@ private:
       return ManagedTrackParmPtr(trackParmContainer(), parm);
     }
     ManagedTrackParmPtr manage() { return ManagedTrackParmPtr(trackParmContainer()); }
+
+    const Trk::TrackingGeometry *trackingGeometry( const Trk::INavigator &navigator, const EventContext &ctx) {
+       if (!m_trackingGeometry) {
+          m_trackingGeometry = navigator.trackingGeometry(ctx);
+       }
+       return m_trackingGeometry;
+    }
+
+    const Trk::TrackingVolume *volume(const EventContext&, const Amg::Vector3D& gp) const {
+       assert(m_trackingGeometry);
+       return m_trackingGeometry->lowestTrackingVolume(gp);
+    }
 
     Cache()
       : m_trackParmContainer(128)

@@ -132,7 +132,7 @@ TEST(ConditionFilterTester, twojets_onecondition) {
 		 [](const pHypoJet& hj){return hj->eta();});
   std::sort(etas.begin(), etas.end());
 
-  EXPECT_EQ(etas.size(), 2);
+  EXPECT_EQ(etas.size(), 2u);
   EXPECT_DOUBLE_EQ(etas[0], 0.5);
   EXPECT_DOUBLE_EQ(etas[1], 1.0);
 

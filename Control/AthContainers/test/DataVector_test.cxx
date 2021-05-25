@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -189,7 +189,7 @@ void test1 ()
 
   DataVector<DerivedFluff>::iterator iter = dfluff->begin();
   int n = 0;
-  for (; iter != dfluff->end(); iter++) {
+  for (; iter != dfluff->end(); ++iter) {
     (*iter)->foo();
     n++;
   }

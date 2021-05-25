@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_USERDATABASE_H
@@ -42,60 +42,62 @@ namespace pool {
 		    DatabaseSpecification::NameType nameType );
 
       /// Destructor
-      ~UserDatabase();
+      virtual ~UserDatabase();
 
       /// Returns the database handler
       DatabaseHandler& databaseHandler();
 
       /// Connects explicitly to the database for read operations
-      void connectForRead();
-      void connectForRead( const DatabaseConnectionPolicy& policy );
+      virtual void connectForRead() override;
+      virtual void connectForRead( const DatabaseConnectionPolicy& policy ) override;
 
       /// Connects explicitly to the database for write/update operations
-      void connectForWrite();
-      void connectForWrite( const DatabaseConnectionPolicy& policy );
+      virtual void connectForWrite() override;
+      virtual void connectForWrite( const DatabaseConnectionPolicy& policy ) override;
 
       /// Disconnects from the database
-      void disconnect();
+      virtual void disconnect() override;
 
       /// Returns the opening mode. It can be used to check whether the database is connected.
-      IDatabase::OpenMode openMode() const;
+      virtual IDatabase::OpenMode openMode() const override;
 
       /// Returns the file identifier of this database
-      const std::string& fid() const;
+      virtual const std::string& fid() override;
 
       /// Returns the physical file name of this database
-      const std::string& pfn() const;
+      virtual const std::string& pfn() override;
 
       /** Sets the technology identifier for this database.
        *  This can only be called for newly created databases
        *  before the connect method is called. Otherwise false is returned.
        */
-      bool setTechnology( long technology );
+      virtual bool setTechnology( long technology ) override;
 
       /// Returns the technology identifier for this database
-      long technology() const;
+      virtual long technology() const override;
 
       /// Returns the names of the containers in this database
-      std::vector< std::string > containers();
+      virtual std::vector< std::string > containers() override;
 
       /// Returns a pointer to a container object. The user acquires ownership of that object.
-      IContainer* containerHandle( const std::string& name );
+      virtual IContainer* containerHandle( const std::string& name ) override;
 
       /// Returns the object holding the technology specific attributes
-      const ITechnologySpecificAttributes& technologySpecificAttributes() const;
-      ITechnologySpecificAttributes& technologySpecificAttributes();
+      virtual const ITechnologySpecificAttributes& technologySpecificAttributes() const override;
+      virtual ITechnologySpecificAttributes& technologySpecificAttributes() override;
 
     protected:
+      virtual
       bool attributeOfType( const std::string& attributeName,
                             void* data,
                             const std::type_info& typeInfo,
-                            const std::string& option ) const;
+                            const std::string& option ) override;
 
+      virtual
       bool setAttributeOfType( const std::string& attributeName,
                                const void* data,
                                const std::type_info& typeInfo,
-                               const std::string& option );
+                               const std::string& option ) override;
     private:
       /// Reference to the technology dispatcher
       TechnologyDispatcher&                   m_technologyDispatcher;
@@ -108,28 +110,28 @@ namespace pool {
       /// Reference to the database registry
       DatabaseRegistry&                       m_registry;
       /// The database name
-      mutable std::string                     m_name;
+      std::string                             m_name;
       /// The database name spacification
-      mutable DatabaseSpecification::NameType m_nameType;
+      DatabaseSpecification::NameType         m_nameType;
       /// The technology identifier of the database
-      mutable long                            m_technology;
+      long                                    m_technology;
       /// Checks if the technology identifier has been set
-      mutable bool                            m_technologySet;
+      bool                                    m_technologySet;
       /// The underlying database handler
       DatabaseHandler*                        m_databaseHandler;
       /// Current open mode
       IDatabase::OpenMode                     m_openMode;
       /// Flag indicating whether a connection has been already made once
-      mutable bool                            m_alreadyConnected;
+      bool                                    m_alreadyConnected;
       /// Other names used.
-      mutable std::string                     m_the_fid;
-      mutable std::string                     m_the_pfn;
+      std::string                             m_the_fid;
+      std::string                             m_the_pfn;
 
       /// Checks in the registry if the database handler already exists
       bool checkInRegistry();
 
       /// Converts a technology string to the technology (long) identifier
-      void setTechnologyIdentifier( const std::string& sTechnology ) const;
+      void setTechnologyIdentifier( const std::string& sTechnology );
     };
   }
 }

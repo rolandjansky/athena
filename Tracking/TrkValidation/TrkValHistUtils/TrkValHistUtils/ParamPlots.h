@@ -19,8 +19,8 @@ class ParamPlots:public PlotBase {
     TH1* phi;
     TH1* pt;
 
-    TH1* eta_phi;
-    TH1* eta_pt;
+    TH2* eta_phi;
+    TH2* eta_pt;
 
   private:
     void initializePlots();

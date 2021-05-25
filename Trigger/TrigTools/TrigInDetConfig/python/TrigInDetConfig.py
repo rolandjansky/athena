@@ -598,9 +598,6 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                                                          ReadKey  = "PixelDetectorElementCollection",
                                                                          WriteKey = "PixelDetElementBoundaryLinks_xk") )
 
-  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  config = getInDetTrigConfig(signatureName)
-
   ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder_" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature ),
@@ -613,7 +610,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                          doZFinder                = False,
                                          SeedRadBinWidth          =  flags.InDet.Tracking.SeedRadBinWidth,
                                          TrackInitialD0Max        = 1000. if flags.InDet.Tracking.extension == 'cosmics' else 20.0,
-                                         TracksName               = config.trkTracks_FTF(),
+                                         TracksName               = flags.InDet.Tracking.trkTracks_FTF,
                                          TripletDoPSS             = False,
                                          Triplet_D0Max            = flags.InDet.Tracking.Triplet_D0Max,
                                          Triplet_D0_PPS_Max       = flags.InDet.Tracking.Triplet_D0_PPS_Max,
@@ -648,9 +645,6 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def trackConverterCfg(flags, signature, signatureName):
   acc = ComponentAccumulator()
 
-  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-  config = getInDetTrigConfig(signatureName)
-
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
   track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
@@ -661,8 +655,8 @@ def trackConverterCfg(flags, signature, signatureName):
                                                           ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'])
   acc.addPublicTool(creatorTool)
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                          TrackName           = config.trkTracks_FTF(),
-                                                          TrackParticlesName  = config.tracks_FTF(),
+                                                          TrackName           = flags.InDet.Tracking.trkTracks_FTF,
+                                                          TrackParticlesName  = flags.InDet.Tracking.tracks_FTF,
                                                           ParticleCreatorTool = creatorTool)
 
   acc.addEventAlgo(trackParticleCnv)
@@ -672,12 +666,8 @@ def trackConverterCfg(flags, signature, signatureName):
 def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
-  if 'Muon' in signatureName:
-    signatureFlags='Muon'
-  else:
-    signatureFlags = signatureName
 
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureFlags)
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
 
   #If signature specified add suffix to the name of each algorithms
   signature =  ("_" + signatureName if signatureName else '').lower()

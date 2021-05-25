@@ -19,7 +19,7 @@
 class PhotonValidationPlots:public PlotBase {
     public:
       PhotonValidationPlots(PlotBase* pParent, const std::string& sDir);
-  void fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt);
+  void fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
       
       std::string m_sParticleType;
       
