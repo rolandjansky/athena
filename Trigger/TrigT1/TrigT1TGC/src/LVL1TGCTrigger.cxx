@@ -38,7 +38,6 @@
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
-#include "MuonRDO/TgcRdoContainer.h"
 
 
 #include "MuonRDO/NSW_TrigRawData.h"
@@ -119,6 +118,7 @@ namespace LVL1TGCTrigger {
     ATH_CHECK(getCabling());
 
     // read and write handle key
+    ATH_CHECK(m_keyTgcRdo.initialize());
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
     ATH_CHECK(m_keyNSWTrigOut.initialize(tgcArgs()->USE_NSW())); // to be updated once the Run 3 CondDb becomes available (should be automatically configured by db info)
@@ -180,10 +180,9 @@ namespace LVL1TGCTrigger {
     
     // TgcRdo
     m_tgcrdo.clear();
-    const TgcRdoContainer * rdoCont;
-    StatusCode sc = evtStore()->retrieve( rdoCont, "TGCRDO" );
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve TgcRdoContainer with key=TGCRDO");
+    SG::ReadHandle<TgcRdoContainer> rdoCont(m_keyTgcRdo);
+    if (!rdoCont.isValid()) {
+      ATH_MSG_WARNING("Cannot retrieve TgcRdoContainer with key=" << m_keyTgcRdo.key());
       return StatusCode::SUCCESS;
     }
     if (rdoCont->size()>0) {
@@ -216,6 +215,7 @@ namespace LVL1TGCTrigger {
     }
     
     // process one by one
+    StatusCode sc = StatusCode::SUCCESS;
     for (int bc=TgcDigit::BC_PREVIOUS; bc<=TgcDigit::BC_NEXT; bc++){
       sc = StatusCode::SUCCESS;
       
