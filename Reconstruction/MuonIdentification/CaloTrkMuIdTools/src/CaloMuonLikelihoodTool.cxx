@@ -239,18 +239,16 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
                 etilee0 + etilee1 + etilee2 + ehec0 + ehec1 + ehec2 + ehec3 + efcal0 + efcal1 + efcal2;
     }
 
-    if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE) << "Values extracted from the CaloTopoClusters for a cone of: " << dR_CUT << "\n"
-                          << " - Energy in Calorimeter Total: " << etot << "  EM: " << etot_em << "  HAD: " << etot_hd
-                          << "\n      eemb0: " << s[0] << "\n      eemb1: " << s[1] << "\n      eemb2: " << s[2]
-                          << "\n      eemb3: " << s[3] << "\n      eeme0: " << s[4] << "\n      eeme1: " << s[5]
-                          << "\n      eeme2: " << s[6] << "\n      eeme3: " << s[7] << "\n    etileg1: " << s[8]
-                          << "\n    etileg2: " << s[9] << "\n    etileg3: " << s[10] << "\n    etileb0: " << s[11]
-                          << "\n    etileb1: " << s[12] << "\n    etileb2: " << s[13] << "\n    etilee0: " << s[14]
-                          << "\n    etilee1: " << s[15] << "\n    etilee2: " << s[16] << "\n      ehec0: " << s[17]
-                          << "\n      ehec1: " << s[18] << "\n      ehec2: " << s[19] << "\n      ehec3: " << s[20]
-                          << "\n     efcal0: " << s[21] << "\n     efcal1: " << s[22] << "\n     efcal2: " << s[23] << endmsg;
-    }
+    ATH_MSG_VERBOSE("Values extracted from the CaloTopoClusters for a cone of: "
+                    << dR_CUT << "\n"
+                    << " - Energy in Calorimeter Total: " << etot << "  EM: " << etot_em << "  HAD: " << etot_hd
+                    << "\n      eemb0: " << s[0] << "\n      eemb1: " << s[1] << "\n      eemb2: " << s[2] << "\n      eemb3: " << s[3]
+                    << "\n      eeme0: " << s[4] << "\n      eeme1: " << s[5] << "\n      eeme2: " << s[6] << "\n      eeme3: " << s[7]
+                    << "\n    etileg1: " << s[8] << "\n    etileg2: " << s[9] << "\n    etileg3: " << s[10] << "\n    etileb0: " << s[11]
+                    << "\n    etileb1: " << s[12] << "\n    etileb2: " << s[13] << "\n    etilee0: " << s[14] << "\n    etilee1: " << s[15]
+                    << "\n    etilee2: " << s[16] << "\n      ehec0: " << s[17] << "\n      ehec1: " << s[18] << "\n      ehec2: " << s[19]
+                    << "\n      ehec3: " << s[20] << "\n     efcal0: " << s[21] << "\n     efcal1: " << s[22]
+                    << "\n     efcal2: " << s[23]);
 
     for (int i = 0; i < 24; ++i) s[i] /= Gaudi::Units::GeV;
     etot_em /= Gaudi::Units::GeV;
@@ -315,9 +313,8 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
     vars["ehec0_wrtTotal"] = ehec0_wrtTotal;
 
     ATH_MSG_DEBUG("likelihood discriminant variables values: " << dR_CUT);
-    std::map<std::string, double>::const_iterator iter;
     if (msgLevel(MSG::DEBUG)) {
-        for (iter = vars.begin(); iter != vars.end(); iter++) ATH_MSG_DEBUG("  - " << iter->first << ": " << iter->second);
+        for (const std::pair<std::string, double> iter : vars) ATH_MSG_DEBUG("  - " << iter.first << ": " << iter.second);
     }
     double LR = 0;
     double ProbS(1), ProbB(1);
@@ -353,59 +350,59 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
         ProbB = 1;
     } else {
         for (int i = 0; i < m_numKeys[iFile]; i++) {
-            std::map<std::string, double>::iterator it = vars.find(m_TH1F_key[iFile][i]);
+            std::map<std::string, double>::const_iterator it = vars.find(m_TH1F_key[iFile][i]);
 
             ATH_MSG_VERBOSE("getLHR "
                             << ": m_TH1F_key[" << iFile << "][" << i << "(/" << m_numKeys[iFile] << ")] = " << m_TH1F_key[iFile][i] << ", "
                             << ((it != vars.end()) ? "found" : "not found"));
 
-            if (it != vars.end()) {
-                int bin_sig = m_TH1F_sig[iFile][i]->GetXaxis()->FindFixBin(it->second);
-
-                ATH_MSG_VERBOSE("getLHR sig "
-                                << ": it->first = " << it->first << ", it->second = " << it->second << ", bin_sig = " << bin_sig
-                                << ", NbinsX = " << m_TH1F_sig[iFile][i]->GetNbinsX());
-
-                if (bin_sig >= 1 && bin_sig <= m_TH1F_sig[iFile][i]->GetNbinsX()) {
-                    double SbinContent = m_TH1F_sig[iFile][i]->GetBinContent(bin_sig);
-                    ATH_MSG_DEBUG("m_TH1F_sig Bin Content for " << it->first << ": " << SbinContent);
-                    if (SbinContent)
-                        ProbS *= SbinContent;
-                    else {
-                        ProbS *= 0.0000001;
-                        ATH_MSG_DEBUG("BinContent in m_TH1F_sig was 0!" << ProbS);
-                    }
-                } else {
-                    ATH_MSG_DEBUG("Sbin:" << bin_sig << " and NBinMax: " << m_TH1F_sig[iFile][i]->GetNbinsX());
-                    ProbS *= 1;
-                }
-                ATH_MSG_DEBUG("Temp ProbS : " << ProbS);
-                int bin_bkg = m_TH1F_bkg[iFile][i]->GetXaxis()->FindFixBin(it->second);
-
-                ATH_MSG_VERBOSE("getLHR bkg "
-                                << ": it->first = " << it->first << ", it->second = " << it->second << ", bin_bkg = " << bin_bkg
-                                << ", NbinsX = " << m_TH1F_bkg[iFile][i]->GetNbinsX());
-
-                if (bin_bkg >= 1 && bin_bkg <= m_TH1F_bkg[iFile][i]->GetNbinsX()) {
-                    double BbinContent = m_TH1F_bkg[iFile][i]->GetBinContent(bin_bkg);
-                    ATH_MSG_VERBOSE("m_TH1F_bkg Bin Content for " << it->first << ": " << BbinContent);
-                    if (BbinContent)
-                        ProbB *= BbinContent;
-                    else {
-                        ProbB *= 0.0000001;
-                        ATH_MSG_DEBUG("BinContent in m_TH1F_bkg was 0! " << ProbB);
-                    }
-                } else {
-                    ATH_MSG_DEBUG("Bbin:" << bin_bkg << " and NBinMax: " << m_TH1F_bkg[iFile][i]->GetNbinsX());
-                    ProbB *= 1;
-                }
-                ATH_MSG_DEBUG("      Temp ProbB: " << ProbB);
-            } else {
+            if (it == vars.end()) {
                 if (m_cnt_warn < 10) {
                     ATH_MSG_WARNING("Histogram variable <" << m_TH1F_key[iFile][i] << "> is not found in the calculated variable list");
-                    m_cnt_warn++;
+                    ++m_cnt_warn;
                 }
+                continue;
             }
+            int bin_sig = m_TH1F_sig[iFile][i]->GetXaxis()->FindFixBin(it->second);
+
+            ATH_MSG_VERBOSE("getLHR sig "
+                            << ": it->first = " << it->first << ", it->second = " << it->second << ", bin_sig = " << bin_sig
+                            << ", NbinsX = " << m_TH1F_sig[iFile][i]->GetNbinsX());
+
+            if (bin_sig >= 1 && bin_sig <= m_TH1F_sig[iFile][i]->GetNbinsX()) {
+                double SbinContent = m_TH1F_sig[iFile][i]->GetBinContent(bin_sig);
+                ATH_MSG_DEBUG("m_TH1F_sig Bin Content for " << it->first << ": " << SbinContent);
+                if (SbinContent)
+                    ProbS *= SbinContent;
+                else {
+                    ProbS *= 0.0000001;
+                    ATH_MSG_DEBUG("BinContent in m_TH1F_sig was 0!" << ProbS);
+                }
+            } else {
+                ATH_MSG_DEBUG("Sbin:" << bin_sig << " and NBinMax: " << m_TH1F_sig[iFile][i]->GetNbinsX());
+                ProbS *= 1;
+            }
+            ATH_MSG_DEBUG("Temp ProbS : " << ProbS);
+            int bin_bkg = m_TH1F_bkg[iFile][i]->GetXaxis()->FindFixBin(it->second);
+
+            ATH_MSG_VERBOSE("getLHR bkg "
+                            << ": it->first = " << it->first << ", it->second = " << it->second << ", bin_bkg = " << bin_bkg
+                            << ", NbinsX = " << m_TH1F_bkg[iFile][i]->GetNbinsX());
+
+            if (bin_bkg >= 1 && bin_bkg <= m_TH1F_bkg[iFile][i]->GetNbinsX()) {
+                double BbinContent = m_TH1F_bkg[iFile][i]->GetBinContent(bin_bkg);
+                ATH_MSG_VERBOSE("m_TH1F_bkg Bin Content for " << it->first << ": " << BbinContent);
+                if (BbinContent)
+                    ProbB *= BbinContent;
+                else {
+                    ProbB *= 0.0000001;
+                    ATH_MSG_DEBUG("BinContent in m_TH1F_bkg was 0! " << ProbB);
+                }
+            } else {
+                ATH_MSG_DEBUG("Bbin:" << bin_bkg << " and NBinMax: " << m_TH1F_bkg[iFile][i]->GetNbinsX());
+                ProbB *= 1;
+            }
+            ATH_MSG_DEBUG("      Temp ProbB: " << ProbB);
         }
     }
 

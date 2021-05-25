@@ -52,9 +52,9 @@ public:
     int caloMuonTag(const std::vector<DepositInCalo>& deposits, double eta, double pt) const override;  //!< Returns the Tag
 
 private:
-    double interpolate(const std::string cutName&, double pt) const;
+    double interpolate(const std::string& cutName, double pt) const;
     int getPtBinLow(double pt) const;
-    int getCutBin(const std::string cutName&) const;
+    int getCutBin(const std::string& cutName) const;
 
     std::unique_ptr<TH2> m_hist{nullptr};
     std::string m_tagMode;
