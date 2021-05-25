@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -828,7 +828,6 @@ namespace Trk
 
 
    //assigning the input tracks to the fitted vertex through VxTrackAtVertices
-   if(fittedVertex !=nullptr)
    {
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check
      {
@@ -874,7 +873,7 @@ namespace Trk
 
        }//end of protection against unsuccessfull updates (no tracks were added)
      }//end of vector of tracks check
-   }//end of pointer check
+   }
 
 
    //now set links to xAOD::TrackParticles directly in the xAOD::Vertex
