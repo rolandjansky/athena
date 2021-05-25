@@ -12,7 +12,7 @@ from TrigHLTJetHypo.scenario_simple import scenario_simple
 
 from TrigHLTJetHypo.prefilter_mask import prefilter_mask
 from TrigHLTJetHypo.prefilter_ptrange import prefilter_ptrange
-from TrigHLTJetHypo.prefilter_cleanLB import prefilter_cleanLB
+from TrigHLTJetHypo.prefilter_clean import prefilter_clean
 
 from TrigHLTJetHypo.makeConditionFilterConfigurer import (
     makeConditionFilterConfigurer,
@@ -258,18 +258,7 @@ def make_prefilter_configurers(chain_dict):
 
     [pf_strings.extend(cp['prefilters']) for cp in chain_parts]
     
-    # TEMPORARY - 'CLEANLB' as a prefilter string also affects reconstruction,
-    # and already appears in chain names for this purpose.
-    # Until the CLEANLB hypo prefilter code is implemented, remove the string
-    # from the prefilter strings.
-    try:
-        pf_strings.remove('CLEANLB')
-    except ValueError:
-        pass
-    
-
- 
-    # if not prefilter strings (pf_strings) are found in the chainDict,
+    # if not pre filter strings (pf_strings) are found in the chainDict,
     # a PassThroughFilter configurer is made.
 
     if not pf_strings:
@@ -279,7 +268,7 @@ def make_prefilter_configurers(chain_dict):
     prefilter_router = {
         'MASK': prefilter_mask,
         'PTRANGE': prefilter_ptrange,
-        'CLEANLB': prefilter_cleanLB,
+        'CLEAN': prefilter_clean,
     }
 
     pattern = r'(?P<stub>[A-Z]*)'

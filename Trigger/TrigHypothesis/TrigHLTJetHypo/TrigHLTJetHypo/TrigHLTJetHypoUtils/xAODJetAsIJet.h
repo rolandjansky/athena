@@ -30,6 +30,7 @@ namespace HypoJet{
 
     virtual std::optional<const xAOD::Jet*> xAODJet() const override;
     bool getAttribute(const std::string&, float&) const override;
+    bool getAttribute(const std::string&, bool&) const override;
 
   private:
     const xAOD::Jet* m_jet;
