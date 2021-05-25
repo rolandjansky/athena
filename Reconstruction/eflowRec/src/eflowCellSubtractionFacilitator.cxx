@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena Headers
@@ -59,7 +59,7 @@ eflowCellSubtractionFacilitator::updateClusterKinematics(
 
 double
 eflowCellSubtractionFacilitator::getTotalEnergy(
-  std::vector<std::pair<xAOD::CaloCluster*, bool>> tracksClusters)
+  const std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters)
 {
   double eClustersOld = 0;
   /* Summed energy of all clusters before subtraction */
@@ -70,7 +70,7 @@ eflowCellSubtractionFacilitator::getTotalEnergy(
 
 double
 eflowCellSubtractionFacilitator::getRingsEnergy(
-  const std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
+  std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
   CellIt beginRing,
   CellIt endRing)
 {
@@ -82,7 +82,7 @@ eflowCellSubtractionFacilitator::getRingsEnergy(
     for (auto thisCell : it->second) {
       /* Loop over Cells */
       std::pair<const CaloCell*, int> thisPair = thisCell;
-      const xAOD::CaloCluster* clus = tracksClusters[thisPair.second].first;
+      xAOD::CaloCluster* clus = tracksClusters[thisPair.second].first;
       CaloClusterCellLink::iterator theIterator =
         this->getCellIterator(clus, thisPair.first);
       double cellWeight = theIterator.weight();
@@ -99,11 +99,9 @@ eflowCellSubtractionFacilitator::annihilateClusters(
 {
   for (auto& thisPair : tracksClusters) {
     xAOD::CaloCluster* thisCluster = thisPair.first;
-    const CaloClusterCellLink* theCellLink = thisCluster->getCellLinks();
-    CaloClusterCellLink* theCellLink_nonConst =
-      const_cast<CaloClusterCellLink*>(theCellLink);
-    CaloClusterCellLink::iterator theFirstCell = theCellLink_nonConst->begin();
-    CaloClusterCellLink::iterator theLastCell = theCellLink_nonConst->end();
+    CaloClusterCellLink* theCellLink = thisCluster->getOwnCellLinks();
+    CaloClusterCellLink::iterator theFirstCell = theCellLink->begin();
+    CaloClusterCellLink::iterator theLastCell = theCellLink->end();
     for (; theFirstCell != theLastCell; ++theFirstCell)
       thisCluster->removeCell(*theFirstCell);
     thisCluster->setCalE(0.0);
@@ -372,7 +370,7 @@ eflowCellSubtractionFacilitator::subtractCells(
 
 CaloClusterCellLink::iterator
 eflowCellSubtractionFacilitator::getCellIterator(
-  const xAOD::CaloCluster* thisCluster,
+  xAOD::CaloCluster* thisCluster,
   const CaloCell* thisCell)
 {
 
@@ -380,8 +378,7 @@ eflowCellSubtractionFacilitator::getCellIterator(
 
   // We have to use non-const iterators so that we are allowed to modify the
   // cell weights
-  CaloClusterCellLink* theCells =
-    const_cast<CaloClusterCellLink*>(thisCluster->getCellLinks());
+  CaloClusterCellLink* theCells = thisCluster->getOwnCellLinks();
 
   CaloClusterCellLink::iterator itCell = theCells->begin();
   CaloClusterCellLink::iterator endCell = theCells->end();

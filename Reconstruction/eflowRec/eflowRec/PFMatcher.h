@@ -21,7 +21,7 @@ class DistanceProvider;
 
 namespace PFMatch {
 
-  typedef std::pair<const ICluster*,double> MatchDistance;
+  typedef std::pair<ICluster*,double> MatchDistance;
 
 /**
 Checks if a cluster should be matched to a track or not, and has methods to return list of best matches.
@@ -36,9 +36,14 @@ public:
   MatchDistance match(ITrack* track, ICluster* cluster) const;
 
   template<class ClusterType>
-  MatchDistance bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters) const;
+  MatchDistance bestMatchDRparametrized(
+    ITrack* track,
+    const std::vector<ClusterType*>& clusters) const;
   template<class ClusterType>
-  std::vector<MatchDistance> bestMatches(ITrack* track, std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold) const;
+  std::vector<MatchDistance> bestMatches(ITrack* track,
+                                         std::vector<ClusterType*>& clusters,
+                                         int nMatches,
+                                         double energyThreshold) const;
   template<class ClusterType>
   double getDRCutSquared(ClusterType* theCluster) const;
 

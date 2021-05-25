@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -50,10 +50,10 @@ namespace eflowRec {
     // Extract index ranges to iterate over
     std::vector< std::pair<int,int> > iPhiRanges;
     if( iPhiMin < iPhiMax ) {
-      iPhiRanges.push_back( std::make_pair(iPhiMin,iPhiMax) );
+      iPhiRanges.emplace_back(iPhiMin,iPhiMax );
     } else { // special treatment for phi-wrapping
-      iPhiRanges.push_back( std::make_pair(0,iPhiMax) );
-      iPhiRanges.push_back( std::make_pair(iPhiMin,m_nphiBins-1) );
+      iPhiRanges.emplace_back(0,iPhiMax );
+      iPhiRanges.emplace_back(iPhiMin,m_nphiBins-1 );
     }
 
     float dr2Cut = dr*dr;

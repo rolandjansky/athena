@@ -29,7 +29,7 @@ StatusCode PFChargedFlowElementCreatorAlgorithm::execute(const EventContext& ctx
   
   /* Create Charged FlowElements from all eflowCaloObjects */
   SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
-  for (const auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
+  for (const auto *const thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
 
   std::sort(chargedFlowElementContainerWriteHandle->begin(), chargedFlowElementContainerWriteHandle->end(), [] (const xAOD::FlowElement* flowElement1, const xAOD::FlowElement* flowElement2) {return flowElement1->pt()>flowElement2->pt();});
 
@@ -128,8 +128,8 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
             ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
               ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.push_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
-            else vectorClusterToSubtractedEnergies.push_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
           }
           else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }

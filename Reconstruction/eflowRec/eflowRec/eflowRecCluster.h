@@ -155,7 +155,8 @@ public:
   }
   virtual ~eflowMatchCluster() {}
 
-  eflowRecCluster* getEfRecCluster() const { return m_efRecCluster; }
+  eflowRecCluster* getEfRecCluster() { return m_efRecCluster; }
+  const eflowRecCluster* getEfRecCluster() const { return m_efRecCluster; }
 
   virtual double e() const { return m_clusterEne; }
   virtual double eta() const { return m_clusterEta; }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWCELLSUBTRACTIONFACILITATOR_H
@@ -54,17 +54,18 @@ public:
 private:
   bool m_annFlag;
   CaloClusterCellLink::iterator getCellIterator(
-    const xAOD::CaloCluster* thisCluster,
+    xAOD::CaloCluster* thisCluster,
     const CaloCell* thisCell);
+ 
   void updateClusterKinematics(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
   void updateClusterKinematics(xAOD::CaloCluster*);
 
   double getTotalEnergy(
-    std::vector<std::pair<xAOD::CaloCluster*, bool>> tracksClusters);
+    const std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
 
   double getRingsEnergy(
-    const std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
+    std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
     CellIt beginRing,
     CellIt endRing);
 
