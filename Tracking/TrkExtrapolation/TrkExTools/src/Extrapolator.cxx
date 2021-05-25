@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -1577,7 +1577,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             solutions[iSol] - iDest - cache.m_staticBoundaries.size() - cache.m_layers.size();
           std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>>::iterator dIter =
             cache.m_denseVols.begin();
-          while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
+          while (dIter != cache.m_denseVols.end() && index >= (*dIter).second) {
             index -= (*dIter).second;
             ++dIter;
           }
@@ -1619,7 +1619,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                cache.m_layers.size() - cache.m_denseBoundaries.size();
           std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>>::iterator nIter =
             cache.m_navigVolsInt.begin();
-          while (index >= (*nIter).second && nIter != cache.m_navigVolsInt.end()) {
+          while (nIter != cache.m_navigVolsInt.end() && index >= (*nIter).second) {
             index -= (*nIter).second;
             ++nIter;
           }
@@ -1667,7 +1667,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                cache.m_navigBoundaries.size();
           std::vector<std::pair<const Trk::DetachedTrackingVolume*, unsigned int>>::iterator dIter =
             cache.m_detachedVols.begin();
-          while (index >= (*dIter).second && dIter != cache.m_detachedVols.end()) {
+          while (dIter != cache.m_detachedVols.end() && index >= (*dIter).second) {
             index -= (*dIter).second;
             ++dIter;
           }
@@ -5665,7 +5665,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
           solutions[iSol] - iDest - cache.m_staticBoundaries.size() - cache.m_layers.size();
         std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>>::iterator dIter =
           cache.m_denseVols.begin();
-        while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
+        while (dIter != cache.m_denseVols.end() && index >= (*dIter).second) {
           index -= (*dIter).second;
           ++dIter;
         }
@@ -5748,7 +5748,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                              cache.m_navigBoundaries.size();
         std::vector<std::pair<const Trk::DetachedTrackingVolume*, unsigned int>>::iterator dIter =
           cache.m_detachedVols.begin();
-        while (index >= (*dIter).second && dIter != cache.m_detachedVols.end()) {
+        while (dIter != cache.m_detachedVols.end() && index >= (*dIter).second) {
           index -= (*dIter).second;
           ++dIter;
         }
