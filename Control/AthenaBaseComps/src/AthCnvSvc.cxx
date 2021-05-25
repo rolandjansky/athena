@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthCnvSvc.cxx 
@@ -571,7 +571,7 @@ AthCnvSvc::makeCall (int typ,
         cnv  = converter(obj_class);
       }
       
-      StatusCode status(StatusCode::FAILURE,true);
+      StatusCode status(StatusCode::FAILURE);
       if ( 0 != cnv )   {
         switch(typ)   {
         case CREATE_OBJ:

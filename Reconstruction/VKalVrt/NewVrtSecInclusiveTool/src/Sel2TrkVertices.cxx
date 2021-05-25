@@ -39,7 +39,7 @@ namespace Rec{
       std::vector<double> inpMass(2,m_massPi);
       long int      Charge;
       int i,j;
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       Vrt2Tr tmpVrt;
       std::vector<Vrt2Tr> all2TrVrt(0);
       TLorentzVector PSum2T; 

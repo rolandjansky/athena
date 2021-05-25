@@ -707,7 +707,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
   int createdEvts =0;
   info() << "Starting loop on events" << endmsg;
 
-  StatusCode sc(StatusCode::SUCCESS,true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   // Calculate runtime
   auto start_time = tbb::tick_count::now();
