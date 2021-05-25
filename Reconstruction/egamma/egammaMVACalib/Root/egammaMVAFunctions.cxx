@@ -81,7 +81,7 @@ namespace egammaMVAFunctions
 
     funcLibrary["ph_convR"] = funcLibrary["convR"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)->float
       {
-        auto ph = static_cast<const xAOD::Photon*>(eg);
+        const auto *ph = static_cast<const xAOD::Photon*>(eg);
         if (compute_ptconv(ph) > 3*GeV) {
           return xAOD::EgammaHelpers::conversionRadius(ph);
         }
@@ -99,7 +99,7 @@ namespace egammaMVAFunctions
 
     funcLibrary["ph_convPtRatio"] = funcLibrary["convPtRatio"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)->float
       {
-        auto ph = static_cast<const xAOD::Photon*>(eg);
+        const auto *ph = static_cast<const xAOD::Photon*>(eg);
         if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
           auto pt1 = compute_pt1conv(ph);
           auto pt2 = compute_pt2conv(ph);
@@ -111,7 +111,7 @@ namespace egammaMVAFunctions
     if (useLayerCorrected) {
       funcLibrary["ph_convEtOverPt"] = funcLibrary["convEtOverPt"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*cl)->float
         {
-          auto ph = static_cast<const xAOD::Photon*>(eg);
+          const auto *ph = static_cast<const xAOD::Photon*>(eg);
 
           float rv = 0.0;
           if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
@@ -122,7 +122,7 @@ namespace egammaMVAFunctions
     } else {
       funcLibrary["ph_convEtOverPt"] = funcLibrary["convEtOverPt"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*cl)->float
         {
-          auto ph = static_cast<const xAOD::Photon*>(eg);
+          const auto *ph = static_cast<const xAOD::Photon*>(eg);
 
           float rv = 0.0;
           if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
