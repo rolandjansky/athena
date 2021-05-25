@@ -105,6 +105,24 @@ namespace InDet{
                   float splitProb2 = 0.
                 );
 
+    PixelCluster( 
+                  const Identifier& RDOId,
+                  const Amg::Vector2D& locpos, 
+		  const Amg::Vector3D& globpos,
+                  const std::vector<Identifier>& rdoList,
+                  const int lvl1a,
+                  const std::vector<int>& totList,
+                  const std::vector<float>& chargeList,
+                  const InDet::SiWidth& width,
+                  const InDetDD::SiDetectorElement* detEl,
+                  const Amg::MatrixX* locErrMat,
+                  const float omegax = -1.,
+                  const float omegay = -1.,
+                  bool split = false,
+                  float splitProb1 = 0.,
+                  float splitProb2 = 0.
+                );
+
     // Constructor for use from tp converter.
     PixelCluster( 
                   const Identifier& RDOId,
