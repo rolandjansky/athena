@@ -67,13 +67,9 @@ namespace Muon {
 
         virtual ~IMuonRefitTool() = default;
         /** refit a track */
-        virtual std::unique_ptr<Trk::Track> refit(const Trk::Track* track, const Settings* settings = nullptr) const = 0;
-        virtual std::unique_ptr<Trk::Track> refit(const Trk::Track* track, const EventContext& ctx,
+        virtual std::unique_ptr<Trk::Track> refit(const Trk::Track& track, const EventContext& ctx,
                                                   const Settings* settings = nullptr) const = 0;
-
         /** refit and back extrapolate a vector of track pairs */
-        virtual std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks,
-                                                                const Settings* settings = nullptr) const = 0;
         virtual std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks, const EventContext& ctx,
                                                                 const Settings* settings = nullptr) const = 0;
     };

@@ -51,10 +51,6 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track,
-                                                        const std::set<Identifier>& chamberRemovalExclusionList) const {
-        return clean(track, chamberRemovalExclusionList, Gaudi::Hive::currentContext());
-    }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
                                                         const EventContext& ctx) const {
         CleaningState state;
@@ -65,22 +61,11 @@ namespace Muon {
         }
 
         std::unique_ptr<Trk::Track> cleanedTrack = cleanTrack(ctx, &track, state);
-
-        for_each(state.parsToBeDeleted.begin(), state.parsToBeDeleted.end(), MuonDeleteObject<const Trk::TrackParameters>());
-        state.parsToBeDeleted.clear();
-
         return cleanedTrack;
-    }
-    std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track) const {
-        return clean(track, Gaudi::Hive::currentContext());
     }
     std::unique_ptr<Trk::Track> MuonTrackCleaner::clean(const Trk::Track& track, const EventContext& ctx) const {
         CleaningState state;
         std::unique_ptr<Trk::Track> cleanedTrack = cleanTrack(ctx, &track, state);
-
-        for_each(state.parsToBeDeleted.begin(), state.parsToBeDeleted.end(), MuonDeleteObject<const Trk::TrackParameters>());
-        state.parsToBeDeleted.clear();
-
         return cleanedTrack;
     }
 
@@ -1151,7 +1136,7 @@ namespace Muon {
                         info.cleanedCompROT.reset();
                     } else {
                         info.pars = exPars;
-                        state.parsToBeDeleted.push_back(exPars);
+                        state.parsToBeDeleted.emplace_back(exPars);
                     }
                 }
             }

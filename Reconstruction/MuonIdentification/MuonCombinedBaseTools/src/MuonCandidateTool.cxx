@@ -84,9 +84,9 @@ namespace MuonCombined {
                                                 << m_printer->printStations(msTrack));
             std::unique_ptr<Trk::Track> standaloneTrack;
             if (m_extrapolationStrategy == 0u) {
-                standaloneTrack.reset(m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ));
+                standaloneTrack = m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ);
             } else {
-                standaloneTrack.reset(m_trackExtrapolationTool->extrapolate(msTrack, ctx));
+                standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack, ctx);
             }
             if (standaloneTrack) {
                 // Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track

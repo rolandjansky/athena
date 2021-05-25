@@ -53,8 +53,7 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at first MS hit */
-        virtual
-        int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
+        virtual int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at first MS hit */
@@ -62,8 +61,7 @@ namespace Rec {
 
         /** IMuonMatchQuality interface:
             check the track perigee parameters are expressed at the same surface */
-        virtual
-        bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const override;
+        virtual bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             as inner match chiSquared but simplified to just use diagonal errors */

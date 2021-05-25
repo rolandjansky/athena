@@ -2,5 +2,4 @@
 
 using namespace Muon;
 
-DECLARE_COMPONENT( MuonClusterSegmentFinder )
-
+DECLARE_COMPONENT(MuonClusterSegmentFinder)

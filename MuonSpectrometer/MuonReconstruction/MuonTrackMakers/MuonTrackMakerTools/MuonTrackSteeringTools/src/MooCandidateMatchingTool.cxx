@@ -860,8 +860,8 @@ namespace Muon {
                     // Check sector-
 
                     if (straightLineMatch && !entry1.hasMomentum()) {
-                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
-                                                                           false, Trk::muon));
+                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(),
+                                                                              Trk::anyDirection, false, Trk::muon));
                     } else {
                         ATH_MSG_VERBOSE(" Extrapolating to other segment " << m_printer->print(*tmpPars) << std::endl
                                                                            << Amg::toString(*tmpPars->covariance(), 10));
@@ -893,8 +893,8 @@ namespace Muon {
                 // no closest measured parameters, take closest parameters
 
                 if (straightLineMatch && !entry1.hasMomentum()) {
-                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
-                                                                       false, Trk::muon));
+                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(),
+                                                                          Trk::anyDirection, false, Trk::muon));
                 } else {
                     exPars.reset(m_atlasExtrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                   false, Trk::muon));

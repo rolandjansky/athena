@@ -72,8 +72,8 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-    Trk::Track* MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
-                                                   const EventContext& ctx) const {
+    std::unique_ptr<Trk::Track> MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                                   const EventContext& ctx) const {
         // skip low pt ID tracks
         if (!indetTrack.perigeeParameters() || indetTrack.perigeeParameters()->momentum().mag() < m_minP ||
             indetTrack.perigeeParameters()->momentum().perp() < m_minPt) {
@@ -276,7 +276,7 @@ namespace Rec {
         }
 
         // fit the combined track
-        Trk::Track* combinedTrack = nullptr;
+        std::unique_ptr<Trk::Track> combinedTrack;
         if (!m_trackBuilder.empty()) {
             combinedTrack = m_trackBuilder->indetExtension(indetTrack, spectrometerMeasurements, ctx, innerParameters, middleParameters,
                                                            outerParameters);
