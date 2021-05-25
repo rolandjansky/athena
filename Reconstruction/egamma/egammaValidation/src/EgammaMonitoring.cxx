@@ -61,7 +61,6 @@ StatusCode EgammaMonitoring::initialize() {
   ATH_CHECK(isolationAll->initializePlots());
 
   if ("electron" == m_sampleType) {
-
     truthElectronAll = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
         "truthElectronAll","All Truth Electrons", "/MONITORING/truthElectronAll/", rootHistSvc);
 
@@ -96,16 +95,16 @@ StatusCode EgammaMonitoring::initialize() {
       "recoElectronIsoFixedCutTightTrackOnly","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTightTrackOnly/", rootHistSvc);
 
     ATH_CHECK(recoElectronAll->initializePlots());
-    ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
-    ATH_CHECK(truthRecoElectronMediumLH->initializePlots());
-    ATH_CHECK(truthRecoElectronTightLH->initializePlots());
-    ATH_CHECK(truthElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronAll->initializePlots());
-    ATH_CHECK(truthElectronRecoElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronWithTrack->initializePlots());
-    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots());
-    ATH_CHECK(truthPromptElectronWithReco->initializePlots());
-    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots());
+    ATH_CHECK(truthRecoElectronLooseLH->initializePlots(false));
+    ATH_CHECK(truthRecoElectronMediumLH->initializePlots(false));
+    ATH_CHECK(truthRecoElectronTightLH->initializePlots(false));
+    ATH_CHECK(truthElectronAll->initializePlots(true));
+    ATH_CHECK(truthPromptElectronAll->initializePlots(true));
+    ATH_CHECK(truthElectronRecoElectronAll->initializePlots(false));
+    ATH_CHECK(truthPromptElectronWithTrack->initializePlots(true));
+    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots(true));
+    ATH_CHECK(truthPromptElectronWithReco->initializePlots(false));
+    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots(false));
 
   } // electron Hists
 
