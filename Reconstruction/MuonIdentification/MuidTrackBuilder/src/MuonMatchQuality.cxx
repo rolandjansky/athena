@@ -12,7 +12,6 @@
 #include <iomanip>
 #include <memory>
 
-
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TrkTrack/Track.h"

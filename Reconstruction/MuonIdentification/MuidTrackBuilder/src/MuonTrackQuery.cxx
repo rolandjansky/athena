@@ -628,7 +628,7 @@ namespace Rec {
 
         return perigee->uniqueClone();
     }
-   ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
+    ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
         const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -651,7 +651,9 @@ namespace Rec {
                 refittedTrack = m_fitter->fit(ctx, track, false, Trk::muon);
             }
             if (!refittedTrack) return ScatteringAngleSignificance(0);
-        } else { refittedTrack = std::make_unique<Trk::Track>(track); }
+        } else {
+            refittedTrack = std::make_unique<Trk::Track>(track);
+        }
 
         // collect sigma of scatterer up to TSOS carrying caloEnergy
         double charge = refittedTrack->perigeeParameters()->charge();

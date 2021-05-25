@@ -37,8 +37,8 @@ namespace Rec {
 
         /** IMuidMuonRecovery interface:
             algorithmic code for recovering muon spectrometer using the inner detector track */
-        Trk::Track* recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
-                                     const EventContext& ctx) const override;
+        std::unique_ptr<Trk::Track> recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                     const EventContext& ctx) const override;
 
     private:
         // helpers, managers, tools

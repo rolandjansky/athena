@@ -1990,6 +1990,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack(Trk::Track& track,
                                                                       const std::set<Identifier>& excludedChambers) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // preselection to get ride of really bad tracks
         if (!m_edmHelperSvc->goodTrack(track, m_preCleanChi2Cut)) {
             ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl << m_printer->print(track));
@@ -1999,10 +2000,10 @@ namespace Muon {
         // perform cleaning of track
         std::unique_ptr<Trk::Track> cleanTrack;
         if (excludedChambers.empty())
-            cleanTrack = m_cleaner->clean(track);
+            cleanTrack = m_cleaner->clean(track, ctx);
         else {
             ATH_MSG_DEBUG(" Cleaning with exclusion list " << excludedChambers.size());
-            cleanTrack = m_cleaner->clean(track, excludedChambers);
+            cleanTrack = m_cleaner->clean(track, excludedChambers, ctx);
         }
         if (!cleanTrack) {
             ATH_MSG_DEBUG(" Cleaner returned a zero pointer, reject track ");

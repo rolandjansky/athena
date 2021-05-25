@@ -148,8 +148,8 @@ namespace MuonCombined {
             if (!m_muonRecovery.empty()) {
                 // for(auto& sidTP : sortedInDetCandidates){
                 for (rit = sortedInDetCandidates.rbegin(); rit != sortedInDetCandidates.rend(); ++rit) {
-                    combinedTrack.reset(m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),
-                                                                         muonCandidate.muonSpectrometerTrack(), ctx));
+                    combinedTrack = m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),
+                                                                     muonCandidate.muonSpectrometerTrack(), ctx);
                     if (combinedTrack && combinedTrackQualityCheck(*combinedTrack, *((*rit).second->indetTrackParticle().track()), ctx)) {
                         combinedTrack->info().addPatternReco((*rit).second->indetTrackParticle().track()->info());
                         combinedTrack->info().addPatternReco(muonCandidate.muonSpectrometerTrack().info());
@@ -229,7 +229,7 @@ namespace MuonCombined {
         std::unique_ptr<Trk::Track> combinedTrack;
         double combinedFitChi2 = 9999.;
         if (!m_trackBuilder.empty()) {
-            combinedTrack.reset(m_trackBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx));
+            combinedTrack = m_trackBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx);
             if (combinedTrack && combinedTrack->fitQuality()) {
                 combinedTrack->info().addPatternReco(extrapolatedTrack->info());
                 combinedFitChi2 = combinedTrack->fitQuality()->chiSquared() / combinedTrack->fitQuality()->doubleNumberDoF();
@@ -369,9 +369,9 @@ namespace MuonCombined {
         ATH_MSG_DEBUG(" refit SA track " << dorefit);
         if (dorefit) {
             /// We need to insert the event context here as well
-            if (!m_trackBuilder.empty()) refittedExtrapolatedTrack.reset(m_trackBuilder->standaloneRefit(*combTrack, bs_x, bs_y, bs_z));
+            if (!m_trackBuilder.empty()) refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(*combTrack, ctx, bs_x, bs_y, bs_z);
             if (!refittedExtrapolatedTrack && !m_outwardsBuilder.empty())
-                refittedExtrapolatedTrack.reset(m_outwardsBuilder->standaloneRefit(*combTrack, bs_x, bs_y, bs_z));
+                refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(*combTrack, ctx, bs_x, bs_y, bs_z);
         }
         // include vertex region pseudo for extrapolation failure
         unsigned numberPseudo =

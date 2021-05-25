@@ -108,8 +108,7 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /** @brief returns a new track with segments recovered using RegionSelector*/
-        virtual Trk::Track* recover(const Trk::Track& track) const override;
-        virtual Trk::Track* recover(const Trk::Track& track, const EventContext& ctx) const override;
+        virtual std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const override;
 
         void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
                                               std::set<Identifier>& layIds,

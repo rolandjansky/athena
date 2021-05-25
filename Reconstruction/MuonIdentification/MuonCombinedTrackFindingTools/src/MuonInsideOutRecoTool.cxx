@@ -48,10 +48,7 @@ namespace MuonCombined {
                                                IMuonCombinedInDetExtensionTool::MuonPrdData prdData, TrackCollection* combTracks,
                                                TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const {
         ATH_MSG_DEBUG(" extending " << inDetCandidates.size());
-
-        InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
-        InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
-        for (; it != it_end; ++it) { handleCandidate(**it, tagMap, prdData, combTracks, meTracks, segments, ctx); }
+        for (const InDetCandidate* it : inDetCandidates) { handleCandidate(*it, tagMap, prdData, combTracks, meTracks, segments, ctx); }
     }
 
     void MuonInsideOutRecoTool::handleCandidate(const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
@@ -188,9 +185,7 @@ namespace MuonCombined {
                                        const Muon::MuonCandidate& candidate, Trk::Track* selectedTrack, TrackCollection* combTracks,
                                        TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
         const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
-        float bs_x = 0.;
-        float bs_y = 0.;
-        float bs_z = 0.;
+        float bs_x{0.}, bs_y{0.}, bs_z{0.};
 
         const xAOD::Vertex* matchedVertex = nullptr;
         if (!m_vertexKey.empty()) {
@@ -223,18 +218,18 @@ namespace MuonCombined {
         }
 
         ATH_MSG_DEBUG("selectedTrack:");
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator it = selectedTrack->trackStateOnSurfaces()->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = selectedTrack->trackStateOnSurfaces()->end();
-        int tsos = 0;
-        for (; it != it_end; ++it) {
-            tsos++;
-            if ((*it)->trackParameters()) {
-                ATH_MSG_VERBOSE("check tsos " << tsos << " r " << (*it)->trackParameters()->position().perp() << " z "
-                                              << (*it)->trackParameters()->position().z() << " p "
-                                              << (*it)->trackParameters()->momentum().mag());
+        if (msgLevel(MSG::VERBOSE)) {
+            int tsos = 0;
+
+            for (const Trk::TrackStateOnSurface* it : *selectedTrack->trackStateOnSurfaces()) {
+                ++tsos;
+                if (it->trackParameters()) {
+                    ATH_MSG_VERBOSE("check tsos " << tsos << " r " << it->trackParameters()->position().perp() << " z "
+                                                  << it->trackParameters()->position().z() << " p "
+                                                  << it->trackParameters()->momentum().mag());
+                }
             }
         }
-
         // get segments
         std::vector<ElementLink<Trk::SegmentCollection> > segLinks;
         for (const auto& layer : candidate.layerIntersections) {
@@ -244,7 +239,7 @@ namespace MuonCombined {
         }
 
         // perform standalone refit
-        Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack, ctx, bs_x, bs_y, bs_z);
+        std::unique_ptr<Trk::Track> standaloneRefit{m_trackFitter->standaloneRefit(*selectedTrack, ctx, bs_x, bs_y, bs_z)};
 
         combTracks->push_back(selectedTrack);
         ElementLink<TrackCollection> comblink(*combTracks, combTracks->size() - 1);
@@ -252,7 +247,7 @@ namespace MuonCombined {
         // create tag and set SA refit
         MuGirlTag* tag = new MuGirlTag(comblink, segLinks);
         if (standaloneRefit) {
-            meTracks->push_back(standaloneRefit);
+            meTracks->push_back(std::move(standaloneRefit));
             ElementLink<TrackCollection> melink(*meTracks, meTracks->size() - 1);
             tag->setUpdatedExtrapolatedTrack(melink);
         }

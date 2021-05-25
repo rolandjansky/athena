@@ -23,8 +23,7 @@ namespace Muon {
         }
 
         /** optimise errors on a track to maximize the momentum resolution  */
-        virtual std::unique_ptr<Trk::Track> optimiseErrors(Trk::Track* track) const = 0;
-        virtual std::unique_ptr<Trk::Track> optimiseErrors(Trk::Track* track, const EventContext& ctx) const = 0;
+        virtual std::unique_ptr<Trk::Track> optimiseErrors(Trk::Track& track, const EventContext& ctx) const = 0;
     };
 
 }  // namespace Muon

@@ -101,10 +101,7 @@ namespace Muon {
          3) Compare collected Hashes with the ones already on track
          4) Recover segments on the missing chambers by launching the SeededSegmentFinder
       */
-    Trk::Track* MuonSegmentRegionRecoveryTool::recover(const Trk::Track& track) const {
-        return recover(track, Gaudi::Hive::currentContext());
-    }
-    Trk::Track* MuonSegmentRegionRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
+    std::unique_ptr<Trk::Track> MuonSegmentRegionRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
         // Welcome into the implementation of the recovery method
         ATH_MSG_VERBOSE(" Entering segment recovery method " << m_printer->print(track) << std::endl << m_printer->printStations(track));
 
@@ -113,7 +110,7 @@ namespace Muon {
         if (!chRecTrack) {
             ATH_MSG_DEBUG(" MuonChamberHoleRecoveryTool failed to create a new track "
                           << " Returning input (unrecovered) track ");
-            return new Trk::Track(track);
+            return std::make_unique<Trk::Track>(track);
         }
         ATH_MSG_VERBOSE(" After chamber hole recovery " << m_printer->print(*chRecTrack) << std::endl
                                                         << m_printer->printStations(*chRecTrack));
@@ -121,13 +118,13 @@ namespace Muon {
         if (m_onlyEO) {
             // should be a sl track
             // using release until parent tools use unique_ptr
-            if (!m_edmHelperSvc->isSLTrack(*chRecTrack)) return chRecTrack.release();
+            if (!m_edmHelperSvc->isSLTrack(*chRecTrack)) return chRecTrack;
 
             // get hit summary
             IMuonHitSummaryTool::CompactSummary hitSummary = m_hitSummaryTool->summary(*chRecTrack);
             // should be single station
             // using release until parent tools use unique_ptr
-            if (hitSummary.stationLayers.size() != 1 || !hitSummary.stationLayers.count(MuonStationIndex::EM)) return chRecTrack.release();
+            if (hitSummary.stationLayers.size() != 1 || !hitSummary.stationLayers.count(MuonStationIndex::EM)) return chRecTrack;
             ATH_MSG_DEBUG("Single station track, checking for EO hits");
         }
 
@@ -162,7 +159,7 @@ namespace Muon {
 
         // recovered track, success!
         // use release until calling tools also use unique_ptr
-        return chRecTrack.release();
+        return chRecTrack;
     }
 
     //// NO, NO, NO, should pass in an IRoiDescriptor
