@@ -181,6 +181,9 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_GSF",
 
+    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
+
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
