@@ -76,64 +76,64 @@ L1 information
 """
 def getL1MenuAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = L1MenuAccess( filename = getL1MenuFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = L1MenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (L1 menu) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
 
 
 def getL1PrescalesSetAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = L1PrescalesSetAccess( filename = getL1PrescalesSetFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = L1PrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['L1PSK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (L1 prescales) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
 
 
 def getBunchGroupSetAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = BunchGroupSetAccess( filename = getBunchGroupSetFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = BunchGroupSetAccess( dbalias = keysFromCool["DB"], bgskey = keysFromCool['BGSK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = BunchGroupSetAccess( dbalias = tc["dbconn"], bgskey = tc["bgsk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (HLT prescales) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
 
 
@@ -145,62 +145,62 @@ HLT information
 """
 def getHLTMenuAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = HLTMenuAccess( filename = getHLTMenuFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTMenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
 
 
 def getHLTPrescalesSetAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = HLTPrescalesSetAccess( filename = getHLTPrescalesSetFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTPrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['HLTPSK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (HLT prescales) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
 
 
 def getHLTJobOptionsAccess( flags = None ):
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "FILE":
+    if tc["SOURCE"] == "FILE":
         cfg = HLTJobOptionsAccess( filename = getHLTJobOptionsFileName( flags ) )
-    elif tc["source"] == "COOL":
+    elif tc["SOURCE"] == "COOL":
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTJobOptionsAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
-    elif tc["source"] == "DB":
+    elif tc["SOURCE"] == "DB":
         cfg = HLTJobOptionsAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
-    elif tc["source"] == "INFILE":
+    elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
         raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
     else:
-        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["source"])
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
