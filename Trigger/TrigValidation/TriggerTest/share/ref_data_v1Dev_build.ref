@@ -2504,7 +2504,7 @@ HLT_j85_050momemfrac100_L1J20:
     0: 3
   stepFeatures:
     0: 3
-HLT_j85_CLEANLB_L1J20:
+HLT_j85_CLEANlb_L1J20:
   eventCount: 3
   stepCounts:
     0: 3
