@@ -126,6 +126,43 @@ namespace InDet{
       if ( m_totalCharge>MAXCHARGE ) m_totalCharge=MAXCHARGE;
       packSplitInformation(split,splitProb1,splitProb2);
     }
+ 
+    PixelCluster::PixelCluster( 
+                const Identifier& RDOId,
+                const Amg::Vector2D& locpos, 
+		const Amg::Vector3D& globpos,
+                const std::vector<Identifier>& rdoList,
+    	          const int lvl1a,
+    	          const std::vector<int>& totList,
+    	          const std::vector<float>& chargeList,
+                const InDet::SiWidth& width,
+                const InDetDD::SiDetectorElement* detEl,
+                const Amg::MatrixX* locErrMat,
+                const float omegax,
+                const float omegay,
+                bool split,
+                float splitProb1,
+                float splitProb2
+              ) :
+      SiCluster(RDOId, locpos, globpos, rdoList, width, detEl, locErrMat), //call base class constructor
+      m_omegax (omegax),
+      m_omegay (omegay),
+      m_totList (totList),
+      m_totalToT (0),
+      m_chargeList (chargeList),
+      m_totalCharge (0),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (lvl1a),
+      m_tooBigToBeSplit (false)
+    {
+      int n = m_totList.size();
+      for (int i=0; i<n; i++) m_totalToT+=int(totList[i]);
+      n = m_chargeList.size();
+      for (int i=0; i<n; i++) m_totalCharge+=chargeList[i];
+      if ( m_totalCharge>MAXCHARGE ) m_totalCharge=MAXCHARGE;
+      packSplitInformation(split,splitProb1,splitProb2);
+    }
     
     PixelCluster::PixelCluster( 
                 const Identifier& RDOId,
