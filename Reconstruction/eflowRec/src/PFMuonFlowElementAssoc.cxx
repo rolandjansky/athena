@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFMuonFlowElementAssoc.h" 
@@ -15,7 +15,7 @@
 #include "Identifier/Identifier.h"
 
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t; 
-typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
+using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>; 
 //
 //      Algorithm created by M.T. Anthony
 //
@@ -127,7 +127,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       if(MuonTrkIndex==FETrackIndex){
 	// Add Muon element link to a vector
 	// index() is the unique index of the muon in the muon container
-	FEMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
+	FEMuonLinks.emplace_back(*muonReadHandle, muon->index());
 	// Add flow element link to a vector
 	// index() is the unique index of the cFlowElement in the cFlowElementcontaine
 	muonChargedFEVec.at(muon->index()).push_back(FlowElementLink_t(*ChargedFEReadHandle,FE->index()));
@@ -183,7 +183,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       std::vector<double> Muon_efrac_clustermatch;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
 	//Retrieve the ElementLink vector of clusters      
-	const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
+	const ElementLink<xAOD::CaloClusterContainer>& ClusterLink=muon->clusterLink();
 	//check if the ElementLink is valid
 	if(!ClusterLink.isValid()){
 	  ATH_MSG_DEBUG("Muon has an invalid link to cluster");
@@ -194,7 +194,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	  if(m_UseMuonTopoClusters){
 	    // get the linker to the topo clusters
 	    std::vector<ElementLink<xAOD::CaloClusterContainer>> linksToTopoClusters=cluster->auxdata<std::vector<ElementLink<xAOD::CaloClusterContainer>> >("constituentClusterLinks");
-	    for (ElementLink<xAOD::CaloClusterContainer> TopoClusterLink: linksToTopoClusters){
+	    for (const ElementLink<xAOD::CaloClusterContainer>& TopoClusterLink: linksToTopoClusters){
 	      if(!TopoClusterLink.isValid()){
 		ATH_MSG_WARNING("Muon Calo cluster's TopoCluster link not found, skip");
 		continue;
@@ -204,7 +204,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	      if(MuonTopoCluster_index==FEclusterindex){
 		// Add Muon element link to a vector
 		// index() is the unique index of the muon in the muon container   
-		FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+		FEMuonLinks.emplace_back(*muonReadHandle,muon->index());
 		// index() is the unique index of the cFlowElement in the cFlowElementcontaine
 		muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
 		ATH_MSG_VERBOSE("Got a match between NFE and Muon");
@@ -267,7 +267,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    if(isCellMatched){ // cell matched => Link the two objects.
 	      // Add Muon element link to a vector
 	      // index() is the unique index of the muon in the muon container   
-	      FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+	      FEMuonLinks.emplace_back(*muonReadHandle,muon->index());
 	      // index() is the unique index of the nFlowElement in the nFlowElementcontainer
 	      muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
 	      // save the energy fraction used in the cluster matching - mostly for debug/extension studies
@@ -299,7 +299,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   } // end of muon loop
   if(m_LinkNeutralFEClusters){// Experimental
     for(const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle){
-      if(muonNeutralFEVec.size()>0){
+      if(!muonNeutralFEVec.empty()){
 	muonNeutralFEWriteDecorHandle(*muon)=muonNeutralFEVec.at(muon->index());
 	muonNeutralFE_muon_efrac_WriteDecorHandle(*muon)=muonNeutralFE_frac_cluster_energy_matched_Vec.at(muon->index());
       }

@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/WriteDecorHandle.h" 
@@ -18,8 +18,8 @@
 
 
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
-typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
-typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
+using PhotonLink_t = ElementLink<xAOD::PhotonContainer>;
+using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>; 
 
 PFEGamFlowElementAssoc::PFEGamFlowElementAssoc(
 const std::string& name,
@@ -141,7 +141,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	size_t electronClusterIndex=cluster->index();	
 	//match the indices: Cluster match between Flow Element (FE) and electron
 	if(electronClusterIndex==FEClusterIndex){
-	  FEElectronLinks.push_back( ElectronLink_t(*electronReadHandle,electron->index()) );
+	  FEElectronLinks.emplace_back(*electronReadHandle,electron->index() );
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
 	  electronNeutralFEVec.at(electron->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );
@@ -166,7 +166,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	//do the matching
 	if(photonClusterIndex==FEClusterIndex){
 	  // Add flow element (FE) links to photon
-	  FEPhotonLinks.push_back( PhotonLink_t(*photonReadHandle,photon->index()) );
+	  FEPhotonLinks.emplace_back(*photonReadHandle,photon->index() );
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
 	  photonNeutralFEVec.at(photon->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );	  
@@ -209,7 +209,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	 if(electronTrackIndex==FETrackIndex){
 	   // Add electron element link to a vector 
 	   // index() is the unique index of the electron in the electron container 
-	   FEElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) );
+	   FEElectronLinks.emplace_back(*electronReadHandle, electron->index() );
 	   // Add FE element link to a vector 
 	   // index() is the unique index of the cFE in the cFE container 
 	   electronChargedFEVec.at(electron->index()).push_back( FlowElementLink_t(*chargedFEReadHandle, FE->index()) );  
@@ -230,7 +230,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	if (photonTrackIndex==FETrackIndex){
 	            // Add photon element link to a vector
           // index() is the unique index of the photon in the photon container
-          FEPhotonLinks.push_back( PhotonLink_t(*photonReadHandle, photon->index()) );
+          FEPhotonLinks.emplace_back(*photonReadHandle, photon->index() );
           // Add FE element link to a vector
           // index() is the unique index of the cFE in the cFE container
           photonChargedFEVec.at(photon->index()).push_back( FlowElementLink_t(*chargedFEReadHandle, FE->index()) );

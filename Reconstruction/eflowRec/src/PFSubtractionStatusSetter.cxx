@@ -1,5 +1,5 @@
 /*                                                                                                                                                                                                                                          
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                                                                                                   
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                                                                                                                                                   
 */
 
 
@@ -18,7 +18,7 @@ void PFSubtractionStatusSetter::markSubtractionStatus(const std::vector<std::pai
   for (auto thisClusterPair : clusterList){
     xAOD::CaloCluster* thisCluster = thisClusterPair.first;
     unsigned int counter = 0;
-    for (auto& thisTrackClusterLinkPair : matchedTrackList){
+    for (const auto & thisTrackClusterLinkPair : matchedTrackList){
       //if the subtraction status is already true, then no need to update it
       if (!std::isnan(thisTrackClusterLinkPair.second)) {
     	  counter++;
@@ -28,7 +28,7 @@ void PFSubtractionStatusSetter::markSubtractionStatus(const std::vector<std::pai
       xAOD::CaloCluster* thisMatchedTrackCluster = (thisTrackClusterLinkPair.first)->getCluster()->getCluster();
       //Now we can do a floating point comparison of the energy to check which cluster we have
       if (fabs(thisCluster->e() - thisMatchedTrackCluster->e()) < 0.0001){
-	      if (true == thisClusterPair.second && !std::isnan(clusterSubtractedEnergyRatios[clusCounter])) thisEflowCaloObject.setTrackClusterLinkSubtractionStatus(counter, clusterSubtractedEnergyRatios[clusCounter]);        
+	      if (thisClusterPair.second && !std::isnan(clusterSubtractedEnergyRatios[clusCounter])) thisEflowCaloObject.setTrackClusterLinkSubtractionStatus(counter, clusterSubtractedEnergyRatios[clusCounter]);        
       }//if have a match of the cluster
       counter++;
     }//loop on track cluster link pairs

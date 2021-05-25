@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+#include <utility>
+
+
+
 #include "eflowRec/PFLeptonSelector.h"
 
 PFLeptonSelector::PFLeptonSelector(const std::string& name, ISvcLocator* pSvcLocator):
@@ -49,7 +53,7 @@ StatusCode PFLeptonSelector::execute(){
 
 StatusCode PFLeptonSelector::finalize(){ return StatusCode::SUCCESS; }
 
-StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle ){
+StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, const SG::WriteHandle<ConstDataVector<CaloCellContainer> >& leptonCaloCellsWriteHandle ){
 
   SG::ReadHandle<xAOD::ElectronContainer>  electronsReadHandle(m_electronsReadHandleKey);
   
@@ -58,7 +62,7 @@ StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAO
     return StatusCode::FAILURE;
   }
 
-  for (auto theElectron : *electronsReadHandle){
+  for (const auto *theElectron : *electronsReadHandle){
     
     if (theElectron){
       if (theElectron->pt() > 10000){
@@ -68,7 +72,7 @@ StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAO
 	  ATH_MSG_WARNING("Could not get Electron ID");
 	  continue;
 	}
-	if (true == passElectronID){
+	if (passElectronID){
 	  if (selectedElectronsWriteHandle.isValid()) selectedElectronsWriteHandle->push_back(theElectron);
 	  else ATH_MSG_WARNING("Do not have valid WriteHandle for ElectronContainer with name: " << selectedElectronsWriteHandle.key());
 	  if (true == m_storeLeptonCells) this->storeElectronCells(*theElectron,leptonCaloCellsWriteHandle);
@@ -86,13 +90,13 @@ void PFLeptonSelector::storeElectronCells(const xAOD::Egamma& electron, SG::Writ
 
   const xAOD::CaloCluster* electronCluster = electron.caloCluster(); 
   if (electronCluster){
-    this->storeLeptonCells(*electronCluster,leptonCaloCellsWriteHandle);      
+    this->storeLeptonCells(*electronCluster,std::move(leptonCaloCellsWriteHandle));      
   }
   else ATH_MSG_WARNING("This electron has an invalid pointer to its cluster");
 
 }
 
-StatusCode PFLeptonSelector::selectMuons(SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle) {
+StatusCode PFLeptonSelector::selectMuons(SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle, const SG::WriteHandle<ConstDataVector<CaloCellContainer> >& leptonCaloCellsWriteHandle) {
 
   SG::ReadHandle<xAOD::MuonContainer> muonsReadHandle(m_muonsReadHandleKey);
   
@@ -101,7 +105,7 @@ StatusCode PFLeptonSelector::selectMuons(SG::WriteHandle<ConstDataVector<xAOD::M
     return StatusCode::FAILURE;
   }
 
-  for (auto theMuon : *muonsReadHandle){  
+  for (const auto *theMuon : *muonsReadHandle){  
     
     //Details of medium muons are here:
     //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
@@ -123,11 +127,11 @@ StatusCode PFLeptonSelector::selectMuons(SG::WriteHandle<ConstDataVector<xAOD::M
 
 void PFLeptonSelector::storeMuonCells(const xAOD::Muon& muon, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle){
 
-  const ElementLink<xAOD::CaloClusterContainer> theLink = muon.clusterLink(); 
+  const ElementLink<xAOD::CaloClusterContainer>& theLink = muon.clusterLink(); 
   if (theLink.isValid()){
     const xAOD::CaloCluster* muonCluster = *theLink;
     if (muonCluster){
-      this->storeLeptonCells(*muonCluster,leptonCaloCellsWriteHandle);
+      this->storeLeptonCells(*muonCluster,std::move(leptonCaloCellsWriteHandle));
     }
     else ATH_MSG_WARNING("This muon has an invalid pointer to its cluster ");
   }
@@ -140,7 +144,7 @@ void PFLeptonSelector::storeLeptonCells(const xAOD::CaloCluster& theCluster, SG:
   const CaloClusterCellLink* theCellLink = theCluster.getCellLinks();
 
   if (theCellLink){
-    for (auto theCaloCell : *theCellLink){
+    for (const auto *theCaloCell : *theCellLink){
       if (leptonCaloCellsWriteHandle.isValid()) leptonCaloCellsWriteHandle->push_back(theCaloCell);
       else ATH_MSG_WARNING(" Do not have valid WriteHandle for CaloCellContaienr with name: " << leptonCaloCellsWriteHandle.key());
     }//cell loop

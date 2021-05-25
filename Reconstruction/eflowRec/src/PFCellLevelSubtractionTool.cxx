@@ -205,16 +205,15 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(eflowData& data) 
       std::vector<eflowRecCluster*> matchedClusters;
       matchedClusters.clear();
       std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+      for (auto *thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
       std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
+      clusterSubtractionList.reserve(matchedClusters.size());
+
+for (auto *thisEFlowRecCluster : matchedClusters) clusterSubtractionList.emplace_back(thisEFlowRecCluster->getCluster(),false);
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
-
-      eflowRingThicknesses ringThicknessGenerator;
-
       std::vector<int> layerToStoreVector;
       std::vector<float> radiusToStoreVector;
       std::vector<float> avgEdensityToStoreVector;
@@ -223,7 +222,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(eflowData& data) 
 
 	eflowCaloENUM layer = (eflowCaloENUM)i;
 	ATH_MSG_DEBUG("layer is "<<layer);
-	double ringThickness = ringThicknessGenerator.ringThickness((eflowCaloENUM)i);
+	double ringThickness = eflowRingThicknesses::ringThickness((eflowCaloENUM)i);
 	ATH_MSG_DEBUG("ring thickness is "<<ringThickness);
 
 	double eta_extr = calorimeterCellList.etaFF(layer);
@@ -376,7 +375,7 @@ void PFCellLevelSubtractionTool::performSubtraction(eflowData& data) const {
 
       std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
-      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) clusterList.push_back(std::pair(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false));
+      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) clusterList.emplace_back(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false);
 
       Subtractor::annihilateClusters(clusterList);
 
@@ -404,15 +403,15 @@ void PFCellLevelSubtractionTool::performSubtraction(eflowData& data) const {
 	      std::vector<eflowRecCluster*> matchedClusters;
 	      matchedClusters.clear();
 	      std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-	      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+	      for (auto *thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
 	      ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
 
 	      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
         std::map<xAOD::CaloCluster*, double> clusterEnergyMap;
-	      for (auto thisEFlowRecCluster : matchedClusters) {
+	      for (auto *thisEFlowRecCluster : matchedClusters) {
           xAOD::CaloCluster* thisCluster = thisEFlowRecCluster->getCluster();
-          clusterSubtractionList.push_back(std::pair(thisCluster,false));
+          clusterSubtractionList.emplace_back(thisCluster,false);
           clusterEnergyMap[thisCluster] = thisCluster->e();
         }
 

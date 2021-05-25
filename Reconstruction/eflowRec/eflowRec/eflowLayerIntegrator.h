@@ -67,7 +67,7 @@ class eflowLayerIntegrator {
   
   eflowDepthCalculator m_caloModel;
 
-  double m_densityConversion[eflowCalo::nRegions];
+  double m_densityConversion[eflowCalo::nRegions]{};
 
   std::vector<double> m_nUnitCellPerWindowOverCellEtaPhiArea;
 
