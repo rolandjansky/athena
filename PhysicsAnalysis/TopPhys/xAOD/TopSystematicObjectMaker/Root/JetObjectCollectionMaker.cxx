@@ -545,19 +545,10 @@ namespace top {
     const xAOD::JetContainer* ljets(nullptr);
     top::check(evtStore()->retrieve(ljets, m_config->sgKeyLargeRJets(
                                         m_nominalSystematicSet.hash())), "Failed to retrieve Jets");
-					
-					
-    ///-- Shallow copy of the xAOD --///
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
-      shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
-    auto shallowJets = std::make_pair(std::unique_ptr<xAOD::JetContainer>{shallow_xaod_copy.first},
-      std::unique_ptr<xAOD::ShallowAuxContainer>{shallow_xaod_copy.second});
-    
     
     const size_t njets = ljets->size();
     
     const std::unordered_map<std::string,std::string>& sfNames = m_config->boostedTaggerSFnames();
-   
    
     for(auto& it : m_tagSFuncertTool) {
       ToolHandle<ICPJetUncertaintiesTool>& tool = it.second;
@@ -565,9 +556,16 @@ namespace top {
       const SG::AuxElement::Accessor< char > accRange("passedRangeCheck_" + fullName);
       const std::string sfNameNominal =  sfNames.at(fullName);
       const SG::AuxElement::Accessor< float > accSF(sfNameNominal);
-      const SG::AuxElement::Decorator< float > decNominalSF(sfNameNominal);
       
       for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
+
+        // shallow copy with nominal tagging SFs and efficiencies
+        // JetUncertainties may apply relative variations, so we need to make sure we always apply on
+        // shallow copy from nominal tagged jets
+        std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
+          shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
+        auto shallowJets = std::make_pair(std::unique_ptr<xAOD::JetContainer>{shallow_xaod_copy.first},
+          std::unique_ptr<xAOD::ShallowAuxContainer>{shallow_xaod_copy.second});
 	  
 	top::check(tool->applySystematicVariation(sys), "Failed to applySystematicVariation");
 	
@@ -578,8 +576,6 @@ namespace top {
 	  const xAOD::Jet* jet = ljets->at(i);
       
 	  if(accRange.isAvailable(*shallowJet) && accRange(*shallowJet)) {
-            // reset the previously syst-shifted SF back to nominal SF from the original jet container
-            decNominalSF(*shallowJet) = accSF(*jet);
 	    top::check(tool->applyCorrection(*shallowJet), "Failed to applyCorrection");
 	    float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
 	    jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
