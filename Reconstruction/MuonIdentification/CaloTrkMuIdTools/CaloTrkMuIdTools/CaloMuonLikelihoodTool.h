@@ -5,20 +5,18 @@
 #ifndef CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
 #define CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
 
-#include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "CaloEvent/CaloClusterContainer.h"
+#include <TH1.h>
 
 #include <vector>
 
-class TH1F;
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "CaloEvent/CaloClusterContainer.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 /** @class CaloMuonLikelihoodTool
-        
+
     Compares track energy deposition ratios found by CaloTopoClusters to
     single muon and single pion distributions to build a likelihood ratio discriminant.
 
@@ -26,27 +24,28 @@ class TH1F;
 */
 class CaloMuonLikelihoodTool : public AthAlgTool, virtual public ICaloMuonLikelihoodTool {
 public:
-  CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~CaloMuonLikelihoodTool()=default;
+    CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent);
+    virtual ~CaloMuonLikelihoodTool() = default;
 
-  virtual StatusCode initialize();
-  
-  double getLHR(const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusCollection=nullptr, const double dR_CUT=0.3) const;
-  double getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT=0.3) const;
+    virtual StatusCode initialize() override;
+
+    double getLHR(const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusCollection = nullptr,
+                  const double dR_CUT = 0.3) const override;
+    double getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo,
+                  const double phi_trkAtCalo, const double dR_CUT = 0.3) const override;
 
 private:
-  StatusCode        retrieveHistograms();
+    StatusCode retrieveHistograms(const std::vector<std::string>& file_names);
 
-  const TH1F*       m_TH1F_sig[9][11]{};
-  const TH1F*       m_TH1F_bkg[9][11]{};
-  std::string       m_TH1F_key[9][11];
-  int               m_numKeys[9]{};
-  mutable std::atomic_int m_cnt_warn{0};
+    std::array<std::unique_ptr<TH1>, 9> m_TH1F_sig[11];
+    std::array<std::unique_ptr<TH1>, 9> m_TH1F_bkg[11];
+    std::array<std::string, 9> m_TH1F_key[11];
+    std::array<int, 9> m_numKeys;
 
-  ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
-  Gaudi::Property<std::string> m_calibRelease{this,"CalibRelease","CaloTrkMuIdTools/cutBased_release21"};
+    mutable std::atomic_int m_cnt_warn{0};
 
-  std::vector<std::string> m_fileNames;
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""};
+    Gaudi::Property<std::string> m_calibRelease{this, "CalibRelease", "CaloTrkMuIdTools/cutBased_release21"};
 };
 
 #endif
