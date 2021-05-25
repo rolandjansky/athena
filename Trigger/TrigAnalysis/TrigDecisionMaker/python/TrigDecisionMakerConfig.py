@@ -10,8 +10,8 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
         super( TrigDecisionMaker, self ).__init__( name )
         log = logging.getLogger( 'TrigDecisionMaker' )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doEDMVersionConversion)", ConfigFlags.Trigger.doEDMVersionConversion)
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doEDMVersionConversion
+        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doConfigVersionConversion)", ConfigFlags.Trigger.doConfigVersionConversion)
+        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doConfigVersionConversion
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if hasattr(svcMgr,'DSConfigSvc'):
             # this case is still needed for reading Run 2 configuration from the TriggerDB

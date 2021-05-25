@@ -101,6 +101,7 @@ def createTriggerFlags():
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
     flags.addFlag('Trigger.doEDMVersionConversion', True)
+    flags.addFlag('Trigger.doConfigVersionConversion', True)
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 

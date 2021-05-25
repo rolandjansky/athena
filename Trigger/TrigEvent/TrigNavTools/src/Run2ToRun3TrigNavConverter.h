@@ -40,7 +40,7 @@ public:
 private:
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_trigNavKey { this, "TrigNavReadKey", "TrigNavigation"};
-    Gaudi::Property<bool> m_doPrint{ this, "doPrint", true };
+    Gaudi::Property<bool> m_doPrint{ this, "doPrint", false };
     Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
     Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {} };
     Gaudi::Property<std::vector<std::string>> m_roisToSave{ this, "Rois", {} };

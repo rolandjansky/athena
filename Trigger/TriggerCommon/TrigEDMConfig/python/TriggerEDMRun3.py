@@ -681,6 +681,12 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.hit_trkid.hit_dedx.hit_tot.hit_trkchi2.hit_trkndof.hit_iblovfl.hit_loc.hit_layer',      'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HPtdEdx',             'BS ESD AODFULL AODSLIM', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.trk_pt.trk_eta.trk_a0beam.trk_dedx.trk_n_hdedx_hits.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct',      'BS ESD AODFULL AODSLIM', 'ID'),
+
+    ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3SummaryAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3Aux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+
 ]
 
 # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
