@@ -55,7 +55,6 @@ namespace Muon {
         ATH_CHECK(m_cleaner.retrieve());
         ATH_CHECK(m_overlapResolver.retrieve());
         ATH_CHECK(m_trackFitter.retrieve());
-        ATH_CHECK(m_trackFitterPrefit.retrieve());
         ATH_CHECK(m_momentumEstimator.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -1737,6 +1736,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::fit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageContainer& garbage,
                                                     Trk::ParticleHypothesis partHypo, bool prefit) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         if (hits.empty()) return nullptr;
 
         ATH_MSG_VERBOSE(std::setprecision(5) << " track start parameter: phi " << startPars.momentum().phi() << " theta "
@@ -1768,9 +1768,7 @@ namespace Muon {
 
         ATH_MSG_VERBOSE("fit: " << (prefit ? "prefit" : "fit") << "track with hits: " << hits.size() << std::endl
                                 << m_printer->print(hits));
-        std::unique_ptr<Trk::Track> track = prefit
-                                                ? std::unique_ptr<Trk::Track>(m_trackFitterPrefit->fit(hits, *pars, m_runOutlier, partHypo))
-                                                : std::unique_ptr<Trk::Track>(m_trackFitter->fit(hits, *pars, m_runOutlier, partHypo));
+        std::unique_ptr<Trk::Track> track = std::unique_ptr<Trk::Track>(m_trackFitter->fit(ctx, hits, *pars, m_runOutlier, partHypo));
 
         // 'sign' track
         if (track) track->info().setPatternRecognitionInfo(m_patRecInfo);
@@ -1779,7 +1777,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::fitWithRefit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits) const {
         GarbageContainer localGarbage;
-
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         std::unique_ptr<Trk::Track> track = fit(startPars, hits, localGarbage);
 
         // exceptions that are not refitted
@@ -1795,12 +1793,8 @@ namespace Muon {
                 double difMom = startPars.momentum().mag() - pp->momentum().mag();
                 if (std::abs(difMom) > 5000.) {
                     ATH_MSG_DEBUG(" absolute difference in momentum too large, refitting track. Dif momentum= " << difMom);
-                    if (msgLvl(MSG::DEBUG)) {
-                        msg(MSG::DEBUG) << MSG::DEBUG << "fitWithRefit: refitting track with hits: " << hits.size();
-                        if (msgLvl(MSG::VERBOSE)) { msg(MSG::DEBUG) << std::endl << m_printer->print(hits); }
-                        msg(MSG::DEBUG) << endmsg;
-                    }
-                    std::unique_ptr<Trk::Track> refittedTrack(m_trackFitter->fit(hits, *pp, false, m_ParticleHypothesis));
+                    ATH_MSG_DEBUG("fitWithRefit: refitting track with hits: " << hits.size() << std::endl << m_printer->print(hits));
+                    std::unique_ptr<Trk::Track> refittedTrack(m_trackFitter->fit(ctx, hits, *pp, false, m_ParticleHypothesis));
                     if (refittedTrack) {
                         track.swap(refittedTrack);
 
