@@ -832,7 +832,7 @@ public:
       
     if ( size()>0 ) v = ::findxrangeuser( hf, symmetric );
 
-    bool first = true;
+    bool first = false;
 
     for ( unsigned i=1 ; i<size() ; i++ ) { 
   
