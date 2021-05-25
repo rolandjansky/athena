@@ -213,6 +213,12 @@ class TrigDecisionGetterRun1or2(Configured):
             
             from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
             trigDecWriter = WriteTrigDecision()  # noqa: F841
+            if (ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2) and ConfigFlags.Trigger.doEDMVersionConversion:
+                from TrigNavTools.NavConverterConfig import createNavConverterAlg
+                navCnvAlg = createNavConverterAlg()
+                navCnvAlg.HLTConfigSvc = "HLTConfigSvcRun3"
+                navCnvAlg.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
+                topSequence += navCnvAlg
 
 #           WritexAODTrigDecision() is called within WriteTrigDecision()
 
